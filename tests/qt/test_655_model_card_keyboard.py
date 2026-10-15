@@ -53,38 +53,55 @@ def test_tab_and_space_reach_both_page_buttons(card_ui, qtbot):
     assert viewer._dialog is None
 
 
-@pytest.mark.parametrize("key", [Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space])
-def test_focused_card_opens_the_current_page_larger(card_ui, qtbot, key):
+@pytest.mark.parametrize("key,modifier", [
+    (Qt.Key_Return, Qt.NoModifier), (Qt.Key_Enter, Qt.NoModifier),
+    (Qt.Key_Space, Qt.NoModifier),
+    pytest.param(Qt.Key_Enter, Qt.KeypadModifier, id="numeric-enter"),
+])
+def test_focused_card_opens_the_current_page_larger(card_ui, qtbot, key, modifier):
     before, viewer, _after = card_ui
     viewer.go_to(1)
     QTest.keyClick(before, Qt.Key_Tab)
     assert viewer.hasFocus()
-    QTest.keyClick(viewer, key)
+    QTest.keyClick(viewer, key, modifier)
     assert viewer._dialog is not None, "keyboard activation did not enlarge the card"
     qtbot.addWidget(viewer._dialog)
     big = viewer._dialog.findChild(ModelCardViewer)
     assert big.card() is viewer.card() and big.page() == 1
     big.setFocus(Qt.TabFocusReason)
-    QTest.keyClick(big, key)
+    QTest.keyClick(big, key, modifier)
     assert big._dialog is None, "an enlarged viewer opened another enlarged viewer"
 
 
-@pytest.mark.parametrize("key", [Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space])
-def test_page_button_activation_never_opens_an_enlarged_dialog(card_ui, key):
+@pytest.mark.parametrize("key,modifier", [
+    (Qt.Key_Return, Qt.NoModifier), (Qt.Key_Enter, Qt.NoModifier),
+    (Qt.Key_Space, Qt.NoModifier),
+    pytest.param(Qt.Key_Enter, Qt.KeypadModifier, id="numeric-enter"),
+])
+def test_page_button_activation_never_opens_an_enlarged_dialog(card_ui, key, modifier):
     _before, viewer, _after = card_ui
     viewer._next.setFocus(Qt.TabFocusReason)
     assert viewer._next.hasFocus()
-    QTest.keyClick(viewer._next, key)
+    QTest.keyClick(viewer._next, key, modifier)
     assert viewer._dialog is None
 
 
 def test_modified_activation_and_an_empty_card_do_not_open_a_dialog(card_ui):
     before, viewer, _after = card_ui
     QTest.keyClick(before, Qt.Key_Tab)
-    QTest.keyClick(viewer, Qt.Key_Return, Qt.ControlModifier)
-    assert viewer._dialog is None
+    for modifier in (Qt.ControlModifier, Qt.AltModifier,
+                     Qt.ShiftModifier, Qt.MetaModifier):
+        for key in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space):
+            for extra in (Qt.NoModifier, Qt.KeypadModifier):
+                QTest.keyClick(viewer, key, modifier | extra)
+                assert viewer._dialog is None
+    for key in (Qt.Key_Return, Qt.Key_Space):
+        QTest.keyClick(viewer, key, Qt.KeypadModifier)
+        assert viewer._dialog is None
     viewer.set_card(None)
     QTest.keyClick(viewer, Qt.Key_Return)
+    assert viewer._dialog is None
+    QTest.keyClick(viewer, Qt.Key_Enter, Qt.KeypadModifier)
     assert viewer._dialog is None
 
 

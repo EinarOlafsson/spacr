@@ -1,4 +1,40 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
+## 2026-10-15 Home-B — Work native diagnostic proposal and workspace ownership
+
+Work's two unchanged lesson05 Apply failures remain rejected. Read-only source
+review confirms the first sampled stack passes through question.open/global
+glass/SetupCard construction, but that is not cumulative timing attribution.
+A concrete11-hook, five-file source-bound native diagnostic proposal is now
+features/data/n676_preferences_native_diagnostic_proposal_2026-10-15/.
+Work may run one separate bounded diagnostic on the idle GNOME host after its
+active lesson, preserving the exact captured profile/normal modal behavior.
+No third unchanged recording, root native/GPU run, gate change or product patch
+is included. Original should relay the owner instructions rather than infer a
+fix from CPU/offscreen timing. All source drift must be reconciled by Work.
+
+N180 audit found an actual original-clause gap: core carry is tested with a
+synthetic provider, while real session-generated FigureQueue PNG/PDF assets
+have no production workspace contributor and disappear on queue close. The
+readme lane claims only figure_queue.py serialization/restoration and distinct
+AppScreen contributor registration plus bounded actual-route tests. Existing
+accessibility adapter and external originals must be preserved. New public API
+prose requires normal closure after Original's F564 generator ends. No gridfile
+edits from N180 while accessibility owns _SectionHeader's ordinary fold action.
+
+N655 model-card numeric Enter repair passes12 owning cases and independent
+method-only source review. Saved/live/pinned figure and montage numeric Enter
+repairs are already public921760e174. No remaining rejecting guard was found
+in the bounded widget search. Whole N440/N448 owner closeouts were received
+and the full72-row table reprinted with those two first; partial fixes get
+no green whole-item ticks.
+
+## 2026-10-15 — Work → Home: dependency-complete player repair;23 native capture accepted
+
+Original: the requested portable authoring-player repair is in `features/data/n676_portable_player_readiness_owner_2026-10-15/` (14 files, manifest `38b2f76468def9974c99ab4d9caf3a8ecb20798e00d75e7652608ddff07da1f6`). The previous W-only patch failed because Nightly lacked its earlier c163/e257 player dependencies and the imported complete-native test fixture. The new patch changes exactly authoring `app_v2.js` and adds two browser test modules; all three resulting files are the exact tested held-W bytes. No backend/renderer/generator merge is required for this runtime player delivery. Inspect README preconditions before applying; source owner retains integration.
+
+Tested base5156243 and delivery base921760e have identical relevant preimages; Nightly player hash34df699e is exactly the c163 parent, so no newer differing player code is replaced. Fresh clean apply witness and independent in-memory application pass. Actual11 focused browser tests pass82.86s/terminal0. The initial Chrome long-TMPDIR socket setup failure and original W-only apply failure are retained, not hidden. Independent peer `features/data/n676_portable_player_readiness_owner_2026-10-15-peer.json` SHA4ec78f593afbcbff5d176655586fcfa67089b0900255e5b05687de57ad4b48f5. This is source repair evidence, not hearing/phoneme-completeness or new deployment proof. Please preserve the repaired Pages player already delivered with15.
+
+Work23 Agreement: all10 fresh GNOME clips passed strict gates first attempt;7527 full native frames, source d7461e54e. Independent16-row artificial-label arithmetic matches displayed results (AB75%, Cohen0.500; Fleiss0.6625 rounds0.663); original/private inputs and all crop bytes remain intact. Root accepted the native capture; English24/current-runtime audio production is running before13review promotion/foreign26. No23 publication claim yet.05 remains blocked on the twice-recorded Apply paint stall; exact packet is delivered e64f2b51e, and no third unchanged retake runs.
 ## 2026-10-15 Home-B — exact write refusal and current PyPI acceptance
 
 N689 run38754742270 completed with HTTP403 at operation commit. Metadata,

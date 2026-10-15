@@ -1,0 +1,885 @@
+diff --git a/tools/tutorials/authoring/web/app_v2.js b/tools/tutorials/authoring/web/app_v2.js
+index fa5468a58..e155bc99a 100644
+--- a/tools/tutorials/authoring/web/app_v2.js
++++ b/tools/tutorials/authoring/web/app_v2.js
+@@ -136,7 +136,12 @@ const VIDEO_CLOCK_DRIFT_SECONDS = 0.4;
+ const VIDEO_END_PARK_SECONDS = 0.10;
+ const VIDEO_END_PARK_RATE = 0.0625;
+ let videoClockCorrectionPending = false;
++// True from a narration-led video skip until the picture plays again: the
++// narration is the master clock and must never wait for the picture.
++let videoCatchingUpToNarration = false;
+ let nativeFrameSyncHandle = null;
++let completeNativeSceneIndex = null;
++let completeNativeNarrationWaiting = false;
+ // A localized narration can outlast the silent visual master. The video stays
+ // genuinely playing at a browser-safe minimum rate near its final frame so
+ // native phone controls still offer a truthful Pause button while audio ends.
+@@ -150,6 +155,10 @@ let programmaticVideoPausePending = false;
+ // picture can play. Otherwise speech runs on over a frozen frame and the
+ // clock correction chases a moving target on a slow media host.
+ let narrationHeldForVideo = false;
++let narrationLoadPending = false;
++let videoHeldForAudio = false;
++let audioHoldPauseEventsPending = 0;
++let resumeAfterAudioHold = false;
+ let captionUrl = "";
+ let captionTrackLoading = false;
+ let toastTimer = null;
+@@ -1100,16 +1109,28 @@ async function loadNarration(resume = true, outerCurrent = () => true) {
+   if (!isPlayable(activeLesson)) { updateComingSoon(); return; }
+   const request = ++narrationRequest;
+   const isCurrent = () => request === narrationRequest && outerCurrent();
+-  const wasPlaying = resume && !elements.video.paused;
+-  const normalized = elements.video.duration ? elements.video.currentTime / elements.video.duration : 0;
++  const wasPlaying = resume && (!elements.video.paused ||
++    (videoHeldForAudio && resumeAfterAudioHold));
++  if (!resume) {
++    videoHeldForAudio = false;
++    resumeAfterAudioHold = false;
++  }
++  narrationLoadPending = elements.voice.value !== "silent";
++  if (wasPlaying && narrationLoadPending) holdVideoForAudio();
+   videoParkedForNarration = false;
+   narratedPlaybackCompleted = false;
+   if (narrationFetchController) narrationFetchController.abort();
+   narrationFetchController = null;
+   discardNarrationAudio();
+   narrationAudioAvailable = false;
+-  audioTimings = null;
+-  visualTimings = null;
++  // Keep the previous mapping for a chapter/seek made during a voice load.
++  // Narration cannot use it until the selected track's metadata is ready.
++  if (!resume) {
++    audioTimings = null;
++    visualTimings = null;
++  }
++  completeNativeSceneIndex = null;
++  completeNativeNarrationWaiting = false;
+   clearCaptions();
+   if (elements.voice.value === "silent") {
+     configureMediaSync();
+@@ -1122,7 +1143,7 @@ async function loadNarration(resume = true, outerCurrent = () => true) {
+     if (!isCurrent()) return;
+     await loadLessonDetail(isCurrent);
+     if (!isCurrent()) return;
+-    if (wasPlaying) elements.video.play().catch(() => {});
++    releaseVideoForAudio();
+     return;
+   }
+   elements.loading.classList.remove("hidden");
+@@ -1147,26 +1168,38 @@ async function loadNarration(resume = true, outerCurrent = () => true) {
+       // The complete Blob is already present, so a metadata timeout means
+       // "finish on the play gesture", not "narration is unavailable".
+       await mediaReadyOrDeferred(elements.audio);
++      if (!isCurrent()) return;
+       narrationAudioAvailable = true;
+     } catch (audioError) {
+       if (!isCurrent()) return;
+       discardNarrationAudio();
+       showToast("Narration is unavailable; the GitHub-hosted video remains available.");
+     }
+-    setVideoTimeWithoutNarrationSeek(normalized * elements.video.duration);
+-    configureMediaSync();
+     await loadLessonDetail(isCurrent);
+     if (!isCurrent()) return;
+-    if (wasPlaying) await elements.video.play();
++    if (narrationAudioAvailable && (!audioTimings || !visualTimings)) {
++      narrationAudioAvailable = false;
++      discardNarrationAudio();
++    }
++    narrationLoadPending = false;
++    configureMediaSync();
++    if (videoHeldForAudio && resumeAfterAudioHold) {
++      if (narrationAudioAvailable) await playNarration();
++      else releaseVideoForAudio();
++    }
+   } catch (error) {
+     if (isCurrent()) showToast("This narration track could not be loaded.");
+   } finally {
+     if (narrationFetchController === controller) narrationFetchController = null;
+-    if (isCurrent()) elements.loading.classList.add("hidden");
++    if (isCurrent()) {
++      narrationLoadPending = false;
++      if (!videoHeldForAudio) elements.loading.classList.add("hidden");
++    }
+   }
+ }
+ 
+ function configureMediaSync() {
++  if (narrationLoadPending) return;
+   if (!narrationAudioAvailable || !elements.audio.duration ||
+       !elements.video.duration || elements.voice.value === "silent") {
+     videoParkedForNarration = false;
+@@ -1183,8 +1216,13 @@ function configureMediaSync() {
+   seekNarrationToVideo();
+ }
+ 
++function completeNativePlayback() {
++  return visualTimings?.complete_native_clips === true &&
++    visualTimings?.native_live_video === true;
++}
++
+ function narrationOwnsCompletion() {
+-  return narrationAudioAvailable && elements.voice.value !== "silent" &&
++  return !completeNativePlayback() && narrationAudioAvailable && elements.voice.value !== "silent" &&
+     Number.isFinite(elements.audio.duration) && elements.audio.duration > 0 &&
+     !elements.audio.ended;
+ }
+@@ -1250,6 +1288,11 @@ function parkVideoForNarration(force = false) {
+ }
+ 
+ function finishNarratedPlayback() {
++  if (completeNativePlayback()) {
++    completeNativeNarrationWaiting = true;
++    updateWatchUI();
++    return;
++  }
+   if (narrationAudioAvailable && elements.voice.value !== "silent") {
+     videoParkedForNarration = false;
+     narratedPlaybackCompleted = true;
+@@ -1340,7 +1383,7 @@ function updateSceneSyncRate(audioSeconds) {
+   const referenceDuration = Number(reference.scene_end) - Number(reference.speech_start);
+   const referenceTotal = timingDuration(visualTimings, elements.video.duration);
+   if (selectedDuration <= 0 || referenceDuration <= 0 || referenceTotal <= 0) return;
+-  syncRate = reference.native_live_video ? 1
++  syncRate = completeNativePlayback() || reference.native_live_video ? 1
+     : elements.video.duration / referenceTotal * referenceDuration / selectedDuration;
+   programmedVideoRate = clamp(syncRate, 0.0625, 16);
+   elements.video.defaultPlaybackRate = programmedVideoRate;
+@@ -1359,6 +1402,11 @@ function updateSceneSyncRate(audioSeconds) {
+ // an explicit video seek or a load/resume boundary. Normal playback flows in
+ // the other direction: stable narration time drives the silent video.
+ function seekNarrationToVideo() {
++  if (narrationLoadPending) return;
++  if (completeNativePlayback()) {
++    syncCompleteNativeNarration(true);
++    return;
++  }
+   if (videoParkedForNarration || !narrationAudioAvailable ||
+       elements.voice.value === "silent" ||
+       !elements.audio.duration || !elements.video.duration) return;
+@@ -1370,6 +1418,7 @@ function seekNarrationToVideo() {
+ }
+ 
+ function videoIsLoading() {
++  if (videoCatchingUpToNarration) return false;
+   return elements.video.seeking ||
+     elements.video.readyState < HTMLMediaElement.HAVE_FUTURE_DATA;
+ }
+@@ -1380,18 +1429,107 @@ function narrationHoldApplies() {
+     !videoParkedForNarration && !narratedPlaybackCompleted;
+ }
+ 
++// Only newly verified complete-clip timelines use the picture as the clock.
++// Speech is never stretched. It rests after its actual speech boundary while
++// every remaining recorded frame plays, then starts at the next visual scene.
++function syncCompleteNativeNarration(seek = false) {
++  if (narrationLoadPending || !completeNativePlayback() || !narrationAudioAvailable ||
++      elements.voice.value === "silent" || !elements.video.duration ||
++      !elements.audio.duration || !audioTimings) return;
++  const visualTime = elements.video.currentTime / elements.video.duration *
++    timingDuration(visualTimings, elements.video.duration);
++  const located = timingScene(visualTimings, visualTime);
++  const spoken = located && audioTimings.scenes?.[located.index];
++  if (!spoken) return;
++  const start = Number(spoken.speech_start) || 0;
++  const end = Number(spoken.speech_end);
++  if (!Number.isFinite(end) || end < start) return;
++  const changed = completeNativeSceneIndex !== located.index;
++  if (changed || seek) {
++    completeNativeSceneIndex = located.index;
++    const elapsed = Math.max(0, visualTime - Number(located.scene.speech_start));
++    const target = seek ? Math.min(start + elapsed, end) : start;
++    if (Math.abs(elements.audio.currentTime - target) > 0.015) {
++      elements.audio.currentTime = Math.min(target, elements.audio.duration);
++    }
++    completeNativeNarrationWaiting = target >= end;
++  } else if (elements.audio.currentTime >= end) {
++    completeNativeNarrationWaiting = true;
++  }
++  updateSceneSyncRate(start);
++  // Retain an explicit mid-scene seek target even before decoding is ready.
++  if (videoHeldForAudio && audioNeedsData()) return;
++  if (completeNativeNarrationWaiting || (elements.video.paused && !videoHeldForAudio) ||
++      elements.video.ended || videoIsLoading()) {
++    if (!elements.audio.paused) elements.audio.pause();
++  } else if (elements.audio.paused && !elements.audio.ended) {
++    startNarrationAudio().catch(() => showToast("Select play again to start narration."));
++  }
++  if (completeNativeNarrationWaiting) releaseVideoForAudio();
++}
++
++function holdVideoForAudio() {
++  if (!elements.video.paused) {
++    videoHeldForAudio = true;
++    resumeAfterAudioHold = true;
++    audioHoldPauseEventsPending += 1;
++    elements.video.pause();
++  }
++  if (videoHeldForAudio) elements.loading.classList.remove("hidden");
++}
++
++function audioNeedsData() {
++  return narrationAudioAvailable && elements.voice.value !== "silent" &&
++    !elements.audio.ended && !completeNativeNarrationWaiting &&
++    !elements.audio.seeking &&
++    elements.audio.readyState < HTMLMediaElement.HAVE_FUTURE_DATA;
++}
++
++function releaseVideoForAudio() {
++  if (!videoHeldForAudio || !resumeAfterAudioHold || narrationLoadPending || audioNeedsData()) return;
++  if (narrationAudioAvailable && elements.voice.value !== "silent" &&
++      elements.audio.paused && !completeNativeNarrationWaiting) return;
++  videoHeldForAudio = false;
++  resumeAfterAudioHold = false;
++  elements.loading.classList.add("hidden");
++  playVideoWithoutNarrationSync();
++}
++
++function startNarrationAudio() {
++  if (narrationLoadPending) return Promise.resolve();
++  const request = narrationRequest;
++  if (audioNeedsData() && !videoIsLoading()) holdVideoForAudio();
++  return elements.audio.play().then(() => {
++    if (request === narrationRequest) releaseVideoForAudio();
++  });
++}
++
+ function updateNarrationHold() {
+-  if (narrationHoldApplies() && videoIsLoading()) {
+-    // Also re-pause narration that another path started during the hold.
++  // A requested picture seek already holds speech. Do not turn its ordinary
++  // playing/buffering state into a second, reciprocal picture pause.
++  if (!completeNativePlayback() && narrationHoldApplies() && videoIsLoading()) {
+     narrationHeldForVideo = true;
+     if (!elements.audio.paused) elements.audio.pause();
+     return;
+   }
+-  if (!narrationHeldForVideo) return;
++  if (narrationLoadPending || audioNeedsData()) {
++    holdVideoForAudio();
++    // A deferred mobile decoder needs the play gesture to obtain metadata.
++    // It still cannot advance the picture before real decoded data arrives.
++    if (!elements.audio.paused && elements.audio.readyState >= HTMLMediaElement.HAVE_METADATA) {
++      elements.audio.pause();
++    }
++    return;
++  }
++  if (completeNativePlayback()) {
++    syncCompleteNativeNarration(false);
++    return;
++  }
++  if (!narrationHeldForVideo && !videoHeldForAudio) return;
+   narrationHeldForVideo = false;
+   // Resume only what was held: a paused or finished lesson stays as it is.
+-  if (narrationHoldApplies() && elements.audio.paused && !elements.audio.ended) {
+-    elements.audio.play()
++  if ((narrationHoldApplies() || videoHeldForAudio) && elements.audio.paused && !elements.audio.ended) {
++    startNarrationAudio()
+       .catch(() => showToast("Select play again to start narration."));
+   }
+ }
+@@ -1400,11 +1538,20 @@ function updateNarrationHold() {
+ // narration is held instead (updateNarrationHold resumes it with the picture),
+ // so no play() races a pause() and no false "select play again" appears.
+ function playNarration() {
++  if (narrationLoadPending) {
++    holdVideoForAudio();
++    return Promise.resolve();
++  }
++  if (completeNativePlayback()) {
++    if (narrationAudioAvailable && !elements.audio.duration) return startNarrationAudio();
++    syncCompleteNativeNarration(false);
++    return Promise.resolve();
++  }
+   if (narrationHoldApplies() && videoIsLoading()) {
+     narrationHeldForVideo = true;
+     return Promise.resolve();
+   }
+-  return elements.audio.play();
++  return startNarrationAudio();
+ }
+ 
+ function setVideoTimeFromNarration(target) {
+@@ -1414,10 +1561,16 @@ function setVideoTimeFromNarration(target) {
+     Math.max(0, target), Math.max(0, elements.video.duration - 0.02));
+   if (Math.abs(elements.video.currentTime - bounded) <= 0.015) return;
+   videoClockCorrectionPending = true;
++  videoCatchingUpToNarration = true;
+   elements.video.currentTime = bounded;
+ }
+ 
+ function syncVideoToNarration(force = false) {
++  if (narrationLoadPending) return;
++  if (completeNativePlayback()) {
++    syncCompleteNativeNarration(false);
++    return;
++  }
+   if (videoParkedForNarration || !narrationAudioAvailable ||
+       elements.voice.value === "silent" ||
+       !elements.audio.duration || !elements.video.duration) return;
+@@ -1476,6 +1629,8 @@ async function loadLessonDetail(isCurrent = () => true) {
+     if (!isCurrent()) return;
+     audioTimings = timings;
+     visualTimings = referenceTimings;
++    completeNativeSceneIndex = null;
++    completeNativeNarrationWaiting = false;
+     configureMediaSync();
+     startNativeFrameSync();
+     rebuildChapterData();
+@@ -1664,6 +1819,10 @@ function renderCaptions() {
+   updateCaptionTrackMode();
+ }
+ 
++function chapterDisplayTime(chapter) {
++  return completeNativePlayback() ? videoTimeFromAudio(chapter.start) : chapter.start;
++}
++
+ function renderChapters() {
+   elements.chapters.innerHTML = "";
+   elements.chapters.lang = effectiveCaptionLanguage();
+@@ -1672,7 +1831,7 @@ function renderChapters() {
+     const button = document.createElement("button");
+     button.type = "button";
+     button.className = "chapter-button";
+-    button.innerHTML = `<span class="chapter-time">${formatTime(chapter.start)}</span><span class="chapter-copy"><strong>${escapeHTML(chapter.label)}</strong><small>${escapeHTML(truncate(chapter.text, 82))}</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>`;
++    button.innerHTML = `<span class="chapter-time">${formatTime(chapterDisplayTime(chapter))}</span><span class="chapter-copy"><strong>${escapeHTML(chapter.label)}</strong><small>${escapeHTML(truncate(chapter.text, 82))}</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>`;
+     button.addEventListener("click", () => seekTo(chapter.start));
+     elements.chapters.appendChild(button);
+     if (chapter.related.length) elements.chapters.appendChild(makeRelatedLessons(chapter.related));
+@@ -1682,7 +1841,7 @@ function renderChapters() {
+ function renderTranscript() {
+   elements.transcript.lang = effectiveCaptionLanguage();
+   elements.transcript.dir = "auto";
+-  elements.transcript.innerHTML = chapterData.map(chapter => `<div class="transcript-entry"><button type="button" data-seek="${chapter.start}">${formatTime(chapter.start)}</button><p>${escapeHTML(chapter.text)}</p></div>`).join("");
++  elements.transcript.innerHTML = chapterData.map(chapter => `<div class="transcript-entry"><button type="button" data-seek="${chapter.start}">${formatTime(chapterDisplayTime(chapter))}</button><p>${escapeHTML(chapter.text)}</p></div>`).join("");
+   elements.transcript.querySelectorAll("[data-seek]").forEach(button => button.addEventListener("click", () => seekTo(Number(button.dataset.seek))));
+   elements.transcript.querySelectorAll(".transcript-entry").forEach((entry, index) => {
+     const related = chapterData[index].related;
+@@ -1691,6 +1850,10 @@ function renderTranscript() {
+ }
+ 
+ function seekTo(audioSeconds) {
++  if (completeNativePlayback()) {
++    completeNativeSceneIndex = null;
++    completeNativeNarrationWaiting = false;
++  }
+   if (narrationAudioAvailable && elements.audio.duration &&
+       elements.voice.value !== "silent") {
+     const bounded = Math.min(
+@@ -1699,6 +1862,9 @@ function seekTo(audioSeconds) {
+     updateSceneSyncRate(bounded);
+   }
+   setVideoTimeFromNarration(videoTimeFromAudio(audioSeconds));
++  // This is a viewer's requested chapter, not an automatic drift correction.
++  // Its loading picture must hold narration at the requested speech offset.
++  videoCatchingUpToNarration = false;
+   elements.video.play().catch(() => {});
+ }
+ 
+@@ -1738,8 +1904,12 @@ function mediaClock() {
+ 
+ function updateWatchUI() {
+   const clock = mediaClock();
+-  elements.watchTime.textContent = `${formatTime(clock.current)} / ${formatTime(clock.duration)}`;
+-  elements.watchBar.style.width = `${Math.min(100, clock.ratio * 100)}%`;
++  const shownCurrent = completeNativePlayback() ? elements.video.currentTime : clock.current;
++  const shownDuration = completeNativePlayback() ? elements.video.duration : clock.duration;
++  elements.watchTime.textContent = `${formatTime(shownCurrent)} / ${formatTime(shownDuration)}`;
++  const shownRatio = completeNativePlayback() && elements.video.duration
++    ? elements.video.currentTime / elements.video.duration : clock.ratio;
++  elements.watchBar.style.width = `${Math.min(100, shownRatio * 100)}%`;
+   const currentIndex = chapterData.findIndex((chapter, index) => clock.current >= chapter.start && (!chapterData[index + 1] || clock.current < chapterData[index + 1].start));
+   elements.chapters.querySelectorAll(".chapter-button").forEach((button, index) => button.classList.toggle("current", index === currentIndex));
+ }
+@@ -1945,6 +2115,14 @@ function resetCaptionAppearance() {
+ elements.search.addEventListener("input", event => renderCurriculum(event.target.value));
+ elements.video.addEventListener("play", () => {
+   startNativeFrameSync();
++  if (narrationLoadPending || (audioNeedsData() && !videoIsLoading())) {
++    programmaticVideoPlayPending = false;
++    holdVideoForAudio();
++    if (!narrationLoadPending && narrationAudioAvailable) {
++      playNarration().catch(() => showToast("Select play again to start narration."));
++    }
++    return;
++  }
+   const action = narratedVideoPlayAction(
+     programmaticVideoPlayPending,
+     narratedPlaybackCompleted,
+@@ -1976,10 +2154,16 @@ elements.video.addEventListener("play", () => {
+   }
+ });
+ elements.video.addEventListener("pause", () => {
++  if (audioHoldPauseEventsPending > 0) {
++    audioHoldPauseEventsPending -= 1;
++    return;
++  }
+   if (programmaticVideoPausePending) {
+     programmaticVideoPausePending = false;
+     return;
+   }
++  videoHeldForAudio = false;
++  resumeAfterAudioHold = false;
+   // A sparse phone tick can still reach natural EOF before parking; that
+   // browser-generated pause must not clip narration. A parked video remains
+   // genuinely playing, so every native user pause has video.ended === false
+@@ -1993,6 +2177,7 @@ elements.video.addEventListener("pause", () => {
+ });
+ elements.video.addEventListener("seeking", () => {
+   if (!videoClockCorrectionPending) {
++    videoCatchingUpToNarration = false;
+     videoParkedForNarration = false;
+     narratedPlaybackCompleted = false;
+     seekNarrationToVideo();
+@@ -2001,6 +2186,10 @@ elements.video.addEventListener("seeking", () => {
+ elements.video.addEventListener("seeked", () => {
+   if (videoClockCorrectionPending) {
+     videoClockCorrectionPending = false;
++    if (completeNativePlayback()) {
++      syncCompleteNativeNarration(true);
++      return;
++    }
+     // One correction per settled seek. A chapter jump made while it was in
+     // flight is applied now; held narration cannot have moved meanwhile.
+     syncVideoToNarration(false);
+@@ -2011,11 +2200,19 @@ elements.video.addEventListener("seeked", () => {
+ // Registered after the handlers above so a finished correction or a viewer
+ // seek has updated both clocks before narration is held or released.
+ elements.audio.addEventListener("play", updateNarrationHold);
++for (const type of ["waiting", "stalled", "seeking", "seeked", "canplay"]) {
++  elements.audio.addEventListener(type, updateNarrationHold);
++}
++elements.audio.addEventListener("playing", releaseVideoForAudio);
+ for (const type of ["waiting", "stalled", "seeking", "seeked", "loadeddata",
+                     "canplay", "canplaythrough", "playing", "pause", "emptied"]) {
+   elements.video.addEventListener(type, updateNarrationHold);
+ }
++elements.video.addEventListener("playing", () => {
++  if (!videoClockCorrectionPending) videoCatchingUpToNarration = false;
++});
+ elements.video.addEventListener("emptied", () => {
++  videoCatchingUpToNarration = false;
+   // Replacing/removing src cancels an in-flight seek without a seeked event.
+   // Its guard belongs to the discarded resource, not the next lesson.
+   videoClockCorrectionPending = false;
+@@ -2048,9 +2245,9 @@ elements.audio.addEventListener("timeupdate", () => {
+   updateWatchUI();
+ });
+ elements.audio.addEventListener("loadedmetadata", () => {
+-  if (!narrationAudioAvailable) return;
++  if (narrationLoadPending || !narrationAudioAvailable) return;
+   configureMediaSync();
+-  if (!elements.video.paused) {
++  if (!elements.video.paused || (videoHeldForAudio && resumeAfterAudioHold)) {
+     playNarration().catch(() => {
+       showToast("Select play again to start narration.");
+     });
+@@ -2066,9 +2263,12 @@ elements.audio.addEventListener("error", () => {
+   programmaticVideoPlayPending = false;
+   discardNarrationAudio();
+   configureMediaSync();
++  releaseVideoForAudio();
+   showToast("Narration is unavailable; the GitHub-hosted video remains available.");
+ });
+-elements.video.addEventListener("canplay", () => elements.loading.classList.add("hidden"));
++elements.video.addEventListener("canplay", () => {
++  if (!narrationLoadPending && !videoHeldForAudio) elements.loading.classList.add("hidden");
++});
+ elements.video.textTracks?.addEventListener?.("change", syncCaptionPreferenceFromNativeControls);
+ elements.voice.addEventListener("change", switchVoice);
+ elements.language.addEventListener("change", switchLanguage);
+diff --git a/tools/tutorials/tests/test_player_audio_readiness.py b/tools/tutorials/tests/test_player_audio_readiness.py
+new file mode 100644
+index 000000000..8e7b282a7
+--- /dev/null
++++ b/tools/tutorials/tests/test_player_audio_readiness.py
+@@ -0,0 +1,236 @@
++"""A pending narration must not spend the picture clock or skip its onset.
++
++Real software Chrome and player code, with explicit synthetic media fixtures.
++HTTP delays exercise normal first-play/chapter/voice control lifecycles.
++"""
++import json
++import time
++
++import pytest
++
++from test_player_complete_native_clips import complete_fixture, open_player
++from test_player_holds_narration import served, CHROME
++
++
++def delay_resource(handler, suffix, seconds=1.2):
++    original = handler.do_GET
++
++    def delayed(self):
++        if self.path.split('?', 1)[0].endswith(suffix):
++            time.sleep(seconds)
++        return original(self)
++
++    handler.do_GET = delayed
++
++
++def trace_audio(page):
++    page.evaluate("""() => {
++      window.__starts=[];window.__readinessTrace=[];
++      elements.audio.addEventListener('playing',()=>window.__starts.push({
++        audio:elements.audio.currentTime,video:elements.video.currentTime,
++        voice:audioTimings?.voice,pending:narrationLoadPending}));
++      window.__readinessTimer=setInterval(()=>window.__readinessTrace.push({
++        audio:elements.audio.currentTime,video:elements.video.currentTime,
++        pending:narrationLoadPending,held:videoHeldForAudio}),25);
++    }""")
++
++
++def test_normal_first_play_waits_for_audio_body(served, tmp_path):
++    from playwright.sync_api import sync_playwright
++
++    url = complete_fixture(served, tmp_path)
++    delay_resource(served[1], '/audio/en/af_heart.m4a', seconds=8)
++    with sync_playwright() as engine:
++        browser = engine.chromium.launch(executable_path=str(CHROME), headless=True,
++            args=['--disable-gpu', '--disable-accelerated-video-decode',
++                  '--autoplay-policy=no-user-gesture-required'])
++        page = browser.new_page()
++        page.add_init_script("localStorage.setItem('spacr-tutorial-voice-v2','af_heart');")
++        page.goto(url, wait_until='domcontentloaded')
++        page.wait_for_function('elements.video.readyState>=3&&narrationLoadPending')
++        assert page.evaluate('!elements.loading.classList.contains("hidden")')
++        trace_audio(page)
++        # The loading layer prevents a normal pointer play gesture from
++        # starting the already-ready picture before its narration is fetched.
++        page.locator('#video-loading').click()
++        # Separately exercise the native media play-event guard while pending;
++        # this controlled API request is not evidence of a physical UI click.
++        page.evaluate('void elements.video.play().catch(()=>{})')
++        page.wait_for_function('videoHeldForAudio&&elements.video.paused')
++        position = page.evaluate('elements.video.currentTime')
++        page.wait_for_timeout(300)
++        assert abs(page.evaluate('elements.video.currentTime') - position) < .06
++        page.wait_for_function('!narrationLoadPending', timeout=15000)
++        assert page.evaluate('elements.video.currentTime') < .06
++        page.locator('.chapter-button').nth(0).click()
++        page.wait_for_function('!elements.audio.paused&&!elements.video.paused')
++        page.wait_for_function('__starts.length>0')
++        first = page.evaluate('__starts[0]')
++        assert first['voice'] == 'af_heart' and not first['pending']
++        assert first['audio'] < .1 and first['video'] < .1
++        browser.close()
++
++
++def test_voice_change_holds_position_until_its_timing_arrives(served, tmp_path):
++    from playwright.sync_api import sync_playwright
++
++    url = complete_fixture(served, tmp_path)
++    delay_resource(served[1], '/audio/es/ef_dora.json', seconds=3)
++    with sync_playwright() as engine:
++        browser, page = open_player(engine, url)
++        page.locator('.chapter-button').nth(1).click()
++        page.wait_for_function('elements.video.currentTime>4.1&&!elements.audio.paused')
++        start = page.evaluate('elements.video.currentTime')
++        trace_audio(page)
++        page.evaluate('elements.language.value="es";void switchLanguage()')
++        page.wait_for_function('narrationLoadPending&&videoHeldForAudio')
++        page.wait_for_timeout(500)
++        assert abs(page.evaluate('elements.video.currentTime') - start) < .08
++        assert page.evaluate('elements.audio.paused')
++        page.wait_for_function('audioTimings?.voice==="ef_dora"&&!narrationLoadPending&&!elements.video.paused', timeout=15000)
++        page.wait_for_function('__starts.length>0')
++        first = page.evaluate('__starts[0]')
++        assert first['voice'] == 'ef_dora' and not first['pending']
++        assert abs(first['audio'] - (1 + start - 4)) < .1
++        assert abs(first['video'] - start) < .1
++        assert not page.evaluate('__readinessTrace.some(x=>x.pending&&!x.held)')
++        browser.close()
++
++
++def test_a_video_seek_during_voice_load_wins(served, tmp_path):
++    from playwright.sync_api import sync_playwright
++
++    url = complete_fixture(served, tmp_path)
++    delay_resource(served[1], '/audio/es/ef_dora.json', seconds=3)
++    with sync_playwright() as engine:
++        browser, page = open_player(engine, url)
++        page.locator('.chapter-button').nth(1).click()
++        page.wait_for_function('elements.video.currentTime>4.1&&!elements.audio.paused')
++        page.evaluate('elements.language.value="es";void switchLanguage()')
++        page.wait_for_function('narrationLoadPending')
++        # The chapter list is replaced by its loading state during this fetch.
++        # Exercise the media seek event produced by native scrubbing instead.
++        page.evaluate('elements.video.currentTime=8')
++        assert page.evaluate('narrationLoadPending')
++        page.wait_for_function('elements.video.currentTime>=8&&elements.video.paused')
++        try:
++            page.wait_for_function('audioTimings?.voice==="ef_dora"&&!narrationLoadPending&&!elements.video.paused', timeout=15000)
++        except Exception:
++            print(page.evaluate('({pending:narrationLoadPending,held:videoHeldForAudio,resume:resumeAfterAudioHold,pauseEvents:audioHoldPauseEventsPending,video:elements.video.currentTime,audio:elements.audio.currentTime,videoPaused:elements.video.paused,audioPaused:elements.audio.paused,voice:audioTimings?.voice,language:elements.language.value,ready:elements.audio.readyState,seeking:elements.audio.seeking,waiting:completeNativeNarrationWaiting})'))
++            raise
++        assert 8 <= page.evaluate('elements.video.currentTime') < 8.5
++        assert 2 <= page.evaluate('elements.audio.currentTime') < 2.5
++        browser.close()
++
++
++@pytest.mark.parametrize("already_playing", [False, True])
++@pytest.mark.parametrize("complete_native", [False, True])
++def test_audio_decoder_wait_holds_both_clocks_without_a_catchup_seek(served, tmp_path, already_playing, complete_native):
++    from playwright.sync_api import sync_playwright
++
++    url = complete_fixture(served, tmp_path)
++    if not complete_native:
++        path = next(path for name, (path, _) in served[1].routes.items()
++                    if name.endswith('/video/native-live-timings.json'))
++        legacy = json.loads(path.read_text())
++        legacy.pop('complete_native_clips')
++        path.write_text(json.dumps(legacy))
++    with sync_playwright() as engine:
++        browser = engine.chromium.launch(executable_path=str(CHROME), headless=True,
++            args=['--disable-gpu', '--disable-accelerated-video-decode',
++                  '--autoplay-policy=no-user-gesture-required'])
++        page = browser.new_page()
++        page.add_init_script("localStorage.setItem('spacr-tutorial-voice-v2','af_heart');"
++                             "localStorage.setItem('spacr-tutorial-quality-v1','1440p');")
++        page.goto(url, wait_until='domcontentloaded')
++        page.wait_for_function('narrationAudioAvailable&&audioTimings&&!narrationLoadPending')
++        assert page.evaluate('completeNativePlayback()') == complete_native
++        if already_playing:
++            page.locator('.chapter-button').nth(0).click()
++            page.wait_for_function('elements.audio.currentTime>.15&&!elements.audio.paused')
++        # Controlled decoder starvation: the Blob transport is already fully
++        # downloaded, so inject the actual readiness/events rather than claim
++        # that another HTTP request can starve this existing Blob resource.
++        page.evaluate("""() => {
++          window.__readyGetter=Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype,'readyState').get;
++          Object.defineProperty(elements.audio,'readyState',{configurable:true,get:()=>2});
++          elements.audio.pause();
++          elements.audio.dispatchEvent(new Event('waiting'));
++          window.__audioSeeks=0;
++          elements.audio.addEventListener('seeking',()=>window.__audioSeeks++);
++        }""")
++        if not already_playing:
++            page.locator('.chapter-button').nth(0).click()
++        page.wait_for_function('videoHeldForAudio&&elements.video.paused&&!elements.audio.seeking')
++        # The explicit chapter click may itself seek to zero. Count only
++        # unwanted catch-up seeks after that requested target has settled.
++        page.evaluate('__audioSeeks=0')
++        before = page.evaluate('[elements.video.currentTime,elements.audio.currentTime]')
++        page.wait_for_timeout(250)
++        after = page.evaluate('[elements.video.currentTime,elements.audio.currentTime]')
++        assert all(abs(a-b) < .06 for a, b in zip(after, before))
++        page.evaluate("delete elements.audio.readyState;elements.audio.dispatchEvent(new Event('canplay'))")
++        page.wait_for_function('!elements.video.paused&&!elements.audio.paused&&!videoHeldForAudio')
++        assert page.evaluate('__audioSeeks') == 0
++        browser.close()
++
++
++def test_superseded_deferred_metadata_cannot_reenable_discarded_audio(served, tmp_path):
++    from playwright.sync_api import sync_playwright
++
++    url = complete_fixture(served, tmp_path)
++    with sync_playwright() as engine:
++        browser, page = open_player(engine, url)
++        # Control only asynchronous completion of the real metadata-ready
++        # helper, representing an older decoder callback delivered late.
++        # The actual player, audio source and selection handlers remain real.
++        page.evaluate("""() => {
++          const actual=mediaReadyOrDeferred;
++          mediaReadyOrDeferred=async (...args)=>{
++            const result=await actual(...args);
++            if(elements.voice.value==='ef_dora') {
++              window.__oldMetadataPending=true;
++              await new Promise(resolve=>window.__releaseOldMetadata=resolve);
++            }
++            return result;
++          };
++          elements.language.value='es';void switchLanguage();
++        }""")
++        page.wait_for_function('window.__oldMetadataPending===true')
++        page.evaluate("elements.voice.value='silent';void switchVoice()")
++        page.wait_for_function("elements.voice.value==='silent'&&!narrationLoadPending&&!narrationAudioAvailable")
++        page.evaluate('__releaseOldMetadata()')
++        page.wait_for_timeout(250)
++        assert page.evaluate("elements.voice.value==='silent'&&!narrationAudioAvailable&&!narrationLoadPending")
++        assert page.evaluate('elements.audio.paused&&!elements.audio.getAttribute("src")')
++        browser.close()
++
++
++def test_metadata_only_midscene_voice_load_keeps_the_requested_offset(served, tmp_path):
++    from playwright.sync_api import sync_playwright
++
++    url = complete_fixture(served, tmp_path)
++    with sync_playwright() as engine:
++        browser, page = open_player(engine, url)
++        page.locator('.chapter-button').nth(1).click()
++        page.wait_for_function('elements.video.currentTime>4.25&&!elements.audio.paused')
++        # Control the decoder's metadata-known/data-not-ready state. This tests
++        # target assignment, not a claim of genuine HTTP decoder starvation.
++        page.evaluate("""() => {
++          const actual=mediaReadyOrDeferred;
++          mediaReadyOrDeferred=async (...args)=>{
++            const result=await actual(...args);
++            if(elements.voice.value==='ef_dora') {
++              Object.defineProperty(elements.audio,'readyState',{
++                configurable:true,get:()=>HTMLMediaElement.HAVE_METADATA});
++            }
++            return result;
++          };
++          elements.language.value='es';void switchLanguage();
++        }""")
++        page.wait_for_function('audioTimings?.voice==="ef_dora"&&!narrationLoadPending')
++        position = page.evaluate('elements.video.currentTime')
++        assert abs(page.evaluate('elements.audio.currentTime') - (1 + position - 4)) < .08
++        page.evaluate("delete elements.audio.readyState;elements.audio.dispatchEvent(new Event('canplay'))")
++        page.wait_for_function('!elements.audio.paused&&!elements.video.paused')
++        browser.close()
+diff --git a/tools/tutorials/tests/test_player_complete_native_clips.py b/tools/tutorials/tests/test_player_complete_native_clips.py
+new file mode 100644
+index 000000000..fec157a78
+--- /dev/null
++++ b/tools/tutorials/tests/test_player_complete_native_clips.py
+@@ -0,0 +1,145 @@
++"""Complete-clip opt-in keeps synthetic actions visible at their recorded speed."""
++import json
++import subprocess
++
++from test_player_holds_narration import served, CHROME, PAGE
++
++
++def complete_fixture(served, tmp_path):
++    url, handler = served
++    script = (PAGE / 'lesson_catalog.js').read_text()
++    catalog = json.loads(script[script.index('Object.freeze(') + len('Object.freeze('):script.rindex(');')])
++    identity = url.split('lesson=')[1]
++    lesson = next(row for row in catalog['lessons'] if row['id'] == identity)
++    lesson['scenes'] = lesson['scenes'][:3]
++    video = tmp_path / 'complete-native-test.mp4'
++    audio = tmp_path / 'complete-native-audio.m4a'
++    subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-y', '-f', 'lavfi', '-i',
++        'testsrc2=size=320x180:rate=30:duration=12', '-threads', '2', '-c:v', 'libx264',
++        '-preset', 'veryfast', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', str(video)], check=True)
++    subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-y', '-f', 'lavfi', '-i',
++        'sine=frequency=330:duration=3', '-threads', '2', '-c:a', 'aac', str(audio)], check=True)
++    rows = [dict(scene=i+1, speech_start=i, speech_end=i+.65, scene_end=i+1,
++                 duration=1, text=row['narration'], sentences=[dict(sentence=1,
++                 speech_start=i, speech_end=i+.65, text=row['narration'])])
++            for i, row in enumerate(lesson['scenes'])]
++    timing = tmp_path / 'complete-native-audio.json'
++    timing.write_text(json.dumps(dict(schema=1, language='en', voice='af_heart', total_duration=3, scenes=rows)))
++    visual = tmp_path / 'complete-native-visual.json'
++    visual.write_text(json.dumps(dict(kind='native_visual_timing', native_live_video=True,
++        complete_native_clips=True, coverage=dict(accepted=True), total_duration=12,
++        scenes=[dict(row, speech_start=i*4, speech_end=(i+1)*4, scene_end=(i+1)*4,
++                     duration=4, native_live_video=True) for i,row in enumerate(rows)])))
++    lesson['visual_timings'] = f'{identity}/video/native-live-timings.json'
++    catalog_path = tmp_path / 'complete-native-catalog.js'
++    catalog_path.write_text('window.SPACR_LESSON_CATALOG = Object.freeze('+json.dumps(catalog)+');')
++    handler.video = video
++    spanish = json.loads(json.dumps(catalog))
++    for row in next(row for row in spanish['lessons'] if row['id'] == identity)['scenes']:
++        row['narration'] = 'Texto de prueba para el intervalo hablado.'
++    spanish_path = tmp_path / 'complete-native-es.json'
++    spanish_path.write_text(json.dumps(spanish))
++    spanish_timing = tmp_path / 'complete-native-es-timings.json'
++    spanish_rows = [dict(row, text='Texto de prueba para el intervalo hablado.') for row in rows]
++    spanish_timing.write_text(json.dumps(dict(schema=1, language='es', voice='ef_dora',
++        total_duration=3, scenes=spanish_rows)))
++    handler.routes.update({'/web/catalog/lessons_es.json': (spanish_path, 'application/json'),
++        f'/media_host/{identity}/audio/es/ef_dora.m4a': (audio, 'audio/mp4'),
++        f'/media_host/{identity}/audio/es/ef_dora.json': (spanish_timing, 'application/json'),'/web/lesson_catalog.js': (catalog_path, 'application/javascript'),
++        f'/media_host/{identity}/audio/en/af_heart.m4a': (audio, 'audio/mp4'),
++        f'/media_host/{identity}/audio/en/af_heart.json': (timing, 'application/json'),
++        f'/media_host/{identity}/video/native-live-timings.json': (visual, 'application/json')})
++    return url
++
++
++def open_player(engine, url):
++    browser = engine.chromium.launch(executable_path=str(CHROME), headless=True,
++        args=['--disable-gpu', '--disable-accelerated-video-decode', '--autoplay-policy=no-user-gesture-required'])
++    page = browser.new_page()
++    page.add_init_script("localStorage.setItem('spacr-tutorial-voice-v2','af_heart');"
++                         "localStorage.setItem('spacr-tutorial-quality-v1','1440p');")
++    page.goto(url, wait_until='domcontentloaded')
++    page.wait_for_function('completeNativePlayback() && narrationAudioAvailable && chapterData.length===3', timeout=90000)
++    return browser, page
++
++
++def test_complete_native_tails_run_without_automatic_seeks_and_final_audio_cannot_skip(served, tmp_path):
++    from playwright.sync_api import sync_playwright
++    url = complete_fixture(served, tmp_path)
++    with sync_playwright() as engine:
++        browser, page = open_player(engine, url)
++        page.evaluate('''() => {
++          window.__trace=[]; window.__automaticSeeks=0;
++          elements.video.addEventListener('seeking',()=>window.__automaticSeeks++);
++          window.__sample=setInterval(()=>window.__trace.push({video:elements.video.currentTime,
++            audio:elements.audio.currentTime, paused:elements.audio.paused,
++            rate:elements.video.playbackRate, audioRate:elements.audio.playbackRate}),40);
++          elements.video.muted=true; elements.video.play();
++        }''')
++        page.wait_for_function('elements.video.currentTime>9.3 && elements.audio.paused', timeout=60000)
++        page.evaluate('elements.audio.dispatchEvent(new Event("ended"))')
++        page.wait_for_function('elements.video.ended', timeout=30000)
++        trace = page.evaluate('window.__trace')
++        seeks = page.evaluate('window.__automaticSeeks')
++        assert page.evaluate('elements.video.currentTime') > 11.9
++        assert page.evaluate('document.querySelector("#watch-time")?.textContent || elements.watchTime.textContent').endswith('/ 0:12')
++        browser.close()
++    assert seeks == 0
++    assert all(row['rate'] == row['audioRate'] == 1 for row in trace)
++    # Each scene's long tail, including the final action, remains on screen.
++    for index in range(3):
++        tail = [row for row in trace if index*4+1.3 < row['video'] < (index+1)*4-.2]
++        assert len(tail) > 20, (index, tail)
++        assert all(row['paused'] and index+.60 <= row['audio'] < index+1 for row in tail)
++    assert any(4.1 < row['video'] < 4.6 and not row['paused'] for row in trace)
++    assert any(8.1 < row['video'] < 8.6 and not row['paused'] for row in trace)
++
++
++def test_complete_native_seek_pause_resume_chapter_and_track_reload(served, tmp_path):
++    from playwright.sync_api import sync_playwright
++    url = complete_fixture(served, tmp_path)
++    with sync_playwright() as engine:
++        browser, page = open_player(engine, url)
++        page.evaluate('elements.video.muted=true;elements.video.play()')
++        page.wait_for_function('elements.video.currentTime>1.2 && elements.audio.paused', timeout=60000)
++        # Clicking the current chapter while waiting in its tail must replay
++        # its speech, rather than carrying the old waiting state backwards.
++        page.evaluate('seekTo(chapterData[0].start)')
++        page.wait_for_function('!elements.video.seeking && elements.video.currentTime<.6 && !elements.audio.paused', timeout=60000)
++        page.wait_for_function('elements.video.currentTime>1.2 && elements.audio.paused', timeout=60000)
++        page.evaluate('elements.video.pause()')
++        paused = page.evaluate('elements.video.currentTime')
++        page.wait_for_timeout(300)
++        assert abs(page.evaluate('elements.video.currentTime')-paused) < .05
++        assert page.evaluate('elements.audio.paused')
++        page.evaluate('elements.video.play()')
++        page.wait_for_function('elements.video.currentTime>2 && elements.audio.paused')
++        # A user seek back into speech restarts only the requested narration.
++        page.evaluate('elements.video.currentTime=.1')
++        page.wait_for_function('!elements.video.seeking && !elements.audio.paused && elements.audio.currentTime<.6', timeout=60000)
++        page.evaluate('seekTo(chapterData[1].start)')
++        page.wait_for_function('!elements.video.seeking && elements.video.currentTime>=4 && elements.video.currentTime<5 && !elements.audio.paused', timeout=60000)
++        # Track/voice reload keeps the current native visual position and does
++        # not restart speech while the selected scene is already in its tail.
++        page.evaluate('elements.video.currentTime=6')
++        page.wait_for_function('!elements.video.seeking && elements.audio.paused', timeout=60000)
++        page.evaluate('loadNarration(true)')
++        page.wait_for_function('completeNativePlayback() && narrationAudioAvailable && elements.video.currentTime>=6 && !elements.video.paused && elements.audio.paused', timeout=60000)
++        assert page.evaluate('chapterData.length') == 3
++        assert page.evaluate('chapterDisplayTime(chapterData[1])') == 4
++        assert page.locator('.chapter-time').nth(1).text_content() == '0:04'
++        assert page.locator('.transcript-entry button').nth(1).text_content() == '0:04'
++        # Captions map the spoken interval into the corresponding full scene.
++        assert page.evaluate('videoTimeFromAudio(1.5)') == 4.5
++        # Silent mode and switching back discard complete-mode wait state.
++        page.evaluate('elements.voice.value="silent";loadNarration(true)')
++        page.wait_for_function('completeNativePlayback() && elements.voice.value==="silent" && !narrationAudioAvailable && !elements.video.paused', timeout=60000)
++        page.evaluate('elements.voice.value="af_heart";loadNarration(true)')
++        page.wait_for_function('completeNativePlayback() && narrationAudioAvailable && !elements.video.paused', timeout=60000)
++        assert page.evaluate('elements.video.playbackRate') == 1
++        page.evaluate('elements.language.value="es";switchLanguage()')
++        page.wait_for_function('completeNativePlayback() && audioTimings?.language==="es" && narrationAudioAvailable && !elements.video.paused', timeout=60000)
++        assert page.evaluate('elements.voice.value') == 'ef_dora'
++        assert page.evaluate('chapterData[0].text') == 'Texto de prueba para el intervalo hablado.'
++        assert page.evaluate('elements.video.playbackRate') == 1
++        browser.close()

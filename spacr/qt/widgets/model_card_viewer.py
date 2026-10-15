@@ -219,7 +219,10 @@ class ModelCardViewer(QFrame):
         elif event.key() == Qt.Key_Left:
             self.previous_page()
         elif (event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space)
-              and event.modifiers() == Qt.NoModifier and self.hasFocus()):
+              and (event.modifiers() == Qt.NoModifier
+                   or (event.key() == Qt.Key_Enter
+                       and event.modifiers() == Qt.KeypadModifier))
+              and self.hasFocus()):
             self._enlarge()
         else:
             super().keyPressEvent(event)
