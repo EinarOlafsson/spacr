@@ -1,7 +1,8 @@
 """Unknown models refuse stock substitution; explicit existing identities win."""
 import pytest
 
-from spacr import model_zoo as zoo, utils as utilities
+from spacr import model_zoo as zoo
+from spacr import utils as utilities
 
 
 @pytest.fixture
