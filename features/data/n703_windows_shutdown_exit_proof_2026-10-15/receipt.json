@@ -1,0 +1,51 @@
+{
+  "scope": "Windows updater shutdown proof distinguishes process lookup failure from verified exit, before actual update-plan fetch/install.",
+  "source_sha256": "b60e629f08036d8d0a56b0a99a8b522c8683e84f85d2d9470ac9345d4384534c",
+  "test_sha256": "0ad3ae810ef2b358aff6397c7166f4050c7917bda5e1849ef038a2b962a7595a",
+  "baseline_runs": [
+    {
+      "name": "probe and actual-update-plan",
+      "failed": 4,
+      "exit": 1,
+      "seconds": 1.24
+    },
+    {
+      "name": "invalid DWORD PID",
+      "failed": 3,
+      "exit": 1,
+      "seconds": 0.87
+    }
+  ],
+  "final": {
+    "passed": 18,
+    "failed": 0,
+    "skipped": 0,
+    "exit": 0,
+    "seconds": 1.06
+  },
+  "behavior": "Refuse Windows PID0/negative/out-of-DWORD values before API lookup. A valid positive DWORD with NULL/error87 is the supported absent-process interpretation. NULL/access-denied5 or unknown0 refuses; real-handle waits, WAIT_FAILED, CloseHandle finally, timeout and all POSIX behavior stay unchanged.",
+  "observed_actual_plan": "Before repair mocked fetch and installer were reached after access-denied/unclassified NULL lookup. After repair actual _run_plan returns3 with zero fetch/install/retire/relaunch calls and byte-identical disposable old runtime. No real installer or Windows process was touched.",
+  "authoritative_sources": [
+    {
+      "url": "https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocess",
+      "supports": "OpenProcess takes DWORD PID; NULL is failure and GetLastError distinguishes errors; PID0 is System Idle/error87; existing restricted processes may return access denied."
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-",
+      "supports": "ERROR_ACCESS_DENIED5 and ERROR_INVALID_PARAMETER87 definitions."
+    }
+  ],
+  "inference_limit": "Absent positive-process interpretation87 is conditioned on valid fixed access/inherit parameters and positive DWORD PID; modeled here, not a native Windows observation.",
+  "test_preservation": "All original tests except existing Windows API seam are AST-identical. That mock now explicitly provides87 for already-gone, and adds WAIT_FAILED negative control; original assertions remain.",
+  "checks": {
+    "fatal_ruff": true,
+    "diff_check": true,
+    "original_source_prose_signatures_tr_inventory_unchanged": true,
+    "module_ast_outside_wait_for_exit_unchanged": true
+  },
+  "unit": "spacr-n703-windows-exit-final-20261015.service,2GiB/zeroSwap,terminal success/MainPID0; tiny stdlib/filesystem class.",
+  "limitations": [
+    "No native Windows acceptance, live process operation, package install, network download, physical GPU or protected data action.",
+    "No fullCI, release or wholeN703 completion."
+  ]
+}
