@@ -1,0 +1,16 @@
+{
+  "scope": "Read-only current N440 whole-item assessment",
+  "public_base": "20a4313bcd9d58bc9267c1b80d3b51c02206635d",
+  "decision": "NOT whole-item complete: real6source\u00d79locale missing exact display-caption gap",
+  "missing": "Five source-heading tooltip prose strings plus spaCR community displayheading; no exact compact/generated target in anylanguage, not admitted by current normal literal-source owner",
+  "misleading_fallback": "bioimage.io tooltip has_translation=True is only a term substitution, e.g French Cellpose Mod\u00e8les published on bioimage.io, read through its artifact API.; explicitly not accepted as translated prose",
+  "already_complete": "Communitywarningtitle/body2\u00d79 source-bound normal review gates and exact compiled values confirmed; preserve unchanged. Core grouping/default/persistence/sharedconsumer source remains present and previous accepted behavior is not invalidated.",
+  "owner_dependency": "HomeB sharedwidget+normal sourceowner, six exactcap source/wiring and54target closure; no source change authorized/applied here",
+  "unchanged": [
+    "No product/widget/model/core/tool/generated/feature-state/index edits",
+    "No new native/GPU/modelquality/tutorial/platform gates",
+    "No test/model/network/provider/globalcollector or broad inventory replay"
+  ],
+  "normal_scope": "Metadata/AST and established unchanged literal-owner fixture; warningreview proof uses exact2source subset and normal original loader gates, not a fullruntime audit",
+  "history": "No stale316 closure note or DONE tick added, because remaining code/source-ownership dependency is genuine."
+}
