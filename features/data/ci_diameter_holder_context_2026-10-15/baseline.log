@@ -1,0 +1,15 @@
+{"pid": 3010301, "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/run-u68090.scope", "memory_max": "2147483648", "memory_swap_max": "0", "cpus_allowed": [0], "pyside6": "6.12.0", "qt": "6.12.0"}
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_________________ test_the_settings_panel_stores_zero_as_auto __________________
+tests/qt/test_696_the_diameter_field_takes_auto.py:176: in test_the_settings_panel_stores_zero_as_auto
+    assert SettingsWidgets._canonical(holder, key, raw) == stored
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+spacr/qt/screens/settings_model.py:10817: in _canonical
+    if (self.app_key == "activation" and value is None
+        ^^^^^^^^^^^^
+E   AttributeError: 'types.SimpleNamespace' object has no attribute 'app_key'
+- generated xml file: /mnt/wd4tb/scratch/ci-diameter-holder-context-20261015/baseline.xml -
+=========================== short test summary info ============================
+FAILED tests/qt/test_696_the_diameter_field_takes_auto.py::test_the_settings_panel_stores_zero_as_auto
+1 failed in 5.24s

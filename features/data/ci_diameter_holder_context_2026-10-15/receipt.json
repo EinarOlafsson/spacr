@@ -1,0 +1,73 @@
+{
+  "status": "EXACT_ONE_NODE_PASS_TEST_ONLY_ROOT_PEER_PENDING",
+  "scope": "tests/qt/test_696_the_diameter_field_takes_auto.py::test_the_settings_panel_stores_zero_as_auto",
+  "input_head": "14323e460e4eafbb6f30b03b6e3d7e02daab8148",
+  "relevant_public_source_pin": "06cb0f8e7ab648d3a73a8afd61b3b111af7127d9",
+  "cause": "SimpleNamespace holder omitted app_key now required by normal SettingsWidgets._canonical activation-checkpoint blank handling; diameter expectations/normalizer are unchanged.",
+  "repair": "Only holder app_key=mask, actual Mask HOST_KEY verified by AST. Real CANONICAL_READERS and imported canonical diameter function untouched.",
+  "source_proof": {
+    "entire_module_AST_exact_after_removing_only_added_holder_app_key": true,
+    "all_original_assert_ASTs_exact": 62,
+    "all3keys_and5raw_stored_pairs_exact": true,
+    "actual_CANONICAL_READERS_expression_and_real_reader_path_unchanged": true,
+    "test_before_sha256": "d9a2fbee90c2a4f8d9b2d25ea0ad24fcc60493a46d7ddd53f89a5e850813c36e",
+    "test_after_sha256": "69c5dd7a5f8781eb2edfa087b30248e51d274352f8ccaa7009803972b8069c5e"
+  },
+  "production_pins": {
+    "spacr/qt/screens/settings_model.py": "97f14a0f2a6349d583cd82501d9939a8fb485377b6f209224f301e5a59703c7f",
+    "spacr/qt/screens/mask.py": "3d8de201e73bf0496c8922d99da5fe70c8bbe39ede4e64e2e570d30e4d36c3df",
+    "spacr/object_settings_table.py": "e793c24403132e4f87a374de1958ac2c043922fad4d4493740e1a0ce0d34dd2f"
+  },
+  "baseline": {
+    "actual_exit": 1,
+    "failed": 1,
+    "seconds": 5.24,
+    "error": "AttributeError SimpleNamespace has no app_key"
+  },
+  "final": {
+    "actual_exit": 0,
+    "passed": 1,
+    "seconds": 2.19,
+    "skipped": 0
+  },
+  "resource": {
+    "pid": 3010670,
+    "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/run-u68098.scope",
+    "memory_max": "2147483648",
+    "memory_swap_max": "0",
+    "cpus_allowed": [
+      0
+    ],
+    "pyside6": "6.12.0",
+    "qt": "6.12.0"
+  },
+  "network": {
+    "baseline": {
+      "blocked_network_events": []
+    },
+    "final": {
+      "blocked_network_events": []
+    }
+  },
+  "static_checks": "Full Ruff and fatal E9/F63/F7/F82 subset PASS; gitdiffcheckPASS.",
+  "scope_limits": "Only original node executed. No new tests, reader mocks, product normalization/source changes, model/inference/download, GUI benchmark, collector/writer, native platform, fullCI or wholeitem claim.",
+  "files": {
+    "pytest-driver.py": "176d1fb01bf56e47a2ca4cc853c8dd36574516f4f89d0b24b5082280103db5b3",
+    "final.xml": "b2fb0a94a86463cdfdd1e29bba4d118fd290017fc787d89432bb53a7209845d5",
+    "baseline.log": "a29ff7caed6e53c5f27e0373f7d390c18e513653607a229ba55409bcc5daaab0",
+    "ruff-full.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "input-pins.json": "1ea5708722fde2161942ac845550643a0b11cf40cb75e617f2660ed1ec8c0acb",
+    "baseline-network.json": "bea293cfc33f9615b33b280366108c78eada088d578efcefc4458df0c735d212",
+    "final.log": "4feb8904245300b5259d6addedfbb6f7918174233c496267ef4ad1dd1526aaba",
+    "source-proof.json": "6dc35c0afe8c7b9cc34c411fe4ba48b16602b686421c428c17630595b60f9276",
+    "final-startup.json": "1000c98abfb001b1b824a53486bd8b1f9707b509b377e34a60041ddb1ed81612",
+    "baseline.xml": "ed7e807e42319864cda4b802c815f025df0476568834e03f08f180c588437a8a",
+    "baseline.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "ruff-fatal.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "final-network.json": "bea293cfc33f9615b33b280366108c78eada088d578efcefc4458df0c735d212",
+    "test-only.patch": "5f7a311ea5f7db99eac6993ef52e8d07a2187db9a56d05bb8cc728ad914a4ce7",
+    "run.sh": "9e2ebb24b40d460d0bc45e88bcee0447496b1adf9025159e3b69879e819b0167",
+    "baseline-startup.json": "92d8d88f4088328604e47e8adcb3cd166f39540d1ad02b5c4a75687ab09af313",
+    "final.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  }
+}
