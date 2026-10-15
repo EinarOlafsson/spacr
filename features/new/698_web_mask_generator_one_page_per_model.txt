@@ -308,3 +308,14 @@ Private validation uses nine owner-provided N696 backend source files, bound in
 receipt; these dependencies are not published by this web lane. Actual approved
 weights, scientific/GPU/browser parity, service/UI enablement and deployment
 remain open; parent N698 partial. Receipt:features/data/698_shared_masks_2026-10-14/.
+
+2026-10-14 — Original Home: private service dispatch and registry now enable all
+eight implemented desktop adapters: plaque, well detector and six Mask families.
+Exact family/version/checksum resolution remains server-owned; no visitor paths,
+limits or callbacks accepted. Each adapter shares consent, bounded private input
+copy and staging cleanup on success/failure/consumer exception. PlaqueService
+remains a compatibility alias for ModelService. Validation31 owning service and
+registry cases PASS/actualexit0/3.79s, including distinct dispatch for all eight
+families; dispatch tests inject adapters and make no scientific inference claim.
+UI enablement, approved weights, actual GPU/browser parity and deployment remain
+open; parentN698 partial. Receipt:features/data/698_all_family_service_2026-10-14/.
