@@ -556,6 +556,7 @@ class _TarExampleWorker(QObject):
         """
         try:
             import requests
+            import tempfile
 
             archive_name = self.archive or EXAMPLE_ARCHIVES[self.repo]
             self.info.emit("Downloading the example dataset…")
@@ -563,32 +564,32 @@ class _TarExampleWorker(QObject):
                    f"{archive_name}?download=true")
             target = self._dest / archive_name
             self._dest.mkdir(parents=True, exist_ok=True)
-            part = target.with_name(target.name + ".part")
 
             response = requests.get(url, stream=True, timeout=30)
             response.raise_for_status()
             expected = _content_length(response)
             written = 0
-            with part.open("wb") as handle:
-                for chunk in response.iter_content(chunk_size=1 << 20):
-                    if self._cancel:
-                        part.unlink(missing_ok=True)
-                        self.finished.emit(False, "", "", "Cancelled by user.")
-                        return
-                    if not chunk:
-                        continue
-                    handle.write(chunk)
-                    written += len(chunk)
-                    if expected:
-                        self.progress.emit(
-                            archive_name, written // (1 << 20),
-                            max(1, expected // (1 << 20)))
-            if expected is not None and written != expected:
-                part.unlink(missing_ok=True)
-                raise IOError(
-                    f"the download stopped early: {written} bytes of "
-                    f"{expected}. Nothing was unpacked.")
-            part.replace(target)
+            with tempfile.TemporaryDirectory(prefix=".spacr-archive-",
+                                             dir=target.parent) as staging:
+                part = Path(staging) / (target.name + ".part")
+                with part.open("wb") as handle:
+                    for chunk in response.iter_content(chunk_size=1 << 20):
+                        if self._cancel:
+                            self.finished.emit(False, "", "", "Cancelled by user.")
+                            return
+                        if not chunk:
+                            continue
+                        handle.write(chunk)
+                        written += len(chunk)
+                        if expected:
+                            self.progress.emit(
+                                archive_name, written // (1 << 20),
+                                max(1, expected // (1 << 20)))
+                if expected is not None and written != expected:
+                    raise IOError(
+                        f"the download stopped early: {written} bytes of "
+                        f"{expected}. Nothing was unpacked.")
+                part.replace(target)
 
             self.info.emit("Unpacking…")
             extract_example_archive(target, self._dest)
@@ -666,35 +667,36 @@ class _ChosenArchivesWorker(_TarExampleWorker):
     def _fetch_one(self, archive: str) -> bool:
         """Stream and unpack one archive. False when it ended the run."""
         import requests
+        import tempfile
 
         url = (f"https://huggingface.co/datasets/{self.repo}/resolve/main/"
                f"{archive}?download=true")
         target = self._dest / archive
         self._dest.mkdir(parents=True, exist_ok=True)
-        part = target.with_name(target.name + ".part")
         response = requests.get(url, stream=True, timeout=30)
         response.raise_for_status()
         expected = _content_length(response)
         written = 0
-        with part.open("wb") as handle:
-            for chunk in response.iter_content(chunk_size=1 << 20):
-                if self._cancel:
-                    part.unlink(missing_ok=True)
-                    self.finished.emit(False, "", "", "Cancelled by user.")
-                    return False
-                if not chunk:
-                    continue
-                handle.write(chunk)
-                written += len(chunk)
-                if expected:
-                    self.progress.emit(archive, written // (1 << 20),
-                                       max(1, expected // (1 << 20)))
-        if expected is not None and written != expected:
-            part.unlink(missing_ok=True)
-            raise IOError(
-                f"{archive} stopped early: {written} bytes of {expected}. "
-                f"Nothing was unpacked.")
-        part.replace(target)
+        with tempfile.TemporaryDirectory(prefix=".spacr-archive-",
+                                         dir=target.parent) as staging:
+            part = Path(staging) / (target.name + ".part")
+            with part.open("wb") as handle:
+                for chunk in response.iter_content(chunk_size=1 << 20):
+                    if self._cancel:
+                        self.finished.emit(False, "", "", "Cancelled by user.")
+                        return False
+                    if not chunk:
+                        continue
+                    handle.write(chunk)
+                    written += len(chunk)
+                    if expected:
+                        self.progress.emit(archive, written // (1 << 20),
+                                           max(1, expected // (1 << 20)))
+            if expected is not None and written != expected:
+                raise IOError(
+                    f"{archive} stopped early: {written} bytes of {expected}. "
+                    f"Nothing was unpacked.")
+            part.replace(target)
         extract_example_archive(target, self._dest)
         target.unlink(missing_ok=True)
         return True

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="8" time="3.272" timestamp="2026-10-15T02:50:35.799248-04:00" hostname="olafsson"><testcase classname="tests.qt.test_pty_incremental_unicode_420" name="test_terminal_pump_decodes_short_reads_and_flushes_once[chunks0-Log \xd3 \u4e2d\U0001f511-eof]" time="2.382"><failure message="AssertionError: assert 'Log �� �������' == 'Log Ó 中🔑'&#10;  &#10;  - Log Ó 中🔑&#10;  + Log �� �������">tests/qt/test_pty_incremental_unicode_420.py:34: in test_terminal_pump_decodes_short_reads_and_flushes_once
+    assert session.read() == expected
+E   AssertionError: assert 'Log �� �������' == 'Log Ó 中🔑'
+E     
+E     - Log Ó 中🔑
+E     + Log �� �������</failure></testcase><testcase classname="tests.qt.test_pty_incremental_unicode_420" name="test_terminal_pump_decodes_short_reads_and_flushes_once[chunks0-Log \xd3 \u4e2d\U0001f511-error]" time="0.041"><failure message="AssertionError: assert 'Log �� �������' == 'Log Ó 中🔑'&#10;  &#10;  - Log Ó 中🔑&#10;  + Log �� �������">tests/qt/test_pty_incremental_unicode_420.py:34: in test_terminal_pump_decodes_short_reads_and_flushes_once
+    assert session.read() == expected
+E   AssertionError: assert 'Log �� �������' == 'Log Ó 中🔑'
+E     
+E     - Log Ó 中🔑
+E     + Log �� �������</failure></testcase><testcase classname="tests.qt.test_pty_incremental_unicode_420" name="test_terminal_pump_decodes_short_reads_and_flushes_once[chunks1-token \ufffd-eof]" time="0.027"><failure message="AssertionError: assert 'token ��' == 'token �'&#10;  &#10;  - token �&#10;  + token ��&#10;  ?        +">tests/qt/test_pty_incremental_unicode_420.py:34: in test_terminal_pump_decodes_short_reads_and_flushes_once
+    assert session.read() == expected
+E   AssertionError: assert 'token ��' == 'token �'
+E     
+E     - token �
+E     + token ��
+E     ?        +</failure></testcase><testcase classname="tests.qt.test_pty_incremental_unicode_420" name="test_terminal_pump_decodes_short_reads_and_flushes_once[chunks1-token \ufffd-error]" time="0.037"><failure message="AssertionError: assert 'token ��' == 'token �'&#10;  &#10;  - token �&#10;  + token ��&#10;  ?        +">tests/qt/test_pty_incremental_unicode_420.py:34: in test_terminal_pump_decodes_short_reads_and_flushes_once
+    assert session.read() == expected
+E   AssertionError: assert 'token ��' == 'token �'
+E     
+E     - token �
+E     + token ��
+E     ?        +</failure></testcase><testcase classname="tests.qt.test_pty_incremental_unicode_420" name="test_terminal_pump_decodes_short_reads_and_flushes_once[chunks2-bad \ufffd \ufffd(\ufffd-eof]" time="0.025" /><testcase classname="tests.qt.test_pty_incremental_unicode_420" name="test_terminal_pump_decodes_short_reads_and_flushes_once[chunks2-bad \ufffd \ufffd(\ufffd-error]" time="0.026" /><testcase classname="tests.qt.test_pty_incremental_unicode_420" name="test_terminal_pump_decodes_short_reads_and_flushes_once[chunks3-ASCII prompt-eof]" time="0.026" /><testcase classname="tests.qt.test_pty_incremental_unicode_420" name="test_terminal_pump_decodes_short_reads_and_flushes_once[chunks3-ASCII prompt-error]" time="0.028" /></testsuite></testsuites>

@@ -1,0 +1,19 @@
+{
+  "removed_unreferenced": {
+    "9f02bf48144c1d1c1ca3fd9c6705d7bac19afef67d3c89f754b8ee431a02da92": {
+      "source_blocks_sha256": [
+        "1789936813f2345bd1ac81c41e7c550db500927f48e72901b0ff8015cc3519e6",
+        "ef1e97061c8191686226b29f5be77d54821345ee1e9bf5c729bd406e1cf3ca43",
+        "8a497479eb323884927b53d402544509e5bbba2df03e5ac604548b379678bb91",
+        "cd6ea55ad2702c2b2622165aa5fdbca3a99a5a3d2cf22160228aa45ef6896dc6",
+        "09633d514171def6687ca5ecdec807b864dcc0a15881767cd88c95c123b1863d",
+        "152abee431b479208560a6a05c28d3670ba430c13fcb9382de64283f084bba1d"
+      ],
+      "source_sha256": "9f02bf48144c1d1c1ca3fd9c6705d7bac19afef67d3c89f754b8ee431a02da92",
+      "text": "Pull the bundled Hugging Face model pack via the existing downloader.\n\nThin, deliberate wrapper over :func:`spacr.utils.download_models` \u2014 the\ndownloader spaCR already ships and the one\n:func:`spacr.submodules.analyze_plaques` depends on. It is *not*\nreimplemented here, so there is one code path that fills\n``resources/models`` and one place to fix when the repo moves.\n\nIt is also the unverified path: that function has no checksum, writes\nstraight to the destination filename, and skips the whole pull when the\nfolder is non-empty. Prefer a catalogue entry with a hash and\n:func:`install`; this function lets the zoo offer the legacy pack as\nwell.\n\n``spacr.utils`` imports torch, so it is imported here and not at module\nlevel. Nothing else in this module reaches for it.\n\n:param kwargs: forwarded to :func:`spacr.utils.download_models`.\n:returns: the local directory the pack landed in."
+    }
+  },
+  "all_other_records_exact": true,
+  "all_ten_catalogs_reference_none_of_removed": true,
+  "normal_writer": "_write_english_api_manifest"
+}

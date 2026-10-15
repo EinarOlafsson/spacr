@@ -232,3 +232,15 @@ features/data/678_file_pair_runtime_catalogs_2026-10-15/. This closes the bounde
 batch, not the complete N678 review. Original Home owns the separate N641
 FilePathListWidget asynchronous-drop implementation; our paired-table helpers
 and the plate-map scope remain separate.
+
+2026-10-15 — Memory-budget and laptop-mode factual review completed.
+Corrected eviction ordering, available-memory units/measurement failures,
+caller-owned headroom handling, laptop decision diagnostics and process-only
+backdrop suppression semantics. Executable ASTs remain identical. All261
+changed prose translation targets passed independent technical review; nine
+unchanged literal-schema targets gained exact reviewed provenance without
+changing bytes. Normal writer46.65s, no model decoding, all unrelated API
+records preserved. Final coordinator verifies all15 owned symbols across this,
+DINO and carried-database batches against normal artifacts and all unrelated
+incoming records, including N641. Evidence:678_memory_laptop_api_catalogs and
+peer directories dated2026-10-15 underfeatures/data/. Broad N678 remains open.

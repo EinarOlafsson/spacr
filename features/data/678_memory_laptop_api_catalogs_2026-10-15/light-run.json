@@ -1,0 +1,12 @@
+{
+  "mode": "light",
+  "runtime_canonical_requests": 1,
+  "actual_runtime_collections": 0,
+  "runtime_collection_seconds": [],
+  "model_decode_requests": 0,
+  "prepared_locales": [],
+  "written_locales": [],
+  "status": "failed",
+  "exception": "RuntimeError('requires heavy slot before runtime.canonical_sources; collector not executed')",
+  "elapsed_seconds": 1.6780199619824998
+}

@@ -438,28 +438,40 @@
       "source": "``channel_of_interest`` — 0-based channel for the recruitment ratio feature; also drives table selection.",
       "context": "``channel_of_interest`` — 0-based channel for the recruitment ratio feature; also drives table selection.",
       "source_sha256": "e70caf02964a3ec5d7b8872c9c5a25c803e522c1361d80e4669e738dcb8b3343",
-      "translation": "``channel_of_interest`` — canal con base cero para la característica de la razón de reclutamiento; también determina la selección de tablas."
+      "translation": "``channel_of_interest`` — canal con base cero para la característica de la razón de reclutamiento; también determina la selección de tablas.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#6",
       "source": "``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.",
       "context": "``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.",
       "source_sha256": "a977ad07888386e097c47c5a1b6f76f95d3f166f515fce3af1eccea39b359041",
-      "translation": "``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``."
+      "translation": "``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#7",
       "source": "``positive_control`` / ``negative_control`` — well IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.",
       "context": "``positive_control`` / ``negative_control`` — microplate sample position IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.",
       "source_sha256": "9d28261bdaab34a143c88fcc3f0c17589cb3115ac9b615ebc10aa48dc7aa6487",
-      "translation": "``positive_control`` / ``negative_control`` — identificadores de pocillos (p. ej., ``'c2'`` / ``'c1'``) usados como etiquetas de entrenamiento."
+      "translation": "``positive_control`` / ``negative_control`` — identificadores de pocillos (p. ej., ``'c2'`` / ``'c1'``) usados como etiquetas de entrenamiento.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#8",
       "source": "``annotation_column`` — override controls with a PNG-level annotation column.",
       "context": "``annotation_column`` — override controls with a PNG-level annotation column.",
       "source_sha256": "3f461869af6c98fe2d7759f49c734fccd7f0b7c383b2fa64eb823648a04fc723",
-      "translation": "``annotation_column`` — sustituye los controles por una columna de anotación a nivel de PNG."
+      "translation": "``annotation_column`` — sustituye los controles por una columna de anotación a nivel de PNG.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#8",
@@ -475,49 +487,70 @@
       "source": "``heatmap_feature`` — feature plotted on the plate heatmap.",
       "context": "``heatmap_feature`` — feature plotted on the plate heatmap.",
       "source_sha256": "cb0a243031c3f5cd2044fa67b61c4530305e7a250c7f099e31997ed1060c88bd",
-      "translation": "``heatmap_feature`` — característica representada en el mapa de calor de la placa."
+      "translation": "``heatmap_feature`` — característica representada en el mapa de calor de la placa.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#11",
       "source": "``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.",
       "context": "``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.",
       "source_sha256": "9ee6eb15ffb9c7c8b469af9de56cb2e3a364b2e82bd2b7eca004b0cf69ffac0b",
-      "translation": "``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``."
+      "translation": "``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#12",
       "source": "``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.",
       "context": "``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.",
       "source_sha256": "8e71bc18b22baf009410bf097bb2d18e10e4036a160107f9f3d79bff96643800",
-      "translation": "``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``."
+      "translation": "``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#13",
       "source": "The two-element list ``[output, plate_heatmap]``, where ``output`` is the 10-element result list of :func:`ml_analysis` and ``plate_heatmap`` is the plate-heatmap ``matplotlib`` figure. The CSVs and figures are written to ``results/`` as a side effect; their paths are not returned.",
       "context": "The two-element list ``[output, plate_heatmap]``, where ``output`` is the 10-element result list of :func:`ml_analysis` and ``plate_heatmap`` is the plate-heatmap ``matplotlib`` figure. The CSVs and figures are written to ``results/`` as a side effect; their paths are not returned.",
       "source_sha256": "5661bcf2e30846a03f05e929308fdd631e7c245d24503eba7564d48966745773",
-      "translation": "La lista de dos elementos ``[output, plate_heatmap]``, donde ``output`` es la lista de diez resultados de :func:`ml_analysis` y ``plate_heatmap`` es la figura ``matplotlib`` del mapa de calor de la placa. Los CSV y las figuras se escriben en ``results/`` como efecto secundario; sus rutas no se devuelven."
+      "translation": "La lista de dos elementos ``[output, plate_heatmap]``, donde ``output`` es la lista de diez resultados de :func:`ml_analysis` y ``plate_heatmap`` es la figura ``matplotlib`` del mapa de calor de la placa. Los CSV y las figuras se escriben en ``results/`` como efecto secundario; sus rutas no se devuelven.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#14",
       "source": "if ``annotation_column`` is set but the ``png_list`` table lacks ``prcfo`` / that column, its object IDs do not join to the measurements, it contains fewer than two observed classes, or if ``heatmap_feature`` is not among the trained features.",
       "context": "if ``annotation_column`` is set but the ``png_list`` table lacks ``prcfo`` / that column, its object IDs do not join to the measurements, it contains fewer than two observed classes, or if ``heatmap_feature`` is not among the trained features.",
       "source_sha256": "c6753f3dfc68811b8e2b0ccf1abd2181cce250a11ab0e9c4c330ee527b52df96",
-      "translation": "si se establece ``annotation_column`` pero la tabla ``png_list`` no contiene ``prcfo`` o esa columna, sus identificadores de objeto no se pueden unir con las mediciones, contiene menos de dos clases observadas, o si ``heatmap_feature`` no figura entre las características entrenadas."
+      "translation": "si se establece ``annotation_column`` pero la tabla ``png_list`` no contiene ``prcfo`` o esa columna, sus identificadores de objeto no se pueden unir con las mediciones, contiene menos de dos clases observadas, o si ``heatmap_feature`` no figura entre las características entrenadas.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#15",
       "source": "Example:",
       "context": "Example:",
       "source_sha256": "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
-      "translation": "Ejemplo:"
+      "translation": "Ejemplo:",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#16",
       "source": "See Also: :func:`ml_analysis` — the underlying fit/evaluate routine. :func:`perform_regression` — mixed-effects regression on per-well ML scores.",
       "context": "See Also: :func:`ml_analysis` — the underlying fit/evaluate routine. :func:`perform_regression` — mixed-effects regression on per-microplate sample position ML scores.",
       "source_sha256": "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d",
-      "translation": "Véase también: :func:`ml_analysis` — la rutina subyacente de ajuste y evaluación. :func:`perform_regression` — regresión de efectos mixtos sobre puntuaciones de aprendizaje automático por pocillo."
+      "translation": "Véase también: :func:`ml_analysis` — la rutina subyacente de ajuste y evaluación. :func:`perform_regression` — regresión de efectos mixtos sobre puntuaciones de aprendizaje automático por pocillo.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.load_regression_input_pairs#0",

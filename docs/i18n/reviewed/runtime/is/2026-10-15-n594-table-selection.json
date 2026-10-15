@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "is",
+  "draft_author": "Original Home easy_overnight",
+  "review_kind": "Direct AI technical draft plus independent root AI technical peer approval; no native-speaker signoff",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "tables",
+      "source": "Measurement tables read from each plate's database and merged into one analysis frame. Supported tables are registered object roles, including organelles, and png_list. For tabular Classify, choose a nonempty list of distinct supported tables with at least one object-role table. Default ['cell', 'nucleus', 'pathogen', 'cytoplasm'].",
+      "source_sha256": "ae80ba99c469953dc414682864e9352b45e99622f2f0d11ed457d06c1e9f825a",
+      "translation": "Mælitöflur sem lesnar eru úr gagnagrunni hverrar plötu og sameinaðar í einn gagnaramma til greiningar. Studdar töflur eru skráðir flokkar mældra hluta, þar á meðal frumulíffæri, og png_list. Fyrir töflumiðað Classify skal velja ótóman lista af ólíkum studdum töflum með að minnsta kosti einni töflu fyrir flokk mældra hluta. Sjálfgefið ['cell', 'nucleus', 'pathogen', 'cytoplasm']."
+    }
+  ],
+  "peer_receipt": {
+    "path": "features/data/594_existing_table_selection_2026-10-15/root-tooltip-peer-review.json",
+    "sha256": "ec502b7c070a0dd5e83fc7d80bf6d13be555801cc1b6da0ca2e34e1ef233fb9a",
+    "approved_translation_sha256": "f3ecbcb1ec8a13ae2cba96ed10434b907473ffcbaa0729a15423830e16616ef2"
+  }
+}

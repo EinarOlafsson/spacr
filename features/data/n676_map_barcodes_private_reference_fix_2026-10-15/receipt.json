@@ -1,0 +1,82 @@
+{
+  "schema": 1,
+  "lesson": "12_map_barcodes",
+  "observer_commit": "e88f6531779fc1bc472747b0632b53e0eda919fd",
+  "private_reference_fix_commit": "a583deacd0d443853f1779a7366a6529cd8e77c3",
+  "observer_tests": {
+    "passed": 51,
+    "warnings": 8,
+    "seconds": 14.05,
+    "terminal_exit": 0
+  },
+  "private_reference_tests": {
+    "passed": 22,
+    "warnings": 8,
+    "seconds": 2.55,
+    "terminal_exit": 0,
+    "scope": "Actual Qt/private genuine defaultCSV copies, file-picker controls and readback/privacy/data cases."
+  },
+  "independent_peer": "HIGH source/data/privacy/cleanup peer PASS as reported byroot/owner; no nativecapture acceptance inferred.",
+  "turn50": {
+    "terminal_rc": 1,
+    "actual_public_Home_Map_Barcodes_opened": true,
+    "finalized_raw_clips": [
+      "01_module"
+    ],
+    "cause": "Privacyguard refused visible bundled defaultbarcodes_grna.csv ROOTresourcepath before archivechooser02.",
+    "app_exit_code": 0,
+    "saved_cleanup_survivors": [],
+    "whole_capture_accepted": false,
+    "scientific_acceptance": false
+  },
+  "repair_scope": "Recorder privately copies genuine3defaultCSV inputs and selects actualreadonlyFilePathListWidget fields using genuine Choosefiledialogs/readback beforechooser; same scene04/11 selectors repaired. No app/policy/gate relaxation.",
+  "turn51": {
+    "status": "fresh whole prepared only; rootownsmarker/queue",
+    "accepted": false
+  },
+  "audio_staging_executed": false,
+  "published_lesson12": false,
+  "live_Space_claim": false,
+  "files": [
+    {
+      "file": "e88f6531779fc1bc472747b0632b53e0eda919fd.patch",
+      "source": "git format-patch -1 --stdout e88f6531779fc1bc472747b0632b53e0eda919fd",
+      "bytes": 8767,
+      "sha256": "635f098053b70c79db47c75d8e8ece04eef108237b8ddfb4aadfff3ef15905a4"
+    },
+    {
+      "file": "a583deacd0d443853f1779a7366a6529cd8e77c3.patch",
+      "source": "git format-patch -1 --stdout a583deacd0d443853f1779a7366a6529cd8e77c3",
+      "bytes": 14534,
+      "sha256": "d14e9365b805feac80a67938766c20271e3acc9bf4e490d2c0bbeb2812de82c3"
+    },
+    {
+      "file": "route-tests.txt",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/lesson12-r50/route-tests.log",
+      "bytes": 1995,
+      "sha256": "fd4a1aef781f37ab5c1029ea6a67085fb7bb41bc97f815b90ac54b2fdad40278",
+      "byte_identical_copy": true
+    },
+    {
+      "file": "private-reference-tests.txt",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/lesson12-r50/private-reference-tests-final-r2.log",
+      "bytes": 1994,
+      "sha256": "47c83596b939ab2c443a8bbe85db5ac7b0fce57e40ab7e3152285eb687e268a9",
+      "byte_identical_copy": true
+    },
+    {
+      "file": "turn50-host-run.json",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/lesson12-r50/host-run.json",
+      "bytes": 893,
+      "sha256": "aacf935eb48ad68234bc4d559d694a4eecbe5e1b4936d41ea490ba73a525141d",
+      "byte_identical_copy": true
+    },
+    {
+      "file": "turn50-cleanup.json",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/lesson12-r50/gnome-host/cleanup.json",
+      "bytes": 54,
+      "sha256": "75c9ae32733b323c48b654979ccd7d383e654d187b7c4ce6e2b9b705e009dfad",
+      "byte_identical_copy": true
+    }
+  ]
+}

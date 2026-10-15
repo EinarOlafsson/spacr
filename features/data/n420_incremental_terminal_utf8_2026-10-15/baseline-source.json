@@ -1,0 +1,6 @@
+{
+  "base": "15938ddbb6fd431d59f45eb90840d903177b3dd5",
+  "source_sha256": "734be20556f96934ea1609946ae62ca9eb424286e586ce8f783895503552a2f6",
+  "index_paths": 31987,
+  "scope": "N420 POSIX PTY UTF8 transport only; no vendor CLI/account/login/browser/network action"
+}

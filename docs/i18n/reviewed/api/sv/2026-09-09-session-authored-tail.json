@@ -91,7 +91,10 @@
       "source_sha256": "cacfbfd07a2f73a883e233de8269be4aa7da60e7306154141f03ad837ca4e0ad",
       "source": "TWO REASONS, APPLIED IN ORDER. Anything idle longer than the timeout goes because nothing is using it. Then, if what remains is still over the ceiling, the least recently used go until it fits -- so a cache under pressure gives up what it is least likely to want next rather than whatever it happens to reach first.",
       "context": "Two reasons, applied in order. Anything idle longer than the timeout goes because nothing is using it. Then, if what remains is still over the ceiling, the least recently used go until it fits -- so a cache under pressure gives up what it is least likely to want next rather than whatever it happens to reach first.",
-      "translation": "Två skäl, tillämpade i tur och ordning. Allt som varit overksamt längre än tidsgränsen får gå, eftersom ingen använder det. Om det som återstår ändå ligger över taket får därefter de minst nyligen använda gå tills det får plats -- så att en cache under press ger upp det den minst troligt vill ha härnäst i stället för det den råkar nå först."
+      "translation": "Två skäl, tillämpade i tur och ordning. Allt som varit overksamt längre än tidsgränsen får gå, eftersom ingen använder det. Om det som återstår ändå ligger över taket får därefter de minst nyligen använda gå tills det får plats -- så att en cache under press ger upp det den minst troligt vill ha härnäst i stället för det den råkar nå först.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Memory/laptop source documentation corrected in a48984fffa7 + a8457f61cf0. Replacement exact-source review is2026-10-15-memory-laptop-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.preferences.get_news_height#1",

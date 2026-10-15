@@ -1,0 +1,269 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review; independent source-semantic peer review approved all 261 draft pairs; committed-hash receipt follows; no native-speaker signoff",
+  "note": "Twenty-nine changed blocks in twelve existing symbols from memory source a48984fffa7 and laptop source a8457f61cf0. Normal targeted AST rendering matches owner ledgers and published before bodies. Only owned source currency is claimed; unrelated published English is preserved without a global collector replay. Superseded records retain source/target evidence. Runtime captions belong to the UI owner.",
+  "records": [
+    {
+      "label": "spacr.qt.memory_budget#0",
+      "source": "Cache eviction policies and host-memory availability measurements.",
+      "context": "Cache eviction policies and host-memory availability measurements.",
+      "source_sha256": "085b0477dcf6526001c033b3b6351f2e869b539bab650e175c85b1642d8b528d",
+      "previous_same_source_indexes": [],
+      "translation": "Políticas de remoção de entradas da cache e medições da memória disponível no sistema anfitrião.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.memory_budget#1",
+      "source": "The idle timeout and cache ceiling determine the keys selected by ``what_to_drop``. The separate ``headroom_is_short`` predicate compares available host memory with a configured threshold. Callers apply these policies and perform resource cleanup.",
+      "context": "The idle timeout and cache ceiling determine the structured-data names selected by ``what_to_drop``. The separate ``headroom_is_short`` predicate compares available host memory with a configured threshold. Callers apply these policies and perform resource cleanup.",
+      "source_sha256": "c58bbd9144a04712a3e43730f51eb31206fa4de45fc39af9e363370a6b35390a",
+      "previous_same_source_indexes": [],
+      "translation": "O tempo limite de inatividade e o limite de tamanho da cache determinam as chaves selecionadas por ``what_to_drop``. O predicado separado ``headroom_is_short`` compara a memória disponível no anfitrião com um limiar configurado. Os chamadores aplicam estas políticas e libertam recursos.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.memory_budget#2",
+      "source": "This module does not unload Python modules or native libraries. Eviction plans identify cache entries; callers decide which resources may be released. The policies do not guarantee a particular reduction in process memory or GPU allocations.",
+      "context": "This module does not unload Python modules or native libraries. Eviction plans identify cache entries; callers decide which resources may be released. The policies do not guarantee a particular reduction in process memory or GPU allocations.",
+      "source_sha256": "b004a86b58a3789efb278a41b73c0f30c1d72368becbddce078243853e3ea6fa",
+      "previous_same_source_indexes": [],
+      "translation": "Este módulo não retira da memória módulos Python nem bibliotecas nativas. Os planos de remoção identificam entradas da cache; os chamadores decidem quais os recursos que podem ser libertados. As políticas não garantem uma redução específica da memória do processo nem das alocações da GPU.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.memory_budget.free_megabytes#0",
+      "source": "Return available host memory in mebibytes.",
+      "context": "Return available host memory in mebibytes.",
+      "source_sha256": "950086cece6235f942f0ce62223a5798d14c2ba4ca0c885d91d5e2450b7fa354",
+      "previous_same_source_indexes": [],
+      "translation": "Devolve a memória disponível no anfitrião em mebibytes.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.memory_budget.free_megabytes#1",
+      "source": "``psutil.virtual_memory().available`` divided by ``1024**2``, or ``None`` when the measurement fails.",
+      "context": "``psutil.virtual_memory().available`` divided by ``1024**2``, or ``None`` when the measurement fails.",
+      "source_sha256": "462aed865924dabca59acee0fb621a773096cb4f8fdb138514974fff2dcbf0fb",
+      "previous_same_source_indexes": [],
+      "translation": "``psutil.virtual_memory().available`` dividido por ``1024**2``, ou ``None`` se a medição falhar.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.memory_budget.headroom_is_short#0",
+      "source": "Test whether available host memory is below the configured threshold.",
+      "context": "Test whether available host memory is below the configured threshold.",
+      "source_sha256": "faf3fe4a3b6e43462f3a13253b023c1454b2325f453699cd1a393716d262e212",
+      "previous_same_source_indexes": [],
+      "translation": "Verifica se a memória disponível no anfitrião está abaixo do limiar configurado.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.memory_budget.headroom_is_short#1",
+      "source": "threshold in mebibytes; read from preferences when omitted.",
+      "context": "threshold in mebibytes; read from preferences when omitted.",
+      "source_sha256": "3d229748a5339d249f9b76f1ebdef0c7afc35d56cec845bde90240f0e195c33b",
+      "previous_same_source_indexes": [],
+      "translation": "limiar em mebibytes; lido das preferências quando omitido.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.memory_budget.headroom_is_short#2",
+      "source": "``False`` when memory or the required preference cannot be read; otherwise the result of comparing available memory with the threshold.",
+      "context": "``False`` when memory or the required preference cannot be read; otherwise the result of comparing available memory with the threshold.",
+      "source_sha256": "664619de4cb6f00d2793597275ff197d74e6d957b6f24f9e34fe84c55f1d6027",
+      "previous_same_source_indexes": [],
+      "translation": "``False`` quando não é possível ler a memória ou a preferência necessária; caso contrário, o resultado da comparação entre a memória disponível e o limiar.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.memory_budget.what_to_drop#0",
+      "source": "Select cache keys by idle timeout and then the remaining total size.",
+      "context": "Select cache structured-data names by idle timeout and then the remaining total size.",
+      "source_sha256": "31af9ce76aff459d4c3179c000db0bdb43c6503ec8570c3138467fa97fc8d6cf",
+      "previous_same_source_indexes": [],
+      "translation": "Seleciona chaves da cache pelo tempo limite de inatividade e depois pelo tamanho total restante.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.memory_budget.what_to_drop#5",
+      "source": "string keys to drop, in selection order.",
+      "context": "string keys to drop, in selection order.",
+      "source_sha256": "020e34f4fc2e9929430d3ed889a0053e72971f16ab734f8d160919f8c23975ca",
+      "previous_same_source_indexes": [],
+      "translation": "chaves de texto a remover, pela ordem de seleção.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.memory_budget.what_to_drop#6",
+      "source": "Entries older than the timeout are selected first, in input order. If the remaining total exceeds the ceiling, additional entries are selected from least to most recently used until that total fits.",
+      "context": "Entries older than the timeout are selected first, in input order. If the remaining total exceeds the ceiling, additional entries are selected from least to most recently used until that total fits.",
+      "source_sha256": "67debaa49d33527c26424e67de2fd5eebf205f8441346115f35f0938bee1bcf5",
+      "previous_same_source_indexes": [],
+      "translation": "As entradas mais antigas do que o tempo limite são selecionadas primeiro, pela ordem de entrada. Se o total restante exceder o limite, são selecionadas entradas adicionais, da utilizada há mais tempo para a utilizada mais recentemente, até que o total caiba no limite.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.memory_budget.what_to_drop#7",
+      "source": "Size determines whether further eviction is needed, not the ranking. The ceiling can select entries even when none exceeds the idle timeout. This helper does not check host-memory headroom or whether entries are in use; callers must supply entries eligible for eviction.",
+      "context": "Size determines whether further eviction is needed, not the ranking. The ceiling can select entries even when none exceeds the idle timeout. This helper does not check host-memory headroom or whether entries are in use; callers must supply entries eligible for eviction.",
+      "source_sha256": "8722da35e47b65d0b7eba6f7ac24df9385eba9e2f424312ec0f35e5cf75c7d06",
+      "previous_same_source_indexes": [],
+      "translation": "O tamanho determina se é necessário remover mais entradas, não a sua ordenação. O limite pode selecionar entradas mesmo quando nenhuma excede o tempo limite de inatividade. Esta função auxiliar não verifica a margem de memória do anfitrião nem se as entradas estão em utilização; os chamadores devem fornecer entradas que possam ser removidas.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode#0",
+      "source": "Measure hardware constraints and suppress the ambient backdrop for this process.",
+      "context": "Measure hardware constraints and suppress the ambient backdrop for this process.",
+      "source_sha256": "85ddd1bb60b3d4e0f55ffd701d2dce2a1155c1f2241629f14cc53fb007d245f7",
+      "previous_same_source_indexes": [],
+      "translation": "Mede as restrições do hardware e suprime o fundo ambiente para este processo.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode#1",
+      "source": "Hardware-based decisions use the usable CPU count, physical memory and the ``SPACR_LAPTOP_MODE`` override. GUI startup instead passes an explicit decision from the selected performance level; its hardware reading is diagnostic.",
+      "context": "Hardware-based decisions use the usable CPU count, physical memory and the ``SPACR_LAPTOP_MODE`` override. GUI startup instead passes an explicit decision from the selected performance level; its hardware reading is diagnostic.",
+      "source_sha256": "22d6013b7106cf5b021f20c64632c8c0e4400be98231b6a4cc301adc1889028d",
+      "previous_same_source_indexes": [],
+      "translation": "As decisões baseadas no hardware usam o número de CPU utilizáveis, a memória física e a substituição ``SPACR_LAPTOP_MODE``. Em vez disso, o arranque da GUI passa uma decisão explícita do nível de desempenho selecionado; a sua leitura do hardware serve para diagnóstico.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode#2",
+      "source": "Suppression affects backdrop rendering. This module does not set worker-thread limits or analysis parameters, and it does not replace stored animation preferences.",
+      "context": "Suppression affects backdrop rendering. This module does not set background execution unit limits or analysis parameters, and it does not replace stored animation preferences.",
+      "source_sha256": "c4f4dc6104a1cb2030a0d6288cfce1b03fc25118abcc101dcb223f8e151bb3f9",
+      "previous_same_source_indexes": [],
+      "translation": "A supressão afeta a representação do fundo. Este módulo não define limites de threads de trabalho nem parâmetros de análise, e não substitui as preferências de animação guardadas.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode#3",
+      "source": "``apply`` sets ``SPACR_NO_BACKDROP`` when suppression is requested and the ambient backdrop is enabled. Disabling removes only a suppression created by this module; a pre-existing crash-recovery override is retained.",
+      "context": "``apply`` sets ``SPACR_NO_BACKDROP`` when suppression is requested and the ambient backdrop is enabled. Disabling removes only a suppression created by this module; a pre-existing crash-recovery override is retained.",
+      "source_sha256": "bc2a62643c61a169283b9042591de9bb47450347172d5d57238a1f7996cd2d61",
+      "previous_same_source_indexes": [],
+      "translation": "``apply`` define ``SPACR_NO_BACKDROP`` quando é pedida a supressão e o fundo ambiente está ativado. A desativação remove apenas uma supressão criada por este módulo; mantém-se uma substituição preexistente de recuperação após falha.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.usable_cores#0",
+      "source": "Return the CPU affinity count, falling back to ``os.cpu_count``.",
+      "context": "Return the CPU affinity count, falling back to ``os.cpu_count``.",
+      "source_sha256": "56820c575c58409fee1cabc4f1d09fa1463b46198902e7b22b6cbd635457ba93",
+      "previous_same_source_indexes": [],
+      "translation": "Devolve a contagem de CPU permitidas pela afinidade do processo, recorrendo a ``os.cpu_count`` como alternativa.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.usable_cores#1",
+      "source": "``os.sched_getaffinity`` accounts for process pinning when available. If it is unavailable or fails, use the reported CPU count instead. The result is at least one; the fallback does not measure affinity limits.",
+      "context": "``os.sched_getaffinity`` accounts for process pinning when available. If it is unavailable or fails, use the reported CPU count instead. The result is at least one; the fallback does not measure affinity limits.",
+      "source_sha256": "df0e2b015a4d01a4f27dc98ebd665d717211ed594cb1d8071a18887d3fe349e5",
+      "previous_same_source_indexes": [],
+      "translation": "``os.sched_getaffinity`` tem em conta a vinculação do processo quando está disponível. Se estiver indisponível ou falhar, usa-se o número de CPU reportado. O resultado é pelo menos um; a alternativa não mede os limites de afinidade.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.override#0",
+      "source": "Parse the environment override; return ``None`` if absent or unrecognized.",
+      "context": "Parse the environment override; return ``None`` if absent or unrecognized.",
+      "source_sha256": "280feb5c02f4f17a28e22b38ccf56a59e75b0ff89549241dde9ff219e58b9a88",
+      "previous_same_source_indexes": [],
+      "translation": "Interpreta a substituição do ambiente; devolve ``None`` se estiver ausente ou não for reconhecida.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.measure#0",
+      "source": "Return CPU count, physical memory, threshold flags and the parsed override.",
+      "context": "Return CPU count, physical memory, threshold flags and the parsed override.",
+      "source_sha256": "0e98eae25debf8b8698504e690faeaeb5dd6a892c05e95babe9c83885137db05",
+      "previous_same_source_indexes": [],
+      "translation": "Devolve o número de CPU, a memória física, os indicadores de limiar e a substituição interpretada.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.wanted#0",
+      "source": "Return the hardware-based laptop-mode decision and its explanation.",
+      "context": "Return the hardware-based laptop-mode decision and its explanation.",
+      "source_sha256": "37defe4b29415dc455cf0dd701d4dad4a7ce074d71ea2681b2ed1444515fb5fd",
+      "previous_same_source_indexes": [],
+      "translation": "Devolve a decisão do modo portátil baseada no hardware e a respetiva explicação.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.wanted#1",
+      "source": "``(on, why)``. The reason is always populated, including when the decision is off. An explicit environment override takes precedence over the core-count and physical-memory threshold flags.",
+      "context": "``(on, why)``. The reason is always populated, including when the decision is off. An explicit environment override takes precedence over the core-count and physical-memory threshold flags.",
+      "source_sha256": "dad65e9925e85646ec95ff8c9a08b748f3110f10e031bfc35c70c0931da83723",
+      "previous_same_source_indexes": [],
+      "translation": "``(on, why)``. O motivo está sempre preenchido, incluindo quando a decisão é desativar. Uma substituição explícita do ambiente tem prioridade sobre os indicadores de limiar do número de núcleos e da memória física.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.what_it_turns_down#0",
+      "source": "Return the animation and backdrop-blur descriptions used in diagnostics.",
+      "context": "Return the animation and backdrop-blur descriptions used in diagnostics.",
+      "source_sha256": "3bc73cd701a33d5e380729e5c811f729e6c16ff2ffa2a2669e122e37851a5ce0",
+      "previous_same_source_indexes": [],
+      "translation": "Devolve as descrições de animação e desfocagem do fundo usadas no diagnóstico.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.what_it_turns_down#1",
+      "source": "Each pair contains an effect name and its description for UI notes and logs. This function returns text; :func:`apply` performs the process-local backdrop suppression.",
+      "context": "Each pair contains an effect name and its description for UI notes and logs. This function returns text; :func:`apply` performs the process-local backdrop suppression.",
+      "source_sha256": "6a0f3ee15e8cd79518f3274559b9f6f226597ded2a474c571447031920608216",
+      "previous_same_source_indexes": [],
+      "translation": "Cada par contém o nome de um efeito e a sua descrição para notas da UI e registos. Esta função devolve texto; :func:`apply` executa a supressão do fundo limitada ao processo.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.describe#0",
+      "source": "Format the hardware-based decision and effect descriptions for diagnostic logs.",
+      "context": "Format the hardware-based decision and effect descriptions for diagnostic logs.",
+      "source_sha256": "083f511353978df8dfb8f5202ebb3c37226ba932903da94561393e3503143846",
+      "previous_same_source_indexes": [],
+      "translation": "Formata a decisão baseada no hardware e as descrições dos efeitos para registos de diagnóstico.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.apply#0",
+      "source": "Apply process-local backdrop suppression and report the decision and actions.",
+      "context": "Apply process-local backdrop suppression and report the decision and actions.",
+      "source_sha256": "9e3292da390de8c9058c1d22cfd855a911098f4a63e5b4ad8cf6fffa6eece2d0",
+      "previous_same_source_indexes": [],
+      "translation": "Aplica a supressão do fundo limitada ao processo e comunica a decisão e as ações.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.apply#1",
+      "source": "explicit decision; ``None`` uses :func:`wanted`, including its hardware reading and environment override.",
+      "context": "explicit decision; ``None`` uses :func:`wanted`, including its hardware reading and environment override.",
+      "source_sha256": "5515f2e440b9b34d681608374dbdca8c035559fedde080bdfd9044ee27538d96",
+      "previous_same_source_indexes": [],
+      "translation": "decisão explícita; ``None`` usa :func:`wanted`, incluindo a sua leitura do hardware e a substituição do ambiente.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.apply#2",
+      "source": "a mapping with ``on``, ``why`` and ``changed``. ``on`` is the decision; ``changed`` lists actions actually performed and may be empty.",
+      "context": "a mapping with ``on``, ``why`` and ``changed``. ``on`` is the decision; ``changed`` lists actions actually performed and may be empty.",
+      "source_sha256": "a310f089a7b0306a0e02315d0496305fa606744e154cb76b240ac3fb1efa1fb1",
+      "previous_same_source_indexes": [],
+      "translation": "um mapeamento com ``on``, ``why`` e ``changed``. ``on`` é a decisão; ``changed`` lista as ações efetivamente realizadas e pode estar vazio.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.laptop_mode.apply#3",
+      "source": "Suppression is process-local and does not replace the stored animation preference. Disabling clears only suppression created by this module, retaining any pre-existing crash-recovery override.",
+      "context": "Suppression is process-local and does not replace the stored animation preference. Disabling clears only suppression created by this module, retaining any pre-existing crash-recovery override.",
+      "source_sha256": "9f8615c6fee1478d99c3b002b6ab7a48f69a560f512e2d7604d7c073a5f85ce5",
+      "previous_same_source_indexes": [],
+      "translation": "A supressão é limitada ao processo e não substitui a preferência de animação guardada. A desativação limpa apenas a supressão criada por este módulo, mantendo qualquer substituição preexistente de recuperação após falha.",
+      "review_basis": "Exact-source technical translation review of available host memory in mebibytes, unknown-measurement fallback, input-order idle eviction followed by least-recently-used ceiling eviction, caller eligibility, affinity fallback, GUI-selected versus hardware decisions, process-local backdrop suppression and preserved explicit settings/overrides. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "app_exit_code": 0,
+  "recorder_rc": null,
+  "failure": "Traceback (most recent call last):\n  File \"/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_host_mode.py\", line 646, in driver\n    outcome['rc'] = capture_refresh.main()\n                    ~~~~~~~~~~~~~~~~~~~~^^\n  File \"/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_refresh.py\", line 1272, in main\n    raise RuntimeError(f'The archive example was not verified: {sequence_choice}')\nRuntimeError: The archive example was not verified: {'error': \"Capture refused: a visible text surface contains a personal or mounted path outside the prepared capture directory: QLineEdit '': /media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/resources/data/barcodes_grna.csv\"}\n",
+  "clips": {},
+  "gate_failed": []
+}

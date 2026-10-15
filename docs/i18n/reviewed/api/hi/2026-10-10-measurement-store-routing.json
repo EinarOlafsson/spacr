@@ -6,7 +6,10 @@
       "label": "spacr.ml.generate_ml_scores#1",
       "source": "Reads the measurement store selected by ``measurement_backend`` from :func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/ cytoplasm feature tables, uses the wells marked as ``positive_control`` / ``negative_control`` (or an annotation column) as training labels, delegates fitting to :func:`ml_analysis`, and writes per-object predictions, permutation and feature-importance tables plus a plate heatmap into ``results/`` under the first source folder.",
       "source_sha256": "36825b8b74e6ab3d1b65ddf9c4431f61466f4668d09b9fa6f46bf0698334e247",
-      "translation": "``measurement_backend`` द्वारा चुने गए, :func:`spacr.measure.measure_crop` से आए मापन स्टोर को पढ़ता है, कोशिका/केंद्रक/रोगजनक/ कोशिकाद्रव्य फ़ीचर तालिकाओं को मर्ज करता है, ``positive_control`` / ``negative_control`` के रूप में चिह्नित वेल (या एक एनोटेशन कॉलम) को प्रशिक्षण लेबल के रूप में उपयोग करता है, फ़िटिंग :func:`ml_analysis` को सौंपता है, और प्रति-ऑब्जेक्ट पूर्वानुमान, परम्यूटेशन और फ़ीचर-महत्व तालिकाएँ तथा एक प्लेट हीटमैप पहले स्रोत फ़ोल्डर के अंतर्गत ``results/`` में लिखता है।"
+      "translation": "``measurement_backend`` द्वारा चुने गए, :func:`spacr.measure.measure_crop` से आए मापन स्टोर को पढ़ता है, कोशिका/केंद्रक/रोगजनक/ कोशिकाद्रव्य फ़ीचर तालिकाओं को मर्ज करता है, ``positive_control`` / ``negative_control`` के रूप में चिह्नित वेल (या एक एनोटेशन कॉलम) को प्रशिक्षण लेबल के रूप में उपयोग करता है, फ़िटिंग :func:`ml_analysis` को सौंपता है, और प्रति-ऑब्जेक्ट पूर्वानुमान, परम्यूटेशन और फ़ीचर-महत्व तालिकाएँ तथा एक प्लेट हीटमैप पहले स्रोत फ़ोल्डर के अंतर्गत ``results/`` में लिखता है।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "context": "``src`` (str or list) — folder(s) containing the measurements.",

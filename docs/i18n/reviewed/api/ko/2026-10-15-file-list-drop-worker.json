@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "Direct AI technical translation and self-review; independent peer requested; no human/native-speaker signoff",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.file_list.FilePathListWidget._queue_dropped_paths.collect#0",
+      "source": "Resolve folder members on a worker without touching widgets.",
+      "source_sha256": "5604b7ecb49544e73737852b4c7fbda2342a9299dd7cd2357acadd90d8408613",
+      "context": "Resolve folder members on a worker without touching widgets.",
+      "translation": "위젯에 접근하지 않고 작업 스레드에서 폴더의 파일을 확인합니다.",
+      "review_basis": "Direct exact-source AI technical translation and self-review, including normal current model context and protected GUI acronym. Worker-only folder/file resolution and main GUI thread delivery/stale-list refusal retained. No human/native-speaker/runtime acceptance claim."
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.FilePathListWidget._queue_dropped_paths.landed#0",
+      "source": "Append ready drops on the GUI thread unless their contents were replaced.",
+      "source_sha256": "0648283c0d3d58ec584ebfe4cfa797ce8413fe46a2a20cbfa4f5174994692296",
+      "context": "Append ready drops on the main GUI execution path unless their contents were replaced.",
+      "translation": "목록 내용이 교체되지 않았다면 GUI 스레드에서 준비된 드롭 결과를 추가합니다.",
+      "review_basis": "Direct exact-source AI technical translation and self-review, including normal current model context and protected GUI acronym. Worker-only folder/file resolution and main GUI thread delivery/stale-list refusal retained. No human/native-speaker/runtime acceptance claim."
+    }
+  ]
+}

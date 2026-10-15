@@ -23565,7 +23565,7 @@ Read by ``plot_data_from_db``.
 tables
 ------
 
-(list) - Measurement tables read from each plate's database and merged into one analysis frame. Only 'cell', 'nucleus', 'pathogen', 'cytoplasm', and 'png_list' are merged. Any other table, including 'organelle', is loaded but omitted from the merged result without a warning. Default ['cell', 'nucleus', 'pathogen', 'cytoplasm'].
+(list) - Measurement tables read from each plate's database and merged into one analysis frame. Supported tables are registered object roles, including organelles, and png_list. For tabular Classify, choose a nonempty list of distinct supported tables with at least one object-role table. Default ['cell', 'nucleus', 'pathogen', 'cytoplasm'].
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 | :py:func:`~spacr.core.generate_screen_graphs` **-- reads it**
@@ -23574,6 +23574,7 @@ tables
 |     :py:func:`~spacr.io.generate_training_dataset` **-- reads it**
 | :py:func:`~spacr.hyperparam.run_search_for_app`
 |     :py:func:`~spacr.hyperparam.load_search_data` **-- reads it**
+| :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 | :py:func:`~spacr.ml.interpret_vision_model` **-- reads it**
 |     ``read_and_preprocess_data(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ml.read_and_preprocess_data` **-- reads it**
@@ -23585,7 +23586,7 @@ tables
 |     ``read_and_preprocess_data(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.read_and_preprocess_data` **-- reads it**
 
-Read by ``generate_image_umap``, ``generate_screen_graphs``, ``reducer_hyperparameter_search``, ``load_search_data``, ``generate_training_dataset``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``default_settings_analyze_percent_positive``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_percent_positive``, ``interpret_vision_model``, ``read_and_preprocess_data``.
+Read by ``generate_image_umap``, ``generate_screen_graphs``, ``reducer_hyperparameter_search``, ``load_search_data``, ``generate_training_dataset``, ``generate_ml_scores``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``default_settings_analyze_percent_positive``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_percent_positive``, ``interpret_vision_model``, ``read_and_preprocess_data``.
 
 .. _setting-flow-tar_path:
 
