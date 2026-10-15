@@ -19,16 +19,20 @@ def panel(qtbot):
     return widget
 
 
-def results(tmp_path, name="run_a"):
+def results(tmp_path, name="run_a", *, extra_colours=False):
     folder = tmp_path / name
     folder.mkdir(exist_ok=True)
     path = folder / "results.csv"
-    pd.DataFrame({
+    frame = pd.DataFrame({
         "feature": [f"gene_fraction:gene[G{i}]" for i in range(6)],
         "coefficient": [-2.0, -1.0, -0.5, 0.5, 1.0, 2.0],
         "p_value": [0.001, 0.1, 0.8, 0.3, 0.02, 0.0001],
         "condition": ["positive", "negative", "other"] * 2,
-    }).to_csv(path, index=False)
+    })
+    if extra_colours:
+        frame["qc"] = ["pass", "fail", "pass"] * 2
+        frame["batch"] = ["b1", "b1", "b2"] * 2
+    frame.to_csv(path, index=False)
     return path
 
 
@@ -130,3 +134,67 @@ def test_restore_preserves_an_unrelated_unsaved_live_view(panel, tmp_path):
     assert panel.plot_state()["threshold_multiplier"] == 2.0
     assert panel.load(str(second))
     assert panel.plot_state()["threshold_multiplier"] == 4.0
+
+
+@pytest.mark.parametrize("shape,opacity", [("qc", None), (None, "batch"),
+                                          ("qc", "batch")])
+def test_workspace_restores_secondary_colour_channels(
+        panel, qtbot, tmp_path, shape, opacity):
+    from spacr.qt.widgets.regression_results import RegressionResultsPanel
+
+    assert panel.load(str(results(tmp_path, extra_colours=True)))
+    panel._colour_by_2.setCurrentIndex(panel._colour_by_2.findData(shape))
+    panel._colour_by_3.setCurrentIndex(panel._colour_by_3.findData(opacity))
+    expected = ["condition"] + [value for value in (shape, opacity) if value]
+    assert panel.colour_channels() == expected
+    saved = json.loads(json.dumps(panel.workspace_state()))
+
+    fresh = RegressionResultsPanel()
+    qtbot.addWidget(fresh)
+    assert fresh.apply_workspace_state(saved)
+
+    assert fresh.colour_channels() == expected
+    assert fresh._colour_by_2.currentData() == shape
+    assert fresh._colour_by_3.currentData() == opacity
+    labels = [label for label, _ in fresh.volcano._legend_entries()]
+    assert any("(shape)" in label for label in labels) is bool(shape)
+    assert any("(opacity)" in label for label in labels) is bool(opacity)
+
+
+def test_secondary_channels_remain_owned_by_their_run(panel, tmp_path):
+    first = results(tmp_path, extra_colours=True)
+    second = results(tmp_path, "run_b", extra_colours=True)
+    assert panel.load(str(first))
+    panel._colour_by_2.setCurrentIndex(panel._colour_by_2.findData("qc"))
+    panel._colour_by_3.setCurrentIndex(panel._colour_by_3.findData("batch"))
+    assert panel.load(str(second))
+    panel._colour_by_2.setCurrentIndex(panel._colour_by_2.findData("batch"))
+    panel._colour_by_3.setCurrentIndex(panel._colour_by_3.findData(None))
+
+    assert panel.load(str(first))
+    assert panel.colour_channels() == ["condition", "qc", "batch"]
+    assert panel.load(str(second))
+    assert panel.colour_channels() == ["condition", "batch"]
+    assert panel._colour_by_3.currentData() is None
+
+
+def test_legacy_state_omitting_secondary_channels_keeps_their_choices(panel, tmp_path):
+    assert panel.load(str(results(tmp_path, extra_colours=True)))
+    panel._colour_by_2.setCurrentIndex(panel._colour_by_2.findData("qc"))
+    panel._colour_by_3.setCurrentIndex(panel._colour_by_3.findData("batch"))
+
+    assert panel.apply_plot_state({"colour_by": "condition"})
+
+    assert panel.colour_channels() == ["condition", "qc", "batch"]
+
+
+def test_explicit_empty_secondary_channels_disable_their_encodings(panel, tmp_path):
+    assert panel.load(str(results(tmp_path, extra_colours=True)))
+    panel._colour_by_2.setCurrentIndex(panel._colour_by_2.findData("qc"))
+    panel._colour_by_3.setCurrentIndex(panel._colour_by_3.findData("batch"))
+
+    assert panel.apply_plot_state({"symbol_by": None, "opacity_by": None})
+
+    assert panel.colour_channels() == ["condition"]
+    labels = [label for label, _ in panel.volcano._legend_entries()]
+    assert not any("(shape)" in label or "(opacity)" in label for label in labels)

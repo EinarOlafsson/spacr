@@ -2094,6 +2094,9 @@ class RegressionResultsPanel(QWidget):
 
         ``selected_keys`` carries the complete table selection; the legacy
         ``selected_key`` also retains the active key used by linked plots.
+        ``symbol_by`` and ``opacity_by`` independently record the chosen
+        marker-shape and opacity columns, including ``None`` for an unused
+        channel, so an empty shape channel does not change opacity's role.
         """
         reader = getattr(self.volcano, "pinned_limits", None)
         pinned = reader() if callable(reader) else (
@@ -2101,6 +2104,8 @@ class RegressionResultsPanel(QWidget):
         return {
             "level": self._level,
             "colour_by": self._colour_by.currentData(),
+            "symbol_by": self._colour_by_2.currentData(),
+            "opacity_by": self._colour_by_3.currentData(),
             "baseline": tuple(self._baseline),
             "compartment": self._compartment,
             "p_value_kind": self._p_value_kind,
@@ -2136,13 +2141,15 @@ class RegressionResultsPanel(QWidget):
                       "threshold_multiplier"):
             if field in state:
                 setattr(self, f"_{field}", state[field])
-        if "colour_by" in state:
-            colour = state["colour_by"]
-            index = self._colour_by.findData(colour)
+        for field, combo in (("colour_by", self._colour_by),
+                             ("symbol_by", self._colour_by_2),
+                             ("opacity_by", self._colour_by_3)):
+            if field not in state:
+                continue
+            index = combo.findData(state[field])
             if index >= 0:
-                blocked = self._colour_by.blockSignals(True)
-                self._colour_by.setCurrentIndex(index)
-                self._colour_by.blockSignals(blocked)
+                with QSignalBlocker(combo):
+                    combo.setCurrentIndex(index)
         self._offer_levels()
         self._offer_p_values()
         self._offer_thresholds()
