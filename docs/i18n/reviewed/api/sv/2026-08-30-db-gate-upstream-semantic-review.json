@@ -438,21 +438,30 @@
       "source_sha256": "e70caf02964a3ec5d7b8872c9c5a25c803e522c1361d80e4669e738dcb8b3343",
       "source": "``channel_of_interest`` — 0-based channel for the recruitment ratio feature; also drives table selection.",
       "context": "``channel_of_interest`` — 0-based channel for the recruitment ratio feature; also drives table selection.",
-      "translation": "``channel_of_interest`` — 0-baserad kanal för egenskapen rekryteringskvot; styr även tabellvalet."
+      "translation": "``channel_of_interest`` — 0-baserad kanal för egenskapen rekryteringskvot; styr även tabellvalet.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#6",
       "source_sha256": "a977ad07888386e097c47c5a1b6f76f95d3f166f515fce3af1eccea39b359041",
       "source": "``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.",
       "context": "``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.",
-      "translation": "``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``."
+      "translation": "``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#8",
       "source_sha256": "3f461869af6c98fe2d7759f49c734fccd7f0b7c383b2fa64eb823648a04fc723",
       "source": "``annotation_column`` — override controls with a PNG-level annotation column.",
       "context": "``annotation_column`` — override controls with a PNG-level annotation column.",
-      "translation": "``annotation_column`` — ersätter kontrollerna med en annoteringskolumn på PNG-nivå."
+      "translation": "``annotation_column`` — ersätter kontrollerna med en annoteringskolumn på PNG-nivå.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#8",
@@ -468,49 +477,70 @@
       "source_sha256": "cb0a243031c3f5cd2044fa67b61c4530305e7a250c7f099e31997ed1060c88bd",
       "source": "``heatmap_feature`` — feature plotted on the plate heatmap.",
       "context": "``heatmap_feature`` — feature plotted on the plate heatmap.",
-      "translation": "``heatmap_feature`` — egenskap som visas i plattans värmekarta."
+      "translation": "``heatmap_feature`` — egenskap som visas i plattans värmekarta.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#11",
       "source_sha256": "9ee6eb15ffb9c7c8b469af9de56cb2e3a364b2e82bd2b7eca004b0cf69ffac0b",
       "source": "``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.",
       "context": "``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.",
-      "translation": "``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``."
+      "translation": "``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#12",
       "source_sha256": "8e71bc18b22baf009410bf097bb2d18e10e4036a160107f9f3d79bff96643800",
       "source": "``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.",
       "context": "``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.",
-      "translation": "``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``."
+      "translation": "``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#13",
       "source_sha256": "5661bcf2e30846a03f05e929308fdd631e7c245d24503eba7564d48966745773",
       "source": "The two-element list ``[output, plate_heatmap]``, where ``output`` is the 10-element result list of :func:`ml_analysis` and ``plate_heatmap`` is the plate-heatmap ``matplotlib`` figure. The CSVs and figures are written to ``results/`` as a side effect; their paths are not returned.",
       "context": "The two-element list ``[output, plate_heatmap]``, where ``output`` is the 10-element result list of :func:`ml_analysis` and ``plate_heatmap`` is the plate-heatmap ``matplotlib`` figure. The CSVs and figures are written to ``results/`` as a side effect; their paths are not returned.",
-      "translation": "Tvåelementslistan ``[output, plate_heatmap]``, där ``output`` är resultatslistan med 10 element från :func:`ml_analysis` och ``plate_heatmap`` är plattvärmekartans ``matplotlib``-figur. CSV-filerna och figurerna skrivs till ``results/`` som en bieffekt; deras sökvägar returneras inte."
+      "translation": "Tvåelementslistan ``[output, plate_heatmap]``, där ``output`` är resultatslistan med 10 element från :func:`ml_analysis` och ``plate_heatmap`` är plattvärmekartans ``matplotlib``-figur. CSV-filerna och figurerna skrivs till ``results/`` som en bieffekt; deras sökvägar returneras inte.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#14",
       "source_sha256": "c6753f3dfc68811b8e2b0ccf1abd2181cce250a11ab0e9c4c330ee527b52df96",
       "source": "if ``annotation_column`` is set but the ``png_list`` table lacks ``prcfo`` / that column, its object IDs do not join to the measurements, it contains fewer than two observed classes, or if ``heatmap_feature`` is not among the trained features.",
       "context": "if ``annotation_column`` is set but the ``png_list`` table lacks ``prcfo`` / that column, its object IDs do not join to the measurements, it contains fewer than two observed classes, or if ``heatmap_feature`` is not among the trained features.",
-      "translation": "om ``annotation_column`` har angetts men tabellen ``png_list`` saknar ``prcfo`` / den kolumnen, dess objekt-ID:n inte matchar dem i mätningarna, den innehåller färre än två observerade klasser, eller om ``heatmap_feature`` inte finns bland de tränade egenskaperna."
+      "translation": "om ``annotation_column`` har angetts men tabellen ``png_list`` saknar ``prcfo`` / den kolumnen, dess objekt-ID:n inte matchar dem i mätningarna, den innehåller färre än två observerade klasser, eller om ``heatmap_feature`` inte finns bland de tränade egenskaperna.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#15",
       "source_sha256": "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
       "source": "Example:",
       "context": "Example:",
-      "translation": "Exempel:"
+      "translation": "Exempel:",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#16",
       "source_sha256": "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d",
       "source": "See Also: :func:`ml_analysis` — the underlying fit/evaluate routine. :func:`perform_regression` — mixed-effects regression on per-well ML scores.",
       "context": "See Also: :func:`ml_analysis` — the underlying fit/evaluate routine. :func:`perform_regression` — mixed-effects regression on per-microplate sample position ML scores.",
-      "translation": "Se även: :func:`ml_analysis` — den underliggande anpassnings- och utvärderingsrutinen. :func:`perform_regression` — regression med blandade effekter på ML-poäng per brunn."
+      "translation": "Se även: :func:`ml_analysis` — den underliggande anpassnings- och utvärderingsrutinen. :func:`perform_regression` — regression med blandade effekter på ML-poäng per brunn.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.load_regression_input_pairs#0",

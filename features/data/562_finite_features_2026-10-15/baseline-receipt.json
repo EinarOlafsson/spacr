@@ -1,0 +1,7 @@
+{
+  "source_base": "f260582a63a81e957f22a3bd348baa1e06184a90",
+  "actual_baseline": "5FAIL1PASS9deselected1.18s exit1",
+  "meaning": "Actual helper accepts four inf/overflow cases and retainedinf despite NaN-row exclusion; finite float32 extrema+existingNaNdrop/labels/originals positive control passes",
+  "no_model_training": true,
+  "next": "Exact parent-reviewed six-line _mil_bags guard applied after baseline;9reviewed diagnostics prepared; owning/writer/publication pending N698 priority"
+}

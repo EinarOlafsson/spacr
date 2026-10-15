@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "draft_author": "Original Home easy_overnight",
+  "review_kind": "Direct AI technical draft plus independent root AI technical peer approval; no native-speaker signoff",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "tables",
+      "source": "Measurement tables read from each plate's database and merged into one analysis frame. Supported tables are registered object roles, including organelles, and png_list. For tabular Classify, choose a nonempty list of distinct supported tables with at least one object-role table. Default ['cell', 'nucleus', 'pathogen', 'cytoplasm'].",
+      "source_sha256": "ae80ba99c469953dc414682864e9352b45e99622f2f0d11ed457d06c1e9f825a",
+      "translation": "从每块板的数据库读取并合并为单个分析数据框的测量表。支持的表包括已注册的对象角色（含细胞器）和 png_list。对于表格型 Classify，请选择一个非空且表名互不重复的受支持表列表，其中至少包含一个对象角色表。默认值 ['cell', 'nucleus', 'pathogen', 'cytoplasm']。"
+    }
+  ],
+  "peer_receipt": {
+    "path": "features/data/594_existing_table_selection_2026-10-15/root-tooltip-peer-review.json",
+    "sha256": "ec502b7c070a0dd5e83fc7d80bf6d13be555801cc1b6da0ca2e34e1ef233fb9a",
+    "approved_translation_sha256": "63e20290804cf965ea8fcb3e9defbfb8eba4f0dd034bf762796ba6fb21f5a15b"
+  }
+}
