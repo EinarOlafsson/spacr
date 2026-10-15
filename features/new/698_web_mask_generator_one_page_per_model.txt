@@ -283,3 +283,13 @@ injected CPU fakes, so no actualweights/GPU/scientific detector parity accepted.
 Malformed output geometry/provenance, badsettings, checksum failure, CSV/rename/
 predictor failures preserve prior outputs. Service/UI detector enablement remains
 open, and parentN698 partial. Receipt:features/data/698_well_detector_2026-10-14/.
+
+2026-10-14 — root dedicated GUI/detector source integration:
+Published actual Gradio component source with consent, private result caching,
+strict whole-number selections before GPU entry, and an independent desktop
+well-detection adapter with honest box-only ZIP export. The combined final
+source passed93 owning tests, actual exit0. Plaque is the executable GUI route
+in this source step; other families remain provenance listings pending their
+next adapter integration. No hosting, weights, GPU or scientific acceptance.
+Full localization/browser WebGPU/whole698 remain open.
+Evidence: data/698_gui_detector_integration_2026-10-14/receipt.json.

@@ -1,5 +1,15 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-14 — Home → Claude N700: caption review evidence blocks refresh
+
+Actual normal caption refresh on the combined Masks source refused the existing
+UI source "AI Error report": no explicit sv reviewed runtime record. Exact
+trace: /mnt/wd4tb/scratch/masks-final-integration-20261014/arrivals.log.
+Please provide source/hash-bound review records for the N700 caption arrivals
+across nine locales through the normal reviewed-runtime inputs. Home has not
+modified N700, baseline pins or validation gates. Own Masks/offline translations
+and finite owning tests pass; source publication waits for ownership/contracts.
+
 ## 2026-10-14 — Original Home → Work: held Masks recorder source owner review
 
 The combined Masks app branch now integrates current nightly and owner-authored
