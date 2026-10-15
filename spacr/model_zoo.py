@@ -884,7 +884,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                "weights/nuclei_from_cellmask_best",
         "sha256":
             "2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb47",
-        "metrics": {'n_train': 'not recorded', 'train_objects': 'not recorded', 'n_test': '453', 'test_objects': 'not recorded', 'cv': 'no', 'f1': '0.8881', 'aji': '0.7916', 'dice': '0.8774', 'stock_f1': 'not recorded', 'stock_aji': 'not recorded', 'stock_dice': 'not recorded', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': 'not recorded'},
+        "metrics": {'n_train': 'not recorded', 'train_objects': 'not recorded', 'n_test': '453', 'test_objects': 'not recorded', 'cv': 'no', 'f1': '0.8881', 'aji': '0.7916', 'dice': '0.8774', 'stock_f1': '0.201', 'stock_aji': '0.286', 'stock_dice': '0.449', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': 'not recorded'},
         "display_name": "Cross-channel nuclei-from-cellmask",
         "architecture": "Cellpose-SAM (cpsam_v2)",
         "dataset": "nuclei predicted from the HOST CELL MASK channel alone; "
@@ -951,6 +951,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "uri": None,
         "sha256":
             "8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96",
+        "metrics": {'n_train': '2567', 'train_objects': 'not recorded', 'n_test': '463', 'test_objects': 'not recorded', 'cv': 'no', 'f1': '0.569', 'aji': '0.421', 'dice': '0.546', 'stock_f1': '0.002', 'stock_aji': '0.006', 'stock_dice': '0.016', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': 'not recorded'},
         "display_name": "Toxoplasma from Hoechst (cross-channel)",
         "architecture": "Cellpose-SAM (cpsam_v2)",
         "dataset": "Toxoplasma PV masks predicted from the HOECHST channel alone; "
@@ -5411,6 +5412,150 @@ def scorecard_html(entry) -> str:
                if curated else "")
             + (f"<p>{trained[:200]}</p>" if trained else "")
             + (f"<p>{card}</p>" if card else ""))
+
+
+_UNRECORDED_PREFIXES = ("not recorded", "not applicable", "not measured")
+
+
+def _recorded_text(value: Any) -> str:
+    """A recorded metric string, or ``""`` when it says nothing was measured."""
+    if isinstance(value, Mapping) or value is None or isinstance(value, bool):
+        return ""
+    text = str(value).strip()
+    if not text or text.lower().startswith(_UNRECORDED_PREFIXES):
+        return ""
+    return text
+
+
+def scorecard_state(entry: Any) -> str:
+    """How far a model's scorecard has come, as one word.
+
+    ``"reviewed"``
+        a trusted builtin card: six matched-stock measurements on the
+        curated hold-out set, bound to the exact published checkpoint.
+    ``"held_out"``
+        structured measurements on a named hold-out set, not yet a reviewed
+        card.
+    ``"recorded"``
+        numbers recorded with the model when it was published, kept as
+        written; no reviewed held-out comparison yet.
+    ``"not_evaluated"``
+        no measurement at all.
+
+    :param entry: a :class:`ModelEntry`, or anything with ``metrics``.
+    :returns: one of the four words above.
+    """
+    if getattr(entry, "_curated_card", False):
+        return "reviewed"
+    metrics = dict(getattr(entry, "metrics", None) or {})
+    from .scorecard import scorecard_is_present
+
+    if scorecard_is_present(metrics):
+        return "held_out"
+    if any(_recorded_text(metrics.get(key)) for key in ("f1", "aji", "dice", "mAP50", "mAP50_95")):
+        return "recorded"
+    return "not_evaluated"
+
+
+def scorecard_state_text(entry: Any) -> str:
+    """The sentence a spaCR model's tooltip and card give for an unfinished scorecard.
+
+    Only models spaCR publishes get one; a stock, third-party or local model
+    keeps its own description.
+
+    :param entry: a zoo row.
+    :returns: the translated sentence for a ``"recorded"`` or
+        ``"not_evaluated"`` :func:`scorecard_state`, else ``""``.
+    """
+    if not (_is_spacr_published(entry) or is_spacr_owned(entry)):
+        return ""
+    state = scorecard_state(entry)
+    from .qt.i18n import tr
+
+    if state == "not_evaluated":
+        return tr("Scorecard: not yet evaluated. No held-out comparison against the "
+                  "stock model has been measured for this model.")
+    if state == "recorded":
+        return tr("Scorecard: these numbers were recorded with the model when it was "
+                  "published; a reviewed held-out comparison against the stock model "
+                  "is not yet available.")
+    return ""
+
+
+def _scorecard_state_html(entry: Any) -> str:
+    """:func:`scorecard_state_text` as an HTML paragraph, or ``""``."""
+    text = scorecard_state_text(entry)
+    return f"<p><i>{html.escape(text)}</i></p>" if text else ""
+
+
+def _number_or_none(text: str) -> Optional[float]:
+    """``float(text)`` for a plain number, else ``None``."""
+    try:
+        return float(text)
+    except (TypeError, ValueError):
+        return None
+
+
+def scorecard_export_rows(entries: Optional[Iterable[Any]] = None) -> List[Dict[str, Any]]:
+    """Every model's scorecard as long-format rows, one per metric.
+
+    The matched-stock export: the measurement, the stock model's value on
+    the same fields and their difference, with the evaluation set and its
+    counts. Values are copied from the entries, never recomputed. A model
+    with no measurement still gets one row, whose ``state`` says so.
+
+    :param entries: zoo rows; defaults to every builtin declaration, bound
+        as the Model Zoo binds it.
+    :returns: dicts with the keys ``key``, ``name``, ``state``, ``metric``,
+        ``this_model``, ``stock``, ``difference``, ``baseline``,
+        ``evaluation_set``, ``evaluation_version``, ``n_fields``,
+        ``n_objects``, ``boundary_tolerance_px`` and ``sha256``.
+    """
+    if entries is None:
+        entries = [_builtin_entry_from_mapping(record) for record in BUNDLED_REMOTE_MODELS]
+    rows: List[Dict[str, Any]] = []
+    for entry in entries:
+        metrics = dict(getattr(entry, "metrics", None) or {})
+        state = scorecard_state(entry)
+        base = {"key": str(getattr(entry, "key", "") or ""),
+                "name": str(getattr(entry, "name", "") or ""), "state": state}
+        tail = {"sha256": str(getattr(entry, "sha256", "") or "")}
+        provenance = metrics.get("scorecard_provenance") or {}
+        evaluation = {"baseline": str(provenance.get("stock_model") or ""),
+                      "evaluation_set": str(metrics.get("holdout") or ""),
+                      "evaluation_version": str(metrics.get("holdout_version") or ""),
+                      "n_fields": metrics.get("n_fields", ""),
+                      "n_objects": metrics.get("n_objects", "")}
+        found: List[Dict[str, Any]] = []
+        if state in ("reviewed", "held_out"):
+            names = ([key for _label, key in _curated_scorecard_rows()] if state == "reviewed"
+                     else [key for key, value in metrics.items() if isinstance(value, Mapping)
+                           and value.get("finetuned") is not None])
+            for name in names:
+                value = metrics[name]
+                found.append({"metric": name, "this_model": value.get("finetuned"),
+                              "stock": value.get("vanilla"), "difference": value.get("delta"),
+                              "boundary_tolerance_px": (provenance.get("boundary_tolerance_px", "")
+                                                        if name == "boundary_f1_2px" else "")})
+        elif state == "recorded":
+            evaluation["n_fields"] = _recorded_text(metrics.get("n_test"))
+            evaluation["n_objects"] = _recorded_text(metrics.get("test_objects"))
+            for name in ("f1", "aji", "dice", "mAP50", "mAP50_95"):
+                mine = _recorded_text(metrics.get(name))
+                if not mine:
+                    continue
+                stock = _recorded_text(metrics.get(f"stock_{name}"))
+                a, b = _number_or_none(mine), _number_or_none(stock)
+                found.append({"metric": name, "this_model": a if a is not None else mine,
+                              "stock": b if b is not None else stock,
+                              "difference": (round(a - b, 6) if a is not None and b is not None
+                                             else None),
+                              "boundary_tolerance_px": ""})
+        if not found:
+            found.append({"metric": "", "this_model": None, "stock": None,
+                          "difference": None, "boundary_tolerance_px": ""})
+        rows.extend({**base, **row, **evaluation, **tail} for row in found)
+    return rows
 
 
 def format_zoo(entries: Sequence[ModelEntry]) -> str:

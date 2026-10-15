@@ -32533,6 +32533,16 @@
       "source_sha256": "fb09f280267ee7a71314561982b84661702ba0bd9c17b033e1182440aa21244c",
       "text": "Turn a key, a name or a path into a :class:`ModelEntry`.\n\nA path that exists wins over a key: pointing the zoo at a file you just\ntrained has to work without registering it anywhere first.\n\n:param key_or_path: an entry key, a model filename, or a path to a file.\n:param entries: the listing to search; defaults to :func:`catalogue`.\n:returns: the entry.\n:raises ModelUnreadable: when it looks like a path and no file is there.\n:raises ModelZooError: when no entry matches, listing the near misses."
     },
+    "spacr.model_zoo.scorecard_export_rows": {
+      "source_blocks_sha256": [
+        "57621f5a150e8b33e75f732bd01874291828d26a5b4caad9d6257d6b57c2c48d",
+        "24254aec6c6fd82295bd076df1b0ddffedeccdc77db0eb1d79bcd9587893e3b7",
+        "4c9ffe916508dcb29ad5f91320f454e81876fcbbbf461aaad43caaf440072ce2",
+        "b95f00d5cd3e23c422e9e50bb764f7f845afcb1ce2dd294658c0a53eb92737e7"
+      ],
+      "source_sha256": "1ddd20a66539ae76984c7e3fa0de7eb3099167f37472104c3c9b889f2153d2a1",
+      "text": "Every model's scorecard as long-format rows, one per metric.\n\nThe matched-stock export: the measurement, the stock model's value on\nthe same fields and their difference, with the evaluation set and its\ncounts. Values are copied from the entries, never recomputed. A model\nwith no measurement still gets one row, whose ``state`` says so.\n\n:param entries: zoo rows; defaults to every builtin declaration, bound\n    as the Model Zoo binds it.\n:returns: dicts with the keys ``key``, ``name``, ``state``, ``metric``,\n    ``this_model``, ``stock``, ``difference``, ``baseline``,\n    ``evaluation_set``, ``evaluation_version``, ``n_fields``,\n    ``n_objects``, ``boundary_tolerance_px`` and ``sha256``."
+    },
     "spacr.model_zoo.scorecard_html": {
       "source_blocks_sha256": [
         "e89c42cf82d5b5fce3de712de335e052fb1f87247a4fe77c7bb2996df414d725",
@@ -32551,6 +32561,26 @@
       ],
       "source_sha256": "1724c72a9405c9004a0a4f59fbcdbcb4d82cdcd9345fd7fe91a317991205bfad",
       "text": "A scorecard value as shown, or \"not recorded\" when blank."
+    },
+    "spacr.model_zoo.scorecard_state": {
+      "source_blocks_sha256": [
+        "8df0570a8289e4131f93312521473526a6e0d61c96bb7639615bd7810b5299ff",
+        "06a9f0808325b4abf5de41fd639738850b36784fc7c0e12e956a00ad323ccf88",
+        "d27fe9123443702f18264fd68b6324f4f227352d45821877548aab04ceca9e43",
+        "6c246f4bfb1c71c42b5fe877cec296971454a30148c2b775fcb293f839381aa4"
+      ],
+      "source_sha256": "79ff00cb203ed645f2005ecf80ffaea0dacaecb0b060d7d194c51ad28b92a8f9",
+      "text": "How far a model's scorecard has come, as one word.\n\n``\"reviewed\"``\n    a trusted builtin card: six matched-stock measurements on the\n    curated hold-out set, bound to the exact published checkpoint.\n``\"held_out\"``\n    structured measurements on a named hold-out set, not yet a reviewed\n    card.\n``\"recorded\"``\n    numbers recorded with the model when it was published, kept as\n    written; no reviewed held-out comparison yet.\n``\"not_evaluated\"``\n    no measurement at all.\n\n:param entry: a :class:`ModelEntry`, or anything with ``metrics``.\n:returns: one of the four words above."
+    },
+    "spacr.model_zoo.scorecard_state_text": {
+      "source_blocks_sha256": [
+        "e65a4f16b402748d76926dad9ec076a42da62508ac47b8d44b7984b0dd64317d",
+        "b0ecd3948246521fef48cd60f5440ac5e786af2b5681ba7f4f52eb5e253722d6",
+        "17f849ad902f5252370cb4ef8b4923537a6b67a6434d30fbdcd856a0e869146d",
+        "14e0962b917c8e3737792d4bce377a22cd773ad84c210603ea36aeff32c5a45d"
+      ],
+      "source_sha256": "6af58497aed78d22e53ed8f3733e33f6aabdd409d78932d545cabb2b3cc10e23",
+      "text": "The sentence a spaCR model's tooltip and card give for an unfinished scorecard.\n\nOnly models spaCR publishes get one; a stock, third-party or local model\nkeeps its own description.\n\n:param entry: a zoo row.\n:returns: the translated sentence for a ``\"recorded\"`` or\n    ``\"not_evaluated\"`` :func:`scorecard_state`, else ``\"\"``."
     },
     "spacr.model_zoo.segment_mitonet": {
       "source_blocks_sha256": [

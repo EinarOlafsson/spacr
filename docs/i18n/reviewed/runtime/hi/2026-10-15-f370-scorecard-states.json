@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_scope": "Claude AI technical review (Opus 5.5); translated directly from the English for item 370's scorecard-state sentences (recorded at publication, not yet evaluated) in the Model Zoo tooltip, picker card and detail panel; no native-speaker or human signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Scorecard: not yet evaluated. No held-out comparison against the stock model has been measured for this model.",
+      "source": "Scorecard: not yet evaluated. No held-out comparison against the stock model has been measured for this model.",
+      "source_sha256": "4ee5b4dde53d768a1084444c35724b67816f0ef460297282025e96a98b5704fb",
+      "translation": "स्कोरकार्ड: अभी मूल्यांकन नहीं हुआ है। इस मॉडल के लिए अलग रखे गए डेटा पर मूल मॉडल से कोई तुलना अभी तक मापी नहीं गई है।"
+    },
+    {
+      "table": "ui",
+      "key": "Scorecard: these numbers were recorded with the model when it was published; a reviewed held-out comparison against the stock model is not yet available.",
+      "source": "Scorecard: these numbers were recorded with the model when it was published; a reviewed held-out comparison against the stock model is not yet available.",
+      "source_sha256": "b209992ba48e5f1e3fc2f7118cea0a9df4272b096df1e3a8285b4a649a6ae819",
+      "translation": "स्कोरकार्ड: ये संख्याएँ मॉडल के प्रकाशन के समय उसके साथ दर्ज की गई थीं; अलग रखे गए डेटा पर मूल मॉडल से समीक्षित तुलना अभी उपलब्ध नहीं है।"
+    }
+  ]
+}

@@ -33,6 +33,8 @@ cross-channel: given the cell image, predicts where the nuclei are, with no nucl
 
 F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5.
 
+Scorecard state: **recorded at publication**. These numbers were recorded with the model when it was published; a reviewed held-out comparison against the stock model is not yet available.
+
 | Recorded | Value |
 | --- | --- |
 | Test set | 453 |
@@ -40,6 +42,9 @@ F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, a
 | F1 | 0.8881 |
 | AJI | 0.7916 |
 | Dice | 0.8774 |
+| Stock F1 | 0.201 |
+| Stock AJI | 0.286 |
+| Stock Dice | 0.449 |
 
 ## Notes
 
@@ -67,4 +72,4 @@ F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, a
 
 Models are hosted on each author's own Hugging Face account. spaCR downloads this one from there the first time it is needed and checks it against the SHA-256 above. `spacr.model_zoo.publish_model` uploads a model and returns the catalogue row to add.
 
-[All model cards](README.md)
+[All model cards](README.md) · [All scorecards as CSV](scorecards.csv)
