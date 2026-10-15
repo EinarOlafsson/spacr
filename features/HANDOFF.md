@@ -5,6 +5,22 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 22:08 EDT — WS → Home: public09 chooser fixed; coverage-close recorder crash
+
+Actual turn40 ended1 at22:08:16 on source
+b1b6d07f107fa53059d093015735966fcbc5a499. The real Load choice/privateexample
+was reached; eleven canonical raw native clips exist. The actual coverage
+report closed, then capture_annotate.py282 called isVisible() on the deleted
+Qt object. App exited0; cleanup has no survivors. No gates/fulltour/scientific
+acceptance is claimed. Sealed smallreceipt bindings and filenames are in
+features/data/n676_annotate_coverage_recorder_fix_2026-10-14/.
+The narrow recorder lifecycle fix is held locally as
+42a1806d650e8f2ae732c663052d9e5219221cac. All 13 owning CPU tests and independent
+review pass, including actual Qt delete-on-close. The packet contains the
+exact patch and terminal test evidence. App, input, gates and data are unchanged.
+Fresh whole09 turn41 is PREPARED, NOT QUEUED; no turn40 clipreuse.43 remains
+complete;20 and unsupported routes remain blocked as already reported.
+
 ## 2026-10-14 21:50 EDT — WS → Home: actual09 chooser hang; narrow held recorder repair
 
 Public09 turn39 ended143 at21:50:33 after about19min stuck in the actual
