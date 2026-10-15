@@ -142,6 +142,12 @@ def test_existing_encoder_entry_captions_remain_inventoried(extract_backend_sour
         f'def encoder_entry():\n    return tr({caption!r})\n') == {caption}
 
 
+def test_mil_bag_identity_caption_enters_only_through_its_owner(extract_backend_sources):
+    caption = "Well identifier {well} spans different acquisition wells; use complete, unique well identifiers."
+    assert extract_backend_sources('embeddings.py',
+        f'def _mil_bags():\n    raise ValueError(tr({caption!r}, well="plate_1_A_1"))\n') == {caption}
+
+
 @pytest.mark.parametrize('owner', ['_phases_by_xgboost', '_phases_by_torch'])
 def test_tabular_phase_holdout_caption_is_extracted(extract_backend_sources, owner):
     caption = "The requested acquisition groups cannot place every class in both training and held-out data."
@@ -151,6 +157,7 @@ def test_tabular_phase_holdout_caption_is_extracted(extract_backend_sources, own
 
 @pytest.mark.parametrize('filename,owner', [
     ('embeddings.py', '_mil_frame_from_db'),
+    ('embeddings.py', '_mil_bags'),
     ('measure.py', '_phases_by_xgboost'),
     ('measure.py', '_phases_by_torch'),
 ])
