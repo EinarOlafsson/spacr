@@ -6973,6 +6973,12 @@ class _StoragePage:
         cache_key, cache_source = str(row["key"]), str(row["path"])
 
         def finished(result):
+            """Retarget a matching remembered model cache, then report the move.
+
+            :param result: Worker ``(moved, detail)`` pair. On success,
+                ``detail`` is the destination path; otherwise it explains
+                the failure. A missing result is treated as a failed move.
+            """
             moved, detail = result if result else (False, "")
             if moved and cache_key == "models":
                 from .widgets import model_zoo_picker

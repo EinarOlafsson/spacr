@@ -4273,11 +4273,12 @@ def download_bundled_models(**kwargs: Any) -> str:
     reimplemented here, so there is one code path that fills
     ``resources/models`` and one place to fix when the repo moves.
 
-    It is also the unverified path: that function has no checksum, writes
-    straight to the destination filename, and skips the whole pull when the
-    folder is non-empty. Prefer a catalogue entry with a hash and
-    :func:`install`; this function lets the zoo offer the legacy pack as
-    well.
+    The downloader stages the whole pack in a temporary sibling directory
+    and atomically renames the completed directory into place after every
+    download succeeds. It does not verify published checksums and trusts an
+    existing non-empty cache without checking its completeness or origin.
+    Prefer a catalogue entry with a hash and :func:`install` when checksum
+    verification is required.
 
     ``spacr.utils`` imports torch, so it is imported here and not at module
     level. Nothing else in this module reaches for it.

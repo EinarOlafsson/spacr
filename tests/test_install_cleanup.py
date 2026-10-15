@@ -1004,8 +1004,17 @@ def test_the_command_line_removes_installer_copies_and_leaves_environments(tmp_p
 def test_the_module_embeds_in_a_shell_installer_and_needs_only_the_standard_library():
     text = Path(ic.__file__).read_text(encoding="utf-8")
     assert "SPACR_CLEANUP_PY" not in text.splitlines()
+    tree = ast.parse(text)
+    translator = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
+                      and node.name == '_cleanup_translate')
+    optional = [node for node in ast.walk(translator) if isinstance(node, ast.ImportFrom)
+                and node.module == 'spacr.qt.i18n']
+    assert len(optional) == 1
+    assert [(alias.name, alias.asname) for alias in optional[0].names] == [('tr', 'application_tr')]
     imported = set()
-    for node in ast.walk(ast.parse(text)):
+    for node in ast.walk(tree):
+        if node in optional:
+            continue
         if isinstance(node, ast.Import):
             imported.update(alias.name.split(".")[0] for alias in node.names)
         elif isinstance(node, ast.ImportFrom) and node.level == 0:
@@ -1015,6 +1024,11 @@ def test_the_module_embeds_in_a_shell_installer_and_needs_only_the_standard_libr
     standard = stdlib_names()
     assert imported <= standard, imported - standard
     assert "spacr" not in imported
+    done = subprocess.run([sys.executable, '-I', '-S', ic.__file__, '--help'],
+                          capture_output=True, text=True, timeout=10)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert 'recover-runtime' in done.stdout
+    assert not done.stderr
 
 
 def _renderer():
@@ -1123,7 +1137,10 @@ def test_the_windows_installer_validates_staging_before_retiring_old_copies():
     assert shipped in nsis and nsis.index(shipped) < nsis.index("nsExec::ExecToLog")
     uninstall = nsis[nsis.index('Section "Uninstall"'):]
     assert 'DeleteRegKey HKCU "Software\\spaCR"' not in uninstall
-    assert 'DeleteRegKey /ifempty HKCU "Software\\spaCR"' in uninstall
+    assert 'DeleteRegKey /ifempty HKCU "Software\\spaCR"' not in uninstall
+    assert '-File "$PLUGINSDIR\\uninstall_spacr_windows.ps1"' in uninstall
+    outside = (ROOT / 'packaging/online/uninstall_spacr_windows.ps1').read_text()
+    assert 'remove --only-root $InstallRoot --require-outside' in outside
 
 
 def test_the_unix_installer_source_orders_staging_verification_before_retirement():
@@ -2100,7 +2117,7 @@ def test_a_downloaded_installer_is_executable_and_an_empty_one_is_refused(
 # The helper plan, beyond the cases above
 # ---------------------------------------------------------------------------
 
-def test_no_helper_starts_when_the_running_spacr_is_not_installer_made(tmp_path):
+def test_no_helper_starts_when_the_running_spacr_is_a_conda_environment(tmp_path):
     box = Box(tmp_path / "box")
     prefix = _conda_env(box, "spacr")
     machine = box.machine("linux", running_prefix=str(prefix))
@@ -2110,7 +2127,8 @@ def test_no_helper_starts_when_the_running_spacr_is_not_installer_made(tmp_path)
                                   spawn=_refuse("helper"))
 
     assert plan["command"] is None
-    assert plan["error"] == "the running spaCR is not an installer-made copy"
+    assert plan["error"] == ic.tr(
+        'This environment needs its package manager; spaCR cannot replace it safely. Nothing was changed.')
     assert plan["pid"] == os.getpid()
     assert ic._inside(plan["workdir"], tempfile.gettempdir())
     written = json.loads((Path(plan["workdir"]) / "plan.json").read_text())

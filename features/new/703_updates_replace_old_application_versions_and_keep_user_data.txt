@@ -484,3 +484,98 @@ N700-owned missing-review refusal. No waiver, manual fixture edit, model sweep
 or N700 source change was made. N703 runtime/API/63 owning PASS scope is
 unchanged; global acceptance remains held. Exact source/tool hashes and raw
 refusal are in features/data/n703_current_catalog_closure_2026-10-14/.
+
+
+2026-10-15 00:08 EDT — Online installer transaction leases and private NSIS staging
+Closed a concrete same-root concurrency defect: independent installer staging
+could overlap, and one failing installer could remove/restore a runtime that
+another installer had just activated. Unix now atomically acquires an outside
+owner-root lease before root/log/runtime mutations, then acquires the same
+private-runtime lease used by the in-app POSIX transaction. It retains both
+through rollback, resolves path aliases, restricts lease permissions and checks
+device/inode ownership before removal. Existing/interrupted leases are refused
+without PID guessing or deletion. Failed metadata recovery retains the leases
+and its evidence for explicit resolution. The desktop parent returns before
+the backend acquires leases, so no inherited GUI lease blocks its own child.
+
+The Windows PowerShell engine acquires exclusive CreateNew/FileShare.None
+handles before logging or environment changes, and releases only its owned
+handles after rollback. Failure before acquisition does not clean another
+process's staging/work files. Native behavior remains UNVERIFIED here. NSIS's
+helper extraction/invocation/cleanup now use its per-process PLUGINSDIR rather
+than the shared TEMP/spaCR-online-installer directory, preventing two wrappers
+from overwriting each other's bootstrap scripts. NSIS root writes before/after
+the PowerShell engine remain outside that lease; complete wrapper handoff is
+still OPEN, as is coordinating retirement across different installation roots.
+
+93 distinct owning checks PASS:12 new stdlib/actual shell concurrency/source
+contracts,12 existing sidecar rollback and69 existing installer checks. The
+old sidecar harness's exact trap delimiter was changed to parse the same
+cleanup function after the EXIT handler became composite; assertions remain.
+A final81-case NSIS/installer subset passes on final source. No Qt/model,
+live install, network, package operation or GPU was used. Existing reviewed
+already_running captions are reused in all installer languages. Fatal Ruff,
+Bash syntax and diff checks pass. Native Windows/macOS, interrupted-lease GUI
+recovery, global caption arrival/full CI and parentN703 acceptance remain OPEN.
+Evidence: features/data/n703_installer_transaction_lease_2026-10-15/.
+
+
+2026-10-15 00:27 EDT — Lease-aware retirement protects a different active installer
+Closed the cross-root retirement race left explicit by the preceding component.
+Before removing an online installation or uninstalling the package from a
+selected environment, the remover atomically acquires that target's existing
+installer/runtime lease protocol. It does not merely check whether a lease
+exists and then delete. Active/interrupted/unknown leases refuse before removal;
+partial acquisition releases only its own lease. Kept/running copies retain
+their prior behavior. Cleanup checks inode identity, preserves other owners'
+replacement leases and never relabels a core mutation error as a no-change
+refusal. It prunes an empty lease-only root only after the original root policy
+and protected user/shared-folder rules permit it, and never deletes a symlink's
+empty user-directory target. Native Windows behavior remains unverified.
+
+Final frozen source:193 owning checks PASS/actualexit0/118.08s with normal branch
+coverage enabled under2GiB. This includes192 retirement/cleanup/uninstaller
+cases and the separately delivered purge-ordering node. Actual shell processes
+exercise both directions of the installer/remover race. All9 locale refusals
+use actual generated catalogs and exact reviewed targets. The real standalone
+python -I -S helper succeeds without site packages. Three preexisting N703
+contract mismatches were reproduced at predecessor a4bdbf5ec83 and updated to
+assert optional translation fallback, delegated data-preserving Windows removal
+and explicit unsupported-Conda refusal. Core assertions were preserved.
+
+Normal nine-locale runtime generation passed, preserving every unrelated target;
+one exact new refusal caption has9 authored source-bound AI technical reviews.
+The first review schema refusal and corrected-input proof are retained. Existing
+module/public API prose is exactly unchanged; new private helpers are documented.
+Scoped coverage is public wrapper100%, removal core96.39%, lease helper87.67%;
+rare acquisition/release error-cleanup paths remain unexecuted. This is not a
+whole-module/global coverage acceptance claim. No baseline/exclusion was changed.
+Fatal Ruff and diff checks pass. Native OS acceptance, full NSIS wrapper lease
+handoff, interrupted-lease recovery UI, global N700 caption hold, current full
+hosted CI and parentN703 remain OPEN. No live install/account/package operation,
+network, user data or GPU was used. Evidence:
+features/data/n703_retirement_transaction_lease_2026-10-15/.
+
+2026-10-15 00:33 EDT — Current-public merge and normal catalog regeneration
+Merged the current public source normally. Both dated703 note tails were
+preserved. Generated catalog conflicts were resolved by taking all public
+catalogs intact and regenerating them with the normal tool from current
+sources and the four exact N703 review files. All9 locales preserve every
+unrelated public target and13 owned captions match their reviews; source audit
+passes with7,672UI entries. Own tested production and owning test files remain
+byte-identical to the193PASS source. Only Easy's unrelated journal fixture
+changes merged into the purge test file; its owned function is AST-identical.
+Ten actual post-merge locale/purge checks PASS/exit0/1.83s. The complete193-case
+cohort was reused, with no extra full-CI/native acceptance claim.
+
+2026-10-15 00:40 EDT — Final current-public publication closure
+Normal merge includes public1e329bcd55b; every runtime catalog was taken intact
+from public then regenerated with normal source-current writer/audit APIs. The
+four exact previously validated N703 review files were byte-pinned; all13 owned
+rows and10,554 unrelated current rows per locale validate across all9 locales.
+English/source audit passes with7,724UI entries. Actual final dependency checks
+are10PASS/exit0/2.69s. The production/owning test source remains byte-identical
+to the193PASS cohort, reused without repetition. The shared purge file retains
+current unrelated journal changes; its owned assertion is AST-identical.
+No new fullCI/native acceptance or foreign caption-arrival waiver is claimed.
+Source-bound proof: publication-receipt.json in the existing retirement evidence.
