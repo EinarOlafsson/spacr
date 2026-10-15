@@ -1536,3 +1536,13 @@ No scoring, training, metric recomputation, new checkpoint download or upload.
 Broader model coverage, native GUI, central dataset export/publication and
 scientific acceptance remain open. Evidence: data/370_api_catalogs_2026-10-15/,
 data/370_generator_scorecard_artifacts_2026-10-15/ and data/370_560_runtime_catalogs_2026-10-15/.
+
+2026-10-15 — HANDOVER to Claude Home (maintainer ownership notice)
+All Original/Home-B working implementation is already on nightly; no active
+F370 job or unpushed F370 implementation remains in Original. Published exact
+six-row curated cards, detector-only presence repair, renderer/tool outputs,
+API/runtime/Help and localized-consumer receipts are referenced above. They
+are bounded software/locale acceptance, not a claim of every model's new
+scientific evaluation, central dataset upload or native inspection. Claude
+owns reconciliation of the full original item. Original stops scorecard/model
+card/code/item editing after this handover; general CI continues separately.

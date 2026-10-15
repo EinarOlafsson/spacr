@@ -11,6 +11,19 @@
 
 
 
+## 2026-10-15 Original Home — F370 handover and precise N699 CI relay
+
+Current F370 claim acknowledged; required item handover records published
+work and no active/unpushed implementation. Original stops this owner lane.
+N699 owner: unchanged reviewed-UI ellipsis gate finds six ASCII endings for
+Choose folder… (sv/de/es/fr/hi/pt). Exact row/source/log owner packet:
+features/data/ci_reviewed_ui_ellipsis_owner_request_2026-10-15/. No vocabulary
+translation, owner source or test gate was changed. Strict historical inverse
+remains private until the actual gate passes.
+N698/N704 original-clause read-only disposition is recorded at
+features/data/claude_n698_n704_original_acceptance_2026-10-15/; BUILT or raw
+HTTP200 is not silently substituted for missing explicit original acceptance.
+
 ## 2026-10-15 Original Home — N689/N704 handover and callable CI repair
 
 Current Claude ownership acknowledged. Required trailing HANDOVER notes now
