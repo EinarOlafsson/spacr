@@ -274,3 +274,30 @@ loaded data consumers remain covered by their separate owning tests. Terminal
 PASS6.78s,390652KiB under4G/thread1/serialized lock. Source hashes of six owning
 files match the published implementation. No new source defect or implementation
 tick is claimed. Evidence:features/data/180_actual_provider_bridge_2026-10-15/.
+
+2026-10-15 — Complete original workspace contract accepted on current source.
+The remaining real session-figure gap is repaired: FigureQueue contributes its
+ordered previews, PDFs, titles, run sections and current selection through the
+existing AppScreen registry. Reference mode carries small queue-owned assets;
+external originals remain references and the existing copy budget/off mode are
+preserved. Restore stages immutable copies, retains missing slots/reporting,
+and updates only already-built UI. A missing PNG no longer loses its saved PDF
+on the next save. Existing Graph, regression, databases, montage and deferred
+provider acceptance remain bound to their previously recorded real consumers.
+
+The actual queue/AppScreen cohort passed18 cases; three affected PDF follow-up
+cases pass and overlap that cohort. Independent source review accepted both
+repairs. Normal generation produced63 reviewed API targets and9 runtime targets,
+passed the full nine-language runtime audit, fresh canonical-source equality,
+arrival refresh and ordinary Help generation;10,958 unrelated runtime rows per
+locale and foreign API/history/arrivals were preserved. Final actual consumers
+pass: nine compiled tr lookups,18 localized API entries/63 blocks, two local
+API/Help entries, English/Korean links and four production search queries.
+All13,289 prior Help rows remain exact, with only the two new methods added.
+
+All original A–D and five acceptance criteria are now reconciled; no original
+implementation clause remains open. This is whole current-contract acceptance,
+not a new physical-device run or final release CI. Evidence: data/180_session_
+figure_carry_2026-10-15/,180_session_figure_source_peer_2026-10-15/,
+180_session_figure_inputs_2026-10-15/,180_session_figure_catalogs_2026-10-15/
+and the final session-figure consumer receipt.

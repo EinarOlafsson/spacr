@@ -2,10 +2,11 @@ CURRENT SHARED WORKING PROGRESS — HOME-B VIEW — 2026-10-15
 
 One row per numbered item; whole-item ticks only; estimated remaining active hours; external waits may be unknown. Historical completed items omitted.
 
-Canonical combined tracker, omitting14 pre-today closed items, including maintainer-closed N384; all71 remaining/today rows retained with current owner updates.
+Canonical combined tracker, omitting15 pre-today closed items; all70 remaining/today rows retained with current owner updates.
 
 | Item | Percent done | Time left (hours) | Owner | Detailed description |
 |---|---|---|---|---|
+| N180 — a saved run can carry the whole workspace | ✅ | 0 | Home-B / shared owner | Complete original workspace contract accepted: real session figures/PDFs survive save/close/restore, missing-PNG resave repaired, nine-language API/runtime and actual Help/search consumers pass. |
 | N197 — Page/focus navigation | ✅ | 0 | Home-B / shared owner | Complete original keyboard-map contract accepted: Help/key/palette entry points, full scoped map, native key spelling and wrapping; today’s actual Annotate page/focus repair and final nine-language output verified. |
 | N468 — plaque assay has plaque and figure modes | ✅ | 0 | Easy / Home | Complete: Plaque/Figure workflow, all original captions in nine languages, factual three-tab API prose and offline Help. |
 | N94 — train test splits must group by well | ✅ | 0 | Home / assigned owner | Complete: shared strict cell/field/well/plate splitting, default well, refusal and durable group/cell split reports across all callers. |
@@ -35,10 +36,8 @@ Canonical combined tracker, omitting14 pre-today closed items, including maintai
 | N698 — web mask generator one page per model | 70% | 12–24+ | Home | Configuration website live and verified in English/Swedish; hosted GPU and WebGPU inference unavailable. Three-caption backend closure active. |
 | N699 — cluster submit reads ssh config and handles mfa | 90% | Unknown | Home | Actual real cluster/password+OTP/cancel/host policy and native platform acceptance need user/account/site. Claude700 is separate; no real SSH/auth/network here. |
 | N112 — Documentation correctness | 95% | 1–3 | Home-B / shared owner | Private-doc/strict inventory fixes pass; foreign N700/API and active new-feature review obligations remain. |
-| N180 — a saved run can carry the whole workspace | 98% | 0.5–1 | Home-B / shared owner | Session-generated figure carry and missing-PNG/PDF repair pass targeted checks and independent review. Normal nine-language API/runtime and Help generation next; final consumers then whole-contract acceptance. |
 | F288 — zero issues green ci and per module coverage | 85% | 4–8 | Home | Fresh exact-source full30 green plus ordinary union/ratchet; use preserved real Ops raw only if its source/test/provenance bindings still match. Root owns CI and issue owners retain scope. |
 | N305 — the installed package loads and runs optimally | 90% | 4–8 + platform | Home | Quiet real-display installed wheel+sdist trace, supported frozen OS matrix and representative CPU/GPU pipeline profiles; GPU only through authorized scheduling. No such run in this audit. |
-| N328 — a source install should not cost a gigabyte | 95% | 1–3 | Home | External OWNER gate: Home-B consolidated README/translation refinement of named45draft blocks and shell prose; not an external hosting/account impossibility. No new source-clone algorithm defect established. |
 | N351 — close every github issue by fixing it | 95% | Unknown | Home | 146 needs owner confirmation then authorized issue evidence/closure;147 needs Claude acceptance. No comments/closure/account mutation authorized by this read-only task. |
 | F404 — dinocell as a segmentation backend | 90% | Unknown | Home | PV scorecard after F370 curated source reconciliation and actual Windows/macOS runs remain; do not count alpha implementation as full acceptance. |
 | N419 — make masks reads out lays out and edits by hand | 95% | 1–3 | Home | Latest item-local followups still assign normal9-language/API refresh and current tutorial to Workstation owner; current whole-parent acceptance not explicitly reconciled here. Work14 source-binding proposal is not a recording. |
@@ -62,7 +61,7 @@ Canonical combined tracker, omitting14 pre-today closed items, including maintai
 | F567 — deep event detection on tracks | 90% | Unknown | Home | VideoMAE CPU/CUDA numerical and GUI plumbing are recorded; annotated held-out Toxoplasma event precision/recall/timing and final integrated/native CSV-loader acceptance remain. Stored-parent fix does not validate event biology or arbitrary-size IDs. |
 | F580 — cross session intensity calibration | 95% | Unknown | Home | Session/bead software, viewport fix and locales published; known-exposure acquisition acceptance remains. |
 | F586 — apptainer singularity images | 85% | 3–6 + cluster | Home | Root release gate first; publish SIF, maintainer package public visibility, anonymous oras pull, actual Slurm CPU and --nv job evidence. No package/account/resource mutation here. |
-| N615 — API, documentation, translation and tutorial batch | 95% | 1–3 | Home-B / shared owner | Broad original item includes documentation/translation and Work-owned tutorial obligations; README-route evidence alone does not close the item. Exact remaining clauses under review. |
+| N615 — API, docs, translations, tutorials and release acceptance | 95% | Unknown | Home / Work; Home-B scoped docs | Broad original scope remains: current hosted docs/N689 permission, Work05 tutorial publication and main/release acceptance. README-route obligations already covered. |
 | N626 — Partial consolidation | 95% | 1–3 | Home | See current owner delivery and remaining acceptance gates. |
 | N639 — organize import in mask and import modules | 95% | 1–3 | Home-B / shared owner | Organize buttons and original-preservation repair implemented. Item explicitly leaves translations and tutorials for both buttons with owners; current item-specific catalog/tutorial closure not recorded. No new whole-organizer transaction acceptance. |
 | N641 — performance audit 2026 10 04 | 90% | 4–8 + idle host | Home | Any remaining real-display/GPU/per-module timing acceptance requires quiet owner-controlled conditions; do not infer native smoothness from offscreen cases. |
@@ -76,4 +75,4 @@ Canonical combined tracker, omitting14 pre-today closed items, including maintai
 | N323 — Hardware capability table | 90% | 2–6 + review | Home-B | Table and readable context built; explicit translation review remains. |
 | N647 — Session restoration | 95% | 1–3 + platforms | Home-B | Recovery-preservation repairs built; remaining native platform acceptance. |
 | N648 — Settings autosave | 95% | 1–3 + platforms | Home-B | Autosave/final-write recovery repairs built; remaining native platform acceptance. |
-| F534 — Spatial barcode mapping | 75% | 8–24 + data | Home-B | Remaining spatial workflow/data acceptance; prior verification is not new implementation. |
+| F534 — Spatial barcode mapping | 75% | 8–24 + data | Home-B | Zero-result slide reruns now retire stale database rows while preserving schemas, other slides/files and inputs;2FAIL→19PASS. Whole remaining spatial data/GPU acceptance stays open. |

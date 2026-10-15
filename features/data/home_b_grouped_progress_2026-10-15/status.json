@@ -1,9 +1,18 @@
 {
   "date": "2026-10-15",
   "format": "One row per numbered item; whole-item ticks only; estimated remaining active hours; external waits may be unknown. Historical completed items omitted.",
-  "source": "Canonical combined tracker, omitting14 pre-today closed items, including maintainer-closed N384; all71 remaining/today rows retained with current owner updates.",
+  "source": "Canonical combined tracker, omitting15 pre-today closed items; all70 remaining/today rows retained with current owner updates.",
   "latest_home_b_public": "c457283835",
   "rows": [
+    {
+      "item": "N180",
+      "title": "a saved run can carry the whole workspace",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home-B / shared owner",
+      "description": "Complete original workspace contract accepted: real session figures/PDFs survive save/close/restore, missing-PNG resave repaired, nine-language API/runtime and actual Help/search consumers pass.",
+      "completion_basis": "Whole original A–D/five criteria independently accepted2026-10-15;18 owning cases/overlapping3 followups, normal63API+9runtime/full9audit and actual finalconsumersPASS."
+    },
     {
       "item": "N197",
       "title": "Page/focus navigation",
@@ -266,15 +275,6 @@
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
-      "item": "N180",
-      "title": "a saved run can carry the whole workspace",
-      "percent_done": 98,
-      "time_left_hours": "0.5–1",
-      "owner": "Home-B / shared owner",
-      "description": "Session-generated figure carry and missing-PNG/PDF repair pass targeted checks and independent review. Normal nine-language API/runtime and Help generation next; final consumers then whole-contract acceptance.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
       "item": "F288",
       "title": "zero issues green ci and per module coverage",
       "percent_done": 85,
@@ -290,15 +290,6 @@
       "time_left_hours": "4–8 + platform",
       "owner": "Home",
       "description": "Quiet real-display installed wheel+sdist trace, supported frozen OS matrix and representative CPU/GPU pipeline profiles; GPU only through authorized scheduling. No such run in this audit.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
-      "item": "N328",
-      "title": "a source install should not cost a gigabyte",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
-      "owner": "Home",
-      "description": "External OWNER gate: Home-B consolidated README/translation refinement of named45draft blocks and shell prose; not an external hosting/account impossibility. No new source-clone algorithm defect established.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -510,11 +501,11 @@
     },
     {
       "item": "N615",
-      "title": "API, documentation, translation and tutorial batch",
+      "title": "API, docs, translations, tutorials and release acceptance",
       "percent_done": 95,
-      "time_left_hours": "1–3",
-      "owner": "Home-B / shared owner",
-      "description": "Broad original item includes documentation/translation and Work-owned tutorial obligations; README-route evidence alone does not close the item. Exact remaining clauses under review.",
+      "time_left_hours": "Unknown",
+      "owner": "Home / Work; Home-B scoped docs",
+      "description": "Broad original scope remains: current hosted docs/N689 permission, Work05 tutorial publication and main/release acceptance. README-route obligations already covered.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -640,7 +631,7 @@
       "percent_done": 75,
       "time_left_hours": "8–24 + data",
       "owner": "Home-B",
-      "description": "Remaining spatial workflow/data acceptance; prior verification is not new implementation.",
+      "description": "Zero-result slide reruns now retire stale database rows while preserving schemas, other slides/files and inputs;2FAIL→19PASS. Whole remaining spatial data/GPU acceptance stays open.",
       "completion_basis": "Planning estimate; whole item remains open"
     }
   ],
