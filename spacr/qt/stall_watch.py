@@ -147,19 +147,19 @@ def watch_this_application(app, *, stall_seconds: Optional[float] = None,
                     _flush_samples()
                 continue
             if beat["n"] == reported_for:
-                frame = sys._current_frames().get(main_thread.ident)
-                if frame is not None:
-                    samples.append(_where(frame))
+                stack = _main_stack()
+                if stack is not None:
+                    samples.append(_where(stack))
                 continue
             _flush_samples()
             reported_for = beat["n"]
-            frame = sys._current_frames().get(main_thread.ident)
-            if frame is None:
+            stack = _main_stack()
+            if stack is None:
                 continue
-            samples.append(_where(frame))
+            samples.append(_where(stack))
             report = (f"\n--- GUI THREAD STALLED {stalled:.1f}s "
                       f"(heartbeat {beat['n']}) ---\n"
-                      + "".join(traceback.format_stack(frame)))
+                      + "".join(traceback.format_list(stack)))
             if echo:
                 try:
                     sys.stderr.write(report)
@@ -170,9 +170,26 @@ def watch_this_application(app, *, stall_seconds: Optional[float] = None,
 
     samples: list = []
 
-    def _where(frame) -> str:
-        """The innermost frame, as ``file:line function``."""
-        stack = traceback.extract_stack(frame)
+    def _main_stack():
+        """The GUI thread's stack as text-only frame summaries, or None.
+
+        No frame object outlives this call. A frame held by the watcher
+        keeps its function's locals alive after the GUI thread has returned
+        from it, and the watcher then drops them on its own thread: a
+        ``QPainter`` made in a ``paintEvent`` stayed active past the paint
+        ("QBackingStore::endPaint() called with active painter") and was
+        destroyed off the GUI thread, a segmentation fault in the next
+        window repaint. Measured on the lesson 14 driver with a watcher that
+        kept its last frame: 4 crashes in 6 runs.
+        """
+        frame = sys._current_frames().get(main_thread.ident)
+        try:
+            return None if frame is None else traceback.extract_stack(frame)
+        finally:
+            del frame
+
+    def _where(stack) -> str:
+        """The innermost frame of ``stack``, as ``file:line function``."""
         if not stack:
             return "(empty)"
         last = stack[-1]

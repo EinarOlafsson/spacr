@@ -66,12 +66,18 @@ def test_number_lists_read_from_text_and_lists():
 
 
 def test_the_grid_moves_one_parameter_at_a_time():
-    grid = _robustness_grid(_settings(cell_diameter=None), "cell")
+    # Item 696: "auto" is Cellpose's nominal 30 px; a blank diameter is the
+    # magnification default the run segments at.
+    grid = _robustness_grid(_settings(cell_diameter="auto"), "cell")
     assert grid[0]["parameter"] == "baseline"
     assert [p["parameter"] for p in grid[1:]] == [
         "diameter", "diameter", "flow_threshold", "flow_threshold",
         "cellprob_threshold", "cellprob_threshold", "enhancement"]
     assert [p["diameter"] for p in grid[1:3]] == [22.5, 37.5]
+    blank = _robustness_grid(_settings(cell_diameter=None, magnification=20),
+                             "cell")
+    assert blank[0]["diameter"] == 120.0
+    assert [p["diameter"] for p in blank[1:3]] == [90.0, 150.0]
     base = grid[0]
     for point in grid[1:]:
         moved = [k for k in ("diameter", "flow_threshold", "cellprob_threshold", "enhance")

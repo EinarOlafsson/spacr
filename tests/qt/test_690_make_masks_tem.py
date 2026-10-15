@@ -108,13 +108,13 @@ def test_a_large_field_is_composed_at_the_widget_resolution(qtbot, qt_theme_appl
     qtbot.addWidget(canvas)
     canvas.resize(600, 400)
     seen = []
-    real_overlay = engine.overlay_mask
+    real_picture = mm._canvas_picture
 
-    def spy(image, mask, alpha=0.5):
-        seen.append(image.shape)
-        return real_overlay(image, mask, alpha=alpha)
+    def spy(view, labels, low, high):
+        seen.append(view.shape)
+        return real_picture(view, labels, low, high)
 
-    monkeypatch.setattr(mm.engine, "overlay_mask", spy)
+    monkeypatch.setattr(mm, "_canvas_picture", spy)
     monkeypatch.setattr(mm, "device_ratio", lambda _w: 1.0)
     image = np.tile(_field((256, 256)), (12, 12))
     canvas.set_image_and_mask(image, np.zeros(image.shape, np.uint8))

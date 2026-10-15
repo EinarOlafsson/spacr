@@ -1,5 +1,24 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Original Home — SSH/model source publication and Masks validation
+
+N702 legacy/offline exact model loading is public in61ea1120036:287 owning
+checks passed, including relocated-cache interoperability. N699 SSH discovery,
+password-first MFA and literal paths are public in6b8220d60ba:107 fresh merged
+CPU/Qt checks passed. Earlier native OpenSSH parsing probes used local -G;
+real cluster authentication/native platform acceptance remains open.
+
+Masks integration now has235 owning diameter/brush/export/Toggle passes and
+56 full paint/worker checks. The original1.35 backing-store gate passed without
+FPS forcing or threshold changes. All four shared widget owner hashes and the
+exact attribute-docstring patch were retained. Work recorder files were restored
+to published source; historical recorder patch remains an owner review packet.
+No native tutorial acceptance is claimed. Current normal documentation generation
+refuses the published Home-B preferences relocation.finished callback without a
+docstring; exact owner repair requested. N700 reviewed caption/global CI/release
+gates remain separate. These are scoped source completions, not whole-feature or
+release acceptance. Final full CI is still deferred per maintainer sequencing.
+
 ## 2026-10-14 — Home → Claude N700: caption review evidence blocks refresh
 
 Actual normal caption refresh on the combined Masks source refused the existing

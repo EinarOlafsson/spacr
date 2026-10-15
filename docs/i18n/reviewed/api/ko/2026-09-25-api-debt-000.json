@@ -870,7 +870,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Layered lowest-to-highest: the module's own defaults, the settings file, then the ``--set`` overrides. The file is read under today's names first -- see :func:`_under_todays_names`, without which a value the file set under an old name lost to the default already sitting under the new one.",
       "source_sha256": "544d7d39e2caa11078dd2225c6f107753f19fd80696d1ddfee9a3881142bf5bb",
-      "translation": "낮은 우선순위에서 높은 순으로 계층화됩니다: 모듈 자체의 기본값, 설정 파일, 그다음 ``--set`` 재정의입니다. 파일은 먼저 현재 이름으로 읽힙니다. :func:`_under_todays_names` 를 참조하십시오. 이것이 없으면 파일이 옛 이름으로 설정한 값이 새 이름 아래에 이미 있는 기본값에 밀려 사라졌습니다."
+      "translation": "낮은 우선순위에서 높은 순으로 계층화됩니다: 모듈 자체의 기본값, 설정 파일, 그다음 ``--set`` 재정의입니다. 파일은 먼저 현재 이름으로 읽힙니다. :func:`_under_todays_names` 를 참조하십시오. 이것이 없으면 파일이 옛 이름으로 설정한 값이 새 이름 아래에 이미 있는 기본값에 밀려 사라졌습니다.",
+      "retired": true,
+      "retired_reason": "2026-10-14: canonical paragraph or source context changed during MakeMasks lifecycle/N696 integration. Original review/target retained as historical evidence; new current-source AI technical review is separate."
     },
     {
       "context": "list to receive the migration notices, passed straight to :func:`_under_todays_names`; a caller that prints a pre-flight report hands these to :func:`_preflight` so the keys the fold consumed are still named there.",

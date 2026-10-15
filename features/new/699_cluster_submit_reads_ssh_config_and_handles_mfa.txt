@@ -73,3 +73,55 @@ Implementation batches include Windows/static Include precedence, brokered
 challenge/cancellation, capability-tested session reuse and staged Test
 connection. Actual Great Lakes acceptance needs maintainer-owned access/MFA.
 Implementation and acceptance remain OPEN after CI/release.
+
+2026-10-14 — Home implementation (private source; acceptance remains partial)
+Implemented explicit read-only SSH discovery from user/system config, bounded
+Includes, wildcard/default precedence, Windows USERPROFILE paths and public
+known-host suggestions. Discovery never invokes ssh -G or evaluates Match exec.
+The profile editor now imports editable host/user/port/key-path/jump metadata,
+provides a folder chooser, and tests hostname before Slurm sinfo in a worker.
+The opt-in persistent Paramiko transport verifies known host keys before any
+authentication, supports agent/private keys plus keyboard-interactive/password
+challenges and proxy/jump channels, and reuses authentication for job operations.
+MFA responses stay ephemeral; command JSON uses a distinct session channel.
+Denied authentication, cancelled prompts and command timeouts do not retry a
+submission automatically. Existing external-OpenSSH profiles retain their route.
+
+Validation: the finite owning cohort passed 118 cases (40.25 s). A subsequent
+39-case closure passed after adding key-plus-MFA partial-authentication handling
+and the normal runtime extractor contract. Four additional assignment-spacing
+cases passed after fixing optional whitespace around OpenSSH assignments.
+There are 124 distinct validated nodes across these finite runs. All SSH/transport/account behavior was
+injected: no Home SSH connection, private-key read or actual account login was
+performed. Native Windows/macOS and real cluster acceptance are still required;
+this entry does not claim that provider-specific authentication was exercised.
+New runtime text has 43 complete nine-locale AI technical review rows; the new
+API blocks also have exact-source AI reviews, not human/native-speaker signoff.
+Normal source-bound catalog/API generation and arrival contracts accompany the
+source delivery; unrelated owner text must not be silently retranslated.
+
+Normal generation closure: English API/runtime audits and all nine locale
+writers passed. The normal caption-arrival refresh passed with the immutable
+9,833 baseline unchanged (800 added, 24 changed, 137 retired source identities).
+The existing shared "Choose folder…" targets were retained in every language
+rather than overriding another caption review. Current hosted coverage and real
+SSH/native acceptance remain pending; historical raw coverage was not relabelled.
+
+2026-10-14 — current-nightly private integration and two real source repairs:
+Five new baseline failures exposed password-first partial authentication
+stopping before keyboard-interactive OTP and native OpenSSH rejecting identity
+or control socket paths containing spaces/quotes. Password authentication now
+continues only into the advertised keyboard-interactive method; neither a
+connection nor a command is retried. Single-path OpenSSH options preserve one
+quoted literal path. Native -G parser probes use /dev/null and loopback
+HostName, never user configuration, DNS or a network connection.
+The combined source passes129 distinct owning cases:74CPU/native-parser
+(1.46s) and55GUI (10.18s). All nine normal runtime writers preserve unrelated
+source-current rows; the English API manifest regenerates13475symbols.
+Publication remains HELD: current global arrival refresh rejects the existing
+N700 sv/UI/AI Error report caption's missing explicit review. Claude ownsN700;
+Home-B has the pending shared extractor request. Neither baseline pin nor
+generator assertions were waived. No real cluster/MFA/macOS/Windows acceptance.
+Receipt: data/699_current_integration_2026-10-14/receipt.json.
+
+2026-10-15 Original Home: coherent SSH discovery/password-first MFA/literal-path source merged with published N702 snapshot provenance. Fresh owning mixed CPU/Qt cohort107PASS12.25s; earlier native local OpenSSH parsing/injected auth129-check receipts retained, no real cluster acceptance claim. Normal English runtime writer completed. Home-B approved additive extractor retained every scientific/model/installer owner. Source publication proceeds with exact known foreign N700 review and current preferences nested-docstring generation failures recorded; no global CI, native MFA or whole-feature acceptance is claimed.

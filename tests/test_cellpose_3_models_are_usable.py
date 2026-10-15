@@ -371,9 +371,12 @@ def test_a_cellpose_sam_run_is_byte_identical_to_before_503(
         CellposeModel=_InputLabellingCellpose))
     src = tmp_path / "plate" / "masks"
     _write_npz(src, (3, 32, 32, 2), seed=503)
+    # Item 696: a blank nucleus diameter is now the magnification default;
+    # "auto" is what Cellpose-SAM was handed for a blank one before, None.
     O.generate_cellpose_masks_sam(
         str(src), _base_settings(src, cell_diameter=40, cell_min_area=4,
-                                 nucleus_min_area=4), object_type)
+                                 nucleus_min_area=4,
+                                 nucleus_diameter="auto"), object_type)
     [model] = _InputLabellingCellpose.built
     assert len(model.calls) == 1
     digest = _digest(src, object_type, model)

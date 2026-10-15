@@ -9,12 +9,11 @@ not a Python literal hands it over as a STRING -- a number typed into the GUI,
 and any settings CSV -- and the failure lands inside the segmentation call,
 after the plates have been loaded and normalised.
 
-THE BLANK CASE IS THE ONE TO BE CAREFUL WITH. ``_get_object_settings`` fills
-``object_settings['diameter']`` with a magnification-derived default, so the
-obvious fix -- read the already-coerced value -- would turn "blank means native
-scale" into "rescale by 30/diameter" for every run that left the field empty.
-That is a different segmentation, silently, and it is why the coercion below
-preserves ``None``.
+THE BLANK CASE IS THE ONE TO BE CAREFUL WITH. Since item 696 a blank diameter
+is the magnification default on every route, and each caller hands that
+default in explicitly; a caller that hands none keeps ``None`` (native scale)
+rather than having a default invented for it. 0 and "auto" are Cellpose
+estimating the diameter.
 """
 from __future__ import annotations
 
@@ -39,9 +38,14 @@ def test_a_written_number_arrives_as_a_float(raw, expected):
 
 @pytest.mark.parametrize("raw", [None, "", "   "])
 def test_blank_stays_blank_rather_than_becoming_a_default(raw):
-    """None means native scale. Substituting a default would rescale every
-    image in every run that left the field empty."""
+    """Without a default handed in, None is native scale; nothing is invented."""
     assert _eval_diameter(raw, "cell") is None
+
+
+@pytest.mark.parametrize("raw", [None, "", "   "])
+def test_blank_is_the_default_the_caller_hands_in(raw):
+    """Item 696: the magnification default is the caller's to give."""
+    assert _eval_diameter(raw, "cell", 120) == 120.0
 
 
 def test_an_unparseable_value_is_reported_and_treated_as_blank(capsys):
