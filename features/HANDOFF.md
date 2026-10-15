@@ -13291,3 +13291,17 @@ are preserved; source history stays exact. Normal Help regeneration passes.
 Evidence:features/data/678_path_probe_api_catalogs_2026-10-15/ and
 features/data/678_path_probe_coordinator_review_2026-10-15/. This closes only
 these five symbols, not the wider semantic review or final CI/release gates.
+
+## 2026-10-15 Home-B — registered handles and spinner timer contracts
+Four existing symbols now distinguish registered handles from running threads,
+state registration/retirement timing, document user_visible, and distinguish the
+animation timer from an active appearance delay. Executable AST/comments stay
+unchanged. All source and target reviews are bound to exact hashes. Normal
+generation passes18.30s without canonical collection or decoding:54 changed/new
+targets,16 byte-preserved shifted targets and two proven Hindi/Icelandic return
+repairs. Nine obsolete active review rows retire with exact provenance. Every
+unrelated locale/English entry and source history is preserved. Normal Help
+regeneration passes; precisely two summaries change, all unrelated API summaries
+are exact. Evidence:features/data/678_bridge_spinner_api_catalogs_2026-10-15/
+and features/data/678_bridge_spinner_coordinator_review_2026-10-15/. This closes
+these four contracts, not the wider semantic sweep or final CI/release.
