@@ -292,13 +292,14 @@ def test_the_method_setting_names_what_runs():
         _resolve_cell_cycle_methods("svm")
 
 
-def _field(rng, n=26, size=256, fractions=(0.45, 0.25, 0.2, 0.1)):
+def _field(rng, n=26, size=256, fractions=(0.45, 0.25, 0.2, 0.1), *, phases=None):
     """One field of nuclei: an intensity plane, their labels and phases."""
     image = np.zeros((size, size))
     labels = np.zeros((size, size), np.int32)
     yy, xx = np.mgrid[0:size, 0:size]
     truth = {}
-    for phase in rng.choice(PHASES, n, p=fractions):
+    chosen = rng.choice(PHASES, n, p=fractions) if phases is None else phases
+    for phase in chosen:
         dna = {"G1": rng.normal(1, 0.04), "S": rng.uniform(1.15, 1.85),
                "G2": rng.normal(2, 0.05), "M": rng.normal(2, 0.05)}[phase]
         area = 200.0 * {"G1": 1.0, "S": 1 + 0.6 * (dna - 1), "G2": 1.6,
@@ -324,14 +325,18 @@ def _field(rng, n=26, size=256, fractions=(0.45, 0.25, 0.2, 0.1)):
     return image, labels, truth
 
 
-def _write_plate(root, fields=6, seed=0):
+def _write_plate(root, fields=6, seed=0, *, separate_wells=False,
+                 balanced_phases=False):
     merged = root / "merged"
     merged.mkdir(parents=True)
     rng = np.random.default_rng(seed)
     truths = {}
     for number in range(1, fields + 1):
         well = "plate1_A01" if number <= fields // 2 else "plate1_B02"
-        image, labels, truth = _field(rng)
+        if separate_wells:
+            well = f"plate1_A{number:02d}"
+        phases = np.resize(PHASES, 26) if balanced_phases else None
+        image, labels, truth = _field(rng, phases=phases)
         name = f"{well}_{number}"
         np.save(merged / f"{name}.npy",
                 np.stack([image, labels.astype(np.uint16)], axis=-1))
@@ -405,7 +410,8 @@ def test_a_failed_step_is_reported_and_does_not_fail_the_run(tmp_path,
 def test_the_torch_route_trains_with_classify_and_reuses_its_model(
         tmp_path, monkeypatch):
     monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")
-    merged, truths = _write_plate(tmp_path, fields=4, seed=3)
+    merged, truths = _write_plate(tmp_path, fields=4, seed=3,
+                                 separate_wells=True, balanced_phases=True)
     measure.measure_crop(_measure_settings(
         merged, cell_cycle=False))
     db = str(tmp_path / "measurements" / "measurements.db")
@@ -433,6 +439,50 @@ def test_the_torch_route_trains_with_classify_and_reuses_its_model(
         agreement = pd.read_sql_query("SELECT * FROM cell_cycle_agreement",
                                       conn)
     assert "max_fraction_difference" in agreement
+
+
+def test_torch_training_fixture_supports_two_grouped_holdouts(tmp_path):
+    from spacr.classifier_evaluation import grouped_split, split_group_values
+    from spacr.schema import parse_field_stem
+
+    merged, truths = _write_plate(tmp_path, fields=4, seed=3,
+                                 separate_wells=True, balanced_phases=True)
+    records = []
+    for stem, labelled in truths.items():
+        metadata = parse_field_stem(stem).to_dict()
+        records.extend({**metadata, 'phase': phase} for phase in labelled.values())
+    frame = pd.DataFrame(records)
+    level, groups = split_group_values(frame=frame, group_by='well')
+    train, test, report = grouped_split(groups, frame.phase, 0.2, seed=42, group_by=level)
+    fitting, validation, validation_report = grouped_split(
+        groups[train], frame.phase.iloc[train], 0.1, seed=42, group_by=level)
+    fit_groups = set(groups[train[fitting]])
+    validation_groups = set(groups[train[validation]])
+    test_groups = set(groups[test])
+    assert len(set(groups)) == 4
+    assert fit_groups.isdisjoint(validation_groups | test_groups)
+    assert validation_groups.isdisjoint(test_groups)
+    assert report.total_groups == 4 and validation_report.total_groups == 3
+    assert len(list(merged.glob('*.npy'))) == 4
+
+
+def test_original_phase_fixture_refuses_class_inadequate_inner_holdout(tmp_path):
+    from spacr.classifier_evaluation import grouped_split, split_group_values
+    from spacr.schema import parse_field_stem
+
+    merged, truths = _write_plate(tmp_path, fields=4, seed=3, separate_wells=True)
+    records = []
+    for stem, labelled in truths.items():
+        metadata = parse_field_stem(stem).to_dict()
+        records.extend({**metadata, 'phase': phase} for phase in labelled.values())
+    frame = pd.DataFrame(records)
+    level, groups = split_group_values(frame=frame, group_by='well')
+    train, test, report = grouped_split(groups, frame.phase, 0.2, seed=42, group_by=level)
+    assert len(set(groups[train][frame.phase.iloc[train].eq('M')])) == 1
+    with pytest.raises(ValueError, match='Independent groups per class'):
+        grouped_split(groups[train], frame.phase.iloc[train], 0.1,
+                      seed=42, group_by=level)
+    assert report.total_groups == 4 and len(list(merged.glob('*.npy'))) == 4
 
 
 def test_a_model_without_its_phase_order_is_refused(tmp_path):

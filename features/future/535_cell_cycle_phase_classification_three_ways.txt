@@ -239,3 +239,31 @@ publication does not claim green global CI/release or waive this owner gap.
 Actual normal caption-arrival refresh also refuses missing explicit
 sv/UI/AI Error report review (exit 1); its raw failure is retained. No
 caption contract, foreign review or source baseline was modified to pass.
+
+2026-10-15 — Original Home: image/Torch holdout now uses shared acquisition
+groups, defaults to well and honors explicit cv_group_by. Classify receives
+the same normalized grouping and random seed for its own validation split.
+Returned report and model phase sidecar retain actual shared SplitReport group
+and cell fractions/counts. Missing/invalid identity and class-inadequate holdouts
+refuse before trainer or replacement of an existing dataset, without fabricated
+metrics. Saved-model inference does not invent a new split. Architecture,
+existing tabular behavior and alpha gates remain unchanged.
+Actual corrected baseline10FAIL2PASS -> final27PASS7.98s, exit0; actual trainer
+boundary intercepted, nine localized production-helper refusal callbacks and
+five existing tabular checks included. Native synthetic4well outer/inner
+validation proof passes. A prior4well fixture failed correctly for only1
+M-bearing train group; preserved in evidence. Its opt-in training fixture now
+plants declared balanced phase identities into4independent wells; historical
+pixels are not claimed unchanged. Slow real-model training NOT RUN. No GPU,
+checkpoint download, biological accuracy or whole-feature completion.
+Existing exact reviewed caption reused; narrow extractor owner request and
+root source review pending. Evidence:data/535_torch_grouped_split_2026-10-15/.
+
+Follow-up: explicit separate_wells/balanced_phases fixture controls now preserve
+the original seed3 phase distribution as an inadequate-inner-holdout refusal
+regression. Three affected cases PASS5.66s,exit0, including fresh balanced
+independent four-well outer/inner proof and actual helper defaultwell boundary.
+Root reviewed exact runtime diff/test design; no source blocker (source review
+only). Runtime helper AST unchanged from reviewed aad2769b960. Existing caption
+already in English manifest and exact nine targets installed; no new runtime
+target. One-helper extractor ownership followup requested; no globalCI claim.

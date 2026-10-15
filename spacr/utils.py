@@ -1619,7 +1619,26 @@ def save_settings(settings, name='settings', show=False):
     try:
         os.makedirs(os.path.join(src,'settings'), exist_ok=True)
         print(f"Saving settings to {settings_csv}")
-        settings_df.to_csv(settings_csv, index=False)
+        import errno
+        import stat
+        import tempfile
+        from pathlib import Path
+
+        target = Path(settings_csv)
+        if target.is_symlink():
+            target = target.resolve()
+        if target.exists() and not os.access(target, os.W_OK):
+            raise PermissionError(str(target))
+        with tempfile.TemporaryDirectory(prefix=".spacr-settings-csv-", dir=target.parent) as staging:
+            staged = Path(staging) / "snapshot.csv"
+            if os.fspath(tabular.resolve_path(staged)) != os.fspath(staged):
+                raise OSError(errno.EINVAL, os.strerror(errno.EINVAL), str(target))
+            tabular.write_table(settings_df, staged, canonicalise=False, index=False)
+            mode = stat.S_IMODE(target.stat().st_mode if target.exists() else staged.stat().st_mode)
+            with staged.open("rb") as handle:
+                os.fsync(handle.fileno())
+            staged.chmod(mode)
+            os.replace(staged, target)
         _save_settings_json(settings, os.path.splitext(settings_csv)[0] + '.json')
     except (OSError, PermissionError) as e:
         print(f"Warning: could not save settings to {settings_csv}: {e}. "
