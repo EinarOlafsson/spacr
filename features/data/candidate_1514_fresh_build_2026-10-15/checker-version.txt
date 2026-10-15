@@ -1,0 +1,2 @@
+twine version 6.2.0 (keyring: 25.7.0, packaging: 26.3, requests: 2.34.2,
+requests-toolbelt: 1.0.0, urllib3: 2.8.0, id: 1.6.1)
