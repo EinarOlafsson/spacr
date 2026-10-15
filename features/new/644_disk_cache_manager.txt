@@ -167,3 +167,19 @@ only the two actual repeated Storage/UI move cases:2PASS6.73seconds. Ten merged
 API manifests exactly equal incoming N703 normal-writer output plus local N644
 normal-writer target. Both owner notes retained; no generated hand edits.
 Evidence: features/data/644_current_integration_2026-10-15/.
+
+2026-10-15 — OVER-DEEP UNSUPPORTED CACHE METADATA STAYS INERT
+The real JSON decoder can raise RecursionError for a small deeply nested
+record. Cache metadata previously caught only OSError/ValueError, so direct
+read/apply and an explicit cache move raised instead of using their existing
+invalid-record fallback. The one exception tuple now also catches this
+decoder failure; metadata/path/environment logic is otherwise unchanged.
+Read/apply preserve raw record bytes and external environment values. An
+actual private news-cache move recovers and preserves cached bytes under the
+existing explicit-move behavior. Initial1200-level fixtures passed because
+Python3.12 accepts that depth; those results were retained, then corrected
+10000-level/~20KiB native fixtures produced7FAIL1.58s. Final36PASS2.05s includes
+7new and29existing metadata/environment/path cases under2G. No recursion cap,
+parser, caption or API prose was changed. Import already has an outer guard,
+so this is not a startup-crash claim. Exact source peer and raw evidence:
+features/data/644_overdeep_cache_metadata_2026-10-15/.

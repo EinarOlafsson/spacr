@@ -1,0 +1,46 @@
+{
+  "base": "fd908ba3520e1940a702e5f8706c8c4fcf09d373",
+  "scope": "N644 overdeep unsupported cache metadata uses existing invalid-record fallback",
+  "counterexample_history": {
+    "initial_depth1200": {
+      "passed": 7,
+      "seconds": 1.07,
+      "meaning": "Not a valid failure reproducer on actual Python3.12; native C JSON decoder accepts1200/2000/3000 despite Python recursionlimit1000. Initial fixture and exact passing result retained."
+    },
+    "corrected_depth10000": {
+      "failed": 7,
+      "seconds": 1.58,
+      "exit": 1,
+      "input_bytes_approx": 20000,
+      "failure": "Actual RecursionError from native json decoder, including direct private-cache relocation. No recursion ceiling/parser alteration."
+    }
+  },
+  "owning": {
+    "passed": 36,
+    "seconds": 2.05,
+    "exit": 0,
+    "new": 7,
+    "existing": 29
+  },
+  "source": {
+    "path": "spacr/run_journal.py",
+    "sha256": "8644c01c92dda0c3a85bde5bd86be45a6206d12637103b61ae870fb305bd1deb",
+    "change": "Only add RecursionError to existing OSError/ValueError catch in _read_cache_locations; existing {} fallback unchanged",
+    "new_caption_or_helper_or_API_prose": false
+  },
+  "preservation": [
+    "Raw metadata bytes and all known cache environment variables unchanged during unsupported-record read/apply.",
+    "Explicit external environment remains authoritative.",
+    "Actual private news-cache move recovers using existing invalid-record fallback, preserves complete cached bytes and records only requested relocated variable.",
+    "Existing path-type/NUL/top-level/known-variable allowlist cases remain unchanged."
+  ],
+  "review": "Independent root source peer approved exact hash and all other bytes/normalized AST; root-final-peer.json",
+  "resource": "Background cap2G/oneprocess/blankCUDA/offscreen under established tiny native metadata-env exception outside common heavy.lock; no models/inference/network/Qt screens",
+  "limits": [
+    "Import-level broad guard already prevents whole-app startup crash; no startup-crash claim.",
+    "No new general schema/parser-depth policy, partial-record salvage, native other-OS/cross-drive/GPU/scientific/fullCI acceptance."
+  ],
+  "held": [
+    "Normal public merge/source-artifact preservation/push"
+  ]
+}
