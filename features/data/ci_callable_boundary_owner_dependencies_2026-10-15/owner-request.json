@@ -129,7 +129,9 @@
     "source_docs": 13536,
     "english_api": 13536,
     "keys_equal": true,
-    "all_english_docstrings_exact": false
+    "all_english_docstrings_exact": true,
+    "text_mismatch_symbols": [],
+    "manifest_schema_note": "Actual normal English records store prose in text; initial evidence comparison used absent docstring key and reported false. Corrected with real text field, without new collector/source edits."
   },
   "requested_minimal_repair": "Reuse exact existing19+2 arrivalcontracts with equality/disjointness validation in bothdocstring tests; coordinate newssh_keychain optional signature contract and N70020arrivals/3body amendments first. Preserve historical10026/13182 pins and signaturedigest/category/negativecontrols; no newceiling/count-onlyrepair.",
   "source_pins": {
