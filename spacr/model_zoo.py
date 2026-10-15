@@ -3824,6 +3824,11 @@ def _resolve_pinned_model_file(settings, name, *, kinds=(), download=True):
     return resolved
 
 
+def _planning_model_entries():
+    """Bounded trusted declarations for planning without providers or network."""
+    return [_entry_from_mapping(record) for record in BUNDLED_REMOTE_MODELS]
+
+
 def _ensure_model_file(requested, *, kinds=(), download=True):
     """Resolve a catalogue checkpoint and fetch missing verified weights.
 
@@ -3842,7 +3847,8 @@ def _ensure_model_file(requested, *, kinds=(), download=True):
         return None
     path_like = "/" in text or "\\" in text or text.startswith("~")
     identifier = Path(text.replace("\\", "/")).name if path_like else text
-    matches = [item for item in catalogue(remote=True)
+    entries = catalogue(remote=True) if download else _planning_model_entries()
+    matches = [item for item in entries
                if item.key == identifier or item.name == identifier
                or (path_like and Path(item.name).name == identifier)]
     if len(matches) > 1:

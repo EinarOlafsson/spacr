@@ -369,3 +369,17 @@ The finite native CLI/resolver/journal cohort passed34tests in3.74seconds,
 exit0. Pipeline is a native stand-in; no scientific models/network/GPU/fullCI.
 Parent702 remains partial.
 Evidence: data/702_native_cli_model_provenance_2026-10-14/receipt.json.
+
+2026-10-14 — legacy planning never discovers providers or contacts HTTP:
+Unpinned download=False resolution now uses a bounded trusted bundled raw
+index rather than the execution catalogue. It never calls shared catalogue
+HTTP, plugin model providers or weight acquisition; explicit existing custom
+files still win. Exact declared identities and verified cache selection stay
+available. External catalogue/provider planning is explicitly unsupported.
+The original tripwire regression failed1case/passed1 before the change.
+Afterward133finite owning cases passed in4.91seconds, exit0, including actual
+HTTP/provider/shared-catalogue/fetch tripwires and prior cache/kind checks.
+Existing planning fixtures now inject the new pure entry seam instead of the
+broad execution catalogue. Actual execution discovery/offline caption policy
+remains a separate hold; no model/network/GPU/fullCI. Parent702 partial.
+Evidence: data/702_legacy_pure_model_planning_2026-10-14/receipt.json.
