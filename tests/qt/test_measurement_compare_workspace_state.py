@@ -198,6 +198,27 @@ def test_user_measurement_choices_supersede_pending_joined_columns(panel):
     assert state["second"] == "cell_perimeter"
 
 
+@pytest.mark.parametrize("name,pending", [
+    ("measurement", "nucleus_area"),
+    ("second", "nucleus_area"),
+    ("only", "later"),
+])
+def test_activating_the_current_fallback_replaces_a_pending_choice(
+        panel, objects, name, pending, monkeypatch):
+    combo = getattr(panel, name)
+    chosen = str(combo.currentData() or "")
+    assert panel.apply_workspace_state({name: pending})
+    assert panel.workspace_state()[name] == pending
+    with monkeypatch.context() as guard:
+        guard.setattr(panel, "refresh", _fail)
+        guard.setattr(panel, "_draw", _fail)
+        combo.activated.emit(combo.currentIndex())
+        assert panel.workspace_state()[name] == chosen
+    panel.set_data(objects.assign(nucleus_area=42.0), {"later": [0, 3, 6]})
+    assert combo.currentData() == chosen
+    assert panel.workspace_state()[name] == chosen
+
+
 def test_restore_abandons_an_old_join_without_rendering_its_late_result(
         panel, objects, qtbot, monkeypatch):
     started, release = threading.Event(), threading.Event()

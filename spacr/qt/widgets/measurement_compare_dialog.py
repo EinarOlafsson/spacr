@@ -364,6 +364,9 @@ class MeasurementComparePanel(QWidget):
         self.resize(900, 720)
         self._scope_report: Dict[str, Any] = {}
         self._results = results
+        for name in ("measurement", "second", "only"):
+            getattr(self, name).activated.connect(
+                lambda _index, key=name: self._workspace_choices.pop(key, None))
         self._open_on_the_top_hits(results)
         self.refresh()
 
