@@ -2877,7 +2877,7 @@
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "Veldu UMAP sem smækkunaraðferð. Hver punktur táknar hlut með tveimur hnitum á grafinu. Þú getur kannað PCA með tengdu tóli þess þegar þú vilt línulegt ofanvarp og hleðslur eiginleika.",
+          "narration": "Veldu UMAP sem smækkunaraðferð. Hver punktur táknar hlut með tveimur hnitum á grafinu.",
           "hold_after": 0.7
         },
         {
@@ -2926,19 +2926,37 @@
           "hold_after": 0.7
         },
         {
-          "visual": "27_fold_image_scatter",
-          "narration": "Opnaðu Image Scatter úr haus Image UMAP til að bera valda eiginleika beint saman, eða opnaðu PCA fyrir línulegt ofanvarp. Haltu áfram með tengdu kennsluefnin til að sjá inntaksstillingar þeirra og vistað úttak.",
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "55_image_scatter",
-            "60_pca"
-          ],
+          "visual": "27_review_embedding",
+          "narration": "Skoðaðu fullgerðu vörpunina og berðu saman myndútskurði valinna hluta. Geymdu inntaksmælingarnar, valdar stillingar og vistaðar niðurstöður saman svo hægt sé að rekja hvern punkt til uppruna síns.",
           "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
