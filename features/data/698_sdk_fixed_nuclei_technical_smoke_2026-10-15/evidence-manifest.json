@@ -1,0 +1,122 @@
+{
+  "one-nuclei-sdk-fixed-proposal-66f5__one-nuclei-sdk-fixed-PROPOSED.py.gz": {
+    "original_relative_path": "one-nuclei-sdk-fixed-proposal-66f5/one-nuclei-sdk-fixed-PROPOSED.py",
+    "original_sha256": "06c711fbecb1ad4fb31a4b4eb89552d2cecd62c322424104ef819c3f5a0c20d2",
+    "original_bytes": 14692,
+    "published_sha256": "06c711fbecb1ad4fb31a4b4eb89552d2cecd62c322424104ef819c3f5a0c20d2",
+    "redacted": false,
+    "gzip_sha256": "f20ffeac3340e96e33ba56b6ee417477d021666f771b5f360eec3d12d86a09d1"
+  },
+  "one-nuclei-sdk-fixed-proposal-66f5__ROOT-AUTHORIZE-ONE-SDK-FIXED-TECHNICAL-SMOKE.json.gz": {
+    "original_relative_path": "one-nuclei-sdk-fixed-proposal-66f5/ROOT-AUTHORIZE-ONE-SDK-FIXED-TECHNICAL-SMOKE.json",
+    "original_sha256": "a7361b91f8d4dca4982a987aa70b0e19c875f3577e16fe502f89bf48442763c3",
+    "original_bytes": 376,
+    "published_sha256": "a7361b91f8d4dca4982a987aa70b0e19c875f3577e16fe502f89bf48442763c3",
+    "redacted": false,
+    "gzip_sha256": "3f3d0bc3c653a9e13d0d7ff9156749fca85f4293bd8c69489a452aa1062ae1fb"
+  },
+  "one-nuclei-sdk-fixed-proposal-66f5__plan.json.gz": {
+    "original_relative_path": "one-nuclei-sdk-fixed-proposal-66f5/plan.json",
+    "original_sha256": "b4e4137dd4653f5cc217e32bf1946586decc84410ef704f92daab345abaedb94",
+    "original_bytes": 1293,
+    "published_sha256": "b4e4137dd4653f5cc217e32bf1946586decc84410ef704f92daab345abaedb94",
+    "redacted": false,
+    "gzip_sha256": "017f386df1dbfb88e6ecad66e866f9b496fec3c0e9ce5aab9cb34f9e04daece7"
+  },
+  "one-nuclei-sdk-fixed-proposal-66f5__proposal-manifest.json.gz": {
+    "original_relative_path": "one-nuclei-sdk-fixed-proposal-66f5/proposal-manifest.json",
+    "original_sha256": "1e227cc98cd50aa3a4af7287384941358b39f75da11fd4a636fc256015024fa2",
+    "original_bytes": 721,
+    "published_sha256": "1e227cc98cd50aa3a4af7287384941358b39f75da11fd4a636fc256015024fa2",
+    "redacted": false,
+    "gzip_sha256": "5af2cef66cf0acb3389f503fcf5488920465766185aee554687348cd1c3060d8"
+  },
+  "one-nuclei-sdk-fixed-proposal-66f5__execution-unit-startup-receipt.json.gz": {
+    "original_relative_path": "one-nuclei-sdk-fixed-proposal-66f5/execution-unit-startup-receipt.json",
+    "original_sha256": "54136493463d89d47756ba14defec28fff03428f5d113d19c7c3e4e37a6e98d8",
+    "original_bytes": 626,
+    "published_sha256": "54136493463d89d47756ba14defec28fff03428f5d113d19c7c3e4e37a6e98d8",
+    "redacted": false,
+    "gzip_sha256": "c0633ed6b2b862fdbe13acb2afdaa39b239307df1e45183c51d5c1d6e9741112"
+  },
+  "one-nuclei-sdk-fixed-proposal-66f5__execution.log.gz": {
+    "original_relative_path": "one-nuclei-sdk-fixed-proposal-66f5/execution.log",
+    "original_sha256": "e0cbe83c717f8acfc9c339d5ae0a39432c5f02ad8aaeff482ec71ce2daa4b6db",
+    "original_bytes": 258,
+    "published_sha256": "e0cbe83c717f8acfc9c339d5ae0a39432c5f02ad8aaeff482ec71ce2daa4b6db",
+    "redacted": false,
+    "gzip_sha256": "f4270864a1d7d1034e0d1f69893e1d8b0a8aab55c2250ee9e3acaf22f12cef72"
+  },
+  "one-nuclei-sdk-fixed-execution-66f5__receipt.json.gz": {
+    "original_relative_path": "one-nuclei-sdk-fixed-execution-66f5/receipt.json",
+    "original_sha256": "75b53ac21d2738bdcf2351d34ef9701568d6f5c3eb1e7c069a7d20eb4d546823",
+    "original_bytes": 4843,
+    "published_sha256": "75b53ac21d2738bdcf2351d34ef9701568d6f5c3eb1e7c069a7d20eb4d546823",
+    "redacted": false,
+    "gzip_sha256": "f2c2a9a2532ebac2400c094b84beec193b964efdeb456aae213fa36e40228890"
+  },
+  "one-nuclei-sdk-fixed-execution-66f5__presubmit-info.json.gz": {
+    "original_relative_path": "one-nuclei-sdk-fixed-execution-66f5/presubmit-info.json",
+    "original_sha256": "1f804e43ee9123a23f10e9d71eb145b3e29c84a016f9ddd1fd125e149d9c6306",
+    "original_bytes": 65207,
+    "published_sha256": "1f804e43ee9123a23f10e9d71eb145b3e29c84a016f9ddd1fd125e149d9c6306",
+    "redacted": false,
+    "gzip_sha256": "04d5f17e0376c7a88623cde6acbfa32f81e9c464c67144517df4efee679cdc64"
+  },
+  "one-nuclei-sdk-fixed-execution-66f5__before-info.json.gz": {
+    "original_relative_path": "one-nuclei-sdk-fixed-execution-66f5/before-info.json",
+    "original_sha256": "1f804e43ee9123a23f10e9d71eb145b3e29c84a016f9ddd1fd125e149d9c6306",
+    "original_bytes": 65207,
+    "published_sha256": "1f804e43ee9123a23f10e9d71eb145b3e29c84a016f9ddd1fd125e149d9c6306",
+    "redacted": false,
+    "gzip_sha256": "04d5f17e0376c7a88623cde6acbfa32f81e9c464c67144517df4efee679cdc64"
+  },
+  "one-nuclei-sdk-fixed-execution-66f5__api-info.json.gz": {
+    "original_relative_path": "one-nuclei-sdk-fixed-execution-66f5/api-info.json",
+    "original_sha256": "18cfa7089ee1824e4d37e4cc5a6acc6204c32c633d8ef9f873d8dc36d8a66857",
+    "original_bytes": 120597,
+    "published_sha256": "18cfa7089ee1824e4d37e4cc5a6acc6204c32c633d8ef9f873d8dc36d8a66857",
+    "redacted": false,
+    "gzip_sha256": "4ac03275f74ab9a1259940ba64fe4d16c98bb0bb7ade31ba133c00caab36566d"
+  },
+  "one-nuclei-sdk-fixed-execution-66f5__presubmit-variables.json.gz": {
+    "original_relative_path": "one-nuclei-sdk-fixed-execution-66f5/presubmit-variables.json",
+    "original_sha256": "3e68b9ccc89e34e80a01ce29a84210b71126dd83abdb25bee296f29045e1b41d",
+    "original_bytes": 141,
+    "published_sha256": "3e68b9ccc89e34e80a01ce29a84210b71126dd83abdb25bee296f29045e1b41d",
+    "redacted": false,
+    "gzip_sha256": "8b84704b68325f7788a5beb00f6216a0430df8c42e47a8394109c06b663eb5f7"
+  },
+  "one-nuclei-sdk-fixed-execution-66f5__before-runtime.json.gz": {
+    "original_relative_path": "one-nuclei-sdk-fixed-execution-66f5/before-runtime.json",
+    "original_sha256": "246065977f36011e5471bc5d6143158b0a7a0021a7c3d06e5b57ae0d0c3bb56d",
+    "original_bytes": 286,
+    "published_sha256": "246065977f36011e5471bc5d6143158b0a7a0021a7c3d06e5b57ae0d0c3bb56d",
+    "redacted": false,
+    "gzip_sha256": "9ae0fb70281e6802f70596c38dc1e21f3063022b7d06c7bfc3dc81eee86c18bf"
+  },
+  "one-nuclei-sdk-fixed-execution-66f5__before-variables.json.gz": {
+    "original_relative_path": "one-nuclei-sdk-fixed-execution-66f5/before-variables.json",
+    "original_sha256": "3e68b9ccc89e34e80a01ce29a84210b71126dd83abdb25bee296f29045e1b41d",
+    "original_bytes": 141,
+    "published_sha256": "3e68b9ccc89e34e80a01ce29a84210b71126dd83abdb25bee296f29045e1b41d",
+    "redacted": false,
+    "gzip_sha256": "8b84704b68325f7788a5beb00f6216a0430df8c42e47a8394109c06b663eb5f7"
+  },
+  "one-nuclei-sdk-fixed-execution-66f5__config.json.gz": {
+    "original_relative_path": "one-nuclei-sdk-fixed-execution-66f5/config.json",
+    "original_sha256": "337857b288f6b8954f73c5296dd492d21e44b5f716e71cddd8e9480488ae1029",
+    "original_bytes": 342102,
+    "published_sha256": "31155d5d7a437936fa46f707ae1625ec620cfb8a3188d2b4da2a63b04268530c",
+    "redacted": true,
+    "gzip_sha256": "b397e6c71ffae073a41d22403b740faf90464f0903438dae7496e02090742c34"
+  },
+  "one-nuclei-sdk-fixed-execution-66f5__presubmit-runtime.json.gz": {
+    "original_relative_path": "one-nuclei-sdk-fixed-execution-66f5/presubmit-runtime.json",
+    "original_sha256": "246065977f36011e5471bc5d6143158b0a7a0021a7c3d06e5b57ae0d0c3bb56d",
+    "original_bytes": 286,
+    "published_sha256": "246065977f36011e5471bc5d6143158b0a7a0021a7c3d06e5b57ae0d0c3bb56d",
+    "redacted": false,
+    "gzip_sha256": "9ae0fb70281e6802f70596c38dc1e21f3063022b7d06c7bfc3dc81eee86c18bf"
+  }
+}
