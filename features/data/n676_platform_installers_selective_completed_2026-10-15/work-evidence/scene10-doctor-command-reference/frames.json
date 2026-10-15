@@ -1,0 +1,8 @@
+{
+  "05_doctor": {
+    "image": "05_doctor.png",
+    "sha256": "af843fc43126a768f6690d41756a037287602a064dfb8c8b306e7e666cbaed1a",
+    "buttons": [],
+    "kind": "generated_command_reference_not_terminal_output"
+  }
+}

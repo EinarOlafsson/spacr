@@ -1,0 +1,53 @@
+{
+  "schema": 3,
+  "status": "source_only_preparation_not_execution",
+  "lesson": "04_platform_installers",
+  "created_utc": "2026-10-15T17:42:55.544199+00:00",
+  "exporter": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/export_completed04_checkpoint.py",
+    "bytes": 26804,
+    "sha256": "9050fbfbe0b421da1995799f3ead681a9261804a5b4c4ec7d76605c9430c8a0d"
+  },
+  "usage": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/export_completed04-USAGE.txt",
+    "bytes": 3735,
+    "sha256": "28639c814b2819ac3b153dfe3fd4aba13a078b4334a573c6063fb97f04aaaa4f"
+  },
+  "actual_component_authorization": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/root-component-decision-v2.json",
+    "bytes": 4401,
+    "sha256": "e6cd05d93c47999c2cdfdd7dadbd4ed9f7f64941fa8ca106845b3febd0d2456c"
+  },
+  "actual_duration_policy": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/root-native-duration-policy.json",
+    "bytes": 1581,
+    "sha256": "ff59b6019f8a39aebc8013c7227decc395a67202ee86d31154485e03e85abd9b"
+  },
+  "archived_previous_exporters": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/helper-review-originals/export_completed04_checkpoint.py.073690762c59",
+      "bytes": 24790,
+      "sha256": "073690762c59f02a75ccb0d15b670d694758f6c1c61da547147760562468ebdd"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/helper-review-originals/export_completed04_checkpoint.py.b8b18a3f6eae",
+      "bytes": 26690,
+      "sha256": "b8b18a3f6eaec5d9ca65bc73b342ac9ef35657498ac800c91a1189c659bea8ec"
+    }
+  ],
+  "checks": {
+    "AST_valid": true,
+    "actual_full_N_ge840_and_total9167_plus_N": true,
+    "actual_v2_policy_and_separate_native_approval_required": true,
+    "preserve_visual_intervals_true_required": true,
+    "complete_native_clips_not_true_required": true,
+    "all100audio_14catalog_13reviews_83others_retained": true,
+    "actualcheckpoint_rows_plus3_derived": true,
+    "source_test_cohorts_and_finalcount_dynamic": true,
+    "export_executed": false,
+    "future_acceptance_invented": false
+  },
+  "limits": [
+    "Source-only preparation; independent source peer pending. Actual source, capture, media, browser, publication and record receipts remain mandatory runtime inputs."
+  ]
+}

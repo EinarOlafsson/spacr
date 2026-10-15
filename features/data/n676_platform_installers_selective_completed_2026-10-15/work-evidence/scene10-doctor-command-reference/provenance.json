@@ -1,0 +1,14 @@
+{
+  "completed_capture": true,
+  "scope": "Generated command references; no platform installation or removal execution claim",
+  "verification_capture": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/desktop-download-guidance-r3/captures/desktop_public_1513",
+  "verification_sha256": "bf3db0c7c0ab6f1b3626fbd4d972b8cb873cbb3dda4e59f856c54697de239b7d",
+  "verified_public_installation": {
+    "version": "1.5.1.3",
+    "package": "/tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv/lib/python3.12/site-packages/spacr/__init__.py",
+    "prefix": "/tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv"
+  },
+  "style_source_sha256": "9951982f5ce75fa61b888dd523196643a70848d7f08b2ce5c1e741c5cd1ad92d",
+  "author_source_sha256": "ebf18086e0ec0379824916d6f52045147001fa33e6af65af3900fcf17209da2c",
+  "published": false
+}

@@ -1,0 +1,137 @@
+{
+  "schema": 1,
+  "status": "source_handoff_prepared_actual_matrix_acceptance_pending",
+  "capture_source_commit": "b929b7dc53465132322c3ca0b866f567de773b9f",
+  "playback_source_commit": "253f5814bc2add67d01032948271b8aa1b06aa00",
+  "direct_parent_verified": true,
+  "exact_changed_paths": [
+    "tools/tutorials/authoring/web/app_v2.js",
+    "tools/tutorials/tests/test_player_preserve_visual_intervals.py"
+  ],
+  "app_tree_unchanged": "7f59178fa79d30f39d3b4f0b9a10601687a7a82e",
+  "source_tests": {
+    "passed": 225,
+    "terminal_exit_status": 0
+  },
+  "original_closed_K4_handoff_preserved": {
+    "README.txt": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff/README.txt",
+      "bytes": 1813,
+      "sha256": "6d502ea5d8b3bd597b78256ce6febe417c2b18bf552c64f3d385c25410ac35fe"
+    },
+    "commit-log.txt": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff/commit-log.txt",
+      "bytes": 317,
+      "sha256": "bc16754d1c4775a26b1e8e09cd3eaeec15d5e11aa86f2d83302d19d86ace3880"
+    },
+    "0001-selective04-mixed-visual-retention.patch": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff/0001-selective04-mixed-visual-retention.patch",
+      "bytes": 52430,
+      "sha256": "699e421da1a9d6e3496d9b09b2ad650f9d72977d84d8d932eeab62442f27d2fb"
+    },
+    "source-manifest.json": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff/source-manifest.json",
+      "bytes": 7803,
+      "sha256": "42fd04a26420ba664acf9dc09131689471936def14354a71bcd97b8e5b7b8624"
+    },
+    "source/tools/tutorials/verify_staged_lesson.py": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff/source/tools/tutorials/verify_staged_lesson.py",
+      "bytes": 40917,
+      "sha256": "0bcfc0298eaca16130cc59846f9133f5a5e317d1c19b3138cba17e54322c2a04"
+    },
+    "source/tools/tutorials/retained_visual_refresh.py": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff/source/tools/tutorials/retained_visual_refresh.py",
+      "bytes": 32978,
+      "sha256": "da1d79a9835f62afb9773129a6d8d104a0c84551f049c9cce00ccdee4ba5aaf3"
+    },
+    "source/tools/tutorials/render_installation_route_cards.py": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff/source/tools/tutorials/render_installation_route_cards.py",
+      "bytes": 9847,
+      "sha256": "ebf18086e0ec0379824916d6f52045147001fa33e6af65af3900fcf17209da2c"
+    },
+    "source/tools/tutorials/tests/test_retained_mixed_visual_refresh.py": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff/source/tools/tutorials/tests/test_retained_mixed_visual_refresh.py",
+      "bytes": 18430,
+      "sha256": "ea7d490b6c6101d497d53e6e602a7c04c07b60228605d4408cdf64a49cc64842"
+    },
+    "source/tools/tutorials/tests/test_player_preserve_visual_intervals.py": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff/source/tools/tutorials/tests/test_player_preserve_visual_intervals.py",
+      "bytes": 2645,
+      "sha256": "f28d8cfe97af0cc453a27a287e5c3849dd9774f539cb669bc855120973b52edb"
+    },
+    "source/tools/tutorials/authoring/web/app_v2.js": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff/source/tools/tutorials/authoring/web/app_v2.js",
+      "bytes": 102994,
+      "sha256": "938c108a7c0d0b4ae73b85b2cffb44896694c0780294a66e077e1ae4979ab4ff"
+    },
+    "evidence/owning-tests.json": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff/evidence/owning-tests.json",
+      "bytes": 5175,
+      "sha256": "2a7b9774f5ceb6734a9fa5292ff949cf848c2dae988b22fc4b91656c8afec652"
+    },
+    "evidence/owning-tests.log": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff/evidence/owning-tests.log",
+      "bytes": 376,
+      "sha256": "160a388c81a3458d014c3027d7b0530d5e150f75567a314b90db43d198097258"
+    },
+    "evidence/independent-source-peer.json": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff/evidence/independent-source-peer.json",
+      "bytes": 9278,
+      "sha256": "6397c337f155dd6df50107fa5c963dcc0f14c3a21ad303836c59f54b073fe1cd"
+    }
+  },
+  "files": [
+    {
+      "relative_path": "0001-selective04-static-playback-clock-followup.patch",
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff-playback-followup/0001-selective04-static-playback-clock-followup.patch",
+      "bytes": 6196,
+      "sha256": "341752e42823b15d0a13eae48e34ba04a02affe7e1e403a790f3c8b4496aebfd"
+    },
+    {
+      "relative_path": "README.txt",
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff-playback-followup/README.txt",
+      "bytes": 542,
+      "sha256": "94f196a7376858f4360dea130f476a9f9702da8fd4b317e2a85c3a503d3f607f"
+    },
+    {
+      "relative_path": "commit-log.txt",
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff-playback-followup/commit-log.txt",
+      "bytes": 303,
+      "sha256": "3c774b61b2b2d0093e35010d3b8e533576cceac4d914707793ce62a13f8960b5"
+    },
+    {
+      "relative_path": "evidence/independent-source-peer.json",
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff-playback-followup/evidence/independent-source-peer.json",
+      "bytes": 4384,
+      "sha256": "cd9b0bbe1bb615f085551edbc9ea6e3d413923585ede4ab2034998f5f066609c"
+    },
+    {
+      "relative_path": "evidence/owning-tests.json",
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff-playback-followup/evidence/owning-tests.json",
+      "bytes": 4787,
+      "sha256": "c828f383388620e6ace4825f3b09631a15adf7e4dc1b545613f9742448d4fe33"
+    },
+    {
+      "relative_path": "evidence/owning-tests.log",
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff-playback-followup/evidence/owning-tests.log",
+      "bytes": 376,
+      "sha256": "a48101f3ff180770bc3e4fc278ff48c5f91aedd432057292f8c0e4e095656257"
+    },
+    {
+      "relative_path": "source/tools/tutorials/authoring/web/app_v2.js",
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff-playback-followup/source/tools/tutorials/authoring/web/app_v2.js",
+      "bytes": 103117,
+      "sha256": "026441d007817bb7c67c2b8cef6d8e8429e8af1ad991b9641a9ecc08abe8f6c8"
+    },
+    {
+      "relative_path": "source/tools/tutorials/tests/test_player_preserve_visual_intervals.py",
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff-playback-followup/source/tools/tutorials/tests/test_player_preserve_visual_intervals.py",
+      "bytes": 6438,
+      "sha256": "99a152244dc558938a460327c1cf21e3af5ed941673818e13e14b531a0cb3150"
+    }
+  ],
+  "limits": [
+    "Existing source-test/peer evidence only; production matrix r2 is active and no acceptance inferred.",
+    "No capture, reencode, audio changes, source mutation, commit/push or test/browser execution."
+  ]
+}

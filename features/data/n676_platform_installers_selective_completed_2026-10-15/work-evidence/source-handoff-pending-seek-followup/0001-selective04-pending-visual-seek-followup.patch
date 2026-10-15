@@ -1,0 +1,101 @@
+From 2427d57f17ad78d97cf81f18720c1cd9e0c7cc02 Mon Sep 17 00:00:00 2001
+From: Einar Olafsson <einar.olafsson@gmail.com>
+Date: Thu, 15 Oct 2026 16:45:07 -0400
+Subject: [PATCH] Fix narration seek race in retained tutorial intervals
+
+---
+ tools/tutorials/authoring/web/app_v2.js       |  5 ++
+ .../test_player_preserve_visual_intervals.py  | 67 +++++++++++++++++++
+ 2 files changed, 72 insertions(+)
+
+diff --git a/tools/tutorials/authoring/web/app_v2.js b/tools/tutorials/authoring/web/app_v2.js
+index 15c52859d29ca78132e905891866b259d4caa497..46c963a803110c719b5a909054f03a874c54d277 100644
+--- a/tools/tutorials/authoring/web/app_v2.js
++++ b/tools/tutorials/authoring/web/app_v2.js
+@@ -1439,6 +1439,11 @@ function syncCompleteNativeNarration(seek = false) {
+   if (narrationLoadPending || !completeNativePlayback() || !narrationAudioAvailable ||
+       elements.voice.value === "silent" || !elements.video.duration ||
+       !elements.audio.duration || !audioTimings) return;
++  if (visualTimings?.preserve_visual_intervals === true &&
++      (videoClockCorrectionPending || elements.video.seeking)) {
++    if (!elements.audio.paused) elements.audio.pause();
++    return;
++  }
+   const visualTime = elements.video.currentTime / elements.video.duration *
+     timingDuration(visualTimings, elements.video.duration);
+   const located = timingScene(visualTimings, visualTime);
+diff --git a/tools/tutorials/tests/test_player_preserve_visual_intervals.py b/tools/tutorials/tests/test_player_preserve_visual_intervals.py
+index 9e80b3588b975d2bf1972414e5286438ed762987..fe4ee6f0d05c13e5e2429a6236ec809c682199c8 100644
+--- a/tools/tutorials/tests/test_player_preserve_visual_intervals.py
++++ b/tools/tutorials/tests/test_player_preserve_visual_intervals.py
+@@ -100,3 +100,70 @@ def test_preserved_static_chapter_seek_and_caption_cues_use_elapsed_speech(serve
+             assert page.evaluate('audioTimeFromVideo(9)') == 2.25
+         finally:
+             browser.close()
++
++
++def test_cold_paused_sentence_seeks_never_rewind_the_requested_audio_offset(served, tmp_path):
++    from playwright.sync_api import sync_playwright
++    url = complete_fixture(served, tmp_path)
++    visual_path = tmp_path / 'complete-native-visual.json'
++    visual = json.loads(visual_path.read_text())
++    del visual['complete_native_clips']
++    visual['preserve_visual_intervals'] = True
++    visual['scenes'][0]['native_live_video'] = False
++    visual['scenes'][-1]['native_live_video'] = False
++    visual_path.write_text(json.dumps(visual))
++    catalog_path = tmp_path / 'complete-native-catalog.js'
++    script = catalog_path.read_text()
++    catalog = json.loads(script[script.index('Object.freeze(')+len('Object.freeze('):script.rindex(');')])
++    lesson = next(row for row in catalog['lessons'] if row['id'] == url.split('lesson=')[1])
++    timing_path = tmp_path / 'complete-native-audio.json'
++    timing = json.loads(timing_path.read_text())
++    for index, text in enumerate(('Opening guidance.', 'Recorded controls.', 'Closing guidance.')):
++        lesson['scenes'][index]['narration'] = text
++        timing['scenes'][index]['text'] = text
++        timing['scenes'][index]['sentences'][0]['text'] = text
++    catalog_path.write_text('window.SPACR_LESSON_CATALOG = Object.freeze('+json.dumps(catalog)+');')
++    timing_path.write_text(json.dumps(timing))
++    with sync_playwright() as engine:
++        browser, page = open_player(engine, url)
++        try:
++            page.wait_for_function('!videoClockCorrectionPending && !elements.video.seeking && !elements.audio.seeking && elements.video.readyState>=2', timeout=30000)
++            page.evaluate('''() => {
++                const descriptor = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, "currentTime");
++                window.__seekWrites=[];window.__pendingSeekEvents=[];
++                Object.defineProperty(elements.audio,"currentTime",{
++                    configurable:true,
++                    get(){return Reflect.apply(descriptor.get,this,[]);},
++                    set(value){window.__seekWrites.push({value,requested:window.__requestedAudio,
++                        pending:videoClockCorrectionPending,videoSeeking:elements.video.seeking,
++                        stack:new Error().stack});return Reflect.apply(descriptor.set,this,[value]);}
++                });
++                for(const media of [elements.audio,elements.video])
++                    media.addEventListener("seeking",()=>window.__pendingSeekEvents.push({
++                        pending:videoClockCorrectionPending,videoSeeking:elements.video.seeking,
++                        audioPaused:elements.audio.paused}));
++            }''')
++            for index in (0, 2, 0, 1, 2):
++                sentence = timing['scenes'][index]['sentences'][0]
++                seconds = (sentence['speech_start'] + sentence['speech_end']) / 2
++                page.evaluate('''seconds => {window.__seekWrites=[];window.__requestedAudio=seconds;
++                    seekTo(seconds);elements.video.pause();}''', seconds)
++                page.wait_for_function('!videoClockCorrectionPending && !elements.video.seeking && !elements.audio.seeking && elements.video.readyState>=2', timeout=15000)
++                page.wait_for_timeout(150)
++                state = page.evaluate('''() => ({writes:window.__seekWrites,
++                    audio:elements.audio.currentTime,video:elements.video.currentTime,
++                    expected:videoTimeFromAudio(window.__requestedAudio),
++                    cues:[...(elements.captionTrack.track.activeCues||[])].map(c=>c.text),
++                    text:audioTimings.scenes[Math.floor(window.__requestedAudio)].text})''')
++                assert state['writes'], state
++                assert all(abs(row['value']-seconds)<.015 for row in state['writes']), state
++                assert abs(state['audio']-seconds)<.15, state
++                assert abs(state['video']-state['expected'])<.15, state
++                assert sentence['text'] in state['cues'], state
++            events = page.evaluate('window.__pendingSeekEvents')
++            pending = [row for row in events if row['pending'] or row['videoSeeking']]
++            assert pending
++            assert all(row['audioPaused'] for row in pending), pending
++        finally:
++            page.evaluate('delete elements.audio.currentTime')
++            browser.close()

@@ -1,0 +1,439 @@
+{
+  "lesson": "04_platform_installers",
+  "scope": "en/af_heart playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "39591f1dd856cad05324fc32d871a6cc558078792c03dad4a473d7af9778bf25",
+  "repository_player_source": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/authoring/web/app_v2.js",
+  "candidate_player": true,
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "f77ee89b0b05efb673f44b31303eee7789e6b15a68a52fcff9ad189556a7ee10",
+  "scene_count": 14,
+  "seek_playback_clocks": {
+    "audio": 74.207882,
+    "video": 108.835346,
+    "expectedVideo": 108.8078818913876,
+    "audioDuration": 216.045,
+    "videoDuration": 333.933333,
+    "mediaError": null
+  },
+  "chapter_and_transcript_links": [
+    "01_pypi_github",
+    "02_install_spacr",
+    "05_home"
+  ],
+  "sentence_cue_checks": [
+    {
+      "requested_audio_time": 3.5475,
+      "text": "Open the official spaCR release on GitHub and, under Assets, download the installer for your operating system.",
+      "audio": 3.5475,
+      "video": 3.547499,
+      "cues": [
+        "Open the official spaCR release on GitHub and, under Assets, download the installer for your operating system."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 10.23,
+      "text": "These online installers download the Python runtime and scientific packages during setup.",
+      "audio": 10.23,
+      "video": 10.229999,
+      "cues": [
+        "These online installers download the Python runtime and scientific packages during setup."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 15.627499999999998,
+      "text": "On Windows, run the setup executable and follow its prompts.",
+      "audio": 15.627499,
+      "video": 21.595833,
+      "cues": [
+        "On Windows, run the setup executable and follow its prompts."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 22.5275,
+      "text": "Leave automatic acceleration selected to use the supported hardware detected on your computer, or choose CPU-only operation if that is what you need.",
+      "audio": 22.5275,
+      "video": 28.495833,
+      "cues": [
+        "Leave automatic acceleration selected to use the supported hardware detected on your computer, or choose CPU-only operation if that is what you need."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 29.92,
+      "text": "On macOS, open the universal package and follow the installer.",
+      "audio": 29.92,
+      "video": 40.954999,
+      "cues": [
+        "On macOS, open the universal package and follow the installer."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 34.505,
+      "text": "Start spaCR from its application launcher, and allow the first-run downloads to finish.",
+      "audio": 34.505,
+      "video": 45.539999,
+      "cues": [
+        "Start spaCR from its application launcher, and allow the first-run downloads to finish."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 39.605000000000004,
+      "text": "Read any security prompt and confirm that the package came from the official release.",
+      "audio": 39.605,
+      "video": 50.639999,
+      "cues": [
+        "Read any security prompt and confirm that the package came from the official release."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 44.977500000000006,
+      "text": "On Linux, make the downloaded installer executable, then run it from a terminal.",
+      "audio": 44.9775,
+      "video": 66.349166,
+      "cues": [
+        "On Linux, make the downloaded installer executable, then run it from a terminal."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 49.2625,
+      "text": "Automatic acceleration selects a supported backend.",
+      "audio": 49.2625,
+      "video": 70.634166,
+      "cues": [
+        "Automatic acceleration selects a supported backend."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 56.545,
+      "text": "The help lists dash dash torch-backend cpu for CPU-only operation, and dash dash skip-system-deps for computers that already have the Qt graphics libraries.",
+      "audio": 56.545,
+      "video": 77.916666,
+      "cues": [
+        "The help lists dash dash torch-backend cpu for CPU-only operation, and dash dash skip-system-deps for computers that already have the Qt graphics libraries."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 64.63000000000001,
+      "text": "After setup, the installation profile records the selected backend.",
+      "audio": 64.629999,
+      "video": 94.184999,
+      "cues": [
+        "After setup, the installation profile records the selected backend."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 69.8075,
+      "text": "Check this when you want to confirm whether the runtime uses CPU or a supported accelerator.",
+      "audio": 69.8075,
+      "video": 99.362499,
+      "cues": [
+        "Check this when you want to confirm whether the runtime uses CPU or a supported accelerator."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 74.24000000000001,
+      "text": "Check the installed spaCR version.",
+      "audio": 74.24,
+      "video": 108.839999,
+      "cues": [
+        "Check the installed spaCR version."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 77.72,
+      "text": "Keep it with your analysis notes, especially when you update the application later.",
+      "audio": 77.72,
+      "video": 112.319999,
+      "cues": [
+        "Keep it with your analysis notes, especially when you update the application later."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 82.65,
+      "text": "Setup asks about optional diagnostic sharing and account setup.",
+      "audio": 82.65,
+      "video": 122.289999,
+      "cues": [
+        "Setup asks about optional diagnostic sharing and account setup."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 87.2775,
+      "text": "Answer y only for the options you want; n, the default, keeps each one off.",
+      "audio": 87.2775,
+      "video": 126.917499,
+      "cues": [
+        "Answer y only for the options you want; n, the default, keeps each one off."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 91.645,
+      "text": "The Windows installer shows the same choices as checkboxes.",
+      "audio": 91.645,
+      "video": 131.284999,
+      "cues": [
+        "The Windows installer shows the same choices as checkboxes."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 96.10749999999999,
+      "text": "In the current nightly interface, open Preferences and choose Performance.",
+      "audio": 96.107499,
+      "video": 145.212499,
+      "cues": [
+        "In the current nightly interface, open Preferences and choose Performance."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 99.4125,
+      "text": "Select a profile for your computer.",
+      "audio": 99.4125,
+      "video": 148.517499,
+      "cues": [
+        "Select a profile for your computer."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 103.32749999999999,
+      "text": "Laptop uses fewer resources; higher profiles allow more caching and background work.",
+      "audio": 103.327499,
+      "video": 152.432499,
+      "cues": [
+        "Laptop uses fewer resources; higher profiles allow more caching and background work."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 107.73749999999998,
+      "text": "Start with a modest profile if memory is limited.",
+      "audio": 107.737499,
+      "video": 156.842499,
+      "cues": [
+        "Start with a modest profile if memory is limited."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 112.13499999999999,
+      "text": "This recording installs spaCR version one point five point one point three.",
+      "audio": 112.134999,
+      "video": 172.676666,
+      "cues": [
+        "This recording installs spaCR version one point five point one point three."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 115.92499999999998,
+      "text": "Released builds can show an older Home layout.",
+      "audio": 115.924999,
+      "video": 176.466666,
+      "cues": [
+        "Released builds can show an older Home layout."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 119.87249999999999,
+      "text": "Here is Home in the current nightly build, with Core, Data, Tools and Organism.",
+      "audio": 119.872499,
+      "video": 180.414166,
+      "cues": [
+        "Here is Home in the current nightly build, with Core, Data, Tools and Organism."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 124.345,
+      "text": "Continue to Home screen and navigation for the current modules.",
+      "audio": 124.345,
+      "video": 184.886666,
+      "cues": [
+        "Continue to Home screen and navigation for the current modules."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 129.70999999999998,
+      "text": "Run spacr-doctor from the installed runtime if startup or a file format needs attention.",
+      "audio": 129.709999,
+      "video": 201.693333,
+      "cues": [
+        "Run spacr-doctor from the installed runtime if startup or a file format needs attention."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 135.85999999999999,
+      "text": "In this recorded CPU installation, the backend check passes and the GPU probe is skipped.",
+      "audio": 135.86,
+      "video": 207.843333,
+      "cues": [
+        "In this recorded CPU installation, the backend check passes and the GPU probe is skipped."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 142.34249999999997,
+      "text": "The warning says the optional CZI reader is missing; install that extra only if you need CZI files.",
+      "audio": 142.342499,
+      "video": 214.325833,
+      "cues": [
+        "The warning says the optional CZI reader is missing; install that extra only if you need CZI files."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 149.775,
+      "text": "For installation problems, find install dot log and install-profile dot json in the installation directory.",
+      "audio": 149.775,
+      "video": 231.653333,
+      "cues": [
+        "For installation problems, find install dot log and install-profile dot json in the installation directory."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 155.1275,
+      "text": "Review the logs before sharing them with a support request.",
+      "audio": 155.1275,
+      "video": 237.005833,
+      "cues": [
+        "Review the logs before sharing them with a support request."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 159.62,
+      "text": "Include your operating system and spaCR version so the problem is easier to diagnose.",
+      "audio": 159.62,
+      "video": 241.498333,
+      "cues": [
+        "Include your operating system and spaCR version so the problem is easier to diagnose."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 165.1125,
+      "text": "On Windows, close spaCR, open Settings, then Apps and Installed apps.",
+      "audio": 165.1125,
+      "video": 255.112499,
+      "cues": [
+        "On Windows, close spaCR, open Settings, then Apps and Installed apps."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 168.3375,
+      "text": "Choose spaCR and Uninstall.",
+      "audio": 168.3375,
+      "video": 258.337498,
+      "cues": [
+        "Choose spaCR and Uninstall."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 171.95,
+      "text": "The installed Uninstall executable is another route to the same removal process.",
+      "audio": 171.95,
+      "video": 261.949999,
+      "cues": [
+        "The installed Uninstall executable is another route to the same removal process."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 175.695,
+      "text": "Keep your project folders separately.",
+      "audio": 175.695,
+      "video": 265.694999,
+      "cues": [
+        "Keep your project folders separately."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 181.23000000000002,
+      "text": "On macOS, close spaCR and run the bundled uninstall-spacr script in Library slash Application Support slash spaCR.",
+      "audio": 181.23,
+      "video": 280.023333,
+      "cues": [
+        "On macOS, close spaCR and run the bundled uninstall-spacr script in Library slash Application Support slash spaCR."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 186.94,
+      "text": "It removes the application and its system launchers.",
+      "audio": 186.94,
+      "video": 285.733333,
+      "cues": [
+        "It removes the application and its system launchers."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 193.33249999999998,
+      "text": "The per-user runtime in your own Library slash Application Support slash spaCR is separate; remove it only if you also want to discard that runtime.",
+      "audio": 193.332499,
+      "video": 292.125833,
+      "cues": [
+        "The per-user runtime in your own Library slash Application Support slash spaCR is separate; remove it only if you also want to discard that runtime."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 202.1125,
+      "text": "On Linux, close spaCR and run the uninstall-spacr script under your home folder, dot local slash share slash spacr.",
+      "audio": 202.1125,
+      "video": 310.720833,
+      "cues": [
+        "On Linux, close spaCR and run the uninstall-spacr script under your home folder, dot local slash share slash spacr."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 207.5375,
+      "text": "It removes the managed runtime and application launchers.",
+      "audio": 207.5375,
+      "video": 316.145833,
+      "cues": [
+        "It removes the managed runtime and application launchers."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 212.45,
+      "text": "Uninstallation does not require deleting your microscopy projects or their analysis results.",
+      "audio": 212.45,
+      "video": 321.058333,
+      "cues": [
+        "Uninstallation does not require deleting your microscopy projects or their analysis results."
+      ],
+      "seek_attempts": 1
+    }
+  ],
+  "passed": true
+}

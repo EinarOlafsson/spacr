@@ -1,0 +1,7 @@
+commit 253f5814bc2add67d01032948271b8aa1b06aa00
+Author:     Einar Olafsson <einar.olafsson@gmail.com>
+AuthorDate: Thu Oct 15 15:57:24 2026 -0400
+Commit:     Einar Olafsson <einar.olafsson@gmail.com>
+CommitDate: Thu Oct 15 15:57:24 2026 -0400
+
+    Align preserved static tutorial clocks and caption cues

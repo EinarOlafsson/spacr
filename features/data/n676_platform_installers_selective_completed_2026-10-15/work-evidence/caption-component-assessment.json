@@ -1,0 +1,338 @@
+{
+  "schema": 1,
+  "lesson": "04_platform_installers",
+  "component": "CAPTION / NARRATION factual and source assessment",
+  "decision": "KEEP",
+  "caption_or_narration_repair_required": false,
+  "affected_text_scenes": [],
+  "proposed_text_edits": [],
+  "source": {
+    "ROOT_commit": "50da1bd9bfd59f9042019a1e20b602fcfae86c24",
+    "REPORT_commit": "3e5d4db54b22af6e6ce1e50482c2c94453e88917",
+    "canonical": {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/04_platform_installers.json",
+      "bytes": 5557,
+      "sha256": "ff2e2d9dbf8822fd76181c029df1edc25cb767167888ca9c425e51362b4fb1e7"
+    },
+    "normalized_english_sha256": "8a8a2d3adae812475a9731d196357380bf772eeff3052f0e89798416bbbfd824",
+    "source_files": [
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/04_platform_installers.json",
+        "bytes": 5557,
+        "sha256": "ff2e2d9dbf8822fd76181c029df1edc25cb767167888ca9c425e51362b4fb1e7",
+        "equals_REPORT_commit": "3e5d4db54b22af6e6ce1e50482c2c94453e88917"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/04_platform_installers.da.json",
+        "bytes": 5024,
+        "sha256": "61a41e768df2e74d7ba85ba71a0c4111ae30422d26a02895029d5350c8fb5000",
+        "equals_REPORT_commit": "3e5d4db54b22af6e6ce1e50482c2c94453e88917"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/04_platform_installers.de.json",
+        "bytes": 5532,
+        "sha256": "0b9311ac2a25027a26504dac7a7baded11520e951834ae16c7d3bc919a061143",
+        "equals_REPORT_commit": "3e5d4db54b22af6e6ce1e50482c2c94453e88917"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/04_platform_installers.es.json",
+        "bytes": 5248,
+        "sha256": "ec589c44b2e99f99e55f920b4c720b8383e6e6f6341d6ad9cfa702c2df27dea2",
+        "equals_REPORT_commit": "3e5d4db54b22af6e6ce1e50482c2c94453e88917"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/04_platform_installers.fr.json",
+        "bytes": 5761,
+        "sha256": "d2311245836b1636e7a8d687310f038dcb5f00c48b182858db1da23eb605aa05",
+        "equals_REPORT_commit": "3e5d4db54b22af6e6ce1e50482c2c94453e88917"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/04_platform_installers.hi.json",
+        "bytes": 10062,
+        "sha256": "d95db25e58a664c03c5f4e82ae09283ac77c88af0ece75ebcaf75845ba8f3488",
+        "equals_REPORT_commit": "3e5d4db54b22af6e6ce1e50482c2c94453e88917"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/04_platform_installers.is.json",
+        "bytes": 5018,
+        "sha256": "0d173b6794076a8235cc29ced9daa70f888abf3e79641809ddd9d5db15a6b2a0",
+        "equals_REPORT_commit": "3e5d4db54b22af6e6ce1e50482c2c94453e88917"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/04_platform_installers.it.json",
+        "bytes": 5169,
+        "sha256": "d9a5cca7e6e5f2b538c526c2c6bc396f460d65a8ec35e0effac015167812503f",
+        "equals_REPORT_commit": "3e5d4db54b22af6e6ce1e50482c2c94453e88917"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/04_platform_installers.ja.json",
+        "bytes": 6774,
+        "sha256": "65b70d31894c407d3b7beb1e516052233b8b12c0bbcc7d86ee197d3664e98a48",
+        "equals_REPORT_commit": "3e5d4db54b22af6e6ce1e50482c2c94453e88917"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/04_platform_installers.ko.json",
+        "bytes": 5545,
+        "sha256": "163ab64229c12b8647a8f9f79fcf95b3cea12c258d3ef3936946bbbd8f8f4c07",
+        "equals_REPORT_commit": "3e5d4db54b22af6e6ce1e50482c2c94453e88917"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/04_platform_installers.nb.json",
+        "bytes": 4991,
+        "sha256": "0531232c04c9a25bb52b1358b4a1865d48c73789277a67c42a9051fec211e0f2",
+        "equals_REPORT_commit": "3e5d4db54b22af6e6ce1e50482c2c94453e88917"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/04_platform_installers.pt-BR.json",
+        "bytes": 5145,
+        "sha256": "351fe0a47a9b6c9924903509ff38f19f8d93c1aa641f3b5de83c619ad8ed72a2",
+        "equals_REPORT_commit": "3e5d4db54b22af6e6ce1e50482c2c94453e88917"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/04_platform_installers.sv.json",
+        "bytes": 5035,
+        "sha256": "2be88b71cba6f9ccbe16b804ecb7e38bf6a5b79dc567da13085ab98bb0c60b13",
+        "equals_REPORT_commit": "3e5d4db54b22af6e6ce1e50482c2c94453e88917"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/04_platform_installers.zh-CN.json",
+        "bytes": 4532,
+        "sha256": "b8fc56b7079deb2692f4fe1b0d6cb1ab449398cf2021389fc42b07b49ba00d17",
+        "equals_REPORT_commit": "3e5d4db54b22af6e6ce1e50482c2c94453e88917"
+      }
+    ],
+    "source_files_equal_current_REPORT": 14
+  },
+  "metadata_evidence": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/caption-source-metadata-checks.json",
+    "bytes": 67795,
+    "sha256": "c0f4d1ef94e450474a8da6a46df069425b5778745f8518a514b5f270dcd71c02"
+  },
+  "metadata_coverage": {
+    "official_reviews": 13,
+    "catalog_lesson_objects": 14,
+    "sidecars": 50,
+    "scene_rows": 700,
+    "sentence_rows": 1348,
+    "all_match_current_source_pronunciation_and_declared_clocks": true
+  },
+  "factual_checks": [
+    {
+      "scenes": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "finding": "TODAYofficiallatestmetadata listsv1.5.1.4 onlineWindowsSetup.exe/macOSUniversal.pkg/Linuxx86_64.run. Immutableofficialsource444f confirms runtime/package downloads, automaticacceleration/CPUchoice and Unix --torch-backendcpu/--skip-system-deps.",
+      "sources": [
+        "packaging/online/install_spacr_unix.sh",
+        "packaging/online/install_spacr_windows.ps1",
+        "packaging/online/spacr_online_installer.nsi",
+        "packaging/online/build_macos_online.sh"
+      ]
+    },
+    {
+      "scenes": [
+        3,
+        13
+      ],
+      "finding": "Releasebuild source declaresarm64+x86_64 universalMaclauncher andminimum11.0, installsapp/systemlauncher under/Applications and/Library, retains per-user runtimeunder$HOME/Library/ApplicationSupport/spaCR; defaultuninstaller removes app/systemlaunchers separately. These are declarations, notnewplatformfunctionaltests."
+    },
+    {
+      "scenes": [
+        5,
+        6,
+        11
+      ],
+      "finding": "Officialinstaller source writes install.log and install-profile.json with requested/resolvedbackend andinstalledversion. Keepingthese withanalyses and reviewingbefore sharing is consistent."
+    },
+    {
+      "scenes": [
+        7
+      ],
+      "finding": "ImmutableofficialUnixhelper explicitlydefaults[y/N] optionaldiagnostic/publicissue/accountchoices off; NSISdefaultsautomaticaccelerationselected andseparateprivacy/accountcheckboxes off. Narrationdoesnotinferblanketreportconsent."
+    },
+    {
+      "scenes": [
+        8,
+        9
+      ],
+      "finding": "CurrentROOTdeclaresPerformancelevelsLaptop→Workstation withresource/cache/prewarmdifferences; HomegroupsCore/Data/Tools/Organism. ToxoplasmaisexplicitSTAGE_STABLE andstablepassesnormalmaturityfilter, soOrganismproseiscorrectforcurrentnormalUI. NofreshGUIprobeperformedbythisassessment."
+    },
+    {
+      "scenes": [
+        9
+      ],
+      "finding": "Version1.5.1.3 isexplicitlytherecordedinstallation, confirmedbyoldstageinstalledorigins; it isNOTapromiseoflatestrelease. Officiallatest1.5.1.4 alone requiresno narrationedit."
+    },
+    {
+      "scenes": [
+        10
+      ],
+      "finding": "Recordeddoctorcommand --no-gpu-probe actuallyacceptedrc0 with13passed/1warning/0failed/0errored/4skipped, CPUbackendpassesandoptionalCZIreader missing. Narrationmatchesrecordedevidence; generatedvisualsummarymustretainhistorical/no-new-runlabel."
+    },
+    {
+      "scenes": [
+        12,
+        13,
+        14
+      ],
+      "finding": "OfficialWindowsNSIS registersUninstall.exe/SystemAppsremoval; Macsystemsupportscriptandseparateuserruntime; Linuxdefault$HOME/.local/share/spacr/uninstall-spacr.sh remove managedruntime/launchers. Narrationdoesnotinstructdeletingmicroscopyprojects."
+    }
+  ],
+  "primary_metadata_reuse": {
+    "url": "https://api.github.com/repos/EinarOlafsson/spacr/releases/latest",
+    "snapshot": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/primary-github-latest.json",
+      "bytes": 12047,
+      "sha256": "e4748b8f0151711114092d5a8cd18aaace7e23fab105f21b57d3a02a97205bf5"
+    }
+  },
+  "primary_official_release_source": [
+    {
+      "url": "https://github.com/EinarOlafsson/spacr/blob/444fdbf88bdf4891a130d68347cb4d98cb06d07a/packaging/online/install_spacr_unix.sh",
+      "git_commit": "444fdbf88bdf4891a130d68347cb4d98cb06d07a",
+      "git_blob": "ae552bc2a3ff6339b6861da65f282cc3239375a8",
+      "snapshot": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/official-release-source/packaging/online/install_spacr_unix.sh",
+        "bytes": 22963,
+        "sha256": "03b019943891c5b454cdd8f789772dc6dc53836883ae15815b544109bb184c03"
+      }
+    },
+    {
+      "url": "https://github.com/EinarOlafsson/spacr/blob/444fdbf88bdf4891a130d68347cb4d98cb06d07a/packaging/online/install_spacr_windows.ps1",
+      "git_commit": "444fdbf88bdf4891a130d68347cb4d98cb06d07a",
+      "git_blob": "a11b5a7c4b5be310bf5a9395ee178c159c17ddd2",
+      "snapshot": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/official-release-source/packaging/online/install_spacr_windows.ps1",
+        "bytes": 14386,
+        "sha256": "8df7e128fe4f39d033537324b64f344a972829203a5315befa7fdbd6ae2abdaa"
+      }
+    },
+    {
+      "url": "https://github.com/EinarOlafsson/spacr/blob/444fdbf88bdf4891a130d68347cb4d98cb06d07a/packaging/online/spacr_online_installer.nsi",
+      "git_commit": "444fdbf88bdf4891a130d68347cb4d98cb06d07a",
+      "git_blob": "31347f27f8c3dc561100fe7aa46a555234f11900",
+      "snapshot": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/official-release-source/packaging/online/spacr_online_installer.nsi",
+        "bytes": 7716,
+        "sha256": "db3ffc4f3ca27063259c7cbfba72813d28e3853a780ddaee4611d88f84e8eccd"
+      }
+    },
+    {
+      "url": "https://github.com/EinarOlafsson/spacr/blob/444fdbf88bdf4891a130d68347cb4d98cb06d07a/packaging/online/build_macos_online.sh",
+      "git_commit": "444fdbf88bdf4891a130d68347cb4d98cb06d07a",
+      "git_blob": "44f10eda288032e4d7c2e0b57afc36bf1eb74cd0",
+      "snapshot": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/official-release-source/packaging/online/build_macos_online.sh",
+        "bytes": 5106,
+        "sha256": "1061d157560ceb19d5b18e1ce7078b09273cc775811cd3ce6d83ebea1298aa3e"
+      }
+    },
+    {
+      "url": "https://github.com/EinarOlafsson/spacr/blob/444fdbf88bdf4891a130d68347cb4d98cb06d07a/packaging/online/macos_launcher.c",
+      "git_commit": "444fdbf88bdf4891a130d68347cb4d98cb06d07a",
+      "git_blob": "cc75a0c95d2231734fa96c114f0d92e412f6a6de",
+      "snapshot": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/official-release-source/packaging/online/macos_launcher.c",
+        "bytes": 1632,
+        "sha256": "7a8e4f3b057a2a200762cd19e01e034f3bed25ccf477645e60b3204fa7e33d6e"
+      }
+    },
+    {
+      "url": "https://github.com/EinarOlafsson/spacr/blob/444fdbf88bdf4891a130d68347cb4d98cb06d07a/spacr/install_profile.py",
+      "git_commit": "444fdbf88bdf4891a130d68347cb4d98cb06d07a",
+      "git_blob": "138b3efbbb59693bc2a90f7a5e3db50739111d89",
+      "snapshot": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/official-release-source/spacr/install_profile.py",
+        "bytes": 7604,
+        "sha256": "c3c792d2796e7ab2809a92b1ac6f6e577a664e7fac4cd44a71d13449f5e02165"
+      }
+    }
+  ],
+  "current_normal_Home_source": {
+    "app": {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/app.py",
+      "bytes": 349932,
+      "sha256": "903de638e52b4bcb5a71c401aa50b6587bdd5792ce900ac99c4240d2dcaef64e"
+    },
+    "preferences": {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/preferences.py",
+      "bytes": 557330,
+      "sha256": "2928504a1032a1891397c4fe2fa8e7f53dac299397e457739d4628da7524cee7"
+    },
+    "maturity": {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/maturity.py",
+      "bytes": 16186,
+      "sha256": "ad78070083d58c0fd3a2440ff5b7bc0c8fefcc40324f3f4857716eb5d9da0553"
+    },
+    "source_seams": [
+      "app.pySECTION_ASSAYS/SECTION_ORDER/registryToxoplasma stage=STAGE_STABLE",
+      "app.pyapp_is_visible/tiled_apps/make_home_page",
+      "preferences.pymaturity_is_visible returnsTrueforstable",
+      "preferences.pyPERFORMANCE_LEVELS/PERFORMANCE_NOTES"
+    ],
+    "native_visibility_acceptance": false
+  },
+  "recorded_version_provenance": {
+    "specification": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/production/04_platform_installers/scenes.json",
+      "bytes": 144432,
+      "sha256": "f2aa93a88325b83a8bd854d99b65021e9705fe5ac03e8f13659c8be1a52242d7"
+    },
+    "installed_origins": [
+      {
+        "visual": "02_installer_backend",
+        "kind": "published_installation",
+        "installed_identity": {
+          "version": "1.5.1.3",
+          "package": "/tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv/lib/python3.12/site-packages/spacr/__init__.py",
+          "prefix": "/tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv"
+        }
+      },
+      {
+        "visual": "03_installed_versions",
+        "kind": "published_installation",
+        "installed_identity": {
+          "version": "1.5.1.3",
+          "package": "/tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv/lib/python3.12/site-packages/spacr/__init__.py",
+          "prefix": "/tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv"
+        }
+      },
+      {
+        "visual": "07_privacy_keep_off",
+        "kind": "published_installation",
+        "installed_identity": {
+          "version": "1.5.1.3",
+          "package": "/tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv/lib/python3.12/site-packages/spacr/__init__.py",
+          "prefix": "/tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv"
+        }
+      },
+      {
+        "visual": "05_doctor",
+        "kind": "published_installation",
+        "installed_identity": {
+          "version": "1.5.1.3",
+          "package": "/tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv/lib/python3.12/site-packages/spacr/__init__.py",
+          "prefix": "/tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv"
+        }
+      }
+    ]
+  },
+  "video_findings_require_separate_repair": {
+    "scene9": "CurrentOrganismprosekept; actualoldHomevisualhasthreecategories andmustbereplacedwithcurrentstrictnativeHome.",
+    "scene10": "Incidentalhiddenmode text inhistoricaldoctorvisualmustbereplacedbyexplicitgeneratedreferencefromactualrecordedresult.",
+    "caption_text_changes_required_for_these": false
+  },
+  "human_listening_performed": false,
+  "native_speaker_acceptance": false,
+  "word_completeness_verified": false,
+  "limits": [
+    "All13reviews are AItechnical source-bound metadata; thisassessmentdoesnotinventhuman/native-language/listeningapproval.",
+    "No installer/package/uninstaller/runtime execution, caption/audioedits, synthesis, translation, sourcechanges, models, browser, GPU ornetworkbulkdownloads.",
+    "ActualOSinstallation/runtimecompatibilitybeyondofficialdeclarationsnotcertified. WindowsassetdoesnotbyitselfproveARMnativeorallWindowsversionsupport.",
+    "SourcelevelcurrentHomevisibilitymustbeconfirmedbyforthcomingactualnativecapture; no app construction/probe was performed.",
+    "Actualvideo correctionsremainroot-owned; thisCAPTIONKEEP doesnotacceptoldscene9or10visuals."
+  ]
+}

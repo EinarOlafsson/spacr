@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "status": "future_completed04_owner_proposal_NOT_current_publication",
+  "lesson": "04_platform_installers",
+  "generated_utc": "2026-10-15T20:56:03.651668+00:00",
+  "report_HEAD": "dbfa449e5a8db10834642cbc7a10ced060395fed",
+  "current_owner_source_commit": "cd05e39aab862f95a0731d0d9d4ea9431d010876",
+  "target": "tests/test_docs_media_budget.py",
+  "current_test_source": {
+    "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/tests/test_docs_media_budget.py",
+    "bytes": 34017,
+    "sha256": "2646b606ba1d25a40a0ffd84d27c9f37726d5fb707f64cbf758b1ec49a3416c5"
+  },
+  "preimage": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/docs-media-selector04-proposal/test_docs_media_budget.py.preimage",
+    "bytes": 34017,
+    "sha256": "2646b606ba1d25a40a0ffd84d27c9f37726d5fb707f64cbf758b1ec49a3416c5"
+  },
+  "proposed": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/docs-media-selector04-proposal/test_docs_media_budget.py.proposed",
+    "bytes": 34041,
+    "sha256": "5e98ea3160606fa5459063afe9d8da64ecbac85ff5269439181c3a49e5b5b256"
+  },
+  "patch": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/docs-media-selector04-proposal/future-completed04-selector.patch",
+    "bytes": 1258,
+    "sha256": "a1f4a51e9a73b72c72106baf1b82e76e2f2a6ea7f5b9c785c36762a2b5b0f80f"
+  },
+  "usage": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/docs-media-selector04-proposal/README.txt",
+    "bytes": 1483,
+    "sha256": "86e986a84720dab67a0cca5364856db9005728a80f658f4523013747e3ef7289"
+  },
+  "current_completed02_selector": {
+    "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n676_current_publication_selector_2026-10-15/receipt.json",
+    "bytes": 2850,
+    "sha256": "800acc64ec82422fb3b256b2007de93ebb8b3704f0f18ed9edaadab2100e435f"
+  },
+  "current_checkpoint_root": "features/data/n676_install_selective_completed_2026-10-15/export/checkpoint",
+  "future_completed04_checkpoint_root": "features/data/n676_platform_installers_selective_completed_2026-10-15/export/checkpoint",
+  "promotion_prerequisites": [
+    "actual04 final record terminal0",
+    "actual completed04 export/checkpoint coherence",
+    "actual checked packet copied to approved REPORT path",
+    "actual04 docs/features committed and pushed",
+    "same currentdocsindex/player/immutablemanifestreceiptbindings",
+    "exact ownerpreimage stillmatches or new ownerreviewed proposal"
+  ],
+  "checks": {
+    "AST_parse_only": true,
+    "exact_two_path_expression_delta": true,
+    "all_other_module_AST_identical_after_only_selector_normalization": true,
+    "all_assert_AST_nodes_identical": true,
+    "assert_nodes_checked": 98,
+    "current_committed_test_bytes_match": true,
+    "current_completed02_contract_still_selected": true,
+    "owner_source_edited": false,
+    "patch_applied": false,
+    "tests_run": false,
+    "browser_or_network_run": false,
+    "lesson04_published": false
+  },
+  "selected_nodes": [
+    "tests/test_docs_media_budget.py::test_every_lesson_keeps_its_video_and_its_poster",
+    "tests/test_docs_media_budget.py::test_narration_is_the_stable_mobile_clock"
+  ],
+  "existing_reused_proposal": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/docs-media-selector-proposal/proposal.json",
+    "bytes": 3852,
+    "sha256": "e58b48a8b474f82f230b55d0ef1bfba06dd8513963e2e67daa3682cac08de674"
+  },
+  "limits": [
+    "Future owner proposal only; active04 candidate is not completedpublication.",
+    "Current2646 preimage is already-adopted02 proposal; old1cdc preimage must not be reused."
+  ]
+}

@@ -1,0 +1,451 @@
+{
+  "13_current_nightly_home": {
+    "image": "13_current_nightly_home.png",
+    "appearance": {
+      "theme": "dark",
+      "backdrop": "data_art_impulse_lens",
+      "painted_frames": 271
+    },
+    "hidden_decorative_backdrops": [],
+    "capture_surface": "gnome_capture_host_screencast",
+    "sha256": "4e75ee4f388bcb3c85203363a2d97064d0652120d37b698fd7425b6fef378ca0",
+    "buttons": [
+      {
+        "text": "",
+        "name": "MinimiseWindow",
+        "tooltip": "Minimise",
+        "rect": [
+          3660,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "MaximiseWindow",
+        "tooltip": "Maximise, or restore the size before",
+        "rect": [
+          3700,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "FullScreenToggle",
+        "tooltip": "Full screen (F11). The window has no title bar; drag the menu bar to move it.",
+        "rect": [
+          3741,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "CloseWindow",
+        "tooltip": "Quit spaCR",
+        "rect": [
+          3782,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Home",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          152,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "__home__",
+        "module_key": "__home__"
+      },
+      {
+        "text": "Mask",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          246,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "mask",
+        "module_key": "mask"
+      },
+      {
+        "text": "Measure",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          297,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "measure",
+        "module_key": "measure"
+      },
+      {
+        "text": "Annotate",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          348,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "annotate",
+        "module_key": "annotate"
+      },
+      {
+        "text": "Classify",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          399,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "classify_merged",
+        "module_key": "classify_merged"
+      },
+      {
+        "text": "Map Barcodes",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          450,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "map_barcodes",
+        "module_key": "map_barcodes"
+      },
+      {
+        "text": "Regression",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          501,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "regression",
+        "module_key": "regression"
+      },
+      {
+        "text": "Pipeline overviews",
+        "name": "PrimaryButton",
+        "tooltip": "Explore pipeline flowcharts, their modules, inputs and outputs, and optionally start with example data.",
+        "rect": [
+          3165,
+          242,
+          639,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Clear",
+        "name": "HomePanelAction",
+        "tooltip": "Hide the runs listed here. The run journal and Run History keep them.",
+        "rect": [
+          3758,
+          320,
+          46,
+          33
+        ],
+        "enabled": false,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Reset",
+        "name": "HomePanelAction",
+        "tooltip": "Start these counts from now. The run journal and Run History keep every run.",
+        "rect": [
+          3756,
+          430,
+          48,
+          33
+        ],
+        "enabled": false,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Refresh",
+        "name": "HomePanelAction",
+        "tooltip": "Re-read GPU, VRAM and disk now.",
+        "rect": [
+          3738,
+          634,
+          66,
+          33
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          402,
+          340,
+          270,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "mask"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          678,
+          340,
+          270,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "measure"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          954,
+          340,
+          268,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "annotate"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          1228,
+          340,
+          270,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "classify_merged"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          1504,
+          340,
+          270,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "map_barcodes"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          1780,
+          340,
+          270,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "regression"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          402,
+          576,
+          272,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "foreign"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          680,
+          576,
+          272,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "run_compare"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          957,
+          576,
+          272,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "power"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          402,
+          812,
+          272,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "make_masks"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          680,
+          812,
+          270,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "align"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          956,
+          812,
+          272,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "umap"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          1233,
+          812,
+          270,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "graph_builder"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          402,
+          1047,
+          273,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "toxoplasma"
+      }
+    ],
+    "dialogs": [],
+    "clip": {
+      "video": "13_current_nightly_home.mp4",
+      "receipt": "13_current_nightly_home.capture.json",
+      "receipt_sha256": "b0717e18c5f3b3770419bc5c00ad3748b0a8b745cc3a22cd89de73984754b03d",
+      "sha256": "cd18804b5c7f1bb441da97e3612ea93137b032abebe5f7a8245e1e6ae21b62c6",
+      "native_video": "13_current_nightly_home.native.mp4",
+      "native_sha256": "451121a4222f92b8a3f31b5e33bac009df1505ebe8b28dcab423ddf22bb78647",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "distinct_fps": 29.51,
+        "fps": 30,
+        "min_fps": 27.9,
+        "cursor_max_step_px": 36.2,
+        "cursor_bound_px": 76.8,
+        "cursor_found_fraction": 1.0,
+        "top_bar_hidden": true,
+        "app_painted_fps": 61.93,
+        "app_freeze_seconds": [],
+        "capture_loss_seconds": [
+          7
+        ],
+        "loadavg": [
+          4.2685546875,
+          6.47900390625
+        ],
+        "file": "13_current_nightly_home.gate.json"
+      }
+    }
+  }
+}

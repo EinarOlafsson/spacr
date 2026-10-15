@@ -1,0 +1,50 @@
+{
+  "status": "pass_future_proposal_only_not_current_publication",
+  "source_peer_passed": true,
+  "blocking_findings": [],
+  "proposal": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/docs-media-selector04-proposal/proposal.json",
+    "bytes": 3765,
+    "sha256": "38db8daa687a70265929c25e60407976b8d6ec4ddc679e30c67c9736086caff3"
+  },
+  "preimage": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/docs-media-selector04-proposal/test_docs_media_budget.py.preimage",
+    "bytes": 34017,
+    "sha256": "2646b606ba1d25a40a0ffd84d27c9f37726d5fb707f64cbf758b1ec49a3416c5"
+  },
+  "proposed": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/docs-media-selector04-proposal/test_docs_media_budget.py.proposed",
+    "bytes": 34041,
+    "sha256": "5e98ea3160606fa5459063afe9d8da64ecbac85ff5269439181c3a49e5b5b256"
+  },
+  "patch": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/docs-media-selector04-proposal/future-completed04-selector.patch",
+    "bytes": 1258,
+    "sha256": "a1f4a51e9a73b72c72106baf1b82e76e2f2a6ea7f5b9c785c36762a2b5b0f80f"
+  },
+  "current_owner_source_commit": "cd05e39aab862f95a0731d0d9d4ea9431d010876",
+  "current_REPORT_HEAD": "dbfa449e5a8db10834642cbc7a10ced060395fed",
+  "checks": {
+    "current_committed_preimage2646_exact": true,
+    "owner_commit_preimage_exact": true,
+    "exactly_two_path_expressions_changed": true,
+    "all_other_text_byte_exact": true,
+    "all98_assert_AST_nodes_identical": true,
+    "patch_reconstruction_exact": true,
+    "no_actual_test_source_changes": true
+  },
+  "future_checkpoint_root": "features/data/n676_platform_installers_selective_completed_2026-10-15/export/checkpoint",
+  "prerequisites_preserved": [
+    "actual04 final record terminal0",
+    "actual completed04 export/checkpoint coherence",
+    "actual checked packet copied to approved REPORT path",
+    "actual04 docs/features committed and pushed",
+    "same currentdocsindex/player/immutablemanifestreceiptbindings",
+    "exact ownerpreimage stillmatches or new ownerreviewed proposal"
+  ],
+  "limits": [
+    "No patch application, tests, browser, network, media or source mutation.",
+    "Current completed02 selector remains active;04 is not claimed published/completed.",
+    "Portable proposal requires exact preimage and actual completed04 packet/docs/record/push before owner adoption."
+  ]
+}

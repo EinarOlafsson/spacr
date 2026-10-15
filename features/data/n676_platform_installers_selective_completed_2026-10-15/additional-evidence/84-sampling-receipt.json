@@ -1,0 +1,119 @@
+{
+  "status": "actual_boundary_samples_completed_not_visual_acceptance",
+  "source_commit": "b929b7dc53465132322c3ca0b866f567de773b9f",
+  "master": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/production/04_platform_installers/video/04_platform_installers_silent.mp4",
+    "bytes": 71636267,
+    "sha256": "6070dc9347d72b93303bca0b7eea0b12a48dbf1d86c461fb146c2d95fbe84bec"
+  },
+  "retained_visual_refresh": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/production/04_platform_installers/retained-visual-refresh.json",
+    "bytes": 10707,
+    "sha256": "2d605da66277c9789a8d481773fe703b952a48ca158177f27374bc22d60d1991"
+  },
+  "expected_master_frames": 10018,
+  "sampling_command": [
+    "ffmpeg",
+    "-nostdin",
+    "-n",
+    "-v",
+    "error",
+    "-threads",
+    "2",
+    "-i",
+    "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/production/04_platform_installers/video/04_platform_installers_silent.mp4",
+    "-vf",
+    "select=eq(n\\,5110)+eq(n\\,5111)+eq(n\\,5961)+eq(n\\,5962)+eq(n\\,6400)+eq(n\\,6840)+eq(n\\,6841)+eq(n\\,10017)",
+    "-vsync",
+    "0",
+    "-frames:v",
+    "8",
+    "-an",
+    "-threads",
+    "2",
+    "-filter_threads",
+    "1",
+    "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/final-boundary-samples/sample-%02d.png"
+  ],
+  "returncode": 0,
+  "output_log": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/final-boundary-samples/ffmpeg.log",
+    "bytes": 25,
+    "sha256": "02492d70e03a523fbdf92094f430dcfd90be53fc0e1e4ad8dcf54df96bd70eb2"
+  },
+  "samples": [
+    {
+      "frame_index": 5110,
+      "seconds": 170.33333333333334,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/final-boundary-samples/frame-05110.png",
+        "bytes": 4226477,
+        "sha256": "a7602482846e313b063c03cb30ec465a153b4fcc61b418d7dbc351095817ecd5"
+      }
+    },
+    {
+      "frame_index": 5111,
+      "seconds": 170.36666666666667,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/final-boundary-samples/frame-05111.png",
+        "bytes": 3890034,
+        "sha256": "08ecbc1a21545b956ec2505dcdb45cc5765dcd90bbb02334fa965d2ec2de8308"
+      }
+    },
+    {
+      "frame_index": 5961,
+      "seconds": 198.7,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/final-boundary-samples/frame-05961.png",
+        "bytes": 4546557,
+        "sha256": "637eb458b7301663b463d2fbf0052710679dbffdb380edbe2aa31066bd4e20e1"
+      }
+    },
+    {
+      "frame_index": 5962,
+      "seconds": 198.73333333333332,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/final-boundary-samples/frame-05962.png",
+        "bytes": 441872,
+        "sha256": "f0bd61c9ca874ce700bc8cae26495ad20a34e4004bf47a75ba948e8f52edde4e"
+      }
+    },
+    {
+      "frame_index": 6400,
+      "seconds": 213.33333333333334,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/final-boundary-samples/frame-06400.png",
+        "bytes": 443617,
+        "sha256": "d3c93b6d53d452c85d9cb2d8291706984abd61241850e571558aad05f5e8b45a"
+      }
+    },
+    {
+      "frame_index": 6840,
+      "seconds": 228.0,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/final-boundary-samples/frame-06840.png",
+        "bytes": 443768,
+        "sha256": "e99b490ae50fd4e227dcd0b4e8c265dc06d9b91d32863a90673791f94a86f3c7"
+      }
+    },
+    {
+      "frame_index": 6841,
+      "seconds": 228.03333333333333,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/final-boundary-samples/frame-06841.png",
+        "bytes": 443969,
+        "sha256": "2abe7c113e3fbe116ff5de05d6279abae643623d79ff64fe782a546ca0ac5ff5"
+      }
+    },
+    {
+      "frame_index": 10017,
+      "seconds": 333.9,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/final-boundary-samples/frame-10017.png",
+        "bytes": 369651,
+        "sha256": "6233bc2c51620dfea9b0820fde0f36ab7469c00c55c1127cec5883fd1b9eb9f4"
+      }
+    }
+  ],
+  "scope": "Eight actual decoded master frames: before/start/end native Home, start/mid/end doctor card, first preserved tail and final EOF frame. Not whole-watch/continuous smoothness/full-decode acceptance."
+}

@@ -1,0 +1,37 @@
+{
+  "status": "two_required_guard_refinements",
+  "helper": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/prepare_verified_media_reuse.py",
+    "bytes": 10158,
+    "sha256": "319354c6e5343d5b5c5b262ecac4fefc45a5086b94749001d41c65d519edc58c"
+  },
+  "owning_validator": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/publish_release_candidate.py",
+    "bytes": 24203,
+    "sha256": "4e6c2330947c635924989e964e5f463e0df78cf3d938a1455350d8b57c4f0967"
+  },
+  "source_only": true,
+  "findings": [
+    {
+      "id": "R1",
+      "issue": "Owning require_verified_candidate requires browser count equals manifest ready_lessons, not exact84. Helper output claims current84 without explicit literal/unique-ID checks.",
+      "required": "Require ready_lessons/routes exact84 plus84distinct passed browser lesson IDs."
+    },
+    {
+      "id": "R2",
+      "issue": "Checkpoint rows bind actual ROOT checkpoint files but only3JSON files are compared against newcandidate. A stale checkpoint web/player/catalog row can satisfy current selfhash/name/manifest guards.",
+      "required": "Crossbind each checkpoint web relativepath/bytes/SHA to corresponding newcandidate manifest record and actualcandidate file, leveraging owningfullcandidatevalidator."
+    }
+  ],
+  "otherwise_reviewed": [
+    "Pinned original snapshot/manifest/immutableHFcommit.",
+    "Exact5370hostedpath/bytes/SHA map equality and8693151860bytes.",
+    "Old parsed readback object copied unchanged only after localguards.",
+    "FreshdirectWORKoutput, originals untouched, no remote/publication call."
+  ],
+  "limits": [
+    "Source/AST inspection only; helper not imported/executed.",
+    "No test/browser/decode/network or actualsource modification.",
+    "No future candidate/reuse/remote acceptance."
+  ]
+}

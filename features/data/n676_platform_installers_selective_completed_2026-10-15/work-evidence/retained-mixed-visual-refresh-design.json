@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "status": "source_only_design_NOT_implemented_NOT_native_acceptance",
+  "lesson": "04_platform_installers",
+  "protected_existing_helper": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/retained_visual_refresh.py",
+    "bytes": 10773,
+    "sha256": "9c59acdaee7d9d83f1176f35617b1aa2555248ecbfbcba207c11b01678ecbbc4"
+  },
+  "baseline_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/release-candidate-append-lxmwr53e/release-manifest.json",
+    "bytes": 1179996,
+    "sha256": "98d88a909b3eeaf14f829297d965461e62a07dff7dfd25ce50d2c2bc15a25439"
+  },
+  "original_timing": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/release-candidate-append-lxmwr53e/media_host/04_platform_installers/video/native-live-timings.json",
+    "bytes": 25791,
+    "sha256": "1d966853b48b82e6b6f0440e7a5936d70764d1edb82748ef1eee9de10ec79f63"
+  },
+  "caption_KEEP": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/caption-component-assessment.json",
+    "bytes": 17203,
+    "sha256": "ddb0b6e68348933d57a281514daff2dd3eb74148310e3bd32e26990f50e154ac"
+  },
+  "retained_fixed_timeline": {
+    "fps": 30,
+    "total_frames": 10007,
+    "total_seconds": 333.5666666666667,
+    "scene8_Performance_frames": 818,
+    "scene8_Performance_selected_seconds": 27.266666666666666,
+    "scene8_source_full_seconds": 33.234,
+    "complete_native_clips_claim": false
+  },
+  "proposed_minimal_extension": {
+    "preserve_schema1_02_branch_unchanged": true,
+    "new_explicit_receipt_schema": 2,
+    "kind": "retained_visual_refresh",
+    "lesson_allowlist": [
+      "04_platform_installers"
+    ],
+    "replacements_exact": [
+      {
+        "scene": 9,
+        "visual": "13_current_nightly_home",
+        "kind": "strict_full_native_clip",
+        "first_frame": 5111,
+        "frame_count": 840,
+        "end_exclusive_frame": 5951,
+        "fps": 30,
+        "complete_source_start_frame": 0,
+        "complete_source_frames_required": 840,
+        "source_playback_speed": 1
+      },
+      {
+        "scene": 10,
+        "visual": "05_doctor",
+        "kind": "generated_command_reference_not_terminal_output",
+        "first_frame": 5951,
+        "frame_count": 879,
+        "end_exclusive_frame": 6830
+      }
+    ],
+    "fresh_native_requirements": [
+      "Requireactualnativevideo/capture-receipt/strictsmoothnessgate/host-run/provenance/profile/owningcleanup bindings, noappfreezes/slow/unknown/pointerbypass/jumps/topbar/privacyfailuresunderexistingunchangedgate.",
+      "Requirestrictgatepass/actualcapture sourcecommit/app-source-unmodified andmatchingactualsourceinventory; preserveallactualfiles, neverrestampwholecompositionrevision.",
+      "Require30fps/840contiguousdecodedframes/fullDecode/audio_streams0/sourcevideoSHA==receiptSHA; source_start0 andduration28.0exact, no truncation/loop/stretch/speedup. Ifsourceis839/841frames doNOTsilentlytrim; actualcapturemustfulfilfixedslot.",
+      "RequireactualsamecaptureHomeposter/sourceframehash; currentCore/Data/Tools/Organismvisibleandnormalalpha/species/futuregatesoff inactualprofile/visualreview. Source-levelToxoStable aloneisnotnativeacceptance."
+    ],
+    "generated_card_requirements": [
+      "BindactualcardPNG/fullsize andgeneratorcurrenthash/frames/provenance/renderlog/visualreview.",
+      "Bindhistoricalcommands.json/provenance/terminalPNG andexactrecordeddoctor summary13/1/0/0/4/CPU/CZImissing/GPUskipped, withrecorded1.5.1.3/no-new-run/reference-not-terminal labels.",
+      "Neworiginreference_guidance/installed_identity:null; preserveoldpublishedinstallationorigin+actualrecordeddoctor evidence inreceipt."
+    ],
+    "spec_delta_only": [
+      "Scene9image/hash+clipvideo/receipt/hash/duration28 andtruthfulfreshnativeorigin/actualper-clipcommit/provenance",
+      "Scene10image/hash+truthfulgeneratedreferenceorigin",
+      "capture_source.completed_capture=False/frame_pixels_modified=True; allotherhistoricalorigins/sourcecapturemetadataexact"
+    ],
+    "timing_delta_only": [
+      "visual_spec_sha256",
+      "retained_visual_refresh bindingtotheactualschema2receipt/baselinemanifest",
+      "native_clip_sources entryscene9 hashesupdatedtoactualnewnativeclip/receipt; scene8entryexactoldbytes"
+    ],
+    "timing_clock_and_coverage_policy": "Every scene clock/source-track/narrationtext/legacycoveragefield remainsinherited; doNOTcallnative_live_timing.plan oraddcomplete_native_clips. Onlyexplicitmixedretainedvalidatoradmitsthispath.",
+    "overlay_render_policy": "Extendexactargvconstructoronlyforschema2twoapprovedranges: originalpublishedmasterinput0, freshcompleteHomeinput1 scaled/paddedtonormal4Kwithoutcropping andptsplacedatframe5111, fullsizegeneratedcardinput2 enabledframes5951..6829; outsidebothintervalsusesoriginalmaster. Exactly10007outputframes/30fps/rate1,4CPUthreads/progresspipe, ownrendercommand+terminal0/outputhash bound. No hiddencontentpatchorUIreconstruction.",
+    "other_retention_guards": "Preserveall100audio/sidecarbytes,all14cataloglessonobjects,currentEnglish+13reviews; allother12specsceneinputs/nativePerformancevideo+receipt/origin/27.266sselectionexactbaseline.",
+    "post_render_acceptance": "ExistingfinishfullDecode/allPTS/framecount/webchecksunchanged; actualboundarysamplesbothintervalspluswhole72browsermatrix/candidate83preservation/84routes/immutableHFreadback/Pages84/record/export remainrequired. Nohearing/biology/native-speakerorwholefreshcaptureclaim."
+  },
+  "implementation_authorization": "ParentmustreviewthisproposalbeforeanyROOTsourceedit; noimplementation/capturestartedbythisagent."
+}

@@ -1,0 +1,33 @@
+SOURCE PREPARATION ONLY. Do not run until actual export/publication/record and final root review.
+Root owns actual execution. Native capture/render remain K4 b929b7dc53465132322c3ca0b866f567de773b9f; final publication source is the actual committed K4-descendant player/test-only successor (K5 or later exact two-path successor).
+
+CUDA_VISIBLE_DEVICES='' python assemble_completed04_packet.py \
+ --export <actual private W04 published04-checkpoint-export directory> \
+ --output <new private W04 completed-publication-packet directory> \
+ --source-commit <actual root-committed final player successor (K5 or later exact two-path successor)> \
+ --final-review <actual final-publication-review.json> \
+ --final-review-sha256 <exact actual final review SHA256> \
+ --evidence <actual boundary-sample JSON> \
+ --evidence <actual boundary-sample PNG> [--evidence <other actual small receipt/poster/PNG> ...]
+
+Final root review contract follows02: lesson04/statuspass/source_commitFINAL,
+export_manifest full path/bytes/SHA binding + export_snapshot_file_count,
+candidate exact path + manifest actual candidate/release-manifest.json binding,
+master and timing bindings identical to export manifest,
+publication_receipt/published_media_browser_checks/recorded_checkpoint bindings
+equal the corresponding checkpoint snapshots. New04 native_acceptance binding
+must exactly equal export.native_acceptance; actual accepted851-frame sourceK4. Final sourceFINAL must be an actual K4 descendant with exactly the playerJS/test delta; all502 recorded capture paths remain byte-identical and exclude both player followup paths.
+No whole_fresh_capture/complete_native_clips/listening/native-speaker/word-completeness
+signoff may be claimed. A scope authorization cannot satisfy actual native approval.
+
+Preserves the complete checked export tree (dynamic recorded count+3), all13 reviews,
+all100 audio/sidecar identities,14catalogobjects and83otherlessons. Requires actual
+freshHome851frames/total10018frames/preserve_visual_intervals:true and wholefreshfalse.
+Copies top-level existing small work evidence, exact original source-handoff, separate source-handoff-playback-followup, third source-handoff-pending-seek-followup, and doctor-card
+directories, plus explicit additional actual files. Root must pass actual boundary
+JSON/PNG filenames via repeated --evidence; no guessed future sample paths.
+Rejects every video/audio media file, including MP4, anywhere in the packet inputs.
+Exporter must validate native video bindings but omit their payloads from snapshots.
+All copy inputs are hashed first, sources and destinations rechecked after copy;
+source/snapshot associations and paths are checked before output mkdir.
+No source edits, capture, synthesis, rendering, decode, model or network operations.
