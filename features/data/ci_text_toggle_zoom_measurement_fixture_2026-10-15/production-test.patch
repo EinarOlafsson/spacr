@@ -1,0 +1,40 @@
+--- a/tests/qt/test_zoom_reaches_text.py
++++ b/tests/qt/test_zoom_reaches_text.py
+@@ -256,18 +256,34 @@
+     right. Both halves are asserted: the size, and that saving preferences
+     with the widget already on screen moves it.
+     """
++    from PySide6.QtWidgets import QHBoxLayout
++
+     from spacr.qt.widgets.ai_toggle_label import AiToggleLabel
+ 
+     _at(SMALL)
+-    toggle = AiToggleLabel(text=text)
++    host = QWidget()
++    qtbot.addWidget(host)
++    layout = QHBoxLayout(host)
++    toggle = AiToggleLabel(host, text=text)
++    layout.addWidget(toggle)
+     qtbot.addWidget(toggle)
+-    toggle.show()
+-    QApplication.processEvents()
++    host.show()
++    QApplication.processEvents()
++    toggle.clearFocus()
++    QApplication.processEvents()
++    assert not toggle.hasFocus()
++    assert toggle.width() >= toggle.sizeHint().width()
++    assert toggle.height() >= toggle.sizeHint().height()
+     small_height, small_ink = _text_height(toggle), _ink_rows(toggle)
+ 
+     # The SAME widget, still on screen — this is the live-update half.
+     _at(LARGE)
+     QApplication.processEvents()
++    toggle.clearFocus()
++    QApplication.processEvents()
++    assert not toggle.hasFocus()
++    assert toggle.width() >= toggle.sizeHint().width()
++    assert toggle.height() >= toggle.sizeHint().height()
+     large_height, large_ink = _text_height(toggle), _ink_rows(toggle)
+ 
+     _grew(small_height, large_height, f"the {text} toggle's text")
