@@ -28,7 +28,7 @@
       "context": "With no row, the database is offered to the token pairing first, so ``plate2/measurements/measurements.db`` finds laboratory microplate 2 wherever that row happens to be when its tokens match uniquely. If pairing leaves the database on its own row, it is attached to the first row without a database, if one exists. This fallback also applies when the path contains a laboratory microplate name that did not produce a unique match. The returned sentence, also shown under the table, names the chosen row.",
       "source_sha256": "cd0fdc773ef0448abed8cde10a3a7bb6026ba11332018bbb221f32a3f4d57348",
       "previous_same_source_indexes": [],
-      "translation": "행을 지정하지 않으면 먼저 데이터베이스에 토큰 짝짓기를 적용하므로, 토큰이 유일하게 일치할 때 ``plate2/measurements/measurements.db``는 해당 행의 위치와 관계없이 플레이트 2를 찾습니다. 짝짓기 후 데이터베이스가 단독 행에 남으면 데이터베이스가 없는 첫 번째 행에 연결합니다. 그런 행이 있을 때만 연결합니다. 경로에 플레이트 이름이 있어도 유일한 일치가 나오지 않았다면 이 대체 방법을 적용합니다. 반환하는 문장은 선택한 행을 명시하며 표 아래에도 표시됩니다.",
+      "translation": "행을 지정하지 않으면 먼저 데이터베이스에 토큰 짝짓기를 적용하므로, 토큰이 유일하게 일치할 때 ``plate2/measurements/measurements.db`` 경로는 해당 행의 위치와 관계없이 플레이트 2를 찾습니다. 짝짓기 후 데이터베이스가 단독 행에 남으면 데이터베이스가 없는 첫 번째 행에 연결합니다. 그런 행이 있을 때만 연결합니다. 경로에 플레이트 이름이 있어도 유일한 일치가 나오지 않았다면 이 대체 방법을 적용합니다. 반환하는 문장은 선택한 행을 명시하며 표 아래에도 표시됩니다.",
       "review_basis": "Exact-source technical translation review of count input-order fallback versus unique database matching, table confirmation, explicit database-column row attachment, automatic attachment fallback and one-based plate row/column coordinates. Literals and references retained. No native-speaker claim."
     },
     {
@@ -37,7 +37,7 @@
       "context": "A database is decided by its extension and never by aim: a ``.db`` dropped on the score column is a mis-aim, not a request to fit the regression on a sqlite file, and a CSV dropped on the database column is likewise still a CSV. A database dropped in the database column on an existing row is explicitly attached to that row. A drop over another column or outside an existing row uses automatic attachment, including the fallback described by :meth:`attach_database`.",
       "source_sha256": "ac4a388a506cd73c944d1483f245d85faf4e6ea88c375bbd896f960c6d676670",
       "previous_same_source_indexes": [],
-      "translation": "데이터베이스는 놓은 위치가 아니라 확장자로 식별합니다. 점수 열에 놓은 ``.db``는 잘못 놓은 파일이며 sqlite 파일로 회귀를 적합하라는 요청이 아닙니다. 마찬가지로 데이터베이스 열에 놓은 CSV도 여전히 CSV입니다. 기존 행의 데이터베이스 열에 놓은 데이터베이스는 해당 행에 명시적으로 연결합니다. 다른 열 위나 기존 행 바깥에 놓으면 :meth:`attach_database`에 설명된 대체 방법을 포함한 자동 연결을 사용합니다.",
+      "translation": "데이터베이스는 놓은 위치가 아니라 확장자로 식별합니다. 점수 열에 놓은 ``.db`` 파일은 잘못 놓은 파일이며 sqlite 파일로 회귀를 적합하라는 요청이 아닙니다. 마찬가지로 데이터베이스 열에 놓은 CSV도 여전히 CSV입니다. 기존 행의 데이터베이스 열에 놓은 데이터베이스는 해당 행에 명시적으로 연결합니다. 다른 열 위나 기존 행 바깥에 놓으면 :meth:`attach_database` 메서드에 설명된 대체 방법을 포함한 자동 연결을 사용합니다.",
       "review_basis": "Exact-source technical translation review of count input-order fallback versus unique database matching, table confirmation, explicit database-column row attachment, automatic attachment fallback and one-based plate row/column coordinates. Literals and references retained. No native-speaker claim."
     },
     {
