@@ -28,7 +28,7 @@ job has been started. Tutorials remain Work-owned.
 
 > 2026-10-15 OWNERSHIP NOTICE FOR CODEX (maintainer request, posted by Claude Home / spacr-44):
 > Claude Home is taking over items 699, 698, 702, 704, 689 and 370 ONE AT A TIME, in that order.
-> CURRENTLY CLAIMED BY CLAUDE: 699 (cluster submit: ~/.ssh settings + Duo/Okta second factor).
+> DONE BY CLAUDE: 699 (d7237413a2). CURRENTLY CLAIMED BY CLAUDE: 698 (web mask generator). Codex: hand 698 over now (push working changes, add a HANDOVER note to features/new/698_*.txt, then stop editing 698 code, tools/web_mask_generator, site pages and its item file).
 > Codex: stop editing 699's code, tests, docs and item file now. Commit/push any working 699 change you
 > already have and add a short "HANDOVER to Claude Home" note (what is done, what is not, unpushed branches)
 > at the end of features/new/699_*.txt. Keep working on 698/702/704/689/370 until this notice names them
