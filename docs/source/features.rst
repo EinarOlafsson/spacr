@@ -325,6 +325,10 @@ numeric-keypad :kbd:`Enter`, without other keys held, to switch it on or off.
 Holding a key switches it only once. If your screen reader handles
 numeric-keypad :kbd:`Enter` itself, use :kbd:`Space` or :kbd:`Return`.
 
+In **Preferences**, use :kbd:`Tab` to focus the help strip’s narrow top edge,
+then press :kbd:`Up` or :kbd:`Down`, without other keys held, to make the strip
+taller or shorter within its size limits; :kbd:`Tab` moves on.
+
 **Preferences → Appearance → Accessibility** gathers the settings that help
 most:
 
