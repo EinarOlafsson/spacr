@@ -133,8 +133,19 @@ def build_app(provisioned_models, *, preload=False, zero_gpu=False, job_parent=N
                     flow = gr.Number(0.4, minimum=0, label=tr("Flow threshold"), visible=not is_detector)
                     score = gr.Number(-1.0 if family_id in ("toxoplasma_pv", "toxoplasma_from_cellmask", "toxoplasma_from_hoechst") else 0.0, label=tr("Cell-score threshold (logits)"), visible=not is_detector)
                 magnification = gr.Number(20, minimum=0, label=tr("Magnification"), visible=not is_plaque and not is_detector)
-                extra_settings = gr.Textbox("{}", lines=3, label=tr("Desktop normalization and object-filter settings (JSON)"), visible=not is_plaque and not is_detector)
+                with gr.Accordion(tr("Normalization and object filters"), open=False, visible=not is_plaque and not is_detector):
+                    gr.Markdown(tr("Blank numeric fields and Desktop default keep the model's desktop settings. Intensity values use original image units."))
+                    with gr.Row():
+                        background = gr.Number(None, minimum=0, label=tr("Background floor"))
+                        signal_to_noise = gr.Number(None, minimum=0, label=tr("Signal-to-noise anchor"))
+                        lower_percentile = gr.Number(None, minimum=0, maximum=100, label=tr("Lower intensity percentile"))
+                    states = [(tr("Desktop default"), "default"), (tr("Enabled"), "enabled"), (tr("Disabled"), "disabled")]
+                    remove_background = gr.Radio(states, value="default", label=tr("Remove background"))
+                    perimeter = gr.Number(None, minimum=0, maximum=1, label=tr("Shared-perimeter merge fraction"))
+                    remove_border = gr.Radio(states, value="default", label=tr("Remove objects touching image borders"))
+                    extra_settings = gr.Textbox("{}", lines=3, label=tr("Additional desktop object-filter settings (JSON)"))
                 confidence = gr.Number(0.25, minimum=0, maximum=1, label=tr("Detection confidence"), visible=is_detector)
+                detector_size = gr.Number(640, precision=None, minimum=1, label=tr("Detector image size (pixels)"), visible=is_detector)
                 axis_ratio = gr.Number(0.7, minimum=0, maximum=1, label=tr("Minimum well axis ratio"), visible=is_detector)
                 run_button = gr.Button(tr("Detect wells") if is_detector else tr("Generate masks"), variant="primary")
                 cancel = gr.Button(tr("Cancel pending request"))
@@ -174,7 +185,9 @@ def build_app(provisioned_models, *, preload=False, zero_gpu=False, job_parent=N
 
                 def infer(path, model_key, accepted, selected_series, selected_t, selected_z, chosen_channels,
                           selected_page, selected_dpi, chosen_diameter, native_scale, flow_threshold, score_threshold,
-                          chosen_magnification=20, advanced=None, detection_confidence=0.25, minimum_axis_ratio=0.7):
+                          chosen_magnification=20, advanced=None, detection_confidence=0.25, minimum_axis_ratio=0.7,
+                          background_value=None, signal_value=None, lower_value=None, background_switch="default",
+                          perimeter_value=None, border_switch="default", detector_image_size=640):
                     if not path:
                         raise gr.Error(tr("Choose an image or PDF first."))
                     if accepted is not True:
@@ -200,7 +213,8 @@ def build_app(provisioned_models, *, preload=False, zero_gpu=False, job_parent=N
                     if len(chosen_channels) > channel_limit or (is_detector and len(chosen_channels) not in (1, 3)):
                         raise gr.Error(tr("Choose one channel for segmentation, or one grey/three RGB channels for detection."))
                     if is_detector:
-                        settings = {"confidence": detection_confidence, "min_axis_ratio": minimum_axis_ratio}
+                        settings = {"confidence": detection_confidence, "min_axis_ratio": minimum_axis_ratio,
+                                    "imgsz": _selection_index(detector_image_size, tr("Detector image size"), minimum=1)}
                     elif is_plaque:
                         settings = {"diameter": None if native_scale else chosen_diameter, "flow_threshold": flow_threshold, "CP_prob": score_threshold}
                     else:
@@ -212,6 +226,15 @@ def build_app(provisioned_models, *, preload=False, zero_gpu=False, job_parent=N
                         if advanced is not None and (not isinstance(advanced, dict) or set(advanced) - {"background", "signal_to_noise", "remove_background", "lower_percentile", "perimeter_fraction", "remove_border_objects", "object_filters"}):
                             raise gr.Error(tr("Unsupported desktop normalization or filter settings."))
                         settings = {**(advanced or {}), "diameter": "auto" if native_scale else chosen_diameter, "magnification": chosen_magnification, "flow_threshold": flow_threshold, "CP_prob": score_threshold}
+                        for key, value in (("background", background_value), ("signal_to_noise", signal_value),
+                                           ("lower_percentile", lower_value), ("perimeter_fraction", perimeter_value)):
+                            if value is not None:
+                                settings[key] = value
+                        for key, value in (("remove_background", background_switch), ("remove_border_objects", border_switch)):
+                            if value not in ("default", "enabled", "disabled"):
+                                raise gr.Error(tr("Choose Desktop default, Enabled or Disabled for normalization switches."))
+                            if value != "default":
+                                settings[key] = value == "enabled"
                     request = {"family": family_id, "model_key": model_key,
                                "consent_upload": accepted,
                                "settings": settings,
@@ -221,7 +244,8 @@ def build_app(provisioned_models, *, preload=False, zero_gpu=False, job_parent=N
                         raise gr.Error(tr("Enter the resolved diameter or explicitly choose native scale."))
                     return gpu_execute(path, request)
                 event = run_button.click(
-                    infer, inputs=[upload, selected, consent, series, time, depth, channels, page, dpi, diameter, native, flow, score, magnification, extra_settings, confidence, axis_ratio],
+                    infer, inputs=[upload, selected, consent, series, time, depth, channels, page, dpi, diameter, native, flow, score, magnification, extra_settings, confidence, axis_ratio,
+                                   background, signal_to_noise, lower_percentile, remove_background, perimeter, remove_border, detector_size],
                     outputs=[result, preview], api_name="segment_plaque" if is_plaque else "detect_wells" if is_detector else "segment_" + family_id, concurrency_limit=1, concurrency_id="spacr-model")
                 cancel.click(fn=None, cancels=[event], api_visibility="private", queue=False)
         with gr.Tabs():

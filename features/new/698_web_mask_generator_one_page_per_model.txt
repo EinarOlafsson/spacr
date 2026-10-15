@@ -359,3 +359,14 @@ HTTP and model service mocked: no real dataset download, test-split/rights
 review, hosted/GPU or scientific parity accepted. Reviewed real example records,
 all-family ZeroGPU deployment and browser route remain open; parentN698 partial.
 Receipt:features/data/698_approved_examples_2026-10-14/.
+
+2026-10-14 — Original Home: common desktop normalization/filter settings now
+have normal Gradio controls, inside a collapsed optional section: background,
+signal-to-noise, lower percentile, shared-perimeter merge and explicit
+Default/Enabled/Disabled background/border switches. Blank fields retain desktop
+role defaults; JSON remains optional for additional object filters. Detector
+image size now has an explicit control with strict integer validation before
+GPU entry. Validation47 actual-Gradio cases PASS/actualexit0/48.92s, including
+exact settings emission/default preservation and fractional detector-size refusal.
+No live server/model/GPU or scientific parity accepted; parentN698 partial.
+Receipt:features/data/698_normalization_controls_2026-10-14/.

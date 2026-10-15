@@ -249,3 +249,9 @@ disabled for unconfigured classes. Downloads use no ambient account token,
 stream within the approved byte count and verify the entire checksum/header
 before returning a cached image and attribution. Public example staging is
 removed on success/failure; returned files use the disclosed Gradio cache.
+
+The common background floor, signal-to-noise anchor, lower percentile, perimeter
+merge and border/background switches have ordinary controls under
+“Normalization and object filters”. Blank numbers and “Desktop default” keep
+the canonical role settings; explicit controls take precedence over optional
+JSON values. The detector also exposes a strictly integral image-size control.

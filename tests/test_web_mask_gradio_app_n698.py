@@ -260,7 +260,7 @@ def test_each_actual_endpoint_captures_its_own_family_and_settings(demo, tmp_pat
     if family == 'toxoplasma_plaque':
         assert request['settings'] == {'diameter': 32, 'flow_threshold': 0.6, 'CP_prob': -2}
     elif family == 'toxoplasma_well_detector':
-        assert request['settings'] == {'confidence': 0.4, 'min_axis_ratio': 0.8}
+        assert request['settings'] == {'confidence': 0.4, 'min_axis_ratio': 0.8, 'imgsz': 640}
     else:
         assert request['settings'] == {'diameter': 32, 'flow_threshold': 0.6, 'CP_prob': -2, 'magnification': 40, 'background': 123, 'remove_border_objects': True}
 
@@ -331,3 +331,33 @@ def test_public_random_example_is_family_bound_cached_and_credited(demo, tmp_pat
         assert calls == []
     finally:
         actual.close()
+
+
+def test_common_normalization_controls_emit_real_settings_and_keep_blank_defaults(demo, tmp_path):
+    actual, calls = demo
+    source = tmp_path / 'image.tif'
+    tifffile.imwrite(source, np.ones((5, 7), dtype=np.uint16), metadata={'axes': 'YX'})
+    callback = function(actual, 'segment_live_cell')
+    base = [str(source), 'live_cell_v1', True, 0, 0, 0, [0], 0, 150, None, False, 0.4, 0, 20, '{}', 0.25, 0.7]
+    callback(*base, 120, 15, 2.5, 'disabled', 0.3, 'enabled')
+    settings = calls[-1]['settings']
+    assert settings['background'] == 120 and settings['signal_to_noise'] == 15
+    assert settings['lower_percentile'] == 2.5 and settings['perimeter_fraction'] == 0.3
+    assert settings['remove_background'] is False and settings['remove_border_objects'] is True
+    callback(*base)
+    assert not ({'background', 'signal_to_noise', 'lower_percentile', 'perimeter_fraction', 'remove_background', 'remove_border_objects'} & calls[-1]['settings'].keys())
+    before = len(calls)
+    with pytest.raises(Exception, match='normalization switches'):
+        callback(*base, None, None, None, 'invalid')
+    assert len(calls) == before
+
+
+def test_fractional_detector_size_is_rejected_before_backend(demo, tmp_path):
+    actual, calls = demo
+    source = tmp_path / 'image.tif'
+    tifffile.imwrite(source, np.ones((5, 7), dtype=np.uint16), metadata={'axes': 'YX'})
+    callback = function(actual, 'detect_wells')
+    with pytest.raises(ValueError, match='finite whole number'):
+        callback(str(source), 'toxoplasma_well_detector_v3', True, 0, 0, 0, [0], 0, 150, None, False, 0.4, 0,
+                 20, '{}', 0.25, 0.7, None, None, None, 'default', None, 'default', 640.5)
+    assert calls == []
