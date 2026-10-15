@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-15",
+  "item": "N180",
+  "scope": "MeasurementComparePanel control-state adapter; montage handoff and generated API outputs are separate owner deliveries",
+  "baseline_commit": "15938ddbb6fd431d59f45eb90840d903177b3dd5",
+  "source_sha256": "36da90d27cd32117e893cd980c66408a48e237cec4bf7c744404899db59d53ef",
+  "test_sha256": "200b41d3f7445d0674a1e40dd1be2ae6038af9fd8a8e419aa8d1daa02ebd6ff7",
+  "schema": {
+    "string_ids": [
+      "measurement",
+      "operator",
+      "second",
+      "level",
+      "kind",
+      "spread",
+      "scope",
+      "contrast",
+      "only"
+    ],
+    "string": [
+      "controls"
+    ],
+    "nullable_string_lists": [
+      "chosen_wells",
+      "selected_wells"
+    ],
+    "string_lists": [
+      "selected_guides"
+    ],
+    "booleans": [
+      "join_png_list",
+      "join_dependent"
+    ]
+  },
+  "behavior": [
+    "No refresh, render, join start, inference or data/file read during apply_workspace_state.",
+    "An active panel-owned join is cancelled using existing JobRunner generation rejection. Late results cannot change controls, cached frame or graph.",
+    "Missing measurement, second-measurement and class IDs remain pending and are included in a subsequent snapshot. Ordinary refresh/set_data resolves offered IDs.",
+    "None and empty selections remain distinct; explicitly restored empty guide selection is not replaced by top hits during set_data.",
+    "Current cached comparison/figure remain unchanged until ordinary refresh.",
+    "Normal second-measurement choice survives data-menu repopulation."
+  ],
+  "validation": {
+    "baseline": "1 failure: missing workspace_state API; 18 deselected, 5.46s",
+    "initial_after": "19 passed, 3 fixture failures: test rows lacked required well-aggregation plateID/rowID/columnID. Exact failures retained; fixture enriched with consistent identifiers, assertions unchanged.",
+    "final": "40 passed in 7.06s; wall 9.84s; peak RSS 1025680 KiB; cap 2G, CPU threads1, Qt6.12 offscreen, no GPU.",
+    "new_tests": 22,
+    "existing_owning_tests": 18,
+    "real_thread_acceptance": "Deterministic blocked fake join on actual JobRunner, then valid restore cancels, release retires old worker, no late redraw/result applied."
+  },
+  "public_docstrings": {
+    "workspace_state": "Return JSON-compatible comparison choices without collecting data.\n\n        Combo values are stable identifiers, not translated labels. Pending\n        measurement and class choices remain saved until a later refresh can\n        offer them. Well selections preserve ``None`` for all annotated wells\n        or guide-derived scope wells, respectively; an empty list selects none.\n        Frames, figures, database paths and running jobs are not included.\n        ",
+    "apply_workspace_state": "Restore comparison controls without computing or drawing a graph.\n\n        Recognized, correctly typed entries are applied independently. Unknown\n        fixed choices are ignored; measurement and class identifiers that are\n        not yet offered remain pending until an ordinary refresh or data update.\n        Selected guide and well identifiers are retained without reading files.\n        An active join owned by this panel is cancelled so its late result cannot\n        replace the restored state. No new join, file read or inference starts.\n        The cached comparison and figure remain unchanged until the next refresh.\n\n        :param state: mapping returned by :meth:`workspace_state`; non-dicts and\n            mappings without usable entries leave the panel unchanged.\n        :returns: ``True`` if at least one usable entry was applied, even if its\n            value was already selected; otherwise ``False``.\n        "
+  },
+  "remaining": [
+    "Root/website montage integration",
+    "Normal API reviews/catalog/help-index artifacts before publication",
+    "No new native/platform acceptance claim"
+  ]
+}
