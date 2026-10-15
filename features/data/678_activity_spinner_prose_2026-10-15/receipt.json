@@ -1,0 +1,31 @@
+{
+  "scope": "Exactly the second paragraph of ActivitySpinner.is_spinning documentation; no runtime/default/timer/comment changes.",
+  "baseline_coordinator_commit": "43c0e32297c0bfbc269bec859f01048c5e82fc9d",
+  "source_file": "spacr/qt/widgets/activity_spinner.py",
+  "before_sha256": "3a7b27a03e7b66a4f0d98652fb50aa4bd603354d550591b5e0179f4a9810d2e2",
+  "after_sha256": "909e079fafe5cecd461abe0f404c57f0a4f9faa1d2cbd0d520ccdb6987806bae",
+  "symbol": "spacr.qt.widgets.activity_spinner.ActivitySpinner.is_spinning",
+  "before_docstring": "Whether the animation timer is actually running.\n\nThe assertion behind \"idle costs zero\": when this is ``False`` the\nwidget posts no events at all.",
+  "after_docstring": "Whether the animation timer is actually running.\n\nThis reports only the animation timer. During the appearance delay it\nreturns ``False`` while the separate delay timer remains active; use\n:meth:`is_waiting` to check that state.",
+  "defect": "The old paragraph said False means the widget posts no events. is_spinning returns only _timer.isActive; during appearance delay _sync starts separate _delay while _timer remains stopped.",
+  "source_evidence": {
+    "is_spinning": "def is_spinning(self) -> bool:\n        \"\"\"Whether the animation timer is actually running.\n\n        The assertion behind \"idle costs zero\": when this is ``False`` the\n        widget posts no events at all.\n        \"\"\"\n        return self._timer.isActive()",
+    "is_waiting": "def is_waiting(self) -> bool:\n        \"\"\"True while work is running but the delay has not elapsed.\n\n        Busy, not shown, not spinning, with one pending timer.\n        \"\"\"\n        return self._delay.isActive()",
+    "_sync": "def _sync(self) -> None:\n        \"\"\"Match the widget to the current busy state. Idempotent.\n\n        Three states, not two. *Idle*: hidden, both timers stopped. *Waiting*:\n        work is running, the single-shot delay is armed, nothing on screen.\n        *Showing*: the delay elapsed with work still running.\n\n        Arming happens on the idle-to-busy edge only — ``isActive()`` is\n        checked before ``start()``, and ``start()`` on a running QTimer\n        restarts it. Without that guard a stream of short jobs would push the\n        deadline forward for ever and the spinner would never appear during a\n        genuinely long stretch of work.\n        \"\"\"\n        if not self.is_busy():\n            self._delay.stop()\n            self._due = False\n            if self._timer.isActive():\n                self._timer.stop()\n                self._angle = 0.0\n            if self.isVisible():\n                self.setVisible(False)\n            self.setToolTip(self._describe())\n            return\n        if not self._due:\n            if self._delay_ms <= 0:\n                self._due = True\n            elif not self._delay.isActive():\n                self._delay.start(self._delay_ms)\n        self.setToolTip(self._describe())\n        if self._due:\n            self._show_now()",
+    "_show_now": "def _show_now(self) -> None:\n        \"\"\"Show the spinner and start its animation if it is really on screen.\n\n        ``isVisible`` is ``False`` while an ancestor is hidden, and the whole\n        idle-costs-nothing claim rests on never running the timer for pixels\n        nobody can see -- ``showEvent`` starts it if and when the screen comes\n        back.\n        \"\"\"\n        self.setVisible(True)\n        if self.isVisible() and not self._timer.isActive():\n            self._timer.start()\n        self.setToolTip(self._describe())\n        self.update()"
+  },
+  "existing_test_evidence": {
+    "path": "tests/qt/test_activity_spinner.py",
+    "sha256": "833e7cee1906cdcce3b31d8a8a835c421207b53106cdb372945f422f47321f1d",
+    "source": "def test_while_it_waits_it_costs_nothing(qtbot, prefs, hosted):\n    \"\"\"The delay is not a hidden animation with the paint suppressed.\"\"\"\n    prefs.set_spinner_delay(2.0)\n    spinner = hosted(auto=False)\n\n    spinner.set_busy(True)\n    assert spinner.is_waiting()\n    assert not spinner.is_spinning()\n    assert not spinner.isVisible()\n    before = spinner.frames_painted\n    qtbot.wait(600)\n    assert spinner.frames_painted == before, \"it painted while waiting\"\n\n    # ...and it does come up, so the assertion above is not passing on a\n    # spinner that is simply broken.\n    qtbot.waitUntil(lambda: spinner.isVisible(), timeout=4000)\n    assert spinner.is_spinning()\n    assert not spinner.is_waiting()",
+    "execution": "Read only; no test run for a documentation-only correction."
+  },
+  "checks": {
+    "one_docstring_only": "PASS exact raw before/after replacement",
+    "executable_ast_equal": "PASS",
+    "comments_identical": "PASS",
+    "paragraph_slots_preserved": true
+  },
+  "review": "Authored factual correction; independent parent source review requested.",
+  "generation": "None; normal nine-locale API updates belong to documentation owner in next shared cohort."
+}
