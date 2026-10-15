@@ -76,5 +76,6 @@
   "gui_retry": "Retry",
   "gui_cancelled": "Installation cancelled. Review the log before retrying.",
   "gui_failed": "Installation or launch failed. Review the log and retry in this window.",
-  "gui_stopping": "Stopping installation and restoring the previous runtime…"
+  "gui_stopping": "Stopping installation and restoring the previous runtime…",
+  "nsis_uninstall_failed": "spaCR could not safely finish uninstalling. See the details above; your data has been kept."
 }
