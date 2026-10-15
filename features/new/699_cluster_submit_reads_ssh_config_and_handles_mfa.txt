@@ -123,3 +123,5 @@ N700 sv/UI/AI Error report caption's missing explicit review. Claude ownsN700;
 Home-B has the pending shared extractor request. Neither baseline pin nor
 generator assertions were waived. No real cluster/MFA/macOS/Windows acceptance.
 Receipt: data/699_current_integration_2026-10-14/receipt.json.
+
+2026-10-15 Original Home: coherent SSH discovery/password-first MFA/literal-path source merged with published N702 snapshot provenance. Fresh owning mixed CPU/Qt cohort107PASS12.25s; earlier native local OpenSSH parsing/injected auth129-check receipts retained, no real cluster acceptance claim. Normal English runtime writer completed. Home-B approved additive extractor retained every scientific/model/installer owner. Source publication proceeds with exact known foreign N700 review and current preferences nested-docstring generation failures recorded; no global CI, native MFA or whole-feature acceptance is claimed.
