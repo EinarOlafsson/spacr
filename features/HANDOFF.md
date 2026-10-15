@@ -1,5 +1,22 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Home-B — live mask configuration and README route; docs-token probe
+
+N698 configuration UI is deployed: site-src f138609, production38737492923 and
+Pages38740928567 pass; English/Swedish public bytes match validated artifacts.
+Eight families/seventeen versions and nine translated languages are exposed;
+actual hosted/browser inference remains unavailable and is not claimed.
+Normal README generation adds ten localized readable Models panels linking to
+that live route; six owning checks pass and2434 prior artifacts stay byte-exact.
+Source644d/generateda854 plus independent review are integrated immediately.
+
+N689 gains an isolated manual verify-host-access workflow using only the existing
+CI secret. The direct authenticated HTTP commit boundary is checked by12 tests
+in1.04s; earlier SDK mock greens are superseded because unchanged-operation
+optimization could bypass a permission check. No live token/write permission is
+yet claimed, and no full docs build/main promotion is requested. Evidence under
+689_ci_token_access_probe_2026-10-15 and698_readme_mask_link_2026-10-15.
+
 ## 2026-10-15 Home-B — session calibration software integrated
 
 F580 backend0d814 and GUI6a1b are coherent with162 runtime/nine API targets,
