@@ -1,0 +1,12 @@
+Extract current public API source once
+Extract current canonical runtime source once
+sv checked80 API and59 runtime records; cumulative errors 0
+de checked80 API and59 runtime records; cumulative errors 0
+es checked80 API and59 runtime records; cumulative errors 0
+zh_CN checked80 API and59 runtime records; cumulative errors 0
+pt checked80 API and59 runtime records; cumulative errors 0
+hi checked80 API and59 runtime records; cumulative errors 0
+ko checked80 API and59 runtime records; cumulative errors 0
+is checked80 API and59 runtime records; cumulative errors 0
+fr checked80 API and59 runtime records; cumulative errors 0
+PASS scoped source-bound F534 reconciliation
