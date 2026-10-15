@@ -7599,6 +7599,7 @@ class AppScreen(QWidget):
             _CardBuiltWhenShown if self.app_key == "regression" else Card)(
                 title="Figures")
         self._figure_queue = FigureQueue(parent=self._figures_card)
+        self._figure_queue._workspace_restored.connect(self._on_workspace_figures_restored)
         #: The queue the regression results page holds, kept apart from
         #: ``_figure_queue`` because that name can be rebound before the
         #: deferred results are built, and the page an eagerly-built screen
@@ -12657,7 +12658,22 @@ class AppScreen(QWidget):
         "regression": "_results_panel",
         "montage": "_cell_montage",
         "figures": "_figure_grid",
+        "figure_queue": "_figure_queue",
     }
+
+    def _on_workspace_figures_restored(self) -> None:
+        """Reveal restored figures and update an already-built grid only."""
+        queue = self._if_built("_figure_queue")
+        card = self._if_built("_figures_card")
+        if queue is None:
+            return
+        if (card is not None and queue.count()
+                and not self._part_is_owed(_REGRESSION_RESULTS)):
+            card.show()
+        grid = self._if_built("_figure_grid")
+        if grid is not None:
+            grid.set_figures(queue.all_pixmaps(), queue.figure_titles(),
+                             sections=queue.run_sections())
 
     def register_workspace(self) -> None:
         """Enrol this screen and its panels with the workspace registry.
