@@ -162,3 +162,76 @@ def test_normal_runtime_extractor_tracks_backend_errors_and_indirect_ssh_labels(
     assert {'SSH host name', 'SSH user', 'SSH port', 'SSH identity file', 'SSH jump host',
             'SSH authentication was cancelled or timed out.',
             'SSH command timed out; it was not submitted again.'} <= sources
+
+
+def test_keychain_box_is_off_by_default_and_follows_interactive_login(qtbot, monkeypatch):
+    monkeypatch.setattr(ui, '_keychain_available', lambda: True)
+    dialog = ui.ExecutionProfileDialog()
+    qtbot.addWidget(dialog)
+    dialog._backend.setCurrentIndex(dialog._backend.findData('slurm'))
+    assert not dialog._ssh_keychain.isChecked()
+    assert not dialog._ssh_keychain.isEnabled()
+    dialog._ssh_interactive.setChecked(True)
+    assert dialog._ssh_keychain.isEnabled()
+    dialog._name.setText('gl')
+    dialog._host.setText('greatlakes')
+    dialog._workdir.setText('/scratch')
+    assert dialog.profile().ssh_keychain is False
+    dialog._ssh_keychain.setChecked(True)
+    assert dialog.profile().ssh_keychain is True
+    restored = ui.ExecutionProfileDialog(profile=dialog.profile())
+    qtbot.addWidget(restored)
+    assert restored._ssh_keychain.isChecked()
+
+
+def test_keychain_box_is_unavailable_without_keyring(qtbot, monkeypatch):
+    monkeypatch.setattr(ui, '_keychain_available', lambda: False)
+    dialog = ui.ExecutionProfileDialog(profile=ExecutionProfile('p', 'slurm', host='alias', workdir='/w', ssh_interactive=True))
+    qtbot.addWidget(dialog)
+    assert not dialog._ssh_keychain.isEnabled()
+    assert 'keyring' in dialog._ssh_keychain.toolTip()
+
+
+def test_unticking_keychain_forgets_the_remembered_password(qtbot, monkeypatch):
+    deleted = []
+    monkeypatch.setattr(ui, '_keychain_available', lambda: True)
+    monkeypatch.setattr(ui, '_keychain_account', lambda host, options: f'ada@{host}:22')
+    monkeypatch.setattr(ui, '_keychain_password', lambda action, account: deleted.append((action, account)))
+    profile = ExecutionProfile('gl', 'slurm', host='greatlakes', workdir='/w', ssh_interactive=True, ssh_keychain=True)
+    dialog = ui.ExecutionProfileDialog(profile=profile)
+    qtbot.addWidget(dialog)
+    dialog._ssh_keychain.setChecked(False)
+    dialog._validate_and_accept()
+    qtbot.waitUntil(lambda: bool(deleted))
+    assert deleted == [('delete', 'ada@greatlakes:22')]
+
+
+def test_denied_login_shows_the_failing_step_and_retry_signs_in_again(qtbot, monkeypatch):
+    from spacr.remote_execution import _auth_denied_message
+    outcomes = ['denied', 'ok', 'ok']
+    calls = []
+    def run(argv, **kwargs):
+        calls.append(argv[2])
+        if outcomes.pop(0) == 'denied':
+            raise ui.RemoteExecutionError(_auth_denied_message())
+        return CommandResult(0, 'gl-login1\n')
+    monkeypatch.setattr(ui, '_run_command', run)
+    dialog = ui.ExecutionProfileDialog(profile=ExecutionProfile('p', 'slurm', host='greatlakes', workdir='/w', ssh_interactive=True))
+    qtbot.addWidget(dialog)
+    assert dialog._retry_ssh.isHidden()
+    dialog._test_connection()
+    qtbot.waitUntil(lambda: dialog._connection_worker is None, timeout=20000)
+    assert dialog._error.text().startswith('hostname failed:')
+    assert 'was denied' in dialog._error.text()
+    assert not dialog._retry_ssh.isHidden()
+    dialog._retry_ssh.click()
+    qtbot.waitUntil(lambda: dialog._connection_worker is None and 'passed' in dialog._error.text(), timeout=20000)
+    assert dialog._retry_ssh.isHidden()
+    assert calls == ['hostname', 'hostname', 'sinfo --noheader']
+
+
+def test_help_text_names_great_lakes_okta_and_read_only_discovery(qtbot):
+    dialog = ui.ExecutionProfileDialog()
+    qtbot.addWidget(dialog)
+    assert 'Great Lakes' in dialog._ssh_interactive.toolTip() and 'Okta' in dialog._ssh_interactive.toolTip()
+    assert 'never runs ssh -G' in dialog._find_ssh_button.toolTip()

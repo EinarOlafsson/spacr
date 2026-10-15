@@ -130,7 +130,7 @@ class Channel:
 @pytest.fixture
 def ssh_fake(monkeypatch, tmp_path):
     state = SimpleNamespace(transports=[], channels=[], prompts=[], calls=[], host_ok=True, denied=False,
-                            password_only=False, publickeys=[], key_ok=False, partial_key=False, encrypted=False, channel_factory=Channel)
+                            password_only=False, publickeys=[], key_ok=False, partial_key=False, encrypted=False, channel_factory=Channel, interactive=None)
     known = tmp_path / 'known_hosts'
     known.write_text('fake-host ssh-ed25519 PUBLIC\n')
     monkeypatch.setattr(remote, '_ssh_config_directives', lambda paths: [])
@@ -187,6 +187,8 @@ def ssh_fake(monkeypatch, tmp_path):
 
         def auth_interactive(self, username, handler):
             state.calls.append(('interactive', username))
+            if state.interactive is not None:
+                return state.interactive(self, handler)
             if state.password_only:
                 raise BadAuthenticationType()
             first = handler('Great Lakes', 'Kerberos login', [('Password:', False)])
@@ -430,3 +432,176 @@ def test_key_plus_mfa_moves_to_challenge_before_offering_more_agent_keys(ssh_fak
 def test_openssh_assignment_spacing_is_equivalent(tmp_path, assignment):
     (tmp_path / 'config').write_text('Host = alias\n '+assignment+'\n')
     assert remote._discover_ssh_settings(tmp_path)[0]['user'] == 'ada'
+
+
+class FakeKeyring:
+    def __init__(self):
+        self.store, self.calls = {}, []
+
+    def get_password(self, service, account):
+        self.calls.append(('get', service, account))
+        return self.store.get((service, account))
+
+    def set_password(self, service, account, secret):
+        self.calls.append(('set', service, account))
+        self.store[(service, account)] = secret
+
+    def delete_password(self, service, account):
+        self.calls.append(('delete', service, account))
+        self.store.pop((service, account), None)
+
+
+def okta_server(state, outcome):
+    """A fake keyboard-interactive server: Kerberos password, then an Okta push choice."""
+    def interactive(transport, handler):
+        password = handler('', 'Kerberos login for alice', [('Password:', False)])
+        state.answers.append(list(password))
+        if password != ['KERBEROS-SECRET']:
+            raise AuthenticationException('Authentication failed.')
+        choice = handler('', 'Okta Verify\n 1. Push to iPhone\n 2. Enter a code', [('Passcode or option (1-2): ', True)])
+        state.answers.append(list(choice))
+        if outcome[0] == 'denied':
+            raise AuthenticationException('Authentication failed.')
+        if outcome[0] == 'timeout':
+            raise AuthenticationException('Authentication timeout.')
+        transport.authenticated = True
+    return interactive
+
+
+@pytest.fixture
+def okta(ssh_fake):
+    state = ssh_fake
+    state.answers = []
+    outcome = ['approved']
+    state.interactive = okta_server(state, outcome)
+
+    def prompt(title, instructions, prompts):
+        state.prompts.append((title, instructions, prompts))
+        return ['1' if prompts[0][1] else 'KERBEROS-SECRET']
+
+    state.pool.prompt = prompt
+    state.outcome = outcome
+    return state
+
+
+def test_okta_two_step_prompts_are_verbatim_and_second_command_does_not_reprompt(okta):
+    okta.pool.run(okta.target, 'hostname')
+    assert okta.prompts == [('', 'Kerberos login for alice', [('Password:', False)]),
+                            ('', 'Okta Verify\n 1. Push to iPhone\n 2. Enter a code', [('Passcode or option (1-2): ', True)])]
+    assert okta.answers == [['KERBEROS-SECRET'], ['1']]
+    okta.pool.run(okta.target, 'sinfo --noheader')
+    assert len(okta.prompts) == 2
+    assert len(okta.transports) == 1
+    assert [channel.command for channel in okta.channels] == ['hostname', 'sinfo --noheader']
+
+
+@pytest.mark.parametrize('outcome, wording', [('denied', 'was denied'), ('timeout', 'timed out')])
+def test_denied_or_timed_out_push_is_explained_runs_nothing_and_retry_signs_in_again(okta, outcome, wording):
+    okta.outcome[0] = outcome
+    with pytest.raises(remote.RemoteExecutionError, match=wording) as caught:
+        okta.pool.run(okta.target, 'sbatch job')
+    assert 'Retry' in str(caught.value)
+    assert 'KERBEROS-SECRET' not in str(caught.value)
+    assert not okta.channels
+    assert not okta.pool._sessions
+    okta.outcome[0] = 'approved'
+    okta.pool.run(okta.target, 'hostname')
+    assert len(okta.prompts) == 4
+    assert [channel.command for channel in okta.channels] == ['hostname']
+
+
+def test_push_wait_gets_an_authentication_allowance_of_at_least_two_minutes(okta):
+    okta.pool.run(okta.target, 'hostname', timeout=5)
+    assert okta.transports[0].auth_timeout >= 120
+
+
+def test_keychain_is_off_by_default_and_never_consulted(okta, monkeypatch):
+    keyring = FakeKeyring()
+    monkeypatch.setitem(sys.modules, 'keyring', keyring)
+    profile = remote.ExecutionProfile('p', 'ssh', host='alias', workdir='/work', ssh_options=okta.target['options'], ssh_interactive=True).validate()
+    assert profile.ssh_keychain is False
+    assert 'keychain' not in json.loads(remote._remote_argv(profile, ['hostname'])[1])
+    okta.pool.run(okta.target, 'hostname')
+    assert keyring.calls == []
+
+
+def test_keychain_stores_only_the_password_and_reuses_it_once(okta, monkeypatch):
+    keyring = FakeKeyring()
+    monkeypatch.setitem(sys.modules, 'keyring', keyring)
+    profile = remote.ExecutionProfile('p', 'ssh', host='alias', workdir='/work', ssh_options=okta.target['options'],
+                                      ssh_interactive=True, ssh_keychain=True).validate()
+    target = json.loads(remote._remote_argv(profile, ['hostname'])[1])
+    assert target['keychain'] is True
+    okta.pool.run(target, 'hostname')
+    assert keyring.store == {('spaCR SSH', 'alice@fake-host:22'): 'KERBEROS-SECRET'}
+    assert 'KERBEROS-SECRET' not in json.dumps(profile.to_dict())
+    okta.pool.close()
+    okta.pool.run(target, 'hostname')
+    assert [prompts for _, _, prompts in okta.prompts[2:]] == [[('Passcode or option (1-2): ', True)]]
+    assert okta.answers[2:] == [['KERBEROS-SECRET'], ['1']]
+
+
+def test_rejected_remembered_password_is_removed_from_the_keychain(okta, monkeypatch):
+    keyring = FakeKeyring()
+    keyring.store[('spaCR SSH', 'alice@fake-host:22')] = 'OLD-PASSWORD'
+    monkeypatch.setitem(sys.modules, 'keyring', keyring)
+    target = dict(okta.target, keychain=True)
+    with pytest.raises(remote.RemoteExecutionError, match='was denied'):
+        okta.pool.run(target, 'hostname')
+    assert keyring.store == {}
+    assert not okta.prompts
+
+
+def test_keychain_failures_store_nothing_and_do_not_block_login(okta, monkeypatch):
+    class Broken:
+        def __getattr__(self, name):
+            raise RuntimeError('no keychain backend')
+    monkeypatch.setitem(sys.modules, 'keyring', Broken())
+    okta.pool.run(dict(okta.target, keychain=True), 'hostname')
+    assert len(okta.prompts) == 2
+
+
+def test_discovery_never_opens_private_key_files(tmp_path, monkeypatch):
+    import builtins
+    import io
+    ssh = tmp_path / '.ssh'
+    ssh.mkdir()
+    keys = [ssh / 'id_ed25519', ssh / 'greatlakes_key', tmp_path / 'elsewhere.pem']
+    for key in keys:
+        key.write_text('-----BEGIN OPENSSH PRIVATE KEY-----\nSECRET\n')
+    (ssh / 'config').write_text('Host gl\n HostName greatlakes.arc-ts.umich.edu\n User ada\n'
+                                f' IdentityFile ~/.ssh/greatlakes_key\n IdentityFile {keys[2]}\n'
+                                'Host *\n IdentityFile ~/.ssh/id_ed25519\n')
+    (ssh / 'known_hosts').write_text('greatlakes.arc-ts.umich.edu ssh-ed25519 PUBLIC\n')
+    opened = []
+    real_open = io.open
+
+    def recording_open(file, *args, **kwargs):
+        opened.append(str(file))
+        return real_open(file, *args, **kwargs)
+    monkeypatch.setattr(builtins, 'open', recording_open)
+    monkeypatch.setattr(io, 'open', recording_open)
+    rows = {row['alias']: row for row in remote._discover_ssh_settings(home=tmp_path, environ={}, system_config=tmp_path / 'none')}
+    assert rows['gl']['identityfile'] == str(ssh / 'greatlakes_key')
+    assert opened and not ({str(key) for key in keys} & set(opened))
+    assert 'SECRET' not in json.dumps(rows)
+
+
+def test_discovery_never_runs_ssh_or_any_local_command(tmp_path, monkeypatch):
+    import inspect
+    import subprocess
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError(f'discovery started a process: {args!r}')
+    for name in ('run', 'Popen', 'call', 'check_call', 'check_output'):
+        monkeypatch.setattr(subprocess, name, forbidden)
+    monkeypatch.setattr(remote.os, 'system', forbidden)
+    ssh = tmp_path / '.ssh'
+    ssh.mkdir()
+    (ssh / 'config').write_text('Match exec "ssh -G evil"\n User wrong\nHost gl\n HostName gl.example\n'
+                                ' ProxyCommand ssh -W %h:%p bastion\n')
+    rows = remote._discover_ssh_settings(home=tmp_path, environ={}, system_config=tmp_path / 'none')
+    assert rows[0]['proxycommand'] == 'ssh -W %h:%p bastion'
+    assert 'user' not in rows[0]
+    for function in (remote._discover_ssh_settings, remote._ssh_config_directives, remote._ssh_lookup, remote._ssh_resolve):
+        assert '-G' not in inspect.getsource(function)

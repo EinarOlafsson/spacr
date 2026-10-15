@@ -228,6 +228,8 @@ class ExecutionProfile:
         port, identity-file path and jump host; passwords and OTPs are forbidden.
     :param ssh_interactive: use a verified persistent SSH session with GUI
         keyboard-interactive prompts instead of the external OpenSSH command.
+    :param ssh_keychain: remember the login password, never one-time codes or
+        push answers, in the operating-system keychain; off by default.
     """
 
     name: str
@@ -246,6 +248,7 @@ class ExecutionProfile:
     poll_seconds: int = 10
     ssh_options: Dict[str, str] = field(default_factory=dict)
     ssh_interactive: bool = False
+    ssh_keychain: bool = False
 
     def validate(self) -> "ExecutionProfile":
         """Validate the profile and return ``self`` for fluent callers."""
@@ -280,6 +283,8 @@ class ExecutionProfile:
             raise RemoteExecutionError(tr("Choose ProxyJump or ProxyCommand, not both."))
         if not isinstance(self.ssh_interactive, bool):
             raise RemoteExecutionError(tr("SSH interactive authentication must be a boolean."))
+        if not isinstance(self.ssh_keychain, bool):
+            raise RemoteExecutionError(tr("SSH keychain storage must be a boolean."))
         if self.backend in {"ssh", "slurm"}:
             if self.host:
                 host = _safe_text(self.host, "SSH host")
@@ -938,6 +943,59 @@ def _ssh_overrides(profile):
     return arguments
 
 
+_KEYCHAIN_SERVICE = "spaCR SSH"
+
+
+def _keychain_available():
+    """Report whether the optional keyring package can reach an OS keychain."""
+    import importlib.util
+
+    return importlib.util.find_spec("keyring") is not None
+
+
+def _keychain_password(action, account, secret=None):
+    """Get, set or delete one stored login password; failures store nothing."""
+    try:
+        import keyring
+
+        if action == "get":
+            return keyring.get_password(_KEYCHAIN_SERVICE, account)
+        if action == "set":
+            keyring.set_password(_KEYCHAIN_SERVICE, account, secret)
+        elif action == "delete":
+            keyring.delete_password(_KEYCHAIN_SERVICE, account)
+    except Exception:
+        return None
+    return None
+
+
+def _ssh_resolve(host, options):
+    """Resolve one target from static SSH files plus explicit profile overrides."""
+    import getpass
+
+    alias = host.rsplit("@", 1)[-1]
+    config = options.get("config")
+    paths = [Path(config)] if config else [Path.home() / ".ssh/config", Path("/etc/ssh/ssh_config")]
+    resolved = _ssh_lookup(alias, _ssh_config_directives(paths))
+    resolved.update({key: value for key, value in options.items() if value})
+    if "@" in host:
+        resolved["user"] = host.rsplit("@", 1)[0]
+    resolved.setdefault("user", getpass.getuser())
+    return resolved
+
+
+def _keychain_account(host, options):
+    """Name the keychain entry by user, host name and port, never by secret."""
+    resolved = _ssh_resolve(host, options)
+    return f'{resolved["user"]}@{resolved.get("hostname", host)}:{resolved.get("port", "22")}'
+
+
+def _is_password_prompt(text, echo):
+    """Recognise a hidden password prompt; passcodes and push choices never match."""
+    text = str(text)
+    return not echo and ("password" in text.casefold() or text == tr("Password:"))
+
+
 class _SSHSessionPool:
     """Keep verified SSH transports for this application session only."""
 
@@ -956,9 +1014,22 @@ class _SSHSessionPool:
             raise RemoteExecutionError(tr('SSH authentication was cancelled or timed out.'))
         return responses
 
-    def _connect(self, host, options, timeout, chain=(), upstream=None):
+    def _respond(self, login, title, instructions, prompts):
+        """Answer one server challenge, using a remembered password at most once."""
+        if login["stored"] and len(prompts) == 1 and _is_password_prompt(*prompts[0]):
+            answer = [login["stored"]]
+            login["stored"] = None
+            login["used_stored"] = True
+            return answer
+        responses = self._answers(title, instructions, prompts)
+        if login["keychain"]:
+            entered = [answer for (text, echo), answer in zip(prompts, responses) if _is_password_prompt(text, echo)]
+            login["entered"] = entered[:1] or login["entered"]
+        return responses
+
+    def _connect(self, host, options, timeout, chain=(), upstream=None, keychain=False):
         """Verify each host key before key or keyboard-interactive authentication."""
-        import getpass
+        import functools
         import socket
 
         import paramiko
@@ -966,14 +1037,15 @@ class _SSHSessionPool:
         if host in chain or len(chain) >= 8:
             raise RemoteExecutionError(tr('SSH jump-host cycle or hop limit exceeded.'))
         alias = host.rsplit("@", 1)[-1]
-        user = host.rsplit("@", 1)[0] if "@" in host else ""
         config = options.get("config")
-        paths = [Path(config)] if config else [Path.home() / ".ssh/config", Path("/etc/ssh/ssh_config")]
-        resolved = _ssh_lookup(alias, _ssh_config_directives(paths))
-        resolved.update({key: value for key, value in options.items() if value})
+        resolved = _ssh_resolve(host, options)
         hostname = resolved.get("hostname", alias)
-        username = user or resolved.get("user") or getpass.getuser()
+        username = resolved["user"]
         port = int(resolved.get("port", "22"))
+        account = f"{username}@{hostname}:{port}"
+        login = {"keychain": keychain, "stored": _keychain_password("get", account) if keychain else None,
+                 "used_stored": False, "entered": []}
+        respond = functools.partial(self._respond, login)
         sock = None
         transport = None
         parents = []
@@ -1006,7 +1078,7 @@ class _SSHSessionPool:
                 sock = socket.create_connection((hostname, port), timeout=timeout)
             transport = paramiko.Transport(sock)
             transport.banner_timeout = timeout
-            transport.auth_timeout = timeout
+            transport.auth_timeout = max(timeout, 120.0)
             transport.start_client(timeout=timeout)
             key = transport.get_remote_server_key()
             known = paramiko.HostKeys()
@@ -1045,21 +1117,32 @@ class _SSHSessionPool:
                 agent.close()
             if not transport.is_authenticated():
                 try:
-                    transport.auth_interactive(username, self._answers)
-                except paramiko.BadAuthenticationType as exc:
-                    if "password" not in exc.allowed_types:
-                        raise
-                    answer = self._answers(tr("SSH authentication"), "", [(tr("Password:"), False)])
                     try:
-                        remaining = transport.auth_password(username, answer[0], fallback=False)
-                    finally:
-                        answer.clear()
-                    if not transport.is_authenticated() and "keyboard-interactive" in (remaining or ()):
-                        transport.auth_interactive(username, self._answers)
+                        transport.auth_interactive(username, respond)
+                    except paramiko.BadAuthenticationType as exc:
+                        if "password" not in exc.allowed_types:
+                            raise
+                        answer = respond(tr("SSH authentication"), "", [(tr("Password:"), False)])
+                        try:
+                            remaining = transport.auth_password(username, answer[0], fallback=False)
+                        finally:
+                            answer.clear()
+                        if not transport.is_authenticated() and "keyboard-interactive" in (remaining or ()):
+                            transport.auth_interactive(username, respond)
+                except paramiko.AuthenticationException as exc:
+                    if "timeout" in str(exc).casefold():
+                        raise RemoteExecutionError(_auth_timeout_message()) from None
+                    raise RemoteExecutionError(_auth_denied_message()) from None
             if not transport.is_authenticated():
-                raise RemoteExecutionError(tr('SSH authentication was denied. Test the connection to try again.'))
+                raise RemoteExecutionError(_auth_denied_message())
+            if keychain and login["entered"]:
+                _keychain_password("set", account, login["entered"][0])
+            login["entered"] = []
             return transport, parents
         except BaseException:
+            login["entered"] = []
+            if login["used_stored"]:
+                _keychain_password("delete", account)
             if transport is not None:
                 transport.close()
             elif sock is not None:
@@ -1081,7 +1164,8 @@ class _SSHSessionPool:
             channel = None
             try:
                 if session is None:
-                    session = self._connect(target["host"], target["options"], timeout)
+                    session = self._connect(target["host"], target["options"], timeout,
+                                            keychain=bool(target.get("keychain")))
                     self._sessions[identifier] = session
                 channel = session[0].open_session(timeout=timeout)
                 channel.settimeout(timeout)
@@ -1136,9 +1220,22 @@ class _SSHSessionPool:
 _SSH_SESSIONS = _SSHSessionPool()
 
 
+def _auth_denied_message():
+    """Explain a rejected password, code or push without retrying anything."""
+    return tr("The login or second-factor request was denied (for example, a rejected push). Nothing was run; choose Retry sign-in or Test connection to try again.")
+
+
+def _auth_timeout_message():
+    """Explain an unanswered push or code without retrying anything."""
+    return tr("The login or second-factor request timed out (for example, an unanswered push). Nothing was run; choose Retry sign-in or Test connection to try again.")
+
+
 def _interactive_ssh(profile, command):
     """Render a private runner envelope containing non-secret fields only."""
-    return ["__spacr_interactive_ssh__", json.dumps({"host": profile.host, "options": profile.ssh_options}), command]
+    target = {"host": profile.host, "options": profile.ssh_options}
+    if profile.ssh_keychain:
+        target["keychain"] = True
+    return ["__spacr_interactive_ssh__", json.dumps(target), command]
 
 
 def _remote_argv(profile: ExecutionProfile, argv: Sequence[str]) -> List[str]:

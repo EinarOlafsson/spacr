@@ -46,6 +46,9 @@ from ...remote_execution import (
     RemoteJob,
     RemoteJobManager,
     _discover_ssh_settings,
+    _keychain_account,
+    _keychain_available,
+    _keychain_password,
     _remote_argv,
     _run_command,
 )
@@ -193,6 +196,7 @@ class ExecutionProfileDialog(QDialog):
         self.setMinimumWidth(scaled_px(650))
         self._original_name = profile.name if profile else ""
         self._ssh_options = {}
+        self._loaded_keychain = (profile.host, dict(profile.ssh_options)) if profile is not None and profile.ssh_keychain else None
         self._connection_worker = None
         _ensure_ssh_broker()
         self._build_ui()
@@ -249,8 +253,11 @@ class ExecutionProfileDialog(QDialog):
         discovery = QHBoxLayout()
         self._find_ssh_button = QPushButton(tr("Find my SSH settings"), self)
         self._find_ssh_button.setObjectName("FindSSHSettings")
+        self._find_ssh_button.setToolTip(tr("Reads your SSH config file and the files it includes, the system-wide SSH config, the .ssh folder in your Windows user profile, and known_hosts. Read-only: spaCR never changes SSH files, never reads private keys and never runs ssh -G."))
         self._find_ssh_button.clicked.connect(lambda: self._find_ssh())
         self._choose_ssh_button = QPushButton(tr("Choose folder…"), self)
+        self._choose_ssh_button.setObjectName("ChooseSSHFolder")
+        self._choose_ssh_button.setToolTip(tr("Choose another folder that holds an SSH config or known_hosts file."))
         self._choose_ssh_button.clicked.connect(self._choose_ssh_folder)
         discovery.addWidget(self._find_ssh_button)
         discovery.addWidget(self._choose_ssh_button)
@@ -275,9 +282,25 @@ class ExecutionProfileDialog(QDialog):
         self._ssh_interactive.setObjectName("SSHInteractiveAuthentication")
         self._ssh_interactive.setToolTip(tr("Great Lakes may ask for a Kerberos password and Okta verification. spaCR shows server prompts verbatim and stores no password or OTP."))
         form.addRow(self._ssh_interactive)
+        self._ssh_keychain = QCheckBox(tr("Remember my password in the system keychain"), self)
+        self._ssh_keychain.setObjectName("SSHKeychainPassword")
+        self._ssh_keychain.setChecked(False)
+        self._ssh_keychain.setToolTip(
+            tr("Off by default. Stores only the login password in the operating-system keychain, never one-time codes or push answers.")
+            if _keychain_available() else tr("Install the keyring package to store the password in the system keychain."))
+        self._ssh_interactive.toggled.connect(self._sync_backend)
+        form.addRow(self._ssh_keychain)
+        connection = QHBoxLayout()
         self._test_ssh = QPushButton(tr("Test connection"), self)
+        self._test_ssh.setObjectName("SSHTestConnection")
         self._test_ssh.clicked.connect(self._test_connection)
-        form.addRow(self._test_ssh)
+        self._retry_ssh = QPushButton(tr("Retry sign-in"), self)
+        self._retry_ssh.setObjectName("SSHRetryConnection")
+        self._retry_ssh.clicked.connect(self._test_connection)
+        self._retry_ssh.setVisible(False)
+        connection.addWidget(self._test_ssh)
+        connection.addWidget(self._retry_ssh)
+        form.addRow(connection)
 
         self._workdir = QLineEdit(self)
         self._workdir.setObjectName("ProfileWorkdir")
@@ -483,6 +506,7 @@ class ExecutionProfileDialog(QDialog):
             self._ssh_aliases, self._find_ssh_button, self._ssh_interactive, self._test_ssh,
         ):
             widget.setEnabled(ssh_or_slurm)
+        self._ssh_keychain.setEnabled(ssh_or_slurm and self._ssh_interactive.isChecked() and _keychain_available())
         self._slurm.setEnabled(backend == "slurm")
         for widget in (
             self._submit_command, self._status_command, self._cancel_command,
@@ -503,6 +527,7 @@ class ExecutionProfileDialog(QDialog):
         self._ssh_key.setText(profile.ssh_options.get("identityfile", ""))
         self._ssh_jump.setText(profile.ssh_options.get("proxyjump", ""))
         self._ssh_interactive.setChecked(profile.ssh_interactive)
+        self._ssh_keychain.setChecked(profile.ssh_keychain)
         self._workdir.setText(profile.workdir)
         self._local_root.setText(profile.local_root)
         self._remote_root.setText(profile.remote_root)
@@ -534,6 +559,7 @@ class ExecutionProfileDialog(QDialog):
             poll_seconds=self._poll.value(),
             ssh_options=self._connection_options(),
             ssh_interactive=self._ssh_interactive.isChecked(),
+            ssh_keychain=self._ssh_interactive.isChecked() and self._ssh_keychain.isChecked(),
         ).validate()
 
     def _find_ssh(self, folder=None):
@@ -598,13 +624,15 @@ class ExecutionProfileDialog(QDialog):
             return
         try:
             profile = ExecutionProfile(name="connection-test", backend="slurm" if self._backend.currentData() == "slurm" else "ssh", host=self._host.text(), workdir="/tmp",
-                                       ssh_options=self._connection_options(), ssh_interactive=self._ssh_interactive.isChecked()).validate()
+                                       ssh_options=self._connection_options(), ssh_interactive=self._ssh_interactive.isChecked(),
+                                       ssh_keychain=self._ssh_interactive.isChecked() and self._ssh_keychain.isChecked()).validate()
         except RemoteExecutionError as exc:
             self._error.setText(str(exc))
             return
         self._connection_error = ""
         slurm = self._backend.currentData() == "slurm"
         self._test_ssh.setEnabled(False)
+        self._retry_ssh.setVisible(False)
         self._error.setText(tr("Testing SSH connection…"))
 
         def operation(_settings):
@@ -631,6 +659,8 @@ class ExecutionProfileDialog(QDialog):
     def _connection_finished(self, ok):
         """Report the precise failed stage without retaining secret responses."""
         self._test_ssh.setEnabled(True)
+        failed = bool(self._connection_error) or not ok
+        self._retry_ssh.setVisible(failed)
         self._error.setText(self._connection_error or (tr("SSH connection test passed.") if ok else tr("SSH connection test failed.")))
 
     def _connection_retired(self):
@@ -647,7 +677,17 @@ class ExecutionProfileDialog(QDialog):
             self._error.setText(str(exc))
             return
         self._error.clear()
+        if self._loaded_keychain and not self._ssh_keychain.isChecked():
+            self._forget_password(*self._loaded_keychain)
         self.accept()
+
+    def _forget_password(self, host, options):
+        """Remove a remembered password off the GUI thread once storage is unticked."""
+        try:
+            account = _keychain_account(host, options)
+        except (OSError, RemoteExecutionError):
+            return
+        threading.Thread(target=_keychain_password, args=("delete", account), daemon=True).start()
 
 
 class DistributedJobsScreen(QWidget):

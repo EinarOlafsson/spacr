@@ -139,13 +139,6 @@
     },
     {
       "table": "ui",
-      "key": "SSH authentication was denied. Test the connection to try again.",
-      "source": "SSH authentication was denied. Test the connection to try again.",
-      "source_sha256": "07bacda30fd0f395f1048f71d7e80de511ef5cc8f56ec0946da6d2a34f430197",
-      "translation": "SSH-autentiseringen nekades. Testa anslutningen för att försöka igen."
-    },
-    {
-      "table": "ui",
       "key": "SSH command output exceeded the capture limit.",
       "source": "SSH command output exceeded the capture limit.",
       "source_sha256": "8a8f98733d9940381f14a9dfc2f6385ed2959e02b1d53a8079bf68c7a2d3e7e7",
