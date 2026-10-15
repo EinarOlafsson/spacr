@@ -1,0 +1,26 @@
+{
+  "baseline_source_pin": "1d90f7c921bc4296eab1b02439d2bd8dbc4e1241",
+  "baseline": {
+    "failed": 5,
+    "passed": 17,
+    "seconds": 1.16
+  },
+  "owning": {
+    "passed": 50,
+    "deselected": 19,
+    "seconds": 5.36,
+    "new_coordinate_cases": 22,
+    "legacy_direct_mil_and_label_cases": 28
+  },
+  "guard_source_sha256": "f64ed71c0e49d1f0ec0b1d507c39c0d3495c8291304534f45b46cc3f0a558aa1",
+  "later_locale_callbacks": {
+    "added": 9,
+    "status": "NOT RUN until normal reviewed catalog installation"
+  },
+  "limits": [
+    "Actual direct Pandas/helper inputs, unchanged original frames; no model construction or training.",
+    "50case run preceded addition of only9locale callback cases; tested22coordinate cases unchanged.",
+    "Legacy unknown metadata is not promoted to verified or compatible identity.",
+    "No whole-feature/fullCI or biological acceptance claim."
+  ]
+}
