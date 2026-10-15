@@ -214,3 +214,17 @@ final15affected source scopes retained, not repeated. Original collector and
 API orphan targets, matrix/scientific/wholefeature/fullCI acceptance claims.
 
 2026-10-15 Original Home: minimum image-axis boundary (source component, pending locale closure). Real private synthetic counterexample showed 2D control columns treated as spectral channels and a valid plan accepting a 2D image. Both preparation and application now require at least three dimensions before indexing/copying; explicit C1 and arbitrary leading axes remain valid. Baseline 9 FAIL/8 PASS; candidate 24 PASS (17 new + seven existing). No scientific algorithm/PSF/rank change or real double-stain/biological acceptance claim. Evidence: features/data/538_shape_boundary_2026-10-15/.
+
+2026-10-15 — Minimum image-axis boundary coherent runtime closure.
+The existing owning extractor collects exactly one new canonical diagnostic
+shared by control preparation and plan application. Independent source and
+nine-target technical peers adopted; no native-speaker signoff. Normal nine
+language generation preserves 10,774 unrelated current targets
+each; actual full-nine runtime audit PASS and normal arrivals PASS:
+9833 baseline/1093 added/151 retired/31 changed.
+Only 18 new actual localized guards run after installation: both real
+entrypoints refuse 2D input across nine languages, zero skips, files and
+arrays unchanged. Prior 24 owning tests not repeated. Original collector
+and four source/tool/test file hashes unchanged across ordinary closure.
+No upper dimension limit, scientific algorithm, PSF, biological efficacy,
+whole-feature or final CI acceptance claim.
