@@ -28,6 +28,19 @@ features/data/180_graph_coordinator_readback_2026-10-15/ and the corresponding
 source, catalog and independent-peer directories. Final full CI and release
 remain deferred per maintainer instructions.
 
+## 2026-10-15 — WS → Home: barcode callback GC crash; narrow recorder boundary fix held
+
+Actual12 turn52 a01rc139, cleanup139/survivors[]. host-run.json ABSENT;
+app/recorder-specific codes UNKNOWN. Crashstack reaches GC via Rec.stop
+inside Qt search_updated callback. No finalscience/wholecapture acceptance.
+Held10c39e5de52b59c29f2b9043d7efda6a6280adca callbacksrecord/flagonly;
+ownpoll stops outsideQtstack exactlyonce.26PASS2.70s terminal0+HIGHpeerPASS.
+NoGCdisable/app/gatechange; underlyingPySidecrash NOTconclusivelysolved.
+Exactpatch/log/crash/cleanup: features/data/
+n676_barcode_progress_callback_fix_2026-10-15/.
+Fresh53PREPARED ONLY; root plansonefreshvalidation thenreassess/block ifneeded.
+No12audio/stage/publication/liveSpace claim. Allfatal/prior evidence retained.
+
 ## 2026-10-15 Original Home — Classify public-route source correction
 
 Classify’s explicit APP_STAGE entry now agrees with the existing later stable

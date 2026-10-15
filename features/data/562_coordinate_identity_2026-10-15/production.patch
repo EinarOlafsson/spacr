@@ -1,0 +1,26 @@
+diff --git a/spacr/embeddings.py b/spacr/embeddings.py
+index e2422b74d23..a173cceedd6 100644
+--- a/spacr/embeddings.py
++++ b/spacr/embeddings.py
+@@ -1516,6 +1516,21 @@ def _mil_bags(frame: Any, *, well_column: str = _MIL_WELL_COLUMN,
+         from .qt.i18n import tr
+ 
+         raise ValueError(tr("Multiple-instance feature values must remain finite when converted to float32."))
++    if any(str(column).startswith(EMBEDDING_PREFIX) for column in feature_columns):
++        for column in ("_embedding_fingerprint", "_embedding_weights_sha256"):
++            if column not in kept.columns:
++                continue
++            identities = kept[column].dropna().astype(str).str.strip().drop_duplicates()
++            identities = identities[identities.ne("") & identities.str.casefold().ne("unknown")]
++            if column == "_embedding_weights_sha256":
++                identities = identities[identities.str.fullmatch(r"[0-9a-fA-F]{64}")].str.lower()
++            else:
++                identities = identities.map(
++                    lambda value: value.lower() if re.fullmatch(r"[0-9a-fA-F]{16}", value) else value)
++            if identities.nunique() > 1:
++                from .qt.i18n import tr
++
++                raise ValueError(tr("Selected embedding features have conflicting known encoder fingerprints or weights."))
+     acquisition = [column for column in ('plateID', 'rowID', 'columnID')
+                    if column in kept.columns]
+     for well, group in kept.groupby(well_column, sort=True):
