@@ -1,0 +1,8 @@
+{
+  "status": "ACCEPT",
+  "source_commit": "7e75ee9a182a750161b7ae0b0c11a762d0c72e4c",
+  "source_sha256": "2dd469ce299779f259119aa12f82bff90557e055c2ad70fb8015e2b4c765c94c",
+  "proof": "Restoring exactly one keyPressEvent restores entire original module AST. Existingfocus requirement, signalpayload and accepted Space/Return/Enter path preserved. Only Enter+KeypadModifier alone newly accepted; Ctrl/Alt/Shift/Meta and modifiedSpace/Return refused.",
+  "evidence_reviewed": "Actual3routefailures then26PASS3.13s with nine real route/refusal cases and17existing owning checks. No replay.",
+  "limits": "No new native/reader/otherOS or wholeN655claim; no new caption/API debt."
+}
