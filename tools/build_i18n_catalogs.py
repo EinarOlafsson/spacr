@@ -4111,6 +4111,51 @@ def _indirect_runtime_ui_sources() -> set[str]:
     } | {value for value in animation_captions if value.startswith('spaCR ')}
 
 
+def _web_mask_generator_ui_sources() -> set[str]:
+    """Read explicit web captions without importing the inference service."""
+    directory = ROOT / "tools" / "web_mask_generator"
+    found: set[str] = set()
+    for filename in (
+        "app.py", "detector.py", "examples.py", "inputs.py", "masks.py",
+        "plaque.py", "registry.py", "results.py", "run.py", "service.py",
+    ):
+        path = directory / filename
+        if not path.is_file():
+            continue
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if not (isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Name)
+                    and node.func.id == "tr" and node.args):
+                continue
+            source = _literal(node.args[0])
+            if source is None:
+                continue
+            text = source.strip()
+            heading = (filename == "app.py" and text.startswith("# ")
+                       and _looks_translatable(text[2:]))
+            if _looks_translatable(text) or heading:
+                found.add(text)
+        if filename != "app.py":
+            continue
+        for node in tree.body:
+            if isinstance(node, ast.Assign):
+                targets = node.targets
+            elif isinstance(node, ast.AnnAssign):
+                targets = [node.target]
+            else:
+                continue
+            if not (len(targets) == 1 and isinstance(targets[0], ast.Name)
+                    and targets[0].id == "FAMILY_LABELS"
+                    and isinstance(node.value, ast.Dict)):
+                continue
+            for value in node.value.values:
+                source = _literal(value)
+                if source is not None and _looks_translatable(source):
+                    found.add(source.strip())
+    return found
+
+
 def extract_static_ui_sources() -> tuple[str, ...]:
     """Return literal spaCR-owned Qt presentation strings from the AST."""
     # Compact-catalog ownership is registered lazily by the screens that own
@@ -4344,6 +4389,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     # registry captions, they are explanatory prose and may change with the
     # behavior they document.
     found.update(_indirect_runtime_ui_sources())
+    found.update(_web_mask_generator_ui_sources())
 
     # The compact catalog already owns these and has stronger human review.
     from spacr.qt.i18n import _ROWS, _TERM_ROWS
