@@ -1,0 +1,292 @@
+{
+  "item": "N655",
+  "date": "2026-10-15",
+  "overall_status": "PARTIAL",
+  "audit_kind": "Read-only requirement/source disposition; not new feature completion or a full regression run",
+  "coordinator_source_pin": "2832f76e7b06628a48a4837f9ebd918386ec8433",
+  "clear_control_overlay": "806c8b45670c76adedfd9a2a59221365ff060fe5",
+  "requirements": [
+    {
+      "id": "N655.1",
+      "requirement": "Accessible names on buttons and inputs",
+      "disposition": "implemented_with_recorded_acceptance",
+      "implementation": "The language pass names unnamed native control families while preserving explicit application names and native caption names.",
+      "evidence": [
+        "spacr/qt/i18n.py:_name_for_assistive_tech",
+        "tests/qt/test_accessibility_pass.py"
+      ],
+      "remaining": "The finite lint and custom-control receipts do not prove every possible runtime dialog/state or native reader usability."
+    },
+    {
+      "id": "N655.2",
+      "requirement": "High-contrast theme reachable from the GUI",
+      "disposition": "implemented_with_recorded_acceptance",
+      "implementation": "HIGH_CONTRAST_PALETTE is selectable in Appearance; the Accessibility switch preserves/restores the prior theme.",
+      "evidence": [
+        "spacr/qt/theme.py:HIGH_CONTRAST_PALETTE",
+        "spacr/qt/preferences.py:set_high_contrast",
+        "tests/qt/test_accessibility_pass.py",
+        "tests/qt/test_655_accessibility_preferences.py"
+      ],
+      "remaining": ""
+    },
+    {
+      "id": "N655.3",
+      "requirement": "Automated accessibility lint including item views, Home and Preferences",
+      "disposition": "implemented_with_recorded_acceptance",
+      "implementation": "The registered-screen QAccessible lint and broader item-view/Home/eight-Preferences-tabs tests exist; derived names follow all nine locales plus English.",
+      "evidence": [
+        "tests/qt/test_accessibility_pass.py",
+        "tests/qt/test_accessibility_item_views.py"
+      ],
+      "remaining": "Tests were inspected, not rerun in this disposition; no fresh full-application or cross-platform acceptance claim."
+    },
+    {
+      "id": "N655.4",
+      "requirement": "Tab traversal and documented Accessibility controls",
+      "disposition": "implemented_with_recorded_acceptance",
+      "implementation": "Text/table traversal, High contrast, mirrored text size, Reduce motion and shortcut-editor access have source and owning tests. Specific toggle/model-card/figure-grid/montage/clear repairs have separate receipts.",
+      "evidence": [
+        "spacr/qt/i18n.py:_keep_tab_moving_focus",
+        "spacr/qt/preferences.py:PreferencesDialog",
+        "tests/qt/test_655_accessibility_preferences.py",
+        "features/data/655_final_integration_f7b358_2026-10-14/receipt.json"
+      ],
+      "remaining": "The strong-focus custom-control scope is tracked separately as N655.5."
+    },
+    {
+      "id": "N655.5",
+      "requirement": "Stronger focus outlines follow the requested width/color policy",
+      "disposition": "source_gap_pending_rendered_reproduction",
+      "implementation": "Existing focus_ring_qss specifies a three-pixel contrast-checked ring for native button/input/item-view selectors. Custom figure/crop/clear controls paint fixed rings and do not consume strong_focus.",
+      "evidence": [
+        "spacr/qt/theme.py:focus_ring_qss",
+        "spacr/qt/widgets/figure_grid_view.py:_FigureCell",
+        "spacr/qt/widgets/cell_montage_view.py:_Thumb",
+        "spacr/qt/widgets/figure_queue.py:_ClearFiguresLabel"
+      ],
+      "remaining": "Coordinator approved a bounded actual-pixel before/after check and repair across these three owned controls. No failure is asserted until reproduced."
+    },
+    {
+      "id": "N655.6",
+      "requirement": "User guide, ten Accessibility captions and fifteen API arrivals",
+      "disposition": "implemented_with_recorded_acceptance",
+      "implementation": "The guide Accessibility paragraph exists. The existing source-bound reconciliation records 90 caption/locale, 135 API/locale and 297 reviewed-block checks.",
+      "evidence": [
+        "docs/source/features.rst:Accessibility",
+        "features/data/655_caption_api_reconciliation_2026-10-14/receipt.json"
+      ],
+      "remaining": "This is historical implementation evidence, not new translation work, a fresh catalog rebuild or native-speaker signoff."
+    },
+    {
+      "id": "N655.7",
+      "requirement": "Linux external accessibility bridge and reader-generated focus/help/state text",
+      "disposition": "bounded_prior_native_acceptance",
+      "implementation": "The integration receipt records actual external AT-SPI and Orca over 1415 nodes, with successful external focus/action/state and generated High contrast utterances.",
+      "evidence": [
+        "features/data/655_final_integration_f7b358_2026-10-14/receipt.json"
+      ],
+      "remaining": "That receipt is pinned to f7b35846aa, not a fresh replay of every current dependency. Audio was disabled; generated text is not audible delivery or human usability."
+    },
+    {
+      "id": "N655.8",
+      "requirement": "Audible screen-reader output and human usability",
+      "disposition": "external_acceptance_open",
+      "implementation": "Previous isolated Orca checks intentionally disabled speech/braille output.",
+      "evidence": [
+        "features/data/655_orca_speech_generation_2026-10-14/receipt.json"
+      ],
+      "remaining": "Requires explicit real-reader audible/user acceptance. No live desktop/audio or user preferences are changed by this audit."
+    },
+    {
+      "id": "N655.9",
+      "requirement": "Actual macOS and Windows accessibility behavior",
+      "disposition": "external_platform_acceptance_open",
+      "implementation": "The available source-bound native receipts are Linux-only.",
+      "evidence": [
+        "features/data/655_final_integration_f7b358_2026-10-14/receipt.json"
+      ],
+      "remaining": "Requires actual macOS/Windows GUI and accessibility-client checks. Offscreen Linux and inferred portability cannot close it."
+    },
+    {
+      "id": "N655.10",
+      "requirement": "Appearance tutorial refresh for the current Accessibility layout",
+      "disposition": "work_owned_acceptance_open",
+      "implementation": "The dated item notes assign Appearance tutorial recording to the Work session.",
+      "evidence": [
+        "features/new/655_accessibility_pass.txt:2026-10-12"
+      ],
+      "remaining": "Work owns fresh recording, translations, publication and published acceptance. Home-B does not edit tutorial recordings or claim completion without its receipt."
+    }
+  ],
+  "source_bindings": [
+    {
+      "path": "features/new/655_accessibility_pass.txt",
+      "commit": "2832f76e7b06628a48a4837f9ebd918386ec8433",
+      "sha256": "61c726c9c885d0c495b9835a405c439cf7cb95d9b46905e072ee924aa80bd18f"
+    },
+    {
+      "path": "spacr/qt/i18n.py",
+      "commit": "2832f76e7b06628a48a4837f9ebd918386ec8433",
+      "sha256": "f9416268933e1d763279e2755e7317a48fd494630288d87b89a66e1ed080d754"
+    },
+    {
+      "path": "spacr/qt/theme.py",
+      "commit": "2832f76e7b06628a48a4837f9ebd918386ec8433",
+      "sha256": "6abc42c1007e988cad98a7d0f882fb0cf8d22db613225554c68725135b63d77a"
+    },
+    {
+      "path": "spacr/qt/preferences.py",
+      "commit": "2832f76e7b06628a48a4837f9ebd918386ec8433",
+      "sha256": "a8e4fae4717fe00289237ef18e9d4d2d5baea8c2e8a0ebd20d417fb538ad26a1"
+    },
+    {
+      "path": "spacr/qt/widgets/ambient.py",
+      "commit": "2832f76e7b06628a48a4837f9ebd918386ec8433",
+      "sha256": "599043a6e6da7e68f972b904fd638f59c947f826feb68e6eadb1a93aebab5c40"
+    },
+    {
+      "path": "spacr/qt/widgets/dna_rain.py",
+      "commit": "2832f76e7b06628a48a4837f9ebd918386ec8433",
+      "sha256": "9c004a1df364b870cfff8cafa9a8cc7ad4d7f0815b5afe4b61e1bc9d63fe1a4c"
+    },
+    {
+      "path": "spacr/qt/widgets/toggle.py",
+      "commit": "2832f76e7b06628a48a4837f9ebd918386ec8433",
+      "sha256": "9a65efd2bf7d7e24350f4135a064a4ab3cf13b1dcd26e66e00b46f4a8cd458db"
+    },
+    {
+      "path": "spacr/qt/widgets/figure_grid_view.py",
+      "commit": "2832f76e7b06628a48a4837f9ebd918386ec8433",
+      "sha256": "a5e2a009cc39b182a4e3ab191a5b9581465c5d25aa3859c015d7e7e521a6aaaa"
+    },
+    {
+      "path": "spacr/qt/widgets/cell_montage_view.py",
+      "commit": "2832f76e7b06628a48a4837f9ebd918386ec8433",
+      "sha256": "22d745ed829974b7c952b4c07e4d91507c8dbaeb51bd7b8133e495d8624a60f7"
+    },
+    {
+      "path": "spacr/qt/widgets/figure_queue.py",
+      "commit": "806c8b45670c76adedfd9a2a59221365ff060fe5",
+      "sha256": "fa0d2e805b2811dfd94a04517f8cb91e4f521da076f29fe1df2b0efad864fafd"
+    },
+    {
+      "path": "tests/qt/test_accessibility_pass.py",
+      "commit": "2832f76e7b06628a48a4837f9ebd918386ec8433",
+      "sha256": "039947bb2c5421e8721cb1b8a05d3471a0b26b674c70c497bbddf2cb2c367503"
+    },
+    {
+      "path": "tests/qt/test_accessibility_item_views.py",
+      "commit": "2832f76e7b06628a48a4837f9ebd918386ec8433",
+      "sha256": "c22eaece5c278729ae851cd1c260b973cc9be93d7703645f45ea20a20608fecb"
+    },
+    {
+      "path": "tests/qt/test_655_accessibility_preferences.py",
+      "commit": "2832f76e7b06628a48a4837f9ebd918386ec8433",
+      "sha256": "b04fd4ca9189ca76ed3f16e94a9d17a21ce478c7d6c6e034a155060e8c99d40c"
+    },
+    {
+      "path": "docs/source/features.rst",
+      "commit": "2832f76e7b06628a48a4837f9ebd918386ec8433",
+      "sha256": "7047ca39048fc2d58bf1ec54fe7ab18a95fed4f120e2a77cb0701c99eee42422"
+    },
+    {
+      "path": "features/data/655_caption_api_reconciliation_2026-10-14/receipt.json",
+      "commit": "2832f76e7b06628a48a4837f9ebd918386ec8433",
+      "sha256": "54fa938af731cf745320238a3a2fa3106cddb833c24c7c633a25fb37b363e241"
+    },
+    {
+      "path": "features/data/655_final_integration_f7b358_2026-10-14/receipt.json",
+      "commit": "2832f76e7b06628a48a4837f9ebd918386ec8433",
+      "sha256": "a2459a437ece5306b77d4035d65e78e7e46a1a7665c27ef370d523f901af9961"
+    }
+  ],
+  "symbol_bindings": [
+    {
+      "path": "spacr/qt/i18n.py",
+      "symbol": "_a11y_interactive_types",
+      "line": 4110,
+      "sha256": "10afbc08fa8e0e599c7bf5963566ccc3de87ed36091d384f0ba2b52fa97904ff"
+    },
+    {
+      "path": "spacr/qt/i18n.py",
+      "symbol": "_name_for_assistive_tech",
+      "line": 4303,
+      "sha256": "b637f1dac9a2c5bc8cc2a0fdcffbb34dce355a4e3c54b98422d6968c8259d168"
+    },
+    {
+      "path": "spacr/qt/i18n.py",
+      "symbol": "_keep_tab_moving_focus",
+      "line": 4282,
+      "sha256": "9ec4588cf412c94f02cd06051d5448f8e0efd7fccf5451d67e282f0059802a57"
+    },
+    {
+      "path": "spacr/qt/i18n.py",
+      "symbol": "retranslate_widget_tree",
+      "line": 4372,
+      "sha256": "82a3cfdb7a31c12f2d669eb34265ed13b015cdd5706cd5639c4c9315f4dd2bf8"
+    },
+    {
+      "path": "spacr/qt/theme.py",
+      "symbol": "focus_ring_colour",
+      "line": 3070,
+      "sha256": "bc5f52dcbdee0915da07d9d36dcfa90ee1466f8b4a5e463f89e216d1bb97fded"
+    },
+    {
+      "path": "spacr/qt/theme.py",
+      "symbol": "focus_ring_qss",
+      "line": 3088,
+      "sha256": "861652851e3bad5f9b5e8c960b417c95f4f8a1cf40af9fa662d788ecb1dc3cbd"
+    },
+    {
+      "path": "spacr/qt/preferences.py",
+      "symbol": "get_high_contrast",
+      "line": 5176,
+      "sha256": "171895a4434dd4f20304bd861ead9f2319d6a2f4c2f9d56bddda601f78c0dd07"
+    },
+    {
+      "path": "spacr/qt/preferences.py",
+      "symbol": "set_high_contrast",
+      "line": 5216,
+      "sha256": "b0495c0e9ff9aaaffae47e7ca8165625ed1e20ad4a011dd7d80a29d4836cf1e9"
+    },
+    {
+      "path": "spacr/qt/preferences.py",
+      "symbol": "get_reduce_motion",
+      "line": 5237,
+      "sha256": "ce2635ecaed429804b2e90d2f56775b5a1cb0442f8b8165d2ba900e433c1b16a"
+    },
+    {
+      "path": "spacr/qt/preferences.py",
+      "symbol": "set_reduce_motion",
+      "line": 5306,
+      "sha256": "e5c0e45a117c4d802fe462195c10d9220eccd37a42278d0e094f28dc880f9f59"
+    },
+    {
+      "path": "spacr/qt/preferences.py",
+      "symbol": "get_strong_focus",
+      "line": 5378,
+      "sha256": "46fc457c28a642925f0e2d3717a953f7ac324fea4e7fdaf55fbda50ff66e52f1"
+    },
+    {
+      "path": "spacr/qt/preferences.py",
+      "symbol": "set_strong_focus",
+      "line": 5386,
+      "sha256": "91d8cd469a022552d0684b728c9ef195c4fe0e52c0ca936f4e06080ecbb98919"
+    }
+  ],
+  "open_local_implementation_followups": [
+    "N655.5"
+  ],
+  "open_external_or_work_gates": [
+    "N655.8",
+    "N655.9",
+    "N655.10"
+  ],
+  "limits": [
+    "Historical WHAT IS LEFT bullets are interpreted with later dated notes, not treated as new unimplemented work.",
+    "No historical pass count is rebranded as new work.",
+    "Source/AST presence is not runtime or native-platform acceptance.",
+    "Only the explicitly documented strong-focus scope is scheduled next; no arbitrary additional cosmetic-control inventory."
+  ]
+}

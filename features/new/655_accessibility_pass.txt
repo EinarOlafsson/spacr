@@ -328,3 +328,19 @@ WHAT IS LEFT
   pass. This closes the identified explicit preference inconsistency, not
   every possible custom control or the remaining external N655 gates.
   Proof: data/655_custom_strong_focus_2026-10-15/receipt.json.
+
+2026-10-15 — Home-B final requirement disposition after the custom-focus fix
+  Bound all eighteen source/test/guide/evidence files to actual delivery
+  727664dbcb on integrated nightly 57ba9006396. Preserved the earlier 2832
+  disposition as historical evidence. All twelve scoped N655 implementation
+  symbols remain byte-for-byte unchanged. The full Preferences file also
+  matches its prior hash; the N644 callback is already present at both pins.
+  Recorded full-file changes are the three owned controls and item notes.
+  The identified stronger-focus follow-up is now closed by the separate
+  68-case rendered/control acceptance. Ten explicit requirements are mapped;
+  no known local follow-up from this bounded disposition remains. This is not
+  a new whole-application lint, catalog or native replay, and previous receipts
+  retain their source pins. Human/audible, actual macOS/Windows and Work's
+  Appearance tutorial gates remain open; whole N655 remains PARTIAL.
+  Proof: data/655_requirement_disposition_2026-10-15/receipt.json, with the
+  original prior-disposition.json and a read-only pinned-source verifier.
