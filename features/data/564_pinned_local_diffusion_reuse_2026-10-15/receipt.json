@@ -2,10 +2,11 @@
   "status": "Private backend implementation; not published or whole-feature complete",
   "base": "20a4313bcd9d58bc9267c1b80d3b51c02206635d",
   "source_sha256": {
-    "spacr/attribution.py": "bd263b9364f46b8663a7b6dfb817d514d7748d4bda77c76145bbf6f3895ed278",
+    "spacr/attribution.py": "108d9bd05a7fbfa09d73ec5cd7c18062c772c17cc97c46a10410e10f39e3804c",
     "spacr/deep_spacr.py": "920cfff243175833e7a1234e327b56ed2c5da792897bfb7559764666e24bf950",
     "tests/test_f564_pinned_diffusion_reuse.py": "fecba0642fe33249886bfeac106f2eb4cff062c35d86970f4c6cf4ce9ef33f72",
-    "tests/test_f564_pinned_diffusion_locales.py": "321f37ed24f9644015c9faa8067a3f7b6abc390eeb99ff96c282633ffd446bff"
+    "tests/test_f564_pinned_diffusion_locales.py": "321f37ed24f9644015c9faa8067a3f7b6abc390eeb99ff96c282633ffd446bff",
+    "tests/test_f564_checkpoint_file_boundaries.py": "81cbdadc88b1c809cba54316ab1fd20f71d239b9e47d34411deae5b23258c9f1"
   },
   "validation": [
     {
@@ -32,6 +33,12 @@
       "scope": "Final complete descriptor/NCHW refusal, factored held-FD SHA roundtrip/file-change/reuse and unchanged legacy-default route",
       "result": "16PASS4.20s,26deselected",
       "limit": "Only affected/new controls; actual tiny1epoch CPU fit for fixture, no quality evidence."
+    },
+    {
+      "scope": "POSIX FIFO refusal without writer, bounded appended-stream hash, actual existing-U-Net roundtrip and in-place file change",
+      "baseline": "2FAIL10.60s: FIFO bounded child killed safely, growing hash exceeded8byte injected budget",
+      "final": "4PASS6.00s,40deselected",
+      "limits": "POSIX FIFO only, not nativeWindows acceptance. Hash test injects tiny shared budget; production512MiB default pinned in source. One existing tiny CPU1epoch fit fixture; no biological evidence."
     }
   ],
   "execution": "BlankCUDA/offscreen, Original CI lock, run_capped6G, OMP/BLAS1. First two setup failures archived; no tests ran in those attempts.",
@@ -43,5 +50,6 @@
     "Existing pixel-space U-Net reuse is not a larger latent-diffusion architecture; no architecture/quality claim."
   ],
   "safety": "No fallback trainer for selected checkpoint; weights_only CPU ZIP/load pin; no download/GPU/protected jobs; no torch_artifacts changes. Training provenance is declared metadata, not authenticated independent pretraining.",
-  "api_visibility_correction": "Original private-top-level-only proof missed enabled nested fingerprint. Factored SHA loop to documented private top-level; actual normal scoped inventory now21 entries/prose/signatures equal plus public/module docs equal, exact source-bound receipt retained. No new API target."
+  "api_visibility_correction": "Original private-top-level-only proof missed enabled nested fingerprint. Factored SHA loop to documented private top-level; actual normal scoped inventory now21 entries/prose/signatures equal plus public/module docs equal, exact source-bound receipt retained. No new API target.",
+  "file_boundary_correction": "OS nonblocking opener when platform supports it, same held FD fstat, source stat/archive/hash all share512MiB limit, read at most limit+1 byte then translated refusal. No source data modifications or unsafe fallback."
 }

@@ -1,11 +1,14 @@
 diff --git a/spacr/attribution.py b/spacr/attribution.py
-index 2bdc93e970..eee4f5f6fe 100644
+index 2bdc93e970..b5bfa79a93 100644
 --- a/spacr/attribution.py
 +++ b/spacr/attribution.py
-@@ -3412,6 +3412,216 @@ def _cf_target_index(target: Any, levels: Sequence[str], n_classes: int) -> int:
+@@ -3412,6 +3412,228 @@ def _cf_target_index(target: Any, levels: Sequence[str], n_classes: int) -> int:
      return index
  
  
++_CF_CHECKPOINT_MAX_BYTES = 512 * 1024 ** 2
++
++
 +def _cf_checkpoint_error():
 +    """Return the localized refusal for an unverified or incompatible reuse."""
 +    from .qt.i18n import tr
@@ -96,7 +99,7 @@ index 2bdc93e970..eee4f5f6fe 100644
 +
 +
 +def _cf_checkpoint_sha256(handle):
-+    """Stream SHA256 from the same held descriptor, positioned from its start.
++    """Stream bounded SHA256 from the same descriptor, positioned from its start.
 +
 +    :param handle: seekable binary checkpoint handle; never reopened by path.
 +    :returns: hexadecimal digest; leaves the handle at EOF.
@@ -104,7 +107,14 @@ index 2bdc93e970..eee4f5f6fe 100644
 +    import hashlib
 +    handle.seek(0)
 +    digest = hashlib.sha256()
-+    for block in iter(lambda: handle.read(1024 * 1024), b''):
++    total = 0
++    while True:
++        block = handle.read(min(1024 * 1024, _CF_CHECKPOINT_MAX_BYTES - total + 1))
++        if not block:
++            break
++        total += len(block)
++        if total > _CF_CHECKPOINT_MAX_BYTES:
++            raise _cf_checkpoint_error()
 +        digest.update(block)
 +    return digest.hexdigest()
 +
@@ -129,9 +139,11 @@ index 2bdc93e970..eee4f5f6fe 100644
 +        if not isinstance(expected_sha256, str) or not re.fullmatch(
 +                '[0-9a-fA-F]{64}', expected_sha256):
 +            raise _cf_checkpoint_error()
-+        with open(path, 'rb') as handle:
++        path = os.fspath(path)
++        with open(path, 'rb', opener=lambda selected, flags: os.open(
++                selected, flags | getattr(os, 'O_NONBLOCK', 0))) as handle:
 +            before = os.fstat(handle.fileno())
-+            if not stat.S_ISREG(before.st_mode) or not 0 < before.st_size <= 512 * 1024 ** 2:
++            if not stat.S_ISREG(before.st_mode) or not 0 < before.st_size <= _CF_CHECKPOINT_MAX_BYTES:
 +                raise _cf_checkpoint_error()
 +            sha = _cf_checkpoint_sha256(handle)
 +            if sha != expected_sha256.lower():
@@ -140,7 +152,7 @@ index 2bdc93e970..eee4f5f6fe 100644
 +            with zipfile.ZipFile(handle) as archive:
 +                entries = archive.infolist()
 +                if (len(entries) > 4096
-+                        or sum(entry.file_size for entry in entries) > 512 * 1024 ** 2
++                        or sum(entry.file_size for entry in entries) > _CF_CHECKPOINT_MAX_BYTES
 +                        or any(entry.compress_type != zipfile.ZIP_STORED for entry in entries)):
 +                    raise _cf_checkpoint_error()
 +            handle.seek(0)
@@ -219,7 +231,7 @@ index 2bdc93e970..eee4f5f6fe 100644
  def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
                             names: Optional[Sequence[str]] = None,
                             epochs: int = 30, steps: int = 7,
-@@ -3421,11 +3631,17 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
+@@ -3421,11 +3643,17 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
                             conditions: Optional[Sequence[str]] = None,
                             target: Any = None, generator: str = 'autoencoder',
                             generator_options: Optional[Dict[str, Any]] = None,
@@ -242,7 +254,7 @@ index 2bdc93e970..eee4f5f6fe 100644
      toward the other class and scored. The summary reports the held-out flip
      rate, how often the classifier's target score rises monotonically along
      the sequence and its mean Spearman correlation with the step, the edit
-@@ -3465,6 +3681,11 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
+@@ -3465,6 +3693,11 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
          No training objective or scientific identity claim is implied.
      :param generator_options: extra keyword arguments for the generator's
          trainer, for example ``width`` or ``strength`` for diffusion.
@@ -254,7 +266,7 @@ index 2bdc93e970..eee4f5f6fe 100644
      :returns: ``(summary, rows, frames)``: a dict of summary metrics, the
          held-out rows of ``_counterfactual_sequences`` and their frames.
      :raises ValueError: for fewer than four crops, fewer than two
-@@ -3472,6 +3693,9 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
+@@ -3472,6 +3705,9 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
          or training condition, or no held-out crop outside the target.
      """
      crops = torch.as_tensor(crops).float()
@@ -264,7 +276,7 @@ index 2bdc93e970..eee4f5f6fe 100644
      if preserve_channels is not None and crops.ndim != 4:
          from .qt.i18n import tr
          raise ValueError(tr("Reference preservation requires NCHW crop tensors."))
-@@ -3487,6 +3711,34 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
+@@ -3487,6 +3723,34 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
      test_idx, train_idx = order[:n_test], order[n_test:]
      codes = {'labels': None, 'target_probs': None}
      levels: List[str] = []
@@ -299,7 +311,7 @@ index 2bdc93e970..eee4f5f6fe 100644
      if conditions is not None:
          conditions = [str(c) for c in conditions]
          levels = sorted({conditions[i] for i in train_idx.tolist()})
-@@ -3521,10 +3773,13 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
+@@ -3521,10 +3785,13 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
                           f'{list(COUNTERFACTUAL_GENERATORS)}')
      trainer = (_train_counterfactual_diffusion if kind == 'diffusion'
                 else _train_counterfactual_generator)
@@ -317,7 +329,7 @@ index 2bdc93e970..eee4f5f6fe 100644
      goals = None if goal is None else [goal] * len(test_idx)
      finals: list = []
      rows, frames = _counterfactual_sequences(
-@@ -3549,7 +3804,7 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
+@@ -3549,7 +3816,7 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
      spear = np.array([r['spearman'] for r in rows], dtype=float)
      summary = {
          'train_crops': int(len(train_idx)), 'heldout_crops': int(len(test_idx)),
@@ -326,7 +338,7 @@ index 2bdc93e970..eee4f5f6fe 100644
          'reconstruction_mse': history[-1]['reconstruction'] if history else float('nan'),
          'flip_rate': float(np.mean([r['flipped'] for r in rows])),
          'monotone_fraction': float(np.mean([r['monotone'] for r in rows])),
-@@ -3562,15 +3817,22 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
+@@ -3562,15 +3829,22 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
          'generator': kind,
          'realism_fd': realism, 'realism_fd_unedited': realism_source,
      }
@@ -352,7 +364,7 @@ index 2bdc93e970..eee4f5f6fe 100644
                          'config': {'channels': generator.channels,
                                     'side': generator.side,
                                     'n_classes': generator.n_classes,
-@@ -3581,8 +3843,29 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
+@@ -3581,8 +3855,29 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
                                     'guidance_scale': generator.guidance_scale,
                                     **({'structure_weight': generator.structure_weight}
                                        if generator.structure_weight else {})},

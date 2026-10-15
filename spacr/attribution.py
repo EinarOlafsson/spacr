@@ -3412,6 +3412,9 @@ def _cf_target_index(target: Any, levels: Sequence[str], n_classes: int) -> int:
     return index
 
 
+_CF_CHECKPOINT_MAX_BYTES = 512 * 1024 ** 2
+
+
 def _cf_checkpoint_error():
     """Return the localized refusal for an unverified or incompatible reuse."""
     from .qt.i18n import tr
@@ -3502,7 +3505,7 @@ def _cf_input_contract(model, crops, description, levels):
 
 
 def _cf_checkpoint_sha256(handle):
-    """Stream SHA256 from the same held descriptor, positioned from its start.
+    """Stream bounded SHA256 from the same descriptor, positioned from its start.
 
     :param handle: seekable binary checkpoint handle; never reopened by path.
     :returns: hexadecimal digest; leaves the handle at EOF.
@@ -3510,7 +3513,14 @@ def _cf_checkpoint_sha256(handle):
     import hashlib
     handle.seek(0)
     digest = hashlib.sha256()
-    for block in iter(lambda: handle.read(1024 * 1024), b''):
+    total = 0
+    while True:
+        block = handle.read(min(1024 * 1024, _CF_CHECKPOINT_MAX_BYTES - total + 1))
+        if not block:
+            break
+        total += len(block)
+        if total > _CF_CHECKPOINT_MAX_BYTES:
+            raise _cf_checkpoint_error()
         digest.update(block)
     return digest.hexdigest()
 
@@ -3535,9 +3545,11 @@ def _cf_load_checkpoint(path, expected_sha256, contract):
         if not isinstance(expected_sha256, str) or not re.fullmatch(
                 '[0-9a-fA-F]{64}', expected_sha256):
             raise _cf_checkpoint_error()
-        with open(path, 'rb') as handle:
+        path = os.fspath(path)
+        with open(path, 'rb', opener=lambda selected, flags: os.open(
+                selected, flags | getattr(os, 'O_NONBLOCK', 0))) as handle:
             before = os.fstat(handle.fileno())
-            if not stat.S_ISREG(before.st_mode) or not 0 < before.st_size <= 512 * 1024 ** 2:
+            if not stat.S_ISREG(before.st_mode) or not 0 < before.st_size <= _CF_CHECKPOINT_MAX_BYTES:
                 raise _cf_checkpoint_error()
             sha = _cf_checkpoint_sha256(handle)
             if sha != expected_sha256.lower():
@@ -3546,7 +3558,7 @@ def _cf_load_checkpoint(path, expected_sha256, contract):
             with zipfile.ZipFile(handle) as archive:
                 entries = archive.infolist()
                 if (len(entries) > 4096
-                        or sum(entry.file_size for entry in entries) > 512 * 1024 ** 2
+                        or sum(entry.file_size for entry in entries) > _CF_CHECKPOINT_MAX_BYTES
                         or any(entry.compress_type != zipfile.ZIP_STORED for entry in entries)):
                     raise _cf_checkpoint_error()
             handle.seek(0)
