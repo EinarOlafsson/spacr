@@ -1,0 +1,14 @@
+{
+  "tests/qt/test_fold_strip_uncovered_paths.py": {
+    "old_sha256": "d13c1205b9605ea2463e99f468284290939c73ec4fc8eee2dd6efb4966d18c1b",
+    "new_sha256": "aa908dbf48a6643f5701b4af20ca65b1456cb513f2010a802daece18608bfadb",
+    "only_changed_executable_body": "test_the_registry_answers_a_folded_button_with_name_sentence_and_stage",
+    "all_other_AST_signatures_decorators_identical": true
+  },
+  "tests/qt/test_cov_wf_qt_app.py": {
+    "old_sha256": "36776be2e268771c0b7908ba23b3d3a033800f0c862c054b92929d3fba1df879",
+    "new_sha256": "2218d6ca1fa05221470101f0dfc2eaf1b05d6df5384d7201b5d009806e111be3",
+    "only_changed_executable_body": "test_a_theme_refresh_skips_screens_that_cannot_hide_immature_apps",
+    "all_other_AST_signatures_decorators_identical": true
+  }
+}
