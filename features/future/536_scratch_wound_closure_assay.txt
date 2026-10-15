@@ -374,3 +374,14 @@ tooltip default-claim census 899 -> 901; flow page, consumer map, API
 targets, Help index and the 02 notebook regenerated.
 
 VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_measure_wound_preview.py, test_scratch_wound_closure.py pass.
+
+2026-10-15 — Strict wound-plane indices (partial correctness component):
+Actual _wound_plane now refuses negative, fractional, nonfinite, Boolean,
+complex, nonscalar and out-of-range indices before pixel selection, including
+mask dimensions and the saved default channel. Integral saved strings and
+Python/NumPy scalars retain exact selection; source arrays remain unchanged.
+Final-source owning index cohort: 63 PASS, 33 deselected, 3.12 s, exit 0.
+Nine source-bound technical translation review inputs pass normal candidate
+gates; owner extraction and actual runtime publication remain separate.
+Receipt: features/data/536_plane_indices_2026-10-15/. Existing alpha gating
+retained. This does not resolve the assay accuracy limits recorded above.
