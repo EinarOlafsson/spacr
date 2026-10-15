@@ -111,3 +111,29 @@ callable inventory in test_docstring_correctness already counted 10,039
 against 10,026, the 685 contract pins an old is_spacr_owned docstring, and
 build_i18n_catalogs/build_documentation_i18n tests stop on stale reviewed
 runtime sources (N678).
+
+2026-10-15 — Current-source completion reconciliation (Original Home).
+The six runtime captions left pending on2026-10-11 now have all54 exact
+source-bound reviewed and compiled targets across nine locales. The four
+public MitoNet API symbols have current English/source/block/context pins;
+one remaining copied-English Portuguese cache/Zenodo paragraph was found,
+independently technically reviewed, and repaired through the ordinary
+reviewed overlay and scoped API writer. The ordinary selected API audit
+passes (one Portuguese symbol, actual normal runtime context; subset only).
+All nine other paragraphs in that symbol,13,439 foreign Portuguese symbols,
+English/eight other locale catalogs, current sources and runtime catalogs
+are preserved. No model or scientific result was rerun.
+
+The original alpha contract is supported by existing hosted8backend/4Qt
+owning passes on unchanged relevant ASTs and the original raw CPU evaluation
+of ten spacr-example-tem fields: TP142/FP8/FN53/F1.823/Dice.842. The five
+inference/postprocessing functions still match original implementation
+6a1dad exactly. Tiled512F1.844 remains a separate recorded result. This is
+historical source-bound evidence, not a new dataset/model certification.
+The original third-party row/licences/citation, verified cached weights,
+Make Masks method and literal alpha gates remain. The deliberate omissions
+(full/quantized variants, fine-tuning, multi-class and3D) remain unchanged;
+N690 tutorial work is separate and was not an original N691 completion gate.
+Evidence: features/data/691_current_whole_item_reconciliation_2026-10-15/.
+
+Original Home independent review: COMPLETE original alpha item. Exact current SourceStrip N440 localization additions reviewed separately; no MitoNet gate behavior changed. No full CI or new model evaluation is implied.
