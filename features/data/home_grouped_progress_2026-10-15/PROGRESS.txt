@@ -1,12 +1,11 @@
 CURRENT ORIGINAL HOME PROGRESS — 2026-10-15
 
-One row per numbered item. Percentages/hours are estimates; external durations
-may be unknown. Green ticks mean whole original item contracts are accepted.
-The first three items have current-source closeout receipts published today.
-Reprint the full chat table only on whole-item completion.
+One row per numbered item. Hours are estimates; unknown external durations remain explicit.
+Green ticks indicate whole original contracts accepted.
 
 | Item | Percent done | Time left (hours) | Owner | Detailed description |
 |---|---|---|---|---|
+| N691 — mitonet tem backend alpha | ✅ | 0 | Easy / Home | Complete (alpha): MitoNet backend, verified cache, licensing, original TEM F1 reproduction and nine-language closure. |
 | N511 — filters are any regionprop the user adds | ✅ | 0 | CI / Home | Complete: arbitrary scalar filters, provenance and exact removal restoration; twelve-key catalog retirement verified. |
 | F556 — sam2 timelapse propagation | ✅ | 0 | Easy / Home | Complete (alpha): propagation workflow, real-movie baseline comparisons and current nine-language/runtime/API closure. |
 | N692 — three d mask drawing and a fib sem example | ✅ | 0 | CI / Home | Complete: 3D drawing/save/load, protected published FIB-SEM sample and current translations; original contract accepted. |
@@ -82,5 +81,4 @@ Reprint the full chat table only on whole-item completion.
 | N675 — conda forge update to latest spacr release | 90% | 1–3 + review | Home / assigned owner | Publish existing correction via authorized external owner, normal PR checks/review/feedstock merge/package release, then clean current-channel install. No duplicate patch/build; no account/PR mutation in this audit. |
 | N685 — make masks curation controls and alpha vvvv export | 95% | Unknown | Home / assigned owner | Sixparts and real vvvv7.4.1 Wine project/runtime/PDF/liveupdate recorded. Native Windows on-screen renderer/readback remains explicitly the maintainer check; Wine window black even for native example, so native pixel acceptance cannot be asserted. |
 | N690 — make masks for tem images | 95% | 1–3 | Home / assigned owner | TEM readers/contrast/sample workflow built. Item still records nine-language generated runtime/API artifacts blocked at its oldsource boundary and a non-alpha tutorial needed; reconcile current catalogs rather than claiming the historicalN678failure still exists today. |
-| N691 — mitonet tem backend alpha | 95% | 1–3 | Home / assigned owner | Actual MitoNet CPU/tiled evidence andalpha UI built. Sixnew runtime strings and current API/runtime artifact closure remain recorded pending in item; oldN678/globalinventory failures are historical, not rerun/current failures. |
 | N693 — export settings from every form | ✅ | 0 | Home / assigned owner | Do not invent transactional-pair requirement absent original acceptance. Native ACL/xattr/power-loss/external-writer semantics remain honest limitations. |

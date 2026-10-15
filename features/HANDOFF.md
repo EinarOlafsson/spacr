@@ -14027,3 +14027,7 @@ migration remain open. No service/history mutation or storage-saving claim.
 Maintainer's new16-item order now governs work: CI/updater test repairs,
 scorecard tooling and deployment dependencies take precedence; newF580/F561/
 F564 UI requests are preserved but held behind that order.
+
+## 2026-10-15 — Original N691 whole alpha contract completed
+
+Independent original-contract/source/history review accepts MitoNet backend, licensing/alpha UI, verified cache, original ten-field F1 reproduction and nine-locale runtime/API obligations. Final Portuguese paragraph repaired through normal scoped writer and selected audit. No new science/full-CI claim. Whole-item tracker updated; evidence in 691_current_whole_item_reconciliation_2026-10-15.
