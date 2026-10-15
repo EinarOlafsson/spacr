@@ -11,5 +11,10 @@
     "08f8f1a5c0 F564 exact diagnostic selector and two tests; Original to adopt with backend/settings45target closure"
   ],
   "reason": "Avoid publishing new real extraction identities without their accepted coherent runtime catalogs, while publishing independently completed source immediately. No source packet or evidence discarded.",
-  "no_generator_or_catalog_write": true
+  "no_generator_or_catalog_write": true,
+  "later_integration": {
+    "incoming_public": "67de758e4590c3d037e9df6fb885c21d5975e3e7",
+    "N440_N421_owner": "Normal merged with accepted runtime artifacts; selectors present and source/API preservation receipts retained. No artifact hand merge or generation.",
+    "remaining_owner": "F56408f exact selector/tests remain held for backend/settings45target closure."
+  }
 }
