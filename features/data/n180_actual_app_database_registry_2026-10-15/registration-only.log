@@ -1,0 +1,9 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_________ test_actual_umap_registry_copy_restore_reads_carried_sqlite __________
+tests/qt/test_app_workspace_databases_180.py:44: in test_actual_umap_registry_copy_restore_reads_carried_sqlite
+    qtbot.waitUntil(lambda: restored_source.database_paths() == [carried], timeout=5000)
+E   pytestqt.exceptions.TimeoutError: waitUntil timed out in 5000 milliseconds
+=========================== short test summary info ============================
+FAILED tests/qt/test_app_workspace_databases_180.py::test_actual_umap_registry_copy_restore_reads_carried_sqlite
+1 failed in 8.81s

@@ -1,0 +1,24 @@
+{
+  "base_commit": "633705c04e934b5eeec58c5c1db83d09431654f3",
+  "source_sha256": {
+    "spacr/qt/screens/app_screen.py": "9d8a9c714c461ab46171cfdd5eea3c345553c55e737813f12f67f47ec28ab37c",
+    "spacr/workspace.py": "155c19eb811efe9ff42fb972dd602d7fea1e23a920a3c49779f8784165065e45",
+    "spacr/qt/widgets/database_set.py": "950fb8f62ea53d26465de0628cd6a3256158f2234ed2a6dec0d55e10604b370b",
+    "tests/qt/test_app_workspace_databases_180.py": "1383c890634eb239d0c574f99fddcf43b50eaec42ebea5c262f3b800ebe479cd",
+    "tests/test_workspace_restore_order_180.py": "0b93b1826fe1ec9f2a84d5469b074e9e05101643e8315b25b60a4c04c0e848e4"
+  },
+  "baseline": "Actual UMAP registered only settings; missing umap:databases: 1 FAIL4.68s exit1, original source.",
+  "registration_only": "After reviewed registry fix, full saved settings+database restore lost carried database association: 1 FAIL8.81s exit1, core unchanged.",
+  "final": "47 PASS/1 FAIL13.05s exit1: all actual UMAP/provider/core existing contracts passed; new generic test incorrectly placed a0 after a: namespace.",
+  "closure": "Only erroneous lexical expectation corrected; same production source. Exact failed node1PASS0.52s exit0.",
+  "distinct_passed": 48,
+  "coverage_claim": "No new coverage run or full suite claim.",
+  "actual_roundtrip": "Real AppScreen UMAP providers -> complete settings+database collect -> saved COPY -> deleted original -> moved bundle -> load -> complete restore -> read-only SQLite SELECT area12.0. No provider filtering/injection, no fresh pipeline run.",
+  "other_cases": "Current rebuilt database widget resolved on demand; plain and deferred source controls declined without construction; unregister; namespaced settings order with independent namespaces/plain lexical ordering/input nonmutation/refusals; existing workspace core and deferred-panel contracts.",
+  "api": "Existing prose/signatures/tr() unchanged. New direct private class helper excluded under normal public/nested policies, bound independent Hard peer. No generator run claimed.",
+  "limits": [
+    "Not whole N180 completion; Home-B separately owns Graph/comparison/montage contribution.",
+    "No full CI, native desktop capture, backend pipeline rerun or fresh-src semantics changes.",
+    "File hash validation then provider read is not an atomic immutable read."
+  ]
+}
