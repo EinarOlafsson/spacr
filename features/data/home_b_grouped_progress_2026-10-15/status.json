@@ -5,6 +5,15 @@
   "latest_home_b_public": "ef2415daeeb3b8968cafd72ed10f7744264d919c",
   "rows": [
     {
+      "item": "N597",
+      "title": "Home dock resizing and text scale",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home-B",
+      "description": "Complete original corrected contract: arrow/drag width control, one text slider, live scaling, persistence/restore and no overlap at extremes; actual System Refresh regression fixed. Twelve current owning checks pass.",
+      "completion_basis": "Whole original contract accepted2026-10-15; source739bb359/current12checks and independent peer faa7cebf7c; publication with this tracker required."
+    },
+    {
       "item": "N511",
       "title": "filters are any regionprop the user adds",
       "percent_done": "✅",

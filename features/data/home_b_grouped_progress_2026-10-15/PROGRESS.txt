@@ -6,6 +6,7 @@ Original shared77-row tracker plus current Home-B lane updates; broader689-file 
 
 | Item | Percent done | Time left (hours) | Owner | Detailed description |
 |---|---|---|---|---|
+| N597 — Home dock resizing and text scale | ✅ | 0 | Home-B | Complete original corrected contract: arrow/drag width control, one text slider, live scaling, persistence/restore and no overlap at extremes; actual System Refresh regression fixed. Twelve current owning checks pass. |
 | N511 — filters are any regionprop the user adds | ✅ | 0 | CI / Home | Complete: arbitrary scalar filters, provenance and exact removal restoration; twelve-key catalog retirement verified. |
 | F556 — sam2 timelapse propagation | ✅ | 0 | Easy / Home | Complete (alpha): propagation workflow, real-movie baseline comparisons and current nine-language/runtime/API closure. |
 | N692 — three d mask drawing and a fib sem example | ✅ | 0 | CI / Home | Complete: 3D drawing/save/load, protected published FIB-SEM sample and current translations; original contract accepted. |

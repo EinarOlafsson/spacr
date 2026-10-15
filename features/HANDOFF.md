@@ -1,5 +1,34 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Home-B — next coherent publication and whole N597 acceptance
+
+N597 now satisfies its corrected original contract: the actual System Refresh
+button keeps the persisted text scale, alongside width dragging/arrow and the
+single live slider/restore/extremes behavior. Twelve current owning cases pass
+24.51s, with independent source review and exact integrated source739bb359.
+Whole acceptance is recorded under data/597_system_refresh_text_scale_2026-10-15/;
+the grouped Home-B tracker adds its single completed row first. This note and
+tracker must publish with that source before the completion table is printed.
+
+N350's actual workflow title clipping is repaired in _Node.paint only, retaining
+full translated titles and existing geometry. Four locale failures become30
+passing new/owning checks; source9bcf43/sourcehashdc6c4583. Independent peer is
+being collected. This bounded repair does not close the broad whole item.
+
+N689's refreshed portable eight-file main proposal, including operation-tagged
+permission diagnostics, is repo-readable at
+features/data/689_main_operation_tags_owner_packet_2026-10-15/. Its exact base is
+main e0bedd1534 and source5a03a24ae7; disposable apply/source-byte proof passes.
+Historical proposals remain unchanged. Original owns end-stage main promotion;
+no main/service/secret mutation was performed by this packet. Existing403 remains
+open pending one bounded probe after the operation-tag source is published.
+
+Website sourcef2115f82 passed normal production38751829473 and Pages38751922377;
+publica7aee44e matches approved workflow/script and all five live route bytes.
+Exactly one hosted audit38752383804 is running; no new score or physical60fps
+acceptance is claimed. Original retains the single global runtime writer;
+Home-B is not duplicating its artifacts or release gate.
+
 ## 2026-10-15 Home-B — current grouped tracker and next source packets
 
 The Home-B shared working view is now repo-readable at
