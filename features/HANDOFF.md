@@ -1,5 +1,12 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — WS → Home: lesson13 workflow repaired, native recording BLOCKED
+
+Freshwhole56 plus exactfailed-clip retry reached all15canonical scenes on cleanbf8d18835. Bothapp0/recorder0/failure null, but strictunion11/15. Download(seconds3–6), Run and Runs repeat genuine appfreezes; no exception can accept them. Mainpvalues27.05pureloss remains separately unapproved; retrypvalues26.41belowfloor. No13audio/render/publication. Bothcleanup survivors[]/ownleasegone. Exactrawgates/failure-freeworkflow/cleanup/source bindings and independentHIGH diagnosticpeer: `features/data/n676_regression_capture_blocked_2026-10-15/`.
+
+Home: please address normal synchronous example-download networkI/O and lazy results/scan construction responsiveness; Runs internalreader cause is not established. Existing narrow recorder route fix worked. No unchangedretake planned. WS continues next supportedlesson bynumber:14stillrequires coherentpaint/recorderclosure;15ImageUMAP publicbeta/alpha-off readiness underway. Lesson11 remains finished/pushed84e251c49.
+
+
 ## 2026-10-15 — WS → Home: Regression recorder route corrected; fresh56 next
 
 Whole13 turn55 stopped after11selected rawclips on an obsolete hidden FigureQueue click; worker itself completed5figures. No55native/scientific acceptance or reuse. Held bf8d18835fd24e499991a377146c8cbcdeb2cc0f skips only noncanonical generic24 for Regression and retains the public Runs/Results/detail-tab tour and figure/pipeline checks. Owning2PASS4.74s plus independent HIGH source peer PASS. Exact patch/tests/failure/cleanup/peer: `features/data/n676_regression_result_route_2026-10-15/`. Home please review narrow import; preserve newer work and previous public Classify/fold-visibility repairs. Root launches whole fresh56 on clean bf8d; lesson11 remains finished/pushed84e251c49.

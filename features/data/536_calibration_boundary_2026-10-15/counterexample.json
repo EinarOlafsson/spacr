@@ -1,0 +1,145 @@
+{
+  "source_sha256": "7dbd0cd39563df943820181b35fbd9b4807b147effee2ed8184098d7835ac5d1",
+  "actual_preview_spatial": [
+    {
+      "scale": "None",
+      "status": "ok",
+      "width_px": "40.0",
+      "width_um": "nan",
+      "area_um2": "nan"
+    },
+    {
+      "scale": "0.5",
+      "status": "ok",
+      "width_px": "40.0",
+      "width_um": "20.0",
+      "area_um2": "1280.0"
+    },
+    {
+      "scale": "-0.5",
+      "status": "ok",
+      "width_px": "40.0",
+      "width_um": "-20.0",
+      "area_um2": "1280.0"
+    },
+    {
+      "scale": "0.0",
+      "status": "ok",
+      "width_px": "40.0",
+      "width_um": "0.0",
+      "area_um2": "0.0"
+    },
+    {
+      "scale": "nan",
+      "status": "ok",
+      "width_px": "40.0",
+      "width_um": "nan",
+      "area_um2": "nan"
+    },
+    {
+      "scale": "inf",
+      "status": "ok",
+      "width_px": "40.0",
+      "width_um": "inf",
+      "area_um2": "inf"
+    }
+  ],
+  "actual_table_temporal": [
+    {
+      "hours": "None",
+      "times": [
+        "0.0",
+        "1.0"
+      ],
+      "time_unit": [
+        "frame",
+        "frame"
+      ],
+      "status": [
+        "ok",
+        "ok"
+      ]
+    },
+    {
+      "hours": "2.0",
+      "times": [
+        "0.0",
+        "2.0"
+      ],
+      "time_unit": [
+        "h",
+        "h"
+      ],
+      "status": [
+        "ok",
+        "ok"
+      ]
+    },
+    {
+      "hours": "-2.0",
+      "times": [
+        "-0.0",
+        "-2.0"
+      ],
+      "time_unit": [
+        "h",
+        "h"
+      ],
+      "status": [
+        "ok",
+        "ok"
+      ]
+    },
+    {
+      "hours": "0.0",
+      "times": [
+        "0.0",
+        "1.0"
+      ],
+      "time_unit": [
+        "frame",
+        "frame"
+      ],
+      "status": [
+        "ok",
+        "ok"
+      ]
+    },
+    {
+      "hours": "nan",
+      "times": [
+        "nan",
+        "nan"
+      ],
+      "time_unit": [
+        "h",
+        "h"
+      ],
+      "status": [
+        "ok",
+        "ok"
+      ]
+    },
+    {
+      "hours": "inf",
+      "times": [
+        "nan",
+        "inf"
+      ],
+      "time_unit": [
+        "h",
+        "h"
+      ],
+      "status": [
+        "ok",
+        "ok"
+      ]
+    }
+  ],
+  "input_array_and_private_merged_files_exact": true,
+  "private_merged_sha256": {
+    "plate1_A01_1_0.npy": "57fa21b61539f46d453668d7efd48c6fc88860c072e24c0f0bf8199631d6564c",
+    "plate1_A01_1_1.npy": "46cb71660f19c4d7737588f4337c33e39dd69dd597c2752d8bd784a40a88b92f"
+  },
+  "limits": "Actual existing wound preview/table functions on declared simple synthetic mask bands only; no model/DB/live data or biological-calibration accuracy, no production source edits."
+}

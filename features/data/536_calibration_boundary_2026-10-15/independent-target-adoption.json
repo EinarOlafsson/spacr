@@ -1,0 +1,50 @@
+{
+  "approved_source_file_sha256": "2030a63b4f38e4a34bfc732763a19ad9f786aef15ec94ca294905c5aaaff6a29",
+  "targets": {
+    "sv": {
+      "draft_sha256": "b119adebc89fcbcea03b8e3eeb0d43886bdb18f9f49a9bf31be38d9fc7808163",
+      "final_review_sha256": "76ca1fcaf6da62472ba73eaf651aebbcad5c9653374e399edccd67414e3ac0f7",
+      "records_exact": true
+    },
+    "de": {
+      "draft_sha256": "def63c95a11ad9e5fbc6d3f4095ff1e96e0687c4fc72347653c2532ac1d1cb50",
+      "final_review_sha256": "d76547719014882249924b076338b128a36bb0fca44f8cbd09ef4024361d67fe",
+      "records_exact": true
+    },
+    "es": {
+      "draft_sha256": "e00388f659a922c0fd43aaa8d4a417cf7ff6293ad263146b63d3b27233149e79",
+      "final_review_sha256": "b7e176bcc1fdf56111612fe2ed8a7d082bacf5d928d6262e1fca70def6270842",
+      "records_exact": true
+    },
+    "zh_CN": {
+      "draft_sha256": "25432c8a5420b7a433f7b6660c47c4a80260243dcd6eaa330718a0b04c80b1d4",
+      "final_review_sha256": "59d5a242c97f89a981b3797277db0c6325455eadfce2bfe18194baadbaf9c8eb",
+      "records_exact": true
+    },
+    "pt": {
+      "draft_sha256": "d8c0ee421afab29f1a69035f2b287836867b624b58ea7b76f1c545fca9a08294",
+      "final_review_sha256": "5095da9e6a073e03719d8acfd9cd5fc4e5509017d5d06e766621aca91f383cdf",
+      "records_exact": true
+    },
+    "ko": {
+      "draft_sha256": "e6adc2154012f80f9a520fa61c3765001cc6c1ae124ce2b38866e4c67deb69b5",
+      "final_review_sha256": "931db4a08db917e2588532e2109102c8d5d2801ce1fc21b896b62ff385c94ef6",
+      "records_exact": true
+    },
+    "hi": {
+      "draft_sha256": "458f88a00213682277a7e24d7f894dd5997bf02bb63e0eac73df3bfedb95e8f1",
+      "final_review_sha256": "5c9bcfc16ae075d8deee5f3ef2562daa19d2a70e843ff0668a3085bcf88aa1c0",
+      "records_exact": true
+    },
+    "is": {
+      "draft_sha256": "e1adb0fad41cf8fd3f98fce2a98f57af4fd606611bba91c16a188aa6050f5cc7",
+      "final_review_sha256": "7dd9774095bc1c23413313b1a99d9ba84398216c5c845e87f1a03823a3617506",
+      "records_exact": true
+    },
+    "fr": {
+      "draft_sha256": "bf9d7bccaecfa14ecff123650723fc443f6152649923e4854dc6e2b5e9905e80",
+      "final_review_sha256": "37e985fc66ff4726dd0643fb9f38c7e14688e4f4b9f264513943784960d90879",
+      "records_exact": true
+    }
+  }
+}

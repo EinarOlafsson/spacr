@@ -1,0 +1,42 @@
+{
+  "source_file_proposal_sha256": "2030a63b4f38e4a34bfc732763a19ad9f786aef15ec94ca294905c5aaaff6a29",
+  "source_caption": "Wound calibration {name} must be a finite number greater than zero, or blank.",
+  "files": {
+    "sv": {
+      "path": "/mnt/wd4tb/scratch/f536-calibration-boundary-20261015/sv-runtime-review.json",
+      "sha256": "b119adebc89fcbcea03b8e3eeb0d43886bdb18f9f49a9bf31be38d9fc7808163"
+    },
+    "de": {
+      "path": "/mnt/wd4tb/scratch/f536-calibration-boundary-20261015/de-runtime-review.json",
+      "sha256": "def63c95a11ad9e5fbc6d3f4095ff1e96e0687c4fc72347653c2532ac1d1cb50"
+    },
+    "es": {
+      "path": "/mnt/wd4tb/scratch/f536-calibration-boundary-20261015/es-runtime-review.json",
+      "sha256": "e00388f659a922c0fd43aaa8d4a417cf7ff6293ad263146b63d3b27233149e79"
+    },
+    "zh_CN": {
+      "path": "/mnt/wd4tb/scratch/f536-calibration-boundary-20261015/zh_CN-runtime-review.json",
+      "sha256": "25432c8a5420b7a433f7b6660c47c4a80260243dcd6eaa330718a0b04c80b1d4"
+    },
+    "pt": {
+      "path": "/mnt/wd4tb/scratch/f536-calibration-boundary-20261015/pt-runtime-review.json",
+      "sha256": "d8c0ee421afab29f1a69035f2b287836867b624b58ea7b76f1c545fca9a08294"
+    },
+    "ko": {
+      "path": "/mnt/wd4tb/scratch/f536-calibration-boundary-20261015/ko-runtime-review.json",
+      "sha256": "e6adc2154012f80f9a520fa61c3765001cc6c1ae124ce2b38866e4c67deb69b5"
+    },
+    "hi": {
+      "path": "/mnt/wd4tb/scratch/f536-calibration-boundary-20261015/hi-runtime-review.json",
+      "sha256": "458f88a00213682277a7e24d7f894dd5997bf02bb63e0eac73df3bfedb95e8f1"
+    },
+    "is": {
+      "path": "/mnt/wd4tb/scratch/f536-calibration-boundary-20261015/is-runtime-review.json",
+      "sha256": "e1adb0fad41cf8fd3f98fce2a98f57af4fd606611bba91c16a188aa6050f5cc7"
+    },
+    "fr": {
+      "path": "/mnt/wd4tb/scratch/f536-calibration-boundary-20261015/fr-runtime-review.json",
+      "sha256": "bf9d7bccaecfa14ecff123650723fc443f6152649923e4854dc6e2b5e9905e80"
+    }
+  }
+}

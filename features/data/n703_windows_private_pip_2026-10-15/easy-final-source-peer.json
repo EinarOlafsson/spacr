@@ -1,0 +1,29 @@
+{
+  "reviewer": "Original Home easy_overnight, independent AI technical source review; no native platform signoff",
+  "decision": "approved corrected source within stated private-runtime scope",
+  "source_sha256": {
+    "spacr/install_cleanup.py": "e8d507258ff2db6ec5a3885c3428c76117f3353e3afdaac87a783210b24329a3",
+    "spacr/qt/app.py": "6848bd5ec92fe7a94bb90028f7fcf6a155f42d3a9fe8b0ee0026fa1a37ac6cb5"
+  },
+  "prior_blockers_resolved": [
+    {
+      "issue": "Child DACL exceptions unverified",
+      "resolution": "_windows_pip_tree_acl visits each descendant, refuses symlinks/reparse/nonregular entries and checks each native DACL through _windows_pip_private_access before trusting the source runtime. Base interpreter/helper tree likewise checked; transition inventory repeats private tree checks. No PowerShell-per-file subprocess implementation."
+    },
+    {
+      "issue": "Full preparation on GUI thread",
+      "resolution": "Actual Windows environment path in _remove_then_upgrade dispatches start_update_helper through retained _UpdateWorker operation prepare and handles completion on GUI thread. Parent-closing late-plan path cancels authenticated plan instead of approving shutdown."
+    }
+  ],
+  "other_reviewed_boundaries": [
+    "Native GetNamedSecurityInfoW returns owner+DACL; GetTokenInformation provides current user SID; ordinary allow/deny ACEs only, null DACL and unknown ACE schema refused; foreign write/delete/ACL-owner grants refused. Native SID strings/security descriptors/token handles released. Local fixed-volume requirement remains conservative.",
+    "Entry point regeneration retains exact one distribution and RECORD ownership, final-prefix executable, regenerated payload SHA256+size and staged RECORD publication. Unknown stage-referencing scripts refuse.",
+    "Two-rename replacement remains explicitly non-atomic and retains previous runtime. Identity/content evidence gates activation/rollback; foreign or changed paths stop rather than being overwritten/deleted.",
+    "Windows dispatch is explicit; POSIX behavior, frozen/online families and optional cleanup/retained-user-data code are otherwise preserved by the granted delta."
+  ],
+  "limitations": [
+    "No execution, additional tests, Windows/native ACL validation or installation acceptance performed by this peer.",
+    "Path-based ACL/stat/scan and transition checks retain same-authority concurrent path-race limitations; no blanket adversarial concurrency guarantee.",
+    "Private runtime source rules may conservatively refuse shared/system-owner layouts. Native platform qualification and fullCI remain external gates."
+  ]
+}

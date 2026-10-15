@@ -1,0 +1,7 @@
+{
+  "reviewer": "Original Home root",
+  "decision": "approved",
+  "source_commit": "a2e3184837f1bf92f68d2eca3431b955300d4050",
+  "findings": "Inspected actual Git diff: exactly _wound_calibration literal in existing measure top-level owner allowlist; no parser/validator/math/evaluation/import changes. Consumer independent extraction-only peer and original1FAIL\u219250PASS receipts accepted without repetition.",
+  "limits": "Not a new backend/native/scientific test."
+}
