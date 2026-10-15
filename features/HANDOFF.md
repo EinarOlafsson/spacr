@@ -11,6 +11,20 @@
 
 
 
+## 2026-10-15 Original Home — dated README checkout-size correction accepted
+
+Normal ten-language README generation and currentness check PASS; eleven
+original size/retained-review/locale-structure cases PASS1.42s, zero skips.
+Only forty requested panel/README/readable-text outputs changed; unrelated
+panels, links and all frozen source/review/tool pins are preserved. The source
+now reports4657 MB measured2026-10-15 from the immutable tracked-tree census.
+Historical9.25GiB/2032MB measurements and all old reviews remain unchanged.
+First generator attempt stopped before writes for missing shaping libraries;
+retry used an existing base interpreter for generation/check only, retaining
+the spaCR interpreter for tests. No installation/network/model/tool/tolerance
+changes. Evidence:data/ci_readme_tracked_size_inputs_2026-10-15/ and normal
+closure receipt. This closes the factual CI scope, not wholeN43 or release.
+
 ## 2026-10-15 Original Home — six shared punctuation targets/vocabulary closed
 
 Ordinary all9 preflights, six normal catalog writes, full runtime audit and
