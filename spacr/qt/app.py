@@ -1012,8 +1012,11 @@ def register_app(key: str, name: str, desc: str, section: str, *,
         screen that has signals to connect — and is given whichever of
         the two it accepts. Omit it and the app gets the generic
         settings-driven ``AppScreen``, like every pipeline module.
-    :param stage: optional :data:`STAGES` member. Omitted means stable,
-        which is also what deleting the entry later means.
+    :param stage: optional :data:`STAGES` member. If omitted, no explicit
+        stage entry is written. Missing entries read as stable until
+        :func:`spacr.qt.maturity.apply` assigns alpha to unassessed apps
+        without a declaration. Already affirmed stable apps remain stable.
+        Omitting or deleting an entry is not a stability assessment.
     :param title: header shown at the top of the app's own screen.
         Defaults to ``name``; give it only when the screen wants the
         longer form ("Illumination Correction" over a tile that reads
