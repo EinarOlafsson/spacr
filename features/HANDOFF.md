@@ -12555,3 +12555,23 @@ release upload; renderer acceptance already passes before release. Do not make
 that post-publication check a circular pre-publication requirement. All required
 implementations/fullCI still precede release under the maintainer's direction.
 No acknowledgment from original Home has appeared in TO_HOME_B.txt yet.
+
+## 2026-10-14 22:05 EDT — Home-B publishes completed delivery at maintainer request
+
+Maintainer explicitly instructed: push everything completed so far. Home-B
+normal-merged nightly5a6b6b5f05 into its tested delivery as f7b35846aa with no
+conflicts. This publishes N704 readable README/model text and mandatory actual
+PyPI sanitizer checks, N655 switch/model-card accessibility repairs and Linux
+reader evidence, plus N689 complete-artifact size accounting. Earlier owning
+results remain bound in feature receipts; index check and diff check pass.
+All eight owning implementation/packaging files are unchanged from d4b63d3761.
+A finite current run_journal-dependency accessibility recheck is running and
+will follow as a receipt; do not claim it has already completed.
+
+Home-B now owns the normal non-force nightly delivery push, ending the old
+unacknowledged publication handoff. Separate site-src publication is assigned
+to the website worker. Main/application release remains held pending required
+feature implementation/fullCI. No main push, release or paid/destructive action.
+Work tutorial source/recordings, N699/Masks and Claude700 code are unchanged
+by this delivery. N689 live Space quota repair is active in a separate tree;
+no history deletion/squash is authorized by this implementation push.
