@@ -1,0 +1,47 @@
+diff --git a/tests/qt/test_activation_folds_into_classify.py b/tests/qt/test_activation_folds_into_classify.py
+index 4546db5c4b..5b2ef35f3d 100644
+--- a/tests/qt/test_activation_folds_into_classify.py
++++ b/tests/qt/test_activation_folds_into_classify.py
+@@ -196,7 +196,41 @@ def test_the_attribution_settings_arrive_and_the_host_never_had_them(
+             "counterfactual_target", "counterfactual_generator"} <= only_here
+     # 564 (2026-10-03, alpha): counterfactual_target, the chosen target.
+     # 564 (d050bc6d4, alpha): counterfactual_generator, the generator choice.
+-    assert len(only_here) == 25
++    from hashlib import sha256
++
++    from spacr.qt.screens.settings_model import get_tooltips
++    from spacr.settings import (
++        ALPHA_FEATURES,
++        categories,
++        expected_types,
++        get_default_generate_activation_map_settings,
++    )
++
++    published = {
++        "counterfactual_strength": (
++            float, 0.95,
++            "ed4f53ed7c08462de92816c1dc0f867845801668a148b29bad0b44ade01d31d4"),
++        "counterfactual_structure_weight": (
++            float, 0.0,
++            "b1dae1bd04eed0839302ef6c33673f3c789ed77eaaa3eec5f77d8b5363179f58"),
++        "counterfactual_checkpoint": (
++            str, "",
++            "07f658c6195108b4b44b419f1c00f285239c3a95d6ad8395811bb59bbcd7074f"),
++        "counterfactual_checkpoint_sha256": (
++            str, "",
++            "5a66339a09c87f4866309a0d2454d0a6770ce73b9e56380c39ead62807fafc7a"),
++    }
++    assert published.keys() <= only_here
++    defaults = get_default_generate_activation_map_settings({})
++    help_text = get_tooltips()
++    for key, (kind, default, help_sha256) in published.items():
++        assert expected_types[key] is kind
++        assert type(defaults[key]) is kind
++        assert defaults[key] == default
++        assert sha256(help_text[key].encode()).hexdigest() == help_sha256
++        assert key in categories["Activation Maps"]
++        assert key in ALPHA_FEATURES[564]["settings"]
++    assert len(only_here - published.keys()) == 25
+     assert page._btn_run is not None, "the page cannot run anything"
+ 
+ 

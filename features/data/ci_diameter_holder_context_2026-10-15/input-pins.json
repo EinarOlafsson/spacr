@@ -1,0 +1,12 @@
+{
+  "input_head": "14323e460e4eafbb6f30b03b6e3d7e02daab8148",
+  "latest_relevant_public": "06cb0f8e7ab648d3a73a8afd61b3b111af7127d9",
+  "relevant_sources_same_as_latest_public": true,
+  "production_sha256": {
+    "spacr/qt/screens/settings_model.py": "97f14a0f2a6349d583cd82501d9939a8fb485377b6f209224f301e5a59703c7f",
+    "spacr/qt/screens/mask.py": "3d8de201e73bf0496c8922d99da5fe70c8bbe39ede4e64e2e570d30e4d36c3df",
+    "spacr/object_settings_table.py": "e793c24403132e4f87a374de1958ac2c043922fad4d4493740e1a0ce0d34dd2f"
+  },
+  "mask_key_evidence": "spacr.qt.screens.mask.HOST_KEY literalmask atline53",
+  "test_before_sha256": "d9a2fbee90c2a4f8d9b2d25ea0ad24fcc60493a46d7ddd53f89a5e850813c36e"
+}

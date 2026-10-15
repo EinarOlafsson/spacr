@@ -1,0 +1,12 @@
+{"pid": 3005254, "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/run-u68045.scope", "memory_max": "4294967296", "memory_swap_max": "0", "cpus_allowed": [0], "pyside6": "6.12.0", "qt": "6.12.0"}
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_______ test_the_attribution_settings_arrive_and_the_host_never_had_them _______
+tests/qt/test_activation_folds_into_classify.py:199: in test_the_attribution_settings_arrive_and_the_host_never_had_them
+    assert len(only_here) == 25
+E   AssertionError: assert 29 == 25
+E    +  where 29 = len({'attribution_baseline', 'attribution_steps', 'cam_type', 'channels', 'correlation', 'counterfactual_checkpoint', ...})
+- generated xml file: /mnt/wd4tb/scratch/ci-activation-four-arrivals-20261015/baseline.xml -
+=========================== short test summary info ============================
+FAILED tests/qt/test_activation_folds_into_classify.py::test_the_attribution_settings_arrive_and_the_host_never_had_them
+1 failed in 11.37s

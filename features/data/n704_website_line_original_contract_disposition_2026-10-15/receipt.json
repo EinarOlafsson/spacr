@@ -1,0 +1,19 @@
+{
+  "scope": "Read-only source/original-contract check; no tests/network/render/generation/owner edits",
+  "source": "8508e99220ebd485ae8bf74a83e5cadff1f9ee86",
+  "finding": "Website remains intentional plain RST paragraph in normalYAML rawheader/publishedREADME line3;8508 adds narrow exactwebsiteURL paragraph exemption. It does not replace paragraph with image.",
+  "original_specific_requirement": "N687 clause8 explicitly requests badge plus one-lineWebsite link across10READMEs;687actualreceipt expressly calls it plainprominentWebsite line.",
+  "disposition": "No demonstrated new original-clause conflict. Specific approvedWebsite line may be exempted from prior genericimages-only policy without accepting unrelatedprose. Preserve valid67panel/currentmain work.",
+  "test_boundary": "WEBSITE_LINE permits1\u201320nonbacktick/nonnewline labelchars followed by exactofficialWebsite URL; every otherparagraph still fails.67panelcount follows new698panel; leading-content checks preserved.",
+  "prior_packet_qualification": "Earlier fedb rawparagraph concern is superseded in interpretation by explicitN687 clause8/plainline receipt; do not call it an unfixedproductdefect solely from old genericassertion.",
+  "no_new_owner_packet_needed": true,
+  "pins": {
+    "packaging/readme_source.yaml": "ff7fa73b1b98a7e3bb28b43c3212f6ee9f52ed8ea2af0583f35a52d16e955f15",
+    "README.rst": "a375986faf92648b68d71de49616bd24291e4236d87391520da49ffdb940f1d7",
+    "tests/test_readme_is_built_from_images.py": "4a55417ee7cd7c8a6fc105dc238474a0783e34d7b6a7dc8b7751de6bfebf8723",
+    "tests/test_readme_panel_text_destinations.py": "58a6c90c71d9f14b622e9fbb4a3d7b1a223852ebb3b3f32dd391b3237e1de6a2",
+    "features/new/687_website_v2_flow_theme_model_showcase_and_release_sync.txt": "bcddfb086fd69dc9107bcec186d7f44a779cbc4d00af3ba78a1e525e92196944",
+    "features/new/704_readme_panels_link_to_readable_text.txt": "b87a516caec11c8fef0f6e2194677c898e53962b64d9b80576e511fe41e6c0e9",
+    "features/data/687_readme_homepage_2026-10-15/receipt.json": "f172c6df3e2d81fcb3234d593be7b10855a156c4305c52c15e184b5ab6c41b88"
+  }
+}

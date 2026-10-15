@@ -169,7 +169,8 @@ def test_the_settings_panel_stores_zero_as_auto():
 
     from spacr.qt.screens.settings_model import SettingsWidgets
 
-    holder = SimpleNamespace(CANONICAL_READERS=SettingsWidgets.CANONICAL_READERS)
+    holder = SimpleNamespace(app_key="mask",
+                             CANONICAL_READERS=SettingsWidgets.CANONICAL_READERS)
     for key in ("cell_diameter", "nucleus_diameter", "pathogen_diameter"):
         for raw, stored in ((0, "auto"), ("Auto", "auto"), (None, None),
                             (55, 55), ("thirty", "thirty")):

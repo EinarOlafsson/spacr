@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "/mnt/wd4tb/scratch/n698-model-scale-owner-proposal-20261015/validate.py", line 26, in <module>
+    reasons = sorted(b._translation_rejection_reasons(row['source'], row['translation'], language, force=False))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/build_i18n_catalogs.py", line 2084, in _translation_rejection_reasons
+    candidate = _contextualize(raw_value, language, source_text)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/build_i18n_catalogs.py", line 5271, in _contextualize
+    reviewed = _reviewed_translation(str(source), language)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/build_i18n_catalogs.py", line 3370, in _reviewed_translation
+    or _reviewed_module_summary_translations(language).get(str(source))
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015/tools/build_i18n_catalogs.py", line 3332, in _reviewed_module_summary_translations
+    import spacr.qt
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1322, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1262, in _find_spec
+  File "/mnt/wd4tb/scratch/n698-model-scale-owner-proposal-20261015/validate.py", line 11, in find_spec
+    raise RuntimeError('No package import permitted in proposal validator: ' + fullname)
+RuntimeError: No package import permitted in proposal validator: spacr
