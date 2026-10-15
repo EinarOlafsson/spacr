@@ -1,0 +1,94 @@
+{
+  "schema": 1,
+  "baseline_commit": "213a31944f7f34a74974220e8f96f8059c27fa10",
+  "source_file": "docs/source/conf.py",
+  "source_sha256": "f120c19bd25e076470b252895113c90d3355287120b7e7b46652d56ddcddbea7",
+  "test_file": "tests/test_docs_catalog_version_context.py",
+  "test_sha256": "cbe5d50c617a3fa6decf5f1e6c96e9bf1444f811204c710c3243b4110a94de46",
+  "observed_defect": "Catalog-only version changes rewrite native viewcode HTML despite no API catalog consumer; real24213byte _gc page pair differs only in version digest.",
+  "footprint_evidence_commit": "e88dac61f",
+  "repair": "A normal html-page-context callback removes only data-api-catalog-version from standard viewcode _modules pages with no API path segment, doctree or description-list markup. Other contexts remain untouched. Selected immutable script objects are copied per context, so shared API pages retain their version and all language/navigation attributes.",
+  "regression_before": "3FAIL7PASS1.12s; catalog-only source-page change, shared-script isolation and actual Sphinx script-object expectations fail before source repair.",
+  "focused_after": "11PASS1.32s, no skips, including existing frontend freshness-guard contract.",
+  "normal_renderer_acceptance": {
+    "normal_sphinx_handle_page_used": true,
+    "sphinx_build_calls": 0,
+    "source_page_html_byte_identical_across_catalog_versions": true,
+    "api_page_retains_version_difference": true,
+    "language_script_and_guide_attributes_retained": true,
+    "hashes": {
+      "_modules/spacr/demo@aaaaaaaaaaaaaaaa": "81b2b9728d49e0616e269348ffcfaa9ad4e225b6c1ba5857dbf919eac501172e",
+      "api/spacr/demo@aaaaaaaaaaaaaaaa": "da1029ed16c2cedd707e042271369f86dd82d24164b7f082d7b83b25bba1ad4b",
+      "_modules/spacr/demo@bbbbbbbbbbbbbbbb": "81b2b9728d49e0616e269348ffcfaa9ad4e225b6c1ba5857dbf919eac501172e",
+      "api/spacr/demo@bbbbbbbbbbbbbbbb": "6728cc109d5bd8accc0c19f45a5588750e5ca6d3e53aa805034d2630e4c9fdf4"
+    }
+  },
+  "frontend_source_changed": false,
+  "preserved": [
+    "Every source/API/guide page and locale payload",
+    "Actual API consumers retain cache-busting catalog digest and existing source-hash guards",
+    "Guide language script and language attributes",
+    "Custom/uncertain page contexts retain digest conservatively"
+  ],
+  "resource_bounds": {
+    "python": "/home/olafsson/anaconda3/bin/python",
+    "sphinx": "9.1.0",
+    "ram_cap": "2G",
+    "threads": 1,
+    "gpu_visible": false,
+    "sphinx_build_calls": 0,
+    "full_collectors": 0
+  },
+  "limits": [
+    "No live deployment or measurable provider quota savings claimed.",
+    "No old Git/LFS history removed or modified.",
+    "This avoids one proven cause of gratuitous changes, not all legitimate publication differences or finite-history quota exhaustion."
+  ],
+  "artifacts": {
+    "before.log": {
+      "sha256": "efcfa66f48e19e4b0aefc5d716f5c5239833a24d6aa486533c14794540381fe5",
+      "bytes": 3520,
+      "path": "before.log.gz"
+    },
+    "after.log": {
+      "sha256": "3b05dbb1f34aeaa99d7b1074f95fcdfaa6a426f3f4932e3d917604e3aa37a70d",
+      "bytes": 99,
+      "path": "after.log.gz"
+    },
+    "render_probe.py": {
+      "sha256": "05798a26ff9671c2deb0be532c6b44fd627e471142508dd3ccc2d21bbb1b55eb",
+      "bytes": 2516,
+      "path": "render_probe.py.gz"
+    },
+    "render-probe.log": {
+      "sha256": "db4ffaeab36a578b5b7b3eb44adda2152d860833edd446bdd1fe6686af64240a",
+      "bytes": 699,
+      "path": "render-probe.log.gz"
+    },
+    "render-probe.json": {
+      "sha256": "df55a982196aa8985fc260e9a7e3dc266a1fabbe3c9f98511d151ad0d86f8375",
+      "bytes": 698,
+      "path": "render-probe.json.gz"
+    },
+    "_modules_spacr_demo-aaaaaaaaaaaaaaaa.html": {
+      "sha256": "81b2b9728d49e0616e269348ffcfaa9ad4e225b6c1ba5857dbf919eac501172e",
+      "bytes": 2913,
+      "path": "_modules_spacr_demo-aaaaaaaaaaaaaaaa.html.gz"
+    },
+    "_modules_spacr_demo-bbbbbbbbbbbbbbbb.html": {
+      "sha256": "81b2b9728d49e0616e269348ffcfaa9ad4e225b6c1ba5857dbf919eac501172e",
+      "bytes": 2913,
+      "path": "_modules_spacr_demo-bbbbbbbbbbbbbbbb.html.gz"
+    },
+    "api_spacr_demo-aaaaaaaaaaaaaaaa.html": {
+      "sha256": "da1029ed16c2cedd707e042271369f86dd82d24164b7f082d7b83b25bba1ad4b",
+      "bytes": 2953,
+      "path": "api_spacr_demo-aaaaaaaaaaaaaaaa.html.gz"
+    },
+    "api_spacr_demo-bbbbbbbbbbbbbbbb.html": {
+      "sha256": "6728cc109d5bd8accc0c19f45a5588750e5ca6d3e53aa805034d2630e4c9fdf4",
+      "bytes": 2953,
+      "path": "api_spacr_demo-bbbbbbbbbbbbbbbb.html.gz"
+    }
+  }
+}
