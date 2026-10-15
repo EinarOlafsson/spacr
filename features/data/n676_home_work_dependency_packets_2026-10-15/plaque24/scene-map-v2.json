@@ -1,0 +1,113 @@
+{
+  "status": "Updated source-bound Work owner proposal only; no mainrecorder adoption or19scene/native acceptance",
+  "source_pin": "eb205abcaaa0d770bf1fa39032e528d7633097e3",
+  "scenes": [
+    {
+      "reference": "01_module",
+      "decision": "Keep",
+      "current_ui_mapping": "Real Home \u2192 Toxoplasma \u2192 Plaque Assay route; normal alpha settings."
+    },
+    {
+      "reference": "03_setting_src",
+      "decision": "Keep",
+      "current_ui_mapping": "Private example directory and declared synthetic input; preserve originals."
+    },
+    {
+      "reference": "04_setting_masks",
+      "decision": "Keep",
+      "current_ui_mapping": "Explain existing-mask reuse; distinguish this batch from preview resegmentation."
+    },
+    {
+      "reference": "08_setting_well_diameter_mm",
+      "decision": "Keep",
+      "current_ui_mapping": "Show actual value; do not infer physical calibration from an unset value."
+    },
+    {
+      "reference": "05_setting_plaque_model",
+      "decision": "Keep",
+      "current_ui_mapping": "Show the actual requested model/private copy and verify selected identity."
+    },
+    {
+      "reference": "11_preview_settings_unmatched",
+      "decision": "Replace narration",
+      "current_ui_mapping": "Open current Settings \u2192 Plaque detection using the real button; show actual form/preview model agreement. Do not manufacture a mismatch."
+    },
+    {
+      "reference": "12c_actual_download_verified",
+      "decision": "Conditional truthful replacement",
+      "current_ui_mapping": "Use current Model Zoo button. Verify the exact selected key/path/SHA. Call it a download only if bytes were genuinely downloaded; otherwise describe verified cache selection."
+    },
+    {
+      "reference": "18_actual_filter_changed",
+      "decision": "Replace visual and narration",
+      "current_ui_mapping": "There is no current generic minimum-area filter. Change an actual plaque inference control, explicitly Run preview again, and report the observed result. Do not describe post-hoc filtering."
+    },
+    {
+      "reference": "19_actual_filter_restored",
+      "decision": "Replace visual and narration",
+      "current_ui_mapping": "Restore the original inference control and rerun. Claim exact mask restoration only if actual arrays prove it; restored control values alone do not prove restored masks."
+    },
+    {
+      "reference": "09_actual_completion",
+      "decision": "Keep with owner held fix",
+      "current_ui_mapping": "Use Work607c shared capture_acceptance lifecycle observer, preserving held private model copy; never require immediate screen._worker."
+    },
+    {
+      "reference": "21_actual_summary_table",
+      "decision": "Keep",
+      "current_ui_mapping": "Extract the existing read-only Database Browser tail from plaque_native_views; do not call its legacy-filter prelude. Verify actual output table rows."
+    },
+    {
+      "reference": "22_actual_stats_table",
+      "decision": "Keep",
+      "current_ui_mapping": "Actual saved stats table through the same read-only browser; no historical count assertions."
+    },
+    {
+      "reference": "23_actual_details_table",
+      "decision": "Keep",
+      "current_ui_mapping": "Actual details table; verify IDs/areas against the private batch reference and database bytes unchanged."
+    },
+    {
+      "reference": "16b_overlay_settings",
+      "decision": "Keep current companion",
+      "current_ui_mapping": "Use current open-overlay-settings route and restore original display style; no inference claim from display changes."
+    },
+    {
+      "reference": "20_help_route",
+      "decision": "Keep current UI",
+      "current_ui_mapping": "Actual Help \u2192 Database browser route; preserve menu bindings and read-only behavior."
+    },
+    {
+      "reference": "30_figure_mode",
+      "decision": "Keep current companion, conditional",
+      "current_ui_mapping": "Use actual Figure mode switch; inspect normal alpha gating before recording."
+    },
+    {
+      "reference": "30b_from_a_paper",
+      "decision": "Keep real-paper route",
+      "current_ui_mapping": "Use existing capture_plaque_current DOI10.1371/journal.pbio.3002110/figurepbio.3002110.g008 route; retain source/licence/provenance. No Home download or paper-count claim."
+    },
+    {
+      "reference": "31_figure_wells",
+      "decision": "Conditional current companion",
+      "current_ui_mapping": "Show actual detected wells and current non-alpha columns only. If the route exposes alpha content, stop/report rather than flip alpha or reuse old footage."
+    },
+    {
+      "reference": "32_figure_all_wells",
+      "decision": "Conditional current companion",
+      "current_ui_mapping": "Run actual supported all-wells operation, wait for current accepted results/retirement, and report actual counts only."
+    }
+  ],
+  "explicit_retirements": [
+    "Legacy _registry_preview/LivePreviewPanel host injection",
+    "Forced historical model mismatch",
+    "Generic _raw_masks/_masks/min_area filter interface",
+    "Unverified historical 8/66/17 counts",
+    "Claiming inference-parameter edits do not rerun segmentation"
+  ],
+  "new_dependency_notes": [
+    "Use Work607c shared batch completion observer from capture_acceptance; the local public capture_plaque still has the older immediate-worker seam and is not the owner target for wholesale replacement.",
+    "Local public current companion SHAa4f20c23 uses synthetic figure; Work supplied b7b07f25 real-paper variant is a separate heldsource. Preserve owner real-paper route/licence and rebase additions rather than replacing file.",
+    "New observer records actual _run_token before physical click, permits bounded deferred dispatch, then requires exactly one next accepted token/currentcontext/result plus retirement. No model/filter/count or scientific claim."
+  ]
+}
