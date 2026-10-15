@@ -1,0 +1,12 @@
+{
+  "decision": "ACCEPT test-fixture contract reconciliation",
+  "commit": "39ef06ff7dc478e012a76c38b8dc9c780ec4101f",
+  "source_files_sha256": {
+    "tests/test_missing_model_downloads.py": "86946dacebfec824edaa874124863849b44a17d029ebc5f38c30ff6a85831bee",
+    "tests/test_submodules_plaque_well_integration.py": "2f8274f5581ba65b7df0f55d97302bb8cdc4669ebdbd355c25461ccde77b74a5"
+  },
+  "independent_checks": "Only2test files outside evidence; alloriginal assertASTs/function signatures/decorators preserved. No production diff.",
+  "technical_review": "download=False intentionally chooses _planning_model_entries and must receive the same fake catalogue identity; converted StarDist fixture supplies identical convertedentry to both seams. Two explicit headless stub-fetch tests set GUIthread predicateFalse; existing positiveGUIthread refusal remains an exercised control, no productionguard removed.",
+  "evidence": "Actual existing offscreenQApp plugin instantiated, network tripwire plugin blocks socket.connect/create_connection/urlopen/requests.Session.request. Final7PASS5.37s; original2FAIL+2PASS and separate realQApp2FAIL retained.",
+  "limits": "No model-quality/native segmentation/full CI acceptance; tests not rerun by peer."
+}

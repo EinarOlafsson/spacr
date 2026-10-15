@@ -1,0 +1,13 @@
+{
+  "decision": "ACCEPT three-line PDF dependency provision",
+  "commit": "31f754ea62d42e54f288f5c8aa5b92ec93a0bde8",
+  "source_files_sha256": {
+    "setup.py": "747e7e12f20ef783ee29b53365e775c47872753ced0eb615739774074098efab",
+    ".github/constraints/minimum-py39.txt": "1bc261e1e95e066977bf2efc6274e97b395757f47e90603c38f6396997209b29",
+    "tools/web_mask_generator/requirements-space.txt": "ec196b07c768adb94fff3eef512460f762165820e1de2cc4f86127dcbb54db22"
+  },
+  "independent_checks": "Exactly3config additions, allpriorbytesidentical: devrange pypdfium2>=5.13.0,<6; minimum andSpace pin5.13.0. No production/test/gate edits or removeddependency.",
+  "archived_primary_proof": "Decompressed officialPyPI JSON hashmatches receipt, release5.13.0 RequiresPython>=3.6; each claimed unyanked wheel filename/hashmatches archived primarymetadata. py3-none tags supportmetadataPython3.9 compatibility; macOS13minimum explicitly retained.",
+  "evidence": "Existing7PDF+4metadata actual11PASS1.26s/exit0; reader alreadyinstalled, no fresh packageinstall by owningcohort or peer.",
+  "limits": "No resolver/cleaninstallation/nativePython3.9/platform/liveSpace/full CI claim; peer performed no rerun/download/install."
+}
