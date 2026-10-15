@@ -1,0 +1,152 @@
+{
+  "one-app-update-proposal__ROOT-AUTHORIZE-ONE-APP-UPDATE.json.gz": {
+    "original_relative_path": "one-app-update-proposal/ROOT-AUTHORIZE-ONE-APP-UPDATE.json",
+    "raw_sha256": "3643af548af3b57dda614b89ec122c1764bea5644079af02242fcde4dae48e99",
+    "raw_bytes": 425,
+    "gzip_sha256": "48fe1253cd838edc5974af51571b0e288ebfaf957c399f0d00c68ff1820749ab"
+  },
+  "one-app-update-proposal__ROOT-AUTHORIZE-RECONCILED-STARTUP-OBSERVER.json.gz": {
+    "original_relative_path": "one-app-update-proposal/ROOT-AUTHORIZE-RECONCILED-STARTUP-OBSERVER.json",
+    "raw_sha256": "16440981320fd7379c6a27f947cf7e91537365ebcbafde05f7a210f18af0ef25",
+    "raw_bytes": 488,
+    "gzip_sha256": "0187d38ef3f3ab511caaa7816b638be9a8bed2cfa2d81f6870bcfc00fc4c569e"
+  },
+  "one-app-update-proposal__proposal-manifest.json.gz": {
+    "original_relative_path": "one-app-update-proposal/proposal-manifest.json",
+    "raw_sha256": "5d255162eb850b884670d0459a4d4d24bf66f23f718ee0c4bb66227f4dbec219",
+    "raw_bytes": 1132,
+    "gzip_sha256": "a26c6395fe30dd35422f5e96c6ca7276b2c896f65e1d0a78856bad63bed774ba"
+  },
+  "one-app-update-proposal__update-app-once.py.gz": {
+    "original_relative_path": "one-app-update-proposal/update-app-once.py",
+    "raw_sha256": "608fa409ddbb71020d96a31a62b6b0bd561aa43f7d1fecf485a5a0ea5d95bd5b",
+    "raw_bytes": 6440,
+    "gzip_sha256": "eb121f998e2b9e42602a689f343ced9294210eeb0544dcb513daf080060d66b0"
+  },
+  "one-app-update-proposal__update-result.json.gz": {
+    "original_relative_path": "one-app-update-proposal/update-result.json",
+    "raw_sha256": "864100ac49763a424fe008abacf32a501729ba0f15df47cafb32b2fdd2da7ac6",
+    "raw_bytes": 939,
+    "gzip_sha256": "75d4120aa7cc8592f82dea3d54fc466f3b873c19bf2ab61e89cbf09d33f60123"
+  },
+  "one-app-update-proposal__update.log.gz": {
+    "original_relative_path": "one-app-update-proposal/update.log",
+    "raw_sha256": "391cfba253948cbcb3b8f4ef31dc8ee2f55ca604ef9777c86c048891916b1508",
+    "raw_bytes": 1705,
+    "gzip_sha256": "92ceaa9e5516d9a5a6226235c740fa3b48a75f84072beead602a4be10585dd06"
+  },
+  "one-app-update-proposal__full1183-readback.json.gz": {
+    "original_relative_path": "one-app-update-proposal/full1183-readback.json",
+    "raw_sha256": "6e40e0ae4f70420d275d661b4756ff8da13f307da986f7d0e4895d817c0b27e3",
+    "raw_bytes": 215655,
+    "gzip_sha256": "52711009e1402dcc600b6278110b62ec7b185847930f85c30b5bf8d2e9993168"
+  },
+  "one-app-update-proposal__read-only-public-reconciliation.json.gz": {
+    "original_relative_path": "one-app-update-proposal/read-only-public-reconciliation.json",
+    "raw_sha256": "1ba8286a261a05eccff0dbf92fea6169174b8ef3b4e2b7304b09119ecbb66137",
+    "raw_bytes": 1351,
+    "gzip_sha256": "6b7d1ed29202dd5dc45c694d58533d2e5151311ef1c462a67dae67e9b3e8a0b2"
+  },
+  "one-app-update-proposal__reconcile-public-bytes-readonly.py.gz": {
+    "original_relative_path": "one-app-update-proposal/reconcile-public-bytes-readonly.py",
+    "raw_sha256": "5a88544c38d840ede96f022795bf4c81a5d8939ffff320e0e416e34b58ff9a6e",
+    "raw_bytes": 2637,
+    "gzip_sha256": "d7cb4ddd5a931ff48113f3f1f9d98e5ef8378da20913e7d48e5efa4368b85480"
+  },
+  "one-app-update-proposal__observer-reconciliation-manifest.json.gz": {
+    "original_relative_path": "one-app-update-proposal/observer-reconciliation-manifest.json",
+    "raw_sha256": "32ae187c9e9082f63bb4f6cb9a1f887e241c523ae242e6baf14cac0929faec0e",
+    "raw_bytes": 812,
+    "gzip_sha256": "1278f5c8812ef4ef546c984582847277ef88fb9792162009c5197b51bdcc119f"
+  },
+  "one-app-update-proposal__observe-startup-reconciled-PROPOSED.py.gz": {
+    "original_relative_path": "one-app-update-proposal/observe-startup-reconciled-PROPOSED.py",
+    "raw_sha256": "35a039a209b03ee4bc06dc7d811185980bbf65fd980891dd712594bbfdd96839",
+    "raw_bytes": 5481,
+    "gzip_sha256": "82a0bda43976b0468c9cddc8001d0a1e187d5d846f36e79fa0cf7dd4e17c777d"
+  },
+  "one-app-update-proposal__startup-observer-final.json.gz": {
+    "original_relative_path": "one-app-update-proposal/startup-observer-final.json",
+    "raw_sha256": "d57944a33982d656868b86eaf9e6c9a3472dab7e8f927cfa02b03b88a1a3fa3e",
+    "raw_bytes": 346,
+    "gzip_sha256": "b23fe6dfbd9e5217cb146e6b22d8da6a4036539f0ca35a6c54a29bbf0348928e"
+  },
+  "one-app-update-proposal__observer-guard-diagnostic-readonly.json.gz": {
+    "original_relative_path": "one-app-update-proposal/observer-guard-diagnostic-readonly.json",
+    "raw_sha256": "6e1fa4b9e5ec64b81c73f2afca6a10dd59009d211fd51ea097bd3fd5f5a8c0d2",
+    "raw_bytes": 678,
+    "gzip_sha256": "13285dc2fef0163ff530f18179e1857438c5793e44e86f1a022f1d376b6f72e3"
+  },
+  "one-app-update-proposal__actual-exact-source-running-receipt.json.gz": {
+    "original_relative_path": "one-app-update-proposal/actual-exact-source-running-receipt.json",
+    "raw_sha256": "eb3cd8b0bf580e5209c4d904143adf7a64041751281d1c5162ceb0ac85c37511",
+    "raw_bytes": 2217,
+    "gzip_sha256": "841ecf970d9eca2cc7ebe80c7911dbaa468f43bc72de436ceca2dee0a9651df4"
+  },
+  "read-live-schema-66f5-once.py.gz": {
+    "original_relative_path": "read-live-schema-66f5-once.py",
+    "raw_sha256": "8c903804862decdb8cace074b0bdecd4de5e2ae0ed1326e376a7f76c89a94a73",
+    "raw_bytes": 6517,
+    "gzip_sha256": "fdabe757e64586199e18da9ae2fc2db7b90c14d86e0398e7551301b3eeeb94dd"
+  },
+  "live-schema-66f5__after-info.json.gz": {
+    "original_relative_path": "live-schema-66f5/after-info.json",
+    "raw_sha256": "1f804e43ee9123a23f10e9d71eb145b3e29c84a016f9ddd1fd125e149d9c6306",
+    "raw_bytes": 65207,
+    "gzip_sha256": "04d5f17e0376c7a88623cde6acbfa32f81e9c464c67144517df4efee679cdc64"
+  },
+  "live-schema-66f5__runtime-sanitized.log.gz": {
+    "original_relative_path": "live-schema-66f5/runtime-sanitized.log",
+    "raw_sha256": "e4703e2f1f3f3bc2c374d1faa24dd285c514e4c79aa6af2742209f4654807a3e",
+    "raw_bytes": 1209,
+    "gzip_sha256": "9cf9c00de2490031d030dca435b8c3e0d7264c45a3a74add4a9cfe54dee6e446"
+  },
+  "live-schema-66f5__before-info.json.gz": {
+    "original_relative_path": "live-schema-66f5/before-info.json",
+    "raw_sha256": "1f804e43ee9123a23f10e9d71eb145b3e29c84a016f9ddd1fd125e149d9c6306",
+    "raw_bytes": 65207,
+    "gzip_sha256": "04d5f17e0376c7a88623cde6acbfa32f81e9c464c67144517df4efee679cdc64"
+  },
+  "live-schema-66f5__receipt.json.gz": {
+    "original_relative_path": "live-schema-66f5/receipt.json",
+    "raw_sha256": "64d26b72574e64eebd464c90bfab2029df41df902fe96acaeae2c0792b20c984",
+    "raw_bytes": 12226,
+    "gzip_sha256": "76977e351af7be6921b4d2c685be35c27a7683fdad27db3b8f53ceb10e022712"
+  },
+  "live-schema-66f5__api-info.json.gz": {
+    "original_relative_path": "live-schema-66f5/api-info.json",
+    "raw_sha256": "18cfa7089ee1824e4d37e4cc5a6acc6204c32c633d8ef9f873d8dc36d8a66857",
+    "raw_bytes": 120597,
+    "gzip_sha256": "4ac03275f74ab9a1259940ba64fe4d16c98bb0bb7ade31ba133c00caab36566d"
+  },
+  "live-schema-66f5__before-runtime.json.gz": {
+    "original_relative_path": "live-schema-66f5/before-runtime.json",
+    "raw_sha256": "246065977f36011e5471bc5d6143158b0a7a0021a7c3d06e5b57ae0d0c3bb56d",
+    "raw_bytes": 286,
+    "gzip_sha256": "9ae0fb70281e6802f70596c38dc1e21f3063022b7d06c7bfc3dc81eee86c18bf"
+  },
+  "live-schema-66f5__before-variables.json.gz": {
+    "original_relative_path": "live-schema-66f5/before-variables.json",
+    "raw_sha256": "3e68b9ccc89e34e80a01ce29a84210b71126dd83abdb25bee296f29045e1b41d",
+    "raw_bytes": 141,
+    "gzip_sha256": "8b84704b68325f7788a5beb00f6216a0430df8c42e47a8394109c06b663eb5f7"
+  },
+  "live-schema-66f5__config.json.gz": {
+    "original_relative_path": "live-schema-66f5/config.json",
+    "raw_sha256": "337857b288f6b8954f73c5296dd492d21e44b5f716e71cddd8e9480488ae1029",
+    "raw_bytes": 342102,
+    "gzip_sha256": "a786c97450128342e2c37fed62e628673bbef816de365cf0eabecb3fa4ffbde5"
+  },
+  "live-schema-66f5__after-variables.json.gz": {
+    "original_relative_path": "live-schema-66f5/after-variables.json",
+    "raw_sha256": "3e68b9ccc89e34e80a01ce29a84210b71126dd83abdb25bee296f29045e1b41d",
+    "raw_bytes": 141,
+    "gzip_sha256": "8b84704b68325f7788a5beb00f6216a0430df8c42e47a8394109c06b663eb5f7"
+  },
+  "live-schema-66f5__after-runtime.json.gz": {
+    "original_relative_path": "live-schema-66f5/after-runtime.json",
+    "raw_sha256": "246065977f36011e5471bc5d6143158b0a7a0021a7c3d06e5b57ae0d0c3bb56d",
+    "raw_bytes": 286,
+    "gzip_sha256": "9ae0fb70281e6802f70596c38dc1e21f3063022b7d06c7bfc3dc81eee86c18bf"
+  }
+}
