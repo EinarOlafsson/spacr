@@ -309,21 +309,27 @@
       "label": "spacr.model_zoo.scorecard_html#2",
       "source": "Metrics that hold none of the scorecard's keys -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
       "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
-      "translation": "Kennzahlen ohne einen der vorgesehenen Schlüssel, etwa ein freier Hinweis oder ein Trainingsverlust unter einem eigenen Namen, bilden ebenfalls keine solche Übersicht und führen zu einer leeren Rückgabe. Elf Tabellenzeilen mit \"not recorded\" würden sonst einen aussagekräftigen zweizeiligen Hinweis verdrängen."
+      "translation": "Kennzahlen ohne einen der vorgesehenen Schlüssel, etwa ein freier Hinweis oder ein Trainingsverlust unter einem eigenen Namen, bilden ebenfalls keine solche Übersicht und führen zu einer leeren Rückgabe. Elf Tabellenzeilen mit \"not recorded\" würden sonst einen aussagekräftigen zweizeiligen Hinweis verdrängen.",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
     },
     {
       "context": "a catalogue entry, or anything with ``metrics`` and a name.",
       "label": "spacr.model_zoo.scorecard_html#3",
       "source": "a catalogue entry, or anything with ``metrics`` and a name.",
       "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
-      "translation": "ein Katalogeintrag oder ein anderes Objekt mit ``metrics`` und einem Namen."
+      "translation": "ein Katalogeintrag oder ein anderes Objekt mit ``metrics`` und einem Namen.",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
     },
     {
       "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
       "label": "spacr.model_zoo.scorecard_html#4",
       "source": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
       "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
-      "translation": "die HTML-Tabelle oder ``\"\"``, wenn keine Kennzahlenübersicht angezeigt werden kann."
+      "translation": "die HTML-Tabelle oder ``\"\"``, wenn keine Kennzahlenübersicht angezeigt werden kann.",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
     },
     {
       "context": "Which of :data:`ZOO_SOURCES` this row belongs under.",
