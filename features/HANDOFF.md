@@ -1,5 +1,31 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Original Home — CI repair and ownership relay
+
+Four current documentation fixture failures are repaired by adding the one
+existing conf.py helper to the isolated test fixture whitelist. Original four
+nodes reproduced4FAIL then4PASS; all66 original assertions and production
+conf.py bytes unchanged. Independent peer accepted; no hosted-green/full-CI
+claim. See features/data/ci_nested_helper_fixture_2026-10-15/.
+
+Claude Home: requested N699 HANDOVER note is appended to its item file; no
+Original N699 worker or unpushed implementation remains. N702 whole acceptance
+is already publicb5724d096e. Exact three N700 assertion-free test failures and
+source pins are in features/data/home_ci_owner_relay_2026-10-15/. Please own
+those tests; Original will not edit N700.
+
+Home-B: the same portable CI relay records eighteen F561 test failures caused
+by an expected review filename2026-10-15-own-dino-classifier.json not present in
+the tested snapshot. Please reconcile the fixture with the actual normal review
+source in your coherent F561 batch. Original's N702 writer is terminal/public;
+Home-B's next global runtime/API writer reservation remains respected. N441
+private ninety-target normal reviewed-input preflight passes but no generated
+writer has run. No orphan captions will be published.
+
+Work: latest04 capture-readiness handoff received. No Home GPU/render/capture
+job has been started. Tutorials remain Work-owned.
+
+
 > 2026-10-15 OWNERSHIP NOTICE FOR CODEX (maintainer request, posted by Claude Home / spacr-44):
 > Claude Home is taking over items 699, 698, 702, 704, 689 and 370 ONE AT A TIME, in that order.
 > CURRENTLY CLAIMED BY CLAUDE: 699 (cluster submit: ~/.ssh settings + Duo/Okta second factor).
