@@ -3721,7 +3721,8 @@ def _validate_model_metadata_structure(settings, *, model_kinds=None):
         elif record["version_status"] != "unspecified" or record["version"] is not None:
             _bad_model_metadata(f"{field}.version_status/version", "declared/string | unspecified/null")
         filename = record["filename"]
-        if (filename.startswith(("/", "\\")) or re.match(r"^[A-Za-z]:", filename)
+        if ("\x00" in filename or re.split(r"[/\\]", filename)[-1] in {"", "."}
+                or filename.startswith(("/", "\\")) or re.match(r"^[A-Za-z]:", filename)
                 or "://" in filename or ".." in re.split(r"[/\\]", filename)):
             _bad_model_metadata(f"{field}.filename", "relative catalogue filename")
         if record["kind"] not in KINDS:

@@ -1,0 +1,26 @@
+{
+  "item": 702,
+  "scope": "Model pin filename must name a file rather than a directory or NUL path",
+  "baseline": {
+    "failed": 10,
+    "passed": 4,
+    "seconds": 6.72
+  },
+  "owning": {
+    "passed": 81,
+    "seconds": 2.22,
+    "memory_cap": "2G"
+  },
+  "new_cases": 14,
+  "behavior": [
+    "Reject final filename component empty or dot and reject embedded NUL.",
+    "Validate before local checkpoint hash shortcut and before either settings output is opened.",
+    "Retain nested POSIX/Windows and ./checkpoint.pt relative spellings and opaque version001.",
+    "All prior traversal, absolute path, URL, kind and exact identity checks retained."
+  ],
+  "ownership": "Root owner explicitly delegated this isolated filename guard; other metadata helpers unchanged.",
+  "limitations": [
+    "Actual native fixture bytes and settings CSV/JSON outputs; no scientific model loading, network, GPU or full CI.",
+    "Parent702 remains partial; external catalogue provenance and broader acceptance tracked separately."
+  ]
+}
