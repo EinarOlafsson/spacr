@@ -11,6 +11,28 @@
 
 
 
+## 2026-10-15 Original Home — coherent metadata/web-caption translations ready
+
+Normal99 producer PASS:90 metadata +9 web model-scale targets, all nine
+ordinary preflights, full runtime audit, fresh actual source and7145inputpins
+unchanged;10,993 foreign values/hashes per locale retained. Normal immutable
+arrival baseline9833 unchanged/1324added/33changed/153retired. Actual compiled
+metadata widgets PASS9/2.63s, zero skips, real tempINI language changes, same
+IDs/ranking/input bytes. Initial pre-body Qt134 and justified environment
+correction are retained; no false first-pass claim. No N698 feature-code edit.
+No API eligible prose/signature or enabled nested-helper arrival by exact
+normal AST projection. Source/inputs/normal artifacts/peers all coherent.
+N441 original vendor-example completeness remains open; no whole-item tick.
+
+Additional generic CI: zoom2FAIL→2PASS preserves exact growth thresholds;
+real parent layout and unfocused glyph measurement exclude clipped standalone
+geometry/focus ink. Production unchanged. Annotate Browse fixture now isolates
+real pending background stat and always releases/joins it; cold originalPASS
+and revisedPASS are recorded honestly, not a reproduced product failure.
+All existing1s/8s timing limits retained. Old5727pool audit is complete; no
+more repeated old-log scans. N700 concrete3assert owner patch/currentfailure
+and N699 exactellipsis owner request remain explicit. No fullCI/release.
+
 ## 2026-10-15 Original Home — preview CI passes; normal99 read-only validation
 
 Three remaining legacy preview fixtures now PASS3/2.75s after baseline3FAIL;

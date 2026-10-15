@@ -263,7 +263,7 @@
       "percent_done": 70,
       "time_left_hours": "24–48+",
       "owner": "Claude Home",
-      "description": "Handed to Claude with published managed-host fixes and unvalidated export prototype. Claude reports a subsequent delivery; reconcile its complete hosted/browser acceptance before a whole-item tick.",
+      "description": "Claude feature delivery preserved; shared model-scale caption now has9 reviewed normal targets. Hosted redeploy/export upload and real browser/GPU acceptance remain owner/maintainer gates.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -422,10 +422,10 @@
     {
       "item": "N441",
       "title": "metadata type for every common microscope",
-      "percent_done": 90,
-      "time_left_hours": "2–4",
+      "percent_done": 95,
+      "time_left_hours": "4–12 + external samples",
       "owner": "Home / assigned owner",
-      "description": "Ten dynamic microscope-helper messages lack nine-language coverage; narrow widget repair19PASS is private, normal caption/review closure underway.",
+      "description": "Dynamic fields and90 metadata targets plus normal all9audit/actual9compiled-widget cases complete. Original two-real-example/vendor completeness remains; sanitization and unsupported EVOS variant disclosed.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {

@@ -408,3 +408,26 @@ Literal two-REAL-example gaps remain unresolved, without assumed maintainer
 waiver or invented filenames. Evidence:data/441_provisional_warning_truth_2026-10-15/.
 
 2026-10-15 — Private Cytation evidence amendment: two additional Phase Contrast names from pinned upstream bioformats2raw BioTekTest real-world-derived cases now carry the explicit channel/wavelength sanitization caveat. Original example, pattern and provisional status retained; all other18 records/all19 patterns unchanged. New provenance baseline1FAIL1.15s becomes9focusedPASS8.07s (78unrelated deselected). See features/data/441_cytation_sourced_examples_2026-10-15/. No whole-item completion: EVOS/ScanR matching raw-name and Zeiss observed-output evidence remains incomplete; normal nine-locale UI closure is separately pending.
+
+2026-10-15 — Dynamic metadata labels and normal nine-locale software closure
+The field preserves persisted convention IDs while its example, verification,
+status and ranking text retranslates when the actual language preference
+changes. Ten source messages have90 independently reviewed targets. Normal
+coherent generation coalesces those with nine already-peered web model-scale
+translations; all99 pass ordinary loader/source/context/candidate gates,
+normal full nine-language runtime audit and fresh actual canonical equality.
+All10,993 unrelated values/source hashes per locale remain exact; baseline
+9,833 is immutable (arrivals1,324added/33changed/153retired).
+Actual nine compiled-widget cases PASS9/2.63s via real temporary persisted
+preferences, same widgets/stable IDs/ranking data and input-byte preservation.
+An initial Qt abort happened before any case under the wrong runner; exact
+evidence and the controlled established-environment correction are retained.
+Normal source-only API visibility/nested-helper projections are unchanged,
+so no API writer was required. Earlier19 mechanical/extractor checks are
+retained evidence, not retested or summed into the nine-locale acceptance.
+Scope remains bounded: vendor/raw-example completeness is not claimed. The
+two Cytation upstream examples disclose sanitization; the observed EVOS save
+filename lacks Z and is rejected rather than inventing a slice. No guessed
+second acquired filename or whole-item closure. See data/441_698_translation_batch_2026-10-15/,
+data/441_actual_compiled_metadata_consumers_2026-10-15/ and
+data/441_evos_primary_followup_2026-10-15/.
