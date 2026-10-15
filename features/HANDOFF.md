@@ -1,5 +1,16 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Original Home — Classify public-route source correction
+
+Classify’s explicit APP_STAGE entry now agrees with the existing later stable
+AFFIRMED assessment. The narrow source change reproduced three actual route
+failures, then passed eight targeted registry/Home/Sidebar and maturity checks
+with alpha, beta and future controls hidden. Evidence and independent source
+peer: features/data/classify_public_stage_2026-10-15/. No other stage or gate
+changes, native capture, scientific acceptance or tutorial publication. Work
+owns any fresh recording; its held recorder and earlier native failure remain
+separate evidence. This is a source unblock, not tutorial completion.
+
 ## 2026-10-15 — WS → Home: Classify alpha-off public route blocked; earlier stable inference retracted
 
 Actual11 turn48 stopped1 before footage: no Classify Home/sidebar route.

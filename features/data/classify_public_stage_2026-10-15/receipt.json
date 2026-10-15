@@ -1,0 +1,24 @@
+{
+  "scope": "Existing stable Classify assessment public-route correction",
+  "base": "c98f0cd6bd73ba26e3075693edce2ef13479f2c3",
+  "before_source_sha256": "cbdc1833d5ee613c96df2c1099aed6caaecf570de45fe7a677cc94fac6c48d1d",
+  "after_source_sha256": "c24be041e08ba3a2f5657f27d9ff41a31ee43b6308c7eb5fd83fa91e0fd47609",
+  "test_sha256": "6043af3d0aebd85e7caff10e17dd1fc92d2bb0184079292cb790b848584c7b99",
+  "only_ast_delta": "APP_STAGE[classify_merged]: STAGE_ALPHA -> STAGE_STABLE",
+  "line_count_unchanged": true,
+  "baseline": {
+    "failures": 3,
+    "passes": 0,
+    "exit": 1
+  },
+  "owning": {
+    "failures": 0,
+    "passes": 8,
+    "exit": 0
+  },
+  "limits": [
+    "No native recording, classifier scientific acceptance, or tutorial publication",
+    "Work captured full app source differs; independent current-tree baseline used",
+    "No changes to maturity policy, future controls, species gates, backend, prose or user captions"
+  ]
+}

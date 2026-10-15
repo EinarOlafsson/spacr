@@ -1227,7 +1227,7 @@ STAGES = (STAGE_ALPHA, STAGE_BETA, STAGE_STABLE)
 #: Signing an app off is deleting its line here. Nothing else moves: the
 #: app is already filed under what it does.
 APP_STAGE = {
-    "classify_merged": STAGE_ALPHA,
+    "classify_merged": STAGE_STABLE,
     "align":           STAGE_ALPHA,
     "convert":         STAGE_ALPHA,
     "foreign":         STAGE_ALPHA,
