@@ -10781,7 +10781,7 @@ API_ENTRIES = (
     ('spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.text_options', 'The :class:`spacr.plaque_papers.TextOptions` the controls describe.'),
     ('spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.text_values', 'The Text detection controls as ``text_*`` settings.'),
     ('spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.views', 'The four views of the preview picture.'),
-    ('spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog', "The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab."),
+    ('spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog', "The Plaque Assay preview's settings: Figure, Text detection and Plaque detection tabs."),
     ('spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog.give_back', 'Return every lent control to the panel, hidden, values intact.'),
     ('spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog.show_mode', 'Show the tabs ``mode`` uses and open the right one.'),
     ('spacr.qt.widgets.plaque_preview._serialized_inference.run', 'Serialize the wrapped inference call so cached model instances cannot overlap.'),

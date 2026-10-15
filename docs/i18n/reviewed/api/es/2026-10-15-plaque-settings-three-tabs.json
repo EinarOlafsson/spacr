@@ -1,0 +1,37 @@
+{
+  "independent_peer": {
+    "decision": "ACCEPT",
+    "draft_sha256": "f6e1b8846aff83f239bd6dfdf8d9a386ff1c0ebf8669d09ca3cb6df3af76006b",
+    "receipt_sha256": "2f049516cc0bed89bf0bf27a0a763eb488afa2f388052ad1d486b3a2b4169271"
+  },
+  "language": "es",
+  "note": "Only current rendered class/constructor blocks0/2/4 correct stale two-tab prose. Behavior/publicsignatures/allotherdocblocks unchanged.",
+  "records": [
+    {
+      "context": "The Plaque Assay preview's settings: Figure, Text detection and Plaque detection tabs.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+      "review_basis": "Truthful actual three-tab settings dialog: Figure, Text detection, Plaque detection. In Plaque mode BOTH Figure/Text detection hidden; controls arranged across three tabs. Uses existing localized UI label vocabulary. Sourcebound AI technical review only; independent root peer pending, no native/human signoff.",
+      "source": "The Plaque Assay preview's settings: Figure, Text detection and Plaque detection tabs.",
+      "source_sha256": "5495d84ccb8b417598fc38d2110df38f4ff94da39759938754ea8599259af4c9",
+      "translation": "Los ajustes de la vista previa de Plaque Assay: pestañas Figura, Detección de texto y Detección de placas."
+    },
+    {
+      "context": "In Plaque mode the Figure and Text detection tabs are hidden: neither applies to a folder of cropped plaque images.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+      "review_basis": "Truthful actual three-tab settings dialog: Figure, Text detection, Plaque detection. In Plaque mode BOTH Figure/Text detection hidden; controls arranged across three tabs. Uses existing localized UI label vocabulary. Sourcebound AI technical review only; independent root peer pending, no native/human signoff.",
+      "source": "In Plaque mode the Figure and Text detection tabs are hidden: neither applies to a folder of cropped plaque images.",
+      "source_sha256": "f38b9e158f223823762ab4a5af51f4b53f2ba833757ae9487d98e0bc060a3e3d",
+      "translation": "En el modo Placa se ocultan las pestañas Figura y Detección de texto: ninguna se aplica a una carpeta de imágenes recortadas de placas."
+    },
+    {
+      "context": "Lay the panel's controls out in three tabs.",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+      "review_basis": "Truthful actual three-tab settings dialog: Figure, Text detection, Plaque detection. In Plaque mode BOTH Figure/Text detection hidden; controls arranged across three tabs. Uses existing localized UI label vocabulary. Sourcebound AI technical review only; independent root peer pending, no native/human signoff.",
+      "source": "Lay the panel's controls out in three tabs.",
+      "source_sha256": "1220abe427e5d62b3ac2901c5c0f545fd85b31d28209a22ad7592b6fdfcd5458",
+      "translation": "Distribuir los controles del panel en tres pestañas."
+    }
+  ],
+  "review_kind": "AI technical source/translation review with independent root peer; no native/human signoff",
+  "schema": 1
+}

@@ -1,0 +1,10 @@
+{
+  "incoming_public": "719aa022b1",
+  "source_file": "spacr/qt/widgets/plaque_preview.py",
+  "incoming_sha256": "a41d63c1aa6f467931848261df4243f1af1b580c9ef0b4f301d4caf2f94fa69c",
+  "final_sha256": "4c24e709b46fec0603b74eec492b59441d34998c7f3c0524a2f9694047f9598c",
+  "all_executable_AST_and_nondoc_literals_unchanged": true,
+  "no_runtime_caption_or_signature_changes": true,
+  "nondoc_AST_sha256": "c616ad236612caa713155c5bf7797a4e7a1373895b5173ee9c5c3866d75b7ec7",
+  "scope": "Exact doc-only correction of class and constructor; actual runtime59 proof keeps same owning tr calls/settings/templates and their source identities. Earlier full-file runtime audit pins remain historical, with this explicit doc-only delta proof."
+}
