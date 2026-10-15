@@ -1,0 +1,123 @@
+{
+  "schema": 1,
+  "status": "PASS published source, production build, Pages deployment and two public route readbacks",
+  "observed_utc": "2026-10-15T12:24:12.010680+00:00",
+  "source_repository": "EinarOlafsson/site-src",
+  "source_commit": "72d1b1a12ca142d630b372063550f08d6a664b59",
+  "source_push": "Normal non-force push to origin main after fetch/ff-only reconciliation; no source race",
+  "production_workflow": {
+    "databaseId": 38734054119,
+    "headSha": "72d1b1a12ca142d630b372063550f08d6a664b59",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/EinarOlafsson/site-src/actions/runs/38734054119"
+  },
+  "public_repository": "EinarOlafsson/EinarOlafsson.github.io",
+  "deployed_commit": {
+    "date": "2026-10-15T12:22:34Z",
+    "message": "Deploy site-src 72d1b1a",
+    "sha": "7e69799204fdaa0a2ce376b08d48c377a550f54e",
+    "url": "https://github.com/EinarOlafsson/EinarOlafsson.github.io/commit/7e69799204fdaa0a2ce376b08d48c377a550f54e"
+  },
+  "pages_workflow": {
+    "databaseId": 38734156236,
+    "headSha": "7e69799204fdaa0a2ce376b08d48c377a550f54e",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/EinarOlafsson/EinarOlafsson.github.io/actions/runs/38734156236"
+  },
+  "production_privacy_check": "Existing workflow used its production SITE_PASSWORD and DEPLOY_KEY, encrypted both protected pages, passed planted-word selftest and75-word leak check across123files; disposable local validation output was not deployed.",
+  "new_url": "https://einarolafsson-spacr-docs-nightly-v2.static.hf.space/index.html",
+  "old_url": "https://einarolafsson-spacr-docs-nightly.static.hf.space/index.html",
+  "public_routes": [
+    {
+      "language": "en",
+      "url": "https://einarolafsson.github.io/projects/spacr/",
+      "final_url": "https://einarolafsson.github.io/projects/spacr/",
+      "status": 200,
+      "headers": {
+        "Connection": "close",
+        "Content-Length": "126698",
+        "Server": "GitHub.com",
+        "Content-Type": "text/html; charset=utf-8",
+        "Last-Modified": "Thu, 15 Oct 2026 12:22:59 GMT",
+        "Access-Control-Allow-Origin": "*",
+        "Strict-Transport-Security": "max-age=31556952",
+        "ETag": "\"6ad0c5a3-1eeea\"",
+        "expires": "Thu, 15 Oct 2026 12:33:27 GMT",
+        "Cache-Control": "max-age=600",
+        "x-proxy-cache": "MISS",
+        "X-GitHub-Request-Id": "64BA:18D141:2A8460:2ECCC0:6AD0C5BF",
+        "x-github-edge-region": "iad",
+        "Accept-Ranges": "bytes",
+        "Age": "0",
+        "Date": "Thu, 15 Oct 2026 12:23:27 GMT",
+        "Via": "1.1 varnish",
+        "X-Served-By": "cache-dtw8024-DTW",
+        "X-Cache": "MISS",
+        "X-Cache-Hits": "0",
+        "X-Timer": "S1792067008.591205,VS0,VE97",
+        "Vary": "Accept-Encoding",
+        "X-Fastly-Request-ID": "05c63bced8d167c4c299d915214c96db781bb56f"
+      },
+      "bytes": 126698,
+      "sha256": "34fa28bde936849344c7d821774d2a540f5549afa731636c0363d5f8a1efb626",
+      "new_link_count": 1,
+      "old_link_count": 0,
+      "complete_bytes_equal_reviewed_validation_output": true
+    },
+    {
+      "language": "sv",
+      "url": "https://einarolafsson.github.io/projects/spacr/sv/",
+      "final_url": "https://einarolafsson.github.io/projects/spacr/sv/",
+      "status": 200,
+      "headers": {
+        "Connection": "close",
+        "Content-Length": "132338",
+        "Server": "GitHub.com",
+        "Content-Type": "text/html; charset=utf-8",
+        "Last-Modified": "Thu, 15 Oct 2026 12:22:59 GMT",
+        "Access-Control-Allow-Origin": "*",
+        "Strict-Transport-Security": "max-age=31556952",
+        "ETag": "\"6ad0c5a3-204f2\"",
+        "expires": "Thu, 15 Oct 2026 12:33:28 GMT",
+        "Cache-Control": "max-age=600",
+        "x-proxy-cache": "MISS",
+        "X-GitHub-Request-Id": "CA3A:19D9DB:2A7293:2EB905:6AD0C5BF",
+        "x-github-edge-region": "iad",
+        "Accept-Ranges": "bytes",
+        "Age": "0",
+        "Date": "Thu, 15 Oct 2026 12:23:28 GMT",
+        "Via": "1.1 varnish",
+        "X-Served-By": "cache-dtw8029-DTW",
+        "X-Cache": "MISS",
+        "X-Cache-Hits": "0",
+        "X-Timer": "S1792067008.083849,VS0,VE58",
+        "Vary": "Accept-Encoding",
+        "X-Fastly-Request-ID": "a68bb757b2977e100fc300eeac7f50f4800b6f60"
+      },
+      "bytes": 132338,
+      "sha256": "8a42925ff34d2c819de85fc1518ee3cd54a3fbe7f60d119c619f9f42c1710268",
+      "new_link_count": 1,
+      "old_link_count": 0,
+      "complete_bytes_equal_reviewed_validation_output": true
+    }
+  ],
+  "limits": [
+    "Only the reviewed one-href source change was published.",
+    "No N698 tabs/client/backend or Work files changed.",
+    "Replacement documentation Space serves accepted older build source8e0a1fd; current-head documentation freshness and broaderN689 routing remain separate.",
+    "Two public routes checked; all10 locale hrefs were checked in normal local build."
+  ],
+  "evidence_sha256": {
+    "receipt.json": "bbfc734589092a9ad1cb40d26da42b57a4dc4bf85f9b0978957d63212988fa1a",
+    "source-action-final.json": "bfca6ea2a0e1ce26d22e794ddf2bfc39ac4cf5ad93ad84840d4661d9d8aafee8",
+    "pages-action-final.json": "07313318d579845668fc35571ff770e514599bd484f930ef32ee0dbc44bb3a57",
+    "deployed-commit.json": "c813c744b48b9bf0ea966ab5b298f01a4ed24771bfdee23aa82b7f9b93df8ec5",
+    "public-readback.json": "f8537b1dad216be2865be12572dee55dcc9d81667e50973c76579ee82aac4562",
+    "public_readback.py": "e7be7c74a04fb746e887a5c79c7081a672a9e7cb1cfd7a99cc32b35d8514173e",
+    "public-en.html.gz": "d4ff48e89d186a9dc4ef4e6961e6ab3815b75c38fa594c02be3a9af9175ec2b5",
+    "public-sv.html.gz": "819ee79c4a1e315b881f29911869306b3419ed4b5ae3264b6b1ec5ff5f4f3bb6",
+    "source-action.log.gz": "195c31da19c8022565ba9948247202f992d5297f12066613043046fb5364f56a"
+  }
+}

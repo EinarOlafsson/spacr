@@ -206,3 +206,22 @@ gates. No full CI, Sphinx build, tutorial recording or media regeneration.
 Evidence: data/689_configurable_host_2026-10-15/,
 data/689_space_tree_verifier_2026-10-15/ and
 data/689_space_tree_verifier_peer_2026-10-15/.
+
+2026-10-15 — Free candidate hosted and project website link cut over.
+New static Space revision732766ad32dd47784cb5c2a15c8c57516aae8252 contains
+all3322 expected files/459836810bytes with matching Git/LFS identities.
+Live receipts/homepage match; six representative English/Swedish/API/tutorial
+requests return200 with exact expected content apart from the already accepted
+101-byte HF HTML envelope. Both JSON bodies and84 content-addressed media
+references are preserved. No video playback or current-head docs claim:
+this is the exact prebuilt8e0a1fd source, not relabeled newer software.
+
+Site-src source72d1b1a changes only the nightly href. Normal i18n/build/leak
+checks and all ten rendered locale hrefs pass. Production run38734054119 and
+Pages38734156236 pass, deploying7e697992; public English/Swedish project pages
+now point to the verified v2 host. The disposable local validation output was
+never deployed. Old Space/history were not written; no paid options or canonical
+repository variable/secret changes. Automated-target token/cutover, main Pages
+/nightly redirects and Work's two direct endpoints remain pending coordination.
+Evidence:data/689_free_static_candidate_2026-10-15/ and
+data/689_candidate_representative_readback_2026-10-15/.

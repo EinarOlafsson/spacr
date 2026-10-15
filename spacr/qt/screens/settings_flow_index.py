@@ -233,6 +233,8 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'counterfactual_crops',
     'counterfactual_epochs',
     'counterfactual_generator',
+    'counterfactual_strength',
+    'counterfactual_structure_weight',
     'counterfactual_target',
     'counterfactuals',
     'cov_type',

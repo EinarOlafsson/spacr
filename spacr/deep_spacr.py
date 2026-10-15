@@ -3230,7 +3230,9 @@ def _run_counterfactuals(settings, model, crops, names, out_dir, device):
 
     :param settings: the activation-map settings (``counterfactual_epochs``,
         ``counterfactual_condition``, ``counterfactual_target``,
-        ``counterfactual_generator``).
+        ``counterfactual_generator``, ``counterfactual_strength`` and
+        ``counterfactual_structure_weight``). The latter two apply only to
+        diffusion; a zero strength is retained as an identity setting.
     :param model: the loaded classifier, in eval mode.
     :param crops: list of ``(B, C, H, W)`` tensors in model input space.
     :param names: one file name per crop.
@@ -3248,12 +3250,19 @@ def _run_counterfactuals(settings, model, crops, names, out_dir, device):
     conditions = (None if key == 'class' else
                   [_cf_condition_of(name, key) for name in names])
     try:
+        kind = settings.get('counterfactual_generator') or 'autoencoder'
+        options = {}
+        if str(kind).strip().lower() == 'diffusion':
+            options = {
+                'strength': settings.get('counterfactual_strength', .95),
+                'structure_weight': settings.get('counterfactual_structure_weight', 0),
+            }
         summary, _rows, _frames = _counterfactual_report(
             model, batch, names=names,
             epochs=int(settings.get('counterfactual_epochs') or 30),
             device=device, out_dir=out_dir, conditions=conditions,
             target=settings.get('counterfactual_target') or None,
-            generator=settings.get('counterfactual_generator') or 'autoencoder')
+            generator=kind, generator_options=options)
     except ValueError as exc:
         print(f"Counterfactuals skipped: {exc}")
         return None

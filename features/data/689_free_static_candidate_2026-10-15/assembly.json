@@ -1,0 +1,1 @@
+{"schema": 2, "channels": {"nightly": {"schema": 1, "branch": "nightly", "commit": "8e0a1fdbead894e544b3c55a7e7d2efbd84df851", "translation_policy": "report-only; incompatible locales fall back to English"}}, "nightly_url": "https://einarolafsson-spacr-docs-nightly-v2.static.hf.space/", "index_links": 871, "media_files": 83, "size_bytes": 459836810}

@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "counterfactual_strength",
+      "source": "Counterfactual strength",
+      "source_sha256": "782aa7c47e39bee98fdda1ddb7185b4fd330b4aa2eb44aa98772c0c1d5ad9a62",
+      "translation": "प्रतितथ्यात्मक तीव्रता"
+    },
+    {
+      "table": "setting_labels",
+      "key": "counterfactual_structure_weight",
+      "source": "Counterfactual structure weight",
+      "source_sha256": "d79cd37042c4777ba5210831c978f9171370169510023bef47aa7c162ffd9f17",
+      "translation": "प्रतितथ्यात्मक संरचना भार"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_strength",
+      "source": "Fraction of the diffusion noise schedule used for inversion, from 0 to 1. Lower values retain more of the source but may change the phenotype less. Zero leaves the crop unchanged. Used only by the diffusion counterfactual generator. Default 0.95.",
+      "source_sha256": "2a16e7065b82baa00c725684f2228538ae86c1b9c7e84e1b3e10cb4ce20e7e77",
+      "translation": "उत्क्रमण के लिए उपयोग किया जाने वाला विसरण शोर अनुसूची का अंश, 0 से 1 तक। कम मान मूल स्रोत का अधिक हिस्सा बनाए रखते हैं, लेकिन फेनोटाइप में कम बदलाव कर सकते हैं। शून्य रखने पर छवि का क्रॉप अपरिवर्तित रहता है। केवल विसरण प्रतितथ्यात्मक जनरेटर में उपयोग होता है। डिफ़ॉल्ट मान 0.95 है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_structure_weight",
+      "source": "Nonnegative weight of the diffusion training penalty for changes in spatial gradients at several scales. Uniform channel offsets are not penalized. This encourages layout retention but does not guarantee biological identity or phenotype success. Zero keeps denoising-only training. Used only by the diffusion counterfactual generator. Default 0.",
+      "source_sha256": "b4892995a9a2589815124695ca32b65db92085168d5e83f355ec60dbeb96ce26",
+      "translation": "कई पैमानों पर स्थानिक ग्रेडिएंट में बदलाव के लिए विसरण प्रशिक्षण की दंडात्मक हानि का गैर-ऋणात्मक भार। चैनल मानों में एकसमान बदलाव पर दंड नहीं लगाया जाता। इससे स्थानिक व्यवस्था को बनाए रखने में सहायता मिलती है, लेकिन जैविक पहचान या फेनोटाइप में सफल बदलाव की गारंटी नहीं मिलती। शून्य रखने पर केवल शोर हटाने वाला प्रशिक्षण बना रहता है। केवल विसरण प्रतितथ्यात्मक जनरेटर में उपयोग होता है। डिफ़ॉल्ट मान 0 है।"
+    },
+    {
+      "table": "ui",
+      "key": "The counterfactual structure weight must be finite and nonnegative.",
+      "source": "The counterfactual structure weight must be finite and nonnegative.",
+      "source_sha256": "c6efebd2d3c7a3cc85e552120debf9c01bae44c814f4a6a228450a25e33d51a1",
+      "translation": "प्रतितथ्यात्मक संरचना भार परिमित और गैर-ऋणात्मक होना चाहिए।"
+    },
+    {
+      "table": "ui",
+      "key": "The counterfactual diffusion strength must be between zero and one.",
+      "source": "The counterfactual diffusion strength must be between zero and one.",
+      "source_sha256": "b38e8212f0c13f613a1078e29ccdd7d4aba49add027b38d8d53fb0ba7934e316",
+      "translation": "प्रतितथ्यात्मक विसरण की तीव्रता शून्य और एक के बीच होनी चाहिए।"
+    },
+    {
+      "table": "ui",
+      "key": "Structure preservation requires matching finite floating-point NCHW tensors.",
+      "source": "Structure preservation requires matching finite floating-point NCHW tensors.",
+      "source_sha256": "90eca3a556348e82b9056146633d489dc48e0a22ef377d0eed402d4b8188a653",
+      "translation": "संरचना के संरक्षण के लिए मेल खाते, परिमित फ़्लोटिंग-पॉइंट मानों वाले NCHW टेंसर आवश्यक हैं।"
+    }
+  ]
+}

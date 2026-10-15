@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "counterfactual_strength",
+      "source": "Counterfactual strength",
+      "source_sha256": "782aa7c47e39bee98fdda1ddb7185b4fd330b4aa2eb44aa98772c0c1d5ad9a62",
+      "translation": "Intensité contrefactuelle"
+    },
+    {
+      "table": "setting_labels",
+      "key": "counterfactual_structure_weight",
+      "source": "Counterfactual structure weight",
+      "source_sha256": "d79cd37042c4777ba5210831c978f9171370169510023bef47aa7c162ffd9f17",
+      "translation": "Poids structurel contrefactuel"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_strength",
+      "source": "Fraction of the diffusion noise schedule used for inversion, from 0 to 1. Lower values retain more of the source but may change the phenotype less. Zero leaves the crop unchanged. Used only by the diffusion counterfactual generator. Default 0.95.",
+      "source_sha256": "2a16e7065b82baa00c725684f2228538ae86c1b9c7e84e1b3e10cb4ce20e7e77",
+      "translation": "Fraction du programme de bruit de diffusion utilisée pour l’inversion, de 0 à 1. Les valeurs plus faibles préservent davantage la source, mais peuvent moins modifier le phénotype. Zéro laisse le recadrage inchangé. Utilisée uniquement par le générateur contrefactuel à diffusion. Valeur par défaut 0.95."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_structure_weight",
+      "source": "Nonnegative weight of the diffusion training penalty for changes in spatial gradients at several scales. Uniform channel offsets are not penalized. This encourages layout retention but does not guarantee biological identity or phenotype success. Zero keeps denoising-only training. Used only by the diffusion counterfactual generator. Default 0.",
+      "source_sha256": "b4892995a9a2589815124695ca32b65db92085168d5e83f355ec60dbeb96ce26",
+      "translation": "Poids non négatif de la pénalité d’entraînement par diffusion pour les changements des gradients spatiaux à plusieurs échelles. Les décalages uniformes des valeurs des canaux ne sont pas pénalisés. Cela favorise la conservation de l’organisation spatiale, sans garantir l’identité biologique ni la réussite du changement de phénotype. Zéro conserve l’entraînement au débruitage seul. Utilisé uniquement par le générateur contrefactuel à diffusion. Valeur par défaut 0."
+    },
+    {
+      "table": "ui",
+      "key": "The counterfactual structure weight must be finite and nonnegative.",
+      "source": "The counterfactual structure weight must be finite and nonnegative.",
+      "source_sha256": "c6efebd2d3c7a3cc85e552120debf9c01bae44c814f4a6a228450a25e33d51a1",
+      "translation": "Le poids structurel contrefactuel doit être fini et non négatif."
+    },
+    {
+      "table": "ui",
+      "key": "The counterfactual diffusion strength must be between zero and one.",
+      "source": "The counterfactual diffusion strength must be between zero and one.",
+      "source_sha256": "b38e8212f0c13f613a1078e29ccdd7d4aba49add027b38d8d53fb0ba7934e316",
+      "translation": "L’intensité de diffusion contrefactuelle doit être comprise entre zéro et un."
+    },
+    {
+      "table": "ui",
+      "key": "Structure preservation requires matching finite floating-point NCHW tensors.",
+      "source": "Structure preservation requires matching finite floating-point NCHW tensors.",
+      "source_sha256": "90eca3a556348e82b9056146633d489dc48e0a22ef377d0eed402d4b8188a653",
+      "translation": "La préservation de la structure nécessite des tenseurs NCHW correspondants à valeurs finies en virgule flottante."
+    }
+  ]
+}
