@@ -407,3 +407,20 @@ legacy semantics are unchanged by this bounded repair; direct key-only fetch
 loops and broader figure-key fuzzy behavior remain separate gaps. No real
 models/external network/GPU/fullCI. Parent702 remains partial.
 Evidence: data/702_legacy_consumer_missing_paths_2026-10-14/receipt.json.
+
+2026-10-14 — legacy bare zoo keys share verified acquisition and exact identity:
+Training bases, plaque segmentation, well detection and figure models now
+reuse the shared cache/OS lock/acquisition path for bare catalogue keys as
+well as missing filenames. Repeated requests reuse verified cached bytes
+rather than fetching directly again. Figure model lookup no longer calls
+the fuzzy resolver, and actual detector/segmenter calls specify their kind.
+Plaque key preview uses the pure planning index only. Stock training names
+and supplied existing custom paths retain their semantics.
+Seven new native key/cache/fuzzy/kind/preview cases plus finite existing
+training/plaque/figure tests passed81cases in23.84seconds, exit0 (two existing
+skimage warnings). Older minimal mock namespaces now use the actual model
+entry protocol and shared destination type; no guard was relaxed. Legacy
+bulk bundled pack/historical provenance and offline catalog localization
+remain separate. No scientific model/GPU/external network/fullCI; parent702
+remains partial.
+Evidence: data/702_legacy_shared_key_acquisition_2026-10-14/receipt.json.

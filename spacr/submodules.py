@@ -1365,20 +1365,15 @@ def _resolve_detector_weights(requested, setting):
     if os.path.isfile(requested):
         return requested
     from . import model_zoo
+
+    resolved = model_zoo._ensure_model_file(requested, kinds=('detector',))
+    if resolved is not None:
+        return str(resolved)
     if '/' in requested or '\\' in requested or requested.startswith('~'):
-        resolved = model_zoo._ensure_model_file(requested, kinds=('detector',))
-        if resolved is not None:
-            return str(resolved)
         raise ModelZooMissing(requested)
-    entry = next((e for e in model_zoo.catalogue(remote=True)
-                  if e.key == requested), None)
-    if entry is None:
-        raise ValueError(
-            f"{setting}={requested!r} is neither a file nor a model_zoo "
-            f"key")
-    dest = os.path.join(str(_spacr_home()), 'models')
-    os.makedirs(dest, exist_ok=True)
-    return str(model_zoo.fetch(entry, dest))
+    raise ValueError(
+        f"{setting}={requested!r} is neither a file nor a model_zoo "
+        f"key")
 
 
 class ModelZooMissing(FileNotFoundError):
@@ -1401,23 +1396,13 @@ def _resolve_training_base(requested):
     if os.path.isfile(name):
         return name
     from . import model_zoo
+
+    resolved = model_zoo._ensure_model_file(name, kinds=('cellpose',))
+    if resolved is not None:
+        return str(resolved)
     if '/' in name or '\\' in name or name.startswith('~'):
-        resolved = model_zoo._ensure_model_file(name, kinds=('cellpose',))
-        if resolved is not None:
-            return str(resolved)
         raise ModelZooMissing(name)
-    entry = next((e for e in model_zoo.catalogue(remote=True)
-                  if e.key == name), None)
-    if entry is None:
-        return name
-    local = str(getattr(entry, 'path', '') or '')
-    if local and os.path.isfile(local):
-        return local
-    if not getattr(entry, 'uri', None):
-        return name
-    dest = os.path.join(str(_spacr_home()), 'models')
-    os.makedirs(dest, exist_ok=True)
-    return str(model_zoo.fetch(entry, dest))
+    return name
 
 
 #: The plaque model a run segments with when none is named: the cpsam_v2
@@ -1589,30 +1574,20 @@ def _resolve_plaque_model(settings, fetch=True):
             "a model_zoo key such as 'toxoplasma_plaque_v1' instead.")
 
     from . import model_zoo
-    if '/' in requested or '\\' in requested or requested.startswith('~'):
-        resolved = model_zoo._ensure_model_file(requested, kinds=('cellpose',), download=fetch)
-        if resolved is not None and os.path.isfile(resolved):
+
+    resolved = model_zoo._ensure_model_file(requested, kinds=('cellpose',), download=fetch)
+    if resolved is not None:
+        if fetch or os.path.isfile(resolved):
             return str(resolved)
-        raise ModelZooMissing(str(resolved) if resolved is not None else requested)
-    entry = next((e for e in model_zoo.catalogue(remote=True)
-                  if e.key == requested), None)
-    if entry is None:
-        raise ValueError(
-            f"plaque_model={requested!r} is neither a file that exists, the "
-            f"string 'bundled', nor a model_zoo key. Known keys: "
-            f"{sorted(e.key for e in model_zoo.catalogue(remote=True))}")
-    dest = os.path.join(str(_spacr_home()), 'models')
-    if not fetch:
-        for candidate in (str(getattr(entry, 'path', '') or ''),
-                          os.path.join(dest, str(getattr(entry, 'name', '')
-                                                 or ''))):
-            if candidate and os.path.isfile(candidate):
-                return candidate
-        raise ModelZooMissing(
-            f"plaque_model={requested!r} is not on this machine yet (looked "
-            f"in {dest}); running the plaque analysis downloads it.")
-    os.makedirs(dest, exist_ok=True)
-    return str(model_zoo.fetch(entry, dest))
+        raise ModelZooMissing(str(resolved))
+    if '/' in requested or '\\' in requested or requested.startswith('~'):
+        raise ModelZooMissing(requested)
+    entries = (model_zoo.catalogue(remote=True) if fetch
+               else model_zoo._planning_model_entries())
+    raise ValueError(
+        f"plaque_model={requested!r} is neither a file that exists, the "
+        f"string 'bundled', nor a model_zoo key. Known keys: "
+        f"{sorted(e.key for e in entries)}")
 
 
 def analyze_plaques(settings):

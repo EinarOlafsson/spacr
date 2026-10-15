@@ -2325,28 +2325,22 @@ def _image_pixels_per_um(path: Any) -> Optional[float]:
         return None
 
 
-def _zoo_path(key: str, cache: Path) -> Tuple[str, str]:
+def _zoo_path(key: str, cache: Path, *, kind=None) -> Tuple[str, str]:
     """A zoo model's local path and a description to record with results.
 
     :param key: a zoo key, or a path to a checkpoint.
-    :param cache: where a downloaded model is kept.
+    :param cache: legacy destination argument; the shared verified cache is used.
+    :param kind: checkpoint kind required by the actual consumer, when known.
     :returns: ``(path, 'name sha256')``.
     """
-    if Path(str(key)).exists():
+    if Path(str(key)).is_file():
         return str(key), f"{Path(str(key)).name}"
     from . import model_zoo as zoo
 
-    text = str(key)
-    if '/' in text or '\\' in text or text.startswith('~'):
-        resolved = zoo._ensure_model_file(text)
-        if resolved is None:
-            raise zoo.ModelUnreadable(text)
-        return str(resolved), f"{resolved.name} {zoo.sha256_file(resolved)}"
-
-    entry = zoo.resolve(key, zoo.catalogue())
-    path = entry.path if getattr(entry, "path", None) and Path(entry.path).exists() \
-        else zoo.fetch(entry, cache)
-    return str(path), f"{entry.name} {entry.sha256 or ''}".strip()
+    resolved = zoo._ensure_model_file(str(key), kinds=(kind,) if kind else ())
+    if resolved is None:
+        raise zoo.ModelUnreadable(str(key))
+    return str(resolved), f"{resolved.name} {zoo.sha256_file(resolved)}"
 
 
 def _cellpose_segmenter(path: str, *, return_metrics: bool = False) -> Callable:
@@ -2467,10 +2461,10 @@ def measure_plaques_from_papers(
     review = review or console_review
     read_text = read_text or read_words
     detector_path, detector_id = (detector, str(detector)) if detect else \
-        _zoo_path(detector, dst / "models")
+        _zoo_path(detector, dst / "models", kind="detector")
     segmenter_id = str(segmenter)
     if segment is None:
-        segmenter_path, segmenter_id = _zoo_path(segmenter, dst / "models")
+        segmenter_path, segmenter_id = _zoo_path(segmenter, dst / "models", kind="cellpose")
         segment = _cellpose_segmenter(segmenter_path, return_metrics=True)
     references = list(references)
     run_id = _start_run(
@@ -3209,10 +3203,10 @@ def measure_figure_folder(
     database = dst / "plaque_figures.db"
     connection = open_database(database)
     detector_path, detector_id = (detector, str(detector)) if detect else \
-        _zoo_path(detector, dst / "models")
+        _zoo_path(detector, dst / "models", kind="detector")
     segmenter_id = str(segmenter)
     if segment is None:
-        segmenter_path, segmenter_id = _zoo_path(segmenter, dst / "models")
+        segmenter_path, segmenter_id = _zoo_path(segmenter, dst / "models", kind="cellpose")
         segment = _cellpose_segmenter(segmenter_path, return_metrics=True)
     run_id = _start_run(
         connection, entry="folder", source=str(src.resolve()),
