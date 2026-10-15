@@ -44,14 +44,14 @@
       "key": "All {total} .{extension} files parse.",
       "source": "All {total} .{extension} files parse.",
       "source_sha256": "83dcef9065d4facb51a49c97ad99bd74a84ac8457385ef80a1c44cc03f680fba",
-      "translation": ".{extension} 파일 {total}개를 모두 해석할 수 있습니다."
+      "translation": "총 {total}개의 .{extension} 파일을 모두 해석할 수 있습니다."
     },
     {
       "table": "ui",
       "key": "{matched} of {total} files parse. The first that does not: {first}",
       "source": "{matched} of {total} files parse. The first that does not: {first}",
       "source_sha256": "80b770e2d996dc40cd0b5c279679da0481f716a25e0c782d61d90181902fea1a",
-      "translation": "파일 {total}개 중 {matched}개를 해석할 수 있습니다. 해석할 수 없는 첫 번째 파일: {first}"
+      "translation": "{matched}개 파일(총 {total}개)을 해석할 수 있습니다. 해석할 수 없는 첫 번째 파일: {first}"
     },
     {
       "table": "ui",
@@ -72,7 +72,7 @@
       "key": "{matched} of {total} — {label}  ({key})",
       "source": "{matched} of {total} — {label}  ({key})",
       "source_sha256": "821810ab6b966d095f0a0a21501db2277c66375f3b4f18c9770be70f2a55a9fb",
-      "translation": "{total}개 중 {matched}개 — {label}  ({key})"
+      "translation": "{matched}/{total}개 — {label}  ({key})"
     }
   ],
   "independent_peer": "Original coordinator reviewed original90targets and exact9neutralwarning replacements; source-only rewording of zero-match guidance preserves approvedtargets. Portable old18records, contexts and hash-bound peers retained in features/data/441_metadata_caption_review_amendment_2026-10-15/."

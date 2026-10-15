@@ -51,7 +51,7 @@
       "key": "{matched} of {total} files parse. The first that does not: {first}",
       "source": "{matched} of {total} files parse. The first that does not: {first}",
       "source_sha256": "80b770e2d996dc40cd0b5c279679da0481f716a25e0c782d61d90181902fea1a",
-      "translation": "{total} 个文件中有 {matched} 个可解析。第一个无法解析的文件：{first}"
+      "translation": "{matched}/{total} 个文件可解析。第一个无法解析的文件：{first}"
     },
     {
       "table": "ui",
@@ -72,7 +72,7 @@
       "key": "{matched} of {total} — {label}  ({key})",
       "source": "{matched} of {total} — {label}  ({key})",
       "source_sha256": "821810ab6b966d095f0a0a21501db2277c66375f3b4f18c9770be70f2a55a9fb",
-      "translation": "{total} 个中有 {matched} 个 — {label}  ({key})"
+      "translation": "{matched}/{total} 个 — {label}  ({key})"
     }
   ],
   "independent_peer": "Original coordinator reviewed original90targets and exact9neutralwarning replacements; source-only rewording of zero-match guidance preserves approvedtargets. Portable old18records, contexts and hash-bound peers retained in features/data/441_metadata_caption_review_amendment_2026-10-15/."
