@@ -1,0 +1,17 @@
+{
+  "normal_preflight_failed_before_write": true,
+  "all_committed_catalog_bytes_exact_HEAD": {
+    "spacr/qt/i18n_catalogs/__init__.py": "096acfe1354f1c88a906d7ec3515489a1cd663ce1a1a30b7b4d60038485a8181",
+    "spacr/qt/i18n_catalogs/de.py": "87dd67452582a69a8581e5e1391171bf1074f7c887545e85959e94e7ef224aa6",
+    "spacr/qt/i18n_catalogs/en.py": "d84d7aa4c77a3680f70bb934aad1c29223ddeecbf2ce0fcec9bb5c25c77b0d3a",
+    "spacr/qt/i18n_catalogs/es.py": "18c97359f91d83a8731218d6ed195a8c75cf97db0d13500bfe95fe753d3f03ea",
+    "spacr/qt/i18n_catalogs/fr.py": "dbfde87953854032b265339f6acc51368b2514a3718a8c63136d6e02ebe1e604",
+    "spacr/qt/i18n_catalogs/hi.py": "9c7ba2215ce4ab433b4e850841a03ffdef154eecc59f0c60228c6f23019c2236",
+    "spacr/qt/i18n_catalogs/is.py": "a4439c5aba8d3a600945864f46e9db315cec9b5e22dc9ee515e6265ce3d022a5",
+    "spacr/qt/i18n_catalogs/ko.py": "ec637c1b770f877174124e4a0a381a994f9144bfeb3eff58dc70429debb7c1a0",
+    "spacr/qt/i18n_catalogs/pt.py": "ce93f4372a1abecc9b54e71a98739adb614c76b44fc5f8aff02c06f8e1cf53e2",
+    "spacr/qt/i18n_catalogs/sv.py": "77938e314036383349e51fb3fdf5816c5ef9cd21fb25b71cc6268af2beb5b2cf",
+    "spacr/qt/i18n_catalogs/zh_CN.py": "416bf8376f076391541cdf474cdbe3638b8f7a87c50acd21f6bb25f353acb83f"
+  },
+  "changes_only": "Reviewed input correction; product source unchanged."
+}

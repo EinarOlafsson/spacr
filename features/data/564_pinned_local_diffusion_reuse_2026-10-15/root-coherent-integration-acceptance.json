@@ -1,0 +1,9 @@
+{
+  "decision": "Accept bounded safe local checkpoint reuse software for publication",
+  "source_delivery": "2a48457c9538923d5c1a3a62def34f2e0e18da7c",
+  "source_and_artifact_files_exact_after_merge": 37,
+  "all_postproducer_frozen_hashes_current": true,
+  "root_review": "Independent CI backend source peer accepted; root previous concrete findings corrected (nested docs, FIFO/nonblocking bounded input, strict provenance). Root reviewed45targets including exact French correction. Actual18 distinct offscreen Qt/diagnostic cases accepted with firstfixture failure retained; no successful diagnostic/backend replay. Normal45/full9/sourcefresh/arrival and standardderived stages passed.",
+  "remaining": "Larger latent backbone, real compatible trained checkpoint/acquisition, phenotype/biological acceptance and final release CI remain; no wholeF564 tick.",
+  "no_native_platform_or_new_scientific_claim": true
+}

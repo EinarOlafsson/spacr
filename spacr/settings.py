@@ -3930,6 +3930,8 @@ expected_types = {
     'counterfactual_generator':str,
     'counterfactual_strength':float,
     'counterfactual_structure_weight':float,
+    'counterfactual_checkpoint':str,
+    'counterfactual_checkpoint_sha256':str,
     'object_type':str,
     "parasite_table": str,
     "compartment": str,
@@ -5383,6 +5385,8 @@ tooltips = {
     'counterfactual_target': "(str) - Which class or condition every counterfactual morphs toward: a class index such as 1 when counterfactual_condition is 'class', otherwise a condition name as read from the crop file names, such as a well. Cells already in the target are left out. Empty morphs each cell to the next class or condition in sorted order. Ignored unless counterfactuals is on. Default ''.",
     'counterfactual_strength': '(float) - Fraction of the diffusion noise schedule used for inversion, from 0 to 1. Lower values retain more of the source but may change the phenotype less. Zero leaves the crop unchanged. Used only by the diffusion counterfactual generator. Default 0.95.',
     'counterfactual_structure_weight': '(float) - Nonnegative weight of the diffusion training penalty for changes in spatial gradients at several scales. Uniform channel offsets are not penalized. This encourages layout retention but does not guarantee biological identity or phenotype success. Zero keeps denoising-only training. Used only by the diffusion counterfactual generator. Default 0.',
+    'counterfactual_checkpoint': '(str) - Optional existing local diffusion checkpoint to reuse without training. Requires the diffusion generator and its expected SHA-256. The saved architecture, channels, preprocessing, classifier and condition identities must match the current run. Missing, legacy or incompatible metadata is refused; spaCR does not train a replacement. Blank keeps the existing training route. Default blank.',
+    'counterfactual_checkpoint_sha256': '(str) - Expected 64-character hexadecimal SHA-256 of the selected local diffusion checkpoint. Required when a checkpoint is selected; ignored when the checkpoint path is blank. A matching checksum identifies the file but does not establish biological accuracy or independent validation. Default blank.',
     'counterfactual_generator': "(str) - The model that draws the counterfactuals. 'autoencoder' is fast and trained to flip the classifier. 'diffusion' is trained only to draw crops of each class and redraws a partly noised crop under the target class, so a flip is not something it was optimised for; it is slower and needs a GPU, thousands of crops and hundreds of epochs; with a few hundred crops it changes the crops very little. Diffusion weights are saved as counterfactual_diffusion.pt next to the tables. Ignored unless counterfactuals is on. Default 'autoencoder'.",
     'sanity_check': "(bool) - Randomize the model's weights layer by layer, recompute attribution and report the similarity between maps. A method that produces nearly the same map for a randomized model is responding to image structure rather than the trained decision function. On a small CNN, the CAM family, including spaCR's default Grad-CAM, fails this test while saliency and integrated gradients pass. The resulting similarity is reported for the selected model rather than inferred from benchmark behavior. This costs one additional attribution per randomized layer. Default True.",
     'smoothgrad_samples': "(int) - Number of noise-perturbed image copies averaged into one attribution map. Using 8-50 samples reduces local gradient variability and improves between-image comparability. A value of 0, the default, evaluates the method once and minimizes computation during method selection. Applies to every method, including the CAM family, where maps are averaged explicitly rather than through Captum.",
@@ -5699,7 +5703,7 @@ categories = {
     ],
     "Regression: Diagnostics": ["regression_qc"],
 
-    "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "manders_thresholds", "normalize_input", "counterfactuals", "counterfactual_crops", "counterfactual_epochs", "counterfactual_condition", "counterfactual_target", "counterfactual_generator", "counterfactual_strength", "counterfactual_structure_weight"],
+    "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "manders_thresholds", "normalize_input", "counterfactuals", "counterfactual_crops", "counterfactual_epochs", "counterfactual_condition", "counterfactual_target", "counterfactual_generator", "counterfactual_strength", "counterfactual_structure_weight", "counterfactual_checkpoint", "counterfactual_checkpoint_sha256"],
 
     "Sequencing": ["mode", "single_direction", "target_sequence", "regex", "offset_start", "window_length", "barcode_mismatches", "chunk_size", "fill_na", "save_h5", "comp_type", "comp_level"],
 
@@ -6790,6 +6794,8 @@ def get_default_generate_activation_map_settings(settings):
     settings.setdefault('counterfactual_generator', 'autoencoder')
     settings.setdefault('counterfactual_strength', 0.95)
     settings.setdefault('counterfactual_structure_weight', 0.0)
+    settings.setdefault('counterfactual_checkpoint', '')
+    settings.setdefault('counterfactual_checkpoint_sha256', '')
     return settings
 
 def get_analyze_plaque_settings(settings):
@@ -7740,7 +7746,8 @@ ALPHA_FEATURES = {
         'settings': ('counterfactuals', 'counterfactual_crops',
                      'counterfactual_epochs', 'counterfactual_condition',
                      'counterfactual_target', 'counterfactual_generator',
-                     'counterfactual_strength', 'counterfactual_structure_weight'),
+                     'counterfactual_strength', 'counterfactual_structure_weight',
+                     'counterfactual_checkpoint', 'counterfactual_checkpoint_sha256'),
         'widgets': ('ActivationCounterfactualViewer',),
     },
     508: {

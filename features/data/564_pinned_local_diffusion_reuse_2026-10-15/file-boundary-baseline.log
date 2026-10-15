@@ -1,0 +1,130 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+________________ test_fifo_refuses_without_waiting_for_a_writer ________________
+
+tmp_path = PosixPath('/tmp/pytest-of-olafsson/pytest-3289/test_fifo_refuses_without_wait0')
+
+    def test_fifo_refuses_without_waiting_for_a_writer(tmp_path):
+        if not hasattr(os, 'mkfifo'):
+            pytest.skip('POSIX FIFO primitive is unavailable')
+        fifo = tmp_path / 'selected-checkpoint'
+        os.mkfifo(fifo)
+        script = '''
+    import sys
+    from spacr import attribution as cf
+    print('imports-ready', flush=True)
+    try:
+        cf._cf_load_checkpoint(sys.argv[1], '0' * 64, {})
+    except ValueError as error:
+        print(str(error), flush=True)
+        raise SystemExit(0)
+    raise SystemExit(9)
+    '''
+        child = subprocess.Popen([sys.executable, '-c', script, str(fifo)],
+                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        try:
+>           stdout, stderr = child.communicate(timeout=8)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_f564_checkpoint_file_boundaries.py:30: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/subprocess.py:1209: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/subprocess.py:2116: in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <Popen: returncode: -9 args: ['/home/olafsson/anaconda3/envs/spacr/bin/pytho...>
+endtime = 524039.678442947, orig_timeout = 8
+stdout_seq = [b'imports-ready\n', b''], stderr_seq = [b'']
+skip_check_and_raise = False
+
+    def _check_timeout(self, endtime, orig_timeout, stdout_seq, stderr_seq,
+                       skip_check_and_raise=False):
+        """Convenience for checking if a timeout has expired."""
+        if endtime is None:
+            return
+        if skip_check_and_raise or _time() > endtime:
+>           raise TimeoutExpired(
+                    self.args, orig_timeout,
+                    output=b''.join(stdout_seq) if stdout_seq else None,
+                    stderr=b''.join(stderr_seq) if stderr_seq else None)
+E           subprocess.TimeoutExpired: Command '['/home/olafsson/anaconda3/envs/spacr/bin/python', '-c', "\nimport sys\nfrom spacr import attribution as cf\nprint('imports-ready', flush=True)\ntry:\n    cf._cf_load_checkpoint(sys.argv[1], '0' * 64, {})\nexcept ValueError as error:\n    print(str(error), flush=True)\n    raise SystemExit(0)\nraise SystemExit(9)\n", '/tmp/pytest-of-olafsson/pytest-3289/test_fifo_refuses_without_wait0/selected-checkpoint']' timed out after 8 seconds
+
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/subprocess.py:1253: TimeoutExpired
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/tmp/pytest-of-olafsson/pytest-3289/test_fifo_refuses_without_wait0')
+
+    def test_fifo_refuses_without_waiting_for_a_writer(tmp_path):
+        if not hasattr(os, 'mkfifo'):
+            pytest.skip('POSIX FIFO primitive is unavailable')
+        fifo = tmp_path / 'selected-checkpoint'
+        os.mkfifo(fifo)
+        script = '''
+    import sys
+    from spacr import attribution as cf
+    print('imports-ready', flush=True)
+    try:
+        cf._cf_load_checkpoint(sys.argv[1], '0' * 64, {})
+    except ValueError as error:
+        print(str(error), flush=True)
+        raise SystemExit(0)
+    raise SystemExit(9)
+    '''
+        child = subprocess.Popen([sys.executable, '-c', script, str(fifo)],
+                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        try:
+            stdout, stderr = child.communicate(timeout=8)
+        except subprocess.TimeoutExpired:
+            child.kill()
+            stdout, stderr = child.communicate()
+>           pytest.fail('selected FIFO did not refuse before blocking; ' + stdout + stderr)
+E           Failed: selected FIFO did not refuse before blocking; imports-ready
+
+tests/test_f564_checkpoint_file_boundaries.py:34: Failed
+_____ test_growing_stream_cannot_read_past_the_explicit_checkpoint_budget ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x708da4feb800>
+
+    def test_growing_stream_cannot_read_past_the_explicit_checkpoint_budget(monkeypatch):
+        monkeypatch.setattr(cf, '_CF_CHECKPOINT_MAX_BYTES', 8, raising=False)
+        class Growing:
+            reads = 0
+            def seek(self, offset):
+                assert offset == 0
+            def read(self, size):
+                self.reads += 1
+                if self.reads > 5:
+                    pytest.fail('hash kept reading an appended stream beyond its budget')
+                return b'ab'[:size]
+        stream = Growing()
+        with pytest.raises(ValueError, match='counterfactual checkpoint'):
+>           cf._cf_checkpoint_sha256(stream)
+
+tests/test_f564_checkpoint_file_boundaries.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+spacr/attribution.py:3513: in _cf_checkpoint_sha256
+    for block in iter(lambda: handle.read(1024 * 1024), b''):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+spacr/attribution.py:3513: in <lambda>
+    for block in iter(lambda: handle.read(1024 * 1024), b''):
+                              ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <tests.test_f564_checkpoint_file_boundaries.test_growing_stream_cannot_read_past_the_explicit_checkpoint_budget.<locals>.Growing object at 0x708c8a8a8a10>
+size = 1048576
+
+    def read(self, size):
+        self.reads += 1
+        if self.reads > 5:
+>           pytest.fail('hash kept reading an appended stream beyond its budget')
+E           Failed: hash kept reading an appended stream beyond its budget
+
+tests/test_f564_checkpoint_file_boundaries.py:49: Failed
+=========================== short test summary info ============================
+FAILED tests/test_f564_checkpoint_file_boundaries.py::test_fifo_refuses_without_waiting_for_a_writer
+FAILED tests/test_f564_checkpoint_file_boundaries.py::test_growing_stream_cannot_read_past_the_explicit_checkpoint_budget
+2 failed in 10.60s
