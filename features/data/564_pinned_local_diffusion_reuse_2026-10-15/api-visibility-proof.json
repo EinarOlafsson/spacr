@@ -1,0 +1,29 @@
+{
+  "method": "Execute exact AST-extracted normal _is_visible_function_name without changes; compare ordinary top-level source docs. No whole public_docstrings/canonical collector.",
+  "predicate_file_sha256": "6bbdd7df679f8ee42f711def5835b1386c0276fbabcbbb036b71caed4012d39e",
+  "predicate_ast_sha256": "60d0df20b1648d01499450b16195fe6ce74a95419cfba34a27ef2f2a5d037903",
+  "eligibility": {
+    "_cf_checkpoint_error": false,
+    "_cf_input_contract": false,
+    "_cf_load_checkpoint": false,
+    "_counterfactual_report": false,
+    "_run_counterfactuals": false
+  },
+  "unchanged_public_docs": [
+    {
+      "file": "spacr/attribution.py",
+      "public_docstrings_equal": true,
+      "module_docstring_equal": true,
+      "source_sha256": "6c85eb048cdd15a809616cd11887bb513dcb20173c1513bbe08916f051b52ce5"
+    },
+    {
+      "file": "spacr/deep_spacr.py",
+      "public_docstrings_equal": true,
+      "module_docstring_equal": true,
+      "source_sha256": "920cfff243175833e7a1234e327b56ed2c5da792897bfb7559764666e24bf950"
+    }
+  ],
+  "new_nested_helper": "No existing nested manifest reference to _cf_load_checkpoint/fingerprint; no invented target.",
+  "initial_import_attempt": "Normal builder import stopped before inventory because sparse packaging/readme_source.yaml absent; no generated artifacts or source changed. Pure exact predicate used instead.",
+  "limits": "Source/predicate proof, not executed full API inventory or generation."
+}

@@ -1,0 +1,41 @@
+{
+  "status": "Private backend implementation; not published or whole-feature complete",
+  "base": "20a4313bcd9d58bc9267c1b80d3b51c02206635d",
+  "source_sha256": {
+    "spacr/attribution.py": "6c85eb048cdd15a809616cd11887bb513dcb20173c1513bbe08916f051b52ce5",
+    "spacr/deep_spacr.py": "920cfff243175833e7a1234e327b56ed2c5da792897bfb7559764666e24bf950",
+    "tests/test_f564_pinned_diffusion_reuse.py": "4bee85f139a162d4b56ea21ecafa02e96c34de852c7588d0852e4fd7bd02767a",
+    "tests/test_f564_pinned_diffusion_locales.py": "321f37ed24f9644015c9faa8067a3f7b6abc390eeb99ff96c282633ffd446bff"
+  },
+  "validation": [
+    {
+      "scope": "Initial historical source accepting synthetic fixture provenance",
+      "result": "23PASS5.57s",
+      "limit": "Superseded production acceptance branch removed after root review; not final-source whole-cohort claim."
+    },
+    {
+      "scope": "Actual application forwarding, legacy default artifact, bounded compressed archive, oversized reconstruction",
+      "result": "4PASS8.55s",
+      "limit": "Executed before final provenance tightening and output collision guard; behavior untouched by these final edits."
+    },
+    {
+      "scope": "Strict positive fit provenance/malformed refusal and actual checkpoint roundtrip/report reuse",
+      "result": "8PASS3.86s",
+      "limit": "One actual tiny existing-U-Net CPU fit on eight synthetic 8x8 crops, width8,8timesteps,1epoch. Mechanics only."
+    },
+    {
+      "scope": "Final selected-output collision/schedule mismatch refusals plus relevant positive roundtrip/reuse",
+      "result": "5PASS3.65s",
+      "limit": "Five cases includes two positive cases repeated because schedule guard changed. No whole suite."
+    }
+  ],
+  "execution": "BlankCUDA/offscreen, Original CI lock, run_capped6G, OMP/BLAS1. First two setup failures archived; no tests ran in those attempts.",
+  "remaining": [
+    "Root-owned settings 1e1f2a1375 still private dependency; not included here.",
+    "Home-B actual alpha UI/file selection/settings flow/Help integration still required.",
+    "One literal diagnostic needs exact owner extraction, nine independent peer targets and ordinary source/review/writer/audit/arrival closure. Prepared nine locale callback tests not run before installed artifacts.",
+    "Genuine compatible pretrained acquisition outside tiny synthetic fit, app-scale known-phenotype and biological/monotonicity/structure validation remain open.",
+    "Existing pixel-space U-Net reuse is not a larger latent-diffusion architecture; no architecture/quality claim."
+  ],
+  "safety": "No fallback trainer for selected checkpoint; weights_only CPU ZIP/load pin; no download/GPU/protected jobs; no torch_artifacts changes. Training provenance is declared metadata, not authenticated independent pretraining."
+}
