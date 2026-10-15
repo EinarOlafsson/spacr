@@ -149,10 +149,17 @@ def run_mask_download(destination, *, family, input_file, checkpoint, expected_s
     flow = None if parsed[2][0] is None else _host_array(parsed[2][0])
     score = None if parsed[3][0] is None else _host_array(parsed[3][0])
     unavailable = {}
+    model_scale = tr("computed at the model scale (resample off), not the image size")
     if flow is None:
         unavailable["flows"] = tr("The desktop Mask backend returned no vector field.")
+    elif np.shape(flow) != (2, *np.shape(labels)):
+        flow = None
+        unavailable["flows"] = model_scale
     if score is None:
         unavailable["cell_probability"] = tr("The desktop Mask backend returned no score map.")
+    elif np.shape(score) != np.shape(labels):
+        score = None
+        unavailable["cell_probability"] = model_scale
     provenance = {"input_selection": plane["selection"], "family": family, "object_role": role,
                   "diameter_requested": settings[f"{role}_diameter"], "diameter_resolved": resolved,
                   "diameter_used": point["diameter"], "magnification": settings["magnification"],
