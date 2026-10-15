@@ -1,0 +1,37 @@
+{
+  "scope": "One authorized original generic assertion-free AST node against currentpublished2192; no foreignsource/test/policy changes",
+  "source_commit": "2192a341c1fe13aad484e863a5acb1f251c3de1a",
+  "exact_node": "tests/test_test_suite_hygiene.py::test_no_new_assertion_free_tests",
+  "result": "1 failed,1warning in31.29s; exit1; no skips",
+  "classification": "Current source-bound Claude N700 owner dependency unchanged from earlierrelay; not new product/regressionclaim",
+  "offenders": [
+    {
+      "name": "test_a_failing_fetch_shows_the_hint",
+      "line": 210,
+      "assertions": 0,
+      "ast_sha256": "6fbb07da58dd2dd0aae7477976d8e0bfd4d0ba116172d0623c3abaa205b93831"
+    },
+    {
+      "name": "test_an_answer_without_an_allowance_asks_again",
+      "line": 259,
+      "assertions": 0,
+      "ast_sha256": "1ace96d9b35152f9266d9f8581a40a4b2c3327dbe9a78f6af24af5b38e3fffd2"
+    },
+    {
+      "name": "test_a_failed_answer_asks_again",
+      "line": 275,
+      "assertions": 0,
+      "ast_sha256": "33610865d56c76152580fdbf274cff1911f705c6b747b6465106e83ed92d5f80"
+    }
+  ],
+  "source_pins": {
+    "tests/test_test_suite_hygiene.py": "ed9736f83f069d7c43e965805735a14ce03bed6591356765652d47ab5503871d",
+    "tests/qt/test_700_remaining_client_paths.py": "ed37dfa47492acc7cd7cdc6c1b6e91df09535c401d8e1e20c736adc38aee43b7"
+  },
+  "policy": "Original ASSERTION_FREE_RATCHET/helpers/ceiling and meaningful-assertion rule unchanged; do not add exemptions or tests with trivialasserts. No implementation fix attempted.",
+  "resource": "Backgroundsystemd OriginalCI heavy.lock,2G,oneCPU,blankCUDA/offscreen,core0,offlineDNS/connectaudithook",
+  "network_events": [],
+  "warning": "Preexisting invalidescape SyntaxWarning in test_a_ledger_file_does_not_contradict_itself.py; not changed.",
+  "inputs": "Actual fulltrackedtesttree; no runtime canonical/model/test imports beyond normal pytestconftest required; gate parses sources.",
+  "limits": "One baseline only; no rerun, network/model/GPU/collector/owner edits or newtests."
+}
