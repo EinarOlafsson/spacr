@@ -1,0 +1,14 @@
+{
+  "source": "14323e460e4eafbb6f30b03b6e3d7e02daab8148",
+  "review": "ACCEPT",
+  "reviewer": "Original Home Root independent exact diff/source read",
+  "checks": [
+    "four explicit published keys must be actual activation-only settings",
+    "actual defaults/types/raw source help hashes/category and alpha registry checked",
+    "original historical25 retained by exact inverse",
+    "original runbutton/hostnonpollution assertions retained, other bodies untouched",
+    "get_tooltips reads raw setting prose, not locale-sensitive display text"
+  ],
+  "targeted_result": "one original node baseline1FAIL11.37s to final1PASS7.97s, not rerun by peer",
+  "test_sha256": "8d1d35ae8c607f057939217ab5d4130d1cf3fe9381b65cf7aeefe67005437be8"
+}

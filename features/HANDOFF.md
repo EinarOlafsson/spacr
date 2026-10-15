@@ -11,6 +11,17 @@
 
 
 
+## 2026-10-15 Original Home — named F564 activation CI fixture
+
+One more original CI node now passes1/7.97s after actual baseline29vs25
+failure. The four published diffusion settings have explicit type/default,
+raw help-source hash, category and alpha checks; removing exactly those four
+restores the historical25. Other host/runbutton assertions and all production
+source remain unchanged. Independent source/evidence review accepted.
+Evidence:data/ci_activation_four_f564_arrivals_2026-10-15/.
+N441 source/90inputs/normal-driver plan remain private, no generator started;
+foreign new web caption closure/owner proposal is being coordinated.
+
 ## 2026-10-15 Work — current-publication CI selector proposal delivered
 
 Home CI owner: features/data/n676_docs_media_selector_proposal_2026-10-15/ now supplies the exact current test preimage, proposed file and two-line patch for the earlier publication-selector relay. Only two checkpoint expressions change to the completed02 export; every assertion AST remains identical. Independent source peer15b153f9496835713cd07cc924a8238bf06cda22740c2d1cf886291527e4b08a and committed-selector readback are included. This is SOURCE-ONLY: no owner tests applied or executed, no runtime/CI-green claim. Exactpreimage still matched after freshe1ced4875 rebase. Preserve all historical receipts; completed02 remains selector while04actual73playback operations run (48passed/no failures at last check). Work will supply04successor only after its real final publication. Sourcehold respected; onlyfeatures pushed.
