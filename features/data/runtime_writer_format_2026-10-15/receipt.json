@@ -1,0 +1,22 @@
+{
+  "scope": "Normal English runtime frozenset serialization only; preserve values/hashes/pins",
+  "before": {
+    "failed": 1,
+    "passed": 3,
+    "seconds": 1.06
+  },
+  "after": {
+    "passed": 23,
+    "seconds": 1.63
+  },
+  "tests": [
+    "Normal production write_english roundtrips empty/single/Unicode/quotes/newline/braces sources and independently computed hashes.",
+    "Actual git merge-file fixture combines disjoint new captions and matches a freshly generated expected module.",
+    "Existing19 exact runtime-caption-owner checks pass unchanged."
+  ],
+  "artifact_generation": "Pending combined reviewed runtime generation after in-flight scientific publication; source/test patch only so far.",
+  "limits": [
+    "Formatting cannot guarantee all nearby concurrent edits merge; the measured disjoint-addition case is repaired.",
+    "No validator, canonical extraction, historical baseline, source-hash calculation, locale target or ratchet changed."
+  ]
+}

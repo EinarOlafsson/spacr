@@ -4691,7 +4691,9 @@ def reviewed_runtime_translations(language: str) -> dict[str, str]:
 
 def _render_assignment(name: str, value: object) -> str:
     if isinstance(value, frozenset):
-        rendered = f"frozenset({tuple(sorted(value))!r})"
+        rendered = "frozenset((\n" + "".join(
+            f"    {item!r},\n" for item in sorted(value)
+        ) + "))"
     elif isinstance(value, dict):
         # One entry per line is deterministic and reviewable without pprint's
         # repeated continuation indentation multiplying large tooltip files.
