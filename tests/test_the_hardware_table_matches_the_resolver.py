@@ -156,12 +156,24 @@ def test_a_column_that_lost_its_capability_row_fails_loudly(generator,
         generator._hardware_table()
 
 
-def test_detected_but_unusable_metal_never_claims_gpu_acceleration(generator, monkeypatch):
+@pytest.mark.parametrize("kind,device", [("mps", "mps"), ("cuda", "cuda")])
+def test_detected_but_unusable_gpu_never_claims_gpu_acceleration(generator, monkeypatch, kind, device):
+    from spacr import accelerator
+
+    kwargs = dict(kind=kind, device=device, label="Detected GPU", detected=True, usable=False)
+    found = accelerator.Accelerator(**kwargs)
+    assert found.is_cuda is (kind == "cuda")
+    assert found.is_gpu is False
+    monkeypatch.setattr(accelerator, "_opengl_likely", lambda: False)
+    capabilities = {task: (accelerated, detail)
+                    for task, accelerated, detail in accelerator.capabilities(found)}
+    accelerated, detail = capabilities["UMAP / t-SNE / clustering"]
+    assert accelerated is False
+    assert detail.startswith("CPU")
     monkeypatch.setattr(generator, "HARDWARE_ROWS", (
-        ("Detected Metal, unavailable runtime", "beta",
-         dict(kind="mps", device="mps", label="AMD", detected=True, usable=False)),
+        ("Detected GPU, unavailable runtime", "beta", kwargs),
     ))
-    assert _row(generator._hardware_table(), "Detected Metal, unavailable runtime") == [
+    assert _row(generator._hardware_table(), "Detected GPU, unavailable runtime") == [
         f"{RED} CPU"] * 3
 
 
