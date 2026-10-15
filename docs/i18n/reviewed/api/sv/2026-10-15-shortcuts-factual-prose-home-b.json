@@ -121,8 +121,8 @@
       "source": "Build the shortcut cheat sheet as a card over the window.",
       "context": "Build the shortcut cheat sheet as a card over the window.",
       "source_sha256": "8e50d539303f4f0f42f523bb95a270fecfc94d3d550db7654b1b83e7381a1bf2",
-      "translation": "Bygg genvägen fusklakan som ett kort över fönstret.",
-      "review_basis": "Existing source-current generated target preserved byte-for-byte for an index-shifted constructor block; source-block hash and previous target index verified. No new translation or native-speaker review claimed."
+      "translation": "Bygg kortkommandoöversikten som ett kort över fönstret.",
+      "review_basis": "Independent technical peer review correction: child QObject relationships, not secondary importance; shortcut guide, not a bedsheet. Exact source/context and previous/new target hashes retained. No human or native-speaker signoff."
     },
     {
       "label": "spacr.qt.shortcuts.ShortcutOverlay#4",

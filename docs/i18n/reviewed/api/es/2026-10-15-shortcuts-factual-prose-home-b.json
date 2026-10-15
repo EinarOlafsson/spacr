@@ -57,8 +57,8 @@
       "source": "Find additional child shortcut and action sequences for the map.",
       "context": "Find additional child shortcut and action sequences for the map.",
       "source_sha256": "510918330742b7346b601c30bfff9a065e99b5f4859aa4909a9b514a860bd0be",
-      "translation": "Buscar secuencias adicionales de atajos y acciones secundarios para el mapa.",
-      "review_basis": "AI technical translation of exact current shortcut behavior: window versus screen scope, saved overrides, registry indexing, widget-child discovery, handled-event dismissal, fallback contents and return values. No human or native-speaker signoff."
+      "translation": "Buscar secuencias adicionales de atajos y acciones de objetos hijos para el mapa.",
+      "review_basis": "Independent technical peer review correction: child QObject relationships, not secondary importance; shortcut guide, not a bedsheet. Exact source/context and previous/new target hashes retained. No human or native-speaker signoff."
     },
     {
       "label": "spacr.qt.shortcuts.discover#1",
@@ -97,8 +97,8 @@
       "source": "Show the declared shortcut map and additional child bindings over a window.",
       "context": "Show the declared shortcut map and additional child bindings over a window.",
       "source_sha256": "186b990a918025fb3b1a6ce9da18fc549c321d2b683edd8ca800aa7453c90967",
-      "translation": "Mostrar sobre una ventana el mapa de atajos declarado y las asignaciones secundarias adicionales.",
-      "review_basis": "AI technical translation of exact current shortcut behavior: window versus screen scope, saved overrides, registry indexing, widget-child discovery, handled-event dismissal, fallback contents and return values. No human or native-speaker signoff."
+      "translation": "Mostrar sobre una ventana el mapa de atajos declarado y las asignaciones adicionales de objetos hijos.",
+      "review_basis": "Independent technical peer review correction: child QObject relationships, not secondary importance; shortcut guide, not a bedsheet. Exact source/context and previous/new target hashes retained. No human or native-speaker signoff."
     },
     {
       "label": "spacr.qt.shortcuts.ShortcutOverlay#1",
@@ -161,8 +161,8 @@
       "source": "A nonzero-sized widget gets :class:`ShortcutOverlay`, which includes declared screen scopes, saved bindings and additional child sequences. A parentless or zero-sized caller gets a modal dialog containing the default window-wide :data:`SHORTCUTS` table instead.",
       "context": "A nonzero-sized widget gets :class:`ShortcutOverlay`, which includes declared application view scopes, saved bindings and additional child sequences. A parentless or zero-sized caller gets a modal dialog containing the default window-wide :data:`SHORTCUTS` table instead.",
       "source_sha256": "c0a54d6ea771ff1e9483058ecb3c2b147eeb06aebd306017db6902002f3069b8",
-      "translation": "Un widget de tamaño distinto de cero recibe :class:`ShortcutOverlay`, que incluye los ámbitos de pantalla declarados, las asignaciones guardadas y las secuencias secundarias adicionales. Un llamador sin padre o de tamaño cero recibe en su lugar un diálogo modal con la tabla predeterminada de toda la ventana :data:`SHORTCUTS`.",
-      "review_basis": "AI technical translation of exact current shortcut behavior: window versus screen scope, saved overrides, registry indexing, widget-child discovery, handled-event dismissal, fallback contents and return values. No human or native-speaker signoff."
+      "translation": "Un widget de tamaño distinto de cero recibe :class:`ShortcutOverlay`, que incluye los ámbitos de pantalla declarados, las asignaciones guardadas y las secuencias adicionales de objetos hijos. Un llamador sin padre o de tamaño cero recibe en su lugar un diálogo modal con la tabla predeterminada de toda la ventana :data:`SHORTCUTS`.",
+      "review_basis": "Independent technical peer review correction: child QObject relationships, not secondary importance; shortcut guide, not a bedsheet. Exact source/context and previous/new target hashes retained. No human or native-speaker signoff."
     },
     {
       "label": "spacr.qt.shortcuts.show_cheat_sheet#2",
