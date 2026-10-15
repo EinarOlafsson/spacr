@@ -1,0 +1,60 @@
+{
+  "source_sha256": "dafe129bf5968a5e62cd9eb663496a04df012088c7967963c4bb4c6e53e922c0",
+  "records": [
+    {
+      "path": "docs/i18n/reviewed/runtime/de/2026-10-15-lineage-parent-identity.json",
+      "peer_immutable_draft_sha256": "a8b40b405f234399e9c3c95b7f488778c2c50321b9fc1335d4d9d1ffe3bca14f",
+      "adopted_final_sha256": "b1cda2c5b8fce77208831828d61baa7d38818788f2edaf73cad9ba6d256f00bc",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/es/2026-10-15-lineage-parent-identity.json",
+      "peer_immutable_draft_sha256": "732e9955eb40a792450adfa796e2ff94700fc76d1327eedd43d143a4a08a7866",
+      "adopted_final_sha256": "9bbbef92fcb80534004e7d55b5f4099e1df6408f996ef0dfae6bbc94c5998f6e",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/fr/2026-10-15-lineage-parent-identity.json",
+      "peer_immutable_draft_sha256": "c7b4d33a21b37f93a75eda3e8bb2a906627068b8111819653cf7a48bccac1201",
+      "adopted_final_sha256": "a4cce112e120bf2f2351e6837734274fcb4cf4b2a92a247ffbeaec86f33c66e9",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/hi/2026-10-15-lineage-parent-identity.json",
+      "peer_immutable_draft_sha256": "b3040cab600c9c2ed15e0f104953fa6b381319e72dd88674d4a3e3e03a094f48",
+      "adopted_final_sha256": "de3755d3cd68f75186c7bed324ac4849bc46485b3f69773fce6d60d2aa9e8173",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/is/2026-10-15-lineage-parent-identity.json",
+      "peer_immutable_draft_sha256": "a67c144d53bb594cab0578ac55ff584ef316905ae794cd2b22d2b265b4f6e1dd",
+      "adopted_final_sha256": "17834cf46ce3465002044a6474903fb0231ff3a4aad6034c56d49b53cb46e0a6",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/ko/2026-10-15-lineage-parent-identity.json",
+      "peer_immutable_draft_sha256": "4592c7622affdcc0a0a66a4639f30c8b16f47699f09a49bc8242619c9c8033a4",
+      "adopted_final_sha256": "0ba1cd0fbb843d15aa510a76b21b1d0b045328fe5df23b4b6e2e6c0abfc09412",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/pt/2026-10-15-lineage-parent-identity.json",
+      "peer_immutable_draft_sha256": "06162048a322ac6d1bfd97c7824c7b402e0570dc7e97b6a1b36e138f31b27d51",
+      "adopted_final_sha256": "a269f2cc58043df8515d30f5c849729ce2ef1cc91ac8bbe6c73fff39a3545eb3",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/sv/2026-10-15-lineage-parent-identity.json",
+      "peer_immutable_draft_sha256": "8fb9306d859dab198f03e697a1f0e309242fb9abe33266a80571000a63e585c3",
+      "adopted_final_sha256": "fe21fe1b6929b19f5d5004219cb267be9b7d6db71cca218fe9dc6f60e77af8e7",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-lineage-parent-identity.json",
+      "peer_immutable_draft_sha256": "702ada0900c399c3dd15694574de656e59816fadc87a39ec0610bc7570604b56",
+      "adopted_final_sha256": "60e9e1fafb3eedcce8babd4559ce123bb164008dca8910ebac9fc33668ca6836",
+      "source_and_target_unchanged": true
+    }
+  ],
+  "changes": "Only independent peer metadata; exact approved targets/records unchanged."
+}

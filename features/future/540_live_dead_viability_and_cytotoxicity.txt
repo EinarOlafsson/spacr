@@ -309,3 +309,27 @@ button, which lives inside their rows).
     population cut calls nothing dead; acridine orange also stains dead
     cells, so it is not a live-only stain), segmentation of dense
     monolayers, and a real plate that can test DONE WHEN.
+
+2026-10-15 — Nonfinite manual-cut refusal (source component; locale closure pending).
+Actual synthetic measured signals showed NaN/+Inf cutoffs writing every object
+as live, and -Inf writing every object as dead, while a finite100 cutoff
+retained declared30live/10dead. Manual settings now require finite converted
+cuts; automatic/blank/None, negative/zero/large finite and numeric strings
+retain their meaning. The existing parser call runs before DB reads because
+the normal table reader may migrate schema: invalid cutoff refusal leaves
+existing DB bytes and accepted outputs untouched. Invalid cutoff errors now
+precede database-content errors. Baseline18FAIL/10PASS; initialguard25PASS/
+6DB-byteFAIL; final9affectedPASS, with no repeat of22 unchanged parser cases.
+No new automatic-cut, calibration or biological efficacy claim. Evidence:
+features/data/540_finite_threshold_2026-10-15/.
+
+2026-10-15 — F540 coherent shared runtime closure.
+Exact owner literal-tr extraction and independent source/nine-target peers
+installed in one ordinary two-caption writer, preserving10,775
+unrelated current targets per locale. Actual full-nine runtime audit PASS;
+normal arrivals:9833baseline/1095added/151retired/
+31changed. Nine actual early classifier refusals preserve DB bytes at the refusal boundary and prior accepted output/settings;22 prior parser and9 final affected controls not repeated.
+Coalesced18localized callbacks all PASS,zero skips; original collector and
+six runtime/tool/test file hashes remain exact. No handgenerated targets,
+API prose changes, biological efficacy or whole-feature/finalCI claim.
+Shared evidence: features/data/537_540_runtime_closure_2026-10-15/.

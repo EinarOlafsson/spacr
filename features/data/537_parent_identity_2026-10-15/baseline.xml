@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="22" time="1.105" timestamp="2026-10-15T04:11:28.898170-04:00" hostname="olafsson"><testcase classname="tests.test_lineage_parent_identity_f537" name="test_large_identical_known_parent_preserves_exact_identity_with_missing_rows[Int64]" time="0.415" /><testcase classname="tests.test_lineage_parent_identity_f537" name="test_existing_first_parent_sentinel_and_identical_known_semantics_remain[parents2-expected2]" time="0.004" /><testcase classname="tests.test_lineage_parent_identity_f537" name="test_existing_first_parent_sentinel_and_identical_known_semantics_remain[parents8-expected8]" time="0.004" /><testcase classname="tests.test_lineage_parent_identity_f537" name="test_conflicting_known_parents_refuse_without_lossy_large_identity_coercion[True-strings]" time="0.003"><failure message="Failed: DID NOT RAISE ValueError">storage = 'strings', reverse = True
+
+    @pytest.mark.parametrize('storage', ['object', 'Int64', 'strings'])
+    @pytest.mark.parametrize('reverse', [False, True])
+    def test_conflicting_known_parents_refuse_without_lossy_large_identity_coercion(storage, reverse):
+        a, b = 2**53 + 1, 2**53 + 3
+        values = [None, str(a), str(b), str(b)] if storage == 'strings' else [None, a, b, b]
+        frame, spans, child = metadata(values, large=True, dtype=object if storage == 'strings' else storage)
+        if reverse:
+            frame = frame.iloc[::-1].copy()
+        before = frame.copy(deep=True)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_lineage_parent_identity_f537.py:36: Failed</failure></testcase><testcase classname="tests.test_lineage_parent_identity_f537" name="test_large_identical_known_parent_preserves_exact_identity_with_missing_rows[object]" time="0.004" /><testcase classname="tests.test_lineage_parent_identity_f537" name="test_existing_first_parent_sentinel_and_identical_known_semantics_remain[parents5-expected5]" time="0.002" /><testcase classname="tests.test_lineage_parent_identity_f537" name="test_existing_first_parent_sentinel_and_identical_known_semantics_remain[parents1-expected1]" time="0.002" /><testcase classname="tests.test_lineage_parent_identity_f537" name="test_conflicting_known_parents_refuse_without_lossy_large_identity_coercion[True-object]" time="0.002"><failure message="Failed: DID NOT RAISE ValueError">storage = 'object', reverse = True
+
+    @pytest.mark.parametrize('storage', ['object', 'Int64', 'strings'])
+    @pytest.mark.parametrize('reverse', [False, True])
+    def test_conflicting_known_parents_refuse_without_lossy_large_identity_coercion(storage, reverse):
+        a, b = 2**53 + 1, 2**53 + 3
+        values = [None, str(a), str(b), str(b)] if storage == 'strings' else [None, a, b, b]
+        frame, spans, child = metadata(values, large=True, dtype=object if storage == 'strings' else storage)
+        if reverse:
+            frame = frame.iloc[::-1].copy()
+        before = frame.copy(deep=True)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_lineage_parent_identity_f537.py:36: Failed</failure></testcase><testcase classname="tests.test_lineage_parent_identity_f537" name="test_existing_first_parent_sentinel_and_identical_known_semantics_remain[parents6-expected6]" time="0.002" /><testcase classname="tests.test_lineage_parent_identity_f537" name="test_conflicting_known_parents_refuse_without_lossy_large_identity_coercion[False-Int64]" time="0.003"><failure message="Failed: DID NOT RAISE ValueError">storage = 'Int64', reverse = False
+
+    @pytest.mark.parametrize('storage', ['object', 'Int64', 'strings'])
+    @pytest.mark.parametrize('reverse', [False, True])
+    def test_conflicting_known_parents_refuse_without_lossy_large_identity_coercion(storage, reverse):
+        a, b = 2**53 + 1, 2**53 + 3
+        values = [None, str(a), str(b), str(b)] if storage == 'strings' else [None, a, b, b]
+        frame, spans, child = metadata(values, large=True, dtype=object if storage == 'strings' else storage)
+        if reverse:
+            frame = frame.iloc[::-1].copy()
+        before = frame.copy(deep=True)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_lineage_parent_identity_f537.py:36: Failed</failure></testcase><testcase classname="tests.test_lineage_parent_identity_f537" name="test_conflicting_known_parents_refuse_without_lossy_large_identity_coercion[True-Int64]" time="0.003"><failure message="Failed: DID NOT RAISE ValueError">storage = 'Int64', reverse = True
+
+    @pytest.mark.parametrize('storage', ['object', 'Int64', 'strings'])
+    @pytest.mark.parametrize('reverse', [False, True])
+    def test_conflicting_known_parents_refuse_without_lossy_large_identity_coercion(storage, reverse):
+        a, b = 2**53 + 1, 2**53 + 3
+        values = [None, str(a), str(b), str(b)] if storage == 'strings' else [None, a, b, b]
+        frame, spans, child = metadata(values, large=True, dtype=object if storage == 'strings' else storage)
+        if reverse:
+            frame = frame.iloc[::-1].copy()
+        before = frame.copy(deep=True)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_lineage_parent_identity_f537.py:36: Failed</failure></testcase><testcase classname="tests.test_lineage_parent_identity_f537" name="test_absent_parent_column_still_has_no_explicit_links" time="0.003" /><testcase classname="tests.test_lineage_parent_identity_f537" name="test_existing_first_parent_sentinel_and_identical_known_semantics_remain[parents3-expected3]" time="0.003" /><testcase classname="tests.test_lineage_parent_identity_f537" name="test_existing_first_parent_sentinel_and_identical_known_semantics_remain[parents9-expected9]" time="0.003" /><testcase classname="tests.test_lineage_parent_identity_f537" name="test_conflicting_known_parents_refuse_without_lossy_large_identity_coercion[False-strings]" time="0.004"><failure message="Failed: DID NOT RAISE ValueError">storage = 'strings', reverse = False
+
+    @pytest.mark.parametrize('storage', ['object', 'Int64', 'strings'])
+    @pytest.mark.parametrize('reverse', [False, True])
+    def test_conflicting_known_parents_refuse_without_lossy_large_identity_coercion(storage, reverse):
+        a, b = 2**53 + 1, 2**53 + 3
+        values = [None, str(a), str(b), str(b)] if storage == 'strings' else [None, a, b, b]
+        frame, spans, child = metadata(values, large=True, dtype=object if storage == 'strings' else storage)
+        if reverse:
+            frame = frame.iloc[::-1].copy()
+        before = frame.copy(deep=True)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_lineage_parent_identity_f537.py:36: Failed</failure></testcase><testcase classname="tests.test_lineage_parent_identity_f537" name="test_large_identical_known_parent_preserves_exact_identity_with_missing_rows[strings]" time="0.004" /><testcase classname="tests.test_lineage_parent_identity_f537" name="test_existing_first_parent_sentinel_and_identical_known_semantics_remain[parents4-expected4]" time="0.003" /><testcase classname="tests.test_lineage_parent_identity_f537" name="test_existing_first_parent_sentinel_and_identical_known_semantics_remain[parents0-expected0]" time="0.002" /><testcase classname="tests.test_lineage_parent_identity_f537" name="test_existing_first_parent_sentinel_and_identical_known_semantics_remain[parents7-expected7]" time="0.002" /><testcase classname="tests.test_lineage_parent_identity_f537" name="test_conflicting_known_parents_refuse_without_lossy_large_identity_coercion[False-object]" time="0.003"><failure message="Failed: DID NOT RAISE ValueError">storage = 'object', reverse = False
+
+    @pytest.mark.parametrize('storage', ['object', 'Int64', 'strings'])
+    @pytest.mark.parametrize('reverse', [False, True])
+    def test_conflicting_known_parents_refuse_without_lossy_large_identity_coercion(storage, reverse):
+        a, b = 2**53 + 1, 2**53 + 3
+        values = [None, str(a), str(b), str(b)] if storage == 'strings' else [None, a, b, b]
+        frame, spans, child = metadata(values, large=True, dtype=object if storage == 'strings' else storage)
+        if reverse:
+            frame = frame.iloc[::-1].copy()
+        before = frame.copy(deep=True)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_lineage_parent_identity_f537.py:36: Failed</failure></testcase><testcase classname="tests.test_lineage_parent_identity_f537" name="test_real_segment_boundary_refuses_instead_of_selecting_a_row_order_parent[False]" time="0.019"><failure message="Failed: DID NOT RAISE ValueError">reverse = False
+
+    @pytest.mark.parametrize('reverse', [False, True])
+    def test_real_segment_boundary_refuses_instead_of_selecting_a_row_order_parent(reverse):
+        frame = actual_tracks(reverse)
+        before = frame.copy(deep=True)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_lineage_parent_identity_f537.py:59: Failed</failure></testcase><testcase classname="tests.test_lineage_parent_identity_f537" name="test_real_segment_boundary_refuses_instead_of_selecting_a_row_order_parent[True]" time="0.008"><failure message="Failed: DID NOT RAISE ValueError">reverse = True
+
+    @pytest.mark.parametrize('reverse', [False, True])
+    def test_real_segment_boundary_refuses_instead_of_selecting_a_row_order_parent(reverse):
+        frame = actual_tracks(reverse)
+        before = frame.copy(deep=True)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_lineage_parent_identity_f537.py:59: Failed</failure></testcase></testsuite></testsuites>

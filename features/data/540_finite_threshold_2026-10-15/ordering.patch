@@ -1,0 +1,20 @@
+--- a/spacr/measure.py
++++ b/spacr/measure.py
+@@ -8118,6 +8118,8 @@
+     """
+     from .tabular import database_tables, read_table, write_database
+ 
++    manual_dead, manual_live = _viability_manual(
++        settings.get('viability_thresholds'))
+     tables = database_tables(db_path)
+     if 'nucleus' in tables:
+         unit = 'nucleus'
+@@ -8133,8 +8135,6 @@
+     live_channel = settings.get('viability_live_channel')
+     dead_channel = None if dead_channel in (None, '') else int(dead_channel)
+     live_channel = None if live_channel in (None, '') else int(live_channel)
+-    manual_dead, manual_live = _viability_manual(
+-        settings.get('viability_thresholds'))
+     method = ('stain' if dead_channel is not None or live_channel is not None
+               else 'morphology')
+     table = objects[[k for k in (*_CELL_CYCLE_KEYS, 'timeID', 'prcf',

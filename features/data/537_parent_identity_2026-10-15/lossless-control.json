@@ -1,0 +1,55 @@
+{
+  "large_id_controls": [
+    {
+      "dtype": "object",
+      "value_type": "int",
+      "existing": {
+        "9007199254740997": 9007199254740993
+      },
+      "proposed": {
+        "9007199254740997": 9007199254740993
+      }
+    },
+    {
+      "dtype": "Int64",
+      "value_type": "int",
+      "existing": {
+        "9007199254740997": 9007199254740993
+      },
+      "proposed": {
+        "9007199254740997": 9007199254740993
+      }
+    },
+    {
+      "dtype": "object",
+      "value_type": "str",
+      "existing": {
+        "9007199254740997": 9007199254740993
+      },
+      "proposed": {
+        "9007199254740997": 9007199254740993
+      }
+    },
+    {
+      "dtype": "object",
+      "value_type": "int",
+      "large_contradiction_refused": true
+    },
+    {
+      "dtype": "Int64",
+      "value_type": "int",
+      "large_contradiction_refused": true
+    },
+    {
+      "dtype": "object",
+      "value_type": "str",
+      "large_contradiction_refused": true
+    }
+  ],
+  "rejected_coercion_example": {
+    "original": 9007199254740993,
+    "lossy_float": 9007199254740992
+  },
+  "production_source_unchanged": true,
+  "limits": "Actual existing and scratch-proposed helper only, declared IDs/no tracking/training/GPU."
+}

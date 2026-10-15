@@ -1,0 +1,6 @@
+{
+  "original_sha256": "82e769765c781ec0bc0fbee4c710ee99c7b656ee707136d97ad9ef8f2c1baa55",
+  "proposed_sha256": "dafe129bf5968a5e62cd9eb663496a04df012088c7967963c4bb4c6e53e922c0",
+  "source": "Track {track} has conflicting known parent IDs in the lineage table.",
+  "scope": "Exactly _lineage_explicit_parents; firsts and existing selection unchanged, new prepass only refuses >1 known positive nonself ID present in spans; no pd.to_numeric/float coercion."
+}
