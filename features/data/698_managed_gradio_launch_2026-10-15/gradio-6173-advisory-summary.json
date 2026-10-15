@@ -1,0 +1,6 @@
+{
+  "query": "https://api.github.com/advisories?ecosystem=pip&affects=gradio%406.17.3&per_page=100",
+  "pagination_link": null,
+  "count": 0,
+  "advisories": []
+}

@@ -277,8 +277,12 @@ def main():
     if os.environ.get("SPACR_WEB_EXAMPLES_JSON"):
         options["approved_examples"] = json.loads(os.environ["SPACR_WEB_EXAMPLES_JSON"])
     demo = build_app(paths, preload=zero_gpu, zero_gpu=zero_gpu, **options)
-    demo.launch(share=False, server_name="0.0.0.0", max_file_size="64mb", show_error=False,
-                theme="base", strict_cors=True, run_history=False)
+    import gradio as gr
+    launch_options = dict(share=False, server_name="0.0.0.0", max_file_size="64mb", show_error=False,
+                          theme="base", strict_cors=True)
+    if gr.__version__ != "6.17.3":
+        launch_options["run_history"] = False
+    demo.launch(**launch_options)
 
 
 if __name__ == "__main__":
