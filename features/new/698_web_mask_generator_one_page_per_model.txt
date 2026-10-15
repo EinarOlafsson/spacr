@@ -139,3 +139,88 @@ exercise actual decoders. Initial 68 PASS/1 FAIL identified unsupported PDF page
 context management; explicit native handle closes fixed it; original result is
 retained. No hosted/GPU/browser or scientific parity acceptance is claimed.
 Evidence: features/data/698_upload_inputs_2026-10-14/.
+
+2026-10-14 — Original Home: optional CZI/ND2 upload adapters implemented.
+Scene-aware czifile retains explicit CZI scene/T/Z/channel identity; ND2Reader
+retains explicit ND2 position/time/depth/channel identity and exact decoder
+pixel values/dtype. Existing upload size/selection preflights apply. Missing
+readers, legacy CZI APIs without scene metadata, and unsupported ND2 spatial
+headers are refused rather than guessed. No installs/downloads occur.
+Owning closure: 8 vendor cases plus 75 earlier reader/package regressions PASS,
+actual exit 0, 4.62s; reader total172/172 statements and70/70 branch arcs covered.
+Actual two-scene TCZYX CZI from repository fixtures and an already-cached public
+OME MeOh ND2 were decoded and matched independent direct reader calls. Original
+source byte hashes remain unchanged. The first 82 PASS/1 FAIL caught the ND2
+reader's string-path-only API; converting Path to str fixed it. The cached ND2
+acceptance skips where unavailable, without a network fallback. Installed reader
+cannot read the other cached ND2 version's spatial metadata; that version remains
+explicitly unsupported. No new module under spacr/, UI route, inference or GPU
+claim. N698 still partial. Receipt: features/data/698_vendor_inputs_2026-10-14/.
+
+2026-10-14 — Original Home: plaque reader/inference/download path wired.
+tools/web_mask_generator/plaque.py now verifies an operator-provisioned trusted
+checkpoint SHA before delegating to the existing desktop model loader and
+spacr.plaque.segment_plaque_image. The actual desktop eval result supplies masks,
+raw vector fields and cell-score logits to the result ZIP in one inference call;
+RGB flow visualizations are not mislabeled as vectors and missing arrays are
+not fabricated. Explicit resolved diameter/thresholds and upload selection are
+recorded. No network weight resolution, alternative model/default selection or
+segmentation/postprocessing implementation was introduced. Future hosting must
+restrict model paths to the operator's registry and keep limits server-owned.
+Owning closure: 17 adapter contracts +83 package/decoder regressions PASS,
+actual exit0,10.49s; adapter58/58statements28/28branch arcs covered. Constructor/eval
+are injected CPU fakes; real existing desktop segmentation helper executes.
+This does NOT prove actual checkpoint availability, scientific accuracy, hosted
+GPU behavior, N696 default resolution or desktop/WebGPU parity. No actualmodel
+inference, HomeGPU or deployment was performed. ParentN698 remains partial.
+Source-bound receipt: features/data/698_plaque_adapter_2026-10-14/.
+
+2026-10-14 — Original Home: runnable operator entry point completed.
+python -m tools.web_mask_generator.run now composes header inspection, explicit
+image/page/channel/axis choices, trusted local weight identity, actual desktop
+plaque path and atomic result ZIP. --describe reads headers without model load;
+missing provenance, implicit diameter and duplicate axis choices are refused.
+No server, model download, auto-install or GPU action starts implicitly.
+Owning checks: 12 command contracts+100 prior adapter/reader/package checks PASS,
+actual exit0,10.47s. Covered CLI54/55statements13/14arcs; the normal __main__
+entry was additionally invoked successfully against the real two-scene CZI
+header (actualexit0,0.60s). No actualmodel inference was executed. README has
+operator usage tied to the bundled plaque-v4 weight hash, with diameter clearly
+an example rather than a selected scientific default. ParentN698 remains partial;
+webhosting/UI, modelclass routing and real GPU/browser parity remain open.
+Receipt: features/data/698_operator_command_2026-10-14/.
+
+2026-10-14 — Original Home: trusted model-class/version registry implemented.
+All eight requested existing model families derive from the normal model-card
+family/default rules, alpha filtering and CURRENT rescored card metrics. PVv5
+and plaquev3 alternatives do not replace their defaults; detector output kind
+is boxes, never fabricated masks/flows. Public metadata has no local paths;
+only an operator-owned provisioned-key mapping can resolve trusted checkpoint
+bytes, checked against the exact published checksum. Unavailable defaults do
+not silently fall back to older installed weights. Only plaque advertises an
+implemented inference adapter; other model-class adapters remain open.
+Owning closure10 registry cases+112 component regressions PASS, actualexit0,
+12.80s; registry32/32statements12/12branch arcs covered. Currentcatalog/default/
+alpha/card provenance are checked; controlled fake weight bytes exercise identity
+refusal without downloading or loading a real model. No new scientific benchmark
+or checkpoint-availability claim. No shared website/tool/settings file edited;
+registry imports existing owner-maintained model-card APIs. ParentN698 partial.
+Receipt: features/data/698_trusted_registry_2026-10-14/.
+
+2026-10-14 — Original Home: private service job/request boundary implemented.
+PlaqueService keeps the operator model mapping immutable; client paths/output
+folders/limit overrides are refused. Explicit upload consent is checked. Bounded
+stream copy cannot exceed configured bytes even if a source grows. Private
+mode700 input/result staging is removed after success, inference failure or
+consumer/transfer failure; any future framework download cache must disclose and
+manage its own retention. Explicit startup preload plus a digest-keyed desktop
+model cache supports documented ZeroGPU placement without import-time loading.
+More than three selected plaque channels now refuse before model load, avoiding
+silent Cellpose channel loss. No generic/shared website files were edited.
+Owning13service cases+1channel guard+122regressions=136PASS, actualexit0,15.34s.
+Service57/57statements15/16arcs; adapter62/62statements30/30arcs covered. Actualmodel
+construction/eval remain injected; no HomeGPU, checkpoint or scientific parity
+acceptance inferred. N698 site/service interface request for Home-B is committed
+in features/data/698_site_interface_2026-10-14/coordination.md. Parentpartial;
+actual Gradio/Space runtime, remaining model adapters, website and both GPU paths
+still need implementation/acceptance. Receipt:features/data/698_service_jobs_2026-10-14/.

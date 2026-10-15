@@ -100944,14 +100944,14 @@
       "source_blocks_sha256": [
         "73728aa5004307ecc169214927e9029b7404565773112baa3bf04db6b80ee59a",
         "2c5e7f93b0450489df990ac9d1d71581fb6527f70bb050c7d9026305cb699485",
-        "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50"
+        "429ae6efad0b6a60cb70c1c75f75f3ec13c7ae488a2fac6b9b4dffd8ff3e866e"
       ],
-      "source_sha256": "1e2f236fdda68876a06c3007da6ece0ad03e76f8437c90a377670acb3cb10bcb",
-      "text": "Préchargez un instantané de paramètres immuables remis par une AppScreen.\n\n:param module: la clé ``spacr.cli.MODULES`` à sélectionner dans la liste des modules ; une clé inconnue laisse la sélection inchangée.\n:param settings: les réglages à soumettre ; une copie superficielle est conservée et utilisée à la place d’un fichier de réglages jusqu’à ce que le champ de chemin soit modifié.",
+      "source_sha256": "2f821e5837d1d04d77b92d5eee68cf7d75a91013bc1f16aedaad046f4fe66099",
+      "text": "Préchargez un instantané de paramètres immuables remis par une AppScreen.\n\n:param module: la clé ``spacr.cli.MODULES`` à sélectionner dans la liste des modules ; une clé inconnue laisse la sélection inchangée.\n:param settings: les paramètres à soumettre. Une copie profonde contenant les identités exactes des modèles est conservée jusqu’à la modification du chemin des paramètres.",
       "translation_source_blocks_sha256": [
         "73728aa5004307ecc169214927e9029b7404565773112baa3bf04db6b80ee59a",
         "2c5e7f93b0450489df990ac9d1d71581fb6527f70bb050c7d9026305cb699485",
-        "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50"
+        "429ae6efad0b6a60cb70c1c75f75f3ec13c7ae488a2fac6b9b4dffd8ff3e866e"
       ]
     },
     "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.hideEvent": {
@@ -113946,17 +113946,17 @@
         "9922eb512e11a9bf8d8db6e75ec0120b643c3a26cdbf8a3d6e6747b1868202dd",
         "c70c3a34003bdbfe4d17064f8ba7932ade81bda6900e3c65c06d1091ed39934c",
         "e95818ae5277e0742aecd7ddda01e6cfb226a2e0e37ed0d52b03ce033b13bd6d",
-        "6c4d4bb3986e190adf554f1352d9869e77e82f7c30a2528b2f03076b89cfb28a",
+        "6500a703ccf881892f8401a25f632a6ed0e5b1df13a4bd5b91b5f0d2b85a8b4f",
         "2943a01054a773062ba25d026f902885b4c50dce2197017a38b9219fe76fd4c1"
       ],
-      "source_sha256": "527264e0fd2cdfac6718cbc3c6c5f97ac7f0f73126c0295362085a21f630189a",
-      "text": "Mettre à jour un paramètre connu d'exécution dont le widget n'est pas sur ce formulaire.\n\nCela inclut les commandes dédiées en dehors des lignes de formulaire et d'objet omises par la forme actuelle.\n\nMasqué ne signifie pas absent : les valeurs importées sont conservées dans ``_defaults`` et parviennent toujours à ``collect()``.\n\nUne fente au-dessus du nombre courant n'est acceptée que lorsque cette application possède le nombre et que le nom de données structurées est un paramètre déclaré; les noms de données structurés de l'application étrangère restent rejetés.\n\n:param key: clé de réglage ; elle doit déjà être un réglage d’exécution, ou une clé d’emplacement d’organite déclarée dans ``expected_types`` lorsque ce formulaire gère le nombre d’organites, sinon ``False`` est renvoyé.\n:param value: nouvelle valeur, convertie dans le type attendu du réglage avant d’être stockée.",
+      "source_sha256": "54a97efccbb45fdc8e7708b2460e431078e673e7988533f61d6fc652d0e21ef5",
+      "text": "Mettre à jour un paramètre connu d'exécution dont le widget n'est pas sur ce formulaire.\n\nCela inclut les commandes dédiées en dehors des lignes de formulaire et d'objet omises par la forme actuelle.\n\nMasqué ne signifie pas absent : les valeurs importées sont conservées dans ``_defaults`` et parviennent toujours à ``collect()``.\n\nUne fente au-dessus du nombre courant n'est acceptée que lorsque cette application possède le nombre et que le nom de données structurées est un paramètre déclaré; les noms de données structurés de l'application étrangère restent rejetés.\n\n:param key: un paramètre d’exécution connu, une clé déclarée d’emplacement d’organite lorsque ce formulaire en contrôle le nombre, ou la clé réservée ``model_metadata``. Les autres clés renvoient ``False``.\n:param value: nouvelle valeur, convertie dans le type attendu du réglage avant d’être stockée.",
       "translation_source_blocks_sha256": [
         "d982282f202c9318690419df9741cf8b2eab64e90367f8041fe97c7b5320098d",
         "9922eb512e11a9bf8d8db6e75ec0120b643c3a26cdbf8a3d6e6747b1868202dd",
         "c70c3a34003bdbfe4d17064f8ba7932ade81bda6900e3c65c06d1091ed39934c",
         "ea7d50a112565a6015f9e1a7dab66461f469838875b3504057627fc66c3ecb87",
-        "b52f9e99da6ca843f89e930355aa5a97211ea15d69e6c6f7f395fe1834a7d4d1",
+        "4c9fb1a2a489d2fae6cdcaec81aad97bfe82d3b38c7db8b4ccf46ed8a46336c7",
         "2943a01054a773062ba25d026f902885b4c50dce2197017a38b9219fe76fd4c1"
       ]
     },

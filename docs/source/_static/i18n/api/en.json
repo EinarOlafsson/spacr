@@ -63562,10 +63562,10 @@
       "source_blocks_sha256": [
         "73728aa5004307ecc169214927e9029b7404565773112baa3bf04db6b80ee59a",
         "2c5e7f93b0450489df990ac9d1d71581fb6527f70bb050c7d9026305cb699485",
-        "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50"
+        "429ae6efad0b6a60cb70c1c75f75f3ec13c7ae488a2fac6b9b4dffd8ff3e866e"
       ],
-      "source_sha256": "1e2f236fdda68876a06c3007da6ece0ad03e76f8437c90a377670acb3cb10bcb",
-      "text": "Preload an immutable settings snapshot handed off by an AppScreen.\n\n:param module: the ``spacr.cli.MODULES`` key to select in the module\n    box; an unknown key leaves the selection unchanged.\n:param settings: the settings to submit; a shallow copy is kept and\n    used instead of a settings file until the path field is edited."
+      "source_sha256": "2f821e5837d1d04d77b92d5eee68cf7d75a91013bc1f16aedaad046f4fe66099",
+      "text": "Preload an immutable settings snapshot handed off by an AppScreen.\n\n:param module: the ``spacr.cli.MODULES`` key to select in the module\n    box; an unknown key leaves the selection unchanged.\n:param settings: settings to submit. A deep copy with exact model\n    identities is retained until the settings path is edited."
     },
     "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.hideEvent": {
       "source_blocks_sha256": [
@@ -71983,11 +71983,11 @@
         "9922eb512e11a9bf8d8db6e75ec0120b643c3a26cdbf8a3d6e6747b1868202dd",
         "c70c3a34003bdbfe4d17064f8ba7932ade81bda6900e3c65c06d1091ed39934c",
         "e95818ae5277e0742aecd7ddda01e6cfb226a2e0e37ed0d52b03ce033b13bd6d",
-        "6c4d4bb3986e190adf554f1352d9869e77e82f7c30a2528b2f03076b89cfb28a",
+        "6500a703ccf881892f8401a25f632a6ed0e5b1df13a4bd5b91b5f0d2b85a8b4f",
         "2943a01054a773062ba25d026f902885b4c50dce2197017a38b9219fe76fd4c1"
       ],
-      "source_sha256": "527264e0fd2cdfac6718cbc3c6c5f97ac7f0f73126c0295362085a21f630189a",
-      "text": "Update a known run setting whose widget is not on this form.\n\nThis includes dedicated controls outside the form and object rows\nomitted by the current shape.\n\nHidden does not mean absent: imported\nvalues live in ``_defaults`` and still reach ``collect()``.\n\nA slot\nabove the current count is accepted only when this app owns the count\nand the key is a declared setting; foreign-app keys remain rejected.\n\n:param key: setting key; it must already be a run setting, or an\n    organelle-slot key declared in ``expected_types`` when this form\n    owns the organelle count, otherwise ``False`` is returned.\n:param value: new value, coerced to the setting's expected type before\n    it is stored."
+      "source_sha256": "54a97efccbb45fdc8e7708b2460e431078e673e7988533f61d6fc652d0e21ef5",
+      "text": "Update a known run setting whose widget is not on this form.\n\nThis includes dedicated controls outside the form and object rows\nomitted by the current shape.\n\nHidden does not mean absent: imported\nvalues live in ``_defaults`` and still reach ``collect()``.\n\nA slot\nabove the current count is accepted only when this app owns the count\nand the key is a declared setting; foreign-app keys remain rejected.\n\n:param key: a known run setting, a declared organelle-slot key when\n    this form owns the count, or reserved ``model_metadata``.\n    Other keys return ``False``.\n:param value: new value, coerced to the setting's expected type before\n    it is stored."
     },
     "spacr.qt.screens.settings_model.SettingsWidgets.set_value_for_key": {
       "source_blocks_sha256": [
@@ -98161,11 +98161,10 @@
     "spacr.qt.widgets.hover_tooltip.HoverTooltip.leaveEvent": {
       "source_blocks_sha256": [
         "7567b0033a455d2469f31f348015ad0ec4243989bdea9a6aceec25c108c6d57c",
-        "0448242df32ae4110ab12a8702d4778a3056f798d4e0677b68414383da6967e1",
         "a9f47202036c0d9cc517998c2ab6e96b6dee49701443ac7fabe3d90661e5bd56"
       ],
-      "source_sha256": "fe4414ab341f2ffd0d4d8200249699f8ef180a75295a041759318d445d0373ff",
-      "text": "Restart the hide timer when the cursor leaves the POPUP itself.\n\nShorter than the anchor's grace period on purpose: leaving the popup\nis a deliberate act, where leaving the label may just be the journey\ntowards it.\n\n:param event: the leave event; passed to the base class and otherwise\n    not read."
+      "source_sha256": "7db8e214bd14ad48f49a4a7b8fa1dabeae786451c1d9524d551ff397a17daab6",
+      "text": "Restart the hide timer when the cursor leaves the POPUP itself.\n\n:param event: the leave event; passed to the base class and otherwise\n    not read."
     },
     "spacr.qt.widgets.hover_tooltip.HoverTooltip.offered_animation": {
       "source_blocks_sha256": [

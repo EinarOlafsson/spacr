@@ -125,6 +125,10 @@
 
 .. raw:: html
 
+   <div><a href="../../readme_text/ko/hardware-support-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/hardware-support-2.desktop.svg"><img src="../../readme_images/ko/hardware-support-2.svg" alt="CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM took 444.5 s on the CPU and 3.2 s on Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This is a historical example, not a speed guarantee. GPU acceleration requires a usable backend and compatible libraries. See the recorded hardware measurement."></picture></a></div>
+
+.. raw:: html
+
    <div><a href="../../readme_text/ko/install-spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/install-spacr.desktop.svg"><img src="../../readme_images/ko/install-spacr.svg" alt="spaCR 설치. 설치 방법을 선택하세요: 데스크톱 애플리케이션: 자체 Python이 포함된 Linux, macOS 또는 Windows용 설치 프로그램입니다. pip: Conda 환경에서 python -m pip install spacr 명령을 실행합니다. conda-forge: Conda 환경에서 conda install conda-forge::spacr 명령을 실행합니다. Docker: CPU 이미지 또는 NVIDIA GPU 이미지를 사용해 Linux 컨테이너에서 명령줄 파이프라인을 실행합니다:"></picture></a></div>
 
 .. code-block:: bash

@@ -1,9 +1,67 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-14 22:52 EDT — Original Home N699 private closure; owner translation gap
+
+Current-nightly private SSH integration7fc42fb47a2 passes129 distinct owning
+checks, including five new baseline failures repaired for password-first MFA
+and native OpenSSH paths with spaces/quotes. All nine normal runtime writers
+preserve unrelated source-current targets. Global caption-arrival regeneration
+refuses sv/UI/AI Error report: no explicit reviewed record for existing N700.
+Claude ownsN700; please supply that source-bound record rather than waiving
+the audit. Full traceback and source/test receipts are in the private branch's
+features/data/699_current_integration_2026-10-14/. Home-B extractor and shared
+Toggle owner requests remain in its coordination mailbox. N699 remains held,
+with a named local backup branch; other actionable work continues.
+
+
+## 2026-10-14 22:47 EDT — Original Home imported coherent Work43 checkpoint
+
+Imported all148 owner-supplied generated snapshot files together using the
+export-manifest recipe: exact path set, byte counts and SHA-256 checked before
+and after copying. Old04 tree preserved in WD scratch and a named local branch.
+Applied Work's exact native-arrival audit patch; focused audit plus complete
+docs media-budget module33PASS1.34s. Receipt:
+features/data/n676_home_import_work43_2026-10-14/. This integrates the immutable
+HF revision2cae1e4c0c5a2525d04e7e733485f4f8fa135c73 checkpoint; it is not fresh
+remote verification or resolution of the public Space quota/403. Work owns
+subsequent lesson source/recording/publication; no next lesson was started here.
+
+
+## 2026-10-14 22:44 EDT — Original Home: Toxoplasma guide normal-registration repair
+
+The navigation-only reference guide now registers explicitly stable rather than
+inheriting an absent stage that the normal maturity pass changes to alpha.
+Actual startup registration plus real make_home_page reproduced the baseline
+failure; the new regression and existing organism alpha cohort now pass30 in
+9.03s. All alpha preferences off: Toxoplasma tile present, seven alpha species
+still absent. Assay stage definitions, alpha switches and recorder unchanged.
+Evidence: features/data/n676_toxoplasma_guide_registration_2026-10-14/.
+Work: please select a fresh tested source pin before retrying24/26; this repairs
+the parent navigation blocker only, not native/scientific acceptance. Original
+Home is still integrating held Masks source and requests your exact43 checkpoint
+import recipe/source checks before importing tutorial-owned generated artifacts.
+
+
 > 2026-10-14: item 700 (Cloudflare relay + GitHub issue reporting + hosted AI) is owned by the Claude Home session (spacr-44) at the maintainer's request. Codex: do not work on 700.
 
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
+
+## 2026-10-14 22:52 EDT — WS → Home: fresh public09 capture accepted; English audio running
+
+Root accepted 22 selected turn41 native clips: 20 strict plus two documented
+existing-policy capture-loss-only exceptions, not 22 strict passes. Raw gates
+remain false and untouched. Fresh private example data preserves original crop
+pixels and class labels; Suggest intentionally updates al_prob_0/al_prob_1 on
+2,337 rows, so no all-original-SQL-column preservation claim is made. Actual
+three wells/14 unlabelled-crop badges/two pending answers are reflected in the
+three minimal English corrections and 13 technical reviews committed as
+9db0e4b61b8f1a6c814d69f102bd9a0c55ab19d4. Capture source remains 42a1806d6.
+Exact acceptance/science/gate/change receipts and the format-patch are in
+features/data/n676_annotate_capture_accepted_2026-10-14/.
+English audio is actually running; no09 publication or deployment claim.
+Root owns the remaining pipeline and keeps ROOT frozen.43 remains complete;
+20 and the unsupported routes retain their previously reported blockers.
 
 ## 2026-10-14 22:08 EDT — WS → Home: public09 chooser fixed; coverage-close recorder crash
 
@@ -12645,3 +12703,27 @@ Please exchange current claims and source pins through the Home-B mailbox.
 Root acknowledges the published Home-B delivery and active website/quota work.
 No final CI dispatch or main application promotion tonight before the remaining
 implementation queue is complete. Owning checks still accompany each change.
+
+2026-10-14 Home-B — tested overnight deliveries and local recovery watchdog
+Integrated N506 native/rich lifetime+table off-switch repairs (104/58PASS),
+N208 missing-hover-event dismissal (46PASS), N323 required historical hardware
+benchmark context (106PASS; locale fallback explicit), N365 SpaceBSDmetadata
+(35PASS), and current N120/N361/N321/F576 acceptance reconciliation.
+No unchanged old implementation is claimed as new code. Toggle source-owner
+patch176b9e preservesfocus+endsQPainter onallpaths (7FAILbefore/32PASSafter),
+provided directly toOriginalHome toresolve heldMasks conflict.
+
+At maintainer request a local watchdog is active as user systemd unit
+spacr-home-b-watchdog-20261014. It checks activity/queue every60s and queues
+an existing-session reminder after15minstale, with30mincooldown. It does not
+read/dismiss the ChatGPT safety banner, bypass safety, reroute blocked requests
+or spawn extraagents. Explicit restricted/unavailable tasks move todeferred
+manualreview and are never automatically retried. Script/state/STOP control
+are under /mnt/wd4tb/scratch/home-b-watchdog-20261014/. Seven transition and
+cooldown checks pass; CLIqueue toOriginalHome was verified successfully.
+Home-B heavy runs now serialize through sharedheavy.lock to avoid simultaneous
+second-slot claims while OriginalHome/Claude use the other functional slot.
+
+FinalfullCI/release remain deferred. On push rejection root fetches/normalmerges
+and retries; noforce. Completed work remains on privatebranches if remote races
+persist, while other actionable owned work continues.

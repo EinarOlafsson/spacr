@@ -93,3 +93,21 @@ user-facing prose here MOVES THE RATCHET -- coordinate before re-pinning,
 or the pin lands on a tree that is still changing.
 
 VERIFIED 2026-10-04: the 2 test files this item names pass on CPU/offscreen.
+
+
+2026-10-14 — Current registry/documentation acceptance
+-----------------------------------------------------
+The two owning cohorts pass on current source: 56 passed in 3.82 s, no
+failures or skips. README/API grouping, folded-module host descriptions and
+function-specific destinations remain derived from the current registry;
+no documentation-generator change was needed. Historical hard-coded counts
+above are superseded by the current tests (54 registered modules, 19 tiled
+registry entries). This is existing implementation revalidation, not new work
+on the application registry.
+
+Scope limitation: these checks exercise tiled_apps()/registry contracts, not
+the native Home after maturity registration. Work separately reported actual
+Home hiding Toxoplasma through that classification pass; its runtime repair is
+owned by Original Home and is not claimed resolved here. No hosted publication
+or full documentation build was attempted. Evidence:
+features/data/321_registry_docs_reconciliation_2026-10-14/.

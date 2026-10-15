@@ -258,6 +258,14 @@ def _empty_device_cache() -> None:
         torch.cuda.empty_cache()
 
 
+def _classifier_model_input(settings, name):
+    """Use verified recorded classifier bytes without rewriting their request."""
+    from .model_zoo import _resolve_pinned_model_file
+
+    resolved = _resolve_pinned_model_file(settings, name, kinds=('classifier',))
+    return str(resolved) if resolved is not None else settings.get(name)
+
+
 def _load_inference_model(model_path, device):
     """Load current or legacy model artifacts and disable training-only recomputation."""
     model, metadata = load_model_artifact(model_path, map_location=device)
@@ -480,7 +488,7 @@ def apply_model_to_tar(settings=None):
     from .utils import process_vision_results, print_progress
 
     tar_path = settings['tar_path']
-    model_path = settings['model_path']
+    model_path = _classifier_model_input(settings, 'model_path')
 
     device, note = pick_device(what="inference")
     if note:
@@ -513,7 +521,7 @@ def apply_model_to_tar(settings=None):
         print(f"Loading model from {model_path}")
         print(f"Loading dataset from {tar_path}")
 
-    model, metadata = _load_inference_model(settings['model_path'], device)
+    model, metadata = _load_inference_model(_classifier_model_input(settings, 'model_path'), device)
 
     dataset = TarImageDataset(tar_path, transform=transform,
                               crop_loading_policy=checkpoint_policy(metadata, announce=True))
@@ -1186,7 +1194,7 @@ def _cross_validate_model(settings, num_classes):
             "resume_checkpoint cannot be shared across cross-validation folds; "
             "resume an individual fold directly or start a fresh k-fold run.")
 
-    crop_loading_policy = initialization_policy(settings.get('custom_model_path'))
+    crop_loading_policy = initialization_policy(_classifier_model_input(settings, 'custom_model_path'))
 
     fold_loaders, info = generate_cv_loaders(
         src,
@@ -1276,7 +1284,7 @@ def _cross_validate_model(settings, num_classes):
             tensorboard=settings.get('tensorboard', True),
             early_stopping_patience=settings.get(
                 'early_stopping_patience', 0),
-            custom_model_path=settings.get('custom_model_path') or None,
+            custom_model_path=_classifier_model_input(settings, 'custom_model_path') or None,
             preprocessing={
                 'crop_loading_policy': crop_loading_policy,
                 'image_size': settings.get('image_size', 224),
@@ -1720,7 +1728,8 @@ def train_test_model(settings):
 
     elif settings['train']:
         crop_loading_policy = initialization_policy(
-            settings.get('resume_checkpoint') or settings.get('custom_model_path'))
+            _classifier_model_input(settings, 'resume_checkpoint')
+            or _classifier_model_input(settings, 'custom_model_path'))
         train, val, _ = generate_loaders(
             src,
             mode='train',
@@ -1808,8 +1817,8 @@ def train_test_model(settings):
             plot=settings.get('plot', False),
             tensorboard=settings.get('tensorboard', True),
             early_stopping_patience=settings.get('early_stopping_patience', 0),
-            custom_model_path=settings.get('custom_model_path') or None,
-            resume_checkpoint=settings.get('resume_checkpoint') or None,
+            custom_model_path=_classifier_model_input(settings, 'custom_model_path') or None,
+            resume_checkpoint=_classifier_model_input(settings, 'resume_checkpoint') or None,
             preprocessing={
                 'crop_loading_policy': crop_loading_policy,
                 'image_size': settings.get('image_size', 224),
@@ -3064,7 +3073,7 @@ def generate_activation_map(settings):
         print(f"Dataset not found at {settings['dataset']}")
         return
 
-    model, metadata = _load_inference_model(settings['model_path'], device)
+    model, metadata = _load_inference_model(_classifier_model_input(settings, 'model_path'), device)
     model.to(device)
     model.eval()
     applies, reason = cam_type_applicability(cam_type, model=model)
@@ -3804,6 +3813,11 @@ def deep_spacr(settings=None):
         print("Training model ...")
         training_result = train_test_model(settings)
         if settings.get('train'):
+            if 'model_metadata' in settings:
+                from .model_zoo import _invalidate_model_metadata
+
+                settings['model_metadata'] = _invalidate_model_metadata(
+                    settings, ['model_path'])['model_metadata']
             cv_best = settings.get('cv_best_model_path')
             if cv_best:
                 settings['cv_results_path'] = training_result
@@ -3828,7 +3842,7 @@ def deep_spacr(settings=None):
 
     if settings.get('apply_model_to_dataset'):
 
-        model_path = settings.get('model_path')
+        model_path = _classifier_model_input(settings, 'model_path')
         if model_path and os.path.exists(model_path):
             _flowview_advance("evaluation")
             df = apply_model_to_tar(settings)

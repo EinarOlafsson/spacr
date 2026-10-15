@@ -1,0 +1,18 @@
+{
+  "scope": "Explicit stable classification for the reference navigation guide, preserving alpha species and assay classifications",
+  "baseline": "1 failed: real startup registration reclassifies Toxoplasma alpha",
+  "closure": {
+    "passed": 30,
+    "seconds": 9.03,
+    "actual_exit": 0
+  },
+  "source_sha256": {
+    "spacr/qt/app.py": "c8edd4ecb38c1148bb4008b56f7e726aa10188179b0876b9e8b145913f571c2b",
+    "tests/qt/test_toxoplasma_guide_after_registration.py": "2f3e057511c467c88835c31cfdcd493cb37771e9389481a10d8cf0c6b0413237"
+  },
+  "limits": [
+    "Offscreen real Home widgets, not native recording acceptance",
+    "No assay maturity change or scientific acceptance",
+    "Work must choose a fresh tested source pin before recording"
+  ]
+}

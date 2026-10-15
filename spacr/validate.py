@@ -1279,7 +1279,7 @@ def _check_unknown_keys(settings: Dict[str, Any], app: str = "") -> List[Problem
     value changes nothing whatever its name.
     """
     known = (_known_setting_keys() | _APP_EXTRA_KEYS.get(app, frozenset())
-             | _module_default_keys(app))
+             | _module_default_keys(app) | {"model_metadata"})
     try:
         from .plugins import get_app as _get_plugin_app
         plugin = bool(app) and _get_plugin_app(app) is not None
@@ -1496,6 +1496,18 @@ def _check_numeric_list(key: str, value: Sequence[Any]) -> List[Problem]:
     return problems
 
 
+def _has_planned_model_pin(settings, key, kinds):
+    """Test recorded model availability without discovery or weight acquisition."""
+    if "model_metadata" not in settings:
+        return False
+    from .model_zoo import ModelZooError, _resolve_pinned_model_file
+
+    try:
+        return _resolve_pinned_model_file(settings, key, kinds=kinds, download=False) is not None
+    except (ModelZooError, OSError):
+        return False
+
+
 def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
     """App-specific inputs that must already exist on disk."""
     problems: List[Problem] = []
@@ -1512,6 +1524,8 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
                 ERROR, key, f"{key} is not set, but {purpose}.", fix))
             return
         if isinstance(value, str) and not os.path.isfile(value):
+            if key == "model_path" and _has_planned_model_pin(settings, key, ("classifier",)):
+                return
             if key == "model_path":
                 from .model_zoo import ModelZooError, _ensure_model_file
                 try:
@@ -1598,7 +1612,8 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
 
     custom_model = settings.get("custom_model")
     if isinstance(custom_model, str) and custom_model.strip():
-        if not os.path.exists(custom_model):
+        if not os.path.exists(custom_model) and not _has_planned_model_pin(
+                settings, "custom_model", ("cellpose",)):
             from .model_zoo import ModelZooError, _ensure_model_file
             try:
                 downloadable = _ensure_model_file(
@@ -1725,14 +1740,15 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
                 model = model.strip()
                 looks_like_a_path = (
                     os.sep in model or model.endswith((".pth", ".pt")))
-                if looks_like_a_path and not os.path.isfile(model):
+                pinned = _has_planned_model_pin(settings, "pathogen_model", ())
+                if looks_like_a_path and not os.path.isfile(model) and not pinned:
                     problems.append(Problem(
                         ERROR, "pathogen_model",
                         f"pathogen_model={model!r} names a checkpoint that "
                         f"is not there.",
                         "Point it at an existing .pth/.pt file, or drop the "
                         "setting to segment pathogens with stock cpsam."))
-                elif not looks_like_a_path and model != stock_model:
+                elif not looks_like_a_path and model != stock_model and not pinned:
                     problems.append(Problem(
                         WARNING, "pathogen_model",
                         f"pathogen_model={model!r} is not a checkpoint on "
@@ -1856,6 +1872,18 @@ def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
 
     app = _normalize_app(app_key)
     problems: List[Problem] = []
+    if "model_metadata" in settings:
+        from .model_zoo import (ModelZooError, _model_input_kinds,
+                                _resolve_pinned_model_file, _validate_model_metadata)
+        from .qt.i18n import tr
+
+        try:
+            kinds = _model_input_kinds(app, settings)
+            metadata = _validate_model_metadata(settings, model_kinds=kinds)
+            for name in metadata["settings"]:
+                _resolve_pinned_model_file(settings, name, kinds=kinds[name], download=False)
+        except (ModelZooError, OSError) as exc:
+            return [Problem(ERROR, "model_metadata", str(exc), tr("Choose a settings file"))]
     try:
         from .plugins import get_app as _get_plugin_app
         known_plugin_app = _get_plugin_app(app) is not None

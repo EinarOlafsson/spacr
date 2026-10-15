@@ -1,0 +1,24 @@
+{
+  "scope": "N702 wrong unrelated cache bytes do not block exact pinned planning",
+  "owning": {
+    "passed": 41,
+    "seconds": 2.65,
+    "exit": 0,
+    "new_cases": 3
+  },
+  "claims": [
+    "Planning selects unused versioned storage destination when existing cache basename has wrong bytes",
+    "Actual existing file-mirror fetch preserves wrong cache file and loads exact pinned bytes in separate destination",
+    "Explicitly supplied wrong local input still hard-refused in planning and execution",
+    "Original model settings/pins unchanged; cache suffix not interpreted as model version"
+  ],
+  "limits": [
+    "Native private file mirror only; no external network/GPU/full CI"
+  ],
+  "sha256": {
+    "spacr/model_zoo.py": "f6478dde982c5db280c8b96b892de9a0e6ba9f7268a3e9d5c919e83e071962ac",
+    "tests/test_n702_pinned_runtime_resolution.py": "3ff4575381458730f35a17bda58c7054b94efbe689864f6a4a32cc4332d1c926",
+    "/mnt/wd4tb/scratch/n702-wrong-cache-planning-20261014/owning.log": "56ff0e0803dc14b7ce7b62ac0281cc7b108c891e87d702ea9d64692841af20aa",
+    "/mnt/wd4tb/scratch/n702-wrong-cache-planning-20261014/owning.xml": "1330e314e78fc632b63209d4b6a2f06d926b3a433606ba2f28c4cc0f635fbaa0"
+  }
+}

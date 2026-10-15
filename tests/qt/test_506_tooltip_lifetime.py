@@ -1,9 +1,10 @@
 """Real popup lifetime after hovering, leaving, and disabling tooltips."""
 
 import pytest
-from PySide6.QtCore import QEvent, QPoint
+from PySide6.QtCore import QEvent, QPoint, Qt
 from PySide6.QtGui import QCursor, QHelpEvent
-from PySide6.QtWidgets import QApplication, QLabel, QToolTip, QWidget
+from PySide6.QtWidgets import (QApplication, QLabel, QTableWidget,
+                               QTableWidgetItem, QToolTip, QWidget)
 
 from spacr.qt import preferences, tooltip_policy
 from spacr.qt.widgets.hover_tooltip import HoverTooltip
@@ -61,3 +62,25 @@ def test_rich_help_lingers_one_second_after_leaving_either_surface(
     qtbot.wait(850)
     assert popup.isVisible(), "The popup disappeared before the one-second grace"
     qtbot.waitUntil(lambda: not popup.isVisible(), timeout=700)
+
+
+def test_view_owned_help_is_silenced_when_tooltips_are_disabled(
+        lifetime_context, qtbot):
+    _, policy = lifetime_context
+    table = QTableWidget(1, 1)
+    cell = QTableWidgetItem("Sample")
+    cell.setData(Qt.ToolTipRole, "Help supplied by the table delegate.")
+    table.setItem(0, 0, cell)
+    qtbot.addWidget(table)
+    table.show()
+    qtbot.wait(20)
+    local = table.visualItemRect(cell).center()
+    global_pos = table.viewport().mapToGlobal(local)
+    QCursor.setPos(global_pos)
+    QApplication.sendEvent(table.viewport(),
+                          QHelpEvent(QEvent.ToolTip, local, global_pos))
+    policy._show_now()
+    assert QToolTip.isVisible()
+    assert QToolTip.text() == cell.data(Qt.ToolTipRole)
+    preferences.set_tooltips_enabled(False)
+    qtbot.waitUntil(lambda: not QToolTip.isVisible(), timeout=1000)

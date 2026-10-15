@@ -148,11 +148,12 @@ def delete_runs(directories: Iterable[Any]) -> Tuple[int, List[str]]:
     import shutil
 
     root = runs_root().resolve()
-    live = ""
+    with _ACTIVE_RUNS_LOCK:
+        live = set(_ACTIVE_RUN_DIRS)
     try:
         run = current_run()
         if run is not None and getattr(run, "dir", None):
-            live = str(Path(run.dir).resolve())
+            live.add(str(Path(run.dir).resolve()))
     except Exception:                                       # noqa: BLE001
         LOG.debug("Could not identify the running run", exc_info=True)
 
@@ -172,7 +173,8 @@ def delete_runs(directories: Iterable[Any]) -> Tuple[int, List[str]]:
         if not target.is_dir():
             refused.append(f"{target}: not a run folder")
             continue
-        if live and str(target) == live:
+        if any(target == active or target in active.parents
+               or active in target.parents for active in map(Path, live)):
             refused.append(f"{target.name}: still running")
             continue
         try:
@@ -1276,6 +1278,10 @@ class Run:
 
 
 _RUN_LOCAL = threading.local()
+_ACTIVE_RUN_DIRS: Set[str] = set()
+_ACTIVE_RUNS_LOCK = threading.RLock()
+if hasattr(os, "register_at_fork"):
+    os.register_at_fork(after_in_child=_ACTIVE_RUNS_LOCK._at_fork_reinit)
 
 
 def _record_diameter(object_type: str, used: str,
@@ -1372,42 +1378,49 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
     macro = begin_recording(app_key, run.settings, run_dir=run.dir)
     prev_active = current_run()
     _RUN_LOCAL.active = run
+    active_path = str(run.dir.resolve())
+    with _ACTIVE_RUNS_LOCK:
+        _ACTIVE_RUN_DIRS.add(active_path)
     try:
-        yield run
-        _raise_if_incomplete(run)
-        if run.status == "running":
-            run.status = "success"
-    except BaseException as e:
-        import traceback as _tb
-        run.status = ("cancelled" if type(e).__name__ == "PipelineCancelled"
-                      else "failed")
-        run.error_traceback = "".join(
-            _tb.format_exception(type(e), e, e.__traceback__)
-        )
-        raise
+        try:
+            yield run
+            _raise_if_incomplete(run)
+            if run.status == "running":
+                run.status = "success"
+        except BaseException as e:
+            import traceback as _tb
+            run.status = ("cancelled" if type(e).__name__ == "PipelineCancelled"
+                          else "failed")
+            run.error_traceback = "".join(
+                _tb.format_exception(type(e), e, e.__traceback__)
+            )
+            raise
+        finally:
+            _RUN_LOCAL.active = prev_active
+            run.end_ts = time.time()
+            try:
+                run._capture_final_provenance()
+            except Exception as exc:
+                warning = f"final output provenance failed: {exc}"
+                run.provenance_warnings.append(warning)
+                LOG.exception(warning)
+            try:
+                run._snapshot_log_tail()
+                run._write_manifest()
+            except Exception:
+                LOG.exception("Could not finalize run manifest in %s", run.dir)
+            try:
+                from .workspace import save_for_run
+                save_for_run(run.dir, run.settings, app_key=run.app_key)
+            except Exception:
+                LOG.exception("Could not save the workspace for %s", run.dir)
+            finish_recording(macro, status=run.status, settings=run.settings)
+            LOG.info("run closed [%s] in %.1fs → %s",
+                      run.status, run.end_ts - run.start_ts, run.dir)
+            _notify_run_finished(run)
     finally:
-        _RUN_LOCAL.active = prev_active
-        run.end_ts = time.time()
-        try:
-            run._capture_final_provenance()
-        except Exception as exc:
-            warning = f"final output provenance failed: {exc}"
-            run.provenance_warnings.append(warning)
-            LOG.exception(warning)
-        try:
-            run._snapshot_log_tail()
-            run._write_manifest()
-        except Exception:
-            LOG.exception("Could not finalize run manifest in %s", run.dir)
-        try:
-            from .workspace import save_for_run
-            save_for_run(run.dir, run.settings, app_key=run.app_key)
-        except Exception:
-            LOG.exception("Could not save the workspace for %s", run.dir)
-        finish_recording(macro, status=run.status, settings=run.settings)
-        LOG.info("run closed [%s] in %.1fs → %s",
-                  run.status, run.end_ts - run.start_ts, run.dir)
-        _notify_run_finished(run)
+        with _ACTIVE_RUNS_LOCK:
+            _ACTIVE_RUN_DIRS.discard(active_path)
 
 
 
@@ -3910,7 +3923,9 @@ def _protected_storage() -> Set[str]:
     every log file a logging handler holds open, and the fatal-signal stack
     file the GUI keeps open.
     """
-    protected: Set[str] = set()
+    with _ACTIVE_RUNS_LOCK:
+        protected: Set[str] = set(_ACTIVE_RUN_DIRS)
+    protected.update(Path(path).name for path in tuple(protected))
     try:
         run = current_run()
         if run is not None and getattr(run, "dir", None):

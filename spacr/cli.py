@@ -52,6 +52,7 @@ import logging
 import os
 import sys
 import time
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 
@@ -1034,9 +1035,16 @@ def load_settings_file(path: Any) -> Dict[str, Any]:
             f"--settings expects a file, but {path} is a folder.\n"
             f"  A run writes its settings to <src>/settings/*.csv — point at one of those.")
     try:
-        if path.lower().endswith(".json"):
-            return _load_settings_json(path)
-        return _load_settings_csv(path)
+        values = (_load_settings_json(path) if path.lower().endswith(".json")
+                  else _load_settings_csv(path))
+        if "model_metadata" in values:
+            from .model_zoo import ModelZooError, _validate_model_metadata
+
+            try:
+                values["model_metadata"] = _validate_model_metadata(values)
+            except ModelZooError as exc:
+                raise SettingsError(str(exc)) from exc
+        return values
     except SettingsError:
         raise
     except (OSError, UnicodeDecodeError) as exc:
@@ -1119,11 +1127,18 @@ def write_settings_file(settings: Mapping[str, Any], path: Any) -> List[str]:
                                 "measure_settings.csv")
             load_settings_file("measure_settings.csv")
     """
+    values = dict(settings)
+    if "model_metadata" in values:
+        from .model_zoo import ModelZooError, _validate_model_metadata
+
+        try:
+            values["model_metadata"] = _validate_model_metadata(values)
+        except ModelZooError as exc:
+            raise SettingsError(str(exc)) from exc
     import pandas as pd
 
     from . import tabular
 
-    values = dict(settings)
     rows = [(str(key), _settings_csv_cell(value))
             for key, value in values.items()]
     frame = pd.DataFrame(rows, columns=["Key", "Value"])
@@ -1361,13 +1376,34 @@ def apply_overrides(settings: Dict[str, Any], overrides: Sequence[str],
     :raises SettingsError: on an unknown key, a key nothing reads, or an
         uncoercible value.
     """
+    metadata = None
+    if "model_metadata" in settings:
+        from .model_zoo import (
+            ModelZooError, _invalidate_model_metadata, _model_input_kinds,
+            _validate_model_metadata,
+        )
+
+        try:
+            metadata = _validate_model_metadata(
+                settings, model_kinds=_model_input_kinds(module, settings)
+                if module is not None else None)
+        except ModelZooError as exc:
+            raise SettingsError(str(exc)) from exc
     if not overrides:
         return settings
     from .settings import expected_types
 
-    known = set(settings) | set(expected_types)
+    original = deepcopy(settings) if metadata is not None else None
+    working = deepcopy(settings) if metadata is not None else settings
+    changed = set()
+    known = set(working) | set(expected_types)
     for item in overrides:
         key, text = _split_override(item)
+        if key == "model_metadata" or key.startswith("model_metadata."):
+            from .qt.i18n import tr
+
+            raise SettingsError(tr("Bad settings") + f": --set {key}; "
+                                + tr("Choose a settings file") + " (--settings)")
         if key not in known:
             close = difflib.get_close_matches(key, sorted(known), n=1, cutoff=0.6)
             hint = f" Did you mean '{close[0]}'?" if close else ""
@@ -1377,8 +1413,25 @@ def apply_overrides(settings: Dict[str, Any], overrides: Sequence[str],
                 f"'{key}'.{hint}\n"
                 f"  Run 'spacr-run --describe {module.key if module else '<module>'}' "
                 f"to list the settings this module accepts.")
-        settings[key] = coerce_value(key, text, settings.get(key), expected_types,
-                                     module.key if module is not None else "")
+        working[key] = coerce_value(key, text, working.get(key), expected_types,
+                                   module.key if module is not None else "")
+        changed.add(key)
+    if metadata is not None:
+        try:
+            working["model_metadata"] = _invalidate_model_metadata(
+                original, changed)["model_metadata"]
+            _validate_model_metadata(
+                working, model_kinds=_model_input_kinds(module, working)
+                if module is not None else None)
+        except ModelZooError as exc:
+            raise SettingsError(str(exc)) from exc
+        settings.clear()
+        settings.update(working)
+        from .qt.i18n import tr
+
+        for key in sorted(changed & set(metadata["settings"])):
+            LOG.warning("%s: model_metadata.settings[%r]",
+                        tr("Removed {count} item(s).", count=1), key)
     return settings
 
 
@@ -1427,6 +1480,29 @@ def _under_todays_names(settings: Dict[str, Any],
                            _fold_renamed_settings, _fold_toxoplasma)
     from .validate import _check_retired_keys
 
+    metadata = None
+    if "model_metadata" in settings:
+        from .model_zoo import ModelZooError, _validate_model_metadata
+        from .settings import surviving_setting_name
+        from .qt.i18n import tr
+
+        try:
+            metadata = _validate_model_metadata(settings)
+        except ModelZooError as exc:
+            raise SettingsError(str(exc)) from exc
+        migrated = {}
+        for key, record in metadata["settings"].items():
+            targets = surviving_setting_name(key)
+            if len(targets) > 1:
+                raise SettingsError(tr("Bad settings")
+                                    + f": model_metadata.settings[{key!r}] → {targets!r}")
+            target = targets[0] if targets else key
+            if target in migrated and migrated[target] != record:
+                raise SettingsError(tr("Bad settings")
+                                    + f": model_metadata.settings[{key!r}] → [{target!r}]"
+                                    + f": {migrated[target]!r} != {record!r}")
+            migrated[target] = record
+        metadata["settings"] = migrated
     before = set(settings)
     said = {problem.setting: problem for problem in
             _check_retired_keys(settings)}
@@ -1434,6 +1510,12 @@ def _under_todays_names(settings: Dict[str, Any],
     _fold_toxoplasma(settings)
     _fold_gradient_accumulation(settings)
     _fold_object_bounds(settings)
+    if metadata is not None:
+        settings["model_metadata"] = metadata
+        try:
+            _validate_model_metadata(settings)
+        except ModelZooError as exc:
+            raise SettingsError(str(exc)) from exc
     for key in sorted(before - set(settings), key=str):
         problem = said.get(key)
         if problem is None:
@@ -1878,6 +1960,19 @@ def cmd_run(args: argparse.Namespace) -> int:
     if _quiet_progress_bars():
         log.debug("stdout is not a tty — tty-only progress output disabled")
 
+    resolved_model_files = {}
+    if "model_metadata" in settings:
+        from .model_zoo import ModelZooError, _model_input_kinds, _resolve_pinned_model_file
+
+        kinds = _model_input_kinds(module, settings)
+        try:
+            for name in settings["model_metadata"]["settings"]:
+                resolved_model_files[name] = _resolve_pinned_model_file(
+                    settings, name, kinds=kinds.get(name, ()))
+        except (ModelZooError, OSError) as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return EXIT_USAGE
+
     try:
         func = import_entry(module)
     except SettingsError as exc:
@@ -1893,6 +1988,8 @@ def cmd_run(args: argparse.Namespace) -> int:
             log.info("recording reproducibility input hashes")
             with open_run(module.key, settings) as run:
                 log.info("reproducibility manifest %s", run.dir)
+                for name, model_path in resolved_model_files.items():
+                    run.record_model(name, model_path)
                 lock = getattr(run, "_analysis_lock", None)
                 if lock:
                     (log.info if lock.get("status") == "verified"

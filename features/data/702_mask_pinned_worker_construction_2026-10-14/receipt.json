@@ -1,0 +1,28 @@
+{
+  "scope": "N702 pin-safe actual Mask model construction and parallel worker preparation",
+  "owning": {
+    "passed": 91,
+    "seconds": 45.78,
+    "exit": 0,
+    "new_cases": 9
+  },
+  "claims": [
+    "Pinned worker preparation preserves original role/pathogen request and metadata while signing verified effective bytes",
+    "Actual SAM constructor reuses exact shared cached pin once across worker prep and child construction",
+    "Backend selected from original prefix before effective path argument, proved at actual cellpose3 and DINO loader boundary",
+    "Wrong local pinned bytes refused before stock fallback",
+    "Unpinned existing canonicalization and scientific resume signatures preserved"
+  ],
+  "limits": [
+    "Native model stand-in and intercepted alternative backend loader; no actual model/GPU/network/full CI",
+    "Backend worker identity sha256 remains existing artifact-manifest hash, distinct from raw pinned file SHA; both semantics tested",
+    "Live previews/OPS/spatial and other consumer seams remain separate"
+  ],
+  "sha256": {
+    "spacr/object.py": "91eb92ae20a28753d5a6678f865549b30ec335cde8a6550cd7ee854cc69b29bb",
+    "spacr/_mask_workers.py": "437ad88a4cd3ee1d2b320032e5cb280ce41805110a49fdabf735550bad68c25d",
+    "tests/test_n702_pinned_mask_construction.py": "b58936476577f305b15cc12ef8c46ea03dd47759a4587915599f5922473b1c3b",
+    "/mnt/wd4tb/scratch/n702-mask-pins-20261014/owning.log": "019d3c8c1ecc7d059aa88aae6e451d49592e29b2399233adaf1dd74ed711017e",
+    "/mnt/wd4tb/scratch/n702-mask-pins-20261014/owning.xml": "f082dea2aa4de7447fb25d6b10ae269ffa03c334972b3befce7b3b83082c2603"
+  }
+}

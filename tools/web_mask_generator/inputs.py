@@ -64,6 +64,35 @@ def describe_upload(path, *, max_file_bytes=DEFAULT_MAX_FILE_BYTES):
             shape = [handle.height, handle.width] + ([channels] if channels > 1 else [])
             axes = "YXC" if channels > 1 else "YX"
             return {"format": handle.format, "series": [{"shape": shape, "axes": axes, "mode": mode}]}
+    if suffix == ".czi":
+        try:
+            import czifile
+        except ImportError as error:
+            raise ValueError(tr("CZI uploads require the optional czifile reader.")) from error
+        with czifile.CziFile(path) as handle:
+            if not hasattr(handle, "scenes"):
+                raise ValueError(tr("CZI uploads require a czifile reader with explicit scene metadata."))
+            entries = [{"shape": list(scene.shape), "axes": scene.axes,
+                        "dtype": str(scene.dtype), "scene_id": identifier}
+                       for identifier, scene in handle.scenes.items()]
+        if not entries:
+            raise ValueError(tr("The CZI declares no readable scenes."))
+        return {"format": "CZI", "series": entries}
+    if suffix == ".nd2":
+        try:
+            from nd2reader import ND2Reader
+        except ImportError as error:
+            raise ValueError(tr("ND2 uploads require the optional nd2reader reader.")) from error
+        with ND2Reader(str(path)) as handle:
+            sizes = dict(handle.sizes)
+            if any(int(sizes.get(axis, 0)) < 1 for axis in ("y", "x")):
+                raise ValueError(tr("This ND2 reader cannot determine the image spatial dimensions."))
+            if set(sizes) - set("tzcyxv"):
+                raise ValueError(tr("This ND2 declares unsupported axes."))
+            shape = [int(sizes.get(axis, 1)) for axis in "tzcyx"]
+            entries = [{"shape": shape, "axes": "TZCYX", "dtype": str(np.dtype(handle.pixel_type)), "position": number}
+                       for number in range(int(sizes.get("v", 1)))]
+        return {"format": "ND2", "series": entries}
     if suffix == ".pdf":
         try:
             import pypdfium2
@@ -164,10 +193,25 @@ def read_upload_plane(
         if description["format"] == "TIFF":
             with tifffile.TiffFile(path) as handle:
                 array = handle.series[series].asarray()
+        elif description["format"] == "CZI":
+            import czifile
+            with czifile.CziFile(path) as handle:
+                array = handle.scenes[info["scene_id"]].asarray()
+        elif description["format"] == "ND2":
+            from nd2reader import ND2Reader
+            with ND2Reader(str(path)) as handle:
+                array = np.stack([np.asarray(handle.get_frame_2D(
+                    t=chosen["T"], z=chosen["Z"], c=channel, v=info["position"]))
+                    for channel in selected_channels])
+            return {"image": array, "image_axes": "CYX", "selection": {
+                "format": "ND2", "channels": selected_channels, "series": series,
+                "position": info["position"], "source_axes": "TZCYX", "indices": chosen}}
         else:
             with Image.open(path) as handle:
                 array = np.array(handle)
         provenance = {"series": series, "source_axes": info["axes"], "indices": chosen}
+        if description["format"] == "CZI":
+            provenance["scene_id"] = info["scene_id"]
     selectors = tuple(chosen.get(axis, slice(None)) for axis in axes)
     array = array[selectors]
     remaining = "".join(axis for axis in axes if axis not in chosen)

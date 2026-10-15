@@ -1,0 +1,27 @@
+{
+  "scope": "N702 settings-aware classifier inference/warm-start/resume and orchestrator paths",
+  "owning": {
+    "passed": 40,
+    "seconds": 10.17,
+    "exit": 0,
+    "new_cases": 6
+  },
+  "claims": [
+    "Actual tar inference boundary verifies pinned path before model load",
+    "Training preprocessing policy and train_model custom/resume args receive same verified effective path",
+    "CV custom initialization and CAM reuse settings-aware resolver",
+    "Orchestrator resolves exact pin before missing-path skip check",
+    "Intentional newly trained model output invalidates only replaced model_path pin, retaining unrelated warm-start identity"
+  ],
+  "limits": [
+    "New cases intercept actual model/training calls; existing owning cases use deterministic CPU models",
+    "CAM/CV source reuse included but no pinned full-CAM/CV acceptance claim",
+    "No real model/network/GPU/full CI"
+  ],
+  "sha256": {
+    "spacr/deep_spacr.py": "4f12c083a88c064cc9cff099910ef99952ddb726cca1cec25fb024de37c028ad",
+    "tests/test_n702_pinned_classifier_consumers.py": "6636e7609b5c2c195e5725931c81022d6336b4a6d9a2a1a87d5ea792526ebf43",
+    "/mnt/wd4tb/scratch/n702-classifier-pins-20261014/owning.log": "f8a6892ea391dc4d5f997e2897a380f87a6147464d1bb4afae9f8c10af47508c",
+    "/mnt/wd4tb/scratch/n702-classifier-pins-20261014/owning.xml": "dd796818957259a2d2cafaaa2bd8800dace54d3e904fa9d1254068fa14f5cd56"
+  }
+}

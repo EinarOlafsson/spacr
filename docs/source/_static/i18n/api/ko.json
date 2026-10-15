@@ -100944,14 +100944,14 @@
       "source_blocks_sha256": [
         "73728aa5004307ecc169214927e9029b7404565773112baa3bf04db6b80ee59a",
         "2c5e7f93b0450489df990ac9d1d71581fb6527f70bb050c7d9026305cb699485",
-        "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50"
+        "429ae6efad0b6a60cb70c1c75f75f3ec13c7ae488a2fac6b9b4dffd8ff3e866e"
       ],
-      "source_sha256": "1e2f236fdda68876a06c3007da6ece0ad03e76f8437c90a377670acb3cb10bcb",
-      "text": "AppScreen에 의해 제공되는 변함없는 설정 스냅샷을 다시 업로드합니다.\n\n:param module: 모듈 상자에서 선택할 ``spacr.cli.MODULES`` 키입니다. 알 수 없는 키는 선택을 그대로 둡니다.\n:param settings: 제출할 설정입니다. 얕은 사본을 보관하며, 경로 필드를 편집하기 전까지 설정 파일 대신 사용됩니다.",
+      "source_sha256": "2f821e5837d1d04d77b92d5eee68cf7d75a91013bc1f16aedaad046f4fe66099",
+      "text": "AppScreen에 의해 제공되는 변함없는 설정 스냅샷을 다시 업로드합니다.\n\n:param module: 모듈 상자에서 선택할 ``spacr.cli.MODULES`` 키입니다. 알 수 없는 키는 선택을 그대로 둡니다.\n:param settings: 제출할 설정입니다. 설정 경로를 수정할 때까지 정확한 모델 식별 정보가 포함된 깊은 복사본을 유지합니다.",
       "translation_source_blocks_sha256": [
         "73728aa5004307ecc169214927e9029b7404565773112baa3bf04db6b80ee59a",
         "2c5e7f93b0450489df990ac9d1d71581fb6527f70bb050c7d9026305cb699485",
-        "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50"
+        "429ae6efad0b6a60cb70c1c75f75f3ec13c7ae488a2fac6b9b4dffd8ff3e866e"
       ]
     },
     "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.hideEvent": {
@@ -113946,17 +113946,17 @@
         "9922eb512e11a9bf8d8db6e75ec0120b643c3a26cdbf8a3d6e6747b1868202dd",
         "c70c3a34003bdbfe4d17064f8ba7932ade81bda6900e3c65c06d1091ed39934c",
         "e95818ae5277e0742aecd7ddda01e6cfb226a2e0e37ed0d52b03ce033b13bd6d",
-        "6c4d4bb3986e190adf554f1352d9869e77e82f7c30a2528b2f03076b89cfb28a",
+        "6500a703ccf881892f8401a25f632a6ed0e5b1df13a4bd5b91b5f0d2b85a8b4f",
         "2943a01054a773062ba25d026f902885b4c50dce2197017a38b9219fe76fd4c1"
       ],
-      "source_sha256": "527264e0fd2cdfac6718cbc3c6c5f97ac7f0f73126c0295362085a21f630189a",
-      "text": "이 양식에 위젯이 없는 알려진 실행 설정을 업데이트합니다.\n\n이것은 현재 모양에 의해 놓친 형태와 개체 라인 이외의 전용 제어를 포함합니다.\n\n숨겨진 것은 부재를 의미하지 않습니다 : 수입 된 값은 ``_defaults``에 살고 여전히 ``collect()``에 도달합니다.\n\n현재 계산 위의 슬롯은 이 앱이 계산을 소유하고 구조화된 데이터 이름이 선언된 설정인 경우에만 수락되며 외국 앱 구조화 된 데이터 이름은 거부됩니다.\n\n:param key: 설정 키입니다. 이미 처리 세션 설정이거나, 이 양식이 소기관 수를 소유할 때 ``expected_types`` 에 선언된 소기관 슬롯 키여야 하며, 그렇지 않으면 ``False`` 를 반환합니다.\n:param value: 새 값이며, 저장하기 전에 설정의 예상 타입으로 변환됩니다.",
+      "source_sha256": "54a97efccbb45fdc8e7708b2460e431078e673e7988533f61d6fc652d0e21ef5",
+      "text": "이 양식에 위젯이 없는 알려진 실행 설정을 업데이트합니다.\n\n이것은 현재 모양에 의해 놓친 형태와 개체 라인 이외의 전용 제어를 포함합니다.\n\n숨겨진 것은 부재를 의미하지 않습니다 : 수입 된 값은 ``_defaults``에 살고 여전히 ``collect()``에 도달합니다.\n\n현재 계산 위의 슬롯은 이 앱이 계산을 소유하고 구조화된 데이터 이름이 선언된 설정인 경우에만 수락되며 외국 앱 구조화 된 데이터 이름은 거부됩니다.\n\n:param key: 알려진 실행 설정, 이 폼이 개수를 관리할 때 선언된 세포 소기관 슬롯 키 또는 예약된 ``model_metadata``입니다. 다른 키는 ``False``를 반환합니다.\n:param value: 새 값이며, 저장하기 전에 설정의 예상 타입으로 변환됩니다.",
       "translation_source_blocks_sha256": [
         "d982282f202c9318690419df9741cf8b2eab64e90367f8041fe97c7b5320098d",
         "9922eb512e11a9bf8d8db6e75ec0120b643c3a26cdbf8a3d6e6747b1868202dd",
         "c70c3a34003bdbfe4d17064f8ba7932ade81bda6900e3c65c06d1091ed39934c",
         "ea7d50a112565a6015f9e1a7dab66461f469838875b3504057627fc66c3ecb87",
-        "b52f9e99da6ca843f89e930355aa5a97211ea15d69e6c6f7f395fe1834a7d4d1",
+        "4c9fb1a2a489d2fae6cdcaec81aad97bfe82d3b38c7db8b4ccf46ed8a46336c7",
         "2943a01054a773062ba25d026f902885b4c50dce2197017a38b9219fe76fd4c1"
       ]
     },
