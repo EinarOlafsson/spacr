@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "session": 85754,
+  "terminal_exit": 0,
+  "tested_commit": "d3191c3a99e1ca85ef31c0e5487a6bea9f2f5b57",
+  "runtime_owner_commit": "d98c0959d3",
+  "source_commit": "6a1b51bfd7",
+  "source_inputs_commit": "897582f2ea",
+  "api_commit": "8902f7f3bb",
+  "help_commit": "aeeecfdca1",
+  "actual_control_language_cases": 36,
+  "actual_revised_tooltip_cases": 36,
+  "normal_keyed_and_ui_lookup_cases": 162,
+  "actual_version2_preview_tables": 9,
+  "harness_peer": "Website worker independently accepted corrected normal keyed lookup/actual widget harness before execution; no duplicate run.",
+  "no_product_changes": true,
+  "no_previous_cohort_replay": true,
+  "isolation": "Only unrelated ConsolePanel.refresh_ai_usage and actual preview planner are replaced in the harness. Private settings, offscreen, CUDA hidden, 4G/thread1/shared lock. No global network, native-user, scientific or release acceptance claim.",
+  "evidence_sha256": {
+    "consumer-ui.time": "db6c37605e3b480602bf6b1c38da2fafcfdeaf9e8b59213eeb062a02d2d9354a",
+    "consumer-ui.sh": "6d343382b982e24c5a0094ba2d7921ac9b97d6d265348fb3caef39e19a7ac93e",
+    "check-consumers-initial.py": "a41c630772d5276c18cf56a7413972ae875bb284ce29e3604f6ba36e617ca0a7",
+    "consumer.json": "bd8d314043cda63faf178e5b432542ace7feb244351cf29a26592d2934bc9f56",
+    "check-consumers.py": "474bb1a6f04073a54496df8367562fa63da0d585c9817f1427dfe4daa6a30dd5",
+    "consumer-ui.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "consumer-ui.log.gz": "9915c2977f63d652e99e2288450762a361a8ccd402a0f2faa697475fd1b3e147"
+  }
+}

@@ -1,6 +1,6 @@
 """The intensity calibration settings sit behind Show alpha features.
 
-Measure's "Intensity Calibration α" card and its five settings are off
+Measure's "Intensity Calibration α" card and its nine settings are off
 the form and out of the settings search with the switch off (the default),
 come back when it is turned on, and a value set while hidden still reaches
 the run.
@@ -49,6 +49,8 @@ def test_every_calibration_setting_is_registered_as_alpha():
         "intensity_calibration", "intensity_calibration_wells",
         "intensity_calibration_reference_plate", "intensity_calibration_statistic",
         "intensity_calibration_offset",
+        "intensity_calibration_sessions", "intensity_calibration_session_column",
+        "intensity_calibration_beads", "intensity_calibration_reference_session",
     }
     assert all(key.startswith("intensity_calibration") for key in KEYS)
     assert all(_is_alpha("settings", key) for key in KEYS)

@@ -83,20 +83,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "intensity_calibration_statistic",
-      "source": "How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
-      "source_sha256": "18898b95481b93445deb13c8b4ed3fd3b873d79d2e872f90a228810591cd6410",
-      "translation": "intensity_calibration_offset 값을 뺀 뒤 각 기준 시야의 강도를 요약하는 방식입니다. foreground: 어두운 배경의 드문 비드용으로, Otsu 임계값 위 픽셀의 중앙값입니다. median: 균일하게 염색된 기준 웰용으로, 모든 픽셀의 중앙값입니다. 각 플레이트는 기준 시야들의 중앙값을 씁니다. 기본값 foreground."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "intensity_calibration_wells",
-      "source": "The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
-      "source_sha256": "7b5a101a3b0932d0cae21d7a63b7360ff2b381787ec937ce269a9b0d77df6c19",
-      "translation": "보정 시료가 있는 웰로, 모든 플레이트에서 같은 시료로 촬영합니다. 형광 비드나 기준 염색이며, 예: ['A01'] 또는 ['A01', 'P24']. 모든 플레이트는 이 웰에 시야가 하나 이상 있어야 하며, 없으면 실행이 멈춥니다. 다른 웰처럼 측정되고 보정됩니다. 기본값 None."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "plate_barcode_column",
       "source": "The column of the sample records that holds the plate barcode. Blank looks for barcode, plate_barcode or plate barcode. The other columns, apart from the well position, are copied into the plate map as they are. Default barcode.",
       "source_sha256": "471f62de63882fb6b3c34f6fdc983a33a35cf68722e163376705ff9d177f7a9f",
@@ -313,6 +299,24 @@
       "source": "What colours each cell in the lineage trees: generation_time, generation, start_frame or n_frames, or the name of a numeric column of the tracks table, averaged over the cell's frames. An unknown name falls back to generation_time with a message. Ignored unless timelapse_lineage. Default generation_time.",
       "source_sha256": "1bd4fa595b703657f0c044f166dd656279e0d28a4be5c12f52cdd50f67eeb132",
       "translation": "계보 트리에서 각 세포의 색을 정하는 값입니다. generation_time, generation, start_frame, n_frames 또는 세포의 프레임에 걸쳐 평균한 궤적 표의 숫자 열 이름입니다. 알 수 없는 이름은 메시지와 함께 generation_time으로 대체됩니다. timelapse_lineage 설정이 켜져 있지 않으면 무시됩니다. 기본값 generation_time."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_statistic",
+      "source": "How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
+      "source_sha256": "18898b95481b93445deb13c8b4ed3fd3b873d79d2e872f90a228810591cd6410",
+      "translation": "intensity_calibration_offset 값을 뺀 뒤 각 기준 시야의 강도를 요약하는 방식입니다. foreground: 어두운 배경의 드문 비드용으로, Otsu 임계값 위 픽셀의 중앙값입니다. median: 균일하게 염색된 기준 웰용으로, 모든 픽셀의 중앙값입니다. 각 플레이트는 기준 시야들의 중앙값을 씁니다. 기본값 foreground.",
+      "retired": "2026-10-15 F580 source 6a1b51bfd7 superseded this exact source; retained with its original target. Replacement: 2026-10-15-f580-session-controls-home-b.json",
+      "replacement_source_sha256": "960f87000ab4e94953da9a190fbe089940b308f47b3d55857caf2e231cf370fe"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_wells",
+      "source": "The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
+      "source_sha256": "7b5a101a3b0932d0cae21d7a63b7360ff2b381787ec937ce269a9b0d77df6c19",
+      "translation": "보정 시료가 있는 웰로, 모든 플레이트에서 같은 시료로 촬영합니다. 형광 비드나 기준 염색이며, 예: ['A01'] 또는 ['A01', 'P24']. 모든 플레이트는 이 웰에 시야가 하나 이상 있어야 하며, 없으면 실행이 멈춥니다. 다른 웰처럼 측정되고 보정됩니다. 기본값 None.",
+      "retired": "2026-10-15 F580 source 6a1b51bfd7 superseded this exact source; retained with its original target. Replacement: 2026-10-15-f580-session-controls-home-b.json",
+      "replacement_source_sha256": "ba442ddfeee750ee95bef3aa8d84e5695c94f2096ea9f60ae249b4f71e479075"
     }
   ],
   "retirement_2026_10_01_colony_dilution": "The colony dilution help now describes UTF-8 CSV input, exact filename precedence and validation. Prior source-bound review is retained as history, not reused for changed text.",

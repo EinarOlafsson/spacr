@@ -1,0 +1,370 @@
+{
+  "canonical_snapshot_sha256": "8d084109dc7aa838c844a4cb574194a1b960252e93207dca25770547b9309da7",
+  "source_sha256": {
+    "spacr/qt/screens/settings_model.py": "21e20038391afda3da53d96d1bf71041ac32253fc005dcdc98975b38ad0a5713",
+    "spacr/qt/widgets/calibration_preview.py": "699605f2d1e8b4d8d1d2d0c42a9a79373a3e95bdddd5055f456a3c8c8267b94d",
+    "spacr/settings.py": "4086e6c580497725f539aab9df48eb24abbb209a912863442a9a200a0e131c18",
+    "spacr/measure.py": "7763ece88f7e8bd02ff4477e4094fa02220f04668c58c55c1744c1905d96a3c6",
+    "spacr/intensity_rescale.py": "df6f846820ef4d2bffe83dd2e86180c026d23a7efc920c812df3b9b408a8ffcb"
+  },
+  "removed_ui": [
+    "Calculate reference-well gains without running Measure or changing files.",
+    "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+    "The selected reference plate is used; leave it blank to use the first plate by name."
+  ],
+  "records": [
+    {
+      "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-02-calibration-gain-preview.json",
+      "language": "zh_CN",
+      "record_index": 0,
+      "file_sha256": "4defa44e87cce22d633514c4e57c6039c21e5d347523fd496b265b05c688cfed",
+      "old_record": {
+        "table": "ui",
+        "key": "Calculate reference-well gains without running Measure or changing files.",
+        "source": "Calculate reference-well gains without running Measure or changing files.",
+        "source_sha256": "6587296f3483ef968f9c1fe67bd60d11fb38b4067ea278f772783020f16ef9b0",
+        "translation": "计算参考孔的增益，不运行 Measure，也不更改文件。"
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-02-calibration-gain-preview.json",
+      "language": "zh_CN",
+      "record_index": 8,
+      "file_sha256": "4defa44e87cce22d633514c4e57c6039c21e5d347523fd496b265b05c688cfed",
+      "old_record": {
+        "table": "ui",
+        "key": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+        "source": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+        "source_sha256": "96ddb012eedf0c2ec43b3dd85558659dbf85f410a332ff30e9888f4780069770",
+        "translation": "增益根据相机偏置和参考孔计算；图像和测量数据保持不变。"
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-f580-reference-plate.json",
+      "language": "zh_CN",
+      "record_index": 1,
+      "file_sha256": "0ae63ce064f4f143bc930b4617f5a3575e6dbdacd7f68c26518e3f7f936f4113",
+      "old_record": {
+        "table": "ui",
+        "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
+        "source": "The selected reference plate is used; leave it blank to use the first plate by name.",
+        "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
+        "translation": "使用所选参考板；留空时使用按名称排序的第一块板。"
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/hi/2026-10-02-calibration-gain-preview.json",
+      "language": "hi",
+      "record_index": 0,
+      "file_sha256": "f4ca4f9142ec34d1193548af7cb3e1ea960ecbd6fadff417861ddd6889ce3563",
+      "old_record": {
+        "table": "ui",
+        "key": "Calculate reference-well gains without running Measure or changing files.",
+        "source": "Calculate reference-well gains without running Measure or changing files.",
+        "source_sha256": "6587296f3483ef968f9c1fe67bd60d11fb38b4067ea278f772783020f16ef9b0",
+        "translation": "Measure चलाए बिना या फ़ाइलें बदले बिना संदर्भ वेल के गुणक निकालें।"
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/hi/2026-10-02-calibration-gain-preview.json",
+      "language": "hi",
+      "record_index": 8,
+      "file_sha256": "f4ca4f9142ec34d1193548af7cb3e1ea960ecbd6fadff417861ddd6889ce3563",
+      "old_record": {
+        "table": "ui",
+        "key": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+        "source": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+        "source_sha256": "96ddb012eedf0c2ec43b3dd85558659dbf85f410a332ff30e9888f4780069770",
+        "translation": "गुणक कैमरे के ऑफ़सेट और संदर्भ वेल से निकाले जाते हैं; छवियाँ और मापन डेटा अपरिवर्तित रहते हैं।"
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/hi/2026-10-15-f580-reference-plate.json",
+      "language": "hi",
+      "record_index": 1,
+      "file_sha256": "c54e03141031bb68397d4c25b751cb59848d4ec509aabaa02a71a32dde694d13",
+      "old_record": {
+        "table": "ui",
+        "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
+        "source": "The selected reference plate is used; leave it blank to use the first plate by name.",
+        "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
+        "translation": "चुनी गई संदर्भ प्लेट का उपयोग होता है; नाम के क्रम में पहली प्लेट का उपयोग करने के लिए इसे खाली छोड़ें।"
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/ko/2026-10-02-calibration-gain-preview.json",
+      "language": "ko",
+      "record_index": 0,
+      "file_sha256": "31f83410417f82b879fd8f15886215388dc83baa7af62c25d0b760f632f808bf",
+      "old_record": {
+        "table": "ui",
+        "key": "Calculate reference-well gains without running Measure or changing files.",
+        "source": "Calculate reference-well gains without running Measure or changing files.",
+        "source_sha256": "6587296f3483ef968f9c1fe67bd60d11fb38b4067ea278f772783020f16ef9b0",
+        "translation": "Measure 모듈을 실행하거나 파일을 변경하지 않고 기준 웰의 보정 배율을 계산합니다."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/ko/2026-10-02-calibration-gain-preview.json",
+      "language": "ko",
+      "record_index": 8,
+      "file_sha256": "31f83410417f82b879fd8f15886215388dc83baa7af62c25d0b760f632f808bf",
+      "old_record": {
+        "table": "ui",
+        "key": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+        "source": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+        "source_sha256": "96ddb012eedf0c2ec43b3dd85558659dbf85f410a332ff30e9888f4780069770",
+        "translation": "보정 배율은 카메라 오프셋과 기준 웰을 사용하며, 이미지와 측정값은 변경되지 않습니다."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/ko/2026-10-15-f580-reference-plate.json",
+      "language": "ko",
+      "record_index": 1,
+      "file_sha256": "2fd14208e29bd38ba0d72bc18b60d8126ae124a1d554e33ea5b81ffc4e9c739b",
+      "old_record": {
+        "table": "ui",
+        "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
+        "source": "The selected reference plate is used; leave it blank to use the first plate by name.",
+        "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
+        "translation": "선택한 기준 플레이트를 사용합니다. 비워 두면 이름순으로 첫 번째 플레이트를 사용합니다."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/pt/2026-10-02-calibration-gain-preview.json",
+      "language": "pt",
+      "record_index": 0,
+      "file_sha256": "88282cce1ed5c5ee0334e06ddc4596feaed3f068c6e6d0bdd3cbe32a2ede1433",
+      "old_record": {
+        "table": "ui",
+        "key": "Calculate reference-well gains without running Measure or changing files.",
+        "source": "Calculate reference-well gains without running Measure or changing files.",
+        "source_sha256": "6587296f3483ef968f9c1fe67bd60d11fb38b4067ea278f772783020f16ef9b0",
+        "translation": "Calcular os fatores de ganho dos poços de referência sem executar Measure nem alterar arquivos."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/pt/2026-10-02-calibration-gain-preview.json",
+      "language": "pt",
+      "record_index": 8,
+      "file_sha256": "88282cce1ed5c5ee0334e06ddc4596feaed3f068c6e6d0bdd3cbe32a2ede1433",
+      "old_record": {
+        "table": "ui",
+        "key": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+        "source": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+        "source_sha256": "96ddb012eedf0c2ec43b3dd85558659dbf85f410a332ff30e9888f4780069770",
+        "translation": "Os fatores de ganho usam o offset da câmera e os poços de referência; as imagens e as medições permanecem inalteradas."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/pt/2026-10-15-f580-reference-plate.json",
+      "language": "pt",
+      "record_index": 1,
+      "file_sha256": "3e8b1f8c3007f3c257bf409d59087651e1e9f2f3be7266542658d4522fe25cab",
+      "old_record": {
+        "table": "ui",
+        "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
+        "source": "The selected reference plate is used; leave it blank to use the first plate by name.",
+        "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
+        "translation": "A placa de referência selecionada é usada; deixe em branco para usar a primeira placa por ordem de nome."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/fr/2026-10-02-calibration-gain-preview.json",
+      "language": "fr",
+      "record_index": 0,
+      "file_sha256": "a0574d1d3ed146e3cda376e598b45e43f254f718ad9958d3071a93081a66741c",
+      "old_record": {
+        "table": "ui",
+        "key": "Calculate reference-well gains without running Measure or changing files.",
+        "source": "Calculate reference-well gains without running Measure or changing files.",
+        "source_sha256": "6587296f3483ef968f9c1fe67bd60d11fb38b4067ea278f772783020f16ef9b0",
+        "translation": "Calculer les facteurs de gain des puits de référence sans exécuter Measure ni modifier les fichiers."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/fr/2026-10-02-calibration-gain-preview.json",
+      "language": "fr",
+      "record_index": 8,
+      "file_sha256": "a0574d1d3ed146e3cda376e598b45e43f254f718ad9958d3071a93081a66741c",
+      "old_record": {
+        "table": "ui",
+        "key": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+        "source": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+        "source_sha256": "96ddb012eedf0c2ec43b3dd85558659dbf85f410a332ff30e9888f4780069770",
+        "translation": "Les facteurs de gain utilisent le décalage de la caméra et les puits de référence ; les images et les mesures restent inchangées."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/fr/2026-10-15-f580-reference-plate.json",
+      "language": "fr",
+      "record_index": 1,
+      "file_sha256": "1c89b49040c887ea9e991f7eaab0118696dfa51962bf6ae1c58e6b7ad6029841",
+      "old_record": {
+        "table": "ui",
+        "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
+        "source": "The selected reference plate is used; leave it blank to use the first plate by name.",
+        "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
+        "translation": "La plaque de référence sélectionnée est utilisée ; laissez le champ vide pour utiliser la première plaque par ordre de nom."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/de/2026-10-02-calibration-gain-preview.json",
+      "language": "de",
+      "record_index": 0,
+      "file_sha256": "ce1a479c3276ea3a5610d6991765ed06830c30888346649483d29f4e8cfd55b9",
+      "old_record": {
+        "table": "ui",
+        "key": "Calculate reference-well gains without running Measure or changing files.",
+        "source": "Calculate reference-well gains without running Measure or changing files.",
+        "source_sha256": "6587296f3483ef968f9c1fe67bd60d11fb38b4067ea278f772783020f16ef9b0",
+        "translation": "Kalibrierungsfaktoren der Referenz-Wells berechnen, ohne Measure auszuführen oder Dateien zu ändern."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/de/2026-10-02-calibration-gain-preview.json",
+      "language": "de",
+      "record_index": 8,
+      "file_sha256": "ce1a479c3276ea3a5610d6991765ed06830c30888346649483d29f4e8cfd55b9",
+      "old_record": {
+        "table": "ui",
+        "key": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+        "source": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+        "source_sha256": "96ddb012eedf0c2ec43b3dd85558659dbf85f410a332ff30e9888f4780069770",
+        "translation": "Die Kalibrierungsfaktoren berücksichtigen den Kameraoffset und die Referenz-Wells; Bilder und Messwerte bleiben unverändert."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/de/2026-10-15-f580-reference-plate.json",
+      "language": "de",
+      "record_index": 1,
+      "file_sha256": "dc34520799e4e0e700a5e8f306a139e456af369bcbca5b2aa38abc880d6dd40c",
+      "old_record": {
+        "table": "ui",
+        "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
+        "source": "The selected reference plate is used; leave it blank to use the first plate by name.",
+        "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
+        "translation": "Die ausgewählte Referenzplatte wird verwendet; bleibt die Angabe leer, wird die erste Platte nach Namen verwendet."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/sv/2026-10-02-calibration-gain-preview.json",
+      "language": "sv",
+      "record_index": 0,
+      "file_sha256": "ca3c7b05fbf92357e2d800b28fa6668f71978289bb70255a25be71400ef30674",
+      "old_record": {
+        "table": "ui",
+        "key": "Calculate reference-well gains without running Measure or changing files.",
+        "source": "Calculate reference-well gains without running Measure or changing files.",
+        "source_sha256": "6587296f3483ef968f9c1fe67bd60d11fb38b4067ea278f772783020f16ef9b0",
+        "translation": "Beräkna kalibreringsfaktorer från referensbrunnar utan att köra Measure eller ändra filer."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/sv/2026-10-02-calibration-gain-preview.json",
+      "language": "sv",
+      "record_index": 8,
+      "file_sha256": "ca3c7b05fbf92357e2d800b28fa6668f71978289bb70255a25be71400ef30674",
+      "old_record": {
+        "table": "ui",
+        "key": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+        "source": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+        "source_sha256": "96ddb012eedf0c2ec43b3dd85558659dbf85f410a332ff30e9888f4780069770",
+        "translation": "Faktorerna använder kamerans offset och referensbrunnar; bilder och mätningar ändras inte."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/sv/2026-10-15-f580-reference-plate.json",
+      "language": "sv",
+      "record_index": 1,
+      "file_sha256": "4ff38715da8e7617f37fe9e5c677bea03d6eb201fdecd0ceddd6fc49797d4cf8",
+      "old_record": {
+        "table": "ui",
+        "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
+        "source": "The selected reference plate is used; leave it blank to use the first plate by name.",
+        "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
+        "translation": "Den valda referensplattan används; lämna tomt för att använda den första plattan i namnordning."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/es/2026-10-02-calibration-gain-preview.json",
+      "language": "es",
+      "record_index": 0,
+      "file_sha256": "cfa492ba8f32af1812a8d8cba506a9e90d95f1e3360a5a46d6112d80732fbe28",
+      "old_record": {
+        "table": "ui",
+        "key": "Calculate reference-well gains without running Measure or changing files.",
+        "source": "Calculate reference-well gains without running Measure or changing files.",
+        "source_sha256": "6587296f3483ef968f9c1fe67bd60d11fb38b4067ea278f772783020f16ef9b0",
+        "translation": "Calcular los factores de ganancia de los pocillos de referencia sin ejecutar Measure ni modificar archivos."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/es/2026-10-02-calibration-gain-preview.json",
+      "language": "es",
+      "record_index": 8,
+      "file_sha256": "cfa492ba8f32af1812a8d8cba506a9e90d95f1e3360a5a46d6112d80732fbe28",
+      "old_record": {
+        "table": "ui",
+        "key": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+        "source": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+        "source_sha256": "96ddb012eedf0c2ec43b3dd85558659dbf85f410a332ff30e9888f4780069770",
+        "translation": "Los factores de ganancia usan el offset de la cámara y los pocillos de referencia; las imágenes y las mediciones no cambian."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/es/2026-10-15-f580-reference-plate.json",
+      "language": "es",
+      "record_index": 1,
+      "file_sha256": "287ce78fea5948673ecc30779679c00c71a99faeae46d00681f8519e01406774",
+      "old_record": {
+        "table": "ui",
+        "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
+        "source": "The selected reference plate is used; leave it blank to use the first plate by name.",
+        "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
+        "translation": "Se usa la placa de referencia seleccionada; deje el campo vacío para usar la primera placa por orden de nombre."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/is/2026-10-02-calibration-gain-preview.json",
+      "language": "is",
+      "record_index": 0,
+      "file_sha256": "3f883cc06904b2af0eec83fb80431f39f8d36facfc168d5922837a8e6276fead",
+      "old_record": {
+        "table": "ui",
+        "key": "Calculate reference-well gains without running Measure or changing files.",
+        "source": "Calculate reference-well gains without running Measure or changing files.",
+        "source_sha256": "6587296f3483ef968f9c1fe67bd60d11fb38b4067ea278f772783020f16ef9b0",
+        "translation": "Reiknaðu leiðréttingarstuðla út frá viðmiðunarbrunnum án þess að keyra Measure eða breyta skrám."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/is/2026-10-02-calibration-gain-preview.json",
+      "language": "is",
+      "record_index": 8,
+      "file_sha256": "3f883cc06904b2af0eec83fb80431f39f8d36facfc168d5922837a8e6276fead",
+      "old_record": {
+        "table": "ui",
+        "key": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+        "source": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+        "source_sha256": "96ddb012eedf0c2ec43b3dd85558659dbf85f410a332ff30e9888f4780069770",
+        "translation": "Stuðlarnir byggjast á hliðrun myndavélar og viðmiðunarbrunnum; myndir og mæligögn breytast ekki."
+      }
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/is/2026-10-15-f580-reference-plate.json",
+      "language": "is",
+      "record_index": 1,
+      "file_sha256": "310c4f16abdb15f66022e6351f06b06c54975a2be67d67d2d423c376ab8f7308",
+      "old_record": {
+        "table": "ui",
+        "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
+        "source": "The selected reference plate is used; leave it blank to use the first plate by name.",
+        "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
+        "translation": "Valin viðmiðunarplata er notuð; látið standa autt til að nota fyrstu plötuna í nafnaröð."
+      }
+    }
+  ],
+  "evidence": "Actual normal canonical collector snapshot from failed first preflight; no catalogs written; all three old GUI captions absent, exactsourcepins retained.",
+  "action": "Retire ONLY27 exact active UI rows into retired_records retaining all old fields/targets; unrelated rows/metadata/history retained."
+}

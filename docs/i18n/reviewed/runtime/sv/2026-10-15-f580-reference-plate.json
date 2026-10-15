@@ -12,27 +12,6 @@
       "source": "Intensity calibration reference plate",
       "source_sha256": "5f130424f3906406540b225c01aaf006754ef43f57b23b92811e26ab94e0e77b",
       "translation": "Referensplatta för intensitetskalibrering"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "intensity_calibration_reference_plate",
-      "source": "Reference plate identifier from the merged filenames, such as plate2. Leave blank to use the first plate by name. The selected plate must be present in this run. Default blank.",
-      "source_sha256": "27064d75d03189106a742bd4d78c8137f3386b75c6f724734f0f84a4722fbaa6",
-      "translation": "Referensplattans identifierare i de sammanslagna filnamnen, till exempel plate2. Lämna tomt för att använda den första plattan i namnordning. Den valda plattan måste finnas i den här körningen. Standard: tomt."
-    },
-    {
-      "table": "ui",
-      "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
-      "source": "The selected reference plate is used; leave it blank to use the first plate by name.",
-      "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
-      "translation": "Den valda referensplattan används; lämna tomt för att använda den första plattan i namnordning."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "intensity_calibration",
-      "source": "Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the selected reference plate's; a blank reference plate setting uses the first plate by name. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
-      "source_sha256": "b3af4d372f54d2f8a45252a1588ce6d9f3e9fcc1fdea7e42145ba03675aad04a",
-      "translation": "Kalibrerar intensiteter mellan avbildningssessioner före mätningen: varje platta är en session, de pärlor eller referensbrunnar som avbildats på varje platta mäts, och varje plattas intensitetskanaler skalas så att dess referensbrunnar matchar den valda referensplattans; om inställningen för referensplatta är tom används den första plattan efter namn. Detta korrigerar exponerings-, lamp- och detektordrift mellan dagar på bildnivå, till skillnad från batchkorrigering av tabeller. Förstärkningarna sparas i measurements.db:intensity_rescale. Standard False."
     }
   ],
   "independent_review": {
@@ -48,5 +27,34 @@
     "receipt": "toggle-tooltip-peer-review.json",
     "receipt_sha256": "6189043edffb2ee602c0eb8cb8175d8a3ee3674e24f517f6001a56bc9bd3dedd",
     "decision": "approved exact amended toggle tooltip"
-  }
+  },
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_plate",
+      "source": "Reference plate identifier from the merged filenames, such as plate2. Leave blank to use the first plate by name. The selected plate must be present in this run. Default blank.",
+      "source_sha256": "27064d75d03189106a742bd4d78c8137f3386b75c6f724734f0f84a4722fbaa6",
+      "translation": "Referensplattans identifierare i de sammanslagna filnamnen, till exempel plate2. Lämna tomt för att använda den första plattan i namnordning. Den valda plattan måste finnas i den här körningen. Standard: tomt.",
+      "retired": "2026-10-15 F580 source 6a1b51bfd7 superseded this exact source; retained with its original target. Replacement: 2026-10-15-f580-session-controls-home-b.json",
+      "replacement_source_sha256": "dbd6b6c5b747713e74988222d44808553c5a5457fff552940411b2be58f6b405"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration",
+      "source": "Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the selected reference plate's; a blank reference plate setting uses the first plate by name. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
+      "source_sha256": "b3af4d372f54d2f8a45252a1588ce6d9f3e9fcc1fdea7e42145ba03675aad04a",
+      "translation": "Kalibrerar intensiteter mellan avbildningssessioner före mätningen: varje platta är en session, de pärlor eller referensbrunnar som avbildats på varje platta mäts, och varje plattas intensitetskanaler skalas så att dess referensbrunnar matchar den valda referensplattans; om inställningen för referensplatta är tom används den första plattan efter namn. Detta korrigerar exponerings-, lamp- och detektordrift mellan dagar på bildnivå, till skillnad från batchkorrigering av tabeller. Förstärkningarna sparas i measurements.db:intensity_rescale. Standard False.",
+      "retired": "2026-10-15 F580 source 6a1b51bfd7 superseded this exact source; retained with its original target. Replacement: 2026-10-15-f580-session-controls-home-b.json",
+      "replacement_source_sha256": "702ffd4ce775c916ec9780f57ae711c3a9f5356166e5e4746492b2c53f594a86"
+    },
+    {
+      "table": "ui",
+      "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
+      "source": "The selected reference plate is used; leave it blank to use the first plate by name.",
+      "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
+      "translation": "Den valda referensplattan används; lämna tomt för att använda den första plattan i namnordning.",
+      "retired": "2026-10-15 F580: exact prior GUI caption absent from normal canonical source snapshot; superseded by session-aware preview. Original source and target preserved.",
+      "retirement_canonical_snapshot_sha256": "8d084109dc7aa838c844a4cb574194a1b960252e93207dca25770547b9309da7"
+    }
+  ]
 }

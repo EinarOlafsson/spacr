@@ -1,0 +1,139 @@
+{
+  "source_commit": "6a1b51bfd7",
+  "body": "Read-only preview of Measure's plate and acquisition-session calibration plans.",
+  "changed_block": {
+    "label": "spacr.qt.widgets.calibration_preview#0",
+    "source": "Read-only preview of Measure's plate and acquisition-session calibration plans.",
+    "context": "Read-only preview of Measure's plate and acquisition-session calibration plans.",
+    "source_sha256": "d6719efc55bb4e6712ac1bb7801216c48cf11590e3b638a27ea6b91da6a5d634",
+    "previous_same_source_indexes": []
+  },
+  "retirements": [
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-10-02-calibration-preview-module.json",
+      "record_index": 0,
+      "file_sha256": "22a5285d9f1f906bc7b318cad17915cf35ce79f92d5be8559895a6719880bac8",
+      "old_record": {
+        "label": "spacr.qt.widgets.calibration_preview#0",
+        "source": "Read-only preview of Measure's existing plate calibration plan.",
+        "source_sha256": "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5",
+        "context": "Read-only preview of Measure's existing plate calibration plan.",
+        "translation": "Skrivskyddad förhandsvisning av den befintliga planen för plattkalibrering i Measure.",
+        "review_basis": "Independent AI technical peer review, accepted all nine exact drafts without correction; no human/native-speaker claim."
+      },
+      "replacement_source_sha256": "d6719efc55bb4e6712ac1bb7801216c48cf11590e3b638a27ea6b91da6a5d634"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-10-02-calibration-preview-module.json",
+      "record_index": 0,
+      "file_sha256": "c7447c99964d96c7671dc26eaa291c4c909d83bb3f5a9274e78fc7fd62a4c3ab",
+      "old_record": {
+        "label": "spacr.qt.widgets.calibration_preview#0",
+        "source": "Read-only preview of Measure's existing plate calibration plan.",
+        "source_sha256": "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5",
+        "context": "Read-only preview of Measure's existing plate calibration plan.",
+        "translation": "Schreibgeschützte Vorschau des vorhandenen Plattenkalibrierungsplans von Measure.",
+        "review_basis": "Independent AI technical peer review, accepted all nine exact drafts without correction; no human/native-speaker claim."
+      },
+      "replacement_source_sha256": "d6719efc55bb4e6712ac1bb7801216c48cf11590e3b638a27ea6b91da6a5d634"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-10-02-calibration-preview-module.json",
+      "record_index": 0,
+      "file_sha256": "c6866c432262efae95dbca047ceffac6d555aa69515b3adfe7d2af999ee71675",
+      "old_record": {
+        "label": "spacr.qt.widgets.calibration_preview#0",
+        "source": "Read-only preview of Measure's existing plate calibration plan.",
+        "source_sha256": "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5",
+        "context": "Read-only preview of Measure's existing plate calibration plan.",
+        "translation": "Vista previa de solo lectura del plan existente de calibración de placas de Measure.",
+        "review_basis": "Independent AI technical peer review, accepted all nine exact drafts without correction; no human/native-speaker claim."
+      },
+      "replacement_source_sha256": "d6719efc55bb4e6712ac1bb7801216c48cf11590e3b638a27ea6b91da6a5d634"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-10-02-calibration-preview-module.json",
+      "record_index": 0,
+      "file_sha256": "133fbb67ac88d5cd7399d22fc99e3ad70f59f55c3e850e0b5994ac15f1c2fda9",
+      "old_record": {
+        "label": "spacr.qt.widgets.calibration_preview#0",
+        "source": "Read-only preview of Measure's existing plate calibration plan.",
+        "source_sha256": "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5",
+        "context": "Read-only preview of Measure's existing plate calibration plan.",
+        "translation": "以只读方式预览 Measure 现有的板校准方案。",
+        "review_basis": "Independent AI technical peer review, accepted all nine exact drafts without correction; no human/native-speaker claim."
+      },
+      "replacement_source_sha256": "d6719efc55bb4e6712ac1bb7801216c48cf11590e3b638a27ea6b91da6a5d634"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-10-02-calibration-preview-module.json",
+      "record_index": 0,
+      "file_sha256": "b6c39978a1bfdc3e6a261706c9b953a0f2229f71f7ca1824f85f977ba4f9018c",
+      "old_record": {
+        "label": "spacr.qt.widgets.calibration_preview#0",
+        "source": "Read-only preview of Measure's existing plate calibration plan.",
+        "source_sha256": "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5",
+        "context": "Read-only preview of Measure's existing plate calibration plan.",
+        "translation": "Pré-visualização somente leitura do plano existente de calibração de placas do Measure.",
+        "review_basis": "Independent AI technical peer review, accepted all nine exact drafts without correction; no human/native-speaker claim."
+      },
+      "replacement_source_sha256": "d6719efc55bb4e6712ac1bb7801216c48cf11590e3b638a27ea6b91da6a5d634"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-10-02-calibration-preview-module.json",
+      "record_index": 0,
+      "file_sha256": "aa3dcf8da2399553c8329c4f3764d207e0ea4f0da77d0369e4390169cfd5da70",
+      "old_record": {
+        "label": "spacr.qt.widgets.calibration_preview#0",
+        "source": "Read-only preview of Measure's existing plate calibration plan.",
+        "source_sha256": "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5",
+        "context": "Read-only preview of Measure's existing plate calibration plan.",
+        "translation": "Measure की मौजूदा प्लेट अंशांकन योजना का केवल-पठन पूर्वावलोकन।",
+        "review_basis": "Independent AI technical peer review, accepted all nine exact drafts without correction; no human/native-speaker claim."
+      },
+      "replacement_source_sha256": "d6719efc55bb4e6712ac1bb7801216c48cf11590e3b638a27ea6b91da6a5d634"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-10-02-calibration-preview-module.json",
+      "record_index": 0,
+      "file_sha256": "4badccfbcba5cffd3961aecf6ddfa89368b6db8116eebad78c8fba504963a8f4",
+      "old_record": {
+        "label": "spacr.qt.widgets.calibration_preview#0",
+        "source": "Read-only preview of Measure's existing plate calibration plan.",
+        "source_sha256": "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5",
+        "context": "Read-only preview of Measure's existing plate calibration plan.",
+        "translation": "Measure의 기존 플레이트 보정 계획에 대한 읽기 전용 미리보기입니다.",
+        "review_basis": "Independent AI technical peer review, accepted all nine exact drafts without correction; no human/native-speaker claim."
+      },
+      "replacement_source_sha256": "d6719efc55bb4e6712ac1bb7801216c48cf11590e3b638a27ea6b91da6a5d634"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-10-02-calibration-preview-module.json",
+      "record_index": 0,
+      "file_sha256": "4cd42a1781e55145a688c38c08551409648b9f8bea68d88936d9844344811cd9",
+      "old_record": {
+        "label": "spacr.qt.widgets.calibration_preview#0",
+        "source": "Read-only preview of Measure's existing plate calibration plan.",
+        "source_sha256": "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5",
+        "context": "Read-only preview of Measure's existing plate calibration plan.",
+        "translation": "Skrifvarin forskoðun á fyrirliggjandi kvörðunaráætlun Measure fyrir plötur.",
+        "review_basis": "Independent AI technical peer review, accepted all nine exact drafts without correction; no human/native-speaker claim."
+      },
+      "replacement_source_sha256": "d6719efc55bb4e6712ac1bb7801216c48cf11590e3b638a27ea6b91da6a5d634"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-10-02-calibration-preview-module.json",
+      "record_index": 0,
+      "file_sha256": "08ffe11c6b489652826df5b7993a66d4dfb7b50a502f4f356b3a37f1f3b4ba9c",
+      "old_record": {
+        "label": "spacr.qt.widgets.calibration_preview#0",
+        "source": "Read-only preview of Measure's existing plate calibration plan.",
+        "source_sha256": "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5",
+        "context": "Read-only preview of Measure's existing plate calibration plan.",
+        "translation": "Aperçu en lecture seule du plan existant de calibration des plaques de Measure.",
+        "review_basis": "Independent AI technical peer review, accepted all nine exact drafts without correction; no human/native-speaker claim."
+      },
+      "replacement_source_sha256": "d6719efc55bb4e6712ac1bb7801216c48cf11590e3b638a27ea6b91da6a5d634"
+    }
+  ]
+}

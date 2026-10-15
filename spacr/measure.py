@@ -3307,26 +3307,40 @@ _CALIBRATION_IDENTITY_KEY = '_intensity_calibration_identity'
 
 
 def _calibration_reference_hashes(settings, files):
-    """Bind reference field names to their bytes, independently of timestamps.
+    """Bind reference images and optional session metadata to their bytes.
 
     :param settings: Measurement settings containing the source, reference wells
         and optional timelapse mode.
     :param files: Available merged-array basenames after quality exclusions.
-    :returns: Reference basenames mapped to SHA-256 content digests.
+    :returns: Reference content keys mapped to SHA-256 digests, including the
+        external references and sessions CSV when those inputs are configured.
     """
     import hashlib
     from . import schema
     from .intensity_rescale import _calibration_wells
 
-    wells = _calibration_wells(settings)
+    paths = {}
+    if any(settings.get(key) for key in ("intensity_calibration_sessions",
+                                        "intensity_calibration_beads",
+                                        "intensity_calibration_reference_session")):
+        from .intensity_rescale import _calibration_inputs
+
+        inputs = _calibration_inputs(settings['src'], files, settings)
+        paths = {(('beads/' if inputs['external_beads'] else '') + row['filename']): row['path']
+                 for row in inputs['references']}
+        if inputs['sessions_csv']:
+            paths['sessions_csv'] = inputs['sessions_csv']
+    else:
+        wells = _calibration_wells(settings)
+        for filename in sorted(set(files)):
+            field = schema.parse_field_stem(
+                filename, timelapse=bool(settings.get('timelapse', False)))
+            if (field.rowID, field.columnID) in wells:
+                paths[filename] = os.path.join(settings['src'], filename)
     references = {}
-    for filename in sorted(set(files)):
-        field = schema.parse_field_stem(
-            filename, timelapse=bool(settings.get('timelapse', False)))
-        if (field.rowID, field.columnID) not in wells:
-            continue
+    for filename, path in paths.items():
         digest = hashlib.sha256()
-        with open(os.path.join(settings['src'], filename), 'rb') as stream:
+        with open(path, 'rb') as stream:
             for chunk in iter(lambda: stream.read(1 << 20), b''):
                 digest.update(chunk)
         references[filename] = digest.hexdigest()
@@ -9760,13 +9774,19 @@ def measure_crop(settings):
                         f"mark it non-comparable.")
                 if calibration is not None:
                     settings[CALIBRATION_SETTINGS_KEY] = calibration
-                    print(f"Intensity calibration against plate "
-                          f"{calibration['reference_plate']}: " + '; '.join(
-                              f"{plate} x" + ','.join(
-                                  f"{gain:.3g}" for gain in
-                                  entry['gain'].values())
-                              for plate, entry in
-                              calibration['plates'].items()))
+                    if 'sessions' in calibration:
+                        print(json.dumps({'intensity_calibration': {
+                            'reference_session': calibration['reference_session'],
+                            'gains': {session: entry['gain'] for session, entry
+                                      in calibration['sessions'].items()}}}, sort_keys=True))
+                    else:
+                        print(f"Intensity calibration against plate "
+                              f"{calibration['reference_plate']}: " + '; '.join(
+                                  f"{plate} x" + ','.join(
+                                      f"{gain:.3g}" for gain in
+                                      entry['gain'].values())
+                                  for plate, entry in
+                                  calibration['plates'].items()))
                 if resume_plan is not None:
                     files = resume_plan.filter_files(files)
                 n_jobs = settings['n_jobs']

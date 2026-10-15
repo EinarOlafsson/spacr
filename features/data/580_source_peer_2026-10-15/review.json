@@ -1,0 +1,28 @@
+{
+  "reviewed_at": "2026-10-15T12:38:50.192452+00:00",
+  "reviewer": "Home-B coordinator independent of author",
+  "source_hashes": {
+    "spacr/qt/screens/settings_model.py": "21e20038391afda3da53d96d1bf71041ac32253fc005dcdc98975b38ad0a5713",
+    "spacr/qt/widgets/calibration_preview.py": "699605f2d1e8b4d8d1d2d0c42a9a79373a3e95bdddd5055f456a3c8c8267b94d",
+    "tests/qt/test_f580_session_preview_controls.py": "f1800ded7e82724e05b533f158efdfa3eaba44cc4194bde699215dfb007d3fe5",
+    "tests/qt/test_intensity_calibration_alpha_gate.py": "0cd1ce724f79712fbd3c63ae56d8b8fa2f17ea6355bde69e522d9267dfdd41d3"
+  },
+  "source_review": "ACCEPT for exact reviewed bytes, pending immutable source commit and matching test evidence",
+  "findings": [
+    "Four new controls have literal names through existing shared eager/lazy tooltip seam; backend alpha registry already owns them.",
+    "Path chooser keeps scalar value contract and explicit CSV/folder selection; cancellation preserves text and emits no change.",
+    "Preview snapshot includes all four inputs; no implicit filesystem decoding or session inference added by UI.",
+    "Version1 plate and version2 session rows preserve source/reference/gain/sample identities; mixed plans label both explicitly.",
+    "Existing stale worker/snapshot guard retained, targeted test exercises exact late session input change.",
+    "Viewport repair enables WrapLongRows only in QFormLayout containing actual preview editor; parent-change event supports deferred insertion, no shared form or size-threshold change.",
+    "Tests cover actual AppScreen alpha visibility, picker cancellation/commit, real worker lifecycle, version switch and unchanged dark/light viewport assertions."
+  ],
+  "limits": [
+    "No backend scientific revalidation or real bead dataset acceptance.",
+    "Offscreen targeted test evidence belongs author packet; root did not rerun unchanged cohort.",
+    "Runtime/API language closure pending; do not publish source alone."
+  ],
+  "blocking_findings": [],
+  "immutable_commit": "6a1b51bfd72571c56c4a387e03b3a351b94b9d68",
+  "final_author_check_evidence": "features/data/580_session_gui_2026-10-15/receipt.json:14PASS20.22s; exact two pre-existing theme viewport assertions retained"
+}

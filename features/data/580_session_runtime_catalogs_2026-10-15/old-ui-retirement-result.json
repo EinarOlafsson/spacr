@@ -1,0 +1,177 @@
+{
+  "retired": 27,
+  "files": [
+    {
+      "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-02-calibration-gain-preview.json",
+      "before_sha256": "4defa44e87cce22d633514c4e57c6039c21e5d347523fd496b265b05c688cfed",
+      "after_sha256": "ba792a15db35c8e535c24c76fe6155d516e9692237de58c044701244fc995b9c",
+      "removed_active_indices": [
+        0,
+        8
+      ],
+      "unrelated_active_records_preserved": 17
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-f580-reference-plate.json",
+      "before_sha256": "0ae63ce064f4f143bc930b4617f5a3575e6dbdacd7f68c26518e3f7f936f4113",
+      "after_sha256": "b2f24be5dced89c7d20cf12e8fee27a412bbca8acbfd94983ab631b9a6e9866b",
+      "removed_active_indices": [
+        1
+      ],
+      "unrelated_active_records_preserved": 1
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/hi/2026-10-02-calibration-gain-preview.json",
+      "before_sha256": "f4ca4f9142ec34d1193548af7cb3e1ea960ecbd6fadff417861ddd6889ce3563",
+      "after_sha256": "9ffea3e0bada547e31efe509947a6b2e81ad400ac7512dbc2eda8b41fb604634",
+      "removed_active_indices": [
+        0,
+        8
+      ],
+      "unrelated_active_records_preserved": 17
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/hi/2026-10-15-f580-reference-plate.json",
+      "before_sha256": "c54e03141031bb68397d4c25b751cb59848d4ec509aabaa02a71a32dde694d13",
+      "after_sha256": "0e0fe56c94def7fafd7065040e442b93dc7f6b30d970283386f5a00b82afac12",
+      "removed_active_indices": [
+        1
+      ],
+      "unrelated_active_records_preserved": 1
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/ko/2026-10-02-calibration-gain-preview.json",
+      "before_sha256": "31f83410417f82b879fd8f15886215388dc83baa7af62c25d0b760f632f808bf",
+      "after_sha256": "5c445e68b5883235e691731bb3cd6e1cbc5f71b4f258f1ba6356cf21dba572c9",
+      "removed_active_indices": [
+        0,
+        8
+      ],
+      "unrelated_active_records_preserved": 17
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/ko/2026-10-15-f580-reference-plate.json",
+      "before_sha256": "2fd14208e29bd38ba0d72bc18b60d8126ae124a1d554e33ea5b81ffc4e9c739b",
+      "after_sha256": "9961171225824edf274fad6f83e778c8ef91d864e50401e6d1cf41c795ccf6ce",
+      "removed_active_indices": [
+        1
+      ],
+      "unrelated_active_records_preserved": 1
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/pt/2026-10-02-calibration-gain-preview.json",
+      "before_sha256": "88282cce1ed5c5ee0334e06ddc4596feaed3f068c6e6d0bdd3cbe32a2ede1433",
+      "after_sha256": "7170ce131c1b1cba5a5b2c819bab65d31a3f8ad5c72916e5ee41bd789d8d3ec5",
+      "removed_active_indices": [
+        0,
+        8
+      ],
+      "unrelated_active_records_preserved": 17
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/pt/2026-10-15-f580-reference-plate.json",
+      "before_sha256": "3e8b1f8c3007f3c257bf409d59087651e1e9f2f3be7266542658d4522fe25cab",
+      "after_sha256": "b88fe83e4c9df3983fa8b223c18da041198e21d9d558fe6a66716e61c1510a23",
+      "removed_active_indices": [
+        1
+      ],
+      "unrelated_active_records_preserved": 1
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/fr/2026-10-02-calibration-gain-preview.json",
+      "before_sha256": "a0574d1d3ed146e3cda376e598b45e43f254f718ad9958d3071a93081a66741c",
+      "after_sha256": "0471a15fe52279231753c166b3d6441ca9241db62624dd0e72123831be6bd2c3",
+      "removed_active_indices": [
+        0,
+        8
+      ],
+      "unrelated_active_records_preserved": 17
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/fr/2026-10-15-f580-reference-plate.json",
+      "before_sha256": "1c89b49040c887ea9e991f7eaab0118696dfa51962bf6ae1c58e6b7ad6029841",
+      "after_sha256": "d44ccf5b349204169df8a2c58b022eeac997f7151010755aa4ebeb3e10c648f3",
+      "removed_active_indices": [
+        1
+      ],
+      "unrelated_active_records_preserved": 1
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/de/2026-10-02-calibration-gain-preview.json",
+      "before_sha256": "ce1a479c3276ea3a5610d6991765ed06830c30888346649483d29f4e8cfd55b9",
+      "after_sha256": "4543eb4be35a51692a25e3f28198001460179b298f27399ed5209210ab953a93",
+      "removed_active_indices": [
+        0,
+        8
+      ],
+      "unrelated_active_records_preserved": 17
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/de/2026-10-15-f580-reference-plate.json",
+      "before_sha256": "dc34520799e4e0e700a5e8f306a139e456af369bcbca5b2aa38abc880d6dd40c",
+      "after_sha256": "b542825a9f58f00099832736e6e2a88c09c1ada0f21eeea4c240a441bf3be8fc",
+      "removed_active_indices": [
+        1
+      ],
+      "unrelated_active_records_preserved": 1
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/sv/2026-10-02-calibration-gain-preview.json",
+      "before_sha256": "ca3c7b05fbf92357e2d800b28fa6668f71978289bb70255a25be71400ef30674",
+      "after_sha256": "e5baed7b84bf2367629f4117c756b25d7d874084d5bc0130a774c757f7587516",
+      "removed_active_indices": [
+        0,
+        8
+      ],
+      "unrelated_active_records_preserved": 17
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/sv/2026-10-15-f580-reference-plate.json",
+      "before_sha256": "4ff38715da8e7617f37fe9e5c677bea03d6eb201fdecd0ceddd6fc49797d4cf8",
+      "after_sha256": "da1736571f6597726dfff93cae32cd5db07045000827d570ae9f2ce4c9267375",
+      "removed_active_indices": [
+        1
+      ],
+      "unrelated_active_records_preserved": 1
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/es/2026-10-02-calibration-gain-preview.json",
+      "before_sha256": "cfa492ba8f32af1812a8d8cba506a9e90d95f1e3360a5a46d6112d80732fbe28",
+      "after_sha256": "6a6c3f857de9bc211509c130bcdbcd0a5c9ddc735c8d500a439a3f45d5be7dcb",
+      "removed_active_indices": [
+        0,
+        8
+      ],
+      "unrelated_active_records_preserved": 17
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/es/2026-10-15-f580-reference-plate.json",
+      "before_sha256": "287ce78fea5948673ecc30779679c00c71a99faeae46d00681f8519e01406774",
+      "after_sha256": "62fd0ccb72a26c9f86b647feb568e5fbca86194075e6ba1a20257e3cbb1587a9",
+      "removed_active_indices": [
+        1
+      ],
+      "unrelated_active_records_preserved": 1
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/is/2026-10-02-calibration-gain-preview.json",
+      "before_sha256": "3f883cc06904b2af0eec83fb80431f39f8d36facfc168d5922837a8e6276fead",
+      "after_sha256": "3cfc8c26c7c70b7c65d3550f05e10d8abf2da8901cb77e14f2b7cf74348d0e6f",
+      "removed_active_indices": [
+        0,
+        8
+      ],
+      "unrelated_active_records_preserved": 17
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/is/2026-10-15-f580-reference-plate.json",
+      "before_sha256": "310c4f16abdb15f66022e6351f06b06c54975a2be67d67d2d423c376ab8f7308",
+      "after_sha256": "16667e411c7b4b737f8256bfc6cb8fd7a3df20a0fccaacc0fa0035d167f5d0a5",
+      "removed_active_indices": [
+        1
+      ],
+      "unrelated_active_records_preserved": 1
+    }
+  ],
+  "plan_sha256": "144d1b3c56b17b8e364773cfde8a922f9550bff1ec4ad379c90bf4b33234e087"
+}
