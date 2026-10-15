@@ -86,3 +86,24 @@ desktop segmentation helper and ZIP path. They prove call/format/integration
 contracts only. Actual trusted checkpoint availability, hosted GPU behavior,
 scientific segmentation accuracy and desktop/browser IoU parity remain
 unverified and required for N698 acceptance.
+
+Run the backend locally as an operator (no service is started):
+
+```bash
+python -m tools.web_mask_generator.run uploaded.ome.tif --describe
+python -m tools.web_mask_generator.run uploaded.ome.tif \
+  --output result.zip --checkpoint /trusted/models/cpsam_plaque_r6 \
+  --sha256 744aee3f71efa68f6a369a6f91fe5850dc61e35f3dc20d53dda2c04fce17b35f \
+  --model-id toxoplasma_plaque_v4 --model-version v4 \
+  --diameter 52 --index T=0 --index Z=1 --channel 0
+```
+
+The hash above is the existing bundled model catalogue's plaque-v4 entry, not
+a claim that the checkpoint is installed or was run here. Choose the diameter
+from the effective desktop settings for the image; `52` is only a command
+example. Use `--native-scale` only when deliberately requesting native scale.
+Duplicate axis choices, missing model provenance and implicit diameter defaults
+are rejected. Zero-based `--series`, `--index AXIS=N`, ordered `--channel`, and
+PDF `--page`/`--pdf-dpi` mirror the Python reader. The command prints the final
+ZIP path only after successful publication. Deployments need a separate web
+service/UI and both required GPU paths; this CLI does not provide those.

@@ -174,3 +174,18 @@ This does NOT prove actual checkpoint availability, scientific accuracy, hosted
 GPU behavior, N696 default resolution or desktop/WebGPU parity. No actualmodel
 inference, HomeGPU or deployment was performed. ParentN698 remains partial.
 Source-bound receipt: features/data/698_plaque_adapter_2026-10-14/.
+
+2026-10-14 — Original Home: runnable operator entry point completed.
+python -m tools.web_mask_generator.run now composes header inspection, explicit
+image/page/channel/axis choices, trusted local weight identity, actual desktop
+plaque path and atomic result ZIP. --describe reads headers without model load;
+missing provenance, implicit diameter and duplicate axis choices are refused.
+No server, model download, auto-install or GPU action starts implicitly.
+Owning checks: 12 command contracts+100 prior adapter/reader/package checks PASS,
+actual exit0,10.47s. Covered CLI54/55statements13/14arcs; the normal __main__
+entry was additionally invoked successfully against the real two-scene CZI
+header (actualexit0,0.60s). No actualmodel inference was executed. README has
+operator usage tied to the bundled plaque-v4 weight hash, with diameter clearly
+an example rather than a selected scientific default. ParentN698 remains partial;
+webhosting/UI, modelclass routing and real GPU/browser parity remain open.
+Receipt: features/data/698_operator_command_2026-10-14/.
