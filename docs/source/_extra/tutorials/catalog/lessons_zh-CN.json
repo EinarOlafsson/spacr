@@ -3140,9 +3140,9 @@
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "选择UMAP作为降维方法。每个点用两个绘图坐标表示一个对象。如果需要线性投影和特征载荷，可以通过相关工具探索PCA。",
+          "narration": "选择UMAP作为降维方法。每个点用两个绘图坐标表示一个对象。",
           "hold_after": 0.7,
-          "speech_text": "选择优麦普作为降维方法。每个点用两个绘图坐标表示一个对象。如果需要线性投影和特征载荷，可以通过相关工具探索PCA。"
+          "speech_text": "选择优麦普作为降维方法。每个点用两个绘图坐标表示一个对象。"
         },
         {
           "visual": "19_setting_n_neighbors",
@@ -3199,20 +3199,38 @@
           "speech_text": "点击另一个点来比较它的裁剪图像。侧边栏还提供选区标注和聚类标签传播。这些控件会保存标注，因此应用之前请选好预期的标签和选区。"
         },
         {
-          "visual": "27_fold_image_scatter",
-          "narration": "从Image UMAP的标题栏打开Image Scatter，直接比较所选特征；或打开PCA获得线性投影。继续阅读相关教程，了解它们的输入设置和保存的输出。",
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "55_image_scatter",
-            "60_pca"
-          ],
+          "visual": "27_review_embedding",
+          "narration": "查看完成的嵌入，并比较所选对象的裁剪图像。将输入测量数据、所选设置和保存的结果放在一起，以便追溯每个点的来源。",
           "hold_after": 0.7,
-          "speech_text": "从Image 优麦普的标题栏打开Image Scatter，直接比较所选特征；或打开PCA获得线性投影。继续阅读相关教程，了解它们的输入设置和保存的输出。"
+          "speech_text": "查看完成的嵌入，并比较所选对象的裁剪图像。将输入测量数据、所选设置和保存的结果放在一起，以便追溯每个点的来源。"
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

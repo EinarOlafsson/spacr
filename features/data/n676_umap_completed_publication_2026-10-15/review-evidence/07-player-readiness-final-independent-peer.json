@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "status": "bounded_source_and_existing_evidence_peer_pass",
+  "source_peer_passed": true,
+  "blocking_issues": [],
+  "source_commit": "c6f4ccdf8fd03e10164c1b6972bcf3b686381c07",
+  "capture_app_commit_unchanged": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/authoring/web/app_v2.js",
+      "bytes": 102935,
+      "sha256": "8d628ce33e0976464f60490e20e0feb57fc07d3989ec1c520cc5891f404e6159"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/tests/test_player_audio_readiness.py",
+      "bytes": 12656,
+      "sha256": "d469b3d63d3b55f8c79120e5d8df59cc23d5ea92f4dfbadee93656fa3aff8fb3"
+    }
+  ],
+  "final_targeted_tests": {
+    "log": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/audio-startup-browser-20261015/final-targeted-cohort.log",
+      "bytes": 67,
+      "sha256": "75efc51bf41bdf9a9019b19fcbc3790bf8c953b95471a29b8b659fc68fd6a0bb"
+    },
+    "passed": 11,
+    "seconds": 79.96,
+    "terminal_exit_status": 0,
+    "scope": "Nine readiness cases plus two complete-native browser cases, exact final bytes."
+  },
+  "prior_regression_tests": {
+    "log": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/audio-startup-browser-20261015/final-cohort-r4.log",
+      "bytes": 80,
+      "sha256": "429a4ca6fd600692eb144ac6bafd6a7a0680850084071dc2defcabc235242b5d"
+    },
+    "passed": 23,
+    "seconds": 108.4,
+    "terminal_exit_status": 0,
+    "scope": "Prior df892 source/d469 predecessor test bytes; final change relocates one held-data guard and adds metadata-only regression. Root explicitly accepted unchanged legacy/staged cohort reuse; not23 tests on finalbytes."
+  },
+  "actual_published_media_repro": {
+    "trace": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/audio-startup-browser-20261015/startup-and-voice-switch-trace-frozen.json",
+      "bytes": 89075,
+      "sha256": "7410557efb781f1b5de91519fbd0258f225b6805bdcfa0c807df596f9169c331"
+    },
+    "terminal_log": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/audio-startup-browser-20261015/startup-frozen.log",
+      "bytes": 850,
+      "sha256": "74de54f11afc69d1d8ac5e02f4935454ff68d7ff85e75e12765a06104d6a228f"
+    },
+    "player_sha256": "8d628ce33e0976464f60490e20e0feb57fc07d3989ec1c520cc5891f404e6159",
+    "scope": "Owner normal chapter/voice selection with real published11media and delayed newvoice timingJSON; peer reads existing trace, no duplicate browser or media rehash."
+  },
+  "review_checks": [
+    "Selectedtiming/audio load gates sync/play; runningpicture is held instead of spending elapsednetworktime.",
+    "Currentvisualposition retained; pendingnativeuserseek survives delayednewvoice metadata; intentionalmidutterancevoice switch not forced toscenestart.",
+    "Actualmetadata-ready but decoder-not-ready target is calculated before hold; one-line relocation preserves requestedoffset.",
+    "Both legacy and complete-native controlleddecoderwaiting recover; legacyvideo-seek narrationhold retains precedence.",
+    "Supersededmetadata completion cannot re-enable discarded audio aftersilentselection.",
+    "Programmatichold pause-event accounting separates queued internalpauses from normalpause handling; normalcomplete-native fulltails/speechrests/finalEOF preserved.",
+    "No app/policy/gate/input/English changes; only authoringplayer and focusedbrowser test change."
+  ],
+  "limitations": [
+    "No native-speaker/listening/phoneme completeness acceptance; existing reported audibleclipping is not universally resolved by playerfix.",
+    "Decoder starvation and metadataordering tests are controlledbrowserstate seams; not physicalSafari or allnetwork/OSmedia-control certification.",
+    "audio.seeking alone intentionally excluded from starvation hold to preserve naturalnativeoffset transitions; arbitrarylong explicitdecoderseek and OS pause intent not universallyproven.",
+    "No tests/browser/model/audio decode or source edit by this independent peer.",
+    "OnsetRMS wording proposal remains unapplied and is not listening evidence."
+  ]
+}

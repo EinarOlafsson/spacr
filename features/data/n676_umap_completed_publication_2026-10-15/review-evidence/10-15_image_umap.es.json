@@ -1,0 +1,38 @@
+{
+  "lesson": "15_image_umap",
+  "english_sha256": "a6fb36f729a8932ead3c79a407d6c151f993a8a40a961f41350c7dc55c9e6b5e",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Image UMAP: explorar mediciones con recortes de imagen",
+  "description": "Selecciona tablas de mediciones, construye una proyección UMAP y haz clic en los puntos para revisar los objetos correspondientes.",
+  "objectives": [
+    "Cargar un proyecto medido y elegir sus tablas de características.",
+    "Controlar el tamaño del vecindario, la separación entre puntos y el número de filas muestreadas.",
+    "Ejecutar la proyección, revisar los recortes y encontrar los resultados guardados."
+  ],
+  "prerequisite": "Sigue Annotate y elige Load test data y luego Load para obtener el ejemplo medido y sus recortes de imagen. Conserva la carpeta de placa descargada. Con tus propios datos, completa Measure con recortes guardados antes de abrir Image UMAP.",
+  "scenes": [
+    "Desde Home, abre Image UMAP. Úsalo para explorar las similitudes entre objetos medidos mientras ves sus recortes de imagen. Empieza con un proyecto que tenga una base de datos de mediciones y los recortes guardados por Measure.",
+    "En Source, elige Add project folders y selecciona la carpeta de placa de ejemplo descargada desde Annotate. Revisa las bases de datos, las filas y las columnas compartidas disponibles. Puedes añadir más carpetas de proyecto cuando quieras comparar varios conjuntos de datos.",
+    "Elige las tablas cuyas características quieres comparar. En este ejemplo, selecciona las mediciones de cell, cytoplasm, nucleus y pathogen. Deja Resnet features desactivado para usar las mediciones existentes. Revisa los ajustes de datos faltantes y de características correlacionadas antes de ejecutar.",
+    "Pon Row limit en cuatrocientos para una primera vista rápida y usa dos procesos de trabajo. Row limit controla cuántos objetos entran en la proyección. Auméntalo cuando quieras explorar una parte mayor del conjunto de datos.",
+    "Elige UMAP como método de reducción. Cada punto representará un objeto mediante dos coordenadas en el gráfico.",
+    "Pon Neighbours en quince y Minimum distance en cero coma uno. Neighbours controla el tamaño del vecindario usado para construir el mapa. Minimum distance controla cuánto pueden apretarse los puntos en la proyección mostrada.",
+    "Pon Random seed en cuarenta y dos para que las ejecuciones repetidas con las mismas entradas y ajustes sean más fáciles de comparar. Guarda las tablas de características elegidas y los ajustes de preprocesamiento junto con la semilla.",
+    "El agrupamiento asigna etiquetas a los grupos después de construir la proyección. Este ejemplo usa DBSCAN con la eliminación de ruido desactivada. Revisa los recortes de cualquier grupo antes de usar su etiqueta en un análisis posterior.",
+    "Activa Plot images y Plot points. Usa doce imágenes de recorte pequeñas para que la vista general siga siendo legible. Después del ajuste puedes revisar objetos individuales más de cerca en la vista interactiva.",
+    "Pulsa Run y sigue en la consola la preparación de las características y el avance de la proyección. Espera al resultado completo. Si cambias las tablas de entrada o los ajustes de reducción, vuelve a ejecutar para obtener un mapa nuevo.",
+    "Revisa la proyección en Figures y abre la carpeta de resultados indicada en la consola. Mantén juntos la figura guardada, las filas de mediciones seleccionadas, los metadatos y las etiquetas de grupo, para poder rastrear un grupo interesante hasta sus objetos.",
+    "Activa Interactive para explorar el mapa ajustado. Amplía una región y haz clic en sus puntos. La vista usa la proyección ya calculada, así que puedes revisar distintos objetos sin volver a ajustarla.",
+    "Haz clic en un punto para mostrar su recorte en el panel lateral. Usa la ruta del objeto mostrada para relacionar la imagen con su registro de origen. Compara la morfología entre puntos cercanos y entre regiones alejadas del mapa.",
+    "Haz clic en otro punto para comparar su recorte. La barra lateral también ofrece el etiquetado de selecciones y la propagación de etiquetas de grupo. Esos controles guardan anotaciones, así que elige la etiqueta y la selección correctas antes de aplicarlos.",
+    "Revisa la proyección terminada y compara los recortes de imagen de los objetos seleccionados. Conserva juntas las mediciones de entrada, los ajustes elegidos y los resultados guardados para rastrear cada punto hasta su origen."
+  ]
+}

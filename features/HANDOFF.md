@@ -16,6 +16,11 @@ in1.04s; earlier SDK mock greens are superseded because unchanged-operation
 optimization could bypass a permission check. No live token/write permission is
 yet claimed, and no full docs build/main promotion is requested. Evidence under
 689_ci_token_access_probe_2026-10-15 and698_readme_mask_link_2026-10-15.
+## 2026-10-15 — Work → Home: N689 exact URL-owner patch unavailable on workstation
+
+Work reviewed the bounded owner request at Home `d9e71d7be` and the accepted free-v2-host evidence. The referenced Home scratch hierarchy `/mnt/wd4tb/scratch/` is not mounted here; the published packet supplies no exact two target paths, replacement patch or SHA-256 preimages. Work has not guessed filenames/hostnames or changed source, URLs, CI configuration, deployment or old Space/history.
+
+Home/Home-B: please publish the exact two-file patch plus preimage hashes in features, or provide an existing WS-readable sync path, so Work can preserve its newer source when adopting it. No maintainer question is needed. Receipt: `features/data/n689_work_url_owner_packet_gate_2026-10-15/`. This external artifact gate does not delay fresh05 Spaceout repair. Lesson15 remains completed/pushed as `57eadb597`; the free-v2-host's older8e0a scope and current live-site/deployment limits remain separate.
 
 ## 2026-10-15 Home-B — session calibration software integrated
 
@@ -62,6 +67,18 @@ N689 hostname replacements from the Home-B Work URL owner packet in scratch,
 preserving your newer source. The accepted free v2 host serves verified source
 8e0a, not current-head docs. Old Space/history remains intact; main Pages and CI
 configuration gates remain open. Shared protocol325 carries the exact relay.
+
+## 2026-10-15 — Work → Home: lesson15 Image UMAP completed;05 Spaceout repair next
+
+Lesson15 now has15 strict fresh GNOME clips, complete-native playback at1x (11001frames/366.7s),50 current-runtime audio tracks and13 bound official translation reviews. The reviewed narration-readiness player is included in the generated Pages tree. Local matrix72/72, whole-candidate84/84 and hosted-media Pages84/84 checks passed. Immutable HF revision `e296462dc19ddc4280300044d374856ac97ad20a`, tag `n676-gnome15-r58-20261015-verified`: all5321 candidate files matched metadata and downloadedSHA256,8455938156bytes.
+
+Record completed; native-arrival33 checks passed. The exact coherent148-file checkpoint,13 reviews and completed evidence are in `features/data/n676_umap_completed_publication_2026-10-15/` (223 files; packet manifest `c75fb1f48fd18afc09516bf267e6e812b8139cc85509e5041ab9f0e78b5ec248`). Independent final peer: `features/data/n676_umap_completed_publication_2026-10-15-peer.json`, SHA `1804481232076f57b69a6e98d677c2c37c7b5dfef47749b2ec5500c217c0ca68`. All83 other lesson objects and14 catalogs/media identities were preserved against completed11. This is one fresh lesson, not84 fresh remakes.
+
+Held source remains separate: player `c6f4ccdf8`, exact native-arrival audit `1512a5c54`, generated publication checkpoint `0b9bf9c06`. Actual capture/voice freeze stays `a6727b94d`; opening01 truthfully retains `fd327f851` on the identical application base. Exact source patches are in the packet for Home review/import while preserving newer work and the standing source-push restriction. This delivery changes only docs/features on nightly. Please retain the repaired authoring player when subsequently regenerating tutorial assets.
+
+Limits remain explicit: no human/native-speaker or phoneme-completeness signoff, full-master watch, biological validation or current live-site/Space proof. UMAP has400 points/allcluster0/effective worker1; finite coordinates are runtime-asserted, not independently persisted/recomputed. The first90-second cue timeout remains preserved/unexplained; both-player actual-media comparisons and the unchanged formal retry passed42 cues. No threshold or timeout was relaxed. Readback covers the5321 candidate files;3010 historical remote extras were not pruned or verified.
+
+Work continues one lesson end to end:05 Home is next to remove its hidden Spaceout scene from canonical text, narration and fresh footage, then republish and push.05 is still the affected published lesson until that repair completes. Curation queues and v5 training remain untouched. The new N689 Work-owner request for the exact two hostname replacements is received; Work will review that bounded packet after this lesson15 delivery, preserving newer source.
 
 ## 2026-10-15 Home-B — F564 coherent delivery and verified free docs host
 

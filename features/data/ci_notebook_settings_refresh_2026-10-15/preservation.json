@@ -1,0 +1,104 @@
+{
+  "changed_notebooks": {
+    "Notebooks/01_generate_masks.ipynb": {
+      "changed_generated_cells": [
+        {
+          "index": 5,
+          "generated_kind": "settings-help"
+        }
+      ],
+      "sha256": "9b6233b10a32d0ce61d3faa96381265e49744c17760cb773d9f2b5e3d30f84ee"
+    },
+    "Notebooks/01b_generate_timelapse_masks.ipynb": {
+      "changed_generated_cells": [
+        {
+          "index": 5,
+          "generated_kind": "settings-help"
+        }
+      ],
+      "sha256": "d20aec7fd689453eeccdd40c38087813d71d6f3e93d58377ab24195486fcd935"
+    },
+    "Notebooks/02_measure_and_crop.ipynb": {
+      "changed_generated_cells": [
+        {
+          "index": 5,
+          "generated_kind": "settings-help"
+        },
+        {
+          "index": 6,
+          "generated_kind": "settings"
+        }
+      ],
+      "sha256": "0fd94afed38feada45211efbee7e8c8db8259d63347f141189f7901d15f6e97f"
+    },
+    "Notebooks/03_classify_computer_vision.ipynb": {
+      "changed_generated_cells": [
+        {
+          "index": 5,
+          "generated_kind": "settings-help"
+        }
+      ],
+      "sha256": "136b358130cb564ab82e7e49449360642c862ec57d692c052ac31974bf500713"
+    },
+    "Notebooks/07_image_umap.ipynb": {
+      "changed_generated_cells": [
+        {
+          "index": 5,
+          "generated_kind": "settings-help"
+        }
+      ],
+      "sha256": "7fd2c015fba242ff29f6fb226edb2402009989f71ac54700b5737847b2e3683a"
+    },
+    "Notebooks/11_activation_maps.ipynb": {
+      "changed_generated_cells": [
+        {
+          "index": 5,
+          "generated_kind": "settings-help"
+        },
+        {
+          "index": 6,
+          "generated_kind": "settings"
+        }
+      ],
+      "sha256": "e2f3f750c91654ae1ad2709140dfef3756ba7172fe5ced2d16f001a9c1f423b4"
+    },
+    "Notebooks/14_motility_assay.ipynb": {
+      "changed_generated_cells": [
+        {
+          "index": 5,
+          "generated_kind": "settings-help"
+        }
+      ],
+      "sha256": "c7f1e93ca7ad7dfc1f70a0178a0f54ea310435789bdca091368567cf8270c866"
+    },
+    "Notebooks/15_replication.ipynb": {
+      "changed_generated_cells": [
+        {
+          "index": 5,
+          "generated_kind": "settings-help"
+        }
+      ],
+      "sha256": "168c7547e72c9a02c8344037f3eff528b63ed9348fafe4ab1fb0732cde40ef2e"
+    },
+    "Notebooks/17_endodyogeny.ipynb": {
+      "changed_generated_cells": [
+        {
+          "index": 5,
+          "generated_kind": "settings-help"
+        }
+      ],
+      "sha256": "a1c8a875cc9c6da4b78d82446583a8e50cc069333c777bb40fe5c2d109a2eb08"
+    },
+    "Notebooks/18_percent_positive.ipynb": {
+      "changed_generated_cells": [
+        {
+          "index": 5,
+          "generated_kind": "settings-help"
+        }
+      ],
+      "sha256": "9d545d4194137451fc711ed4da7f9261441caa5d2fbf746fcc6a3417ead13157"
+    }
+  },
+  "all_handwritten_cells_outputs_execution_counts_and_metadata_unchanged": true,
+  "source_base": "d9e71d7be8f5f517048d744a1cc758d813434eb1"
+}

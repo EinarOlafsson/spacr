@@ -1,0 +1,3 @@
+{"output": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/saved-science-audit.json", "sha256": "42b8681f6e0423cb804f467289a1fea95abcf3ebb0b55864508c734f0b22a89b", "rows": 400, "clusters": {"0": 400}, "whole_capture_accepted": false}
+
+Terminal exit status: 0

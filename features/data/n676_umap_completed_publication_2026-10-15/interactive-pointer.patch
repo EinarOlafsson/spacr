@@ -1,0 +1,151 @@
+From a6727b94d63f43df9309b7940275f01b5e56d3f5 Mon Sep 17 00:00:00 2001
+From: Einar Olafsson <einar.olafsson@gmail.com>
+Date: Thu, 15 Oct 2026 06:58:32 -0400
+Subject: [PATCH] Open public Actions pane before toggling UMAP Interactive
+
+---
+ tools/tutorials/capture_umap.py               | 29 ++++++++-
+ .../tests/test_capture_umap_public_tour.py    | 64 ++++++++++++++++++-
+ 2 files changed, 90 insertions(+), 3 deletions(-)
+
+diff --git a/tools/tutorials/capture_umap.py b/tools/tutorials/capture_umap.py
+index 9a680aa4a..1e1a2eba5 100644
+--- a/tools/tutorials/capture_umap.py
++++ b/tools/tutorials/capture_umap.py
+@@ -9,6 +9,31 @@ from capture_settings import require_unchanged_settings
+ from capture_ui_drv_a import Rec
+ 
+ 
++def set_interactive_view(screen, capture, settle, enabled):
++    """Reach the actual Interactive control through its public Actions fold."""
++    from PySide6.QtCore import Qt
++    from PySide6.QtTest import QTest
++
++    switch = screen._interactive_switch
++    if switch.isChecked() == bool(enabled):
++        return
++    if not switch.isVisible():
++        folder = screen._actions_folder
++        if folder.shut:
++            capture_ui.scroll_to(capture, screen._runtime_viewport, folder.heading)
++            if not folder.heading.isVisible():
++                raise RuntimeError('The public Actions heading is not reachable')
++            QTest.mouseClick(folder.heading, Qt.LeftButton)
++            settle()
++        capture_ui.scroll_to(capture, screen._runtime_viewport, switch)
++        settle()
++    if not switch.isVisible() or not switch.isEnabled():
++        raise RuntimeError('The actual Interactive control is not available to click')
++    capture_ui.set_checked(capture, switch, enabled)
++    if switch.isChecked() != bool(enabled):
++        raise RuntimeError('The actual Interactive control did not retain its state')
++
++
+ def record_explorer(screen, captures, capture, settle, write_json):
+     from copy import deepcopy
+     import numpy as np
+@@ -25,7 +50,7 @@ def record_explorer(screen, captures, capture, settle, write_json):
+     # Host: the clip shows the splitter dragged and the Interactive switch clicked.
+     with Rec(capture, '25_interactive_embedding', settle):
+         capture_ui.splitter_sizes(capture, screen._body_splitter, [width // 4, width - width // 4])
+-        QTest.mouseClick(screen._interactive_switch, Qt.LeftButton)
++        set_interactive_view(screen, capture, settle, True)
+         settle(2)
+         explorer = screen._umap_explorer
+         if not explorer.isVisible() or len(explorer._embedding) != len(explorer._records):
+@@ -51,7 +76,7 @@ def record_explorer(screen, captures, capture, settle, write_json):
+         if not explorer.isVisible() or explorer._preview.source_pixmap().isNull():
+             raise RuntimeError('The fitted embedding and selected crop must remain visible')
+         review.point(explorer._canvas, explorer._preview, dwell=1.5)
+-    QTest.mouseClick(screen._interactive_switch, Qt.LeftButton)
++    set_interactive_view(screen, capture, settle, False)
+     settle()
+     require_unchanged_settings(before, screen._settings_model.collect())
+     if hashlib.sha256(database.read_bytes()).hexdigest() != original:
+diff --git a/tools/tutorials/tests/test_capture_umap_public_tour.py b/tools/tutorials/tests/test_capture_umap_public_tour.py
+index 4e64fdbf6..c605c38c3 100644
+--- a/tools/tutorials/tests/test_capture_umap_public_tour.py
++++ b/tools/tutorials/tests/test_capture_umap_public_tour.py
+@@ -9,12 +9,14 @@ sys.path[:0] = [str(Path(__file__).resolve().parents[3]),
+                 str(Path(__file__).resolve().parents[1])]
+ 
+ import numpy as np
++import pytest
+ from PIL import Image
+ from PySide6.QtCore import Qt
+ from PySide6.QtTest import QTest
+ from PySide6.QtWidgets import QApplication, QCheckBox, QSplitter, QVBoxLayout, QWidget
+ 
+-from capture_umap import record_explorer
++import capture_ui
++from capture_umap import record_explorer, set_interactive_view
+ from spacr.qt.widgets.umap_explorer import ImageUmapExplorer
+ 
+ 
+@@ -83,3 +85,63 @@ def test_public_review_keeps_real_point_clicks_crop_and_database(tmp_path):
+         host.close()
+         host.deleteLater()
+         app.processEvents()
++
++
++@pytest.mark.parametrize('unreachable', [False, True])
++def test_current_umap_reopens_public_actions_before_clicking_interactive(
++        monkeypatch, unreachable):
++    from matplotlib.figure import Figure
++    from spacr.qt.screens.app_screen import AppScreen
++    import time
++
++    app = QApplication.instance() or QApplication([])
++    screen = AppScreen('umap')
++    screen.resize(2200, 1250)
++    screen.show()
++    figure = Figure(figsize=(2, 2))
++    figure.subplots().scatter([0., 1.], [0., 1.])
++    figure._spacr_umap_payload = {
++        'embedding': np.array([[0., 0.], [1., 1.]]),
++        'labels': np.array([0, 1]),
++        'records': [{'display_name': 'fixture0'}, {'display_name': 'fixture1'}]}
++    screen._on_figure_ready(figure)
++    QTest.qWait(100)
++    clicks = []
++
++    def physical_toggle(capture, widget, enabled):
++        assert widget.isVisible() and widget.isEnabled()
++        assert not screen._actions_folder.shut
++        QTest.mouseClick(widget, Qt.LeftButton)
++        assert widget.isChecked() == bool(enabled)
++        clicks.append(enabled)
++
++    monkeypatch.setattr(capture_ui, 'set_checked', physical_toggle)
++    try:
++        switch = screen._interactive_switch
++        assert type(switch).__name__ == 'AiToggleLabel'
++        assert screen._actions_folder.shut and not switch.isVisible()
++        assert not switch.isChecked()
++        before = screen._settings_model.collect()
++        if unreachable:
++            # An owner-hidden heading cannot be recovered by direct mutation.
++            screen._actions_folder.heading.hide()
++            with pytest.raises(RuntimeError, match='Actions heading is not reachable'):
++                set_interactive_view(screen, None, lambda: QTest.qWait(20), True)
++            assert not clicks and not switch.isChecked()
++        else:
++            set_interactive_view(screen, None, lambda: QTest.qWait(20), True)
++            assert clicks == [True] and screen._umap_explorer.isVisible()
++            set_interactive_view(screen, None, lambda: QTest.qWait(20), True)
++            assert clicks == [True]  # Already enabled needs no hidden click.
++            set_interactive_view(screen, None, lambda: QTest.qWait(20), False)
++            assert clicks == [True, False] and not switch.isChecked()
++        assert screen._settings_model.collect() == before
++        assert not hasattr(screen, '_run_started_at')
++    finally:
++        deadline = time.monotonic() + 10
++        while screen._jobs.is_busy() and time.monotonic() < deadline:
++            QTest.qWait(10)
++        assert not screen._jobs.is_busy()
++        screen.close()
++        screen.deleteLater()
++        app.processEvents()
+-- 
+2.34.1
+
