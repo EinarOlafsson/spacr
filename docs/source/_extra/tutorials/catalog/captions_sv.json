@@ -1510,7 +1510,7 @@
         },
         {
           "visual": "19_labels_for_suggest",
-          "narration": "Suggest föreslår etiketter för de utsnitt du ännu inte har besvarat, så ge den först exempel på båda klasserna från flera brunnar. Här märks några utsnitt av varje klass i fyra brunnar, och Next sparar dem.",
+          "narration": "Suggest föreslår etiketter för de utsnitt du ännu inte har besvarat, så ge den först exempel på båda klasserna från flera brunnar. Här märks några utsnitt av varje klass i tre brunnar, och Next sparar dem.",
           "focus": [
             360,
             380,
@@ -1522,7 +1522,7 @@
         },
         {
           "visual": "20_suggestions",
-          "narration": "Öppna Suggest och välj Suggest for the images on this page. Omgången tar några sekunder, och varje utsnitt på sidan får nu ett frågetecken. Fältet ovanför rutnätet räknar hur många förslag som återstår att bedöma.",
+          "narration": "Öppna Suggest och välj Suggest for the images on this page. Omgången tar några sekunder, och de omärkta utsnitten på sidan får nu ett frågetecken. Fältet ovanför rutnätet räknar hur många förslag som återstår att bedöma.",
           "focus": [
             350,
             250,
@@ -1533,7 +1533,7 @@
         },
         {
           "visual": "21_judged",
-          "narration": "Klicka på ett föreslaget utsnitt eller tryck Y för att bekräfta det, och högerklicka eller tryck N för att avvisa det. Båda svaren registreras, avvisningar tränar nästa omgång och Confirm the rest of the page avgör resten när du har kontrollerat det.",
+          "narration": "Klicka på ett föreslaget utsnitt eller tryck Y för att bekräfta det, och högerklicka eller tryck N för att avvisa det. Båda svaren förblir osparade tills Next sparar dem; avvisningar tränar nästa omgång och Confirm the rest of the page avgör resten när du har kontrollerat det.",
           "focus": [
             350,
             250,
@@ -1564,7 +1564,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
