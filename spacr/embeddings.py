@@ -1462,7 +1462,9 @@ def _mil_bags(frame: Any, *, well_column: str = _MIL_WELL_COLUMN,
     Feature columns default to the embedding columns when the table has any,
     else to every numeric column other than the well and label columns.
     Cells with a missing feature are dropped. Every cell of a well must carry
-    the same label.
+    the same label. A well identifier cannot span contradictory nonblank
+    plate, row or column metadata. Missing metadata does not establish that
+    the identifier names an independent acquisition well.
 
     :param frame: one row per cell.
     :param well_column: column naming each cell's well.
@@ -1509,7 +1511,15 @@ def _mil_bags(frame: Any, *, well_column: str = _MIL_WELL_COLUMN,
             f"{label_column} must hold two classes, one of them {positive!r}")
     bags, labels, wells, rows = [], [], [], []
     matrix = kept[feature_columns].to_numpy(dtype=np.float32)
+    acquisition = [column for column in ('plateID', 'rowID', 'columnID')
+                   if column in kept.columns]
     for well, group in kept.groupby(well_column, sort=True):
+        for column in acquisition:
+            known = group[column].dropna().astype(str).str.strip()
+            if known[known.ne('')].nunique() > 1:
+                from .qt.i18n import tr
+
+                raise ValueError(tr("Well identifier {well} spans different acquisition wells; use complete, unique well identifiers.", well=well))
         seen = group[label_column].unique()
         if len(seen) != 1:
             raise ValueError(f"well {well!r} carries more than one label")

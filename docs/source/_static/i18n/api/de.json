@@ -129151,23 +129151,23 @@
     "spacr.qt.widgets.column_aligned_row.align_row_to_columns": {
       "source_blocks_sha256": [
         "1d027bfcfd9210dcdbc58785d18d05bc90971737883f281325d8211f8b6d55d8",
-        "db93827e50fd5861e93237f7fd901cb6781f0bdb7210ceb075852f8bd6201009",
+        "0d4421cced46003a8d05e52d6b3842c5c794dea2c03653505c139f1d96c3dd6e",
         "93b9bd24f6d013a0e84ab3d64cac1c07632278437e682bd56e0fabd79aa5eb5c",
         "3ded0dfd7c5311f8fe08a9a1270a476a7e538e7bf4f948132a3e1bd10bffec88",
         "7b259578d5de9b82d8b13bc1f20772fb12a9efe051287de87ee7af8c2aa2d6fb",
         "acbaeaa72163960db71238c7393144a3bf23f8cc44c38798a825e9e25b57a05b",
-        "e4a5496eff817ef56a05a7ba71fb32a9d0a63620b240319b823b0740e8f1118e"
+        "f796a98915f1f220509207ae94d012b95f7e0fe85dae6b30df12128008345ca6"
       ],
-      "source_sha256": "dabcf6588ca5c4a4f30cd9c8e3b717cf0e2ab754e8e3ba400578e6cf3a5cea00",
-      "text": "Relay ``strip`` s Widgets über ``header`` s Abschnitte.\n\nIdempotent: Ein Streifen, der diesem Header bereits folgt, wird unverändert zurückgegeben, so dass eine wiederholte Show nichts kostet und nicht zwei Layouts stapeln kann.\n\n:param strip: das Widget, das die Schaltflächen hält. Sein vorhandenes Layout wird geleert und zerstört -- die Widgets überleben, neu erdacht auf ``strip``.\n:param header: die ``QHeaderView``, deren Spalten folgen.\n:param columns: ``(widget, column index or None)`` in der Reihenfolge, in der die ungebundenen folgen sollten.\n:param on_invalidate: an das Layout übergeben; aufgerufen, wenn sich der Größenhinweis eines verwalteten Widgets ändert, so dass der Besitzer des Headers die Spalte in eine inzwischen übersetzte Bildunterschrift umpassen kann.\n:returns: das installierte Layout oder ``None``, wenn es nichts zu tun gab.",
+      "source_sha256": "0722ce2688299ab6c18c7c0d9d5cc4bd500decc63cf288e05cfcbb007aa0af94",
+      "text": "Relay ``strip`` s Widgets über ``header`` s Abschnitte.\n\nEin vorhandenes ``ColumnAlignedRow`` auf der Leiste wird unverändert zurückgegeben. Seine Kopfzeile, Widget-Spalten-Zuordnungen und sein Invalidierungs-Callback werden weder mit den neuen Argumenten verglichen noch durch sie ersetzt.\n\n:param strip: das Widget, das die Schaltflächen hält. Sein vorhandenes Layout wird geleert und zerstört -- die Widgets überleben, neu erdacht auf ``strip``.\n:param header: die ``QHeaderView``, deren Spalten folgen.\n:param columns: ``(widget, column index or None)`` in der Reihenfolge, in der die ungebundenen folgen sollten.\n:param on_invalidate: an das Layout übergeben; aufgerufen, wenn sich der Größenhinweis eines verwalteten Widgets ändert, so dass der Besitzer des Headers die Spalte in eine inzwischen übersetzte Bildunterschrift umpassen kann.\n:returns: das vorhandene oder neu installierte Layout, einschließlich eines leeren Layouts bei leerem ``columns``. Gibt ``None`` zurück, wenn die Leiste oder Kopfzeile fehlt oder ihr Qt-Objekt gelöscht wurde.",
       "translation_source_blocks_sha256": [
         "1d027bfcfd9210dcdbc58785d18d05bc90971737883f281325d8211f8b6d55d8",
-        "db93827e50fd5861e93237f7fd901cb6781f0bdb7210ceb075852f8bd6201009",
+        "0d4421cced46003a8d05e52d6b3842c5c794dea2c03653505c139f1d96c3dd6e",
         "93b9bd24f6d013a0e84ab3d64cac1c07632278437e682bd56e0fabd79aa5eb5c",
         "3ded0dfd7c5311f8fe08a9a1270a476a7e538e7bf4f948132a3e1bd10bffec88",
         "7b259578d5de9b82d8b13bc1f20772fb12a9efe051287de87ee7af8c2aa2d6fb",
         "acbaeaa72163960db71238c7393144a3bf23f8cc44c38798a825e9e25b57a05b",
-        "e4a5496eff817ef56a05a7ba71fb32a9d0a63620b240319b823b0740e8f1118e"
+        "f796a98915f1f220509207ae94d012b95f7e0fe85dae6b30df12128008345ca6"
       ]
     },
     "spacr.qt.widgets.column_picker": {
@@ -173727,28 +173727,28 @@
     "spacr.qt.widgets.sortable_table.install_sorting": {
       "source_blocks_sha256": [
         "b11ded6a64f63cc4849cfce62c3ead0a9d23aa419dadf2238a39a031e2ddfd10",
-        "686101677b15bd3f817879385643c71d84a66d3874e53ef25d2ea35d7aae8cf9",
+        "e41b133bb713bef074803c33b9636cd66e7eeaf44a31fc71ff052df929388726",
         "64f9ea786ebb1e7ecaba4b4d085d60099cb1cc6d2176de27d771ea7c46f4f25d"
       ],
-      "source_sha256": "e48ad3364a41a5bde6b19a6a9cbdb6cd6bd46b8721c27333c7e362bedbfdf83c",
-      "text": "Installieren Sie die semantische Sortierung mit drei Zuständen auf ``view`` und geben Sie sie zurück.\n\nAkzeptiert ein ``QTableWidget``, ``QTreeWidget`` oder ``QTableView``. A ``QTableView`` wird in :class:`SortableProxyModel` gewickelt; rufen Sie diese Funktion unmittelbar nach ``setModel`` auf und erhalten Sie anschließend das Auswahlmodell der Ansicht.\n\n:param view: die sortierbar zu machende Ansicht; eine Ansicht ohne Kopfzeile wird unverändert zurückgegeben, und bei einer bereits installierten wird nur ihre Anfangsreihenfolge neu festgehalten.",
+      "source_sha256": "e48de96b6d78894d9081312795001353c93e1b08cf59293fe31354bcf05bf887",
+      "text": "Installieren Sie die semantische Sortierung mit drei Zuständen auf ``view`` und geben Sie sie zurück.\n\nAkzeptiert ein ``QTableWidget``, ``QTreeWidget`` oder ``QTableView``. Ein ``QTableView`` mit einem Modell, das kein Proxy ist, wird in :class:`SortableProxyModel` eingehüllt. Ein vorhandenes ``QSortFilterProxyModel`` bleibt mit seinem eigenen Vergleichsverhalten erhalten; eine Ansicht ohne Modell wird nicht eingehüllt. Rufen Sie diese Funktion unmittelbar nach ``setModel`` auf und beziehen Sie das Auswahlmodell der Ansicht anschließend.\n\n:param view: die sortierbar zu machende Ansicht; eine Ansicht ohne Kopfzeile wird unverändert zurückgegeben, und bei einer bereits installierten wird nur ihre Anfangsreihenfolge neu festgehalten.",
       "translation_source_blocks_sha256": [
         "b11ded6a64f63cc4849cfce62c3ead0a9d23aa419dadf2238a39a031e2ddfd10",
-        "686101677b15bd3f817879385643c71d84a66d3874e53ef25d2ea35d7aae8cf9",
+        "e41b133bb713bef074803c33b9636cd66e7eeaf44a31fc71ff052df929388726",
         "64f9ea786ebb1e7ecaba4b4d085d60099cb1cc6d2176de27d771ea7c46f4f25d"
       ]
     },
     "spacr.qt.widgets.sortable_table.is_missing": {
       "source_blocks_sha256": [
         "b34ec42b2f257bb6de3f89dac1df685d85f634ebfe4f4f5a22e48233076bac3d",
-        "346d13b32d0cc981d1bfea4f6888995268b54d469ee33a8b13c19d28c2b966e0",
+        "bb52e60989e40c494cddcea3c8135eb8aba4549eda7d0f87be39d468d8b0a5af",
         "2810efc3b65489b377421afea1d55e57b0f09da1466a8c64b34b178c6be9d32a"
       ],
-      "source_sha256": "116e3fa13e7b01ae96c7260991e800c8791c39cb391a1f67bf1f1f0e5dee5720",
-      "text": "Gibt zurück, ob ``value`` leer oder ein erkannter fehlender Sentinel ist.\n\nDazu gehören ``None``, leere Strings, ``NaN``, pandas ``NA`` und ``NaT``. Array-ähnliche Werte werden nicht als einzelne fehlende Zellen behandelt.\n\n:param value: ein Zellwert beliebigen Typs.",
+      "source_sha256": "73b31aceec684d8bf047cb77e0e99d690d1f0dea3405c50de11d79442332b5a0",
+      "text": "Gibt zurück, ob ``value`` leer oder ein erkannter fehlender Sentinel ist.\n\nDazu gehören ``None``, leere Zeichenfolgen, ``NaN``, pandas ``NA`` und ``NaT``. Nach den Prüfungen auf ``None`` und Zeichenfolgen wird das Ergebnis von ``pandas.isna`` in ``bool`` umgewandelt. Ein Array mit genau einem Element, dessen Wert fehlt, kann daher ``True`` ergeben; mehrdeutige Ergebnisse mit mehreren Elementen ergeben ``False``.\n\n:param value: ein Zellwert beliebigen Typs.",
       "translation_source_blocks_sha256": [
         "b34ec42b2f257bb6de3f89dac1df685d85f634ebfe4f4f5a22e48233076bac3d",
-        "346d13b32d0cc981d1bfea4f6888995268b54d469ee33a8b13c19d28c2b966e0",
+        "bb52e60989e40c494cddcea3c8135eb8aba4549eda7d0f87be39d468d8b0a5af",
         "2810efc3b65489b377421afea1d55e57b0f09da1466a8c64b34b178c6be9d32a"
       ]
     },
@@ -175974,16 +175974,16 @@
       "source_blocks_sha256": [
         "9225e18da1090cadad6813bfaaec9556ec36601bdada6eb23c30824d49f5d7b0",
         "001da4cd4f825a8553850d2ef97132d2063e606c83d7590fde194a552156c9c3",
-        "e3f3f390ab1f96947adf3cad4893a98e4483dc41953cb8dcf5eb06302f134b1f",
+        "4b4b8663f09ddb44515b7cde7fb52f65b1ad4bed4ad824391d30716153be2a73",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "ceec366506d2a347fed4252d39c49866d93f132338fa5f4cc4a2316be9a86da3"
       ],
-      "source_sha256": "1c228d24da84e177fd58c3ff7b1c7e2efec7361d05c39c4980029a294d4728c4",
-      "text": "Anzeige von Trainingsmetriken als inkrementell aktualisierte Kurven.\n\n``plots`` enthält eine :class:`pyqtgraph.PlotWidget` pro Panel, keyed ``\"loss\"``, ``\"accuracy\"`` und ``\"per_class\"``. ``curves`` enthält die :class:`pyqtgraph.PlotDataItem` für jede Metrik, die erstellt wird, wenn diese Metrik zuerst erscheint und für jede Epoche danach wiederverwendet wird.\n\nBeide werden bevölkert, wie Epochen ankommen und weder ersetzt wird, so dass eine Referenz einmal für die Lebensdauer des Panels gültig bleibt. Bauen Sie das Panel, das einer Trainingsverarbeitungssitzung die Verluste und Metriken folgt.\n\nParameter\n----------\nEltern: QWidget, optional Eltern-Widget, oder ``None``.",
+      "source_sha256": "609c4ea6dc02febae880b2ccf06c3f8fed111994686a3a00c37c83ee873df6ee",
+      "text": "Anzeige von Trainingsmetriken als inkrementell aktualisierte Kurven.\n\n``plots`` enthält eine :class:`pyqtgraph.PlotWidget` pro Panel, keyed ``\"loss\"``, ``\"accuracy\"`` und ``\"per_class\"``. ``curves`` enthält die :class:`pyqtgraph.PlotDataItem` für jede Metrik, die erstellt wird, wenn diese Metrik zuerst erscheint und für jede Epoche danach wiederverwendet wird.\n\nDie Plot-Widgets werden im Konstruktor erstellt; Kurven werden hinzugefügt, wenn ihre Messgrößen erstmals erscheinen. :meth:`clear` entfernt Kurven und gespeicherte Punkte für einen neuen Lauf, behält aber die Plot-Widgets und beide Dictionaries bei. Erstellt das Panel, das Verluste und Messgrößen eines Trainingslaufs verfolgt.\n\nParameter\n----------\nEltern: QWidget, optional Eltern-Widget, oder ``None``.",
       "translation_source_blocks_sha256": [
         "9225e18da1090cadad6813bfaaec9556ec36601bdada6eb23c30824d49f5d7b0",
         "001da4cd4f825a8553850d2ef97132d2063e606c83d7590fde194a552156c9c3",
-        "df579f2716f60aef02e80b214224cad0eecc8a579a03425d4186eae4d762c923",
+        "3f7f9fdd0ada67a1d79e56c0718189a24e7ccbe8ee93dfd1cf531137c49833e3",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "ceec366506d2a347fed4252d39c49866d93f132338fa5f4cc4a2316be9a86da3"
       ]
@@ -178222,16 +178222,16 @@
     },
     "spacr.qt.widgets.volume_view.angles_from_axes": {
       "source_blocks_sha256": [
-        "2c98212f7aa857adfd2c58116ae7bba41f0b7848d02070006f228444772028e7",
-        "5cc82e3179c9c66dfe72bb34c1381de4f63ad9cc78a3034ff26fcefb2367d71d",
+        "b4e86eb4b9ab6790a385f4a86e8787e9f402b1557235449d69feb6912a2cf72a",
+        "3b12d0b23a4be31e3919034224a6179de7d3a04086bc11e4fe5453108a122af7",
         "fb6c82c72ea807f3582ee9604d55518952e10d7c29d70ff49deeb43ae512fb83",
         "138833a2d86a57eef4bfd790e8c42664bffa82af4e59319546098b37a54145d5"
       ],
-      "source_sha256": "ac06b42f4c9804397a8f2e18f0b0e6fc091789b769026df49a8a3c9c5db055b6",
-      "text": "Die ``(elev, azim, roll)``, mit denen matplotlib diesen Rahmen zeichnet.\n\n``elev`` wird innerhalb von ``[-90, 90]`` gehalten, sodass die Vertikale nie umkippt; der Roll-Winkel trägt dann jede Drehung um die Sichtlinie, die der Rahmen hat. Beim Blick gerade nach unten (oder oben) ist der Azimut frei, daher wird er so gewählt, dass der Roll-Winkel null ist.\n\n:param u: Die nach rechts gerichtete Achse des Bildschirms.\n:param w: die Achse, die aus der Bildfläche heraus zeigt.",
+      "source_sha256": "5f1609b1291db5475f47f6c54cf52403943a7e25e88338ae2e0a126a5b855f58",
+      "text": "Gibt ``(elev, azim, roll)`` in Grad für die angegebenen Bildschirmachsen zurück.\n\n``elev`` bleibt innerhalb von ``[-90, 90]``, sodass die Vertikale nie umklappt; der Rollwinkel beschreibt dann die Drehung des Bezugssystems um die Sichtlinie. Nahe einem der Pole, wo nach der Normalisierung ``abs(w[2]) > 1.0 - 1e-9`` gilt, beträgt die zurückgegebene Elevation ``89.9999`` oder ``-89.9999`` Grad. Der Azimut wird aus ``u`` bestimmt, und der Rollwinkel ist null. Dieser Zweig nähert das angegebene Bezugssystem bewusst an, statt einen exakten Pol zurückzugeben.\n\n:param u: Die nach rechts gerichtete Achse des Bildschirms.\n:param w: die Achse, die aus der Bildfläche heraus zeigt.",
       "translation_source_blocks_sha256": [
-        "2c98212f7aa857adfd2c58116ae7bba41f0b7848d02070006f228444772028e7",
-        "5cc82e3179c9c66dfe72bb34c1381de4f63ad9cc78a3034ff26fcefb2367d71d",
+        "b4e86eb4b9ab6790a385f4a86e8787e9f402b1557235449d69feb6912a2cf72a",
+        "3b12d0b23a4be31e3919034224a6179de7d3a04086bc11e4fe5453108a122af7",
         "fb6c82c72ea807f3582ee9604d55518952e10d7c29d70ff49deeb43ae512fb83",
         "138833a2d86a57eef4bfd790e8c42664bffa82af4e59319546098b37a54145d5"
       ]

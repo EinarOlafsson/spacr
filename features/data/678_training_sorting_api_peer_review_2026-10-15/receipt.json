@@ -1,0 +1,178 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "reviewed_commit": "4a0a7612b88e97cbe09f03310015b69459cf692c",
+  "reviewer": "Home-B website_686_687; independent of the author of these translation targets; author of the two English sorting corrections",
+  "review_kind": "Independent AI technical semantic review; no human or native-speaker signoff",
+  "scope": "27 committed source/translation pairs: three blocks from three API symbols, nine locales",
+  "decision": "All27 PASS after one exact German singleton-precision correction",
+  "source_files": {
+    "spacr/qt/widgets/training_monitor.py": {
+      "commit": "797a62a2ea2d3de9e23ab8bae3d0343984dd2e06",
+      "sha256": "98ee28eeb368d5e2b3dc196295f87b3243b0fb5544e4c579e2c5d79b8f910f22"
+    },
+    "spacr/qt/widgets/sortable_table.py": {
+      "commit": "8a81690727bc598bfd935d4f60ab0721d14aef68",
+      "sha256": "cc971e65ef26b65a572376b43020b59047c4937802ceb487430469ccd44f2ec8"
+    }
+  },
+  "review_files_sha256": {
+    "docs/i18n/reviewed/api/de/2026-10-15-training-sorting-contracts-home-b.json": "a6b22763b64668f81c747e3e0ab1d5bfcae834cb6a862df3a6d6c49e129fd855",
+    "docs/i18n/reviewed/api/es/2026-10-15-training-sorting-contracts-home-b.json": "74dbfd153d918621786845a12e6bffffb5424967d922073f93405d12db44426b",
+    "docs/i18n/reviewed/api/fr/2026-10-15-training-sorting-contracts-home-b.json": "c50a2b2c43afa88e48d809faa61e9e8d104e502f657cfa4265d93c0979f21ed7",
+    "docs/i18n/reviewed/api/hi/2026-10-15-training-sorting-contracts-home-b.json": "eadb3d1836b31e66cc713438a60bd71f125d7a32daed8a8e6dff2249d5e36013",
+    "docs/i18n/reviewed/api/is/2026-10-15-training-sorting-contracts-home-b.json": "d8937261f8e2ace9a1d399ed1a8db4514e2401c8337a286ef23b576432520df9",
+    "docs/i18n/reviewed/api/ko/2026-10-15-training-sorting-contracts-home-b.json": "f1cfa69ce35f6a1dcf678cc94cdaf247b516d585c9edc1efff39fd5ddc71c6fb",
+    "docs/i18n/reviewed/api/pt/2026-10-15-training-sorting-contracts-home-b.json": "9a813df9346f33226be69c776ae6a74153422dc2d779b33f4d797f73d81bee74",
+    "docs/i18n/reviewed/api/sv/2026-10-15-training-sorting-contracts-home-b.json": "9c4b52bb734054ac575f504028d88c2e2c3ae7a8e7e682fdea8a56f2045d5ce2",
+    "docs/i18n/reviewed/api/zh_CN/2026-10-15-training-sorting-contracts-home-b.json": "1b0db4cd64d47f522b1760bb56efb5975bcaa636c8e436e7b8115accdfeaf5c5"
+  },
+  "coverage": [
+    {
+      "label": "spacr.qt.widgets.training_monitor.TrainingMonitor#2",
+      "source_sha256": "4b4b8663f09ddb44515b7cde7fb52f65b1ad4bed4ad824391d30716153be2a73",
+      "context_sha256": "3f7f9fdd0ada67a1d79e56c0718189a24e7ccbe8ee93dfd1cf531137c49833e3",
+      "technical_semantics": "Plot widgets are constructed up front; metric curves are created on first appearance; clear removes curves and stored points for a new run while retaining plot widgets and both dictionary objects. Constructor summary remains present.",
+      "targets": {
+        "de": {
+          "translation_sha256": "1b66da6c464bcf86be8feab43bce25bd7e082e0c0a272737cbdabea333863954",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "a6149f579ff8df6e861d84d694bf1e0abd785134cdd4be83747c6c8eadcd1b29",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "0e85dfdad70652585b837d2ca90d99a1c421ce7d240f007157a6a9c9543c2212",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "afc532da5457743e1ebdcfbdbf9a412148a0ebfffe628006b5f196ffb4105bb5",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "4210d6be185de9ff52c6277dd1514d614743c1bf51bf38ee921cb673e50b5dc5",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "7d296f133b279bf7921f0bbb43bb09a79dc20d4bf5fc825173f4fe8728e33864",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "d51d519945843ddafd8b83122cefa5ba2a0f6260de33ff96a64acbea56749ff2",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "2488ed321c57b2f7478394667c920697aab67592497e2d457c634cd90bf287c0",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "6f94575a02f8f23bcfde5bda21502b2768bd30adc392eb7a0fb5d13f8816d861",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.widgets.sortable_table.is_missing#1",
+      "source_sha256": "bb52e60989e40c494cddcea3c8135eb8aba4549eda7d0f87be39d468d8b0a5af",
+      "context_sha256": "bb52e60989e40c494cddcea3c8135eb8aba4549eda7d0f87be39d468d8b0a5af",
+      "technical_semantics": "None/string checks precede bool conversion of pandas.isna; a single-element missing array MAY return True; ambiguous multi-element truth results return False. The singleton condition and possibility qualifier are retained.",
+      "targets": {
+        "de": {
+          "translation_sha256": "a1348bb842670390e136e39b699faef4d936d704291db70d58bb42b8cbbb910a",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "831c3ea460b0bac9e3f1f8715a3912bf6748da3b0c7d9624b4f8cd1ae2f391e1",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "b6c0006e6ceef84a8323acffd00970f569b1918e51122080c91be55ad3f1ac39",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "46432bf2433442020604802036488a81d45a47b18b49c38583630b4b2b88ca5e",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "136e09b957a0fe47a7ce6904cba54a47578d11f333458a7f234dfcc9afb754ca",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "473599b957690501c9d19795dd2bd187799b6a5cf5cebea7dc14c78cbefeb4c6",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "779d0be5d3c76eabf4cb084c10ce8ddb0752764a05ffe0068247150b3a589f6c",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "d9f685f641917de85fcc099b3fd88bef1369b5cb27ad90a8057bfd5bd0b21e57",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "b8e7610e9c3b973924b6d813e7915c885bf44df9a39956de1fbeea12f7254f0a",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.widgets.sortable_table.install_sorting#1",
+      "source_sha256": "e41b133bb713bef074803c33b9636cd66e7eeaf44a31fc71ff052df929388726",
+      "context_sha256": "e41b133bb713bef074803c33b9636cd66e7eeaf44a31fc71ff052df929388726",
+      "technical_semantics": "Only non-proxy QTableView models receive SortableProxyModel; existing QSortFilterProxyModel retains its own comparison behavior; absent models are not wrapped; setModel precedes install_sorting and selection-model retrieval follows it.",
+      "targets": {
+        "de": {
+          "translation_sha256": "15d4f5fbb4f7a6e2bdcd94b4efb8fd754da5157ab6d826330c9a97743a5fab90",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "9e71b7cea88755a31260202a203ab86cf1e87b9ab858aaebee7004187bd59383",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "eee560e30c7a14dd22ac5a1127f6d4678615d6ad016529bc59259d4f8ff630fb",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "7faa55e2017cba761b5388a037f0909a3d561a31ae541d05c0e7b7920d1b3738",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "8a65463c227e2ab6aa67c24f84937123fdc652574d092c9a7014013401ce4ba5",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "46affe98d528eb18e0b566adb3a1b7f4861f4bc962a002449c48f5cd3626ed7d",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "4e456502cca4ac0899ec03b82625d7ab8c5a239e8a40749c8fdb1a3b0ab07499",
+          "decision": "PASS"
+        },
+        "sv": {
+          "translation_sha256": "700736a147538837b0dda5374000b34917b24e3ae0fca9afdf4eefc02135226c",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "f5d4fa564ea4d0facc2d5671c48a148c7636e5986cb387d86f4e30d875b449ce",
+          "decision": "PASS"
+        }
+      }
+    }
+  ],
+  "resolved_finding": {
+    "language": "de",
+    "label": "spacr.qt.widgets.sortable_table.is_missing#1",
+    "initial_phrase": "Ein Array mit einem einzigen fehlenden Wert",
+    "issue": "A single missing value does not require a single-element array; multi-element arrays may have one missing value yet produce an ambiguous truth result.",
+    "corrected_phrase": "Ein Array mit genau einem Element, dessen Wert fehlt",
+    "resolution": "Author applied the requested precision correction before normal generation; reviewer reread the corrected sentence and bound it to the committed exact target."
+  },
+  "checks": "All final committed sources, contexts and translations exactly match the independently read frozen draft; source file hashes match actual implementation commits. Normal source/context candidate and full selected-doc loader gates were run by the author, not duplicated here.",
+  "limitations": [
+    "No generated API writer or unrelated collector rerun by this reviewer.",
+    "Technical semantics and preserved roles/literals reviewed; no native-speaker or human linguistic acceptance claimed.",
+    "No broad N678 completion, widget behavior, layout or scientific acceptance inferred."
+  ]
+}

@@ -172,3 +172,26 @@ selection behavior changed. Two existing public API blocks require the normal
 nine-locale review and catalog batch; the private constructor adds no API
 symbol. No runtime test replay or whole N678 completion is claimed.
 Evidence: features/data/678_plate_map_coordinate_prose_2026-10-15/receipt.json.
+
+2026-10-15 — Bounded volume camera near-pole documentation repair.
+Documented angles_from_axes output degrees and its existing near-pole
+approximation: after normalizing the viewing axis, abs(w[2]) > 1.0 - 1e-9
+returns elevation +/-89.9999 degrees and zero roll, with azimuth from the
+screen-right vector. This is deliberately not an exact pole roundtrip.
+One of four reviewed public function docstrings changed; three were retained.
+The complete executable AST is unchanged, with no arithmetic/test replay.
+Two existing API blocks await the normal nine-locale review/catalog batch.
+Evidence: features/data/678_volume_camera_prose_2026-10-15/receipt.json.
+This bounded contract clarification does not complete the full N678 review.
+
+2026-10-15 — Bounded training-monitor lifecycle documentation repair.
+TrainingMonitor creates its three plot widgets during construction, while
+metric curves are added when their series first appears. Its class paragraph
+now states this distinction and that clear removes curves and stored points
+while retaining the plot widgets and dictionary objects. One selected class
+docstring changed; five public constructor/method docstrings were retained.
+The complete executable AST is unchanged. No training, plotting, caption or
+method behavior changed, and no runtime tests were repeated for this prose.
+One existing API block awaits normal nine-locale review/catalog generation.
+Evidence: features/data/678_training_monitor_prose_2026-10-15/receipt.json.
+This bounded lifecycle clarification does not complete the full N678 review.
