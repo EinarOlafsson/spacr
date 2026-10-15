@@ -1,5 +1,15 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — Original: two bounded CI contracts published immediately
+
+Branding27PASS repairs the historical quoted-title failure without altering
+immutable report bytes or weakening current product/docs spelling checks.
+Work's native lesson15 arrival expectation is adopted against the actual
+catalog timing identity. No recording/player mutation or finalCI dispatch.
+The player-readiness portable patch needs owner rebase/dependency delivery;
+it does not apply cleanly to current authoring source. N448/N421 localization
+sources stay on a separate private branch until normal catalog closure.
+
 ## 2026-10-15 Home-B — classifier integration accepted; safe accessible resize
 
 F561 source/runtime/API/Help integration is ready for immediate nightly push.
