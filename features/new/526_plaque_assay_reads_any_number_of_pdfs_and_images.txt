@@ -136,3 +136,19 @@ LEFT
   has. Only a src written back after a read is skipped.
 
 VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_526_plaque_assay_reads_any_number_of_pdfs_and_images.py pass.
+
+2026-10-15 — DISTINCT PDFS IN ONE BATCH KEEP DISTINCT OUTPUTS
+Four distinct PDF paths could exhaust all three existing destination-name
+choices: the fourth silently reused the first folder. The production batch
+allocator now retains those first three choices, then searches its finite
+taken-label set until a new numeric label is free. Home-B supplied the exact
+six-line widget-owner patch and independent source/test review. Actual
+AppScreen/asynchronous stub-reader tests write native PNGs for each input:
+three pre-fix failures become11PASS19.74s, including longer numeric collisions,
+case handling, corresponding pixel/source bytes and deterministic same-batch
+rereads. No real PDF reader/render/model acceptance or cross-batch identity
+tracking is claimed; existing same-paper folder reuse intentionally remains.
+No caption, API prose/signature, nested helper, Work preview adapter or reader
+was changed. Source owner packet: data/526_paper_batch_destinations_2026-10-15/;
+independent review: data/526_paper_batch_destinations_peer_review_2026-10-15/;
+initial production allocation proof: data/526_distinct_paper_destination_preservation_2026-10-15/.

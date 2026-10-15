@@ -226,6 +226,43 @@ def test_one_pdf_that_fails_is_named_and_the_others_are_read(
     assert (folder / "plate_04" / "figure_1.png").is_file()
 
 
+@pytest.mark.parametrize('relative_paths, fallback', [
+    (['a/004_field.pdf', 'a/a_field.pdf', 'a/field.pdf',
+      'b/a/field.pdf'], '005_field'),
+    (['a/006_field.pdf', 'a/007_field.pdf', 'a/008_field.pdf',
+      'a/a_field.pdf', 'a/field.pdf', 'b/a/field.pdf'], '009_field'),
+    (['a/004_FIELD.pdf', 'a/A_FIELD.pdf', 'a/FIELD.pdf',
+      'b/a/field.pdf'], '005_field'),
+])
+def test_colliding_batch_fallbacks_preserve_each_paper_and_allow_rereading(
+        figure_screen, tmp_path, reader, relative_paths, fallback):
+    pdfs = [_pdf(tmp_path / relative) for relative in relative_paths]
+    for index, pdf in enumerate(pdfs):
+        pdf.write_bytes(pdf.read_bytes() + str(index).encode())
+    original = [pdf.read_bytes() for pdf in pdfs]
+    folder = tmp_path / 'output'
+    panel = figure_screen._live_preview
+    assert panel.fetch_papers(pdfs, folder, offer_install=False)
+    _read_all(figure_screen, 0)
+    destinations = [dest for _name, dest in reader.calls]
+    assert len({dest.name.lower() for dest in destinations}) == len(pdfs)
+    assert [dest.name for dest in destinations[:-1]] == [
+        ppv.paper_folder_name(pdf) for pdf in pdfs[:-1]]
+    assert destinations[-1].name == fallback
+    for index, dest in enumerate(destinations):
+        pixels = imageio.imread(dest / 'figure_1.png')
+        assert np.all(pixels == 11 + index)
+    _wait(lambda: panel._picker.count() == len(pdfs))
+    assert [pdf.read_bytes() for pdf in pdfs] == original
+    assert panel.fetch_papers(pdfs, folder, offer_install=False)
+    _read_all(figure_screen, len(pdfs))
+    assert [dest for _name, dest in reader.calls[len(pdfs):]] == destinations
+    for index, dest in enumerate(destinations):
+        pixels = imageio.imread(dest / 'figure_1.png')
+        assert np.all(pixels == 11 + len(pdfs) + index)
+    assert [pdf.read_bytes() for pdf in pdfs] == original
+
+
 def test_loose_pdfs_dropped_with_other_files_are_read_and_the_rest_ignored(
         figure_screen, tmp_path, said, reader):
     first = _pdf(tmp_path / "a" / "one.pdf")

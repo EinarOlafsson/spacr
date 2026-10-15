@@ -1759,6 +1759,12 @@ def plaque_selection_folder(images: Sequence[Path],
                       f"{index:04d}_{image.name}"):
             if label.lower() not in taken:
                 break
+        else:
+            ordinal = 2
+            label = f"{index:04d}_{ordinal}_{image.name}"
+            while label.lower() in taken:
+                ordinal += 1
+                label = f"{index:04d}_{ordinal}_{image.name}"
         taken.add(label.lower())
         link = dest / label
         try:

@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "review_type": "Independent AI technical code and regression-test review; reviewer did not author this fix or tests",
+  "decision": "PASS",
+  "source_commit": "5ea63b08a0ce1db3ce6f44f05b29ba42868402c2",
+  "baseline": "76d35e703137dbc6a4c2798de59de039fd938aaa",
+  "files": [
+    {
+      "path": "spacr/qt/widgets/plaque_preview.py",
+      "before_sha256": "5f72095c13cbb59c35deea8ccce89c6d98967f6c6e25bf004c76f5f87b80bdb2",
+      "sha256": "a41d63c1aa6f467931848261df4243f1af1b580c9ef0b4f301d4caf2f94fa69c"
+    },
+    {
+      "path": "tests/qt/test_526_plaque_assay_reads_any_number_of_pdfs_and_images.py",
+      "sha256": "5150ea9453d1530cb73c536b6722a83ff2c54d711deccc07d7c03f43c1a2d2f7"
+    }
+  ],
+  "owner_receipt": {
+    "path": "features/data/526_paper_batch_destinations_2026-10-15/receipt.json",
+    "sha256": "cd90f23ee3a856f089c74993c5029e0fae0eb5660497418c4ca50a7e9ef98f8c"
+  },
+  "scope": "PlaquePreviewPanel.fetch_papers batch-local destination allocation when all three existing label candidates collide.",
+  "findings": [
+    {
+      "decision": "PASS",
+      "detail": "The for-else extension runs only after every existing candidate was rejected. Starting above the already-tried numeric index, it increments the suffix until the case-normalized label is absent. Since taken contains finitely many prior labels and numeric suffixes strictly increase, search terminates."
+    },
+    {
+      "decision": "PASS",
+      "detail": "The first three existing candidate labels, lower() policy, destination construction, async reader scheduling, status/translation strings and public documentation are preserved. There is no filesystem probe in the new allocation path."
+    },
+    {
+      "decision": "PASS",
+      "detail": "The three regression scenarios trigger exhaustion of the historical candidates, an additional occupied suffix chain, and case-normalized collisions. Unique destinations plus distinct actual PNG pixels check for output overwrites, not merely internal chosen strings."
+    },
+    {
+      "decision": "PASS",
+      "detail": "Each scenario rereads the same ordered batch and asserts identical destinations, updated expected pixels and unchanged original PDF bytes. This proves deterministic reuse for that batch; it does not claim identity tracking across reordered or unrelated batches."
+    },
+    {
+      "decision": "PASS",
+      "detail": "Independent AST comparison confirms all source outside fetch_papers remains unchanged; all comments and docstrings remain identical. Recorder and source-adapter methods are untouched."
+    }
+  ],
+  "actual_owner_evidence": {
+    "baseline_result": "3 failed, 8 deselected in 6.12s",
+    "final_result": "11 passed in 19.74s",
+    "terminal_exit": 0,
+    "logs": [
+      {
+        "name": "before",
+        "path": "features/data/526_paper_batch_destinations_2026-10-15/before.log.gz",
+        "sha256": "f842abad1ce973a807c4a52b15f327d55b33368c03945f7fd10a22f7bf4917db",
+        "uncompressed_sha256": "dc242e3daf5adfe1424b8f00e5e542ea7b8cf5e3de462a2376f48f0ebd818cde",
+        "terminal_summary": "3 failed, 8 deselected in 6.12s"
+      },
+      {
+        "name": "after",
+        "path": "features/data/526_paper_batch_destinations_2026-10-15/after.log.gz",
+        "sha256": "6b1b648b7367ca7e39f8a099c2959066f42dd675abb310f21c19d5b1455f80fa",
+        "uncompressed_sha256": "f4c630f98606b15abcc9460b5c294ea9fb4a2b258b2a1a1e1b7a94dd8464690f",
+        "terminal_summary": "11 passed in 19.74s"
+      }
+    ]
+  },
+  "limitations": [
+    "Only the figure reader is stubbed; tests use real AppScreen, asynchronous job handling, filesystem and PNG readback.",
+    "No actual PDF parser, scientific model, native desktop capture, cross-platform hardware or unrelated existing-directory identity behavior is certified.",
+    "No duplicate tests, generator, catalog changes or publication performed by reviewer."
+  ]
+}
