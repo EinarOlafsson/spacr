@@ -1261,7 +1261,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.ai.providers#6",
+      "label": "spacr.qt.ai.providers#7",
       "source": "How each CLI is installed is data, not prose: :data:`INSTALL_METHODS` holds one row per way of installing it on each operating system, and both the ``install_hint`` a screen shows and the command :mod:`spacr.qt.ai.cli_install` runs are read from those rows. The GitHub CLI is described the same way by :class:`GitHubCli`, which shares the :class:`CommandLineTool` interface without being a chat provider.",
       "source_sha256": "5e39a047e529c1f881b126d604183a6aa1aeaf05947e692118f706eb62fbbd7a",
       "context": "How each CLI is installed is data, not prose: :data:`INSTALL_METHODS` holds one row per way of installing it on each operating system, and both the ``install_hint`` an application view shows and the command :mod:`spacr.qt.ai.cli_install` runs are read from those rows. The GitHub CLI is described the same way by :class:`GitHubCli`, which shares the :class:`CommandLineTool` interface without being a chat provider.",
