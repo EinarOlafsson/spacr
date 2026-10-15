@@ -317,3 +317,26 @@ learned prediction quality or native GPU acceptance is claimed. Only the existin
 function body changes, with unchanged signatures/prose/tr calls and no new
 caption/API target. Evidence: data/564_sequence_target_identity_2026-10-15/.
 Whole F564/scientific calibration and final global CI/release remain open.
+
+2026-10-15 — PRIVATE opt-in structure objective and lower-strength controls.
+A separate owner branch adds a denoising-training penalty comparing per-channel
+spatial differences at full, twofold and fourfold pooled resolution. Uniform
+channel offsets have zero penalty; translated edges do not. Retained-signal
+weighting avoids amplification at near-pure-noise timesteps. Zero weight keeps
+the former training path; lower inversion strength and the penalty coefficient
+pass through the existing activation-map runner without discarding zero.
+The coefficient is recorded in the report and safe-reload checkpoint config.
+These are geometric software controls, not biological identity/phenotype proof.
+
+Twenty-one focused checks pass10.03s, including two original diffusion report/
+first-frame cases. An actual pinned predecessor class/trainer replay reproduces
+all93 state tensors and exact history at zero weight. Initial fixture error,
+corrected seven-failure baseline, intermediate overlapping cohorts and final
+raw receipts are retained; their test counts must not be summed. Independent
+source review approved the corrected input-validation boundary.
+
+Source is PRIVATE pending owner UI heading/literal control adapter and normal
+reviewed localization/API/settings-flow artifacts. Larger/pretrained latent
+backbone and biological/native acceptance remain OPEN. Do not mark the whole
+feature complete from this component. Evidence:
+data/564_structure_objective_2026-10-15/.

@@ -1,0 +1,54 @@
+{
+  "scope": "Private opt-in diffusion structure objective plus settings/run passthrough; UI/localization/generation pending",
+  "base_revision": "9745d2dc78c0330cfe2ac85cb3e53bcc18cdbd60",
+  "source_pins": {
+    "spacr/attribution.py": "494f84c2e24c6b3d1812f3c25a37d1c93e59465d9f5fa445a3e6299e7de7adab",
+    "spacr/deep_spacr.py": "fa3e0b859049330a7db7294487b19af750bad9c9697865d8c7d515ecbc3935e5",
+    "spacr/settings.py": "706aac520552d2e4a478c913cbd1490070c7331f95758615d08e83112a4a0033",
+    "tests/test_counterfactual_structure_objective.py": "e723538943e3134fca56443eadfceb2976f25933198a57d789a824a0cfd7bfa5",
+    "tests/qt/test_generative_counterfactuals_alpha_gate.py": "11a8936949f0461626be4f86d413589e36c14b8dec1725410a27b4248abcbeda"
+  },
+  "baseline": "Seven failures; initial baseline also exposed missing target_probs in one fixture; corrected baseline retains seven missing-feature failures. Both raw attempts preserved.",
+  "final": "21 focused checks PASS10.03s, comprising19 new owning cases and2 existing actual diffusion report/first-frame cases. Earlier7/11/17 cohorts overlap, not additive.",
+  "legacy_replay": {
+    "original_revision": "9745d2dc78c0330cfe2ac85cb3e53bcc18cdbd60",
+    "original_source_sha256": "8f4b924ac64600d18c5b3c8466ae07d7ee5358e6071b226c57c1b42d2996952c",
+    "current_source_sha256": "494f84c2e24c6b3d1812f3c25a37d1c93e59465d9f5fa445a3e6299e7de7adab",
+    "exact_history": true,
+    "exact_state_tensors": 93,
+    "scope": "Original class and trainer AST replayed against unchanged supporting helpers; tiny CPU synthetic data only."
+  },
+  "peer": "Independent Easy source review accepted corrected source; source manifest drift and evidence limits explicitly recorded.",
+  "not_complete": [
+    "Home-B UI heading/literal control adapter",
+    "Normal reviewed runtime/settings/API targets, generated flow/Help and actual UI acceptance",
+    "Larger/pretrained latent diffusion backbone",
+    "Biological minimal-edit/phenotype/native acceptance",
+    "Full CI/release"
+  ],
+  "evidence": {
+    "legacy-replay.json.gz": "b0fe0ee9df77b667f76e50a916fb1d8da1056ff208934ca17fc0b527707e9b52",
+    "baseline.log.gz": "e9411a7537afb780fdfdb4b7840acd82202d65764bd6fc5425a2cfcaaafe5399",
+    "baseline-corrected.xml.gz": "1298ebcd6fb610d1e00e2d21c10190c8f3ef719af9f77663177d04ac94d25ac2",
+    "legacy-replay.py.gz": "55d19b0462ffe0be4e07682e6d016085bae51378118169217bb8907d66dda7a6",
+    "extended.log.gz": "e74e1cd7b53c57111fe88b8a68749e7e322a4806d20f70f17e49cb3a46252d20",
+    "legacy-replay.exit.gz": "cabc3a30b39528db601f65ca3ced008dd775595c901102d08ac8ae8976b29bcf",
+    "easy-source-peer.json.gz": "125c2f58f7206b1cddabea6ebcf6bbf99fc2afb08ff8bd21ac719b14ceee1fee",
+    "final.exit.gz": "cabc3a30b39528db601f65ca3ced008dd775595c901102d08ac8ae8976b29bcf",
+    "extended.xml.gz": "d9b9b93aa18507dadd3ec26f4d3e5c423ffb7ef596239781d0c5db82334dace3",
+    "owning-final.xml.gz": "4d4ab78ed97439e56a54c6e7c0c8ec6fd48033bd7b446889146173f7658dc741",
+    "wired.log.gz": "e5e94544976874129f56e589923dc1dde40dfc4e22376c0259f38cd6dca0e31a",
+    "baseline-corrected.exit.gz": "d381e5a9b7c1c71b5fb3fef202103bf4b6098ce288f148735de1ecf61d4e3b75",
+    "baseline.xml.gz": "92f0de7fd404af655c94a4e0525cdf3a820ced7129c24d9c334a1eda6c4196d5",
+    "legacy-replay.log.gz": "ae8d2fac47c2c1522c5e313424939fb8c163310ac564e0a17b89307f0ea29194",
+    "final.log.gz": "b42ef3affaf11c588b62b3f556d4a1c3de7cc42ff4181958ede2a08890469d12",
+    "owning-final.log.gz": "17989d39343a6f044e5c9b3b52b929035bf45c680c1d7504d6f52f6f516831c0",
+    "final.xml.gz": "33c2f87229ede4916db91c424971757f3bcd4fa67676373c0bd426e77bfe783f",
+    "baseline-corrected.log.gz": "d8d0fedbe1ab3b8a1ab184a3bc3e33ed620d08453428cccf3990b68661ad6eb9",
+    "extended.exit.gz": "cabc3a30b39528db601f65ca3ced008dd775595c901102d08ac8ae8976b29bcf",
+    "owning-final.exit.gz": "cabc3a30b39528db601f65ca3ced008dd775595c901102d08ac8ae8976b29bcf",
+    "wired.xml.gz": "10efee48037f60bc12a1cc49085fae10c3d19381573d15d0d0348b89f8eaeca3",
+    "wired.exit.gz": "cabc3a30b39528db601f65ca3ced008dd775595c901102d08ac8ae8976b29bcf",
+    "baseline.exit.gz": "d381e5a9b7c1c71b5fb3fef202103bf4b6098ce288f148735de1ecf61d4e3b75"
+  }
+}
