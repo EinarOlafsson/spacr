@@ -364,3 +364,14 @@ cell_dino_smoke.py <path> <sha256> cell_dino_cp_vits8
    cell_dino, cell_dino_factory, checkpoint_path, checkpoint_sha256 and
    channels = ordered plane indices matching the model's stains.
 5. Then the workstation GPU acceptance via tools/gpu_turn.sh.
+
+2026-10-15 — Official Cell-DINO access prerequisite rechecked read-only
+The official Meta DINOv2 README still directs users through the Cell-DINO
+request form and states that accepted requests receive download URLs by email.
+The official Zenodo14767885 API returns access_right=restricted and zero
+listed files. Both read-only responses returnedHTTP200; exact URLs/body hashes
+and UTC retrieval time are in data/560_official_weight_access_recheck_2026-10-15/.
+No request, identity/license submission, login or model download was performed.
+The existing local-checkpoint loader/provenance remains unchanged. Official
+pretrained/scientific acceptance remains an external access prerequisite;
+this audit is not a new feature-completion tick. Continue independent work.

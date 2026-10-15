@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "locale": "sv",
+  "label": "spacr.qt.widgets.umap_figure_settings#3",
+  "source_sha256": "996a62cb8a4f0cf67c0989344a504276a07f5f107058b9980e64a754c1354e5b",
+  "context_sha256": "996a62cb8a4f0cf67c0989344a504276a07f5f107058b9980e64a754c1354e5b",
+  "old_target": "``TIER_STYLE`` kan ställas in på befintliga grafiska objekt: punktstorlek, punktfärg, opacitet och konturbredd. Mikrosekunder; inget läses om från disk. ``TIER_REDRAW`` kräver att figuren ritas om, men **från samma inbäddning**: bildantal, bildzoom, figurstorlek och vilka lager som ritas. Tiondelar av en sekund eftersom miniatyrerna läses om; därför inväntas en kort paus mellan ändringarna. ``TIER_RERUN`` sparas för en senare körning i stället för att tillämpas på den färdiga figuren. Denna nivå omfattar ``n_neighbors``, ``min_dist``, avståndsmåttet och funktionsfiltret samt alternativ för klustring, vylayout och utdata. Alla inställningar på denna nivå ändrar inte inbäddningens koordinater. Den omgivande dialogrutan kan kopiera dessa värden till modulen med åtgärden Propagate settings när ett återanrop för överföring finns.",
+  "new_target": "``TIER_STYLE`` kan ställas in på befintliga grafiska objekt: punktstorlek, punktfärg, opacitet och konturbredd. Mikrosekunder; inget läses om från disk. ``TIER_REDRAW`` kräver att figuren ritas om, men **från samma inbäddning**: bildantal, bildzoom, figurstorlek och vilka lager som ritas. Tiondelar av en sekund eftersom miniatyrerna läses om; därför inväntas en kort paus mellan ändringarna. ``TIER_RERUN`` sparas för en senare körning i stället för att tillämpas på den färdiga figuren. Denna nivå omfattar ``n_neighbors``, ``min_dist``, avståndsmåttet och egenskapsfiltret samt alternativ för klustring, vylayout och utdata. Inte alla inställningar på denna nivå ändrar inbäddningens koordinater. Den omgivande dialogrutan kan kopiera dessa värden till modulen med åtgärden Propagate settings när ett återanrop för överföring finns.",
+  "old_target_sha256": "3d6bede596fc94e129b73f4fc24923106c5fb02d477fbd0349ea6f20e8bf41d4",
+  "new_target_sha256": "1d85cf2e5523a358299c5bc69bf7718479d2db46556e76d7fdcfac474875977f",
+  "reason": "Independent technical reviewer requested feature-filter terminology and unambiguous not-all quantifier. Only this target changes; generation had not started.",
+  "source_and_context_checks": "PASS both normal candidate gates",
+  "other_records": "Unchanged."
+}

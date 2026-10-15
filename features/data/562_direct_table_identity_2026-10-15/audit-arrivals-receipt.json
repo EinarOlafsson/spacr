@@ -1,0 +1,9 @@
+{
+  "normal_full_nine_runtime_audit_exit": 0,
+  "normal_arrivals": {
+    "baseline": 9833,
+    "added": 892,
+    "retired": 150,
+    "changed": 29
+  }
+}

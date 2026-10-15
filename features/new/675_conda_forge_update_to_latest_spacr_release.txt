@@ -143,3 +143,16 @@ existing template variable. Independent byte/YAML/AST checks pass; no installed
 Rattler renderer, actual package build or new external CI is claimed.
 Code publication is held while priority spaCR full CI occupies account runners.
 No PR comment/review, fork mutation, package publication or whole-item acceptance.
+
+2026-10-15 01:45 EDT — Read-only current external prerequisite unchanged
+Live API confirms pyfixest is absent from conda-forge (HTTP404); spaCR channel
+remains1.5.0.8 versus current PyPI1.5.1.4, same321136... sdist hash. PR35101
+remains open/non-draft at3b4fd83a with review-requested/python labels,8successful
+checks and legacy conda-forge-linter pending. Same reviewer line49 version-
+variable request remains; current recipe bytes exactly match the existing
+prepared correction input, so no duplicate patch/build is justified. Existing
+PR7 stays open at448bbf8. The prepared one-line correction still requires
+external publication/normal checks/review; dependency feedstock publication
+and clean spaCR installation from the actual forge channel remain OPEN.
+No external PR comment/account/fork/package mutation or wholeN675 acceptance.
+Current receipt: data/675_forge_current_state_2026-10-15/receipt.json.

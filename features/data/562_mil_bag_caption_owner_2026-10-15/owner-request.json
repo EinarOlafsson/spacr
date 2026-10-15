@@ -1,0 +1,9 @@
+{
+  "owner": "Original Home hard_overnight",
+  "source": "spacr/embeddings.py::_mil_bags only",
+  "tests": "tests/test_multiple_instance_learning.py MIL fixtures only; no UMAP/render edits",
+  "request": "Home-B exact _mil_bags one-function diagnostic extractor ownership patch, retain all old owners. No broad module scan. Domain owner supplies matching exact nine-locale reviews.",
+  "caption": "Well identifier {well} spans different acquisition wells; use complete, unique well identifiers.",
+  "parent_scope": "Refuse only observed contradictory nonblank plateID/rowID/columnID metadata within selected well; custom/full IDs and multiple fields preserved. Absent metadata does not prove independence.",
+  "worktree": "/mnt/wd4tb/spacr-worktrees/codex-f562-direct-table-identity-20261015"
+}
