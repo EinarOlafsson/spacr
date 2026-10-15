@@ -1,0 +1,174 @@
+{
+  "normal_tools": [
+    "tools/build_setting_consumer_map.py",
+    "tools/settings_flow.py --rst"
+  ],
+  "tracked_outputs_sha256": {
+    "docs/setting_consumers.json": "3de2c25e2b91113f3dbe0d2c2034c9d1a337556731ac3f8d2a51519d7d08bc8f",
+    "docs/source/_generated/settings_flow.rst": "490de500e929ee7adbc69442aa44e3509856d59dc7565d867a5b4ee06ed863ed",
+    "spacr/qt/screens/setting_api_targets.py": "08a45543c95ab2a47aed36d78267b58e5f8a24914fbf72698d8932fd63473786",
+    "spacr/qt/screens/settings_flow_index.py": "3a6f8c9183317b31045dcebac197a1a7ed2ce2c2b22e7d1f696c11df6d1deaab"
+  },
+  "semantic_consumer_delta_excluding_line_movement": {
+    "intensity_calibration_reference_plate": {
+      "added": [
+        {
+          "form": "get",
+          "function_depth": 1,
+          "key": "intensity_calibration_reference_plate",
+          "module": "spacr.intensity_rescale",
+          "nested": false,
+          "qualname": "_session_calibration_plan"
+        }
+      ],
+      "removed": []
+    },
+    "intensity_calibration_offset": {
+      "added": [
+        {
+          "form": "get",
+          "function_depth": 1,
+          "key": "intensity_calibration_offset",
+          "module": "spacr.intensity_rescale",
+          "nested": false,
+          "qualname": "_session_calibration_plan"
+        }
+      ],
+      "removed": []
+    },
+    "intensity_calibration_sessions": {
+      "added": [
+        {
+          "form": "get",
+          "function_depth": 1,
+          "key": "intensity_calibration_sessions",
+          "module": "spacr.intensity_rescale",
+          "nested": false,
+          "qualname": "_calibration_inputs"
+        },
+        {
+          "form": "get",
+          "function_depth": 1,
+          "key": "intensity_calibration_sessions",
+          "module": "spacr.settings",
+          "nested": false,
+          "qualname": "get_measure_crop_settings"
+        }
+      ],
+      "removed": []
+    },
+    "intensity_calibration_reference_session": {
+      "added": [
+        {
+          "form": "get",
+          "function_depth": 1,
+          "key": "intensity_calibration_reference_session",
+          "module": "spacr.intensity_rescale",
+          "nested": false,
+          "qualname": "_session_calibration_plan"
+        },
+        {
+          "form": "get",
+          "function_depth": 1,
+          "key": "intensity_calibration_reference_session",
+          "module": "spacr.settings",
+          "nested": false,
+          "qualname": "get_measure_crop_settings"
+        }
+      ],
+      "removed": []
+    },
+    "intensity_calibration_session_column": {
+      "added": [
+        {
+          "form": "get",
+          "function_depth": 1,
+          "key": "intensity_calibration_session_column",
+          "module": "spacr.intensity_rescale",
+          "nested": false,
+          "qualname": "_calibration_inputs"
+        },
+        {
+          "form": "get",
+          "function_depth": 1,
+          "key": "intensity_calibration_session_column",
+          "module": "spacr.settings",
+          "nested": false,
+          "qualname": "get_measure_crop_settings"
+        }
+      ],
+      "removed": []
+    },
+    "intensity_calibration_beads": {
+      "added": [
+        {
+          "form": "get",
+          "function_depth": 1,
+          "key": "intensity_calibration_beads",
+          "module": "spacr.intensity_rescale",
+          "nested": false,
+          "qualname": "_calibration_inputs"
+        },
+        {
+          "form": "get",
+          "function_depth": 1,
+          "key": "intensity_calibration_beads",
+          "module": "spacr.settings",
+          "nested": false,
+          "qualname": "get_measure_crop_settings"
+        }
+      ],
+      "removed": []
+    },
+    "timelapse": {
+      "added": [
+        {
+          "form": "get",
+          "function_depth": 1,
+          "key": "timelapse",
+          "module": "spacr.intensity_rescale",
+          "nested": false,
+          "qualname": "_calibration_inputs"
+        }
+      ],
+      "removed": []
+    },
+    "intensity_calibration_statistic": {
+      "added": [
+        {
+          "form": "get",
+          "function_depth": 1,
+          "key": "intensity_calibration_statistic",
+          "module": "spacr.intensity_rescale",
+          "nested": false,
+          "qualname": "_session_calibration_plan"
+        }
+      ],
+      "removed": []
+    }
+  },
+  "new_setting_targets": {
+    "intensity_calibration_sessions": {
+      "exact": false,
+      "module": "spacr.intensity_rescale",
+      "symbol": ""
+    },
+    "intensity_calibration_session_column": {
+      "exact": false,
+      "module": "spacr.intensity_rescale",
+      "symbol": ""
+    },
+    "intensity_calibration_beads": {
+      "exact": false,
+      "module": "spacr.intensity_rescale",
+      "symbol": ""
+    },
+    "intensity_calibration_reference_session": {
+      "exact": false,
+      "module": "spacr.intensity_rescale",
+      "symbol": ""
+    }
+  },
+  "scope": "Normal regeneration; all additional semantic consumers belong frozen F580 settings/intensity implementation. Other entries change line locations only; no removed consumers.",
+  "help": "Awaiting single final normal Help generation in owner tree after this map commit."
+}
