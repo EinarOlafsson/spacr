@@ -2,8 +2,8 @@
 3D MASK DRAWING IN MAKE MASKS AND A FIB-SEM EXAMPLE VOLUME WITH MASKS
 ================================================================================
 
-Status:    published (not alpha); i18n freeze ended 2026-10-12; current API
-           translations verified 2026-10-15; FIB-SEM tutorial dropped by maintainer
+Status:    DONE 2026-10-15 — original drawing and FIB-SEM example-data
+           contract accepted; current runtime/API translations verified.
 Requested: 2026-10-11 by the maintainer: "I'd like to be able to draw 3D masks
            and I'd like a TEM milling dataset with the option to load with
            masks if possible." TEM milling = FIB-SEM volume EM.
@@ -175,3 +175,38 @@ checks preserve exact voxel values, IDs, dtype, changed counts and undo/redo.
 This closes that count-reporting defect, without changing connectivity or
 claiming new biological, native-renderer or full-release acceptance. Evidence:
 features/data/692_foreground_count_and_publication_state_2026-10-15/.
+
+
+2026-10-15 — Final acceptance reconciliation: N692 complete at its recorded contract.
+All three original WHAT TO DO requirements and HOW TO KNOW IT WORKED checks
+have source-bound acceptance evidence. Existing hosted run38699600639/source
+8fc2aa56 records12/12 N692 drawing cases PASS in Coverage4,31/31 current
+in-container volume cases PASS in Coverage3, and5/5 FIB-SEM build/registry/CLI
+cases PASS in Coverage8 and the minimum-Python3.9 job. These cases explicitly
+exercise XY mouse draw/erase, XZ/YZ voxels, gap-only interpolation, disconnected
+object assignment, undo/redo, TIFF/OME/MRC shape/axes/spacing and save/load,
+both actual menu actions, ground-truth byte preservation and mocked download.
+The untraced Qt copies separately report11PASS/1SKIP and30PASS/1SKIP because
+mrcfile was absent; their MRC acceptance is supplied by the passing coverage
+cases, not inferred from those skipped jobs. The overall hosted run failed
+other items and remains no full-release/full-CI acceptance claim.
+
+Current095894ad308a source matches those owning GUI/demo/build/test bytes;
+mask_engine differs only by the independently accepted foreground-count
+return, with its6PASS3.19s receipt. example_archives differs only in unrelated
+expand_measure_arrays; all other module AST including the fibsem registry is
+identical. Existing normal8-symbol/333-reviewed-block API and source-identical
+runtime evidence remain valid; no collector, generator or cohort was repeated.
+
+Published public dataset revision ab10f528913f3cad9aea2e678d91a2f430fa4b5b
+contains the25,221,120-byte archive, SHA256
+fbd1f24a2076ecd72f5e5d3cdc65ef877fb9f7b0e7e3a219e5c7cf265a9c1aa4.
+The preserved original archive matches that published LFS hash exactly; its
+128x256x256 image and43-instance label-map raw pixel hashes match the build
+manifest. The published card identifies EMPIAR-10982/HeLa,CC0 and citations;
+EMPIAR's official reuse policy confirms CC0. The15nm Z spacing remains an
+explicit documented assumption, not new measured/scientific validation.
+The maintainer dropped dedicated N673/N692 FIB-SEM tutorials on2026-10-12;
+no tutorial, GPU work, native-platform signoff or new biological validation is
+required or newly claimed by this item closure. Broader N673/native desktop
+and release acceptance stay separately tracked.

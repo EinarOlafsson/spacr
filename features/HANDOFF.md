@@ -1,5 +1,19 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — Original Home: three whole-item closeouts accepted
+
+N692's original 3D drawing/FIB-SEM example contract is accepted, with exact
+current source, literal owning hosted outcomes, published archive identity and
+current nine-language evidence. Its dedicated tutorial remains dropped.
+F556's original SAM2 alpha workflow/comparison contract and pending locale/API
+closeout are accepted; historical whole-movie comparisons remain unchanged.
+N511's regionprops/provenance/removal contract is accepted; all twelve retired
+catalog identities were already removed by normal generation in September.
+All three have independently reviewed dated item notes and portable evidence.
+These close original item contracts; full release/CI and unrelated native or
+scientific gates stay with their own items. Other partial scopes get no ticks.
+The grouped repo progress file moves these three whole items to the top.
+
 ## 2026-10-15 — Maintainer progress-table format supersedes component totals
 
 The maintainer requests ONE row per numbered item (for example N689), with
