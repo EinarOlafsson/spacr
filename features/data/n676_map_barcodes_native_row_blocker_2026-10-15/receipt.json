@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "lesson": "12_map_barcodes",
+  "status": "BLOCKED; no furtherWorksource/tests/retakes/assets authorized",
+  "turn53": {
+    "terminal_rc": 1,
+    "app_exit_code": 0,
+    "recorder_rc": null,
+    "saved_cleanup_survivors": [],
+    "failure": "Strict requested-row visibility guard again reports clipped findings.",
+    "callback_GC_fix_observation": "Passed search progress06 without the previous fatal event in this run only; underlyingPySidecrash notconclusivelysolved."
+  },
+  "sealed_search_progress": [
+    {
+      "stage": "/media/carruthers/mnt3/claude/n676_stages/host/lesson12-r51",
+      "search_outcome_sha256": "5d5b933915fbf92356c5964491f6af01e74e1a4bfb48ad0e8179beca866de09b",
+      "search_outcome_bytes": 21232,
+      "reads_by_file": {
+        "R1": 10000,
+        "R2": 10000
+      },
+      "finished_signal": true,
+      "raw_report_complete": false,
+      "proposed_window_length": 89,
+      "proposal_applied": false,
+      "mapping_executed": false,
+      "whole_capture_accepted": false
+    },
+    {
+      "stage": "/media/carruthers/mnt3/claude/n676_stages/host/lesson12-r53",
+      "search_outcome_sha256": "5d5b933915fbf92356c5964491f6af01e74e1a4bfb48ad0e8179beca866de09b",
+      "search_outcome_bytes": 21232,
+      "reads_by_file": {
+        "R1": 10000,
+        "R2": 10000
+      },
+      "finished_signal": true,
+      "raw_report_complete": false,
+      "proposed_window_length": 89,
+      "proposal_applied": false,
+      "mapping_executed": false,
+      "whole_capture_accepted": false
+    }
+  ],
+  "request_for_Home": "Panel/viewport owner may propose an actual native wheel/viewport layout fix later. No further WSport now; no gate relaxation or claimedmapping.",
+  "next": "11 onHomepublicstagecorrection; fresh54preparedonly pending rootapproval/queue",
+  "published_lesson12": false,
+  "audio_staging_executed": false,
+  "live_Space_claim": false,
+  "files": [
+    {
+      "file": "turn53-host-run.json",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/lesson12-r53/host-run.json",
+      "bytes": 1405,
+      "sha256": "8b64fde8b637d6f0608c64e35941ceccddb7759a360c774aad09bfc01cb8407c"
+    },
+    {
+      "file": "turn53-cleanup.json",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/lesson12-r53/gnome-host/cleanup.json",
+      "bytes": 54,
+      "sha256": "75c9ae32733b323c48b654979ccd7d383e654d187b7c4ce6e2b9b705e009dfad"
+    }
+  ]
+}
