@@ -1,0 +1,7 @@
+{
+  "reviewer": "Original Home root",
+  "patch_sha256": "88e1d3947c3ef46471f8b21cf870e24f14eb4462a280098e92e4e9d08b2e87d8",
+  "approval": "Exact body-only Decimal finite/integral/range validation before int conversion. Named-condition branch and existing diagnostics/signatures unchanged.",
+  "evidence": "24 final checks; three actual default report refusals before intercepted training; neither trainer executes.",
+  "limits": "No separate diffusion execution or scientific acceptance."
+}

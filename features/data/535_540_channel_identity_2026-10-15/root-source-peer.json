@@ -1,0 +1,8 @@
+{
+  "reviewer": "Original Home root",
+  "proposal_sha256": "2454888cbfb34c7a02e86204ae35ffa176e415cd4fa5e466b60b42289f8a6968",
+  "decision": "approve documented exact scalar-identity and early-validation proposal for targeted acceptance",
+  "scope": "New private helper normalizes exact integral strings/scalars/0D values, rejects bool/complex/fraction/nonfinite/nonscalar/negative. Resolver preserves ordered/duplicate/empty mapping; existing callers stop truncation, resolve active channels before DB reads and reuse positions. No fit/training/calibration/threshold changes; inactive nucleus stays ignored for stain mode. Proper helper doc retained and unchanged normal API eligibility must be proved.",
+  "publication_gate": "Easy independent source peer is in parallel; incorporate any correction before publishing. Actual invalid-error precedence changes deliberately earlier; existing valid/default/reordered/FUCCI/morphology/classifier controls must pass. Do not claim all raw mappings runnable.",
+  "evidence": "Unpatched20FAIL14PASS18localedeselected4.83 preserved, actual wrong-DNA/PI classification counterexample and input bytes unchanged. Source owner should add only exact new helper to literal-tr extraction via HomeB owner."
+}

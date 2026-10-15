@@ -1,0 +1,29 @@
+{
+  "reviewer": "Original Home easy agent independent source peer",
+  "decision": "APPROVE exact proposed source for typed channel identity scope; no source correction required",
+  "original_sha256": "ebb6b3d8faf237c1ee207a1d649cef859c9fb66ae1c750489a17839f72846bab",
+  "proposed_sha256": "7dbd0cd39563df943820181b35fbd9b4807b147effee2ed8184098d7835ac5d1",
+  "patch_sha256": "2454888cbfb34c7a02e86204ae35ffa176e415cd4fa5e466b60b42289f8a6968",
+  "changed_existing_top_level_nodes": [
+    "_cell_cycle_channel",
+    "_classify_cell_cycle",
+    "_classify_viability",
+    "_measured_channel_column"
+  ],
+  "added_private_helper": [
+    "_measurement_channel_index"
+  ],
+  "review": [
+    "Python int conversion preserves Python/NumPy integer and integer-string identities without float roundtrip; bool/complex/nonscalar/nonfinite/negative/fractional rejection is explicit, including zero-dimensional arrays unboxed before type validation.",
+    "Fallback explicit cell-cycle channel then nucleus channel then first measured/default0 remains; resolver preserves measured ordering, empty-list identity convention, first duplicate mapping and lossless large integer strings.",
+    "Viability resolves only active stain channels, or nucleus/default morphology when neither stain active; missing/inactive None/blank meanings retained. Resolved column reused for same existing mathematical signal path.",
+    "Cell cycle validates requested DNA and FUCCI physical identities before database listing/reading, retains actual two-channel FUCCI state function and downstream feature column ordering.",
+    "Full module normalized AST is identical after excluding exactly four approved existing function bodies and the new private helper; existing signatures/docstring values and all scientific math functions are unchanged. New private helper has meaningful parameter/result/error documentation.",
+    "Only invalid identity refusal is moved before DB metadata/read/migration; valid math, fitting, cuts, grouped splitting, database schema and plotting are unchanged."
+  ],
+  "limits": [
+    "Static source review only: no tests/model/Qt/network executed by reviewer; actual owner baseline/owning and normal exact localization/API eligibility gates remain owner acceptance.",
+    "No biological efficacy, timing, arbitrary malformed container settings or native platform acceptance inferred."
+  ],
+  "all_other_module_AST_existing_signatures_and_docstrings_identical": true
+}

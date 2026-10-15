@@ -183,6 +183,7 @@ def test_tabular_phase_holdout_caption_is_extracted(extract_backend_sources, own
     ('psf_pipeline.py', '_prepare_unmixing'),
     ('_lineage_trees.py', '_lineage_explicit_parents'),
     ('measure.py', '_viability_manual'),
+    ('measure.py', '_measurement_channel_index'),
 ])
 def test_new_backend_owners_do_not_admit_unrelated_diagnostics(
         extract_backend_sources, filename, owner):
@@ -255,3 +256,9 @@ class Other:
 def _microscope_positions():
     raise ValueError('An existing untranslated internal diagnostic.')
 """) == set()
+
+
+def test_measurement_channel_identity_caption_enters_only_through_its_owner(extract_backend_sources):
+    caption = "Measurement channels must be nonnegative integer indices."
+    assert extract_backend_sources('measure.py',
+        f'def _measurement_channel_index():\n    raise ValueError(tr({caption!r}))\n') == {caption}

@@ -1,0 +1,5 @@
+{
+  "previous_proposal_sha256": "56b1303c5f072bd0a185ea0fd6db7bd4ba22d87dfa3354cc143946f687526697",
+  "proposed_sha256": "4997f5d2815e056123c7dd94c652a396d2dce058e7d71e5086a09f4a07bf678c",
+  "scope": "Preserve original integer dtype for empty native tables as well as nonempty signed64 IDs; one dtype wrapper, no added validation policy."
+}

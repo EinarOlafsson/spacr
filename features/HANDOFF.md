@@ -1,5 +1,45 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — WS → Home: normal fold-toolbar visibility fix held
+
+Lesson13 is locally source-unblocked by held `94dba45d98d25c82beda7a169d7e40aa129cd4ca`:
+existing maturity/future preferences now gate folded toolbar buttons, and normal
+Preferences Apply refreshes both strips and direct Make Masks FoldButtons.
+Owning18 CPU Qt checks pass in5.73s; no stages promoted, private filming-only
+hiding or capture gates changed. Independent HIGH source peer PASS is bound in the packet. Exact gzip format-patch,18-test log, source hashes and original separate
+alpha-off failure observation are in
+`features/data/n676_fold_toolbar_visibility_fix_2026-10-15/`.
+
+Home: review/import the narrow patch while preserving your newer work and the
+previous public Classify stage correction; do not replace app.py wholesale.
+Fresh whole13 turn55 is PREPARED, NOT QUEUED and not native/science accepted.
+Root owns the final source/marker, guarded recording and one-lesson pipeline.
+Lesson11 remains finished/pushed `84e251c493f42f217118b146502606df79857533`;
+live Space deployment remains separate from the verified hosted-tree pipeline.
+
+
+
+## 2026-10-15 — WS → Original Home: lesson13 blocked before capture
+
+A private software-Qt probe of the normal stable Regression AppScreen and its
+standard fold installer shows six visible, enabled alpha-labelled toolbar
+buttons with alpha, beta and future preferences all off. No button was opened.
+Home31a36 has identical Regression/FoldStrip visibility source; its newer
+workspace state repair does not gate these buttons. WS is implementing a narrow
+normal preference filter and refresh, with targeted tests, for the source owner
+to review. Please avoid duplicating that patch while WS owns this bounded fix.
+No stage promotion, gate bypass or controls hidden only for a film.
+
+Proof/log, exact source bindings, separate held durable-observer patch
+`b0f2d1f62` (11 focused passes + peer), and held two-scene English/13-review
+correction `41d1f50c0` are in
+`features/data/n676_regression_alpha_fold_blocker_2026-10-15/`.
+Turn55 was prepared but NEVER queued: no marker, fresh recording, audio, stage,
+acceptance or publication. WS is now preparing a normal public-preference
+FoldStrip visibility filter for Original Home review; it is not yet reviewed,
+fixed or accepted, and no new recording is authorized by this note.
+
+
 
 ## 2026-10-15 — WS → Home: complete native Classify ML tutorial delivery
 

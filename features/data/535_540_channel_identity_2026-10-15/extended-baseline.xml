@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="8" time="3.051" timestamp="2026-10-15T04:44:28.451294-04:00" hostname="olafsson"><testcase classname="tests.test_measured_channel_identity" name="test_nonfinite_negative_and_complex_identity_refuses_before_mapping[measured--1]" time="0.187"><failure message="Failed: DID NOT RAISE ValueError">bad = -1, where = 'measured'
+
+    @pytest.mark.parametrize('bad', [float('nan'), float('inf'), -1, np.complex64(1 + 1j)])
+    @pytest.mark.parametrize('where', ['requested', 'measured'])
+    def test_nonfinite_negative_and_complex_identity_refuses_before_mapping(bad, where):
+        config, requested = ({'channels': [0, 1, 2]}, bad) if where == 'requested' else ({'channels': [bad, 1, 2]}, 1)
+        before = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_measured_channel_identity.py:175: Failed</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_nonfinite_negative_and_complex_identity_refuses_before_mapping[requested-bad3]" time="0.002"><failure message="Failed: DID NOT RAISE ValueError">bad = np.complex64(1+1j), where = 'requested'
+
+    @pytest.mark.parametrize('bad', [float('nan'), float('inf'), -1, np.complex64(1 + 1j)])
+    @pytest.mark.parametrize('where', ['requested', 'measured'])
+    def test_nonfinite_negative_and_complex_identity_refuses_before_mapping(bad, where):
+        config, requested = ({'channels': [0, 1, 2]}, bad) if where == 'requested' else ({'channels': [bad, 1, 2]}, 1)
+        before = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_measured_channel_identity.py:175: Failed</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_nonfinite_negative_and_complex_identity_refuses_before_mapping[measured-inf]" time="0.002"><failure message="OverflowError: cannot convert float infinity to integer">bad = inf, where = 'measured'
+
+    @pytest.mark.parametrize('bad', [float('nan'), float('inf'), -1, np.complex64(1 + 1j)])
+    @pytest.mark.parametrize('where', ['requested', 'measured'])
+    def test_nonfinite_negative_and_complex_identity_refuses_before_mapping(bad, where):
+        config, requested = ({'channels': [0, 1, 2]}, bad) if where == 'requested' else ({'channels': [bad, 1, 2]}, 1)
+        before = copy.deepcopy(config)
+        with pytest.raises(ValueError) as error:
+&gt;           measure._measured_channel_column(config, requested)
+
+tests/test_measured_channel_identity.py:176: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+settings = {'channels': [inf, 1, 2]}, channel = 1
+setting = 'cell_cycle_channel'
+
+    def _measured_channel_column(settings, channel, setting='cell_cycle_channel'):
+        """The ``channel_&lt;i&gt;`` index Measure wrote a merged channel under.
+    
+        Measure numbers intensity columns by position in ``channels``.
+    
+        :param settings: Measure settings.
+        :param channel: a merged-array channel.
+        :param setting: the setting that named the channel, for the message.
+        :returns: the position of ``channel`` in ``channels``.
+        :raises ValueError: the channel was not measured.
+        """
+&gt;       measured = [int(c) for c in (settings.get('channels') or [])]
+                    ^^^^^^
+E       OverflowError: cannot convert float infinity to integer
+
+spacr/measure.py:4698: OverflowError</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_nonfinite_negative_and_complex_identity_refuses_before_mapping[measured-bad3]" time="0.002"><failure message="Failed: DID NOT RAISE ValueError">bad = np.complex64(1+1j), where = 'measured'
+
+    @pytest.mark.parametrize('bad', [float('nan'), float('inf'), -1, np.complex64(1 + 1j)])
+    @pytest.mark.parametrize('where', ['requested', 'measured'])
+    def test_nonfinite_negative_and_complex_identity_refuses_before_mapping(bad, where):
+        config, requested = ({'channels': [0, 1, 2]}, bad) if where == 'requested' else ({'channels': [bad, 1, 2]}, 1)
+        before = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_measured_channel_identity.py:175: Failed</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_nonfinite_negative_and_complex_identity_refuses_before_mapping[requested-inf]" time="0.002"><failure message="OverflowError: cannot convert float infinity to integer">bad = inf, where = 'requested'
+
+    @pytest.mark.parametrize('bad', [float('nan'), float('inf'), -1, np.complex64(1 + 1j)])
+    @pytest.mark.parametrize('where', ['requested', 'measured'])
+    def test_nonfinite_negative_and_complex_identity_refuses_before_mapping(bad, where):
+        config, requested = ({'channels': [0, 1, 2]}, bad) if where == 'requested' else ({'channels': [bad, 1, 2]}, 1)
+        before = copy.deepcopy(config)
+        with pytest.raises(ValueError) as error:
+&gt;           measure._measured_channel_column(config, requested)
+
+tests/test_measured_channel_identity.py:176: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+settings = {'channels': [0, 1, 2]}, channel = inf
+setting = 'cell_cycle_channel'
+
+    def _measured_channel_column(settings, channel, setting='cell_cycle_channel'):
+        """The ``channel_&lt;i&gt;`` index Measure wrote a merged channel under.
+    
+        Measure numbers intensity columns by position in ``channels``.
+    
+        :param settings: Measure settings.
+        :param channel: a merged-array channel.
+        :param setting: the setting that named the channel, for the message.
+        :returns: the position of ``channel`` in ``channels``.
+        :raises ValueError: the channel was not measured.
+        """
+        measured = [int(c) for c in (settings.get('channels') or [])]
+        if not measured:
+            return int(channel)
+&gt;       if int(channel) not in measured:
+           ^^^^^^^^^^^^
+E       OverflowError: cannot convert float infinity to integer
+
+spacr/measure.py:4701: OverflowError</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_nonfinite_negative_and_complex_identity_refuses_before_mapping[requested-nan]" time="0.002"><failure message="AssertionError: assert 'cannot conve...aN to integer' == 'Measurement ...eger indices.'&#10;  &#10;  - Measurement channels must be nonnegative integer indices.&#10;  + cannot convert float NaN to integer">bad = nan, where = 'requested'
+
+    @pytest.mark.parametrize('bad', [float('nan'), float('inf'), -1, np.complex64(1 + 1j)])
+    @pytest.mark.parametrize('where', ['requested', 'measured'])
+    def test_nonfinite_negative_and_complex_identity_refuses_before_mapping(bad, where):
+        config, requested = ({'channels': [0, 1, 2]}, bad) if where == 'requested' else ({'channels': [bad, 1, 2]}, 1)
+        before = copy.deepcopy(config)
+        with pytest.raises(ValueError) as error:
+            measure._measured_channel_column(config, requested)
+&gt;       assert str(error.value) == SOURCE
+E       AssertionError: assert 'cannot conve...aN to integer' == 'Measurement ...eger indices.'
+E         
+E         - Measurement channels must be nonnegative integer indices.
+E         + cannot convert float NaN to integer
+
+tests/test_measured_channel_identity.py:177: AssertionError</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_nonfinite_negative_and_complex_identity_refuses_before_mapping[measured-nan]" time="0.002"><failure message="AssertionError: assert 'cannot conve...aN to integer' == 'Measurement ...eger indices.'&#10;  &#10;  - Measurement channels must be nonnegative integer indices.&#10;  + cannot convert float NaN to integer">bad = nan, where = 'measured'
+
+    @pytest.mark.parametrize('bad', [float('nan'), float('inf'), -1, np.complex64(1 + 1j)])
+    @pytest.mark.parametrize('where', ['requested', 'measured'])
+    def test_nonfinite_negative_and_complex_identity_refuses_before_mapping(bad, where):
+        config, requested = ({'channels': [0, 1, 2]}, bad) if where == 'requested' else ({'channels': [bad, 1, 2]}, 1)
+        before = copy.deepcopy(config)
+        with pytest.raises(ValueError) as error:
+            measure._measured_channel_column(config, requested)
+&gt;       assert str(error.value) == SOURCE
+E       AssertionError: assert 'cannot conve...aN to integer' == 'Measurement ...eger indices.'
+E         
+E         - Measurement channels must be nonnegative integer indices.
+E         + cannot convert float NaN to integer
+
+tests/test_measured_channel_identity.py:177: AssertionError</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_nonfinite_negative_and_complex_identity_refuses_before_mapping[requested--1]" time="0.002"><failure message="AssertionError: assert 'Channel -1 w...ycle_channel.' == 'Measurement ...eger indices.'&#10;  &#10;  - Measurement channels must be nonnegative integer indices.&#10;  + Channel -1 was not measured (channels is [0, 1, 2]); add it to channels or pick a measured cell_cycle_channel.">bad = -1, where = 'requested'
+
+    @pytest.mark.parametrize('bad', [float('nan'), float('inf'), -1, np.complex64(1 + 1j)])
+    @pytest.mark.parametrize('where', ['requested', 'measured'])
+    def test_nonfinite_negative_and_complex_identity_refuses_before_mapping(bad, where):
+        config, requested = ({'channels': [0, 1, 2]}, bad) if where == 'requested' else ({'channels': [bad, 1, 2]}, 1)
+        before = copy.deepcopy(config)
+        with pytest.raises(ValueError) as error:
+            measure._measured_channel_column(config, requested)
+&gt;       assert str(error.value) == SOURCE
+E       AssertionError: assert 'Channel -1 w...ycle_channel.' == 'Measurement ...eger indices.'
+E         
+E         - Measurement channels must be nonnegative integer indices.
+E         + Channel -1 was not measured (channels is [0, 1, 2]); add it to channels or pick a measured cell_cycle_channel.
+
+tests/test_measured_channel_identity.py:177: AssertionError</failure></testcase></testsuite></testsuites>

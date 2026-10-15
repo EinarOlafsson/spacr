@@ -1,0 +1,12 @@
+--- a/spacr/timelapse.py
++++ b/spacr/timelapse.py
+@@ -1112,7 +1112,8 @@
+                              'a division lineage requires one parent')
+         parent = next(iter(candidates), 0)
+         normalized[child] = parent if parent in present else 0
+-    tracks['parent_track_id'] = [normalized.get(int(t), 0) for t in tracks['track_id']]
++    tracks['parent_track_id'] = np.asarray(
++        [normalized.get(int(t), 0) for t in tracks['track_id']], dtype=int)
+     tracks['parent_track_id_source'] = [source if int(t) in normalized else ''
+                                         for t in tracks['track_id']]
+     return tracks

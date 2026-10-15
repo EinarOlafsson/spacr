@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="20" skipped="0" tests="34" time="4.668" timestamp="2026-10-15T04:39:18.421870-04:00" hostname="olafsson"><testcase classname="tests.test_measured_channel_identity" name="test_resolver_refuses_typed_identity_loss[measured-True]" time="0.440"><failure message="Failed: DID NOT RAISE ValueError">bad = True, where = 'measured'
+
+    @pytest.mark.parametrize('bad', [.5, True, np.bool_(False), np.array(True), np.array(.5)])
+    @pytest.mark.parametrize('where', ['requested', 'measured'])
+    def test_resolver_refuses_typed_identity_loss(bad, where):
+        config, requested = ({'channels': [0, 1, 2]}, bad) if where == 'requested' else ({'channels': [bad, 1, 2]}, 1)
+        before = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_measured_channel_identity.py:29: Failed</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_actual_cell_cycle_refuses_before_reading_or_migrating_database[fucci]" time="0.157"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/mnt/wd4tb/scratch/measured-channel-identity-20261015/baseline-pytest/test_actual_cell_cycle_refuses0')
+case = 'fucci'
+
+    @pytest.mark.parametrize('case', ['dna', 'fallback', 'measured', 'fucci'])
+    def test_actual_cell_cycle_refuses_before_reading_or_migrating_database(tmp_path, case):
+        path, target = write_case(tmp_path, 'cycle')
+        config = base_config('cycle')
+        if case == 'dna':
+            config['cell_cycle_channel'] = .5
+        elif case == 'fallback':
+            config.update(cell_cycle_channel=None, nucleus_channel=np.array(True))
+        elif case == 'measured':
+            config['channels'] = [.5, 1]
+        else:
+            config['cell_cycle_fucci_channels'] = [0, 1.5]
+&gt;       assert_refusal(path, target, config, 'cycle', SOURCE)
+
+tests/test_measured_channel_identity.py:124: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/mnt/wd4tb/scratch/measured-channel-identity-20261015/baseline-pytest/test_actual_cell_cycle_refuses0/measurements.db')
+target = 'cell_cycle'
+config = {'channels': [0, 1], 'cell_cycle_channel': 0, 'cell_cycle_method': 'measurements', 'cell_cycle_mitotic_ratio': '', ...}
+route = 'cycle'
+expected = 'Measurement channels must be nonnegative integer indices.'
+
+    def assert_refusal(path, target, config, route, expected):
+        before = hashlib.sha256(path.read_bytes()).hexdigest()
+        original = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_measured_channel_identity.py:88: Failed</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_actual_viability_refuses_before_reading_or_migrating_database[0.5-morphology]" time="0.172"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/mnt/wd4tb/scratch/measured-channel-identity-20261015/baseline-pytest/test_actual_viability_refuses_0')
+role = 'morphology', bad = 0.5
+
+    @pytest.mark.parametrize('role', ['dead', 'live', 'morphology'])
+    @pytest.mark.parametrize('bad', [.5, np.array(True)])
+    def test_actual_viability_refuses_before_reading_or_migrating_database(tmp_path, role, bad):
+        path, target = write_case(tmp_path, 'viability')
+        config = base_config('viability')
+        if role == 'dead':
+            config['viability_dead_channel'] = bad
+        elif role == 'live':
+            config.update(viability_dead_channel=None, viability_live_channel=bad)
+        else:
+            config.update(viability_dead_channel=None, nucleus_channel=bad)
+&gt;       assert_refusal(path, target, config, 'viability', SOURCE)
+
+tests/test_measured_channel_identity.py:109: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/mnt/wd4tb/scratch/measured-channel-identity-20261015/baseline-pytest/test_actual_viability_refuses_0/measurements.db')
+target = 'viability'
+config = {'channels': [0, 1, 2], 'viability_dead_channel': None, 'viability_live_channel': None, 'viability_thresholds': [100, None], ...}
+route = 'viability'
+expected = 'Measurement channels must be nonnegative integer indices.'
+
+    def assert_refusal(path, target, config, route, expected):
+        before = hashlib.sha256(path.read_bytes()).hexdigest()
+        original = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_measured_channel_identity.py:88: Failed</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_actual_cell_cycle_refuses_before_reading_or_migrating_database[dna]" time="0.115"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/mnt/wd4tb/scratch/measured-channel-identity-20261015/baseline-pytest/test_actual_cell_cycle_refuses1')
+case = 'dna'
+
+    @pytest.mark.parametrize('case', ['dna', 'fallback', 'measured', 'fucci'])
+    def test_actual_cell_cycle_refuses_before_reading_or_migrating_database(tmp_path, case):
+        path, target = write_case(tmp_path, 'cycle')
+        config = base_config('cycle')
+        if case == 'dna':
+            config['cell_cycle_channel'] = .5
+        elif case == 'fallback':
+            config.update(cell_cycle_channel=None, nucleus_channel=np.array(True))
+        elif case == 'measured':
+            config['channels'] = [.5, 1]
+        else:
+            config['cell_cycle_fucci_channels'] = [0, 1.5]
+&gt;       assert_refusal(path, target, config, 'cycle', SOURCE)
+
+tests/test_measured_channel_identity.py:124: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/mnt/wd4tb/scratch/measured-channel-identity-20261015/baseline-pytest/test_actual_cell_cycle_refuses1/measurements.db')
+target = 'cell_cycle'
+config = {'channels': [0, 1], 'cell_cycle_channel': 0.5, 'cell_cycle_method': 'measurements', 'cell_cycle_mitotic_ratio': '', ...}
+route = 'cycle'
+expected = 'Measurement channels must be nonnegative integer indices.'
+
+    def assert_refusal(path, target, config, route, expected):
+        before = hashlib.sha256(path.read_bytes()).hexdigest()
+        original = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_measured_channel_identity.py:88: Failed</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_legal_scalar_forms_preserve_physical_identity_and_measured_order[value2]" time="0.002" /><testcase classname="tests.test_measured_channel_identity" name="test_actual_viability_refuses_before_reading_or_migrating_database[bad1-live]" time="0.135"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/mnt/wd4tb/scratch/measured-channel-identity-20261015/baseline-pytest/test_actual_viability_refuses_1')
+role = 'live', bad = array(True)
+
+    @pytest.mark.parametrize('role', ['dead', 'live', 'morphology'])
+    @pytest.mark.parametrize('bad', [.5, np.array(True)])
+    def test_actual_viability_refuses_before_reading_or_migrating_database(tmp_path, role, bad):
+        path, target = write_case(tmp_path, 'viability')
+        config = base_config('viability')
+        if role == 'dead':
+            config['viability_dead_channel'] = bad
+        elif role == 'live':
+            config.update(viability_dead_channel=None, viability_live_channel=bad)
+        else:
+            config.update(viability_dead_channel=None, nucleus_channel=bad)
+&gt;       assert_refusal(path, target, config, 'viability', SOURCE)
+
+tests/test_measured_channel_identity.py:109: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/mnt/wd4tb/scratch/measured-channel-identity-20261015/baseline-pytest/test_actual_viability_refuses_1/measurements.db')
+target = 'viability'
+config = {'channels': [0, 1, 2], 'viability_dead_channel': None, 'viability_live_channel': array(True), 'viability_thresholds': [100, None], ...}
+route = 'viability'
+expected = 'Measurement channels must be nonnegative integer indices.'
+
+    def assert_refusal(path, target, config, route, expected):
+        before = hashlib.sha256(path.read_bytes()).hexdigest()
+        original = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_measured_channel_identity.py:88: Failed</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_legal_scalar_forms_preserve_physical_identity_and_measured_order[value6]" time="0.002" /><testcase classname="tests.test_measured_channel_identity" name="test_existing_automatic_channel_fallbacks_remain[config0-0]" time="0.002" /><testcase classname="tests.test_measured_channel_identity" name="test_resolver_refuses_typed_identity_loss[measured-0.5]" time="0.002"><failure message="Failed: DID NOT RAISE ValueError">bad = 0.5, where = 'measured'
+
+    @pytest.mark.parametrize('bad', [.5, True, np.bool_(False), np.array(True), np.array(.5)])
+    @pytest.mark.parametrize('where', ['requested', 'measured'])
+    def test_resolver_refuses_typed_identity_loss(bad, where):
+        config, requested = ({'channels': [0, 1, 2]}, bad) if where == 'requested' else ({'channels': [bad, 1, 2]}, 1)
+        before = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_measured_channel_identity.py:29: Failed</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_actual_viability_refuses_before_reading_or_migrating_database[bad1-dead]" time="0.138"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/mnt/wd4tb/scratch/measured-channel-identity-20261015/baseline-pytest/test_actual_viability_refuses_2')
+role = 'dead', bad = array(True)
+
+    @pytest.mark.parametrize('role', ['dead', 'live', 'morphology'])
+    @pytest.mark.parametrize('bad', [.5, np.array(True)])
+    def test_actual_viability_refuses_before_reading_or_migrating_database(tmp_path, role, bad):
+        path, target = write_case(tmp_path, 'viability')
+        config = base_config('viability')
+        if role == 'dead':
+            config['viability_dead_channel'] = bad
+        elif role == 'live':
+            config.update(viability_dead_channel=None, viability_live_channel=bad)
+        else:
+            config.update(viability_dead_channel=None, nucleus_channel=bad)
+&gt;       assert_refusal(path, target, config, 'viability', SOURCE)
+
+tests/test_measured_channel_identity.py:109: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/mnt/wd4tb/scratch/measured-channel-identity-20261015/baseline-pytest/test_actual_viability_refuses_2/measurements.db')
+target = 'viability'
+config = {'channels': [0, 1, 2], 'viability_dead_channel': array(True), 'viability_live_channel': None, 'viability_thresholds': [100, None], ...}
+route = 'viability'
+expected = 'Measurement channels must be nonnegative integer indices.'
+
+    def assert_refusal(path, target, config, route, expected):
+        before = hashlib.sha256(path.read_bytes()).hexdigest()
+        original = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_measured_channel_identity.py:88: Failed</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_existing_automatic_channel_fallbacks_remain[config3-2]" time="0.002" /><testcase classname="tests.test_measured_channel_identity" name="test_legal_scalar_forms_preserve_physical_identity_and_measured_order[value5]" time="0.002" /><testcase classname="tests.test_measured_channel_identity" name="test_legal_scalar_forms_preserve_physical_identity_and_measured_order[value4]" time="0.001" /><testcase classname="tests.test_measured_channel_identity" name="test_actual_viability_refuses_before_reading_or_migrating_database[bad1-morphology]" time="0.128"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/mnt/wd4tb/scratch/measured-channel-identity-20261015/baseline-pytest/test_actual_viability_refuses_3')
+role = 'morphology', bad = array(True)
+
+    @pytest.mark.parametrize('role', ['dead', 'live', 'morphology'])
+    @pytest.mark.parametrize('bad', [.5, np.array(True)])
+    def test_actual_viability_refuses_before_reading_or_migrating_database(tmp_path, role, bad):
+        path, target = write_case(tmp_path, 'viability')
+        config = base_config('viability')
+        if role == 'dead':
+            config['viability_dead_channel'] = bad
+        elif role == 'live':
+            config.update(viability_dead_channel=None, viability_live_channel=bad)
+        else:
+            config.update(viability_dead_channel=None, nucleus_channel=bad)
+&gt;       assert_refusal(path, target, config, 'viability', SOURCE)
+
+tests/test_measured_channel_identity.py:109: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/mnt/wd4tb/scratch/measured-channel-identity-20261015/baseline-pytest/test_actual_viability_refuses_3/measurements.db')
+target = 'viability'
+config = {'channels': [0, 1, 2], 'viability_dead_channel': None, 'viability_live_channel': None, 'viability_thresholds': [100, None], ...}
+route = 'viability'
+expected = 'Measurement channels must be nonnegative integer indices.'
+
+    def assert_refusal(path, target, config, route, expected):
+        before = hashlib.sha256(path.read_bytes()).hexdigest()
+        original = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_measured_channel_identity.py:88: Failed</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_actual_cell_cycle_refuses_before_reading_or_migrating_database[fallback]" time="0.106"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/mnt/wd4tb/scratch/measured-channel-identity-20261015/baseline-pytest/test_actual_cell_cycle_refuses2')
+case = 'fallback'
+
+    @pytest.mark.parametrize('case', ['dna', 'fallback', 'measured', 'fucci'])
+    def test_actual_cell_cycle_refuses_before_reading_or_migrating_database(tmp_path, case):
+        path, target = write_case(tmp_path, 'cycle')
+        config = base_config('cycle')
+        if case == 'dna':
+            config['cell_cycle_channel'] = .5
+        elif case == 'fallback':
+            config.update(cell_cycle_channel=None, nucleus_channel=np.array(True))
+        elif case == 'measured':
+            config['channels'] = [.5, 1]
+        else:
+            config['cell_cycle_fucci_channels'] = [0, 1.5]
+&gt;       assert_refusal(path, target, config, 'cycle', SOURCE)
+
+tests/test_measured_channel_identity.py:124: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/mnt/wd4tb/scratch/measured-channel-identity-20261015/baseline-pytest/test_actual_cell_cycle_refuses2/measurements.db')
+target = 'cell_cycle'
+config = {'channels': [0, 1], 'cell_cycle_channel': None, 'cell_cycle_method': 'measurements', 'cell_cycle_mitotic_ratio': '', ...}
+route = 'cycle'
+expected = 'Measurement channels must be nonnegative integer indices.'
+
+    def assert_refusal(path, target, config, route, expected):
+        before = hashlib.sha256(path.read_bytes()).hexdigest()
+        original = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_measured_channel_identity.py:88: Failed</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_resolver_refuses_typed_identity_loss[requested-True]" time="0.002"><failure message="Failed: DID NOT RAISE ValueError">bad = True, where = 'requested'
+
+    @pytest.mark.parametrize('bad', [.5, True, np.bool_(False), np.array(True), np.array(.5)])
+    @pytest.mark.parametrize('where', ['requested', 'measured'])
+    def test_resolver_refuses_typed_identity_loss(bad, where):
+        config, requested = ({'channels': [0, 1, 2]}, bad) if where == 'requested' else ({'channels': [bad, 1, 2]}, 1)
+        before = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_measured_channel_identity.py:29: Failed</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_resolver_refuses_typed_identity_loss[measured-bad2]" time="0.002"><failure message="Failed: DID NOT RAISE ValueError">bad = np.False_, where = 'measured'
+
+    @pytest.mark.parametrize('bad', [.5, True, np.bool_(False), np.array(True), np.array(.5)])
+    @pytest.mark.parametrize('where', ['requested', 'measured'])
+    def test_resolver_refuses_typed_identity_loss(bad, where):
+        config, requested = ({'channels': [0, 1, 2]}, bad) if where == 'requested' else ({'channels': [bad, 1, 2]}, 1)
+        before = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_measured_channel_identity.py:29: Failed</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_legal_scalar_forms_preserve_physical_identity_and_measured_order[1.0]" time="0.002" /><testcase classname="tests.test_measured_channel_identity" name="test_large_integer_identity_empty_and_duplicate_mapping_remain_lossless" time="0.001" /><testcase classname="tests.test_measured_channel_identity" name="test_valid_cell_cycle_integral_and_fucci_values_still_execute" time="0.119" /><testcase classname="tests.test_measured_channel_identity" name="test_resolver_refuses_typed_identity_loss[measured-bad3]" time="0.001"><failure message="Failed: DID NOT RAISE ValueError">bad = array(True), where = 'measured'
+
+    @pytest.mark.parametrize('bad', [.5, True, np.bool_(False), np.array(True), np.array(.5)])
+    @pytest.mark.parametrize('where', ['requested', 'measured'])
+    def test_resolver_refuses_typed_identity_loss(bad, where):
+        config, requested = ({'channels': [0, 1, 2]}, bad) if where == 'requested' else ({'channels': [bad, 1, 2]}, 1)
+        before = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_measured_channel_identity.py:29: Failed</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_resolver_refuses_typed_identity_loss[requested-bad4]" time="0.001"><failure message="Failed: DID NOT RAISE ValueError">bad = array(0.5), where = 'requested'
+
+    @pytest.mark.parametrize('bad', [.5, True, np.bool_(False), np.array(True), np.array(.5)])
+    @pytest.mark.parametrize('where', ['requested', 'measured'])
+    def test_resolver_refuses_typed_identity_loss(bad, where):
+        config, requested = ({'channels': [0, 1, 2]}, bad) if where == 'requested' else ({'channels': [bad, 1, 2]}, 1)
+        before = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_measured_channel_identity.py:29: Failed</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_actual_viability_refuses_before_reading_or_migrating_database[0.5-dead]" time="0.121"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/mnt/wd4tb/scratch/measured-channel-identity-20261015/baseline-pytest/test_actual_viability_refuses_4')
+role = 'dead', bad = 0.5
+
+    @pytest.mark.parametrize('role', ['dead', 'live', 'morphology'])
+    @pytest.mark.parametrize('bad', [.5, np.array(True)])
+    def test_actual_viability_refuses_before_reading_or_migrating_database(tmp_path, role, bad):
+        path, target = write_case(tmp_path, 'viability')
+        config = base_config('viability')
+        if role == 'dead':
+            config['viability_dead_channel'] = bad
+        elif role == 'live':
+            config.update(viability_dead_channel=None, viability_live_channel=bad)
+        else:
+            config.update(viability_dead_channel=None, nucleus_channel=bad)
+&gt;       assert_refusal(path, target, config, 'viability', SOURCE)
+
+tests/test_measured_channel_identity.py:109: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/mnt/wd4tb/scratch/measured-channel-identity-20261015/baseline-pytest/test_actual_viability_refuses_4/measurements.db')
+target = 'viability'
+config = {'channels': [0, 1, 2], 'viability_dead_channel': 0.5, 'viability_live_channel': None, 'viability_thresholds': [100, None], ...}
+route = 'viability'
+expected = 'Measurement channels must be nonnegative integer indices.'
+
+    def assert_refusal(path, target, config, route, expected):
+        before = hashlib.sha256(path.read_bytes()).hexdigest()
+        original = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_measured_channel_identity.py:88: Failed</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_valid_reordered_viability_reads_the_same_physical_stain" time="0.106" /><testcase classname="tests.test_measured_channel_identity" name="test_resolver_refuses_typed_identity_loss[requested-0.5]" time="0.002"><failure message="Failed: DID NOT RAISE ValueError">bad = 0.5, where = 'requested'
+
+    @pytest.mark.parametrize('bad', [.5, True, np.bool_(False), np.array(True), np.array(.5)])
+    @pytest.mark.parametrize('where', ['requested', 'measured'])
+    def test_resolver_refuses_typed_identity_loss(bad, where):
+        config, requested = ({'channels': [0, 1, 2]}, bad) if where == 'requested' else ({'channels': [bad, 1, 2]}, 1)
+        before = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_measured_channel_identity.py:29: Failed</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_legal_scalar_forms_preserve_physical_identity_and_measured_order[1_0]" time="0.001" /><testcase classname="tests.test_measured_channel_identity" name="test_actual_viability_refuses_before_reading_or_migrating_database[0.5-live]" time="0.127"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/mnt/wd4tb/scratch/measured-channel-identity-20261015/baseline-pytest/test_actual_viability_refuses_5')
+role = 'live', bad = 0.5
+
+    @pytest.mark.parametrize('role', ['dead', 'live', 'morphology'])
+    @pytest.mark.parametrize('bad', [.5, np.array(True)])
+    def test_actual_viability_refuses_before_reading_or_migrating_database(tmp_path, role, bad):
+        path, target = write_case(tmp_path, 'viability')
+        config = base_config('viability')
+        if role == 'dead':
+            config['viability_dead_channel'] = bad
+        elif role == 'live':
+            config.update(viability_dead_channel=None, viability_live_channel=bad)
+        else:
+            config.update(viability_dead_channel=None, nucleus_channel=bad)
+&gt;       assert_refusal(path, target, config, 'viability', SOURCE)
+
+tests/test_measured_channel_identity.py:109: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/mnt/wd4tb/scratch/measured-channel-identity-20261015/baseline-pytest/test_actual_viability_refuses_5/measurements.db')
+target = 'viability'
+config = {'channels': [0, 1, 2], 'viability_dead_channel': None, 'viability_live_channel': 0.5, 'viability_thresholds': [100, None], ...}
+route = 'viability'
+expected = 'Measurement channels must be nonnegative integer indices.'
+
+    def assert_refusal(path, target, config, route, expected):
+        before = hashlib.sha256(path.read_bytes()).hexdigest()
+        original = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_measured_channel_identity.py:88: Failed</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_existing_automatic_channel_fallbacks_remain[config1-2]" time="0.002" /><testcase classname="tests.test_measured_channel_identity" name="test_resolver_refuses_typed_identity_loss[measured-bad4]" time="0.001"><failure message="Failed: DID NOT RAISE ValueError">bad = array(0.5), where = 'measured'
+
+    @pytest.mark.parametrize('bad', [.5, True, np.bool_(False), np.array(True), np.array(.5)])
+    @pytest.mark.parametrize('where', ['requested', 'measured'])
+    def test_resolver_refuses_typed_identity_loss(bad, where):
+        config, requested = ({'channels': [0, 1, 2]}, bad) if where == 'requested' else ({'channels': [bad, 1, 2]}, 1)
+        before = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_measured_channel_identity.py:29: Failed</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_legal_scalar_forms_preserve_physical_identity_and_measured_order[1_1]" time="0.001" /><testcase classname="tests.test_measured_channel_identity" name="test_resolver_refuses_typed_identity_loss[requested-bad3]" time="0.002"><failure message="Failed: DID NOT RAISE ValueError">bad = array(True), where = 'requested'
+
+    @pytest.mark.parametrize('bad', [.5, True, np.bool_(False), np.array(True), np.array(.5)])
+    @pytest.mark.parametrize('where', ['requested', 'measured'])
+    def test_resolver_refuses_typed_identity_loss(bad, where):
+        config, requested = ({'channels': [0, 1, 2]}, bad) if where == 'requested' else ({'channels': [bad, 1, 2]}, 1)
+        before = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_measured_channel_identity.py:29: Failed</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_existing_automatic_channel_fallbacks_remain[config2-1]" time="0.002" /><testcase classname="tests.test_measured_channel_identity" name="test_actual_cell_cycle_refuses_before_reading_or_migrating_database[measured]" time="0.109"><failure message="Failed: DID NOT RAISE ValueError">tmp_path = PosixPath('/mnt/wd4tb/scratch/measured-channel-identity-20261015/baseline-pytest/test_actual_cell_cycle_refuses3')
+case = 'measured'
+
+    @pytest.mark.parametrize('case', ['dna', 'fallback', 'measured', 'fucci'])
+    def test_actual_cell_cycle_refuses_before_reading_or_migrating_database(tmp_path, case):
+        path, target = write_case(tmp_path, 'cycle')
+        config = base_config('cycle')
+        if case == 'dna':
+            config['cell_cycle_channel'] = .5
+        elif case == 'fallback':
+            config.update(cell_cycle_channel=None, nucleus_channel=np.array(True))
+        elif case == 'measured':
+            config['channels'] = [.5, 1]
+        else:
+            config['cell_cycle_fucci_channels'] = [0, 1.5]
+&gt;       assert_refusal(path, target, config, 'cycle', SOURCE)
+
+tests/test_measured_channel_identity.py:124: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/mnt/wd4tb/scratch/measured-channel-identity-20261015/baseline-pytest/test_actual_cell_cycle_refuses3/measurements.db')
+target = 'cell_cycle'
+config = {'channels': [0.5, 1], 'cell_cycle_channel': 0, 'cell_cycle_method': 'measurements', 'cell_cycle_mitotic_ratio': '', ...}
+route = 'cycle'
+expected = 'Measurement channels must be nonnegative integer indices.'
+
+    def assert_refusal(path, target, config, route, expected):
+        before = hashlib.sha256(path.read_bytes()).hexdigest()
+        original = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_measured_channel_identity.py:88: Failed</failure></testcase><testcase classname="tests.test_measured_channel_identity" name="test_resolver_refuses_typed_identity_loss[requested-bad2]" time="0.002"><failure message="Failed: DID NOT RAISE ValueError">bad = np.False_, where = 'requested'
+
+    @pytest.mark.parametrize('bad', [.5, True, np.bool_(False), np.array(True), np.array(.5)])
+    @pytest.mark.parametrize('where', ['requested', 'measured'])
+    def test_resolver_refuses_typed_identity_loss(bad, where):
+        config, requested = ({'channels': [0, 1, 2]}, bad) if where == 'requested' else ({'channels': [bad, 1, 2]}, 1)
+        before = copy.deepcopy(config)
+&gt;       with pytest.raises(ValueError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_measured_channel_identity.py:29: Failed</failure></testcase></testsuite></testsuites>
