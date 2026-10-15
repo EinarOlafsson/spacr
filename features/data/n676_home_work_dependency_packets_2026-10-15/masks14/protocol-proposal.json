@@ -1,0 +1,112 @@
+{
+  "state": "Ready source-bound recorder protocol proposal; no tutorial/native acceptance",
+  "public_revision": "eb205abcaaa0d770bf1fa39032e528d7633097e3",
+  "manifest": "snapshot-manifest.json",
+  "historical_async_baseline": "Work9db source absent _wand_busy; this immutable public source now contains it",
+  "seams": {
+    "_WandRequest": {
+      "line": 1139,
+      "end_line": 1161,
+      "ast_sha256": "abfa126da11b87cfbfedca1db5cf50cf1adcc008cc318156776bba771c3c3196"
+    },
+    "_wand_for": {
+      "line": 1187,
+      "end_line": 1191,
+      "ast_sha256": "4fd67e9bffb0beed59a58875c272c11306b1e8bbda07bab6df46e735f8b7e3b8"
+    },
+    "_MaskCanvas._wand_edit_at": {
+      "line": 3265,
+      "end_line": 3319,
+      "ast_sha256": "36862fa6ddcb8fe37245b71bcb5c39dbe42e75a596419d2e8cb7541b0f856d95"
+    },
+    "_MaskCanvas._wand_done": {
+      "line": 3321,
+      "end_line": 3326,
+      "ast_sha256": "5c757b9389c920b42869dacb2c96850d70e66b71a09cff42e7313596ab44817c"
+    },
+    "_MaskCanvas._end_wand_wait": {
+      "line": 3328,
+      "end_line": 3333,
+      "ast_sha256": "1126d7c5acc3fdf4d444f9c7ef246ad3100968cfb5c1cd3baf95c368c1564468"
+    },
+    "_MaskCanvas._take_wand": {
+      "line": 3335,
+      "end_line": 3354,
+      "ast_sha256": "81819ce85b7da7eb3adb4e7f352e9bfd6f5200bae2b57a52af3f54bd2690ef1f"
+    },
+    "_MaskCanvas._wand_busy": {
+      "line": 3356,
+      "end_line": 3358,
+      "ast_sha256": "4c9d9697deb4d4c960cfaa749e58f1cf3244845550da1afedc00691fb802a215"
+    },
+    "_MaskCanvas.close_wand": {
+      "line": 3360,
+      "end_line": 3364,
+      "ast_sha256": "c196aa439879a03479895e929b928e20a07a3e9ef34de5cb208290fb2a953cb0"
+    },
+    "_MaskCanvas._apply_wand": {
+      "line": 3366,
+      "end_line": 3379,
+      "ast_sha256": "de74cd66fd2593e5385f936edd48981e322e501d533e906d856a4a3c7226b092"
+    },
+    "_NewestRequestWorker": {
+      "line": 5681,
+      "end_line": 5821,
+      "ast_sha256": "80672450e0f61412189b5f8c9df14228b462e93be52354243e7f7dce2f1935c1"
+    }
+  },
+  "wand_seams_ast_identical_to_published_ec4": true,
+  "actual_wand_contract": {
+    "busy": "_wand_busy() returns _wand_request is not None; query onlyGUI, no app replacement required",
+    "threading": "None wand_threaded uses actual _WAND_THREAD_PIXELS threshold; smallfield path synchronous and emits no wand_ready",
+    "completion": "wand_ready emits existing3tuple(request,result,error); _take_wand connected at construction on GUI, validates requestidentity/currentimage/currentmask+snapshot, clears busy and applies validresult",
+    "errors": "Worker catches Exception and emits payload.error; _take_wand logs/status then returns; idle alone is not success",
+    "stale": "Wrong request is ignored; changedmask/image causes named refusal; close_wand dropsrequest/restorescursor, latecallbacks ignored",
+    "success": "Require original realgesture pixel assertions plus last_edit kindwand/action and unchanged acquiredimage; use matching completedrequest/error for async path, not idle alone"
+  },
+  "current_recorder_state": {
+    "busy_wait": "Current public recorder has no _wand_busy reference/wait; immediate mask comparison after gesture remains source requiring ownerport",
+    "distance": "Current public recorder runs full distance_transform_edt synchronously at free-space and piececenter calculations; historical proposed daemon worker notadopted, no existing appdistanceworker protocol to wait on",
+    "historical_worker_flaw": "Held lambda writes distance only on success, while free_worker.is_alive loop has no deadline/error channel; workererror becomes KeyError and hungworker can block indefinitely"
+  },
+  "existing_owning_evidence": [
+    {
+      "path": "/mnt/wd4tb/scratch/masks-final-integration-20261014/merged-owning.xml",
+      "sha256": "2887f1e52399c11dc0cd764f9a19eb04b2fff3069dedb3825346ef97f38e0b8d",
+      "tests": 235,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "qualification": "Existing evidence only; cohorts overlap (1paint node occurs within56); not rerun by this source-only task"
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/masks-final-integration-20261014/paint-current.xml",
+      "sha256": "cae7b8a3b5b5f377178c4526a785d9fcdc2258ec344f2d75793e4b1ec303d3aa",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "qualification": "Existing evidence only; cohorts overlap (1paint node occurs within56); not rerun by this source-only task"
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/masks-final-integration-20261014/paint-module-current.xml",
+      "sha256": "930e13d80f63bec1f508663542753b7869b1a3af72252d17d78fcaadc78ddbdc",
+      "tests": 56,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "qualification": "Existing evidence only; cohorts overlap (1paint node occurs within56); not rerun by this source-only task"
+    }
+  ],
+  "proposed_recorder_requirements": [
+    "Subscribe actual existing wand_ready before real click; keep originalapp GUI receiver and source unchanged. Bind completion to ownedclick request/action/current image+mask references; propagate payload.error onGUI. No filtering away originalerror or treating idle/retiredrequest as acceptededit.",
+    "Use existing timeout and settle() GUI pump for _wand_busy; check deadline on eachiteration and preserve exact originalpixel/image/undo/ctrl assertions after GUI delivery. Small synchronous fields need no asyncpayload.",
+    "Move only copied-mask distance analysis to Work-owned Python worker: result/error+finally completionEvent, existing timeout/settle loop, raise original capturedexception, reject absent/wrongshape result; never access Qt or mutate canvas fromworker.",
+    "On deadline stop this recording step and retainfailure, bounded ownedthread join only; do not use executor context manager that waits forever, global worker cancellation or repeatedtasks. Python threads cannot be forcibly terminated safely; timedout owneddaemon mayfinish purecopied-array work, must not deliver anyGUI/capture actions.",
+    "ROI divide/merge optimization requires focused actual SciPy equality+first row-major argmax/coordinateoffset cases inclties and boundaryclipped labels; no nativeperformance claim fromsource.",
+    "Retain actual requestedfilename navigation completion, installed GC/threadpolicy idempotence, existing drv.guarded/Rec scene and chooser watchdog; Work ports in its currentrecorder only."
+  ],
+  "no_source_edits": true,
+  "no_tests_imports_scipy_runtime_recording_gpu": true,
+  "no_new_app_bug_proven": true
+}

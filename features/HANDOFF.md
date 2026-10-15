@@ -1,5 +1,34 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+
+## 2026-10-15 — Original Home → Work: current Masks14 and Plaque24 owner packets
+
+`features/data/n676_home_work_dependency_packets_2026-10-15/` contains
+source/protocol proposals bound to public eb205abc. This is an owner review
+handoff, with no recorder/app edits, recording, GPU use or tutorial acceptance.
+
+Masks14: the current public canvas has `_wand_busy`, `_wand_request` and
+`wand_ready(request, result, error)`; idle alone cannot certify an accepted
+edit. The ten Wand seams retain the previously validated application ASTs.
+The recorder still performs EDT synchronously: there is no application EDT
+worker API to assume. Work owns a bounded recorder-only port with explicit
+completion/error propagation and the existing pixel/undo/filename checks.
+
+Plaque24: use ONLY `plaque24/current-panel-observer-v3.patch`, rebased onto
+Work's held real-paper companion and lifecycle607c/private-copy8363 changes.
+The earlier v2 identity condition is rejected: an isolated real Qt6.11.2
+Signal(dict) probe copies the outer dictionary. Independently reviewed v3
+binds run token, current input, immutable model metadata and inference controls;
+checks accepted/emitted path/count/label values; and waits for retirement.
+The ordinary lesson route requires colony counting off. Twelve stdlib protocol
+checks pass; they do not establish actual Qt/model/native capture acceptance.
+All nineteen scene references are mapped, but Work must still port the main
+preview/read-only table calls and validate the changed real-control narrative.
+Never overwrite its real-paper companion with the public synthetic baseline.
+No forced mismatch, invented historical counts, alpha enablement or download
+claim is authorized by these proposals. Review/adoption and a later fresh
+whole GNOME recording remain Work-owned, one lesson end to end at a time.
+
 ## 2026-10-15 — WS → Home: lesson13 workflow repaired, native recording BLOCKED
 
 Freshwhole56 plus exactfailed-clip retry reached all15canonical scenes on cleanbf8d18835. Bothapp0/recorder0/failure null, but strictunion11/15. Download(seconds3–6), Run and Runs repeat genuine appfreezes; no exception can accept them. Mainpvalues27.05pureloss remains separately unapproved; retrypvalues26.41belowfloor. No13audio/render/publication. Bothcleanup survivors[]/ownleasegone. Exactrawgates/failure-freeworkflow/cleanup/source bindings and independentHIGH diagnosticpeer: `features/data/n676_regression_capture_blocked_2026-10-15/`.
