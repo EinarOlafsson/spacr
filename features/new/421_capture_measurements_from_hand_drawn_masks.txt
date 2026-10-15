@@ -428,3 +428,16 @@ VERIFIED 2026-10-04: 2 referenced test files pass on nightly 85c3e41c2 (CPU, off
     data/421_legacy_measurement_output_localization_2026-10-15/ and
     data/448_440_421_runtime_closure_2026-10-15/. Original whole-contract/API
     reconciliation is separate from this bounded runtime delivery.
+
+2026-10-15 — COMPLETE, independent current original-contract reconciliation.
+The final nine-language runtime/API debt is closed: normal runtime audit and
+actual localized progress/result/failure callbacks pass; initial scan status
+now also uses its existing nine translations (baseline nine failures, final
+12 owning Qt passes). Two remaining English-copy Swedish/Hindi API paragraphs
+were independently technically reviewed and normally regenerated/audited.
+All other locale records remain preserved. Current add_dropped docstring is
+exact after its one tr wrapper. The later N600b Organize-for-Measure routing
+supersedes the old FEATURES button; it is not restored. Original scenario/
+schema/parenting/grouping acceptance remains source-bound, no new scientific,
+native/full-CI or tutorial claim. Evidence: 421_current_contract_reconciliation_
+2026-10-15 and 421_initial_scan_status_2026-10-15 under features/data/.

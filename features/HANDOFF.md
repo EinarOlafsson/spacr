@@ -14031,3 +14031,7 @@ F564 UI requests are preserved but held behind that order.
 ## 2026-10-15 — Original N691 whole alpha contract completed
 
 Independent original-contract/source/history review accepts MitoNet backend, licensing/alpha UI, verified cache, original ten-field F1 reproduction and nine-locale runtime/API obligations. Final Portuguese paragraph repaired through normal scoped writer and selected audit. No new science/full-CI claim. Whole-item tracker updated; evidence in 691_current_whole_item_reconciliation_2026-10-15.
+
+## 2026-10-15 — Original N421 whole closure and Home-B N597 reconciliation
+
+N421 final runtime/status and two API translation gaps are closed normally, including actual12Qt status cases and selected API audit; original accepted scenarios and later N600b routing preserved. Whole acceptance evidence in421_current_contract_reconciliation_2026-10-15. Home-B published N597 whole corrected contract is now included in Original grouped tracker after verifying all five source/test pins against its accepted12-case delivery. No fullCI/native/science claim.
