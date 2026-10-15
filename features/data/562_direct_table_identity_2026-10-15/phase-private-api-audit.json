@@ -1,0 +1,9 @@
+{
+  "source_commit": "c291a2fa8ab2465c308204d53a3e9b80553025d2",
+  "normal_public_docstrings_contains_helper": false,
+  "committed_English_API_contains_helper": false,
+  "normal_visibility_predicate": false,
+  "normal_prefix_matches": [],
+  "tool_sha256": "6f3a86f5ce51672dcf11b420f6c1a14a7d1e7fec9f5b353676749ac4b5e530ad",
+  "runtime_caption_not_used_as_API_proof": true
+}
