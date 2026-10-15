@@ -277,3 +277,22 @@ not claimed. A first failed test attempt exposed an unstubbed reserved
 trusted.invalid URL/DNS failure; the corrected test performs no network.
 Consumer-specific wiring/strict planning remain separate; parent702 partial.
 Evidence: data/702_cli_runtime_verification_gate_2026-10-14/receipt.json.
+
+2026-10-14 — Mask construction and parallel preparation retain valid pins:
+Actual Mask model construction resolves recorded role/pathogen pins to local
+arguments, choosing the scientific backend from the original model prefix
+first. Parallel preparation verifies/signs effective bytes while retaining
+original requests and metadata; the child reuses the verified shared cache.
+It does not rewrite requested_value to excuse a stale derived payload.
+Unpinned canonicalization keeps its prior behavior. Legacy Cellpose, organelle
+and robustness constructor paths reuse the same settings-aware boundary.
+
+Nine native pinned cases plus existing Mask worker/model/assignment stories
+passed91tests in45.78seconds, exit0. Actual SAM uses the established CPU model
+stand-in and writes native output masks. Actual Cellpose3/DINO loader calls
+are intercepted to prove selected backend+verified path. Non-Cellpose worker
+identity keeps its existing artifact-manifest hash, distinct from raw pinned
+file SHA; first-run two assertions corrected that expectation while preserving
+actual raw-byte verification. No model/GPU/network/fullCI acceptance claim.
+Other consumers/planning remain separate; parent702 stays partial.
+Evidence: data/702_mask_pinned_worker_construction_2026-10-14/receipt.json.
