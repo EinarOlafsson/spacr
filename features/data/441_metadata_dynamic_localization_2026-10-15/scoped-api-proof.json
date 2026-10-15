@@ -1,0 +1,12 @@
+{
+  "source_sha256": "1e65ac66c4150c8150bf0b77b3605fa61cb3ec0ecefe7befac3af9093fcc96e9",
+  "normal_tool_sha256": "6bbdd7df679f8ee42f711def5835b1386c0276fbabcbbb036b71caed4012d39e",
+  "normal_nested_tool_sha256": "7f2c3557ba5041ad3f8489b4ce38bce97521a6e5b176361f4982036c02585237",
+  "scope": "Actual unchanged normal source-only functions applied to a disposable one-module source mirror, not global API inventory.",
+  "private_class_public_eligible": false,
+  "class_rendered_predicate": true,
+  "unchanged_enabled_nested_entries": 10,
+  "new_API_arrivals": 0,
+  "new_public_method_retranslate_dynamic_content": "Excluded with private enclosing class; no new nested def inside a function.",
+  "outside_class_AST_unchanged": true
+}

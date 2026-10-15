@@ -1,0 +1,35 @@
+{
+  "status": "ACCEPT_INDEPENDENT_TECHNICAL_SOURCE_PEER",
+  "source_sha256": "1e65ac66c4150c8150bf0b77b3605fa61cb3ec0ecefe7befac3af9093fcc96e9",
+  "production_patch_sha256": "f23598c5bf6cb6328fac7f19bc5934b0826a0823a924bab2aeabefeaec2c53b4",
+  "current_test_sha256": "42f3480480e4af753fd06d9b1814f8f943ed99b060e6c7d510f523a73f61fd16",
+  "scope": "Only _MetadataTypeField; no source edits/tests/collector performed by reviewer.",
+  "source_findings": [
+    "Translates canonical templates before formatting original filenames/counts; provisional marker retains stored combo data keys.",
+    "Retained typed report state supports language redraw without re-running scans, changing current convention, reordering rankings or translating original data.",
+    "Private label ownership uses i18nSkipText; existing actual dynamic tree hook drives redraw.",
+    "Initial generic combo-cache concern was not reproduced by author actual retranslate_widget_tree(fr/en/fr) control; generic handler only sets changed/known translations, so an unknown cached full item label does not overwrite field-owned redraw. No unnecessary skip-property change made.",
+    "Worker construction/lifetime/scan paths remain unchanged; buttons/tooltips use existing sources."
+  ],
+  "author_checks": "Initial7FAIL, then19PASS owning; only additional actual tree-language consumer1PASS on unchanged source. Mechanical French lookup fixture is not catalog/native-language acceptance.",
+  "normal_API_proof": {
+    "source_sha256": "1e65ac66c4150c8150bf0b77b3605fa61cb3ec0ecefe7befac3af9093fcc96e9",
+    "normal_tool_sha256": "6bbdd7df679f8ee42f711def5835b1386c0276fbabcbbb036b71caed4012d39e",
+    "normal_nested_tool_sha256": "7f2c3557ba5041ad3f8489b4ce38bce97521a6e5b176361f4982036c02585237",
+    "scope": "Actual unchanged normal source-only functions applied to a disposable one-module source mirror, not global API inventory.",
+    "private_class_public_eligible": false,
+    "class_rendered_predicate": true,
+    "unchanged_enabled_nested_entries": 10,
+    "new_API_arrivals": 0,
+    "new_public_method_retranslate_dynamic_content": "Excluded with private enclosing class; no new nested def inside a function.",
+    "outside_class_AST_unchanged": true
+  },
+  "remaining_gates": [
+    "Exact class-scoped _say literal presentation extractor ownership for four sources.",
+    "Root independent90-target technical peer, normal nine-language writer/audit/arrivals and actual installed-target widget consumers."
+  ],
+  "limits": [
+    "No human/native-speaker signoff, metadata scientific accuracy, new regex coverage or whole-item closure claimed.",
+    "No global API collector/model imports/writer/publication from reviewer."
+  ]
+}

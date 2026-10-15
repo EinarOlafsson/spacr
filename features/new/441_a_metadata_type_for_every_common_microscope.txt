@@ -376,3 +376,20 @@ WHAT IS LEFT
     catalog), so this adds to a known backlog rather than breaking a green.
 
 VERIFIED 2026-10-04: 5 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).
+
+2026-10-15 — PRIVATE microscope dynamic-text localization repaired.
+The older all-catalogue-debt note is only partly current: six static templates
+already have normalnine-language rows, but ten provisional/example/folder/count/
+ranking templates were missing. _MetadataTypeField now translates before
+formatting original filenames/counts and retains raw report values for language
+redraw through the existing dynamic-content hook. Storedkeys, vendorlabels,
+regex/table/examples, worker lifetime and inputfiles are unchanged. Actual
+source-mechanics baseline7FAIL2.38s becomes19PASS2.88s (7new+12existing);
+an independent genericcombo lifecycle concern is not reproduced by one actual
+tree fr/en/fr check1PASS2.03s on unchangedsource. No unnecessaryskip fix.
+These are20distinct staged cases, not one20-case run or normalcatalog/native-
+language acceptance. Independent source/API peer finds0newAPI/10nestedunchanged.
+Source remains private pending precise_saycaption extraction,90reviewedtargets,
+normalninecatalog/audit/arrival and actuallocalizedwidget consumers. No new
+microscope patterns, vendor claims, Import behavior or Work media scope added.
+Evidence:data/441_metadata_dynamic_localization_2026-10-15/receipt.json.

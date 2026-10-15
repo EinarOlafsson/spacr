@@ -8372,7 +8372,11 @@ class _MetadataTypeField(QWidget):
                  custom_regex: Optional[Callable[[], Any]] = None,
                  parent: Optional[QWidget] = None) -> None:
         """Build the menu from the convention table and wire the button."""
+        from ..i18n import tr
+
         super().__init__(parent)
+        self._language = None
+        self._report_state = None
         self._source_folder = source_folder
         self._custom_regex = custom_regex
         self._thread: Optional[QThread] = None
@@ -8389,19 +8393,21 @@ class _MetadataTypeField(QWidget):
         self.example = QLabel(self)
         self.example.setObjectName("MetadataTypeExample")
         self.example.setWordWrap(True)
+        self.example.setProperty("i18nSkipText", True)
         self.example.setTextInteractionFlags(Qt.TextSelectableByMouse)
 
         self.report = QLabel(self)
         self.report.setObjectName("MetadataTypeReport")
         self.report.setWordWrap(True)
+        self.report.setProperty("i18nSkipText", True)
         self.report.setVisible(False)
 
-        self.test_button = QPushButton(TEST_ON_MY_FOLDER, self)
+        self.test_button = QPushButton(tr(TEST_ON_MY_FOLDER), self)
         self.test_button.setObjectName("MetadataTypeTestButton")
-        self.test_button.setToolTip(TEST_ON_MY_FOLDER_HELP)
-        self.detect_button = QPushButton(WHICH_CONVENTION_FITS, self)
+        self.test_button.setToolTip(tr(TEST_ON_MY_FOLDER_HELP))
+        self.detect_button = QPushButton(tr(WHICH_CONVENTION_FITS), self)
         self.detect_button.setObjectName("MetadataTypeDetectButton")
-        self.detect_button.setToolTip(WHICH_CONVENTION_FITS_HELP)
+        self.detect_button.setToolTip(tr(WHICH_CONVENTION_FITS_HELP))
 
         buttons = QHBoxLayout()
         buttons.setContentsMargins(0, 0, 0, 0)
@@ -8428,6 +8434,7 @@ class _MetadataTypeField(QWidget):
     def _fill_the_menu(self) -> None:
         """One disabled heading per vendor, then that vendor's conventions."""
         from spacr.regex_infer import _metadata_convention_menu
+        from ..i18n import tr
 
         for vendor, rows in _metadata_convention_menu():
             self.combo.addItem(vendor, userData=None)
@@ -8436,7 +8443,7 @@ class _MetadataTypeField(QWidget):
                 heading.setFlags(heading.flags() & ~Qt.ItemIsEnabled)
                 heading.setFlags(heading.flags() & ~Qt.ItemIsSelectable)
             for key, label, status in rows:
-                suffix = "" if status == "confirmed" else PROVISIONAL_SUFFIX
+                suffix = "" if status == "confirmed" else tr(PROVISIONAL_SUFFIX, self._language)
                 self.combo.addItem(f"    {label}{suffix}", userData=key)
 
     def get_value(self) -> Optional[str]:
@@ -8482,6 +8489,7 @@ class _MetadataTypeField(QWidget):
     def _on_choice_changed(self, *_args) -> None:
         """A new convention: show its example, drop the stale readout."""
         self._refresh_example()
+        self._report_state = None
         self.report.setVisible(False)
         self.report.setText("")
         self.value_changed.emit()
@@ -8490,6 +8498,7 @@ class _MetadataTypeField(QWidget):
         """Put the chosen convention's own example filename under the menu."""
         from spacr.regex_infer import (_metadata_convention,
                                        _metadata_convention_example)
+        from ..i18n import tr
 
         key = self.get_value()
         record = _metadata_convention(key) if key else None
@@ -8498,11 +8507,11 @@ class _MetadataTypeField(QWidget):
             return
         example = _metadata_convention_example(key)
         if not example:
-            self.example.setText(CUSTOM_HAS_NO_EXAMPLE)
+            self.example.setText(tr(CUSTOM_HAS_NO_EXAMPLE, self._language))
             return
-        line = LOOKS_LIKE.format(example=example)
+        line = tr(LOOKS_LIKE, self._language, example=example)
         if record["status"] != "confirmed":
-            line = f"{line}  {RECONSTRUCTED_NOT_DOCUMENTED}"
+            line += "  " + tr(RECONSTRUCTED_NOT_DOCUMENTED, self._language)
         self.example.setText(line)
 
     def test_on_the_folder(self) -> None:
@@ -8567,36 +8576,74 @@ class _MetadataTypeField(QWidget):
                    extension: str) -> None:
         """Report the count, and the first name that did not parse."""
         if matched == total:
-            self._say(ALL_FILES_PARSE.format(total=total,
-                                             extension=extension))
+            self._say(ALL_FILES_PARSE, total=total, extension=extension)
             return
-        self._say(SOME_FILES_PARSE.format(matched=matched, total=total,
-                                          first=first))
+        self._say(SOME_FILES_PARSE, matched=matched, total=total, first=first)
 
     def _on_ranked(self, ranked: list, total: int) -> None:
         """Show which conventions fit, best first. Changes nothing."""
-        from spacr.regex_infer import _metadata_convention
-
-        if not ranked:
-            self._say(NOTHING_FITS.format(total=total))
-            return
-        lines = []
-        for key, matched, _total in ranked[:5]:
-            record = _metadata_convention(key)
-            label = record["label"] if record else key
-            lines.append(ONE_RANKING_ROW.format(
-                matched=matched, total=total, label=label, key=key))
-        self._say(RANKING_HEADING.format(total=total) + "\n" +
-                  "\n".join(lines))
+        self._report_state = ("ranked", tuple(tuple(row) for row in ranked), total)
+        self._render_report()
 
     def _on_failed(self, message: str) -> None:
         """No files, or the folder could not be read."""
         self._say(message or NO_IMAGES_IN_THE_FOLDER)
 
-    def _say(self, text: str) -> None:
-        """Put one readout under the row."""
+    def _say(self, text: str, **values) -> None:
+        """Retain one readout's canonical template and unmodified values."""
+        self._report_state = ("text", text, dict(values))
+        self._render_report()
+
+    def _render_report(self) -> None:
+        """Translate the saved readout before inserting filenames and counts."""
+        from spacr.regex_infer import _metadata_convention
+        from ..i18n import tr
+
+        if self._report_state is None:
+            return
+        kind, source, values = self._report_state
+        if kind == "text":
+            text = tr(source, self._language, **values)
+        elif not source:
+            text = tr(NOTHING_FITS, self._language, total=values)
+        else:
+            lines = [tr(RANKING_HEADING, self._language, total=values)]
+            for key, matched, _total in source[:5]:
+                record = _metadata_convention(key)
+                label = record["label"] if record else key
+                lines.append(tr(ONE_RANKING_ROW, self._language,
+                                matched=matched, total=values, label=label, key=key))
+            text = "\n".join(lines)
         self.report.setText(text)
         self.report.setVisible(bool(text))
+
+    def retranslate_dynamic_content(self, language=None) -> None:
+        """Redraw captions and saved results without changing the selected key.
+
+        :param language: requested UI language, or the current preference.
+        """
+        from spacr.regex_infer import _metadata_convention
+        from ..i18n import tr
+
+        self._language = language
+        self.test_button.setText(tr(TEST_ON_MY_FOLDER, language))
+        self.test_button.setToolTip(tr(TEST_ON_MY_FOLDER_HELP, language))
+        self.detect_button.setText(tr(WHICH_CONVENTION_FITS, language))
+        self.detect_button.setToolTip(tr(WHICH_CONVENTION_FITS_HELP, language))
+        blocked = self.combo.blockSignals(True)
+        try:
+            for index in range(self.combo.count()):
+                key = self.combo.itemData(index)
+                record = _metadata_convention(key) if key is not None else None
+                if record is None:
+                    continue
+                suffix = ("" if record["status"] == "confirmed"
+                          else tr(PROVISIONAL_SUFFIX, language))
+                self.combo.setItemText(index, f"    {record['label']}{suffix}")
+        finally:
+            self.combo.blockSignals(blocked)
+        self._refresh_example()
+        self._render_report()
 
 
 from ..widgets.flow import FlowHost as _FlowHost, FlowLayout as _FlowLayout
