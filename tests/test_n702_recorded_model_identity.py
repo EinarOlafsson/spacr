@@ -76,3 +76,53 @@ def test_current_catalogue_cannot_silently_relabel_recorded_bytes():
         zoo._match_model_reference(record, [raw, conflicting])
     with pytest.raises(zoo.ModelZooError):
         zoo._match_model_reference(record, [{**raw, 'version': '1'}])
+
+
+def test_export_pins_explicit_catalogue_selection_without_disk_or_network(monkeypatch, tmp_path):
+    raw = next(row for row in zoo.BUNDLED_REMOTE_MODELS if row['key'] == 'toxoplasma_plaque_v4')
+    settings = {'src': '/laptop/plate', 'plaque_model': raw['key'], 'well_detection': False}
+    original = copy.deepcopy(settings)
+
+    def forbidden(*args, **kwargs):
+        pytest.fail('Export attempted filesystem, plugin or catalogue traffic')
+
+    with monkeypatch.context() as protected:
+        protected.setattr(zoo, 'catalogue', forbidden)
+        protected.setattr(zoo, 'shared_catalogue', forbidden)
+        protected.setattr(zoo, 'sha256_file', forbidden)
+        protected.setattr(zoo.os.path, 'isfile', forbidden)
+        protected.setattr(Path, 'is_file', forbidden)
+        exported = zoo._capture_model_metadata('analyze_plaques', settings)
+    assert settings == original
+    record = exported['model_metadata']['settings']['plaque_model']
+    assert record['key'] == raw['key'] and record['sha256'] == raw['sha256']
+    assert record['version'] is None and record['version_status'] == 'unspecified'
+    outputs = write_settings_file(exported, tmp_path / 'settings.csv')
+    assert load_settings_file(outputs[0])['model_metadata'] == exported['model_metadata']
+
+
+def test_same_basename_local_file_is_not_claimed_verified_on_export(tmp_path):
+    raw = next(row for row in zoo.BUNDLED_REMOTE_MODELS if row['key'] == 'toxoplasma_plaque_v4')
+    path = tmp_path / raw['name']
+    path.write_bytes(b'custom bytes, not the published checkpoint')
+    for request in (str(path), raw['name']):
+        settings = {'plaque_model': request}
+        assert zoo._capture_model_metadata('analyze_plaques', settings) == settings
+
+
+@pytest.mark.parametrize('module,key,kind', [('analyze_plaques', 'well_detection', 'detector'),
+    ('cellpose_masks', 'custom_model', 'cellpose'), ('train_cellpose', 'base_model', 'cellpose'),
+    ('train_only', 'custom_model_path', 'classifier'), ('activation', 'model_path', 'classifier'),
+    ('ops', 'cellpose_model', 'cellpose'), ('spatial_masks', 'spatial_cellpose_model', 'cellpose')])
+def test_consumer_registry_distinguishes_actual_module_inputs(module, key, kind):
+    assert zoo._model_input_kinds(module, {key: 'requested'}) == {key: (kind,)}
+
+
+def test_model_prefix_precedes_global_backend_and_classifier_family_is_respected():
+    settings = {'pathogen_model_name': 'cellpose_dino:/model.pt',
+                'pathogen_model': 'cellpose3:/other.pt', 'segmentation_backend': 'cellpose'}
+    assert zoo._model_input_kinds('mask', settings) == {
+        'pathogen_model_name': ('cellpose_dino',), 'pathogen_model': ('cellpose3',)}
+    assert zoo._model_input_kinds('classify_merged', {'model_path': '/model.pt', 'classifier_family': 'ml'}) == {}
+    assert zoo._model_input_kinds('classify_merged', {'model_path': '/model.pt', 'classifier_family': 'cv'}) == {
+        'model_path': ('classifier',)}

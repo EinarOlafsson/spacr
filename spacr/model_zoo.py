@@ -3603,6 +3603,76 @@ def resolve(key_or_path: Any,
 
 
 
+def _model_input_kinds(module, settings):
+    """Describe file-model consumers without loading a model or inspecting paths."""
+    key = getattr(module, "key", str(module))
+    result = {}
+    if key in {"mask", "timelapse", "make_masks"}:
+        from .object_roles import SEGMENTED_ROLES
+        from ._segmentation_backends import (_backend_name, _cellpose3_choice,
+                                             _cellpose_dino_choice, _prefixed_backend)
+
+        for name in [*(f"{role}_model_name" for role in SEGMENTED_ROLES), "pathogen_model"]:
+            if name not in settings:
+                continue
+            value = settings.get(name)
+            backend = (_prefixed_backend(value)
+                       or ("cellpose3" if _cellpose3_choice(value) is not None else None)
+                       or ("cellpose_dino" if _cellpose_dino_choice(value) is not None else None)
+                       or _backend_name(settings.get("segmentation_backend")))
+            result[name] = (backend,) if backend in KINDS else ()
+    elif key == "train_cellpose":
+        result = {"base_model": ("cellpose",)}
+    elif key == "cellpose_masks":
+        result = {"model_name": ("cellpose",), "custom_model": ("cellpose",)}
+    elif key == "analyze_plaques":
+        result = {"plaque_model": ("cellpose",), "well_detection": ("detector",),
+                  "figure_detector": ("detector",)}
+    elif key in {"classify", "classify_merged", "train_only", "activation"}:
+        if key == "classify_merged":
+            from .classify import resolve_family
+
+            if resolve_family(settings) != "cv":
+                return {}
+        result = {name: ("classifier",) for name in
+                  ("model_path", "custom_model_path", "resume_checkpoint")}
+    elif key == "ops":
+        result = {"cellpose_model": ("cellpose",)}
+    elif key == "spatial_masks":
+        result = {"spatial_cellpose_model": ("cellpose",)}
+    return {name: kinds for name, kinds in result.items() if name in settings}
+
+
+def _capture_model_metadata(module, settings):
+    """Pin explicit trusted catalogue selections without file or network I/O."""
+    from copy import deepcopy
+
+    kinds = _model_input_kinds(module, settings)
+    metadata = _validate_model_metadata(settings, model_kinds=kinds)
+    result = deepcopy(settings)
+    records = metadata["settings"] if metadata is not None else {}
+    for name, accepted in kinds.items():
+        requested = settings[name]
+        if name in records or not isinstance(requested, str) or not requested.strip():
+            continue
+        if "/" in requested or "\\" in requested or requested.startswith("~"):
+            continue
+        matches = []
+        for raw in BUNDLED_REMOTE_MODELS:
+            if requested != raw.get("key") or raw.get("kind", "cellpose") not in accepted:
+                continue
+            pin = _model_reference_from_record(requested, raw)
+            if pin not in matches:
+                matches.append(pin)
+        if len(matches) > 1:
+            _bad_model_metadata(name, "one exact catalogue identity")
+        if matches:
+            records[name] = matches[0]
+    if records or metadata is not None:
+        result["model_metadata"] = {"schema_version": 1, "settings": records}
+    return result
+
+
 def _bad_model_metadata(field, expected):
     from .qt.i18n import tr
 
