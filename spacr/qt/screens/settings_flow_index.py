@@ -55,6 +55,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'annotation_columns',
     'annotation_source',
     'annotation_values',
+    'app',
     'apply_model_to_dataset',
     'at',
     'attribution_baseline',
