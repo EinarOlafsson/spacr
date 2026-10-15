@@ -1,0 +1,41 @@
+.F                                                                       [100%]
+=================================== FAILURES ===================================
+______________ test_real_default_claims_have_no_unrecorded_drift _______________
+tests/test_settings_tooltip_quality.py:1065: in test_real_default_claims_have_no_unrecorded_drift
+    assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
+E   AssertionError: assert (((((((((((((((((((((((((((((((((((735 + 6) + 1) - 8) + 2) + 8) + 7) + 18) + 16) + 12) + 10) + 18) + 9) + 14) + 6) + 3) + 2) + 4) + 7) + 8) + 10) + 2) + 4) + 2) + 3) + 1) + 2) + 4) + 3) + 2) + 4) + 2) + 2) + 1) + 3) + 8) == 933
+E    +  where 6 = len({('mask', 'cellpose3_add_nucleus_channel'), ('mask', 'cellpose3_augment'), ('mask', 'cellpose3_percentile_high'), ('mask', 'cellpose3_percentile_low'), ('mask', 'cellpose3_resample'), ('mask', 'cellpose3_size_model')})
+E    +  and   8 = len({('external_masks', 'confluency'), ('external_masks', 'confluency_channel'), ('external_masks', 'confluency_qc_threshold'), ('external_masks', 'confluency_window'), ('measure', 'confluency'), ('measure', 'confluency_channel'), ...})
+E    +  and   7 = len({('mask', 'watch_classify_settings'), ('mask', 'watch_folder'), ('mask', 'watch_idle_minutes'), ('mask', 'watch_measure_settings'), ('mask', 'watch_pipeline'), ('mask', 'watch_poll_seconds'), ...})
+E    +  and   18 = len({('external_masks', 'cloud_anonymous'), ('external_masks', 'cloud_cache'), ('external_masks', 'cloud_endpoint'), ('external_masks', 'cloud_profile'), ('external_masks', 'cloud_results'), ('mask', 'cloud_anonymous'), ...})
+E    +  and   16 = len({('external_masks', 'cell_cycle'), ('external_masks', 'cell_cycle_channel'), ('external_masks', 'cell_cycle_epochs'), ...s', 'cell_cycle_fucci_channels'), ('external_masks', 'cell_cycle_gates'), ('external_masks', 'cell_cycle_labels'), ...})
+E    +  and   12 = len({('external_masks', 'profiling'), ('external_masks', 'profiling_correlation_threshold'), ('external_masks', 'profiling...ng_metadata'), ('external_masks', 'profiling_negative_control'), ('external_masks', 'profiling_phenotype_column'), ...})
+E    +  and   10 = len({('external_masks', 'wound_channel'), ('external_masks', 'wound_closure'), ('external_masks', 'wound_conditions'), ('external_masks', 'wound_hours_per_frame'), ('external_masks', 'wound_window'), ('measure', 'wound_channel'), ...})
+E    +  and   18 = len({('external_masks', 'time_to_event'), ('external_masks', 'time_to_event_column'), ('external_masks', 'time_to_event_co...covariates'), ('external_masks', 'time_to_event_hours_per_frame'), ('external_masks', 'time_to_event_min_frames'), ...})
+E    +  and   9 = len({('external_masks', 'unmix'), ('external_masks', 'unmix_background_percentile'), ('external_masks', 'unmix_controls'), ('mask', 'unmix'), ('mask', 'unmix_background_percentile'), ('mask', 'unmix_controls'), ...})
+E    +  and   14 = len({('external_masks', 'viability'), ('external_masks', 'viability_dead_channel'), ('external_masks', 'viability_live_cha...ility_negative_wells'), ('external_masks', 'viability_plate_map'), ('external_masks', 'viability_positive_wells'), ...})
+E    +  and   6 = len({('external_masks', 'intensity_calibration'), ('external_masks', 'intensity_calibration_offset'), ('external_masks', '...re', 'intensity_calibration'), ('measure', 'intensity_calibration_offset'), ('measure', 'intensity_calibration_wells')})
+E    +  and   3 = len({('external_masks', 'illumination_vendor_profile'), ('mask', 'illumination_vendor_profile'), ('measure', 'illumination_vendor_profile')})
+E    +  and   2 = len({('external_masks', 'cellprofiler_pipeline'), ('measure', 'cellprofiler_pipeline')})
+E    +  and   4 = len({('external_masks', 'plate_barcode_source'), ('external_masks', 'plate_barcodes'), ('measure', 'plate_barcode_source'), ('measure', 'plate_barcodes')})
+E    +  and   7 = len({('analyze_plaques', 'colony_counting'), ('analyze_plaques', 'colony_dilution'), ('analyze_plaques', 'colony_min_area_...ques', 'colony_plated_volume_ul'), ('analyze_plaques', 'colony_threshold'), ('analyze_plaques', 'colony_too_few'), ...})
+E    +  and   8 = len({('mask', 'robustness_cellprob_thresholds'), ('mask', 'robustness_crop'), ('mask', 'robustness_diameter_factors'), ('mask', 'robustness_enhancement'), ('mask', 'robustness_fields'), ('mask', 'robustness_flow_thresholds'), ...})
+E    +  and   10 = len({('mask', 'microscope_driver'), ('mask', 'microscope_event_query'), ('mask', 'microscope_event_table'), ('mask', 'microscope_feedback'), ('mask', 'microscope_interval_seconds'), ('mask', 'microscope_max_events'), ...})
+E    +  and   2 = len({('external_masks', 'measure_gpu'), ('measure', 'measure_gpu')})
+E    +  and   4 = len({('mask', 'image_qc_classifier'), ('mask', 'image_qc_classifier_labels'), ('mask', 'image_qc_classifier_model'), ('mask', 'image_qc_classifier_threshold')})
+E    +  and   2 = len({('external_masks', 'measurement_backend_target'), ('measure', 'measurement_backend_target')})
+E    +  and   3 = len({('mask', 'n2v_denoise'), ('mask', 'n2v_epochs'), ('mask', 'n2v_model')})
+E    +  and   1 = len({('analyze_plaques', 'colony_detector')})
+E    +  and   2 = len({('external_masks', 'wound_threshold'), ('measure', 'wound_threshold')})
+E    +  and   4 = len({('external_masks', 'timelapse_lineage'), ('external_masks', 'timelapse_lineage_max_distance'), ('measure', 'timelapse_lineage'), ('measure', 'timelapse_lineage_max_distance')})
+E    +  and   3 = len({('external_masks', 'illumination_vendor_channel_map'), ('mask', 'illumination_vendor_channel_map'), ('measure', 'illumination_vendor_channel_map')})
+E    +  and   2 = len({('external_masks', 'ram_guard'), ('measure', 'ram_guard')})
+E    +  and   4 = len({('classify_merged', 'ram_guard'), ('map_barcodes', 'ram_guard'), ('mask', 'ram_guard'), ('umap', 'ram_guard')})
+E    +  and   2 = len({('mask', 'real_object_classifier'), ('mask', 'real_object_threshold')})
+E    +  and   2 = len({('external_masks', 'timelapse_lineage_min_division_h'), ('measure', 'timelapse_lineage_min_division_h')})
+E    +  and   1 = len({('mask', 'watch_normalization_pool')})
+E    +  and   3 = len({('external_masks', 'export_vvvv'), ('mask', 'export_vvvv'), ('measure', 'export_vvvv')})
+E    +  and   8 = len({('external_masks', 'timelapse_lineage_bud_guard'), ('external_masks', 'timelapse_lineage_bud_threshold'), ('external_...neage_vacuole_count'), ('measure', 'timelapse_lineage_bud_guard'), ('measure', 'timelapse_lineage_bud_threshold'), ...})
+=========================== short test summary info ============================
+FAILED tests/test_settings_tooltip_quality.py::test_real_default_claims_have_no_unrecorded_drift
+1 failed, 1 passed in 1.02s

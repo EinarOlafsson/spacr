@@ -374,6 +374,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "counterfactual_target",
     # item 564 (d050bc6d4, 2026-10-04): the diffusion counterfactual generator.
     "counterfactual_generator",
+    # F564 structure objective and inversion strength, published 2026-10-15.
+    "counterfactual_strength", "counterfactual_structure_weight",
     "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth",
     "plaque_growth_reference_um", "plaque_growth_reference_hours",
     "replication_method", "tta_enabled", "tta_rotations", "tta_horizontal_flip",
@@ -870,6 +872,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # switch, the reference wells, the statistic and the camera offset --
     # under their own "Intensity Calibration α" heading.
     "intensity_calibration", "intensity_calibration_wells",
+    "intensity_calibration_reference_plate",
     "intensity_calibration_statistic", "intensity_calibration_offset",
     # NEW SETTINGS, not a regrouping (item 583, 2026-09-27): Measure's
     # plate map filled from sample records by plate barcode -- the records
