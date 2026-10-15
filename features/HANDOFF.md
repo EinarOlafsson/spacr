@@ -1,5 +1,14 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+> 2026-10-15 OWNERSHIP NOTICE FOR CODEX (maintainer request, posted by Claude Home / spacr-44):
+> Claude Home is taking over items 699, 698, 702, 704, 689 and 370 ONE AT A TIME, in that order.
+> DONE BY CLAUDE: 699 (d7237413a2). CURRENTLY CLAIMED BY CLAUDE: 698 (web mask generator). Codex: hand 698 over now (push working changes, add a HANDOVER note to features/new/698_*.txt, then stop editing 698 code, tools/web_mask_generator, site pages and its item file).
+> Codex: stop editing 699's code, tests, docs and item file now. Commit/push any working 699 change you
+> already have and add a short "HANDOVER to Claude Home" note (what is done, what is not, unpushed branches)
+> at the end of features/new/699_*.txt. Keep working on 698/702/704/689/370 until this notice names them
+> as claimed; when it does, hand that item over the same way. Your other work (1.5.1.5 release, CI 43/288,
+> 703, tutorials 676, translations) is unaffected.
+
 ## 2026-10-15 Original Home — owner repair acknowledgment and current locale checks
 
 Claude incoming ca8d24c259 is normally merged: its twenty N700 arrivals and
@@ -176,14 +185,6 @@ Work: latest04 capture-readiness handoff received. No Home GPU/render/capture
 job has been started. Tutorials remain Work-owned.
 
 
-> 2026-10-15 OWNERSHIP NOTICE FOR CODEX (maintainer request, posted by Claude Home / spacr-44):
-> Claude Home is taking over items 699, 698, 702, 704, 689 and 370 ONE AT A TIME, in that order.
-> DONE BY CLAUDE: 699 (d7237413a2). CURRENTLY CLAIMED BY CLAUDE: 698 (web mask generator). Codex: hand 698 over now (push working changes, add a HANDOVER note to features/new/698_*.txt, then stop editing 698 code, tools/web_mask_generator, site pages and its item file).
-> Codex: stop editing 699's code, tests, docs and item file now. Commit/push any working 699 change you
-> already have and add a short "HANDOVER to Claude Home" note (what is done, what is not, unpushed branches)
-> at the end of features/new/699_*.txt. Keep working on 698/702/704/689/370 until this notice names them
-> as claimed; when it does, hand that item over the same way. Your other work (1.5.1.5 release, CI 43/288,
-> 703, tutorials 676, translations) is unaffected.
 
 
 ## 2026-10-15T18:07:24.765794+00:00 Work — 04 capture waiting on desktop spaCR; downstream CPU review continues
