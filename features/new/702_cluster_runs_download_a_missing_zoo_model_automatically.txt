@@ -505,3 +505,16 @@ explicitly delegated this isolated helper hunk. Native baseline10FAIL/4PASS
 CLI/batch owning cohort pass81 in2.22seconds under2G. No scientific model loading,
 network/GPU/fullCI or whole-item closure. Parent702 remains partial. Evidence:
 data/702_pin_filename_leaf_validation_2026-10-15/receipt.json.
+
+2026-10-15 — exact model identity survives unavailable original user home:
+A saved ~other-user/checkpoint path may raise native Path.expanduser RuntimeError
+on a cluster where that account does not exist. Both pinned and legacy local
+probes now treat that home as unavailable, then follow the existing exact
+trusted pin/unique basename logic. Original requests/settings/pins stay intact.
+Unknown or ambiguous models are not accepted, and planning never acquires
+bytes or discovers providers. Native POSIX baseline7FAIL1.56seconds; seven new
+actual named-user/file-mirror cases plus existing pin/path/filename contracts
+pass49 in2.45seconds under2G. Known wrong-local-byte refusals remain intact.
+The POSIX native expansion cases explicitly skip other OSes; no native cluster,
+scientific model loading, network/GPU/fullCI or whole-item acceptance is claimed.
+Evidence: data/702_unavailable_origin_home_2026-10-15/receipt.json.
