@@ -1,0 +1,37 @@
+{
+  "scope": "Configured independent backend environments/models survive ordinary primary-app retirement; embedded configured backends block unsafe runtime replacement.",
+  "source_sha256": "ede9e40f0faca84e41246f9fe242695d44c3a3d8b2632a0b5eaed6ab99cfad61",
+  "test_sha256": "d23854a9c8508ddc23bb46410795720207dc716cdce779e57f817df02bc190b2",
+  "baseline": {
+    "exit": 1,
+    "passed": 3,
+    "failed": 7,
+    "seconds": 0.8
+  },
+  "final": {
+    "exit": 0,
+    "passed": 44,
+    "failed": 0,
+    "skipped": 0,
+    "deselected": 9,
+    "seconds": 1.83
+  },
+  "final_selection": "Ten new cases, ten existing native alias cases, five shared/user-data guards, fifteen removal/lease controls and four existing explicit-purge controls. Nine unchanged translated-refusal cases explicitly deselected; no caption or localization behavior changes.",
+  "runtime": "Actual Linux disposable filesystem and real symlinks; fake old app/backend interpreter bytes are never executed. No backend installation, download, package manager, account, network or physical GPU operation.",
+  "units": {
+    "baseline": "spacr-n703-backend-baseline-20261015.service: terminal exit1/MainPID0",
+    "final": "spacr-n703-backend-final-20261015.service: inactive/success/MainPID0, 6GiB/zeroSwap/shared heavy.lock"
+  },
+  "checks": {
+    "fatal_ruff": true,
+    "source_diff_check": true,
+    "original_prose_signatures_tr_ast_unchanged": true,
+    "module_ast_outside_user_data_unchanged": true
+  },
+  "limits": [
+    "No native Windows/macOS acceptance.",
+    "Independent backend software/runtime and model bytes are configured persistent content, not merely an undifferentiated cache.",
+    "Unconfigured software under the retiring primary runtime is still removed; explicit opt-in purge keeps its existing deletion policy.",
+    "No whole N703, full CI or release acceptance."
+  ]
+}
