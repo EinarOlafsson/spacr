@@ -11,6 +11,18 @@
 
 
 
+## 2026-10-15 Original Home — focused profile retained without causal claim
+
+The single reviewed cProfile diagnostic is terminal:54screens completed,
+strict exit1 retained, both dumps produced and installed955-file/artifact
+identities unchanged. Mixed/inconsistent caller attribution prevents a GUI
+function-cost or causal fix claim; profile overhead is not performance proof.
+Allowance socket/TLS activity also disproves clean-offline intent; response
+unknown. No follow-up run or speculative product edit. Portable raw evidence
+and explicit limitations:data/candidate_1514_b51_cprofile_diagnostic_2026-10-15/.
+Current GitHub checks are being inspected read-only for actual actionable
+failures; no dispatch/cancel/rerun or finalCI/release action. No whole item closes.
+
 ## 2026-10-15 Original Home — strict installed all-screen failures preserved
 
 Unchanged normal startup driver exercised all54 installed candidate screens in

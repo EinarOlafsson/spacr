@@ -501,3 +501,28 @@ pipeline profiles, and a measured disposition for every >=10 percent
 hotspot. The startup half is now evidence rather than a gap.
 
 VERIFIED 2026-10-04: the named tests pass; test_perf_guard had regressed (spacr.qt importing cv2/pyplot via measure_inputs), fixed concurrently in c9d77838a (item 55), green after it.
+
+--------------------------------------------------------------------------------
+2026-10-15 — FRESH INSTALLED CANDIDATE: FUNCTIONAL PASS, TIMING STILL OPEN
+--------------------------------------------------------------------------------
+Source-pinned b51fb194bb wheel and sdist pass normal isolated build, current
+Twine, existing archive gates,927 required-file byte comparisons and unchanged
+installed functional smoke. Candidate version remains1.5.1.4; no1.5.1.5 release.
+All54 installed screens open in both strict cold/warm offscreen processes.
+Strict exit1 is retained: Home cold5.404s versus5s; Preferences674/811ms and
+Mask718/528ms versus500ms stall limit. These are five underlying threshold
+failures, not19 independent bugs. No native acceptance is inferred.
+
+One separately reviewed scratch cProfile diagnostic completed54screens and
+retained strict exit1. Both original callback entries were on MainThread and
+the expected dumps were written, but inconsistent/mixed caller relationships
+and Mask profile totals exceeding callback wall time prevent reliable GUI
+cost attribution. No function-level cause or source fix is established.
+Actual allowance socket/TLS activity was recorded despite intended offline
+setup; response unknown. Model-offline environment is not a network barrier.
+No repeat, threshold change, product patch or clean-offline claim followed.
+All955 installed regular files and artifact/origin identities stayed unchanged.
+Portable evidence: data/candidate_1514_b51_installed_functional_smoke_2026-10-15/,
+data/candidate_1514_b51_installed_screen_diagnostic_2026-10-15/ and
+data/candidate_1514_b51_cprofile_diagnostic_2026-10-15/. Original real-display,
+frozen-platform and representative pipeline acceptance remain open.
