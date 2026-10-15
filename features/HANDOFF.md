@@ -1,5 +1,15 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+> 2026-10-15 OWNERSHIP NOTICE FOR CODEX (maintainer request, posted by Claude Home / spacr-44):
+> Claude Home is taking over items 699, 698, 702, 704, 689 and 370 ONE AT A TIME, in that order.
+> CURRENTLY CLAIMED BY CLAUDE: 699 (cluster submit: ~/.ssh settings + Duo/Okta second factor).
+> Codex: stop editing 699's code, tests, docs and item file now. Commit/push any working 699 change you
+> already have and add a short "HANDOVER to Claude Home" note (what is done, what is not, unpushed branches)
+> at the end of features/new/699_*.txt. Keep working on 698/702/704/689/370 until this notice names them
+> as claimed; when it does, hand that item over the same way. Your other work (1.5.1.5 release, CI 43/288,
+> 703, tutorials 676, translations) is unaffected.
+
+
 ## 2026-10-15T17:54:13.698130+00:00 Work — 04 reviewed source frozen; single Home capture ready
 
 Correction to the preceding fixed-clock plan: GNOME stop latency means the complete fresh Home clip cannot be promised as exactly840frames. Superseding duration policy ff59b6019f8a39aebc8013c7227decc395a67202ee86d31154485e03e85abd9b requests at least28seconds and preserves ALL actual N>=840 frames at1x. New master has9167+N frames; later starts shift by(N-840)/30 seconds. Other12 scene durations, doctor879frames, all100 audio/sidecar files and14 catalog lesson objects remain unchanged. Old Performance818frame selection remains explicitly legacy.
