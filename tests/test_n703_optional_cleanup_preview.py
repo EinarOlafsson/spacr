@@ -184,3 +184,15 @@ def test_retained_paths_honor_external_overrides_xdg_and_relocation_without_scan
     machine.environ["TORCH_HOME"] = str(tmp_path / "external-torch")
     rows = {row["key"]: row for row in ic.preview_optional_cleanup("op", system=machine)["folders"]}
     assert rows["torch"]["path"] == str(tmp_path / "external-torch")
+
+
+def test_sound_override_strips_whitespace_while_other_writer_paths_remain_raw(cache, tmp_path):
+    machine, folder, body = cache
+    target = str(tmp_path / "external-sounds")
+    machine.environ.update({"SPACR_SOUND_CACHE": " " + target + " ",
+                            "SPACR_ICON_CACHE": " " + target + " "})
+    rows = {row["key"]: row for row in ic.preview_optional_cleanup("op", system=machine)["folders"]}
+    assert rows["sounds"]["path"] == target
+    assert rows["sounds"]["reason"] == "unverified"
+    assert rows["icons"]["path"] == str(Path(" " + target + " ").absolute())
+    assert not rows["sounds"]["selectable"] and not rows["icons"]["selectable"]

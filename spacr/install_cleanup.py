@@ -4931,6 +4931,8 @@ def preview_optional_cleanup(operation_id, *, system=None):
 
     for key, variable in variables.items():
         override = machine.env(variable) or locations.get(variable, "")
+        if key == "sounds":
+            override = override.strip()
         path = normalized(override, expand=False) if override else os.path.join(cache_home, key)
         contents = []
         reason, size, selectable = "unverified", None, False
