@@ -119,3 +119,11 @@ VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_tooltips.py, test
   Qt 6.12/Linux offscreen/6G/GPU hidden, serialized with the Home-B heavy lock.
   No API/caption changes or native Windows/macOS acceptance claim. Proof:
   data/506_delegate_tooltip_hold_2026-10-14/receipt.json.
+
+2026-10-14 Home-B — source-current tooltip API locale refresh
+Normal API translation reuse regenerated the nine non-English leaveEvent entries
+after the obsolete shorter-grace paragraph was removed. Existing two paragraphs,
+translation provenance and all 13,398 other symbols per locale are unchanged;
+review record parameter index follows the removed paragraph. Eighteen retained
+blocks pass source/context gates; four focused tests PASS in16.95s. No human or
+native-speaker review is claimed. Receipt: features/data/506_tooltip_api_refresh_2026-10-14/.
