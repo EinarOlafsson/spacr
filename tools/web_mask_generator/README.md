@@ -46,8 +46,20 @@ planes to 25 million pixels and PDFs to 256 pages. TIFF currently decodes a
 whole selected series, so its preflight uses that series' complete decoded
 size, even if only one T/Z plane is requested. Selection and size refusals
 occur before TIFF decode or PDF render. Unsupported palette/multiframe ordinary
-images and vendor formats are refused explicitly; CZI/ND2 adapters remain open.
+images and unsupported vendor reader versions are refused explicitly.
 
 Python dependencies are the existing spaCR NumPy, pandas, tifffile,
-scikit-image and Pillow packages, with `pypdfium2` required only for PDF input.
+scikit-image and Pillow packages, with `pypdfium2` required only for PDF input, scene-aware `czifile` for CZI,
+and `nd2reader` for supported ND2 versions.
 No dependency is installed automatically by these components.
+
+
+Optional microscopy adapters retain explicit scene/position, T/Z and channel
+choices. Current scene-aware czifile reads CZI scenes without blending them.
+ND2Reader reads the selected position/time/Z/channel frames; reader-decoded
+pixel values/dtypes are preserved. The decoded-byte preflight remains
+conservative against the described whole series. Unsupported ND2 metadata
+without declared X/Y dimensions is refused, and legacy czifile APIs without
+scene metadata are refused rather than guessing scene identity. CPU acceptance
+uses repository CZI fixtures and an already-cached public OME ND2 fixture;
+CI skips the latter if unavailable, and never downloads it implicitly.

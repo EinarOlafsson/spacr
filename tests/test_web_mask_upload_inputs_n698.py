@@ -123,7 +123,7 @@ def test_palette_and_multiframe_plain_images_are_explicitly_refused(tmp_path):
 
 
 def test_unknown_format_missing_file_and_ambiguous_axes_fail(tmp_path):
-    path = tmp_path / "sample.czi"
+    path = tmp_path / "sample.unsupported"
     path.write_bytes(b"not a supported upload yet")
     with pytest.raises(ValueError, match="Unsupported"):
         inputs.describe_upload(path)

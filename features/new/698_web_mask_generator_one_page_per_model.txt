@@ -139,3 +139,20 @@ exercise actual decoders. Initial 68 PASS/1 FAIL identified unsupported PDF page
 context management; explicit native handle closes fixed it; original result is
 retained. No hosted/GPU/browser or scientific parity acceptance is claimed.
 Evidence: features/data/698_upload_inputs_2026-10-14/.
+
+2026-10-14 — Original Home: optional CZI/ND2 upload adapters implemented.
+Scene-aware czifile retains explicit CZI scene/T/Z/channel identity; ND2Reader
+retains explicit ND2 position/time/depth/channel identity and exact decoder
+pixel values/dtype. Existing upload size/selection preflights apply. Missing
+readers, legacy CZI APIs without scene metadata, and unsupported ND2 spatial
+headers are refused rather than guessed. No installs/downloads occur.
+Owning closure: 8 vendor cases plus 75 earlier reader/package regressions PASS,
+actual exit 0, 4.62s; reader total172/172 statements and70/70 branch arcs covered.
+Actual two-scene TCZYX CZI from repository fixtures and an already-cached public
+OME MeOh ND2 were decoded and matched independent direct reader calls. Original
+source byte hashes remain unchanged. The first 82 PASS/1 FAIL caught the ND2
+reader's string-path-only API; converting Path to str fixed it. The cached ND2
+acceptance skips where unavailable, without a network fallback. Installed reader
+cannot read the other cached ND2 version's spatial metadata; that version remains
+explicitly unsupported. No new module under spacr/, UI route, inference or GPU
+claim. N698 still partial. Receipt: features/data/698_vendor_inputs_2026-10-14/.
