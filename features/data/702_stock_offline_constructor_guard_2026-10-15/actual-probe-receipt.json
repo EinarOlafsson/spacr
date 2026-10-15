@@ -1,0 +1,24 @@
+{
+  "state": "actual native-helper offline-policy gap observed; production untouched",
+  "cellpose_version": "4.2.1.1",
+  "source_sha256": {
+    "/mnt/wd4tb/spacr-worktrees/codex-f567-parent-identity-20261015/spacr/utils.py": "e6915ca7153bd132a591f1455d1bf6202eb1ec115258f66023da42e33c3a33eb",
+    "/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/cellpose/models.py": "3b007cb67910720a3d7ac16643c348bba93743e6ab81d9468e90986ca9a38511"
+  },
+  "offline_environment": "SPACR_MODEL_DOWNLOAD=0",
+  "resolved_stock": "cpsam",
+  "download_seam_events": [
+    {
+      "url": "https://huggingface.co/mouseland/cellpose-sam/resolve/main/cpsam",
+      "destination": "/mnt/wd4tb/scratch/n702-stock-offline-source-audit-20261015/private-cache-_moe6h9s/cpsam",
+      "kwargs": {
+        "progress": true
+      }
+    }
+  ],
+  "cached_control": "exact private path returned, no second sentinel and dummy bytes unchanged",
+  "transport_calls": 0,
+  "model_constructor_calls": 0,
+  "decode_calls": 0,
+  "limits": "resolver-to-native-cache helper composition only; not actual model construction, cluster, GPU, science or full pipeline acceptance"
+}

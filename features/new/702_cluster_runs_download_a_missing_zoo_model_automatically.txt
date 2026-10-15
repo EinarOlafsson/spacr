@@ -628,3 +628,16 @@ data/702_claim_reservation_rollback_2026-10-15/receipt.json.
     visibility/zero-nested/committed-English absence evidence, no API targets.
     No real model/network/GPU/nativecluster/fullCI or whole702 acceptance.
     Evidence:data/702_unknown_model_stock_refusal_2026-10-15/.
+
+2026-10-15 — private stock offline constructor boundary
+    Actual installed Cellpose4.2.1.1 cache helper reached a replaced downloader
+    under SPACR_MODEL_DOWNLOAD=0 after the stock resolver returned cpsam.
+    No transport, constructor or checkpoint decode occurred. The constructor
+    boundary now refuses missing/nonregular native cache under0/off/false/no,
+    preserving explicit relative checkpoint precedence, cached stock, blank/
+    legacy/sam defaults and online behavior. Baseline8FAIL10PASS10.17s; final
+    owning18PASS8.35s. Existence-only preflight, not checksum verification or
+    safety against another process deleting cached files during construction.
+    PRIVATE pending exact owner/nine reviewed targets/normal generation and
+    actual localized refusal closure. No whole702/nativecluster/fullCI claim.
+    Evidence:data/702_stock_offline_constructor_guard_2026-10-15/receipt.json.
