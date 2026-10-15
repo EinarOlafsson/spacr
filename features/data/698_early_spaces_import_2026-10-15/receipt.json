@@ -1,0 +1,18 @@
+{
+  "status": "Private entrypoint-only preparation; peer/publication pending",
+  "base": "9263977fc9b977be880ca783d6716d2c6c4aeb6c",
+  "source": "tools/web_mask_generator/space_app.py",
+  "source_sha256": "7df2e6bf444f926e330d7d5132d5b5a0578036cf1297fd517ce4fdc47d345414",
+  "test_sha256": "863f819a94603db13dc35b424fdd7e0b4a673a702e5fec6a17dcf766fd71a455",
+  "baseline": "2FAIL7PASS0.77s: spaces not initialized before app, missing selected framework does not refuse before app",
+  "final": "9PASS0.62s",
+  "static_proof": "Removing only importlib/os imports and the exact explicitly-enabled framework initialization restores the complete original AST including main guard.",
+  "scope": "Conditional spaces import only when SPACR_WEB_ZERO_GPU==1; CPU unset/0/off/false/yes routes stay optional. Actual entrypoint executed by runpy with controlled modules/import hooks; all tests restore sys.path/modules/environment.",
+  "coordination": "Root granted space_app.py only; CI637759 owns app.main/managed templates/requirements/README, inspected commit has no entrypoint overlap. Direct scope message sent to CI.",
+  "limits": [
+    "No actual spaces/PyTorch/GPU/model import in owning tests, no server/network/deployment.",
+    "No native ZeroGPU startup/CUDA placement or hosting/quotas/scientific acceptance.",
+    "No new tr strings, spacr source, public API/runtime catalog or generated artifact change."
+  ],
+  "official_source": "https://huggingface.co/docs/hub/spaces-zerogpu"
+}
