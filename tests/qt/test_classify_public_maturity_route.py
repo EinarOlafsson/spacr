@@ -21,6 +21,7 @@ def test_classify_runtime_stage_matches_existing_stable_assessment(public_prefer
 
     spacr.qt.register_self_registering_modules()
     assert maturity.AFFIRMED['classify_merged'][0] == 'stable'
+    assert 'classify_merged' not in app.APP_STAGE
     assert app.app_stage('classify_merged') == 'stable'
     assert 'classify_merged' in {row[0] for row in app.visible_apps()}
     assert all(app.app_stage(row[0]) == 'stable' for row in app.visible_apps())

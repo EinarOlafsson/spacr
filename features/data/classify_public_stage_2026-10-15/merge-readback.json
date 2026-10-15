@@ -18,9 +18,10 @@
     "spacr/qt/app.py",
     "tests/qt/test_classify_public_maturity_route.py"
   ],
-  "tested_app_and_test_source_unchanged": true,
+  "tested_app_and_test_source_unchanged": false,
   "generated_catalogs_identical_to_incoming": true,
   "no_unrelated_source_changes": true,
   "generation_disposition": "No function/prose/caption/line-number changes; no global generation needed for one stage constant correction.",
-  "incoming_raw_evidence_whitespace": "Merge brought pre-existing Work patch/log whitespace warnings; preserved owner raw evidence unchanged. Own delta diff-check passes."
+  "incoming_raw_evidence_whitespace": "Merge brought pre-existing Work patch/log whitespace warnings; preserved owner raw evidence unchanged. Own delta diff-check passes.",
+  "superseded_by": "Final route source/AST/readback in receipt.json and ci-peer-review-v2.json; this intermediate readback retained as historical evidence"
 }

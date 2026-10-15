@@ -4,7 +4,7 @@
 
 Classify’s explicit APP_STAGE entry now agrees with the existing later stable
 AFFIRMED assessment. The narrow source change reproduced three actual route
-failures, then passed eight targeted registry/Home/Sidebar and maturity checks
+failures, then passed three targeted registry/Home/Sidebar checks
 with alpha, beta and future controls hidden. Evidence and independent source
 peer: features/data/classify_public_stage_2026-10-15/. No other stage or gate
 changes, native capture, scientific acceptance or tutorial publication. Work
