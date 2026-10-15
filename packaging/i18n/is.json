@@ -76,5 +76,6 @@
   "gui_retry": "Reyna aftur",
   "gui_cancelled": "Hætt var við uppsetningu. Skoðaðu annálinn áður en þú reynir aftur.",
   "gui_failed": "Uppsetning eða ræsing mistókst. Skoðaðu annálinn og reyndu aftur í þessum glugga.",
-  "gui_stopping": "Stöðva uppsetningu og endurheimta fyrra keyrsluumhverfið…"
+  "gui_stopping": "Stöðva uppsetningu og endurheimta fyrra keyrsluumhverfið…",
+  "nsis_uninstall_failed": "spaCR gat ekki lokið fjarlægingu á öruggan hátt. Sjá nánari upplýsingar hér að ofan; gögnin þín hafa verið varðveitt."
 }

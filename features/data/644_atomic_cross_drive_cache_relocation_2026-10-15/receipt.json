@@ -1,0 +1,34 @@
+{
+  "item": 644,
+  "scope": "Cross-device cache relocation never publishes interrupted copies",
+  "baseline": {
+    "failed": 1,
+    "seconds": 1.27
+  },
+  "tests": [
+    {
+      "passed": 52,
+      "seconds": 2.67
+    },
+    {
+      "passed": 5,
+      "seconds": 0.79,
+      "overlap": 1
+    }
+  ],
+  "distinct_passed": 56,
+  "guarantees": [
+    "Same-filesystem native rename retained; copying only after EXDEV.",
+    "Cross-device copy stages privately and atomically publishes only after complete copy.",
+    "Source stays intact until metadata commits.",
+    "Failed copy leaves source bytes, metadata and environment unchanged; staging cleaned and retry succeeds.",
+    "Preexisting empty target restored after failed copy.",
+    "Concurrent private target bytes preserved.",
+    "Post-commit old source cleanup failure keeps valid committed target and warns."
+  ],
+  "limitations": [
+    "EXDEV injected at native rename boundary; actual native temporary-file copying, no real mounted second drive or live user cache.",
+    "Metadata failure after completed cross-device publication preserves both complete copies with warning; caller must resolve the retained target before retry.",
+    "No UI/captions, model/network/GPU or full CI."
+  ]
+}

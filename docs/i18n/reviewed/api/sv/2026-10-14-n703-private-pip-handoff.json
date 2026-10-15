@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "records": [
+    {
+      "label": "spacr.install_cleanup#2",
+      "source": "Supported macOS online installations and dedicated POSIX pip environments use their existing package tool after approved shutdown to stage, verify and atomically activate an updated sibling runtime. Bootstrap files, launchers, unchanged packages and the previous runtime are retained. Shared, Conda and Windows Python environments require their own replacement adapter.",
+      "source_sha256": "f7429e66190134bb8d3b5b0468206f3e3128f87883921c7fbe700c7479929706",
+      "context": "Supported macOS online installations and dedicated POSIX pip environments use their existing package tool after approved shutdown to stage, verify and atomically activate an updated sibling runtime. Bootstrap files, launchers, unchanged packages and the previous runtime are retained. Shared, Conda and Windows Python environments require their own replacement adapter.",
+      "translation": "Stödda macOS-onlineinstallationer och dedikerade POSIX-miljöer med pip använder sitt befintliga paketverktyg efter godkänd avstängning för att förbereda, verifiera och atomärt aktivera ett uppdaterat syskon till körmiljön. Bootstrap-filer, startprogram, oförändrade paket och den tidigare körmiljön behålls. Delade miljöer, Conda-miljöer och Python-miljöer på Windows kräver en egen ersättningsadapter.",
+      "review_basis": "AI technical review (Codex), exact current English. Preserves approved-shutdown ordering, sibling staging, atomic activation, retained previous runtime and unsupported shared/Conda/Windows scope. No human/native-speaker signoff."
+    },
+    {
+      "label": "spacr.install_cleanup.start_update_helper#1",
+      "source": "Installer-made copies and supported dedicated POSIX pip environments can use this helper. It waits for the running process to exit before changing the installation; the pip adapter also requires authenticated shutdown approval.",
+      "source_sha256": "45e52606fdc21a856ce1be0f8dfe0b59e36ee66e6861c3de9acb519cece16486",
+      "context": "Installer-made copies and supported dedicated POSIX pip environments can use this helper. It waits for the executing process to exit before changing the installation; the pip adapter also requires authenticated shutdown approval.",
+      "translation": "Kopior skapade av installationsprogrammet och stödda dedikerade POSIX-miljöer med pip kan använda denna hjälpprocess. Den väntar tills den körande processen har avslutats innan installationen ändras; pip-adaptern kräver också autentiserat godkännande av avstängningen.",
+      "review_basis": "AI technical review (Codex), exact current English. Preserves approved-shutdown ordering, sibling staging, atomic activation, retained previous runtime and unsupported shared/Conda/Windows scope. No human/native-speaker signoff."
+    }
+  ]
+}

@@ -115,6 +115,22 @@ cohort now passes28 in1.64seconds under a2G cap. No UI/caption changes or real
 cache/model/network/GPU/fullCI operations. Evidence:
 data/644_cache_location_path_types_2026-10-15/receipt.json.
 
+2026-10-15 — interrupted cross-drive cache copy is never a final cache:
+Same-device moves retain native rename. Only EXDEV invokes copying, now into
+a private sibling followed by atomic publication after the complete copy.
+The source remains intact until location metadata commits. Failed copy
+cleans staging, preserves source/metadata/environment and permits retry;
+an existing empty target is restored, concurrent private target bytes survive.
+After commit, old-source cleanup failure warns while the new cache stays usable.
+Native baseline1FAIL1.27seconds; finite storage52PASS2.67seconds plus lifecycle
+5PASS0.79seconds, one overlap,56distinct checks. EXDEV is injected at the native
+rename boundary; all bytes/copies are actual temporary files. A metadata write
+failure after full cross-drive publication safely retains both complete copies
+with a warning; it does not silently delete a concurrent target or accept a
+partial cache. No UI/captions, real user data, model/network/GPU/fullCI or
+physical second-drive acceptance. Evidence:
+data/644_atomic_cross_drive_cache_relocation_2026-10-15/receipt.json.
+
 2026-10-15 — model-cache UI validated with the actual relocation core:
 Storage now captures the original cache identity and updates a remembered model
 folder only after a successful move and only when it still matches the old cache.

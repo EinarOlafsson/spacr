@@ -76,5 +76,6 @@
   "gui_retry": "Tentar novamente",
   "gui_cancelled": "Instalação cancelada. Consulte o registo antes de tentar novamente.",
   "gui_failed": "Falha na instalação ou no arranque. Consulte o registo e tente novamente nesta janela.",
-  "gui_stopping": "A parar a instalação e a restaurar o ambiente anterior…"
+  "gui_stopping": "A parar a instalação e a restaurar o ambiente anterior…",
+  "nsis_uninstall_failed": "O spaCR não conseguiu concluir a desinstalação com segurança. Consulte os detalhes acima; os seus dados foram preservados."
 }
