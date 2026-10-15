@@ -182,6 +182,31 @@ def test_existing_encoder_entry_captions_remain_inventoried(extract_backend_sour
         f'def encoder_entry():\n    return tr({caption!r})\n') == {caption}
 
 
+def test_foundation_comparison_input_caption_enters_its_declared_owner(
+        extract_backend_sources):
+    caption = "Provide a four-dimensional crop stack and one label per crop."
+    assert extract_backend_sources('embeddings.py',
+        f'def _backbone_scorecards():\n    raise EmbeddingError(tr({caption!r}))\n') == {caption}
+
+
+def test_foundation_comparison_owner_does_not_admit_other_scopes(
+        extract_backend_sources):
+    source = '''
+tr("An unrelated module caption.")
+def unrelated():
+    def _backbone_scorecards():
+        return tr("An unrelated nested same-name function.")
+    return tr("An unrelated function caption.")
+class Unrelated:
+    def _backbone_scorecards(self):
+        return tr("An unrelated class method caption.")
+def _backbone_scorecards():
+    """Internal comparison documentation is not a runtime caption."""
+    return "An untranslated implementation detail."
+'''
+    assert extract_backend_sources('embeddings.py', source) == set()
+
+
 def test_mil_bag_identity_caption_enters_only_through_its_owner(extract_backend_sources):
     caption = "Well identifier {well} spans different acquisition wells; use complete, unique well identifiers."
     assert extract_backend_sources('embeddings.py',

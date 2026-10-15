@@ -4220,7 +4220,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
         if path == source_root / "embeddings.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
-                         and node.name in {"encoder_entry", "_mil_frame_from_db", "_mil_bags"}]
+                         and node.name in {"encoder_entry", "_mil_frame_from_db", "_mil_bags",
+                                           "_backbone_scorecards"}]
         if path == source_root / "measure.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
