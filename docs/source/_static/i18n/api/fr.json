@@ -126614,18 +126614,20 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state": {
       "source_blocks_sha256": [
-        "af06d5a8af4b45e3ddf2a443adb0faa443e4ceb48ca8061d693343619d5f9ac6",
-        "37b0d485c5f0563d08e654bb7a815285dbfd34db3a1ef772e8e644845ebad6b6",
-        "d09a2eabf33060e5d34076f3faa2411e1627391fc74987a1fa7c4d3708f65756",
-        "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e"
+        "e2c49602887624f4b227e63df0a64808f2b2f6dafbf64ba1e18d108186eb6e70",
+        "5a3d2cd95827cdaf388e4b40a3fafa80bd1899a341e7489437fc813b1f8bba04",
+        "5962be8627a716e17971c404e6e60aa0231d22f667ef389938f9aee59dcb6534",
+        "85598811221862c5228d488675eb53f14caf767ca43e354c74de6b661385f01e",
+        "ea792b5ddcff29d5827733d07e5645be6acf133c2c7d04b754103acc334cf461"
       ],
-      "source_sha256": "715c194898c02d1a2ee9d47e6be34494ad9bba7ba34437d07b05d25c30092de2",
-      "text": "Remettez les réglages du montage. Ne le reconstruisez pas.\n\nRetourne si quelque chose a été appliqué.\n\nLe montage n'est pas reconstruit. Chargement des régions d'image extraites est la moitié lente -- le premier montage d'une session de traitement lit les images hors disque pendant des secondes -- et le démarrage sur la restauration bloquerait une fenêtre qui vient d'être ouverte. Les paramètres sont remis et le bouton est disponible.\n\n:param state: mappage tel qu’enregistré avec l’espace de travail ; ses entrées ``picture_settings``, ``widgets``, ``picture_mode`` et ``coefficient`` sont chacune appliquées si elles sont présentes, et un objet qui n’est pas un dictionnaire n’applique rien.",
+      "source_sha256": "118542cf10cc39bab896c52eae0a16ee19c992b6b406934c49e438757c7507de",
+      "text": "Restaurer les contrôles du montage et de comparaison sans calculer d’images.\n\nUn état reconnu annule le chargement du montage en attente et les chargements de coefficients en file. Les signaux des contrôles sont bloqués pendant la restauration des paramètres, afin qu’un montage existant ne soit ni rechargé ni redessiné automatiquement. Les choix de régions d’image s’appliquent à la prochaine construction explicitement demandée ; les onglets de puits existants conservent leurs propres légendes et images.\n\nLes contrôles de comparaison sont transmis à un panneau existant sans actualisation. En l’absence de panneau, ils restent de simples données jusqu’à ce qu’une construction explicite du montage ou une action Comparer le crée. La restauration ne crée jamais de panneau de comparaison, ne lance aucune jointure de mesures et ne calcule aucun graphique.\n\n:param state: la table de correspondance enregistrée ; les entrées reconnues sont ``picture_settings``, ``widgets``, ``picture_mode``, ``coefficient`` et ``comparison``. Une valeur qui n’est pas un dictionnaire n’applique rien.\n:returns: indique si un état reconnu a été appliqué ou conservé pour plus tard.",
       "translation_source_blocks_sha256": [
-        "af06d5a8af4b45e3ddf2a443adb0faa443e4ceb48ca8061d693343619d5f9ac6",
-        "37b0d485c5f0563d08e654bb7a815285dbfd34db3a1ef772e8e644845ebad6b6",
-        "49244b6eff32a88ed1b2416caf7c7ce138d3e6e9c39da782aab0342dc09ef557",
-        "0ec435962d676e57022aa935ec1c21ab24a28e549511778294e7c78f03f3527a"
+        "e2c49602887624f4b227e63df0a64808f2b2f6dafbf64ba1e18d108186eb6e70",
+        "a6bb4a08c5db8a5758ce938acc2aba122357525613b8d4d2027fc36f3ce53818",
+        "5962be8627a716e17971c404e6e60aa0231d22f667ef389938f9aee59dcb6534",
+        "65a9115855716795665b0dec811a15cc9d9e178b153a3a8819c8024129b8b18b",
+        "ea792b5ddcff29d5827733d07e5645be6acf133c2c7d04b754103acc334cf461"
       ]
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.build": {
@@ -127082,16 +127084,16 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.workspace_state": {
       "source_blocks_sha256": [
-        "fe997b3b05c6c61c3115e33e595d26cbaad49feb7f7981e1682f96212d144ded",
-        "6ad18ddc1bd8de9c2a6f32c4ad7b9c62fa226b7fd1441e13a2c0ea12476ef997",
-        "4bb274b436dc6d049141d30590c02c2c22da203b326508a285f0f65881ac71bf"
+        "c85573ac432193cb8a47ea4b75825cf75a7f695623ad6f2cc33f6ef0e5c80820",
+        "2aca4f4ef12a8cd5b5b6657b496f820c4f624ae65ddbf265a806e6266d2ccc1c",
+        "a2a71954d4444381e84771e5f345674357cd35085f6c6cd28ed11255a29d9406"
       ],
-      "source_sha256": "58037117eea4f795e35862f031a042e398fb810bf926dc8b890631c1d3fea0e4",
-      "text": "Le montage de la session était ouvert, en tant que données.\n\nLes paramètres et le choix sont sauvegardés, pas les pixels. Un montage est des dizaines de mégaoctets de régions d'images extraites que les propres images de la session de traitement régénèrent exactement; ce qui ne peut pas être régénéré, c'est quel coefficient était sur la vue d'application, comment les cellules ont été sélectionnées, et comment elles ont été dessinées.\n\nLes groupes choisis sont enregistrés en tant qu'enregistrement, pas en tant que saisie -- `picked_groups()` est ce que le sélectionneur a choisi compte tenu de ces paramètres, et la restauration des paramètres le reproduit. Ils sont enregistrés de sorte qu'un lecteur d'une exécution sauvegardée peut voir sur quelles cellules le résultat est resté sans rien ré-exécuter.",
+      "source_sha256": "ad51ffb4d263a5792ac3a356de91ae40d1cf6f516c9abbba28c7bd7bd11fc607",
+      "text": "Renvoie les choix du montage et les éventuels contrôles de comparaison enregistrés sous forme de données.\n\nLes paramètres et le coefficient sélectionné sont enregistrés, pas les pixels des régions d’image. Les groupes choisis consignent les cellules sélectionnées par le montage actuel ; ils ne sont pas rejoués comme entrée du sélecteur. La reconstruction utilise les fichiers actuels de l’exécution, les paramètres et l’implémentation actuelle du sélecteur.\n\nLa comparaison fournit ses contrôles lorsque son panneau existe déjà. Sinon, une comparaison restaurée avant la création du panneau est conservée sous forme de données simples. La collecte de l’état ne crée jamais le panneau et ne calcule aucune comparaison.",
       "translation_source_blocks_sha256": [
-        "fe997b3b05c6c61c3115e33e595d26cbaad49feb7f7981e1682f96212d144ded",
-        "b48004093a287cb4e763d6aef1ef530d750f947326693b2886d13ccf330f4080",
-        "db8968002955679854da04668a6415e1322c1e5ed146aa64f73158eed95ae7dd"
+        "c85573ac432193cb8a47ea4b75825cf75a7f695623ad6f2cc33f6ef0e5c80820",
+        "b5faee2627a6dafa458019f1ef221faac0df8f355ea4d3e734932c4579209c16",
+        "a2a71954d4444381e84771e5f345674357cd35085f6c6cd28ed11255a29d9406"
       ]
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.write_scores_into_the_databases": {
@@ -157878,6 +157880,22 @@
         "9fb8480b0e0d137987fc23bd4d2d561e8621bc869f45c513646870ba840474e3"
       ]
     },
+    "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.apply_workspace_state": {
+      "source_blocks_sha256": [
+        "a99fbe885aeaea1ab91eede456c02a98599f0143b38b5bc9b18a32c1b4fbc7b9",
+        "521174f1ed5670878eed0452e3e502771fca0305327d17325714822d61b6ecfa",
+        "494479fac5a911b567168ca243fb65f8a2b9a607254e9707c6389dd25425207f",
+        "b74eba65ec43c65f1ef0d00dbc4dbe0fbde78f53b7d97e088938b29a39c2623b"
+      ],
+      "source_sha256": "40ff367d2d04f95796c0b0d9cfd1c848e2a483ae15faf043fa295c4b118cb196",
+      "text": "Restaurer les contrôles de comparaison sans calculer ni tracer de graphique.\n\nLes entrées reconnues et de type correct sont appliquées indépendamment. Les choix fixes inconnus sont ignorés ; les identifiants de mesure et de classe qui ne sont pas encore proposés restent en attente jusqu’à une actualisation ordinaire ou une mise à jour des données. Les identifiants des guides et puits sélectionnés sont conservés sans lire de fichiers. Une jointure active appartenant à ce panneau est annulée pour que son résultat tardif ne remplace pas l’état restauré. Aucune nouvelle jointure, lecture de fichier ou inférence ne démarre. La comparaison et la figure en cache restent inchangées jusqu’à la prochaine actualisation.\n\n:param state: la table de correspondance renvoyée par :meth:`workspace_state` ; les valeurs qui ne sont pas des dictionnaires et les correspondances sans entrées utilisables laissent le panneau inchangé.\n:returns: ``True`` si au moins une entrée utilisable a été appliquée, même si sa valeur était déjà sélectionnée ; sinon ``False``.",
+      "translation_source_blocks_sha256": [
+        "a99fbe885aeaea1ab91eede456c02a98599f0143b38b5bc9b18a32c1b4fbc7b9",
+        "b89286a3fc14b7146db4e4270a2ec0be26e101c839c6cbdf49ebfd826c63b3f3",
+        "95be6ed5f1388e6b6a40b98af0e0073dc163e0c03ddb293ee94d9873ca4d07bc",
+        "b74eba65ec43c65f1ef0d00dbc4dbe0fbde78f53b7d97e088938b29a39c2623b"
+      ]
+    },
     "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.cancel_the_join": {
       "source_blocks_sha256": [
         "cf9f10aceb8044cae462c47596405599c2dde1ac3fd27942dbe7c048df82db1a",
@@ -158082,6 +158100,18 @@
         "68440708b0176e3d3063c76675d3ef778f403d7f08413368eda149b6feed8aed",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "4668fd61aa02d91b6f540e72570177108878feb58dea42c66fd4eebf5a7cf2bf"
+      ]
+    },
+    "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.workspace_state": {
+      "source_blocks_sha256": [
+        "bf01571286041445a10c215ec70ccc53f635b5e758e022dd13de8e4ea4ec03ac",
+        "a8e84bc2a792779dc2480f47cf72bffae56ded36b659f5c235d82d5c30cf4ee9"
+      ],
+      "source_sha256": "71e98f4f30d6400b8f087487c02fb00b388ea219959fdee5c8666faf8bea263d",
+      "text": "Renvoie les choix de comparaison compatibles avec JSON sans recueillir de données.\n\nLes valeurs des listes déroulantes sont des identifiants stables, pas des libellés traduits. Les choix de mesure et de classe en attente restent enregistrés jusqu’à ce qu’une actualisation ultérieure puisse les proposer. Les sélections de puits conservent ``None`` pour tous les puits annotés ou pour les puits du périmètre dérivé des guides, respectivement ; une liste vide ne sélectionne aucun puits. Les tables de données, figures, chemins de bases de données et tâches en cours ne sont pas inclus.",
+      "translation_source_blocks_sha256": [
+        "bf01571286041445a10c215ec70ccc53f635b5e758e022dd13de8e4ea4ec03ac",
+        "393ee9ba01f4ce62b031924e55a9211f7a577ab4a807b6c5bdabed626b7b67c4"
       ]
     },
     "spacr.qt.widgets.measurement_scan_panel": {

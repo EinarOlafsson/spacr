@@ -126614,18 +126614,20 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state": {
       "source_blocks_sha256": [
-        "af06d5a8af4b45e3ddf2a443adb0faa443e4ceb48ca8061d693343619d5f9ac6",
-        "37b0d485c5f0563d08e654bb7a815285dbfd34db3a1ef772e8e644845ebad6b6",
-        "d09a2eabf33060e5d34076f3faa2411e1627391fc74987a1fa7c4d3708f65756",
-        "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e"
+        "e2c49602887624f4b227e63df0a64808f2b2f6dafbf64ba1e18d108186eb6e70",
+        "5a3d2cd95827cdaf388e4b40a3fafa80bd1899a341e7489437fc813b1f8bba04",
+        "5962be8627a716e17971c404e6e60aa0231d22f667ef389938f9aee59dcb6534",
+        "85598811221862c5228d488675eb53f14caf767ca43e354c74de6b661385f01e",
+        "ea792b5ddcff29d5827733d07e5645be6acf133c2c7d04b754103acc334cf461"
       ],
-      "source_sha256": "715c194898c02d1a2ee9d47e6be34494ad9bba7ba34437d07b05d25c30092de2",
-      "text": "Sätt tillbaka montagets inställningar.\n\nReturnerar om något har tillämpats.\n\nMontaget är inte ombyggt. Att ladda de extraherade bildområdena är den långsamma halvan -- den första montaget av en processsession läser av bilder från disken i sekunder -- och att starta den på återställning skulle frysa ett fönster som just öppnades. Inställningarna läggs tillbaka och knappen är tillgänglig.\n\n:param state: mappning så som den sparades med arbetsytan; dess poster ``picture_settings``, ``widgets``, ``picture_mode`` och ``coefficient`` tillämpas var och en när de finns, och något som inte är en dict tillämpar ingenting.",
+      "source_sha256": "118542cf10cc39bab896c52eae0a16ee19c992b6b406934c49e438757c7507de",
+      "text": "Återställ montage- och jämförelsekontroller utan att beräkna bilder.\n\nIgenkänt tillstånd avbryter den väntande montageinläsningen och köade koefficientinläsningar. Kontrollernas signaler blockeras medan inställningarna återställs, så ett befintligt montage läses inte om eller ritas om automatiskt. Bildutsnittsvalen tillämpas vid nästa uttryckligen begärda bygge; befintliga brunnsflikar behåller sina egna bildtexter och bilder.\n\nJämförelsekontroller skickas till en befintlig panel utan uppdatering. Om ingen panel finns förblir de vanliga data tills ett uttryckligen begärt montagebygge eller en Jämför-åtgärd skapar den. Återställning skapar aldrig en jämförelsepanel, startar ingen sammanfogning av mätdata och beräknar ingen graf.\n\n:param state: sparad mappning; igenkända poster är ``picture_settings``, ``widgets``, ``picture_mode``, ``coefficient`` och ``comparison``. Ett värde som inte är en ordbok tillämpar ingenting.\n:returns: om igenkänt tillstånd tillämpades eller behölls till senare.",
       "translation_source_blocks_sha256": [
-        "af06d5a8af4b45e3ddf2a443adb0faa443e4ceb48ca8061d693343619d5f9ac6",
-        "37b0d485c5f0563d08e654bb7a815285dbfd34db3a1ef772e8e644845ebad6b6",
-        "49244b6eff32a88ed1b2416caf7c7ce138d3e6e9c39da782aab0342dc09ef557",
-        "0ec435962d676e57022aa935ec1c21ab24a28e549511778294e7c78f03f3527a"
+        "e2c49602887624f4b227e63df0a64808f2b2f6dafbf64ba1e18d108186eb6e70",
+        "a6bb4a08c5db8a5758ce938acc2aba122357525613b8d4d2027fc36f3ce53818",
+        "5962be8627a716e17971c404e6e60aa0231d22f667ef389938f9aee59dcb6534",
+        "65a9115855716795665b0dec811a15cc9d9e178b153a3a8819c8024129b8b18b",
+        "ea792b5ddcff29d5827733d07e5645be6acf133c2c7d04b754103acc334cf461"
       ]
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.build": {
@@ -127082,16 +127084,16 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.workspace_state": {
       "source_blocks_sha256": [
-        "fe997b3b05c6c61c3115e33e595d26cbaad49feb7f7981e1682f96212d144ded",
-        "6ad18ddc1bd8de9c2a6f32c4ad7b9c62fa226b7fd1441e13a2c0ea12476ef997",
-        "4bb274b436dc6d049141d30590c02c2c22da203b326508a285f0f65881ac71bf"
+        "c85573ac432193cb8a47ea4b75825cf75a7f695623ad6f2cc33f6ef0e5c80820",
+        "2aca4f4ef12a8cd5b5b6657b496f820c4f624ae65ddbf265a806e6266d2ccc1c",
+        "a2a71954d4444381e84771e5f345674357cd35085f6c6cd28ed11255a29d9406"
       ],
-      "source_sha256": "58037117eea4f795e35862f031a042e398fb810bf926dc8b890631c1d3fea0e4",
-      "text": "Montaget som sessionen hade öppnat, som data.\n\nInställningarna och valet sparas, inte bildpunkter. En montage är tiotals megabyte extraherade bildregioner som bearbetningssessionens egna bilder regenererar exakt; vad som inte kan regenereras är vilken koefficient som var på applikationsvyn, hur cellerna plockades, och hur de drogs. Det är vad som går in.\n\nDe valda grupperna sparas som en post, inte som en inmatning -- `picked_groups()` är vad plockaren valde med dessa inställningar, och återställer inställningarna reproducerar det. De sparas så att en läsare av en sparad körning kan se vilka celler resultatet vilade på utan att köra om någonting.",
+      "source_sha256": "ad51ffb4d263a5792ac3a356de91ae40d1cf6f516c9abbba28c7bd7bd11fc607",
+      "text": "Returnera montageval och eventuella sparade jämförelsekontroller som data.\n\nInställningar och vald koefficient sparas, inte bildutsnittens pixlar. De valda grupperna dokumenterar vilka celler det aktuella montaget valde; de återspelas inte som indata till väljaren. En ombyggnad använder körningens aktuella filer, inställningar och väljarimplementation.\n\nJämförelsen bidrar med sina kontroller när dess panel redan finns. Annars behålls en jämförelse som återställts innan panelen byggdes som vanliga data. Insamling av tillstånd skapar aldrig panelen och beräknar ingen jämförelse.",
       "translation_source_blocks_sha256": [
-        "fe997b3b05c6c61c3115e33e595d26cbaad49feb7f7981e1682f96212d144ded",
-        "b48004093a287cb4e763d6aef1ef530d750f947326693b2886d13ccf330f4080",
-        "db8968002955679854da04668a6415e1322c1e5ed146aa64f73158eed95ae7dd"
+        "c85573ac432193cb8a47ea4b75825cf75a7f695623ad6f2cc33f6ef0e5c80820",
+        "b5faee2627a6dafa458019f1ef221faac0df8f355ea4d3e734932c4579209c16",
+        "a2a71954d4444381e84771e5f345674357cd35085f6c6cd28ed11255a29d9406"
       ]
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.write_scores_into_the_databases": {
@@ -157878,6 +157880,22 @@
         "9fb8480b0e0d137987fc23bd4d2d561e8621bc869f45c513646870ba840474e3"
       ]
     },
+    "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.apply_workspace_state": {
+      "source_blocks_sha256": [
+        "a99fbe885aeaea1ab91eede456c02a98599f0143b38b5bc9b18a32c1b4fbc7b9",
+        "521174f1ed5670878eed0452e3e502771fca0305327d17325714822d61b6ecfa",
+        "494479fac5a911b567168ca243fb65f8a2b9a607254e9707c6389dd25425207f",
+        "b74eba65ec43c65f1ef0d00dbc4dbe0fbde78f53b7d97e088938b29a39c2623b"
+      ],
+      "source_sha256": "40ff367d2d04f95796c0b0d9cfd1c848e2a483ae15faf043fa295c4b118cb196",
+      "text": "Återställ jämförelsekontroller utan att beräkna eller rita en graf.\n\nIgenkända poster med rätt typ tillämpas oberoende av varandra. Okända fasta val ignoreras; identifierare för mätningar och klasser som ännu inte erbjuds förblir väntande tills en vanlig uppdatering eller datauppdatering sker. Valda guide- och brunnsidentifierare behålls utan att läsa filer. En aktiv sammanfogning som ägs av denna panel avbryts så att dess sena resultat inte kan ersätta det återställda tillståndet. Ingen ny sammanfogning, filläsning eller inferens startas. Den cachade jämförelsen och figuren förblir oförändrade tills nästa uppdatering.\n\n:param state: mappningen som returneras av :meth:`workspace_state`; värden som inte är ordböcker och mappningar utan användbara poster lämnar panelen oförändrad.\n:returns: ``True`` om minst en användbar post tillämpades, även om dess värde redan var valt; annars ``False``.",
+      "translation_source_blocks_sha256": [
+        "a99fbe885aeaea1ab91eede456c02a98599f0143b38b5bc9b18a32c1b4fbc7b9",
+        "b89286a3fc14b7146db4e4270a2ec0be26e101c839c6cbdf49ebfd826c63b3f3",
+        "95be6ed5f1388e6b6a40b98af0e0073dc163e0c03ddb293ee94d9873ca4d07bc",
+        "b74eba65ec43c65f1ef0d00dbc4dbe0fbde78f53b7d97e088938b29a39c2623b"
+      ]
+    },
     "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.cancel_the_join": {
       "source_blocks_sha256": [
         "cf9f10aceb8044cae462c47596405599c2dde1ac3fd27942dbe7c048df82db1a",
@@ -158082,6 +158100,18 @@
         "68440708b0176e3d3063c76675d3ef778f403d7f08413368eda149b6feed8aed",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "4668fd61aa02d91b6f540e72570177108878feb58dea42c66fd4eebf5a7cf2bf"
+      ]
+    },
+    "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.workspace_state": {
+      "source_blocks_sha256": [
+        "bf01571286041445a10c215ec70ccc53f635b5e758e022dd13de8e4ea4ec03ac",
+        "a8e84bc2a792779dc2480f47cf72bffae56ded36b659f5c235d82d5c30cf4ee9"
+      ],
+      "source_sha256": "71e98f4f30d6400b8f087487c02fb00b388ea219959fdee5c8666faf8bea263d",
+      "text": "Returnera JSON-kompatibla jämförelseval utan att samla in data.\n\nKombinationsrutornas värden är stabila identifierare, inte översatta etiketter. Väntande val av mätning och klass förblir sparade tills en senare uppdatering kan erbjuda dem. Brunnsurvalen behåller ``None`` för alla annoterade brunnar respektive brunnar inom det guidehärledda urvalet; en tom lista väljer inga. Datatabeller, figurer, databassökvägar och pågående jobb ingår inte.",
+      "translation_source_blocks_sha256": [
+        "bf01571286041445a10c215ec70ccc53f635b5e758e022dd13de8e4ea4ec03ac",
+        "393ee9ba01f4ce62b031924e55a9211f7a577ab4a807b6c5bdabed626b7b67c4"
       ]
     },
     "spacr.qt.widgets.measurement_scan_panel": {

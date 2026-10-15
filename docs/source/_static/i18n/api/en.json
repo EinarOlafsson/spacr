@@ -80061,13 +80061,14 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state": {
       "source_blocks_sha256": [
-        "af06d5a8af4b45e3ddf2a443adb0faa443e4ceb48ca8061d693343619d5f9ac6",
-        "37b0d485c5f0563d08e654bb7a815285dbfd34db3a1ef772e8e644845ebad6b6",
-        "d09a2eabf33060e5d34076f3faa2411e1627391fc74987a1fa7c4d3708f65756",
-        "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e"
+        "e2c49602887624f4b227e63df0a64808f2b2f6dafbf64ba1e18d108186eb6e70",
+        "5a3d2cd95827cdaf388e4b40a3fafa80bd1899a341e7489437fc813b1f8bba04",
+        "5962be8627a716e17971c404e6e60aa0231d22f667ef389938f9aee59dcb6534",
+        "85598811221862c5228d488675eb53f14caf767ca43e354c74de6b661385f01e",
+        "ea792b5ddcff29d5827733d07e5645be6acf133c2c7d04b754103acc334cf461"
       ],
-      "source_sha256": "715c194898c02d1a2ee9d47e6be34494ad9bba7ba34437d07b05d25c30092de2",
-      "text": "Put the montage's settings back. Does not rebuild it.\n\nReturns whether anything was applied.\n\nThe montage is not rebuilt. Loading the crops is the slow half -- the\nfirst montage of a run reads images off disk for seconds -- and\nstarting it on restore would freeze a window that was just opened. The\nsettings are put back and the button is available.\n\n:param state: mapping as saved with the workspace; its\n    ``picture_settings``, ``widgets``, ``picture_mode`` and\n    ``coefficient`` entries are each applied when present, and a\n    non-dict applies nothing."
+      "source_sha256": "118542cf10cc39bab896c52eae0a16ee19c992b6b406934c49e438757c7507de",
+      "text": "Restore montage and comparison controls without computing images.\n\nRecognized state cancels the pending montage and queued coefficient\nloads. Control signals are blocked while settings are restored, so\nan existing montage does not automatically reload or redraw. Crop\nchoices are applied for the next explicit build; its existing well\ntabs retain their own captions and images.\n\nComparison controls are passed to an existing panel without a\nrefresh. If no panel exists, they remain plain data until an explicit\nmontage build or Compare action creates it. Restoring never creates\na comparison panel, starts a measurement join, or computes a graph.\n\n:param state: saved mapping; recognized entries are\n    ``picture_settings``, ``widgets``, ``picture_mode``,\n    ``coefficient`` and ``comparison``. A non-dict applies nothing.\n:returns: whether recognized state was applied or retained for later."
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.build": {
       "source_blocks_sha256": [
@@ -80373,12 +80374,12 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.workspace_state": {
       "source_blocks_sha256": [
-        "fe997b3b05c6c61c3115e33e595d26cbaad49feb7f7981e1682f96212d144ded",
-        "6ad18ddc1bd8de9c2a6f32c4ad7b9c62fa226b7fd1441e13a2c0ea12476ef997",
-        "4bb274b436dc6d049141d30590c02c2c22da203b326508a285f0f65881ac71bf"
+        "c85573ac432193cb8a47ea4b75825cf75a7f695623ad6f2cc33f6ef0e5c80820",
+        "2aca4f4ef12a8cd5b5b6657b496f820c4f624ae65ddbf265a806e6266d2ccc1c",
+        "a2a71954d4444381e84771e5f345674357cd35085f6c6cd28ed11255a29d9406"
       ],
-      "source_sha256": "58037117eea4f795e35862f031a042e398fb810bf926dc8b890631c1d3fea0e4",
-      "text": "The montage the session had open, as data.\n\nThe settings and the choice are saved, not the pixels. A montage is\ntens of megabytes of crops that the run's own images regenerate\nexactly; what cannot be regenerated is which coefficient was on screen,\nhow the cells were picked, and how they were drawn. Those are what go\nin.\n\nThe picked groups are saved as a record, not as an input --\n`picked_groups()` is what the picker chose given these settings, and\nrestoring the settings reproduces it. They are saved so a reader of a\nsaved run can see which cells the result rested on without re-running\nanything."
+      "source_sha256": "ad51ffb4d263a5792ac3a356de91ae40d1cf6f516c9abbba28c7bd7bd11fc607",
+      "text": "Return montage choices and any saved comparison controls as data.\n\nSettings and the selected coefficient are saved, not crop pixels.\nPicked groups record which cells the current montage selected; they\nare not replayed as input to the picker. Rebuilding uses the current\nrun files, settings and picker implementation.\n\nThe comparison contributes its controls when its panel already\nexists. Otherwise a comparison restored before the panel was built\nis retained as plain data. Collecting state never creates the panel\nor computes a comparison."
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.write_scores_into_the_databases": {
       "source_blocks_sha256": [
@@ -100099,6 +100100,16 @@
       "source_sha256": "d8408087556cfadada162777292a45b00937da0adc8093f80a43cd491b8d7759",
       "text": "Compare measurements between selected cell groups and a reference.\nBuild the comparison panel: the pickers, the plot and the statistics.\n\nThe panel opens with the top hits selected: the top significant\nguides or genes and the wells that carry them, which the user can\nchange. The regression's results table gives the hits\n(:func:`spacr.well_scope._top_hits`); without one, the guides of the\nmontage's own groups are the selection. The population box then\nstarts on \"gRNAs + other datapoints in selected wells\", the derived\nwells are shown under the controls, and \"gRNAs…\" / \"selected wells…\"\nchange either. Nothing to select starts on \"All datapoints\", so a\npanel with no guides still draws what it drew before.\n\nThe join runs off the GUI thread. It reads every object table out of\nevery attached database and joins them onto the crop rows -- measured at\n3.2 s for one plate's 553 objects, so a four-plate screen of 60,000\nwould block the window for minutes.\n\nThe well selection is held as ``None`` for \"all of them\" rather than as\nthe full list: a well that appears after a re-run should be included,\nand a stored full list would silently exclude it.\n\n:param objects: the object rows for the montage and the contrasts.\n:param groups: selected group names mapped to object-index values.\n:param parent: parent widget, or ``None``.\n:param settings: run settings, saved alongside exported results.\n:param databases: measurement databases available for widening the\n    object table.\n:param counts: per-well counts, used to resolve control wells.\n:param results: the regression's coefficient table, as a frame or a\n    CSV path, for the opening selection."
     },
+    "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.apply_workspace_state": {
+      "source_blocks_sha256": [
+        "a99fbe885aeaea1ab91eede456c02a98599f0143b38b5bc9b18a32c1b4fbc7b9",
+        "521174f1ed5670878eed0452e3e502771fca0305327d17325714822d61b6ecfa",
+        "494479fac5a911b567168ca243fb65f8a2b9a607254e9707c6389dd25425207f",
+        "b74eba65ec43c65f1ef0d00dbc4dbe0fbde78f53b7d97e088938b29a39c2623b"
+      ],
+      "source_sha256": "40ff367d2d04f95796c0b0d9cfd1c848e2a483ae15faf043fa295c4b118cb196",
+      "text": "Restore comparison controls without computing or drawing a graph.\n\nRecognized, correctly typed entries are applied independently. Unknown\nfixed choices are ignored; measurement and class identifiers that are\nnot yet offered remain pending until an ordinary refresh or data update.\nSelected guide and well identifiers are retained without reading files.\nAn active join owned by this panel is cancelled so its late result cannot\nreplace the restored state. No new join, file read or inference starts.\nThe cached comparison and figure remain unchanged until the next refresh.\n\n:param state: mapping returned by :meth:`workspace_state`; non-dicts and\n    mappings without usable entries leave the panel unchanged.\n:returns: ``True`` if at least one usable entry was applied, even if its\n    value was already selected; otherwise ``False``."
+    },
     "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.cancel_the_join": {
       "source_blocks_sha256": [
         "cf9f10aceb8044cae462c47596405599c2dde1ac3fd27942dbe7c048df82db1a",
@@ -100235,6 +100246,14 @@
       ],
       "source_sha256": "7f02b806db918d605eabdf9aba1cff71373a21cba067ac7e580a5c1ae48a47d1",
       "text": "Return annotated wells in first-occurrence order.\n\nReturns\n-------\ntuple of str\n    Unique wells represented by the current selected groups."
+    },
+    "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.workspace_state": {
+      "source_blocks_sha256": [
+        "bf01571286041445a10c215ec70ccc53f635b5e758e022dd13de8e4ea4ec03ac",
+        "a8e84bc2a792779dc2480f47cf72bffae56ded36b659f5c235d82d5c30cf4ee9"
+      ],
+      "source_sha256": "71e98f4f30d6400b8f087487c02fb00b388ea219959fdee5c8666faf8bea263d",
+      "text": "Return JSON-compatible comparison choices without collecting data.\n\nCombo values are stable identifiers, not translated labels. Pending\nmeasurement and class choices remain saved until a later refresh can\noffer them. Well selections preserve ``None`` for all annotated wells\nor guide-derived scope wells, respectively; an empty list selects none.\nFrames, figures, database paths and running jobs are not included."
     },
     "spacr.qt.widgets.measurement_scan_panel": {
       "source_blocks_sha256": [
