@@ -11,6 +11,10 @@
 
 
 
+## 2026-10-15 Work — standalone13h path failure corrected before app
+
+Cleanstandalonefirstturn19:21:09–19:21:12EDT exit1/3.120s, cleanup0, GNOMEbeforeapp. Exact109-byte Waylandsocket inclNUL exceeded108; no spaCR/Apply/recording ran. Shortstage d05-clean-r2 is91bytes, earlyencoded-byteguard nowruns incheck-only beforequeue. Runtimeotherwiseunchanged; independentpathpeer b145d3c45237eb70d36d674d45e9b6092878994d403392ecbc7a9836ce79299f. Source/base13hpeer2174 preserved. Scope remains standaloneinstructionalcomponent, no prior-tour equivalence/productcause. Data:n676_home_apply_standalone_path_correction_2026-10-15/ supplies actualfailure, minimalR3→cleanpaths sourcepatch/manifest+peers. Correctedcandidatewilluse defaultGPUinterval after allhelpersSTOP.
+
 ## 2026-10-15 Original Home — strict installed all-screen failures preserved
 
 Unchanged normal startup driver exercised all54 installed candidate screens in
