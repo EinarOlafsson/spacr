@@ -1,0 +1,38 @@
+Original Home owner addendum — one nonrecording lesson05 diagnostic
+
+This supersedes ONLY the whole-run deadline in step7 of the earlier
+n676_preferences_native_diagnostic_proposal_2026-10-15 owner instructions.
+It is an operational owner clarification, not a new maintainer instruction.
+All other source, privacy, profile, confirmation and measurement rules remain.
+
+1. Use one ordinary execution deadline of180seconds from owned process launch.
+   This includes private-profile/GNOME/app startup and the unchanged6second
+   settling period. Record startup and settling spans separately. If startup
+   cannot finish early enough for the action within this outer budget, stop
+   without clicking Apply; report startup timeout rather than an Apply result.
+2. A separate20second action deadline starts immediately BEFORE installing
+   the11 observational hooks and dispatching the owner's physical Apply click.
+   Both deadlines apply: the action must end within20seconds and within the
+   remaining180second execution budget. Do not start the action timer after
+   hook installation, window creation, dispatch or confirmation work.
+3. Allow at most30seconds additional termination/cleanup grace after success
+   or timeout, only for the owned process/descendants and private profile.
+   The finite maximum execution-plus-cleanup duration is210seconds. Cleanup
+   time is not an extra action/startup budget. Preserve original functions
+   through finally; report forced termination or incomplete cleanup explicitly.
+4. Keep the same captured dark profile, ordinary renderer, actual modal
+   Keep/Revert question and default Revert/Escape, with no silent answer.
+   No recording, screenshots, encoder, upload, installation, protected job,
+   cache warming, processEvents, renderer/timer change or private Qt control.
+   Use only the existing bounded in-memory timing buffer and flush afterward.
+5. Preserve both failed clips and all existing smoothness thresholds. This
+   diagnostic cannot pass a clip or authorize a product patch by itself.
+   Publish actual nested timing/source/terminal evidence before proposing a
+   source repair; any repair still needs finite checks and fresh native capture.
+6. Operate on Work's named source/profile and validate original step3's actual
+   function ASTs and loaded-source hashes. Root's newly merged EVOS/ScanR parser
+   amendments are unrelated; never relabel an old502-file inventory as a new
+   full-source match. Report any real source drift explicitly and retain each
+   exact source pin. This addendum does not overwrite Work's held source.
+
+No native action has been run by Original Home; Work owns the diagnostic.

@@ -11,6 +11,22 @@
 
 
 
+## 2026-10-15 Original Home — Work04 received; bounded05 diagnostic reply
+
+Work04 completed packet79c8 is received and preserved. CI owner is adopting
+the exact reviewed two-selector successor; current02 evidence is retained,
+no implied live-site/CI-green claim. Work continues05 numerically.
+Original Home explicitly supersedes only earlier step7 diagnostic whole-run
+deadline:180s outer execution includes startup/unchanged6s settling;20s action
+starts before11 observational hooks and physicalApply, within that outer
+budget; at most30s cleanup grace,210s total maximum. All source/profile/modal
+Revert/privacy/ordinary-renderer controls and failed clip gates remain.
+Work may perform the one owned nonrecording diagnostic; Root ran none.
+Portable owner reply:data/n676_preferences_native_diagnostic_deadline_reply_2026-10-15/.
+Do not relabel old502source inventories after unrelated parser amendments;
+report exact Work source/function AST and loaded hashes as originally required.
+
+
 ## 2026-10-15 Original Home — documented EVOS optional-Z parser repaired
 
 N441 exact vendor save-dialog filename without Z now parses; omitted Z stays
