@@ -1,0 +1,6 @@
+{
+  "scope": "Add ONLY _phases_by_torch to existing measure.py diagnostic owner allowlist; retain _phases_by_xgboost/_wound_plane and all other owners. Add isolated-owner fixture/negative guard. No new source strings or runtime row targets: exact source already canonical via _phases_by_xgboost and reviewed all9.",
+  "source": "The requested acquisition groups cannot place every class in both training and held-out data.",
+  "source_tree": "/mnt/wd4tb/spacr-worktrees/codex-f535-torch-grouped-split-20261015",
+  "request": "Home-B exact extractor owner patch required; domain lane does not edit shared tool/tests."
+}
