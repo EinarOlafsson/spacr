@@ -1,0 +1,63 @@
+{
+  "reviewer": "Original Home root",
+  "review_kind": "Independent AI technical source/target semantic review, no native-speaker signoff",
+  "source": "Spectral unmixing requires images with an explicit channel axis and at least three dimensions.",
+  "source_file_sha256": "4b7e4d9e5385cdbbf67224bb0af1f6625f5611bb6b5131ec34d1e38fafe3285d",
+  "records": [
+    {
+      "path": "docs/i18n/reviewed/runtime/de/2026-10-15-unmix-shape-boundary.json",
+      "sha256": "555cbcc0561f79e7e0b4e0f4e1eb69e7502014f0f3ada249d6bec8f99ff8a4bb",
+      "translation": "Die spektrale Entmischung erfordert Bilder mit einer expliziten Kanalachse und mindestens drei Dimensionen.",
+      "decision": "approved AI technical peer: explicit channel axis plus minimum three dimensions; no upper bound or multiple-channel requirement"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/es/2026-10-15-unmix-shape-boundary.json",
+      "sha256": "4cffd17ab0a351d0b80f3dd1aebef809c9a476fd41159cac374ad38677d244f9",
+      "translation": "La separación espectral requiere imágenes con un eje de canales explícito y al menos tres dimensiones.",
+      "decision": "approved AI technical peer: explicit channel axis plus minimum three dimensions; no upper bound or multiple-channel requirement"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/fr/2026-10-15-unmix-shape-boundary.json",
+      "sha256": "249845988cdb15881881fdb6dfbca11f7d3c2d2e0103dae9d5cc49ff810d04bd",
+      "translation": "La séparation spectrale nécessite des images avec un axe de canaux explicite et au moins trois dimensions.",
+      "decision": "approved AI technical peer: explicit channel axis plus minimum three dimensions; no upper bound or multiple-channel requirement"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/hi/2026-10-15-unmix-shape-boundary.json",
+      "sha256": "a586d2d4ba13a1badee4dad3f670ac62fe70bb4765eefb898c476b1ef523cefd",
+      "translation": "स्पेक्ट्रल अनमिक्सिंग के लिए छवियों में एक स्पष्ट चैनल अक्ष और कम से कम तीन आयाम होने चाहिए।",
+      "decision": "approved AI technical peer: explicit channel axis plus minimum three dimensions; no upper bound or multiple-channel requirement"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/is/2026-10-15-unmix-shape-boundary.json",
+      "sha256": "fa1165845d6b0ef212d923e3c803994ca9846815b8f90261be1f6dd8cef08230",
+      "translation": "Litrófsafblöndun krefst mynda með skýrum rásaási og að minnsta kosti þremur víddum.",
+      "decision": "approved AI technical peer: explicit channel axis plus minimum three dimensions; no upper bound or multiple-channel requirement"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/ko/2026-10-15-unmix-shape-boundary.json",
+      "sha256": "1c72c826a85b1d8325330046cfd30ee12ed07fce8e7e6985c4d0a3de3066998d",
+      "translation": "스펙트럼 분리에는 명시적인 채널 축이 있고 최소 세 개의 차원을 가진 이미지가 필요합니다.",
+      "decision": "approved AI technical peer: explicit channel axis plus minimum three dimensions; no upper bound or multiple-channel requirement"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/pt/2026-10-15-unmix-shape-boundary.json",
+      "sha256": "5a039c8a174e38d6c2835107da8710124673fb7de93ff60e7b1149c12ec4c7eb",
+      "translation": "A separação espectral exige imagens com um eixo de canais explícito e pelo menos três dimensões.",
+      "decision": "approved AI technical peer: explicit channel axis plus minimum three dimensions; no upper bound or multiple-channel requirement"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/sv/2026-10-15-unmix-shape-boundary.json",
+      "sha256": "25258edd0f71bd83edcdf5caecabfa6abcc893f51507d5d762e80a19c8808435",
+      "translation": "Spektral separation kräver bilder med en uttrycklig kanalaxel och minst tre dimensioner.",
+      "decision": "approved AI technical peer: explicit channel axis plus minimum three dimensions; no upper bound or multiple-channel requirement"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-unmix-shape-boundary.json",
+      "sha256": "bba1d1015c30d53cb0ed25e271032012a09ddd88354371c58326a071cf885aa5",
+      "translation": "光谱解混要求图像具有显式通道轴且至少为三维。",
+      "decision": "approved AI technical peer: explicit channel axis plus minimum three dimensions; no upper bound or multiple-channel requirement"
+    }
+  ],
+  "limits": "Reviewed exact draft text and source guard only; ordinary review loader, source/current/preservation/writer/arrival gates and actual localized callbacks remain required."
+}

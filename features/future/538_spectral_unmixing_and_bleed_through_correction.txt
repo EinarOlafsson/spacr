@@ -212,3 +212,5 @@ provenance output; input arrays/files/settings unchanged. Initial42owning and
 final15affected source scopes retained, not repeated. Original collector and
 4source/tool/test hashes exact across closure. No handgenerated captions,
 API orphan targets, matrix/scientific/wholefeature/fullCI acceptance claims.
+
+2026-10-15 Original Home: minimum image-axis boundary (source component, pending locale closure). Real private synthetic counterexample showed 2D control columns treated as spectral channels and a valid plan accepting a 2D image. Both preparation and application now require at least three dimensions before indexing/copying; explicit C1 and arbitrary leading axes remain valid. Baseline 9 FAIL/8 PASS; candidate 24 PASS (17 new + seven existing). No scientific algorithm/PSF/rank change or real double-stain/biological acceptance claim. Evidence: features/data/538_shape_boundary_2026-10-15/.
