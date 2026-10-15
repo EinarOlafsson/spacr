@@ -1373,6 +1373,11 @@ def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_
     See Also:
         :func:`save_settings` — inverse operation.
     """
+    try:
+        source_stat = os.stat(tabular.resolve_path(csv_file_path))
+        source_stamp = (source_stat.st_dev, source_stat.st_ino, source_stat.st_size, source_stat.st_mtime_ns)
+    except (OSError, TypeError, ValueError):
+        source_stamp = None
     df = tabular.read_table(csv_file_path, report=None)
 
     if show:
@@ -1385,7 +1390,53 @@ def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_
         """Parse the string value into the appropriate Python data type."""
         return tabular._parse_setting_value(value)
 
-    return {key: parse_value(value) for key, value in zip(df[setting_key], df[setting_value])}
+    if 'model_metadata' not in set(df[setting_key]):
+        return {key: parse_value(value) for key, value in zip(df[setting_key], df[setting_value])}
+    import json
+    from .model_zoo import _bad_model_metadata, _validate_model_metadata
+
+    raw_frame = tabular.read_table(csv_file_path, report=None, dtype=str, keep_default_na=False)
+    if source_stamp is not None:
+        try:
+            current_stat = os.stat(tabular.resolve_path(csv_file_path))
+            current_stamp = (current_stat.st_dev, current_stat.st_ino, current_stat.st_size, current_stat.st_mtime_ns)
+        except (OSError, TypeError, ValueError):
+            _bad_model_metadata('CSV', 'unchanged input')
+        if current_stamp != source_stamp:
+            _bad_model_metadata('CSV', 'unchanged input')
+    raw_key, raw_value = tabular._settings_columns(
+        raw_frame, setting_key, setting_value, source=csv_file_path)
+    raw_values, conflicts = {}, set()
+    for name, value in zip(raw_frame[raw_key], raw_frame[raw_value]):
+        if name in raw_values and raw_values[name] != value:
+            conflicts.add(name)
+        raw_values[name] = value
+    metadata = raw_values['model_metadata']
+    if isinstance(metadata, str):
+        for parser in (json.loads, ast.literal_eval):
+            try:
+                metadata = parser(raw_values['model_metadata'])
+                break
+            except (ValueError, SyntaxError, TypeError, RecursionError):
+                pass
+    supplied = dict(raw_values)
+    supplied['model_metadata'] = metadata
+    metadata = _validate_model_metadata(supplied)
+    pinned_names = set(metadata['settings'])
+    conflicting = conflicts & (pinned_names | {'model_metadata'})
+    if conflicting:
+        _bad_model_metadata(sorted(conflicting)[0], 'one CSV value')
+    result = {}
+    for (name, value), (raw_name, raw_cell) in zip(
+            zip(df[setting_key], df[setting_value]),
+            zip(raw_frame[raw_key], raw_frame[raw_value])):
+        if raw_name == 'model_metadata':
+            result[raw_name] = metadata
+        elif raw_name in pinned_names:
+            result[raw_name] = raw_cell
+        else:
+            result[name] = parse_value(value)
+    return result
 
 def console_encoding(stream=None):
     """Return the name of the encoding used for text printed to ``stream``.
