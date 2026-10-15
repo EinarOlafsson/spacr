@@ -645,6 +645,8 @@ def test_actual_preview_chooser_propagation_exports_its_verified_pin(
     panel = LivePreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel.apply_settings(screen._settings_model.collect())
+    panel.set_propagate_callback(screen._propagate_live_settings)
+    panel._verified_propagate_cb = screen._propagate_verified_live_settings
     assert panel._primary_object() == 'cell'
     real_dialog = picker_module.ModelZooPicker
     dialogs = []
@@ -668,7 +670,7 @@ def test_actual_preview_chooser_propagation_exports_its_verified_pin(
     assert panel._model_box.currentText() == str(path)
     propagated = panel.settings_for_propagation()
     assert propagated['cell_model_name'] == str(path)
-    screen._propagate_live_settings(propagated)
+    panel.propagate_settings()
     assert screen._settings_model.collect()['cell_model_name'] == str(path)
     destination = tmp_path / 'preview-selected.csv'
     monkeypatch.setattr(QFileDialog, 'getSaveFileName', lambda *a, **k: (str(destination), ''))
@@ -677,3 +679,254 @@ def test_actual_preview_chooser_propagation_exports_its_verified_pin(
     assert exported['cell_model_name'] == str(path)
     assert exported['model_metadata']['settings']['cell_model_name'] == zoo._model_reference_from_record(
         str(path), raw)
+    before_pin = screen._settings_model.collect()['model_metadata']
+    panel.apply_settings(screen._settings_model.collect())
+    assert panel._selected_model_reference is None
+    panel._diameter.setValue(panel._diameter.value() + 3)
+    panel._flow.setValue(panel._flow.value() + 0.1)
+    panel.propagate_settings()
+    assert screen._settings_model.collect()['model_metadata'] == before_pin
+
+
+@pytest.fixture
+def preview_owner(selected_model, qtbot, monkeypatch):
+    from spacr.qt.widgets.live_preview import LivePreviewPanel
+
+    path, raw, entry = selected_model
+    screen = AppScreen('mask')
+    qtbot.addWidget(screen)
+    panel = LivePreviewPanel(threaded=False, module='mask')
+    qtbot.addWidget(panel)
+    panel.apply_settings(screen._settings_model.collect())
+    panel.set_propagate_callback(screen._propagate_live_settings)
+    panel._verified_propagate_cb = screen._propagate_verified_live_settings
+    real_dialog = picker_module.ModelZooPicker
+    state = {'cancel': False, 'dialogs': []}
+
+    def factory(*args, **kwargs):
+        dialog = real_dialog(*args, **kwargs)
+        dialog._rebuild([replace(entry, path=str(path))])
+        dialog.table.selectRow(0)
+        state['dialogs'].append(dialog)
+        dialog.exec = lambda: _REAL_DIALOG_EXEC(dialog)
+        deadline = QTimer(dialog)
+        deadline.setSingleShot(True)
+        deadline.timeout.connect(dialog.reject)
+        deadline.start(5000)
+        QTimer.singleShot(0, dialog.reject if state['cancel'] else dialog._accept_selected)
+        return dialog
+
+    monkeypatch.setattr(picker_module, 'ModelZooPicker', factory)
+    return screen, panel, state
+
+
+def test_preview_off_does_not_mutate_form_and_manual_away_back_loses_capsule(
+        selected_model, preview_owner):
+    import json
+    from copy import deepcopy
+
+    screen, panel, state = preview_owner
+    before = deepcopy(screen._settings_model.collect())
+    panel._choose_a_preview_model()
+    assert panel._selected_model_reference is not None
+    assert screen._settings_model.collect() == before
+    assert type(panel.settings_for_propagation()) is dict
+    json.dumps(panel.settings_for_propagation())
+    path = str(selected_model[0])
+    panel._model_box.setCurrentIndex(panel._model_box.findText('cpsam'))
+    assert panel._selected_model_reference is None
+    panel._model_box.setCurrentIndex(panel._model_box.findText(path))
+    assert panel._selected_model_reference is None
+    panel.propagate_settings()
+    assert not (screen._settings_model.collect().get('model_metadata') or {}).get('settings')
+
+
+def test_preview_cancel_preserves_private_selection_and_all_form_values(preview_owner):
+    from copy import deepcopy
+
+    screen, panel, state = preview_owner
+    panel._choose_a_preview_model()
+    reference = panel._selected_model_reference
+    path = panel._model_box.currentText()
+    before = deepcopy(screen._settings_model.collect())
+    state['cancel'] = True
+    panel._choose_a_preview_model()
+    assert panel._selected_model_reference is reference
+    assert panel._model_box.currentText() == path
+    assert screen._settings_model.collect() == before
+
+
+@pytest.mark.parametrize('failure', ['before_write', 'after_write', 'hidden_false', 'hidden_ignored'])
+@pytest.mark.parametrize('prior_selected_pin', [False, True])
+def test_preview_refusal_restores_raw_model_fields_and_all_prior_pins(
+        selected_model, preview_owner, monkeypatch, tmp_path, failure, prior_selected_pin):
+    from copy import deepcopy
+
+    path, raw, entry = selected_model
+    screen, panel, state = preview_owner
+    model = screen._settings_model
+    old = tmp_path / 'previous-preview.pt'
+    old.write_bytes(path.read_bytes())
+    model.set_value_for_key('cell_model_name', str(old))
+    model.set_value_for_key('nucleus_model_name', str(old))
+    pins = {'nucleus_model_name': zoo._model_reference_from_record(str(old), raw)}
+    if prior_selected_pin:
+        pins['cell_model_name'] = zoo._model_reference_from_record(str(old), raw)
+    assert model.set_hidden_value('model_metadata', {'schema_version': 1, 'settings': pins})
+    before = deepcopy(model.collect())
+    raw_before = model._widgets['cell_model_name'].text()
+    panel.apply_settings(before)
+    panel._choose_a_preview_model()
+    assert panel._selected_model_reference is not None
+    panel._diameter.setValue(panel._diameter.value() + 7)
+    messages = []
+    monkeypatch.setattr(QMessageBox, 'warning', lambda *a, **k: messages.append(a[2]))
+    if failure == 'before_write':
+        path.write_bytes(b'changed before actual propagation')
+    elif failure == 'after_write':
+        original = model.set_value_for_key
+
+        def write(key, value):
+            accepted = original(key, value)
+            if key == 'cell_model_name' and value == str(path):
+                path.write_bytes(b'changed after actual model setting write')
+            return accepted
+
+        monkeypatch.setattr(model, 'set_value_for_key', write)
+    else:
+        original = model.set_hidden_value
+
+        def hidden(key, value):
+            if key == 'model_metadata':
+                return failure == 'hidden_ignored'
+            return original(key, value)
+
+        monkeypatch.setattr(model, 'set_hidden_value', hidden)
+    panel.propagate_settings()
+    assert len(messages) == 1
+    assert model._widgets['cell_model_name'].text() == raw_before
+    assert model.collect() == before
+    assert old.read_bytes() == b'controlled trusted checkpoint bytes'
+
+
+def test_preview_immediate_propagate_signal_already_has_verified_capsule(
+        selected_model, preview_owner):
+    screen, panel, state = preview_owner
+    panel.open_live_settings()
+    dialog = panel._live_settings_dialog
+    dialog._propagate_btn.setChecked(True)
+    panel._choose_a_preview_model()
+    current = screen._settings_model.collect()
+    assert current['cell_model_name'] == str(selected_model[0])
+    assert current['model_metadata']['settings']['cell_model_name'] == zoo._model_reference_from_record(
+        str(selected_model[0]), selected_model[1])
+    dialog.close()
+
+
+def test_ordinary_preview_callback_keeps_its_one_dict_argument(selected_model, preview_owner):
+    screen, panel, state = preview_owner
+    panel._verified_propagate_cb = None
+    received = []
+    panel.set_propagate_callback(received.append)
+    panel._choose_a_preview_model()
+    panel.propagate_settings()
+    assert len(received) == 1 and type(received[0]) is dict
+    assert received[0]['cell_model_name'] == str(selected_model[0])
+    assert 'model_metadata' not in received[0]
+    assert all(not isinstance(value, zoo._VerifiedModelReference) for value in received[0].values())
+
+
+def test_actual_mask_preview_card_has_the_explicit_verified_owner(selected_model, qtbot):
+    screen = AppScreen('mask')
+    qtbot.addWidget(screen)
+    panel = screen._build_live_preview_panel()
+    assert panel._verified_propagate_cb.__self__ is screen
+    assert panel._verified_propagate_cb.__func__ is AppScreen._propagate_verified_live_settings
+    assert panel._propagate_cb.__self__ is screen
+
+
+@pytest.mark.parametrize('failure', [None, 'native_after_write', 'hidden_false'])
+def test_actual_cellpose_registry_preview_exports_and_keeps_pins_on_repeated_tuning(
+        selected_model, qtbot, monkeypatch, tmp_path, failure):
+    from spacr.qt import preview_registry
+
+    path, raw, entry = selected_model
+    screen = AppScreen('cellpose_masks')
+    qtbot.addWidget(screen)
+    host = preview_registry.install(screen)
+    assert host is not None
+    panel = host.panel
+    assert panel._verified_propagate_cb.__self__ is screen
+    model = screen._settings_model
+    if failure is not None:
+        old = tmp_path / 'previous-registry.pt'
+        old.write_bytes(path.read_bytes())
+        assert model.set_value_for_key('custom_model', str(old))
+        assert model.set_hidden_value('model_metadata', {
+            'schema_version': 1,
+            'settings': {'custom_model': zoo._model_reference_from_record(str(old), raw)}})
+    panel.apply_settings(model.collect())
+    real_dialog = picker_module.ModelZooPicker
+
+    def factory(*args, **kwargs):
+        dialog = real_dialog(*args, **kwargs)
+        dialog._rebuild([replace(entry, path=str(path))])
+        dialog.table.selectRow(0)
+        dialog.exec = lambda: _REAL_DIALOG_EXEC(dialog)
+        deadline = QTimer(dialog)
+        deadline.setSingleShot(True)
+        deadline.timeout.connect(dialog.reject)
+        deadline.start(5000)
+        QTimer.singleShot(0, dialog._accept_selected)
+        return dialog
+
+    monkeypatch.setattr(picker_module, 'ModelZooPicker', factory)
+    panel._choose_a_preview_model()
+    if failure is not None:
+        from copy import deepcopy
+        from PySide6.QtWidgets import QComboBox
+
+        previous = deepcopy(model.collect())
+        field = model._widgets['model_name']
+        assert isinstance(field, QComboBox) and not field.isEditable()
+        items = [(field.itemText(i), field.itemData(i)) for i in range(field.count())]
+        index, text = field.currentIndex(), field.currentText()
+        messages = []
+        monkeypatch.setattr(QMessageBox, 'warning', lambda *a, **k: messages.append(a[2]))
+        if failure == 'native_after_write':
+            original = model.set_value_for_key
+
+            def write(key, value):
+                accepted = original(key, value)
+                if key == 'model_name' and value == str(path):
+                    path.write_bytes(b'changed after actual noneditable combo commit')
+                return accepted
+
+            monkeypatch.setattr(model, 'set_value_for_key', write)
+        else:
+            original = model.set_hidden_value
+            monkeypatch.setattr(model, 'set_hidden_value', lambda key, value:
+                                False if key == 'model_metadata' else original(key, value))
+        panel.propagate_settings()
+        assert len(messages) == 1
+        assert model.collect() == previous
+        assert field.currentIndex() == index and field.currentText() == text
+        assert [(field.itemText(i), field.itemData(i)) for i in range(field.count())] == items
+        assert not field.isEditable()
+        return
+    panel.propagate_settings()
+    before = screen._settings_model.collect()
+    assert before['model_name'] == str(path)
+    assert before['model_metadata']['settings']['model_name'] == zoo._model_reference_from_record(
+        str(path), raw)
+    destination = tmp_path / 'registry-preview.csv'
+    monkeypatch.setattr(QFileDialog, 'getSaveFileName', lambda *a, **k: (str(destination), ''))
+    screen._on_export_settings()
+    assert load_settings_file(str(destination))['model_metadata'] == before['model_metadata']
+    panel.apply_settings(before)
+    assert panel._selected_model_reference is None
+    panel._diameter.setValue(panel._diameter.value() + 3)
+    panel.propagate_settings()
+    assert screen._settings_model.collect()['model_metadata'] == before['model_metadata']
+    host.on_propagate({'model_name': 'different-private-checkpoint.pt'})
+    assert 'model_name' not in screen._settings_model.collect()['model_metadata']['settings']

@@ -10597,11 +10597,102 @@ class AppScreen(QWidget):
 
         spec = PREVIEWS.get(str(getattr(self, "app_key", "")))
         rename = spec.propagation if spec is not None and self.app_key != "mask" else None
+        current = None
+        pins = {}
+        if getattr(model, "_model_metadata", None):
+            from ... import model_zoo
+
+            current = model.collect()
+            metadata = model_zoo._validate_model_metadata(
+                current, model_kinds=model_zoo._model_input_kinds(self.app_key, current))
+            pins = metadata.get("settings", {}) if metadata is not None else {}
         for key, value in settings.items():
             target = rename.get(key) if rename else key
             if target is None:
                 continue
+            if target in pins and current.get(target) == value:
+                continue
             model.set_value_for_key(target, value)
+
+    def _propagate_verified_live_settings(self, settings, reference):
+        """Apply one live preview's verified model without losing prior pins.
+
+        :param settings: ordinary preview setting values, without capsules.
+        :param reference: in-process verified capsule for the chosen model file.
+        :returns: None; refusal preserves prior model fields and all prior pins.
+        """
+        from copy import deepcopy
+        from PySide6.QtWidgets import QComboBox, QMessageBox
+        from ... import model_zoo
+        from ..preview_registry import PREVIEWS
+
+        model = self._settings_model
+        previous = deepcopy(model.collect())
+        spec = PREVIEWS.get(str(self.app_key))
+        rename = spec.propagation if spec is not None and self.app_key != "mask" else None
+        mapped = {rename.get(key) if rename else key: value
+                  for key, value in settings.items()}
+        candidates = model_zoo._model_input_kinds(self.app_key, previous)
+        requested = dict(reference.record)["requested_value"]
+        targets = {key: value for key, value in mapped.items()
+                   if key in candidates and value == requested}
+        snapshots = {}
+        combos = {}
+        inserted = {}
+        changed = []
+        try:
+            if not targets:
+                model_zoo._bad_model_metadata("model_metadata", "model_metadata")
+            proposed = model_zoo._invalidate_model_metadata(previous, targets)
+            proposed.update(targets)
+            for key in targets:
+                field = model._widgets.get(key)
+                getter = (getattr(field, "text", None) or getattr(field, "get_value", None)
+                          or getattr(field, "currentText", None))
+                if not callable(getter):
+                    model_zoo._bad_model_metadata(key, "model_metadata")
+                snapshots[key] = (field, deepcopy(getter()))
+                if isinstance(field, QComboBox):
+                    combos[key] = (field.currentIndex(), field.currentText())
+                proposed = model_zoo._attach_model_reference(
+                    self.app_key, proposed, key, reference)
+            for key, value in targets.items():
+                changed.append(key)
+                field = snapshots[key][0]
+                if (key in combos and field.findData(value) < 0
+                        and field.findText(value) < 0):
+                    inserted[key] = field.count()
+                    field.addItem(value, value)
+                if not model.set_value_for_key(key, value) or model.collect().get(key) != value:
+                    model_zoo._bad_model_metadata(key, "model_metadata")
+            attached = model.collect()
+            for key in targets:
+                attached = model_zoo._attach_model_reference(
+                    self.app_key, attached, key, reference)
+            if (not model.set_hidden_value("model_metadata", attached["model_metadata"])
+                    or model.collect().get("model_metadata") != attached["model_metadata"]):
+                model_zoo._bad_model_metadata("model_metadata", "model_metadata")
+        except Exception as exc:
+            for key in reversed(changed):
+                field, value = snapshots[key]
+                if key in combos:
+                    index = inserted.get(key)
+                    if (index is not None and field.itemData(index) == targets[key]
+                            and field.itemText(index) == targets[key]):
+                        field.removeItem(index)
+                    old_index, old_text = combos[key]
+                    field.setCurrentIndex(old_index)
+                    if field.isEditable():
+                        field.setEditText(old_text)
+                else:
+                    setter = getattr(field, "set_value", None) or getattr(field, "setText", None)
+                    setter(value)
+            model._model_metadata = deepcopy(previous.get("model_metadata"))
+            QMessageBox.warning(self, tr("Model zoo"), str(exc))
+            return
+        rest = {key: value for key, value in settings.items()
+                if (rename.get(key) if rename else key) not in targets}
+        self._propagate_live_settings(rest)
 
     def _on_figure_ready(self, fig, png_path: str = "") -> None:
         """Hand a matplotlib figure to the FigureQueue. ``png_path`` is a PNG
@@ -13382,6 +13473,7 @@ def _build_live_preview_card(host, *, panel_later: bool = False):
     card.setMinimumHeight(300)
     panel = LivePreviewPanel(
         card, module=str(getattr(host, "app_key", "") or ""))
+    panel._verified_propagate_cb = getattr(host, "_propagate_verified_live_settings", None)
     card.body_layout.addWidget(panel)
     return panel, card
 
@@ -13398,6 +13490,7 @@ def _fill_live_preview_card(host, card):
     from ..widgets.live_preview import LivePreviewPanel
     panel = LivePreviewPanel(
         card, module=str(getattr(host, "app_key", "") or ""))
+    panel._verified_propagate_cb = getattr(host, "_propagate_verified_live_settings", None)
     card.body_layout.addWidget(panel)
     return panel
 

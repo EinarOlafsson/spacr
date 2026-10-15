@@ -2189,6 +2189,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._propagation_waiting = False
         self._filter_jobs.job_finished.connect(self._after_filter_job)
         self._propagate_cb = None
+        self._verified_propagate_cb = None
+        self._selected_model_reference = None
         self._auto_outline_colours: Dict[str, Tuple[int, int, int]] = {}
         self._loading_fov = False
         self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
@@ -3792,7 +3794,14 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         Propagate toggle is on."""
         if self._propagate_cb is not None:
             try:
-                self._propagate_cb(self.settings_for_propagation())
+                settings = self.settings_for_propagation()
+                selected = self._selected_model_reference
+                if (selected is not None
+                        and selected[:2] == (self._model_box.currentText(), self._primary_object())
+                        and self._verified_propagate_cb is not None):
+                    self._verified_propagate_cb(settings, selected[2])
+                else:
+                    self._propagate_cb(settings)
             except Exception:
                 LOG.debug("propagate_settings failed", exc_info=True)
 
@@ -3814,11 +3823,18 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         or Omnipose row as ``<prefix><model>`` to its own backend.
         """
         from ... import model_zoo
-        from .model_zoo_picker import choose_model
+        from .model_zoo_picker import ModelZooPicker
+        from PySide6.QtWidgets import QDialog
 
-        path = choose_model(self, kinds=model_zoo._mask_model_kinds())
+        dialog = ModelZooPicker(model_zoo._mask_model_kinds(), self)
+        if dialog.exec() != QDialog.Accepted:
+            return
+        path = dialog.chosen_path()
         if not path:
             return
+        reference = getattr(dialog, "_chosen_reference", None)
+        self._selected_model_reference = (
+            (str(path), self._primary_object(), reference) if reference is not None else None)
         index = self._model_box.findText(str(path))
         if index < 0:
             self._model_box.addItem(str(path))
@@ -3846,6 +3862,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         """
         from spacr.settings import _fold_object_bounds
 
+        self._selected_model_reference = None
         settings = _fold_object_bounds(dict(settings or {}), quiet=True)
         try:
             self._rebuild_object_choices(organelle_count(settings))
@@ -5257,6 +5274,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         only shown inside the Live Settings dialog when it's open).
         The dialog re-reads visibility rules on open, so nothing to
         do here at rest."""
+        selected = self._selected_model_reference
+        if selected is not None and selected[:2] != (
+                self._model_box.currentText(), self._primary_object()):
+            self._selected_model_reference = None
         dlg = self._live_settings_dialog
         if dlg is not None:
             try:

@@ -310,9 +310,21 @@ class _PreviewHost(QObject):
         model = getattr(self._screen, "_settings_model", None)
         if model is None:
             return
+        current = None
+        pins = {}
+        if getattr(model, "_model_metadata", None):
+            from .. import model_zoo
+
+            current = model.collect()
+            module = str(getattr(self._screen, "app_key", ""))
+            metadata = model_zoo._validate_model_metadata(
+                current, model_kinds=model_zoo._model_input_kinds(module, current))
+            pins = metadata.get("settings", {}) if metadata is not None else {}
         for source, value in dict(values or {}).items():
             target = rename.get(source) if rename else source
             if target is None:
+                continue
+            if target in pins and current.get(target) == value:
                 continue
             try:
                 model.set_value_for_key(target, value)
