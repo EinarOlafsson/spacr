@@ -8175,9 +8175,7 @@ WHICH_CONVENTION_FITS_HELP = (
     "for you.")
 PROVISIONAL_SUFFIX = "   [provisional]"
 LOOKS_LIKE = "Looks like:  {example}"
-RECONSTRUCTED_NOT_DOCUMENTED = (
-    "— reconstructed from real files found in public datasets, not from "
-    "vendor documentation. Test it before you run.")
+RECONSTRUCTED_NOT_DOCUMENTED = 'This convention is provisional. Check its example and test your folder before running.'
 CUSTOM_HAS_NO_EXAMPLE = (
     "Your own expression. It must capture wellID, fieldID and chanID; "
     "plateID is optional and falls back to the folder name.")
@@ -8187,9 +8185,7 @@ NO_IMAGES_IN_THE_FOLDER = "No image files in that folder."
 ALL_FILES_PARSE = "All {total} .{extension} files parse."
 SOME_FILES_PARSE = (
     "{matched} of {total} files parse. The first that does not: {first}")
-NOTHING_FITS = (
-    "None of the built-in conventions reads any of these {total} names. "
-    "Write a custom_regex, or run Import, which reads the folder names too.")
+NOTHING_FITS = 'No built-in convention can read any of these {total} names. Write a custom_regex, or run Import, which reads the folder names too.'
 RANKING_HEADING = "Of {total} files:"
 ONE_RANKING_ROW = "    {matched} of {total} — {label}  ({key})"
 

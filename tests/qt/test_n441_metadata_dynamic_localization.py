@@ -12,7 +12,7 @@ def metadata_field(qapp, monkeypatch, tmp_path):
     targets = {
         model.PROVISIONAL_SUFFIX: '   [provisoire]',
         model.LOOKS_LIKE: 'Exemple : {example}',
-        model.RECONSTRUCTED_NOT_DOCUMENTED: '— reconstruit depuis des fichiers publics, pas depuis la documentation du fabricant.',
+        model.RECONSTRUCTED_NOT_DOCUMENTED: "Cette convention est provisoire. Vérifiez son exemple et testez votre dossier avant de lancer l’analyse.",
         model.READING_THE_FOLDER: 'Lecture du dossier…',
         model.NO_IMAGES_IN_THE_FOLDER: 'Aucune image dans ce dossier.',
         model.ALL_FILES_PARSE: 'Les {total} fichiers .{extension} sont reconnus.',
@@ -121,3 +121,39 @@ def test_actual_tree_language_changes_preserve_field_owned_provisional_items(met
         suffix = targets[model.PROVISIONAL_SUFFIX] if language == 'fr' else model.PROVISIONAL_SUFFIX
         assert field.combo.currentText().endswith(suffix)
         assert field.get_value() == selected
+
+
+@pytest.mark.parametrize('key', ['evos', 'zeiss_zen_split_tiles'])
+def test_provisional_warning_is_truthful_for_manual_and_constructed_examples(
+        qapp, monkeypatch, key):
+    from spacr.qt import i18n
+    from spacr.qt.screens.settings_model import _MetadataTypeField
+    from spacr.regex_infer import _metadata_convention_example
+
+    monkeypatch.setattr(i18n, 'current_language', lambda: 'en')
+    field = _MetadataTypeField(default=key)
+    try:
+        assert field.example.text() == (
+            'Looks like:  ' + _metadata_convention_example(key)
+            + '  This convention is provisional. Check its example and test your folder before running.')
+        assert field.get_value() == key
+    finally:
+        field.close()
+        field.deleteLater()
+
+
+def test_no_matching_convention_uses_natural_language_without_python_none_literal(qapp, monkeypatch):
+    from spacr.qt import i18n
+    from spacr.qt.screens.settings_model import _MetadataTypeField
+
+    monkeypatch.setattr(i18n, 'current_language', lambda: 'en')
+    field = _MetadataTypeField(default='evos')
+    try:
+        field._on_ranked([], 7)
+        assert field.report.text() == (
+            'No built-in convention can read any of these 7 names. Write a custom_regex, '
+            'or run Import, which reads the folder names too.')
+        assert field.get_value() == 'evos'
+    finally:
+        field.close()
+        field.deleteLater()

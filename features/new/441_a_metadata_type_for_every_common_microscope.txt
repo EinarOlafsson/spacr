@@ -393,3 +393,16 @@ Source remains private pending precise_saycaption extraction,90reviewedtargets,
 normalninecatalog/audit/arrival and actuallocalizedwidget consumers. No new
 microscope patterns, vendor claims, Import behavior or Work media scope added.
 Evidence:data/441_metadata_dynamic_localization_2026-10-15/receipt.json.
+
+2026-10-15 — PRIVATE provisional warning and no-match wording made truthful.
+Only two module caption values change. The no-match message begins with No
+rather than the Python literal None, preserving the normal translation gate.
+The provisional warning now asks users to check the example and test their
+folder; it does not falsely claim EVOS manual or Zeiss constructed examples
+came from observed public datasets without vendor documentation. Identifiers,
+other14captions, the wholeclass/worker/regex/vendor/data behavior are unchanged.
+ActualEnglishwidget baseline3FAIL1.86 becomes currentfocused11PASS2.24s;
+independent exactsource/API peer confirms0newAPIarrivals.18runtime records
+require ordinary source/hashrebinding; no catalog/wholeitem acceptance claimed.
+Literal two-REAL-example gaps remain unresolved, without assumed maintainer
+waiver or invented filenames. Evidence:data/441_provisional_warning_truth_2026-10-15/.
