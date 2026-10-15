@@ -29,7 +29,7 @@ Hours are estimates; external unknowns remain explicit.
 | F560 | 90% | Unknown | Home / assigned owner | Official Cell-DINO gated weights require maintainer Meta request/access, then actual official factory/checkpoint loading and final hosted/scientific acceptance. Supported-backbone/human-label and CPU/CUDA proofs already recorded, not a new completion. |
 | F370 | 90% | 2–6 + data | Home / assigned owner | Curated six-row tooltips, provenance, generated documents and locales published; remaining model-wide/scientific acceptance separate. |
 | N678 | 90% | 2–4 | Home / assigned owner | See current owner delivery and remaining acceptance gates. |
-| N698 | 70% | 12–24+ | Home / assigned owner | Configuration live; managed launch16/import9 checks published. Explicit immutable-weight provisioning in progress; hosted GPU/browser acceptance remains. |
+| N698 | 70% | 12–24+ | Home / assigned owner | Configuration live; free ZeroGPU source uploaded and1182files verified. Actual managed build exposed requirements-before-source packaging defect; repair active. Hosted inference/browser parity remain. |
 | N699 | 90% | Unknown | Home / assigned owner | Actual real cluster/password+OTP/cancel/host policy and native platform acceptance need user/account/site. Claude700 is separate; no real SSH/auth/network here. |
 | N03 | ✅ | 0 | Home / assigned owner | Reuse scoped evidence; final candidate CI may reveal a new order counterexample. Do not repeat whole Qt sweeps. |
 | N76 | ✅ | 0 | Home / assigned owner | Historical generated-artifact debt is not a new unimplemented multi-organelle engine; no new whole scientific acceptance claimed. |
@@ -83,8 +83,8 @@ Hours are estimates; external unknowns remain explicit.
 | N685 | 95% | Unknown | Home / assigned owner | Sixparts and real vvvv7.4.1 Wine project/runtime/PDF/liveupdate recorded. Native Windows on-screen renderer/readback remains explicitly the maintainer check; Wine window black even for native example, so native pixel acceptance cannot be asserted. |
 | N690 | 95% | 1–3 | Home / assigned owner | TEM readers/contrast/sample workflow built. Item still records nine-language generated runtime/API artifacts blocked at its oldsource boundary and a non-alpha tutorial needed; reconcile current catalogs rather than claiming the historicalN678failure still exists today. |
 | N693 | ✅ | 0 | Home / assigned owner | Do not invent transactional-pair requirement absent original acceptance. Native ACL/xattr/power-loss/external-writer semantics remain honest limitations. |
-| N686 | 90% | 2–6 | Home-B | Deployed; first hosted audit has15 valid samples, one home performance79 below90. Actual cold WebGL initialization cause under repair; physical60fps acceptance remains. |
-| N687 | 85% | 3–8 | Home-B | Showcase/release synchronization deployed;15 valid hosted samples expose one home performance failure, with97–100 accessibility and<402KB transfer. Narrow fallback repair active. |
+| N686 | 90% | 2–6 | Home-B | Deployed; all15 hosted audit routes pass90/95/<1MB thresholds. Physical60fps acceptance remains. |
+| N687 | ✅ | 0 | Home-B | Complete: flow theme, fonts, real model showcase, papers, release sync and prominent localized Website links; all15 hosted audit routes pass. |
 | N688 | 95% | 1–3 after main promotion | Home-B | Nightly upload and all README badges work; first main upload remains. |
 | N323 | 90% | 2–6 + review | Home-B | Table and readable context built; explicit translation review remains. |
 | N647 | 95% | 1–3 + platforms | Home-B | Recovery-preservation repairs built; remaining native platform acceptance. |
