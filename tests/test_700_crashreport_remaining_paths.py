@@ -269,8 +269,9 @@ def test_validated_summary_repairs_id_frames_and_kind():
     assert cr._validated_summary({"frames": "not a list"})["frames"] == []
 
 
-def test_validated_summary_drops_outer_frames_to_fit():
+def test_validated_summary_drops_outer_frames_to_fit(monkeypatch):
     """An oversized summary loses its outermost frames until it fits."""
+    monkeypatch.setattr(cr, "MAX_SUMMARY_BYTES", 12000)
     code = ("lorem ipsum dolor sit amet " * 10)
     frames = [{"file": f"m{index}" + "a" * 70, "function": "b" * 80,
                "line": index, "code": code} for index in range(cr.MAX_FRAMES)]

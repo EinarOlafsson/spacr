@@ -1,0 +1,17 @@
+Command: ['/home/carruthers/anaconda3/envs/spacr/bin/python', '/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/stage_visual_overlay.py', 'stage']
+Source: 2a04d64f25410c3d9f265da11259dc3fb96ee1e4
+Traceback (most recent call last):
+  File "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/stage_visual_overlay.py", line 115, in <module>
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('phase',choices=['stage','overlay']);args=parser.parse_args();{'stage':stage,'overlay':overlay}[args.phase]()
+                                                                                                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/stage_visual_overlay.py", line 74, in stage
+    retained_sources(STAGE,ORIGINAL,BASE/'web/catalog',LESSON,inventory,require_staged=False)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/retain_narration.py", line 62, in retained_sources
+    require_unchanged_lesson(source, published, staged)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/retain_narration.py", line 37, in require_unchanged_lesson
+    raise ValueError('Retained catalog differs from original or published lesson')
+ValueError: Retained catalog differs from original or published lesson
+
+Terminal exit status: 1

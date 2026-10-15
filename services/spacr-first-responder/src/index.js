@@ -1,8 +1,9 @@
+import { cacheStats } from "./cache.js";
 import { limits } from "./config.js";
 import { buildAllowance } from "./allowance.js";
 import { handleDiagnose, summarizeWithRelay } from "./diagnose.js";
 import { GLOBAL, ROUTE, hashIp, installScope, pruneOldCounters, reserveAll } from "./quota.js";
-import { fileReport, issueBody, issueTitle, obtainSummary, signatureOf, summaryFields } from "./report.js";
+import { causeFor, fileReport, issueBody, issueTitle, obtainSummary, signatureOf, summaryFields } from "./report.js";
 import { HttpError, VERSION, json, readJsonBody, refusedQuota, utcDay } from "./util.js";
 import { UUID_RE, validatePayload } from "./validate.js";
 
@@ -30,7 +31,7 @@ async function handleReport(request, env, ctx, now) {
     return json(200, {
       dry_run: true,
       title: issueTitle(report),
-      body: issueBody(report, signature, summary),
+      body: issueBody(report, signature, summary, { cause: await causeFor(env, report, signature, summary), related: [] }),
       signature,
       ...summaryFields(summary),
       allowance: await allowance(),
@@ -55,7 +56,12 @@ export async function handle(request, env, ctx, now = new Date()) {
   try {
     if (path === "/health" || path === "/") {
       if (request.method !== "GET" && request.method !== "HEAD") throw new HttpError(405, "use GET");
-      return json(200, { ok: true, version: VERSION, routes: ROUTES });
+      const health = { ok: true, version: VERSION, routes: ROUTES };
+      if (env && env.DB) {
+        const cache = await cacheStats(env.DB, now);
+        if (cache) health.cache = cache;
+      }
+      return json(200, health);
     }
     if (path === "/allowance") {
       if (request.method !== "GET") throw new HttpError(405, "use GET");

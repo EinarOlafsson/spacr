@@ -16,7 +16,7 @@ Every response is JSON. `GET /` answers like `/health`.
 
 | Route | Request | 200 response |
 | --- | --- | --- |
-| `GET /health` | none | `{ok, version, routes}` |
+| `GET /health` | none | `{ok, version, routes, cache: {rows, bytes, today: {hits, misses, hit_rate}}}` |
 | `GET /allowance?install_id=<uuid>` | none; consumes nothing | the allowance object below |
 | `POST /report` | report JSON, optional `dry_run`, `ai_summary`, `summarize`, `kind` | `{issue_number, issue_url, deduplicated, commented?, recurred_from?, ai_summary_source, ai_summary?, allowance}` |
 | `POST /report` with `dry_run: true` | same | `{dry_run: true, title, body, signature, ai_summary_source, ai_summary?, allowance}` |
@@ -55,13 +55,13 @@ The allowance object is the same on all three routes:
   `ai_summary_source` is `"relay"`, so spaCR can show it in its console.
 - `resets_at` is the next 00:00 UTC, in ISO 8601.
 
-Errors: `400 {error}` (validation), `413 {error}` (body over 16 KB), `404/405 {error}`,
+Errors: `400 {error}` (validation), `413 {error}` (body over 32 KB), `404/405 {error}`,
 `429 {refused: "quota", scope}` with scope `install`, `ip` or `global`,
 `502 {error}` (GitHub or model failure), `503 {error}` (not configured).
 
 ### Report schema (version 1)
 
-Unknown fields are rejected. Body at most 16 KB. Every field added since 3b50b593d
+Unknown fields are rejected. Body at most 32 KB. Every field added since 3b50b593d
 is optional, so older clients keep working.
 
 | Field | Rule |
@@ -74,17 +74,26 @@ is optional, so older clients keep working.
 | `gpu` | short lower-case class such as `cuda`, `mps`, `cpu`, or `null` |
 | `module` | spaCR module/app key, e.g. `spacr.measure` |
 | `exception_type` | e.g. `ValueError` |
-| `message` | scrubbed message, max 300 chars |
+| `message` | scrubbed message, max 300 chars; max 800 for `kind: "user_error"`, whose `- ` lines list every settings problem |
 | `frames` | max 40 `{file, function, line, code?}`; `file` is a base name, no path; `code` is the optional source line, single line, max 160 chars |
 | `kind` | optional `"fault"` (default) or `"user_error"` (settings or usage error) |
 | `user_note` | optional, max 1000 chars |
+| `screen` | optional, the screen's name as the user sees it (`Mask`), max 60 chars of letters, digits, spaces and `&()+.,'-` |
+| `error_text` | optional, the console's error text, scrubbed, max 1500 chars; dropped (not refused) if it looks personal |
+| `chain` | `/report` only, optional, max 5 `{type, message}`: the exceptions that led to this one; a message that looks personal becomes `<redacted>` |
+| `settings` | `/report` only, optional, max 150 `name: value`; values are numbers, booleans, `null`, text max 60 chars (options, model names, markers such as `<path: exists=no>` and `<text>`) or lists of max 16 such; personal-looking text becomes `<redacted>` |
+| `inputs` | `/report` only, optional `{images, extensions, shape, dtype, channels}` of the source folder, no names |
+| `environment` | `/report` only, optional `{os_version, arch, cores, ram_gb, gpu_model, vram_gb, cuda, mps, install, versions{torch, cellpose, numpy, scikit_image, pyside6, qt}}` |
+| `run` | `/report` only, optional `{stage, elapsed_s, dry_run}` |
+| `log_tail` | `/report` only, optional, the console's last lines, scrubbed, max 3000 chars; dropped if it looks personal |
+| `cause` | `/report` only, optional likely-cause slug the AI gave (normalised to kebab-case, 5 words, 40 chars) |
 | `dry_run` | `/report` only, optional boolean |
 | `ai_summary` | `/report` only, optional, max 2000 chars, written by the user's own AI |
 | `summarize` | `/report` only, optional boolean: ask the relay to write the summary |
 | `question` | `/diagnose` only, optional, max 2000 chars |
 
 Free text (`message`, `user_note`, `ai_summary`, `question`, `frames[].code`) is
-refused with a clear 400 if it looks like it contains an absolute path (Unix, `~/`,
+refused with a clear 400 (or, for the optional diagnostic fields, redacted or dropped) if it looks like it contains an absolute path (Unix, `~/`,
 Windows drive, UNC, `file://`), an e-mail address, an IPv4/IPv6 address, a URL with
 credentials, or a token or key (GitHub, OpenAI-style, AWS, Slack, Hugging Face,
 Google, JWT, PEM, `password=`-style pairs, long random strings). The spaCR client
@@ -95,6 +104,31 @@ must scrub before sending; the relay only double-checks.
 - **Title.** `[user-report] <exception> in <module>: <message>`. A
   `kind: "user_error"` report gets `[user-report][settings]` and the extra label
   `user-error`.
+- **AI cache.** Answers are kept in the D1 table `ai_cache`, read by primary
+  key only. An error explanation (no question, or spaCR's fixed explanation
+  question) is keyed by the error signature (a user error's includes its
+  normalised problem list); a relay summary by `summary:<signature>`; a chat
+  question by `q:` + SHA-256 of the normalised question (lower case, whitespace
+  and punctuation collapsed) + screen|module + spaCR major.minor. A question with
+  more than 500 characters of question and pasted context is never cached. A hit
+  answers with `cached: true`: no model call, no neurons, no share and the
+  install is not marked active. Entries expire after `AI_CACHE_TTL_DAYS` (30) or
+  when the asker's spaCR major.minor differs. Every 50th insert, or when the
+  running counts in `ai_cache_meta` pass `AI_CACHE_MAX_ROWS` (20000) or
+  `AI_CACHE_MAX_BYTES` (60 MB), expired rows are deleted and, still over a cap,
+  about 10% more, fewest hits and least recently used first. An error's entries
+  are dropped when its issue is found closed. `/health` shows `cache.rows`,
+  `cache.bytes` and today's hit rate, never keys or text.
+- **Likely causes.** The model ends an error answer with `CAUSE: <slug>`; the line
+  is stripped from the text, the slug is stored and returned as `cause`. Each new
+  issue gets the label `cause:<slug>` (or ` · Cause: <slug>` in the title when the
+  App may not create labels) and a "Same likely cause" section; `ai_causes` keeps
+  the hub (oldest open issue) per cause, which gets one comment per new issue
+  with that cause. Different signatures are never merged.
+- **Body.** The error (exception, module, screen), the problem list of a refused
+  run, the console error text, the traceback or the refusal's call site, the
+  environment, the user's note, and the AI summary last under its own heading.
+  A `+1` comment carries this occurrence's error sections in a `<details>` block.
 - **Traceback.** File names only. A frame's `code` is shown indented under its
   `file:line in function` line, and is also sent to the model for diagnoses and
   summaries.

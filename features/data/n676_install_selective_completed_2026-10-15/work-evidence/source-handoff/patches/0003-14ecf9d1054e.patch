@@ -1,0 +1,84 @@
+From 14ecf9d1054e15194bb7b9ff01779af061fae875 Mon Sep 17 00:00:00 2001
+From: Einar Olafsson <einar.olafsson@gmail.com>
+Date: Thu, 15 Oct 2026 12:37:56 -0400
+Subject: [PATCH] Compare retained voice inventories without depending on order
+
+---
+ tools/tutorials/retain_narration.py           | 11 ++++++++--
+ .../tests/test_retained_narration.py          | 22 +++++++++++++++++++
+ .../tests/test_retained_pipeline_sources.py   |  2 +-
+ 3 files changed, 32 insertions(+), 3 deletions(-)
+
+diff --git a/tools/tutorials/retain_narration.py b/tools/tutorials/retain_narration.py
+index e1f4acb0e9e2b107acfeb1b38071d2f58f1cd2e7..fce492fde2adc8818a76116fd517f5dabaf6a007 100644
+--- a/tools/tutorials/retain_narration.py
++++ b/tools/tutorials/retain_narration.py
+@@ -35,13 +35,20 @@ def catalog_lesson(path, lesson_id):
+ def require_unchanged_lesson(original, published, staged, *, voice_inventory=None):
+     if original != published and voice_inventory is not None and published == staged:
+         previous = original.get('narration_voices', {})
+-        if (isinstance(previous, dict) and published.get('narration_voices') == voice_inventory
++        current = published.get('narration_voices')
++        if (isinstance(previous, dict) and isinstance(current, dict)
++                and set(current) == set(voice_inventory)
++                and all(isinstance(voices, list)
++                        and all(isinstance(voice, str) for voice in voices)
++                        and len(voices) == len(set(voices))
++                        and set(voices) == set(voice_inventory[language])
++                        for language, voices in current.items())
+                 and all(language in voice_inventory and isinstance(voices, list)
+                         and all(isinstance(voice, str) for voice in voices)
+                         and len(voices) == len(set(voices))
+                         and set(voices) <= set(voice_inventory[language])
+                         for language, voices in previous.items())):
+-            original = {**original, 'narration_voices': voice_inventory}
++            original = {**original, 'narration_voices': current}
+     if original != published or original != staged:
+         raise ValueError('Retained catalog differs from original or published lesson')
+ 
+diff --git a/tools/tutorials/tests/test_retained_narration.py b/tools/tutorials/tests/test_retained_narration.py
+index 511c5f26c35f72f247a9b4bf422a35352e52e71a..ca4fef8729553a6ccbeb23dd86f9aec587b2d386 100644
+--- a/tools/tutorials/tests/test_retained_narration.py
++++ b/tools/tutorials/tests/test_retained_narration.py
+@@ -34,6 +34,28 @@ def test_explicit_inventory_allows_only_generated_original_inventory_expansion(p
+     assert original.get('narration_voices') == previous
+ 
+ 
++def test_published_voice_order_can_differ_from_renderer_without_changing_catalogs():
++    inventory = {'en': ['am_adam', 'af_heart'], 'fr': ['ff_siwis']}
++    published_inventory = {'fr': ['ff_siwis'], 'en': ['af_heart', 'am_adam']}
++    original = {'id': 'lesson', 'narration_voices': {'en': ['af_heart']}}
++    published = {'id': 'lesson', 'narration_voices': deepcopy(published_inventory)}
++    staged = deepcopy(published)
++    require_unchanged_lesson(original, published, staged, voice_inventory=inventory)
++    assert published['narration_voices'] == published_inventory and staged == published
++    assert original['narration_voices'] == {'en': ['af_heart']}
++
++
++@pytest.mark.parametrize('invalid', [{'en': ['af_heart', 'af_heart']},
++                                     {'en': 'af_heart'}, {'en': [None]},
++                                     {'other': ['af_heart']}, {'en': ['other']}])
++def test_published_inventory_must_have_exact_languages_unique_typed_voices(invalid):
++    original = {'id': 'lesson'}
++    published = {'id': 'lesson', 'narration_voices': invalid}
++    with pytest.raises(ValueError):
++        require_unchanged_lesson(original, published, deepcopy(published),
++                                 voice_inventory={'en': ['af_heart']})
++
++
+ @pytest.mark.parametrize('change', ['source_narration', 'published_extra', 'staged_inventory',
+                                   'published_inventory', 'old_unknown', 'old_duplicate', 'old_voice_type'])
+ def test_explicit_inventory_never_allows_catalog_or_voice_drift(change):
+diff --git a/tools/tutorials/tests/test_retained_pipeline_sources.py b/tools/tutorials/tests/test_retained_pipeline_sources.py
+index 9a36ecbd43f3084fcf3ea71238372454ffcdfa0a..b6071ac62e67b74353fb531e19c76ae8ceaf9e33 100644
+--- a/tools/tutorials/tests/test_retained_pipeline_sources.py
++++ b/tools/tutorials/tests/test_retained_pipeline_sources.py
+@@ -32,7 +32,7 @@ def source_files(tmp_path, monkeypatch):
+         name = f'{prefix}_{language}.json'
+         for directory in (stage / 'catalog', original / 'catalog', baseline,
+                           repo / 'docs/source/_extra/tutorials/catalog'):
+-            item = {**lesson, 'narration_voices': inventory}
++            item = {**lesson, 'narration_voices': {**inventory, 'en': sorted(inventory['en'])}}
+             if directory == original / 'catalog':
+                 item = dict(lesson) if language == 'en' else {**lesson, 'narration_voices': {'en': ['af_heart']}}
+             write(directory / name, dict(lessons=[item]))

@@ -8,6 +8,9 @@ export class FakeD1 {
   constructor() {
     this.counters = new Map();
     this.signatures = new Map();
+    this.cache = new Map();
+    this.cacheMeta = null;
+    this.causes = new Map();
     this.log = [];
   }
 
@@ -134,6 +137,82 @@ export class FakeD1 {
         row.last_comment_day = a[1];
         return [{ issue_number: row.issue_number, count: row.count, has_summary: row.has_summary }];
       }
+      case SQL.cacheGet: {
+        const row = this.cache.get(a[0]);
+        return row ? [{ ...row }] : [];
+      }
+      case SQL.cachePut: {
+        this.cache.set(a[0], {
+          key: a[0], kind: a[1], text: a[2], model: a[3], tier: a[4], cause_slug: a[5] ?? null,
+          spacr_minor: a[6], created: a[7], last_used: a[7], hits: 0, bytes: a[8],
+        });
+        return [];
+      }
+      case SQL.cacheHit: {
+        const row = this.cache.get(a[0]);
+        if (row) {
+          row.hits += 1;
+          row.last_used = a[1];
+        }
+        return [];
+      }
+      case SQL.cacheDrop: {
+        this.cache.delete(a[0]);
+        this.cache.delete(a[1]);
+        return [];
+      }
+      case SQL.cacheExpire: {
+        for (const [k, row] of [...this.cache]) if (row.created < a[0]) this.cache.delete(k);
+        return [];
+      }
+      case SQL.cacheEvict: {
+        const order = [...this.cache.values()].sort((x, y) => x.hits - y.hits || x.last_used - y.last_used);
+        for (const row of order.slice(0, a[0])) this.cache.delete(row.key);
+        return [];
+      }
+      case SQL.cacheCount: {
+        let bytes = 0;
+        for (const row of this.cache.values()) bytes += row.bytes;
+        return [{ rows: this.cache.size, bytes }];
+      }
+      case SQL.cacheMetaBump: {
+        if (!this.cacheMeta) this.cacheMeta = { rows: 1, bytes: a[0], inserts: 1 };
+        else {
+          this.cacheMeta.rows += 1;
+          this.cacheMeta.bytes += a[0];
+          this.cacheMeta.inserts += 1;
+        }
+        return [{ ...this.cacheMeta }];
+      }
+      case SQL.cacheMetaSet: {
+        if (!this.cacheMeta) this.cacheMeta = { rows: a[0], bytes: a[1], inserts: 0 };
+        else Object.assign(this.cacheMeta, { rows: a[0], bytes: a[1] });
+        return [];
+      }
+      case SQL.cacheMetaRead: {
+        return this.cacheMeta ? [{ ...this.cacheMeta }] : [];
+      }
+      case SQL.getCause: {
+        const row = this.causes.get(a[0]);
+        return row ? [{ slug: a[0], hub_issue: row.hub_issue, count: row.count }] : [];
+      }
+      case SQL.insertCause: {
+        if (!this.causes.has(a[0])) this.causes.set(a[0], { hub_issue: a[1], count: 1, first_seen: a[2], last_seen: a[2] });
+        return [];
+      }
+      case SQL.bumpCause: {
+        const row = this.causes.get(a[0]);
+        if (row) {
+          row.count += 1;
+          row.last_seen = a[1];
+        }
+        return [];
+      }
+      case SQL.setCauseHub: {
+        const row = this.causes.get(a[0]);
+        if (row) row.hub_issue = a[1];
+        return [];
+      }
       default:
         throw new Error(`FakeD1: unexpected SQL ${sql}`);
     }
@@ -198,6 +277,9 @@ export class FakeGitHub {
     this.issueStatus = 201;
     this.issueState = "open";
     this.stateStatus = 200;
+    this.labelStatus = 201;
+    this.labels = new Map();
+    this.issueStates = new Map();
   }
 
   install() {
@@ -218,14 +300,26 @@ export class FakeGitHub {
     if (/\/app\/installations\/\d+\/access_tokens$/.test(url)) {
       return reply(201, { token: "ghs_testtoken", expires_at: new Date(Date.now() + 3600e3).toISOString() });
     }
+    if (/\/repos\/[^/]+\/[^/]+\/labels$/.test(url) && init.method === "POST") {
+      return reply(this.labelStatus, { name: body.name });
+    }
+    if (/\/repos\/[^/]+\/[^/]+\/issues\?/.test(url) && init.method === "GET") {
+      const label = decodeURIComponent((/labels=([^&]+)/.exec(url) || [])[1] || "");
+      const open = [...this.labels.entries()]
+        .filter(([n, ls]) => ls.includes(label) && (this.issueStates.get(n) || "open") === "open")
+        .map(([n]) => ({ number: n }));
+      return reply(200, open);
+    }
     if (/\/repos\/[^/]+\/[^/]+\/issues$/.test(url)) {
       if (this.issueStatus >= 300) return reply(this.issueStatus, { message: "fail" });
       const number = this.nextIssue++;
+      this.labels.set(number, body.labels || []);
       return reply(201, { number, html_url: `https://github.com/EinarOlafsson/spacr/issues/${number}` });
     }
     if (/\/issues\/\d+$/.test(url) && init.method === "GET") {
       if (this.stateStatus >= 300) return reply(this.stateStatus, { message: "fail" });
-      return reply(200, { state: this.issueState });
+      const n = Number((/\/issues\/(\d+)$/.exec(url) || [])[1]);
+      return reply(200, { state: this.issueStates.get(n) || this.issueState });
     }
     if (/\/issues\/\d+\/comments$/.test(url)) {
       return reply(this.commentStatus, { id: 1 });

@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "status": "owning_tests_passed_inventory_order_source_peer_pending",
+  "source_parent": "75fb711a6cce0efa7db779f612e7bc968234644b",
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/retain_narration.py",
+      "bytes": 6477,
+      "sha256": "10f956ce0a5cba7d18df1bd339411cd7de9c67e3735e7011b7766b4fefbb1054"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/tests/test_retained_narration.py",
+      "bytes": 7702,
+      "sha256": "db9c5fc010b19c9689b7a3d30814c6f7d75062a08a2284888366a68fd80fc435"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/tests/test_retained_pipeline_sources.py",
+      "bytes": 9763,
+      "sha256": "ed883ca41062efcab220b4d1cccdfa6c324932b8c21694b9c98ab9adcbfc28bb"
+    }
+  ],
+  "tests": {
+    "passed": 181,
+    "seconds": 1.98,
+    "terminal_exit_status": 0,
+    "log": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/retained-visual-tests-r5.log",
+      "bytes": 285,
+      "sha256": "c72bf216a9a0574e398957d2f726c1e6230808665cb92bad210ec263f6e47807"
+    },
+    "cap": "4G",
+    "CPU_only": true,
+    "own_lease_removed": true,
+    "no_media_execution": true
+  },
+  "applied_exact_reviewed_patch": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/inventory-order-fix-draft/inventory-order.patch",
+    "bytes": 3981,
+    "sha256": "8958f0c242e6939ac5bed7e75c31d6b1dc3e8083fe1b902d016588d40386e7c8"
+  },
+  "reviewed_external_draft": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/inventory-order-fix-draft/draft-receipt.json",
+    "bytes": 2003,
+    "sha256": "7a7faddc50c5c18a4375886ba32b1498cf9dcd7b0374e88b838b07227c3c7e63"
+  },
+  "semantics": [
+    "Exact language/voice SET equivalence with unique typed lists, keep published==staged byteobject/order exact.",
+    "Original generated voice metadata normalizes to exactpublished order only; missing/subset historicalvoices remain allowed underexplicitinventory.",
+    "Allothercatalog/sourcefields/defaultstricthelper andall50audio+sidecar checks unchanged.",
+    "Focusedintegrated14catalog fixture nowmatchesactualalphabeticalpublished vsafheartfirstliteralcurrentrenderer."
+  ],
+  "no_source_commit_by_author": true
+}

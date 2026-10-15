@@ -224,7 +224,7 @@ test("a shrunken share skips the summary but still files the report", async () =
 test("optional light cap still applies to summaries", async () => {
   env.AI_LIGHT_PER_INSTALL = "1";
   await post(sampleReport({ summarize: true, dry_run: true }));
-  const r = await post(sampleReport({ summarize: true, dry_run: true }));
+  const r = await post(sampleReport({ summarize: true, dry_run: true, exception_type: "KeyError" }));
   assert.equal(r.body.ai_summary_source, "none");
   assert.equal(aiCalls.length, 1);
 });

@@ -9910,6 +9910,29 @@
       "source_sha256": "690e9175dc789677a4bf0a4dde0501bdf7d0cce8106e086e8d0786d9e1775ddb",
       "text": "Build a summary from a made-up error, to show what a report holds.\n\nThe error's message names a plate file under the home folder, an\ne-mail address and a token, so the example shows each one removed.\n\n:returns: a summary built exactly as a real one is."
     },
+    "spacr.crashreport.explanation_key": {
+      "source_blocks_sha256": [
+        "d7b997eac06ef98fcc8ecb7c0dc98ebd33001525c6e0741e7e452d7c19e2f5c2",
+        "889e7967653c02b1699373999ff527ff8fd2bc365c579043717162a20efebac2",
+        "dc8cb59e5c9708e43ee74caaa4b7f99876fae29cfef145f0f80c11935ce7fd82",
+        "3615aeaee3d3841a1a507ab9a0178a6a7efb4b5e90a32cd5629f01548417b890",
+        "a41a344522ef8229c99bed0e499c867629e183343c9a2f98cabe87e986d0b844",
+        "0219f84e0332ab7e9244f3e5037cc9a5737af1af4c778b3c1bd4fd978bd1f1aa",
+        "90da6c87f0aa65e3a37cc73e07d54c10263e24f0f45a33b2565451c890d3ef86"
+      ],
+      "source_sha256": "1435f13a96089178a50619680d7064b709ffe9603c4033e9e7e2564cbe08a12a",
+      "text": ":func:`explanation_signature` of a failure, without the environment.\n\nReads only the traceback, so it is cheap enough for the GUI thread and\ngives what the full :func:`public_summary` of the same failure gives.\n\n:param traceback_text: the formatted traceback.\n:param module: the spaCR module key.\n:param kind: :data:`KIND_FAULT` or :data:`KIND_USER_ERROR`.\n:param message: the message sent in place of the exception's own.\n:returns: the signature."
+    },
+    "spacr.crashreport.explanation_signature": {
+      "source_blocks_sha256": [
+        "e77c0942192bca11642409a37d23cbd55dc6aa5a330f43213be4e2724fb00202",
+        "e93b6337f1364cf2f8978526bcd1868353bc83220a5c8f8accd8cc4134111810",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "6ef069a36cd77a199879712398c5025591b3c8a80b0e3cf78d82418a962e5bae"
+      ],
+      "source_sha256": "c17aeffb83edb179ea73b1c5a48c63521b0be987c2683fb04fd64f2e16ce7750",
+      "text": "The error's signature, computed as the relay computes it.\n\nThe exception type, the module and the innermost five frames\n(``file:function``); a user error adds its normalised problem list.\nThe relay keys its saved explanations, and its issues, by the same\nvalue.\n\n:param summary: a summary from :func:`public_summary`.\n:returns: the SHA-256 hex digest."
+    },
     "spacr.crashreport.fetch_allowance": {
       "source_blocks_sha256": [
         "f18f7b76adf0af2064784d665bea0d48cc7315467432de6aa769be6f54fcee99",
@@ -10028,6 +10051,77 @@
       "source_sha256": "5899757a4ffad4f37f24eae8e2120b2c48edccadda8c0c6d81859436c64fa63a",
       "text": "Return the next 00:00 UTC, when the relay's daily allowances reset.\n\n:param now: the moment to count from; defaults to now.\n:returns: an aware UTC datetime."
     },
+    "spacr.crashreport.normalise_cause": {
+      "source_blocks_sha256": [
+        "ed5c29abdb17663720f38d605f7506f2d712650dd03c8be31288cd998efe9548",
+        "63496212f49051e5bab015b597d8f01bf07f307601412e73bd7b53bee512dc57",
+        "cc2d28e237283855df656426d6855b9bd55794b66bc1f798916ffac3116e771c"
+      ],
+      "source_sha256": "443c7d99e0f454518028bbf0b6a993a54cf30de94b071895aa503dd7ea5289e9",
+      "text": "A likely-cause key as the relay keeps it: kebab-case, 5 words, 40 chars.\n\n:param raw: the key as the AI wrote it.\n:returns: the slug, or ``\"\"``."
+    },
+    "spacr.crashreport.normalise_question": {
+      "source_blocks_sha256": [
+        "0f0cae22dd277f52ca201b96733e8dcf3029ecbccd93581c20eb0f5c9546b8a7",
+        "492769b21b09c87878023ebb1112a1fd4c77ed259f2eb6e17b02c2c2a23be74d",
+        "c049dd8f2cfeaa634d9db7c9c555fdc86a7c2d76205463a3c1f6ffb672373705",
+        "0ceb5213e85b3ea40168b85b1b739141142ec1d476838518098c26eb2418cb01"
+      ],
+      "source_sha256": "b3c1cbdcd69c16d48490cc1b07f7c452a668a90836895c0123c59a024a2425db",
+      "text": "A question as both caches compare it.\n\nLower case, placeholders such as ``<PATH>`` removed, and every run of\nwhitespace or punctuation folded into one space, the way the relay's\n``normaliseQuestion`` does it.\n\n:param text: the question.\n:returns: the normalised question."
+    },
+    "spacr.crashreport.public_environment": {
+      "source_blocks_sha256": [
+        "143cbf82508ad7d35f938c80c999116c856f8476d060195dec21d69ba4a7e482",
+        "18df698a2ebe90392af36b917af48c3fbe52abd868620e90762adfa8c1784929",
+        "d1bdabe97177a2c46f2bbc056f1c432ac114a6d69cc386f8df0bbe82d0b8a0fc"
+      ],
+      "source_sha256": "0b6900533ead0aa35712936951802f92ca0acfcea2086926ce95ba3be18f7d70",
+      "text": "The computer and libraries a report was made on, without any name.\n\nOS version, CPU architecture and cores, memory rounded to whole GB, the\nGPU's model and memory when torch already knows it, CUDA or MPS, the\nversions of spaCR's main libraries and how spaCR was installed.\n\n:returns: the facts that could be read."
+    },
+    "spacr.crashreport.public_input_facts": {
+      "source_blocks_sha256": [
+        "986a0c95208b374ac3ccc585d3789f048ceb98464a78941b7b7586f50887c9a4",
+        "4e38c3ca51f64ad8de1aa6826a84c001a5750c218aff2f4d2857d09d23db7186",
+        "47556d964a95f3093bf8718305cef4eddb19b1796af90a7dc7c2c240312a49c2",
+        "8b1d0678f203d982a1b6c1c354631c33bc7201afc8bd9e483829df9cef396e83",
+        "208123e84fdf833418eab4a88a0197014add4bd0d7ea41f0b1da802d93b0f755"
+      ],
+      "source_sha256": "287551a254e77f1f6a93afa2d5199d5a7a945f3f67baeeebc408aab34516f588",
+      "text": "What the run's source folder holds, without any name in it.\n\nCounts the image files directly in the folder (at most ``limit``\nentries are looked at), the extensions seen, and the shape, dtype and\nlikely channel count of the first image, read from its header.\n\n:param settings: the run's settings.\n:param limit: the most folder entries looked at.\n:returns: ``{\"images\", \"extensions\", \"shape\", \"dtype\", \"channels\"}``,\n    only the keys that could be found; ``{}`` without a readable folder."
+    },
+    "spacr.crashreport.public_log_tail": {
+      "source_blocks_sha256": [
+        "8d91911ebf8c718a211495f2539f64503018be20ddf551daf804dd034d95b8f6",
+        "34e9d50a201b2222e430d77acf4e9661d49f04a897f97452982965307c0e7fc8",
+        "b963ea1bb8ca7170b5aba9688123fe680dcd157069c67c3dcec738c13e1d5c4d",
+        "f6dec1a4dbc936c496b836e3762740643bf24ce898cc7c502926d0f994b36b99",
+        "ba586c5534c232a5db9d1a95c98215a0cb8137449ccce7bf6c42335649650bfa"
+      ],
+      "source_sha256": "442d5b9ff98fead36e2a4787c6e5e6eeaf5372f4e621d9a2d9df05e9ac2ef696",
+      "text": "The console's last lines before a failure, scrubbed and cut.\n\n:param text: the console text.\n:param lines: the most lines kept, from the end.\n:param limit: the most characters kept, from the end.\n:returns: the scrubbed excerpt."
+    },
+    "spacr.crashreport.public_problem_lines": {
+      "source_blocks_sha256": [
+        "f33f611684db36ff26fe84c795732cd7c4cd23ab1cfcaf3ba1a3204d6662923d",
+        "8589f473cc0aaa5c63406e177c2791c9d0e66b9e760f82b1969af0c60956447c",
+        "b7b5fc741ae265a1cb0bb3334d2e5fd91e771cba76304099b9cdf61db58f2151",
+        "cc95cecde657def27f1b55201193938840c7c59a9cd7a1c4eed12c46e95b94ce",
+        "b4ae9684325b53d0dc33a0158c3d79fb2a387194463b1fe0e6cb40fdd6416bc2"
+      ],
+      "source_sha256": "7d60796cd03087fe224d38640cfd204367435cf1d776b86685338ec14e5b81d2",
+      "text": "Scrub settings problems into short lines that may be published.\n\nPaths and file names are taken out rather than replaced, so\n\"src does not exist: /data/plate1\" is sent as \"src does not exist\".\n\n:param problems: :class:`spacr.validate.Problem` objects, or texts.\n:param limit: the longest line, in characters.\n:returns: one line per problem, ``\"setting: message\"`` when the problem\n    names a setting; duplicates and empty lines are dropped."
+    },
+    "spacr.crashreport.public_settings": {
+      "source_blocks_sha256": [
+        "c34105192fc3c673ec09a16c0589c3ab498c920697acc3401b9f1b2e478d5193",
+        "c2609f0c61dbfd640dc74eac4a0b4f1ac3cc29da90d1743cb7b59d54c9cc676b",
+        "47556d964a95f3093bf8718305cef4eddb19b1796af90a7dc7c2c240312a49c2",
+        "c25d4209c8659dfaf15de261c10316befee090b8885e2b244ee41d7a5667b792"
+      ],
+      "source_sha256": "90527e1e023312ec4e1e157eb3bf4ce99e4a413565f7e47f4e8c6c012a0200e5",
+      "text": "The settings a run used, with nothing personal left in them.\n\nSetting names are kept as they are; values go through\n:func:`_public_setting_value`, so ``src`` reads ``<path: exists=no>``\nwhen the folder is missing, without the folder's name. At most\n:data:`MAX_SETTINGS` settings, in name order.\n\n:param settings: the run's settings.\n:returns: ``{name: value}``."
+    },
     "spacr.crashreport.public_summary": {
       "source_blocks_sha256": [
         "552617af2b167678afbb951fd4ac2f2c7320d101154e8dedaed86b872ebdf076",
@@ -10039,10 +10133,29 @@
         "73218bc6b24dc0d5d3c6039a100e31af256c8cb76db00e1102eb6024646c1c4b",
         "9c14e5904446bde5cd0a8897edccf8ebf9025dd0674726871575984c29ca661c",
         "9e1051e5033f4155433b7ab10fd44dfc6fe22ed04d050769aca2b2a9e57dec70",
+        "558bb46dae77b3bdf1b5924eaac436cc52a3182a382d3df16fb29f6e1a0ef059",
+        "ba1077179bedb029d7a2ca098716e1b44f4e9d2350e9024f62fc4f68f8a644c8",
+        "33b592719332b1e0608f2172fe8715caacc14beb67bde2d80f755f90272be6ca",
+        "ca1f09810e6eddac5afe5b26732da35429a00d5f51c36a7afa9611ff89eeb244",
+        "a9377aabfeed8d672d3197583e9c2a0e5d5de04bad7d15176fb0e8a760e1f1c0",
+        "97f5adcf4fe6581fd4ea8471715b00997dd39eff5b13aaf2b14636c440a72204",
+        "865a509d4d5a53b0189e5cb0f2f7fcee4a61625ad6e1d6d6eab9e1a9291f99e1",
         "fcdaad60554b1a24419b64f901370c942b794d32d2c472885deb64beee091182"
       ],
-      "source_sha256": "482667be04613bff5ac95931b2b9ea1b8fa90469003d2ddb71c19cd271e51f55",
-      "text": "Build the anonymised summary of an error that may be published.\n\nOnly the keys in :data:`PUBLIC_SUMMARY_KEYS` are present. The message is\npassed through :func:`scrub_public_text` and cut to\n:data:`MAX_MESSAGE_CHARS`; the frames are at most :data:`MAX_FRAMES`\n``{file, function, line}`` records with the file as a basename, or\n``<user-code>`` for a file outside spaCR, Python and its libraries.\nNo log, setting, environment variable or path is read into it.\n\n:param exception: the exception, with its traceback.\n:param traceback_text: a formatted traceback, used when no exception\n    object is at hand (a failed pipeline run reports one as text).\n:param module: the spaCR module key the error happened in, such as\n    ``mask`` or ``measure``.\n:param user_note: what the user adds, scrubbed and cut to\n    :data:`MAX_NOTE_CHARS`; left out when empty.\n:param dry_run: ask the relay to validate without filing; left out when\n    false.\n:param kind: :data:`KIND_FAULT` or :data:`KIND_USER_ERROR`; worked out\n    by :func:`classify_failure` when empty.\n:param code_context: add each spaCR frame's source line as ``code``.\n    Frames of any other file never carry code.\n:returns: the summary, ready for :func:`submit_public_summary`."
+      "source_sha256": "9dee6cbe285403aa8ffe3d3e6914851e3b428124ce150b2614f6b377f2d27537",
+      "text": "Build the anonymised summary of an error that may be published.\n\nOnly the keys in :data:`PUBLIC_SUMMARY_KEYS` are present. The message is\npassed through :func:`scrub_public_text` and cut to\n:data:`MAX_MESSAGE_CHARS`; the frames are at most :data:`MAX_FRAMES`\n``{file, function, line}`` records with the file as a basename, or\n``<user-code>`` for a file outside spaCR, Python and its libraries.\nNo log, setting, environment variable or path is read into it.\n\n:param exception: the exception, with its traceback.\n:param traceback_text: a formatted traceback, used when no exception\n    object is at hand (a failed pipeline run reports one as text).\n:param module: the spaCR module key the error happened in, such as\n    ``mask`` or ``measure``.\n:param user_note: what the user adds, scrubbed and cut to\n    :data:`MAX_NOTE_CHARS`; left out when empty.\n:param dry_run: ask the relay to validate without filing; left out when\n    false.\n:param kind: :data:`KIND_FAULT` or :data:`KIND_USER_ERROR`; worked out\n    by :func:`classify_failure` when empty.\n:param code_context: add each spaCR frame's source line as ``code``.\n    Frames of any other file never carry code.\n:param screen: the screen's title as the user sees it, such as\n    ``Mask``; at most :data:`MAX_SCREEN_CHARS` characters.\n:param error_text: the error as the console showed it, scrubbed with\n    its line breaks kept and cut to :data:`MAX_ERROR_TEXT_CHARS`.\n:param message: the message to send in place of the exception's own,\n    such as every problem a refused run found; a user error keeps its\n    line breaks and may be :data:`MAX_USER_ERROR_MESSAGE_CHARS` long.\n:param settings: the run's settings; their names and public values\n    (:func:`public_settings`) and the source folder's input facts\n    (:func:`public_input_facts`) are added.\n:param log_text: the console text before the failure; its last lines\n    are added, scrubbed (:func:`public_log_tail`).\n:param run: ``{\"stage\", \"elapsed_s\", \"dry_run\"}`` of the failed run.\n:param diagnostics: add the environment block\n    (:func:`public_environment`) and the exception chain.\n:returns: the summary, ready for :func:`submit_public_summary`."
+    },
+    "spacr.crashreport.question_key": {
+      "source_blocks_sha256": [
+        "05fed47f6d1de504bfe09d0bf7651c09dd5a1aafbed254ca41bed1715d356a14",
+        "9ea846a8c806fae26730dac71ac0808afada88d86894dd298c043596416e21c2",
+        "84d186ddcdde56653cd4aeb0e692a25d797bda21469a190bebdcff3377aaf8f8",
+        "d02fb2680a955047b4370421b7c80f2c509fd8062686e6abcf7ed5667ea964e4",
+        "0387530ec68234cb3df513587597db84b4008919da25c9d3904a8eb533b873b7",
+        "1f0dc14b914d2ddcbbad0d1a3027f8067b5a49f5c483fd6e2dd53069ed211a86"
+      ],
+      "source_sha256": "45bcfbe21202e8b0dd3f46d708cce163f714a466f901d8881a067d4043faa3a3",
+      "text": "The key a question's saved answer is kept under, or ``\"\"``.\n\nSHA-256 of the scrubbed, normalised question, the place it was asked\n(screen or module) and spaCR's ``major.minor``, prefixed ``q:``. A\nquestion with more than :data:`QUESTION_CACHE_CONTEXT_MAX` characters\nof question and pasted context is never saved.\n\n:param question: what the user asked.\n:param place: the screen or module it was asked on.\n:param context_chars: characters of console context, code or traceback\n    pasted with it.\n:returns: the key, or ``\"\"`` when the answer must not be saved."
     },
     "spacr.crashreport.queued_summaries": {
       "source_blocks_sha256": [
@@ -10074,16 +10187,61 @@
       "source_sha256": "56ca1f2b9fb8ac403446bf4fe300131d5c5aa86dd2e441710f9cd659a8ed8643",
       "text": "Write a crash report about ``exception`` and return where it went.\n\nThe call to make from an ``except`` block that is about to re-raise.\n\n:param exception: the exception being reported.\n:param destination: as :func:`write_crash_report`.\n:param kwargs: passed to :func:`collect`.\n:returns: the path written, or ``''`` when even writing the file failed --\n    which is reported on stderr rather than raised, because this is called\n    from a failure path and must never replace the user's exception with\n    one of its own."
     },
+    "spacr.crashreport.save_explanation": {
+      "source_blocks_sha256": [
+        "28af111d7f1e7625d8491505cb1f361219dde8ab663dac5f7c05ae056d42113a",
+        "5cee2ec77eb14a9170d8df3b5e021c573142ec50c19e258d7d7f2fde494d2151",
+        "40de8b97923d2ee09926fe063c4581621449d520d52cc191f3b8c0cf1a8f4330",
+        "3cd67d36dbdb5c54f555816574478caa8693d95a94cbf617de5117c4dd1adf11",
+        "73d3ef4042444ab329f10847cfff66ae72139d8c664b4a185ee004e90abe1283",
+        "d687ba373e4443cce4b6faa8c09ab6ea775b2d37bb8dbbea5569c8a661f8047a",
+        "4658ef7ae85b97fe9246a25c1180601e52754502237b23bebb3761627f3ab50f",
+        "578c9fff753df34a1750f53d74bcbf0f3308c09bd9864d93a8c4a7459a7a4910"
+      ],
+      "source_sha256": "bc4544d16e629eb1d4960bd3d4a0a458dc2faaee990090a5524178723d30089d",
+      "text": "Keep an explanation on this computer for the next identical error.\n\nAt most :data:`MAX_SAVED_EXPLANATIONS` are kept, oldest dropped first,\nand expired ones are dropped on every write. A failed write is ignored.\n\n:param signature: from :func:`explanation_signature`.\n:param text: the scrubbed explanation.\n:param tier: ``\"best\"``, ``\"light\"`` or ``\"\"``.\n:param model: the model that wrote it, when known.\n:param now: the time, in seconds since the epoch; defaults to now.\n:param cause: the likely-cause key the AI gave, if any."
+    },
+    "spacr.crashreport.saved_explanation": {
+      "source_blocks_sha256": [
+        "65f26e02cd937dc8a78205f66e6d39e018916ac3dee8ff1e245ad8d807702e4e",
+        "daed287218203e4c13f41fea45f0d9a107de749d2bd3d5bb751446f2306c4456",
+        "40de8b97923d2ee09926fe063c4581621449d520d52cc191f3b8c0cf1a8f4330",
+        "4658ef7ae85b97fe9246a25c1180601e52754502237b23bebb3761627f3ab50f",
+        "2cbd351de9e1a53ce8ee85c86c3b979b278a3e6a025082fcc0baf254a5735e8b"
+      ],
+      "source_sha256": "1adeffa640bd39842a4345d2ee2713dbdd48fc17c0353927902aaa45e7c44d3c",
+      "text": "The explanation saved on this computer for an error, if still good.\n\nGood means written for this spaCR ``major.minor`` and less than\n:data:`SAVED_EXPLANATION_DAYS` days ago.\n\n:param signature: from :func:`explanation_signature`.\n:param now: the time, in seconds since the epoch; defaults to now.\n:returns: ``{\"text\", \"tier\", \"model\"}``, or ``None``."
+    },
+    "spacr.crashreport.scrub_public_lines": {
+      "source_blocks_sha256": [
+        "044c2c542b75d6d3c72ccfc686475662df8fc6c8c4c15dac48455c00a9ee8dc9",
+        "572a872e35413edbd0762136e17009c113d835f577b1112fafc6c89c0a7eda56",
+        "abfe850b32d6d2a06dd4ccf1d0e6bb0c3cf51391b0c7f856714a8e6fcccfc5c5",
+        "c86f36468710a89d756e9b3144993fc419d724b98a141cbd56f2858db067841a",
+        "789d20d0dc60fece4bd441d129d1b20113b05ea3deaf7cb16907e8a285bcbf09",
+        "630081496e8b30d4ca7f2da4a78439e0bb77638e2b3978f802f966c3dd76905f"
+      ],
+      "source_sha256": "b2b97f15b653dcd38bd95aa31d3811c2dc1652ec453d180a363b542357787d24",
+      "text": "Scrub a text like :func:`scrub_public_text`, keeping its line breaks.\n\nEach line is scrubbed on its own, so a Markdown answer keeps its headings\nand numbered steps on lines of their own; runs of blank lines become one.\n\n:param text: the text; anything else is turned into text first.\n:param limit: the longest result, in characters; a longer one is cut and\n    ends in ``…``.\n:param keep_docs_urls: as for :func:`scrub_public_text`.\n:returns: the scrubbed text, lines joined by ``\\n``."
+    },
     "spacr.crashreport.scrub_public_text": {
       "source_blocks_sha256": [
         "9a20c78f64aa38bee2a204a30b26a482e1707ab252885c1ec7d5c88e293c0d7b",
         "242aca94a2143e2e756248352bc9124e64680fd1b505ffb6f52333adf54a120f",
         "abfe850b32d6d2a06dd4ccf1d0e6bb0c3cf51391b0c7f856714a8e6fcccfc5c5",
         "c86f36468710a89d756e9b3144993fc419d724b98a141cbd56f2858db067841a",
+        "973a7237076f8172f936b4f03bd23d6190af0e03cbb131bd9210d64abd89851f",
         "e195a696122793adb3b9e56035581cefa5265864a5dd595fbd4906954a1dcb7b"
       ],
-      "source_sha256": "9a10c9ae6eaccdd4eaea16879bf58ac538c298c0831106b6294882eaed6bf48c",
-      "text": "Remove anything personal from a short text that will be published.\n\nAbsolute paths (POSIX, Windows and network shares) become ``<PATH>``,\nfile names with a data or code extension ``<FILE>``, e-mail addresses\n``<EMAIL>``, web addresses ``<URL>``, IP addresses ``<IP>``, host names\n``<HOST>``, this computer's login name ``<USER>``, and anything shaped\nlike a key, token or long hexadecimal or base64 string ``<TOKEN>``. The\nredaction helpers of :mod:`spacr.qt.ai.issue_report` run first, and these\nstricter rules after them.\n\n:param text: the text; anything else is turned into text first.\n:param limit: the longest result, in characters; a longer one is cut and\n    ends in ``…``.\n:returns: the scrubbed text on one line."
+      "source_sha256": "60938f5faca29a98d1d190efd71d99db50ad4a0266c584a1341e8ee0009a6556",
+      "text": "Remove anything personal from a short text that will be published.\n\nAbsolute paths (POSIX, Windows and network shares) become ``<PATH>``,\nfile names with a data or code extension ``<FILE>``, e-mail addresses\n``<EMAIL>``, web addresses ``<URL>``, IP addresses ``<IP>``, host names\n``<HOST>``, this computer's login name ``<USER>``, and anything shaped\nlike a key, token or long hexadecimal or base64 string ``<TOKEN>``. The\nredaction helpers of :mod:`spacr.qt.ai.issue_report` run first, and these\nstricter rules after them.\n\n:param text: the text; anything else is turned into text first.\n:param limit: the longest result, in characters; a longer one is cut and\n    ends in ``…``.\n:param keep_docs_urls: keep the public spaCR addresses in\n    :data:`PUBLIC_DOCS_URLS`, for an AI answer that links the\n    documentation; every other address still becomes ``<URL>``.\n:returns: the scrubbed text on one line."
+    },
+    "spacr.crashreport.scrub_public_text._hold": {
+      "source_blocks_sha256": [
+        "d763eca478e72701158eb7a75ffcacd94fa6e7e0f0184644fe976d0ca8f3f643"
+      ],
+      "source_sha256": "d763eca478e72701158eb7a75ffcacd94fa6e7e0f0184644fe976d0ca8f3f643",
+      "text": "Keep a public spaCR address aside; any other becomes <URL>."
     },
     "spacr.crashreport.set_anonymous_reports_enabled": {
       "source_blocks_sha256": [
@@ -10103,6 +10261,15 @@
       ],
       "source_sha256": "a9df70e5bc023d295da9b5e05b8c7e2606bd48dc5b79493b313dfe0dd62eee81",
       "text": "Save the \"AI Error report\" choice.\n\nA choice that sends nothing also deletes every report still waiting, so\nnothing queued before the change is sent after it.\n\n:param mode: a key of :data:`ERROR_REPORT_MODES`.\n:raises ValueError: for any other value."
+    },
+    "spacr.crashreport.split_cause": {
+      "source_blocks_sha256": [
+        "a2af4a441bd10c00605a30dc46a6e968e14b696fb3e79e50879289c70682f6e1",
+        "c25598ce29eb49f0eb16db61102477ce0725079b4035506ba3c89f44d01470ab",
+        "dccc0ce46d3d6e6d24f6290cd306a77e51df8ffd58a31ad9835c3ee7d04649a2"
+      ],
+      "source_sha256": "17cbac26346bd39d2d85203072a9f30ea585860ee6233cc7aed19dac53526809",
+      "text": "Take the ``CAUSE: <slug>`` line off an AI answer.\n\n:param text: the answer.\n:returns: ``(answer without the line, slug or \"\")``."
     },
     "spacr.crashreport.submit_public_summary": {
       "source_blocks_sha256": [
@@ -14945,10 +15112,11 @@
         "3fdea8a605c403eca207a71bd649ea2376b57d7a412e5fc4b4c6d889721e12bf",
         "9ebb5aaa560b1f2453257f350e7c2a8b93a5ffc7552ecb027791f481afdb6812",
         "adbb0e8a4fc5af75bb3f393aee873c3f572015344057fe56160d16cd8190edfd",
-        "00e9beed658da713fab719c23fb72a25120f47b91966410eab0cad36bf3eff46"
+        "00e9beed658da713fab719c23fb72a25120f47b91966410eab0cad36bf3eff46",
+        "0bc4ac338404996dfee68c2ec4c7b4825e3505fcd8aeab08c07f23990877f52d"
       ],
-      "source_sha256": "352ef6b86894d787e737e9e5607643f609b66d2f8e3146c71827fc299fbe36a5",
-      "text": "Raise ``error_type(message)`` in strict mode; otherwise log it at ``ERROR``.\n\nUsed at the category-B sites that historically printed and carried\non. The default path keeps the legacy behaviour but stops the\nproblem from being invisible to the log; setting\n``SPACR_STRICT_ERRORS=1`` turns the same site into a hard stop.\n\n:param message: what went wrong, and why the result is untrustworthy.\n:param exc: the caught exception, chained onto the raise.\n:param settings: settings dict consulted for ``strict_errors``.\n:param error_type: exception class to raise.\n:returns: False when not strict, so callers can branch on it."
+      "source_sha256": "ffda20ccd3215d81356f6187e259e93a99048b5d8211fc755d67aeff728b80c7",
+      "text": "Raise ``error_type(message)`` in strict mode; otherwise log it at ``ERROR``.\n\nUsed at the category-B sites that historically printed and carried\non. The default path keeps the legacy behaviour but stops the\nproblem from being invisible to the log; setting\n``SPACR_STRICT_ERRORS=1`` turns the same site into a hard stop.\n\n:param message: what went wrong, and why the result is untrustworthy.\n:param exc: the caught exception, chained onto the raise.\n:param settings: settings dict consulted for ``strict_errors``.\n:param error_type: exception class to raise.\n:returns: False when not strict, so callers can branch on it.\n\nThe logged record carries the refusal's call stack, formatted as\ntraceback lines, in its ``spacr_call_site`` attribute, so a report of a\nrefused run can say where it was refused."
     },
     "spacr.errors.read_run_status": {
       "source_blocks_sha256": [
@@ -43908,10 +44076,11 @@
         "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
         "15b4cb17546b1effbadb29ef18c1045837faf3b8acf06151d43d888726e1ddc9",
         "5424d075b417d26cf094bfda8c0e1a5f55dc9b89894c2d94c0f3a900350bc722",
-        "4a7fef46b5430397881ee32f12751f3ee9a9d79bb7a64f99423974ca2412d951"
+        "f739a99d4a900440a2ea08d864d905586720381157d9c4004477829d6b12de91",
+        "7ea7e26255aa7c895df0363947439ecc1f2f02cf8f0dd21c81d0dfecee41a0d8"
       ],
-      "source_sha256": "78242dad7ceab8aaaea9bbaa73956021492cc15092a2da3837b574f50ed6eaaa",
-      "text": "Have the active AI explain a failure once, for the console and the issue.\n\nspaCR AI (free) asks the relay's ``/diagnose`` with the anonymised\nsummary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI\nanswers :func:`spacr.crashreport.ai_summary_prompt` here\n(:func:`write_report_summary`). The same text is shown in the console\nand sent as the report's ``ai_summary``, so a failure costs one AI call.\nBlocks, so call it off the GUI thread.\n\n:param summary: a summary from :func:`spacr.crashreport.public_summary`.\n:param provider: the active provider, or ``None``.\n:param timeout: seconds a vendor CLI may take; defaults to\n    :data:`spacr.crashreport.AI_SUMMARY_TIMEOUT_S`.\n:returns: ``{\"text\": explanation or \"\", \"tier\": \"best\"|\"light\"|\"\",\n    \"refused\": \"\" or \"quota\"|\"network\"|\"error\"|\"none\"}``."
+      "source_sha256": "a3998223245141e544b98ee1aea0a8876a3d481fbbb36e4111565b9aa237e127",
+      "text": "Have the active AI explain a failure once, for the console and the issue.\n\nspaCR AI (free) asks the relay's ``/diagnose`` with the anonymised\nsummary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI\nanswers :func:`spacr.crashreport.ai_summary_prompt` here\n(:func:`write_report_summary`). The same text is shown in the console\nand sent as the report's ``ai_summary``, so a failure costs one AI call.\nBlocks, so call it off the GUI thread.\n\n:param summary: a summary from :func:`spacr.crashreport.public_summary`.\n:param provider: the active provider, or ``None``.\n:param timeout: seconds a vendor CLI may take; defaults to\n    :data:`spacr.crashreport.AI_SUMMARY_TIMEOUT_S`.\n:returns: ``{\"text\": explanation or \"\", \"tier\": \"best\"|\"light\"|\"\",\n    \"refused\": \"\" or \"quota\"|\"network\"|\"error\"|\"none\"}``, plus\n    ``\"saved\": \"local\"`` when the answer was saved on this computer\n    (no AI call, no network) or ``\"relay\"`` when the relay reused one.\n\nAn error explained before is not explained again: the answer saved on\nthis computer (:func:`spacr.crashreport.saved_explanation`) comes first,\nfor every provider, and each new answer is saved."
     },
     "spacr.qt.ai.providers.get_provider": {
       "source_blocks_sha256": [
@@ -44028,6 +44197,16 @@
       ],
       "source_sha256": "bcbd42692cf749c6de19da3a3384f69c02ac93190fe9a4548c4a003e33f26bcf",
       "text": "Name the operating system :data:`INSTALL_METHODS` is keyed by.\n\n:param platform: a ``sys.platform`` value.\n:returns: ``\"win32\"`` for any Windows value, ``\"darwin\"`` for macOS, and\n    ``\"linux\"`` for everything else."
+    },
+    "spacr.qt.ai.providers.question_cache_key": {
+      "source_blocks_sha256": [
+        "e28b64d8bded6b39ea33ed192b025c4c897576eb7664fda3ad9d7bb298549c25",
+        "3ca648fdcee288b74d8923fa3514adad78ee5751a72b69586eb1e96750529835",
+        "69388d176540fe771c0695e09aad7cd9085a60e08c44e2306bdd418f531232a3",
+        "1f0dc14b914d2ddcbbad0d1a3027f8067b5a49f5c483fd6e2dd53069ed211a86"
+      ],
+      "source_sha256": "7d905ed404532b8cbc7d5a9b07bdef623398297d4b8ef3dbe97a371ec34c8cab",
+      "text": "The key a fresh question's answer is saved under on this computer.\n\nOnly the first question of a conversation is saved, and only when the\nquestion and whatever was pasted with it (console context, code,\ntraceback) stay within\n:data:`spacr.crashreport.QUESTION_CACHE_CONTEXT_MAX` characters. The\nkey is :func:`spacr.crashreport.question_key` of the question and the\nactive app; it is the same for every provider.\n\n:param messages: conversation history as ``{role, content}`` dicts.\n:returns: the key, or ``\"\"`` when the answer must not be saved."
     },
     "spacr.qt.ai.providers.quote_path": {
       "source_blocks_sha256": [
@@ -44352,10 +44531,11 @@
       "source_blocks_sha256": [
         "57e2bc2ea2960cb5f7c70521814464d26171e871ee3c3493923f7de90945451a",
         "4ee71fd9cb9902652ab0fe7a99dbe981a064ed8aba32df50e1c820e4d717f2f9",
-        "3160512b0f19c634feac7f83a5bd96efbbb6b4fb9df33a2d7efc6bffb5225199"
+        "3160512b0f19c634feac7f83a5bd96efbbb6b4fb9df33a2d7efc6bffb5225199",
+        "91799ef47c3ae4f96e2fa6003107de296008027725ab751456f2727402884093"
       ],
-      "source_sha256": "2dbceb9b0c3f2e108238d6bdcac79b0c4a3d491faf37973799548c9eea4f3e1f",
-      "text": "Consume the provider stream, emitting stage/chunk/finished signals.\n\n``finished`` carries ``(True, the whole reply)`` only when the stream\nended on its own and the provider did not report a failure. Anything\nelse gives ``(False, <what to tell the user>)``, and whatever the\nprovider printed before failing is not an answer. A stream that was\ncancelled gives ``(False, \"Cancelled.\")`` even when ending the child\nmade the provider raise, because the user asked for the stop.\n\nThe exception's class name is prefixed to its message, except for a\n:class:`~spacr.qt.ai.providers.ProviderFailed` with a non-empty\nmessage. The console writes this text after \"[AI error] \", and a\nProviderFailed message is written to be read there, including the\nsign-in command to run. For every other exception the class name is\nkept because it often names the error: a bare ``[Errno 2] No such\nfile or directory`` does not say it is a FileNotFoundError."
+      "source_sha256": "7b2189afeee30042fdff6226115e24c36df4d5e3f85707f26cd28cecf0838ddb",
+      "text": "Consume the provider stream, emitting stage/chunk/finished signals.\n\n``finished`` carries ``(True, the whole reply)`` only when the stream\nended on its own and the provider did not report a failure. Anything\nelse gives ``(False, <what to tell the user>)``, and whatever the\nprovider printed before failing is not an answer. A stream that was\ncancelled gives ``(False, \"Cancelled.\")`` even when ending the child\nmade the provider raise, because the user asked for the stop.\n\nThe exception's class name is prefixed to its message, except for a\n:class:`~spacr.qt.ai.providers.ProviderFailed` with a non-empty\nmessage. The console writes this text after \"[AI error] \", and a\nProviderFailed message is written to be read there, including the\nsign-in command to run. For every other exception the class name is\nkept because it often names the error: a bare ``[Errno 2] No such\nfile or directory`` does not say it is a FileNotFoundError.\n\nA fresh, short question\n(:func:`~spacr.qt.ai.providers.question_cache_key`) asked before is\nanswered from this computer's saved answers with no provider call,\nand :attr:`saved` is then ``True``; a new complete answer to such a\nquestion is saved, whatever the provider."
     },
     "spacr.qt.ai.worker.make_stream_thread": {
       "source_blocks_sha256": [
@@ -82807,6 +82987,16 @@
       "source_sha256": "adde979eed069bed08e8234cc160e4067228e2febdd83cabf74956e9552194b3",
       "text": "Whether the view is showing the newest line.\n\nA few pixels of tolerance, because a scrollbar dragged to the end\ndoes not always land exactly on maximum() -- the same tolerance\n`_on_console_scrolled` uses, and for the same reason."
     },
+    "spacr.qt.widgets.console_panel.ConsolePanel.begin_ai_entry": {
+      "source_blocks_sha256": [
+        "cb2e19351f0a0db75d5bbd4cfdff82aef61eb1004a5908010d78ac96fa79234d",
+        "320601fcd146b23f6d8a535197e639883c00bc8c31ed03b4f13e943b394e1479",
+        "a2b1ed04f70f493f701a2933db3aa3b36611bf6baba0c80a69d652428358ebec",
+        "ee4ea19ecfac6bd69399b394a6d6f49dabdda5691037d0a34e441e41976058da"
+      ],
+      "source_sha256": "ac0d6cc119c065e424ef023e82e1e1d514e51808f7e2909914c83e78b813ec58",
+      "text": "Open a \"spaCR AI\" entry of its own, thinking while it is empty.\n\nThe entry is a section like the others -- a \"spaCR AI\" heading in\nspaCR teal (:func:`color_spacr_ai`) over its own block -- written\nwhere the console stands now, directly under the error it explains.\nIts heading carries the working dots, and :meth:`fill_ai_entry`\nputs the answer in. Whatever is written meanwhile opens its own\nsection below it. GUI thread only.\n\n:param thinking: show the working dots; ``False`` for an answer\n    already at hand, such as one saved on this computer.\n:returns: the entry's block, to hand to :meth:`fill_ai_entry`."
+    },
     "spacr.qt.widgets.console_panel.ConsolePanel.begin_topic": {
       "source_blocks_sha256": [
         "31201b30782a9cb5d3e1abc363741cd95c3421cba6af5990d5ee338b4559d22f",
@@ -82858,6 +83048,18 @@
       ],
       "source_sha256": "233442acf397018551e009f95ea45fee50e2596982c8a6a732bc7b54cff85d0e",
       "text": "Put the whole console on the clipboard; return what was copied."
+    },
+    "spacr.qt.widgets.console_panel.ConsolePanel.fill_ai_entry": {
+      "source_blocks_sha256": [
+        "e032ca13923253a0c0613a0942a4d35e9eaea30571afe199663374bacee2e454",
+        "edcc4e987817afa886b1434ce061bfc94e54a9bdca1adf49b582b8a6ffd0b6bf",
+        "1191194c41a13515d1171dab813912e78ddfc26f9ec2578cbb8bf042a71e35dd",
+        "60ecdd119c22fdbf3124de1e0a6f0a670c83244ab650c246139581344a17386c",
+        "9057ca192a2470cfc4356a98fbdce9d8e613cedbe2a037a0d5974bbf7ce9aa1c",
+        "6b3b125781fe7f8b270f98a2ee55baae9e23b85847fa9ecb46c3cbb0ad120f78"
+      ],
+      "source_sha256": "5a5738c88914dbfef451a5cf8231e9261a552bd0feabf1b02c730c3f86c2d003",
+      "text": "Put spaCR AI's answer (or why there is none) into its entry.\n\nThe working dots stop and the answer replaces them, its Markdown\ndrawn (:meth:`_StdoutBlock.show_markdown`). An entry that is gone,\nbecause the console was cleared, is opened again at the end.\n\n:param block: what :meth:`begin_ai_entry` returned, or ``None``.\n:param text: the answer or the one-line note to show.\n:param saved: the answer was given before and is reused; the\n    heading then reads \"spaCR AI (saved answer)\", same teal.\n:returns: the block now showing it."
     },
     "spacr.qt.widgets.console_panel.ConsolePanel.is_ai_streaming": {
       "source_blocks_sha256": [
@@ -83035,6 +83237,14 @@
       "source_sha256": "7059140eb64b706ca5489799a0383731e596f8e9a3e558f3e662e73520ff90a9",
       "text": "Pipeline stdout colour for the theme on screen right now."
     },
+    "spacr.qt.widgets.console_panel.color_spacr_ai": {
+      "source_blocks_sha256": [
+        "9d946586d4e6a91ad2caba9a219102acba436ace932ab618b738d382269e191c",
+        "eee9fd382bed2c7c0ba160347960a6da8e61be8f0dd641d5b6326381cc7456fe"
+      ],
+      "source_sha256": "c23334b438425efdc23317680e42131b6d886772448d84c3eac95f8c467065eb",
+      "text": "spaCR AI's own console colour: the theme's teal.\n\nThe palette's ``chip_class`` role is the spaCR teal on every theme, so\na \"spaCR AI\" entry reads apart from the blue output and the red error."
+    },
     "spacr.qt.widgets.console_panel.color_user": {
       "source_blocks_sha256": [
         "e858936fab2f7d6abdf565b0461ba157dcc39e69c4b69cf3c8eb23c3939e4d58"
@@ -83058,6 +83268,16 @@
       ],
       "source_sha256": "721f8b6dc965ef0899c30e133c5dfd3f0ac52be8a79254b38efb4b8468d36685",
       "text": "Return the saved ``QSplitter.saveState()`` blob for ``screen_key``.\n\n:param screen_key: the screen's app key, e.g. ``\"mask\"``.\n:returns: the stored ``QByteArray``, or ``None`` when the user has never\n    dragged this screen's handle (or the stored value is unusable)."
+    },
+    "spacr.qt.widgets.console_panel.markdown_lines": {
+      "source_blocks_sha256": [
+        "affc24fa6fbbd703a289a193584a7fd34cb24b1e07f9de2f619d107378fa0ad5",
+        "012326016dbcb07feaeaead3c0b7cb3cf3a362fe66eb5613e7b45e91311d4f49",
+        "c25598ce29eb49f0eb16db61102477ce0725079b4035506ba3c89f44d01470ab",
+        "b4080f0542dcd16a1ef58142bb85ff451adb7bd4e7f226227ca101cc56987bbb"
+      ],
+      "source_sha256": "363b73df60399fdc4e6bf3dcffd379fc8d5c0259bff1574d16f02102ece38097",
+      "text": "Lay an AI answer's Markdown out as lines a console block can show.\n\nA ``**Heading**`` (or ``# Heading``) that opens a line becomes a bold\nline of its own and its text the next line; numbered and bulleted steps\nkeep a line each. An answer that arrived as one run-on line is broken\nbefore its headings and steps first.\n\n:param text: the answer.\n:returns: ``[(line, bold), ...]``; ``line`` keeps any inline ``**bold**``\n    markers, which :meth:`_StdoutBlock.show_markdown` draws."
     },
     "spacr.qt.widgets.console_panel.set_split_state": {
       "source_blocks_sha256": [

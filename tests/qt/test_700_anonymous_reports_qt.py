@@ -162,6 +162,9 @@ class TestFailedRunWiring:
                             lambda source, **values: notices.append(
                                 source.format(**values)))
         screen._notices = notices
+        monkeypatch.setattr(screen._console, "fill_ai_entry",
+                            lambda block, text, saved=False: notices.append(
+                                "spaCR AI: " + text))
         recorder = _Jobs()
         monkeypatch.setattr(screen._jobs, "submit", recorder.submit)
         screen._recorded = recorder
@@ -640,6 +643,9 @@ class TestReportAiSummary:
                             lambda source, **values: notices.append(
                                 source.format(**values)))
         screen._notices = notices
+        monkeypatch.setattr(screen._console, "fill_ai_entry",
+                            lambda block, text, saved=False: notices.append(
+                                "spaCR AI: " + text))
         recorder = _Jobs()
         monkeypatch.setattr(screen._jobs, "submit", recorder.submit)
         screen._recorded = recorder
@@ -759,6 +765,9 @@ class TestEveryAiErrorReportChoice:
                             lambda source, **values: notices.append(
                                 source.format(**values)))
         screen._notices = notices
+        monkeypatch.setattr(screen._console, "fill_ai_entry",
+                            lambda block, text, saved=False: notices.append(
+                                "spaCR AI: " + text))
         recorder = _Jobs()
         monkeypatch.setattr(screen._jobs, "submit", recorder.submit)
         screen._recorded = recorder
@@ -847,8 +856,10 @@ class TestARunRefusedBeforeItStarts:
         assert len(recorder.jobs) == 1
         fn, on_done = recorder.jobs[0]
         on_done(fn())
-        assert any(n.startswith("spaCR AI: Set cell_channel.")
-                   for n in notices)
+        from PySide6.QtWidgets import QPlainTextEdit
+        assert any(w.property("consoleContextKind") == "spacr_ai"
+                   and w.toPlainText() == "Set cell_channel."
+                   for w in screen._console.findChildren(QPlainTextEdit))
         body = relay.calls_to("/report")[0]["body"]
         assert body["kind"] == "user_error"
         assert body["exception_type"] == "ConfigurationError"

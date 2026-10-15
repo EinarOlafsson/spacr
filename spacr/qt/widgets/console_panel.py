@@ -17,6 +17,7 @@ modify the transcript.
 """
 from __future__ import annotations
 
+import re
 from typing import Dict, List, Optional
 
 from PySide6.QtCore import (QByteArray, QSize, Qt, QThread, QTimer, Slot,
@@ -113,6 +114,78 @@ def __getattr__(name: str) -> str:
     if role is None:
         raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
     return active_palette()[role]
+
+
+def color_spacr_ai() -> str:
+    """spaCR AI's own console colour: the theme's teal.
+
+    The palette's ``chip_class`` role is the spaCR teal on every theme, so
+    a "spaCR AI" entry reads apart from the blue output and the red error.
+    """
+    palette = active_palette()
+    return palette.get("chip_class") or palette["accent"]
+
+
+_MD_HEADING_RE = re.compile(
+    r"^\s*(?:#{1,6}\s*)?\*\*(?P<head>[^*]+?)\*\*\s*(?:[-–—:]\s*)?(?P<rest>.*)$")
+_MD_ATX_RE = re.compile(r"^\s*#{1,6}\s+(?P<head>.+?)\s*#*\s*$")
+_MD_BREAK_RE = re.compile(
+    r"\s+(?=\*\*[^*\n]{2,60}\*\*)|\s+(?=\d{1,2}\.\s)|(?<!\*\*)\s+(?=[-•]\s+\S)")
+
+
+def _is_a_heading(match: "re.Match", line: str) -> bool:
+    """Whether a line's opening ``**bold**`` is a section heading.
+
+    It is when nothing follows it, a dash or colon follows it, or it reads
+    like a title (two words or more, or ending in ``?`` or ``:``) -- not a
+    single bold word opening a sentence.
+    """
+    if "rest" not in match.groupdict():
+        return True
+    head = match.group("head").strip()
+    rest = match.group("rest")
+    if not rest.strip() or re.match(r"^\s*\*\*[^*]+\*\*\s*[-–—:]", line):
+        return True
+    return len(head.split()) >= 2 or head.endswith(("?", ":"))
+
+
+def markdown_lines(text: str) -> List[tuple]:
+    """Lay an AI answer's Markdown out as lines a console block can show.
+
+    A ``**Heading**`` (or ``# Heading``) that opens a line becomes a bold
+    line of its own and its text the next line; numbered and bulleted steps
+    keep a line each. An answer that arrived as one run-on line is broken
+    before its headings and steps first.
+
+    :param text: the answer.
+    :returns: ``[(line, bold), ...]``; ``line`` keeps any inline ``**bold**``
+        markers, which :meth:`_StdoutBlock.show_markdown` draws.
+    """
+    raw = str(text or "").replace("\r\n", "\n").strip()
+    if "\n" not in raw:
+        raw = _MD_BREAK_RE.sub("\n", raw)
+    out: List[tuple] = []
+    for line in raw.split("\n"):
+        line = line.rstrip()
+        heading = _MD_ATX_RE.match(line) or _MD_HEADING_RE.match(line)
+        if heading is not None and not _is_a_heading(heading, line):
+            heading = None
+        if heading is not None:
+            if out and out[-1][0]:
+                out.append(("", False))
+            out.append((heading.group("head").strip(), True))
+            rest = heading.groupdict().get("rest") or ""
+            if rest.strip():
+                out.append((rest.strip(), False))
+            continue
+        bullet = re.match(r"^\s*[-*]\s+(.*)$", line)
+        if bullet is not None:
+            line = "• " + bullet.group(1)
+        if line.strip() or (out and out[-1][0]):
+            out.append((line.strip(), False))
+    while out and not out[-1][0]:
+        out.pop()
+    return out
 
 
 AI_COLOR_CLAUDE = "#DE7356"
@@ -659,6 +732,37 @@ class _StdoutBlock(QPlainTextEdit):
                 self._height_sum += self._block_height(block)
                 block = block.next()
         self._trim_to_cap()
+        self.updateGeometry()
+
+    def show_markdown(self, text: str) -> None:
+        """Replace the contents with an AI answer, its Markdown drawn.
+
+        Headings are bold lines of their own and every step keeps its line
+        (:func:`markdown_lines`); ``**bold**`` inside a line is bold too.
+
+        :param text: the answer, in Markdown.
+        """
+        from PySide6.QtGui import QTextCharFormat
+
+        doc = self.document()
+        doc.clear()
+        cursor = QTextCursor(doc)
+        plain = QTextCharFormat()
+        bold = QTextCharFormat()
+        bold.setFontWeight(QFont.Bold)
+        for index, (line, strong) in enumerate(markdown_lines(text)):
+            if index:
+                cursor.insertBlock(self._block_format())
+            else:
+                cursor.mergeBlockFormat(self._block_format())
+            if strong:
+                cursor.insertText(line, bold)
+                continue
+            for part, piece in enumerate(re.split(r"\*\*(.+?)\*\*", line)):
+                if piece:
+                    cursor.insertText(piece, bold if part % 2 else plain)
+        self._chars = doc.characterCount()
+        self._height_key = ()
         self.updateGeometry()
 
     def _layout_key(self) -> tuple:
@@ -2131,6 +2235,72 @@ class ConsolePanel(QWidget):
         if dropped:
             label += tr(", {n} dropped", n=f"{dropped:,}")
         return context, label
+
+    def begin_ai_entry(self, thinking: bool = True) -> "_StdoutBlock":
+        """Open a "spaCR AI" entry of its own, thinking while it is empty.
+
+        The entry is a section like the others -- a "spaCR AI" heading in
+        spaCR teal (:func:`color_spacr_ai`) over its own block -- written
+        where the console stands now, directly under the error it explains.
+        Its heading carries the working dots, and :meth:`fill_ai_entry`
+        puts the answer in. Whatever is written meanwhile opens its own
+        section below it. GUI thread only.
+
+        :param thinking: show the working dots; ``False`` for an answer
+            already at hand, such as one saved on this computer.
+        :returns: the entry's block, to hand to :meth:`fill_ai_entry`.
+        """
+        teal = color_spacr_ai()
+        dots = _WorkingDots(teal)
+        self._current_topic_label = None
+        bar = self.begin_topic(tr("spaCR AI"), accent=teal, trailing=dots)
+        block = _StdoutBlock(text_color=teal)
+        block.setProperty("consoleContextKind", "spacr_ai")
+        block.hide()
+        block._ai_dots = dots
+        block._ai_bar = bar
+        self._insert_entry(block)
+        self._current_stdout = None
+        self._last_entry_kind = "spacr_ai"
+        if thinking:
+            dots.start()
+        else:
+            dots.hide()
+        return block
+
+    def fill_ai_entry(self, block: Optional["_StdoutBlock"], text: str,
+                      saved: bool = False) -> "_StdoutBlock":
+        """Put spaCR AI's answer (or why there is none) into its entry.
+
+        The working dots stop and the answer replaces them, its Markdown
+        drawn (:meth:`_StdoutBlock.show_markdown`). An entry that is gone,
+        because the console was cleared, is opened again at the end.
+
+        :param block: what :meth:`begin_ai_entry` returned, or ``None``.
+        :param text: the answer or the one-line note to show.
+        :param saved: the answer was given before and is reused; the
+            heading then reads "spaCR AI (saved answer)", same teal.
+        :returns: the block now showing it.
+        """
+        try:
+            dots = getattr(block, "_ai_dots", None) if block else None
+            if dots is not None:
+                dots.stop()
+            if block is None or not block.parent():
+                raise RuntimeError("the entry is gone")
+        except RuntimeError:
+            block = self.begin_ai_entry(thinking=False)
+        if saved:
+            try:
+                bar = getattr(block, "_ai_bar", None)
+                if bar is not None:
+                    bar._label.setText(tr("spaCR AI (saved answer)"))
+            except RuntimeError:
+                pass
+        block.show_markdown(text)
+        block.show()
+        self._scroll_to_bottom()
+        return block
 
     def _ensure_stdout_block(self) -> None:
         """Open a new plain stdout block if the last entry was not one."""

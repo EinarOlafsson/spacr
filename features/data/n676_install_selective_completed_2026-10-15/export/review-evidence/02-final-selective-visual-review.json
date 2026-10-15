@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "status": "sampled_visual_review_pass",
+  "lesson": "02_install_spacr",
+  "reviewed_utc": "2026-10-15T16:37:39.685841+00:00",
+  "master": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/production/02_install_spacr/video/02_install_spacr_silent.mp4",
+    "bytes": 16691502,
+    "sha256": "66cf9ffb8082c18ff0201949e65e2d835df5b8e16e8fffb41963d49b56490cc7"
+  },
+  "timing": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/production/02_install_spacr/video/native-live-timings.json",
+    "bytes": 27713,
+    "sha256": "813a5e275ba32c54198180aedd5673176ea92e96f9b40cdb4dd4d858158b4286"
+  },
+  "sample_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/final-boundary-samples-r2/samples.json",
+    "bytes": 2995,
+    "sha256": "7398ec0ecb5bdc8fecf07d45f9a8e603d61f1f8f936c50e871e2cc7de4fa4c93"
+  },
+  "reviewed_frames": [
+    4419,
+    4420,
+    5111,
+    5112
+  ],
+  "findings": [
+    "Frame4419 retains preceding launch reference card.",
+    "Frames4420 and5111 show the replacement Conda environment card with all three complete commands readable and no clipping.",
+    "Frame5112 returns to the inherited pip-install terminal scene.",
+    "Replacement starts and ends at exactly the approved ordinal frame boundaries.",
+    "Replacement labels itself as command reference, not recorded terminal output."
+  ],
+  "limits": [
+    "Root visually inspected four extracted final-master images displayed at2048x1152 from3840x2160 originals.",
+    "This is sampled visual acceptance; no complete video watching or hearing/native-language approval.",
+    "Full decode, presentation timestamps, web rendition, browser and publication acceptance remain separate owning steps."
+  ],
+  "published": false
+}

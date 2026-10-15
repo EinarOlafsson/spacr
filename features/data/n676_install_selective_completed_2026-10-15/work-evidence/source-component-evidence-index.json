@@ -1,0 +1,263 @@
+{
+  "schema": 1,
+  "lesson": "02_install_spacr",
+  "status": "existing_source_component_evidence_index_only_publication_pending",
+  "current_validation_source_commit": "14ecf9d1054e15194bb7b9ff01779af061fae875",
+  "actual_overlay_stage_source_commit": "75fb711a6cce0efa7db779f612e7bc968234644b",
+  "source_preparation_parent": "972ac89c91db8b3842cd75bb30991b8b1af35898",
+  "baseline_candidate_root": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek",
+  "baseline_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/release-manifest.json",
+    "bytes": 1179215,
+    "sha256": "8065f31b9a758cd0a823efbeb8e631cbc740c1c88ca0ea21d7a41e08eab2dcd4"
+  },
+  "baseline_publication_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/publication-receipt.json",
+    "bytes": 141444,
+    "sha256": "f828b872ea8839ece0ab51d5444ce5ef74d2af32a3b282f757d1e1b84c54f53a"
+  },
+  "component_decision": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/root-component-decision.json",
+    "bytes": 2447,
+    "sha256": "bdadcce6515c7ed15348afdb01c6e07e2a745280e6bcd7ddc35b24ea5c701979"
+  },
+  "component_assessments": {
+    "video": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/video-component-assessment.json",
+      "bytes": 25525,
+      "sha256": "9187394c2a1428628cdc48d7ee103ab3c64feccf321c8c859e0dc2f22bf63563"
+    },
+    "audio": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/audio-component-assessment.json",
+      "bytes": 8161,
+      "sha256": "a7e8a972a25e2757d4f1971f0c14723da49df333a0b806a5a4135bea18d92fb7"
+    },
+    "captions": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/caption-component-assessment.json",
+      "bytes": 40121,
+      "sha256": "93a868c6aa37030723e99cd468b8fe4a58f6cb29c6c6ce112f95501b9a912652"
+    }
+  },
+  "kept_components": {
+    "audio": "All50published AAC plus50sidecar bytes retained; no synthesis.",
+    "captions": "All14catalogobjects/currentEnglish+13reviews retained; no prose/translation change."
+  },
+  "video_repair_scope": {
+    "scene": 7,
+    "visual": "pip_conda_01_create",
+    "first_frame": 4420,
+    "exclusive_last_frame": 5112,
+    "frame_count": 692,
+    "reason": "Provide the missing copyable Conda environment creation command",
+    "method": "Replace only this non-native static section with an explicitly labeled command reference in the existing style"
+  },
+  "card_acceptance": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/scene07-card-visual-acceptance.json",
+    "bytes": 1935,
+    "sha256": "f99db28091367731527ba42085ba6a77d57123eca020890cc2d2abbef3fb5198"
+  },
+  "final_selective_visual_review": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/final-selective-visual-review.json",
+    "bytes": 1850,
+    "sha256": "7b2c1ef1d8ccb9b21c05b26e0e19117b454d76951487370d543bd9167e2651ff"
+  },
+  "actual_master": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/production/02_install_spacr/video/02_install_spacr_silent.mp4",
+    "bytes": 16691502,
+    "sha256": "66cf9ffb8082c18ff0201949e65e2d835df5b8e16e8fffb41963d49b56490cc7"
+  },
+  "actual_timing": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/production/02_install_spacr/video/native-live-timings.json",
+    "bytes": 27713,
+    "sha256": "813a5e275ba32c54198180aedd5673176ea92e96f9b40cdb4dd4d858158b4286"
+  },
+  "actual_boundary_samples": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/final-boundary-samples-r2/samples.json",
+    "bytes": 2995,
+    "sha256": "7398ec0ecb5bdc8fecf07d45f9a8e603d61f1f8f936c50e871e2cc7de4fa4c93"
+  },
+  "retained_visual_refresh_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/production/02_install_spacr/retained-visual-refresh.json",
+    "bytes": 4303,
+    "sha256": "1d8d85c0e428d7d09e0e4fe53dbe52d1ca61d35fbdb97f9b0879eafd994f1e8c"
+  },
+  "actual_overlay_command_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/production/02_install_spacr/video/scene7-overlay-command.json",
+    "bytes": 1368,
+    "sha256": "cf6df18dae268716507b1b461fa5964a26d54b2a3af4f7f4c80590d150d0b837"
+  },
+  "actual_overlay_output_log": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/production/02_install_spacr/video/scene7-overlay.log",
+    "bytes": 114647,
+    "sha256": "beca9d1d8318d5ce4a9bc4fa77fdcb534efe1a9739510a3be12fa02848b0cf6f"
+  },
+  "stage_preparation_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/production/02_install_spacr/selective-stage-preparation.json",
+    "bytes": 3554,
+    "sha256": "b9efd443adc539282205e2354b3e6e8e5a90daf090b47bc9d1b4c8f0e84aecfc"
+  },
+  "source_test_cohorts": [
+    {
+      "owning_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/retained-visual-pipeline-owning-tests.json",
+        "bytes": 3556,
+        "sha256": "e9087b904a5f7b9caf246079de673cd7aa35dd83b1ce3bd600f932bda91b3458"
+      },
+      "independent_peer": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/retained-visual-pipeline-independent-source-peer.json",
+        "bytes": 8249,
+        "sha256": "a3ae738daacc31150abff80e9ec7b180123575654d695bcab20a75305a061725"
+      },
+      "passed": 129,
+      "terminal_exit_status": 0,
+      "log": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/retained-visual-tests-r2.log",
+        "bytes": 205,
+        "sha256": "fe41a2749432d8590885c127567db9ce1ca66d2113b209d13513053720b5a020"
+      }
+    },
+    {
+      "owning_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/retained-visual-supplement-owning-tests.json",
+        "bytes": 4710,
+        "sha256": "2dc81dbf6c06a41d01fd2358ea431307883a9434a6c4a8f80ee2426fdb72129e"
+      },
+      "independent_peer": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/retained-visual-supplement-independent-source-peer.json",
+        "bytes": 6828,
+        "sha256": "f58cf2b7219cbb812ac69b0bdda8c2cef2fe247f0d2825e4f75aa150d37afdab"
+      },
+      "passed": 166,
+      "terminal_exit_status": 0,
+      "log": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/retained-visual-tests-r3.log",
+        "bytes": 285,
+        "sha256": "85e5e560d9aa0574eedb165d8e00694b6bbfce0e2bd1b2ae492372dc3fcf1708"
+      }
+    },
+    {
+      "owning_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/retained-original-inventory-owning-tests.json",
+        "bytes": 2323,
+        "sha256": "603a9da75f9c8ef7d3ca281c45bb0caa64c4f5a26091eafdd109cc6aff2426e3"
+      },
+      "independent_peer": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/retained-original-inventory-independent-source-peer.json",
+        "bytes": 4376,
+        "sha256": "8f369f94d900cc6a0de1181bd0f7726ae6d9381b1d97875f813a5d5796e07f4d"
+      },
+      "passed": 175,
+      "terminal_exit_status": 0,
+      "log": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/retained-visual-tests-r4.log",
+        "bytes": 285,
+        "sha256": "010befbc5efc5b3392b35a78649f4f13b6606331cafd5be945eef2c8025a82b5"
+      }
+    },
+    {
+      "owning_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/retained-inventory-order-owning-tests.json",
+        "bytes": 2448,
+        "sha256": "f0789eb81587188fac93411e98cc317538f79ce95b816c572d13006b4e31f9b3"
+      },
+      "independent_peer": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/retained-inventory-order-independent-source-peer.json",
+        "bytes": 3275,
+        "sha256": "0e187856e04e50ce789e3da97ce51d4c651b14bedd07e23bfad7e218409a3f1f"
+      },
+      "passed": 181,
+      "terminal_exit_status": 0,
+      "log": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/retained-visual-tests-r5.log",
+        "bytes": 285,
+        "sha256": "c72bf216a9a0574e398957d2f726c1e6230808665cb92bad210ec263f6e47807"
+      }
+    }
+  ],
+  "latest_source_file_bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/build_appended_candidate.py",
+      "bytes": 38632,
+      "sha256": "b4a2bd94912c48371d37c5881f021acfeab65746026f4779809d065df5d2cc85"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/retained_visual_refresh.py",
+      "bytes": 10773,
+      "sha256": "9c59acdaee7d9d83f1176f35617b1aa2555248ecbfbcba207c11b01678ecbbc4"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/finish_staged_visual.py",
+      "bytes": 5319,
+      "sha256": "a58399848441fa2c9d71511c29baac1e211e5ec8dadceeb8c16421ee38e56077"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/tests/test_retained_visual_refresh.py",
+      "bytes": 17523,
+      "sha256": "f3c49da0c193b380640573a11ab9025ef88d977b9b5a410bf1900fef149f1b88"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/render_installation_route_cards.py",
+      "bytes": 9336,
+      "sha256": "6fcbb540232af1a44d19be2fee97b20639832b349569e28cf54d7310bd0a8b32"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/check_completed_matrix.py",
+      "bytes": 10671,
+      "sha256": "1a19e390670b84373987f8237e3f12a293aa8d0de7700fa53c4b54e71c63fdaa"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/verify_staged_audio.py",
+      "bytes": 3847,
+      "sha256": "198f487f0e10aeda06ce12df91b368768b72e66f7d8f16210864f40b14234eb9"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/verify_staged_lesson.py",
+      "bytes": 40381,
+      "sha256": "5fcdc99028c70db27fa99a30b4bb326e96981d825af676e2fa789e7dcd981c3d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/tests/test_retained_pipeline_sources.py",
+      "bytes": 9763,
+      "sha256": "ed883ca41062efcab220b4d1cccdfa6c324932b8c21694b9c98ab9adcbfc28bb"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/retain_narration.py",
+      "bytes": 6477,
+      "sha256": "10f956ce0a5cba7d18df1bd339411cd7de9c67e3735e7011b7766b4fefbb1054"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/tests/test_retained_narration.py",
+      "bytes": 7702,
+      "sha256": "db9c5fc010b19c9689b7a3d30814c6f7d75062a08a2284888366a68fd80fc435"
+    }
+  ],
+  "exporter_source": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/export_completed02_checkpoint.py",
+    "bytes": 22363,
+    "sha256": "3ba4e1aae813e72ea645f4a62fb2837ecfdcaf544b73d189136b05ce9cb414db"
+  },
+  "exporter_source_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/completed02-export-dispatch-independent-source-peer.json",
+    "bytes": 3875,
+    "sha256": "ce5547bb4df82913ccb42e4d0ed47ad71aa10fad3481105d684e02152da5a6c3"
+  },
+  "pending_at_parent_task_assignment": [
+    "Current K3retainedaudio QA terminalreceipt",
+    "Finish fullmasterdecode/PTS/web rendition terminalreceipt",
+    "All72browsercases plus final matrix",
+    "Newcandidate/83preservation/84routechecks",
+    "ImmutableHFupload/readback,Pages84,record",
+    "Completedcheckpoint export anddocs/featurespush"
+  ],
+  "pending_roles_not_fabricated": true,
+  "audio_synthesis_performed": false,
+  "human_listening_or_native_speaker_acceptance": false,
+  "new_whole_native_capture_claimed": false,
+  "published": false,
+  "limits": [
+    "Index ofexistingactualartifacts only; runningaudio/finish logs notread or promoted tosuccess.",
+    "Legacy430.033333s/12901frameclock retained; nativeHome remainsselected29.533333s ofhistorical60s capture.",
+    "Masterreview is4boundaryframes sampled byroot, notcompletewatching/hearing.",
+    "K2wasactualstage/overlay source; K3onlymetadata inventory-order validation fix, no mediabytes/captureprovenance restamp."
+  ]
+}

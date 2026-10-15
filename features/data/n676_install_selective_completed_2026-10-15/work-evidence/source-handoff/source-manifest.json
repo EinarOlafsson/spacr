@@ -1,0 +1,220 @@
+{
+  "schema": 1,
+  "status": "held_source_export_complete_not_published",
+  "generated_utc": "2026-10-15T16:39:12.296864+00:00",
+  "base_commit": "972ac89c91db8b3842cd75bb30991b8b1af35898",
+  "final_source_commit": "14ecf9d1054e15194bb7b9ff01779af061fae875",
+  "commits": [
+    {
+      "commit": "2a04d64f25410c3d9f265da11259dc3fb96ee1e4",
+      "parent": "972ac89c91db8b3842cd75bb30991b8b1af35898",
+      "subject": "Support bounded visual repairs with retained tutorial narration",
+      "changed_paths": [
+        "tools/tutorials/build_appended_candidate.py",
+        "tools/tutorials/check_completed_matrix.py",
+        "tools/tutorials/finish_staged_visual.py",
+        "tools/tutorials/render_installation_route_cards.py",
+        "tools/tutorials/retained_visual_refresh.py",
+        "tools/tutorials/tests/test_retained_pipeline_sources.py",
+        "tools/tutorials/tests/test_retained_visual_refresh.py",
+        "tools/tutorials/verify_staged_audio.py",
+        "tools/tutorials/verify_staged_lesson.py"
+      ],
+      "patch": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/source-handoff/patches/0001-2a04d64f2541.patch",
+        "bytes": 62836,
+        "sha256": "917ccd5c2edaaea4ca255c4dc6bde745eb5b799c048d7852b31771a1433e72d5",
+        "relative_path": "patches/0001-2a04d64f2541.patch"
+      }
+    },
+    {
+      "commit": "75fb711a6cce0efa7db779f612e7bc968234644b",
+      "parent": "2a04d64f25410c3d9f265da11259dc3fb96ee1e4",
+      "subject": "Retain narration across generated voice inventory expansion",
+      "changed_paths": [
+        "tools/tutorials/retain_narration.py",
+        "tools/tutorials/tests/test_retained_narration.py",
+        "tools/tutorials/tests/test_retained_pipeline_sources.py"
+      ],
+      "patch": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/source-handoff/patches/0002-75fb711a6cce.patch",
+        "bytes": 6336,
+        "sha256": "0dfec53de76eac4c7d3daeded4ef8d11535a4759c159e26318cce0b1d13b29c8",
+        "relative_path": "patches/0002-75fb711a6cce.patch"
+      }
+    },
+    {
+      "commit": "14ecf9d1054e15194bb7b9ff01779af061fae875",
+      "parent": "75fb711a6cce0efa7db779f612e7bc968234644b",
+      "subject": "Compare retained voice inventories without depending on order",
+      "changed_paths": [
+        "tools/tutorials/retain_narration.py",
+        "tools/tutorials/tests/test_retained_narration.py",
+        "tools/tutorials/tests/test_retained_pipeline_sources.py"
+      ],
+      "patch": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/source-handoff/patches/0003-14ecf9d1054e.patch",
+        "bytes": 5308,
+        "sha256": "93f392e655e59dc9d3726e671304f9255fe513fceed370b53af2e13f193697fc",
+        "relative_path": "patches/0003-14ecf9d1054e.patch"
+      }
+    }
+  ],
+  "unique_changed_paths": [
+    "tools/tutorials/build_appended_candidate.py",
+    "tools/tutorials/check_completed_matrix.py",
+    "tools/tutorials/finish_staged_visual.py",
+    "tools/tutorials/render_installation_route_cards.py",
+    "tools/tutorials/retain_narration.py",
+    "tools/tutorials/retained_visual_refresh.py",
+    "tools/tutorials/tests/test_retained_narration.py",
+    "tools/tutorials/tests/test_retained_pipeline_sources.py",
+    "tools/tutorials/tests/test_retained_visual_refresh.py",
+    "tools/tutorials/verify_staged_audio.py",
+    "tools/tutorials/verify_staged_lesson.py"
+  ],
+  "source_file_count": 11,
+  "patch_count": 3,
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/source-handoff/patches/0001-2a04d64f2541.patch",
+      "bytes": 62836,
+      "sha256": "917ccd5c2edaaea4ca255c4dc6bde745eb5b799c048d7852b31771a1433e72d5",
+      "relative_path": "patches/0001-2a04d64f2541.patch"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/source-handoff/patches/0002-75fb711a6cce.patch",
+      "bytes": 6336,
+      "sha256": "0dfec53de76eac4c7d3daeded4ef8d11535a4759c159e26318cce0b1d13b29c8",
+      "relative_path": "patches/0002-75fb711a6cce.patch"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/source-handoff/patches/0003-14ecf9d1054e.patch",
+      "bytes": 5308,
+      "sha256": "93f392e655e59dc9d3726e671304f9255fe513fceed370b53af2e13f193697fc",
+      "relative_path": "patches/0003-14ecf9d1054e.patch"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/source-handoff/source/tools/tutorials/build_appended_candidate.py",
+      "bytes": 38632,
+      "sha256": "b4a2bd94912c48371d37c5881f021acfeab65746026f4779809d065df5d2cc85",
+      "relative_path": "source/tools/tutorials/build_appended_candidate.py",
+      "repository_path": "tools/tutorials/build_appended_candidate.py",
+      "git_blob": "0b29b39f9bfd4904a371b2251c20f8a110ef35a0",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/source-handoff/source/tools/tutorials/check_completed_matrix.py",
+      "bytes": 10671,
+      "sha256": "1a19e390670b84373987f8237e3f12a293aa8d0de7700fa53c4b54e71c63fdaa",
+      "relative_path": "source/tools/tutorials/check_completed_matrix.py",
+      "repository_path": "tools/tutorials/check_completed_matrix.py",
+      "git_blob": "98353929f570381bc4b47cac4c9fd1ee9504b8e8",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/source-handoff/source/tools/tutorials/finish_staged_visual.py",
+      "bytes": 5319,
+      "sha256": "a58399848441fa2c9d71511c29baac1e211e5ec8dadceeb8c16421ee38e56077",
+      "relative_path": "source/tools/tutorials/finish_staged_visual.py",
+      "repository_path": "tools/tutorials/finish_staged_visual.py",
+      "git_blob": "341e6e1133a96944368f411908ef3045db679db1",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/source-handoff/source/tools/tutorials/render_installation_route_cards.py",
+      "bytes": 9336,
+      "sha256": "6fcbb540232af1a44d19be2fee97b20639832b349569e28cf54d7310bd0a8b32",
+      "relative_path": "source/tools/tutorials/render_installation_route_cards.py",
+      "repository_path": "tools/tutorials/render_installation_route_cards.py",
+      "git_blob": "59055a0f6995fb24406094cad04f976fe460eba6",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/source-handoff/source/tools/tutorials/retain_narration.py",
+      "bytes": 6477,
+      "sha256": "10f956ce0a5cba7d18df1bd339411cd7de9c67e3735e7011b7766b4fefbb1054",
+      "relative_path": "source/tools/tutorials/retain_narration.py",
+      "repository_path": "tools/tutorials/retain_narration.py",
+      "git_blob": "fce492fde2adc8818a76116fd517f5dabaf6a007",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/source-handoff/source/tools/tutorials/retained_visual_refresh.py",
+      "bytes": 10773,
+      "sha256": "9c59acdaee7d9d83f1176f35617b1aa2555248ecbfbcba207c11b01678ecbbc4",
+      "relative_path": "source/tools/tutorials/retained_visual_refresh.py",
+      "repository_path": "tools/tutorials/retained_visual_refresh.py",
+      "git_blob": "71a985eeb0e1593f21558b4abe2d211d70eaa7cd",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/source-handoff/source/tools/tutorials/tests/test_retained_narration.py",
+      "bytes": 7702,
+      "sha256": "db9c5fc010b19c9689b7a3d30814c6f7d75062a08a2284888366a68fd80fc435",
+      "relative_path": "source/tools/tutorials/tests/test_retained_narration.py",
+      "repository_path": "tools/tutorials/tests/test_retained_narration.py",
+      "git_blob": "ca4fef8729553a6ccbeb23dd86f9aec587b2d386",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/source-handoff/source/tools/tutorials/tests/test_retained_pipeline_sources.py",
+      "bytes": 9763,
+      "sha256": "ed883ca41062efcab220b4d1cccdfa6c324932b8c21694b9c98ab9adcbfc28bb",
+      "relative_path": "source/tools/tutorials/tests/test_retained_pipeline_sources.py",
+      "repository_path": "tools/tutorials/tests/test_retained_pipeline_sources.py",
+      "git_blob": "b6071ac62e67b74353fb531e19c76ae8ceaf9e33",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/source-handoff/source/tools/tutorials/tests/test_retained_visual_refresh.py",
+      "bytes": 17523,
+      "sha256": "f3c49da0c193b380640573a11ab9025ef88d977b9b5a410bf1900fef149f1b88",
+      "relative_path": "source/tools/tutorials/tests/test_retained_visual_refresh.py",
+      "repository_path": "tools/tutorials/tests/test_retained_visual_refresh.py",
+      "git_blob": "f5cbf4a8feb7cefd5670a9b040bf69b58e213533",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/source-handoff/source/tools/tutorials/verify_staged_audio.py",
+      "bytes": 3847,
+      "sha256": "198f487f0e10aeda06ce12df91b368768b72e66f7d8f16210864f40b14234eb9",
+      "relative_path": "source/tools/tutorials/verify_staged_audio.py",
+      "repository_path": "tools/tutorials/verify_staged_audio.py",
+      "git_blob": "06e7e4e770c40b2947413ef6788c443ee34b1a9c",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/source-handoff/source/tools/tutorials/verify_staged_lesson.py",
+      "bytes": 40381,
+      "sha256": "5fcdc99028c70db27fa99a30b4bb326e96981d825af676e2fa789e7dcd981c3d",
+      "relative_path": "source/tools/tutorials/verify_staged_lesson.py",
+      "repository_path": "tools/tutorials/verify_staged_lesson.py",
+      "git_blob": "8c92e1b04ef2e88211d5c15275b5586771e3cddc",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/source-handoff/commit-log.txt",
+      "bytes": 2096,
+      "sha256": "c62bd0ca9f9c12337105b0a5c3b457114a4c8b1755eda28e585780ff4bbd35d6",
+      "relative_path": "commit-log.txt"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/source-handoff/README.txt",
+      "bytes": 929,
+      "sha256": "de442a1fded94375be54181e88abe2db5a97462eaecd2df432f97ead5ae0ae4d",
+      "relative_path": "README.txt"
+    }
+  ],
+  "every_raw_source_matches_current_ROOT_and_final_git_object": true,
+  "source_handoff_only": true,
+  "ROOT_modified": false,
+  "prior_receipts_modified": false,
+  "patches_applied_or_tests_rerun": false,
+  "media_publication_acceptance": false,
+  "limits": [
+    "Exact source export for review; no assurance patches apply cleanly to a different Home tree.",
+    "No ROOT mutation, commit, push, decode, audio/model/native/GPU/network execution.",
+    "Commit/source identities are historical exact bytes; ongoing media QA does not change this export."
+  ]
+}

@@ -1,0 +1,5 @@
+Command: ['/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/bin/python', '/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/run_tool.py', 'tools/tutorials/check_completed_matrix.py', '--stage', '/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015', '--lesson', '02_install_spacr', '--retained-narration', '--retained-from', '/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1']
+Source: 14ecf9d1054e15194bb7b9ff01779af061fae875
+02_install_spacr: 50 final tracks, 14 browser checks, matching sources; not published.
+
+Terminal exit status: 0

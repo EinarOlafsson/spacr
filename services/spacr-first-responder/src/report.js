@@ -1,5 +1,7 @@
 import { SQL } from "./sql.js";
 import { createComment, createIssue, issueState } from "./github.js";
+import { causeLabel, ensureCauseLabel, hubFor, linkToHub, openIssuesWithLabel, splitCause } from "./causes.js";
+import { causeOnFile, dropError } from "./cache.js";
 import { sha256Hex } from "./util.js";
 
 export const ISSUE_LABEL = "user-report";
@@ -14,9 +16,25 @@ export function topFrames(frames, n = SIGNATURE_FRAMES) {
   return frames.slice(-n);
 }
 
+export function normalizedProblems(message) {
+  return problemLines(message)
+    .map((l) =>
+      l
+        .toLowerCase()
+        .replace(/<[^<>]*>/g, " ")
+        .replace(/\S*[\\/]\S*/g, " ")
+        .replace(/[0-9]+/g, "")
+        .replace(/\s+/g, " ")
+        .trim(),
+    )
+    .filter((l) => l)
+    .sort();
+}
+
 export async function signatureOf(report) {
   const parts = [report.exception_type, report.module];
   for (const f of topFrames(report.frames)) parts.push(`${f.file}:${f.function}`);
+  if (report.kind === "user_error") parts.push(...normalizedProblems(report.message));
   return sha256Hex(parts.join("\n"));
 }
 
@@ -55,7 +73,7 @@ export function environmentLine(r) {
 }
 
 export function issueTitle(r) {
-  const msg = oneLine(r.message || "", 80);
+  const msg = oneLine(headline(r.message), 80);
   const prefix = r.kind === "user_error" ? "[user-report][settings]" : "[user-report]";
   const base = `${prefix} ${r.exception_type} in ${r.module}`;
   return msg ? `${base}: ${msg}` : base;
@@ -68,6 +86,142 @@ export function tracebackText(frames) {
     .join("\n");
 }
 
+export function problemLines(message) {
+  return String(message || "")
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => /^[-*•]\s+\S/.test(l))
+    .map((l) => l.replace(/^[-*•]\s+/, ""));
+}
+
+export function headline(message) {
+  return String(message || "").split(/\r?\n/)[0].trim();
+}
+
+function plainText(text) {
+  return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/@/g, "@​");
+}
+
+export function errorSections(r) {
+  const problems = problemLines(r.message);
+  const lines = [
+    "### Error",
+    "",
+    `**${r.exception_type}** in \`${r.module}\`${r.screen ? ` on the **${plainText(r.screen)}** screen` : ""}`,
+    ...(r.kind === "user_error" ? ["", "Kind: **user error** (settings or usage), reported from spaCR."] : []),
+    "",
+    fence(problems.length ? headline(r.message) : r.message || ""),
+  ];
+  if (problems.length) {
+    lines.push("", `### Problems (${problems.length})`, "", ...problems.map((p, i) => `${i + 1}. ${plainText(p)}`));
+  }
+  if (r.error_text) {
+    lines.push("", "### Console error (scrubbed)", "", fence(r.error_text));
+  }
+  if (r.chain && r.chain.length) {
+    lines.push(
+      "",
+      "### Exception chain (oldest first)",
+      "",
+      ...r.chain.map((c) => `- \`${c.type}\`${c.message ? `: ${plainText(oneLine(c.message, 300))}` : ""}`),
+    );
+  }
+  const refused = r.kind === "user_error" && r.frames.length > 0;
+  lines.push(
+    "",
+    refused
+      ? "### Where the run was refused (call site, most recent call last, file names only)"
+      : "### Traceback (most recent call last, file names only)",
+    "",
+    ...details(`${r.frames.length} frame${r.frames.length === 1 ? "" : "s"}`, fence(tracebackText(r.frames)), r.frames.length <= 12),
+  );
+  return lines;
+}
+
+function details(summary, inner, open = false) {
+  return [open ? "<details open>" : "<details>", `<summary>${plainText(summary)}</summary>`, "", inner, "", "</details>"];
+}
+
+function yesNo(v) {
+  return v === true ? "yes" : v === false ? "no" : "n/a";
+}
+
+export function runSection(r) {
+  const run = r.run || {};
+  const rows = [
+    ["Screen", r.screen ? plainText(r.screen) : "n/a"],
+    ["Module", `\`${r.module}\``],
+    ["Stage", run.stage ? `\`${run.stage}\`` : "n/a"],
+    ["Seconds before the failure", run.elapsed_s !== undefined ? String(run.elapsed_s) : "n/a"],
+    ["Dry or preview run", yesNo(run.dry_run)],
+  ];
+  return ["### Run", "", "| Item | Value |", "| --- | --- |", ...rows.map(([k, v]) => `| ${k} | ${v} |`)];
+}
+
+export function inputSection(inputs) {
+  if (!inputs || !Object.keys(inputs).length) return [];
+  const lines = ["### Input (no names)", ""];
+  if (inputs.images !== undefined) lines.push(`- Images found: ${inputs.images}`);
+  if (inputs.extensions && inputs.extensions.length) lines.push(`- Extensions: ${inputs.extensions.join(", ")}`);
+  if (inputs.shape && inputs.shape.length) lines.push(`- First image shape: ${inputs.shape.join(" × ")}`);
+  if (inputs.dtype) lines.push(`- First image dtype: ${plainText(inputs.dtype)}`);
+  if (inputs.channels !== undefined) lines.push(`- Likely channels: ${inputs.channels}`);
+  return lines;
+}
+
+export function environmentRows(r) {
+  const e = r.environment || {};
+  const v = e.versions || {};
+  const rows = [
+    ["spaCR", r.spacr_version],
+    ["OS family", r.os],
+    ["OS version", e.os_version],
+    ["CPU", e.arch !== undefined || e.cores !== undefined ? `${e.arch ?? "n/a"}, ${e.cores ?? "?"} cores` : undefined],
+    ["RAM", e.ram_gb !== undefined ? `${e.ram_gb} GB` : undefined],
+    ["Python", r.python],
+    ["Qt", v.qt ?? r.qt ?? "n/a"],
+    ["PySide6", v.pyside6],
+    ["torch", v.torch ?? r.torch ?? "n/a"],
+    ["cellpose", v.cellpose],
+    ["numpy", v.numpy],
+    ["scikit-image", v.scikit_image],
+    ["GPU class", r.gpu ?? "n/a"],
+    ["GPU model", e.gpu_model],
+    ["VRAM", e.vram_gb !== undefined ? `${e.vram_gb} GB` : undefined],
+    ["CUDA available", e.cuda !== undefined ? yesNo(e.cuda) : undefined],
+    ["MPS available", e.mps !== undefined ? yesNo(e.mps) : undefined],
+    ["Install", e.install],
+  ];
+  return rows.filter(([, val]) => val !== undefined && val !== null).map(([k, val]) => `| ${k} | ${plainText(val)} |`);
+}
+
+function settingText(value) {
+  return JSON.stringify(value);
+}
+
+export function settingsSection(settings) {
+  const keys = Object.keys(settings || {});
+  if (!keys.length) return [];
+  const width = Math.min(40, Math.max(...keys.map((k) => k.length)));
+  const text = keys.map((k) => `${k.padEnd(width)} = ${settingText(settings[k])}`).join("\n");
+  return ["### Settings in effect (paths and free text replaced by markers)", "", ...details(`${keys.length} settings`, fence(text))];
+}
+
+export function logSection(logTail) {
+  if (!logTail) return [];
+  const n = logTail.split(/\r?\n/).length;
+  return ["### Console before the failure (scrubbed)", "", ...details(`last ${n} lines`, fence(logTail))];
+}
+
+export function relatedSection(cause, related, self = null) {
+  if (!cause) return [];
+  const others = [...new Set((related || []).filter((n) => n && n !== self))];
+  const lines = ["### Same likely cause", "", `Likely cause key: \`${cause}\` (label \`${causeLabel(cause)}\`).`];
+  if (others.length) lines.push("", ...others.map((n) => `- #${n}`));
+  else lines.push("", "No other open report has this cause yet.");
+  return lines;
+}
+
 export function summarySection(summary) {
   if (!summary) return [];
   const source =
@@ -77,37 +231,27 @@ export function summarySection(summary) {
   return ["### AI summary (generated, may be wrong)", "", quote(summary.text), "", `_${source}_`];
 }
 
-export function issueBody(r, signature, summary = null) {
+export function issueBody(r, signature, summary = null, grouping = null) {
   const lines = [
     "An anonymised error report was sent from spaCR by the spacr-first-responder relay.",
     "The reporter has no GitHub account link; paths, names and other personal data were removed before sending.",
     "",
-    "### Error",
+    ...errorSections(r),
     "",
-    `**${r.exception_type}** in \`${r.module}\``,
-    ...(r.kind === "user_error" ? ["", "Kind: **user error** (settings or usage), reported from spaCR."] : []),
-    "",
-    fence(r.message || ""),
-    "",
-    "### Traceback (most recent call last, file names only)",
-    "",
-    fence(tracebackText(r.frames)),
-    "",
-    "### Environment",
-    "",
-    "| Item | Value |",
-    "| --- | --- |",
-    `| spaCR | ${r.spacr_version} |`,
-    `| OS family | ${r.os} |`,
-    `| Python | ${r.python} |`,
-    `| Qt | ${r.qt ?? "n/a"} |`,
-    `| torch | ${r.torch ?? "n/a"} |`,
-    `| GPU class | ${r.gpu ?? "n/a"} |`,
+    ...runSection(r),
   ];
+  const input = inputSection(r.inputs);
+  if (input.length) lines.push("", ...input);
+  lines.push("", "### Environment", "", "| Item | Value |", "| --- | --- |", ...environmentRows(r));
+  const settings = settingsSection(r.settings);
+  if (settings.length) lines.push("", ...settings);
+  const log = logSection(r.log_tail);
+  if (log.length) lines.push("", ...log);
+  if (grouping && grouping.cause) lines.push("", ...relatedSection(grouping.cause, grouping.related));
   if (r.user_note) {
     lines.push("", "### Note from the user", "", quote(r.user_note));
   }
-  if (summary) lines.push("", ...summarySection(summary));
+  if (summary) lines.push("", "---", "", ...summarySection(summary));
   lines.push(
     "",
     "---",
@@ -119,13 +263,38 @@ export function issueBody(r, signature, summary = null) {
 
 export function plusOneBody(r, count, summary = null) {
   const lines = [`+1 from ${environmentLine(r)}. Reports so far: ${count}.`];
+  lines.push(
+    "",
+    "<details>",
+    `<summary>This occurrence: ${plainText(oneLine(headline(r.message) || r.exception_type, 100))}</summary>`,
+    "",
+    ...errorSections(r),
+    "",
+    "</details>",
+  );
   if (r.user_note) lines.push("", quote(r.user_note));
   if (summary) lines.push("", ...summarySection(summary));
   return lines.join("\n");
 }
 
 export function clientSummary(r) {
-  return r.ai_summary ? { text: r.ai_summary, source: "client", model: null } : null;
+  if (!r.ai_summary) return null;
+  const parsed = splitCause(r.ai_summary);
+  return parsed.text ? { text: parsed.text, source: "client", model: null, cause: parsed.cause } : null;
+}
+
+export async function causeFor(env, r, signature, summary) {
+  return r.cause || (summary && summary.cause) || (await causeOnFile(env.DB, signature)) || null;
+}
+
+export async function groupingFor(env, r, signature, summary) {
+  const cause = await causeFor(env, r, signature, summary);
+  if (!cause) return { cause: null, label: null, related: [], titleSuffix: "" };
+  const label = await ensureCauseLabel(env, cause);
+  const related = label ? await openIssuesWithLabel(env, label) : [];
+  const hub = await hubFor(env.DB, cause);
+  if (hub && !related.includes(hub)) related.unshift(hub);
+  return { cause, label, related, titleSuffix: label ? "" : ` · Cause: ${cause}` };
 }
 
 export async function obtainSummary(r, getSummary) {
@@ -146,6 +315,7 @@ export function sourceOf(summary) {
 export function summaryFields(summary) {
   const out = { ai_summary_source: sourceOf(summary) };
   if (summary && summary.source === "relay" && summary.text) out.ai_summary = summary.text;
+  if (summary && summary.source === "relay") out.ai_summary_cached = summary.cached === true;
   return out;
 }
 
@@ -158,14 +328,22 @@ async function openNewIssue(env, r, signature, now, getSummary) {
   if (!claimed) return null;
   let issue;
   let summary = null;
+  let grouping;
   try {
     summary = await obtainSummary(r, getSummary);
-    issue = await createIssue(env, issueTitle(r), issueBody(r, signature, summary), issueLabels(r));
+    grouping = await groupingFor(env, r, signature, summary);
+    issue = await createIssue(
+      env,
+      issueTitle(r) + grouping.titleSuffix,
+      issueBody(r, signature, summary, grouping),
+      grouping.label ? [...issueLabels(r), grouping.label] : issueLabels(r),
+    );
   } catch (err) {
     await env.DB.prepare(SQL.dropSignature).bind(signature).run();
     throw err;
   }
   await env.DB.prepare(SQL.setIssueNumber).bind(signature, issue.number, summary ? 1 : 0).run();
+  if (grouping.cause) await linkToHub(env, grouping.cause, issue.number, now);
   return {
     issue_number: issue.number,
     issue_url: issue.url,
@@ -175,11 +353,14 @@ async function openNewIssue(env, r, signature, now, getSummary) {
 }
 
 async function reopenAsRecurred(env, r, signature, closedNumber, getSummary) {
+  await dropError(env.DB, signature);
   const summary = await obtainSummary(r, getSummary);
-  const title = `[recurred] ${issueTitle(r)}`;
-  const body = `${issueBody(r, signature, summary)}\n\nSeen again after #${closedNumber} was closed.`;
-  const issue = await createIssue(env, title, body, issueLabels(r));
+  const grouping = await groupingFor(env, r, signature, summary);
+  const title = `[recurred] ${issueTitle(r)}${grouping.titleSuffix}`;
+  const body = `${issueBody(r, signature, summary, grouping)}\n\nSeen again after #${closedNumber} was closed.`;
+  const issue = await createIssue(env, title, body, grouping.label ? [...issueLabels(r), grouping.label] : issueLabels(r));
   await env.DB.prepare(SQL.resetSignature).bind(signature, issue.number, summary ? 1 : 0).run();
+  if (grouping.cause) await linkToHub(env, grouping.cause, issue.number, new Date().toISOString());
   return {
     issue_number: issue.number,
     issue_url: issue.url,

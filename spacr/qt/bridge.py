@@ -41,6 +41,14 @@ from ..figures.style import figure_style, theme_target
 
 LOG = logging.getLogger(__name__)
 
+#: Carries the settings problems a run was started with to whoever watches
+#: (AppScreen, so a refused run can list every problem, not only the one
+#: that stopped it). Never propagates, so nothing reaches the console twice.
+SETTINGS_PROBLEMS_LOG = logging.getLogger("spacr.qt.settings_problems")
+SETTINGS_PROBLEMS_LOG.propagate = False
+SETTINGS_PROBLEMS_LOG.setLevel(logging.INFO)
+SETTINGS_PROBLEMS_LOG.addHandler(logging.NullHandler())
+
 
 class _StreamRedirector(io.TextIOBase):
     """A file-like object that emits every write to a queue for the UI.
@@ -1878,6 +1886,11 @@ def _say_what_is_wrong_with_the_settings(app_key, fn):
                 found = list(validate_settings(dict(settings), app_key))
             except Exception:                                    # noqa: BLE001
                 found = []
+            errors = [p for p in found
+                      if getattr(p, "severity", "") == "error"]
+            if errors:
+                SETTINGS_PROBLEMS_LOG.info(
+                    "settings problems", extra={"spacr_problems": errors})
             for problem in found:
                 mark = "ERROR" if problem.severity == ERROR else "WARNING"
                 where = f" [{problem.setting}]" if problem.setting else ""

@@ -1,0 +1,36 @@
+Command: ['/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/bin/python', '/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/run_tool.py', 'tools/tutorials/verify_staged_lesson.py', '--stage', '/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015', '--lesson', '02_install_spacr', '--candidate-player', '--retain-visual-from', '/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek', '--web-rendition', '--language', 'ja', '--voice', 'jf_nezumi']
+Source: 14ecf9d1054e15194bb7b9ff01779af061fae875
+{
+  "lesson": "02_install_spacr",
+  "scope": "ja/jf_nezumi playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "8d628ce33e0976464f60490e20e0feb57fc07d3989ec1c520cc5891f404e6159",
+  "repository_player_source": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/authoring/web/app_v2.js",
+  "candidate_player": true,
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "0d98dcf6f4163339680d0152fab003e00f2fb93d6d287cc69756e1ecea0a8054",
+  "narration_language_scenes_match_staging": true,
+  "scene_count": 17,
+  "seek_playback_clocks": {
+    "audio": 126.61447,
+    "video": 126.930693,
+    "expectedVideo": 126.8874045658244,
+    "audioDuration": 429.57,
+    "videoDuration": 430.033333,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "7c24269735efc13cdb994e1cf24a7dc90aef078735537d06797ae939009f88a7",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "04_platform_installers",
+    "05_home"
+  ],
+  "passed": true
+}
+
+Terminal exit status: 0

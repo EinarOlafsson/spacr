@@ -15,7 +15,7 @@ from typing import Dict, List, Optional
 
 from PySide6.QtCore import QObject, QThread, Signal
 
-from .providers import ChatProvider, ProviderFailed
+from .providers import ChatProvider, ProviderFailed, question_cache_key
 
 
 class StreamWorker(QObject):
@@ -50,6 +50,7 @@ class StreamWorker(QObject):
         self._system = system
         self._model = model
         self._cancelled = False
+        self.saved = False
 
     def cancel(self) -> None:
         """Cancel: kill the subprocess so the reader unblocks.
@@ -83,8 +84,25 @@ class StreamWorker(QObject):
         sign-in command to run. For every other exception the class name is
         kept because it often names the error: a bare ``[Errno 2] No such
         file or directory`` does not say it is a FileNotFoundError.
+
+        A fresh, short question
+        (:func:`~spacr.qt.ai.providers.question_cache_key`) asked before is
+        answered from this computer's saved answers with no provider call,
+        and :attr:`saved` is then ``True``; a new complete answer to such a
+        question is saved, whatever the provider.
         """
+        from ... import crashreport
+
         buf: List[str] = []
+        key = question_cache_key(self._messages)
+        if key:
+            saved = crashreport.saved_explanation(key)
+            if saved:
+                self.saved = True
+                self.stage_changed.emit("streaming")
+                self.chunk_ready.emit(saved["text"])
+                self.finished.emit(True, saved["text"])
+                return
         try:
             self.stage_changed.emit("connecting")
             stream = self._provider.stream_chat(
@@ -100,6 +118,10 @@ class StreamWorker(QObject):
             if self._cancelled:
                 self.finished.emit(False, "Cancelled.")
             else:
+                if key and buf:
+                    crashreport.save_explanation(
+                        key, "".join(buf),
+                        model=str(getattr(self._provider, "name", "") or ""))
                 self.finished.emit(True, "".join(buf))
         except BaseException as e:
             if self._cancelled:

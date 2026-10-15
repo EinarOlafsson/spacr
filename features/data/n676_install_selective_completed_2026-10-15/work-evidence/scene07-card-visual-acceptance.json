@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "lesson": "02_install_spacr",
+  "scene": 7,
+  "visual": "pip_conda_01_create",
+  "reviewed_at": "2026-10-15T12:13:52.607029-04:00",
+  "accepted": true,
+  "status": "rendered_reference_card_visual_review_pass",
+  "image": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/scene07-command-reference/pip_conda_01_create.png",
+    "bytes": 164103,
+    "sha256": "b5b5289e3f6ee5b84c3a033d4ba08f8ecba9b35a4d7918d67316c9812ace9439"
+  },
+  "render_log": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/scene07-card-render.log",
+    "bytes": 177,
+    "sha256": "9eeb619f8479dfbedd53bb29b68e003a1d7d1bebc102ad2484a208a1bbaaad7c"
+  },
+  "generator_provenance": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/scene07-command-reference/provenance.json",
+    "bytes": 830,
+    "sha256": "e2820cf1dca4fd92b69e121f4140ddfe353298a6a81fb9a54445b151914dffe5"
+  },
+  "generator_source": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/render_installation_route_cards.py",
+    "bytes": 9336,
+    "sha256": "6fcbb540232af1a44d19be2fee97b20639832b349569e28cf54d7310bd0a8b32"
+  },
+  "review": "Root viewed the actual3840x2160 rendered PNG. Complete create/activate/interpreter-check commands, labels and note are readable with margins and no clipped text.",
+  "commands": [
+    "conda create -n spacr-pip -c conda-forge python=3.12 pip",
+    "conda activate spacr-pip",
+    "python -c \"import sys; print(sys.prefix)\""
+  ],
+  "reference_label_visible": true,
+  "terminal_output_fabricated": false,
+  "installation_or_environment_commands_executed": false,
+  "video_rendered": false,
+  "publication_accepted": false,
+  "limits": [
+    "This accepts the actual one-card image, not the repaired final video, playback, publication or installation execution."
+  ]
+}

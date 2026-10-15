@@ -228,7 +228,10 @@ class TestSchema:
     """Exactly the allowlisted keys, within the relay's caps."""
 
     BASE = set(cr.PUBLIC_SUMMARY_KEYS) - {"user_note", "dry_run",
-                                          "ai_summary", "summarize"}
+                                          "ai_summary", "summarize",
+                                          "screen", "error_text", "chain",
+                                          "settings", "inputs", "environment",
+                                          "run", "log_tail", "cause"}
 
     def test_exactly_the_allowlisted_keys(self):
         summary = _summary(module="measure")
@@ -257,9 +260,10 @@ class TestSchema:
         assert len(json.dumps(summary).encode()) <= cr.MAX_SUMMARY_BYTES
 
     def test_unknown_keys_never_survive_validation(self):
-        dirty = dict(_summary(), settings={"src": "/data"}, log="secret",
-                     environment={"HOME": "/home/x"})
+        dirty = dict(_summary(), log="secret", home={"HOME": "/home/x"})
         assert set(cr._validated_summary(dirty)) == self.BASE
+        kept = cr._validated_summary(dict(_summary(), settings={"src": "/data"}))
+        assert "/data" not in json.dumps(kept)
 
     def test_install_id_is_random_and_stable(self):
         first = cr.install_id()
@@ -516,7 +520,8 @@ class TestDiagnosis:
                                 "model": "qwen3-30b"})]
         answer = cr.diagnose_remotely(_summary(), "why does it fail?")
         assert answer == {"advice": "Check the channel order.",
-                          "model": "qwen3-30b", "tier": "best"}
+                          "model": "qwen3-30b", "tier": "best",
+                          "cached": False, "cause": ""}
         call = relay.calls[0]
         assert call["url"].endswith("/diagnose")
         assert call["body"]["question"] == "why does it fail?"

@@ -863,6 +863,39 @@ def _hosted_request(messages: List[Dict]) -> Tuple[Dict, str]:
     return summary, question.strip()
 
 
+def question_cache_key(messages: List[Dict]) -> str:
+    """The key a fresh question's answer is saved under on this computer.
+
+    Only the first question of a conversation is saved, and only when the
+    question and whatever was pasted with it (console context, code,
+    traceback) stay within
+    :data:`spacr.crashreport.QUESTION_CACHE_CONTEXT_MAX` characters. The
+    key is :func:`spacr.crashreport.question_key` of the question and the
+    active app; it is the same for every provider.
+
+    :param messages: conversation history as ``{role, content}`` dicts.
+    :returns: the key, or ``""`` when the answer must not be saved.
+    """
+    import re
+
+    from ... import crashreport
+
+    asked = [m for m in messages or [] if m.get("role", "user") == "user"]
+    if len(asked) != 1 or len(messages or []) != 1:
+        return ""
+    content = str(asked[0].get("content", "") or "")
+    if "Traceback (most recent call last)" in content:
+        return ""
+    found = re.search(r"^Active app:\s*(\S+)", content, re.MULTILINE)
+    question = re.sub(r"<spacr_console_context>.*?</spacr_console_context>",
+                      " ", content, flags=re.DOTALL)
+    question = re.sub(r"```.*?```", " ", question, flags=re.DOTALL)
+    question = re.sub(r"(?m)^Active app:.*$", " ", question).strip()
+    context = len(content) - len(question)
+    return crashreport.question_key(question, found.group(1) if found else "",
+                                    context)
+
+
 class HostedProvider(ChatProvider):
     """spaCR's hosted assistant: advice from spaCR's relay, no account needed.
 
@@ -1197,8 +1230,8 @@ def write_report_summary(summary: Dict, provider: Optional[ChatProvider],
         return ""
     if failed:
         return ""
-    return crashreport.scrub_public_text(
-        "".join(chunks).strip(), crashreport.MAX_AI_SUMMARY_CHARS)
+    return crashreport.scrub_public_lines(
+        "".join(chunks).strip(), crashreport.MAX_AI_SUMMARY_CHARS, True)
 
 
 def with_ai_summary(summary: Dict, provider: Optional[ChatProvider]) -> Dict:
@@ -1241,12 +1274,23 @@ def explain_failure(summary: Dict, provider: Optional[ChatProvider],
     :param timeout: seconds a vendor CLI may take; defaults to
         :data:`spacr.crashreport.AI_SUMMARY_TIMEOUT_S`.
     :returns: ``{"text": explanation or "", "tier": "best"|"light"|"",
-        "refused": "" or "quota"|"network"|"error"|"none"}``.
+        "refused": "" or "quota"|"network"|"error"|"none"}``, plus
+        ``"saved": "local"`` when the answer was saved on this computer
+        (no AI call, no network) or ``"relay"`` when the relay reused one.
+
+    An error explained before is not explained again: the answer saved on
+    this computer (:func:`spacr.crashreport.saved_explanation`) comes first,
+    for every provider, and each new answer is saved.
     """
     from ... import crashreport
 
     if provider is None:
         return {"text": "", "tier": "", "refused": "none"}
+    signature = crashreport.explanation_signature(summary)
+    saved = crashreport.saved_explanation(signature)
+    if saved:
+        return {"text": saved["text"], "tier": saved["tier"], "refused": "",
+                "saved": "local", "cause": saved.get("cause", "")}
     if provider.name == HOSTED_PROVIDER_NAME:
         try:
             answer = crashreport.diagnose_remotely(
@@ -1259,12 +1303,22 @@ def explain_failure(summary: Dict, provider: Optional[ChatProvider],
         allowance = answer.get("allowance")
         if allowance:
             provider.last_allowance = allowance
-        text = crashreport.scrub_public_text(
-            answer.get("advice", ""), crashreport.MAX_AI_SUMMARY_CHARS)
-        return {"text": text, "tier": answer.get("tier", "best"),
-                "refused": "" if text else "error"}
-    text = write_report_summary(summary, provider, timeout)
-    return {"text": text, "tier": "", "refused": "" if text else "error"}
+        text = crashreport.scrub_public_lines(
+            answer.get("advice", ""), crashreport.MAX_AI_SUMMARY_CHARS, True)
+        tier = answer.get("tier", "best")
+        text, cause = crashreport.split_cause(text)
+        cause = answer.get("cause", "") or cause
+        crashreport.save_explanation(signature, text, tier,
+                                     answer.get("model", ""), cause=cause)
+        return {"text": text, "tier": tier,
+                "refused": "" if text else "error",
+                "saved": "relay" if answer.get("cached") and text else "",
+                "cause": cause}
+    text, cause = crashreport.split_cause(
+        write_report_summary(summary, provider, timeout))
+    crashreport.save_explanation(signature, text, cause=cause)
+    return {"text": text, "tier": "", "refused": "" if text else "error",
+            "cause": cause}
 
 
 #: What each vendor CLI can say about its remaining usage, checked

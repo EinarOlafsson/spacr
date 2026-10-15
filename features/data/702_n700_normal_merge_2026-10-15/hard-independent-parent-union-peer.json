@@ -1,0 +1,120 @@
+{
+  "schema": 1,
+  "status": "ACCEPT_ACTUAL_MERGED_SEMANTIC_UNION",
+  "parents": {
+    "HEAD": "212beba8f02ccbbfe5ad71420c6be6e041656cff",
+    "MERGE_HEAD": "0e5daa7466659648fcce134260efee5e406363da",
+    "merge_base": "5727b5354de46a2ac24f434afb2e0cb4671028ec"
+  },
+  "runtime_catalogs": {
+    "en": {
+      "incoming_UI_rows": 8120,
+      "added_N702_rows": 2,
+      "all_semantic_assignments_exact_expected_union": true,
+      "sha256": "89eb9c4f41ddfdbbe5e9ab7b76e5de2d83015c4de2d8e7ca3a67730be389a459"
+    },
+    "sv": {
+      "incoming_UI_rows": 8120,
+      "added_N702_rows": 2,
+      "all_semantic_assignments_exact_expected_union": true,
+      "sha256": "b4d6b9bb8a04e0c286a1d4bd274f0b0b3965694cb483d545a678b89288f97e5e"
+    },
+    "de": {
+      "incoming_UI_rows": 8120,
+      "added_N702_rows": 2,
+      "all_semantic_assignments_exact_expected_union": true,
+      "sha256": "78e0e7efae69f0d3254cea465f8990b8d62362ac811491235abae0a42fa3c31c"
+    },
+    "es": {
+      "incoming_UI_rows": 8120,
+      "added_N702_rows": 2,
+      "all_semantic_assignments_exact_expected_union": true,
+      "sha256": "49044921bdaae251fbf798b6ca8c2b0574be0f52e896e15f563ee7b222f1e9c1"
+    },
+    "fr": {
+      "incoming_UI_rows": 8120,
+      "added_N702_rows": 2,
+      "all_semantic_assignments_exact_expected_union": true,
+      "sha256": "57053febd22a8bdbb3a55ddef519c61a57531acd7a161f51e08886bc0a06ec0e"
+    },
+    "pt": {
+      "incoming_UI_rows": 8120,
+      "added_N702_rows": 2,
+      "all_semantic_assignments_exact_expected_union": true,
+      "sha256": "1c5ea7df42f63ef4105fc456ce6d4ca15ff9f9d12262e79653591fb42ffa8395"
+    },
+    "hi": {
+      "incoming_UI_rows": 8120,
+      "added_N702_rows": 2,
+      "all_semantic_assignments_exact_expected_union": true,
+      "sha256": "b45dbf42f715b3e961ae8c839478e2335c1dfde437910b399a5f199cdcd6225f"
+    },
+    "ko": {
+      "incoming_UI_rows": 8120,
+      "added_N702_rows": 2,
+      "all_semantic_assignments_exact_expected_union": true,
+      "sha256": "507e7a47dc1a7f5d26463332831799e6b6c82be07b44ac90ceeda4d5fc4d16f5"
+    },
+    "is": {
+      "incoming_UI_rows": 8120,
+      "added_N702_rows": 2,
+      "all_semantic_assignments_exact_expected_union": true,
+      "sha256": "daa2e804bbf607a0a3e7629fe95d96fac46633ffbac3ee1c94851e3f2968a011"
+    },
+    "zh_CN": {
+      "incoming_UI_rows": 8120,
+      "added_N702_rows": 2,
+      "all_semantic_assignments_exact_expected_union": true,
+      "sha256": "cd7e5650fcd07d2ce5e40a8f66bd08d1564f3aec32729f694311d892099ea50c"
+    }
+  },
+  "English_API": {
+    "exact_incoming_plus_own_train_model_symbol": true,
+    "owned_symbol": "spacr.deep_spacr.train_model",
+    "sha256": "5b701bce460587714750486f1b99d1c89516175764ee25aeb58d18720ad3ed6d",
+    "foreign_incoming_symbols_preserved": 13535
+  },
+  "all11_N702_sources_byte_exact_ours": {
+    "spacr/model_zoo.py": "db5f8916766b6416c4c97e4596354b7c3b0c2903df486d1d94783054f85a3583",
+    "spacr/utils.py": "15e523542b2d70c5fab658eccdd6b2b3a563d202fe29fa79b8cc0b3015bf2cae",
+    "spacr/submodules.py": "c7587d7bd6f3a27d204ddb73020848c10ae78846546da922a99a2658c5ebfd74",
+    "spacr/deep_spacr.py": "97d9bc1e5898ff468901998de8f44533158491424d695ffab45c63f385efee6c",
+    "spacr/plaque_papers.py": "1f2c3f5d8577f851b60c6b214604e2e92966678f156ff2eb12e50d2612f6a808",
+    "spacr/_mask_workers.py": "9b8ed0baf692fc741e79bde865b1542a1f7acc30a7979d797408ec40753e832d",
+    "spacr/object.py": "4fcbea011c1ab5afb9f910c3f293040f9df163d59e0ba785ba6e434c298dab9c",
+    "spacr/object_classifier.py": "a12e4d22cfcc2fa400bdfd6b4cb8c0812af994c6fee6bdc7e42a8641215f4c9f",
+    "spacr/_segmentation_backends.py": "df4670eb40392b4965ecde2d01aed8ab1d7f9eb55bd1a948f71be7f4404950af",
+    "spacr/qt/widgets/object_settings_grid.py": "d5bf7574e3e005ebe7e794ece65ed830b956245c4ff141d0f234b7d0145843c2",
+    "spacr/qt/widgets/live_preview.py": "58047f4092a416949a90f5e1f3dcd06b95acee242f2dd108a8f7da1afc7407a1"
+  },
+  "AppScreen": {
+    "sha256": "9396db400fd1203b4f20b35c03dd595feb4fa789a5012f0f84bc8c5487ee26e9",
+    "changed_methods_from_ours": [
+      "_on_run",
+      "_on_pipeline_error",
+      "_send_the_anonymous_report",
+      "_watch_for_refusals",
+      "_stop_watching_refusals",
+      "_on_anonymous_report_sent",
+      "_on_finished"
+    ],
+    "added_methods_from_ours": [
+      "_every_refusal_problem",
+      "_problem_line",
+      "_screen_name"
+    ],
+    "all_changes_in_incoming_foreign_scope": true,
+    "N702_transaction_methods_AST_exact_ours": [
+      "_choose_a_model_for",
+      "_on_export_settings",
+      "_propagate_live_settings",
+      "_propagate_verified_live_settings",
+      "_mount_the_object_grid"
+    ]
+  },
+  "limits": [
+    "Static parent/dictionary/set/hash/source AST comparison only; no collector/generator/tests/imports/model/network.",
+    "First probe assumed EnglishUI dictionary and correctly refused KeyError before any receipt; corrected actual EnglishUI_SOURCES frozenset schema.",
+    "Binaryarrival normalrefresh and all9audit/freshcanonical/Help are Easy responsibility, no executionclaim here."
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "master": {
+    "programs": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 3840,
+        "height": 2160,
+        "r_frame_rate": "30/1",
+        "avg_frame_rate": "1161090000/38702999",
+        "duration": "430.033322",
+        "nb_frames": "12901"
+      }
+    ],
+    "format": {
+      "duration": "430.034000",
+      "size": "14877621"
+    }
+  },
+  "web": {
+    "programs": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 2560,
+        "height": 1440,
+        "r_frame_rate": "30/1",
+        "avg_frame_rate": "30/1",
+        "duration": "430.033333",
+        "nb_frames": "12901"
+      }
+    ],
+    "format": {
+      "duration": "430.034000",
+      "size": "14796919"
+    }
+  }
+}

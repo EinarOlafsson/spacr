@@ -158,7 +158,7 @@ class TestExplainFailureEdges:
         summary = cr.public_summary(traceback_text=TRACEBACK)
         out = providers.explain_failure(summary, hosted)
         assert out == {"text": "A missing column.", "tier": "light",
-                       "refused": ""}
+                       "refused": "", "saved": "", "cause": ""}
         assert hosted.last_allowance == allowance
 
 
