@@ -1,0 +1,16 @@
+{
+  "status": "ACCEPT",
+  "source_packet_commit": "b4c991dc15",
+  "proof": "All eight source file bytes equal immutable5a03; all exact main preimage hashes verified; original disposable apply proof retained.",
+  "service_or_main_mutation": false,
+  "other_integrated_sources": [
+    {
+      "path": "spacr/qt/widgets/home.py",
+      "sha256": "739bb3595d457cfba8af0a5785f2904dbeac4f7b53a6bf8acdf57e784de61e49"
+    },
+    {
+      "path": "spacr/qt/widgets/workflow_diagram.py",
+      "sha256": "dc6c458396fec50198e7e5bacfcc12e6c5da0f8036e51137be3c89a43e8cc41e"
+    }
+  ]
+}

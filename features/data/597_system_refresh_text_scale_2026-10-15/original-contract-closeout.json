@@ -1,0 +1,95 @@
+{
+  "proposal": "Accept N597 complete for the original contract as explicitly corrected by the maintainer on 2026-09-29.",
+  "source_commit": "87bc3e207d69ca271717f3d56a749e78dedad9da",
+  "independent_peer_commit": "faa7cebf7ca0613885291ad35fa963cce725627a",
+  "independent_peer_scope": "Source, existing/new tests and preserved raw before/final evidence; no duplicate execution.",
+  "requirements": [
+    {
+      "requirement": "Use the settings-column arrow/drag handle for widget width, replacing the originally requested widget-size slider.",
+      "source": [
+        "HomePage.__init__ uses CollapsibleSplitter EDGE pane Widgets",
+        "_ASIDE_PERSIST_KEY = home::body; _ASIDE_FOLD_KEY = home/Widgets"
+      ],
+      "tests": [
+        "tests/qt/test_597_home_aside_handle_and_text_slider.py::test_the_column_resizes_by_the_settings_columns_handle",
+        "tests/qt/test_597_home_aside_handle_and_text_slider.py::test_the_handle_arrow_folds_the_column_and_it_stays_folded"
+      ],
+      "coverage": "Actual pane/handle identity, live moveSplitter width increase, fresh Home restored width, actual mouse fold/unfold and persisted fresh Home folded state.",
+      "disposition": "satisfied"
+    },
+    {
+      "requirement": "Only the text slider remains, immediately beneath the lowest right-column panel.",
+      "source": [
+        "HomePage._build_aside",
+        "HomePage._build_aside_slider"
+      ],
+      "tests": [
+        "tests/qt/test_597_home_aside_handle_and_text_slider.py::test_one_slider_sits_right_below_the_lowest_widget"
+      ],
+      "coverage": "Exactly one QSlider named HomeAsideTextSlider, correct parent, positioned no more than 40 px below System panel.",
+      "disposition": "satisfied"
+    },
+    {
+      "requirement": "Text size applies live, saves and restores.",
+      "source": [
+        "HomePage._on_aside_text",
+        "HomePage._apply_aside_text",
+        "preferences._home_aside_scale",
+        "preferences._set_home_aside_scale"
+      ],
+      "tests": [
+        "tests/qt/test_597_home_aside_handle_and_text_slider.py::test_text_size_changes_text_persists_and_restores",
+        "tests/qt/test_597_home_aside_handle_and_text_slider.py::test_junk_in_the_store_reads_back_the_default"
+      ],
+      "coverage": "Actual label fonts grow and shrink, 130% saved to private QSettings and restored in fresh Home instance; invalid stored nan restores 100%.",
+      "disposition": "satisfied"
+    },
+    {
+      "requirement": "Reuse existing scaling; refreshed rows retain the selected size without compounding.",
+      "source": [
+        "home._scale_text_under uses live_zoom.scaled_font_sheet",
+        "HomePage._apply_journal",
+        "HomePage._build_aside now connects System Refresh to HomePage._apply_aside_text after the existing refresh callback"
+      ],
+      "tests": [
+        "tests/qt/test_597_home_aside_handle_and_text_slider.py::test_a_rebuilt_row_takes_the_size_without_compounding",
+        "tests/qt/test_597_system_refresh_text_scale.py::test_system_refresh_keeps_selected_text_size[70]",
+        "tests/qt/test_597_system_refresh_text_scale.py::test_system_refresh_keeps_selected_text_size[160]"
+      ],
+      "coverage": "Rebuilt Totals row remains at 150% across repeated scale passes. Actual System button at both extremes refreshes inert changed readings, retains six visible label sizes across two clicks, preserves saved factor and returns to 100%.",
+      "disposition": "satisfied"
+    },
+    {
+      "requirement": "No panel overlap or clipping at width/text extremes, with the existing scroll/fold behavior.",
+      "source": [
+        "HomePage._fit_aside_minimum",
+        "HomePage._build_aside places panels in scroll area",
+        "HomePage._rewrap_grids"
+      ],
+      "tests": [
+        "tests/qt/test_597_home_aside_handle_and_text_slider.py::test_nothing_overlaps_or_clips_at_the_extremes[400-minimum]",
+        "tests/qt/test_597_home_aside_handle_and_text_slider.py::test_nothing_overlaps_or_clips_at_the_extremes[400-maximum]",
+        "tests/qt/test_597_home_aside_handle_and_text_slider.py::test_nothing_overlaps_or_clips_at_the_extremes[-500-minimum]",
+        "tests/qt/test_597_home_aside_handle_and_text_slider.py::test_nothing_overlaps_or_clips_at_the_extremes[-500-maximum]"
+      ],
+      "coverage": "At both slider endpoints and width changes, visible panels and controls stay within the column, do not intersect, visible unwrapped labels meet minimum size hints, and the column meets its content minimum. Collapsed pane is reopened before measurement.",
+      "disposition": "satisfied"
+    }
+  ],
+  "unmet_requirements": [],
+  "evidence": "The existing final run in receipt.json passed all 12 current owning cases in 24.51 s, terminal 0. This closeout performed no additional execution.",
+  "historical_only": "The October 4 1495-test verification remains historical and is not counted as current acceptance.",
+  "accepted_scope": "Qt/offscreen Home layout, live scaling, QSettings persistence/restore and slider/handle extremes requested by N597; exact tested production source.",
+  "outside_contract_claims": [
+    "Native screen/OS/human accessibility acceptance",
+    "Universal all-GUI clipping acceptance",
+    "Scientific or hardware-reading correctness; new reading payloads are inert fixtures"
+  ],
+  "files": {
+    "spacr/qt/widgets/home.py": "739bb3595d457cfba8af0a5785f2904dbeac4f7b53a6bf8acdf57e784de61e49",
+    "spacr/qt/preferences.py": "a65aa3cd7af98c4c6aa90a85260398f5b94468b26488400114a21a88f2392680",
+    "spacr/qt/live_zoom.py": "6a306b2f91cd7f1390c39fd216f414b60e9f1145621ab4798de89d97a043e4dc",
+    "tests/qt/test_597_home_aside_handle_and_text_slider.py": "311e5c23511e23b295adc6ee36b4363982d0acf87daa2eaeee277bb89db5fa7e",
+    "tests/qt/test_597_system_refresh_text_scale.py": "11c0a28b6287f55408cef662e778ecf33809ade2ab5f934e0f43b580bca4cb0a"
+  }
+}

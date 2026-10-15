@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "item": "N689",
+  "status": "Independent technical source/evidence ACCEPT",
+  "source_commit": "5a03a24ae7d975c14438c6815c9cef2aa8d1fcfc",
+  "source_files_sha256": {
+    "tools/publish_docs_channels.py": "712b5a14639011e89e27be6c9d8e0e9790462ddf6dd0bc8e6d62b6b175723e4a",
+    "tests/test_docs_space_access.py": "289cb3cd2c3a79ec7d37e18372a62b799086f3e268e71976fc569c6cb0292394",
+    "docs/notes/publishing_documentation.md": "af2e95fbd1e0bc9401720e34005b772837bab3810d5040c3f7a02381821ed6c3"
+  },
+  "review_findings": [
+    "Exactly five operation boundaries tag and bare-reraise the same exception object; metadata/tree/readme/commit/readback identifiers are fixed source literals.",
+    "Tree snapshots materialize the SDK generator inside the tagged call, so errors during iteration receive the correct tag.",
+    "CLI preserves original exception class and response/code HTTP status while emitting only fixed operation, target Space and type/status; no exception URL, message or credential is printed. Validation failures retain the separate validation label.",
+    "Direct POST, no-redirect transport, parent binding, unchanged README bytes, immutable commit and full-tree equality contracts remain unchanged. No alternate public-read path can turn a denied write into success.",
+    "Five added failure cases inject the same credential-bearing HTTPError into each real boundary; assertions require original identity/status and exact redacted CLI JSON, including generator-time failures."
+  ],
+  "owner_validation": {
+    "result": "17 passed in1.06s",
+    "receipt": "features/data/689_access_operation_tags_2026-10-15/receipt.json",
+    "receipt_sha256": "0c7076e7501d5ed651f1cecb01a533abacdfbb13861346beb8e1f59cb0f50e11",
+    "log": "features/data/689_access_operation_tags_2026-10-15/targeted.log.gz",
+    "log_sha256": "a7886ede73b625c7e8600a8eb7fa6a7485258f29f6a4e1e4cc2d4c6463b97796",
+    "raw_log_sha256": "6cb9f21b1baf3274499c29528118489d7493b6df9f244134843e3771d743f304"
+  },
+  "reviewer_execution": "Immutable source/test/doc diff and compressed log/hash readback only; no repeat tests or network/service calls.",
+  "limits": "Original ambiguous403 remains unresolved by source review. No live access, token mutation, upload, cutover, main promotion or whole N689 completion is asserted."
+}

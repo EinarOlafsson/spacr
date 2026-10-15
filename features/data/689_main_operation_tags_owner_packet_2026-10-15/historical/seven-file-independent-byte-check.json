@@ -1,0 +1,64 @@
+{
+  "files": {
+    ".github/workflows/docs.yml": {
+      "sha256": "f10990d267cb9f82b8e2e59fc9c4f1f3fb8572279c1211aabca6abd734fd316b",
+      "applied_matches_published": true
+    },
+    "tools/publish_docs_channels.py": {
+      "sha256": "a333d68c80ed6d2098bbd71d8290340c8b07aa8d65a2c92362c828ddef8c5410",
+      "applied_matches_published": true
+    },
+    "tests/test_docs_channels.py": {
+      "sha256": "609b42721c1f777d8bbd3e293e07ddf7a1522083e2d80459278758c0fb37d288",
+      "applied_matches_published": true
+    },
+    "tests/test_docs_host_target.py": {
+      "sha256": "dfe4979400cabc1c3831d557e8a0450e5871f4244b485a966f77efb5461edc9a",
+      "applied_matches_published": true
+    },
+    "tests/test_docs_space_tree.py": {
+      "sha256": "08f3ebec689a501b1233dfd0fc45ace4472403b6669cd7552869868a10e35593",
+      "applied_matches_published": true
+    },
+    "docs/notes/publishing_documentation.md": {
+      "sha256": "f5771350a015900204938427f02b4535a253e807dd3c3bc7de53535ee31ef8a4",
+      "applied_matches_published": true
+    },
+    "tools/report_translation_compatibility.py": {
+      "sha256": "a4321bd120638daa5b7886b5b0b5417a347f9fe021cfd3c8f34adb60f4ea448d",
+      "applied_matches_published": true
+    }
+  },
+  "dependencies": {
+    "tools/docs_publication_compat.py": {
+      "base_sha256": "d668852ee8e4623ffd0324526368de0a14a716bfb588d924c63a6b9a871d2227",
+      "published_sha256": "d668852ee8e4623ffd0324526368de0a14a716bfb588d924c63a6b9a871d2227",
+      "identical": true
+    },
+    "tools/docs_version.py": {
+      "base_sha256": "bb49be8926138087fda6eb6f2873e07ff4c0c40d0b809709bf6f2925b4168c91",
+      "published_sha256": "bb49be8926138087fda6eb6f2873e07ff4c0c40d0b809709bf6f2925b4168c91",
+      "identical": true
+    },
+    "tools/pytest_translation_compatibility.py": {
+      "base_sha256": "bcbb34d35d8593770cdf3ef3dc5bc6fa2f85965d6e34508c78686759ee3cb477",
+      "published_sha256": "bcbb34d35d8593770cdf3ef3dc5bc6fa2f85965d6e34508c78686759ee3cb477",
+      "identical": true
+    },
+    "tools/verify_tutorial_live.py": {
+      "base_sha256": "1110c330b6a02c709fa898fda9c96d8227faaf172619f4ceadea93bb8e008841",
+      "published_sha256": "b7140b6c1e0473f62279c04da5afc460cc9ea9ac52b266699c524fa11c444c0e",
+      "identical": false
+    },
+    "pyproject.toml": {
+      "base_sha256": "2fb3863a36e225ac4b2b5baf53e4a66bf081fef6d0944995b3255a20239a15b7",
+      "published_sha256": "f5aa8190ce8dba5575fb99c9ec3882def9ced69cc272ffe2c5dec55238931733",
+      "identical": false
+    },
+    "setup.py": {
+      "base_sha256": "0daef3226f9ec72ee89c032fb813b4d26cb72cede07a6731973eeb95dc8e3c05",
+      "published_sha256": "747e7e12f20ef783ee29b53365e775c47872753ced0eb615739774074098efab",
+      "identical": false
+    }
+  }
+}

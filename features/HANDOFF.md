@@ -11,6 +11,58 @@ and exact helper owner are included with preserved diagnostic source identities.
 No whole-item/fullCI/release claim is inferred from this component delivery;
 original contract reconciliation follows. Work retains tutorial/player ownership.
 
+
+## 2026-10-15 Home-B — next coherent publication and whole N597 acceptance
+
+N597 now satisfies its corrected original contract: the actual System Refresh
+button keeps the persisted text scale, alongside width dragging/arrow and the
+single live slider/restore/extremes behavior. Twelve current owning cases pass
+24.51s, with independent source review and exact integrated source739bb359.
+Whole acceptance is recorded under data/597_system_refresh_text_scale_2026-10-15/;
+the grouped Home-B tracker adds its single completed row first. This note and
+tracker must publish with that source before the completion table is printed.
+
+N350's actual workflow title clipping is repaired in _Node.paint only, retaining
+full translated titles and existing geometry. Four locale failures become30
+passing new/owning checks; source9bcf43/sourcehashdc6c4583. Independent peer is
+being collected. This bounded repair does not close the broad whole item.
+
+N689's refreshed portable eight-file main proposal, including operation-tagged
+permission diagnostics, is repo-readable at
+features/data/689_main_operation_tags_owner_packet_2026-10-15/. Its exact base is
+main e0bedd1534 and source5a03a24ae7; disposable apply/source-byte proof passes.
+Historical proposals remain unchanged. Original owns end-stage main promotion;
+no main/service/secret mutation was performed by this packet. Existing403 remains
+open pending one bounded probe after the operation-tag source is published.
+
+Website sourcef2115f82 passed normal production38751829473 and Pages38751922377;
+publica7aee44e matches approved workflow/script and all five live route bytes.
+Exactly one hosted audit38752383804 is running; no new score or physical60fps
+acceptance is claimed. Original retains the single global runtime writer;
+Home-B is not duplicating its artifacts or release gate.
+
+## 2026-10-15 Home-B — current grouped tracker and next source packets
+
+The Home-B shared working view is now repo-readable at
+features/data/home_b_grouped_progress_2026-10-15/PROGRESS.txt (status.json beside
+it). One row per whole item, hour estimates, today's three accepted whole-item
+closeouts first; older historical completions omitted. It supplements Original's
+tracker and does not replace the broader689-file inventory or count component
+repairs as whole features. F561 coherent software is publicef2415daee.
+
+Original owns the ONE N448/N440/N421 runtime writer. Adopt private widget0d17681e
+and exact extractor e65478b670, with its54 accepted draft targets; run the real
+compiled source-picker consumer only after catalogs. Home-B is not duplicating
+that writer. F564 two-control GUI is private in the readme lane; Original owns
+settings/backend/reviews and coordinated closure. No standalone publication.
+
+N655 plate-well focus fix is ready privately with45 owning cases plus six
+explicit actual-palette followups; final source0096db7c and independent peer
+preserve selection/drag/geometry. N689 operation-specific diagnostics pass17
+checks and preserve exception/status without leaking text/URLs. These are
+ready source packets pending normal coordinated publication, not whole-item
+completion. Website owner is preparing a manual free public-runner Lighthouse
+audit; no physical60fps or new score has been claimed.
 ## 2026-10-15 — Work → Home: exact05 native blocker/source packet delivered
 
 `features/data/n676_home_spaceout_native_blocked_2026-10-15/` contains89 exact files; manifest `3351695012cdeb90a74373a6b5507d9d0a2b57d65db43df937f039dc039348ba`. Three frozen f9be2391 GNOME sources share all502 inventoried source hashes and identical profiles.31-scene coverage gives30 strict passes; Apply alone fails both allowed takes with438ms/395ms paint stalls in second index4. Both failed gates and telemetry remain intact; all owned descendants cleaned up. No source/gate/narration acceptance is implied.

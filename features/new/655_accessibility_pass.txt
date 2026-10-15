@@ -540,3 +540,54 @@ other-platform, provider/reporting or whole-N655 acceptance is claimed.
   absent. Numeric native value/range/setter and speech/human/other-platform
   acceptance remain open. This does not restore the rejected418e interface.
   Evidence:data/655_hint_native_safe_actions_2026-10-15/receipt.json.
+
+2026-10-15 — Plate-map wells now show keyboard focus
+  An actual6-well baseline reached/named/toggled A01 correctly, but focused
+  and unfocused pixels were identical in Dark, Light and High contrast, and
+  Stronger focus changed nothing. Private _Well now overlays focus using
+  cached theme policy, including live3px strong focus. Empty and selected
+  wells retain their center fill, selection and square geometry; Tab/Space,
+  normal names and all original mouse/drag methods remain unchanged.
+  Final45PASS6.82s comprises8new+37existing checks;9.65s wall,588964KiB peak,
+  2G/offscreenQt6.12/thread1. Four private overrides are excluded by normal
+  API policy; the one pre-existing nested helper changes only source lines.
+  Public prose/captions remain exact. No new native/human/other-OS claim.
+  Evidence:data/655_plate_well_focus_2026-10-15/receipt.json.
+
+2026-10-15 — Plate focus contrast follow-up from independent review
+  Initial46b367 focus acceptance is superseded for selected fills: actual
+  palette/render checks reproduced2FAIL for the generic Dark/Light strong
+  ring against CHOSEN blue (1.714/1.238, below3:1). _Well now caches a local
+  selected-fill fallback only where generic focus fails the existing3:1
+  policy; passing generic colours and all unselected colours are retained.
+  Actual3theme×2state rendering now checks uniform3px focus, required contrast,
+  center-fill/geometry/selection preservation and live ordinary/strong changes.
+  Final45PASS7.21s,9.81s wall,595748KiB peak,2G/offscreenQt6.12/thread1.
+  Five private methods excluded; all public/old mouse/selection AST unchanged.
+  Evidence:data/655_plate_well_focus_2026-10-15/contrast-followup.json.
+
+2026-10-15 — Explicit application palette fixture corrected
+  Independent review caught that apply_qpalette(app) defaults to Dark even
+  when the test stylesheet changes. Passing scheme explicitly is the only
+  fixture edit; production5bf source and all assertions remain exact. Only
+  the six affected focus/selection cases were replayed:6PASS2.38s,4.79s wall,
+  578968KiB peak. These establish actual Dark/Light/High contrast palettes;
+  the earlier45 result remains evidence at its original narrower scope.
+  Evidence:data/655_plate_well_focus_2026-10-15/palette-fixture-followup.json.
+
+2026-10-15 — Shared panel height grip honors Stronger focus outlines
+  HeightGrip already supported keyboard resizing, but its hardcoded 1 px
+  focus line ignored the stronger-focus preference. Actual Tab-focus pixels
+  were identical with the preference on/off in Dark, Light and High contrast:
+  three baseline failures. It now caches the existing policy at construction
+  and style/palette/font changes, overlaying its 3 px outline while focused.
+  Ordinary hover/drag/focus painting, target bounds, resize/persistence signals
+  and all original mouse/key handlers remain unchanged. No preference read
+  is introduced during painting, and the painter ends in finally.
+  Final18PASS2.52s: four new rendered/Tab/cache cases, thirteen existing
+  pointer/keyboard/reset cases, and the existing actual paint-cache check.
+  The three actual application palettes and live preference toggling are
+  covered. No new definitions, captions or API prose; scoped normal helper
+  inventory remains exact. Evidence:
+  data/655_height_grip_strong_focus_2026-10-15/receipt.json.
+  No native reader/other-OS or whole-item completion claim is added.

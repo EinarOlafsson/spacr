@@ -22,7 +22,8 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Optional, Set, Tuple
 
-from PySide6.QtCore import QPoint, Qt, QTimer
+from PySide6.QtCore import QEvent, QPoint, Qt, QTimer
+from PySide6.QtGui import QColor, QPainter, QPalette, QPen
 from PySide6.QtWidgets import (QDialog, QDialogButtonBox, QGridLayout,
                                QHBoxLayout, QInputDialog, QLabel,
                                QPushButton, QScrollArea, QVBoxLayout, QWidget)
@@ -178,12 +179,63 @@ class _Well(QPushButton):
         ``A01`` name shown in the tooltip.
         """
         super().__init__(parent)
+        self._cache_focus_style()
         self.row, self.column = int(row), int(column)
         self.setCheckable(True)
         self.setFixedSize(well_side(), well_side())
         self.setToolTip(well_label(row, column))
         self._paint()
         self.toggled.connect(lambda *_: self._paint())
+
+
+    def _cache_focus_style(self) -> None:
+        """Keep the normal ring and a contrasting selected-fill variant."""
+        from .figure_grid_view import _strong_focus_style
+        from ..theme import FOCUS_RING_MIN_CONTRAST, contrast_ratio
+
+        self._strong_focus_ring = _strong_focus_style()
+        self._selected_focus_ring = self._strong_focus_ring
+        if self._strong_focus_ring:
+            width, colour = self._strong_focus_ring
+            if contrast_ratio(colour, CHOSEN) < FOCUS_RING_MIN_CONTRAST:
+                colour = max(("#000000", "#ffffff"),
+                             key=lambda candidate: contrast_ratio(candidate, CHOSEN))
+                self._selected_focus_ring = (width, colour)
+
+    def changeEvent(self, event) -> None:
+        """Refresh the cached focus outline when the active style changes."""
+        super().changeEvent(event)
+        if event.type() in (QEvent.StyleChange, QEvent.PaletteChange,
+                            QEvent.ApplicationPaletteChange,
+                            QEvent.ApplicationFontChange):
+            self._cache_focus_style()
+            self.update()
+
+    def paintEvent(self, event) -> None:
+        """Overlay keyboard focus without changing the well's selected fill or size."""
+        super().paintEvent(event)
+        if self.hasFocus():
+            painter = QPainter(self)
+            try:
+                role = QPalette.HighlightedText if self.isChecked() else QPalette.Highlight
+                strong = (self._selected_focus_ring if self.isChecked()
+                          else self._strong_focus_ring)
+                width, colour = strong or (2, self.palette().color(role))
+                painter.setPen(QPen(QColor(colour), width))
+                painter.setBrush(Qt.NoBrush)
+                painter.drawRect(self.rect().adjusted(1, 1, -1, -1))
+            finally:
+                painter.end()
+
+    def focusInEvent(self, event) -> None:
+        """Repaint the well when keyboard focus enters it."""
+        super().focusInEvent(event)
+        self.update()
+
+    def focusOutEvent(self, event) -> None:
+        """Remove the outline when keyboard focus leaves the well."""
+        super().focusOutEvent(event)
+        self.update()
 
 
     def _picker(self):

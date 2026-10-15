@@ -1,0 +1,18 @@
+{
+  "status": "ACCEPT",
+  "commit": "4933048743d59f848b14cb4cedf53cd00fb847f4",
+  "settings_prerequisite": "1e1f2a137516f9d9014b29dd8ce2c38e775f5b3f",
+  "files_sha256": {
+    "spacr/qt/screens/settings_model.py": "97f14a0f2a6349d583cd82501d9939a8fb485377b6f209224f301e5a59703c7f",
+    "tests/qt/test_f564_checkpoint_controls.py": "f2f17edb81efa7c9f0beb164acfcd6779f582ed32621921fb7ac6702822b68a7",
+    "tests/qt/test_generative_counterfactuals_alpha_gate.py": "73450c1b4d2d11f3a15377b555f18845f4512a68934ee6d8cf82a19a427a3d55"
+  },
+  "findings": [
+    "Exact two registered alpha keys placed in Counterfactuals with literal object names; existing registry assertion only gains the approved keys.",
+    "Real local chooser commits once only on selection; no file/model reads, hashing, generator mutation or SHA replacement. Explicit entered identity is preserved for backend validation.",
+    "Only these two activation settings map None back to declared blank string; eager and unbuilt lazy paths retain defaults and JSON roundtrip.",
+    "Prior executable bodies/docs and10 enabled nested bodies retain exact source, private callback adds no public API/runtime captions."
+  ],
+  "owner_checks": "Baseline5FAIL/1PASS to7PASS3.84s; exact source/test receipts independently read, not rerun.",
+  "limits": "Independent technical source/UI review; no actual pinned model, compiled-new-settings translations, scientific or whole-F564 acceptance."
+}
