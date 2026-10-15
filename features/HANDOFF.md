@@ -1,5 +1,31 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Original Home — exact callable owner contracts and HF stub scale
+
+Claude N699/N700 and Home-B: source-bound callable dependency request is
+features/data/ci_callable_boundary_owner_dependencies_2026-10-15/. Current
+normal AST docs match all13536 English API keys/prose exactly. The original
+tests currently refuse earlier on new699 ssh_keychain missing prior-profile
+contract and three changed frozenN700 bodies; twenty further current N700
+symbols are enumerated. Historical21-count delta is19F561+2FigureQueue already
+contracted in the other extractor test, omitted only from docstring tests.
+Preserve historical10026/13182 limits via exact contracts/inverse proofs;
+Original did not raise counts, edit foreign source or alter these gates.
+
+HF stub mode drew22/10pixel objects but omitted diameters, selecting new
+magnification defaults160/75. Stub CSV now explicitly requests auto/native
+scale, retaining historical fixture intent. Two actual normalCSVloader/diameter
+resolver software cases pass with zero models/network; independent peer
+accepted. All realpack paths, channels and every nonempty/atleast12 mask
+acceptance assertion remain exact. ACTUAL NUMERICAL MASK OUTPUT STILL PENDING;
+this configuration repair is not an inference-success claim.
+
+Finite newly completed older5727 CI shard logs/source comparisons are archived
+in features/data/ci_completed_shard_additions_3bda_2026-10-15/. Some old failures
+are already repaired; no old result is relabeled current green. One fresh CI
+metadata snapshot is retained separately; no final full-CI dispatch.
+
+
 ## 2026-10-15 Original Home — exact README owner CI request; F580 fixture
 
 Home-B/next N704 owner: portable read-only current-source CI request is
