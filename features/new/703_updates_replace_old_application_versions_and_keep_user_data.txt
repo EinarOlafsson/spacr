@@ -232,3 +232,43 @@ needed. Fatal Ruff passed. No live environment, network, accounts or GPU were
 used. This engine component does not yet replace the generic pip GUI route:
 a deferred shutdown/ownership handoff is the next implementation step. Shared,
 Conda and Windows activation and native platform acceptance remain open.
+
+
+2026-10-14 22:53 EDT — Home private POSIX pip GUI shutdown handoff
+Implemented the deferred GUI route for dedicated owner-controlled POSIX pip
+virtual environments. Preparation runs outside the installation, reports readiness
+without changing it, and requires authenticated approval plus actual process exit.
+The GUI preserves the selected module/settings before approving shutdown; a
+settings-write failure or close veto cancels the update. The helper rechecks actual
+interpreter/package identity after exit so a stale offered release cannot replace
+a runtime another updater has changed. It stages pip in a sibling clone, verifies
+dependencies/imported code/version, atomically exchanges directories, and retains
+the previous runtime. A relaunch failure restores the old runtime. No running
+GUI path falls back to a live pip mutation.
+
+Offline CPU acceptance uses real temporary venvs and fake wheels only. Initial
+fixture-permission and preserved macOS log-prefix failures were corrected and
+retained in scratch; production owner-only directory checks were not relaxed.
+Current owning backend15 PASS, GUI45 PASS and the unchanged macOS/update contract
+passes are separate source-bound evidence, not hosted/native acceptance. Two new
+runtime messages and two changed API paragraphs have exact-source AI technical
+reviews in all nine locales; no human/native-speaker signoff is claimed.
+
+N703 remains PARTIAL. Shared/Conda/Windows pip replacement is refused safely and
+still needs an explicit supported adapter. The legacy public in-place pip helper
+has not acquired transactional guarantees. Native macOS/Windows install/update,
+real desktop relaunch and current full hosted CI remain unverified. No real user
+environment, data, model cache or launcher was modified by these checks.
+
+Final handoff acceptance: 94 distinct current owning cases passed (15 backend,
+45 GUI handoff, 20 existing macOS online, 5 restart, 9 actual locale lookup cases).
+The nine-locale tests exercise the real refusal mapper and actual settings-save
+warning against their exact review values. Normal scoped runtime generation and
+English audit passed, preserving every unrelated current translation. Caption-arrival refresh remains PENDING on the combined integration source.
+This older private base has no refresh CLI; an invocation with --refresh exited0
+without doing a check and is explicitly not counted as acceptance. The actual
+combined N700 review hold remains owned by its source lane.
+English API audit passed for13474symbols; all18 exact API and18 exact runtime
+review records were authored as AI technical reviews. Fatal Ruff passed.
+Raw source/exit/JUnit receipts remain in
+/mnt/wd4tb/scratch/n703-pip-handoff-20261014/handoff-delivery-receipt.json.

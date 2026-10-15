@@ -7,11 +7,11 @@ helper verifies the desktop interpreter and imported application before retiring
 other copies or requesting a restart. :func:`run_update_sequence` remains the
 low-level removal procedure used by explicit cleanup commands.
 
-In-app updates use a different procedure for supported macOS installations.
-An online installation upgrades spaCR in its existing Python environment
-using its bundled ``uv`` executable. It keeps the environment, bootstrap
-files, application launcher, and installed packages that need no update.
-It verifies the installed spaCR version before restarting the application.
+Supported macOS online installations and dedicated POSIX pip environments
+use their existing package tool after approved shutdown to stage, verify and
+atomically activate an updated sibling runtime. Bootstrap files, launchers,
+unchanged packages and the previous runtime are retained. Shared, Conda and
+Windows Python environments require their own replacement adapter.
 
 A supported frozen macOS application uses a verified DMG replacement and
 retains its complete previous application bundle. These macOS update paths
@@ -3127,14 +3127,97 @@ def _run_macos_online_update(plan, machine, *, wait=None, run=None, spawn=None):
         activate=lambda _version: (spawn or _spawn_detached)(relaunch, None, plan["workdir"]))
 
 
+_PRIVATE_PIP_UPDATE_ERROR = "This environment needs its package manager; spaCR cannot replace it safely. Nothing was changed."
+
+
+def _pip_environment_commands(record, version, workdir, machine):
+    """Bind a dedicated owner-only POSIX venv to its isolated pip command."""
+    if (machine.platform not in {"linux", "macos"} or record.kind != "environment"
+            or not record.running or not record.python or record.platform != machine.platform):
+        raise ValueError(_PRIVATE_PIP_UPDATE_ERROR)
+    prefix = os.path.realpath(record.root)
+    python = os.path.abspath(record.python)
+    if (os.path.abspath(record.root) != prefix
+            or os.path.realpath(machine.running_prefix or "") != prefix
+            or os.path.abspath(machine.executable) != python
+            or os.path.dirname(python) != os.path.join(prefix, "bin")
+            or not os.path.isfile(python) or not os.access(python, os.X_OK)
+            or not os.path.isfile(os.path.join(prefix, "pyvenv.cfg"))
+            or os.path.isdir(os.path.join(prefix, "conda-meta"))):
+        raise ValueError(_PRIVATE_PIP_UPDATE_ERROR)
+    for directory in (prefix, os.path.dirname(prefix)):
+        details = os.lstat(directory)
+        if (not stat.S_ISDIR(details.st_mode) or details.st_uid != os.geteuid()
+                or stat.S_IMODE(details.st_mode) & 0o022):
+            raise ValueError(_PRIVATE_PIP_UPDATE_ERROR)
+    if _inside(os.path.realpath(workdir), prefix):
+        raise ValueError("the updater folder must be outside the installed environment")
+    requested = _macos_online_version(version)
+    if record.version and _macos_online_version(record.version) > requested:
+        raise ValueError("The running spaCR is newer than the requested release. Nothing was changed.")
+    command = [python, "-I", "-m", "pip", "install", "--upgrade", "spacr==" + str(version)]
+    return command, [python, "-I", "-m", "spacr.qt"]
+
+
+def _pip_environment_identity(record, runner):
+    """Read the original runtime without bytecode writes or trusting stale metadata."""
+    probe = _runtime_identity_command(record.python, record.version, prefix=record.root)
+    probe.insert(2, "-B")
+    code, output = runner(probe)
+    try:
+        current = json.loads(output)
+        verified = (code == 0 and current.get("verified") is True
+                    and os.path.realpath(current["prefix"]) == os.path.realpath(record.root)
+                    and os.path.realpath(current["python"]) == os.path.realpath(record.python)
+                    and isinstance(current.get("version"), str))
+        if verified and record.version:
+            verified = _macos_online_version(current["version"]) == _macos_online_version(record.version)
+    except (ValueError, TypeError, KeyError, AttributeError):
+        verified = False
+    if not verified:
+        raise RuntimeError("The desktop interpreter could not be identified; no relaunch was requested.")
+    return current
+
+
+def _run_pip_environment_update(plan, machine, *, wait=None, run=None, spawn=None):
+    """Wait for approved shutdown before updating a verified private pip venv."""
+    records = [_record_from_json(data) for data in plan["records"]]
+    candidates = [record for record in records if record.kind == "environment" and record.running]
+    if len(candidates) != 1 or plan.get("frozen_application"):
+        raise ValueError(_PRIVATE_PIP_UPDATE_ERROR)
+    record = candidates[0]
+    install, relaunch = _pip_environment_commands(record, plan["version"], plan["workdir"], machine)
+    if plan.get("fetch") is not None or plan.get("install") != install or plan.get("relaunch") != relaunch:
+        raise ValueError("the package command does not target this private runtime")
+    _runtime_staging_allowed(os.path.realpath(record.root), machine)
+    runner = run or _run
+    current = _pip_environment_identity(record, runner)
+    if _macos_online_version(current["version"]) > _macos_online_version(plan["version"]):
+        raise ValueError("The running spaCR is newer than the requested release. Nothing was changed.")
+    code, output = runner([record.python, "-I", "-B", "-c", "import pip"])
+    if code:
+        raise RuntimeError(output)
+    handshake = _FrozenUpdateHandshake(plan)
+    handshake.ready()
+    handshake.wait_for_shutdown(wait)
+    _pip_environment_commands(record, plan["version"], plan["workdir"], machine)
+    if _pip_environment_identity(record, runner) != current:
+        raise RuntimeError("The desktop interpreter could not be identified; no relaunch was requested.")
+    return _transactional_runtime_update(
+        record, plan["version"], install, machine=machine, runner=runner,
+        activate=lambda _version: (spawn or _spawn_detached)(relaunch, None, plan["workdir"]))
+
+
 def start_update_helper(records: Sequence[InstallRecord], version: str, *,
                         ticked: Iterable[str] = (), pid: Optional[int] = None,
                         workdir: Optional[str] = None, system=None,
                         spawn=None) -> Dict:
     """Run an installation update in a process that outlives spaCR.
 
-    The running spaCR must be an installer-made copy. The helper waits for
-    this process to exit before changing the installation.
+    Installer-made copies and supported dedicated POSIX pip environments can
+    use this helper. It waits for the running process to exit before changing
+    the installation; the pip adapter also requires authenticated shutdown
+    approval.
 
     For a supported macOS online installation, use the existing bundled
     ``uv`` and private Python to upgrade spaCR in the same environment.
@@ -3168,6 +3251,8 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
     machine = system or _Machine()
     records = list(records)
     running = next((r for r in records if r.kind == "installer" and r.running), None)
+    if running is None:
+        running = next((r for r in records if r.kind == "environment" and r.running), None)
     environment = None
     workdir = workdir or tempfile.mkdtemp(prefix="spacr-update-")
     os.makedirs(workdir, mode=0o700, exist_ok=True)
@@ -3188,6 +3273,22 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
     }
     if running is None:
         plan["error"] = "the running spaCR is not an installer-made copy"
+    elif running.kind == "environment":
+        plan["adapter"] = "pip-private-posix-v1"
+        plan["steps"] = ["wait", "upgrade", "verify", "relaunch"]
+        plan["handshake"] = {"schema": 1, "token": os.urandom(32).hex(),
+                             "expires": time.time() + _FROZEN_PREPARATION_SECONDS}
+        try:
+            if plan["frozen_application"] or len([r for r in records if r.kind == "environment" and r.running]) != 1:
+                raise ValueError(_PRIVATE_PIP_UPDATE_ERROR)
+            plan["install"], plan["relaunch"] = _pip_environment_commands(
+                running, str(version), workdir, machine)
+            _FrozenUpdateHandshake(plan)
+            with open(__file__, "rb") as source, open(module, "wb") as copy:
+                copy.write(source.read())
+            plan["command"] = [running.python, "-I", module, "run-plan", plan_path]
+        except (OSError, ValueError) as error:
+            plan["error"] = str(error)
     elif _macos_online_update_record(records, system=machine) is not None:
         plan["adapter"] = "macos-online-uv-v1"
         plan["steps"] = ["wait", "upgrade", "verify", "relaunch"]
@@ -3399,11 +3500,13 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
         return code
 
     planned_records = [_record_from_json(data) for data in plan["records"]]
-    if plan.get("adapter") == "macos-online-uv-v1":
+    if plan.get("adapter") in {"macos-online-uv-v1", "pip-private-posix-v1"}:
         try:
-            observed, output = _run_macos_online_update(plan, machine, wait=wait, run=run, spawn=spawn)
+            operation = (_run_pip_environment_update if plan["adapter"] == "pip-private-posix-v1"
+                         else _run_macos_online_update)
+            observed, output = operation(plan, machine, wait=wait, run=run, spawn=spawn)
         except Exception as error:
-            lines.append(f"macOS environment update stopped: {error}")
+            lines.append(f"macOS environment update stopped: {error}" if plan["adapter"] == "macos-online-uv-v1" else str(error))
             try:
                 _FrozenUpdateHandshake(plan).failed(error)
             except Exception:

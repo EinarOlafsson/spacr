@@ -48,6 +48,27 @@ def _row(
 
 
 REVIEWED_UI_TRANSLATIONS: Final[dict[str, dict[str, str]]] = {
+    'The current settings could not be saved. The update was cancelled and this window will stay open.': _row(
+        'De aktuella inställningarna kunde inte sparas. Uppdateringen avbröts och fönstret förblir öppet.',
+        'Die aktuellen Einstellungen konnten nicht gespeichert werden. Das Update wurde abgebrochen und dieses Fenster bleibt geöffnet.',
+        'No se pudo guardar la configuración actual. Se canceló la actualización y esta ventana permanecerá abierta.',
+        '无法保存当前设置。更新已取消，此窗口将保持打开。',
+        'Não foi possível guardar as definições atuais. A atualização foi cancelada e esta janela permanecerá aberta.',
+        'वर्तमान सेटिंग्स सहेजी नहीं जा सकीं। अपडेट रद्द कर दिया गया है और यह विंडो खुली रहेगी।',
+        '현재 설정을 저장할 수 없습니다. 업데이트가 취소되었으며 이 창은 열린 상태로 유지됩니다.',
+        'Ekki tókst að vista núverandi stillingar. Hætt var við uppfærsluna og þessi gluggi verður áfram opinn.',
+        'Impossible d’enregistrer les paramètres actuels. La mise à jour a été annulée et cette fenêtre restera ouverte.'),
+    # N703 private pip handoff: exact-source AI technical reviews, no human signoff.
+    'This environment needs its package manager; spaCR cannot replace it safely. Nothing was changed.': _row(
+        'Den här miljön behöver sin pakethanterare; spaCR kan inte ersätta den säkert. Inget ändrades.',
+        'Diese Umgebung benötigt ihren Paketmanager; spaCR kann sie nicht sicher ersetzen. Es wurde nichts geändert.',
+        'Este entorno requiere su gestor de paquetes; spaCR no puede reemplazarlo de forma segura. No se cambió nada.',
+        '此环境需要使用其软件包管理器；spaCR 无法安全替换它。未进行任何更改。',
+        'Este ambiente requer o seu gestor de pacotes; o spaCR não o pode substituir com segurança. Nada foi alterado.',
+        'इस परिवेश को उसके पैकेज प्रबंधक से अपडेट करना होगा; spaCR इसे सुरक्षित रूप से नहीं बदल सकता। कुछ भी नहीं बदला गया।',
+        '이 환경은 자체 패키지 관리자가 필요합니다. spaCR가 안전하게 교체할 수 없으므로 아무것도 변경하지 않았습니다.',
+        'Þetta umhverfi þarf sinn pakkastjóra; spaCR getur ekki skipt því út á öruggan hátt. Engu var breytt.',
+        'Cet environnement doit utiliser son gestionnaire de paquets ; spaCR ne peut pas le remplacer en toute sécurité. Aucune modification effectuée.'),
     "Fit": _row(
         "Anpassa", "Einpassen", "Ajustar", "适应窗口", "Ajustar",
         "पूरा दिखाएँ", "화면에 맞추기", "Aðlaga að glugga", "Ajuster"),

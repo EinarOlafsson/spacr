@@ -37882,19 +37882,19 @@
       "source_blocks_sha256": [
         "7416dbb0fde10154916ad50cd0fc7e202830b618edb774535da00b284b0cb51e",
         "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
-        "e8426469166bb47d0ed64d3307e3860609736f807d632a4d7541094d36a4f74c",
+        "f7429e66190134bb8d3b5b0468206f3e3128f87883921c7fbe700c7479929706",
         "e017a0d3e804e71040c5189f6b6426d8402cab247d827b87e69f69e9b020125a",
         "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
         "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
         "0652c5caf1f0df7c39d1e6c1c79f43d330c0f02a8d6c1614075702950f791893",
         "16c109cefeac68ae0b253a90e4ae1cf7b1dbd527ce7a3af7b2326e1a837afef3"
       ],
-      "source_sha256": "9c073fe0e4c8861a2609fcc5b092122cbb386bb97418f6f9be6768d9e67c443d",
-      "text": "spaCR 설치를 찾고 적절한 업데이트 또는 제거 절차를 실행합니다.\n\n온라인 설치 프로그램은 이전 애플리케이션 복사본을 제거하기 전에 새 런타임을 준비하고 검증합니다. 준비하는 동안 현재 설치를 유지하고, 교체된 런타임이 검증에 실패하면 이전 런타임을 복원합니다. 업데이트 도우미는 다른 복사본을 제거하거나 재시작을 요청하기 전에 데스크톱 실행에 사용되는 인터프리터와 실제로 가져온 애플리케이션을 검증합니다. :func:`run_update_sequence`는 명시적인 정리 명령에서 사용하는 하위 수준 제거 절차로 유지됩니다.\n\n지원되는 macOS 설치에서는 앱 내 업데이트가 다른 절차를 사용합니다. 온라인 설치는 번들된 ``uv`` 실행 파일을 사용하여 기존 Python 환경에서 spaCR을 업그레이드합니다. 환경, 부트스트랩 파일, 애플리케이션 실행기, 업데이트가 필요 없는 설치된 패키지를 유지합니다. 애플리케이션을 다시 시작하기 전에 설치된 spaCR 버전을 확인합니다.\n\n지원되는 고정(frozen) macOS 애플리케이션은 검증된 DMG 교체를 사용하며 이전 애플리케이션 번들 전체를 유지합니다. 이러한 macOS 업데이트 경로는 표준 삭제 절차를 실행하지 않습니다. 다른 고정 애플리케이션 계열은 업데이트를 시작하기 전에 지원되는 교체 어댑터가 필요합니다.\n\n제거할 때 이전 버전 자체의 제거 프로그램은 절대 실행하지 않으므로, ``Uninstall.exe`` 또는 ``uninstall-spacr.sh`` 파일이 없거나 손상된 사본도 똑같이 제거됩니다. 환경설정과 사용자 데이터는 유지됩니다: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, Hugging Face 캐시, 그리고 ``spacr``/``qt`` 설정(``~/.config/spacr``, macOS의 환경설정 파일, Windows의 ``Software\\spacr`` 레지스트리 키).\n\n사용자가 만든 pip 또는 conda 환경은 목록에 표시되지만 절대 삭제되지 않으며, 호출자가 그 환경이 선택되었다고 알려 줄 때에만 그 환경에서 spaCR 패키지를 제거합니다. 편집 가능한 소스 체크아웃은 보고만 하고 그대로 둡니다.\n\n이 모듈은 표준 라이브러리만 사용하고 spaCR에서 아무것도 가져오지 않으므로, 설치 프로그램은 spaCR이 아직 없을 때에도 자신이 직접 설치한 Python으로 이 모듈을 실행할 수 있고, 도우미 프로세스는 실행 중이던 spaCR이 종료된 뒤에 이 모듈의 사본을 실행할 수 있습니다::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` 는 명시적으로 선택하는 완전 제거입니다. 목록을 보여 주고 확인을 받은 뒤 spaCR 캐시, 백엔드 환경, 사용자 데이터도 삭제합니다. 스스로 실행되지 않으며 ``remove --purge`` 명령은 제거가 성공한 뒤 이를 실행합니다.",
+      "source_sha256": "cde38312aab2afab1bbdceb56fc3154a44c1daab76afce222aeed43202098641",
+      "text": "spaCR 설치를 찾고 적절한 업데이트 또는 제거 절차를 실행합니다.\n\n온라인 설치 프로그램은 이전 애플리케이션 복사본을 제거하기 전에 새 런타임을 준비하고 검증합니다. 준비하는 동안 현재 설치를 유지하고, 교체된 런타임이 검증에 실패하면 이전 런타임을 복원합니다. 업데이트 도우미는 다른 복사본을 제거하거나 재시작을 요청하기 전에 데스크톱 실행에 사용되는 인터프리터와 실제로 가져온 애플리케이션을 검증합니다. :func:`run_update_sequence`는 명시적인 정리 명령에서 사용하는 하위 수준 제거 절차로 유지됩니다.\n\n지원되는 macOS 온라인 설치와 전용 POSIX pip 환경은 승인된 종료 후 기존 패키지 도구로 같은 상위 폴더의 업데이트된 런타임을 준비하고 검증한 뒤 원자적으로 활성화합니다. 부트스트랩 파일, 실행기, 변경되지 않은 패키지와 이전 런타임은 유지됩니다. 공유 환경, Conda 및 Windows Python 환경에는 각각 별도의 교체 어댑터가 필요합니다.\n\n지원되는 고정(frozen) macOS 애플리케이션은 검증된 DMG 교체를 사용하며 이전 애플리케이션 번들 전체를 유지합니다. 이러한 macOS 업데이트 경로는 표준 삭제 절차를 실행하지 않습니다. 다른 고정 애플리케이션 계열은 업데이트를 시작하기 전에 지원되는 교체 어댑터가 필요합니다.\n\n제거할 때 이전 버전 자체의 제거 프로그램은 절대 실행하지 않으므로, ``Uninstall.exe`` 또는 ``uninstall-spacr.sh`` 파일이 없거나 손상된 사본도 똑같이 제거됩니다. 환경설정과 사용자 데이터는 유지됩니다: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, Hugging Face 캐시, 그리고 ``spacr``/``qt`` 설정(``~/.config/spacr``, macOS의 환경설정 파일, Windows의 ``Software\\spacr`` 레지스트리 키).\n\n사용자가 만든 pip 또는 conda 환경은 목록에 표시되지만 절대 삭제되지 않으며, 호출자가 그 환경이 선택되었다고 알려 줄 때에만 그 환경에서 spaCR 패키지를 제거합니다. 편집 가능한 소스 체크아웃은 보고만 하고 그대로 둡니다.\n\n이 모듈은 표준 라이브러리만 사용하고 spaCR에서 아무것도 가져오지 않으므로, 설치 프로그램은 spaCR이 아직 없을 때에도 자신이 직접 설치한 Python으로 이 모듈을 실행할 수 있고, 도우미 프로세스는 실행 중이던 spaCR이 종료된 뒤에 이 모듈의 사본을 실행할 수 있습니다::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` 는 명시적으로 선택하는 완전 제거입니다. 목록을 보여 주고 확인을 받은 뒤 spaCR 캐시, 백엔드 환경, 사용자 데이터도 삭제합니다. 스스로 실행되지 않으며 ``remove --purge`` 명령은 제거가 성공한 뒤 이를 실행합니다.",
       "translation_source_blocks_sha256": [
         "7416dbb0fde10154916ad50cd0fc7e202830b618edb774535da00b284b0cb51e",
         "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
-        "e8426469166bb47d0ed64d3307e3860609736f807d632a4d7541094d36a4f74c",
+        "f7429e66190134bb8d3b5b0468206f3e3128f87883921c7fbe700c7479929706",
         "b7b4a480350779d9e499a18a0b05ee0252054fdd541405364095199fcda23505",
         "d1c3cc6a4c7b476afc63c9609f53b6a82612c1c6da142522cedadeb817aef8c7",
         "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
@@ -38131,7 +38131,7 @@
     "spacr.install_cleanup.start_update_helper": {
       "source_blocks_sha256": [
         "962ee0a65cb98c1a7e5d5bd46f704918d560172c572df169b810ba8de9e625dc",
-        "73c6e0cf0e7c3ae62170b140c38374edda6d56adc61e7f1aa1122ce69699e5cf",
+        "45e52606fdc21a856ce1be0f8dfe0b59e36ee66e6861c3de9acb519cece16486",
         "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
         "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
@@ -38144,11 +38144,11 @@
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
         "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759"
       ],
-      "source_sha256": "acf28538d5426fdbb8177d87a8669f0039215e6009dba523e47bdcca83085040",
-      "text": "spaCR보다 오래 살아 있는 프로세스에서 설치 업데이트를 실행합니다.\n\n실행 중인 spaCR은 설치 프로그램이 만든 사본이어야 합니다. 도우미는 설치를 변경하기 전에 이 프로세스가 종료되기를 기다립니다.\n\n지원되는 macOS 온라인 설치의 경우 기존에 번들된 ``uv``와 전용 Python을 사용하여 같은 환경에서 spaCR을 업그레이드합니다. 환경 디렉터리, 부트스트랩 파일, 애플리케이션 실행기, 업데이트가 필요 없는 설치된 패키지를 보존합니다. 설치된 버전이 최소 ``version``이고, 이전 버전을 알 수 있는 경우 그보다 새로운지 확인한 후에만 다시 시작합니다. 업그레이드나 버전 확인이 실패해도 제거나 교체 설치 프로그램을 실행하지 않습니다.\n\n일반적인 교체 절차는 설치를 준비하는 새 설치 프로그램을 내려받아 실행하고, 실제 인터프리터와 가져온 애플리케이션을 검증한 다음 다른 복사본을 제거하고 애플리케이션을 시작합니다. 설치 또는 검증에 실패해도 이전에 정상 작동하던 복사본은 제거하지 않습니다. 다른 복사본 제거에 실패하면 이를 기록하며 애플리케이션을 다시 실행하지 않습니다.\n\n:param records: :func:`find_old_installs` 함수에서 얻은 설치들.\n:param version: 설치할 버전.\n:param ticked: 사용자가 선택한 환경의 루트 경로.\n:param pid: 기다릴 프로세스. ``None`` 값이면 이 프로세스입니다.\n:param workdir: 도우미의 폴더. ``None`` 값이면 새 임시 폴더입니다.\n:param system: 대상 컴퓨터. ``None`` 값은 이 컴퓨터를 뜻합니다.\n:param spawn: 분리된 프로세스를 시작하는 실행기를 대체합니다.\n:returns: ``plan.json`` 파일에 기록된 계획. ``plan[\"command\"]`` 값은 도우미의 명령이며, 아무것도 시작하지 않았으면 ``None`` 값이고 그 이유는 ``plan[\"error\"]`` 값에 있습니다.\n\n사용자가 쓸 수 있는 위치의 동결된 macOS 앱 번들은 검증된 DMG 교체 어댑터를 사용하며 이전 번들 전체를 보존합니다. 다른 동결 애플리케이션 계열은 어떤 항목도 제거하기 전에 오류를 반환합니다. 도우미는 이러한 애플리케이션에 대해 온라인 설치 프로그램으로 대체하는 경로를 활성화하지 않습니다.",
+      "source_sha256": "a18ebf8a69b327222983c810c7e7eb9b77b248afa7b0bc14756717fa52ce4f58",
+      "text": "spaCR보다 오래 살아 있는 프로세스에서 설치 업데이트를 실행합니다.\n\n설치 프로그램이 만든 복사본과 지원되는 전용 POSIX pip 환경은 이 도우미를 사용할 수 있습니다. 설치를 변경하기 전에 실행 중인 프로세스가 종료될 때까지 기다립니다. pip 어댑터는 인증된 종료 승인도 요구합니다.\n\n지원되는 macOS 온라인 설치의 경우 기존에 번들된 ``uv``와 전용 Python을 사용하여 같은 환경에서 spaCR을 업그레이드합니다. 환경 디렉터리, 부트스트랩 파일, 애플리케이션 실행기, 업데이트가 필요 없는 설치된 패키지를 보존합니다. 설치된 버전이 최소 ``version``이고, 이전 버전을 알 수 있는 경우 그보다 새로운지 확인한 후에만 다시 시작합니다. 업그레이드나 버전 확인이 실패해도 제거나 교체 설치 프로그램을 실행하지 않습니다.\n\n일반적인 교체 절차는 설치를 준비하는 새 설치 프로그램을 내려받아 실행하고, 실제 인터프리터와 가져온 애플리케이션을 검증한 다음 다른 복사본을 제거하고 애플리케이션을 시작합니다. 설치 또는 검증에 실패해도 이전에 정상 작동하던 복사본은 제거하지 않습니다. 다른 복사본 제거에 실패하면 이를 기록하며 애플리케이션을 다시 실행하지 않습니다.\n\n:param records: :func:`find_old_installs` 함수에서 얻은 설치들.\n:param version: 설치할 버전.\n:param ticked: 사용자가 선택한 환경의 루트 경로.\n:param pid: 기다릴 프로세스. ``None`` 값이면 이 프로세스입니다.\n:param workdir: 도우미의 폴더. ``None`` 값이면 새 임시 폴더입니다.\n:param system: 대상 컴퓨터. ``None`` 값은 이 컴퓨터를 뜻합니다.\n:param spawn: 분리된 프로세스를 시작하는 실행기를 대체합니다.\n:returns: ``plan.json`` 파일에 기록된 계획. ``plan[\"command\"]`` 값은 도우미의 명령이며, 아무것도 시작하지 않았으면 ``None`` 값이고 그 이유는 ``plan[\"error\"]`` 값에 있습니다.\n\n사용자가 쓸 수 있는 위치의 동결된 macOS 앱 번들은 검증된 DMG 교체 어댑터를 사용하며 이전 번들 전체를 보존합니다. 다른 동결 애플리케이션 계열은 어떤 항목도 제거하기 전에 오류를 반환합니다. 도우미는 이러한 애플리케이션에 대해 온라인 설치 프로그램으로 대체하는 경로를 활성화하지 않습니다.",
       "translation_source_blocks_sha256": [
         "38fd92ea723724e1eae22f8eb1870dd9cbe935dff6f91a1204cd0e98ff838361",
-        "4c1bc9ce66511a2d59f01410c51bb95dfe3a12f6d4b18589cc806b297b430b54",
+        "fe55c4b9b1588b8c1e9ed7a73edcfc3e971b90623c4dd9493b792d1331653332",
         "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
         "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
