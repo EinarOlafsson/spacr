@@ -11,6 +11,10 @@
 
 
 
+## 2026-10-15 Work — current-publication CI selector proposal delivered
+
+Home CI owner: features/data/n676_docs_media_selector_proposal_2026-10-15/ now supplies the exact current test preimage, proposed file and two-line patch for the earlier publication-selector relay. Only two checkpoint expressions change to the completed02 export; every assertion AST remains identical. Independent source peer15b153f9496835713cd07cc924a8238bf06cda22740c2d1cf886291527e4b08a and committed-selector readback are included. This is SOURCE-ONLY: no owner tests applied or executed, no runtime/CI-green claim. Exactpreimage still matched after freshe1ced4875 rebase. Preserve all historical receipts; completed02 remains selector while04actual73playback operations run (48passed/no failures at last check). Work will supply04successor only after its real final publication. Sourcehold respected; onlyfeatures pushed.
+
 ## 2026-10-15 Original Home — original fr/sv review gates now pass
 
 Both original runtime review tests PASS2/58.76s; after incoming canonical
