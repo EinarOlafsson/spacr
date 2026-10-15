@@ -268,3 +268,15 @@ remains byte-exact. Evidence:data/562_db_cardinality_2026-10-15/. Two new
 literal diagnostic targets drafted in9locales; normal review/writer closure
 and18actual localized refusal callbacks remain pending at this source note.
 No biological efficacy, native model training or whole-feature/fullCI claim.
+
+2026-10-15 — Stored-object join coherent runtime closure.
+Parent independently reviewed exact helper source and all18technical targets.
+One normal writer installs2diagnostics in9locales while preserving
+10,770 unrelated source-current rows per locale; actual full9runtimeaudit
+and normal immutable-arrival refresh PASS (9833baseline/1090added/
+151retired/31changed). Only18newactual localized read-only
+SQLite refusals were run after installation:18PASS,zero skips. The unchanged
+61-case helper cohort was not repeated. Original collector and4source/tool/
+test file hashes rechecked across normal closure; no catalog rows hand-edited.
+Raw scripts/logs/source hashes and peer evidence retained in the same folder.
+No training, biological efficacy, wholefeature or fullCI/release acceptance.
