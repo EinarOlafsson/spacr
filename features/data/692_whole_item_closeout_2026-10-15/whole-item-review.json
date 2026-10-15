@@ -1,0 +1,190 @@
+{
+  "item": "N692",
+  "decision": "PROPOSE WHOLE ITEM COMPLETE AT ITS RECORDED SOFTWARE+EXAMPLE-DATA CONTRACT; root review required",
+  "source_revision": "095894ad308a27a855629922ffe854bb04e3ebd4",
+  "hosted_evidence": {
+    "run": 38699600639,
+    "source": "8fc2aa5601847ccd8f7cff287c36c6a9ee00ba53",
+    "whole_run": "FAILED overall; owning N692/N673 outcomes below remain literal individual passes, not full-CI acceptance",
+    "raw_existing_log": "/mnt/wd4tb/scratch/ci-38699600639-current-triage-20261015/failed.log",
+    "result_rows": "hosted-owning-results.json",
+    "groups": [
+      {
+        "job": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+        "file": "tests/test_692_fibsem_example_dataset.py",
+        "counts": {
+          "PASSED": 5
+        }
+      },
+      {
+        "job": "Coverage shard 3 of 12",
+        "file": "tests/qt/test_673_make_masks_3d_in_container.py",
+        "counts": {
+          "PASSED": 31
+        }
+      },
+      {
+        "job": "Qt (0) / Qt shard 0 of 3 (ubuntu-24.04, py3.12)",
+        "file": "tests/qt/test_673_make_masks_3d_in_container.py",
+        "counts": {
+          "PASSED": 30,
+          "SKIPPED": 1
+        }
+      },
+      {
+        "job": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+        "file": "tests/test_692_fibsem_example_dataset.py",
+        "counts": {
+          "PASSED": 5
+        }
+      },
+      {
+        "job": "Qt (1) / Qt shard 1 of 3 (ubuntu-24.04, py3.12)",
+        "file": "tests/qt/test_692_three_d_mask_drawing.py",
+        "counts": {
+          "PASSED": 11,
+          "SKIPPED": 1
+        }
+      },
+      {
+        "job": "Coverage shard 4 of 12",
+        "file": "tests/qt/test_692_three_d_mask_drawing.py",
+        "counts": {
+          "PASSED": 12
+        }
+      },
+      {
+        "job": "Coverage shard 8 of 12",
+        "file": "tests/test_692_fibsem_example_dataset.py",
+        "counts": {
+          "PASSED": 5
+        }
+      }
+    ]
+  },
+  "source_bindings": {
+    "spacr/qt/mask_engine.py": {
+      "current_sha256": "7343faf71f85b62560707d862574c9c14a278bc5f3d2f5429f3de224a47dedac",
+      "hosted_sha256": "e48da20fe4f2a5d950f318a8877c20c269f0b28fa4186b8276cb9595964f3e92",
+      "whole_file_identical": false
+    },
+    "spacr/qt/make_masks_demo.py": {
+      "current_sha256": "940e739d77ec40b30e40fd88a84b36a0f0c19942b31ef5027d115e3b97c8c4ed",
+      "hosted_sha256": "940e739d77ec40b30e40fd88a84b36a0f0c19942b31ef5027d115e3b97c8c4ed",
+      "whole_file_identical": true
+    },
+    "spacr/qt/screens/make_masks.py": {
+      "current_sha256": "50ab8ff3a0ee8d6c61b1d7a4792831c34127a610f032c99630c5f8e3907a592d",
+      "hosted_sha256": "50ab8ff3a0ee8d6c61b1d7a4792831c34127a610f032c99630c5f8e3907a592d",
+      "whole_file_identical": true
+    },
+    "spacr/example_archives.py": {
+      "current_sha256": "54d58246f1344c24ade3c1a17aa247d61a4ab0fd9ed0cb7c7336227094d57973",
+      "hosted_sha256": "6c8425a0b2d8672b3e39eaeb2768c54bb987f4b9086a5591d9222dfd5e95e0e2",
+      "whole_file_identical": false
+    },
+    "tools/build_fibsem_example_dataset.py": {
+      "current_sha256": "9542b0e6aa0884bcac5295c924bd465fd43557370ea1a4bca1d5f7567567d023",
+      "hosted_sha256": "9542b0e6aa0884bcac5295c924bd465fd43557370ea1a4bca1d5f7567567d023",
+      "whole_file_identical": true
+    },
+    "tests/qt/test_692_three_d_mask_drawing.py": {
+      "current_sha256": "0ccda34230d93f16e8dfbb11789d9ecb898706a22f4a851606d9e348eb638f6f",
+      "hosted_sha256": "0ccda34230d93f16e8dfbb11789d9ecb898706a22f4a851606d9e348eb638f6f",
+      "whole_file_identical": true
+    },
+    "tests/test_692_fibsem_example_dataset.py": {
+      "current_sha256": "d3a0cf56f30715e64bacde0b71af53955e6d0dcead4896576f832e9833d44aae",
+      "hosted_sha256": "d3a0cf56f30715e64bacde0b71af53955e6d0dcead4896576f832e9833d44aae",
+      "whole_file_identical": true
+    },
+    "tests/qt/test_673_make_masks_3d_in_container.py": {
+      "current_sha256": "c86234023d46366331f08aa51ea37608c91fe8df4ce5b0406a03bc6afe6d9a5a",
+      "hosted_sha256": "c86234023d46366331f08aa51ea37608c91fe8df4ce5b0406a03bc6afe6d9a5a",
+      "whole_file_identical": true
+    }
+  },
+  "source_difference_disposition": {
+    "mask_engine": "Only assign_objects final return changed; parent609789 six-test source-bound receipt closes it",
+    "example_archives": "Only unrelated expand_measure_arrays changed; complete other module AST identical to hostedsource"
+  },
+  "requirements": [
+    {
+      "requirement": "Open plain TIFF/OME/MRC with shape/axes/spacing and preserve saved labels",
+      "evidence": [
+        "test_plain_stack_round_trip_keeps_shape_labels_and_voxel_size",
+        "test_ome_and_mrc_volumes_keep_their_physical_voxel_size",
+        "test_save_keeps_shape_axes_and_voxel_size_and_ctrl_s_saves_the_volume"
+      ],
+      "result": "All pass in coverage jobs; untraced Qt omitted mrcfile and skipped the one MRC test, explicitly not claimed there."
+    },
+    {
+      "requirement": "XY mouse brush/erase affects exactly shown slice; XZ/YZ side drawing writes correct voxels",
+      "evidence": [
+        "test_the_volume_opens_on_its_middle_slice_and_paints_with_the_mouse",
+        "test_drawing_on_side_views_interpolating_and_assigning",
+        "test_side_views_draw_with_the_brush_and_follow_the_main_tool"
+      ],
+      "result": "Actual Qt mouse events and exact independently indexed voxel assertions pass, not merely direct backend invocation."
+    },
+    {
+      "requirement": "Interpolate only between drawn sections; assign disconnected 3D objects; history/IDs",
+      "evidence": [
+        "test_interpolation_fills_only_the_gap_between_drawn_slices",
+        "test_assign_objects_splits_unconnected_parts_into_new_ids",
+        "test_painting_protects_other_objects_and_undo_restores_voxels"
+      ],
+      "result": "Exact arrays, independent labels/connectivity, undo/redo pass; current count-only correction additionally6PASS3.19s, parent accepted."
+    },
+    {
+      "requirement": "Publish small licence-checked FIB-SEM image+label example and build tool",
+      "evidence": [
+        "published-dataset-byte-proof.json",
+        "https://huggingface.co/datasets/einarolafsson/spacr-example-fibsem/tree/ab10f528913f3cad9aea2e678d91a2f430fa4b5b",
+        "https://www.ebi.ac.uk/empiar/about/"
+      ],
+      "result": "Public immutable revision contains exact25,221,120-byte existing archive, image/label array hashes match manifest,128x256x256/43instances,CC0 card and attribution. Z spacing assumption explicit; no new biological validation."
+    },
+    {
+      "requirement": "Both Load test data entries open blank/with labels; never overwrite ground truth",
+      "evidence": [
+        "test_the_menu_offers_the_volume_alone_and_with_masks",
+        "test_with_masks_opens_the_labels_for_correction_and_keeps_the_truth",
+        "test_a_missing_set_is_downloaded_then_opened"
+      ],
+      "result": "Real current MakeMasks widget/session; masks vs corrected_masks destinations and byte-for-byte original truth preservation asserted."
+    },
+    {
+      "requirement": "spacr-download fibsem registry/build/archive and mocked acquisition",
+      "evidence": [
+        "tests/test_692_fibsem_example_dataset.py",
+        "test_the_download_worker_targets_the_fibsem_repository"
+      ],
+      "result": "All5 build/registry/load/CLI tests pass at minimumPython3.9,fast,andcoverage; real archive fixtures and mocked transport, no new live network download."
+    },
+    {
+      "requirement": "Current English/nine-locale runtime/API closure, no freeze hold",
+      "evidence": [
+        "features/data/692_foreground_count_and_publication_state_2026-10-15/public-source-api-proof.json",
+        "features/data/692_foreground_count_and_publication_state_2026-10-15/scoped-api-proof.json",
+        "features/data/692_foreground_count_and_publication_state_2026-10-15/prior-runtime-audit-source-reuse.json"
+      ],
+      "result": "Existing parent normal8symbols/37blocks-per-locale333total receipt. Current GUI/demo exact owning bytes and engine only tr/prose-preserving count return; no new collector/generator repeated."
+    },
+    {
+      "requirement": "Dedicated N673/N692 FIB-SEM tutorial",
+      "evidence": [
+        "features/HANDOFF.md maintainer drop dated2026-10-12"
+      ],
+      "result": "DROPPED by maintainer; not an acceptance prerequisite and not reopened."
+    }
+  ],
+  "remaining_at_this_recorded_contract": [],
+  "limits": [
+    "No new tests/imports/app interaction/model/GPU/capture run",
+    "No native Windows/macOS renderer signoff, native speaker, or biological/scientific/general segmentation quality certification",
+    "N673 broader native desktop/anchor requests and fullrelease/fullCI remain separately tracked; not added to N692 original HOW TO KNOW IT WORKED",
+    "Historical2706 broad pass claim not used as acceptance proof; selected literal hosted results and exact source preservation used instead",
+    "Public dataset pin/readback is current metadata+matching preserved archive, not fresh end-to-end network downloader test"
+  ]
+}

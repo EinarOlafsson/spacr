@@ -2891,6 +2891,15 @@ MANUAL_UI: dict[str, dict[str, str]] = {
     # reviewed records, so it would override the zh_CN, hi, ko and is records
     # already written for this label.
     "Concentration": {"fr": "Concentration"},
+    # F370: reviewed scientific notation/names and a format-only scorecard
+    # template remain identical. Swedish also spells the metric Precision
+    # identically. These are review decisions, not inventory exclusions.
+    "F1 @ IoU 0.5": {code: "F1 @ IoU 0.5" for code in MODEL_SPECS},
+    "Dice": {code: "Dice" for code in MODEL_SPECS},
+    "{metric}: {value:.4f}": {
+        code: "{metric}: {value:.4f}" for code in MODEL_SPECS
+    },
+    "Precision": {"sv": "Precision"},
     # 316, 2026-09-29: the channel-sort dialog's No button and its no
     # column value are the same word in Spanish.
     "No": {"es": "No"},
@@ -4177,6 +4186,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "remote_execution.py")
     paths.add(ROOT / "spacr" / "install_cleanup.py")
     paths.add(ROOT / "spacr" / "model_zoo.py")
+    paths.add(ROOT / "spacr" / "utils.py")
     paths.add(ROOT / "spacr" / "attribution.py")
     paths.add(ROOT / "spacr" / "measure.py")
     paths.add(ROOT / "spacr" / "object_classifier.py")
@@ -4200,15 +4210,24 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                          if isinstance(node, ast.FunctionDef)
                          and node.name in diagnostic_owners]
         if path == source_root / "model_zoo.py":
-            # Only the shared acquisition policy owns translated runtime
-            # diagnostics; model metadata and other backend prose do not.
+            # Shared acquisition diagnostics and curated scorecard display
+            # text own captions; unrelated metadata and backend prose do not.
+            diagnostic_owners = {
+                "_ensure_catalogue_model_file", "_curated_scorecard_rows",
+                "_curated_scorecard_lines",
+            }
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
-                         and node.name == "_ensure_catalogue_model_file"]
+                         and node.name in diagnostic_owners]
+        if path == source_root / "utils.py":
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name in {"_resolve_cellpose_pretrained", "_choose_model"}]
         if path == source_root / "attribution.py":
             diagnostic_owners = {
                 "_cf_preserved_channels", "_cf_preserve_reference_channels",
                 "_counterfactual_sequences", "_counterfactual_report",
+                "_cf_structure_weight", "_cf_diffusion_strength", "_cf_structure_loss",
             }
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
@@ -4216,7 +4235,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
         if path == source_root / "embeddings.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
-                         and node.name in {"encoder_entry", "_mil_frame_from_db", "_mil_bags"}]
+                         and node.name in {"encoder_entry", "_mil_frame_from_db", "_mil_bags",
+                                           "_backbone_scorecards"}]
         if path == source_root / "measure.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)

@@ -228,8 +228,20 @@ def test_every_app_is_on_exactly_one_subject_tab_and_one_home_band():
     # Host–Pathogen adds an alpha assay under Toxoplasma.
     # 34 -> 39 on 2026-10-01, +5/-0, intended: item 634 (eb2201537) adds the
     # Trypanosoma, Leishmania, Giardia, virus and mammalian pages as alpha.
-    assert len(staged) == 39, (
-        f"{len(staged)} apps staged, not 39 — if that is intended, say so "
+    # Classify is affirmed stable; Toxoplasma explicitly declares stable.
+    # Those published signoffs reduce the existing staged count by two.
+    from spacr.qt import maturity
+    from tests.qt.test_app_maturity import _explicitly_declared_stable_builtins
+
+    assert maturity.AFFIRMED["classify_merged"][0] == "stable"
+    assert app_stage("classify_merged") == "stable"
+    assert "toxoplasma" in _explicitly_declared_stable_builtins()
+    assert app_stage("toxoplasma") == "stable"
+    for key in ("plasmodium", "candida", "trypanosoma", "leishmania",
+                "giardia", "virus", "mammalian"):
+        assert app_stage(key) == "alpha", key
+    assert len(staged) == 37, (
+        f"{len(staged)} apps staged, not 37 — if that is intended, say so "
         "here; the count is the user\'s list")
 
 

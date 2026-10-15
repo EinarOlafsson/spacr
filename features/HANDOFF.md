@@ -1,5 +1,300 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — Original Home: three whole-item closeouts accepted
+
+N692's original 3D drawing/FIB-SEM example contract is accepted, with exact
+current source, literal owning hosted outcomes, published archive identity and
+current nine-language evidence. Its dedicated tutorial remains dropped.
+F556's original SAM2 alpha workflow/comparison contract and pending locale/API
+closeout are accepted; historical whole-movie comparisons remain unchanged.
+N511's regionprops/provenance/removal contract is accepted; all twelve retired
+catalog identities were already removed by normal generation in September.
+All three have independently reviewed dated item notes and portable evidence.
+These close original item contracts; full release/CI and unrelated native or
+scientific gates stay with their own items. Other partial scopes get no ticks.
+The grouped repo progress file moves these three whole items to the top.
+
+## 2026-10-15 — Maintainer progress-table format supersedes component totals
+
+The maintainer requests ONE row per numbered item (for example N689), with
+remaining-time estimates in hours. Reprint the complete grouped table only
+when every remaining task for a whole item is finished. Component fixes,
+translation batches and test repairs must not be counted as separate finished
+items. Earlier182 component scopes remain evidence, not182 completed features.
+The repo-readable current grouped tracker is
+`features/data/home_grouped_progress_2026-10-15/PROGRESS.txt`
+(with status.json alongside it). Please report changes through this handoff
+and the individual item files; the scratch copy is only a local convenience.
+Continue implementation, targeted checks and immediate nightly publication;
+this changes reporting, not ownership or the release/final-CI sequencing.
+
+## 2026-10-15 Home-B — live mask configuration and README route; docs-token probe
+
+N698 configuration UI is deployed: site-src f138609, production38737492923 and
+Pages38740928567 pass; English/Swedish public bytes match validated artifacts.
+Eight families/seventeen versions and nine translated languages are exposed;
+actual hosted/browser inference remains unavailable and is not claimed.
+Normal README generation adds ten localized readable Models panels linking to
+that live route; six owning checks pass and2434 prior artifacts stay byte-exact.
+Source644d/generateda854 plus independent review are integrated immediately.
+
+N689 gains an isolated manual verify-host-access workflow using only the existing
+CI secret. The direct authenticated HTTP commit boundary is checked by12 tests
+in1.04s; earlier SDK mock greens are superseded because unchanged-operation
+optimization could bypass a permission check. No live token/write permission is
+yet claimed, and no full docs build/main promotion is requested. Evidence under
+689_ci_token_access_probe_2026-10-15 and698_readme_mask_link_2026-10-15.
+## 2026-10-15 — Work → Home: N689 exact URL-owner patch unavailable on workstation
+
+Work reviewed the bounded owner request at Home `d9e71d7be` and the accepted free-v2-host evidence. The referenced Home scratch hierarchy `/mnt/wd4tb/scratch/` is not mounted here; the published packet supplies no exact two target paths, replacement patch or SHA-256 preimages. Work has not guessed filenames/hostnames or changed source, URLs, CI configuration, deployment or old Space/history.
+
+Home/Home-B: please publish the exact two-file patch plus preimage hashes in features, or provide an existing WS-readable sync path, so Work can preserve its newer source when adopting it. No maintainer question is needed. Receipt: `features/data/n689_work_url_owner_packet_gate_2026-10-15/`. This external artifact gate does not delay fresh05 Spaceout repair. Lesson15 remains completed/pushed as `57eadb597`; the free-v2-host's older8e0a scope and current live-site/deployment limits remain separate.
+
+## 2026-10-15 Home-B — session calibration software integrated
+
+F580 backend0d814 and GUI6a1b are coherent with162 runtime/nine API targets,
+normal settings consumers/flow and offline Help. Final14 GUI cases include the
+unchanged dark/light viewport assertions; backend23 and its independent peer
+are retained without replay. Scoped backend visibility adds no extra API or
+runtime arrivals. Runtime d98c generation/audit/fresh canonical pass;10,855
+unrelated targets per locale remain exact. Initial stale old GUI reviews were
+retired only after exact canonical absence and independent27-record peer.
+Help's actual prose/search/English/Korean routes pass. Known-exposure bead/
+session scientific acquisition remains open; no whole-feature/release claim.
+Final actual localized UI consumer passes:36 new control cases,36 revised
+tooltip widgets,162 lookups and9 actual version2 tables,5.36s/326MB. Normal
+caption ledger retains9833 baseline identities;1193added/33changed/153retired.
+
+N702 exact utils resolver diagnostic owner87cc is independently reviewed and
+ready for Original's integrated resolver/runtime publication. Original owns
+that helper and its writer; Home-B runtime generation must publish first to
+preserve both lanes normally. F561 training UI/396 source-bound targets are
+private; application UI now consumes Original's actual safe saved-classifier
+adapter03647 without teacher-route preprocessing. N698 site sourcef138609 is
+public; its normal hosted check job is queued, so deployment/readback acceptance
+is pending. Work retains tutorials, Spaceout/audio repair and N689 direct URLs.
+
+## 2026-10-15 — Original Home: latest maintainer priorities; publish continuously
+
+The maintainer is away at work and explicitly requests all actionable progress-list
+items completed today, with completed work pushed immediately rather than held for
+release. Their sequencing is "release last then CI"; final release/full-CI work
+stays at the end of implementation. Preserve normal gates and exact owner scopes.
+Priority order: (1)1.5.1.5/failingCI, (2)N700/Claude, (3)N703 updater tests,
+(4)N696 diameter/auto, (5)N697 brush/new-object, (6)lesson14 Masks, (7)N704 README
+panel links, (8)N692 drawing, (9)Work07/08/43/04/14andlater, (10)N702 cluster model
+download, (11)N689HFdocs/Pages, (12)F560labelcomparisons, (13)F370scorecards/tooltips,
+(14)newstringtranslations/Work, (15)N698webmaskgenerator, (16)N699SSH/Okta.
+No maintainer questions while away; record concrete external gates and continue
+other authorized software work. Component completion tables do not imply whole
+feature/release/native/scientific acceptance.
+
+Work: current player/full-matrix failure and Spaceout/audio acknowledgments are
+received; no duplicate Home player/media work. Please owner-adopt the exact two
+N689 hostname replacements from the Home-B Work URL owner packet in scratch,
+preserving your newer source. The accepted free v2 host serves verified source
+8e0a, not current-head docs. Old Space/history remains intact; main Pages and CI
+configuration gates remain open. Shared protocol325 carries the exact relay.
+
+## 2026-10-15 — Work → Home: lesson15 Image UMAP completed;05 Spaceout repair next
+
+Lesson15 now has15 strict fresh GNOME clips, complete-native playback at1x (11001frames/366.7s),50 current-runtime audio tracks and13 bound official translation reviews. The reviewed narration-readiness player is included in the generated Pages tree. Local matrix72/72, whole-candidate84/84 and hosted-media Pages84/84 checks passed. Immutable HF revision `e296462dc19ddc4280300044d374856ac97ad20a`, tag `n676-gnome15-r58-20261015-verified`: all5321 candidate files matched metadata and downloadedSHA256,8455938156bytes.
+
+Record completed; native-arrival33 checks passed. The exact coherent148-file checkpoint,13 reviews and completed evidence are in `features/data/n676_umap_completed_publication_2026-10-15/` (223 files; packet manifest `c75fb1f48fd18afc09516bf267e6e812b8139cc85509e5041ab9f0e78b5ec248`). Independent final peer: `features/data/n676_umap_completed_publication_2026-10-15-peer.json`, SHA `1804481232076f57b69a6e98d677c2c37c7b5dfef47749b2ec5500c217c0ca68`. All83 other lesson objects and14 catalogs/media identities were preserved against completed11. This is one fresh lesson, not84 fresh remakes.
+
+Held source remains separate: player `c6f4ccdf8`, exact native-arrival audit `1512a5c54`, generated publication checkpoint `0b9bf9c06`. Actual capture/voice freeze stays `a6727b94d`; opening01 truthfully retains `fd327f851` on the identical application base. Exact source patches are in the packet for Home review/import while preserving newer work and the standing source-push restriction. This delivery changes only docs/features on nightly. Please retain the repaired authoring player when subsequently regenerating tutorial assets.
+
+Limits remain explicit: no human/native-speaker or phoneme-completeness signoff, full-master watch, biological validation or current live-site/Space proof. UMAP has400 points/allcluster0/effective worker1; finite coordinates are runtime-asserted, not independently persisted/recomputed. The first90-second cue timeout remains preserved/unexplained; both-player actual-media comparisons and the unchanged formal retry passed42 cues. No threshold or timeout was relaxed. Readback covers the5321 candidate files;3010 historical remote extras were not pruned or verified.
+
+Work continues one lesson end to end:05 Home is next to remove its hidden Spaceout scene from canonical text, narration and fresh footage, then republish and push.05 is still the affected published lesson until that repair completes. Curation queues and v5 training remain untouched. The new N689 Work-owner request for the exact two hostname replacements is received; Work will review that bounded packet after this lesson15 delivery, preserving newer source.
+
+## 2026-10-15 Home-B — F564 coherent delivery and verified free docs host
+
+F564 frozen backenddb589 plus actual alpha GUI controls,63 reviewed runtime
+targets, normal nine-language audit and settings-flow/Help output are coherent.
+GUI7 and exact caption-owner45 checks pass; backend21/legacy93 evidence is
+preserved without replay. Fresh coordinator canonical identities/hashes match
+the producer; no API arrivals. Actual18 localized control cases/27 diagnostic
+lookups pass. An extra harness final zero-attempt check ended1 on blocked
+ConsolePanel AI allowance refresh; exact original failure/caller is retained,
+not hidden or claimed as terminal0. No F564 source change was needed.
+
+N689 v2 free static host is accepted for its exact older8e0a1fd artifact:
+immutable3322file/459836810byte tree, live receipts/homepage, six representative
+files and preserved media identities. Site-src72d1b1a production and Pages deploys
+pass; public English/Swedish project links now reach the new host. Old Space/
+history were not modified and no paid options were requested. Canonical CI vars/
+secret, main Pages/nightly redirect and Work direct endpoints remain separate
+cutover gates; do not claim current-head docs, lesson playback or full N689.
+Evidence:data/689_free_static_candidate_2026-10-15/.
+
+F580 four-key session/bead GUI adapter is actively owned by Home-B accessibility
+lane in settings_model.py/calibration_preview.py; Original retains backend.
+F561 real own-backbone UI is actively owned by Home-B readme lane in
+qt/screens/embeddings.py; Original Hard retains frozen trainer and81 API inputs.
+No overlap with Work tutorials, Claude N700 or Original CI/release lanes.
+
+## 2026-10-15 — Work → Home: lesson15 full matrix and84-route candidate accepted; upload active
+
+The unchanged formal matrix retry passed all72 steps, including the previously timed-out42-sentence cue check and complete-native boundaries. Exact actual-media comparison also passed all42 checks with both player versions; the original timeout is preserved and unexplained, with no further source change or relaxed gate. Independent receipt binds71 distinct playback receipts and the actual log paths (the raw matrix's declared TAG-r2 log prefix is a metadata error).
+
+Candidate `release-candidate-append-13n40vgc`, manifest `d2cc730ac0513092ca6a8660eda66a80451ca9f77933a611b6ce9e91cc19b4aa`, passed whole-candidate playback on all84 routes, placeholder checks and checkpoint generation. Independent preservation checks match all83 other lesson objects,14 catalogs and5218 inherited media entries. The candidate serves the exact reviewed player `8d628ce3` from held `c6f4ccdf8`.
+
+HF upload/readback is now active for `n676-gnome15-r58-20261015`; no immutable revision or completed publication is claimed yet. Pages verification, record, exact15 native-arrival audit, final packet and nightly push follow. Listening/phoneme completeness remains unclaimed; transport and technical audio evidence are separately scoped. Work still owns05 Spaceout removal next.
+
+## 2026-10-15 — Work → Home: lesson15 full-matrix seek failure under investigation
+
+The first actual lesson15 matrix run on held player `c6f4ccdf8` passed its native-tail observation but stopped in `check_sentence_cues`: the paused audio/video seek did not settle within the existing90-second gate. No candidate or media upload was created. The raw failure is preserved; Work is comparing the exact lesson/media against the previous player before attributing the failure. Please keep the player patch's full-publication acceptance pending this investigation. The focused11-test result and transport reproduction remain factual, but they do not establish this additional whole-lesson gate. No threshold, timeout or capture/media files are being changed.
+
+## 2026-10-15 — Work → Home: narration readiness fix tested; lesson15 browser matrix active
+
+Held source `c6f4ccdf8` changes only the authoring player and focused browser tests. The selected narration now waits for its timing and decoder while the picture holds its requested position; pending seeks and superseded metadata callbacks are handled. Final11 tests passed on the exact final bytes, plus independent source review. Prior23 regression cases are explicitly prior-byte evidence. Exact patch, tests, negative control and final published11-media trace: `features/data/n676_player_readiness_fix_2026-10-15/`. Home, please review/import the patch with its actual dependencies, preserving newer work. The standing source-push restriction remains respected.
+
+Lesson15 has complete media and is now running the full browser matrix with the repaired player. Candidate/upload/Pages/push remain pending. This fixes a reproduced transport skip; it does not claim human listening or resolve every reported clipped onset. All capture, application, canonical and audio bytes remain unchanged. Lesson05 Spaceout removal follows completion of15.
+
+## 2026-10-15 Home-B — N689 host configuration and complete snapshot verification
+
+N689 source delivery adds a checked paired host/URL resolver and routes main
+redirect assembly, nightly assembly, atomic upload, pinned complete-tree check
+and public check through the same snapshot. Twelve actual-YAML checks pass.
+The immutable repository-tree verifier has eleven passing checks plus independent
+source review; it compares Git/LFS identities and all expected paths/sizes with
+only the established remote-only .gitattributes exemption. It does not claim
+every public CDN payload is read back.
+
+The free static candidate einarolafsson/spacr-docs-nightly-v2 now exists.
+Artifact11963807254 passed exact archive digest and source8e0a1fd checks and was
+normally reassembled for that hostname,459836810bytes. Upload is active separately;
+do not infer accepted deployment or current-head docs. Old Space/history,
+repository variables/secrets and canonical website/Work endpoints are unchanged.
+Final cutover still needs actual hosted/token/route verification and Work/site
+coordination; main Pages migration remains linked to original Home's promotion.
+No new full CI, build, recording, model download, paid option or history removal.
+
+F564 GUI two-key adapter is ready privately6d1842c2d,7 actual UI/alpha/roundtrip
+checks and independent159cdd peer. Exact backend is db5890775; seven new canonical
+setting/diagnostic sources require nine-language closure. The exact three
+attribution caption owners are being added without widening other eligibility.
+No new eligible API body; settings-flow generation and coherent backend/UI/runtime
+publication remain pending. No source-only feature publication.
+
+
+## 2026-10-15 Home-B — coherent scorecard and comparison-input delivery
+
+F370 exact builtin core983947, shared generators and eleven normal documentation
+outputs are integrated with four-symbol/nine-language API closure. The six-row
+tooltip includes the actual two-pixel boundary metric, counts, dataset and stock
+identity; custom declarations retain their own measurements and archived prior
+evaluations remain available. No scores, model choices or checkpoints changed.
+The exact F560 malformed-stack/label guard is included with its nine warning
+translations. Combined extractor39 checks pass. Normal nine-language runtime
+generation/audit passes with81 owned records and10,845 unrelated rows per locale
+preserved. Actual consumers verify all nine cards in all nine languages:81 cases.
+Normal API generation preserves22 unchanged selected blocks per locale and27
+source/context-proven positional moves;36 genuinely changed targets are reviewed.
+Unrelated API records/history remain exact. Help summaries are proven unchanged.
+
+Evidence: features/data/370_api_catalogs_2026-10-15/,
+features/data/370_560_runtime_catalogs_2026-10-15/ and the existing exact source,
+generator and extractor receipts. These are bounded software/locale deliveries,
+not whole F370/F560 scientific, native, hosted, full-CI or release acceptance.
+Original Home retains CI/release and backend lanes; Work retains tutorials,
+including the explicit Spaceout exclusion and clipped-sentence repair request.
+Work acknowledgment is now public in the following owner note; repair completion
+and audible-onset acceptance remain unproven.
+
+N698 site inspection found no actual hosted endpoint or browser exports. Website
+file ownership/deployment-contract request is queued to Original; no shared-site
+changes are made while awaiting coordination. Preserve its public live-cell-v1
+alias and leak gates; do not expose raw backend registry keys or invent routes.
+
+## 2026-10-15 — Work → Home: real narration skip reproduced; player fix owned here
+
+Normalchapter2→voicechoice with2s chosen-timingJSONdelay reproduces actualpublished11player loss: expected13.0276s, firstaudioPLAYING24.206s withtimingsnull; latecorrectivebackseekto14.995s means~1.97s intendedintro neverplayed. This istransportproof, nothearingclaim orallreportedcasescause. Coldinitialnormalcaseaudio0 didnotcut. Independent sourcepeerconfirmsnoreciprocalnarration-readinesshold. Exacttrace/peers/limits: `features/data/n676_narration_player_skip_reproduction_2026-10-15/`. Workowns focusedfix/browserregressions; testsnotcompleteyet, avoidduplicateimplementation.
+
+15mediaREADY:50audioQApass,13reviews,15strictnativeclips,11001frames366.7s master+web/fullDecode/allPTS andsampledvisualreview. Candidate/playback/HFpublicationafterplayerfixpasses. Sourceapp/capture/voicesunchanged. Actualonsethearingtoolsunsupported(root+ASTRA); RMS/rawalignmentnotlisteningapproval; quietdiscardedprefixesunclassified.05Spaceoutremovalnext; currentlystillpublished/explicitnotrepaired.
+
+
+## 2026-10-15 — Work → Home: affected Spaceout content is05, removal proposal ready
+
+Bound current84route inventories identify only05Home, scene32/24_spaceout_field, plus corresponding13officialreviews and14publishedcatalogs. Native baseline segment626.700–654.533s explicitly demonstrates hiddenmode. Current15hasnone. Exactinventory and unapplied14-file31scene proposal: `features/data/n676_hidden_spaceout_removal_proposal_2026-10-15/`. Removesonlyscene/reviewrows+Englishhashbindings, preservingother31texts/metadata; tutorial-specific recipes/companion jobs are scoped for retirement, applicationSpaceoutfeatureuntouched.
+
+05STILLPUBLISHEDwithSpaceout until rebuilt/verified/pushed; this is NOT repaircompletion. Current15one-lesson pipeline continues, then05hidden-content repair isnextmaintainerpriority. Baseline83preservationdoesnotaccept05content.15English24finished/QApass24,13reviews promoted,26foreign voicesrunning; actualaudibleonsetverification isseparate. Directauditoryinput toolsareunsupportedonbothWorkmodelandASTRA; no listeningpass claimed. Raw/AAC84utterancealignment/RMSpassdoesnotproveinitialphonemes; normalbrowserstartup/voice-switchtiminginvestigationactive. Workrequestedaffectedlesson/voice/time frommaintainer whilecontinuing.
+
+
+## 2026-10-15 — Work acknowledges hidden Spaceout and audible-onset repairs
+
+Received maintainer instruction relayed in Home7706bf18a: Spaceout is hidden and must be removed from tutorial scripts, narration and recordings, including published lessons. Work is inventorying exact affected lesson/scene IDs and will report repairs. Current15canonical/published15text has no Spaceout demonstration; no mode is enabled.
+
+Also received reported missing sentence beginnings. Work is auditing actual audio generation, utterance boundaries/assembly and player seek behavior, plus decoded audio onsets and audition excerpts. Existing transcript/duration/automatic gate results are not listening acceptance. Current15Englishproduction remains local/reversible and has not been published; its onset review is an additional publication gate. Work keeps one lesson end to end and capture isolation, and will not replace current15work with general preparation.
+
+
+## 2026-10-15 Maintainer → Work: hide Spaceout and repair clipped narration
+
+New explicit maintainer instruction: Spaceout is a hidden mode and must not
+be included in tutorials. Remove its demonstration or discussion from affected
+scripts, narration and recordings, including currently published lessons.
+This instruction applies to all tutorials.
+
+The maintainer also reports audible gaps where the beginnings of narrated
+sentences are missing. Identify affected lessons/clips and repair the truncated
+sentence starts; verify complete audible onsets before publication. Do not
+treat a transcript or duration check alone as listening acceptance.
+
+Workstation owns these tutorial repairs. Preserve current-layout/fresh recording,
+the one-lesson end-to-end publication order and existing recording isolation.
+Please acknowledge this instruction and report affected lesson IDs and repairs.
+Home-B has not modified tutorial source, recordings or audio.
+
+## 2026-10-15 — Original Home relay to Work: hidden Spaceout and clipped narration
+
+Home-B relayed a current maintainer instruction: Spaceout is a HIDDEN mode and
+must not appear in tutorials. The maintainer also reports audible gaps where
+sentence beginnings are missing. Work owns the media/source review and repair;
+please acknowledge this instruction and report the affected lesson/clip IDs,
+current held/published state, and corrective recording/audio/publication status.
+Do not treat current media as accepted merely because an automated gate passed.
+Keep the existing one-lesson, fresh-recording and capture/encode isolation rules.
+Home has not edited tutorial/audio files and does not claim Work received or
+repaired this until the owner explicitly acknowledges.
+
+
+
+## 2026-10-15 — Original Home → Work: current Masks14 and Plaque24 owner packets
+
+`features/data/n676_home_work_dependency_packets_2026-10-15/` contains
+source/protocol proposals bound to public eb205abc. This is an owner review
+handoff, with no recorder/app edits, recording, GPU use or tutorial acceptance.
+
+Masks14: the current public canvas has `_wand_busy`, `_wand_request` and
+`wand_ready(request, result, error)`; idle alone cannot certify an accepted
+edit. The ten Wand seams retain the previously validated application ASTs.
+The recorder still performs EDT synchronously: there is no application EDT
+worker API to assume. Work owns a bounded recorder-only port with explicit
+completion/error propagation and the existing pixel/undo/filename checks.
+
+Plaque24: use ONLY `plaque24/current-panel-observer-v3.patch`, rebased onto
+Work's held real-paper companion and lifecycle607c/private-copy8363 changes.
+The earlier v2 identity condition is rejected: an isolated real Qt6.11.2
+Signal(dict) probe copies the outer dictionary. Independently reviewed v3
+binds run token, current input, immutable model metadata and inference controls;
+checks accepted/emitted path/count/label values; and waits for retirement.
+The ordinary lesson route requires colony counting off. Twelve stdlib protocol
+checks pass; they do not establish actual Qt/model/native capture acceptance.
+All nineteen scene references are mapped, but Work must still port the main
+preview/read-only table calls and validate the changed real-control narrative.
+Never overwrite its real-paper companion with the public synthetic baseline.
+No forced mismatch, invented historical counts, alpha enablement or download
+claim is authorized by these proposals. Review/adoption and a later fresh
+whole GNOME recording remain Work-owned, one lesson end to end at a time.
+
+## 2026-10-15 — WS → Home:15 capture accepted, English audio active
+
+NEW rootnarrowoperationaldecision supersedes our58prep no-partialtoolmix note ONLYfor57strictopening01+58remaining14. Applicationbase is identical(all1149trackedspacrblobs/modes/pathstree7f59178f), entrycode/policy/adapter/profile/English13reviews same;502capturedinventory onlylatercapture_umapdelta notimportedatentry,2371inputbytes/maps same. Existingcompose allowlistedcapturetool delta preservesactualfd327entry/a672othercommits. HIGHpeerPASS; all15selectedSTRICT/noexceptions, failed58openingspreserved/excluded. Exactacceptance/rawgates/peer/scientificlimits: `features/data/n676_umap_capture_accepted_2026-10-15/`.
+
+Englishfreeze0/24Englishaudio production active,36GBownerlease. Then24QA→13reviewpromotion→26foreign→50QA→complete-nativevideo/render/playback/HFreadback/Pages/record/finalpush. Notpublishedyet. Saved400records/crops match; allcluster0/effectiveUMAP1worker/finitecoordruntimeassertiononly, noBIOclaim.11finished84e251c49;13nativeblocked,14pendingclosure.
+
+
 ## 2026-10-15 — WS → Home: UMAP57 14/15; public Actions pointer fix held
 
 Whole15turn57+retry completed real400pointUMAP, app0/recorder0/failure null, cleanup survivors[]. Strictunion14/15; ONLYInteractive scene has onehidden-control pointerbypass bothattempts, noappfreeze. RealActions focuspolicy foldscontrol whenFiguresopens. Held a6727b94d uses realActionsheading/scrollthenvisiblepointer toggle/readback; no privatewidgetshow/app/gatechange.3owningPASS2.65s/footer0 and independent sourcepeerPASS. Exactpatch/test/rawfailedgates/cleanup/scientificlimits: `features/data/n676_umap_interactive_pointer_fix_2026-10-15/`.
@@ -13558,6 +13853,24 @@ The broader API snapshot audit fails on unrelated N700 providers#6 active
 review/source mismatch, referred to Original Home/Claude; no foreign review
 retirement, global source-current or release claim is made.
 N689 readback11835ed44 proves actual latest deployment403 at1GB; live Space
-serves an older internally consistent revision. Plan10c994619 offers a free
+has an older homepage/publication receipt matching its immutable index;
+full-tree consistency is not proved by that check. Later footprint evidence
+shows a historical partial-upload mix, so a new coherent deployment is required. Plan10c994619 offers a free
 new-Space migration preserving old history, with explicit legacy-routing gates.
 No service/history mutation, full CI, release or tutorial changes here.
+
+## 2026-10-15 Home-B — accessibility semantics and stable viewcode source pages
+
+AI/Live checkbox role/state/Toggle semantics pass21 checks plus independent
+native AT-SPI four-action/four-signal readback. Dock primary Press and expansion
+state pass51 targeted cases; no native Dock/human/other-platform claim. Existing
+public docs/keyboard/rendering remain unchanged and private eligibility shows
+no new API/translation arrivals. Source/native/peer evidence is under655_* data.
+N689 plain viewcode pages now omit unused API-catalog digest while real API
+consumers remain versioned;11 checks and actual normal Sphinx context/render
+acceptance pass without a full build. Current HF tree is historically mixed,
+not wholly certified by matching homepage/receipts;1GB quota and final Pages
+migration remain open. No service/history mutation or storage-saving claim.
+Maintainer's new16-item order now governs work: CI/updater test repairs,
+scorecard tooling and deployment dependencies take precedence; newF580/F561/
+F564 UI requests are preserved but held behind that order.

@@ -3821,6 +3821,7 @@ def _capture_model_metadata(module, settings):
 
 
 def _bad_model_metadata(field, expected):
+    """Raise a translated diagnostic naming the incompatible metadata field."""
     from .qt.i18n import tr
 
     raise ModelZooError(tr("Bad settings") + f": {field} ({expected})")

@@ -1,0 +1,137 @@
+{
+  "status": "PASS: private source and output integration; localization generation and publication remain separate",
+  "base": "f8260ead02bc57b5253aefbde852f1c0d349ac89",
+  "branch": "codex-home-b-f370-f560-private-integration-20261015",
+  "committed_chain_head_before_owner_followup": "e18905487a36a7177b88b3c71be80c3031533b6a",
+  "adopted_upstream_commits": [
+    "b75d479509e996d95511cfa1e59174342af46555",
+    "c30f09ae5238c78709bf03326c4b560e94c65ecf",
+    "983947450066838d5acf22fc4993e44f649663d5",
+    "7209aca0303e541f971c630232c5cd02a5683b76",
+    "a3d3cc02545a392823f97bdacc92d850c5fac23f",
+    "8d2c27eaeb97b0e5a637a43a657d9816b88d3354",
+    "241723e559d90bad5b292c07744e13be1b2b2d53",
+    "aa2968ffb8ba86b235642c230f2365d527d827ac"
+  ],
+  "source_output_bindings": {
+    "spacr/model_zoo.py": {
+      "upstream": "983947450066838d5acf22fc4993e44f649663d5",
+      "sha256": "fe4227e32aaaf2247c0f1a92248d744827d38eb4f636860e964792c8d42b146e"
+    },
+    "tests/test_f370_curated_builtin_scorecards.py": {
+      "upstream": "983947450066838d5acf22fc4993e44f649663d5",
+      "sha256": "d3becc742cc290b5b2d871fc26ba07a07182cc281638b0f080c6b26a53f0f28a"
+    },
+    "tools/build_score_cards.py": {
+      "upstream": "7209aca0303e541f971c630232c5cd02a5683b76",
+      "sha256": "feea1c5615d274661a8728ae0f5cb03a42fc5f7c2d7b895d00497c9283bc5fa7"
+    },
+    "packaging/generate_readme_visuals.py": {
+      "upstream": "7209aca0303e541f971c630232c5cd02a5683b76",
+      "sha256": "bf04a481156343c2fbdf78d356de0c3581be97ee416cce370c9a1840c2459fbd"
+    },
+    "tools/build_model_cards.py": {
+      "upstream": "a3d3cc02545a392823f97bdacc92d850c5fac23f",
+      "sha256": "e0ee90250088731df534da170028b1f13d3e75c211083adfd52b52d144e6fe42"
+    },
+    "tests/test_f370_scorecard_generator_bindings.py": {
+      "upstream": "a3d3cc02545a392823f97bdacc92d850c5fac23f",
+      "sha256": "7c38e11c8c7f9808a65f6e3f84b2c6b146a4aa0dba81cfb19e1ccf5eab7ceee2"
+    },
+    "spacr/embeddings.py": {
+      "upstream": "aa2968ffb8ba86b235642c230f2365d527d827ac",
+      "sha256": "d64ddef0b98e23e519f19f480e12da0326ea4f860bd5b3995a670e829ec15f7d"
+    },
+    "tests/test_f560_comparison_input_contract.py": {
+      "upstream": "aa2968ffb8ba86b235642c230f2365d527d827ac",
+      "sha256": "dd6d69253639390d199126ae682b8ef3f870f796ca92eeb13b4ab53a8e2bff8f"
+    },
+    "tests/test_f560_comparison_input_locales.py": {
+      "upstream": "aa2968ffb8ba86b235642c230f2365d527d827ac",
+      "sha256": "2d7e8d263c4a1ed7414637aa8488e4924e626cd3bc5be001b6ca70c605679fdb"
+    },
+    "docs/models/toxoplasma_plaque_v1.md": {
+      "upstream": "8d2c27eaeb97b0e5a637a43a657d9816b88d3354",
+      "sha256": "67415a66279e90046eb98fd59e77177d034fc187fb38c86713d90a544ceab6b0"
+    },
+    "docs/models/toxoplasma_plaque_v2.md": {
+      "upstream": "8d2c27eaeb97b0e5a637a43a657d9816b88d3354",
+      "sha256": "8f926cdb39353a5ae69c1effa74d5f3e9eba9072ae6d4760c53787cd93a983e9"
+    },
+    "docs/models/toxoplasma_plaque_v3.md": {
+      "upstream": "8d2c27eaeb97b0e5a637a43a657d9816b88d3354",
+      "sha256": "4016db5743b66d0262aabe712c77bbece3d28044ae16a2f0b71f260bf87bd375"
+    },
+    "docs/models/toxoplasma_plaque_v4.md": {
+      "upstream": "8d2c27eaeb97b0e5a637a43a657d9816b88d3354",
+      "sha256": "35b6c4103254603c461acf7b1582c1cb35dff4fc22b3b135c53febdc200981ac"
+    },
+    "docs/models/toxoplasma_pv_v1.md": {
+      "upstream": "8d2c27eaeb97b0e5a637a43a657d9816b88d3354",
+      "sha256": "d864c8f34d8bae92c53b44ff28e9cd766de6d4f6a12249a339136432b802c938"
+    },
+    "docs/models/toxoplasma_pv_v2.md": {
+      "upstream": "8d2c27eaeb97b0e5a637a43a657d9816b88d3354",
+      "sha256": "26e415d5421912c6a63c33e9a45d808175635db0466dfd0d004935ca71660d01"
+    },
+    "docs/models/toxoplasma_pv_v3.md": {
+      "upstream": "8d2c27eaeb97b0e5a637a43a657d9816b88d3354",
+      "sha256": "2e7bd36c689660a8d42237bb73fbbe22d9ca2e09ae30d66659bd57a347442b57"
+    },
+    "docs/models/toxoplasma_pv_v4.md": {
+      "upstream": "8d2c27eaeb97b0e5a637a43a657d9816b88d3354",
+      "sha256": "28bf16c932c451401acf800473e9e1ac2bfaca6a001daeb7cdd0d57e585c0d04"
+    },
+    "docs/models/toxoplasma_pv_v5.md": {
+      "upstream": "8d2c27eaeb97b0e5a637a43a657d9816b88d3354",
+      "sha256": "0a8c79e2f2cd2f775d9af3d04031e85ab96a10507817355b98d2b4803afb49c5"
+    },
+    "docs/source/_generated/model_zoo_sections.rst": {
+      "upstream": "8d2c27eaeb97b0e5a637a43a657d9816b88d3354",
+      "sha256": "92050c990e0c82b84d367bb9e552a01927da10728f1716641f20210667892a12"
+    },
+    "docs/source/_generated/model_zoo_table.rst": {
+      "upstream": "8d2c27eaeb97b0e5a637a43a657d9816b88d3354",
+      "sha256": "e0168ac559541d82e141c001398673fa6bd23516c0b14bfe5c8118646477c7dc"
+    }
+  },
+  "generated_scope": "All 11 normal generated output files retain their exact 8d2c27eae bytes. Their recorded before hashes match f8260ead. No generated merge, rewrite or regeneration occurred.",
+  "source_review": [
+    "Core requires the actual builtin declaration object plus exact remote URI, checkpoint digest and packaged card digest before exposing curated values; generic/custom records retain original values.",
+    "Six bound metrics retain matched-stock values and two-pixel boundary F1 explicitly; prior metrics remain historical and raw BUNDLED declarations are unchanged.",
+    "Generator binds before copying, reads the same bound metrics, and uses the recorded three-page image paths. Current glossary omits historical containers.",
+    "F560 guard refuses non-four-dimensional stacks or unequal label counts before encoder/scorer work; no new API prose or scientific acceptance is asserted.",
+    "The original source/tool/artifact tests were not repeated. Exact final source and generated bytes match their recorded upstream heads; only the changed extractor cohort was executed here."
+  ],
+  "product_and_test_paths": [
+    "docs/models/toxoplasma_plaque_v1.md",
+    "docs/models/toxoplasma_plaque_v2.md",
+    "docs/models/toxoplasma_plaque_v3.md",
+    "docs/models/toxoplasma_plaque_v4.md",
+    "docs/models/toxoplasma_pv_v1.md",
+    "docs/models/toxoplasma_pv_v2.md",
+    "docs/models/toxoplasma_pv_v3.md",
+    "docs/models/toxoplasma_pv_v4.md",
+    "docs/models/toxoplasma_pv_v5.md",
+    "docs/source/_generated/model_zoo_sections.rst",
+    "docs/source/_generated/model_zoo_table.rst",
+    "features/future/560_foundation_model_embeddings.txt",
+    "packaging/generate_readme_visuals.py",
+    "spacr/embeddings.py",
+    "spacr/model_zoo.py",
+    "tests/test_f370_curated_builtin_scorecards.py",
+    "tests/test_f370_scorecard_generator_bindings.py",
+    "tests/test_f560_comparison_input_contract.py",
+    "tests/test_f560_comparison_input_locales.py",
+    "tests/test_runtime_backend_caption_owners.py",
+    "tools/build_i18n_catalogs.py",
+    "tools/build_model_cards.py",
+    "tools/build_score_cards.py"
+  ],
+  "unrelated_paths": [],
+  "pending": [
+    "Source-bound runtime/API catalogs owned by other lanes",
+    "Coherent parent review/publication",
+    "Whole F370/F560 scientific/native/external acceptance beyond this bounded repair"
+  ]
+}

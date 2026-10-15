@@ -1,0 +1,134 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical authoring; independent technical peer required; no native-speaker acceptance",
+  "note": "Exact eighteen owner sources; normal scoped source-context gates, no catalog generation. Backend API scope is separate.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "intensity_calibration_sessions",
+      "source": "Intensity calibration sessions",
+      "source_sha256": "16b22df97d123d7674258d42bc21da15ae7232c29b23899e0a3418f6f9b9a8fe",
+      "translation": "Sessões de calibração de intensidade"
+    },
+    {
+      "table": "setting_labels",
+      "key": "intensity_calibration_session_column",
+      "source": "Intensity calibration session column",
+      "source_sha256": "a80d3d9f2420d69bb745368d3c92f8f7f938c0cb4e63bb86ea252c3f9a5ed2eb",
+      "translation": "Coluna de sessão de calibração de intensidade"
+    },
+    {
+      "table": "setting_labels",
+      "key": "intensity_calibration_beads",
+      "source": "Intensity calibration beads",
+      "source_sha256": "9405b6cf24464bb4fba30c4c001fbc0a4b3cff51bed895c949e2a2f4846bbb55",
+      "translation": "Microesferas de calibração de intensidade"
+    },
+    {
+      "table": "setting_labels",
+      "key": "intensity_calibration_reference_session",
+      "source": "Intensity calibration reference session",
+      "source_sha256": "ed04bcb0bb822b28e89d54883a66d62e641810b2cfd4a057064e456b5996ec90",
+      "translation": "Sessão de referência de calibração de intensidade"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_sessions",
+      "source": "Optional local CSV assigning acquisition sessions independently of plates. Use an exact filename column, including each merged NPY or selected reference TIFF/NPY suffix, and the selected session column. Every current sample and reference file must have one unique nonblank assignment. Blank keeps one session per plate. Default blank.",
+      "source_sha256": "08cd55779c5d03d76acb25963de2544f9d2c394d7d47e26477fab05176208ef1",
+      "translation": "CSV local opcional que atribui sessões de aquisição independentemente das placas. Use uma coluna com o nome exato \"filename\", incluindo a extensão de cada arquivo NPY mesclado ou TIFF/NPY de referência selecionado, e a coluna de sessão selecionada. Cada arquivo atual de amostra e referência deve ter uma única atribuição não vazia. Em branco mantém uma sessão por placa. Padrão: em branco."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_session_column",
+      "source": "Exact column name in the sessions CSV that identifies an acquisition session. All fields in a session share reference gains and must use compatible measurement intensity planes and working units. Default session.",
+      "source_sha256": "e4e76ffd9698db5dad44fc412796a9a544b030b92022d9a23e320aece366b753",
+      "translation": "Nome exato da coluna no CSV de sessões que identifica uma sessão de aquisição. Todos os campos de uma sessão compartilham ganhos de referência e devem usar planos de intensidade de medição e unidades de trabalho compatíveis. Padrão: session."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_beads",
+      "source": "Optional local folder of bead or reference-well images, replacing reference images inside the measured folder. Filenames keep the plate, well and field identity; selected reference wells still apply. NPY files use the merged channel and mask layout. TIFF files contain only intensity channels with explicit spatial and channel axes. No time or ambiguous page-axis interpretation is guessed. Default blank.",
+      "source_sha256": "73a0d10ebfa1f4fa976b485f6275a53b64153fe953b1e69a00e27a788573d4a8",
+      "translation": "Pasta local opcional de imagens de microesferas ou poços de referência que substitui as imagens de referência dentro da pasta medida. Os nomes dos arquivos mantêm a identidade da placa, do poço e do campo; os poços de referência selecionados continuam sendo aplicados. Arquivos NPY usam a disposição mesclada de canais e máscaras. Arquivos TIFF contêm apenas canais de intensidade com eixos espaciais e de canal explícitos. Nenhuma interpretação de tempo ou de eixos de páginas ambíguos é inferida. Padrão: em branco."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_session",
+      "source": "Exact acquisition session identifier to use as the gain reference. Blank uses the first session by name, or the sole session on the explicitly selected reference plate. If both plate and session are selected they must agree. A plate assigned to multiple sessions requires this choice. Default blank.",
+      "source_sha256": "4351129f2ba4044916e605f3724ac2e771b2e9b8b02ecc3fe7fa0de278c44a87",
+      "translation": "Identificador exato da sessão de aquisição a usar como referência de ganho. Em branco usa a primeira sessão por nome ou a única sessão na placa de referência explicitamente selecionada. Se placa e sessão forem selecionadas, devem corresponder. Uma placa atribuída a várias sessões exige essa escolha. Padrão: em branco."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration",
+      "source": "Calibrate intensities before measuring, using beads or reference wells acquired in each imaging session. By default each plate is a session. An optional sessions CSV assigns fields independently of plates; an external bead folder can supply the reference images. Gains match the selected reference session or plate; blank choices keep the first-by-name default. The existing camera-offset gain method is unchanged. Gains and reference content identities are recorded in measurements.db:intensity_rescale. Default False.",
+      "source_sha256": "702ffd4ce775c916ec9780f57ae711c3a9f5356166e5e4746492b2c53f594a86",
+      "translation": "Calibra intensidades antes da medição usando microesferas ou poços de referência adquiridos em cada sessão de imagem. Por padrão, cada placa é uma sessão. Um CSV de sessões opcional atribui campos independentemente das placas; uma pasta externa de microesferas pode fornecer as imagens de referência. Os ganhos são ajustados à sessão ou placa de referência selecionada; escolhas em branco mantêm o padrão da primeira por nome. O método existente de ganho com deslocamento da câmera permanece inalterado. Os ganhos e as identidades do conteúdo de referência são registrados em measurements.db:intensity_rescale. Padrão: False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_wells",
+      "source": "Wells holding the same calibration sample in each acquisition session, such as ['A01'] or ['A01', 'P24']. References come from the selected external bead folder, or otherwise the measured merged folder. Every measured session must have a usable reference field. In-source reference wells are measured like any other well. Default None.",
+      "source_sha256": "ba442ddfeee750ee95bef3aa8d84e5695c94f2096ea9f60ae249b4f71e479075",
+      "translation": "Poços com a mesma amostra de calibração em cada sessão de aquisição, como ['A01'] ou ['A01', 'P24']. As referências vêm da pasta externa de microesferas selecionada ou, caso contrário, da pasta mesclada medida. Cada sessão medida deve ter um campo de referência utilizável. Poços de referência na fonte são medidos como qualquer outro poço. Padrão: None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_plate",
+      "source": "Exact reference plate identifier from merged filenames, such as plate2. Without a sessions CSV, blank keeps the first plate by name. With explicit sessions, this plate must belong to one session, or pair it with an exact reference session on that plate. The selected plate must be present in the measured run. Default blank.",
+      "source_sha256": "dbd6b6c5b747713e74988222d44808553c5a5457fff552940411b2be58f6b405",
+      "translation": "Identificador exato da placa de referência nos nomes dos arquivos mesclados, como plate2. Sem um CSV de sessões, em branco mantém a primeira placa por nome. Com sessões explícitas, essa placa deve pertencer a uma única sessão ou ser combinada com uma sessão de referência exata nessa placa. A placa selecionada deve estar presente na execução medida. Padrão: em branco."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_statistic",
+      "source": "How each reference field intensity is summarised after subtracting intensity_calibration_offset. foreground is the median above Otsu for sparse beads on a dark background; median uses all pixels for a uniformly stained reference well. Each acquisition session uses the median over its reference fields. Default foreground.",
+      "source_sha256": "960f87000ab4e94953da9a190fbe089940b308f47b3d55857caf2e231cf370fe",
+      "translation": "Como a intensidade de cada campo de referência é resumida após subtrair intensity_calibration_offset. foreground é a mediana acima do limiar de Otsu para microesferas esparsas em fundo escuro; median usa todos os pixels de um poço de referência uniformemente corado. Cada sessão de aquisição usa a mediana dos seus campos de referência. Padrão: foreground."
+    },
+    {
+      "table": "ui",
+      "key": "A selected plate and session must agree; a plate with multiple sessions requires an explicit reference session.",
+      "source": "A selected plate and session must agree; a plate with multiple sessions requires an explicit reference session.",
+      "source_sha256": "c6967ffcf38f504cda53950e761e763ddab2cbebd105941a106d50a6a1c4f767",
+      "translation": "A placa e a sessão selecionadas devem corresponder; uma placa com várias sessões exige uma sessão de referência explícita."
+    },
+    {
+      "table": "ui",
+      "key": "Calculate reference gains without running Measure or changing files.",
+      "source": "Calculate reference gains without running Measure or changing files.",
+      "source_sha256": "be4a09ad55655e55ce64049fb3e9a870bfb7b1cff2d6463b6c7bca4a9e8e0f1e",
+      "translation": "Calcular ganhos de referência sem executar Measure nem alterar arquivos."
+    },
+    {
+      "table": "ui",
+      "key": "Gains use the camera offset and selected reference wells or external reference images; images and measurements are unchanged.",
+      "source": "Gains use the camera offset and selected reference wells or external reference images; images and measurements are unchanged.",
+      "source_sha256": "973e2a3ce64774cc9df8ce115a18b5695832b3f076087394cebd6465c43423d0",
+      "translation": "Os ganhos usam o deslocamento da câmera e os poços de referência selecionados ou imagens de referência externas; imagens e medições permanecem inalteradas."
+    },
+    {
+      "table": "ui",
+      "key": "Reference session",
+      "source": "Reference session",
+      "source_sha256": "d1d160f73ec75460812a8bf9d281186be164e58b4d78b99197ab97dd0e50e83d",
+      "translation": "Sessão de referência"
+    },
+    {
+      "table": "ui",
+      "key": "With session inputs, leave the reference session blank to use the first session by name, or the only session on the selected reference plate.",
+      "source": "With session inputs, leave the reference session blank to use the first session by name, or the only session on the selected reference plate.",
+      "source_sha256": "f8bc368ce01c00cae1bea2b07fc8bf3ad23d1eda0f5a12bb1a104458a9205643",
+      "translation": "Com dados de sessão, deixe a sessão de referência em branco para usar a primeira sessão por nome ou a única sessão na placa de referência selecionada."
+    },
+    {
+      "table": "ui",
+      "key": "Without session inputs, the selected reference plate is used; leave it blank to use the first plate by name.",
+      "source": "Without session inputs, the selected reference plate is used; leave it blank to use the first plate by name.",
+      "source_sha256": "614932f4055382a3a955146471454b82d2a214a2d72613bf1e586901a3e54a85",
+      "translation": "Sem dados de sessão, a placa de referência selecionada é usada; deixe em branco para usar a primeira placa por nome."
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "status": "PASS",
+  "base_commit": "897582f2ea64b9acecf22599ea9a0c3bbbd9747b",
+  "source_commit": "6a1b51bfd7",
+  "module": "spacr.qt.widgets.calibration_preview",
+  "source_file_sha256": "699605f2d1e8b4d8d1d2d0c42a9a79373a3e95bdddd5055f456a3c8c8267b94d",
+  "source_body": "Read-only preview of Measure's plate and acquisition-session calibration plans.",
+  "normal_functions": [
+    "_clean_doc",
+    "reviewed_api_block_translations",
+    "_translate_api_documents(reuse_history=False)",
+    "write_language(preserve_other_symbols=True)",
+    "_write_english_api_manifest"
+  ],
+  "history_choice": "The entire single module block has a current exact review, so no historical paragraph is needed; unrelated records and complete history bytes remain exact.",
+  "english_foreign_records_preserved": 13494,
+  "history_bytes_preserved": true,
+  "guard_calls": {
+    "runtime_collector_requests": 0,
+    "api_collector_requests": 0,
+    "model_decode_requests": 0
+  },
+  "locales": {
+    "sv": {
+      "reviewed_target_exact": true,
+      "foreign_records_preserved": 13420,
+      "metadata_preserved": true,
+      "catalog_sha256": "e6aa89d10f5449e986f541328703112b5517293bd82e83952297f6f63e887728"
+    },
+    "de": {
+      "reviewed_target_exact": true,
+      "foreign_records_preserved": 13420,
+      "metadata_preserved": true,
+      "catalog_sha256": "71069a1252da19ea941be20427a67b9e6282eb8f0aac0aa2ad3ac98cb586e75f"
+    },
+    "es": {
+      "reviewed_target_exact": true,
+      "foreign_records_preserved": 13420,
+      "metadata_preserved": true,
+      "catalog_sha256": "952b5f175167d3bb787beb13c2401bf022d18dc62f595a1061d220fe6b1a5b03"
+    },
+    "zh_CN": {
+      "reviewed_target_exact": true,
+      "foreign_records_preserved": 13420,
+      "metadata_preserved": true,
+      "catalog_sha256": "6358918d76364d4bba73d55f4cce4b45696f60dbb45f267b531f6492389f2a5d"
+    },
+    "pt": {
+      "reviewed_target_exact": true,
+      "foreign_records_preserved": 13420,
+      "metadata_preserved": true,
+      "catalog_sha256": "be26467185f75888eaa26301ea270f486b0a01c09124e4c346707a572f60e7ac"
+    },
+    "hi": {
+      "reviewed_target_exact": true,
+      "foreign_records_preserved": 13420,
+      "metadata_preserved": true,
+      "catalog_sha256": "d2fb9ecf0ab4e1161550d050600a5a08644875ee60b61371ed6ce3de815f7a93"
+    },
+    "ko": {
+      "reviewed_target_exact": true,
+      "foreign_records_preserved": 13420,
+      "metadata_preserved": true,
+      "catalog_sha256": "bfc9a815d83bea8bba62eca980d1ca2186a2e1c0518649a1096950faa345418a"
+    },
+    "is": {
+      "reviewed_target_exact": true,
+      "foreign_records_preserved": 13420,
+      "metadata_preserved": true,
+      "catalog_sha256": "3c1c7f46ac5de51790a8a0af51ad934b33326b22eb18108341f6b6ac7dd4c29a"
+    },
+    "fr": {
+      "reviewed_target_exact": true,
+      "foreign_records_preserved": 13420,
+      "metadata_preserved": true,
+      "catalog_sha256": "799e7383c3e395d97b2b6e513afb2de46ffd1db9d83a5def6f2774fd659deab4"
+    }
+  },
+  "scope": "One existing module in ten API catalogs; current source claim only for the exact owner module. No runtime/catalog-arrival/UI-behavior/scientific/native publication claim."
+}

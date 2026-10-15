@@ -1,0 +1,14 @@
+{
+  "source_sha256": "c85c21338da4f6ce28254000d55b6e0209a1b1a3a34051feb0924f1567c270a5",
+  "existing_no_overlap_confirmed": "Hard current owner confirms no startup/cache claim",
+  "official_policy": "https://huggingface.co/docs/hub/spaces-zerogpu",
+  "policy_observation": "Startup placement recommended, lazy loading discouraged for efficiency, not a guarantee of native model placement or whole-service parity.",
+  "proposal": "Validate only each exact configured key using existing trusted family/key/digest resolver; warm at most one configured segmentation entry, preferring current provisioned plaque default then deterministic supported-mask entry. Detector-only/empty service validates and performs no unrelated model construction.",
+  "preservation": [
+    "No changing public model/default selection or request unavailable refusal",
+    "No eager all-model load, network/provider/download, detector/GPU math or endpoint mutation",
+    "Existing plaque warm-up uses same digest keyed cache; mask warm-up reuses existing role/digest keyed cache",
+    "Unknown provisioned keys/digest failures refuse before any loader call; all identities validated before first warm-up"
+  ],
+  "remaining": "Actual ZeroGPU/device/real-checkpoint/native acceptance, detector request-scoped loader remains unchanged. Root scope review required before implementation."
+}

@@ -1,0 +1,9 @@
+{
+  "scope": "seventh true Cellpose eval test double, actual named recorded4.2 signature with sentinel, no gate/production edit",
+  "baseline": "two actual hygiene failures from case::Model.eval kwargs-only; DINO independent failure shares original3FAIL30.92s rawlog",
+  "initial": "27owning+2hygiene+1signature sweep30PASS40.49s",
+  "recorder_correction": "Initial locals recorder retained closure variables; source analysis documented. Final recorder selects only declared method parameters including x/defaults, excludes self/freevars; same literal parameter AST as successful30-case gate run",
+  "final_affected": "27owningPASS7.55s; no unchanged hygiene/sweep rerun",
+  "assertions": "26 original assertion ASTs exact; label/vector/logit output source unchanged",
+  "limits": "Bound values not raw keyword-presence proof; no real checkpoint/model/GPU/science/fullCI/release acceptance"
+}

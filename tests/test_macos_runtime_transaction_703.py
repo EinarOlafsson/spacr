@@ -46,7 +46,8 @@ def _snapshot(root):
 
 
 @pytest.fixture
-def installation(tmp_path):
+def installation(tmp_path,monkeypatch):
+    monkeypatch.delenv('PYTHONPATH',raising=False)
     prefix=tmp_path/'installation'/'venv'
     venv.EnvBuilder(with_pip=False).create(prefix)
     python=prefix/'bin/python'
@@ -58,6 +59,10 @@ def installation(tmp_path):
     site=Path(subprocess.check_output([str(python),'-I','-c','import sysconfig; print(sysconfig.get_path("purelib"))'],text=True).strip())
     import packaging
     shutil.copytree(Path(packaging.__file__).parent,site/'packaging',ignore=shutil.ignore_patterns('__pycache__'))
+    assert (site/'spacr/qt.py').read_text()=='def main():\n    print("1.5.1.4")\n'
+    identity=ic._retiring_runtime_identity(str(prefix))
+    assert identity['verified'] is True and identity['version']=='1.5.1.4'
+    assert Path(identity['module'])==(site/'spacr/__init__.py').resolve()
     retained=prefix/'my extra package data'/'original.bin';retained.parent.mkdir();retained.write_bytes(b'keep exactly')
     record=ic.InstallRecord(kind='installer',layout='macos-runtime',platform='macos',root=str(prefix.parent),
                             python=str(python),version='1.5.1.4',running=True)

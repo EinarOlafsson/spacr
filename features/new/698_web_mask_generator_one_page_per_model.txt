@@ -479,3 +479,97 @@ arrival delta needs normal regeneration; baseline9833 retained,1075added/
 151retired/30changed. Merged English-only guard explicitly languages0,
 settings1274/categories242/UI7912/modules77; prior full9audit remains bound
 to its tested premerge source/counts. No unchanged44/native rerun.
+
+
+2026-10-15 — private legacy CZI upload support prepared
+    The existing web input reader now uses explicit old-reader subblock scene
+    bounds through the existing desktop metadata helper. Global axes, integer
+    origins, bounds, shape and dtype are checked; the entire old-reader canvas
+    allocation must fit the byte budget before decoding. Current-reader pixels
+    and receipts retain their path. Scene/T/Z/channel choices preserve exact
+    pixels and input bytes without projection or inferred scene identity.
+    Evidence: features/data/698_legacy_czi_uploads_2026-10-15/.
+    Actual21current/synthetic cases pass. Exact oldczifile2019 real fixture
+    metadata/pixels pass2cases under an explicitly documented child import-
+    compatibility harness with zero JXR decoder calls, after a retained failed
+    old-package import. This is not stockPython3.9 or all-codec acceptance.
+    All25existing runtime caption identities remain unchanged. Source is private
+    pending independent final peer/publication; no fullCI, deployment, model
+    availability or biological acceptance is claimed. PDF provisioning remains
+    a separate CI-owner component.
+
+
+2026-10-15 — private legacy resource-preflight correction
+    Independent peer blocked initial private source: scene expansion happened
+    before raw interval containment and caller-specific full-canvas byte guards.
+    Both now precede desktop metadata expansion. A separate configurable positive
+    integer max_scenes defaults to4096 distinct legacy scenes; interval-union
+    counting preserves repeated subblocks and sparse scene IDs without allocating
+    scene dictionaries first. Current CZI pixel handling is unchanged.
+    Actual finite reproductions3FAIL+2FAIL and affected7PASS/final27PASS are
+    retained, plus final2current-native and2old-reader-harness fixture passes.
+    One precise new caption has nine private drafts. Source remains PRIVATE
+    until independent final peer and normal runtime catalogs/actual locale
+    callbacks close; no hosted fullCI or universal/native/scientific claim.
+    Evidence: data/698_legacy_czi_uploads_2026-10-15/resource-correction/.
+
+
+2026-10-15 — legacy CZI source/runtime closure complete locally
+    Independent final source/technical target peer accepts the corrected53d
+    source. Normal nine-language review/candidate/source checks, catalog writer,
+    full9runtime audit, arrival refresh and fresh source/body checks pass,
+    preserving10854 unrelated targets in every locale and all incoming English
+    source hashes. Exactly one CZI scene-limit caption arrives.
+    All9actual localized limit-refusal callbacks pass after a retained test-only
+    collection/import error was repaired through the existing tests namespace.
+    No unchanged model/source checks or generators were repeated for that repair.
+    Coherent source publication is pending. This closes the scoped legacy input
+    software/localization component only, not wholeN698, stockPython3.9/allcodecs,
+    scientific model performance, hosted fullCI or1.5.1.5 release acceptance.
+    Evidence: data/698_legacy_czi_uploads_2026-10-15/runtime-closure/.
+
+2026-10-15 — README Models linkage prepared through the normal generator.
+    English and all nine localized READMEs append a Mask generator panel;
+    the established N704 panel link opens readable text containing the exact
+    matching localized website route. Existing model-card links, older-model
+    links, readable panels and their numbers remain unchanged. Nine labels
+    reuse the technically reviewed website mask.title values verbatim.
+    Normal all-language --refresh-generated exits0; six focused existing/new
+    README checks pass, and2,434 previous tracked artifacts remain byte-exact.
+    Exactly20 prior README/source files gain the link, with20 new SVGs and10
+    readable pages. Initial missing-link proof, two new-fixture assumptions
+    and a missing-renderer-dependency failure are retained; generation reused
+    an existing environment and installed nothing. Website owner separately
+    verified production/Pages deployment and actual English/Swedish readback.
+    Root owns coherent publication; no hosted/browser inference, wholeN698,
+    scientific parity or finalCI completion is inferred from this linkage.
+    Evidence: data/698_readme_mask_link_2026-10-15/.
+
+2026-10-15 — Configured-family startup warm-up prepared privately.
+The old ZeroGPU startup path always required the plaque default, even for an
+operator configuring only a different supported family. Startup now validates
+all configured exact public keys/checksums before any model construction and
+warms at most one configured segmentation model: the current plaque default
+when provisioned, otherwise a deterministic configured segmentation key. An
+empty/detector-only configuration returns None without unrelated plaque weights;
+detectors keep their existing request-scoped desktop loader. Request defaults,
+scientific adapters, caches, devices and endpoints are unchanged. Three real
+controlled baseline failures are retained; 22 focused lifecycle/registry checks
+pass(2.20s), with local fixture bytes and intercepted loaders only. The normal
+existing web AST caption owner finds the one new diagnostic; tools service.py
+is outside the normal public API source root. Nine target reviews and normal
+runtime/arrival generation remain required before coherent publication. Actual
+ZeroGPU placement/host resource and scientific acceptance remain explicit.
+Evidence: features/data/698_configured_startup_preload_2026-10-15/.
+
+2026-10-15 — verified configured startup warm-up
+    Startup warms actually provisioned registry families instead of always
+    requiring plaquev4; an unprovisioned default is not silently constructed.
+    Unknown supplied registry keys refuse before model load. Exact source
+    owning22PASS2.20s is retained, not replayed. Coalesced normal9-language
+    runtime closure and27 actual localized callbacks6.67s passed (9 invoke
+    actual startup refusal); all10,873 unrelated current rows/locale preserved.
+    Source-current/original collector pins and normal arrivals verified.
+    No actual hosted endpoint, model inference, scientific accuracy, whole698
+    or fullCI/release acceptance. Evidence:
+    data/702_698_runtime_closure_2026-10-15/receipt.json.

@@ -1,0 +1,15 @@
+{
+  "id": 11963807254,
+  "name": "docs-channel-nightly",
+  "size_in_bytes": 226845632,
+  "expired": false,
+  "expires_at": "2026-10-16T10:14:08Z",
+  "digest": "sha256:a2abd96fdfd9a465698c90cfb7f6f9f15c75679d5a94b7cfd01e9661fdf4ed59",
+  "workflow_run": {
+    "id": 38716311619,
+    "repository_id": 769238442,
+    "head_repository_id": 769238442,
+    "head_branch": "nightly",
+    "head_sha": "8e0a1fdbead894e544b3c55a7e7d2efbd84df851"
+  }
+}

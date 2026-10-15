@@ -1794,6 +1794,10 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('intensity_calibration_reference_plate', '')
     settings.setdefault('intensity_calibration_statistic', 'foreground')
     settings.setdefault('intensity_calibration_offset', 0)
+    settings.setdefault('intensity_calibration_sessions', '')
+    settings.setdefault('intensity_calibration_session_column', 'session')
+    settings.setdefault('intensity_calibration_beads', '')
+    settings.setdefault('intensity_calibration_reference_session', '')
     settings.setdefault('plate_barcode_source', '')
     settings.setdefault('plate_barcodes', None)
     settings.setdefault('plate_barcode_column', 'barcode')
@@ -3698,6 +3702,10 @@ expected_types = {
     "intensity_calibration_reference_plate": (str, type(None)),
     "intensity_calibration_statistic": str,
     "intensity_calibration_offset": (float, int),
+    "intensity_calibration_sessions": (str, type(None)),
+    "intensity_calibration_session_column": (str, type(None)),
+    "intensity_calibration_beads": (str, type(None)),
+    "intensity_calibration_reference_session": (str, type(None)),
     "plate_barcode_source": str,
     "plate_barcodes": (dict, str, type(None)),
     "plate_barcode_column": str,
@@ -3920,6 +3928,8 @@ expected_types = {
     'counterfactual_condition':str,
     'counterfactual_target':str,
     'counterfactual_generator':str,
+    'counterfactual_strength':float,
+    'counterfactual_structure_weight':float,
     'object_type':str,
     "parasite_table": str,
     "compartment": str,
@@ -5014,11 +5024,15 @@ tooltips = {
     "cell_cycle_labels": "(str) - A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, so the learned methods reproduce the gate calls; annotated prophase and anaphase nuclei add information the gates do not provide. Default blank.",
     "cell_cycle_model": "(str) - A torch model this step trained earlier, with its cell_cycle_phases.json beside it, applied to the nucleus crops instead of training a new one. Use it to call a second plate with the model trained on the first. Ignored unless cell_cycle_method is torch or all. Default blank.",
     "cell_cycle_epochs": "(int) - Training epochs of the torch phase classifier. It is a ResNet-18 trained from scratch on crops as small as 32 pixels, so each epoch is quick on a GPU and slow on a busy CPU. Ignored when cell_cycle_model names a trained model. Default 20.",
-    "intensity_calibration": "(bool) - Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the selected reference plate's; a blank reference plate setting uses the first plate by name. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
-    "intensity_calibration_wells": "(list or None) - The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
-    "intensity_calibration_reference_plate": "(str or None) - Reference plate identifier from the merged filenames, such as plate2. Leave blank to use the first plate by name. The selected plate must be present in this run. Default blank.",
-    "intensity_calibration_statistic": "(str) - How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
+    'intensity_calibration': '(bool) - Calibrate intensities before measuring, using beads or reference wells acquired in each imaging session. By default each plate is a session. An optional sessions CSV assigns fields independently of plates; an external bead folder can supply the reference images. Gains match the selected reference session or plate; blank choices keep the first-by-name default. The existing camera-offset gain method is unchanged. Gains and reference content identities are recorded in measurements.db:intensity_rescale. Default False.',
+    'intensity_calibration_wells': "(list or None) - Wells holding the same calibration sample in each acquisition session, such as ['A01'] or ['A01', 'P24']. References come from the selected external bead folder, or otherwise the measured merged folder. Every measured session must have a usable reference field. In-source reference wells are measured like any other well. Default None.",
+    'intensity_calibration_reference_plate': '(str or None) - Exact reference plate identifier from merged filenames, such as plate2. Without a sessions CSV, blank keeps the first plate by name. With explicit sessions, this plate must belong to one session, or pair it with an exact reference session on that plate. The selected plate must be present in the measured run. Default blank.',
+    'intensity_calibration_statistic': '(str) - How each reference field intensity is summarised after subtracting intensity_calibration_offset. foreground is the median above Otsu for sparse beads on a dark background; median uses all pixels for a uniformly stained reference well. Each acquisition session uses the median over its reference fields. Default foreground.',
     "intensity_calibration_offset": "(float) - The camera's dark offset, in the intensity units Measure works in, removed before the reference statistic and kept when scaling: a pixel becomes offset + (value - offset) x gain. Read it from a dark frame; 100 is common on sCMOS cameras. Leave 0 when images are already offset-corrected. Default 0.",
+    'intensity_calibration_sessions': '(str or None) - Optional local CSV assigning acquisition sessions independently of plates. Use an exact filename column, including each merged NPY or selected reference TIFF/NPY suffix, and the selected session column. Every current sample and reference file must have one unique nonblank assignment. Blank keeps one session per plate. Default blank.',
+    'intensity_calibration_session_column': '(str) - Exact column name in the sessions CSV that identifies an acquisition session. All fields in a session share reference gains and must use compatible measurement intensity planes and working units. Default session.',
+    'intensity_calibration_beads': '(str or None) - Optional local folder of bead or reference-well images, replacing reference images inside the measured folder. Filenames keep the plate, well and field identity; selected reference wells still apply. NPY files use the merged channel and mask layout. TIFF files contain only intensity channels with explicit spatial and channel axes. No time or ambiguous page-axis interpretation is guessed. Default blank.',
+    'intensity_calibration_reference_session': '(str or None) - Exact acquisition session identifier to use as the gain reference. Blank uses the first session by name, or the sole session on the explicitly selected reference plate. If both plate and session are selected they must agree. A plate assigned to multiple sessions requires this choice. Default blank.',
     "plate_barcode_source": "(str) - Sample records to fill the plate map from, by plate barcode: a CSV, TSV, Excel or Parquet table with a barcode column, a well column (well such as A01, or rowID and columnID) and metadata such as strain, compound, concentration, passage and operator; or the http(s) address of a LIMS service that answers JSON well records for ?barcode=, or for {barcode} in the address. The filled map and a list of mismatches go to measurements. Blank links nothing. Default blank.",
     "plate_barcodes": "(dict or None) - The barcode each plate was imported with, such as {'plate1': 'BC000123'}. A plate not named here takes the barcode in a barcode.txt file in its plate folder, or else its own plate name. Two plates given one barcode are reported as a mismatch. Default None.",
     "plate_barcode_column": "(str) - The column of the sample records that holds the plate barcode. Blank looks for barcode, plate_barcode or plate barcode. The other columns, apart from the well position, are copied into the plate map as they are. Default barcode.",
@@ -5367,6 +5381,8 @@ tooltips = {
     'counterfactual_epochs': '(int) - Training passes of the counterfactual generator over its crops. Ignored unless counterfactuals is on. Default 30.',
     'counterfactual_condition': "(str) - What the counterfactuals morph between: 'class' uses the classifier's classes; 'plate', 'well', 'row' or 'column' uses that condition, read from each crop's file name, and pushes every edit toward the classifier's mean class probabilities for the target condition, so a control well's cells are drawn the way the classifier sees a treated well's. Needs at least two conditions among the crops. Ignored unless counterfactuals is on. Default 'class'.",
     'counterfactual_target': "(str) - Which class or condition every counterfactual morphs toward: a class index such as 1 when counterfactual_condition is 'class', otherwise a condition name as read from the crop file names, such as a well. Cells already in the target are left out. Empty morphs each cell to the next class or condition in sorted order. Ignored unless counterfactuals is on. Default ''.",
+    'counterfactual_strength': '(float) - Fraction of the diffusion noise schedule used for inversion, from 0 to 1. Lower values retain more of the source but may change the phenotype less. Zero leaves the crop unchanged. Used only by the diffusion counterfactual generator. Default 0.95.',
+    'counterfactual_structure_weight': '(float) - Nonnegative weight of the diffusion training penalty for changes in spatial gradients at several scales. Uniform channel offsets are not penalized. This encourages layout retention but does not guarantee biological identity or phenotype success. Zero keeps denoising-only training. Used only by the diffusion counterfactual generator. Default 0.',
     'counterfactual_generator': "(str) - The model that draws the counterfactuals. 'autoencoder' is fast and trained to flip the classifier. 'diffusion' is trained only to draw crops of each class and redraws a partly noised crop under the target class, so a flip is not something it was optimised for; it is slower and needs a GPU, thousands of crops and hundreds of epochs; with a few hundred crops it changes the crops very little. Diffusion weights are saved as counterfactual_diffusion.pt next to the tables. Ignored unless counterfactuals is on. Default 'autoencoder'.",
     'sanity_check': "(bool) - Randomize the model's weights layer by layer, recompute attribution and report the similarity between maps. A method that produces nearly the same map for a randomized model is responding to image structure rather than the trained decision function. On a small CNN, the CAM family, including spaCR's default Grad-CAM, fails this test while saliency and integrated gradients pass. The resulting similarity is reported for the selected model rather than inferred from benchmark behavior. This costs one additional attribution per randomized layer. Default True.",
     'smoothgrad_samples': "(int) - Number of noise-perturbed image copies averaged into one attribution map. Using 8-50 samples reduces local gradient variability and improves between-image comparability. A value of 0, the default, evaluates the method once and minimizes computation during method selection. Applies to every method, including the CAM family, where maps are averaged explicitly rather than through Captum.",
@@ -5683,7 +5699,7 @@ categories = {
     ],
     "Regression: Diagnostics": ["regression_qc"],
 
-    "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "manders_thresholds", "normalize_input", "counterfactuals", "counterfactual_crops", "counterfactual_epochs", "counterfactual_condition", "counterfactual_target", "counterfactual_generator"],
+    "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "manders_thresholds", "normalize_input", "counterfactuals", "counterfactual_crops", "counterfactual_epochs", "counterfactual_condition", "counterfactual_target", "counterfactual_generator", "counterfactual_strength", "counterfactual_structure_weight"],
 
     "Sequencing": ["mode", "single_direction", "target_sequence", "regex", "offset_start", "window_length", "barcode_mismatches", "chunk_size", "fill_na", "save_h5", "comp_type", "comp_level"],
 
@@ -5770,6 +5786,8 @@ categories = {
     "Intensity Calibration α": [
         "intensity_calibration", "intensity_calibration_wells",
         "intensity_calibration_reference_plate", "intensity_calibration_statistic", "intensity_calibration_offset",
+        "intensity_calibration_sessions", "intensity_calibration_session_column",
+        "intensity_calibration_beads", "intensity_calibration_reference_session",
     ],
 
     "Plate Barcode Linkage α": [
@@ -6770,6 +6788,8 @@ def get_default_generate_activation_map_settings(settings):
     settings.setdefault('counterfactual_condition', 'class')
     settings.setdefault('counterfactual_target', '')
     settings.setdefault('counterfactual_generator', 'autoencoder')
+    settings.setdefault('counterfactual_strength', 0.95)
+    settings.setdefault('counterfactual_structure_weight', 0.0)
     return settings
 
 def get_analyze_plaque_settings(settings):
@@ -7560,8 +7580,12 @@ ALPHA_FEATURES = {
         'settings': ('intensity_calibration', 'intensity_calibration_wells',
                      'intensity_calibration_reference_plate',
                      'intensity_calibration_statistic',
-                     'intensity_calibration_offset'),
-        'widgets': ('IntensityCalibrationReferencePlate',),
+                     'intensity_calibration_offset', 'intensity_calibration_sessions',
+                     'intensity_calibration_session_column', 'intensity_calibration_beads',
+                     'intensity_calibration_reference_session'),
+        'widgets': ('IntensityCalibrationReferencePlate', 'IntensityCalibrationSessions',
+                    'IntensityCalibrationSessionColumn', 'IntensityCalibrationBeads',
+                    'IntensityCalibrationReferenceSession'),
     },
     577: {
         'widgets': ('NotifyTabHelp', 'NotifyRunsEnabled', 'NotifyRunsWhen',
@@ -7715,7 +7739,8 @@ ALPHA_FEATURES = {
     564: {
         'settings': ('counterfactuals', 'counterfactual_crops',
                      'counterfactual_epochs', 'counterfactual_condition',
-                     'counterfactual_target', 'counterfactual_generator'),
+                     'counterfactual_target', 'counterfactual_generator',
+                     'counterfactual_strength', 'counterfactual_structure_weight'),
         'widgets': ('ActivationCounterfactualViewer',),
     },
     508: {

@@ -1,0 +1,20 @@
+{
+  "source_base": "d9e71d7be8f5f517048d744a1cc758d813434eb1",
+  "normal_generator": "tools/build_notebook_settings.py",
+  "tool_sha256": "71d799446a1ceb225cc4122fa47c906c87e545d5dc0bc53e73a5f0f179da9e13",
+  "baseline": "--check exit1, ten stale notebooks named",
+  "generation": "exit0, ten notebooks rewritten by unchanged normal tool",
+  "verification": "--check exit0: every notebook is current",
+  "preservation": "Every handwritten cell, output, execution count and metadata unchanged; only generated cell source changes; changed code parses",
+  "no_model_or_tutorial_execution": true,
+  "hashes": {
+    "baseline.log": "09ff632f93be4aa4a37eff0a70ecffaef725baa168bf601e5a03c9a603ea4a32",
+    "preservation.json": "37752db97f0c8e45031e2a143930e7fba5c1caa7ff37be5b283936197f88a52d",
+    "generation.log": "0f8b9bba3198e5529f6b8afddb2c127a3ad5d612341beb142e485180cb4197ca",
+    "baseline.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "verification.log": "c0dcddc043d6d18114cb1b2405a59d622581edb1ce9d5e4aee40c6590c26eb46",
+    "verification.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "run.sh": "4f04a74ad5cda27b0dba268c4e8c8b491493b3994574075369a675e90f36caf7",
+    "generation.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  }
+}

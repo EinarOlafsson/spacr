@@ -846,3 +846,48 @@ Obsolete POSIX-only paragraph reviews remain retired in place with reasons;
 normal Help summary is unchanged, so no Help regeneration is needed.
 Whole N703, native Windows, final full CI and release acceptance remain OPEN.
 Evidence: features/data/n703_windows_private_pip_2026-10-15/.
+
+2026-10-15 — Debian transaction and guarded graphical cache review published.
+Coherent nightly9745d2dc78c includes the Debian native-package transaction,
+manual/startup optional-cache review, all66 current diagnostics in nine locales,
+and297 exact API targets with normal Help generation and offline nested-body
+lookup. Selected nine-symbol API audits and nine actual Help consumers/18
+queries pass;24 tested source/artifact hashes remain exact after owner merge.
+The broader API audit still refuses foreign N700 providers#6 reviewed-source
+mismatch. Its failure is retained; scoped acceptance does not certify global
+API currency, final full CI, main promotion or release.
+
+Debian software evidence:47 transaction checks, a real disposable onefile-helper
+build/four unprivileged command smokes,12 actual Qt handoff checks and nine
+localized cancellation/refusal callbacks. No host package was installed or
+removed, and no privileged native desktop update was performed. Both new and
+rollback packages require their published digests and exact package identities;
+ambiguous failure retains packages and journal for recovery.
+
+Optional cleanup evidence includes14 startup lifecycle, six manual-worker and
+nine actual localized GUI cases plus selected-cache mutation controls. Keep is
+the default; models/data/preferences remain protected; selected roots are
+revalidated before mutation and unrelated cache refreshes do not invalidate an
+otherwise unchanged selected root. The guard proves application-local job
+inactivity, not universal cross-process quiescence. No permission is persisted.
+Normal runtime generation/audits preserve10,779 unrelated records per locale;
+the immutable9,833 arrival baseline is unchanged. Source-bound receipts remain
+under data/703_debian_update_transaction_2026-10-15/,
+data/n703_optional_cleanup_preview_2026-10-15/ and Home-B API/Help receipts.
+Whole N703 remains OPEN for native cross-platform installer/restart/recovery
+acceptance and the final source-frozen CI/release gates.
+
+
+2026-10-15 — Hosted checkout paths no longer contaminate offline runtime fixtures.
+Run38699600639 at8fc2 inherited PYTHONPATH=$GITHUB_WORKSPACE. Matching
+checkout/old-wheel metadata let pip skip the disposable macOS old-wheel install;
+the ordinary pip console probe instead imported checkout spacr.qt. Two original
+nodes reproduce both failures under that same path/metadata condition. Only the
+two installation fixtures now remove inherited PYTHONPATH, verify physical old
+qt.py bytes and require the actual isolated old distribution/code identity.
+All original test assertions and production guards remain unchanged, including
+external PYTHONPYCACHEPREFIX behavior. Final26 affected original cases PASS
+65.17s/exit0 with the original hosted-style wrapper: rollback/fault branches,
+actual current-version floor and both internal/external bytecode-cache cases.
+No native macOS/Windows, full CI or whole N703 acceptance is claimed. Evidence:
+features/data/n703_hosted_path_fixture_isolation_2026-10-15/.

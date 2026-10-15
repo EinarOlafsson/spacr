@@ -19,6 +19,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "attribution.py", "measure.py", "object_classifier.py", "core.py",
         "psf_pipeline.py",
         "_lineage_trees.py",
+        "utils.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
@@ -29,6 +30,61 @@ def extract_backend_sources(tmp_path, monkeypatch):
         return set(builder.extract_static_ui_sources())
 
     return extract
+
+
+def test_explicit_cellpose_selection_refusal_enters_its_declared_owner(
+        extract_backend_sources):
+    caption = (
+        "Cellpose model {name} is not an installed stock name, an existing checkpoint "
+        "or an exact model-zoo entry. Choose a listed model or provide its checkpoint; "
+        "stock weights were not substituted.")
+    assert extract_backend_sources('utils.py',
+        f'def _resolve_cellpose_pretrained(name):\n    raise ValueError(tr({caption!r}, name=name))\n') == {caption}
+
+
+def test_cellpose_selection_owner_excludes_other_utility_scopes(
+        extract_backend_sources):
+    source = '''
+METADATA = tr("Unrelated utility metadata.")
+def unrelated():
+    def _resolve_cellpose_pretrained():
+        return tr("A nested same-name helper is outside the runtime owner.")
+    return tr("An unrelated utility caption.")
+class Unrelated:
+    def _resolve_cellpose_pretrained(self):
+        return tr("An unrelated same-name method.")
+def _unrelated_choose_model():
+    return tr("A different utility helper must remain outside this scope.")
+def _resolve_cellpose_pretrained(name):
+    """Unrelated owner documentation is not a caption."""
+    return "An untranslated implementation detail."
+'''
+    assert extract_backend_sources('utils.py', source) == set()
+
+
+def test_offline_cellpose_stock_refusal_enters_constructor_owner(extract_backend_sources):
+    caption = (
+        "Automatic model downloads are disabled by SPACR_MODEL_DOWNLOAD. "
+        "Cellpose stock model {model} is not cached at {path}. Provide its existing "
+        "checkpoint or download it before running offline.")
+    assert extract_backend_sources('utils.py',
+        f'def _choose_model():\n    raise ValueError(tr({caption!r}))\n') == {caption}
+
+
+def test_offline_constructor_owner_excludes_same_named_nested_and_class_helpers(
+        extract_backend_sources):
+    assert extract_backend_sources('utils.py', '''
+tr("Unrelated utility metadata.")
+def unrelated():
+    def _choose_model():
+        return tr("Nested same-name utility helper.")
+class Unrelated:
+    def _choose_model(self):
+        return tr("Same-name method outside constructor owner.")
+def _choose_model():
+    """Constructor documentation is not a runtime caption."""
+    return "Untranslated internal constructor detail."
+''') == set()
 
 
 def test_model_download_caption_is_extracted_from_shared_acquisition_owner(
@@ -64,6 +120,44 @@ def _ensure_catalogue_model_file(entry, *, download=True):
     raise RuntimeError("An untranslated backend detail must not be inventoried.")
 ''')
     assert sources == set()
+
+
+@pytest.mark.parametrize("owner,captions", [
+    ("_curated_scorecard_rows", {
+        "F1 @ IoU 0.5", "Boundary F1 (2 px)", "Precision", "Recall", "AJI", "Dice",
+    }),
+    ("_curated_scorecard_lines", {
+        "Evaluation: {dataset}; {fields} fields, {objects} objects; "
+        "boundary tolerance {pixels} px; stock {stock}.",
+        "{metric}: {value:.4f}",
+        "{metric}: {value:.4f} (stock {stock:.4f}, difference {delta:+.4f})",
+    }),
+])
+def test_curated_scorecard_captions_enter_only_through_declared_owners(
+        extract_backend_sources, owner, captions):
+    """Keep prose and formats, while the existing identifier gate preserves AJI."""
+    source = f"def {owner}():\n" + "".join(
+        f"    tr({caption!r})\n" for caption in sorted(captions))
+    assert extract_backend_sources("model_zoo.py", source) == captions - {"AJI"}
+
+
+@pytest.mark.parametrize("owner", ["_curated_scorecard_rows", "_curated_scorecard_lines"])
+def test_curated_scorecard_scope_excludes_unrelated_and_nested_owner_names(
+        extract_backend_sources, owner):
+    source = f'''
+tr("Unrelated model metadata.")
+def unrelated():
+    def {owner}():
+        return tr("A nested same-name function must remain outside this scope.")
+    return tr("An unrelated backend diagnostic.")
+class Unrelated:
+    def {owner}(self):
+        return tr("An unrelated same-name method.")
+def {owner}():
+    """A scorecard helper docstring is not a runtime caption."""
+    return "An untranslated implementation detail."
+'''
+    assert extract_backend_sources("model_zoo.py", source) == set()
 
 
 def test_install_cleanup_cli_literals_enter_runtime_sources(
@@ -110,6 +204,39 @@ def test_counterfactual_reference_diagnostics_reach_the_runtime_inventory(
     assert extract_backend_sources('attribution.py', source) == selected
 
 
+
+@pytest.mark.parametrize('owner,caption', [
+    ('_cf_structure_weight', 'The counterfactual structure weight must be finite and nonnegative.'),
+    ('_cf_diffusion_strength', 'The counterfactual diffusion strength must be between zero and one.'),
+    ('_cf_structure_loss', 'Structure preservation requires matching finite floating-point NCHW tensors.'),
+])
+def test_diffusion_structure_diagnostics_enter_exact_owners(
+        extract_backend_sources, owner, caption):
+    assert extract_backend_sources('attribution.py',
+        f'def {owner}():\n    raise ValueError(tr({caption!r}))\n') == {caption}
+
+
+@pytest.mark.parametrize('owner', [
+    '_cf_structure_weight', '_cf_diffusion_strength', '_cf_structure_loss',
+])
+def test_diffusion_structure_owner_excludes_unrelated_and_nested_scopes(
+        extract_backend_sources, owner):
+    source = f'''
+tr("An unrelated module diagnostic.")
+def unrelated():
+    def {owner}():
+        return tr("An unrelated nested same-name function.")
+    return tr("An unrelated backend diagnostic.")
+class Unrelated:
+    def {owner}(self):
+        return tr("An unrelated same-name method.")
+def {owner}():
+    """Internal diffusion documentation is not a runtime caption."""
+    return "An untranslated implementation detail."
+'''
+    assert extract_backend_sources('attribution.py', source) == set()
+
+
 def test_counterfactual_scope_excludes_unrelated_and_untranslated_diagnostics(
     extract_backend_sources,
 ):
@@ -142,6 +269,31 @@ def test_existing_encoder_entry_captions_remain_inventoried(extract_backend_sour
     caption = "No scorecard. Measure retrieval against labelled phenotype controls and attach the results."
     assert extract_backend_sources('embeddings.py',
         f'def encoder_entry():\n    return tr({caption!r})\n') == {caption}
+
+
+def test_foundation_comparison_input_caption_enters_its_declared_owner(
+        extract_backend_sources):
+    caption = "Provide a four-dimensional crop stack and one label per crop."
+    assert extract_backend_sources('embeddings.py',
+        f'def _backbone_scorecards():\n    raise EmbeddingError(tr({caption!r}))\n') == {caption}
+
+
+def test_foundation_comparison_owner_does_not_admit_other_scopes(
+        extract_backend_sources):
+    source = '''
+tr("An unrelated module caption.")
+def unrelated():
+    def _backbone_scorecards():
+        return tr("An unrelated nested same-name function.")
+    return tr("An unrelated function caption.")
+class Unrelated:
+    def _backbone_scorecards(self):
+        return tr("An unrelated class method caption.")
+def _backbone_scorecards():
+    """Internal comparison documentation is not a runtime caption."""
+    return "An untranslated implementation detail."
+'''
+    assert extract_backend_sources('embeddings.py', source) == set()
 
 
 def test_mil_bag_identity_caption_enters_only_through_its_owner(extract_backend_sources):

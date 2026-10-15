@@ -375,3 +375,33 @@ No request, identity/license submission, login or model download was performed.
 The existing local-checkpoint loader/provenance remains unchanged. Official
 pretrained/scientific acceptance remains an external access prerequisite;
 this audit is not a new feature-completion tick. Continue independent work.
+
+
+2026-10-15 — private labelled-comparison input boundary prepared
+    The existing multi-backbone scorecard now requires NHWC crops and exactly
+    one aligned label entry per crop before any encoder or scorer is invoked.
+    It previously silently truncated extra labels or scored a shorter labelled
+    prefix. Explicit blank labels retain their existing unlabelled filtering;
+    valid comparison metrics and all ranking/scaling mathematics are unchanged.
+    Actual baseline5FAIL1PASS became6PASS with tiny synthetic features and
+    intercepted inference, including real scorecard arithmetic for valid input.
+    Evidence: data/560_comparison_input_boundary_2026-10-15/.
+    This source is private pending exact caption extraction, nine reviewed
+    runtime targets and actual installed locale callbacks. It does not replace
+    the recorded full-cohort comparisons or close official pretrained Cell-DINO
+    access, scientific comparisons, native/GPU or hosted release acceptance.
+
+
+2026-10-15 — Normal runtime closure for the label-comparison input guard.
+The existing backbone comparison now refuses a malformed crop stack or missing/
+misaligned labels before downstream indexing. Six owning checks pass against
+five baseline failures; no new scientific comparison or training is claimed.
+Its exact private caption owner is included without widening other extraction:
+combined39 owner checks pass, and the independent source peer preserves all
+earlier owner behavior. Nine reviewed warning translations pass normal runtime
+generation/audit alongside F370, preserving10,845 unrelated rows per locale.
+API prose/signatures are unchanged. Broader embedding-label comparison validation
+and scientific acceptance remain open. Evidence:
+data/560_comparison_input_boundary_2026-10-15/,
+data/560_comparison_caption_owner_2026-10-15/ and
+data/370_560_runtime_catalogs_2026-10-15/.

@@ -1,0 +1,6 @@
+{
+  "original_sha256": "d76be1ceb647fb3db120458c0d56e1d17bbb24632d7ce2d1f9479dd48d9c077d",
+  "final_sha256": "e6915ca7153bd132a591f1455d1bf6202eb1ec115258f66023da42e33c3a33eb",
+  "patch_sha256": "b52c6fc26fe52ae777623b9601a26c92980d190d8c1e48f7481212bf92a10fff",
+  "root_requested_correction": "sam fallback moved after existing-file and exact-catalogue lookup; controls for both named-sam routes required"
+}

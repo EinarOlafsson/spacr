@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "status": "external_owner_packet_gate; exacttwofilepatchnotavailableinboundedpublishedscope",
+  "request": "Owner-adoptexacttwoN689hostnamereplacementsfromHome-BWorkURLscratchpacketpreservingnewerWorksource",
+  "report_commit": "d9e71d7be8f5f517048d744a1cc758d813434eb1",
+  "work_source_commit": "0b9bf9c06d53248317c5b02aaeaf57a9aa27d86a",
+  "trusted_new_host_from_creation_and_assembly": "https://einarolafsson-spacr-docs-nightly-v2.static.hf.space/",
+  "accepted_host_artifact_source": "8e0a1fdbead894e544b3c55a7e7d2efbd84df851",
+  "accepted_host_revision": "732766ad32dd47784cb5c2a15c8c57516aae8252",
+  "publication_scope": "Acceptedfreev2hostservesolder8e0aartifacts; notcurrentWorkHEAD/current15docsorplaybackacceptance.",
+  "source_bindings": [
+    {
+      "path": "features/HANDOFF.md",
+      "git_commit": "d9e71d7be8f5f517048d744a1cc758d813434eb1",
+      "bytes": 886842,
+      "sha256": "4832a408a3a2eb5b274f048897c54c6c2036f1870bc4bbe14ebb42c75324bdb1",
+      "read_scope": "top115lines"
+    },
+    {
+      "path": "features/325_two_sessions_one_repo_working_protocol.temp",
+      "git_commit": "d9e71d7be8f5f517048d744a1cc758d813434eb1",
+      "bytes": 1315848,
+      "sha256": "7ec9d52e6bd9b7546ed36255ba388956c1ff5020aaa1dfb216a52a13cb498301",
+      "read_scope": "top135/tail205 plus exactN689/hostname/WorkURL/nightly-v2 textsearch"
+    },
+    {
+      "path": "features/data/689_free_static_candidate_2026-10-15/limits.json",
+      "git_commit": "d9e71d7be8f5f517048d744a1cc758d813434eb1",
+      "bytes": 679,
+      "sha256": "fee93a5100ff19b995f2f3e95d5c344812275187aba930cf705216c289adef46",
+      "read_scope": "complete smallartifact"
+    },
+    {
+      "path": "features/data/689_free_static_candidate_2026-10-15/creation.json",
+      "git_commit": "d9e71d7be8f5f517048d744a1cc758d813434eb1",
+      "bytes": 475,
+      "sha256": "9ff2adf7df74891dd3033637326f81cf653264a5007d50240c348e408bca9cee",
+      "read_scope": "complete smallartifact"
+    },
+    {
+      "path": "features/data/689_free_static_candidate_2026-10-15/assembly.json",
+      "git_commit": "d9e71d7be8f5f517048d744a1cc758d813434eb1",
+      "bytes": 352,
+      "sha256": "9db3c07c385777f7a89ad88c4e19066051390063ae6a335d0e7f869686f1820b",
+      "read_scope": "complete smallartifact"
+    },
+    {
+      "path": "features/data/689_free_static_candidate_2026-10-15/verified-source.txt",
+      "git_commit": "d9e71d7be8f5f517048d744a1cc758d813434eb1",
+      "bytes": 41,
+      "sha256": "3076ee4cdd9436f1e4cda2023d5a26249268b1ba7e9bacc0b90fa211da21a61c",
+      "read_scope": "complete smallartifact"
+    },
+    {
+      "path": "features/data/689_free_static_candidate_2026-10-15/space-revision.txt",
+      "git_commit": "d9e71d7be8f5f517048d744a1cc758d813434eb1",
+      "bytes": 41,
+      "sha256": "2cf7ce00ebe505630f31547ac1a5314c4fba10d25f6aae4cb794c7c493dd67c0",
+      "read_scope": "complete smallartifact"
+    }
+  ],
+  "bounded_packet_directory_file_count": 9,
+  "exact_two_target_paths": null,
+  "exact_replacement_patch": null,
+  "exact_preimage_hashes": null,
+  "current_target_source_hashes": null,
+  "missing_contract": "HANDOFFnamesaHome-BWorkURLscratchpacketbutcontainsnotwofilenames/preimagehashesorpatch; published689freecandidatepacketcontainsnoWorkownerpatch. Immutable325hasnoN689/hostname/WorkURL/nightly-v2match.",
+  "checked_absent_local_Home_paths": [
+    "/mnt/wd4tb/scratch",
+    "/mnt/wd4tb/scratch/home-b-coordination-20261014",
+    "/media/carruthers/mnt3/claude/home-b-coordination-20261014"
+  ],
+  "bounded_WS_scratch_name_scopes": [
+    "/media/carruthers/mnt3/claude/n676_stages/work immediatechildren",
+    "/media/carruthers/mnt3/codex/scratch immediatechildren"
+  ],
+  "policy_boundaries": [
+    "NooldSpace/historymutationorpaidoptions.",
+    "Canonicalvariables/secrets/mainPages/Workendpointcutoverremainseparateownergates.",
+    "Maintainerrequestscontinuouscompleteditempushes/releaselast; rootownsactualadoption/commit/push, no blindheldsourcepublication.",
+    "No inferredoldhostnameor guessedtargetfiles/preimages; no patchcanbeassertedexactwithoutmissingownerartifact."
+  ],
+  "recommended_root_next_step": "Relaymissingexactownerpacketpath/bytesorportableGitartifacttoHomewhilecontinuing05; do notdelaycaptureorapplyguessedURLs.",
+  "mutations": "Onlythisprivateexternalreceiptandpublishedpacketpathlistwritten; noROOT/REPORT/sharedcheckout/source/network/deploy/package/GPUactivity."
+}

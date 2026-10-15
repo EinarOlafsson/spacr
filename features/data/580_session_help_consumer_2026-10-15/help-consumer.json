@@ -1,0 +1,64 @@
+{
+  "status": "PASS",
+  "consumer_commit": "a1ffd69eed5df739b9cc49da56ad82508ac8d5ec",
+  "module": "spacr.qt.widgets.calibration_preview",
+  "summary": "Read-only preview of Measure's plate and acquisition-session calibration plans.",
+  "local_docstring": "Read-only preview of Measure's plate and acquisition-session calibration plans.",
+  "english_url": "https://einarolafsson.github.io/spacr/api/spacr/qt/widgets/calibration_preview/index.html",
+  "korean_url": "https://einarolafsson.github.io/spacr/api/spacr/qt/widgets/calibration_preview/index.html?lang=ko",
+  "queries": [
+    {
+      "query": "spacr.qt.widgets.calibration_preview",
+      "first_result": "spacr.qt.widgets.calibration_preview"
+    },
+    {
+      "query": "calibration_preview",
+      "first_result": "spacr.qt.widgets.calibration_preview"
+    }
+  ],
+  "api_entry_count": 13270,
+  "unrelated_api_summaries_preserved": 13269,
+  "preference_rows_preserved": 180,
+  "changed_setting_consumers": {
+    "intensity_calibration_reference_session": {
+      "before": null,
+      "after": [
+        [
+          "spacr.settings",
+          "get_measure_crop_settings"
+        ]
+      ]
+    },
+    "intensity_calibration_beads": {
+      "before": null,
+      "after": [
+        [
+          "spacr.settings",
+          "get_measure_crop_settings"
+        ]
+      ]
+    },
+    "intensity_calibration_session_column": {
+      "before": null,
+      "after": [
+        [
+          "spacr.settings",
+          "get_measure_crop_settings"
+        ]
+      ]
+    },
+    "intensity_calibration_sessions": {
+      "before": null,
+      "after": [
+        [
+          "spacr.settings",
+          "get_measure_crop_settings"
+        ]
+      ]
+    }
+  },
+  "help_before_sha256": "f7b38dfb0f7bc972986c623e8296934f70e9f08029bbc8fb6563ac9f3b695236",
+  "help_after_sha256": "9762811bc31495374b7a0443bbd5a9f3c41e461d00eae78cee8dd27ba4a07290",
+  "source_sha256": "699605f2d1e8b4d8d1d2d0c42a9a79373a3e95bdddd5055f456a3c8c8267b94d",
+  "scope": "Production search, exact module summary, AST-only local prose before URL/index calls, and English/Korean module routes. No rendered-page, network or native-user acceptance."
+}

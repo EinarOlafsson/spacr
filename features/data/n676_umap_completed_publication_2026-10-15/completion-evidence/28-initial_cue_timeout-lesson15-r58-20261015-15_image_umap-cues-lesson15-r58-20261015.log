@@ -1,0 +1,33 @@
+Command: ['/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/bin/python', '/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/run_tool.py', 'tools/tutorials/verify_staged_lesson.py', '--stage', '/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015', '--lesson', '15_image_umap', '--candidate-player', '--language', 'en', '--voice', 'af_heart', '--sentence-cues', '--native-boundary-clocks']
+Source: c6f4ccdf8fd03e10164c1b6972bcf3b686381c07
+Traceback (most recent call last):
+  File "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/run_tool.py", line 19, in <module>
+    runpy.run_path(str(script), run_name='__main__')
+  File "<frozen runpy>", line 287, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/verify_staged_lesson.py", line 628, in <module>
+    main()
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/verify_staged_lesson.py", line 586, in main
+    evidence['sentence_cue_checks'] = check_sentence_cues(page)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/verify_release_candidate.py", line 58, in check_sentence_cues
+    page.wait_for_function('!elements.video.seeking && !elements.audio.seeking && elements.video.readyState >= 2',
+  File "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/lib/python3.12/site-packages/playwright/sync_api/_generated.py", line 12809, in wait_for_function
+    self._sync(
+  File "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/lib/python3.12/site-packages/playwright/_impl/_sync_base.py", line 115, in _sync
+    return task.result()
+           ^^^^^^^^^^^^^
+  File "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/lib/python3.12/site-packages/playwright/_impl/_page.py", line 1153, in wait_for_function
+    return await self._main_frame.wait_for_function(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/lib/python3.12/site-packages/playwright/_impl/_frame.py", line 941, in wait_for_function
+    await self._channel.send("waitForFunction", self._timeout, params)
+  File "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 76, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 632, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 90000ms exceeded.
+
+Terminal exit status: 1

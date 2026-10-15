@@ -1,0 +1,6 @@
+{
+  "commit": "b54a3b8ac",
+  "path": "spacr/qt/widgets/ai_toggle_label.py",
+  "sha256": "f4fa6c499fcae7d519d6df6afd7fdcedcd0b2d9a7254066d50f711d867e2bc46",
+  "loader_boundary": "Exact historical module loaded under its canonical name in a fresh test process; all other production dependencies unchanged. No runtime source edits."
+}

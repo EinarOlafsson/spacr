@@ -86,6 +86,7 @@ class _SSHAuthBroker(QObject):
     requested = Signal(object)
 
     def __init__(self, app):
+        """Hold pending SSH challenges and connect GUI delivery and shutdown."""
         super().__init__(app)
         self._notices = []
         self._workers = []
@@ -188,7 +189,8 @@ class ExecutionProfileDialog(QDialog):
         """
         super().__init__(parent)
         self.setWindowTitle(tr("Execution profile"))
-        self.setMinimumWidth(650)
+        from ..preferences import scaled_px
+        self.setMinimumWidth(scaled_px(650))
         self._original_name = profile.name if profile else ""
         self._ssh_options = {}
         self._connection_worker = None

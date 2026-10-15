@@ -1,0 +1,147 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+____________________ test_a_plaque_model_zoo_key_is_fetched ____________________
+
+tmp_path = PosixPath('/mnt/wd4tb/scratch/n702-cli-pins-20261014/pytest-of-olafsson/pytest-128/test_a_plaque_model_zoo_key_is0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x70908f43d3d0>
+
+    def test_a_plaque_model_zoo_key_is_fetched(tmp_path, monkeypatch):
+        from spacr import model_zoo
+    
+        entry = model_zoo.ModelEntry(key="chosen-plaque", name="chosen.CP_model",
+                                    uri="file:///stub", sha256="7" * 64)
+        fetched = tmp_path / "chosen.CP_model"
+        calls = []
+        monkeypatch.setenv("HOME", str(tmp_path))
+        monkeypatch.setattr(model_zoo, "catalogue", lambda remote=True: [entry])
+    
+        def fetch(chosen, destination):
+            calls.append((chosen, Path(destination)))
+            return fetched
+    
+        monkeypatch.setattr(model_zoo, "fetch", fetch)
+    
+>       assert sm._resolve_plaque_model({"plaque_model": entry.key}) == str(fetched)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_submodules_plaque_well_integration.py:291: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+spacr/submodules.py:1591: in _resolve_plaque_model
+    resolved = model_zoo._ensure_model_file(requested, kinds=('cellpose',), download=fetch)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+spacr/model_zoo.py:3885: in _ensure_model_file
+    return _ensure_catalogue_model_file(entry, download=download)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+entry = ModelEntry(key='chosen-plaque', name='chosen.CP_model', kind='cellpose', source='local', path='', uri='file:///stub', ...ytes=0, trained_on='unknown', trained_by='unknown', metrics={}, notes=(), verified=False, settings_path='', licence='')
+
+    def _ensure_catalogue_model_file(entry, *, download=True):
+        """Acquire one already selected identity with shared cache and lock policy."""
+        if entry.path and Path(entry.path).is_file():
+            return Path(entry.path)
+        if not entry.uri:
+            return None
+        destination = _model_cache_root()
+        cached = destination / Path(entry.name).name
+        if cached.is_file():
+            if entry.sha256 and sha256_file(cached) == entry.sha256.lower():
+                return cached
+        if entry.sha256 and destination.is_dir():
+            for version in sorted(destination.glob(
+                    f"{cached.stem}_v*{cached.suffix}")):
+                if version.is_file() and sha256_file(version) == entry.sha256.lower():
+                    return version
+        if not download:
+            return cached
+        if os.environ.get("SPACR_MODEL_DOWNLOAD", "").strip().casefold() in (
+                "0", "off", "false", "no"):
+            from .qt.i18n import tr
+    
+            raise ModelUnreadable(tr(
+                "Automatic model downloads are disabled by SPACR_MODEL_DOWNLOAD. "
+                "Copy verified model {model} (sha256 {sha256}) to {path}.",
+                model=entry.key, sha256=entry.sha256, path=str(cached)))
+        if _on_the_qt_gui_thread():
+>           raise ModelUnreadable(
+                f"{entry.key!r} is not cached. Download it in Model Zoo, or run "
+                f"the operation through spacr-run or Python without a GUI.")
+E           spacr.model_zoo.ModelUnreadable: 'chosen-plaque' is not cached. Download it in Model Zoo, or run the operation through spacr-run or Python without a GUI.
+
+spacr/model_zoo.py:3915: ModelUnreadable
+_________________ test_true_fetches_the_default_well_detector __________________
+
+tmp_path = PosixPath('/mnt/wd4tb/scratch/n702-cli-pins-20261014/pytest-of-olafsson/pytest-128/test_true_fetches_the_default_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x70908fceee70>
+
+    def test_true_fetches_the_default_well_detector(tmp_path, monkeypatch):
+        from spacr import model_zoo
+    
+        entry = model_zoo.ModelEntry(key="toxoplasma_well_detector_v1", name="well.pt",
+                                    kind="detector", uri="file:///stub", sha256="7" * 64)
+        fetched = tmp_path / "downloaded.pt"
+        calls = []
+        monkeypatch.setenv("HOME", str(tmp_path))
+        monkeypatch.setattr(model_zoo, "catalogue", lambda remote=True: [entry])
+    
+        def fetch(chosen, destination):
+            calls.append((chosen, Path(destination)))
+            return fetched
+    
+        monkeypatch.setattr(model_zoo, "fetch", fetch)
+    
+>       assert sm._resolve_well_detector({"well_detection": True}) == str(fetched)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_submodules_plaque_well_integration.py:76: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+spacr/submodules.py:1366: in _resolve_well_detector
+    return _resolve_detector_weights(str(requested), 'well_detection')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+spacr/submodules.py:1382: in _resolve_detector_weights
+    resolved = model_zoo._ensure_model_file(requested, kinds=('detector',))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+spacr/model_zoo.py:3885: in _ensure_model_file
+    return _ensure_catalogue_model_file(entry, download=download)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+entry = ModelEntry(key='toxoplasma_well_detector_v1', name='well.pt', kind='detector', source='local', path='', uri='file:///s...ytes=0, trained_on='unknown', trained_by='unknown', metrics={}, notes=(), verified=False, settings_path='', licence='')
+
+    def _ensure_catalogue_model_file(entry, *, download=True):
+        """Acquire one already selected identity with shared cache and lock policy."""
+        if entry.path and Path(entry.path).is_file():
+            return Path(entry.path)
+        if not entry.uri:
+            return None
+        destination = _model_cache_root()
+        cached = destination / Path(entry.name).name
+        if cached.is_file():
+            if entry.sha256 and sha256_file(cached) == entry.sha256.lower():
+                return cached
+        if entry.sha256 and destination.is_dir():
+            for version in sorted(destination.glob(
+                    f"{cached.stem}_v*{cached.suffix}")):
+                if version.is_file() and sha256_file(version) == entry.sha256.lower():
+                    return version
+        if not download:
+            return cached
+        if os.environ.get("SPACR_MODEL_DOWNLOAD", "").strip().casefold() in (
+                "0", "off", "false", "no"):
+            from .qt.i18n import tr
+    
+            raise ModelUnreadable(tr(
+                "Automatic model downloads are disabled by SPACR_MODEL_DOWNLOAD. "
+                "Copy verified model {model} (sha256 {sha256}) to {path}.",
+                model=entry.key, sha256=entry.sha256, path=str(cached)))
+        if _on_the_qt_gui_thread():
+>           raise ModelUnreadable(
+                f"{entry.key!r} is not cached. Download it in Model Zoo, or run "
+                f"the operation through spacr-run or Python without a GUI.")
+E           spacr.model_zoo.ModelUnreadable: 'toxoplasma_well_detector_v1' is not cached. Download it in Model Zoo, or run the operation through spacr-run or Python without a GUI.
+
+spacr/model_zoo.py:3915: ModelUnreadable
+=========================== short test summary info ============================
+FAILED tests/test_submodules_plaque_well_integration.py::test_a_plaque_model_zoo_key_is_fetched
+FAILED tests/test_submodules_plaque_well_integration.py::test_true_fetches_the_default_well_detector
+2 failed in 5.47s

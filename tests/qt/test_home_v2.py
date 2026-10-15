@@ -943,13 +943,6 @@ ALPHA_MODULES = {
     # reason and is folded onto Image UMAP now, so it left this list with
     # its row.
     "tabulate",
-    # And the merged Classify screen, registered 2026-08-06 (2d4da7df).
-    # It arrived alpha ON PURPOSE, and ``APP_STAGE`` says why: "stable" is
-    # the ABSENCE of a line there, so omitting it would have claimed a
-    # maturity it has not earned — it dispatches to two pipelines that ARE
-    # trusted, but the merged screen itself has not been run on real data.
-    # Signing it off means deleting its line there and here.
-    "classify_merged",
     # Post-classifier interpretation and post-regression cell investigation.
     # Both are reachable and tested, but have not yet been trusted end to end
     # on an independent production run, so they arrive alpha on purpose.

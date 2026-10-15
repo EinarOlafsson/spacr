@@ -1,0 +1,424 @@
+{
+  "schema": 1,
+  "scope": "Read-only exact HF tree/commit metadata plus two versions of one24213byte HTML sample. No full artifact download, source build, deployment, history operation or tests.",
+  "current_space_revision": "6185b7581aeee978c501e50f07fb61c19e030d33",
+  "current_file_count": 3323,
+  "current_logical_file_bytes": 456940125,
+  "current_unique_git_oid_count": 2823,
+  "current_unique_oid_logical_payload_bytes": 434854490,
+  "repeated_path_logical_bytes": 22085635,
+  "current_lfs_logical_bytes": 200344261,
+  "groups": {
+    "_modules/": {
+      "bytes": 132672247,
+      "files": 621,
+      "lfs_bytes": 0
+    },
+    "tutorials/examples/": {
+      "bytes": 76655340,
+      "files": 33,
+      "lfs_bytes": 76630846
+    },
+    "_static/deck/": {
+      "bytes": 72660718,
+      "files": 177,
+      "lfs_bytes": 72088446
+    },
+    "api/": {
+      "bytes": 50729283,
+      "files": 645,
+      "lfs_bytes": 0
+    },
+    "_media/": {
+      "bytes": 20525384,
+      "files": 83,
+      "lfs_bytes": 20525384
+    },
+    "(top-level)": {
+      "bytes": 13584867,
+      "files": 48,
+      "lfs_bytes": 143973
+    },
+    "tutorials/catalog/": {
+      "bytes": 13364859,
+      "files": 14,
+      "lfs_bytes": 0
+    },
+    "_static/i18n/": {
+      "bytes": 12630531,
+      "files": 10,
+      "lfs_bytes": 12630531
+    },
+    "_images/": {
+      "bytes": 9796181,
+      "files": 98,
+      "lfs_bytes": 6582890
+    },
+    "_sources/": {
+      "bytes": 8289475,
+      "files": 680,
+      "lfs_bytes": 0
+    },
+    "hi/": {
+      "bytes": 5192464,
+      "files": 93,
+      "lfs_bytes": 1143624
+    },
+    "ko/": {
+      "bytes": 4850678,
+      "files": 93,
+      "lfs_bytes": 1143236
+    },
+    "is/": {
+      "bytes": 4720758,
+      "files": 93,
+      "lfs_bytes": 1142974
+    },
+    "fr/": {
+      "bytes": 4715543,
+      "files": 95,
+      "lfs_bytes": 1142966
+    },
+    "de/": {
+      "bytes": 4693783,
+      "files": 95,
+      "lfs_bytes": 1142981
+    },
+    "es/": {
+      "bytes": 4663456,
+      "files": 95,
+      "lfs_bytes": 1142956
+    },
+    "pt/": {
+      "bytes": 4651272,
+      "files": 95,
+      "lfs_bytes": 1142988
+    },
+    "sv/": {
+      "bytes": 4638724,
+      "files": 95,
+      "lfs_bytes": 1142871
+    },
+    "zh_CN/": {
+      "bytes": 4410376,
+      "files": 93,
+      "lfs_bytes": 1143079
+    },
+    "_static/": {
+      "bytes": 2271854,
+      "files": 52,
+      "lfs_bytes": 1138230
+    },
+    "tutorials/": {
+      "bytes": 1170201,
+      "files": 13,
+      "lfs_bytes": 316286
+    },
+    "_sphinx_design_static/": {
+      "bytes": 52131,
+      "files": 2,
+      "lfs_bytes": 0
+    }
+  },
+  "largest_paths": [
+    {
+      "path": "_static/deck/spacr_deck.pdf",
+      "bytes": 38443951,
+      "lfs": true,
+      "same_oid_as_last_success": true
+    },
+    {
+      "path": "tutorials/examples/Align_Stitch_nine_tiles.zip",
+      "bytes": 33292958,
+      "lfs": true,
+      "same_oid_as_last_success": true
+    },
+    {
+      "path": "tutorials/examples/Graph_Builder_real_measurements.zip",
+      "bytes": 15079923,
+      "lfs": true,
+      "same_oid_as_last_success": true
+    },
+    {
+      "path": "_static/i18n/api/en.json",
+      "bytes": 12629916,
+      "lfs": true,
+      "same_oid_as_last_success": true
+    },
+    {
+      "path": "tutorials/examples/Run_Compare_real_snapshots.zip",
+      "bytes": 5783785,
+      "lfs": true,
+      "same_oid_as_last_success": true
+    },
+    {
+      "path": "tutorials/examples/Layer_Viewer_real_image_mask.zip",
+      "bytes": 5493647,
+      "lfs": true,
+      "same_oid_as_last_success": true
+    },
+    {
+      "path": "settings_flow.html",
+      "bytes": 4363958,
+      "lfs": false,
+      "same_oid_as_last_success": true
+    },
+    {
+      "path": "searchindex.js",
+      "bytes": 4118098,
+      "lfs": false,
+      "same_oid_as_last_success": false
+    },
+    {
+      "path": "_static/deck/anim/slide_33_image-33-3.gif",
+      "bytes": 3781193,
+      "lfs": true,
+      "same_oid_as_last_success": true
+    },
+    {
+      "path": "tutorials/examples/Cellpose_training_images_masks.zip",
+      "bytes": 3437727,
+      "lfs": true,
+      "same_oid_as_last_success": true
+    },
+    {
+      "path": "_modules/spacr/qt/screens/make_masks.html",
+      "bytes": 3320152,
+      "lfs": false,
+      "same_oid_as_last_success": false
+    },
+    {
+      "path": "_static/deck/anim/slide_33_image-33-2.gif",
+      "bytes": 2618889,
+      "lfs": true,
+      "same_oid_as_last_success": true
+    },
+    {
+      "path": "genindex.html",
+      "bytes": 2422363,
+      "lfs": false,
+      "same_oid_as_last_success": true
+    },
+    {
+      "path": "_modules/spacr/qt/widgets/ambient.html",
+      "bytes": 2362416,
+      "lfs": false,
+      "same_oid_as_last_success": false
+    },
+    {
+      "path": "tutorials/examples/SYNTHETIC_motility_tracks.zip",
+      "bytes": 2345013,
+      "lfs": true,
+      "same_oid_as_last_success": true
+    }
+  ],
+  "history_comparison": {
+    "last_success_revision": "6c670eeade2639819c0489b053a4c5280850c5f1",
+    "last_success_source": "0b94804723836c42274bb13f71f59a95461b562c",
+    "current_revision": "6185b7581aeee978c501e50f07fb61c19e030d33",
+    "changed_files": 641,
+    "changed_current_logical_bytes": 138785797,
+    "changed_current_lfs_logical_bytes": 774412,
+    "source_html_changed_files": 621,
+    "source_html_changed_logical_bytes": 132672247,
+    "source_html_same_length_but_changed_oid_files": 604,
+    "source_html_same_length_but_changed_oid_bytes": 123598672,
+    "largest_changed": [
+      {
+        "path": "searchindex.js",
+        "bytes": 4118098,
+        "before_bytes": 4118112,
+        "lfs": false,
+        "before_oid": "3d5e582cb41f863d9fd0af520e1c0e37beb59084",
+        "after_oid": "d8e5f00356731c515b31c401785f1a4c900bfb54"
+      },
+      {
+        "path": "_modules/spacr/qt/screens/make_masks.html",
+        "bytes": 3320152,
+        "before_bytes": 3320152,
+        "lfs": false,
+        "before_oid": "19eab58ba83072fc51e6df2d12296c5cf35f69ae",
+        "after_oid": "2ecb14ab71b4015757fd74128d412071c9e213d8"
+      },
+      {
+        "path": "_modules/spacr/qt/widgets/ambient.html",
+        "bytes": 2362416,
+        "before_bytes": 2362416,
+        "lfs": false,
+        "before_oid": "22a04107fae21d1baa00e51973d6e68dfb83b6a5",
+        "after_oid": "beebfa432837a1ce5f70ab0a7150d181b27a1f40"
+      },
+      {
+        "path": "_modules/spacr/measure.html",
+        "bytes": 2291655,
+        "before_bytes": 2291655,
+        "lfs": false,
+        "before_oid": "4266fc8ca0db864d376af59bf2df4c14b9fd8d47",
+        "after_oid": "57b802d0aa6b101c8c69d68ea948d577de384dc3"
+      },
+      {
+        "path": "_modules/spacr/qt/screens/app_screen.html",
+        "bytes": 2018390,
+        "before_bytes": 1976888,
+        "lfs": false,
+        "before_oid": "83eef0a26754df93d195137e04f84cf8604efbe7",
+        "after_oid": "7d0a7b0ffc78db458bfc44612eb82cb88aaf6006"
+      },
+      {
+        "path": "_modules/spacr/qt/screens/settings_model.html",
+        "bytes": 1823115,
+        "before_bytes": 1823115,
+        "lfs": false,
+        "before_oid": "f47b616fc6b4e4ed778e2283ccecb40f78ad93ee",
+        "after_oid": "492b581883bfa2137efc84c29ee34efb3a26c497"
+      },
+      {
+        "path": "_modules/spacr/plot.html",
+        "bytes": 1817428,
+        "before_bytes": 1817428,
+        "lfs": false,
+        "before_oid": "be8a95ece33e4c060d3afe9429360e6845cbed39",
+        "after_oid": "3f51e78cbd3aaaec2c9cd0c6257c445ae61aad4c"
+      },
+      {
+        "path": "_modules/spacr/qt/preferences.html",
+        "bytes": 1810193,
+        "before_bytes": 1794478,
+        "lfs": false,
+        "before_oid": "ab415eb6a693b733d89acbbc96932fe12f5d7f77",
+        "after_oid": "04e62875bb28ba2d00487bafaea7c4bc086da5fd"
+      },
+      {
+        "path": "_modules/spacr/utils.html",
+        "bytes": 1763421,
+        "before_bytes": 1763421,
+        "lfs": false,
+        "before_oid": "b7e98860f8ec68096c8a32fb787b6b7f67b06bb6",
+        "after_oid": "f80f02d7fc280236f9965286ac0e0cbaab62db03"
+      },
+      {
+        "path": "_modules/spacr/io.html",
+        "bytes": 1730735,
+        "before_bytes": 1730735,
+        "lfs": false,
+        "before_oid": "82657bb87cb3bc3ce210541ce9de891380e68ef0",
+        "after_oid": "cb84d678a56fbcdf4c664915a8cad55d67c98eda"
+      }
+    ]
+  },
+  "historical_partial_upload_finding": {
+    "latest_hf_commit_title": "nightly docs863673521470(part2)",
+    "served_receipt_source": "0b94804723836c42274bb13f71f59a95461b562c",
+    "receipt_reported_size_bytes": 455793473,
+    "current_tree_size_bytes": 456940125,
+    "difference_bytes": 1146652,
+    "meaning": "Current branch retains a mixed historical partial upload; homepage/receipt equality never proved the complete tree. Existing atomic pinned-parent publisher is already the fix for future partial commits; no duplicate implementation requested."
+  },
+  "concrete_narrow_candidate": {
+    "file": "docs/source/conf.py",
+    "existing_behavior": "html_js_files applies data-api-catalog-version derived from every API JSON catalog to every HTML page.",
+    "sample": {
+      "path": "_modules/spacr/_gc.html",
+      "bytes": 24213,
+      "rows": {
+        "before": {
+          "revision": "6c670eeade2639819c0489b053a4c5280850c5f1",
+          "url": "https://huggingface.co/spaces/einarolafsson/spacr-docs-nightly/resolve/6c670eeade2639819c0489b053a4c5280850c5f1/_modules/spacr/_gc.html",
+          "sha256": "3d2e1fed3dda5cdc28478196b94575791c6ef6d62cc38539b1cf5755f7c6136c"
+        },
+        "after": {
+          "revision": "6185b7581aeee978c501e50f07fb61c19e030d33",
+          "url": "https://huggingface.co/spaces/einarolafsson/spacr-docs-nightly/resolve/6185b7581aeee978c501e50f07fb61c19e030d33/_modules/spacr/_gc.html",
+          "sha256": "1a7577dfaf32a9f11cbd91c10594d2f8d9f1b192bbf11e0cb8a7498a52f23edc"
+        }
+      }
+    },
+    "observed_only_diff": "dd32680fe145ce80→180e42841c2ebb8c in data-api-catalog-version; all other sample HTML bytes unchanged.",
+    "consumer_source": "docs/source/_static/api_i18n.js DOMContentLoaded returns through setupGuideSelector before fetching API catalogs when a page has no dl.py dt[id] and no /api/ path. Sample is a viewcode _modules page.",
+    "proposed_bounded_change": "At normal Sphinx page generation, omit only the catalog-version attribute on viewcode _modules pages that have no API translation consumer. Keep the language selector script, all source pages and all API-page freshness/hash validation. Prove two builds differing only in catalog version retain identical viewcode HTML, while actual API pages remain versioned and guide switching remains intact.",
+    "proof_limit": "Only one HTML pair content-compared. Metadata proves all621module pages have changed object IDs, not that all621changes are solely that attribute. A guarded implementation and owning functional acceptance are still required.",
+    "storage_limit": "This can reduce gratuitous changed Git objects; no claim that it reclaims existing history or guarantees indefinite publishes below1GB."
+  },
+  "design_suggestions_not_measured_defects": [
+    "Do not remove the deck, tutorial datasets, languages, source pages or search index merely because they are large; the largest assets are unchanged in this measured interval.",
+    "searchindex.js changed from4118112 to4118098bytes; this may reflect legitimate search-content changes. No index nondeterminism defect was proved.",
+    "Identical payloads repeat acrosspaths by22085635logicalbytes, but shared Git/LFS objects may already deduplicate them. Collapsing those paths is not proven quota savings.",
+    "The988829585byte provider usedStorage number is not the sum of current logical file sizes; exact historical Git/LFS/Xet accounting and compression are not exposed by this tree measurement.",
+    "A fresh Space plus lower-churn HTML may extend free headroom but cannot promise infinite version retention within a finite repository quota."
+  ],
+  "source_bindings": {
+    "coordinator_head_at_inspection": "213a31944f7f34a74974220e8f96f8059c27fa10",
+    "files": {
+      "docs/source/conf.py": "a27ce52389bcad8946c5f9750ba3d6eaf305a9971f502be50008faa0cb75297d",
+      "docs/source/_static/api_i18n.js": "b3704e8c1d400cccd9ca09aaaa11508c1d8903168eaf6da1f15897e6c01e7743",
+      "tools/publish_docs_channels.py": "f1a7e7a76dd24acfb012e3008b026a5962627ef3cc6f7e98237250fcade469cf"
+    }
+  },
+  "artifacts": {
+    "tree-6185b7581aeee978c501e50f07fb61c19e030d33.json": {
+      "path": "tree-6185b7581aeee978c501e50f07fb61c19e030d33.json.gz",
+      "sha256": "0d7abd7a809e237509d338d6f6faa72d232d5ab6bcc1c8038496b6762597ff57",
+      "bytes": 853538
+    },
+    "sample.json": {
+      "path": "sample.json.gz",
+      "sha256": "9f05fcaee0ae5e2659340fbd32b6e1d6f25506671eba0b31293b216ba6f47179",
+      "bytes": 712
+    },
+    "sample-after.html": {
+      "path": "sample-after.html.gz",
+      "sha256": "1a7577dfaf32a9f11cbd91c10594d2f8d9f1b192bbf11e0cb8a7498a52f23edc",
+      "bytes": 24213
+    },
+    "commits.json": {
+      "path": "commits.json.gz",
+      "sha256": "1b31d5ad4529e935b96c7ca862b7e05cd5aa3bb88771405b49146efc28fd1944",
+      "bytes": 7356
+    },
+    "sample.diff": {
+      "path": "sample.diff.gz",
+      "sha256": "e6166f72828e6fb754b1a4f67a008c542e6bceb920d3fec6855da2574757d6bb",
+      "bytes": 638
+    },
+    "sample_diff.py": {
+      "path": "sample_diff.py.gz",
+      "sha256": "9fd101a2d4800f4ed5a38fd0bbf87104b2e3b84cc3a2735c8eb4efa61cc6d5f9",
+      "bytes": 1199
+    },
+    "footprint.json": {
+      "path": "footprint.json.gz",
+      "sha256": "f2e2288b232a28614d8117955b9d4fb28ebb9f227b2b562c8a1cfe3768b8a8fa",
+      "bytes": 212871
+    },
+    "tree-f07b86dade54548998edc49cfb13867e75e1e7b6.json": {
+      "path": "tree-f07b86dade54548998edc49cfb13867e75e1e7b6.json.gz",
+      "sha256": "3e084d2c9e31ee8fd92bbaef77a7d687d710ac38b43badc8895f7c086e1c330c",
+      "bytes": 853538
+    },
+    "measure.py": {
+      "path": "measure.py.gz",
+      "sha256": "b66e002d7631e17f6144fe2ce14a8f607f3f60335e206ded9f193b6499ac0b60",
+      "bytes": 1321
+    },
+    "commits100.json": {
+      "path": "commits100.json.gz",
+      "sha256": "8d5d52f971a20ab33ae1b33d332ba78f2884cc288168520a038a32f7534a8973",
+      "bytes": 37134
+    },
+    "sample-before.html": {
+      "path": "sample-before.html.gz",
+      "sha256": "3d2e1fed3dda5cdc28478196b94575791c6ef6d62cc38539b1cf5755f7c6136c",
+      "bytes": 24213
+    },
+    "tree-6c670eeade2639819c0489b053a4c5280850c5f1.json": {
+      "path": "tree-6c670eeade2639819c0489b053a4c5280850c5f1.json.gz",
+      "sha256": "358964639aae8a57923fae38776fe4d5931daab22115ab734856964040dd7a83",
+      "bytes": 853538
+    },
+    "compare.py": {
+      "path": "compare.py.gz",
+      "sha256": "b4d0787ca4a1635769695903ce3e585f77dbfacd96b8ef782d41e5d8bd3b5377",
+      "bytes": 3609
+    }
+  }
+}

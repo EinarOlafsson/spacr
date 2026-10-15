@@ -1,0 +1,11 @@
+{
+  "repository": "https://huggingface.co/spaces/einarolafsson/spacr-docs-nightly-v2",
+  "sdk_requested": "static",
+  "private_requested": false,
+  "hardware_or_storage_upgrade_requested": false,
+  "old_space_modified": false,
+  "canonical_routes_changed": false,
+  "free_policy": "https://huggingface.co/docs/hub/spaces-sdks-static",
+  "initial_revision": "c285f1adda1b34fe658a7334ecd5e47d703eaad9",
+  "host": "https://einarolafsson-spacr-docs-nightly-v2.static.hf.space"
+}

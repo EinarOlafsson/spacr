@@ -1,0 +1,14 @@
+{
+  "source_base": "ab17ecb5429f7b88f5a12d76e474ff95042351d0",
+  "scope": "Six eval doubles across four files plus existing contract sweep, tests-only; no production or generated changes",
+  "baseline": "actual signature sweep1FAIL16.24s names six stale doubles",
+  "intermediate": "57PASS2FAIL45.75s; N698 configured-argument recorder erased explicit default-valued desktop fields, all original assertions preserved and exposed failure",
+  "final_affected": "N698 owning module and qualified sweep19PASS17.01s; prior57PASS retained for unaffected owning nodes",
+  "assertions": "All202 original assertion ASTs retained; no partial ratchet or ceiling13 changes. Worker role bound to exact top-level test and nested class/function position+AST, actual _Cellpose3Adapter named params/defaults, no double catchall.",
+  "recorder_semantics": "Bound values, not raw kwargs presence. Four unconditional desktop fields recorded including explicit default values; every other nondefault compared against the double own literal recorded4.2 signature, independent of installed-band defaults.",
+  "lint": "Normal Ruff root import edits; full ad hoc five-file lint still exit1 with9 preexisting diagnostics, reduced from13. No full lint green claim.",
+  "limits": [
+    "CPU synthetic/model and trainer doubles only; no actual model weights/training/GPU/downloads/fullCI/release acceptance.",
+    "No minimum-version native environment execution in this component."
+  ]
+}

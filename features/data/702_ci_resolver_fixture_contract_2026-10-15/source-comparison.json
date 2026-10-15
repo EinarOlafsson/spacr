@@ -1,0 +1,36 @@
+{
+  "old": "8fc2aa5601847ccd8f7cff287c36c6a9ee00ba53",
+  "current": "7706bf18ae0d8580055f544ac0255b4f3d653c9e",
+  "files": {
+    "spacr/model_zoo.py": {
+      "old_sha256": "5380259ac8c822eb1d986b690893e2c939a77ccccf988db6ce94595baf06ac47",
+      "current_sha256": "cfd1a0426a83b5870ff6f62e06d2bbd093d764d567639084e27da15480b91ade",
+      "identical": false
+    },
+    "spacr/_segmentation_backends.py": {
+      "old_sha256": "2983a658487b63c1dfcf7929d8dfa386402267fb0a1b28e9b729580cccbaab68",
+      "current_sha256": "2983a658487b63c1dfcf7929d8dfa386402267fb0a1b28e9b729580cccbaab68",
+      "identical": true
+    },
+    "spacr/validate.py": {
+      "old_sha256": "e574d78984dc81156842bb8117eacd7d2f0396c03c8083a7001711eb5abbf03c",
+      "current_sha256": "e574d78984dc81156842bb8117eacd7d2f0396c03c8083a7001711eb5abbf03c",
+      "identical": true
+    },
+    "spacr/submodules.py": {
+      "old_sha256": "cec8018d6b565f26731e27d7c30c4b1e5fa1aee852d675e21fc9e267c452736a",
+      "current_sha256": "cec8018d6b565f26731e27d7c30c4b1e5fa1aee852d675e21fc9e267c452736a",
+      "identical": true
+    },
+    "tests/test_missing_model_downloads.py": {
+      "old_sha256": "531997ab9f4bd39b8987f47b4ee308bb477c65e4bdf9cf55aecd25e326b972db",
+      "current_sha256": "531997ab9f4bd39b8987f47b4ee308bb477c65e4bdf9cf55aecd25e326b972db",
+      "identical": true
+    },
+    "tests/test_submodules_plaque_well_integration.py": {
+      "old_sha256": "4471b68fc05cd0efbc66332a7e145e07593da0fd9b773a9344e35c94df0bfb08",
+      "current_sha256": "4471b68fc05cd0efbc66332a7e145e07593da0fd9b773a9344e35c94df0bfb08",
+      "identical": true
+    }
+  }
+}

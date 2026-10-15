@@ -342,9 +342,8 @@ EXPECTED_STAGES = {
     "plasmodium": "alpha", "candida": "alpha",
     "trypanosoma": "alpha", "leishmania": "alpha", "giardia": "alpha",
     "virus": "alpha", "mammalian": "alpha",
-    # New module, so alpha: the two pipelines it dispatches to are trusted,
-    # the merged screen has not been run on real data.
-    "classify_merged": "alpha",
+    # The merged Classify assessment is recorded in maturity.AFFIRMED.
+    "classify_merged": "stable",
     "align": "alpha", "convert": "alpha",
     "foreign": "alpha", "external_masks": "alpha",
     "queue": "alpha",
@@ -412,21 +411,7 @@ def test_every_app_is_filed_under_the_section_it_belongs_to():
 
 
 def test_every_app_carries_the_maturity_it_was_given():
-    """The other axis, one entry at a time.
-
-    Thirty-two alpha, four beta, six stable. The alpha column is the
-    one that keeps growing and the beta and stable columns have not
-    moved in a long time, which is the true shape of this project: an
-    app arrives "built and reachable, not yet trusted end to end", and
-    only use promotes it. Illumination, Barcode QC, Layer Viewer and
-    Graph Builder arrived that way; so did Power / Design, AnnData
-    Export and Run Compare; and so did Hit List, Methods & Results,
-    Pipeline Graph and the Prediction Profiler; and so do Experiment
-    Design and the QC Dashboard.
-
-    Signing an app off is deleting a line from ``APP_STAGE`` and from
-    here; nothing else moves, which is the whole point of maturity not
-    being a section."""
+    """Pin every current tile stage, including the assessed Classify screen."""
     actual = {key: app_stage(key) for key, *_r in APPS}
     expected = {key: EXPECTED_STAGES.get(key, "stable")
                 for key, *_r in APPS}
@@ -473,7 +458,7 @@ def test_every_app_carries_the_maturity_it_was_given():
     # demotions.
     # 33 -> 38: the five 634 alpha organism pages (eb2201537).
     # 38 -> 37 alpha, 6 -> 7 stable: Toxoplasma is not an alpha species.
-    assert counts == {"alpha": 37, "beta": 4, "stable": 7}
+    assert counts == {"alpha": 36, "beta": 4, "stable": 8}
 
 
 def test_no_section_is_used_that_was_never_declared():
@@ -1708,36 +1693,103 @@ def test_being_up_to_date_says_so(win, qtbot, modals, monkeypatch):
     assert not modals.warning
 
 
-def test_accepting_an_upgrade_runs_pip(win, qtbot, modals, monkeypatch):
+def test_accepting_an_upgrade_waits_for_authenticated_shutdown_handoff(
+        win, qtbot, modals, monkeypatch, tmp_path):
+    from spacr import install_cleanup, restart_state
+    from spacr.qt.bridge import registry
     import spacr.updater as updater
+
     monkeypatch.setattr(updater, "editable_install_location", lambda: None)
-    restarted = []
-    monkeypatch.setattr(win, "_restart_after_package_upgrade", lambda: restarted.append(True))
     monkeypatch.setattr(updater, "check_for_updates", _update_info)
+    monkeypatch.setattr(restart_state, "state_path", lambda: tmp_path / "restart.json")
     calls = []
-    monkeypatch.setattr(updater, "run_pip_upgrade",
-                        lambda **kwargs: (calls.append(kwargs), 0)[1])
+    events = []
+    ready = [False]
+    plan = {"adapter": "pip-private-posix-v1", "command": ["inert-helper"],
+            "version": "2.0.0", "handshake": {"token": "test-only-token"}}
+
+    def prepare(records, version, *, ticked):
+        calls.append((records, version, ticked))
+        return plan
+
+    class Handshake:
+        """Stand in for the authenticated helper; execute no installer code."""
+
+        def __init__(self, received):
+            assert received is plan
+            events.append("prepared")
+
+        def status(self):
+            return {"state": "ready"} if ready[0] else None
+
+        def check(self):
+            events.append("checked")
+
+        def approve(self):
+            assert win._frozen_update_closing
+            assert restart_state.peek()["module"] == "__home__"
+            events.append("approved")
+
+        def cancel(self):
+            events.append("cancelled")
+
+    monkeypatch.setattr(install_cleanup, "start_update_helper", prepare)
+    monkeypatch.setattr(install_cleanup, "_FrozenUpdateHandshake", Handshake)
+    monkeypatch.setattr(updater, "run_pip_upgrade", lambda **kwargs: pytest.fail(
+        "The live GUI must delegate replacement instead of upgrading itself"))
+    monkeypatch.setattr(win, "_restart_after_package_upgrade", lambda: pytest.fail(
+        "The delegated helper owns restart after the GUI closes"))
     modals.answers = [QMessageBox.Yes]
+    win.show()
+    qtbot.waitUntil(lambda: not registry().is_busy(), timeout=5000)
     win._check_for_updates()
-    qtbot.waitUntil(lambda: bool(restarted), timeout=5000)
-    assert calls == [{"target_version": "2.0.0"}]
+    qtbot.waitUntil(lambda: events == ["prepared"], timeout=5000)
+    assert calls == [([], "2.0.0", ())]
     assert "1.0.0" in modals.questions[0][1]
     assert "2.0.0" in modals.questions[0][1]
-    assert restarted == [True]
+    assert win.isVisible() and not win._closing
+    assert win._frozen_update_plan is plan
+    assert win._frozen_update_timer.isActive()
+    assert not (tmp_path / "restart.json").exists()
+    ready[0] = True
+    win._poll_frozen_update()
+    assert events == ["prepared", "checked", "approved"]
+    assert win._closing and not win.isVisible()
+    assert win._frozen_update_handshake is None
+    assert not win._frozen_update_timer.isActive()
+    assert not modals.warning
 
 
-def test_a_failing_pip_upgrade_shows_its_exit_code(win, qtbot, modals,
-                                                   monkeypatch):
+def test_an_unavailable_update_plan_reports_its_error_without_closing(
+        win, qtbot, modals, monkeypatch):
+    from spacr import install_cleanup
+    from spacr.qt.bridge import registry
     import spacr.updater as updater
+
     monkeypatch.setattr(updater, "editable_install_location", lambda: None)
     monkeypatch.setattr(updater, "check_for_updates", _update_info)
-    monkeypatch.setattr(updater, "run_pip_upgrade", lambda **kwargs: 3)
+    calls = []
+
+    def prepare(records, version, *, ticked):
+        calls.append((records, version, ticked))
+        return {"command": None, "error": "fixture preparation refused"}
+
+    monkeypatch.setattr(install_cleanup, "start_update_helper", prepare)
+    monkeypatch.setattr(updater, "run_pip_upgrade", lambda **kwargs: pytest.fail(
+        "A refused plan must not mutate the live environment"))
     modals.answers = [QMessageBox.Yes]
+    win.show()
+    qtbot.waitUntil(lambda: not registry().is_busy(), timeout=5000)
     _run_update_check(win, qtbot, modals)
-    assert "pip returned exit code 3" in modals.warning[0][1]
+    assert calls == [([], "2.0.0", ())]
+    assert modals.warning == [("Updates", "Upgrade unavailable: fixture preparation refused")]
+    assert win.isVisible() and not win._closing
+    assert getattr(win, "_frozen_update_handshake", None) is None
+    assert not modals.information
 
 
 def test_declining_an_upgrade_does_nothing(win, qtbot, modals, monkeypatch):
+    from spacr.qt.bridge import registry
     import spacr.updater as updater
     monkeypatch.setattr(updater, "editable_install_location", lambda: None)
     monkeypatch.setattr(updater, "check_for_updates", _update_info)
@@ -1747,6 +1799,7 @@ def test_declining_an_upgrade_does_nothing(win, qtbot, modals, monkeypatch):
 
     monkeypatch.setattr(updater, "run_pip_upgrade", _must_not_run)
     modals.answers = [QMessageBox.No]
+    qtbot.waitUntil(lambda: not registry().is_busy(), timeout=5000)
     win._check_for_updates()
     worker = win._update_worker
     qtbot.waitUntil(lambda: bool(modals.questions), timeout=5000)

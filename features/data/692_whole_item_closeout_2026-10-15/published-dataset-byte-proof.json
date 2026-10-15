@@ -1,0 +1,27 @@
+{
+  "dataset_revision": "ab10f528913f3cad9aea2e678d91a2f430fa4b5b",
+  "asset_sha256": "fbd1f24a2076ecd72f5e5d3cdc65ef877fb9f7b0e7e3a219e5c7cf265a9c1aa4",
+  "asset_bytes": 25221120,
+  "local_preserved_archive": "/mnt/wd4tb/scratch/n692/build/spacr-example-fibsem.tar",
+  "manifest": [
+    {
+      "name": "hela_fibsem",
+      "image": "hela_fibsem.tif",
+      "ground_truth_mask": "ground_truth_masks/hela_fibsem.tif",
+      "empiar": "EMPIAR-10982",
+      "source": "data/mito_benchmarks/hela_cell",
+      "modality": "FIB-SEM",
+      "z_range": "64-191",
+      "shape_zyx": "128x256x256",
+      "voxel_nm": "15.0",
+      "mitochondria": "43",
+      "image_sha256": "4cce98e1c22cde19c5601e599b146274dd7930ff304af489e37f588c0f5c6f8c",
+      "labels_sha256": "7c7572c3508270452ac6c29d45556acb12260d11ceec3796bf75797c9a8720d1"
+    }
+  ],
+  "each_decoded_uncompressed_array_hash_matches_manifest": true,
+  "hash_semantics": "build() stores image.tobytes/labels.tobytes SHA, not TIFF container SHA; stdlib TIFF strip reader verifies actual128page pixel payload; initial container-hash assertion was an audit-method error, preserved separately",
+  "no_dataset_download": "Only public small metadata and pinned README read back; existing preserved archive exactly matches current published LFS hash",
+  "official_licence_policy": "https://www.ebi.ac.uk/empiar/about/ states all EMPIAR data reusable under CC0; read2026-10-15",
+  "source_entry_record": "/mnt/wd4tb/scratch/n692/entry.json confirms EMPIAR-10982 FIB-SEM and HeLa150angstrom XY; Z15nm remains an explicit assumption"
+}

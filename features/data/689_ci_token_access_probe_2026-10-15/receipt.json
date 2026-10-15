@@ -1,0 +1,13 @@
+{
+  "status": "TARGETED_CHECKS_PASS_LIVE_PERMISSION_PENDING",
+  "test": "12 passed in 1.04s",
+  "exit": 0,
+  "files": {
+    "tools/publish_docs_channels.py": "0ec33690e951668a6e20919243a76e7f0ec6e2d81a24df55c63af41fd2cdeb86",
+    ".github/workflows/docs.yml": "f6f057443632eaa8e8d194840d1b39dde1cc9ffaf30c3e837de87229fcc48d3a",
+    "tests/test_docs_space_access.py": "18483bbf522631d38fe2be96fb280215a74d53af23cd12f0da0ee37445d464e3",
+    "docs/notes/publishing_documentation.md": "6908d709dbda4ac1e4dc531034a841bd4b84ede6ff96998d7e5d18319079b960"
+  },
+  "superseded": "All earlier SDK-mocked green results are preserved only as development history; final acceptance is direct HTTP-request boundary tests.",
+  "limits": "No workflow dispatch or live token permissions claimed; free static existing host only; no docs rebuild or main push."
+}

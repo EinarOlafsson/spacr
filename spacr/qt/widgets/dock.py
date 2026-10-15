@@ -48,8 +48,14 @@ from typing import Callable, Dict, Iterable, List, Optional, Tuple
 from functools import partial
 
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal
-from PySide6.QtGui import QColor, QPainter
-from PySide6.QtWidgets import QFrame, QLabel, QScrollArea, QSizePolicy, QVBoxLayout, QWidget
+from PySide6.QtGui import (
+    QAccessible, QAccessibleActionInterface, QAccessibleStateChangeEvent, QColor,
+    QPainter,
+)
+from PySide6.QtWidgets import (
+    QAccessibleWidget, QFrame, QLabel, QScrollArea, QSizePolicy, QVBoxLayout,
+    QWidget,
+)
 
 from ..i18n import tr
 from ..theme import active_palette
@@ -690,6 +696,10 @@ class DockEdge(QWidget):
         self._collapsed = collapsed
         self.retranslate_dynamic_content()
         self.update()
+        changed = QAccessible.State()
+        changed.expanded = True
+        changed.collapsed = True
+        QAccessible.updateAccessibility(QAccessibleStateChangeEvent(self, changed))
         self.collapsedChanged.emit(collapsed)
         if self._pressed_x is None:
             from .ambient import field_ripple_for_widget
@@ -819,3 +829,47 @@ class DockEdge(QWidget):
                              not self._collapsed, palette,
                              hovered or self.hasFocus())
         painter.end()
+
+
+class _AccessibleDockEdge(QAccessibleWidget):
+    """Expose the edge's primary collapse action and current expansion state."""
+
+    def __init__(self, widget):
+        """Keep normal widget accessibility with a button role."""
+        super().__init__(widget, QAccessible.Button)
+
+    def state(self):
+        """Report the same collapse state used by keyboard and mouse actions."""
+        state = super().state()
+        state.expandable = True
+        state.collapsed = self.widget().is_collapsed()
+        state.expanded = not state.collapsed
+        return state
+
+    def actionNames(self):
+        """Offer Press and normal widget actions only while enabled."""
+        if not self.widget().isEnabled():
+            return []
+        return [QAccessibleActionInterface.pressAction(), *super().actionNames()]
+
+    def doAction(self, action):
+        """Route an enabled Press through the existing collapse setter."""
+        widget = self.widget()
+        if not widget.isEnabled():
+            return
+        if action == QAccessibleActionInterface.pressAction():
+            widget.set_collapsed(not widget.is_collapsed())
+            return
+        super().doAction(action)
+
+
+def _dock_edge_accessible_factory(_key, widget):
+    """Supply the adapter only for dock edges, keeping its Python wrapper alive."""
+    if isinstance(widget, DockEdge):
+        interface = _AccessibleDockEdge(widget)
+        widget._accessible_edge = interface
+        return interface
+    return None
+
+
+QAccessible.installFactory(_dock_edge_accessible_factory)

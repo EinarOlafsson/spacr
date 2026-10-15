@@ -1542,7 +1542,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Counterfactuals", (
             "counterfactuals", "counterfactual_crops", "counterfactual_epochs",
             "counterfactual_condition", "counterfactual_target",
-            "counterfactual_generator",
+            "counterfactual_generator", "counterfactual_strength",
+            "counterfactual_structure_weight",
         )),
         ("Output & Runtime", (
             "save", "shuffle", "batch_size", "n_jobs", "ram_guard",
@@ -6446,6 +6447,20 @@ def attach_api_tooltip(
     html = format_tooltip(body, app_key, key)
     widget.setProperty("settingsAppKey", app_key)
     widget.setProperty("settingKey", key)
+    if app_key == "activation":
+        if key == "counterfactual_strength":
+            widget.setObjectName("ActivationCounterfactualStrength")
+        elif key == "counterfactual_structure_weight":
+            widget.setObjectName("ActivationCounterfactualStructureWeight")
+    if app_key == "measure":
+        if key == "intensity_calibration_sessions":
+            widget.setObjectName("IntensityCalibrationSessions")
+        elif key == "intensity_calibration_session_column":
+            widget.setObjectName("IntensityCalibrationSessionColumn")
+        elif key == "intensity_calibration_beads":
+            widget.setObjectName("IntensityCalibrationBeads")
+        elif key == "intensity_calibration_reference_session":
+            widget.setObjectName("IntensityCalibrationReferenceSession")
     widget.setProperty("apiTooltipDescriptionSource", body)
     widget.setProperty("apiTooltipDescription", body)
     widget.setProperty("apiTooltipHtml", html)
@@ -6806,6 +6821,34 @@ class _TrainingFolderEdit(_ScalarEdit):
                 self.editingFinished.emit()
 
         action.triggered.connect(browse)
+
+
+class _CalibrationPathEdit(_ScalarEdit):
+    """An editable local calibration CSV or reference-folder path."""
+
+    def __init__(self, value=None, parent=None, *, directory=False):
+        """Add a path chooser without reading or interpreting the chosen input."""
+        super().__init__(parent)
+        from PySide6.QtWidgets import QStyle
+        from ..i18n import tr
+        self._directory = directory
+        self.set_value(value)
+        action = self.addAction(self.style().standardIcon(QStyle.SP_DirOpenIcon), QLineEdit.TrailingPosition)
+        action.setToolTip(tr("Choose folder…") if directory else tr("Choose file…"))
+        action.triggered.connect(self._choose_path)
+
+    def _choose_path(self):
+        """Commit one chosen path; cancellation preserves the current text."""
+        from PySide6.QtWidgets import QFileDialog
+        from ..i18n import tr
+        if self._directory:
+            path = QFileDialog.getExistingDirectory(self, tr("Choose folder…"), self.text())
+        else:
+            path, _ = QFileDialog.getOpenFileName(
+                self, tr("Choose file…"), self.text(), tr("CSV files (*.csv)"))
+        if path:
+            self.setText(path)
+            self.editingFinished.emit()
 
 
 class _CloudListingSignals(QObject):
@@ -10501,6 +10544,11 @@ class SettingsWidgets:
             default = self._defaults.get(key, default)
         if self.app_key == "train_cellpose" and key in {"src", "mask_src", "test_src", "test_mask_src", "save_path"}:
             return "special", lambda: _TrainingFolderEdit(self._defaults.get(key, default), parent)
+        if self.app_key == "measure" and key in {
+                "intensity_calibration_sessions", "intensity_calibration_beads"}:
+            return "special", lambda: _CalibrationPathEdit(
+                self._defaults.get(key, default), parent,
+                directory=key == "intensity_calibration_beads")
         if self.app_key == "umap" and key == "src":
             return "special", lambda: DatabaseSetWidget(
                 value=self._defaults.get(key, default),

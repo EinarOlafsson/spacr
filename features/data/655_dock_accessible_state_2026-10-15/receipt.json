@@ -1,0 +1,104 @@
+{
+  "status": "PASS: bounded Qt software acceptance; independent peer and parent integration pending",
+  "source_base": "d41f12fbf31cd55d79acf8296304fb75d61c0417",
+  "source_file": "spacr/qt/widgets/dock.py",
+  "source_sha256": "6ae995de50835d66754c12d0693e3f15656d06b62fe7aba99564b6b52440e04a",
+  "test_sha256": "6ee9635efe64930ef464b45ecb66407064caf0d416d1a79024b9a3286328ea81",
+  "baseline": {
+    "cases": "5 failed, 4 passed",
+    "pytest_seconds": 3.05,
+    "wall_seconds": 5.64,
+    "peak_rss_kib": 603976,
+    "exit_code": 1,
+    "actual_role": "Client",
+    "actual_actions": [
+      "Set Focus"
+    ],
+    "actual_state": {
+      "expandable": false,
+      "expanded": false,
+      "collapsed": false
+    },
+    "failure": "Press absent and no accessibility state notification from actual setter/mouse/keyboard changes"
+  },
+  "final": {
+    "cases": "51 passed",
+    "new_cases": 9,
+    "existing_cases": 42,
+    "pytest_seconds": 40.66,
+    "wall_seconds": 42.2,
+    "peak_rss_kib": 1188976,
+    "exit_code": 0,
+    "actual_role": "Button",
+    "actual_actions": [
+      "Press",
+      "Set Focus"
+    ],
+    "actual_state": {
+      "expandable": true,
+      "expanded": true,
+      "collapsed": false
+    }
+  },
+  "behavior": [
+    "Primary accessible Press routes through existing set_collapsed and emits its existing signal once per transition without changing dock width",
+    "Expanded and collapsed state follows setter, mouse and keyboard changes; no state event or signal for unchanged values",
+    "Disabled controls offer no actions and ignore an explicit Press request",
+    "Existing accessible names/help, parent navigation and interface cache ownership retained; ordinary QWidget unchanged"
+  ],
+  "scope": {
+    "source_sha256": "6ae995de50835d66754c12d0693e3f15656d06b62fe7aba99564b6b52440e04a",
+    "baseline_source_sha256": "a9b65ea4ad0805f9e0e945ff9876a5dc45822378bd167ff097843507d897a9c9",
+    "public_method_docs_unchanged": true,
+    "module_and_class_docs_unchanged": true,
+    "other_existing_methods_ast_unchanged": true,
+    "changed_existing_methods": [
+      "set_collapsed"
+    ],
+    "comments_unchanged": true,
+    "actual_public_symbol_calls": {
+      "spacr.qt.widgets.dock._AccessibleDockEdge": false,
+      "spacr.qt.widgets.dock._AccessibleDockEdge.__init__": false,
+      "spacr.qt.widgets.dock._AccessibleDockEdge.state": false,
+      "spacr.qt.widgets.dock._AccessibleDockEdge.actionNames": false,
+      "spacr.qt.widgets.dock._AccessibleDockEdge.doAction": false,
+      "spacr.qt.widgets.dock._dock_edge_accessible_factory": false
+    },
+    "actual_scoped_nested_inventory": [],
+    "scope": "Normal policy on every new declaration and normal helper inventory on an isolated one-file source root; no full repository collector or generated output.",
+    "full_module_ast_equal_after_restoring_exact_declared_scope": true
+  },
+  "environment": {
+    "cap": "2G",
+    "threads": 1,
+    "platform": "Qt6.12/Linux/offscreen",
+    "gpu": "hidden",
+    "settings": "private XDG_CONFIG_HOME",
+    "serialization": "shared Home-B heavy.lock"
+  },
+  "limits": [
+    "No native or human screen-reader acceptance for this control",
+    "No full N655 or macOS/Windows claim",
+    "No width ValueInterface or HintBar repair bundled",
+    "No new captions/public API artifacts; six actual private exclusions and empty scoped helper inventory",
+    "No automatic push"
+  ],
+  "references": [
+    "https://doc.qt.io/qt-6/qaccessiblewidget.html",
+    "https://doc.qt.io/qt-6/qaccessible-state.html",
+    "https://doc.qt.io/qt-6/qaccessibleactioninterface.html"
+  ],
+  "evidence_sha256": {
+    "before.time": "50bab0616857a893a9747733e766b25c97e37671ac64d9e7a16398cb45ad58d0",
+    "after.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "source-disposition.json": "0ade77d10a799720b05917400a142b3a54dfeda7e6ed1193b90a74033765595c",
+    "before.sh": "af9e0345aa310082a1f320716502a4c06c1cef6d30e5c88f6d2bd89ca9eb56f0",
+    "after.log.gz": "2a5f6aef421f632e55ba8872e398376874d2897efb0f4ee85bb3953b5503f55b",
+    "after.time": "e6e62d79dc8b485a16021fb784b64a1b2a52c5e75c70f811e9326e0165980eb1",
+    "after.sh": "c75be2653d6e4245ac0f5f5564280db6d12db0169122d08f7bfe247f4f842e2f",
+    "visibility.json": "6fb8aeb020eb2543513420cda95f50b51fa8a6475686e5fe1908575342f8387e",
+    "visibility.py": "722a094a4c6d29dbed3c9daa8d57fd7ed2ddb72b6b66a052626cea0dcd1cd1c4",
+    "before.log.gz": "cb8fe25afcfade2f1febc3df15786f17c16900258b63d185d7f729a4a531c1b8",
+    "before.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+  }
+}

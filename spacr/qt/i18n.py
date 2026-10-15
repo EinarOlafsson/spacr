@@ -3816,7 +3816,8 @@ def _composite_translation(source: str, language: str) -> Optional[str]:
     return _COMPOSITE_SEPARATOR.join(rendered)
 
 
-def tr(text: object, language: Optional[str] = None, **values: object) -> str:
+def tr(text: object, /, language: Optional[str] = None,
+       **values: object) -> str:
     """Translate one English UI string.
 
     Missing entries intentionally remain English. Keyword values are applied

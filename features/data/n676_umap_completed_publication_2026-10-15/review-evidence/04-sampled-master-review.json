@@ -1,0 +1,81 @@
+{
+  "status": "sampled_visual_review_pass",
+  "lesson": "15_image_umap",
+  "created_utc": "2026-10-15T12:05:37.909153+00:00",
+  "master": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/video/15_image_umap_silent.mp4",
+    "bytes": 245088942,
+    "sha256": "ad3a89531587b2193df0d204c890579560462d9adebc1743e4314317c059ad0a"
+  },
+  "timing": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/video/native-live-timings.json",
+    "bytes": 29967,
+    "sha256": "98baa04bbf0a932c4a488d56dcbeaef8d9b35990f8cce80f7f57464b87ae8aee"
+  },
+  "probe": {
+    "programs": [],
+    "streams": [
+      {
+        "width": 3840,
+        "height": 2160,
+        "r_frame_rate": "30/1",
+        "duration": "366.700000",
+        "nb_frames": "11001"
+      }
+    ]
+  },
+  "complete_native_clips": true,
+  "playback_speed": 1,
+  "looped_or_stretched": false,
+  "samples": [
+    {
+      "visual": "01_module",
+      "time": 14,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/master-sample-14.png",
+        "bytes": 1042498,
+        "sha256": "2c21b628e0973930fcf961e56bf4b8bbc0fcc0a1f6e1c813225fa5ecd1ff4098"
+      },
+      "finding": "Real Image UMAP public initial screen, beta controls visible and alpha disabled; initial row limit is changed later.",
+      "sample_scale": "1920x1080 inspection copy of3840x2160 master"
+    },
+    {
+      "visual": "19_setting_random_seed",
+      "time": 166,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/master-sample-166.png",
+        "bytes": 967990,
+        "sha256": "5d0209f7a68529397ca240e552beb20f27cc12c9cd9e841ef89d672ca61b8ae1"
+      },
+      "finding": "Real searched seed field displays42.",
+      "sample_scale": "1920x1080 inspection copy of3840x2160 master"
+    },
+    {
+      "visual": "25_interactive_embedding",
+      "time": 286,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/master-sample-286.png",
+        "bytes": 919055,
+        "sha256": "1935274cc2b5600f6ee3923ed602c27a5f44e24bdf88c9ae1bf8fdf166a7494a"
+      },
+      "finding": "Interactive view is enabled through public Actions; full400point map is visible.",
+      "sample_scale": "1920x1080 inspection copy of3840x2160 master"
+    },
+    {
+      "visual": "26_point_200",
+      "time": 337,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/master-sample-337.png",
+        "bytes": 886330,
+        "sha256": "9bb181462d9710b82b4b43293ac4f37c4580e6c358bb2f8f5d1918665db50f49"
+      },
+      "finding": "Selected point201/400 and its genuine crop/path are visible with map and annotation controls; no labels applied.",
+      "sample_scale": "1920x1080 inspection copy of3840x2160 master"
+    }
+  ],
+  "scope": "Root viewed these four actual decoded final-master frames. This is sampled visual review, not fullwatch, audiohearing or biological validation.",
+  "limits": [
+    "All400cluster0 doesnotvalidatebiologicalclasses; crop/recordlineage separatelyaudited.",
+    "Actualfirstword/audio playback acceptance is separate from thisvisualreview."
+  ]
+}

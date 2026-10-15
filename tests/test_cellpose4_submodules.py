@@ -22,12 +22,12 @@ def test_trained_checkpoint_is_named_cpsam_not_cyto(tmp_path, monkeypatch, cache
     """train_cellpose fine-tunes cpsam, so the filename must say cpsam."""
     import spacr.submodules as submodules
     from spacr import model_zoo
-    from types import SimpleNamespace
 
     cached = tmp_path / "cached-cpsam"
     if cached_stock:
         cached.write_bytes(b"recording model; never loaded")
-    entry = SimpleNamespace(key="cpsam", path=str(cached), uri="")
+    entry = model_zoo.ModelEntry(key="cpsam", name="cpsam", kind="cellpose",
+                                 path=str(cached), uri="")
     monkeypatch.setattr(model_zoo, "catalogue", lambda remote=True: [entry])
     monkeypatch.setattr(model_zoo, "fetch",
                         lambda *a, **k: pytest.fail("stock weights must not be fetched"))

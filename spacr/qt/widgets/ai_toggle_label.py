@@ -22,8 +22,11 @@ for the "AI" switch that sits at the bottom-right of every AppScreen.
 from __future__ import annotations
 
 from PySide6.QtCore import QEvent, QSize, Qt, Signal
-from PySide6.QtGui import QColor, QPainter, QPalette, QPen
-from PySide6.QtWidgets import QLabel
+from PySide6.QtGui import (
+    QAccessible, QAccessibleActionInterface, QAccessibleStateChangeEvent,
+    QColor, QPainter, QPalette, QPen,
+)
+from PySide6.QtWidgets import QAccessibleWidget, QLabel
 
 from ..i18n import tr
 from ..theme import active_palette, button_accent_text, font_px
@@ -263,6 +266,9 @@ class AiToggleLabel(QLabel):
             return
         self._on = on
         self._refresh_style()
+        changed = QAccessible.State()
+        changed.checked = True
+        QAccessible.updateAccessibility(QAccessibleStateChangeEvent(self, changed))
         self.toggled.emit(self._on)
 
     def mousePressEvent(self, event):
@@ -272,9 +278,7 @@ class AiToggleLabel(QLabel):
             left-button press is consumed.
         """
         if event.button() == Qt.LeftButton:
-            self._on = not self._on
-            self._refresh_style()
-            self.toggled.emit(self._on)
+            self.setChecked(not self.isChecked())
             return
         super().mousePressEvent(event)
 
@@ -318,3 +322,54 @@ class AiToggleLabel(QLabel):
             self._restyling = False
         self.updateGeometry()
         self._apply_elision()
+
+
+class _AccessibleAiToggle(QAccessibleWidget):
+    """Expose the existing label's toggle semantics to assistive clients."""
+
+    def __init__(self, widget):
+        """Wrap the label with checkbox role and normal widget navigation."""
+        super().__init__(widget, QAccessible.CheckBox)
+
+    def state(self):
+        """Combine normal widget state with the label's current checked value."""
+        state = super().state()
+        state.checkable = True
+        state.checked = bool(getattr(self.widget(), "_on", False))
+        state.readOnly = False
+        return state
+
+    def text(self, kind):
+        """Use an explicit accessible name or the full translated label."""
+        if kind == QAccessible.Name:
+            widget = self.widget()
+            return widget.accessibleName() or widget.text()
+        return super().text(kind)
+
+    def actionNames(self):
+        """Offer toggle and normal widget actions while the control is enabled."""
+        if not self.widget().isEnabled():
+            return []
+        return [QAccessibleActionInterface.toggleAction(), *super().actionNames()]
+
+    def doAction(self, action):
+        """Dispatch a client toggle through the label's existing state setter."""
+        widget = self.widget()
+        if not widget.isEnabled():
+            return
+        if action == QAccessibleActionInterface.toggleAction():
+            widget.setChecked(not widget.isChecked())
+            return
+        super().doAction(action)
+
+
+def _ai_toggle_accessible_factory(_key, widget):
+    """Provide this interface only for AI/Live labels and retain its wrapper."""
+    if isinstance(widget, AiToggleLabel):
+        interface = _AccessibleAiToggle(widget)
+        widget._accessible_toggle = interface
+        return interface
+    return None
+
+
+QAccessible.installFactory(_ai_toggle_accessible_factory)

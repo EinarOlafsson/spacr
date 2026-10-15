@@ -1,0 +1,30 @@
+[
+  {
+    "phase": "construction",
+    "endpoint": "(<socket.socket fd=8, family=2, type=1, proto=6, laddr=('0.0.0.0', 0)>, ('172.67.145.61', 443))",
+    "stack": [
+      "  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/threading.py\", line 1032, in _bootstrap\n    self._bootstrap_inner()\n",
+      "  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/threading.py\", line 1075, in _bootstrap_inner\n    self.run()\n",
+      "  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/threading.py\", line 1012, in run\n    self._target(*self._args, **self._kwargs)\n",
+      "  File \"/mnt/wd4tb/spacr-worktrees/codex-home-b-n180-final-help-20261015/spacr/qt/widgets/console_panel.py\", line 1954, in _fetch\n    box[\"allowance\"] = crashreport.fetch_allowance()\n",
+      "  File \"/mnt/wd4tb/spacr-worktrees/codex-home-b-n180-final-help-20261015/spacr/crashreport.py\", line 2140, in fetch_allowance\n    status, data = _post_json(f\"/allowance?{query}\", None, timeout)\n",
+      "  File \"/mnt/wd4tb/spacr-worktrees/codex-home-b-n180-final-help-20261015/spacr/crashreport.py\", line 1837, in _post_json\n    with _open_url(request, timeout) as response:\n",
+      "  File \"/mnt/wd4tb/spacr-worktrees/codex-home-b-n180-final-help-20261015/spacr/crashreport.py\", line 1812, in _open_url\n    return urllib.request.urlopen(request, timeout=timeout)\n",
+      "  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/urllib/request.py\", line 215, in urlopen\n    return opener.open(url, data, timeout)\n",
+      "  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/urllib/request.py\", line 515, in open\n    response = self._open(req, data)\n",
+      "  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/urllib/request.py\", line 532, in _open\n    result = self._call_chain(self.handle_open, protocol, protocol +\n",
+      "  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/urllib/request.py\", line 492, in _call_chain\n    result = func(*args)\n",
+      "  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/urllib/request.py\", line 1392, in https_open\n    return self.do_open(http.client.HTTPSConnection, req,\n",
+      "  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/urllib/request.py\", line 1344, in do_open\n    h.request(req.get_method(), req.selector, req.data, headers,\n",
+      "  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/http/client.py\", line 1358, in request\n    self._send_request(method, url, body, headers, encode_chunked)\n",
+      "  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/http/client.py\", line 1404, in _send_request\n    self.endheaders(body, encode_chunked=encode_chunked)\n",
+      "  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/http/client.py\", line 1353, in endheaders\n    self._send_output(message_body, encode_chunked=encode_chunked)\n",
+      "  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/http/client.py\", line 1113, in _send_output\n    self.send(msg)\n",
+      "  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/http/client.py\", line 1057, in send\n    self.connect()\n",
+      "  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/http/client.py\", line 1492, in connect\n    super().connect()\n",
+      "  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/http/client.py\", line 1023, in connect\n    self.sock = self._create_connection(\n",
+      "  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/socket.py\", line 850, in create_connection\n    sock.connect(sa)\n",
+      "  File \"/mnt/wd4tb/scratch/f564-gui-consumer-20261015/trace_startup.py\", line 17, in audit\n    attempts.append({'phase': phase, 'endpoint': repr(args), 'stack': traceback.format_stack()})\n"
+    ]
+  }
+]

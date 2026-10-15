@@ -1,0 +1,13 @@
+{
+  "reviewer": "easy_overnight independent AI technical source peer",
+  "commit": "87cc79bfa108c96941b4776db0d4216496c323b2",
+  "verdict": "approved exact isolated commit; no private parent adoption",
+  "sha256": {
+    "tools/build_i18n_catalogs.py": "43f280a21e5712a610c16cde7a1f96608a0b711f2ff9de0db4e8365bdd02b94f",
+    "tests/test_runtime_backend_caption_owners.py": "afc48e1230ae377b2bd129b5fa6d4fa181e7a0462c4e12e0a52fcf5b0c968563"
+  },
+  "source_boundary": "Adds utils.py to source paths and filters exclusively top-level FunctionDef named _resolve_cellpose_pretrained. All other builder bytes identical; no extractor gate, pin, review, translation or decoding changes.",
+  "test_boundary": "Native fixture creates empty utils file; positive literal-tr declared owner and negative unrelated/module/class/nested same-name scopes; every prior assertion retained.",
+  "evidence": "Read owner raw gzip baseline1FAIL1PASS45deselected and final47PASS1.17s; no rerun or collector/model invocation.",
+  "limits": "Technical source review, no native/human translation acceptance and no approval of unrelated parent commits."
+}

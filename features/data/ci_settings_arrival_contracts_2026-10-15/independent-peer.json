@@ -1,0 +1,26 @@
+{
+  "decision": "ACCEPT exact reviewed test-only diff; actual terminal owning result remains a separate parent receipt.",
+  "base": "6f71275b59848ad457c1ba15e0d61318d29a4275",
+  "diff_sha256": "faf5c7ba2e1c5bd367e9148da1e5c44996338defd5bbc5662976bab20a7a35ea",
+  "files": {
+    "tests/test_settings_categories.py": "eabd16b6ba7beea78b37f4c5b12adf897fc9e55a7a70cf3b5c7c904cc709dd84",
+    "tests/test_settings_tooltip_quality.py": "0e533c31fecb243dcc8489aed3958d914b28d3ac2465f897f5a493a950bd3248"
+  },
+  "checks": {
+    "categories_only_exact_three_published_keys_added": true,
+    "tests/test_settings_categories.py_changed_existing_functions": [],
+    "tests/test_settings_tooltip_quality.py_changed_existing_functions": [
+      "test_real_default_claims_have_no_unrecorded_drift"
+    ]
+  },
+  "reasoning": [
+    "Exact3 category declarations correspond to already published F580reference and F564strength/structure keys. No production settings or policy changes.",
+    "Both exact F580 reference-plate consumer pairs are required present and forbidden from variants; only their count2 is subtracted before unchanged historical931.",
+    "The same count2 subtraction is applied to the existing historical census sum. All other census numbers, keysets, default checks and variant protections remain unchanged."
+  ],
+  "provenance_commits": [
+    "0ba0b912",
+    "a7987f23"
+  ],
+  "runtime_by_peer": false
+}

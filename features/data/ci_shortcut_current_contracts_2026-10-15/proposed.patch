@@ -1,0 +1,40 @@
+diff --git a/tests/qt/test_cov_w2_6_shortcuts.py b/tests/qt/test_cov_w2_6_shortcuts.py
+index 569bd8bba5..f4578bff6d 100644
+--- a/tests/qt/test_cov_w2_6_shortcuts.py
++++ b/tests/qt/test_cov_w2_6_shortcuts.py
+@@ -54,8 +54,18 @@ def test_the_map_is_the_window_wide_keys_plus_the_per_screen_ones():
+     assert everything[:len(sc.SHORTCUTS)] == sc.SHORTCUTS
+     # 656: a key shared by several screens (Left/Right) is listed once per
+     # screen, because each screen now holds its own rebindable copy of it.
+-    assert {(spec.keys, spec.label) for spec in sc.SCREEN_SHORTCUTS} <= {
++    annotate_navigation = {
++        "Left": "Move focus left", "Right": "Move focus right",
++        "PageUp": "Previous page", "Alt+Left": "Previous page",
++        "PageDown": "Next page", "Alt+Right": "Next page",
++    }
++    assert {(spec.keys, annotate_navigation.get(spec.keys, spec.label)
++             if spec.category == "Annotate" else spec.label)
++            for spec in sc.SCREEN_SHORTCUTS} <= {
+         (spec.keys, spec.label) for spec in everything}
++    assert set(annotate_navigation.items()) <= {
++        (spec.keys, spec.label) for spec in everything
++        if spec.category == "Annotate"}
+     for scope in ("Annotate", "Make Masks", "Field browser"):
+         assert {"Left", "Right"} <= {
+             spec.keys for spec in everything[len(sc.SHORTCUTS):]
+diff --git a/tests/test_documentation_i18n.py b/tests/test_documentation_i18n.py
+index 81682da639..385a17033a 100644
+--- a/tests/test_documentation_i18n.py
++++ b/tests/test_documentation_i18n.py
+@@ -2969,9 +2969,9 @@ def test_window_wide_shortcut_keys_keep_keyboard_sense():
+ 
+     source = builder.public_docstrings()["spacr.qt.shortcuts"]
+     blocks, _layout = builder.translatable_blocks(source)
+-    shortcut = next(block for block in blocks if block.startswith("Every window-wide key"))
++    shortcut = next(block for block in blocks if block.startswith("Declared window-wide key sequences"))
+     context = builder._api_translation_source(shortcut)
+-    assert "Every window-wide key can be rebound." in context
++    assert "Declared window-wide key sequences can be rebound." in context
+     assert "a key typed there" in context
+     assert "structured-data name" not in context
+     assert _syntax_preserved(shortcut, context)

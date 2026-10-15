@@ -1,0 +1,18 @@
+{
+  "status": "PRIVATE prepared source; normalextractor/nine runtimecatalogs/actual9locale callbacks pending, no standalonepublication",
+  "base": "9bffdf47e60d07ff2e721c3604bc4b785822cbec",
+  "source_sha256": {
+    "spacr/embeddings.py": "d64ddef0b98e23e519f19f480e12da0326ea4f860bd5b3995a670e829ec15f7d",
+    "tests/test_f560_comparison_input_contract.py": "dd6d69253639390d199126ae682b8ef3f870f796ca92eeb13b4ab53a8e2bff8f",
+    "tests/test_f560_comparison_input_locales.py": "2d7e8d263c4a1ed7414637aa8488e4924e626cd3bc5be001b6ca70c605679fdb"
+  },
+  "baseline": "5FAIL1PASS1.12s",
+  "owning": "6PASS0.67s, no skips",
+  "scope": "Existing_backbone_scorecards refuses nonNHWC or labelcount mismatch beforeencoder/scorer. Exactexistingvalidmetrics/blankfiltering preserved; removing4lineguard recoversoriginalmoduleAST/doc/signatures/nestedhelperinventory.",
+  "limitations": [
+    "No foundationmodel inference/download/GPU/training",
+    "No new scientific acceptance or officialCellDINOweights",
+    "Actualexistingexpertfluorescence comparison evidence and officialaccessprerequisite remain source-bounddatedrecords",
+    "Nine exactruntime drafts self-reviewed; peer/normalwriter/actualinstalledlocale acceptance stillpending"
+  ]
+}

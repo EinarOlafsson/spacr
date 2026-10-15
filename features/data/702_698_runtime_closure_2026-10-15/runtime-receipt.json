@@ -1,0 +1,96 @@
+{
+  "mode": "normal exact review lookup and write_language; preserve every unrelated source-current target",
+  "locales": {
+    "sv": {
+      "owned_reviewed_rows": 3,
+      "unrelated_preserved_rows": 10873
+    },
+    "de": {
+      "owned_reviewed_rows": 3,
+      "unrelated_preserved_rows": 10873
+    },
+    "es": {
+      "owned_reviewed_rows": 3,
+      "unrelated_preserved_rows": 10873
+    },
+    "zh_CN": {
+      "owned_reviewed_rows": 3,
+      "unrelated_preserved_rows": 10873
+    },
+    "pt": {
+      "owned_reviewed_rows": 3,
+      "unrelated_preserved_rows": 10873
+    },
+    "hi": {
+      "owned_reviewed_rows": 3,
+      "unrelated_preserved_rows": 10873
+    },
+    "ko": {
+      "owned_reviewed_rows": 3,
+      "unrelated_preserved_rows": 10873
+    },
+    "is": {
+      "owned_reviewed_rows": 3,
+      "unrelated_preserved_rows": 10873
+    },
+    "fr": {
+      "owned_reviewed_rows": 3,
+      "unrelated_preserved_rows": 10873
+    }
+  },
+  "canonical_owned_occurrences": 3,
+  "api_disposition": "Two documented private helpers excluded by unchanged normal visibility predicate; no nested targets or committed English symbols; exact receipt separate",
+  "input_head": "8c0a85d1fbb36d6008baf6c84ccfe322297ea721",
+  "public_baseline": "a559ba334b258a83be33e8d292daee1f1e9daec5",
+  "driver_sha256": "8443e19330d31c9fa64e0a64a13eb94e5f17ce1781164d1a20fb5596f598eb43",
+  "normal_full_nine_runtime_audit_exit": 0,
+  "normal_arrivals": {
+    "baseline": 9833,
+    "added": 1196,
+    "retired": 153,
+    "changed": 33
+  },
+  "source_file_sha256_unchanged": {
+    "spacr/utils.py": "ff0831fd6c842df15b79315e247dec08672a930edfecde9e6ec4384f7a3c6bf5",
+    "tools/web_mask_generator/service.py": "eeae54f58463373c1a2a494823866eb07723260846fec0dad2d9dc56d519fc32",
+    "tools/web_mask_generator/app.py": "b283fa4ebe2cc53e3528a27663368b5012008f5ec1ab3bd0f073468ab8d2b580",
+    "tests/test_n702_stock_offline_boundary.py": "8325c99c5a560354018a9e1a9121a530a9dd7ea0c68dcb0acb439baaf850ecde",
+    "tests/test_n702_stock_offline_refusal_locales.py": "f1e26264239e78c1239db8258aece595400f0af727371544c6f1701863b629e7",
+    "tests/test_web_configured_preload_n698.py": "ed6af86ca70e3db6303263398dacb099f6473b314bf56e251c2063ee09ac553e",
+    "tests/test_web_configured_preload_locales_n698.py": "7d7a55747459a36697979210d2c9fc9b4c6038e9ab356e466cbc04de30ff5458",
+    "tools/build_i18n_catalogs.py": "59f054abd841ec80f833614416782edb86c2267c8e76749e35ef8d1a0fe4f809",
+    "spacr/qt/i18n.py": "9535a6bef1fd1f8541837db4f98fbd6ec3a7c4e17b528567a7166feb416f6eb2",
+    "tests/test_n702_unknown_cellpose_model_refusal.py": "d5e44cbb5f6f7a5ec7cacb108b377fd3d5fc7f56a7e4f5430b3e2612c2d8c65c",
+    "tests/test_n702_unknown_model_refusal_locales.py": "ba8e827e8be34f1396b78ad86b39b3de5ebb05429f42c35ddc646c3351560c57",
+    "tests/test_cellpose4_model_story.py": "22196369b70d0759cd38cfebb9fdb68b0a1ec338f3f15c434559d41be21ee57c",
+    "tests/test_cov_utils_mask_filtering.py": "54d328b1882bfcd5a31f5fb805859be102390ba1591b602d256d17a499a910fd",
+    "tools/build_documentation_i18n.py": "6bbdd7df679f8ee42f711def5835b1386c0276fbabcbbb036b71caed4012d39e",
+    "docs/i18n/reviewed/runtime/sv/2026-10-15-cellpose-unknown-model-refusal.json": "398eb2cb6bf0a60dcdcfd89f665a6e1f4bdb1b75136a32706aea42ba00e271eb",
+    "docs/i18n/reviewed/runtime/sv/2026-10-15-cellpose-stock-offline-refusal.json": "33ab345ef2dad8e9335380983d17fcef5c82974f84454442037af9a20f21be05",
+    "docs/i18n/reviewed/runtime/sv/2026-10-15-configured-startup-preload.json": "4579ef3a9e7782492cb8f8c16914a9d046da50ae480f83d0633c4e6cebb6731e",
+    "docs/i18n/reviewed/runtime/de/2026-10-15-cellpose-unknown-model-refusal.json": "1e36d0ee80f5c17e4eff3f319a8bcef4d751b6a90819c67e36ccac3144b05e60",
+    "docs/i18n/reviewed/runtime/de/2026-10-15-cellpose-stock-offline-refusal.json": "e009f7693c249bca5d3dfd7db3f1d04963c1f13644f8c17330bd21224d09c401",
+    "docs/i18n/reviewed/runtime/de/2026-10-15-configured-startup-preload.json": "f458fc03602d72d17e09e4a380f697fa273278476b930f8cef5b903295983553",
+    "docs/i18n/reviewed/runtime/es/2026-10-15-cellpose-unknown-model-refusal.json": "914d8ac10cdaa1135299d46ea4dc6edbfca8778ee5eaf2085a485f630a8ef879",
+    "docs/i18n/reviewed/runtime/es/2026-10-15-cellpose-stock-offline-refusal.json": "6db1f30dba9d789585e5726a7d6733c0195c25b27c34ee7441ba418b00919595",
+    "docs/i18n/reviewed/runtime/es/2026-10-15-configured-startup-preload.json": "9b1250e92fa787e453dc9567b417eedb2466b91d86450b76c77cd55586a8ad36",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-cellpose-unknown-model-refusal.json": "9d576827e0c1a8b9757d9e05a2e2964a71244494a728cca12e450c0c37233ca3",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-cellpose-stock-offline-refusal.json": "d546f88efe473eff83961fd388a1f4083b8d8f472cc7c53af897810b18eec222",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-configured-startup-preload.json": "a0f86807b833981c7a443c8d3fd19c30d312a911a37be9dee330c8310eadbedd",
+    "docs/i18n/reviewed/runtime/pt/2026-10-15-cellpose-unknown-model-refusal.json": "43ccc393340b376a6f134d7a0ddc4305c8caad86615da66cdb5b0c2e8211393e",
+    "docs/i18n/reviewed/runtime/pt/2026-10-15-cellpose-stock-offline-refusal.json": "510cc156515524817714a01e87573adca48337cd04e04ab5b6de50b1e612d77d",
+    "docs/i18n/reviewed/runtime/pt/2026-10-15-configured-startup-preload.json": "10ac1a3c705a364d7d1afec5b7befd8fefef177695af42b3cc4c1d88b155d09e",
+    "docs/i18n/reviewed/runtime/hi/2026-10-15-cellpose-unknown-model-refusal.json": "556bbc4f8202afa51ff133cd3978bfc96669b9022c6f1a548bb659448e1e88e0",
+    "docs/i18n/reviewed/runtime/hi/2026-10-15-cellpose-stock-offline-refusal.json": "f6749ea1f5e0d5eb1c8fa5c0096faffec8c88b9658b0b208f6d388e8c31fd0ba",
+    "docs/i18n/reviewed/runtime/hi/2026-10-15-configured-startup-preload.json": "26d792b6b78aebd12fcc35adae5c378b7a091a013f44148f0070b3e9689eced9",
+    "docs/i18n/reviewed/runtime/ko/2026-10-15-cellpose-unknown-model-refusal.json": "69b33abe9c4dd80943f6dbdde92f6ba7e2b7e43762ab82401fe5cc91841a39c7",
+    "docs/i18n/reviewed/runtime/ko/2026-10-15-cellpose-stock-offline-refusal.json": "f0eb15d8aee493f65249d868e70250b66e6a71698517086e10ec940548ff8302",
+    "docs/i18n/reviewed/runtime/ko/2026-10-15-configured-startup-preload.json": "2a0b982d7e1ce7ca1b152f105d310411e8d188e2ef417883278b78c8ae5c5770",
+    "docs/i18n/reviewed/runtime/is/2026-10-15-cellpose-unknown-model-refusal.json": "e93da0a0977fa1e4bd8abf56a5c29ad8d26994c0f1ae95b5a84ba4c73a360ec5",
+    "docs/i18n/reviewed/runtime/is/2026-10-15-cellpose-stock-offline-refusal.json": "4e4ed65fbe8746241bd591e877f5be8ed6944e3f583f7855d21d87d4129b5667",
+    "docs/i18n/reviewed/runtime/is/2026-10-15-configured-startup-preload.json": "67e60f5d88a6901e533a0ebf4cb34dfec6d71b4fff0fa1733bbb335ced9ab91c",
+    "docs/i18n/reviewed/runtime/fr/2026-10-15-cellpose-unknown-model-refusal.json": "3b2f3f870b6bdf8963cb1f8ccfa1e21358c417c58fcd65e9a75284d2ca9da11d",
+    "docs/i18n/reviewed/runtime/fr/2026-10-15-cellpose-stock-offline-refusal.json": "840ae9669599a939e96cc6ef52c20d1d11b40c519f5250440d35b6b119d6b03d",
+    "docs/i18n/reviewed/runtime/fr/2026-10-15-configured-startup-preload.json": "a0acf4425904336674d77ebe4207be4cb28a61b5203b5e5814805f01ecf50351"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "baseline": "Original unmodified node1FAIL1.29s; immediate len0instead1 while real async result stillqueued.",
+  "source_pins": "source-pins.json; both test/productionexact8fc2",
+  "baseline_sha256": {
+    "baseline.sh": "bf6630a533d7f53d3a6b0bae8bb49417bbd5d72ef9159d4b0c7f3834a8365723",
+    "baseline.log": "14a1b5972518e271d767fae5fe4bc836a00a8d0cb8e13f583a10dff79c48474f",
+    "baseline.xml": "59cac009aac8aadb0d78a02eda3780403d3f7e85dfdde5b06647182b69c3e46c",
+    "baseline.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "source-pins.json": "ac6419a5a5d5436dbe1d58a4e94b8de9b39476973d74ee0743f5385fd1ce3f50"
+  },
+  "no_source_mutation": true,
+  "proposal_only": "proposed.patch",
+  "process_terminal": "spacr-ci-real-drop-baseline-20261015 inactive/MainPID0"
+}

@@ -1,0 +1,28 @@
+{
+  "base": "55c949c802fe5d58e045cc413efa986e364bdb3d",
+  "hosted_run": 38699600639,
+  "scope": "Single stale test diagnostic substring replaced by actual published translated fullsuffix",
+  "baseline": {
+    "failed": 1,
+    "seconds": 1.06,
+    "reason": "Old English first-row-with-no-database substring differs from current reviewed explanatory caption; actual database assignment and plate/row identity already pass"
+  },
+  "verification": {
+    "passed": 1,
+    "seconds": 0.87,
+    "resource": "background existingcommonheavy.lock capped8G blankCUDA offscreen; queued before later two-slot resourceprotocol, left unchanged as instructed"
+  },
+  "test_proof": "test-only-proof.json binds exactbefore/afterbytes and all unowned AST/signatures/decorators unchanged",
+  "preserved": [
+    "actual SQLite database fixture",
+    "first unassigned row database assignment",
+    "plate2/row2 identity inmessage",
+    "message showninstatuslabel",
+    "production widget/algorithm/captions/catalogs unchanged"
+  ],
+  "assertion": "message must end with tr of full current two-sentence first-unassigned-row and filename-matching explanation; no loose genericword assertion",
+  "limits": [
+    "Test contract repair only, no product algorithm change",
+    "No new translation/native/wholeCI acceptance"
+  ]
+}

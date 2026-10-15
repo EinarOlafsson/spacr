@@ -1,0 +1,8 @@
+{
+  "path": "tests/test_web_shared_masks_n698.py",
+  "sha256": "a96c446052b7c888a20fe7dd05cef279241d970ea03fad5c9e08d941775c46ec",
+  "assertions": 26,
+  "all_assertion_ASTs_preserved": true,
+  "scope": "case::Model.eval signature and argument recorder only; root inspect import added; outputs unchanged",
+  "prior_source_analysis": "First recorder used locals comprehension, which includes closure/free variables calls/labels/vectors/logits; its30PASS proved assertions but not raw passed-argument identity. Corrected recorder explicitly indexes only actual method parameter names, excluding self and freevars."
+}
