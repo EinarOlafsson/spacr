@@ -121,7 +121,7 @@
       "source": "with a message that says the free daily limit is reached, or that the relay could not be reached.",
       "source_sha256": "656f3c754e1a7a99b682f4c18a57aac46a6c1d75f42b092e3dd0ae776a520471",
       "context": "with a message that says the free daily limit is reached, or that the relay could not be reached.",
-      "translation": "með skilaboðum um að ókeypis daglegum hámarki sé náð eða að ekki hafi náðst samband við milliliðinn.",
+      "translation": "með skilaboðum um að ókeypis daglegu hámarki sé náð eða að ekki hafi náðst samband við milliliðinn.",
       "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
     },
     {
@@ -162,6 +162,134 @@
       "source_sha256": "5797f57330dc8b6799b318070c4b2d0825f80b7063eb369e143e3dd8f5c53c7e",
       "context": "Keep the reason; the message is the whole text shown.",
       "translation": "Halda ástæðunni; skilaboðin eru allur textinn sem birtist.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.apply_provider_choice#0",
+      "source": "Save a provider choice and use it at once in every open console.",
+      "source_sha256": "a5ae9b6824253caab45554dd059e571e432bb89a10de613f7ebf6a357531ce9b",
+      "context": "Save a provider choice and use it at once in every open console.",
+      "translation": "Vista val á veitanda og nota það strax í öllum opnum stjórnborðum.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.apply_provider_choice#1",
+      "source": "A vendor CLI that is not installed and signed in is saved but not applied; the consoles keep spaCR AI (free) until it is set up.",
+      "source_sha256": "42bc83f8f8d1f55156cffeb7bd988b995768a6b2b063555cdb7ac139baba044d",
+      "context": "A vendor CLI that is not installed and signed in is saved but not applied; the consoles keep spaCR AI (free) until it is set up.",
+      "translation": "Val á CLI frá veitanda sem er ekki bæði uppsett og innskráð er vistað en ekki tekið í notkun; stjórnborðin halda spaCR AI (ókeypis) þar til uppsetningu og innskráningu er lokið.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.apply_provider_choice#2",
+      "source": "a name from :data:`PROVIDER_CHOICES`.",
+      "source_sha256": "7c2df80173c2376095e0e6e4d8509171924ef3afbff3790530f77329090d0f50",
+      "context": "a name from :data:`PROVIDER_CHOICES`.",
+      "translation": "heiti úr :data:`PROVIDER_CHOICES`.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.apply_provider_choice#3",
+      "source": "whether the chosen provider can answer now.",
+      "source_sha256": "3787fde9e9f01afffe459d9ce287165c359bd0353aeead7536e479c4240323a7",
+      "context": "whether the chosen provider can answer now.",
+      "translation": "hvort valdi veitandinn geti svarað núna.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.configured_providers#0",
+      "source": "Return the providers that can answer now, spaCR AI (free) first.",
+      "source_sha256": "12149d7875dc77cebe728c15fd063f97b5ff1ea5dba019b89072cb2e5e826de3",
+      "context": "Return the providers that can answer now, spaCR AI (free) first.",
+      "translation": "Skila þeim veitendum sem geta svarað núna, með spaCR AI (ókeypis) fyrst.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.configured_providers#1",
+      "source": "The hosted provider leads whenever the network is allowed, since it is the default; a vendor CLI follows when it is installed and logged in.",
+      "source_sha256": "ddca870541939d143b270a919500d0be204d97450cf055f814a2e2b900121f11",
+      "context": "The hosted provider leads whenever the network is allowed, since it is the default; a vendor CLI follows when it is installed and logged in.",
+      "translation": "Hýsti veitandinn er fremstur þegar netnotkun er leyfð, þar sem hann er sjálfgefinn; CLI frá veitanda kemur á eftir þegar það er uppsett og innskráð.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.default_provider#0",
+      "source": "Return the provider the AI switch uses.",
+      "source_sha256": "a500cdcdc24198f5c346b4724bf0dd40f4af992093840579e4567ddee0592759",
+      "context": "Return the provider the AI switch uses.",
+      "translation": "Skila veitandanum sem AI-rofinn notar.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.default_provider#1",
+      "source": "the provider Preferences names, or ``\"\"``.",
+      "source_sha256": "8edf3b29587838d71e60bfb3d547710432695f278b0dee9be491297a42dbdbbb",
+      "context": "the provider Preferences names, or ``\"\"``.",
+      "translation": "veitandinn sem er tilgreindur í kjörstillingum, eða ``\"\"``.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.default_provider#2",
+      "source": "``preferred`` when it can answer; otherwise spaCR AI (free); otherwise, with the network forbidden, the first vendor CLI that is installed and logged in; ``None`` when nothing can answer.",
+      "source_sha256": "2b58f2c2f4c4029a55f5f207e230cfe244ce03e5db1872d465e1f7685ee4c7e5",
+      "context": "``preferred`` when it can answer; otherwise spaCR AI (free); otherwise, with the network forbidden, the first vendor CLI that is installed and logged in; ``None`` when nothing can answer.",
+      "translation": "``preferred`` þegar hann getur svarað; annars spaCR AI (ókeypis); annars, þegar netnotkun er bönnuð, fyrsta CLI frá veitanda sem er uppsett og innskráð; ``None`` þegar enginn getur svarað.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.effective_provider_name#0",
+      "source": "Return the name of the provider Preferences shows as chosen.",
+      "source_sha256": "c2683425f4995c2cde5db5eace9a0b488258a90c1ddc9aadcf155a3fa18ece07",
+      "context": "Return the name of the provider Preferences shows as chosen.",
+      "translation": "Skila heiti veitandans sem kjörstillingar sýna sem valinn.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.effective_provider_name#1",
+      "source": "the stored preference; ``\"\"`` (never chosen) means spaCR AI (free).",
+      "source_sha256": "83d70395c1cc35623156af8638390c8d233418aa12173ba9d8e9644b70b6e365",
+      "context": "the stored preference; ``\"\"`` (never chosen) means spaCR AI (free).",
+      "translation": "vistaða kjörstillingin; ``\"\"`` (aldrei valið) merkir spaCR AI (ókeypis).",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.effective_provider_name#2",
+      "source": "a name from :data:`PROVIDER_CHOICES`.",
+      "source_sha256": "7c2df80173c2376095e0e6e4d8509171924ef3afbff3790530f77329090d0f50",
+      "context": "a name from :data:`PROVIDER_CHOICES`.",
+      "translation": "heiti úr :data:`PROVIDER_CHOICES`.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.get_provider#0",
+      "source": "Look up a provider by its short id.",
+      "source_sha256": "641f498aafa0c9c8081b6422e6a5654c5e44b26ad2e139e5f07c4015aa0055d1",
+      "context": "Look up a provider by its short id.",
+      "translation": "Fletta upp veitanda eftir stuttu auðkenni hans.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.get_provider#1",
+      "source": "provider id (``\"claude\"``, ``\"codex\"``, ``\"gemini\"`` or :data:`HOSTED_PROVIDER_NAME`).",
+      "source_sha256": "9cb91fc3bc8e6be1f7ab8cdbbe128db0647159821906d7a4c5ad1d66dd0f60e7",
+      "context": "provider id (``\"claude\"``, ``\"codex\"``, ``\"gemini\"`` or :data:`HOSTED_PROVIDER_NAME`).",
+      "translation": "auðkenni veitanda (``\"claude\"``, ``\"codex\"``, ``\"gemini\"`` eða :data:`HOSTED_PROVIDER_NAME`).",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.list_providers#0",
+      "source": "Return every vendor CLI provider, regardless of install state.",
+      "source_sha256": "d0cc25d3d78c49820b7c0ca675fe2afac44aaf43081501732a9e4f1450b80609",
+      "context": "Return every vendor CLI provider, regardless of install state.",
+      "translation": "Skila öllum CLI-veitendum, óháð því hvort þeir eru uppsettir.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.list_providers#1",
+      "source": "The hosted provider is not one of them: it has nothing to install or sign in to. :func:`hosted_provider` returns it.",
+      "source_sha256": "41268dab5a3a8a3efec7f3a88b2e684bd3d8ce3641df48169f1fc5a975c57033",
+      "context": "The hosted provider is not one of them: it has nothing to install or sign in to. :func:`hosted_provider` returns it.",
+      "translation": "Hýsti veitandinn er ekki einn þeirra: hjá honum þarf ekkert að setja upp eða skrá sig inn. :func:`hosted_provider` skilar honum.",
       "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
     }
   ]
