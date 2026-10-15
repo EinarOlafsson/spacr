@@ -89467,6 +89467,16 @@
       "source_sha256": "55437917001f54b5d919e81c0a1a46930c948bbf7e863b185a44195c1ba889c2",
       "text": "Every figure the queue holds, in order, for the grid view.\n\nReads the PNG from disk for a figure whose pixmap has been evicted\nrather than promoting it in the RAM cache: building a grid is a bulk\nread of everything, and letting it reorder the cache would evict\nexactly the figures the user is currently looking at."
     },
+    "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state": {
+      "source_blocks_sha256": [
+        "9ebdf6dbe22f47a6114fffff957d2cc30f9581afa25e65a89b5cef7fb1f02eae",
+        "9073960d4c16f7846832ac1d62572574275912f05a410e39603f72e95445100b",
+        "64c6ac287109b151fe4b0bcdf6c7a566c648895b1c5b4d71d327e93bdd53d2ea",
+        "f3723209ba1d25b491a244802912bdca7498e1c061e859f3fb06660a3a1ca48b"
+      ],
+      "source_sha256": "01f8445f69a7e6cb9a617113db457c0f7058fc0845b40f1050b5770b54983aea",
+      "text": "Restore saved previews without executing or reconstructing figures.\n\nAvailable PNG and PDF files are copied into fresh queue-owned storage;\nthe workspace bundle and original files are left untouched. Missing\npreviews retain their slots for the normal unavailable-image display.\nThe workspace restore report separately identifies missing files.\nInvalid state or invalid image formats leave this queue unchanged.\n\n:param state: state from :meth:`workspace_state`, with carried paths\n    already resolved by the workspace restorer.\n:returns: whether the state was accepted. Files exceeding the current\n    per-file copy budget raise an error reported by the restorer."
+    },
     "spacr.qt.widgets.figure_queue.FigureQueue.cache_budget_entries": {
       "source_blocks_sha256": [
         "723952d71c29f2b4e52a0351b7eab09b51bd14b427ffd332ea88b21ec6f75ffd",
@@ -89726,6 +89736,15 @@
       ],
       "source_sha256": "115c100c1b20ad3723992da3fd0d2f6775448b6758d268ea1bf55691214a701b",
       "text": "How many figures have been evicted from RAM to disk-only."
+    },
+    "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state": {
+      "source_blocks_sha256": [
+        "c3685d19dccd8c3022f73ffdfb41e5cdfcbb6e4b904cae0388d32261a0ebb2d7",
+        "3219f8fde06159a0689b3eb08b6795f161fb35a988e169e2bdc0902a24c99784",
+        "26daec1be91b1ebbf8464ec95e6834bdbcd105e5d29a7bc63f61d3f6e5c3e51d"
+      ],
+      "source_sha256": "9102f4c14ccfb4f991ff0681578277c85f28639e88772ab378a72677e95cc172",
+      "text": "Record ordered figure files, titles, run sections and the selected slot.\n\nQueue-owned PNG previews and sibling PDF pages within the current\nworkspace per-file budget are marked for carrying even in reference\nmode. External files and larger files remain references. Live Python\nfigures and their pickled cache files are never included.\n\n:returns: plain state for :meth:`apply_workspace_state`, including the\n    workspace's explicit carry inventory."
     },
     "spacr.qt.widgets.figure_queue.figure_text_items": {
       "source_blocks_sha256": [

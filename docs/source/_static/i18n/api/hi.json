@@ -141344,6 +141344,22 @@
         "4430f253a69652250da2a227e85262f201841e28a52decd0512e06326bdfb9b6"
       ]
     },
+    "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state": {
+      "source_blocks_sha256": [
+        "9ebdf6dbe22f47a6114fffff957d2cc30f9581afa25e65a89b5cef7fb1f02eae",
+        "9073960d4c16f7846832ac1d62572574275912f05a410e39603f72e95445100b",
+        "64c6ac287109b151fe4b0bcdf6c7a566c648895b1c5b4d71d327e93bdd53d2ea",
+        "f3723209ba1d25b491a244802912bdca7498e1c061e859f3fb06660a3a1ca48b"
+      ],
+      "source_sha256": "01f8445f69a7e6cb9a617113db457c0f7058fc0845b40f1050b5770b54983aea",
+      "text": "चित्रों को निष्पादित या पुनर्निर्मित किए बिना सहेजे गए पूर्वावलोकन पुनर्स्थापित करें।\n\nउपलब्ध PNG और PDF फ़ाइलें कतार के स्वामित्व वाले नए संग्रहण में कॉपी की जाती हैं; कार्यक्षेत्र बंडल और मूल फ़ाइलें अछूती रहती हैं। अनुपस्थित पूर्वावलोकन अपने स्थान बनाए रखते हैं, जहाँ चित्र उपलब्ध न होने का सामान्य संकेत दिखता है। कार्यक्षेत्र पुनर्स्थापन रिपोर्ट अनुपस्थित फ़ाइलों को अलग से बताती है। अमान्य स्थिति या अमान्य चित्र प्रारूप इस कतार को अपरिवर्तित छोड़ते हैं।\n\n:param state: :meth:`workspace_state` से मिली स्थिति, जिसमें साथ ले जाई गई फ़ाइलों के पथ कार्यक्षेत्र पुनर्स्थापक पहले ही निर्धारित कर चुका है।\n:returns: क्या स्थिति स्वीकार की गई। वर्तमान प्रति-फ़ाइल कॉपी सीमा से बड़ी फ़ाइलें एक त्रुटि उत्पन्न करती हैं, जिसे पुनर्स्थापक रिपोर्ट करता है।",
+      "translation_source_blocks_sha256": [
+        "9ebdf6dbe22f47a6114fffff957d2cc30f9581afa25e65a89b5cef7fb1f02eae",
+        "9073960d4c16f7846832ac1d62572574275912f05a410e39603f72e95445100b",
+        "64c6ac287109b151fe4b0bcdf6c7a566c648895b1c5b4d71d327e93bdd53d2ea",
+        "f3723209ba1d25b491a244802912bdca7498e1c061e859f3fb06660a3a1ca48b"
+      ]
+    },
     "spacr.qt.widgets.figure_queue.FigureQueue.cache_budget_entries": {
       "source_blocks_sha256": [
         "723952d71c29f2b4e52a0351b7eab09b51bd14b427ffd332ea88b21ec6f75ffd",
@@ -141736,6 +141752,20 @@
       "text": "कितने आंकड़े रैम से डिस्क-केवल निकाल दिया गया है।",
       "translation_source_blocks_sha256": [
         "115c100c1b20ad3723992da3fd0d2f6775448b6758d268ea1bf55691214a701b"
+      ]
+    },
+    "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state": {
+      "source_blocks_sha256": [
+        "c3685d19dccd8c3022f73ffdfb41e5cdfcbb6e4b904cae0388d32261a0ebb2d7",
+        "3219f8fde06159a0689b3eb08b6795f161fb35a988e169e2bdc0902a24c99784",
+        "26daec1be91b1ebbf8464ec95e6834bdbcd105e5d29a7bc63f61d3f6e5c3e51d"
+      ],
+      "source_sha256": "9102f4c14ccfb4f991ff0681578277c85f28639e88772ab378a72677e95cc172",
+      "text": "चित्र फ़ाइलों का क्रम, शीर्षक, रन के अनुभाग और चुना गया स्थान दर्ज करें।\n\nकतार के स्वामित्व वाले PNG पूर्वावलोकन और संबद्ध PDF पृष्ठ, जो कार्यक्षेत्र की वर्तमान प्रति-फ़ाइल आकार सीमा के भीतर हैं, संदर्भ मोड में भी साथ ले जाने के लिए चिह्नित किए जाते हैं। बाहरी और बड़ी फ़ाइलें संदर्भ के रूप में बनी रहती हैं। स्मृति में मौजूद Python चित्र ऑब्जेक्ट और उनकी pickle प्रारूप वाली कैश फ़ाइलें कभी शामिल नहीं की जातीं।\n\n:returns: :meth:`apply_workspace_state` के लिए साधारण स्थिति डेटा, जिसमें कार्यक्षेत्र के साथ ले जाने वाली फ़ाइलों की स्पष्ट सूची शामिल है।",
+      "translation_source_blocks_sha256": [
+        "c3685d19dccd8c3022f73ffdfb41e5cdfcbb6e4b904cae0388d32261a0ebb2d7",
+        "4f0f8c1d46a845a9837f59c28d6b8b3da7195382bd2a51119565e488a98edbe4",
+        "26daec1be91b1ebbf8464ec95e6834bdbcd105e5d29a7bc63f61d3f6e5c3e51d"
       ]
     },
     "spacr.qt.widgets.figure_queue.figure_text_items": {

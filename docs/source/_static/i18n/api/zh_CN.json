@@ -141345,6 +141345,22 @@
         "4430f253a69652250da2a227e85262f201841e28a52decd0512e06326bdfb9b6"
       ]
     },
+    "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state": {
+      "source_blocks_sha256": [
+        "9ebdf6dbe22f47a6114fffff957d2cc30f9581afa25e65a89b5cef7fb1f02eae",
+        "9073960d4c16f7846832ac1d62572574275912f05a410e39603f72e95445100b",
+        "64c6ac287109b151fe4b0bcdf6c7a566c648895b1c5b4d71d327e93bdd53d2ea",
+        "f3723209ba1d25b491a244802912bdca7498e1c061e859f3fb06660a3a1ca48b"
+      ],
+      "source_sha256": "01f8445f69a7e6cb9a617113db457c0f7058fc0845b40f1050b5770b54983aea",
+      "text": "恢复保存的预览，而不执行或重建图对象。\n\n可用的 PNG 和 PDF 文件会复制到队列所有的新存储位置；工作区包和原始文件保持不变。缺失的预览保留其位置，以显示通常的图像不可用提示。工作区恢复报告会单独列出缺失的文件。无效的状态或图像格式不会改变此队列。\n\n:param state: 来自 :meth:`workspace_state` 的状态，其中随包携带文件的路径已由工作区恢复程序解析。\n:returns: 是否接受了该状态。超过当前单文件复制限额的文件会引发错误，由恢复程序报告。",
+      "translation_source_blocks_sha256": [
+        "9ebdf6dbe22f47a6114fffff957d2cc30f9581afa25e65a89b5cef7fb1f02eae",
+        "9073960d4c16f7846832ac1d62572574275912f05a410e39603f72e95445100b",
+        "64c6ac287109b151fe4b0bcdf6c7a566c648895b1c5b4d71d327e93bdd53d2ea",
+        "f3723209ba1d25b491a244802912bdca7498e1c061e859f3fb06660a3a1ca48b"
+      ]
+    },
     "spacr.qt.widgets.figure_queue.FigureQueue.cache_budget_entries": {
       "source_blocks_sha256": [
         "723952d71c29f2b4e52a0351b7eab09b51bd14b427ffd332ea88b21ec6f75ffd",
@@ -141737,6 +141753,20 @@
       "text": "多少个数字被从RAM到磁盘单独排除。",
       "translation_source_blocks_sha256": [
         "115c100c1b20ad3723992da3fd0d2f6775448b6758d268ea1bf55691214a701b"
+      ]
+    },
+    "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state": {
+      "source_blocks_sha256": [
+        "c3685d19dccd8c3022f73ffdfb41e5cdfcbb6e4b904cae0388d32261a0ebb2d7",
+        "3219f8fde06159a0689b3eb08b6795f161fb35a988e169e2bdc0902a24c99784",
+        "26daec1be91b1ebbf8464ec95e6834bdbcd105e5d29a7bc63f61d3f6e5c3e51d"
+      ],
+      "source_sha256": "9102f4c14ccfb4f991ff0681578277c85f28639e88772ab378a72677e95cc172",
+      "text": "记录按顺序排列的图文件、标题、运行分区和选中的位置。\n\n属于队列的 PNG 预览及其配套 PDF 页面，若未超过工作区当前的单文件大小限额，即使在引用模式下也会标记为随包携带。外部文件和较大文件仍保留为引用。内存中的 Python 图对象及其 pickle 缓存文件绝不会包含在内。\n\n:returns: 供 :meth:`apply_workspace_state` 使用的普通状态数据，包括工作区明确列出的随包携带文件清单。",
+      "translation_source_blocks_sha256": [
+        "c3685d19dccd8c3022f73ffdfb41e5cdfcbb6e4b904cae0388d32261a0ebb2d7",
+        "4f0f8c1d46a845a9837f59c28d6b8b3da7195382bd2a51119565e488a98edbe4",
+        "26daec1be91b1ebbf8464ec95e6834bdbcd105e5d29a7bc63f61d3f6e5c3e51d"
       ]
     },
     "spacr.qt.widgets.figure_queue.figure_text_items": {
