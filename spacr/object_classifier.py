@@ -754,7 +754,12 @@ def _drop_unreal_objects(src: str, settings: Mapping[str, Any]) -> Dict[str, int
     from .io import _save_array_atomic
     from .tabular import write_table
 
-    bundles = _real_classifier_bundles(settings["real_object_classifier"])
+    from .model_zoo import _resolve_pinned_model_file
+
+    resolved = _resolve_pinned_model_file(
+        settings, "real_object_classifier", kinds=("classifier",))
+    bundles = _real_classifier_bundles(
+        str(resolved) if resolved is not None else settings["real_object_classifier"])
     threshold = float(settings.get("real_object_threshold", 0.5))
     removed_counts: Dict[str, int] = {}
     for object_type, bundle in bundles.items():

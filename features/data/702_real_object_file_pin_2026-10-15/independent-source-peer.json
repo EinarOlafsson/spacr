@@ -1,0 +1,32 @@
+{
+  "status": "SOURCE_PEER_ACCEPT",
+  "source_worktree": "/mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015",
+  "base": "c98384beb45c302495a1aa85fb796f483da310b8",
+  "bindings": {
+    "spacr/model_zoo.py": {
+      "symbol": "_model_input_kinds",
+      "before_sha256": "4703612184e6c9e16239ff6c43110c2dd574fd23f1ec48b7a61e6032e352f67b",
+      "after_sha256": "ef29bd7b9ab91e8b2456fd4eb4d98a4cb5d106d0239736d8319a5a06d8269e08",
+      "all_other_ast_unchanged": true,
+      "signature_and_prose_unchanged": true
+    },
+    "spacr/object_classifier.py": {
+      "symbol": "_drop_unreal_objects",
+      "before_sha256": "4c1f00811f97873c1c53f54734afafd392cedf10a90d83935910042d7ffa58fc",
+      "after_sha256": "2a1c20b21f0de11906d7c627d03d32aad872c09e186210d362544205b2bc6c59",
+      "all_other_ast_unchanged": true,
+      "signature_and_prose_unchanged": true
+    }
+  },
+  "review": [
+    "Masks/MakeMasks/Timelapse exported real_object_classifier is now constrained to existing classifier kind. Final name filter retains absence behavior.",
+    "Actual filter resolves existing exact pin with trusted schema/kind/SHA helper before existing joblib loader; changed bytes refuse first, recovered catalogue identity feeds only resolved path.",
+    "Unpinned existing files/directories keep original loader and folder semantics. Settings deep-copy capture does not mutate caller.",
+    "No new public signature, runtime literal, doc/API prose or other module AST change."
+  ],
+  "tests_reviewed": "tests/test_n702_real_object_classifier_pins.py seven scoped cases; no peer test execution",
+  "limits": [
+    "Source review only; root owns final owning cohort.",
+    "Existing path-verification then loader boundary is retained, not claimed atomic immutable-deserialization protection."
+  ]
+}

@@ -3768,6 +3768,7 @@ def _model_input_kinds(module, settings):
                        or ("cellpose_dino" if _cellpose_dino_choice(value) is not None else None)
                        or _backend_name(settings.get("segmentation_backend")))
             result[name] = (backend,) if backend in KINDS else ()
+        result['real_object_classifier'] = ('classifier',)
     elif key == "train_cellpose":
         result = {"base_model": ("cellpose",)}
     elif key == "cellpose_masks":

@@ -1,0 +1,24 @@
+{
+  "scope": "Single-file real_object_classifier participates in Mask model pin capture and exact pinned resolution before classifier loading; existing directory bundle and custom unpinned file contracts preserved.",
+  "baseline": "5FAIL2PASS5.01s; actual acquired path was ignored, changed pinned bytes reached deserializer, all three mask module registry keys absent.",
+  "final": "42PASS14.44s exit0: seven new owning cases and existing full real-object classifier module.",
+  "source": {
+    "spacr/model_zoo.py": {
+      "owner": "_model_input_kinds",
+      "source_sha256": "ef29bd7b9ab91e8b2456fd4eb4d98a4cb5d106d0239736d8319a5a06d8269e08",
+      "all_docs_signatures_unchanged": true,
+      "outside_owner_ast_identical": true,
+      "all_named_definitions_and_tr_calls_unchanged": true
+    },
+    "spacr/object_classifier.py": {
+      "owner": "_drop_unreal_objects",
+      "source_sha256": "2a1c20b21f0de11906d7c627d03d32aad872c09e186210d362544205b2bc6c59",
+      "all_docs_signatures_unchanged": true,
+      "outside_owner_ast_identical": true,
+      "all_named_definitions_and_tr_calls_unchanged": true
+    }
+  },
+  "test_sha256": "74fba275939de0ced6108ff964334832aa2d75e567d736fd5df9321033d1924e",
+  "no_new_api_runtime": "All named docs/definitions, owning signatures and literal tr calls unchanged; no writer required.",
+  "limits": "Controlled native checkpoint bytes and existing classifier tests; no actual trained model deserialization/inference, network/model download, GPU, scientific or whole-N702 acceptance."
+}
