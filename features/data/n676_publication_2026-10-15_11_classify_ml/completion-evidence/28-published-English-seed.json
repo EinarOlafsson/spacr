@@ -1,0 +1,19 @@
+{
+  "scope": "Exact published27-track reuse seed; normal current renderer and final staged audio QA still required",
+  "baseline_manifest_sha256": "daf0d6db958a00487a7dd3764637ded51d664826fb50d77e51629db7261e6009",
+  "files": [
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/en/af_heart.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/en/af_heart.m4a",
+      "published_sha256": "9947dd7fe1848119e3307d6c2ba29fac6044da43320ae40f49ac834423cdfac9"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/en/af_heart.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/en/af_heart.json",
+      "published_sha256": "0e8854a1cd18a7cf6666412fa24ea7f48295a7f41a1ce36315df03fc15c343ab"
+    }
+  ],
+  "new_synthesis": false,
+  "native_speaker_signoff": false,
+  "publication_eligible": false
+}

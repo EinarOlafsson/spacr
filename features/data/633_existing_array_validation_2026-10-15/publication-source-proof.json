@@ -1,0 +1,31 @@
+{
+  "public_base": "08e2519d51783007b8848641762be74787a5de94",
+  "source_component": "45c1e13b3cc325f1eed6902069fe7bec44abfb26",
+  "source_and_harness_byte_identical": true,
+  "all_incoming_generated_API_runtime_tools_preserved": true,
+  "source_sha256": "54d58246f1344c24ade3c1a17aa247d61a4ab0fd9ed0cb7c7336227094d57973",
+  "changed_paths": [
+    "features/data/633_existing_array_validation_2026-10-15/baseline.exit.gz",
+    "features/data/633_existing_array_validation_2026-10-15/baseline.log.gz",
+    "features/data/633_existing_array_validation_2026-10-15/baseline.sh.gz",
+    "features/data/633_existing_array_validation_2026-10-15/mmap-probe.exit.gz",
+    "features/data/633_existing_array_validation_2026-10-15/mmap-probe.log.gz",
+    "features/data/633_existing_array_validation_2026-10-15/mmap-probe.py.gz",
+    "features/data/633_existing_array_validation_2026-10-15/mmap-probe.sh.gz",
+    "features/data/633_existing_array_validation_2026-10-15/native-baseline.py.gz",
+    "features/data/633_existing_array_validation_2026-10-15/owning.exit.gz",
+    "features/data/633_existing_array_validation_2026-10-15/owning.log.gz",
+    "features/data/633_existing_array_validation_2026-10-15/owning.sh.gz",
+    "features/data/633_existing_array_validation_2026-10-15/owning.xml.gz",
+    "features/data/633_existing_array_validation_2026-10-15/proposed-source.patch.gz",
+    "features/data/633_existing_array_validation_2026-10-15/receipt.json",
+    "features/data/633_existing_array_validation_2026-10-15/regression-baseline.exit.gz",
+    "features/data/633_existing_array_validation_2026-10-15/regression-baseline.log.gz",
+    "features/data/633_existing_array_validation_2026-10-15/regression-baseline.sh.gz",
+    "features/data/633_existing_array_validation_2026-10-15/regression-baseline.xml.gz",
+    "features/data/633_existing_array_validation_2026-10-15/root-source-peer.json",
+    "features/new/633_test_data_for_every_module.txt",
+    "spacr/example_archives.py",
+    "tests/test_n633_existing_array_validation.py"
+  ]
+}

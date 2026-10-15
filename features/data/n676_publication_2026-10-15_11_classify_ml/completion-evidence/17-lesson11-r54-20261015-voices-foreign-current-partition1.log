@@ -1,0 +1,16 @@
+Command: ['/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/bin/python', '/media/carruthers/mnt3/claude/n676_stages/work/lesson11-r54/run_tool.py', 'tools/tutorials/authoring/tools/render_all_voices.py', '--lessons', '11', '--languages', 'all', '--voices', 'ef_dora,hf_alpha,if_sara,pm_santa,jf_tebukuro,zf_xiaoxiao,zm_yunxia', '--threads', '2', '--device', 'cpu', '--force']
+Source: 88b1b28dac644198e84fdb24f8c219a29dc61d79
+/home/carruthers/anaconda3/envs/spacr12/lib/python3.12/site-packages/torch/nn/modules/rnn.py:1011: UserWarning: dropout option adds dropout after all but last recurrent layer, so non-zero dropout expects num_layers greater than 1, but got dropout=0.2 and num_layers=1
+  super().__init__("LSTM", *args, **kwargs)
+/home/carruthers/anaconda3/envs/spacr12/lib/python3.12/site-packages/torch/nn/utils/weight_norm.py:144: FutureWarning: `torch.nn.utils.weight_norm` is deprecated in favor of `torch.nn.utils.parametrizations.weight_norm`.
+  WeightNorm.apply(module, name, dim)
+es/ef_dora/11_classify_ml 163.5s rendered=1 elapsed=0.0m
+hi/hf_alpha/11_classify_ml 174.2s rendered=2 elapsed=0.1m
+it/if_sara/11_classify_ml 157.9s rendered=3 elapsed=0.1m
+pt-BR/pm_santa/11_classify_ml 157.7s rendered=4 elapsed=0.2m
+ja/jf_tebukuro/11_classify_ml 217.3s rendered=5 elapsed=0.2m
+zh-CN/zf_xiaoxiao/11_classify_ml 134.7s rendered=6 elapsed=0.3m
+zh-CN/zm_yunxia/11_classify_ml 139.9s rendered=7 elapsed=0.3m
+complete rendered=7 skipped=0 peak_failures=0
+
+Terminal exit status: 0

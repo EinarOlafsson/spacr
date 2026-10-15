@@ -211,10 +211,12 @@ class _SectionHeader(QFrame):
         its own so the grid shows through.
         """
         super().__init__(parent)
+        self._strong_focus_ring = _strong_focus_style()
         self.setObjectName("FigureGridSectionHeader")
         self.section_key = key
         self.setCursor(Qt.PointingHandCursor)
         self.setFocusPolicy(Qt.StrongFocus)
+        self.setAccessibleName(str(label))
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setStyleSheet("_SectionHeader { background: transparent; }")
 
@@ -267,6 +269,37 @@ class _SectionHeader(QFrame):
         view = self._view()
         if view is not None:
             view.toggle_section(self)
+
+    def paintEvent(self, event):
+        """Draw the heading and its current keyboard-focus outline."""
+        super().paintEvent(event)
+        if self.hasFocus():
+            painter = QPainter(self)
+            try:
+                width, colour = self._strong_focus_ring or (
+                    2, self.palette().color(QPalette.Highlight))
+                painter.setPen(QPen(QColor(colour), width))
+                painter.setBrush(Qt.NoBrush)
+                painter.drawRect(self.rect().adjusted(1, 1, -1, -1))
+            finally:
+                painter.end()
+
+    def changeEvent(self, event):
+        """Refresh the cached outline when the live preference style changes."""
+        if event.type() in (QEvent.StyleChange, QEvent.PaletteChange):
+            self._strong_focus_ring = _strong_focus_style()
+            self.update()
+        super().changeEvent(event)
+
+    def focusInEvent(self, event):
+        """Repaint the section heading when keyboard focus enters."""
+        super().focusInEvent(event)
+        self.update()
+
+    def focusOutEvent(self, event):
+        """Remove the outline when keyboard focus leaves the heading."""
+        super().focusOutEvent(event)
+        self.update()
 
     def mouseReleaseEvent(self, event):         # noqa: N802 - Qt naming
         """Fold or unfold this run's section on a click inside the bar.

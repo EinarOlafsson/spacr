@@ -344,3 +344,19 @@ WHAT IS LEFT
   Appearance tutorial gates remain open; whole N655 remains PARTIAL.
   Proof: data/655_requirement_disposition_2026-10-15/receipt.json, with the
   original prior-disposition.json and a read-only pinned-source verifier.
+
+2026-10-15 — Home-B figure-section headings expose keyboard focus and identity
+  The run-section fold control accepted keyboard focus but announced no name
+  and drew no visible focus marker. Four real-widget cases failed on current
+  d4f9f21e7: the name stayed empty after the normal language pass, and focused
+  pixels matched resting pixels in Dark, Light and High contrast.
+  The private heading now reuses its displayed run title as its accessible
+  name and the existing custom-control outline policy. Already-open headings
+  react to Stronger focus outlines on/off, keep focus, and recover the exact
+  ordinary rendering. Painting reads no preference store; mouse/key folding
+  behavior and all source outside the private class remain unchanged.
+  Final focused plus existing figure-grid cohort:14PASS2.62s, wall4.51s,
+  peak583028KiB, zero swap, Qt6.12/Linux offscreen/2G/thread1/GPU hidden.
+  No new caption or public API arrival. This closes only the demonstrated
+  heading defects; native speech/human/macOS/Windows/tutorial gates stay open.
+  Proof: data/655_section_header_accessibility_2026-10-15/receipt.json.

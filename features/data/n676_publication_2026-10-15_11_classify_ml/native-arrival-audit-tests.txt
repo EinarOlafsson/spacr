@@ -1,0 +1,7 @@
+Source HEAD: e372ab5d43be137ada510e3a3481b69c40decd15
+Command: ["/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/run_capped.sh", "8G", "/home/carruthers/anaconda3/envs/spacr/bin/python", "-m", "pytest", "-n", "0", "-q", "tests/test_docs_media_budget.py", "tests/test_tutorial_release_audit.py::test_every_spoken_pypi_is_the_reviewed_single_syllable_pype"]
+CPU environment: CUDA_VISIBLE_DEVICES empty; Qt offscreen; Mesa vendor forced; ROOT first PYTHONPATH; private HOME/config/cache/tmp/app-state
+.................................                                        [100%]
+33 passed in 0.52s
+
+Terminal exit status: 0

@@ -1,0 +1,155 @@
+{
+  "lesson": "11_classify_ml",
+  "accepted": true,
+  "scope": "24 English tracks current synthesis fingerprints and technical audio QA; no human listening claim",
+  "qa_path": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio-checks.en.json",
+  "qa_sha256": "ff682969708d2e27957077c295814242bb15fe1d81b2bc0a44fcec607d9926b9",
+  "tracks": [
+    {
+      "language": "en",
+      "voice": "af_heart",
+      "errors": [],
+      "audio_sha256": "70198a64777588ba5345b5e7fbf0475f275aaf177f851ee953a532e6ad34a251"
+    },
+    {
+      "language": "en",
+      "voice": "af_aoede",
+      "errors": [],
+      "audio_sha256": "64139170f38bb16c0f05aefc80bcbfd356a139821e435f12311a73e42d442b7a"
+    },
+    {
+      "language": "en",
+      "voice": "af_bella",
+      "errors": [],
+      "audio_sha256": "282f3090f12e621887b6768d753f125e09e48ec8164efb2539ade29e5f8ec762"
+    },
+    {
+      "language": "en",
+      "voice": "af_jessica",
+      "errors": [],
+      "audio_sha256": "b44458c174089adc04211f786e96d4a325c267ea67db404ccb34f52c0418b605"
+    },
+    {
+      "language": "en",
+      "voice": "af_river",
+      "errors": [],
+      "audio_sha256": "93f70c64ff22a3651351d49b675aabf4798e70740e57f2ad67c17c9973b80cf6"
+    },
+    {
+      "language": "en",
+      "voice": "af_sarah",
+      "errors": [],
+      "audio_sha256": "1b8e98f6e35c76fd35e26faa73c6c57878eb5e52b57a0ec4e323c7415413b54a"
+    },
+    {
+      "language": "en",
+      "voice": "af_sky",
+      "errors": [],
+      "audio_sha256": "d1876958aa9f56b5ff71c514b47aca1f62cf3d1653430f754328c9514209f796"
+    },
+    {
+      "language": "en",
+      "voice": "am_adam",
+      "errors": [],
+      "audio_sha256": "04b86eda9e27d9bf054ab88eca72f04d4b294cdb2415adb84e4a706ca10fb88b"
+    },
+    {
+      "language": "en",
+      "voice": "am_echo",
+      "errors": [],
+      "audio_sha256": "4d0e5aa88c2790f70227da8a794f759a430ed06af964c36771a7b5a04b3b846a"
+    },
+    {
+      "language": "en",
+      "voice": "am_eric",
+      "errors": [],
+      "audio_sha256": "1f10dbd6bdd7539b69977438849ce916de73443d76b35d1a60b9f725d538e2bc"
+    },
+    {
+      "language": "en",
+      "voice": "am_fenrir",
+      "errors": [],
+      "audio_sha256": "5174fb84bc9e03b7bc86c89e16d083b3f3c7cb82bdce3faaf57d249237e66f31"
+    },
+    {
+      "language": "en",
+      "voice": "am_liam",
+      "errors": [],
+      "audio_sha256": "0adc954587fe013b3bb8c6ee04ccfe730bee894d1f038dbec3101677806cb32c"
+    },
+    {
+      "language": "en",
+      "voice": "am_michael",
+      "errors": [],
+      "audio_sha256": "12ce6d912886003792a1a8d5e318cdd657a9b650df0f23d8872a1a8c4767f175"
+    },
+    {
+      "language": "en",
+      "voice": "am_onyx",
+      "errors": [],
+      "audio_sha256": "e9875df949555c356706af4f91d78a040066788afd3e3e520e55a79fe7402280"
+    },
+    {
+      "language": "en",
+      "voice": "am_puck",
+      "errors": [],
+      "audio_sha256": "42ffefee9cc2ed244e7b28498a0e46737574fd83b2688171addd45173ecae254"
+    },
+    {
+      "language": "en",
+      "voice": "am_santa",
+      "errors": [],
+      "audio_sha256": "51d2e335048ced65be29f404429ce4d72062b176b682b6f384816c8b4ca5cfb1"
+    },
+    {
+      "language": "en",
+      "voice": "bf_alice",
+      "errors": [],
+      "audio_sha256": "ed230365d3f0057b14681d71d60814ed7589bcfec0cb234726c4a25579068f9e"
+    },
+    {
+      "language": "en",
+      "voice": "bf_emma",
+      "errors": [],
+      "audio_sha256": "188a0be873311cdfa2311a01a0d5155ad82188ccd1a72954b110cf711105f36a"
+    },
+    {
+      "language": "en",
+      "voice": "bf_isabella",
+      "errors": [],
+      "audio_sha256": "4456aa9263b4cf4cd5e1ffc337d9030750bc65a4d99a2399a24937c6de94f041"
+    },
+    {
+      "language": "en",
+      "voice": "bf_lily",
+      "errors": [],
+      "audio_sha256": "f881d68c10d7a7381ade43a2864ec66ab0da1ce96f9395f54f6e9022c9f49425"
+    },
+    {
+      "language": "en",
+      "voice": "bm_daniel",
+      "errors": [],
+      "audio_sha256": "e6c5a830ce95d37306d4976a25226b0e0197004b3140143a3c8b9f11100bbcf1"
+    },
+    {
+      "language": "en",
+      "voice": "bm_fable",
+      "errors": [],
+      "audio_sha256": "21e5461e39d176338cbea1766895503e78e5cb8f035ad8c862c0ff8a074d6e7b"
+    },
+    {
+      "language": "en",
+      "voice": "bm_george",
+      "errors": [],
+      "audio_sha256": "ff021839be241ab944a91cb76c709c6587e6cbf93b1bfe3b8327a4917580f275"
+    },
+    {
+      "language": "en",
+      "voice": "bm_lewis",
+      "errors": [],
+      "audio_sha256": "f8276d38359685cfc4c6c26bde400f84267ecc208dc7a7b5f0c69f606e9d8f45"
+    }
+  ],
+  "retained_failed_check_log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson11-r54-20261015-english-audio-qa.log",
+  "recovery": "Owning renderer forced af_heart to current installed WS runtime; other23 passed unchanged."
+}

@@ -1,0 +1,15 @@
+{
+  "incoming": "84e251c493f42f217118b146502606df79857533",
+  "merged_head": "dbaaf7d020198bca4b90e59a683ac00942085c67",
+  "tested_source_and_complete_owning_test_module_unchanged": true,
+  "original_incoming_owning_test_module_matches_prepatch_base": true,
+  "owning_dependencies_unchanged": [
+    "tests/conftest.py",
+    "pytest.ini",
+    "pyproject.toml"
+  ],
+  "all_incoming_tree_preserved_except_approved_source_test_item_and_new_evidence": true,
+  "all_incoming_docs_api_help_runtime_tools_packaging_workflow_tutorial_artifacts_byte_identical": true,
+  "full_index_matches_tree": true,
+  "no_unchanged_retest_or_collector": true
+}

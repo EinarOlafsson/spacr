@@ -793,3 +793,20 @@ No arbitrary whitelist, purge-policy or global deletion changes. Prose/signature
 captions unchanged, so no generated API/runtime work. Native Windows/macOS,
 wholeN703/fullCI/release remain OPEN. Evidence:
 features/data/n703_direct_configured_caches_2026-10-15/.
+
+2026-10-15 — Windows shutdown proof refuses unqueryable or invalid process IDs.
+OpenProcess NULL previously meant "already exited" even for access denial.
+Four modeled baseline failures show actual update-plan fetch/install callbacks
+were reached after unverified shutdown; three further failures show invalid
+PID0/negative/out-of-DWORD values were accepted. No real installer/process ran.
+The existing Windows probe now validates positive DWORD IDs and distinguishes
+GetLastError87 from denied/unknown failures. Original handle waiting/close,
+WAIT_FAILED, timeout/approval and POSIX behavior remain. Microsoft API/error
+contracts are pinned in the source peer; absent-positive-PID inference remains
+modeled, not a native Windows claim. Final18PASS1.06s/exit0 proves plan refusal
+with zero replacement callbacks and byte-identical old runtime, plus original
+POSIX/Windows wait and positive update-plan controls. Original tests unchanged
+except explicit87 in the gone-process mock and stronger WAIT_FAILED control.
+No source prose/signature/caption changes or generator work; no network/GPU/
+live install/user-data action. Native Windows/fullCI/wholeN703 remain OPEN.
+Evidence: features/data/n703_windows_shutdown_exit_proof_2026-10-15/.

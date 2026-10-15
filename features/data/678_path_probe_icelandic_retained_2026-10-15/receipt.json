@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "source_commit": "aa7b8b62104752de0d8d1316f05535ae29b6fc54",
+  "source_files": {
+    "spacr/qt/path_probe.py": "7a617ca9623c977c14f00801a78290d8a9bff0667d8217c2c7772022050178e4"
+  },
+  "label": "spacr.qt.path_probe.isdir#4",
+  "source": "``wait`` is off by default. The freeze this module was written for came from statting remembered paths -- a passive pass over everything a settings file mentions, on the GUI thread, to colour the missing ones red. No user action waits on that pass, so answering from cache and checking later costs nothing.",
+  "context": "``wait`` is off by default. The freeze this module was written for came from statting remembered paths -- a passive pass over everything a settings file mentions, on the main GUI execution path, to colour the missing ones red. No user action waits on that pass, so answering from cache and checking later costs nothing.",
+  "source_sha256": "f04376a8b21112829887e296dedf8c20007ab126579733f96b162e1fe8a1e58e",
+  "before_translation": "``wait`` is off by default. The freeze this module was written for came from statting remembered paths -- a passive pass over everything a settings file mentions, on the GUI thread, to colour the missing ones red. No user action waits on that pass, so answering from cache and checking later costs nothing.",
+  "after_translation": "``wait`` er sjálfgefið óvirkt. Frystingin sem þessi eining átti að leysa kom frá stat-athugunum á vistuðum slóðum — yfirferð á GUI-þræðinum yfir allt sem stillingaskrá nefnir, til að lita slóðir sem vantaði rauðar, án sérstakrar notandaaðgerðar. Engin aðgerð notandans bíður eftir þessari yfirferð, svo að svara úr skyndiminni og athuga síðar veldur engri viðbótarbið.",
+  "old_target_sha256": "f04376a8b21112829887e296dedf8c20007ab126579733f96b162e1fe8a1e58e",
+  "target_sha256": "40e015de1e15fb0412ac186b8700752a4714688008a3bf16b028e32e83a76d0e",
+  "before_catalog_record": {
+    "source_blocks_sha256": [
+      "3627dbe11ff724cbafe4ff20fdc7c4ad2f2e4bec36756d33debd67afc8a1b347",
+      "929fa39e5d06a0d6b732cb078071e3d3b54db4663d426f480cf00c7b8bbeadd2",
+      "fa84645dffb53088727f0c4f64d5b5797fca8ef904bd483246b1d45bcf75a346",
+      "23bfdab2644901d7b62680b4adc5f66e5c04865b07316f76ae86248c2f9dd550",
+      "f04376a8b21112829887e296dedf8c20007ab126579733f96b162e1fe8a1e58e",
+      "aa177c347b342142d7cc0a4faba2bc03e8734b07aaa193b28a64f77c559424cd"
+    ],
+    "source_sha256": "bea5e25c01295f90129266f8cba22a2cb761941b402ada350753593360c9127f",
+    "text": "Hvort ``path`` er skrifstofur, svarað frá cache.\n\n``default`` er False hér og True í :func:`exists`, og asymmetri er hugsanlega: kallaðir þessarar eru að velja mappinn til að opna samskipti í, og opna það einhvers staðar sem virðist ekki vera er verra en opna hann á forritinu stað.\n\n:param path: slóðin sem spurt er um; send til :func:`exists` með ``want_dir=True``, svo allt ósatt er ``False``.\n:param wait: búnir bíða með :data:`PROBE_TIMEOUT_S` í stað þess að svara ``default`` strax, og bíða hvað kemur aftur.\n\n``wait`` is off by default. The freeze this module was written for came from statting remembered paths -- a passive pass over everything a settings file mentions, on the GUI thread, to colour the missing ones red. No user action waits on that pass, so answering from cache and checking later costs nothing.\n\nAð breyta mappinn sem notandinn hefur bara hlaupið eða valið er aðstæður. Þeir gerðu aðgerð og bíða eftir niðurstöðum hennar, og ókunnulegt leiðin staðsetningu breytist \"sjá skáld þessa skálds\" í \"sí skálda sem skáldi\" - stutt, og aðeins í fyrsta skipti sem leið er séð. Vona er takmarkaður með :data:`PROBE_TIMEOUT_S` (5 s), þannig að svefnun bílar kostar upp á meirihluti þess en ekki tíu sekúndur.",
+    "translation_source_blocks_sha256": [
+      "3627dbe11ff724cbafe4ff20fdc7c4ad2f2e4bec36756d33debd67afc8a1b347",
+      "929fa39e5d06a0d6b732cb078071e3d3b54db4663d426f480cf00c7b8bbeadd2",
+      "fa84645dffb53088727f0c4f64d5b5797fca8ef904bd483246b1d45bcf75a346",
+      "23bfdab2644901d7b62680b4adc5f66e5c04865b07316f76ae86248c2f9dd550",
+      "ce88ebfd079963734421049c5a406613dc391fec3bdf470849e8412f7fffa707",
+      "aa177c347b342142d7cc0a4faba2bc03e8734b07aaa193b28a64f77c559424cd"
+    ]
+  },
+  "normal_candidates_and_inline": "PASS source/context/actual inline parser and normal complete selected Icelandic review loader.",
+  "root_authorization": "Exact one retained identity repair approved after real normal-writer refusal; all other unchanged targets stay byte-identical.",
+  "first_heavy_attempt": {
+    "mode": "heavy",
+    "runtime_canonical_requests": 1,
+    "actual_runtime_collections": 1,
+    "runtime_collection_seconds": [
+      7.2990953550324775
+    ],
+    "model_decode_requests": 1,
+    "prepared_locales": [
+      "sv",
+      "de",
+      "es",
+      "zh_CN",
+      "pt",
+      "hi",
+      "ko"
+    ],
+    "written_locales": [],
+    "status": "failed",
+    "exception": "RuntimeError(\"Scoped API writer unexpectedly requested model decoding: ['``wait`` is off by default. The freeze this module was written for came from statting remembered paths -- a passive pass over everything a settings file mentions, on the main GUI execution path, to colour the missing ones red. No user action waits on that pass, so answering from cache and checking later costs nothing.']\")",
+    "elapsed_seconds": 22.853379959997255
+  },
+  "model_execution": "One decoder request was refused before model execution; no catalog writes occurred.",
+  "prior99_inputs_unchanged": true
+}
