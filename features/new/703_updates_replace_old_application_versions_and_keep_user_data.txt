@@ -656,3 +656,18 @@ assertion and sums-file-without-asset compatibility remain unchanged.
 All API prose/captions unchanged; fatal Ruff/diff pass. Existing foreign API/
 caption holds, native/fullCI and parentN703 acceptance remain OPEN.
 Evidence: features/data/n703_installer_download_transaction_2026-10-15/.
+
+2026-10-15 01:19 EDT — Actual hosted Windows metadata-path failure repaired in source
+Read-only existing push run38685071978/attempt1/exact2adfa failed after verified
+staging: linked_metadata_folder at the genuineRUNNER~1 temporary-profile path.
+Snapshot/restore now canonicalize native Windows aliases only after lstat
+rejects real symlink/reparse components and samefile confirms existing native
+identity. Journal path/inode/content/parent checks stay intact; POSIX linked-
+folder refusal is unchanged. No broad guard disablement or unknown link pass.
+Modeled predecessor1FAIL reproduces the exact short-alias failure; final20
+checks PASS/exit0/2.13s (8alias/reparse/policy+12existing rollback), zero skips.
+Linux models of Windows name semantics are not native Windows acceptance.
+Source has proper private-helper docs; no new caption/public API/generated
+artifact changes. Fatal Ruff/diff pass. Fresh native confirmation/fullCI and
+parent703 remain OPEN. Nightly prerelease work is preserved/paused for CI.
+Evidence: features/data/n703_windows_metadata_alias_2026-10-15/.
