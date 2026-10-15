@@ -229,3 +229,11 @@ selecting one family cannot execute another family's late-bound closure.
 This source UI has CPU component/callback coverage, not deployed GPU acceptance.
 ZeroGPU model placement/cache lifetime for all approved weights, real quota
 behavior and scientific parity remain to be accepted on the intended host.
+
+The operator CLI supports `--family` for every registered class. For generic
+Mask models, omit diameter to use `--magnification` (default 20), choose
+`--native-scale` for Auto, or give `--diameter` in pixels. Optional
+`--settings-json '{"background": 100, "remove_border_objects": true}'`
+passes only desktop normalization/filter settings. For the well detector,
+`--confidence`, `--min-axis-ratio` and `--detector-image-size` retain desktop
+defaults 0.25, 0.7 and 640. Detector settings do not fabricate pixel masks.

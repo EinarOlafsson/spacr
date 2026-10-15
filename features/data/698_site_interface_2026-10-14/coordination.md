@@ -45,3 +45,11 @@ No user action is requested while the maintainer is away. No paid hosting or
 account upgrades may be activated. Official free ZeroGPU eligibility/quotas:
 https://huggingface.co/docs/hub/spaces-zerogpu . Owner eligibility and actual
 service deployment remain unverified, distinct from implemented source.
+
+Update 2026-10-14: all eight desktop adapter, trusted service and dedicated
+Gradio callback sources are now implemented with owning CPU evidence. Endpoint
+names: `segment_plaque`, `detect_wells`, and `segment_<family>` for the six other
+families. All retain exact selection/version and explicit consent. These are
+source contracts, not live URLs or real-model/GPU/parity acceptance. Public
+execution still requires approved weights/host acceptance; do not invent a
+Space URL or enable unavailable WebGPU. No shared website edits made here.

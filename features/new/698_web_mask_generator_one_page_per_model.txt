@@ -334,3 +334,13 @@ REST preprocessing regression cohort. Model service mocked; no server/GPU or
 real weights started. Native ZeroGPU placement/quota and actual checkpoint,
 scientific/browser parity, accessibility/localization and public hosting remain
 acceptance gates; parentN698 partial. Receipt:features/data/698_all_family_ui_2026-10-14/.
+
+2026-10-14 — Original Home: operator CLI now supports all eight desktop routes.
+--family selects the adapter; generic Mask routes preserve blank/magnification,
+Auto/native and explicit diameter plus role-specific cell-score defaults and
+optional normalization/filter JSON. Detector options expose confidence, image
+size and axis-ratio; plaque's required explicit scale behavior is retained.
+Non-Mask routes reject normalization/filter overrides rather than ignoring them.
+Validation23 command cases PASS/actualexit0/1.46s; actual header decoding plus
+injected adapter dispatch only. No real model/GPU/scientific parity inferred;
+parentN698 partial. Receipt:features/data/698_all_family_cli_2026-10-14/.
