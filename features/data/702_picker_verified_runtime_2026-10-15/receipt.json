@@ -1,0 +1,33 @@
+{
+  "status": "PRIVATE normal runtime closure ready; actual consumer callbacks not yet run by owner",
+  "input_head": "23c1cef35ad9cc89cd899f3ba7ce2c9650566bea",
+  "public_baseline": "3c795df0041bd2211c74822cd62c1e3c0b9e6401",
+  "source": "Checking the selected model file\u2026",
+  "source_sha256": "e7a20b04f8c807aeac202b94f85ef8ac501b35cb28cdb68221d153cb49af2d4d",
+  "normal_runtime": "All9 ordinary review loaders/candidate/source/hash gates, write_language and full9 audit PASS;10959 unrelated current targets/locale preserved. Original canonical collector fresh equality and all bound noncatalog source/review hashes unchanged.",
+  "normal_arrivals": {
+    "baseline": 9833,
+    "added": 1280,
+    "retired": 153,
+    "changed": 33
+  },
+  "failed_attempt": "First canonical attempt refused missing exact tracked packaging/i18n/en.json in private sparse tree before any catalog writes. Archived rawexit/log; materialized tracked /packaging/ from same frozen23c then ordinary unchanged driver completed. No gate changes.",
+  "consumers": "Easy owns prepared9 actual localized worker statuses plus1 actual trusted export after artifact commit; NOT RUN by producer.",
+  "limits": [
+    "No model loading/decoder/download/GPU/fullCI or whole N702 claim.",
+    "Owner scoped API source proof32 unchanged nested entries preserved; no new API targets or API writer."
+  ],
+  "evidence_sha256": {
+    "attempt1-sparse-packaging.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "nine-target-drafts.json": "a5bf050bc8807ee20beb2a37fee53264ef24ef06e9ba6513ba3eaa4bb3419271",
+    "gui-owner-source-api-proof.json": "41022879d736082b030b61c07730034633c8f06a8b57b7faabcfce0e3a792b20",
+    "runtime.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "runtime-receipt.json": "a8c129b4140f8c22456cb3dbda106412cd910b34d34498a2e25050ecd060ae7f",
+    "runtime.log.gz": "2b1ef29f4cc2398ba71628936941d4731260b7d02eff660862c3fb1c89dc269a",
+    "run-runtime.sh.gz": "413fcf3af44720013a8644dd724177353f4b7f86f5335fd48020d1f69c0c2747",
+    "attempt1-sparse-packaging.log.gz": "30e086f452a027b3503fff5466cae4d51b8152ee736aeb6f778f55a9d98be84c",
+    "producer-source-plan.json": "08a2f9c8f27531080222d9b3035a038f55f0e47e9d10f070dba5a7b1121ee5f5",
+    "scoped-runtime.py.gz": "257d130ff27015ae694d8e00eb3d3405d59ad8a3a6fce179509e04080edae460",
+    "hard-independent-target-peer.json": "ed8a4e28c86fa9bae6f38bdfe7fe6d54b02081f77aca3e8531c97cd6f33c199d"
+  }
+}

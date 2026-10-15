@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical authoring and independent technical peer; no human/native signoff",
+  "review": "One present-progress selected-file verification status, independently reviewed; source/hash/candidate gates required.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Checking the selected model file…",
+      "source": "Checking the selected model file…",
+      "source_sha256": "e7a20b04f8c807aeac202b94f85ef8ac501b35cb28cdb68221d153cb49af2d4d",
+      "translation": "Verið er að athuga valda líkanaskrá…"
+    }
+  ]
+}

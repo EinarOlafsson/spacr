@@ -1,0 +1,28 @@
+{
+  "root": "/mnt/wd4tb/spacr-worktrees/codex-n702-picker-pin-provenance-20261015",
+  "input_head": "23c1cef35ad9cc89cd899f3ba7ce2c9650566bea",
+  "public_baseline": "3c795df0041bd2211c74822cd62c1e3c0b9e6401",
+  "source_sha256": {
+    "spacr/model_zoo.py": "4703612184e6c9e16239ff6c43110c2dd574fd23f1ec48b7a61e6032e352f67b",
+    "spacr/qt/widgets/model_zoo_picker.py": "4b7159f6aaffbd2faf4593d331d696ce0b1421bdd4f32d8091aee735afcd71e8",
+    "spacr/qt/screens/app_screen.py": "45fe3390a5f61aaaac3b612248d130fd40170cd2b71276b8cf1fbbc6fe6d4e2f",
+    "spacr/qt/i18n.py": "9535a6bef1fd1f8541837db4f98fbd6ec3a7c4e17b528567a7166feb416f6eb2",
+    "tools/build_i18n_catalogs.py": "e9729ab5fbe53e74f57ee20e75947d9ce55773c9b87c5758e06c772e26772407",
+    "tools/build_documentation_i18n.py": "6bbdd7df679f8ee42f711def5835b1386c0276fbabcbbb036b71caed4012d39e",
+    "tools/nested_helper_docs.py": "7f2c3557ba5041ad3f8489b4ce38bce97521a6e5b176361f4982036c02585237",
+    "tests/qt/test_n702_picker_verified_reference.py": "dd8c430ef2bf2750eaaded242b65e1550a902d5035005519ae3defaccc403255"
+  },
+  "review_files": {
+    "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-n702-picker-file-check.json": "e7df9dbb3d51c1f188bd6dcb4be923c98850620ca64e42c3a4dd4c754c2ab091",
+    "docs/i18n/reviewed/runtime/hi/2026-10-15-n702-picker-file-check.json": "f031633f37663eff75778a96058bc7ecdef93e3e803e91f4c758d261dc01bda0",
+    "docs/i18n/reviewed/runtime/ko/2026-10-15-n702-picker-file-check.json": "7e7976f4666f1c1eb4dcaf5e63483de0da7a780944476ae7578f1b111488977c",
+    "docs/i18n/reviewed/runtime/pt/2026-10-15-n702-picker-file-check.json": "aa957ef2365cd8b458f6c929f50ec9e7922aef1ff3a724f2cb70a6b0d2a68f86",
+    "docs/i18n/reviewed/runtime/fr/2026-10-15-n702-picker-file-check.json": "3cf5ffc796abd97651adcc69ed636fcd84407467bf9274c66faba4539f85d302",
+    "docs/i18n/reviewed/runtime/de/2026-10-15-n702-picker-file-check.json": "64e0678553e9940d264e8ae32f26e2addbcfe76dc7a45ce890455b46c9b6985d",
+    "docs/i18n/reviewed/runtime/sv/2026-10-15-n702-picker-file-check.json": "daca51954bcc04693159ffca2aed38ab24f3902714daaa37da756d079c24ac4d",
+    "docs/i18n/reviewed/runtime/es/2026-10-15-n702-picker-file-check.json": "e10f49d4fa6ade98177f43ad355a79e9d21e95dcf475efd3c2c393ded2348b62",
+    "docs/i18n/reviewed/runtime/is/2026-10-15-n702-picker-file-check.json": "041a2825cf8addc49d5dd3ffae494d2a2e5500f1ac12afbfdb6437bcaf049177"
+  },
+  "plan": "One normal canonical snapshot reused by ordinary review loaders/write_language, preserve all foreign current target pairs, full9audit, immutable normal arrivals, original collector fresh equality +source/file hashes. No model or inference; Easy owns actual9+1callbacks after artifacts.",
+  "status": "PREPARED"
+}
