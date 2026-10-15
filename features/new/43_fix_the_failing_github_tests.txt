@@ -3983,3 +3983,18 @@ work in the dated scheduler snapshot; capacity reason remains unknown.
 No concurrency/config/cancel/rerun/final dispatch or green-CI claim.
 Evidence:data/ci_current_publication_selector04_2026-10-15/ and
 data/ci_current_scheduler_snapshot_2026-10-15/.
+
+2026-10-15 — Three callback outcomes now satisfy the original hygiene gate.
+The exact previously published three-assertion proposal is adopted in the
+one CI test file. Original three GUI nodes and generic assertion-free gate
+PASS4/21.04s, zero skips/network events. Removing those three assertions
+restores the complete original bytes/AST; all callbacks, waits, timeouts,
+privacy conditions and the zero hygiene ceiling remain unchanged. All4377
+tracked test Python files were physically present and frozen, avoiding a
+sparse-checkout false pass. Independent source/log/pin peer accepted.
+This narrow N43 test claim was notified through coordination under the latest
+no-active-claims notice; N700 product/provider/relay/API/item stayed untouched.
+Earlier source-bound generic failure is retained, not rerun or relabeled.
+Whole N700/N43 and final CI/release remain open. Evidence:
+data/ci_three_client_outcome_assertions_2026-10-15/ and
+data/ci_three_client_outcome_assertions_independent_peer_2026-10-15/.

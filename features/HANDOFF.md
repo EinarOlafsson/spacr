@@ -11,6 +11,26 @@
 
 
 
+## 2026-10-15 Original Home — generic callback hygiene gate now passes
+
+Adopted the exact prepared three outcome assertions in one test file under
+a narrow N43 CI claim, notified to Home-B/fix700 after current no-active-claims
+notice and no exact competing file claim. N700 implementation/provider/relay/
+API/item remains untouched. Original three GUI nodes plus original generic
+hygiene gate PASS4/21.04s, zero skips/network events; all4377 tracked test
+sources present/frozen. Removing only three assertions restores original
+bytes/AST; callbacks/waits/timeouts/privacy/zero ceiling unchanged. Independent
+peer accepted. This supersedes only the older unfulfilled three-assert relay.
+Evidence:data/ci_three_client_outcome_assertions_2026-10-15/.
+
+Next shared translation-only window is reserved for six existing Choose
+folder… values ending ASCII ... . Easy authors punctuation inputs, Hard peers
+normal scoped writer, CI owns strict vocabulary inverse. No collector/writer
+has started; ordinary source/review/full9audit/preservation gates stay intact.
+N699 implementation/item remains untouched; translations remain unaffected
+by the current ownership notice. No human/native-language claim.
+
+
 ## 2026-10-15 Original Home — reviewed selective04 tools integrated
 
 Adopted exact ordered K4/K5/K6 source plus reviewed verifier predecessor;

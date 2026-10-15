@@ -22,7 +22,7 @@ Hours are estimates; external unknowns remain explicit.
 | F556 | ✅ | 0 | Easy / Home | Complete (alpha): propagation workflow, real-movie baseline comparisons and current nine-language/runtime/API closure. |
 | N692 | ✅ | 0 | CI / Home | Complete: 3D drawing/save/load, protected published FIB-SEM sample and current translations; original contract accepted. |
 | Release1.5.1.5 | 85 | 4–8 | Home | Publish remaining implementation; release/final CI at end per maintainer. |
-| N43 | 85 | 3–6 | Home / assigned owner | Named CI fixture/API inventory and both original fr/sv review gates repaired with source-bound targeted acceptance; remaining owner translation/media/provider and final full-CI gates stay open. |
+| N43 | 85 | 3–6 | Home / assigned owner | Named callback hygiene (3 GUI plus generic gate), completed04 media selectors, callable/API inventory and original fr/sv review gates pass targeted checks. Shared punctuation/vocabulary closure and latest-source full CI/native owner gates remain; no full-CI green claim. |
 | N700 | 90 | 1–3 | Claude | See current owner delivery and remaining acceptance gates. |
 | N703 | 95 | 2–4 + external | Home / assigned owner | Installer replacement, rollback/cache-preservation software and translations published; native platform acceptance remains. |
 | N696 | 95 | 1–2 | Home / assigned owner | Source/widget/diameter/auto semantics and235merged owning checks plus original1.35paintgate passed, normal API/Help generation recorded. Fresh fullCI/platform-native and Work currentlayout tutorial remain; no new native modelquality/GPU acceptance. |
