@@ -1,0 +1,35 @@
+diff --git a/tests/qt/test_regression_results_uncovered_paths.py b/tests/qt/test_regression_results_uncovered_paths.py
+index 01bca0e415..a859ba057a 100644
+--- a/tests/qt/test_regression_results_uncovered_paths.py
++++ b/tests/qt/test_regression_results_uncovered_paths.py
+@@ -572,17 +572,25 @@ def test_an_unknown_colour_column_in_a_saved_state_leaves_the_combo_alone(
+     assert panel._colour_by.currentIndex() == before
+ 
+ 
+-def test_a_workspace_state_keeps_only_the_runs_it_can_read(qtbot):
+-    """Anything that is not a dict of plot state is not a remembered run."""
++def test_a_workspace_state_keeps_only_the_runs_it_can_read(qtbot, tmp_path):
++    """Restore valid states without dropping the run already on screen."""
+     panel = _panel(qtbot)
+-    panel.set_frame(_mixed(), source="run-one")
++    live_path = str(tmp_path / "run-one")
++    panel.set_frame(_mixed(), source=live_path)
++    live_state = panel.plot_state()
+ 
+     assert panel.apply_workspace_state(
+         {"runs": {"good": {"level": "gene"}, "bad": "not a state"}}) is True
+-    assert panel.remembered_runs() == ("good",)
++    assert panel.remembered_runs() == (live_path, "good")
++    assert panel.workspace_state()["runs"] == {
++        live_path: live_state, "good": {"level": "gene"},
++    }
+ 
+     assert panel.apply_workspace_state({"runs": "not a mapping"}) is True
+-    assert panel.remembered_runs() == ("good",)
++    assert panel.remembered_runs() == (live_path, "good")
++    assert panel.workspace_state()["runs"] == {
++        live_path: live_state, "good": {"level": "gene"},
++    }
+ 
+ 
+ def test_asking_for_adjusted_p_values_a_table_has_not_got_keeps_the_points(
