@@ -1,0 +1,82 @@
+{
+  "status": "171 source-bound review inputs ready; normal catalog production and canonical retirement census pending",
+  "source_commit": "6a1b51bfd7",
+  "packaging_commit": "341e529f07",
+  "source_sha256": {
+    "spacr/qt/screens/settings_model.py": "21e20038391afda3da53d96d1bf71041ac32253fc005dcdc98975b38ad0a5713",
+    "spacr/qt/widgets/calibration_preview.py": "699605f2d1e8b4d8d1d2d0c42a9a79373a3e95bdddd5055f456a3c8c8267b94d",
+    "spacr/settings.py": "4086e6c580497725f539aab9df48eb24abbb209a912863442a9a200a0e131c18",
+    "spacr/measure.py": "7763ece88f7e8bd02ff4477e4094fa02220f04668c58c55c1744c1905d96a3c6",
+    "spacr/intensity_rescale.py": "df6f846820ef4d2bffe83dd2e86180c026d23a7efc920c812df3b9b408a8ffcb"
+  },
+  "runtime_targets": 162,
+  "api_targets": 9,
+  "runtime_sources": 18,
+  "api_symbols": [
+    "spacr.qt.widgets.calibration_preview#0"
+  ],
+  "new_review_files_sha256": {
+    "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-f580-session-controls-home-b.json": "9a7f677cf1923bceb14036ea6e1abc9c60b3214013db3c3b98c30a962673054f",
+    "docs/i18n/reviewed/runtime/hi/2026-10-15-f580-session-controls-home-b.json": "18555055bfa64931a56722ad2b8dbd92121e6ab7c750e2a3f28e98c685939c0b",
+    "docs/i18n/reviewed/runtime/ko/2026-10-15-f580-session-controls-home-b.json": "3e11fc08cc0df6df3fc628475e3fb6dc26d6a7948aed96b2727a02f34c006d1d",
+    "docs/i18n/reviewed/runtime/pt/2026-10-15-f580-session-controls-home-b.json": "880c4874f38e53e6bdebbc1a0fd6bb9f0f17c6cc333c91761582f0901a6f6123",
+    "docs/i18n/reviewed/runtime/fr/2026-10-15-f580-session-controls-home-b.json": "ce69c770f37706cc208ad555ead13567f562a9c7891f159d55730d44e4e57e9a",
+    "docs/i18n/reviewed/runtime/de/2026-10-15-f580-session-controls-home-b.json": "a085f27b494a316923afee4b3f67e3b06e2ed040a20bfd6ad53519653250a9f4",
+    "docs/i18n/reviewed/runtime/sv/2026-10-15-f580-session-controls-home-b.json": "1eb61f35708861d96f19a51c47ee3d67fa9db16e580a47164b6da92ed4a3ddcb",
+    "docs/i18n/reviewed/runtime/es/2026-10-15-f580-session-controls-home-b.json": "d6b7f566e30e743b1775e036c052385393f2d0bb8660471852b140226f44400a",
+    "docs/i18n/reviewed/runtime/is/2026-10-15-f580-session-controls-home-b.json": "d1a8a07bcafa5a4628c4b44b490b1441a54d819eb7ebde0f4a77dd410bb1645e",
+    "docs/i18n/reviewed/api/zh_CN/2026-10-15-f580-session-preview-home-b.json": "62a4dc56a32f34c4e42f857e4f3356130d73c1432c305d3e787552fd5a1909e5",
+    "docs/i18n/reviewed/api/hi/2026-10-15-f580-session-preview-home-b.json": "5988278f07f16c436fafc985d97daeaca22f98a06090a13fc901678faac14cc2",
+    "docs/i18n/reviewed/api/ko/2026-10-15-f580-session-preview-home-b.json": "1491ef87391205349dfd857886f97617fa6af81b6b61a96289d6cf821c3b63b7",
+    "docs/i18n/reviewed/api/pt/2026-10-15-f580-session-preview-home-b.json": "9629e3c2b319552c25937a1607160d15fd43561126c933b38422cd240c857528",
+    "docs/i18n/reviewed/api/fr/2026-10-15-f580-session-preview-home-b.json": "7a05170db58850e7b689ee2518e6e7a27ef6b7910f63329f4564262bc4c53589",
+    "docs/i18n/reviewed/api/de/2026-10-15-f580-session-preview-home-b.json": "aa18d6157e82f9a5a1421314b416b69dc137f5b10b041ffb3971ef83650234f5",
+    "docs/i18n/reviewed/api/sv/2026-10-15-f580-session-preview-home-b.json": "88bec6f232cb3d2415acf5b7371e98d02dfd33a58c010798f2ee252156981670",
+    "docs/i18n/reviewed/api/es/2026-10-15-f580-session-preview-home-b.json": "b9b255c6d1c5e79b2b785d4948d6cf2c024f5e2d7de50c26b6233f6a00a57370",
+    "docs/i18n/reviewed/api/is/2026-10-15-f580-session-preview-home-b.json": "898242f64dbe4e8e4d98d43c318e77345844189d7184f17a2538cfa287c7cf80"
+  },
+  "retired_runtime_records": 36,
+  "retired_api_records": 9,
+  "retirement_policy": "Only exact old-source active rows moved to retired_records; original fields/targets and unrelated active rows preserved.",
+  "remaining_removed_gui_captions": [
+    "Calculate reference-well gains without running Measure or changing files.",
+    "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+    "The selected reference plate is used; leave it blank to use the first plate by name."
+  ],
+  "normal_validation": {
+    "initial_session": 91499,
+    "initial_exit": 1,
+    "initial_result": "Eight runtime loaders PASS; Portuguese identifier rewritten by generic prose rule; nine API source/context gates passed before harness wrong-arity inline call.",
+    "followup_session": 60581,
+    "followup_exit": 0,
+    "followup_result": "Only Portuguese loader rerun with quoted filename plus nine actual inline parsers; all PASS. No source/gate changes.",
+    "scope": "Normal reviewed-runtime loader against exactly the 18 source-bound packet entries and isolated new review directory; no full canonical collector or catalog writer."
+  },
+  "independent_review": "Root accepted all 171 draft semantics, then accepted the single Portuguese quoted-identifier delta; other 170 target bytes unchanged. AI technical review, no native-speaker signoff.",
+  "no_model_decode": true,
+  "no_generated_catalog_changes": true,
+  "evidence_sha256": {
+    "input-check.json": "ad15a1474a8903a809c0b52429d277bd963840deeb545efa3858e4f56a697ee1",
+    "initial-prepare_inputs.py": "98a95ab762440f0ffd721e369e8f8408e80be928c8ebe08175ca1c07d70a69e2",
+    "portuguese-context.json": "d189a2ab62a4669062b54e99c478a9130fc4d559423afc2cbb22868343be0ef3",
+    "prepare_inputs.py": "5095da9123172e465ffd8b0ff0b9669974b462365a84dacb6727ef519537e2bf",
+    "followup.time": "6ff3581e371da4ee1736102bb4878f4bc6c3134f100d7d22bca5c2541f00b5fb",
+    "backend-census-peer.json": "b552685fe5fde86cd39c6f6f5d6bfeaa6f0f71a58950bc9ac35438dfc84866f4",
+    "targets.py": "cebbed8b2ed06bfce53c02ce92a75e933612fd68e2fd3440fa7c1a38181c553b",
+    "followup.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "api-source.json": "e8673367f2d404e75af0ebb89d617a098d101d5faf021516bd3b91a005542d0b",
+    "finish_inputs.py": "56b161eda8e49724a428916ce9fe7749f412efd2d5e6f231a3b7f5d8872bf4e1",
+    "initial-inputs.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "initial-inputs.log.gz": "b6c094ddd13bd43c0e48b0ab0d386da972f85d893e98d496a0bdb4f9d7432d7d",
+    "initial-inputs.time": "cb70fb70e355ee9b1c6493361586ec4dddef58cf39135b43292416eff094b9ce",
+    "initial-input-check.json": "f672c2f8e7b78c95bce075a1a8c3eed6244235be5074133a4c3edde3051383b8",
+    "seal.py": "0bd8a2200d34457ecdd8b9792f82083041722403d336c3fd830cb49ca666b7a8",
+    "followup.log.gz": "09e6dd6720b593383e2fe9a71e5c7cbd581481a81e87c530757af99afd2e2776",
+    "independent-first-six-peer.json": "a7b6fca39724553beea48f2ea736b09ca679a1c3e5f6341d5400e780ebe77289",
+    "portuguese-followup.json": "f06d7d237a9824ef7c406819ffecf64b33227846857b16d7519eef9b958958ad",
+    "followup.sh": "1025b6e8294f0dafaec7c4761b90f9d1ab2acf22da75c970f2115b55bfcf68a9",
+    "initial-inputs.sh": "3304144f61b39bb66da487670b0160c2a211b45123b1159e483da75e86e2e3a2",
+    "independent-all-nine-peer.json": "52895e4fee862b8ea188c4fb726b61392e9eaed9d8bdeee5ea0a758e318bb966",
+    "retirements.json": "0a87ab1379c529798683c502f88515825c342e828bf644383342e855accea590"
+  }
+}

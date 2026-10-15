@@ -83,20 +83,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "intensity_calibration_statistic",
-      "source": "How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
-      "source_sha256": "18898b95481b93445deb13c8b4ed3fd3b873d79d2e872f90a228810591cd6410",
-      "translation": "Hvernig styrkur hvers viðmiðunarsjónsviðs er tekinn saman, eftir að intensity_calibration_offset er dregið frá. foreground: miðgildi díla yfir Otsu-þröskuldi, fyrir dreifðar perlur á dökkum bakgrunni. median: miðgildi allra díla, fyrir jafnt litaðan viðmiðunarbrunn. Hver plata notar miðgildið yfir viðmiðunarsjónsvið sín. Sjálfgefið foreground."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "intensity_calibration_wells",
-      "source": "The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
-      "source_sha256": "7b5a101a3b0932d0cae21d7a63b7360ff2b381787ec937ce269a9b0d77df6c19",
-      "translation": "Brunnarnir með kvörðunarsýninu, mynduðu á hverri plötu með sama sýni: flúrljómandi perlur eða viðmiðunarlitun, svo sem ['A01'] eða ['A01', 'P24']. Hver plata verður að hafa að minnsta kosti eitt sjónsvið í þeim, annars stöðvast keyrslan. Þeir eru mældir og kvarðaðir eins og hver annar brunnur. Sjálfgefið None."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "plate_barcode_column",
       "source": "The column of the sample records that holds the plate barcode. Blank looks for barcode, plate_barcode or plate barcode. The other columns, apart from the well position, are copied into the plate map as they are. Default barcode.",
       "source_sha256": "471f62de63882fb6b3c34f6fdc983a33a35cf68722e163376705ff9d177f7a9f",
@@ -313,6 +299,24 @@
       "source": "What colours each cell in the lineage trees: generation_time, generation, start_frame or n_frames, or the name of a numeric column of the tracks table, averaged over the cell's frames. An unknown name falls back to generation_time with a message. Ignored unless timelapse_lineage. Default generation_time.",
       "source_sha256": "1bd4fa595b703657f0c044f166dd656279e0d28a4be5c12f52cdd50f67eeb132",
       "translation": "Hvað litar hverja frumu í ættartrjánum: generation_time, generation, start_frame eða n_frames, eða heiti tölulegs dálks í slóðatöflunni, meðaltal yfir ramma frumunnar. Óþekkt heiti fellur aftur á generation_time með skilaboðum. Hunsað nema timelapse_lineage sé virkt. Sjálfgefið generation_time."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_statistic",
+      "source": "How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
+      "source_sha256": "18898b95481b93445deb13c8b4ed3fd3b873d79d2e872f90a228810591cd6410",
+      "translation": "Hvernig styrkur hvers viðmiðunarsjónsviðs er tekinn saman, eftir að intensity_calibration_offset er dregið frá. foreground: miðgildi díla yfir Otsu-þröskuldi, fyrir dreifðar perlur á dökkum bakgrunni. median: miðgildi allra díla, fyrir jafnt litaðan viðmiðunarbrunn. Hver plata notar miðgildið yfir viðmiðunarsjónsvið sín. Sjálfgefið foreground.",
+      "retired": "2026-10-15 F580 source 6a1b51bfd7 superseded this exact source; retained with its original target. Replacement: 2026-10-15-f580-session-controls-home-b.json",
+      "replacement_source_sha256": "960f87000ab4e94953da9a190fbe089940b308f47b3d55857caf2e231cf370fe"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_wells",
+      "source": "The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
+      "source_sha256": "7b5a101a3b0932d0cae21d7a63b7360ff2b381787ec937ce269a9b0d77df6c19",
+      "translation": "Brunnarnir með kvörðunarsýninu, mynduðu á hverri plötu með sama sýni: flúrljómandi perlur eða viðmiðunarlitun, svo sem ['A01'] eða ['A01', 'P24']. Hver plata verður að hafa að minnsta kosti eitt sjónsvið í þeim, annars stöðvast keyrslan. Þeir eru mældir og kvarðaðir eins og hver annar brunnur. Sjálfgefið None.",
+      "retired": "2026-10-15 F580 source 6a1b51bfd7 superseded this exact source; retained with its original target. Replacement: 2026-10-15-f580-session-controls-home-b.json",
+      "replacement_source_sha256": "ba442ddfeee750ee95bef3aa8d84e5695c94f2096ea9f60ae249b4f71e479075"
     }
   ],
   "retirement_2026_10_01_colony_dilution": "The colony dilution help now describes UTF-8 CSV input, exact filename precedence and validation. Prior source-bound review is retained as history, not reused for changed text.",

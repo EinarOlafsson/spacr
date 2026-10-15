@@ -1,0 +1,134 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical authoring; independent technical peer required; no native-speaker acceptance",
+  "note": "Exact eighteen owner sources; normal scoped source-context gates, no catalog generation. Backend API scope is separate.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "intensity_calibration_sessions",
+      "source": "Intensity calibration sessions",
+      "source_sha256": "16b22df97d123d7674258d42bc21da15ae7232c29b23899e0a3418f6f9b9a8fe",
+      "translation": "강도 보정 세션"
+    },
+    {
+      "table": "setting_labels",
+      "key": "intensity_calibration_session_column",
+      "source": "Intensity calibration session column",
+      "source_sha256": "a80d3d9f2420d69bb745368d3c92f8f7f938c0cb4e63bb86ea252c3f9a5ed2eb",
+      "translation": "강도 보정 세션 열"
+    },
+    {
+      "table": "setting_labels",
+      "key": "intensity_calibration_beads",
+      "source": "Intensity calibration beads",
+      "source_sha256": "9405b6cf24464bb4fba30c4c001fbc0a4b3cff51bed895c949e2a2f4846bbb55",
+      "translation": "강도 보정 비드"
+    },
+    {
+      "table": "setting_labels",
+      "key": "intensity_calibration_reference_session",
+      "source": "Intensity calibration reference session",
+      "source_sha256": "ed04bcb0bb822b28e89d54883a66d62e641810b2cfd4a057064e456b5996ec90",
+      "translation": "강도 보정 기준 세션"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_sessions",
+      "source": "Optional local CSV assigning acquisition sessions independently of plates. Use an exact filename column, including each merged NPY or selected reference TIFF/NPY suffix, and the selected session column. Every current sample and reference file must have one unique nonblank assignment. Blank keeps one session per plate. Default blank.",
+      "source_sha256": "08cd55779c5d03d76acb25963de2544f9d2c394d7d47e26477fab05176208ef1",
+      "translation": "플레이트와 독립적으로 획득 세션을 지정하는 선택적 로컬 CSV입니다. 이름이 정확히 filename인 열에 각 병합 NPY 파일 또는 선택한 기준 TIFF/NPY 파일의 확장자를 포함하고, 선택한 세션 열을 사용하세요. 현재의 모든 샘플 파일과 기준 파일에는 비어 있지 않은 고유한 지정이 하나씩 있어야 합니다. 비워 두면 플레이트당 세션 하나를 유지합니다. 기본값은 빈 값입니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_session_column",
+      "source": "Exact column name in the sessions CSV that identifies an acquisition session. All fields in a session share reference gains and must use compatible measurement intensity planes and working units. Default session.",
+      "source_sha256": "e4e76ffd9698db5dad44fc412796a9a544b030b92022d9a23e320aece366b753",
+      "translation": "획득 세션을 식별하는 세션 CSV의 정확한 열 이름입니다. 한 세션의 모든 시야는 기준 이득을 공유하며 호환되는 측정 강도 평면과 작업 단위를 사용해야 합니다. 기본값은 session입니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_beads",
+      "source": "Optional local folder of bead or reference-well images, replacing reference images inside the measured folder. Filenames keep the plate, well and field identity; selected reference wells still apply. NPY files use the merged channel and mask layout. TIFF files contain only intensity channels with explicit spatial and channel axes. No time or ambiguous page-axis interpretation is guessed. Default blank.",
+      "source_sha256": "73a0d10ebfa1f4fa976b485f6275a53b64153fe953b1e69a00e27a788573d4a8",
+      "translation": "측정 폴더 안의 기준 이미지를 대체하는 비드 또는 기준 웰 이미지의 선택적 로컬 폴더입니다. 파일 이름은 플레이트, 웰, 시야 식별 정보를 유지하며 선택한 기준 웰은 계속 적용됩니다. NPY 파일은 병합된 채널 및 마스크 배치를 사용합니다. TIFF 파일에는 공간 축과 채널 축이 명시된 강도 채널만 들어 있습니다. 시간이나 모호한 페이지 축의 해석은 추측하지 않습니다. 기본값은 빈 값입니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_session",
+      "source": "Exact acquisition session identifier to use as the gain reference. Blank uses the first session by name, or the sole session on the explicitly selected reference plate. If both plate and session are selected they must agree. A plate assigned to multiple sessions requires this choice. Default blank.",
+      "source_sha256": "4351129f2ba4044916e605f3724ac2e771b2e9b8b02ecc3fe7fa0de278c44a87",
+      "translation": "이득 기준으로 사용할 정확한 획득 세션 식별자입니다. 비워 두면 이름순으로 첫 번째 세션 또는 명시적으로 선택한 기준 플레이트의 유일한 세션을 사용합니다. 플레이트와 세션을 모두 선택하면 서로 일치해야 합니다. 여러 세션에 지정된 플레이트에는 이 선택이 필요합니다. 기본값은 빈 값입니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration",
+      "source": "Calibrate intensities before measuring, using beads or reference wells acquired in each imaging session. By default each plate is a session. An optional sessions CSV assigns fields independently of plates; an external bead folder can supply the reference images. Gains match the selected reference session or plate; blank choices keep the first-by-name default. The existing camera-offset gain method is unchanged. Gains and reference content identities are recorded in measurements.db:intensity_rescale. Default False.",
+      "source_sha256": "702ffd4ce775c916ec9780f57ae711c3a9f5356166e5e4746492b2c53f594a86",
+      "translation": "측정 전에 각 이미징 세션에서 획득한 비드 또는 기준 웰을 사용하여 강도를 보정합니다. 기본적으로 각 플레이트가 하나의 세션입니다. 선택적 세션 CSV는 플레이트와 독립적으로 시야를 지정하며 외부 비드 폴더가 기준 이미지를 제공할 수 있습니다. 이득은 선택한 기준 세션 또는 플레이트에 맞추며, 선택을 비워 두면 이름순으로 첫 번째를 사용하는 기본 동작을 유지합니다. 기존 카메라 오프셋 이득 방식은 바뀌지 않습니다. 이득과 기준 내용의 식별 정보는 measurements.db:intensity_rescale에 기록됩니다. 기본값은 False입니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_wells",
+      "source": "Wells holding the same calibration sample in each acquisition session, such as ['A01'] or ['A01', 'P24']. References come from the selected external bead folder, or otherwise the measured merged folder. Every measured session must have a usable reference field. In-source reference wells are measured like any other well. Default None.",
+      "source_sha256": "ba442ddfeee750ee95bef3aa8d84e5695c94f2096ea9f60ae249b4f71e479075",
+      "translation": "각 획득 세션에서 동일한 보정 샘플을 담은 웰로, 예를 들어 ['A01'] 또는 ['A01', 'P24']입니다. 기준은 선택한 외부 비드 폴더에서 가져오며, 그렇지 않으면 측정할 병합 폴더에서 가져옵니다. 측정하는 모든 세션에는 사용 가능한 기준 시야가 있어야 합니다. 원본 안의 기준 웰은 다른 웰과 똑같이 측정합니다. 기본값은 None입니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_plate",
+      "source": "Exact reference plate identifier from merged filenames, such as plate2. Without a sessions CSV, blank keeps the first plate by name. With explicit sessions, this plate must belong to one session, or pair it with an exact reference session on that plate. The selected plate must be present in the measured run. Default blank.",
+      "source_sha256": "dbd6b6c5b747713e74988222d44808553c5a5457fff552940411b2be58f6b405",
+      "translation": "병합 파일 이름의 정확한 기준 플레이트 식별자로, 예를 들어 plate2입니다. 세션 CSV가 없으면 빈 값은 이름순으로 첫 번째 플레이트를 유지합니다. 세션이 명시된 경우 이 플레이트는 하나의 세션에 속해야 하며, 그렇지 않으면 해당 플레이트의 정확한 기준 세션과 함께 지정해야 합니다. 선택한 플레이트는 측정 실행에 있어야 합니다. 기본값은 빈 값입니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_statistic",
+      "source": "How each reference field intensity is summarised after subtracting intensity_calibration_offset. foreground is the median above Otsu for sparse beads on a dark background; median uses all pixels for a uniformly stained reference well. Each acquisition session uses the median over its reference fields. Default foreground.",
+      "source_sha256": "960f87000ab4e94953da9a190fbe089940b308f47b3d55857caf2e231cf370fe",
+      "translation": "intensity_calibration_offset을 뺀 후 각 기준 시야의 강도를 요약하는 방법입니다. foreground는 어두운 배경의 드문 비드에 대해 Otsu 임계값보다 높은 픽셀의 중앙값이며, median은 균일하게 염색한 기준 웰의 모든 픽셀을 사용합니다. 각 획득 세션은 해당 기준 시야들의 중앙값을 사용합니다. 기본값은 foreground입니다."
+    },
+    {
+      "table": "ui",
+      "key": "A selected plate and session must agree; a plate with multiple sessions requires an explicit reference session.",
+      "source": "A selected plate and session must agree; a plate with multiple sessions requires an explicit reference session.",
+      "source_sha256": "c6967ffcf38f504cda53950e761e763ddab2cbebd105941a106d50a6a1c4f767",
+      "translation": "선택한 플레이트와 세션은 일치해야 합니다. 여러 세션이 있는 플레이트에는 명시적인 기준 세션이 필요합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Calculate reference gains without running Measure or changing files.",
+      "source": "Calculate reference gains without running Measure or changing files.",
+      "source_sha256": "be4a09ad55655e55ce64049fb3e9a870bfb7b1cff2d6463b6c7bca4a9e8e0f1e",
+      "translation": "Measure를 실행하거나 파일을 변경하지 않고 기준 이득을 계산합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Gains use the camera offset and selected reference wells or external reference images; images and measurements are unchanged.",
+      "source": "Gains use the camera offset and selected reference wells or external reference images; images and measurements are unchanged.",
+      "source_sha256": "973e2a3ce64774cc9df8ce115a18b5695832b3f076087394cebd6465c43423d0",
+      "translation": "이득은 카메라 오프셋과 선택한 기준 웰 또는 외부 기준 이미지를 사용하며, 이미지와 측정값은 바뀌지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Reference session",
+      "source": "Reference session",
+      "source_sha256": "d1d160f73ec75460812a8bf9d281186be164e58b4d78b99197ab97dd0e50e83d",
+      "translation": "기준 세션"
+    },
+    {
+      "table": "ui",
+      "key": "With session inputs, leave the reference session blank to use the first session by name, or the only session on the selected reference plate.",
+      "source": "With session inputs, leave the reference session blank to use the first session by name, or the only session on the selected reference plate.",
+      "source_sha256": "f8bc368ce01c00cae1bea2b07fc8bf3ad23d1eda0f5a12bb1a104458a9205643",
+      "translation": "세션 입력이 있으면 기준 세션을 비워 두어 이름순으로 첫 번째 세션 또는 선택한 기준 플레이트의 유일한 세션을 사용하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Without session inputs, the selected reference plate is used; leave it blank to use the first plate by name.",
+      "source": "Without session inputs, the selected reference plate is used; leave it blank to use the first plate by name.",
+      "source_sha256": "614932f4055382a3a955146471454b82d2a214a2d72613bf1e586901a3e54a85",
+      "translation": "세션 입력이 없으면 선택한 기준 플레이트를 사용합니다. 이름순으로 첫 번째 플레이트를 사용하려면 비워 두세요."
+    }
+  ]
+}

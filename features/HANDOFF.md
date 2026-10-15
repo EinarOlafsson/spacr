@@ -1,5 +1,29 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Home-B — session calibration software integrated
+
+F580 backend0d814 and GUI6a1b are coherent with162 runtime/nine API targets,
+normal settings consumers/flow and offline Help. Final14 GUI cases include the
+unchanged dark/light viewport assertions; backend23 and its independent peer
+are retained without replay. Scoped backend visibility adds no extra API or
+runtime arrivals. Runtime d98c generation/audit/fresh canonical pass;10,855
+unrelated targets per locale remain exact. Initial stale old GUI reviews were
+retired only after exact canonical absence and independent27-record peer.
+Help's actual prose/search/English/Korean routes pass. Known-exposure bead/
+session scientific acquisition remains open; no whole-feature/release claim.
+Final actual localized UI consumer passes:36 new control cases,36 revised
+tooltip widgets,162 lookups and9 actual version2 tables,5.36s/326MB. Normal
+caption ledger retains9833 baseline identities;1193added/33changed/153retired.
+
+N702 exact utils resolver diagnostic owner87cc is independently reviewed and
+ready for Original's integrated resolver/runtime publication. Original owns
+that helper and its writer; Home-B runtime generation must publish first to
+preserve both lanes normally. F561 training UI/396 source-bound targets are
+private; application UI now consumes Original's actual safe saved-classifier
+adapter03647 without teacher-route preprocessing. N698 site sourcef138609 is
+public; its normal hosted check job is queued, so deployment/readback acceptance
+is pending. Work retains tutorials, Spaceout/audio repair and N689 direct URLs.
+
 ## 2026-10-15 — Original Home: latest maintainer priorities; publish continuously
 
 The maintainer is away at work and explicitly requests all actionable progress-list
