@@ -1,0 +1,41 @@
+{
+  "mode": "normal exact review lookup and write_language; preserve every unrelated source-current target",
+  "locales": {
+    "sv": {
+      "owned_reviewed_rows": 1,
+      "unrelated_preserved_rows": 10574
+    },
+    "de": {
+      "owned_reviewed_rows": 1,
+      "unrelated_preserved_rows": 10574
+    },
+    "es": {
+      "owned_reviewed_rows": 1,
+      "unrelated_preserved_rows": 10574
+    },
+    "zh_CN": {
+      "owned_reviewed_rows": 1,
+      "unrelated_preserved_rows": 10574
+    },
+    "pt": {
+      "owned_reviewed_rows": 1,
+      "unrelated_preserved_rows": 10574
+    },
+    "hi": {
+      "owned_reviewed_rows": 1,
+      "unrelated_preserved_rows": 10574
+    },
+    "ko": {
+      "owned_reviewed_rows": 1,
+      "unrelated_preserved_rows": 10574
+    },
+    "is": {
+      "owned_reviewed_rows": 1,
+      "unrelated_preserved_rows": 10574
+    },
+    "fr": {
+      "owned_reviewed_rows": 1,
+      "unrelated_preserved_rows": 10574
+    }
+  }
+}

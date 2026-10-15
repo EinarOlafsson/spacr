@@ -12967,3 +12967,24 @@ commits d1fe28327d4+55b96d555ab (38focused checks); Original Home owns its
 178new canonical source reviews/normal generation before source publication.
 Exact source/hash list and newline normalization identities are in that
 branch's features/data/698_web_caption_extractor_2026-10-15/.
+
+## 2026-10-15 Home-B — coherent UMAP tier/editor prose and caption delivery
+
+Corrected the false claim that every rerun-tier setting changes embedding
+coordinates, documented nullable integers, and explained the optional actual
+Propagate settings action. Four changed blocks in three existing API symbols
+have36 independently reviewed targets; one literal-tr caption has9 targets.
+Normal scoped writers preserve13,401 unrelated API records and10,574 runtime
+entries per locale. Coordinator readback verifies exact owned records and
+all unrelated runtime assignments. The unchanged normal arrival tool refreshed
+892added/29changed/150retired with the immutable9,833baseline unchanged.
+Evidence: features/data/678_umap_runtime_catalogs_2026-10-15/,
+678_umap_api_catalogs_2026-10-15/,678_umap_api_peer_review_2026-10-15/.
+No embedding/clustering/scientific behavior changed, no validator/pin raised,
+and no global nine-language runtime audit/fullCI/release claim.
+
+Private dependencies sent to Original Home: F562 exact helper extractor
+7933c1772c6 (23focusedPASS), and F580 reference-plate owner UI1426878f095
+(baseline4FAIL/3PASS, after7PASS). Original owns coherent domain source,
+reviews and generation before publication. F580 normal guide localization
+is being prepared separately by Home-B; no adapter-only publication.

@@ -192,3 +192,39 @@ publication does not claim green global CI/release or waive this owner gap.
 Actual normal caption-arrival refresh also refuses missing explicit
 sv/UI/AI Error report review (exit 1); its raw failure is retained. No
 caption contract, foreign review or source baseline was modified to pass.
+
+2026-10-15 — Original Home: direct per-cell table acquisition identity guard.
+_mil_bags now refuses a selected well identifier whose participating cells
+contain contradictory nonblank plateID, rowID or columnID observations. The
+actual old helper merged8native acquisition wells on2plates into4bags, even
+with agreeing labels. Full/custom unique IDs and multiplefields remain valid;
+no identifiers or labels are rewritten. Null/blank/absent metadata is not
+represented as proof of independence, and legacy metadata-free input remains
+supported. Only _mil_bags changes; no UMAP/render/schema/UI/model changes.
+Actual18case baseline11FAIL7PASS ->18PASS2.59s,exit0, plus1existing legacy
+label-refusal case PASS2.34s. Input frames remain exact. No modeltraining/GPU
+or biological accuracy claim. Nine exact-source technical AI reviews preserve
+{well}; normal scoped extraction/candidate/runtime closure and parent source
+review pending. No generated catalog rows edited; parent562 stays partial.
+Evidence:data/562_direct_table_identity_2026-10-15/.
+
+2026-10-15 — Coherent direct-table identity/runtime closure:
+Exact _mil_bags owner7933c1772c6 integrated independently of private N698
+extractor. Normal9locale review/candidate/writer closure installs1diagnostic
+perlanguage while preserving10,574unrelated source-current targets perlocale.
+Actual helper/owner cohort50PASS6.56s,exit0, includes9actual localized error
+callbacks and no modeltraining. Normal full9locale runtimeaudit PASS
+(1273settings,242categories,7732UI,77modules); normal immutable arrivalrefresh
+PASS:9833baseline retained,892added/150retired/29changed. Parent exact source
+review found no blocker; this does not claim native-language signoff, biological
+responder efficacy, whole562 or fullCI/release acceptance. No handcatalog or
+ratchet changes. All receipts/rawnormaloperations retained in the same folder.
+
+Final concurrent owner merge: all current incoming unrelated translation
+targets and owned exact9targets preserved. The gzip arrival conflict was
+regenerated with the normal tool, immutable9833baseline unchanged, now
+893added/150retired/29changed. Canonical snapshot cache was rechecked against
+original source collection before/after; no handbinary merge or ratchet edit.
+Normal current English audit7733UI PASS; prior full9audit7732UI and50owning
+callbacks remain recorded at their actual source scope. Exact reviewed helper
+AST unchanged fromd2826a4ae76. No globalCI or wholefeature acceptance claim.

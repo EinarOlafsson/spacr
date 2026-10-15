@@ -19,14 +19,14 @@ panel unusable. Three tiers, and every field declares which one it is in:
     count, image zoom, figure size, which layers are drawn. Tenths of a
     second, because the thumbnails are re-read, so these are debounced.
 ``TIER_RERUN``
-    changes the embedding itself -- ``n_neighbors``, ``min_dist``, the metric,
-    the feature filter. There is no honest way to apply one of these to a
-    finished figure: recomputing moves every point, and the arrangement the
-    user was reading is the whole value of the projection. They are editable
-    and propagated, and the panel says they land on the next run.
+    kept for a later run rather than applied to the finished figure. This
+    tier includes ``n_neighbors``, ``min_dist``, the metric and feature filter,
+    along with clustering, view-layout and output options. Not every setting
+    in this tier changes embedding coordinates. The containing dialog can
+    copy these values to the module through its Propagate settings action
+    when a propagation callback is available.
 
-The tier is a fact about the artists and the data, not a policy, which is why
-it lives beside the field rather than in the caller.
+Each field declares how this panel applies its changes.
 """
 from __future__ import annotations
 
@@ -40,6 +40,7 @@ from PySide6.QtWidgets import (
 )
 
 from .toggle import Toggle
+from ..i18n import tr
 from ...hyperparam import UMAP_METRICS
 
 LOG = logging.getLogger("spacr.qt.umap_figure_settings")
@@ -48,7 +49,6 @@ LOG = logging.getLogger("spacr.qt.umap_figure_settings")
 TIER_STYLE = "style"
 #: Replotted from the SAME embedding.
 TIER_REDRAW = "redraw"
-#: Changes the embedding; saved for the next run.
 TIER_RERUN = "rerun"
 
 #: How long a value has to stop changing before the figure is redrawn. A
@@ -63,7 +63,8 @@ class Field(NamedTuple):
     :param key: the settings key.
     :param label: the label shown beside the editor.
     :param kind: the editor type: ``"int"``, ``"float"``, ``"bool"``,
-        ``"text"`` or ``"choice"``.
+        ``"text"``, ``"choice"`` or ``"int_or_none"``. The nullable integer
+        uses a text editor and the ``_int_or_none`` parser.
     :param low: lower bound for a numeric editor (unused otherwise).
     :param high: upper bound for a numeric editor (unused otherwise).
     :param tier: what applying it takes: :data:`TIER_STYLE`,
@@ -356,8 +357,9 @@ class UmapFigureSettings(QWidget):
 
     Each change emits :attr:`settings_changed` with the complete settings
     dictionary after :data:`APPLY_DEBOUNCE_MS`. The containing figure-settings
-    window applies style and redraw tiers immediately; rerun-tier values are
-    retained for the next embedding run. No separate Apply action is required.
+    window applies style and redraw tiers without a separate Apply action.
+    Rerun-tier values do not update the current figure; the containing dialog
+    can propagate them to the module for a later run.
 
     :param values: the settings to open on. ``None`` opens on the defaults.
     :param parent: parent widget.
@@ -399,9 +401,10 @@ class UmapFigureSettings(QWidget):
              "The graph is drawn again from the SAME embedding, so no point "
              "moves. Debounced, because the thumbnails are re-read."),
             (TIER_RERUN, "Applies on the next run",
-             "These change the embedding itself. Applying one here would "
-             "move every point and lose the arrangement you are reading, so "
-             "they are saved and propagated instead."),
+             tr("These settings include embedding, clustering, view and output "
+                "options. They do not update the current figure. Use Propagate "
+                "settings, when available, to copy them to the module for the "
+                "next run.")),
         ):
             title = QLabel(f"<b>{heading}</b>")
             root.addWidget(title)

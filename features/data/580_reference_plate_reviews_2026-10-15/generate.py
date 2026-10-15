@@ -12,6 +12,7 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--root', type=Path, required=True)
 parser.add_argument('--receipt', type=Path, required=True)
 parser.add_argument('--manifest', type=Path, required=True)
+parser.add_argument('--catalog-base', default='HEAD')
 args = parser.parse_args()
 root = args.root.resolve()
 sys.path[:0] = [str(root / 'tools'), str(root)]
@@ -25,6 +26,7 @@ review_names = manifest['review_names']
 tables = {'SETTING_LABELS': 'setting_labels', 'SETTING_TOOLTIPS': 'setting_tooltips',
           'MODULE_SUMMARIES': 'module_summaries', 'CATEGORY_HELP': 'categories', 'UI': 'ui'}
 receipt = {
+    'catalog_base': subprocess.check_output(['git', 'rev-parse', args.catalog_base], cwd=root, text=True).strip(),
     'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip(),
     'mode': 'Normal exact-source reviewed_runtime_translations and write_language; no model inference',
     'scope': 'Explicit current/retired editorial UI sources; every unrelated entry preserved',
@@ -35,12 +37,20 @@ receipt = {
 
 def committed(language):
     module = types.ModuleType('committed_' + language)
-    text = subprocess.check_output(['git', 'show', f'HEAD:spacr/qt/i18n_catalogs/{language}.py'],
+    text = subprocess.check_output(['git', 'show', f'{args.catalog_base}:spacr/qt/i18n_catalogs/{language}.py'],
                                    cwd=root, text=True)
     exec(compile(text, 'committed_' + language, 'exec'), module.__dict__)
     return module
 
+def source_file_hashes():
+    paths = [path for path in (root / 'spacr').rglob('*.py')
+             if 'i18n_catalogs' not in path.parts]
+    paths.append(root / 'tools/build_i18n_catalogs.py')
+    return {str(path.relative_to(root)): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in sorted(paths)}
+
 try:
+    initial_source_hashes = source_file_hashes()
     canonical = builder.canonical_sources
     sources = canonical()
     expected = builder._source_hashes(sources)
@@ -112,6 +122,8 @@ try:
         print(f'{language}: {len(owned)} exact reviews valid; {len(untouched)} unrelated targets preserved', flush=True)
 
     assert canonical() == sources, 'Source changed during generation'
+    assert source_file_hashes() == initial_source_hashes, 'Source file changed during generation'
+    receipt['unchanged_source_file_hashes'] = initial_source_hashes
     builder.write_english(sources)
     for language, (translations, untouched, owned) in prepared.items():
         path = builder.write_language(language, sources, translations)

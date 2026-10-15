@@ -1,12 +1,21 @@
 {
   "scope": "F580 optional exact reference-plate selection component; whole scientific feature remains partial alpha",
-  "baseline_source": "348c63b842a18663a364a746f3b277bcef5efdc8",
   "owner_ui_commit": "1426878f095 (adopted a16ffef6c3a)",
   "baseline": {
     "failed": 8,
     "passed": 3,
     "seconds": 9.28,
-    "fixture": "Native 16x16 NPY two-plate intensity and label fixtures; actual Measure SQLite output"
+    "fixture": "Native 16x16 NPY two-plate intensity and label fixtures; actual Measure SQLite output",
+    "primary_source_equivalence": {
+      "spacr/intensity_rescale.py": {
+        "sha256": "fa8e4765aab4d81b6c9076551181696392020ef715911a56d6abaa0e774f892d",
+        "identical_to_integration_base": true
+      },
+      "spacr/settings.py": {
+        "sha256": "3447f17d34ae9ec55312a7ed0a3836a6545b8d72a7f24910a34740ea423b5e41",
+        "identical_to_integration_base": true
+      }
+    }
   },
   "core": {
     "passed": 30,
@@ -58,7 +67,7 @@
     "Backend algorithm/statistic unchanged; this selects the reference, not a new calibration method",
     "The full unchanged13-case arrival negative suite was an avoidable verification expansion; future merge verification stays scoped to actual positive arrival/source proof and changed artifacts."
   ],
-  "final_acceptance": "PASS in coherent private tree, pending normal merge/publication",
+  "final_acceptance": "PASS combined merged source; normal publication next",
   "source_sha256": {
     "spacr/intensity_rescale.py": "5b2b18a72df195021e5b065d0f54d34a301be854fe1ccc5610940cf05dc4d604",
     "spacr/settings.py": "bdcd24255e3177f107090e47e7549e6fe630c08d1b0e50d510c420fce5ad00e2",
@@ -340,5 +349,21 @@
     ],
     "includes": "Fresh settings-flow artifacts, API consumer links, full existing13-case immutable-arrival proof cohort, exact new-setting consumer and flow assertions"
   },
-  "distinct_total_passed": 87
+  "distinct_total_passed": 87,
+  "integration_base_source": "348c63b842a18663a364a746f3b277bcef5efdc8",
+  "baseline_source": "3b707f35f20cdea40cfc430d513feee2828041d2",
+  "merged_acceptance": {
+    "public_base": "f260582a63a81e957f22a3bd348baa1e06184a90",
+    "passed": 21,
+    "seconds": 186.16,
+    "own_application_source": "All four application source files byte-identical to approved0ba0b912918",
+    "runtime_audit_scope": "Normal ENGLISH source inventory only (languages=0); nine locale claims are exact36 reviewed/candidate/source/target/unrelated preservation and actual lookup/error contracts, not a full merged nine-locale safety audit",
+    "unrelated_runtime_values_preserved_per_locale": 10574,
+    "api_visibility": "Private helper excluded by actual normal public_docstrings and current rendered English API inventory; no orphan API review inputs",
+    "immutable_arrival_baseline": 9833,
+    "arrival_added": 896,
+    "arrival_retired": 151,
+    "arrival_changed": 30,
+    "distinct_total_still": 87
+  }
 }

@@ -46,6 +46,7 @@ runs on its own; ``remove --purge`` runs it after the removal succeeded.
 from __future__ import annotations
 
 import argparse
+import errno
 import glob
 import hashlib
 import json
@@ -2948,6 +2949,39 @@ def _macos_online_version(value):
     return parts + (0,) * (4 - len(parts))
 
 
+def _runtime_requested_version(value):
+    """Validate canonical PEP440 text before constructing a private package command."""
+    import re
+
+    text = str(value).lower()
+    pattern = (r"(?:[0-9]+!)?[0-9]+(?:\.[0-9]+)*(?:(?:a|b|rc)[0-9]+)?"
+               r"(?:\.post[0-9]+)?(?:\.dev[0-9]+)?"
+               r"(?:\+[a-z0-9]+(?:[._-][a-z0-9]+)*)?")
+    if re.fullmatch(pattern, text, re.IGNORECASE) is None:
+        raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
+    return text
+
+
+def _runtime_version_compare(python, first, second, runner=None):
+    """Compare releases numerically or use the private interpreter's PEP440 parser."""
+    first, second = _runtime_requested_version(first), _runtime_requested_version(second)
+    try:
+        left, right = _macos_online_version(first), _macos_online_version(second)
+    except ValueError:
+        probe = ("import json, sys; from packaging.version import Version; "
+                 "left, right = map(Version, json.loads(sys.argv[1])); "
+                 "print((left > right) - (left < right))")
+        command = [python, "-I", "-B", "-c", probe, json.dumps([first, second])]
+        if runner is None or runner is _run:
+            code, output = _run(command, timeout=30)
+        else:
+            code, output = runner(command)
+        if code or output.strip() not in {"-1", "0", "1"}:
+            raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
+        return int(output.strip())
+    return (left > right) - (left < right)
+
+
 def _runtime_identity_command(python, version=None, *, prefix=None, minimum=False, previous_version=None):
     """Probe the imported application and its owning wheel in a fresh process.
 
@@ -3060,7 +3094,9 @@ print(json.dumps({'verified': True, 'version': version, 'prefix': sys.prefix,
 
 def _macos_online_commands(record, version, workdir):
     """The install, probe and relaunch commands for a macOS online update."""
-    _macos_online_version(version)
+    import re
+
+    version = _runtime_requested_version(version)
     python = os.path.join(record.root, "venv", "bin", "python")
     uv = os.path.join(record.root, "bootstrap", "uv")
     if record.python is None or os.path.abspath(record.python) != os.path.abspath(python):
@@ -3070,8 +3106,10 @@ def _macos_online_commands(record, version, workdir):
             raise ValueError(f"the existing macOS update executable is unavailable: {path}")
     if _inside(os.path.realpath(workdir), os.path.realpath(record.root)):
         raise ValueError("the updater folder must be outside the installed environment")
-    install = [uv, "pip", "install", "--upgrade", "--python", python, "spacr"]
-    probe = _runtime_identity_command(python, version, minimum=True)
+    explicit = re.search(r"(?:a|b|rc)[0-9]+|\.dev[0-9]+", version.partition("+")[0])
+    package = "spacr==" + version if explicit or "+" in version else "spacr"
+    install = [uv, "pip", "install", "--upgrade", "--python", python, package]
+    probe = _runtime_identity_command(python, version, minimum=package == "spacr")
     relaunch = [python, "-I", "-m", "spacr.qt"]
     return install, probe, relaunch
 
@@ -3246,6 +3284,12 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
     exchanged = False
     committed = False
     try:
+        current = _retiring_runtime_identity(prefix)
+        if current is None:
+            raise ValueError("previous_runtime_identity_unverified")
+        record = replace(record, version=current["version"])
+        if _runtime_version_compare(record.python, record.version, version, runner) > 0:
+            raise ValueError("The running spaCR is newer than the requested release. Nothing was changed.")
         transaction = tempfile.mkdtemp(prefix=".spacr-runtime-update-", dir=parent)
         staged = os.path.join(transaction, "runtime")
         journal = os.path.join(transaction, "transaction.json")
@@ -3298,10 +3342,27 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
         code, checked = runner(check_command)
         if code:
             raise RuntimeError(f"Staged package dependencies failed verification: {checked}")
+        for directory, _folders, files in os.walk(staged, followlinks=False):
+            for name in files:
+                path = os.path.join(directory, name)
+                previous = state["old_inventory"].get(os.path.relpath(path, staged), {})
+                if not name.endswith(".py") or previous.get("kind") != "file" or os.path.islink(path):
+                    continue
+                details = os.stat(path, follow_symlinks=False)
+                old = os.stat(os.path.join(prefix, os.path.relpath(path, staged)), follow_symlinks=False)
+                if (details.st_size == previous["size"]
+                        and int(details.st_mtime) == int(old.st_mtime)
+                        and _macos_digest(path) != previous["sha256"]):
+                    os.utime(path, ns=(details.st_atime_ns, (int(old.st_mtime) + 2) * 1_000_000_000),
+                             follow_symlinks=False)
+                    if int(os.stat(path).st_mtime) == int(old.st_mtime):
+                        raise OSError(errno.EIO, os.strerror(errno.EIO), path)
         code, imported = runner([staged_python, "-I", "-c", "import spacr.qt"])
         if code:
             raise RuntimeError(f"The staged application import failed: {imported}")
-        code, observed = runner(_runtime_identity_command(staged_python, version, minimum=not pip_command))
+        exact_version = pip_command or command[-1].startswith("spacr==")
+        code, observed = runner(_runtime_identity_command(
+            staged_python, version, minimum=not exact_version, previous_version=record.version))
         if code:
             raise RuntimeError("The staged application identity could not be verified: " + observed)
         try:
@@ -3310,8 +3371,9 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
             raise RuntimeError("The staged application identity could not be verified: " + observed) from error
         if (identity.get("verified") is not True
                 or identity.get("requested_version") != str(version)
-                or _macos_online_version(identity["version"]) < _macos_online_version(version)
-                or (record.version and _macos_online_version(identity["version"]) < _macos_online_version(record.version))):
+                or _runtime_version_compare(staged_python, identity["version"], version, runner) < 0
+                or (record.version and _runtime_version_compare(
+                    staged_python, identity["version"], record.version, runner) < 0)):
             raise RuntimeError("The staged application identity could not be verified: " + observed)
         for name in os.listdir(os.path.join(staged, "bin")):
             script = os.path.join(staged, "bin", name)
@@ -3381,6 +3443,12 @@ def _run_macos_online_update(plan, machine, *, wait=None, run=None, spawn=None):
     install, probe, relaunch = _macos_online_commands(record, plan["version"], plan["workdir"])
     if plan.get("fetch") is not None or plan.get("install") != install or plan.get("relaunch") != relaunch:
         raise ValueError("the macOS online update commands differ from the approved environment")
+    current = _retiring_runtime_identity(os.path.dirname(os.path.dirname(record.python)))
+    if current is None:
+        raise ValueError("previous_runtime_identity_unverified")
+    record = replace(record, version=current["version"])
+    if _runtime_version_compare(record.python, record.version, plan["version"], run) > 0:
+        raise ValueError("The running spaCR is newer than the requested release. Nothing was changed.")
     handshake = _FrozenUpdateHandshake(plan)
     handshake.ready()
     handshake.wait_for_shutdown(wait)
@@ -3415,9 +3483,15 @@ def _pip_environment_commands(record, version, workdir, machine):
             raise ValueError(_PRIVATE_PIP_UPDATE_ERROR)
     if _inside(os.path.realpath(workdir), prefix):
         raise ValueError("the updater folder must be outside the installed environment")
-    requested = _macos_online_version(version)
-    if record.version and _macos_online_version(record.version) > requested:
-        raise ValueError("The running spaCR is newer than the requested release. Nothing was changed.")
+    version = _runtime_requested_version(version)
+    if record.version:
+        _runtime_requested_version(record.version)
+        try:
+            stable_order = (_macos_online_version(record.version) > _macos_online_version(version))
+        except ValueError:
+            stable_order = None
+        if stable_order is True:
+            raise ValueError("The running spaCR is newer than the requested release. Nothing was changed.")
     command = [python, "-I", "-m", "pip", "install", "--upgrade", "spacr==" + str(version)]
     return command, [python, "-I", "-m", "spacr.qt"]
 
@@ -3434,7 +3508,7 @@ def _pip_environment_identity(record, runner):
                     and os.path.realpath(current["python"]) == os.path.realpath(record.python)
                     and isinstance(current.get("version"), str))
         if verified and record.version:
-            verified = _macos_online_version(current["version"]) == _macos_online_version(record.version)
+            verified = _runtime_version_compare(record.python, current["version"], record.version, runner) == 0
     except (ValueError, TypeError, KeyError, AttributeError):
         verified = False
     if not verified:
@@ -3455,7 +3529,7 @@ def _run_pip_environment_update(plan, machine, *, wait=None, run=None, spawn=Non
     _runtime_staging_allowed(os.path.realpath(record.root), machine)
     runner = run or _run
     current = _pip_environment_identity(record, runner)
-    if _macos_online_version(current["version"]) > _macos_online_version(plan["version"]):
+    if _runtime_version_compare(record.python, current["version"], plan["version"], runner) > 0:
         raise ValueError("The running spaCR is newer than the requested release. Nothing was changed.")
     code, output = runner([record.python, "-I", "-B", "-c", "import pip"])
     if code:
