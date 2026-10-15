@@ -1,0 +1,104 @@
+{
+  "scope": "Nine narrow mechanical-order followups; prior accepted 180 targets unchanged. Independent delta review pending.",
+  "records": [
+    {
+      "language": "hi",
+      "index": 7,
+      "source": "{count} set(s) have no {role} mask in channel {channel}. Those sets cannot be merged when merging is requested.",
+      "source_sha256": "39c0f78f4fc8d24119edfee9df0255fa24d2c4fa560ff82f4537b5fd5870f43c",
+      "old_target": "{count} सेट में चैनल {channel} में {role} का मास्क नहीं है। मर्ज करने का अनुरोध किए जाने पर इन सेट को मर्ज नहीं किया जा सकता।",
+      "old_target_sha256": "2088e4d1b1a0fce3d83c0f03644d2bd9d1eabbe6c7aca62aa1fd320e76ce43c8",
+      "target": "{count} सेट में {role} का मास्क चैनल {channel} में नहीं है। मर्ज करने का अनुरोध किए जाने पर इन सेट को मर्ज नहीं किया जा सकता।",
+      "target_sha256": "9419e4da581c4ecc3a783f5a33780b574e2f283c2afd44750be1dcacd25f2503",
+      "reason": "Preserve normal protected placeholder order; unchanged source and intended meaning."
+    },
+    {
+      "language": "hi",
+      "index": 9,
+      "source": "Move {images} image(s) and {masks} mask(s) into {channels} channel folder(s) under {dest}, as {sets} set(s) in Yokogawa naming. Then build channel stacks and any merged arrays supported by the available masks.",
+      "source_sha256": "315764f9f637a7738ecc5bf0096ef003af20c2ff8c6bccadfe44650306c23013",
+      "old_target": "{images} चित्रों और {masks} मास्क को {dest} के अंतर्गत {channels} चैनल फ़ोल्डरों में ले जाएँ, जहाँ वे Yokogawa नामकरण वाले {sets} सेट होंगे। फिर चैनल स्टैक और उपलब्ध मास्क के आधार पर बनाए जा सकने वाले मर्ज किए गए ऐरे बनाएँ।",
+      "old_target_sha256": "d8c972242a764cbee8897c38d7053f35f869f577f161f62d81c1222c54cb3749",
+      "target": "{images} चित्रों और {masks} मास्क को {channels} चैनल फ़ोल्डरों में ले जाएँ। ये फ़ोल्डर {dest} के अंतर्गत होंगे और फ़ाइलें {sets} सेट में Yokogawa नामकरण का पालन करेंगी। फिर चैनल स्टैक और उपलब्ध मास्क के आधार पर बनाए जा सकने वाले मर्ज किए गए ऐरे बनाएँ।",
+      "target_sha256": "408bfff47fbff4e0816c52f677ee4f0d6596a8de71f21003bda4fceb15a6d6e6",
+      "reason": "Preserve normal protected placeholder order; unchanged source and intended meaning."
+    },
+    {
+      "language": "hi",
+      "index": 13,
+      "source": "{sets} complete set(s) across {channels} channel(s).",
+      "source_sha256": "f894ea9bd2168af80d83612f827922d6e445e976dda1fcbb8715a4a9901a7b9d",
+      "old_target": "{channels} चैनलों में {sets} पूर्ण सेट।",
+      "old_target_sha256": "bef2fb6636974c37472c6bb54eb58931fe33669dea4891a3b7c74b34c2ca2c29",
+      "target": "{sets} पूर्ण सेट, {channels} चैनलों में।",
+      "target_sha256": "8a96b744adbe6fd7748ea877bda960d06fc89189b3092e1aec4a1f9183ba6523",
+      "reason": "Preserve normal protected placeholder order; unchanged source and intended meaning."
+    },
+    {
+      "language": "ko",
+      "index": 7,
+      "source": "{count} set(s) have no {role} mask in channel {channel}. Those sets cannot be merged when merging is requested.",
+      "source_sha256": "39c0f78f4fc8d24119edfee9df0255fa24d2c4fa560ff82f4537b5fd5870f43c",
+      "old_target": "{count}개 세트의 채널 {channel}에 {role} 마스크가 없습니다. 병합이 요청되어도 이 세트들은 병합할 수 없습니다.",
+      "old_target_sha256": "1a12852a83cd182e4626f13354ca847f5c69744069619a161d7f11488bcf4615",
+      "target": "{count}개 세트에서 {role} 마스크가 채널 {channel}에 없습니다. 병합이 요청되어도 이 세트들은 병합할 수 없습니다.",
+      "target_sha256": "978a6a38730450f7868ab0e1df3a276ea970f9b9af12ee49a3f8bdf090c45bdb",
+      "reason": "Preserve normal protected placeholder order; unchanged source and intended meaning."
+    },
+    {
+      "language": "ko",
+      "index": 9,
+      "source": "Move {images} image(s) and {masks} mask(s) into {channels} channel folder(s) under {dest}, as {sets} set(s) in Yokogawa naming. Then build channel stacks and any merged arrays supported by the available masks.",
+      "source_sha256": "315764f9f637a7738ecc5bf0096ef003af20c2ff8c6bccadfe44650306c23013",
+      "old_target": "이미지 {images}개와 마스크 {masks}개를 {dest} 아래의 채널 폴더 {channels}개로 이동하여, Yokogawa 명명 규칙을 따르는 {sets}개 세트로 구성합니다. 그런 다음 채널 스택과 사용 가능한 마스크로 만들 수 있는 병합 배열을 만듭니다.",
+      "old_target_sha256": "b04bcfd6e11e7d783049f018e7063566f1027be12771623a9e954d05438082c5",
+      "target": "이미지 {images}개와 마스크 {masks}개를 채널 폴더 {channels}개로 이동합니다. 이 폴더들은 {dest} 아래에 있으며, 파일은 {sets}개 세트로 구성되고 Yokogawa 명명 규칙을 따릅니다. 그런 다음 채널 스택과 사용 가능한 마스크로 만들 수 있는 병합 배열을 만듭니다.",
+      "target_sha256": "fe77fdb86fce6ebf795df586bfda9949ed3a8d901e4bef1e87e51095f5d46a4d",
+      "reason": "Preserve normal protected placeholder order; unchanged source and intended meaning."
+    },
+    {
+      "language": "ko",
+      "index": 13,
+      "source": "{sets} complete set(s) across {channels} channel(s).",
+      "source_sha256": "f894ea9bd2168af80d83612f827922d6e445e976dda1fcbb8715a4a9901a7b9d",
+      "old_target": "{channels}개 채널에 걸쳐 완전한 세트 {sets}개가 있습니다.",
+      "old_target_sha256": "fded6106098c6caf8967652f16335ef80fda00e5a8a1d7725dfb5216323ac40f",
+      "target": "완전한 세트 {sets}개가 {channels}개 채널에 걸쳐 있습니다.",
+      "target_sha256": "a74b98b306b9e541082bb450d77da12bf1c68ff3bcf9b8b0f29b51d5e0d04d56",
+      "reason": "Preserve normal protected placeholder order; unchanged source and intended meaning."
+    },
+    {
+      "language": "zh_CN",
+      "index": 7,
+      "source": "{count} set(s) have no {role} mask in channel {channel}. Those sets cannot be merged when merging is requested.",
+      "source_sha256": "39c0f78f4fc8d24119edfee9df0255fa24d2c4fa560ff82f4537b5fd5870f43c",
+      "old_target": "{count} 个数据组在通道 {channel} 中没有 {role} 掩膜。请求合并时，这些数据组无法合并。",
+      "old_target_sha256": "cabe7d0e49ea616fd4496b8dabc6ae1db8c9935f29b87a0d0a0c949054a7894c",
+      "target": "{count} 个数据组缺少 {role} 掩膜，缺失位置为通道 {channel}。请求合并时，这些数据组无法合并。",
+      "target_sha256": "b3627bea62b15babdeab27cbcee694853b9c1e33f7eaf59c9e82c5f0b41a9bc4",
+      "reason": "Preserve normal protected placeholder order; unchanged source and intended meaning."
+    },
+    {
+      "language": "zh_CN",
+      "index": 9,
+      "source": "Move {images} image(s) and {masks} mask(s) into {channels} channel folder(s) under {dest}, as {sets} set(s) in Yokogawa naming. Then build channel stacks and any merged arrays supported by the available masks.",
+      "source_sha256": "315764f9f637a7738ecc5bf0096ef003af20c2ff8c6bccadfe44650306c23013",
+      "old_target": "将 {images} 张图像和 {masks} 个掩膜移至 {dest} 下的 {channels} 个通道文件夹中，组成按 Yokogawa 规则命名的 {sets} 个数据组。然后构建通道堆栈及可用掩膜所支持的合并数组。",
+      "old_target_sha256": "9ae8d89cf3b41f90c2994065c5febbfb8874a9d5f38d11db7b791233f3993636",
+      "target": "将 {images} 张图像和 {masks} 个掩膜移至 {channels} 个通道文件夹中，这些文件夹位于 {dest} 下，组成 {sets} 个按 Yokogawa 规则命名的数据组。然后构建通道堆栈及可用掩膜所支持的合并数组。",
+      "target_sha256": "6fa2e352c8d15f14b3d4d43e4057166ac0d8ac80acb173e1acb669ab0174d4ec",
+      "reason": "Preserve normal protected placeholder order; unchanged source and intended meaning."
+    },
+    {
+      "language": "zh_CN",
+      "index": 13,
+      "source": "{sets} complete set(s) across {channels} channel(s).",
+      "source_sha256": "f894ea9bd2168af80d83612f827922d6e445e976dda1fcbb8715a4a9901a7b9d",
+      "old_target": "{channels} 个通道中共有 {sets} 个完整数据组。",
+      "old_target_sha256": "4c297d528e8673f87155b3c4ee7ef00b83c4751299a25073c302010aa8e000b0",
+      "target": "{sets} 个完整数据组，涵盖 {channels} 个通道。",
+      "target_sha256": "5beaab95336c8b121a499ae846bf21a4db1b84fae9254c438c7e975db254354a",
+      "reason": "Preserve normal protected placeholder order; unchanged source and intended meaning."
+    }
+  ]
+}

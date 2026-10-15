@@ -429,23 +429,31 @@ class SetReport:
 
     def summary(self) -> str:
         """A few plain lines saying what is and is not right."""
-        lines = [f"{len(self.complete)} complete set(s) across "
-                 f"{len(self.channels)} channel(s)."]
+        from .qt.i18n import tr
+
+        lines = [tr("{sets} complete set(s) across {channels} channel(s).",
+                    sets=len(self.complete), channels=len(self.channels))]
         if self.unmatched:
-            lines.append(f"{len(self.unmatched)} file(s) not matched: "
-                         + _few(self.unmatched))
+            lines.append(tr("{count} file(s) not matched: {names}",
+                            count=len(self.unmatched), names=_few(self.unmatched)))
         if self.no_channel:
-            lines.append(f"{len(self.no_channel)} file(s) have no channel: "
-                         + _few(self.no_channel))
+            lines.append(tr("{count} file(s) have no channel: {names}",
+                            count=len(self.no_channel), names=_few(self.no_channel)))
         if self.incomplete:
-            lines.append(f"{len(self.incomplete)} set(s) incomplete: "
-                         + _few([f"{set_label(key)} lacks channel(s) "
-                                 + ", ".join(str(c) for c in missing)
-                                 for key, missing in self.incomplete.items()]))
+            lines.append(tr("{count} set(s) incomplete: {sets}",
+                            count=len(self.incomplete),
+                            sets=_few([tr("{name} lacks channel(s) {channels}",
+                                          name=set_label(key),
+                                          channels=", ".join(str(c) for c in missing))
+                                       for key, missing in self.incomplete.items()])))
         if self.duplicated:
-            lines.append(f"{len(self.duplicated)} duplicate(s): " + _few(
-                [f"{set_label(key)} channel {channel}: " + " / ".join(names)
-                 for (key, channel), names in self.duplicated.items()]))
+            lines.append(tr("{count} duplicate(s): {duplicates}",
+                            count=len(self.duplicated),
+                            duplicates=_few([
+                                tr("{name} channel {channel}: {names}",
+                                   name=set_label(key), channel=channel,
+                                   names=" / ".join(names))
+                                for (key, channel), names in self.duplicated.items()])))
         return "\n".join(lines)
 
 
@@ -457,7 +465,11 @@ def _few(items: Sequence[str], limit: int = 3) -> str:
     """
     shown = ", ".join(str(item) for item in list(items)[:limit])
     more = len(items) - limit
-    return shown + (f" and {more} more" if more > 0 else "")
+    if more > 0:
+        from .qt.i18n import tr
+
+        return tr("{shown} and {more} more", shown=shown, more=more)
+    return shown
 
 
 def set_label(key: Optional[SetKey]) -> str:
@@ -1417,13 +1429,15 @@ def build_plan(folder: str, sets: Dict[SetKey, Dict[int, str]], *,
         :attr:`SortPlan.convertible` so the caller can ask.
     :returns: a :class:`SortPlan`.
     """
+    from .qt.i18n import tr
+
     plan = SortPlan(folder=folder,
                     dest=dest or unused_folder(folder, DEFAULT_DEST_NAME))
     if not sets:
-        plan.problems.append("There are no complete sets to sort.")
+        plan.problems.append(tr("There are no complete sets to sort."))
         return plan
     if os.path.exists(plan.dest):
-        plan.problems.append(f"{plan.dest} already exists.")
+        plan.problems.append(tr("{folder} already exists.", folder=plan.dest))
     try:
         names = name_sets(sets)
     except ValueError as exc:
@@ -1444,8 +1458,8 @@ def build_plan(folder: str, sets: Dict[SetKey, Dict[int, str]], *,
                            if r in MASK_ROLES and int(c) in plan.channels}
     doubled = [r for r, n in Counter(plan.mask_roles.values()).items() if n > 1]
     if doubled:
-        plan.problems.append("Two channels cannot both give the "
-                             + ", ".join(doubled) + " mask.")
+        plan.problems.append(tr("Two channels cannot both give the {roles} mask.",
+                                roles=", ".join(tr(role) for role in doubled)))
 
     lacking: Dict[int, int] = Counter()
     for key in sorted(sets, key=lambda k: natural_key(set_label(k))):
@@ -1484,28 +1498,31 @@ def build_plan(folder: str, sets: Dict[SetKey, Dict[int, str]], *,
                         shape = _converted_shape(shape, kind)
                 set_shapes[image] = shape
                 if shape is None:
-                    plan.problems.append(f"{image} cannot be read.")
+                    plan.problems.append(tr("{image} cannot be read.", image=image))
                 elif len(shape) != 2:
                     plan.problems.append(
-                        f"{image} is {shape}, not a single 2-D plane.")
+                        tr("{image} is {shape}, not a single 2-D plane.",
+                           image=image, shape=shape))
                 if mask and shape is not None:
                     mask_shape = image_shape(mask)
                     if mask_shape != shape:
                         plan.problems.append(
-                            f"The mask of {image} is {mask_shape}; the image "
-                            f"is {shape}.")
+                            tr("The mask of {image} is {mask_shape}; the image is {shape}.",
+                               image=image, mask_shape=mask_shape, shape=shape))
             plan.rows.append(row)
         if check_shapes and len({s for s in set_shapes.values()}) > 1:
             plan.problems.append(
-                f"The images of set {set_label(key)} differ in size: "
-                + ", ".join(f"{n} {s}" for n, s in set_shapes.items()))
+                tr("The images of set {name} differ in size: {sizes}",
+                   name=set_label(key),
+                   sizes=", ".join(f"{n} {s}" for n, s in set_shapes.items())))
     for channel, count in sorted(lacking.items()):
         plan.warnings.append(
-            f"{count} set(s) have no mask in channel {channel} "
-            f"({plan.mask_roles[channel]}); they get no merged array.")
+            tr("{count} set(s) have no {role} mask in channel {channel}. "
+               "Those sets cannot be merged when merging is requested.",
+               count=count, role=tr(plan.mask_roles[channel]), channel=channel))
     if not plan.mask_roles:
-        plan.warnings.append("No channel has masks, so merged/ will not be "
-                             "written; stack/ still will.")
+        plan.warnings.append(tr("No channel has masks. When merging is requested, "
+                                "stack/ is written but merged/ is not."))
     return plan
 
 

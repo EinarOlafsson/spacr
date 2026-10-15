@@ -1,0 +1,18 @@
+{
+  "scope": "N639 backend report/plan diagnostic presentation only; normal runtime targets still pending",
+  "changed_definitions": [
+    "SetReport",
+    "SetReport.summary",
+    "_few",
+    "build_plan"
+  ],
+  "public_docs_and_signatures_unchanged": true,
+  "source_sha256": "6cad184b19b5ad0864a16dd3a389d35d40d039d4f88a921301b3ad8b8828fbba",
+  "validation": {
+    "plan_shapes_masks_conversion": "19 passed,45deselected6.17s",
+    "normal_source_scope_and_report": "5 passed,100deselected1.16s"
+  },
+  "new_backend_captions": 17,
+  "normal_runtime_status": "not generated;189reviewtargets across21combinedcaptions accepted separately",
+  "limits": "Existing malformed/system exception strings remain verbatim; no plan/path/move decisions changed."
+}
