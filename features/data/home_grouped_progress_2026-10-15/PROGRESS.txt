@@ -1,10 +1,12 @@
 CURRENT ORIGINAL HOME PROGRESS — 2026-10-15
 
-One row per numbered item. Hours are estimates; unknown external durations remain explicit.
-Green ticks indicate whole original contracts accepted.
+One row per numbered item. Hours estimates; external unknowns remain explicit.
+Green ticks mean whole original contracts accepted.
 
 | Item | Percent done | Time left (hours) | Owner | Detailed description |
 |---|---|---|---|---|
+| N421 — capture measurements from hand drawn masks | ✅ | 0 | Easy / Home | Complete: hand-drawn measurement contract, superseding Organize route and final nine-language/runtime/API closure. |
+| N597 — Home widget width and text sizing | ✅ | 0 | Home-B | Complete: corrected handle/text-slider layout, live scaling, refresh persistence and extremes;12 owning checks pass. |
 | N691 — mitonet tem backend alpha | ✅ | 0 | Easy / Home | Complete (alpha): MitoNet backend, verified cache, licensing, original TEM F1 reproduction and nine-language closure. |
 | N511 — filters are any regionprop the user adds | ✅ | 0 | CI / Home | Complete: arbitrary scalar filters, provenance and exact removal restoration; twelve-key catalog retirement verified. |
 | F556 — sam2 timelapse propagation | ✅ | 0 | Easy / Home | Complete (alpha): propagation workflow, real-movie baseline comparisons and current nine-language/runtime/API closure. |
@@ -40,7 +42,6 @@ Green ticks indicate whole original contracts accepted.
 | F404 — dinocell as a segmentation backend | 90% | Unknown | Home / assigned owner | PV scorecard after F370 curated source reconciliation and actual Windows/macOS runs remain; do not count alpha implementation as full acceptance. |
 | N419 — make masks reads out lays out and edits by hand | 95% | 1–3 | Home / assigned owner | Latest item-local followups still assign normal9-language/API refresh and current tutorial to Workstation owner; current whole-parent acceptance not explicitly reconciled here. Work14 source-binding proposal is not a recording. |
 | N420 — the setup screen installs the ai provider it offers | 90% | Unknown | Home / assigned owner | Actual vendor authentication/browser/account and native Windows installer/login acceptance still require their real platform/user. No more arbitrary transport feature work. |
-| N421 — capture measurements from hand drawn masks | 95% | 1–3 | Home / assigned owner | Latest item-local remaining obligation is nine-language runtime/API closure delegated to consolidated411; later global-artifact closure is not individually established in this read-only report. |
 | F423 — third party segmenters in the model zoo | 90% | Unknown | Home / assigned owner | Actual Windows/macOS install runs and comparative scorecard acceptance explicitly not claimed; no installation performed now. |
 | F424 — plaques from published papers | 85% | Unknown | Home / assigned owner | Human lawn-strip/region-count review, crop-specific detector corpus and natural reviewed duplicate/panel/rotation corpus remain; synthetic transformation controls do not close whole424. |
 | N429 — stack file spacr wrote is one it can read | 95% | Unknown | Home / assigned owner | Reporter confirmation on real macOS external volume remains; item names consolidated API translation obligation whose later closure is not recertified here. |

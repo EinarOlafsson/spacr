@@ -144,6 +144,8 @@ def test_actual_spaces_wrapper_constructs_without_launch_or_model_loading(demo):
 
 @pytest.mark.parametrize("enabled", [False, True])
 def test_launch_policy_is_explicit_and_never_enables_a_public_share(monkeypatch, enabled):
+    import gradio as gr
+    monkeypatch.setattr(gr, "__version__", "6.30.0")
     calls = []
     class Demo:
         def launch(self, **kwargs):

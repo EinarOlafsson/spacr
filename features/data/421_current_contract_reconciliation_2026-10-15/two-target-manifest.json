@@ -1,0 +1,31 @@
+{
+  "source_base": "67de758e4590c3d037e9df6fb885c21d5975e3e7",
+  "symbol": "spacr.qt.widgets.measure_input_table.MeasureInputTable.add_dropped",
+  "index": 1,
+  "source_file": "spacr/qt/widgets/measure_input_table.py",
+  "source_file_sha256": "8b2d461d11dc6b86e816fdf5a15d84386443d1b3df5d42c6096deddedd1ad8ae",
+  "source_doc_sha256": "ad03aeb0325bd9f6aebc1ed57ecd1f2b103619f00fe164ef55c95b7180f5f827",
+  "source": "Split from :meth:`add_paths` so the GUI thread does not block on the filesystem. Everything here is a list of strings; the ``isdir`` and ``listdir`` that turn a dropped folder into files run on this widget's own worker (:func:`files_under`), because a drop is a path the user chose and on a microscope rig that is the share the images live on -- one stat under a sleeping ``autofs`` mount was measured at over twenty seconds, on the thread that paints.",
+  "source_sha256": "291cbef477e9640433479a900789fc868a012a1cbb4eae8b95e0e3471eb626bf",
+  "context": "Split from :meth:`add_paths` so the main GUI execution path does not block on the filesystem. Everything here is a list of strings; the ``isdir`` and ``listdir`` that turn a dropped folder into files run on this widget's own worker (:func:`files_under`), because a drop is a path the user chose and on a microscope rig that is the share the images live on -- one stat under a sleeping ``autofs`` mount was measured at over twenty seconds, on the independent execution path that paints.",
+  "drafts": {
+    "sv": {
+      "path": "/mnt/wd4tb/scratch/n421-current-contract-audit-20261015/api-drafts/sv.json",
+      "sha256": "99136e55391fce4af3c21f229d5480bd59368e193160eef0eee2b9a7f6e66306",
+      "target_sha256": "66e4cf90abaf61afb90d5a54a29e25376f6a0cf9ed9108f4874e508547c7ff92",
+      "normal_exact_review_source_context_markup_gates": true,
+      "generic_source_valid": true,
+      "generic_context_valid": true
+    },
+    "hi": {
+      "path": "/mnt/wd4tb/scratch/n421-current-contract-audit-20261015/api-drafts/hi.json",
+      "sha256": "a122ef4cab90722380345c7748105f434b1ed4607d674fcb55b3164a6999eca6",
+      "target_sha256": "fcdd7e30e0afe675d0e048cc2dcbc53aecb653b86416c5d8d6e8b488a356c330",
+      "normal_exact_review_source_context_markup_gates": true,
+      "generic_source_valid": true,
+      "generic_context_valid": true
+    }
+  },
+  "review_status": "AI technical translation and self-review only; independent root peer pending; no native/human signoff",
+  "producer": "NOT RUN; exactinput peer required first"
+}

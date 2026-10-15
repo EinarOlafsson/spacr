@@ -1,0 +1,302 @@
+{
+  "latest_pypi": "6.30.0",
+  "method": "All stable non-yanked Gradio6 PyPI JSON metadata, no package artifacts/install. Check exact project-compatible candidate Hub0.36.2.",
+  "rows": [
+    {
+      "version": "6.30.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<3.0,>=1.16.0",
+      "permits_hub_0_36_2": false,
+      "source": "https://pypi.org/pypi/gradio/6.30.0/json",
+      "upload_time": "2026-10-08T22:24:13.452964Z"
+    },
+    {
+      "version": "6.29.1",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<3.0,>=1.16.0",
+      "permits_hub_0_36_2": false,
+      "source": "https://pypi.org/pypi/gradio/6.29.1/json",
+      "upload_time": "2026-10-02T18:35:29.222712Z"
+    },
+    {
+      "version": "6.29.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<3.0,>=1.16.0",
+      "permits_hub_0_36_2": false,
+      "source": "https://pypi.org/pypi/gradio/6.29.0/json",
+      "upload_time": "2026-09-29T17:59:51.110265Z"
+    },
+    {
+      "version": "6.28.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=1.16.0",
+      "permits_hub_0_36_2": false,
+      "source": "https://pypi.org/pypi/gradio/6.28.0/json",
+      "upload_time": "2026-09-18T11:58:08.501494Z"
+    },
+    {
+      "version": "6.27.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=1.16.0",
+      "permits_hub_0_36_2": false,
+      "source": "https://pypi.org/pypi/gradio/6.27.0/json",
+      "upload_time": "2026-09-11T03:01:58.869254Z"
+    },
+    {
+      "version": "6.26.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=1.16.0",
+      "permits_hub_0_36_2": false,
+      "source": "https://pypi.org/pypi/gradio/6.26.0/json",
+      "upload_time": "2026-08-24T20:49:31.532909Z"
+    },
+    {
+      "version": "6.25.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=1.16.0",
+      "permits_hub_0_36_2": false,
+      "source": "https://pypi.org/pypi/gradio/6.25.0/json",
+      "upload_time": "2026-08-19T20:33:36.415179Z"
+    },
+    {
+      "version": "6.24.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=1.16.0",
+      "permits_hub_0_36_2": false,
+      "source": "https://pypi.org/pypi/gradio/6.24.0/json",
+      "upload_time": "2026-08-12T22:51:36.594966Z"
+    },
+    {
+      "version": "6.23.1",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=1.16.0",
+      "permits_hub_0_36_2": false,
+      "source": "https://pypi.org/pypi/gradio/6.23.1/json",
+      "upload_time": "2026-08-11T21:55:50.757858Z"
+    },
+    {
+      "version": "6.22.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=1.16.0",
+      "permits_hub_0_36_2": false,
+      "source": "https://pypi.org/pypi/gradio/6.22.0/json",
+      "upload_time": "2026-07-31T03:03:27.273391Z"
+    },
+    {
+      "version": "6.21.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=1.16.0",
+      "permits_hub_0_36_2": false,
+      "source": "https://pypi.org/pypi/gradio/6.21.0/json",
+      "upload_time": "2026-07-29T19:39:37.602698Z"
+    },
+    {
+      "version": "6.20.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=1.2.0",
+      "permits_hub_0_36_2": false,
+      "source": "https://pypi.org/pypi/gradio/6.20.0/json",
+      "upload_time": "2026-07-07T18:53:52.403901Z"
+    },
+    {
+      "version": "6.19.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=1.2.0",
+      "permits_hub_0_36_2": false,
+      "source": "https://pypi.org/pypi/gradio/6.19.0/json",
+      "upload_time": "2026-06-17T19:30:18.321997Z"
+    },
+    {
+      "version": "6.18.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=1.2.0",
+      "permits_hub_0_36_2": false,
+      "source": "https://pypi.org/pypi/gradio/6.18.0/json",
+      "upload_time": "2026-06-11T23:57:14.196249Z"
+    },
+    {
+      "version": "6.17.3",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=0.33.5",
+      "permits_hub_0_36_2": true,
+      "source": "https://pypi.org/pypi/gradio/6.17.3/json",
+      "upload_time": "2026-06-07T22:05:21.759315Z"
+    },
+    {
+      "version": "6.16.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=0.33.5",
+      "permits_hub_0_36_2": true,
+      "source": "https://pypi.org/pypi/gradio/6.16.0/json",
+      "upload_time": "2026-06-03T19:07:09.904968Z"
+    },
+    {
+      "version": "6.15.2",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=0.33.5",
+      "permits_hub_0_36_2": true,
+      "source": "https://pypi.org/pypi/gradio/6.15.2/json",
+      "upload_time": "2026-05-28T19:25:48.489856Z"
+    },
+    {
+      "version": "6.15.1",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=0.33.5",
+      "permits_hub_0_36_2": true,
+      "source": "https://pypi.org/pypi/gradio/6.15.1/json",
+      "upload_time": "2026-05-27T13:20:31.180780Z"
+    },
+    {
+      "version": "6.15.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=0.33.5",
+      "permits_hub_0_36_2": true,
+      "source": "https://pypi.org/pypi/gradio/6.15.0/json",
+      "upload_time": "2026-05-26T20:58:55.146957Z"
+    },
+    {
+      "version": "6.14.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=0.33.5",
+      "permits_hub_0_36_2": true,
+      "source": "https://pypi.org/pypi/gradio/6.14.0/json",
+      "upload_time": "2026-04-30T16:50:26.914436Z"
+    },
+    {
+      "version": "6.13.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=0.33.5",
+      "permits_hub_0_36_2": true,
+      "source": "https://pypi.org/pypi/gradio/6.13.0/json",
+      "upload_time": "2026-04-20T23:16:06.298284Z"
+    },
+    {
+      "version": "6.12.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=0.33.5",
+      "permits_hub_0_36_2": true,
+      "source": "https://pypi.org/pypi/gradio/6.12.0/json",
+      "upload_time": "2026-04-10T20:56:59.084465Z"
+    },
+    {
+      "version": "6.11.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=0.33.5",
+      "permits_hub_0_36_2": true,
+      "source": "https://pypi.org/pypi/gradio/6.11.0/json",
+      "upload_time": "2026-04-03T01:10:14.384566Z"
+    },
+    {
+      "version": "6.10.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=0.33.5",
+      "permits_hub_0_36_2": true,
+      "source": "https://pypi.org/pypi/gradio/6.10.0/json",
+      "upload_time": "2026-03-24T21:20:09.938416Z"
+    },
+    {
+      "version": "6.9.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=0.33.5",
+      "permits_hub_0_36_2": true,
+      "source": "https://pypi.org/pypi/gradio/6.9.0/json",
+      "upload_time": "2026-03-06T17:44:22.009193Z"
+    },
+    {
+      "version": "6.8.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=0.33.5",
+      "permits_hub_0_36_2": true,
+      "source": "https://pypi.org/pypi/gradio/6.8.0/json",
+      "upload_time": "2026-02-27T14:41:57.656389Z"
+    },
+    {
+      "version": "6.7.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=0.33.5",
+      "permits_hub_0_36_2": true,
+      "source": "https://pypi.org/pypi/gradio/6.7.0/json",
+      "upload_time": "2026-02-26T14:49:15.122642Z"
+    },
+    {
+      "version": "6.6.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=0.33.5",
+      "permits_hub_0_36_2": true,
+      "source": "https://pypi.org/pypi/gradio/6.6.0/json",
+      "upload_time": "2026-02-17T22:32:57.131932Z"
+    },
+    {
+      "version": "6.5.1",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=0.33.5",
+      "permits_hub_0_36_2": true,
+      "source": "https://pypi.org/pypi/gradio/6.5.1/json",
+      "upload_time": "2026-01-29T16:39:10.908579Z"
+    },
+    {
+      "version": "6.5.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=0.33.5",
+      "permits_hub_0_36_2": true,
+      "source": "https://pypi.org/pypi/gradio/6.5.0/json",
+      "upload_time": "2026-01-28T17:23:59.305609Z"
+    },
+    {
+      "version": "6.4.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=0.33.5",
+      "permits_hub_0_36_2": true,
+      "source": "https://pypi.org/pypi/gradio/6.4.0/json",
+      "upload_time": "2026-01-22T22:46:05.945397Z"
+    },
+    {
+      "version": "6.3.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=0.33.5",
+      "permits_hub_0_36_2": true,
+      "source": "https://pypi.org/pypi/gradio/6.3.0/json",
+      "upload_time": "2026-01-10T00:03:39.944666Z"
+    },
+    {
+      "version": "6.2.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=0.33.5",
+      "permits_hub_0_36_2": true,
+      "source": "https://pypi.org/pypi/gradio/6.2.0/json",
+      "upload_time": "2025-12-19T18:29:34.922496Z"
+    },
+    {
+      "version": "6.1.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=0.33.5",
+      "permits_hub_0_36_2": true,
+      "source": "https://pypi.org/pypi/gradio/6.1.0/json",
+      "upload_time": "2025-12-09T19:31:51.335246Z"
+    },
+    {
+      "version": "6.0.2",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=0.33.5",
+      "permits_hub_0_36_2": true,
+      "source": "https://pypi.org/pypi/gradio/6.0.2/json",
+      "upload_time": "2025-12-02T01:57:45.471429Z"
+    },
+    {
+      "version": "6.0.1",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=0.33.5",
+      "permits_hub_0_36_2": true,
+      "source": "https://pypi.org/pypi/gradio/6.0.1/json",
+      "upload_time": "2025-11-25T18:44:01.544899Z"
+    },
+    {
+      "version": "6.0.0",
+      "requires_python": ">=3.10",
+      "huggingface_hub": "huggingface-hub<2.0,>=0.33.5",
+      "permits_hub_0_36_2": true,
+      "source": "https://pypi.org/pypi/gradio/6.0.0/json",
+      "upload_time": "2025-11-21T17:00:34.380654Z"
+    }
+  ]
+}

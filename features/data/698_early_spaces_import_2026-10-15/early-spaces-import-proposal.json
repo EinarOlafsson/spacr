@@ -1,0 +1,14 @@
+{
+  "status": "Scratch-only proposal, source unmodified, no import/test/build/deployment executed",
+  "source_pin": "9263977fc9b977be880ca783d6716d2c6c4aeb6c",
+  "path": "tools/web_mask_generator/space_app.py",
+  "before_sha256": "9950a721933053f3801054c423380939ae427942dbf0002f13be40d51223d1d4",
+  "proposed_sha256": "7df2e6bf444f926e330d7d5132d5b5a0578036cf1297fd517ce4fdc47d345414",
+  "change": "Only when SPACR_WEB_ZERO_GPU is exactly1, import optional spaces module before app/service/desktop imports; preserve CPU import when unset and same main() guard. No torch/device/model/account/hardware action added.",
+  "tests_proposed": [
+    "Isolated child/runpy with stub app and spaces import hook proves spaces initialized before app dependency graph when explicitly enabled.",
+    "Unset/0/off keeps optional spaces absent and no server starts on import.",
+    "Missing spaces under explicit selection stops before app loading; no silent CPU substitution."
+  ],
+  "limits": "This only prepares framework initialization order; no actual ZeroGPU startup/CUDA placement/cache lifetime or deployment acceptance."
+}

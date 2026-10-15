@@ -1,5 +1,33 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Home-B — published source and next owner packets
+
+Independent source batch9de217e24c is public: whole N597 corrected Home contract
+accepted and complete grouped table printed. N350 title-fit30checks, N655 plate
+focus and stronger shared grip18checks, N689 operation diagnostics17checks all
+retain independent source/evidence review. Original207-target locale batch67de
+is normally integrated; exact extractor owners are present. F56408f remains a
+private exact owner packet for Original's coherent backend/settings closure.
+
+Original whole N691 acceptance54a57a07cc received; full72-row Home-B table was
+reprinted with N691 first. No partial component delivery receives a green tick.
+Clear figures' ordinary Button/Press accessibility repair20c passes25cases and
+root independent full-original-AST preservation review; no pointer/value hack.
+
+N704's current main owner packet is now
+features/data/704_current_main_owner_packet_2026-10-15/. Exact738-file proposal
+includes60 necessary dependencies omitted by the old678-file packet. All738
+current outputs and1747 referenced images match source; all unselected main
+files remain unchanged in the proven isolated tree. No main/hosted/PyPI claim.
+
+N689 access probe38753580765 was cancelled with zero jobs, consistent with the
+shared outer concurrency queue. The source-reviewed one-line scheduling repair
+keeps the ordinary publish group unchanged and adds a suffix only for access
+mode; both actual Space jobs still share their lock. It is not FIFO evidence.
+The eight-file main proposal is supplemented by the exact one-file patch under
+features/data/689_probe_concurrency_2026-10-15/. One justified permission retry
+may follow this publication; no credentials are changed or printed.
+
 ## 2026-10-15 — Original: coherent picker/curation/measurement locale closure
 
 N448/N440/N421 source and207 reviewed targets pass normal all9runtime audit,
@@ -14031,3 +14059,11 @@ F564 UI requests are preserved but held behind that order.
 ## 2026-10-15 — Original N691 whole alpha contract completed
 
 Independent original-contract/source/history review accepts MitoNet backend, licensing/alpha UI, verified cache, original ten-field F1 reproduction and nine-locale runtime/API obligations. Final Portuguese paragraph repaired through normal scoped writer and selected audit. No new science/full-CI claim. Whole-item tracker updated; evidence in 691_current_whole_item_reconciliation_2026-10-15.
+
+## 2026-10-15 — Original N421 whole closure and Home-B N597 reconciliation
+
+N421 final runtime/status and two API translation gaps are closed normally, including actual12Qt status cases and selected API audit; original accepted scenarios and later N600b routing preserved. Whole acceptance evidence in421_current_contract_reconciliation_2026-10-15. Home-B published N597 whole corrected contract is now included in Original grouped tracker after verifying all five source/test pins against its accepted12-case delivery. No fullCI/native/science claim.
+
+## 2026-10-15 — Original N698 managed launch prerequisites
+
+Compatible managed SDK6.17.3 templates/Hub0.36.2 and exact launch history option fix are integrated after actual16 owning checks; explicit ZeroGPU wrapper now imports spaces before application imports, with9 import-order/optional-route checks. Independent source peers and root hash readback retained. No new Space, weight download, GPU placement or hosted inference acceptance; provisioning remains next. No whole-item tick.

@@ -1,0 +1,367 @@
+{
+  "reason": "The current generated READMEs add Hardware support and Models panels in every language. The historical 678-file list omitted their 20 readable pages and 40 phone/desktop SVGs, all absent from main.",
+  "source_commit": "9263977fc9b977be880ca783d6716d2c6c4aeb6c",
+  "base_main_commit": "e0bedd1534d71708f65b60a2d9e24b6328d4ce9d",
+  "files": {
+    "docs/readme_images/de/generated-model-zoo-3.desktop.svg": {
+      "sha256": "754493b8807d88bbe17dbae4f58247ee61ea106f4a61cdc83f065fced13a86e1",
+      "referenced_by": [
+        "docs/i18n/readme/README.de.rst"
+      ]
+    },
+    "docs/readme_images/de/generated-model-zoo-3.svg": {
+      "sha256": "cbe52961f6ee4f502fea243722512fc5665620e536dcfef1581bc718dfdfabab",
+      "referenced_by": [
+        "docs/i18n/readme/README.de.rst"
+      ]
+    },
+    "docs/readme_images/de/hardware-support-2.desktop.svg": {
+      "sha256": "2313a8c7b09ea4d79eaf9c61649f52dab08366c212e58c659ae407a3bfc55601",
+      "referenced_by": [
+        "docs/i18n/readme/README.de.rst"
+      ]
+    },
+    "docs/readme_images/de/hardware-support-2.svg": {
+      "sha256": "31535ae6602c60eed9b7e50d7276c9bf87e680710fb7507a23730a1c9c939b09",
+      "referenced_by": [
+        "docs/i18n/readme/README.de.rst"
+      ]
+    },
+    "docs/readme_images/en/generated-model-zoo-3.desktop.svg": {
+      "sha256": "33580811503b83c1c61806412bb9abcbee7716082cd3e7d2ea635992becaf7fb",
+      "referenced_by": [
+        "README.rst"
+      ]
+    },
+    "docs/readme_images/en/generated-model-zoo-3.svg": {
+      "sha256": "b50825a88dcf91e5f8a73e81a8e1b5a6c1f2da9434e099fdd6afe36c989301cc",
+      "referenced_by": [
+        "README.rst"
+      ]
+    },
+    "docs/readme_images/en/hardware-support-2.desktop.svg": {
+      "sha256": "4c1c7ceb345bc4c853c9e15aab8c0887a87d52a9cab3d69ee70340bc8ba2a69d",
+      "referenced_by": [
+        "README.rst"
+      ]
+    },
+    "docs/readme_images/en/hardware-support-2.svg": {
+      "sha256": "b990449c41c84dd1eaea1301294ce919ff9942de10d2d6f3a1b71995ed29ecbd",
+      "referenced_by": [
+        "README.rst"
+      ]
+    },
+    "docs/readme_images/es/generated-model-zoo-3.desktop.svg": {
+      "sha256": "4bad3d978810a410b51b37bc9bdf76de04a4499f626cfc9c5ef274cd23ec5b91",
+      "referenced_by": [
+        "docs/i18n/readme/README.es.rst"
+      ]
+    },
+    "docs/readme_images/es/generated-model-zoo-3.svg": {
+      "sha256": "64470eea591b5aead7f680c4e40e40dafa5c177fbd82b87c25dc2b35bae735fa",
+      "referenced_by": [
+        "docs/i18n/readme/README.es.rst"
+      ]
+    },
+    "docs/readme_images/es/hardware-support-2.desktop.svg": {
+      "sha256": "aae5ac19d3fd79ffb8279c96de31cf4bb7d6fde561708feb18c45137ed400159",
+      "referenced_by": [
+        "docs/i18n/readme/README.es.rst"
+      ]
+    },
+    "docs/readme_images/es/hardware-support-2.svg": {
+      "sha256": "be05c398c3766756460357f1ef97e9946f7b9ee48272152e3d5dcf6cb7a054dc",
+      "referenced_by": [
+        "docs/i18n/readme/README.es.rst"
+      ]
+    },
+    "docs/readme_images/fr/generated-model-zoo-3.desktop.svg": {
+      "sha256": "8de10331b537176245cb452823440c6577ea99425f6f6076bacbe70b4411f6ec",
+      "referenced_by": [
+        "docs/i18n/readme/README.fr.rst"
+      ]
+    },
+    "docs/readme_images/fr/generated-model-zoo-3.svg": {
+      "sha256": "3c9a4b3ffb3b4aa848227f42478867b7a6e474671550ac4d6980c75a3e1a36e2",
+      "referenced_by": [
+        "docs/i18n/readme/README.fr.rst"
+      ]
+    },
+    "docs/readme_images/fr/hardware-support-2.desktop.svg": {
+      "sha256": "e240c57048f5a4ba1866a1bce2d399a9f57716f46249cbe157aabe4f612476b0",
+      "referenced_by": [
+        "docs/i18n/readme/README.fr.rst"
+      ]
+    },
+    "docs/readme_images/fr/hardware-support-2.svg": {
+      "sha256": "ca8cf36f2a488b14af7041eb3cbd2a0f3d2b205eaca5dd72c4ea64a27e4e9117",
+      "referenced_by": [
+        "docs/i18n/readme/README.fr.rst"
+      ]
+    },
+    "docs/readme_images/hi/generated-model-zoo-3.desktop.svg": {
+      "sha256": "96acf8005abf54bfc7d8f7ff30a04213e83595edff014a866e61f5a854ead9cd",
+      "referenced_by": [
+        "docs/i18n/readme/README.hi.rst"
+      ]
+    },
+    "docs/readme_images/hi/generated-model-zoo-3.svg": {
+      "sha256": "894c3552568db105294c763fb46b4595c6c560879dc24314759d26015c283632",
+      "referenced_by": [
+        "docs/i18n/readme/README.hi.rst"
+      ]
+    },
+    "docs/readme_images/hi/hardware-support-2.desktop.svg": {
+      "sha256": "4c27aef0ee826d84bcfa02c886a9af569afda1220d9c3dac0ca2e8bb38eedc85",
+      "referenced_by": [
+        "docs/i18n/readme/README.hi.rst"
+      ]
+    },
+    "docs/readme_images/hi/hardware-support-2.svg": {
+      "sha256": "bb27d8e9e4a83e01d8f2e90656a2f0875136f29128bda37071b9261a2be3368a",
+      "referenced_by": [
+        "docs/i18n/readme/README.hi.rst"
+      ]
+    },
+    "docs/readme_images/is/generated-model-zoo-3.desktop.svg": {
+      "sha256": "c0e4089cbb6eccdca9fab42957e2ac683e456e4263691a1ba35275d84d6075ce",
+      "referenced_by": [
+        "docs/i18n/readme/README.is.rst"
+      ]
+    },
+    "docs/readme_images/is/generated-model-zoo-3.svg": {
+      "sha256": "0007d9c70bfab567c2f4edf9211c5e8c841a2ccbd599c38354ddf73261ec8d85",
+      "referenced_by": [
+        "docs/i18n/readme/README.is.rst"
+      ]
+    },
+    "docs/readme_images/is/hardware-support-2.desktop.svg": {
+      "sha256": "582ea6be0c0e6fbd17a65eb15093adfe7e124abd6b5d90f221ea70ff4390d40d",
+      "referenced_by": [
+        "docs/i18n/readme/README.is.rst"
+      ]
+    },
+    "docs/readme_images/is/hardware-support-2.svg": {
+      "sha256": "b04c40a9c768bc6c9f86c279fd0e725abe79eb7d7f66e552856e2469892a109b",
+      "referenced_by": [
+        "docs/i18n/readme/README.is.rst"
+      ]
+    },
+    "docs/readme_images/ko/generated-model-zoo-3.desktop.svg": {
+      "sha256": "bcb5ce129c1832bdc847da6f2f1f9fc5b318fc7e0d41dd34d86eeac372e9adb5",
+      "referenced_by": [
+        "docs/i18n/readme/README.ko.rst"
+      ]
+    },
+    "docs/readme_images/ko/generated-model-zoo-3.svg": {
+      "sha256": "108032399fa3ab6efbaf5f592e0ea1a4c4c383059ee94bf14a32c9f19cf12474",
+      "referenced_by": [
+        "docs/i18n/readme/README.ko.rst"
+      ]
+    },
+    "docs/readme_images/ko/hardware-support-2.desktop.svg": {
+      "sha256": "e32082414e6043aa3fc080ac6ae232ecff4be3d43410087381adca8cc5a5034e",
+      "referenced_by": [
+        "docs/i18n/readme/README.ko.rst"
+      ]
+    },
+    "docs/readme_images/ko/hardware-support-2.svg": {
+      "sha256": "b41ba39e040f07274a314cebb7ff415b01d89172bad253549071918446484079",
+      "referenced_by": [
+        "docs/i18n/readme/README.ko.rst"
+      ]
+    },
+    "docs/readme_images/pt/generated-model-zoo-3.desktop.svg": {
+      "sha256": "b563b7fbecf9887fb94ea9b286aef04bcb5f353d5bf5b95b547d13cbc8e46eae",
+      "referenced_by": [
+        "docs/i18n/readme/README.pt.rst"
+      ]
+    },
+    "docs/readme_images/pt/generated-model-zoo-3.svg": {
+      "sha256": "028db4d3258734a5fc1c964092b4423c21984baace6f20e7f5991a34e2075df2",
+      "referenced_by": [
+        "docs/i18n/readme/README.pt.rst"
+      ]
+    },
+    "docs/readme_images/pt/hardware-support-2.desktop.svg": {
+      "sha256": "18353360d524fa98a9f78c908957d9466fcc58eb688e49afecc5dabe122f5ad3",
+      "referenced_by": [
+        "docs/i18n/readme/README.pt.rst"
+      ]
+    },
+    "docs/readme_images/pt/hardware-support-2.svg": {
+      "sha256": "8f7179c738d40d9e73eb3e8f9c6794bebdb5f1dc2a412cee34bdfe8972153dd7",
+      "referenced_by": [
+        "docs/i18n/readme/README.pt.rst"
+      ]
+    },
+    "docs/readme_images/sv/generated-model-zoo-3.desktop.svg": {
+      "sha256": "b4cda7f6098715f3511b3ca102ddcfb78f451956ac2805a5b4b336ebf3fe5b82",
+      "referenced_by": [
+        "docs/i18n/readme/README.sv.rst"
+      ]
+    },
+    "docs/readme_images/sv/generated-model-zoo-3.svg": {
+      "sha256": "6e8bfc9f7b6c7aa4e96a79f624726503259aae632c4b08bbccdf4abae6c0625e",
+      "referenced_by": [
+        "docs/i18n/readme/README.sv.rst"
+      ]
+    },
+    "docs/readme_images/sv/hardware-support-2.desktop.svg": {
+      "sha256": "abedf4781fed28b9e50f624e4c2489e0e5868687079089af56b20110e61fb3b2",
+      "referenced_by": [
+        "docs/i18n/readme/README.sv.rst"
+      ]
+    },
+    "docs/readme_images/sv/hardware-support-2.svg": {
+      "sha256": "1710ebf97e8dc58b1fccecb6c3896019b690f0f7a9221b5437b9dbd8acb54346",
+      "referenced_by": [
+        "docs/i18n/readme/README.sv.rst"
+      ]
+    },
+    "docs/readme_images/zh_CN/generated-model-zoo-3.desktop.svg": {
+      "sha256": "87fb504acc2ba59997cf7a63fed4a0b7fd5dcb05aa0b7e4c45543fe3f673bc2c",
+      "referenced_by": [
+        "docs/i18n/readme/README.zh_CN.rst"
+      ]
+    },
+    "docs/readme_images/zh_CN/generated-model-zoo-3.svg": {
+      "sha256": "9ff31d246940d867d31597786fd0e235cdb8c3479b480c520618e7cd4307fd49",
+      "referenced_by": [
+        "docs/i18n/readme/README.zh_CN.rst"
+      ]
+    },
+    "docs/readme_images/zh_CN/hardware-support-2.desktop.svg": {
+      "sha256": "8ee6e697d1342cfaec69021bbba17d898816e2884648a6be1b55e2cb0df7ab48",
+      "referenced_by": [
+        "docs/i18n/readme/README.zh_CN.rst"
+      ]
+    },
+    "docs/readme_images/zh_CN/hardware-support-2.svg": {
+      "sha256": "cc0779852048bf3a6c415cb0b409d7f3f4f77b21ef44b481e0d27fb1499ca8ea",
+      "referenced_by": [
+        "docs/i18n/readme/README.zh_CN.rst"
+      ]
+    },
+    "docs/readme_text/de/generated-model-zoo-3.md": {
+      "sha256": "5eaf7b8c47406182092027ad02a42ed2565c36cbee0f6e047f0e4b4c171d2190",
+      "referenced_by": [
+        "docs/i18n/readme/README.de.rst"
+      ]
+    },
+    "docs/readme_text/de/hardware-support-2.md": {
+      "sha256": "6879bf3e777b01d684428e6dfffdf8bd72fed008345c2642d3e14af51a8e631c",
+      "referenced_by": [
+        "docs/i18n/readme/README.de.rst"
+      ]
+    },
+    "docs/readme_text/en/generated-model-zoo-3.md": {
+      "sha256": "583ec6fa331fa2ba34e9572bd1044a33b1f182ff21e81dee2ade41463a9ddfdb",
+      "referenced_by": [
+        "README.rst"
+      ]
+    },
+    "docs/readme_text/en/hardware-support-2.md": {
+      "sha256": "6879bf3e777b01d684428e6dfffdf8bd72fed008345c2642d3e14af51a8e631c",
+      "referenced_by": [
+        "README.rst"
+      ]
+    },
+    "docs/readme_text/es/generated-model-zoo-3.md": {
+      "sha256": "123b98978bf18a4760c80f11a6b59877a34ace7259f00d7049043aa410bacdfc",
+      "referenced_by": [
+        "docs/i18n/readme/README.es.rst"
+      ]
+    },
+    "docs/readme_text/es/hardware-support-2.md": {
+      "sha256": "6879bf3e777b01d684428e6dfffdf8bd72fed008345c2642d3e14af51a8e631c",
+      "referenced_by": [
+        "docs/i18n/readme/README.es.rst"
+      ]
+    },
+    "docs/readme_text/fr/generated-model-zoo-3.md": {
+      "sha256": "34c140d805b9f15c8b57945f632fd74ba021ea2aad28eb113e0c04380bcf1a5b",
+      "referenced_by": [
+        "docs/i18n/readme/README.fr.rst"
+      ]
+    },
+    "docs/readme_text/fr/hardware-support-2.md": {
+      "sha256": "6879bf3e777b01d684428e6dfffdf8bd72fed008345c2642d3e14af51a8e631c",
+      "referenced_by": [
+        "docs/i18n/readme/README.fr.rst"
+      ]
+    },
+    "docs/readme_text/hi/generated-model-zoo-3.md": {
+      "sha256": "d8574a869bebc360b99dd975ec9754f1de7d7e2f38d7fbdf775372928997f97d",
+      "referenced_by": [
+        "docs/i18n/readme/README.hi.rst"
+      ]
+    },
+    "docs/readme_text/hi/hardware-support-2.md": {
+      "sha256": "6879bf3e777b01d684428e6dfffdf8bd72fed008345c2642d3e14af51a8e631c",
+      "referenced_by": [
+        "docs/i18n/readme/README.hi.rst"
+      ]
+    },
+    "docs/readme_text/is/generated-model-zoo-3.md": {
+      "sha256": "09aefb3fe21a230c6d38993d50e7132dfc3ca88931f26d959c725233179b4d63",
+      "referenced_by": [
+        "docs/i18n/readme/README.is.rst"
+      ]
+    },
+    "docs/readme_text/is/hardware-support-2.md": {
+      "sha256": "6879bf3e777b01d684428e6dfffdf8bd72fed008345c2642d3e14af51a8e631c",
+      "referenced_by": [
+        "docs/i18n/readme/README.is.rst"
+      ]
+    },
+    "docs/readme_text/ko/generated-model-zoo-3.md": {
+      "sha256": "e24f1f04627e9cd4e9bf667de5591aa737f025f1da46d6e20277b63ec2fe18c2",
+      "referenced_by": [
+        "docs/i18n/readme/README.ko.rst"
+      ]
+    },
+    "docs/readme_text/ko/hardware-support-2.md": {
+      "sha256": "6879bf3e777b01d684428e6dfffdf8bd72fed008345c2642d3e14af51a8e631c",
+      "referenced_by": [
+        "docs/i18n/readme/README.ko.rst"
+      ]
+    },
+    "docs/readme_text/pt/generated-model-zoo-3.md": {
+      "sha256": "54b9dbd9d5a2baf5fe9acbe9ac53411a1859cc0f65f9a5a5fd71fc8e21bc4d4c",
+      "referenced_by": [
+        "docs/i18n/readme/README.pt.rst"
+      ]
+    },
+    "docs/readme_text/pt/hardware-support-2.md": {
+      "sha256": "6879bf3e777b01d684428e6dfffdf8bd72fed008345c2642d3e14af51a8e631c",
+      "referenced_by": [
+        "docs/i18n/readme/README.pt.rst"
+      ]
+    },
+    "docs/readme_text/sv/generated-model-zoo-3.md": {
+      "sha256": "126a045eaa06f974401298a4a642a33bd65a6038ff37ef6d44e9c3cc3b42e4cf",
+      "referenced_by": [
+        "docs/i18n/readme/README.sv.rst"
+      ]
+    },
+    "docs/readme_text/sv/hardware-support-2.md": {
+      "sha256": "6879bf3e777b01d684428e6dfffdf8bd72fed008345c2642d3e14af51a8e631c",
+      "referenced_by": [
+        "docs/i18n/readme/README.sv.rst"
+      ]
+    },
+    "docs/readme_text/zh_CN/generated-model-zoo-3.md": {
+      "sha256": "0b7f3e69066e81ddc11607fdcf4b3a503fa106912146d825d9b401231f1e3f4b",
+      "referenced_by": [
+        "docs/i18n/readme/README.zh_CN.rst"
+      ]
+    },
+    "docs/readme_text/zh_CN/hardware-support-2.md": {
+      "sha256": "6879bf3e777b01d684428e6dfffdf8bd72fed008345c2642d3e14af51a8e631c",
+      "referenced_by": [
+        "docs/i18n/readme/README.zh_CN.rst"
+      ]
+    }
+  }
+}
