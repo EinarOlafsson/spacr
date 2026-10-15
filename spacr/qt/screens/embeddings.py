@@ -2339,7 +2339,7 @@ class EmbeddingsScreen(QWidget):
         training progress is ignored.
         Each ``shutdown`` waits a bounded time, then parks any worker that
         outlasts it. A parked training worker can finish writing its checkpoint
-        without updating this closed screen; it is not forcibly terminated.
+        without updating this closed GUI view; it is not forcibly terminated.
 
         :param event: Qt's close event, passed to the base class unchanged.
             The close is accepted even if a worker must be parked.
