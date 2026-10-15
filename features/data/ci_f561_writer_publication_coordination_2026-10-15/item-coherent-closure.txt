@@ -1,0 +1,18 @@
+2026-10-15 — Coherent classifier training/application software closure.
+Actual alpha controls train from raw crops, ordered physical channels and
+explicit well-group CSV labels, then apply saved classifier preprocessing once.
+Predictions/features/logits/probabilities and complete CSV export are reachable.
+Normal23-symbol API output preserves every unrelated record;234 current targets,
+four precise Korean repairs and nine code-literal provenance records accepted.
+Normal runtime generation covers54UI identities plus one backend diagnostic;
+all existing stopped-message targets are preserved. Nine-language audit and
+fresh canonical equality pass. Actual45GUI buttons/nine dialogs/486lookups and
+nine real backend application refusal routes pass. Normal Help generation,
+23 actual consumers/46 searches and five existing Help checks pass. Exact
+approved19-helper arrival/constructor wiring passes three strict tests, with
+historical13218 floor and211 nonrendered boundary unchanged. Caption arrival
+writer preserves9833 baseline;1251added/33changed/153retired. User guide is in
+features.rst. Training/backend synthetic checks remain as originally scoped;
+no new phenotype, independent-cohort, GPU or scientific acceptance is inferred.
+Initial SDK/history/environment/harness failures remain recorded, not hidden.
+Evidence:561_classifier_* /561_combined_api_* /561_strict_api_arrival_acceptance_*.
