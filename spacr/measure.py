@@ -12712,6 +12712,8 @@ def measure_from_field_table(table, settings=None, dst=None, progress=None):
         :func:`measure_crop` -- the run this delegates to, unchanged.
         :func:`write_field_table_project` -- the folders it writes first.
     """
+    from .qt.i18n import tr
+
     def say(message):
         """Pass a stage message to ``progress``, when a callback was given.
 
@@ -12733,11 +12735,12 @@ def measure_from_field_table(table, settings=None, dst=None, progress=None):
         raise ConfigurationError(
             "There is nowhere to write: the table's first field has no "
             "channel file, and no destination was given.")
-    say(f"Writing the merged arrays for {len(table.rows)} field(s)...")
+    say(tr("Writing the merged arrays for {count} field(s)...",
+           count=len(table.rows)))
     written = write_field_table_project(table, dst)
     resolved = field_table_settings(table, settings, dst=dst)
-    say(f"Wrote {len(written['stems'])} field(s). Measuring them now; "
-        "this is the Measure module's own run.")
+    say(tr("Wrote {count} field(s). Measuring them now; "
+           "this is the Measure module's own run.", count=len(written['stems'])))
     measure_crop(resolved)
     return {
         'destination': written['destination'],

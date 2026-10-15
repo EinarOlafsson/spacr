@@ -657,3 +657,34 @@ data/702_claim_reservation_rollback_2026-10-15/receipt.json.
     of direct object/training constructors; that follow-up is separately held.
     No whole702/nativecluster/model/fullCI/release acceptance. Evidence:
     data/702_698_runtime_closure_2026-10-15/receipt.json.
+
+2026-10-15 — Shared offline stock preflight prepared privately.
+Direct object segmentation called the central resolver rather than _choose_model,
+so the recently added caller-only stock cache guard did not protect robustness
+or ordinary Mask construction. The exact guard is now a documented private
+utils helper reused by installed/default/legacy/sam resolution. Training base
+resolution delegates unresolved bare names to that central policy after its
+existing local file, exact catalogue and explicit missing-path checks, refusing
+unknown names rather than allowing silent stock substitution. Native baseline:
+11FAIL9PASS10.81s, including both actual object constructor seams. Final38PASS
+7.15s includes20new direct/central/training cases and all18existing stockguard
+cases. No real model/training/download/GPU was used; intercepted constructors,
+native-cache helper and provider fetching cannot run on refusal paths. Exact
+local/catalogue/cachedregular/online controls preserve original bytes. Existing
+public prose/signatures and the two diagnostic strings are unchanged; the new
+helper is normal API-excluded and has no nested helpers. Source remains private
+until the first three-caption publication and owner-supplied exact extractor
+helper adoption preserve normal runtime source identity. This is a bounded
+consumer-policy repair, not wholeN702/cluster/scientific acceptance. Evidence:
+features/data/702_shared_stock_preflight_2026-10-15/.
+
+2026-10-15 — Shared offline stock preflight integrated coherently.
+    The previously private direct-object/training resolver repair and exact
+    _cellpose_stock_preflight caption owner are integrated. Reviewed38owning
+    cases are unchanged and not replayed; private raises prose is corrected.
+    Runtime source identities are preserved through actual ordinary generation,
+    all9audit0 and fresh source/arrival checks in the combined locale batch.
+    No new model/refusal target was added by moving the guard. Actual remote
+    cluster acceptance, model integrity beyond existing checks and whole702
+    remain separate. Evidence:data/702_shared_stock_preflight_2026-10-15/
+    anddata/448_440_421_runtime_closure_2026-10-15/.

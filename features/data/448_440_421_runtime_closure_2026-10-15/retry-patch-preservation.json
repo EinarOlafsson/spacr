@@ -1,0 +1,5 @@
+{
+  "encoding": "gzip; decompression restores exact original patch bytes",
+  "original_sha256": "fce5231222cb3218b386df42658bb142bfeb827ce835cbf9bfa8937f8b4eb564",
+  "compressed_sha256": "e2d1bad720956ff67ce189d88e109a8dd7c306e33bbf6d64cb0fc249b1e4ee32"
+}

@@ -413,3 +413,18 @@ future/411. This is partial nine-language progress; no non-translation
 implementation or acceptance decision in this item was changed.
 
 VERIFIED 2026-10-04: 2 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).
+
+2026-10-15 — Retained measurement API/window outputs localized.
+    The later maintainer Organize-for-Measure instruction superseded the old
+    FEATURES route; it is not restored. Nine retained stage/result/database/
+    partial-or-total scan failure messages now use complete tr templates with
+    81 independent source-bound targets. Normal full9runtime audit0, actual
+    fresh source and immutable arrival proof pass;10,930 unrelated targets
+    per locale remain exact. Three real Swedish stage/log/signal tests pass
+    after their original English-output failures, preserving dynamic values,
+    file/table output, result identity and signal order. Algorithms, signatures,
+    docs and all remaining AST are unchanged after inverse string-only proof.
+    No old17/18cohort replay or model measurement/scientific claim. Evidence:
+    data/421_legacy_measurement_output_localization_2026-10-15/ and
+    data/448_440_421_runtime_closure_2026-10-15/. Original whole-contract/API
+    reconciliation is separate from this bounded runtime delivery.

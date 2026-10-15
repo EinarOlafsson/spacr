@@ -1,0 +1,11 @@
+{
+  "driver_sha256": "d0375c998d35a0b5d9c322323062b71f23c8a244dca8689733f85bff149160bb",
+  "approved_manifest_sha256": "d8d967c1eaaf0fd9a5356c892ffd64e323d1b4c9b53bc296b317ef3c3fefc439",
+  "root_head": "9d366a7cbefa24c7dbdf2fa03067cc9bf6c8d0dd",
+  "manifest_structure_exact": true,
+  "installed27file_and_record_list_pins_exact": true,
+  "old9file_and_fragment_row_pins_exact": true,
+  "group_sources_8_6_9_unique": true,
+  "mode": "Stdlib-only static JSON/AST/hash checks; driver NOT executed/imported; no canonicalcollector/normalreview/writer/test run",
+  "decision": "Terminal corrected-driver receipt; ready for root finalread and authorized capped normalproducer"
+}

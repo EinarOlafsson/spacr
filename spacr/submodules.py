@@ -1404,6 +1404,8 @@ def _resolve_training_base(requested):
 
     :param requested: the ``base_model`` setting.
     :returns: what to hand ``CellposeModel(pretrained_model=...)``.
+    :raises ModelZooError: if a bare model name cannot be resolved exactly,
+        or its stock checkpoint is missing while downloads are disabled.
     """
     name = str(requested or 'cpsam').strip() or 'cpsam'
     if os.path.isfile(name):
@@ -1415,7 +1417,9 @@ def _resolve_training_base(requested):
         return str(resolved)
     if '/' in name or '\\' in name or name.startswith('~'):
         raise ModelZooMissing(name)
-    return name
+    from .utils import _resolve_cellpose_pretrained
+
+    return _resolve_cellpose_pretrained(name)
 
 
 #: The plaque model a run segments with when none is named: the cpsam_v2

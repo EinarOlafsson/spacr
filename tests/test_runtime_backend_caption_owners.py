@@ -26,6 +26,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
     monkeypatch.setattr(builder, "_indirect_runtime_ui_sources", set)
 
     def extract(filename, source):
+        (source_root / filename).parent.mkdir(parents=True, exist_ok=True)
         (source_root / filename).write_text(source, encoding="utf-8")
         return set(builder.extract_static_ui_sources())
 
@@ -462,5 +463,50 @@ class Unrelated:
         return tr("Unrelated method diagnostic.")
 def _dino_classifier_apply():
     """Internal documentation is not a caption."""
+    return "Unwrapped internal detail."
+''') == set()
+
+
+def test_zoo_source_tooltip_owner_extracts_values_and_literal_heading(extract_backend_sources):
+    assert extract_backend_sources("qt/widgets/model_zoo_picker.py", '''
+_SOURCE_TOOLTIPS = {
+    "Untranslated private source key": "Models trained by the spaCR maintainer and users.",
+    "Other private source key": "Cellpose models published on bioimage.io, read through its artifact API.",
+}
+_IGNORED = {"hidden": "Unrelated internal module metadata."}
+def build():
+    set_translatable_text(widget, "spaCR community")
+''') == {"Models trained by the spaCR maintainer and users.",
+           "Cellpose models published on bioimage.io, read through its artifact API.",
+           "spaCR community"}
+
+
+def test_zoo_source_tooltip_owner_excludes_other_modules_and_local_shadow(extract_backend_sources):
+    assert extract_backend_sources("qt/widgets/unrelated_picker.py", '''
+_SOURCE_TOOLTIPS = {"key": "Unrelated source tooltip metadata."}
+''') == set()
+    assert extract_backend_sources("qt/widgets/model_zoo_picker.py", '''
+def unrelated():
+    _SOURCE_TOOLTIPS = {"key": "Local source tooltip metadata."}
+_SOURCE_TOOLTIPS = {"private": {"nested": "Nested internal metadata."}}
+''') == set()
+
+
+def test_field_table_progress_has_exact_top_level_owner(extract_backend_sources):
+    caption = "Measuring field {field} of {total}."
+    assert extract_backend_sources("measure.py",
+        f"def measure_from_field_table():\n    report(tr({caption!r}))\n") == {caption}
+
+
+def test_field_table_progress_excludes_same_named_methods_and_nested_helpers(extract_backend_sources):
+    assert extract_backend_sources("measure.py", '''
+def unrelated():
+    def measure_from_field_table():
+        return tr("Unrelated nested progress.")
+class Unrelated:
+    def measure_from_field_table(self):
+        return tr("Unrelated method progress.")
+def measure_from_field_table():
+    """Documentation is not progress output."""
     return "Unwrapped internal detail."
 ''') == set()

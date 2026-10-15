@@ -4248,6 +4248,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                              "_viability_manual",
                              "_measurement_channel_index",
                              "_wound_calibration",
+                             "measure_from_field_table",
                          }]
         if path == source_root / "object_classifier.py":
             tree.body = [node for node in tree.body
@@ -4278,6 +4279,14 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                   and isinstance(statement.target, ast.Name)
                   and statement.value is not None):
                 constants[statement.target.id] = statement.value
+        if helper_module == "widgets/model_zoo_picker.py":
+            mapping = constants.get("_SOURCE_TOOLTIPS")
+            if isinstance(mapping, ast.Dict):
+                for field in mapping.values:
+                    if isinstance(field, ast.Constant) and isinstance(field.value, str):
+                        found.update(value.strip() for value in
+                                     _literal_strings(field, constants)
+                                     if _looks_translatable(value))
         for node in ast.walk(tree):
             if (
                 is_preferences

@@ -1,0 +1,17 @@
+{
+  "state": "scratch proposal only; running normal writer tree untouched",
+  "files": {
+    "spacr/utils.py": {
+      "base": "ff0831fd6c842df15b79315e247dec08672a930edfecde9e6ec4384f7a3c6bf5",
+      "proposed": "09d8cda61c4a119011c5186eddc0487194e1455564fcd38c1af1fb0ee42bc324"
+    },
+    "spacr/submodules.py": {
+      "base": "cec8018d6b565f26731e27d7c30c4b1e5fa1aee852d675e21fc9e267c452736a",
+      "proposed": "db14062fb0a62f18a4fbe96c4f7218bed66a544698972e82e3a5b1900507b6b0"
+    }
+  },
+  "patch_sha256": "4496da0dceb4471de786c9f590b928924c3cb1a8ca2539c9284aa6ec2ff83f97",
+  "scope": "Move exact accepted preflight into documented existing-module helper; central installed/default/sam returns reuse it. Training unresolved bare names use central resolver only after original local/exact-catalogue/path checks. No new diagnostics or algorithm change.",
+  "normal_owner_dependency": "New exact helper _cellpose_stock_preflight owns same existing stock-offline literal; _choose_model no longer directly owns that literal. Existing exact unknown resolver owner remains. Ordinary source-current canonical identity proof required; no orphan targets.",
+  "required_tests": "Actual direct object/training boundary interception with no native constructor, existing local/catalogue precedence, offline modes/cache/legacy/sam/online, missing-path original exception; prior 18 owning source check only if affected after implementation."
+}

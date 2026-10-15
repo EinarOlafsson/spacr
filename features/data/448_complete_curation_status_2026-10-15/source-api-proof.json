@@ -1,0 +1,9 @@
+{
+  "source_sha256": "05acb3006a6f4d1d7f74df9f62c8cc79266afc12f6f7161431de57fa4ae1a5f6",
+  "only_changed_method": "MakeMasksScreen._advance_after_verdict",
+  "all_other_ast_identical": true,
+  "existing_signature_docstring_identical": true,
+  "new_nested_helpers": 0,
+  "new_or_changed_API_blocks": 0,
+  "scope": "Only8complete statusrendering branches; no API artifacts needed for unchanged prose"
+}

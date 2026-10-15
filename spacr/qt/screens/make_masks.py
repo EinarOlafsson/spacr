@@ -12867,25 +12867,35 @@ class MakeMasksScreen(QWidget):
         """
         from ..i18n import tr
 
-        said = "kept" if keep else "discarded — nothing was deleted"
         was = self._current_index
         self._on_next()
         moved = self._current_index != was
         if moved:
             now = self._blind_label(os.path.join(
                 self._folder or "", self._image_files[self._current_index]))
-            self._status_label.setText(f"{judged} {said}  —  now on {now}")
+            self._status_label.setText(
+                tr("{judged} kept  —  now on {now}", judged=judged, now=now)
+                if keep else tr(
+                    "{judged} discarded — nothing was deleted  —  now on {now}",
+                    judged=judged, now=now))
         elif (self._hide_judged and self._image_files
               and not self._visible_indices()):
             self._status_label.setText(
-                f"{judged} {said}  —  " + tr(
-                    "no unjudged fields are left in this queue"))
+                tr("{judged} kept  —  no unjudged fields are left in this queue",
+                   judged=judged) if keep else tr(
+                    "{judged} discarded — nothing was deleted  —  no unjudged fields are left in this queue",
+                    judged=judged))
         elif (self._image_files
                 and self._current_index >= len(self._image_files) - 1):
             self._status_label.setText(
-                f"{judged} {said}  —  that was the last field in this folder")
+                tr("{judged} kept  —  that was the last field in this folder",
+                   judged=judged) if keep else tr(
+                    "{judged} discarded — nothing was deleted  —  that was the last field in this folder",
+                    judged=judged))
         else:
-            self._status_label.setText(f"{judged} {said}")
+            self._status_label.setText(
+                tr("{judged} kept", judged=judged) if keep else tr(
+                    "{judged} discarded — nothing was deleted", judged=judged))
         self._sync_queue_tally()
         return moved
 

@@ -1,5 +1,17 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — Original: coherent picker/curation/measurement locale closure
+
+N448/N440/N421 source and207 reviewed targets pass normal all9runtime audit,
+ordinary arrival refresh and fresh source/input proof. Baseline9833 unchanged;
+10,930 unrelated targets/locale preserved. Actual28 distinct Qt cases and54
+picker outputs pass; original French review refusal and test filename failures
+remain retained. Source/API/runtime gates were not weakened. Shared N702 guard
+and exact helper owner are included with preserved diagnostic source identities.
+No whole-item/fullCI/release claim is inferred from this component delivery;
+original contract reconciliation follows. Work retains tutorial/player ownership.
+
+
 ## 2026-10-15 Home-B — next coherent publication and whole N597 acceptance
 
 N597 now satisfies its corrected original contract: the actual System Refresh

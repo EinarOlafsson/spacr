@@ -23,13 +23,6 @@
       "source": "Every field in this queue has Keep or Discard.",
       "source_sha256": "47766c03a14c2f082f31da3fbe730080005021ab3cfbd24ea329986bcfcbd1e1",
       "translation": "이 대기열의 모든 시야에 유지 또는 버리기 판정이 있습니다."
-    },
-    {
-      "table": "ui",
-      "key": "no unjudged fields are left in this queue",
-      "source": "no unjudged fields are left in this queue",
-      "source_sha256": "8fa16eaf77673d247bdcb47b4e18303ee78cc058411089b7f5df509d6f2448d5",
-      "translation": "이 대기열에 판정되지 않은 시야가 남아 있지 않습니다"
     }
   ]
 }
