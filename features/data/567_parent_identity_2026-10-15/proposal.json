@@ -1,0 +1,7 @@
+{
+  "original_sha256": "1524f1f62249dc33083199a6363b3845addea8158b221802ea795072c8c95308",
+  "proposed_sha256": "bbc567418a666fd49d8a3aa099c66d71b3ee3af2fac7635022e5b1cbd95a0180",
+  "scope": "Only stored parent conversion before existing event correction; new documented private scalar helper and one replaced expression, all matching/linking/geometry/threshold/event logic unchanged.",
+  "legacy_policy": "Zero/missing/non-numeric/negative and finite-fraction coercion retained. No new parent/track rejection, no native CSV-loader guarantee. Final integer dtype retained. Valid signed integer IDs >2**53 avoid missing-row float promotion.",
+  "gates": "Read-only scalar policy counterexamples and actual empty-events ancestry proof first; root exact source peer before applying, actual owning tests and normal new-helper API eligibility before source publication."
+}
