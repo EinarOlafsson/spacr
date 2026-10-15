@@ -174,3 +174,18 @@ stylesheet slicing covers only part. Saved 606 ms interval remains portable
 historical evidence, not current causal attribution. A minimal idempotence
 candidate and cold-first/rollback/native acceptance plan are ready. No source,
 GUI, profiling, tests or recording ran; tutorial 05 repair remains open.
+
+2026-10-15 — Original Home imports complete owner Classify11 checkpoint:
+All145 owner-recorded files plus3 bound receipts imported as one exact148path
+tree:114,735,007bytes, every path/length/SHA checked before and after. Old148
+checkpoint retained in WDscratch and codex-before-work11-checkpoint-20261015.
+Against Home's older43 checkpoint only24 files differ;124 remain exact. Both
+09and11 native arrivals were missing from that checkpoint:82of84 lesson
+objects stay exact across all14 catalogs, only09/11 change. Work's separate
+83-preserved count uses its later09 baseline. Published Home docs/held recorder/
+public-stage/folder patches remain untouched. Exact expected native provenance
+union adds09+11; no ceiling/speech/SHA/equality weakening. Known33 media/arrival
+cases pass1.29seconds background2G, no media decode/network/model/GPU. This
+imports immutable HFc34c35b9662839ee4c43eb02c8a2ff89858599a8 already verified
+by Work, not fresh upload/readback, liveSpace acceptance,84 fresh GNOME remakes
+or biological validation. Evidence:data/n676_home_import_work11_2026-10-15/.

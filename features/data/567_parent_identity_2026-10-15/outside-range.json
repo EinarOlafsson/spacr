@@ -1,0 +1,70 @@
+{
+  "source_original_sha256": "1524f1f62249dc33083199a6363b3845addea8158b221802ea795072c8c95308",
+  "source_candidate_sha256": "bbc567418a666fd49d8a3aa099c66d71b3ee3af2fac7635022e5b1cbd95a0180",
+  "cases": [
+    {
+      "declared_python_integer": 9223372036854775808,
+      "observations": [
+        {
+          "name": "original",
+          "outcome": {
+            "parent": -9223372036854775808,
+            "added": 0
+          },
+          "warnings": []
+        },
+        {
+          "name": "candidate",
+          "outcome": {
+            "parent": -9223372036854775808,
+            "added": 0
+          },
+          "warnings": []
+        }
+      ]
+    },
+    {
+      "declared_python_integer": 18446744073709551616,
+      "observations": [
+        {
+          "name": "original",
+          "outcome": {
+            "parent": -9223372036854775808,
+            "added": 0
+          },
+          "warnings": []
+        },
+        {
+          "name": "candidate",
+          "outcome": {
+            "error": "OverflowError",
+            "message": "Python int too large to convert to C long"
+          },
+          "warnings": []
+        }
+      ]
+    },
+    {
+      "declared_python_integer": -9223372036854775809,
+      "observations": [
+        {
+          "name": "original",
+          "outcome": {
+            "parent": -9223372036854775808,
+            "added": 0
+          },
+          "warnings": []
+        },
+        {
+          "name": "candidate",
+          "outcome": {
+            "error": "OverflowError",
+            "message": "Python int too large to convert to C long"
+          },
+          "warnings": []
+        }
+      ]
+    }
+  ],
+  "limits": "Actual original and candidate correction with empty declared events. Unsupported out-of-signed64 inputs observed, not a new acceptance promise; no production data, event inference or training."
+}

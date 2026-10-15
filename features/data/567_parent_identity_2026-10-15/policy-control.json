@@ -1,0 +1,51 @@
+{
+  "proposal_sha256": "bbc567418a666fd49d8a3aa099c66d71b3ee3af2fac7635022e5b1cbd95a0180",
+  "legacy_value_outputs_exact": [
+    0,
+    0,
+    0,
+    0,
+    -1,
+    -2,
+    1,
+    2,
+    1,
+    0,
+    0,
+    0
+  ],
+  "legacy_nonfinite_refusals_exact": [
+    {
+      "value": "inf",
+      "unchanged_error": [
+        "IntCastingNaNError",
+        "Cannot convert non-finite values (NA or inf) to integer"
+      ]
+    },
+    {
+      "value": "-inf",
+      "unchanged_error": [
+        "IntCastingNaNError",
+        "Cannot convert non-finite values (NA or inf) to integer"
+      ]
+    },
+    {
+      "value": "'Inf'",
+      "unchanged_error": [
+        "IntCastingNaNError",
+        "Cannot convert non-finite values (NA or inf) to integer"
+      ]
+    },
+    {
+      "value": "'-Infinity'",
+      "unchanged_error": [
+        "IntCastingNaNError",
+        "Cannot convert non-finite values (NA or inf) to integer"
+      ]
+    }
+  ],
+  "actual_candidate_preserves_large_native_ancestry": 9007199254740993,
+  "input_dataframe_bytes_exact": true,
+  "production_timelapse_source_unchanged": true,
+  "limits": "Read-only scratch-proposed actual module function versus actual unchanged production function, declared metadata/empty events only; not production owning/runtime/scientific acceptance."
+}

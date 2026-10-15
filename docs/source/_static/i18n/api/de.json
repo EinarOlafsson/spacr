@@ -73210,16 +73210,16 @@
     },
     "spacr.qt.bridge.RunRegistry": {
       "source_blocks_sha256": [
-        "4d2d05f0f2a5a75aa966e9dddc5010587c4f774b8f36884f871918dae32b241d",
+        "d3984eb704e5db7dd245f3ba040f64d1f384f13dc25f157fe1806c9e169f72c3",
         "0218576172519d0d008ea921822d7b91f661a9714a855a6606dfb26f06e53312",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "96c5e050369d40460d03538b71ff864a825da5dfe1a853ab7f8aef7565e4ef26",
         "9c986a19a5913e497cd5c492f9c30cc2133fb0996a522020ea0a61b4c4d82497"
       ],
-      "source_sha256": "a5045a1332bb15025793919b9764e6efbafb321b07f601a0ec0205222b566422",
-      "text": "Jeder Auftrag begann mit :func:`make_thread`, während er ausgeführt wird.\n\nBewusst winzig: eine Liste plus ein ``changed`` Signal. Sie existiert so, dass eine Oberfläche, die *nicht* die Anwendungsansicht ist, die den Job gestartet hat – die Startseite – zeigen kann, was spaCR tut, ohne jede Anwendungsansicht zu unterrichten, in der sie sich melden kann.\n\n:param parent: übergeordnetes Widget.\nErstellen Sie die Leerlauf-Registry.\n\n:param parent: Parent-Objekt oder ``None``.",
+      "source_sha256": "3881515bd172a9666218257e7dcf8b2eea5f3c448b68780bca5546ec6148a74f",
+      "text": "Von :func:`make_thread` erstellte Jobs verfolgen, bis ihre Handles ausgemustert werden.\n\nBewusst winzig: eine Liste plus ein ``changed`` Signal. Sie existiert so, dass eine Oberfläche, die *nicht* die Anwendungsansicht ist, die den Job gestartet hat – die Startseite – zeigen kann, was spaCR tut, ohne jede Anwendungsansicht zu unterrichten, in der sie sich melden kann.\n\n:param parent: übergeordnetes Widget.\nErstellen Sie die Leerlauf-Registry.\n\n:param parent: Parent-Objekt oder ``None``.",
       "translation_source_blocks_sha256": [
-        "6b21e8a69e4151fa4349249441b506e09b40bfa21a6bc4b41edc42525003c806",
+        "d3984eb704e5db7dd245f3ba040f64d1f384f13dc25f157fe1806c9e169f72c3",
         "97cc80461d235dbebfdc2275238129d0acab8fbd0c603e17d560233647284063",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "96c5e050369d40460d03538b71ff864a825da5dfe1a853ab7f8aef7565e4ef26",
@@ -73228,12 +73228,14 @@
     },
     "spacr.qt.bridge.RunRegistry.active": {
       "source_blocks_sha256": [
-        "544bce5e36d3c8d0cc25fb355dc2f55cab539c028753be0b0a0d99c97137f637"
+        "3b3cb03f08deab531b8737e63e0b2d864818cb239bb5d5e8bfc918c207d4c857",
+        "9b6ac0a4c35f561d2b44f94b63c7aa93a4f17495090aa43778aeb9bb8d38ac25"
       ],
-      "source_sha256": "544bce5e36d3c8d0cc25fb355dc2f55cab539c028753be0b0a0d99c97137f637",
-      "text": "Er kümmert sich um die Aufgaben, die jetzt ausgeführt werden, die älteste zuerst.",
+      "source_sha256": "5209ff65983748fa01cb46e8ada8a10547f5dda4fd48c043acae9e585d1d9910",
+      "text": "Registrierte Handles in der Reihenfolge ihrer Registrierung zurückgeben.\n\nDie Liste enthält noch nicht gestartete Jobs und angehaltene Threads, deren Ausmusterung aussteht; sie filtert nicht danach, ob ein Thread gerade läuft.",
       "translation_source_blocks_sha256": [
-        "5c30f2ab9fc765d696ebd65f603292df2e2bd9bed421e8166137a971285213f7"
+        "3b3cb03f08deab531b8737e63e0b2d864818cb239bb5d5e8bfc918c207d4c857",
+        "b439553b7da1eb8b204221803e362ebc55bf3cb91af53900a4e28d8c67153d6e"
       ]
     },
     "spacr.qt.bridge.RunRegistry.cancel_all": {
@@ -73411,25 +73413,27 @@
         "26d9057fd78dc7af66e715481e2fc275e3994a114782ca0cbff7e7c96ce2c74c",
         "8d111b0b98f49879180b16161e821d1c9af02a8800fb882190b076dec818766b",
         "c85b2cb5961d1325951cf5024983a774920c4adc07f1e8f61b3702cf544777b7",
-        "5483f199c9170c66c95f8f90a202b0cb0e9bd0289c23c78bef0de979daa10b79",
+        "adf871c4edd2c071f0e3850ee41ad86051a75f98f9e6f4f18ddacaf6e5595464",
         "c2fc5f28c356838b6a46992e2d58400df4a285d04bd4f6c15453a4742dd63953",
         "1142ee79d8c17bec516b5606fe1ec4da6eeaa92371c89eed5630d6e300b9523d",
         "2b691555682b52e906dafba89cfa84803e464d62b743b5954884a9c171f3b62d",
         "9a9281e5778f1f82e5de95004e123dda5e5b8652d1c59e0fd09d3d37d85181e6",
+        "36e49479120a7d81df0cc74b5f70860e3e3b881ab892bf152165b999ce3f02e7",
         "6c5b2f14c32d33bed068fb7e9c0e7815486ca7a7145c50a6c8e18252b876f5ef",
         "c49ad207a8a67b97e8c20106f0a6625693ee003b39f66d2c35e194aab5df3b15"
       ],
-      "source_sha256": "845d6a874fd43385ffe0accf6a36fbcfd4052de4433478289ab6d4a4e047b4b0",
-      "text": "Rückgabe ``(thread, worker)`` — der Anrufer verbindet die Signale und Anrufe des Arbeiters ``thread.start()``.\n\nDer Worker-Prozesse bleibt im Besitz von Python und ist nicht mit ``deleteLater`` verbunden; seine letzte starke Referenz gibt sie frei. Der QThread selbst hält ``deleteLater``, weil er zur Ausführungs-Ereignisschleife des Anrufers gehört.\n\nEin Anrufer muss einen starken Verweis auf beide halten, bis ``thread.finished``: ein QThread-Müll beim Ausführen den Prozess herunternimmt.\n\nDer Auftrag wird auch für :func:`registry` hinzugefügt, solange er ausgeführt wird, so dass Oberflächen, die es nicht gestartet haben (die Home Application View) zeigen können, was spaCR tut. Deregistration hängt von ``thread.finished`` ab — das hat die *Affinität des*callers — anstatt ``worker.finished``, die auf der Hintergrundausführungseinheit ausgestrahlt wird und würde die Registry (ein Haupt GUI Ausführungspfad QObject) mit ihm nehmen.\n\n:param fn: Aufrufbar als ``fn(settings)`` auf der Hintergrundausführungseinheit.\n:param settings: das einzige Argument, das ``fn`` übergeben wurde.\n:param app_key: Überschreibt den auf ``fn`` von :func:`resolve_pipeline_entry` gestempelten Schlüssel. Nur für Ad-hoc-Jobs benötigt, die auf Home unter einem eigenen Namen auftauchen wollen.\n:param journal: erstellen Sie einen Reproduzierbarkeits-Record. Deaktivieren Sie nur für schreibgeschützte UI Housekeeping, die kein Analyselauf ist.\n:param capture_figures: Bereitet das Abfangen von Matplotlib-Abbildungen vor. Für Analyseläufe true beibehalten; schreibgeschützte UI-Aufträge, die keine Abbildungen erzeugen können, setzen den Wert auf false, um die Importgrenze der Operation zu erhalten.\n:returns: ein ungestartetes ``(QThread, PipelineWorker)`` Paar.",
+      "source_sha256": "16fcc33ff93d94c44e3587bc9585e1d9f2839d04170fc6394604a75acfce7060",
+      "text": "Rückgabe ``(thread, worker)`` — der Anrufer verbindet die Signale und Anrufe des Arbeiters ``thread.start()``.\n\nDer Worker-Prozesse bleibt im Besitz von Python und ist nicht mit ``deleteLater`` verbunden; seine letzte starke Referenz gibt sie frei. Der QThread selbst hält ``deleteLater``, weil er zur Ausführungs-Ereignisschleife des Anrufers gehört.\n\nEin Anrufer muss einen starken Verweis auf beide halten, bis ``thread.finished``: ein QThread-Müll beim Ausführen den Prozess herunternimmt.\n\nEin Handle wird vor der Rückkehr dieser Funktion zu :func:`registry` hinzugefügt, während der Thread noch nicht gestartet ist. Es bleibt registriert, bis ``thread.finished`` die Ausmusterungsmethode des Handles aufruft. Registrierte Handles umfassen daher auch Jobs, die auf ihren Start oder ihre Ausmusterung warten; sie zählen nicht die gerade ausführenden Threads. Ansichten wie Home können diese Handles verwenden, um Jobs anzuzeigen, die sie nicht selbst gestartet haben. Die Ausmusterung ist mit ``thread.finished`` statt mit ``worker.finished`` verbunden, das vor dem Anhalten des Threads gesendet wird.\n\n:param fn: Aufrufbar als ``fn(settings)`` auf der Hintergrundausführungseinheit.\n:param settings: das einzige Argument, das ``fn`` übergeben wurde.\n:param app_key: Überschreibt den auf ``fn`` von :func:`resolve_pipeline_entry` gestempelten Schlüssel. Nur für Ad-hoc-Jobs benötigt, die auf Home unter einem eigenen Namen auftauchen wollen.\n:param journal: erstellen Sie einen Reproduzierbarkeits-Record. Deaktivieren Sie nur für schreibgeschützte UI Housekeeping, die kein Analyselauf ist.\n:param user_visible: das Handle für benutzerseitige Jobanzeigen markieren. False blendet es in Anzeigen aus, die dieses Flag filtern; das Handle bleibt registriert, und diese Option bricht den Job weder ab noch hält sie ihn an.\n:param capture_figures: Bereitet das Abfangen von Matplotlib-Abbildungen vor. Für Analyseläufe true beibehalten; schreibgeschützte UI-Aufträge, die keine Abbildungen erzeugen können, setzen den Wert auf false, um die Importgrenze der Operation zu erhalten.\n:returns: ein ungestartetes ``(QThread, PipelineWorker)`` Paar.",
       "translation_source_blocks_sha256": [
         "26d9057fd78dc7af66e715481e2fc275e3994a114782ca0cbff7e7c96ce2c74c",
         "d685e4a3a3bf2e1d15e722b6db315753180e3eeab72e54dc59ce2c87f507f8ed",
         "f9e35447ddc97f94185f911074ce2e89954a313345261381630291c0989b20b8",
-        "9b32b00cc7ae546e6425a288f31001288d88fbe18ba1c367cd6955cbd00e7a77",
+        "9066a3b3e5b56f6b64d441c662933532df6fbae661a08094ea9a6c4f4ef2411d",
         "ab49f524b54298c36abfa372fe541de639d23064ca389ffddff2fb166ef6edfe",
         "1142ee79d8c17bec516b5606fe1ec4da6eeaa92371c89eed5630d6e300b9523d",
         "2b691555682b52e906dafba89cfa84803e464d62b743b5954884a9c171f3b62d",
         "9a9281e5778f1f82e5de95004e123dda5e5b8652d1c59e0fd09d3d37d85181e6",
+        "36e49479120a7d81df0cc74b5f70860e3e3b881ab892bf152165b999ce3f02e7",
         "6c5b2f14c32d33bed068fb7e9c0e7815486ca7a7145c50a6c8e18252b876f5ef",
         "c49ad207a8a67b97e8c20106f0a6625693ee003b39f66d2c35e194aab5df3b15"
       ]
@@ -122395,13 +122399,13 @@
     "spacr.qt.widgets.activity_spinner.ActivitySpinner.is_spinning": {
       "source_blocks_sha256": [
         "73a3c01626e21532d61f2be4ccdda0841e2218d4566b266bf9fd75ba674fb1d6",
-        "c27b3c39f7038eeca9abe8d235d6f75abeba396221c59fe6eeed6cbe7cb3e31c"
+        "02da540a96a73eee013d2059bffaac187dbe93947f7da417916cea83c1e6694c"
       ],
-      "source_sha256": "6cb2bcd39c075283af12995b8e1bda7c7a86cdc44cd49badef67618e149e290c",
-      "text": "Ob der Animations-Timer tatsächlich läuft.\n\nDie Behauptung hinter \"idle costs zero\": wenn dies ``False`` ist, postet das Widget überhaupt keine Ereignisse.",
+      "source_sha256": "bb3ca13a7abaeccea8dccb98a8453fe974893d3ee00ee105c0d249a7f604172c",
+      "text": "Ob der Animations-Timer tatsächlich läuft.\n\nDies meldet nur den Animationstimer. Während der Verzögerung vor dem Erscheinen wird ``False`` zurückgegeben, während der separate Verzögerungstimer aktiv bleibt; diesen Zustand mit :meth:`is_waiting` prüfen.",
       "translation_source_blocks_sha256": [
         "73a3c01626e21532d61f2be4ccdda0841e2218d4566b266bf9fd75ba674fb1d6",
-        "c27b3c39f7038eeca9abe8d235d6f75abeba396221c59fe6eeed6cbe7cb3e31c"
+        "02da540a96a73eee013d2059bffaac187dbe93947f7da417916cea83c1e6694c"
       ]
     },
     "spacr.qt.widgets.activity_spinner.ActivitySpinner.is_waiting": {
@@ -122720,6 +122724,30 @@
         "c62e10ce1eb1fe4decefb235d0d5d22f9c2517958303b3a26f320a6faa8f72c1"
       ]
     },
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent": {
+      "source_blocks_sha256": [
+        "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+        "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973"
+      ],
+      "source_sha256": "69a9364e8a0229bb8a073f8627aa7ae69d31f3a7d9610398ae9b38cb749f57a6",
+      "text": "Die Umrandung neu zeichnen, wenn der Umschalter den Tastaturfokus erhält.\n\n:param event: Ereignis beim Erhalten des Fokus, das an QLabel weitergeleitet wird.",
+      "translation_source_blocks_sha256": [
+        "e9506ed51ae388c53573ef96d3a0aae7e6e5543acbc5e7667081533c7d1fd7bf",
+        "a60b0b8b5f95339101d651b0a935235c64d92bb9b524fca4edb82ee0bd0fa973"
+      ]
+    },
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent": {
+      "source_blocks_sha256": [
+        "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+        "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353"
+      ],
+      "source_sha256": "64ee22fd609b5f1d712cc397752c4c96d2edce27a80723669b2619e600787634",
+      "text": "Die Umrandung entfernen, wenn der Tastaturfokus den Umschalter verlässt.\n\n:param event: Ereignis beim Verlieren des Fokus, das an QLabel weitergeleitet wird.",
+      "translation_source_blocks_sha256": [
+        "60f1aca9cba7f6dd14b76787c92f862ccfa49c3346775927709f19c6cf53d89d",
+        "8d1d5ffff7825af6b283e02f075a099d5f25ae83c7d6ef142187aaf29f492353"
+      ]
+    },
     "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.isChecked": {
       "source_blocks_sha256": [
         "32e5724de4b767c1cd9cd679f62e041fdd3b07c44d530894af65e6ca77abe47d"
@@ -122728,6 +122756,20 @@
       "text": "Zurück True, wenn die KI-Klinke gerade eingeschaltet ist.",
       "translation_source_blocks_sha256": [
         "32e5724de4b767c1cd9cd679f62e041fdd3b07c44d530894af65e6ca77abe47d"
+      ]
+    },
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent": {
+      "source_blocks_sha256": [
+        "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+        "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+        "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27"
+      ],
+      "source_sha256": "ce756b8b94078aea7902d8e002322345ca4281a01d774b7683533b224ad37638",
+      "text": "Bei Fokus einmal mit Leertaste, Return oder numerischem Enter ohne Modifikatortasten umschalten.\n\nAutomatische Tastenwiederholungen werden ohne Zustandsänderung verarbeitet. Andere Tastenereignisse werden an QLabel weitergeleitet. Die Aktivierung verwendet :meth:`setChecked` und erhält das vorhandene Signal für Zustandsänderungen sowie die Routing-Verbindungen.\n\n:param event: Tastendruckereignis, das an den Umschalter zugestellt wird.",
+      "translation_source_blocks_sha256": [
+        "ab78057265752ad2b3d5aaab0d48c4aa6a233a0c2a5af2e4b743222d0471b509",
+        "bc65990151ef07e88ba5d0ee62dd80b6b4698bb4ca9ce05b5a127858f6b98986",
+        "11f192abf193e8e1eb94d86d91a7a328871a1cfe3995f0fcebe47d972bb98d27"
       ]
     },
     "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.minimumSizeHint": {
@@ -122752,6 +122794,18 @@
       "translation_source_blocks_sha256": [
         "e2782bb5437f555ce9b914dd425050d466a7c5d86a68fac6ad6544f9e6403b36",
         "54cc92a0af8ecedc88268ae27a5636ff8c0f832e6d5aa201dc090e781ef85972"
+      ]
+    },
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent": {
+      "source_blocks_sha256": [
+        "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+        "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a"
+      ],
+      "source_sha256": "04f82e9bf0c275c038319985e9f47e9490de4b649a92fff9f1721f856c16c297",
+      "text": "Das Label und seine zwischengespeicherte Umrandung zeichnen, solange es den Tastaturfokus hat.\n\n:param event: Zeichenanforderung, die vor dem Zeichnen der Umrandung an QLabel übergeben wird.",
+      "translation_source_blocks_sha256": [
+        "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+        "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a"
       ]
     },
     "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.resizeEvent": {

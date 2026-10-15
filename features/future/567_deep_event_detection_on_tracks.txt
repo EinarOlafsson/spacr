@@ -256,3 +256,23 @@ logs and accepted source are preserved in
 data/567_event_video_precision_2026-10-06.json and its evidence folder.
 This completes numerical GPU acceptance for that fixture. Annotated held-out
 Toxoplasma event accuracy and final integrated-source publication remain OPEN.
+
+2026-10-15 Original Home — exact stored-parent identity through event correction
+The event correction now converts stored parent IDs one scalar at a time after
+explicit object boxing. Missing nullable/object rows no longer round valid
+signed64 parent IDs above2**53, and the actual lineage retains the native mother
+with empty declared events. Existing finite-fraction truncation, blank/malformed
+zero policy, negative sentinels and nonfinite integer-conversion refusal remain.
+The original four missing-value storage cases failed; the final bounded cohort
+passes15 checks, including three existing division/lineage controls. An interim
+nullable promotion failure and a fixture CSV/pickle cache failure are retained
+with the exact diagnosis; final input frames, pre-call serialization, events and
+private fixture files remain unchanged. The documented private helper is absent
+from the actual unchanged normal API collector (13,484 symbols), so no orphan
+API/runtime targets or generated catalog edits are introduced. Out-of-signed64
+behavior is not supported:2**63 retains the original wrap, while larger Python
+integers can now refuse instead of the original corrupt wrap; no arbitrary-size
+identity guarantee is claimed. Source, raw failures, peer, successful checks and
+API evidence are in data/567_parent_identity_2026-10-15/. This closes only this
+software identity boundary; native CSV-loader parity, biological event accuracy,
+whole F567, final global CI and release acceptance remain separate.

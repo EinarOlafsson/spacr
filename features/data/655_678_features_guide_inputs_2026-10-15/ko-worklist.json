@@ -1,0 +1,106 @@
+[
+  {
+    "domain": "features",
+    "msgid": "``dependent_variable``, the response, is a drop-down of the numeric columns of the selected score file or files, with ``pred`` first when present. Identifier columns such as ``plateID``, ``rowID``, ``columnID``, ``fieldID``, ``objectID`` and ``count`` are not offered. The list is read from each file's header and its first 200 rows when the files change. A saved value that is not in the file is kept and flagged. ``pred`` is the probability a classifier writes: Classify saves it as ``<date>_<dataset>_<model>_result.csv`` next to the tar, and ML scoring saves it as ``results/<model>/<features>/results.csv``. When ``pred`` is selected and a score file has no ``pred`` column, a note under the field says so, names those two outputs and lists the columns that can be used; spaCR does not pick a response for you. A missing response-column error lists available score-table columns to help you choose a valid response.",
+    "msgstr": "응답 변수인 ``dependent_variable`` 항목은 선택한 하나 이상의 점수 파일에 있는 숫자 열의 드롭다운 목록이며, ``pred`` 열이 있으면 맨 앞에 표시합니다. ``plateID``, ``rowID``, ``columnID``, ``fieldID``, ``objectID``, ``count`` 같은 식별자 열은 제공하지 않습니다. 파일이 바뀌면 각 파일의 헤더와 처음 200개 행을 읽어 목록을 만듭니다. 저장된 값이 파일에 없더라도 유지하고 표시합니다. ``pred`` 값은 분류기가 기록하는 확률입니다. Classify는 이를 tar 옆의 ``<date>_<dataset>_<model>_result.csv`` 파일에 저장하고, ML 점수 계산은 ``results/<model>/<features>/results.csv`` 파일에 저장합니다. ``pred`` 항목을 선택했는데 점수 파일에 ``pred`` 열이 없으면 필드 아래의 안내가 이를 알리고 위의 두 출력 파일과 사용할 수 있는 열을 나열합니다. spaCR는 응답 변수를 대신 선택하지 않습니다. 응답 열 누락 오류는 유효한 응답 변수를 선택할 수 있도록 점수 표의 사용 가능한 열을 나열합니다.",
+    "source_sha256": "799a0804038a9a55ca77e3470f7ac181d9518137ae7230e237b5de1c0f5c2a42",
+    "author": "accessibility_655",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "Starting spaCR",
+    "msgstr": "spaCR 시작하기",
+    "source_sha256": "91568eddbef9f8af1915c46504ca52976eee9dff39142449540c6e012cfea166",
+    "author": "readme_704",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "spaCR opens with a black container holding the spaCR logo as a photomosaic. The logo holds still while the window loads, then the mosaic blows away tile by tile and the container fades to show the window. A click or a key skips it. The sequence is off when **Preferences → Appearance → Animation → Startup animation** is cleared (the mosaic then shows without the animation), while **Reduce motion** is on, and when the ``SPACR_NO_SPLASH`` environment variable is set to ``1`` (the mosaic is then not shown at all). **Help → Show startup animation** plays it again inside the open window, even when Startup animation is off; under Reduce motion the logo holds and then cross-fades away.",
+    "msgstr": "spaCR은 spaCR 로고를 사진 모자이크로 보여 주는 검은 컨테이너와 함께 열립니다. 창이 로드되는 동안 로고가 정지해 있고, 이후 모자이크가 타일 단위로 흩어지면서 컨테이너가 서서히 사라져 창이 보입니다. 클릭하거나 키를 누르면 이 과정을 건너뜁니다. **환경설정 → 모양 → Animation → 시작 애니메이션** 선택을 해제하면(이때 모자이크는 애니메이션 없이 표시됨), **모션 줄이기** 기능이 켜져 있으면, 또는 환경 변수 ``SPACR_NO_SPLASH`` 값을 ``1`` 로 설정하면(이때 모자이크 자체가 표시되지 않음) 이 과정이 꺼집니다. **도움말 → 시작 애니메이션 표시** 항목은 시작 애니메이션이 꺼져 있어도 열린 창 안에서 다시 재생합니다. 모션 줄이기가 켜져 있으면 로고가 정지해 있다가 서서히 사라집니다.",
+    "source_sha256": "6b823be805233201895a1a53e9d891473503fe3caed422bbe6f4a30a08d0036c",
+    "author": "readme_704",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "The window opens **Borderless** by default: it has no title bar, fills the work area of its screen, and its menu bar moves it while the marks at the right end of the bar minimise, maximise and close it. Clear **Help → Window → Borderless window** to use the platform's own framed window instead. The choice is remembered.",
+    "msgstr": "창은 기본적으로 **Borderless** 모드로 열립니다. 제목 표시줄 없이 화면의 작업 영역을 채우며, 메뉴 모음으로 창을 이동할 수 있고 메뉴 모음 오른쪽 끝의 아이콘으로 최소화, 최대화, 닫기를 수행합니다. **도움말 → 창 → 테두리 없는 창** 항목의 선택을 해제하면 플랫폼 자체의 테두리 있는 창을 사용합니다. 이 선택은 저장됩니다.",
+    "source_sha256": "d5626a1b3e9b98f97d7b8c222136086ed4b409bf88005acdc933e7c352394426",
+    "author": "accessibility_655",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "Settings files",
+    "msgstr": "설정 파일",
+    "source_sha256": "2d6c5fe003de86d50b7f079edb4a095bc4d4f0b7f90a6b35b16117eb50fa5a8b",
+    "author": "accessibility_655",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "Use **Export settings…**, next to **Import settings…**, to save the form's current values as a settings CSV without running anything. On the Distributed Jobs screen, **Save settings CSV…** saves the snapshot a **Submit remote…** sent. Both write the file that ``spacr-run --settings`` reads; see :ref:`Settings files from the GUI <settings-files-from-the-gui>` and :doc:`shortcuts_and_templates` for settings templates.",
+    "msgstr": "**설정 가져오기…** 옆의 **설정 내보내기…** 기능을 사용하면 아무 작업도 실행하지 않고 양식의 현재 값을 설정 CSV로 저장할 수 있습니다. Distributed Jobs 화면에서 **설정 CSV 저장…** 기능은 **원격 제출…** 기능이 보낸 설정 스냅샷을 저장합니다. 두 방법 모두 ``spacr-run --settings`` 명령이 읽는 파일을 작성합니다. 설정 템플릿은 :ref:`GUI에서 만드는 설정 파일 <settings-files-from-the-gui>` 및 :doc:`shortcuts_and_templates` 문서를 참조하세요.",
+    "source_sha256": "26f972718de43f032b739bf6bc0af0ae0737511ed80f4e7739efadc9a942ba1b",
+    "author": "accessibility_655",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "Gate Editor keys and overlapping elements",
+    "msgstr": "Gate Editor 키와 겹치는 요소",
+    "source_sha256": "56fa61c9802a12c7edbdb5d3d46cb6e0a3f15f7f330e1dd90558254b0f0f4cfd",
+    "author": "accessibility_655",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "While the Gate Editor has focus, these keys choose its drag mode and, in 3D, the plane or axis. They are listed under **Change shortcuts** with the scope *Gate Editor* and can be rebound there:",
+    "msgstr": "Gate Editor에 포커스가 있으면 이 키들은 드래그 모드를 선택하고, 3D에서는 평면이나 축을 선택합니다. **단축키 변경** 에서 *Gate Editor* 범위에 나열되며 그곳에서 키를 다시 지정할 수 있습니다:",
+    "source_sha256": "ae212c0c3f2f2041783d7881500da20326d7ac6a4c2c11c6850161f410d12bf1",
+    "author": "readme_704",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "**Shift+E** chooses Edit, **Shift+S** Spin (free) and **Shift+D** Draw;",
+    "msgstr": "**Shift+E** 키는 편집, **Shift+S** 키는 Spin (free), **Shift+D** 키는 그리기를 선택합니다;",
+    "source_sha256": "f6a9264ff0c9d69c7b0f3d512a036459ae9295743cf796e8e777ded7fcb767b0",
+    "author": "readme_704",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "**Shift+X**, **Shift+Y** and **Shift+Z** choose the X, Y or Z plane. Pressed within 1.5 s of **Shift+S**, they choose the spin axis instead.",
+    "msgstr": "**Shift+X**, **Shift+Y**, **Shift+Z** 키는 X, Y, Z 평면을 선택합니다. **Shift+S** 를 누른 뒤 1.5초 이내에 누르면 대신 회전축을 선택합니다.",
+    "source_sha256": "ad5812a74d9ab6468202b1d2e530d9604267466f4cc6c3ab911c296152004c0c",
+    "author": "readme_704",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "Make Masks uses the same keys in its True 3D view. When a click lands on more than one sheet or anchor, in the 3D Edit mode and in 2D, the elements under it are highlighted and listed at the top left of the graph under **Elements under the click**, in layer order with sheets before anchors; the top layer is blue and the others white. The initial click grabs the nearest anchor under the pointer, if any; otherwise it grabs the nearest sheet. Click a row or press the Up and Down arrows to choose which element the next click on that overlap selects and moves. **Escape**, a click on empty space, leaving Edit, switching between 2D and 3D, or replacing the gate set closes the list.",
+    "msgstr": "Make Masks의 True 3D 보기에서도 같은 키를 사용합니다. 3D 편집 모드와 2D에서 클릭 위치에 여러 면이나 앵커가 겹치면 그 아래의 요소가 강조 표시되고 그래프 왼쪽 위의 **클릭 위치의 요소** 아래에 레이어 순서대로 나열됩니다. 같은 레이어에서는 면이 앵커보다 앞에 오며, 맨 위 레이어는 파란색이고 나머지는 흰색입니다. 첫 클릭은 포인터 아래에 앵커가 있으면 가장 가까운 앵커를 잡고, 없으면 가장 가까운 면을 잡습니다. 행을 클릭하거나 위쪽 및 아래쪽 화살표를 눌러 같은 겹침 위치를 다음에 클릭했을 때 선택하고 이동할 요소를 정합니다. **Escape** 키, 빈 공간 클릭, 편집 모드 종료, 2D와 3D 간 전환 또는 gate 집합 교체는 목록을 닫습니다.",
+    "source_sha256": "ab272cc4f85101b929531352c1abf70a1ae3d7835e65b545245f8571a8a6c92b",
+    "author": "readme_704",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "Use :kbd:`Tab` or :kbd:`Shift+Tab` to reach **AI** or **Live**. An outline shows which label has keyboard focus. Press :kbd:`Space`, :kbd:`Return` or numeric-keypad :kbd:`Enter`, without other keys held, to switch it on or off. Holding a key switches it only once. If your screen reader handles numeric-keypad :kbd:`Enter` itself, use :kbd:`Space` or :kbd:`Return`.",
+    "msgstr": ":kbd:`Tab` 또는 :kbd:`Shift+Tab` 으로 **AI** 또는 **실시간** 레이블로 이동하세요. 윤곽선이 키보드 포커스가 있는 레이블을 나타냅니다. 다른 키를 누르지 않은 상태에서 :kbd:`Space`, :kbd:`Return` 또는 숫자 키패드의 :kbd:`Enter` 키를 눌러 켜거나 끄세요. 키를 계속 누르고 있어도 한 번만 전환됩니다. 화면 읽기 프로그램이 숫자 키패드의 :kbd:`Enter` 키를 자체적으로 처리한다면 :kbd:`Space` 또는 :kbd:`Return` 키를 사용하세요.",
+    "source_sha256": "bf98e3fbd780de19bb0b6ba6389d6026db7049aaf08119551286240b5642cbd6",
+    "author": "readme_704",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  },
+  {
+    "domain": "features",
+    "msgid": "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand, Draw, Box, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement. Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice slider and a View list of Default, Orthogonal and True 3D; electron micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See :ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`.",
+    "msgstr": "Make Masks는 마스크를 수동으로 수정하며 상단에서 Cellpose 작업 흐름을 제공합니다. 캔버스에는 Brush, Erase, 객체 지우기, 마술봉, 그리기, 상자, 분할 / 병합, Zoom, 다시 자르기, 자의 열 가지 도구가 있습니다. 마술봉은 기본적으로 영역을 추가하며, Ctrl을 누른 채 클릭하면 영역을 제거합니다. :doc:`Make Masks 참조 문서 <make_masks>` 에서는 이러한 도구, 레벨, 검출 설정, 기본 및 보조 마스크 연결, 저장, 측정을 설명합니다. 볼륨(TIFF 스택, OME-TIFF, MRC)은 같은 뷰에서 열리며 슬라이스 슬라이더와 기본값, 직교, True 3D를 제공하는 View 목록이 표시됩니다. 전자현미경 이미지(``.dm3``, ``.dm4``, ``.mrc``)에는 대비 사전 설정이 있습니다. :ref:`3D 볼륨 <mm-volumes>` 및 :ref:`전자현미경 이미지 <mm-tem>` 문서를 참조하세요.",
+    "source_sha256": "05b6f9398099bc19e7d20eaa45069f18577576ac7bcb0f2d8a3c4933ac53928a",
+    "author": "accessibility_655",
+    "review_kind": "AI technical review (Codex), no native-speaker signoff"
+  }
+]

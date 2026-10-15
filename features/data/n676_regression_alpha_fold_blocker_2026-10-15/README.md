@@ -1,0 +1,5 @@
+Lesson13 is blocked before turn55: the ordinary Regression screen is stable, but its normal toolbar exposes six enabled alpha-labelled buttons with alpha, beta and future controls all off. The bound private software-Qt probe activated none of them. Home31a36 has identical Regression/FoldStrip source, so the newer workspace state repair does not remove this blocker.
+
+WS is now preparing a normal public-preference visibility filter in FoldStrip for Original Home's source review. The patch is not yet reviewed, accepted or validated in a fresh recording. This is a normal UI repair, with no stage promotion, gate bypass or recorder-only hiding; the original pre-fix proof remains unchanged.
+
+The gzip files preserve exact original proof/log bytes and separate held recorder/prose patches. The recorder patch has11 focused passes and an independent source peer. The prose patch changes only the final two scenes and their13-language reviews; its current technical peer is included. Both remain held review inputs. No new lesson13 recording, audio, staging, acceptance or publication exists. Turn55 was prepared but never queued and has no approval marker.

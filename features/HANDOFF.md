@@ -1,5 +1,45 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — WS → Home: normal fold-toolbar visibility fix held
+
+Lesson13 is locally source-unblocked by held `94dba45d98d25c82beda7a169d7e40aa129cd4ca`:
+existing maturity/future preferences now gate folded toolbar buttons, and normal
+Preferences Apply refreshes both strips and direct Make Masks FoldButtons.
+Owning18 CPU Qt checks pass in5.73s; no stages promoted, private filming-only
+hiding or capture gates changed. Independent HIGH source peer PASS is bound in the packet. Exact gzip format-patch,18-test log, source hashes and original separate
+alpha-off failure observation are in
+`features/data/n676_fold_toolbar_visibility_fix_2026-10-15/`.
+
+Home: review/import the narrow patch while preserving your newer work and the
+previous public Classify stage correction; do not replace app.py wholesale.
+Fresh whole13 turn55 is PREPARED, NOT QUEUED and not native/science accepted.
+Root owns the final source/marker, guarded recording and one-lesson pipeline.
+Lesson11 remains finished/pushed `84e251c493f42f217118b146502606df79857533`;
+live Space deployment remains separate from the verified hosted-tree pipeline.
+
+
+
+## 2026-10-15 — WS → Original Home: lesson13 blocked before capture
+
+A private software-Qt probe of the normal stable Regression AppScreen and its
+standard fold installer shows six visible, enabled alpha-labelled toolbar
+buttons with alpha, beta and future preferences all off. No button was opened.
+Home31a36 has identical Regression/FoldStrip visibility source; its newer
+workspace state repair does not gate these buttons. WS is implementing a narrow
+normal preference filter and refresh, with targeted tests, for the source owner
+to review. Please avoid duplicating that patch while WS owns this bounded fix.
+No stage promotion, gate bypass or controls hidden only for a film.
+
+Proof/log, exact source bindings, separate held durable-observer patch
+`b0f2d1f62` (11 focused passes + peer), and held two-scene English/13-review
+correction `41d1f50c0` are in
+`features/data/n676_regression_alpha_fold_blocker_2026-10-15/`.
+Turn55 was prepared but NEVER queued: no marker, fresh recording, audio, stage,
+acceptance or publication. WS is now preparing a normal public-preference
+FoldStrip visibility filter for Original Home review; it is not yet reviewed,
+fixed or accepted, and no new recording is authorized by this note.
+
+
 
 ## 2026-10-15 — WS → Home: complete native Classify ML tutorial delivery
 
@@ -13329,3 +13369,92 @@ are preserved; source history stays exact. Normal Help regeneration passes.
 Evidence:features/data/678_path_probe_api_catalogs_2026-10-15/ and
 features/data/678_path_probe_coordinator_review_2026-10-15/. This closes only
 these five symbols, not the wider semantic review or final CI/release gates.
+
+## 2026-10-15 Home-B — registered handles and spinner timer contracts
+Four existing symbols now distinguish registered handles from running threads,
+state registration/retirement timing, document user_visible, and distinguish the
+animation timer from an active appearance delay. Executable AST/comments stay
+unchanged. All source and target reviews are bound to exact hashes. Normal
+generation passes18.30s without canonical collection or decoding:54 changed/new
+targets,16 byte-preserved shifted targets and two proven Hindi/Icelandic return
+repairs. Nine obsolete active review rows retire with exact provenance. Every
+unrelated locale/English entry and source history is preserved. Normal Help
+regeneration passes; precisely two summaries change, all unrelated API summaries
+are exact. Evidence:features/data/678_bridge_spinner_api_catalogs_2026-10-15/
+and features/data/678_bridge_spinner_coordinator_review_2026-10-15/. This closes
+these four contracts, not the wider semantic sweep or final CI/release.
+
+## 2026-10-15 Home-B — strict static-host index verification repaired
+Actual saved public responses had matching publication/channel receipts and
+the exact immutable index plus one101-byte static-host creator script. The
+previous verifier rejected that valid response. Verification now accepts only
+the precise HTTPS *.static.hf.space script schema/location, preserving every
+other index byte and both metadata comparisons. The read remains bounded by
+expected length plus101 bytes and one sentinel. Duplicate/misplaced/altered
+scripts, wrong IDs/schema/hosts, truncation and unrelated drift stay rejected.
+Saved-response replay changes FAIL to PASS without network calls; all67 owning
+tests pass5.06s. Independent code/evidence peer is0b7a9bb1. Evidence:
+features/data/689_hf_host_envelope_2026-10-15/ and the corresponding peer review.
+This closes this verifier defect only. No live deployment, current-source HF
+publication or Pages migration is claimed; those acceptance gates remain open.
+
+## 2026-10-15 Home-B — native Linux figure-heading acceptance
+The published repair now has one isolated X11/AT-SPI/Orca acceptance run. An
+external process found its actual run name; real Tab/Shift+Tab entered, left
+and returned, with focus states read from the native bus. Orca generated the
+run name and fold-help text. Source pin,203 process source hashes, exact native
+scripts/output and cleanup evidence are retained. One pass7.74s/329172KiB/4G.
+Independent coordinator payload/source/reader review passed without replay.
+Evidence:data/655_native_figure_heading_2026-10-15/. Native role remains panel;
+audio was disabled. No audible speech, human usability, Windows/macOS or full
+application acceptance is claimed. Broader N655 gates stay open.
+
+## 2026-10-15 Home-B — AI/Live keyboard source, API, Help and native delivery
+
+2026-10-15 — Home-B AI/Live keyboard navigation and visible focus
+The two existing controls now participate in Tab/Shift+Tab navigation and
+show ordinary/strong focus outlines. Space, Return and numeric-keypad Enter
+toggle once; held repeats and unrelated modifiers do not change state.
+Provider routing, reporting, labels and existing mouse behavior are unchanged.
+Final targeted owning cohort:51PASS2.87s, capped2G, Qt offscreen, GPU hidden.
+Four newly documented event methods have81 reviewed nine-locale API targets;
+normal generation retained prior entries and source history. Normal Help adds
+four summaries; actual index/query consumers and five existing checks pass.
+An isolated native X11/AT-SPI/XTest run verifies both names, focus traversal
+and six actual toggle signals, including Qt numeric-keypad modifiers. The
+initial Orca-intercepted keypad run remains recorded; the passing native run
+does not claim Orca keypad support. Roles/check-state semantics, audible/human
+usage and other platforms remain open. Guide translations follow separately.
+Evidence:data/655_ai_live_keyboard_2026-10-15/,
+data/655_ai_live_help_acceptance_2026-10-15/,
+data/655_native_ai_live_keyboard_2026-10-15/ and coordinator review folders.
+
+Guide source corrections and117 translation targets remain in independent
+author/peer work. No N700 routing/provider changes or full CI/release claim.
+The active session watchdog defers unavailable items last with no automatic
+retry; independent authorized implementation continues.
+
+## 2026-10-15 Home-B — dock keyboard activation repair ready
+DockEdge.keyPressEvent now ignores held-key repeats and unrelated command
+modifiers while preserving ordinary/numeric Enter activation.16 baseline
+assertions failed;26 targeted new/existing checks pass. Independent33ea810
+source/log peer confirms no other AST or public prose change. Source70837a579.
+The private antecedent wound-caption ownera2e318483 remains coordinated with
+Original Home's source/nine-locale closure; no standalone untranslated push.
+
+## 2026-10-15 Home-B — features guide normal nine-language closure
+
+2026-10-15 — Current features guide and all nine language catalogs reconciled
+The normal full features-domain gettext update/import now covers13 source
+messages in nine locales:117 technically reviewed targets. Four paragraphs
+were corrected against actual controls, covering five stale claims about the
+startup preference path, overlap selection, response diagnostics and export
+availability. The AI/Live paragraph documents keyboard activation and the
+observed screen-reader keypad interception fallback. Existing current-source
+arrivals are translated; the shorter obsolete Make Masks paragraph is retired
+with provenance. All117 compiled gettext lookups pass;1422 unrelated message
+records and297 other-domain PO files remain unchanged. Source/prose peer and
+independent target peer are required before publication. No full translated
+HTML, hosted, native-speaker or tutorial acceptance is claimed.
+Evidence:data/655_678_features_guide_inputs_2026-10-15/ and
+data/655_678_features_guide_catalogs_2026-10-15/.

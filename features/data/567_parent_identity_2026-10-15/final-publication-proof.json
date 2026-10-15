@@ -1,0 +1,26 @@
+{
+  "immutable_incoming_public": "67b7b4052ffed46253b7b20bafcbbc08db4d84c2",
+  "tested_coherent_source": "b8a35721e",
+  "unrelated_incoming_public_files_exact": 33678,
+  "incoming_spacr_tools_docs_tests_tree_ids_exact_tested_base": true,
+  "generated_runtime_API_arrivals_exact_base": true,
+  "no_new_runtime_tr_call": true,
+  "source_test_and_actual_API_tool_hashes_exact": {
+    "spacr/timelapse.py": "b9f49af257f6c0dfb96c74d2a69e0a0f91667aff57a2d30568c2bad6a643cd63",
+    "tests/test_event_parent_identity.py": "1a7a89ca5188bee786d8ad84365d4a894046cf49b0181d837c5fe228b9382f0d",
+    "tools/build_documentation_i18n.py": "6f3a86f5ce51672dcf11b420f6c1a14a7d1e7fec9f5b353676749ac4b5e530ad"
+  },
+  "checks": "15 actual owning checks and unchanged normal API visibility inventory executed on exact source. No rerun for evidence-only incoming merge. Raw nullable/fixture failures and staged diagnosis retained.",
+  "limits": "Declared synthetic native-style table inputs and empty declared events plus existing division controls only. Private CSV files prove unchanged bytes, not default CSV-loader parity. No biological event accuracy, pretrained/native tracking, GPU, whole F567, global CI or release acceptance. Unsupported outside-signed64 observations remain explicitly disclosed in receipt, not arbitrary-size identity acceptance.",
+  "validated_tree_ids": {
+    "spacr": "508e954d1f3a59c1aae40ab125729d795c4e2ed5",
+    "tools": "0b3f33aa950b7ae803ac0161f5d0868897165eb5",
+    "docs": "bef557294db270373706c2554b0875b69bf57cf2",
+    "tests": "98aeac4524187534f05117104d17186798d23f3c"
+  },
+  "artifact_sha256": {
+    "spacr/timelapse.py": "b9f49af257f6c0dfb96c74d2a69e0a0f91667aff57a2d30568c2bad6a643cd63",
+    "tests/test_event_parent_identity.py": "1a7a89ca5188bee786d8ad84365d4a894046cf49b0181d837c5fe228b9382f0d",
+    "tools/build_documentation_i18n.py": "6f3a86f5ce51672dcf11b420f6c1a14a7d1e7fec9f5b353676749ac4b5e530ad"
+  }
+}

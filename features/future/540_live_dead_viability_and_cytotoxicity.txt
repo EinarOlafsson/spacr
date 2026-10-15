@@ -333,3 +333,32 @@ Coalesced18localized callbacks all PASS,zero skips; original collector and
 six runtime/tool/test file hashes remain exact. No handgenerated targets,
 API prose changes, biological efficacy or whole-feature/finalCI claim.
 Shared evidence: features/data/537_540_runtime_closure_2026-10-15/.
+
+2026-10-15 — F540 physical measured-channel identity (source component).
+Shared exact scalar normalization now prevents boolean/fractional/nonfinite
+physical IDs silently selecting another stain. Actual prior0.5 viability
+request read DNA rather than PI and called40synthetic nuclei dead instead
+of declared30live/10dead. Active DNA/FUCCI/stain/morphology columns resolve
+before DB access and are reused; original DB bytes/prior outputs/settings
+survive typed-invalid refusal. Legal integral strings/scalars/0D arrays,
+order, empty/duplicate mapping and automatic/default paths remain intact.
+Baseline20FAIL14PASS plus8newrefusal-contractFAIL; final47PASS10.03s.
+Proper private-helper documentation is retained; unchanged actualAPI
+collector13484symbols excludes it and committed English has no target,
+so no orphanAPI reviews are created. No calibration/fit/training math,
+biological efficacy or whole-feature acceptance claim. Nine-language
+runtime closure pending; evidence: features/data/535_540_channel_identity_2026-10-15/.
+
+2026-10-15 — F540 shared physical-channel runtime closure.
+One exact caption owner and nine independent technical target reviews are
+installed through the ordinary writer, preserving 10,777 unrelated
+current targets per locale. Actual full-nine runtime audit and arrivals PASS:
+9833 baseline/1096 added/151 retired/31 changed.
+Eighteen actual cell-cycle/viability localized typed-bool refusals PASS with
+zero skips; DB bytes also survive read-only verification, prior accepted
+outputs and settings unchanged. Prior 47 owning checks and actual API
+eligibility inventory not repeated; five source/tool/test file hashes and
+original source collector stay exact. Proper helper documentation remains,
+with no absent API target reviews invented. No biological calibration,
+whole-feature or final CI claim. Shared evidence remains in
+features/data/535_540_channel_identity_2026-10-15/.

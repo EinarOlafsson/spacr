@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "result": "PASS",
+  "exact_tested_commit": "098f3edabb7712b66ef43df0ccfa4f5d8dc26a37",
+  "consumer_execution": {
+    "symbols": [
+      "spacr.qt.bridge.make_thread",
+      "spacr.qt.bridge.RunRegistry",
+      "spacr.qt.bridge.RunRegistry.active",
+      "spacr.qt.widgets.activity_spinner.ActivitySpinner.is_spinning"
+    ],
+    "production_provider_rows": 13259,
+    "exact_and_qualified_queries": 8,
+    "all_rank_expected_symbol_first": true,
+    "full_local_source_prose": "All four local_docstring results exactly equal direct AST docstrings. RunRegistry class English separately matches normal class+constructor rendering; all current English summaries exact.",
+    "URLs": "Actual api_url en/ko output checked for exact module pages, symbol fragments and lang query; no hosted fetch/render claim.",
+    "terminal_exit": 0,
+    "wall_clock": "0:01.70",
+    "peak_rss_kib": 167180
+  },
+  "existing_checks": {
+    "count": 5,
+    "pytest_seconds": 3.19,
+    "tests": [
+      "tests/test_the_help_index_is_generated_not_typed.py::test_the_generated_module_says_it_is_generated",
+      "tests/test_the_help_index_is_generated_not_typed.py::test_every_setting_consumer_is_addressable",
+      "tests/qt/test_the_help_search_field_lands_where_it_says.py::test_enabled_object_helpers_have_search_rows_local_prose_and_exact_links",
+      "tests/qt/test_the_help_search_field_lands_where_it_says.py::test_the_page_of_a_symbol_is_addressed_in_the_readers_language",
+      "tests/qt/test_the_help_search_field_lands_where_it_says.py::test_the_local_docstring_is_read_without_importing_the_module"
+    ],
+    "terminal_exit": 0,
+    "wall_clock": "0:08.33",
+    "peak_rss_kib": 553660
+  },
+  "resource": {
+    "cap": "2G",
+    "threads": 1,
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen",
+    "heavy_lock": "/mnt/wd4tb/scratch/home-b-coordination-20261014/heavy.lock",
+    "python": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+    "qt_overlay": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/a744-dark-opaque-p1-20261014/qt612-runtime/site-packages"
+  },
+  "source_and_artifact_sha256": {
+    "spacr/qt/bridge.py": "79c9b2e72259fcd18ac7d02707c4bffcba588bd55b154e2026e089863772df5d",
+    "spacr/qt/widgets/activity_spinner.py": "909e079fafe5cecd461abe0f404c57f0a4f9faa1d2cbd0d520ccdb6987806bae",
+    "spacr/qt/help_api_index.py": "7c84afd77466338a55ce7436bdb0f6ece8022a96e40f1c51479397d7e97c7c98",
+    "spacr/qt/help_index.py": "16de97f287e1b27d116b39e8cbd35333e2aaaca202c698208f81d675fe9e6139",
+    "spacr/qt/help_search.py": "ff7eefc9931bf1765d2488c773cfd41d1fc66c3a28a6a3d3ee36383f7799e8bd",
+    "docs/source/_static/i18n/api/en.json": "02297213551624abce3d92fba8f5edcda0809da68b3d61104f4ffab4a830579e",
+    "tools/build_help_search_index.py": "6b98bf028bbe372894a314eb509fb9da4a74e814f13d1223fb1741ffea71d2a9",
+    "tools/build_documentation_i18n.py": "6f3a86f5ce51672dcf11b420f6c1a14a7d1e7fec9f5b353676749ac4b5e530ad",
+    "tests/test_the_help_index_is_generated_not_typed.py": "18373e4f992b870629868f4701f07c89f5c2db0d35ed0c4d09f1fbbddaff1b80",
+    "tests/qt/test_the_help_search_field_lands_where_it_says.py": "e3b668da2161b163f7afc95162df4bc950ebf83d814678bd415d111217e2196e"
+  },
+  "evidence_sha256": {
+    "existing.txt": "915c9786d878e35576cd5bbf9f907c68473ebb48157d8dccbac509bb3ab61799",
+    "check_four_symbols.py": "08c5c0f3161a350c5e959b45c292da8211fe72b2e5c0ec0fbc8d2584708403ce",
+    "four-symbols.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "four-symbols.time": "dbf266ed4d1275a9b0a4edae1df8a72897fc731b910a70ebaaafecd2f5cd7349",
+    "four-symbols.json": "e028f8d08de12a52d71b0b80cbe5b2f0e322d995b902fede34732e8bb9f378c1",
+    "existing.time": "8f76f0f4e07838bd47da9ea94a12ddb16e8445e10a92e5a63bde078858ab8584",
+    "run.sh": "87524a707ee8b0de12e017a72d630e7ba82b587838cf159c6aeadd60785559e8",
+    "archive.py": "830e63ace53ad9cd75d9a3f11e7a6496f0882629d555230bcd6ba9162865474d"
+  },
+  "boundary": [
+    "Five existing pytest checks plus four exact-symbol consumer cases, not nine new tests or a full-suite claim.",
+    "Consumer execution performed by the API translation author; NOT independent source/target semantic review. Separate existing source and target peers provide that review.",
+    "No generated index/English/API rebuild, full canonical collector, decoder, network/Sphinx or native UI acceptance repeated.",
+    "Offline source-reader imports and later api_url dependency imports recorded separately in four-symbols.json."
+  ]
+}

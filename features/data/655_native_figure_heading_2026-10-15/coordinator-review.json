@@ -1,0 +1,17 @@
+{
+  "reviewer": "Home-B coordinator, independent of native probe author",
+  "evidence_commit": "b92bcfb04",
+  "source_commit": "b460359010b4614f3a8e5261c3d0a804bc4e1f1f",
+  "current_figure_source_exact": true,
+  "all_process_source_files_exact_tested_commit": 203,
+  "all_payload_hashes_verified": true,
+  "source_and_reader_review": "Real FigureGridView and private native X11/D-Bus app; external reader finds exact PID and actual AT-SPI heading. XTest Tab/Shift+Tab changes state; no direct target setFocus. Actual Orca generated name/fold-help lines retained.",
+  "no_replay": true,
+  "limitations": [
+    "No human screen-reader usability or audible speech acceptance.",
+    "Heading native role is panel, not a button; this acceptance checks the existing exposed role/name and keyboard-focused state, not an expanded/collapsed AT-SPI role redesign.",
+    "No Windows/macOS/native-display or full app acceptance.",
+    "No tutorial recording changes, data/model jobs or GPU work.",
+    "No performance score or timing benchmark claim; elapsed time is probe resource evidence only."
+  ]
+}

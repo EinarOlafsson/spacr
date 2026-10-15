@@ -1103,7 +1103,7 @@ def _native_lineage_columns(tracks, parents, source):
             if parent is None or pd.isna(parent):
                 continue
             number = int(parent)
-            if number != float(parent):
+            if not isinstance(parent, (str, int, np.integer)) and number != float(parent):
                 raise ValueError(f'{source}: non-integer parent for track {child}')
             if number > 0 and number != child:
                 candidates.add(number)
@@ -1112,7 +1112,8 @@ def _native_lineage_columns(tracks, parents, source):
                              'a division lineage requires one parent')
         parent = next(iter(candidates), 0)
         normalized[child] = parent if parent in present else 0
-    tracks['parent_track_id'] = tracks['track_id'].map(normalized).fillna(0).astype(int)
+    tracks['parent_track_id'] = np.asarray(
+        [normalized.get(int(t), 0) for t in tracks['track_id']], dtype=int)
     tracks['parent_track_id_source'] = [source if int(t) in normalized else ''
                                         for t in tracks['track_id']]
     return tracks
@@ -2422,6 +2423,25 @@ def _event_cross_validate(tables, annotations, *, window=9, threshold=0.5,
     return _event_scores(detected, annotations, classes, tolerance), detected
 
 
+def _event_parent_index(value):
+    """Coerce one stored parent without column-wide floating-point promotion.
+
+    :param value: One scalar parent identity from a tracker table.
+    :returns: The legacy integer conversion; missing/non-numeric values
+        become zero and finite fractions retain their existing truncation.
+    :raises ValueError: Non-finite numeric parents retain pandas' integer
+        conversion refusal.
+    """
+    if isinstance(value, (int, np.integer)):
+        return int(value)
+    number = pd.to_numeric(value, errors='coerce')
+    if pd.isna(number):
+        return 0
+    if np.isfinite(number):
+        return int(number)
+    return pd.Series([number]).astype(int).iat[0]
+
+
 def _event_correct_divisions(tracks, events, *, mitosis='mitosis',
                              max_distance=30.0, tolerance=2):
     """Division links taken from detected mitoses.
@@ -2442,7 +2462,7 @@ def _event_correct_divisions(tracks, events, *, mitosis='mitosis',
     df = tracks.copy()
     if 'parent_track_id' not in df.columns:
         df['parent_track_id'] = 0
-    df['parent_track_id'] = pd.to_numeric(df['parent_track_id'], errors='coerce').fillna(0).astype(int)
+    df['parent_track_id'] = df['parent_track_id'].astype(object).map(_event_parent_index).astype(int)
     starts = df.sort_values('frame').groupby('track_id').first()
     has_parent = set(starts.index[starts['parent_track_id'] > 0].astype(int))
     links = []

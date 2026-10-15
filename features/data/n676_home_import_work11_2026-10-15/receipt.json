@@ -1,0 +1,53 @@
+{
+  "scope": "Import complete owner native Classify11 checkpoint including prior nativeAnnotate09 dependency; not new media production or whole N676 closure",
+  "base": "b460359010b4614f3a8e5261c3d0a804bc4e1f1f",
+  "owner_packet_commit": "84e251c493f42f217118b146502606df79857533",
+  "export_manifest_sha256": "2525c735ab2414b1bfd71fc13baf99bae863db12af9be2a6954dd35c974a1163",
+  "packet_rows_verified": 208,
+  "coherent_checkpoint": {
+    "files": 148,
+    "recorded_files": 145,
+    "bound_receipts": 3,
+    "bytes": 114735007,
+    "before_and_after_path_length_sha256_verified": true,
+    "changed_against_previous_home": 24,
+    "unchanged_against_previous_home": 124,
+    "no_added_or_removed_paths": true
+  },
+  "backup": {
+    "branch": "codex-before-work11-checkpoint-20261015",
+    "path": "/mnt/wd4tb/scratch/work11-checkpoint-import-20261015/previous-release-candidate",
+    "old148files_postverified": true
+  },
+  "preservation": {
+    "outside_target_home_source_docs_and_held_patches": "untouched; final publication proof required",
+    "english_and_all14_catalogs": "82of84 exact oldHome lesson objects unchanged; only09and11 differ. Work owner preserves83relative to its later09baseline; denominators not conflated.",
+    "published_docs": {
+      "owner_web_exact": 141,
+      "sole_difference": "index.html intentionally has immutable c34c media roots and current11 catalog/navigation cachelabels; ownercheckpoint stays relative/private. Publicdocs untouched."
+    }
+  },
+  "audit": {
+    "change": "Only exact expected native provenance union adds09_annotate and11_classify_ml, adapting owner patch whose context already had09. Full equality/SHA/byte/speech checks retained.",
+    "peer": "root-audit-peer.json"
+  },
+  "owning": {
+    "passed": 33,
+    "seconds": 1.29,
+    "exit": 0,
+    "scope": "Complete tests/test_docs_media_budget.py plus exact native arrival/speech provenance audit node, no new tests authored or thresholds changed.",
+    "resource": "Background cap2G/oneprocess/blankCUDA/offscreen, known tiny native metadata/stat/JSON cohort; no inference/Qt/media decode/network."
+  },
+  "owner_publication": {
+    "immutable_HF_revision": "c34c35b9662839ee4c43eb02c8a2ff89858599a8",
+    "tag": "n676-gnome11-r54-20261015-verified",
+    "new_remote_readback_performed_here": false,
+    "existing_evidence": "Owner completed10strictclips/8064frames/268.8s,50audioQA,13officialreviews,5274hashreadbacks,84preparedPagesroutes; existing source-bound packet retained, not repeated."
+  },
+  "limits": [
+    "No re-recording/audio synthesis/translation rewrite/encode/upload/provider/HF readback or actual model/GPU/live data work.",
+    "Held recorder/Homepublicstage/folder patches remain separate and unapplied.",
+    "No liveSpace deployment, humanlistening/native language approval,84freshGNOMEremakes or biological/scientific generalization acceptance.",
+    "Metadata labels c1/c2 and owner2153scored/188unscored arithmetic evidence do not validate phenotypes."
+  ]
+}

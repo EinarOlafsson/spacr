@@ -1,0 +1,23 @@
+{
+  "construction": {
+    "pickle_sha256": "2e0fc8595d282fae480cf2a942f9ebf523328d25b24dbb625bbeabb72f710deb",
+    "data_sha256": "e38e5eb62fba063c0f50009296ac1b847d2632851646b8208279bb6678535c3c",
+    "parent_array_cache": "{'dtype': Int64Dtype()}"
+  },
+  "after_independent_deep_copy": {
+    "pickle_sha256": "2e0fc8595d282fae480cf2a942f9ebf523328d25b24dbb625bbeabb72f710deb",
+    "data_sha256": "e38e5eb62fba063c0f50009296ac1b847d2632851646b8208279bb6678535c3c",
+    "parent_array_cache": "{'dtype': Int64Dtype()}"
+  },
+  "after_fixture_csv_write": {
+    "pickle_sha256": "0d24663744a64edcf6d35ef5f77efbf8392ac06eedbff810cc4647dae0a7f78a",
+    "data_sha256": "e38e5eb62fba063c0f50009296ac1b847d2632851646b8208279bb6678535c3c",
+    "parent_array_cache": "{'dtype': Int64Dtype()}"
+  },
+  "after_actual_correction": {
+    "pickle_sha256": "0d24663744a64edcf6d35ef5f77efbf8392ac06eedbff810cc4647dae0a7f78a",
+    "data_sha256": "e38e5eb62fba063c0f50009296ac1b847d2632851646b8208279bb6678535c3c",
+    "parent_array_cache": "{'dtype': Int64Dtype()}"
+  },
+  "actual_input_values_dtypes_and_array_bytes_exact": true
+}

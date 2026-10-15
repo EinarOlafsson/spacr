@@ -360,3 +360,61 @@ WHAT IS LEFT
   No new caption or public API arrival. This closes only the demonstrated
   heading defects; native speech/human/macOS/Windows/tutorial gates stay open.
   Proof: data/655_section_header_accessibility_2026-10-15/receipt.json.
+
+2026-10-15 — New figure heading verified through native Linux accessibility
+The published repair now has one isolated X11/AT-SPI/Orca acceptance run. An
+external process found its actual run name; real Tab/Shift+Tab entered, left
+and returned, with focus states read from the native bus. Orca generated the
+run name and fold-help text. Source pin,203 process source hashes, exact native
+scripts/output and cleanup evidence are retained. One pass7.74s/329172KiB/4G.
+Independent coordinator payload/source/reader review passed without replay.
+Evidence:data/655_native_figure_heading_2026-10-15/. Native role remains panel;
+audio was disabled. No audible speech, human usability, Windows/macOS or full
+application acceptance is claimed. Broader N655 gates stay open.
+
+2026-10-15 — Home-B AI/Live keyboard navigation and visible focus
+The two existing controls now participate in Tab/Shift+Tab navigation and
+show ordinary/strong focus outlines. Space, Return and numeric-keypad Enter
+toggle once; held repeats and unrelated modifiers do not change state.
+Provider routing, reporting, labels and existing mouse behavior are unchanged.
+Final targeted owning cohort:51PASS2.87s, capped2G, Qt offscreen, GPU hidden.
+Four newly documented event methods have81 reviewed nine-locale API targets;
+normal generation retained prior entries and source history. Normal Help adds
+four summaries; actual index/query consumers and five existing checks pass.
+An isolated native X11/AT-SPI/XTest run verifies both names, focus traversal
+and six actual toggle signals, including Qt numeric-keypad modifiers. The
+initial Orca-intercepted keypad run remains recorded; the passing native run
+does not claim Orca keypad support. Roles/check-state semantics, audible/human
+usage and other platforms remain open. Guide translations follow separately.
+Evidence:data/655_ai_live_keyboard_2026-10-15/,
+data/655_ai_live_help_acceptance_2026-10-15/,
+data/655_native_ai_live_keyboard_2026-10-15/ and coordinator review folders.
+
+2026-10-15 — Dock collapse responds once to an ordinary keyboard gesture
+The existing dock edge previously toggled for every auto-repeat and for
+modified Space/Return/Enter. Sixteen real-widget assertions reproduced these
+failures. The existing handler now consumes repeat presses without toggling
+and forwards unrelated modified keys, while native numeric Enter remains
+accepted. Release followed by a fresh activation toggles again.
+Final26PASS3.79s includes16 new cases and10 existing collapse/glyph/mouse/resize
+cases;2G/offscreen/thread1/private settings/GPU hidden. Independent peer verified
+all payload hashes and exact AST outside the existing handler, with unchanged
+docstrings/comments. No new caption or API arrival. The initial test fixture
+lifetime failure is retained separately from the actual source baseline.
+Evidence:data/655_dock_keyboard_activation_2026-10-15/ and independent peer.
+Native/human/other-platform and broader N655 acceptance remain open.
+
+2026-10-15 — Current features guide and all nine language catalogs reconciled
+The normal full features-domain gettext update/import now covers13 source
+messages in nine locales:117 technically reviewed targets. Four paragraphs
+were corrected against actual controls, covering five stale claims about the
+startup preference path, overlap selection, response diagnostics and export
+availability. The AI/Live paragraph documents keyboard activation and the
+observed screen-reader keypad interception fallback. Existing current-source
+arrivals are translated; the shorter obsolete Make Masks paragraph is retired
+with provenance. All117 compiled gettext lookups pass;1422 unrelated message
+records and297 other-domain PO files remain unchanged. Source/prose peer and
+independent target peer are required before publication. No full translated
+HTML, hosted, native-speaker or tutorial acceptance is claimed.
+Evidence:data/655_678_features_guide_inputs_2026-10-15/ and
+data/655_678_features_guide_catalogs_2026-10-15/.
