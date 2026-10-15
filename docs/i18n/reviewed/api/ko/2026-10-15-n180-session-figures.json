@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "Technical translation; coordinator independent semantic review; no native-speaker signoff",
+  "source_commit": "bf9b5dd0ba97fd1ba2bb2f9a76950321cc4d749d",
+  "source_file_sha256": {
+    "spacr/qt/widgets/figure_queue.py": "779188b8b59b1420cc5421ce035f20f8b3f8ab35ba04bad2473fe9f724ba0382",
+    "spacr/qt/screens/app_screen.py": "e112f07502a6a7791391f6c0e8cb3673b5cb70937a9927f4491ff4a4e99214bc"
+  },
+  "records": [
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#0",
+      "source": "Record ordered figure files, titles, run sections and the selected slot.",
+      "source_sha256": "c3685d19dccd8c3022f73ffdfb41e5cdfcbb6e4b904cae0388d32261a0ebb2d7",
+      "context": "Record ordered figure files, titles, run sections and the selected slot.",
+      "context_sha256": "c3685d19dccd8c3022f73ffdfb41e5cdfcbb6e4b904cae0388d32261a0ebb2d7",
+      "translation": "그림 파일의 순서, 제목, 실행 구역과 선택된 위치를 기록합니다.",
+      "review_basis": "Exact-source technical translation of session figure inventory, queue-owned asset retention, reference mode, immutable originals/bundles, missing preview reporting and staged restoration; no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#1",
+      "source": "Queue-owned PNG previews and sibling PDF pages within the current workspace per-file budget are marked for carrying even in reference mode. External files and larger files remain references. Live Python figures and their pickled cache files are never included.",
+      "source_sha256": "3219f8fde06159a0689b3eb08b6795f161fb35a988e169e2bdc0902a24c99784",
+      "context": "Work list-owned PNG previews and sibling PDF pages within the current workspace per-file budget are marked for carrying even in reference mode. External files and larger files remain references. Live Python figures and their pickled cache files are never included.",
+      "context_sha256": "4f0f8c1d46a845a9837f59c28d6b8b3da7195382bd2a51119565e488a98edbe4",
+      "translation": "큐가 소유한 PNG 미리보기와 짝을 이루는 PDF 페이지 중 현재 작업 공간의 파일별 크기 한도 이내인 파일은 참조 모드에서도 함께 보관하도록 표시됩니다. 외부 파일과 더 큰 파일은 참조로 남습니다. 메모리에 있는 Python 그림 객체와 해당 pickle 형식 캐시 파일은 절대 포함되지 않습니다.",
+      "review_basis": "Exact-source technical translation of session figure inventory, queue-owned asset retention, reference mode, immutable originals/bundles, missing preview reporting and staged restoration; no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#2",
+      "source": "plain state for :meth:`apply_workspace_state`, including the workspace's explicit carry inventory.",
+      "source_sha256": "26daec1be91b1ebbf8464ec95e6834bdbcd105e5d29a7bc63f61d3f6e5c3e51d",
+      "context": "plain state for :meth:`apply_workspace_state`, including the workspace's explicit carry inventory.",
+      "context_sha256": "26daec1be91b1ebbf8464ec95e6834bdbcd105e5d29a7bc63f61d3f6e5c3e51d",
+      "translation": ":meth:`apply_workspace_state` 에 전달할 일반 상태 데이터이며, 작업 공간에 함께 보관할 파일의 명시적 목록을 포함합니다.",
+      "review_basis": "Exact-source technical translation of session figure inventory, queue-owned asset retention, reference mode, immutable originals/bundles, missing preview reporting and staged restoration; no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#0",
+      "source": "Restore saved previews without executing or reconstructing figures.",
+      "source_sha256": "9ebdf6dbe22f47a6114fffff957d2cc30f9581afa25e65a89b5cef7fb1f02eae",
+      "context": "Restore saved previews without executing or reconstructing figures.",
+      "context_sha256": "9ebdf6dbe22f47a6114fffff957d2cc30f9581afa25e65a89b5cef7fb1f02eae",
+      "translation": "그림을 실행하거나 재구성하지 않고 저장된 미리보기를 복원합니다.",
+      "review_basis": "Exact-source technical translation of session figure inventory, queue-owned asset retention, reference mode, immutable originals/bundles, missing preview reporting and staged restoration; no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#1",
+      "source": "Available PNG and PDF files are copied into fresh queue-owned storage; the workspace bundle and original files are left untouched. Missing previews retain their slots for the normal unavailable-image display. The workspace restore report separately identifies missing files. Invalid state or invalid image formats leave this queue unchanged.",
+      "source_sha256": "9073960d4c16f7846832ac1d62572574275912f05a410e39603f72e95445100b",
+      "context": "Available PNG and PDF files are copied into fresh queue-owned storage; the workspace bundle and original files are left untouched. Missing previews retain their slots for the normal unavailable-image display. The workspace restore report separately identifies missing files. Invalid state or invalid image formats leave this queue unchanged.",
+      "context_sha256": "9073960d4c16f7846832ac1d62572574275912f05a410e39603f72e95445100b",
+      "translation": "사용 가능한 PNG 및 PDF 파일을 큐가 소유한 새 저장 공간에 복사하며, 작업 공간 묶음과 원본 파일은 그대로 둡니다. 누락된 미리보기는 기존 위치를 유지하여 일반적인 이미지 사용 불가 표시를 보여 줍니다. 작업 공간 복원 보고서는 누락된 파일을 별도로 알려 줍니다. 잘못된 상태 또는 이미지 형식은 이 큐를 변경하지 않습니다.",
+      "review_basis": "Exact-source technical translation of session figure inventory, queue-owned asset retention, reference mode, immutable originals/bundles, missing preview reporting and staged restoration; no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#2",
+      "source": "state from :meth:`workspace_state`, with carried paths already resolved by the workspace restorer.",
+      "source_sha256": "64c6ac287109b151fe4b0bcdf6c7a566c648895b1c5b4d71d327e93bdd53d2ea",
+      "context": "state from :meth:`workspace_state`, with carried paths already resolved by the workspace restorer.",
+      "context_sha256": "64c6ac287109b151fe4b0bcdf6c7a566c648895b1c5b4d71d327e93bdd53d2ea",
+      "translation": ":meth:`workspace_state` 에서 가져온 상태이며, 함께 보관된 파일의 경로는 작업 공간 복원기가 이미 해석한 상태입니다.",
+      "review_basis": "Exact-source technical translation of session figure inventory, queue-owned asset retention, reference mode, immutable originals/bundles, missing preview reporting and staged restoration; no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#3",
+      "source": "whether the state was accepted. Files exceeding the current per-file copy budget raise an error reported by the restorer.",
+      "source_sha256": "f3723209ba1d25b491a244802912bdca7498e1c061e859f3fb06660a3a1ca48b",
+      "context": "whether the state was accepted. Files exceeding the current per-file copy budget raise an error reported by the restorer.",
+      "context_sha256": "f3723209ba1d25b491a244802912bdca7498e1c061e859f3fb06660a3a1ca48b",
+      "translation": "상태를 수락했는지 여부입니다. 현재 파일별 복사 한도를 초과하는 파일은 오류를 발생시키며, 복원기가 이를 보고합니다.",
+      "review_basis": "Exact-source technical translation of session figure inventory, queue-owned asset retention, reference mode, immutable originals/bundles, missing preview reporting and staged restoration; no native-speaker claim."
+    }
+  ]
+}
