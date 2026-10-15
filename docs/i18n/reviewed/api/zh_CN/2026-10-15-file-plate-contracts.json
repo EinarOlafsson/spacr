@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review; independent parent peer review requested; no native-speaker signoff",
+  "note": "Six changed blocks in four existing symbols from file-list sourcef419206a0ed+1f930c37d55 and plate-map source409c1060994. Normal targeted AST rendering matches source-owner ledger; source-verified full cache reused without collector replay. Superseded records retain source/target evidence. Runtime captions belong to the UI owner.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.file_list.suggest_file_pairs#1",
+      "source": "A proposal is never authoritative: the editable table is the contract the user confirms. Each score first takes its unique best match among unused count paths. Remaining count paths then fill score rows without a count, in input order, including rows whose token matches were tied or absent. Database matches require a unique best match without an input-order fallback; any databases left unmatched receive separate rows.",
+      "context": "A proposal is never authoritative: the editable table is the contract the user confirms. Each score first takes its unique best match among unused count paths. Remaining count paths then fill score rows without a count, in input order, including rows whose token matches were tied or absent. Database matches require a unique best match without an input-order fallback; any databases left unmatched receive separate rows.",
+      "source_sha256": "183f1f2f326b6decdb4521fc63a6baff1d505288ba7bb827178f93be0316e404",
+      "previous_same_source_indexes": [],
+      "translation": "建议从不具有最终决定权：用户确认的是可编辑表格。每个评分文件先从尚未使用的计数文件路径中选择唯一最佳匹配。剩余计数路径随后按输入顺序填入尚无计数文件的评分行，包括词元匹配并列或没有匹配的行。数据库必须有唯一最佳匹配，不会按输入顺序进行后备配对；未匹配的数据库各占一行。",
+      "review_basis": "Exact-source technical translation review of count input-order fallback versus unique database matching, table confirmation, explicit database-column row attachment, automatic attachment fallback and one-based plate row/column coordinates. Literals and references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.suggest_file_pairs#4",
+      "source": "count CSV paths, in fallback pairing order. Score rows select unique best filename-token matches first; remaining paths fill score rows still missing a count, and any left over get their own rows.",
+      "context": "count CSV paths, in fallback pairing order. Score rows select unique best filename-token matches first; remaining paths fill score rows still missing a count, and any left over get their own rows.",
+      "source_sha256": "cb896871135f23c6d9ad148700a08af292db5dbb45d6da998fc3b045ce58b5cc",
+      "previous_same_source_indexes": [],
+      "translation": "计数 CSV 文件路径，按后备配对顺序排列。评分行先选择文件名词元的唯一最佳匹配；剩余路径填入仍缺少计数文件的评分行，多余路径各占一行。",
+      "review_basis": "Exact-source technical translation review of count input-order fallback versus unique database matching, table confirmation, explicit database-column row attachment, automatic attachment fallback and one-based plate row/column coordinates. Literals and references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.PairedFileTableWidget.attach_database#2",
+      "source": "With no row, the database is offered to the token pairing first, so ``plate2/measurements/measurements.db`` finds plate 2 wherever that row happens to be when its tokens match uniquely. If pairing leaves the database on its own row, it is attached to the first row without a database, if one exists. This fallback also applies when the path contains a plate name that did not produce a unique match. The returned sentence, also shown under the table, names the chosen row.",
+      "context": "With no row, the database is offered to the token pairing first, so ``plate2/measurements/measurements.db`` finds laboratory microplate 2 wherever that row happens to be when its tokens match uniquely. If pairing leaves the database on its own row, it is attached to the first row without a database, if one exists. This fallback also applies when the path contains a laboratory microplate name that did not produce a unique match. The returned sentence, also shown under the table, names the chosen row.",
+      "source_sha256": "cd0fdc773ef0448abed8cde10a3a7bb6026ba11332018bbb221f32a3f4d57348",
+      "previous_same_source_indexes": [],
+      "translation": "未指定行时，数据库先参与词元配对，因此当词元产生唯一匹配时，``plate2/measurements/measurements.db`` 会找到第 2 块微孔板，无论其所在行的位置如何。若配对后数据库仍独占一行，就将其附加到第一个没有数据库的行（如果存在）。即使路径中包含微孔板名称，只要未产生唯一匹配，也会采用此后备方式。返回的句子会指出选中的行，并显示在表格下方。",
+      "review_basis": "Exact-source technical translation review of count input-order fallback versus unique database matching, table confirmation, explicit database-column row attachment, automatic attachment fallback and one-based plate row/column coordinates. Literals and references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.PairedFileTableWidget.dropEvent#2",
+      "source": "A DATABASE is decided by its extension and never by aim: a ``.db`` dropped on the score column is a mis-aim, not a request to fit the regression on a sqlite file, and a CSV dropped on the database column is likewise still a CSV. A database dropped in the database column on an existing row is explicitly attached to that row. A drop over another column or outside an existing row uses automatic attachment, including the fallback described by :meth:`attach_database`.",
+      "context": "A database is decided by its extension and never by aim: a ``.db`` dropped on the score column is a mis-aim, not a request to fit the regression on a sqlite file, and a CSV dropped on the database column is likewise still a CSV. A database dropped in the database column on an existing row is explicitly attached to that row. A drop over another column or outside an existing row uses automatic attachment, including the fallback described by :meth:`attach_database`.",
+      "source_sha256": "ac4a388a506cd73c944d1483f245d85faf4e6ea88c375bbd896f960c6d676670",
+      "previous_same_source_indexes": [],
+      "translation": "数据库由扩展名识别，而不由放置位置决定：将 ``.db`` 放入评分列属于放错位置，并不表示要求对 sqlite 文件拟合回归；同样，放入数据库列的 CSV 仍是 CSV。将数据库放入已有行的数据库列，会明确附加到该行。放在其他列上或已有行之外时，使用自动附加方式，包括 :meth:`attach_database` 所述的后备方式。",
+      "review_basis": "Exact-source technical translation review of count input-order fallback versus unique database matching, table confirmation, explicit database-column row attachment, automatic attachment fallback and one-based plate row/column coordinates. Literals and references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag#1",
+      "source": "one-based plate row of the pressed well.",
+      "context": "one-based laboratory microplate row of the pressed microplate sample position.",
+      "source_sha256": "48c509ac62ad8f95597b50c9212732bd70cdaf6d3cae6584f086ecfffd9397cd",
+      "previous_same_source_indexes": [],
+      "translation": "所按下孔位在微孔板中的行号，从一开始编号。",
+      "review_basis": "Exact-source technical translation review of count input-order fallback versus unique database matching, table confirmation, explicit database-column row attachment, automatic attachment fallback and one-based plate row/column coordinates. Literals and references retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag#2",
+      "source": "one-based plate column of the pressed well.",
+      "context": "one-based laboratory microplate column of the pressed microplate sample position.",
+      "source_sha256": "18cfd53dba60fff2bac3946587aa4857635d24a2608cbee9dc2f859544a19717",
+      "previous_same_source_indexes": [],
+      "translation": "所按下孔位在微孔板中的列号，从一开始编号。",
+      "review_basis": "Exact-source technical translation review of count input-order fallback versus unique database matching, table confirmation, explicit database-column row attachment, automatic attachment fallback and one-based plate row/column coordinates. Literals and references retained. No native-speaker claim."
+    }
+  ]
+}
