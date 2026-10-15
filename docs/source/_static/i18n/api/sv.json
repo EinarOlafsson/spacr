@@ -82350,64 +82350,64 @@
     },
     "spacr.qt.laptop_mode": {
       "source_blocks_sha256": [
-        "b071d6a55e1916e0ec46dfaa8b28251334e7de871f415e9c4981c5bcc50ccb51",
-        "d33c0d4d0045796a3a06aef69c6706e5295870356288fd51137396fca2f7f60e",
-        "365085411bc3b4f0aea6be73f6814c9198ecc6a80f0f63349bc13b602284dd81",
-        "60629331c8dadca853952ba07cc39d2fdc919d1f7a4ae9b7ba7398ee39833a26"
+        "85ddd1bb60b3d4e0f55ffd701d2dce2a1155c1f2241629f14cc53fb007d245f7",
+        "22d6013b7106cf5b021f20c64632c8c0e4400be98231b6a4cc301adc1889028d",
+        "c4f4dc6104a1cb2030a0d6288cfce1b03fc25118abcc101dcb223f8e151bb3f9",
+        "bc2a62643c61a169283b9042591de9bb47450347172d5d57238a1f7996cd2d61"
       ],
-      "source_sha256": "b056b4336030223d0fefd11b8fa7a2fb8f8fc3487d7c7fdd35e337422cc50fc0",
-      "text": "Kör bra på en liten maskin utan att bli en mindre applikation.\n\nDetta är den reserv som uppnås efter normala optimeringar. Det tackar ner dekorativa renderingskostnader i stället för att ta bort programfunktioner.\n\nIngenting här ändrar vad en processsession beräknar. Varje inställning den berör handlar om hur programmet är DRAWN.\n\nDet väljs automatiskt, det kan överskridas oavsett sätt, och det står vad det avvisade - ett läge som tyst gör programmet annorlunda är en som ingen kan felsöka.",
+      "source_sha256": "9d3f275ab4a63201eb33741855e6b942f2baab8c52c941ef6b213f6858c8c153",
+      "text": "Mät hårdvarubegränsningar och undertryck den dekorativa bakgrunden för denna process.\n\nHårdvarubaserade beslut använder antalet användbara CPU:er, det fysiska minnet och åsidosättningen ``SPACR_LAPTOP_MODE``. Vid GUI-start skickas i stället ett uttryckligt beslut från den valda prestandanivån; hårdvaruavläsningen används för diagnostik.\n\nUndertryckningen påverkar bakgrundsrenderingen. Denna modul ställer inte in gränser för arbetstrådar eller analysparametrar och ersätter inte sparade animationsinställningar.\n\n``apply`` anger ``SPACR_NO_BACKDROP`` när undertryckning begärs och den dekorativa bakgrunden är aktiverad. Avaktivering tar bara bort undertryckning som denna modul har skapat; en redan befintlig åsidosättning för kraschåterställning behålls.",
       "translation_source_blocks_sha256": [
-        "b071d6a55e1916e0ec46dfaa8b28251334e7de871f415e9c4981c5bcc50ccb51",
-        "d33c0d4d0045796a3a06aef69c6706e5295870356288fd51137396fca2f7f60e",
-        "90480b66e0997f15671e2aa2cf8efdff2b6c73dd38d0350a667b55b7ba5e4bf6",
-        "60629331c8dadca853952ba07cc39d2fdc919d1f7a4ae9b7ba7398ee39833a26"
+        "85ddd1bb60b3d4e0f55ffd701d2dce2a1155c1f2241629f14cc53fb007d245f7",
+        "22d6013b7106cf5b021f20c64632c8c0e4400be98231b6a4cc301adc1889028d",
+        "74918d4beb558100d912e14b1ce897911d92b8324c50e05cb55ca68c6f0f56d4",
+        "bc2a62643c61a169283b9042591de9bb47450347172d5d57238a1f7996cd2d61"
       ]
     },
     "spacr.qt.laptop_mode.apply": {
       "source_blocks_sha256": [
-        "26ed332e5c606b21ccd218b3c024aa56d1623aa06d8b81b8b8cef050b1877163",
-        "4b8dac16a7a15348b6d552ccb4e28be1b6917f5ccb8ce40a3bf36e9c259f34d2",
-        "39633c9008297a57422460fe23b3a8bea53cb256b6dc42f34f4eac990c2be100",
-        "ff0abfd1859c9289e0136896b93680b63806bb4fe25b1fb5d01c5b8898662f87"
+        "9e3292da390de8c9058c1d22cfd855a911098f4a63e5b4ad8cf6fffa6eece2d0",
+        "5515f2e440b9b34d681608374dbdca8c035559fedde080bdfd9044ee27538d96",
+        "a310f089a7b0306a0e02315d0496305fa606744e154cb76b240ac3fb1efa1fb1",
+        "9f8615c6fee1478d99c3b002b6ab7a48f69a560f512e2d7604d7c073a5f85ce5"
       ],
-      "source_sha256": "c52d6c858e0a88a825be430f8dd53df41999a52ab654ec46743a5af9f0e51a23",
-      "text": "Sätter på eller stänger av läget. Returnerar det som bestämdes och det som ändrades.\n\n:param on: tvinga svaret; ``None`` mäter maskinen.\n:returns: ``{\"on\", \"why\", \"changed\"}`` -- `changed` namn varje sak faktiskt gjort, så en uppringare kan säga vad som hände istället för att göra anspråk på det.\n\nIngenting här består. Se :data:`_NO_BACKDROP` för varför: det här är ett beslut om en bearbetningssession på en maskin, och användarens sparade preferenser är inte den här modulen att svara på.",
+      "source_sha256": "1b10d6900cb0e03a04971ff50236a98fb25f338bcf7cc88f912824a661332785",
+      "text": "Tillämpa bakgrundsundertryckning för den aktuella processen och rapportera beslutet och åtgärderna.\n\n:param on: uttryckligt beslut; ``None`` använder :func:`wanted`, inklusive dess hårdvaruavläsning och miljöåsidosättning.\n:returns: en avbildning med ``on``, ``why`` och ``changed``. ``on`` är beslutet; ``changed`` listar de åtgärder som faktiskt utfördes och kan vara tom.\n\nUndertryckningen gäller endast den aktuella processen och ersätter inte den sparade animationsinställningen. Avaktivering tar bara bort undertryckning skapad av denna modul och behåller alla redan befintliga åsidosättningar för kraschåterställning.",
       "translation_source_blocks_sha256": [
-        "26ed332e5c606b21ccd218b3c024aa56d1623aa06d8b81b8b8cef050b1877163",
-        "4b8dac16a7a15348b6d552ccb4e28be1b6917f5ccb8ce40a3bf36e9c259f34d2",
-        "39633c9008297a57422460fe23b3a8bea53cb256b6dc42f34f4eac990c2be100",
-        "ce569c7006a699745ff3f87b2537af113bb249200be810a7c76a020f0a0d633f"
+        "9e3292da390de8c9058c1d22cfd855a911098f4a63e5b4ad8cf6fffa6eece2d0",
+        "5515f2e440b9b34d681608374dbdca8c035559fedde080bdfd9044ee27538d96",
+        "a310f089a7b0306a0e02315d0496305fa606744e154cb76b240ac3fb1efa1fb1",
+        "9f8615c6fee1478d99c3b002b6ab7a48f69a560f512e2d7604d7c073a5f85ce5"
       ]
     },
     "spacr.qt.laptop_mode.describe": {
       "source_blocks_sha256": [
-        "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b"
+        "083f511353978df8dfb8f5202ebb3c37226ba932903da94561393e3503143846"
       ],
-      "source_sha256": "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b",
-      "text": "Hela beslutet som ett block, för uppskjutningsloggen.",
+      "source_sha256": "083f511353978df8dfb8f5202ebb3c37226ba932903da94561393e3503143846",
+      "text": "Formatera det hårdvarubaserade beslutet och effektbeskrivningarna för diagnostikloggar.",
       "translation_source_blocks_sha256": [
-        "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b"
+        "083f511353978df8dfb8f5202ebb3c37226ba932903da94561393e3503143846"
       ]
     },
     "spacr.qt.laptop_mode.measure": {
       "source_blocks_sha256": [
-        "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec"
+        "0e98eae25debf8b8698504e690faeaeb5dd6a892c05e95babe9c83885137db05"
       ],
-      "source_sha256": "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec",
-      "text": "Vad beslutet fattas av, så att det kan rapporteras och testas.",
+      "source_sha256": "0e98eae25debf8b8698504e690faeaeb5dd6a892c05e95babe9c83885137db05",
+      "text": "Returnera CPU-antal, fysiskt minne, tröskelflaggor och den tolkade åsidosättningen.",
       "translation_source_blocks_sha256": [
-        "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec"
+        "0e98eae25debf8b8698504e690faeaeb5dd6a892c05e95babe9c83885137db05"
       ]
     },
     "spacr.qt.laptop_mode.override": {
       "source_blocks_sha256": [
-        "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d"
+        "280feb5c02f4f17a28e22b38ccf56a59e75b0ff89549241dde9ff219e58b9a88"
       ],
-      "source_sha256": "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d",
-      "text": "Vad miljön säger, eller None när den inte säger någonting.",
+      "source_sha256": "280feb5c02f4f17a28e22b38ccf56a59e75b0ff89549241dde9ff219e58b9a88",
+      "text": "Tolka miljöåsidosättningen; returnera ``None`` om den saknas eller inte känns igen.",
       "translation_source_blocks_sha256": [
-        "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d"
+        "280feb5c02f4f17a28e22b38ccf56a59e75b0ff89549241dde9ff219e58b9a88"
       ]
     },
     "spacr.qt.laptop_mode.total_memory_gib": {
@@ -82422,38 +82422,38 @@
     },
     "spacr.qt.laptop_mode.usable_cores": {
       "source_blocks_sha256": [
-        "6eeca1c96f25ca1b20363fe0660331ff83bcc457a9e322861b2979e1c6fbbf38",
-        "e5e0905bd72d34ad04ad93efbfe15014f34c1ea4af000bef7476a52aac623487"
+        "56820c575c58409fee1cabc4f1d09fa1463b46198902e7b22b6cbd635457ba93",
+        "df0e2b015a4d01a4f27dc98ebd665d717211ed594cb1d8071a18887d3fe349e5"
       ],
-      "source_sha256": "dc715c3833b07e51d9c7a53dfdf61547f9a6e309eb6d6132e0bf44db54427e20",
-      "text": "Kärnor denna process kan faktiskt använda, inte kärnor maskinen har.\n\n`os.sched_getaffinity` där det finns: en behållare eller en schemaläggare kan fästa processen till färre än `cpu_count` rapporter, och pinning är exakt den situation som detta läge är för.",
+      "source_sha256": "e5eb6f66da16d5b3607710a14439c9cad49a88d33e586fa5fa5f2e91455fa804",
+      "text": "Returnera CPU-antalet i processens affinitetsmängd, med ``os.cpu_count`` som reserv.\n\n``os.sched_getaffinity`` tar hänsyn till processens bindning när funktionen är tillgänglig. Om den saknas eller misslyckas används det rapporterade CPU-antalet i stället. Resultatet är minst ett; reservmetoden mäter inte affinitetsbegränsningar.",
       "translation_source_blocks_sha256": [
-        "6eeca1c96f25ca1b20363fe0660331ff83bcc457a9e322861b2979e1c6fbbf38",
-        "e5e0905bd72d34ad04ad93efbfe15014f34c1ea4af000bef7476a52aac623487"
+        "56820c575c58409fee1cabc4f1d09fa1463b46198902e7b22b6cbd635457ba93",
+        "df0e2b015a4d01a4f27dc98ebd665d717211ed594cb1d8071a18887d3fe349e5"
       ]
     },
     "spacr.qt.laptop_mode.wanted": {
       "source_blocks_sha256": [
-        "d5f0631d4d0a2d1420fdc111009d6af4ce1a89e455f2cc728c275f7790175a54",
-        "da99dae2fbd6c895c14e7e7076a0621f983b203f3ed91b17dcc7cbbc1a1fa70b"
+        "37defe4b29415dc455cf0dd701d4dad4a7ce074d71ea2681b2ed1444515fb5fd",
+        "dad65e9925e85646ec95ff8c9a08b748f3110f10e031bfc35c70c0931da83723"
       ],
-      "source_sha256": "c1a223ad9504b6f729f814a7ae6adec827d53e7bd57b4b7257c6d23637ca43d8",
-      "text": "Om du ska köra i laptopläge, och meningen som säger varför.\n\n:returns: ``(on, why)``. Anledningen är alltid befolkad, inklusive när svaret är nej -- \"spaCR decided not to\" är en sak en användare rapporterar och någon måste kunna kontrollera.",
+      "source_sha256": "ae2d6184c93bafb4c0366d02d5962ab94168c0853d165d88c50a9878fd18961a",
+      "text": "Returnera det hårdvarubaserade beslutet om bärbart läge och dess förklaring.\n\n:returns: ``(on, why)``. Orsaken är alltid ifylld, även när beslutet är att stänga av. En uttrycklig miljöåsidosättning har företräde framför tröskelflaggorna för kärnantal och fysiskt minne.",
       "translation_source_blocks_sha256": [
-        "d5f0631d4d0a2d1420fdc111009d6af4ce1a89e455f2cc728c275f7790175a54",
-        "da99dae2fbd6c895c14e7e7076a0621f983b203f3ed91b17dcc7cbbc1a1fa70b"
+        "37defe4b29415dc455cf0dd701d4dad4a7ce074d71ea2681b2ed1444515fb5fd",
+        "dad65e9925e85646ec95ff8c9a08b748f3110f10e031bfc35c70c0931da83723"
       ]
     },
     "spacr.qt.laptop_mode.what_it_turns_down": {
       "source_blocks_sha256": [
-        "88d07befe5e3a2884bec7027606293051bb6427913a4b00764c678d008cf57bf",
-        "ca261d6b9e41a4314bd1d8fedab690e821a1b20e7eb5ed7ad2adeaf12790411d"
+        "3bc73cd701a33d5e380729e5c811f729e6c16ff2ffa2a2669e122e37851a5ce0",
+        "6a0f3ee15e8cd79518f3274559b9f6f226597ded2a474c571447031920608216"
       ],
-      "source_sha256": "ba94f02cd51cfe0e2abe44fbe9565fd38fb8b794c200786816815cd883c99868",
-      "text": "Varje sak läget ändras, och vad en användare förlorar med det.\n\nBara ritning. Ingenting här läses av ett arbetsflöde, så en bearbetningssession beräknar samma svar i båda lägena -- vilket är löftet som gör ett automatiskt beslut acceptabelt alls.",
+      "source_sha256": "084d16f773c3751933b1872da8d40c9c3e0eda043b7adf28185af4c11f576974",
+      "text": "Returnera beskrivningarna av animation och bakgrundsoskärpa som används i diagnostiken.\n\nVarje par innehåller ett effektnamn och dess beskrivning för UI-noteringar och loggar. Denna funktion returnerar text; :func:`apply` utför bakgrundsundertryckningen för den aktuella processen.",
       "translation_source_blocks_sha256": [
-        "88d07befe5e3a2884bec7027606293051bb6427913a4b00764c678d008cf57bf",
-        "8a7a63cdcf93686621f8610c132750a316daec957429fe3140bdf2456fdb68e7"
+        "3bc73cd701a33d5e380729e5c811f729e6c16ff2ffa2a2669e122e37851a5ce0",
+        "6a0f3ee15e8cd79518f3274559b9f6f226597ded2a474c571447031920608216"
       ]
     },
     "spacr.qt.layer_viewer": {
@@ -86772,42 +86772,42 @@
     },
     "spacr.qt.memory_budget": {
       "source_blocks_sha256": [
-        "7dee1bb5f7c9b5d23474f893c3d14ce8e6ed29158711c2c731d455aa7ab70845",
-        "e8113a41d8118dcd9279bcf26c3df16c9da8bbd10092277d03c2b467d515965f",
-        "990dc5f29bac1f3305b275eaffe47e17b713dde972d5c8c4a6e687edafa9af44"
+        "085b0477dcf6526001c033b3b6351f2e869b539bab650e175c85b1642d8b528d",
+        "c58bbd9144a04712a3e43730f51eb31206fa4de45fc39af9e363370a6b35390a",
+        "b004a86b58a3789efb278a41b73c0f30c1d72368becbddce078243853e3ea6fa"
       ],
-      "source_sha256": "d127c85059819ad3412bbebd07a8038482d386d5a8997ffec054d659011a9d9d",
-      "text": "Vad spaCR är tillåtet att behålla, och när det måste ge tillbaka det.\n\nTre inställningar, och ordning spelar roll. Huvudrummet golv kommer först: det säger hur mycket av maskinen måste hålla sig gratis för allt annat, och de andra två är meningslösa tills något säger när man ska tillämpa dem. Sedan overksam timeout, som säger hur länge en oanvänd sak kan sitta innan den tappas, och cache taket, som anger hur mycket får hållas alls.\n\nVad dessa inte gör är att lossa ett bibliotek, och ingenting här namnges som om det gör. Mäts på denna maskin: importera torch kostar 477 MB, ta bort varje torch post från `sys.modules` och samla tillbaka 0 av det, och 63 av dess delade objekt förblir kartlagda. CPython har aldrig stött lossning en C förlängning. Vad kan returneras är cache, modell vikter och GPU tilldelningar, så det är vad dessa styr - och skjuta upp en import tills första användning är den ärliga formen av \"load when called\", vilket är varför en session som aldrig öppnar en djuplärande modul aldrig betalar 477 Mbyte.",
+      "source_sha256": "c88e4eb03ecde594812d4d30f9fe1a2151ba284cc4cf043ed5314a6d98bf7f63",
+      "text": "Policyer för borttagning av cacheposter och mätningar av tillgängligt värdminne.\n\nTidsgränsen för inaktivitet och cachens storlekstak avgör vilka nycklar som väljs av ``what_to_drop``. Det separata predikatet ``headroom_is_short`` jämför tillgängligt värdminne med ett inställt tröskelvärde. Anroparna tillämpar dessa policyer och frigör resurser.\n\nDenna modul laddar inte ur Python-moduler eller nativa bibliotek. Borttagningsplanerna identifierar cacheposter; anroparna avgör vilka resurser som får frigöras. Policyerna garanterar inte någon viss minskning av processminne eller GPU-allokeringar.",
       "translation_source_blocks_sha256": [
-        "7dee1bb5f7c9b5d23474f893c3d14ce8e6ed29158711c2c731d455aa7ab70845",
-        "ce824dfa2a1bec3fe844b6dc7defdbfa3bdb5d158cc9153985bb5b6c2c557058",
-        "2fbaf85de9f84b1538889b58d786600eb2419e5f2487dbaf8db7c71623a5716e"
+        "085b0477dcf6526001c033b3b6351f2e869b539bab650e175c85b1642d8b528d",
+        "a006f7cbffea16de4f4f1b11893ab286685a0c6b93b35187e848ccb90044259c",
+        "b004a86b58a3789efb278a41b73c0f30c1d72368becbddce078243853e3ea6fa"
       ]
     },
     "spacr.qt.memory_budget.free_megabytes": {
       "source_blocks_sha256": [
-        "335bd8baecef403e0f0429c1114aa3d46d65d84c36989c0af807043ad5d74727",
-        "39138f50b3a0525405ef5dd18f5e1f1c097448add5200fc859576a69a489d00b"
+        "950086cece6235f942f0ce62223a5798d14c2ba4ca0c885d91d5e2450b7fa354",
+        "462aed865924dabca59acee0fb621a773096cb4f8fdb138514974fff2dcbf0fb"
       ],
-      "source_sha256": "725ac9fb54575611439b5f6a9176b9c98b9d2e1193880a84890c2608534301ae",
-      "text": "Hur mycket minne maskinen har fri just nu.\n\n:returns: megabyte, eller ``None`` när det inte kan mätas -- i vilket fall panngolvet inte kan genomdrivas och säger det snarare än gissa.",
+      "source_sha256": "90b4c7ec1305c5821ac72ede14eaf20da4aab17a5b9fddea9ff5e98df245979b",
+      "text": "Returnera tillgängligt värdminne i mebibyte.\n\n:returns: ``psutil.virtual_memory().available`` delat med ``1024**2``, eller ``None`` om mätningen misslyckas.",
       "translation_source_blocks_sha256": [
-        "335bd8baecef403e0f0429c1114aa3d46d65d84c36989c0af807043ad5d74727",
-        "39138f50b3a0525405ef5dd18f5e1f1c097448add5200fc859576a69a489d00b"
+        "950086cece6235f942f0ce62223a5798d14c2ba4ca0c885d91d5e2450b7fa354",
+        "462aed865924dabca59acee0fb621a773096cb4f8fdb138514974fff2dcbf0fb"
       ]
     },
     "spacr.qt.memory_budget.headroom_is_short": {
       "source_blocks_sha256": [
-        "a0201766d2334e4ed9a927ef5c0efe72b5bb216662973cac624d8c3b5d460c82",
-        "98608cc4fe30c11e66e37def0b64da7ad24b46456b8d8c3e2a15f94f6000d725",
-        "4a56c5e9c0578f16c5dc2093870adb26269f48380b2c7f49897ece632a37c8a9"
+        "faf3fe4a3b6e43462f3a13253b023c1454b2325f453699cd1a393716d262e212",
+        "3d229748a5339d249f9b76f1ebdef0c7afc35d56cec845bde90240f0e195c33b",
+        "664619de4cb6f00d2793597275ff197d74e6d957b6f24f9e34fe84c55f1d6027"
       ],
-      "source_sha256": "7c0c7ce6f21e8248b69f8cb394c911e663f5780444a199b4b54fb43d39256858",
-      "text": "Om det fria minnet har fallit under golvet.\n\n:param floor_mb: golvet; läs efter önskemål när det utelämnas.\n:returns: ``False`` när minnet inte kan mätas - en cache som inte kan visas vara ett problem tappas inte vid misstanke.",
+      "source_sha256": "e355f34b6c9814bafb021d8745fcff8303b03b40297c2a1d3e224c9997dd428f",
+      "text": "Pröva om tillgängligt värdminne ligger under det inställda tröskelvärdet.\n\n:param floor_mb: tröskelvärde i mebibyte; läses från inställningarna om det utelämnas.\n:returns: ``False`` om minnet eller den nödvändiga inställningen inte kan läsas; annars resultatet av jämförelsen mellan tillgängligt minne och tröskelvärdet.",
       "translation_source_blocks_sha256": [
-        "a0201766d2334e4ed9a927ef5c0efe72b5bb216662973cac624d8c3b5d460c82",
-        "98608cc4fe30c11e66e37def0b64da7ad24b46456b8d8c3e2a15f94f6000d725",
-        "4a56c5e9c0578f16c5dc2093870adb26269f48380b2c7f49897ece632a37c8a9"
+        "faf3fe4a3b6e43462f3a13253b023c1454b2325f453699cd1a393716d262e212",
+        "3d229748a5339d249f9b76f1ebdef0c7afc35d56cec845bde90240f0e195c33b",
+        "664619de4cb6f00d2793597275ff197d74e6d957b6f24f9e34fe84c55f1d6027"
       ]
     },
     "spacr.qt.memory_budget.recommended_for": {
@@ -86826,26 +86826,26 @@
     },
     "spacr.qt.memory_budget.what_to_drop": {
       "source_blocks_sha256": [
-        "42ce74dd9aad550c5b96cebf035510c46639364a8688e1bc1dc6c1f84f47c30f",
+        "31af9ce76aff459d4c3179c000db0bdb43c6503ec8570c3138467fa97fc8d6cf",
         "6c2fb2d25b2ecddad109250e3d7c80810b00c3ac25114877347add35e8e0eb69",
         "7aad11250c3144958b20cc43b94d429df587350d39d938779eeb8c5cad07aca4",
         "0ba4e87629bcae4a11eb3ff5a3f6cb596d8b65b826863b2a077e0c633f7f524b",
         "d64accbbd8381ffc1449b95c53a4735cebae4a9065ad2e68cebd2a5d6db7c539",
-        "a39afc7eacade24ad70fcf24dd569c0d279ec5a768f486c85a54f115f8445479",
-        "cacfbfd07a2f73a883e233de8269be4aa7da60e7306154141f03ad837ca4e0ad",
-        "488dc0c3970d5b8cce09d8716a8f248cf17ac094c437f86166136aa5b7c01efe"
+        "020e34f4fc2e9929430d3ed889a0053e72971f16ab734f8d160919f8c23975ca",
+        "67debaa49d33527c26424e67de2fd5eebf205f8441346115f35f0938bee1bcf5",
+        "8722da35e47b65d0b7eba6f7ac24df9385eba9e2f424312ec0f35e5cf75c7d06"
       ],
-      "source_sha256": "8bbe5fb5c2e871179f6cd4317be8e37d3aa6eca8a7f1af28cf5324501dd4e313",
-      "text": "Vilka cacheposter måste gå, äldsta sysslolösa först.\n\n:param entries: ``[(key, megabytes, last_used_epoch_seconds), ...]``.\n:param now: den nuvarande epoken, passerade in så att ett test kan välja det.\n:param idle_minutes: den inaktiva timeouten; från preferenser när utelämnad.\n:param ceiling_mb: Storlekstaket; från preferenser när det utelämnas.\n:returns: Nycklarna att släppa, för att släppa dem.\n\nTvå skäl, tillämpade i tur och ordning. Allt som varit overksamt längre än tidsgränsen får gå, eftersom ingen använder det. Om det som återstår ändå ligger över taket får därefter de minst nyligen använda gå tills det får plats -- så att en cache under press ger upp det den minst troligt vill ha härnäst i stället för det den råkar nå först.\n\nEn post släpps aldrig bara för att den är stor: storleken bestämmer ORDER för en trimning, och inaktivitet bestämmer om en inträffar.",
+      "source_sha256": "fbf221dfff9accbb558a9b54980aeb249f59363f7d586c25169188125475d6a5",
+      "text": "Välj cachenycklar efter tidsgränsen för inaktivitet och därefter den återstående totala storleken.\n\n:param entries: ``[(key, megabytes, last_used_epoch_seconds), ...]``.\n:param now: den nuvarande epoken, passerade in så att ett test kan välja det.\n:param idle_minutes: den inaktiva timeouten; från preferenser när utelämnad.\n:param ceiling_mb: Storlekstaket; från preferenser när det utelämnas.\n:returns: strängnycklar som ska tas bort, i urvalsordning.\n\nPoster som är äldre än tidsgränsen väljs först, i indataordning. Om den återstående totalsumman överstiger taket väljs ytterligare poster från minst till mest nyligen använda tills totalsumman ryms.\n\nStorleken avgör om fler poster måste tas bort, inte rangordningen. Taket kan välja poster även när ingen har överskridit tidsgränsen för inaktivitet. Denna hjälpfunktion kontrollerar varken värdminnets marginal eller om poster används; anroparna måste lämna poster som får tas bort.",
       "translation_source_blocks_sha256": [
-        "42ce74dd9aad550c5b96cebf035510c46639364a8688e1bc1dc6c1f84f47c30f",
+        "f65cf0e510dbbf748ed78bd5af1393b69b148ff5e3c940ca6a0cb87c8d9d95f9",
         "6c2fb2d25b2ecddad109250e3d7c80810b00c3ac25114877347add35e8e0eb69",
         "7aad11250c3144958b20cc43b94d429df587350d39d938779eeb8c5cad07aca4",
         "0ba4e87629bcae4a11eb3ff5a3f6cb596d8b65b826863b2a077e0c633f7f524b",
         "d64accbbd8381ffc1449b95c53a4735cebae4a9065ad2e68cebd2a5d6db7c539",
-        "a39afc7eacade24ad70fcf24dd569c0d279ec5a768f486c85a54f115f8445479",
-        "2ca45fa78178bfc1617e002ef59cff6772e250edd5ddb3bdd152429d031ea566",
-        "488dc0c3970d5b8cce09d8716a8f248cf17ac094c437f86166136aa5b7c01efe"
+        "020e34f4fc2e9929430d3ed889a0053e72971f16ab734f8d160919f8c23975ca",
+        "67debaa49d33527c26424e67de2fd5eebf205f8441346115f35f0938bee1bcf5",
+        "8722da35e47b65d0b7eba6f7ac24df9385eba9e2f424312ec0f35e5cf75c7d06"
       ]
     },
     "spacr.qt.menus": {
@@ -101480,16 +101480,16 @@
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent": {
       "source_blocks_sha256": [
-        "4105b719d131be273bcf078a64a419aebd6f148d5e15e6675266a1daa76128de",
-        "9fe90cbee058930498ffcb98c340794f85b3331a3f6f117cf32e4f42114e5572",
-        "39d3c72137f96a440437ef8d2b92b8caca64ff021ab21acc5015cf1498eab95c"
+        "a07e5b94f71b6bf393f5e27c23c626156a84438a2127dc94247c85ed0de89d11",
+        "faf25d8d8e7ec939da6a4b293c9eba01a50118c8bd52dbb6e94535e1077ce073",
+        "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd"
       ],
-      "source_sha256": "a79ed4bc3c1d83dcbb87f10ef19560cb9edfa3def94828dbd00422a10d58a6b4",
-      "text": "Låt job löpare stoppa sin oberoende körväg innan widgeten går.\n\nStoppflaggan sätts först. ``shutdown`` väntar en begränsad tid och parkerar sedan en worker-processer som varar längre än den, så en last som är tillsagd att stanna mellan sidorna slutar på en sida istället för att läsa resten av plattan i en uppsättning vars screening har gått.\n\n:param event: Qt s nära händelse, passerade till basklassen oförändrad. Aldrig ignorerad -- en programvy som vägrar att stänga eftersom en körning är i flygning skulle fånga fönstret, så körningen stoppas istället.",
+      "source_sha256": "863b3342a92326620dabb9d375993e81310dc9df2f965a9ff0a343c435315a24",
+      "text": "Kasta väntande resultat och avveckla båda jobbkörarna innan widgeten tas bort.\n\nStoppflaggan för bildutsnitt sätts först och ytterligare DINO-förlopp ignoreras. Varje ``shutdown`` väntar en begränsad tid och parkerar sedan arbetstrådar som fortfarande körs. En parkerad träningsarbetstråd kan slutföra skrivningen av sin kontrollpunkt utan att uppdatera den stängda skärmen; den tvångsavslutas inte.\n\n:param event: Qt:s stängningshändelse, som skickas oförändrad till basklassen. Stängningen accepteras även om en arbetstråd måste parkeras.",
       "translation_source_blocks_sha256": [
-        "e0cc3b23651bbe7cc9b9c86694d274085e1ec2e40c0b65bd2987d213d9b40a39",
-        "9fe90cbee058930498ffcb98c340794f85b3331a3f6f117cf32e4f42114e5572",
-        "7f86d6c6668ae0a51a0ccb106ebcb34b3bda682585618dd5a0175e36d9f3a3b4"
+        "a07e5b94f71b6bf393f5e27c23c626156a84438a2127dc94247c85ed0de89d11",
+        "dc8984a0772acbe6fa05f1014241b462faca9a8104a04bf160fbb045badc9d3c",
+        "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd"
       ]
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.crop_query": {
@@ -101558,14 +101558,14 @@
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy": {
       "source_blocks_sha256": [
-        "311942b12864cd4518b9cef55cc280ecb649e79d649fe766463ebda3248ad316",
-        "b8e2e77632f19d7a19db34206bb1e7e08b1c4aa99a49255de62b4cecdc2a8205"
+        "503d857aa83baa8cdaaefdcc6a1bddc221033e1c4fc1b428a560bc53219cb6de",
+        "72d0349a4907b943d590d282e08367fee566c7572e753f3cb57fdf8c0b9859cc"
       ],
-      "source_sha256": "f6b2458f1fcb10a13133dd1ca2d3e76f6530fc040f79538d2500d93837e4a745",
-      "text": "Om en körning är på flykt.\n\nEn utsnittsinläsning räknas. Den är det överlägset längsta av de två jobben -- en platta med utsnitt från en nätverksmontering tar minuter -- och en programvy som rapporterade sig som ledig under den skulle låta fönstret stängas över en pågående läsning.",
+      "source_sha256": "685ad2f030a7753e36048378ce0abd131e8c3680bc0acffd41e6e132853ec0d1",
+      "text": "Om inläsning av bildutsnitt, ett inbäddningsjobb eller DINO-förträning pågår.\n\nInkluderar den separata DINO-jobbköraren tills dess arbetstråd har avslutats, även efter att dess slutliga resultat har nått skärmen.",
       "translation_source_blocks_sha256": [
-        "311942b12864cd4518b9cef55cc280ecb649e79d649fe766463ebda3248ad316",
-        "037d7fc54e36101250627eacee915596353c74bd28cae0a91c09d53a325689c9"
+        "bf89ba6600a5433def77648af0ff21cb9c67ac483b0fc988658088c17fe5d065",
+        "72d0349a4907b943d590d282e08367fee566c7572e753f3cb57fdf8c0b9859cc"
       ]
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.is_loading": {
@@ -131857,19 +131857,19 @@
     "spacr.qt.widgets.database_set.DatabaseSetWidget.apply_workspace_state": {
       "source_blocks_sha256": [
         "e40feb1ee29670ad6930a472584ab0502bdd9aabd273dfe2d73acfb80ccde164",
-        "9a303ff312eeb772b0f305c2e6501d8d0d163c091c0b099f924fc6661892c9c7",
-        "ea206d0b5c521d4ac39fd53efcf417705f55206609c2fecc7c94574bb389d000",
-        "5308391f45e6b83a58429c365bdf81b3547e0217ba30951610b0227174f7f817",
-        "697b9a175bc9a9a884b4b8970dd987b01d4446d84c280e448097f3b47862d7df"
+        "6ad0e08287e2e2b86af8c88dc0a6bbd2c66cf69d509b62ca700d39e67ac2af2d",
+        "b813f69a09a450d3305e51dc59501b009a1482aa3e62d57c42e9785a6d884917",
+        "92de564480e6b8d7fd3634e6fae3f10cb53b4617faee74d820432b4a21c69e6a",
+        "7b65ee52d867ca737314df800589032c788e8b134f157bc8b40e4ab1bc18930f"
       ],
-      "source_sha256": "2d5b13f3b8043437be8ed298de2791a74b6e85903d3a27577ad3411f78fcfe20",
-      "text": "Återupprätta uppsättningen. Returnerar om något var fäst.\n\nEn källa som inte längre finns kvar och resten fortfarande är fastsatta – en flyttad platta stoppar inte de andra som bifogar. Arbetsytans dokument namnger varje saknad i sin egen rapport, så ingenting som tappas här släpps tyst.\n\nHuruvida varje källa fortfarande finns kontrolleras av huvudsökvägen GUI, eftersom sökvägarna för en sparad arbetsyta kan vara på ett fäste som sedan dess har gått till sömns. Hela uppsättningen är ansluten nu och de som visar sig vara borta släpps när svaret anländer, vilket kostar en omdragning istället för en blockerande stat.\n\nReturvärdet svarar \"var det något att bifoga\", inte \"var något av det fortfarande på disken\". :func:`spacr.workspace.restore_workspace` rapporterar därför avsnittet som återställt åt vilket håll som helst; källorna som visar sig vara borta läggs ner när kontrollen är klar, och den sammanfattande raden namn varje källa utan databas bakom det. Ogängad (i tester) checken har redan körts när denna returneras.\n\n:param state: dict som sparats av :meth:`workspace_state`; bara dess ``sources``-lista läses, och allt som inte är en dict, eller saknar källor, returnerar False.",
+      "source_sha256": "e96c22e54bbaef37cfb3f78a8ef62419bc18fce6e2ab561c4106741a6cbb7036",
+      "text": "Återupprätta uppsättningen. Returnerar om något var fäst.\n\nSparade källor behåller sin ordning. I mappläge kan en uttryckligen angiven, motsvarande lista ``databases`` tillhandahålla en databas som har återställts av arbetsytans kärna. Om den ursprungliga databasen saknas och den filen finns, läser mängden den angivna filen men behåller den ursprungliga källnyckeln. Denna koppling skriver inte om källornas rotsökvägar som returneras av :meth:`get_value` och återskapar inte en projektmapp för ett nytt bearbetningsflöde.\n\nFilsystemkontroller körs utanför GUI-tråden. Källor som varken har en befintlig ursprunglig källa eller en användbar uttryckligen angiven databas tas bort när svaret kommer. Tillagda källor bevaras; ersatta källor, eller källor som tagits bort och lagts till igen, kan inte få inaktuella kopplingar.\n\nNär kontrollen är asynkron besvarar returvärdet frågan ”fanns det något att ansluta?”, inte ”fanns något av det fortfarande på disken?”. Arbetsytans kärna rapporterar saknade eller ändrade filer separat. Utan en arbetstråd har kontrollen redan körts när metoden returnerar.\n\n:param state: en nyckel-värde-mappning sparad av :meth:`workspace_state`; läser ``sources``, ``mode`` och en valfri lista ``databases`` med motsvarande poster på samma position. Ett värde som inte är en nyckel-värde-mappning eller en tom källmängd ger False. Filverifiering och ommappning av medförda sökvägar hör till arbetsytans kärna.",
       "translation_source_blocks_sha256": [
         "e40feb1ee29670ad6930a472584ab0502bdd9aabd273dfe2d73acfb80ccde164",
-        "9a303ff312eeb772b0f305c2e6501d8d0d163c091c0b099f924fc6661892c9c7",
-        "81289abf062b72e76f0e6e44488f3db97fdc37370b911aae063bf10c00f21d01",
-        "5308391f45e6b83a58429c365bdf81b3547e0217ba30951610b0227174f7f817",
-        "720a039f168e6f1182321d4d9cc84276e22b09761a70c09807626e15ebdf633d"
+        "d48968b51e632dfbd701a891a9d91549b9a9da0d26c63f1b8b79ba275c0f55dd",
+        "f09cb36527cb369250b0039c826d2f2d5e055788763d05757e9e7990ed3a2bfa",
+        "92de564480e6b8d7fd3634e6fae3f10cb53b4617faee74d820432b4a21c69e6a",
+        "83cfd34fe45ea363994284a856132027f10e1ff6e30031001dfa46f5506a59b3"
       ]
     },
     "spacr.qt.widgets.database_set.DatabaseSetWidget.choose_sources": {

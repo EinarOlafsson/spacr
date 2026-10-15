@@ -95,3 +95,46 @@ Retrieval on the 307-crop plate1 set, DINO vs ImageNet resnet18 at 64 px:
 The GPU run widens the CPU run's lead (6-class kNN 0.632 vs 0.586) at a larger backbone and
 crop size. Scorecard: /mnt/wd4tb/scratch/561/scorecard_64px.csv; weights
 dino_scratch_resnet18_64_gpu.pt next to it.
+
+2026-10-15 Home-B — existing-checkpoint, epochs and progress UI implemented
+    The alpha EmbeddingsDinoControls group now contains a path-only own-DINO
+    checkpoint picker, an epoch control (default20, total resume target) and
+    worker progress. Existing paths are deduplicated, including symlinks;
+    selecting one does not load/train/decode a model and selects the next Embed.
+    Backend channel policy and checkpoint trust/resume logic are unchanged.
+    Real fake-worker checks verify GUI-thread progress, busy/error recovery,
+    stale-report rejection and active-close cleanup. The actual registry
+    dependency e4458d409d6 gates the entire group.31 focused Qt tests pass;
+    before cases fail for the formerly absent controls. Exact source/logs in
+    features/data/561_dino_controls_2026-10-15/. Runtime/API translation
+    artifacts remain a required coherent-publication dependency. This closes
+    the explicit picker/epoch/progress implementation gap, not the remaining
+    classifier/scientific multi-seed/held-out-plate acceptance work.
+
+2026-10-15 Home-B — DINO controls cancellation and runtime artifacts ready
+    Independent source review found cancellation before the worker starts can
+    finish without an error signal. The new terminal handler restores controls
+    while preserving a newer pending retry; the exact failing regression and
+    final33 passing Qt cases are recorded with the source receipt. All108
+    source-bound runtime targets passed independent technical review and normal
+    candidate/load checks. The normal writer added exactly12 captions to each
+    catalog, preserved10,576 unrelated targets per language, and passed a fresh
+    normal source recheck plus English audit (91.27s,491,068KiB peak). Evidence:
+    features/data/561_dino_runtime_catalogs_2026-10-15/. API lifecycle artifacts
+    remain with the documentation owner; publish the coherent group together.
+
+2026-10-15 — Own-checkpoint, epoch and progress controls completed.
+The alpha control group selects an existing own spaCR DINO checkpoint without
+loading it, accepts an explicit total epoch count (default20), and displays
+worker progress. Dedicated runner/token handling restores controls after
+success, errors or cancellation and rejects stale reports after retry/close.
+The actual alpha registry gates the whole group. Source33 targeted Qt checks
+PASS; independent code review caught and verified the cancellation repair.
+All108 runtime and45 API translation targets are independently technically
+reviewed and normally generated. Coordinator merged all incoming web captions,
+verified exact unrelated preservation and normal arrival refresh; immutable
+9,833 baseline unchanged. Final current-source English audit passes after the
+published N641 source merge. No training/model/GPU/quality acceptance claimed.
+Evidence: features/data/561_dino_controls_2026-10-15/ and related runtime/API
+review/catalog directories. This closes the described software-control gap;
+scientific acceptance is not inferred from fake-backend Qt checks.
