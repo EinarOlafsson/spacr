@@ -1,5 +1,5 @@
 {
-  "scope": "N594 existing ML table choice, exact native loader/fit-boundary component; public source pending coherent API/runtime owner generation",
+  "scope": "N594 existing ML table choice, coherent native loader/fit-boundary component with owner-reviewed runtime/API help; normal publication pending",
   "baseline_source": "e8a17831f29a73857ba4f94975f633f990692b68",
   "baseline": {
     "failed": 1,
@@ -25,10 +25,40 @@
     "Optional crop+annotation preserves authoritative exact o1=1,o2=0,o4=0 labels, many_to_one join and no duplicate target suffixes"
   ],
   "held": [
-    "Nine public API reviewed/current-source normal owner outputs",
-    "Nine root-peer-reviewed tables tooltip normal runtime outputs and arrival refresh",
-    "Necessary normal generated settings consumer/flow/help artifacts",
-    "Normal merge/source identity/publication after F580"
+    "Normal reconcile/source identity and push after N698 publication hold released"
   ],
-  "scientific_limits": "No classifier fitting/model accuracy, biological labels, GPU, network, live data or new scientific cohort/join policy"
+  "scientific_limits": "No classifier fitting/model accuracy, biological labels, GPU, network, live data or new scientific cohort/join policy",
+  "artifacts": {
+    "passed": 18,
+    "seconds": 61.67,
+    "tests": "9 actual locale lookups,4 normal settings-flow currency cases,5 actual consumer/API link cases",
+    "actual_new_consumer_proof": "generated-consumer-proof.json",
+    "total_distinct_passed_with_native": 37,
+    "all_runs_common_heavy_lock": true,
+    "no_unchanged_19_rerun": true
+  },
+  "runtime": {
+    "exact_reviewed_targets": 9,
+    "unrelated_rows_preserved_per_locale": 10578,
+    "normal_source_candidate_and_writer_gates": "PASS all9",
+    "normal_english_inventory_only": "languages=0; not a new full9locale unrelated safety audit",
+    "normal_arrival": {
+      "added": 897,
+      "baseline": 9833,
+      "changed": 31,
+      "retired": 151
+    },
+    "review_kind": "Direct AI author plus independent root AI technical peer; no native/human signoff"
+  },
+  "api": {
+    "current_reviewed_targets": 126,
+    "new_semantic_targets": 36,
+    "shifted_historical_byte_identical": 89,
+    "explicit_reviewed_Korean_markup_repair": 1,
+    "unrelated_locale_records_preserved": 13403,
+    "owner_receipt": "../594_api_catalogs_2026-10-15/receipt.json",
+    "independent_peer": "../594_api_peer_review_2026-10-15/receipt.json",
+    "source_and_target_hashes_verified_after_adoption": true,
+    "no_duplicate_writer": true
+  }
 }
