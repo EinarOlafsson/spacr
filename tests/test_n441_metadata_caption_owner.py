@@ -14,7 +14,7 @@ def extract_metadata(tmp_path, monkeypatch):
     for name in (
             'model_compare.py', 'embeddings.py', 'settings.py', 'object.py',
             'remote_execution.py', 'install_cleanup.py', 'model_zoo.py', 'utils.py',
-            'attribution.py', 'measure.py', 'object_classifier.py', 'core.py',
+            'attribution.py', 'measure.py', 'channel_sorting.py', 'object_classifier.py', 'core.py',
             'psf_pipeline.py', '_lineage_trees.py', 'plot.py'):
         (tmp_path / 'spacr' / name).write_text('')
     monkeypatch.setattr(builder, 'ROOT', tmp_path)

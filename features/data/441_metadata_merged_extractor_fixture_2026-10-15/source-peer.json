@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "root_head": "5d2ddb0b4cd08d5035f21cb41639ccd6dec6b971",
+  "prior_root_head": "c4dd4a50d507ee8faa78a303a30be4ae3560168e",
+  "actual_tool_sha256": "d381b2ee60486219a5caf029f3dea7611722ffb4c9424f2a81c830e59908ace7",
+  "actual_UI_sha256": "1e65ac66c4150c8150bf0b77b3605fa61cb3ec0ecefe7befac3af9093fcc96e9",
+  "exact441helper_AST_matches_independently_accepted_fe19": true,
+  "removing_only_new441helper_and_singlecall_recovers_entire_priorRoot_AST": true,
+  "all_prior_N702_N639_owners_preserved": true,
+  "method": "Read-only exact committed/current AST comparison, no globalcollector/imports/models/generation."
+}
