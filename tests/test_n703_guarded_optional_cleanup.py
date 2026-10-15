@@ -269,3 +269,13 @@ def test_actual_run_journal_guard_refuses_registered_worker_then_cleans_when_fin
     outcome = ic.apply_optional_cleanup(idle, request(idle, ["news"]), system=machine, guard=guard)
     assert outcome["ok"] and outcome["removed"] == 1
     assert (base / "models" / "user-model.pt").read_bytes() == b"irreplaceable"
+
+
+def test_unselected_cache_refresh_does_not_invalidate_unchanged_selected_cache(caches):
+    machine, base, files, state, guard = caches
+    preview = fresh(caches)
+    files["icons"][0].write_bytes(b"newly rendered unselected icon")
+    outcome = ic.apply_optional_cleanup(preview, request(preview, ["news"]), system=machine, guard=guard)
+    assert outcome["ok"] and outcome["removed"] == 1
+    assert list((base / "news").iterdir()) == []
+    assert files["icons"][0].read_bytes() == b"newly rendered unselected icon"

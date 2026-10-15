@@ -5725,11 +5725,16 @@ def apply_optional_cleanup(preview, choices, *, system=None, guard=None):
             if refusal is not None:
                 return {"ok": False, "reason": "active"}
             current = preview_optional_cleanup(preview["operation_id"], system=system)
-            if current["snapshot_id"] != preview["snapshot_id"]:
+            current_paths = {row["key"]: row["path"] for row in current["folders"]}
+            original = {key: (home, entries) for key, home, entries in preview["_snapshots"]}
+            snapshots = {key: (home, entries) for key, home, entries in current["_snapshots"]}
+            if any(key not in original or key not in snapshots
+                   or current_paths[key] != paths[key]
+                   or original[key][0][:3] != snapshots[key][0][:3]
+                   or original[key][1] != snapshots[key][1] for key in keys):
                 return {"ok": False, "reason": "preview_changed"}
-            snapshots = {key: entries for key, _home, entries in current["_snapshots"]}
-            if any(key not in snapshots for key in keys):
-                return {"ok": False, "reason": "preview_changed"}
+            paths = current_paths
+            snapshots = {key: entries for key, (_home, entries) in snapshots.items()}
             home_fd = _optional_cleanup_directory(os.path.dirname(paths[keys[0]]))
             for key in keys:
                 descriptor = os.open(key, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=home_fd)

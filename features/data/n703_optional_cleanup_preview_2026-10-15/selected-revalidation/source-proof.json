@@ -1,0 +1,17 @@
+{
+  "source_sha256": "0cc71fb565935bf686d0e72e2d348732afcfdc537df6c7b7f34ece2af9a6377e",
+  "changed_top_level_nodes": [
+    "apply_optional_cleanup"
+  ],
+  "public_docs": {
+    "preview_optional_cleanup": {
+      "identical": true,
+      "doc_sha256": "152ce95e020bd9206554249d85f14f34930a63fbfeadf8084b72e35d298b81bf"
+    },
+    "apply_optional_cleanup": {
+      "identical": true,
+      "doc_sha256": "259a700b6518c6a258f6a42dba5e98202b1eadd29a6a32df48193de841086a9c"
+    }
+  },
+  "native": "15 PASS in 1.03 seconds; original unselected refresh baseline 1 FAIL in 0.95 seconds"
+}
