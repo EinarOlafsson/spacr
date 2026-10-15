@@ -463,3 +463,26 @@ BUD GUARD (CPU; maintainer asleep, design decided by the session lead)
     defaults are not tuned to this one; vacuole masks (PV) could replace
     position chaining when a PV channel is segmented.
 
+
+2026-10-15 — Explicit known parent identity validation (source component; locale closure pending).
+An actual imported-table counterexample selected mother track 1 or 2 solely
+from row order. The explicit-parent reader now refuses contradictory known
+positive nonself parents present in the field. It preserves original first
+sentinel behavior, repeated identical parents, missing/unknown links and
+lossless identifiers above 2**53, including nullable and string storage.
+Before: 8 FAIL/14 PASS; after: 36 PASS, with 22 new/direct and 14 existing
+native-adapter/lineage output checks. Tracker fixtures are declared/stubbed,
+not actual tracker inference or biological acceptance. No inferred-division
+algorithm, distance/default/temporal rule, original table or output mutation.
+Evidence: features/data/537_parent_identity_2026-10-15/.
+
+2026-10-15 — F537 coherent shared runtime closure.
+Exact owner literal-tr extraction and independent source/nine-target peers
+installed in one ordinary two-caption writer, preserving10,775
+unrelated current targets per locale. Actual full-nine runtime audit PASS;
+normal arrivals:9833baseline/1095added/151retired/
+31changed. Nine actual segment-construction refusals preserve imported table identity;36 owning checks not repeated.
+Coalesced18localized callbacks all PASS,zero skips; original collector and
+six runtime/tool/test file hashes remain exact. No handgenerated targets,
+API prose changes, biological efficacy or whole-feature/finalCI claim.
+Shared evidence: features/data/537_540_runtime_closure_2026-10-15/.

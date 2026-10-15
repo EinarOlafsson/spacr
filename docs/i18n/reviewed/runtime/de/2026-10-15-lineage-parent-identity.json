@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "Exact-source AI technical translation and self-review; independent technical peer and ordinary source/candidate gates required; no native-speaker signoff",
+  "draft_author": "hard_overnight",
+  "technical_reviewer": "hard_overnight",
+  "review": "More than one known positive nonself parent track ID present in the same field spans is a contradiction, not an inferred biological merge. Exact {track} placeholder preserved. Unknown/missing/out-of-table IDs, first sentinel behavior and valid repeated identical parents remain unchanged. No tracking/inference/scientific performance claim.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Track {track} has conflicting known parent IDs in the lineage table.",
+      "source": "Track {track} has conflicting known parent IDs in the lineage table.",
+      "source_sha256": "a592f99452297b2824ba0dee998b1946b070b35d0dc90a8c743f38882a11c6de",
+      "translation": "Spur {track} hat widersprüchliche bekannte Eltern-IDs in der Abstammungstabelle."
+    }
+  ],
+  "independent_technical_peer": "Original Home root; immutable input hashes in features/data/537_parent_identity_2026-10-15/root-target-peer.json; no native-speaker signoff"
+}

@@ -1,0 +1,30 @@
+{
+  "public_base": "d4f9f21e70570e756d5776d96138d6740ef4f947",
+  "source_component": "422d368eb085cdab7c6c4275937168d864137e14",
+  "source_and_harness_byte_identical": true,
+  "all_other_module_AST_signatures_public_prose_identical": true,
+  "all_incoming_generated_API_runtime_tools_preserved": true,
+  "source_sha256": "7fb73ebf24cfd6f50da399f9465fc604824dbcb0afe74062621e30722607cff7",
+  "changed_paths": [
+    "features/data/633_measure_array_publication_2026-10-15/baseline.exit.gz",
+    "features/data/633_measure_array_publication_2026-10-15/baseline.log.gz",
+    "features/data/633_measure_array_publication_2026-10-15/baseline.sh.gz",
+    "features/data/633_measure_array_publication_2026-10-15/childless-waiter-cancellation.json.gz",
+    "features/data/633_measure_array_publication_2026-10-15/native-baseline.py.gz",
+    "features/data/633_measure_array_publication_2026-10-15/owning-small.sh.gz",
+    "features/data/633_measure_array_publication_2026-10-15/owning.exit.gz",
+    "features/data/633_measure_array_publication_2026-10-15/owning.log.gz",
+    "features/data/633_measure_array_publication_2026-10-15/owning.sh.gz",
+    "features/data/633_measure_array_publication_2026-10-15/owning.xml.gz",
+    "features/data/633_measure_array_publication_2026-10-15/proposed-source.patch.gz",
+    "features/data/633_measure_array_publication_2026-10-15/receipt.json",
+    "features/data/633_measure_array_publication_2026-10-15/regression-baseline.exit.gz",
+    "features/data/633_measure_array_publication_2026-10-15/regression-baseline.log.gz",
+    "features/data/633_measure_array_publication_2026-10-15/regression-baseline.sh.gz",
+    "features/data/633_measure_array_publication_2026-10-15/regression-baseline.xml.gz",
+    "features/data/633_measure_array_publication_2026-10-15/root-source-peer.json",
+    "features/new/633_test_data_for_every_module.txt",
+    "spacr/example_archives.py",
+    "tests/test_n633_measure_array_publication.py"
+  ]
+}

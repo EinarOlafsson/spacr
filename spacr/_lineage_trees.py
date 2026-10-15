@@ -35,7 +35,23 @@ def _lineage_explicit_parents(df, spans):
     if 'parent_track_id' not in df.columns:
         return {}
     links = {}
-    firsts = df.dropna(subset=['parent_track_id']).groupby('track_id')['parent_track_id'].first()
+    grouped = df.dropna(subset=['parent_track_id']).groupby('track_id')['parent_track_id']
+    for track, values in grouped:
+        known = set()
+        for value in values:
+            try:
+                parent = int(value)
+            except (TypeError, ValueError, OverflowError):
+                continue
+            if not isinstance(value, (str, bytes)) and value != parent:
+                continue
+            if parent > 0 and parent != int(track) and parent in spans.index:
+                known.add(parent)
+        if len(known) > 1:
+            from .qt.i18n import tr
+
+            raise ValueError(tr("Track {track} has conflicting known parent IDs in the lineage table.").format(track=track))
+    firsts = grouped.first()
     for track, parent in firsts.items():
         parent = int(parent)
         if parent > 0 and parent != int(track) and parent in spans.index:

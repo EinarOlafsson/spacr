@@ -1,0 +1,7 @@
+{
+  "reviewer": "Original Home root",
+  "proposal_sha256": "6d2ac53565890aa07df281f24f6c7698a8f3830b5bebb405c198a3cd9fa69ae9",
+  "decision": "approve exact finite manual-viability-cut guard",
+  "scope": "Retain float parsing and original malformed-input exception. Refuse nonfinite converted float outside catch, before appending/returning cuts. Preserve finite values, one/two entries, all blank/None/auto conventions, original table/settings, automatic calibration/algorithms and API prose.",
+  "evidence_needed": "Actual parser/classifier baseline, prior output database bytes protected on refusal, finite/blank controls; exact nine-target normal closure after owner extractor. No biological validation claim."
+}

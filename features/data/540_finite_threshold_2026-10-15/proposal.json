@@ -1,0 +1,6 @@
+{
+  "original_sha256": "f7c878839809eb0501838aae1c77456f954e71d9c4fadca057fb8ebea100ca12",
+  "proposed_sha256": "d066ff9901cb5042ebd224dba8cc9deb058c21cca1696f91f7bbb667ae064dc4",
+  "source": "Manual viability thresholds must be finite numbers or automatic.",
+  "scope": "Exactly _viability_manual; float parsing and malformed-input/automatic conventions unchanged; require finite converted numeric scalar before returning explicit manual cuts."
+}

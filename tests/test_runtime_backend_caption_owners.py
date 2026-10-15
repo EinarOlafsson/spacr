@@ -18,6 +18,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "install_cleanup.py", "settings.py", "object.py", "remote_execution.py",
         "attribution.py", "measure.py", "object_classifier.py", "core.py",
         "psf_pipeline.py",
+        "_lineage_trees.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
@@ -155,6 +156,18 @@ def test_unmixing_selector_caption_enters_only_through_its_owner(extract_backend
         f'def _prepare_unmixing():\n    raise ValueError(tr({caption!r}))\n') == {caption}
 
 
+def test_lineage_parent_identity_caption_enters_only_through_its_owner(extract_backend_sources):
+    caption = "Track {track} has conflicting known parent IDs in the lineage table."
+    assert extract_backend_sources('_lineage_trees.py',
+        f'def _lineage_explicit_parents():\n    raise ValueError(tr({caption!r}, track="t1"))\n') == {caption}
+
+
+def test_manual_viability_caption_enters_only_through_its_owner(extract_backend_sources):
+    caption = "Manual viability thresholds must be finite numbers or automatic."
+    assert extract_backend_sources('measure.py',
+        f'def _viability_manual():\n    raise ValueError(tr({caption!r}))\n') == {caption}
+
+
 @pytest.mark.parametrize('owner', ['_phases_by_xgboost', '_phases_by_torch'])
 def test_tabular_phase_holdout_caption_is_extracted(extract_backend_sources, owner):
     caption = "The requested acquisition groups cannot place every class in both training and held-out data."
@@ -168,6 +181,8 @@ def test_tabular_phase_holdout_caption_is_extracted(extract_backend_sources, own
     ('measure.py', '_phases_by_xgboost'),
     ('measure.py', '_phases_by_torch'),
     ('psf_pipeline.py', '_prepare_unmixing'),
+    ('_lineage_trees.py', '_lineage_explicit_parents'),
+    ('measure.py', '_viability_manual'),
 ])
 def test_new_backend_owners_do_not_admit_unrelated_diagnostics(
         extract_backend_sources, filename, owner):

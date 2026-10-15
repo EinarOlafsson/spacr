@@ -715,9 +715,17 @@ def expand_measure_arrays(merged: Path) -> None:
             archive.unlink(missing_ok=True)
             continue
         try:
-            with np.load(archive) as bundle:
-                key = "image" if "image" in bundle else bundle.files[0]
-                np.save(target, bundle[key])
+            from tempfile import TemporaryDirectory
+
+            with TemporaryDirectory(prefix=".spacr-array-", dir=merged) as staging:
+                staged = Path(staging) / "array.npy"
+                with np.load(archive) as bundle:
+                    key = "image" if "image" in bundle else bundle.files[0]
+                    with staged.open("wb") as output:
+                        np.save(output, bundle[key])
+                        output.flush()
+                        os.fsync(output.fileno())
+                os.link(staged, target)
             archive.unlink(missing_ok=True)
         except Exception:                                # noqa: BLE001
             LOG.warning("could not unpack %s", archive, exc_info=True)
