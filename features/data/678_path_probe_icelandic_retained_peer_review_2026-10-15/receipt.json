@@ -1,0 +1,40 @@
+{
+  "result": "PASS",
+  "review_kind": "Independent AI technical semantic review of one target; reviewer did not author source or translation. No native-speaker claim.",
+  "source_commit": "aa7b8b62104752de0d8d1316f05535ae29b6fc54",
+  "source_file_sha256": "7a617ca9623c977c14f00801a78290d8a9bff0667d8217c2c7772022050178e4",
+  "input_commit": "03f952534c072370dbc7a76ac2fd02a5d4fe1eb0",
+  "input_path": "docs/i18n/reviewed/api/is/2026-10-15-path-probe-icelandic-retained-home-b.json",
+  "input_sha256": "3583e0acabe21412b2dee610594f87492c72795440fcf6067409cec0a20ecd2d",
+  "record": {
+    "label": "spacr.qt.path_probe.isdir#4",
+    "source": "``wait`` is off by default. The freeze this module was written for came from statting remembered paths -- a passive pass over everything a settings file mentions, on the GUI thread, to colour the missing ones red. No user action waits on that pass, so answering from cache and checking later costs nothing.",
+    "context": "``wait`` is off by default. The freeze this module was written for came from statting remembered paths -- a passive pass over everything a settings file mentions, on the main GUI execution path, to colour the missing ones red. No user action waits on that pass, so answering from cache and checking later costs nothing.",
+    "source_sha256": "f04376a8b21112829887e296dedf8c20007ab126579733f96b162e1fe8a1e58e",
+    "translation": "``wait`` er sjálfgefið óvirkt. Frystingin sem þessi eining átti að leysa kom frá stat-athugunum á vistuðum slóðum — yfirferð á GUI-þræðinum yfir allt sem stillingaskrá nefnir, til að lita slóðir sem vantaði rauðar, án sérstakrar notandaaðgerðar. Engin aðgerð notandans bíður eftir þessari yfirferð, svo að svara úr skyndiminni og athuga síðar veldur engri viðbótarbið.",
+    "review_basis": "Exact-source technical translation of an existing Icelandic paragraph that was still untranslated English. Normal source gate refused that identity and the decoder guard stopped before catalog writes. GUI-thread passive stored-path checks, missing-path red display, and absence of a user action awaiting this check preserved. No source or validator changes; no native-speaker claim."
+  },
+  "context_sha256": "ce88ebfd079963734421049c5a406613dc391fec3bdf470849e8412f7fffa707",
+  "old_translation": "``wait`` is off by default. The freeze this module was written for came from statting remembered paths -- a passive pass over everything a settings file mentions, on the GUI thread, to colour the missing ones red. No user action waits on that pass, so answering from cache and checking later costs nothing.",
+  "old_target_sha256": "f04376a8b21112829887e296dedf8c20007ab126579733f96b162e1fe8a1e58e",
+  "target_sha256": "40e015de1e15fb0412ac186b8700752a4714688008a3bf16b028e32e83a76d0e",
+  "checked_semantics": [
+    "wait off by default",
+    "passive remembered-path stat on GUI thread to display missing paths in red",
+    "no user action waits for that passive pass",
+    "cached answer and later check introduce no additional user wait; no claim of zero CPU cost"
+  ],
+  "prior99_input_files_unchanged": {
+    "docs/i18n/reviewed/api/sv/2026-10-15-path-probe-lifecycle-home-b.json": "febd19de2cd337ff72a295ebd1ac299db5617c8b38d1d16b945582039f9e47ed",
+    "docs/i18n/reviewed/api/de/2026-10-15-path-probe-lifecycle-home-b.json": "b90b169acd6bc459068a60abd04336f6f8114db5dc5573a92d86880cf162a7ca",
+    "docs/i18n/reviewed/api/es/2026-10-15-path-probe-lifecycle-home-b.json": "0cedadacd47259ac03855c05fc681c2c0878bfae1ea36d5680bf428a811c2957",
+    "docs/i18n/reviewed/api/fr/2026-10-15-path-probe-lifecycle-home-b.json": "aa4f35fe62a749270692d02415cbef58294541421ce7072d6945d88cc7ae8235",
+    "docs/i18n/reviewed/api/pt/2026-10-15-path-probe-lifecycle-home-b.json": "6491b0f07edf473416f6c8123991d97856bb71bf4430893db004f2c8cd486333",
+    "docs/i18n/reviewed/api/is/2026-10-15-path-probe-lifecycle-home-b.json": "80b4e1432fdc2c2fda3463b3cb6ef376ad1687ab83c21ad8e36e2a49ce8ad095",
+    "docs/i18n/reviewed/api/zh_CN/2026-10-15-path-probe-lifecycle-home-b.json": "3569f3b24589db719d2a25c92f08504c87d70e326a679166a86b4aca70cb871a",
+    "docs/i18n/reviewed/api/hi/2026-10-15-path-probe-lifecycle-home-b.json": "19fbb42a7a2de9e0934ef928a2ac271d3b608cff480f3a1fc7a27e0b14e308da",
+    "docs/i18n/reviewed/api/ko/2026-10-15-path-probe-lifecycle-home-b.json": "fff83e556e3b14f2f9af84025db0f16c1386a893561ae1c12174b64be5b72a5e"
+  },
+  "validation_boundary": "Exact committed source/record/hash binding only; normal gates/generation owned by author, no duplicate generator/collector/tests.",
+  "limitations": "Only this formerly English identity block; no approval of other retained Icelandic paragraphs."
+}
