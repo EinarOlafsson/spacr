@@ -1,0 +1,101 @@
+{
+  "status": "INSTALLED_FUNCTIONAL_SMOKE_PASSED_WITH_EXPLICIT_OFFSCREEN_TIMING_MISS",
+  "source_pin": "b51fb194bb183990ab25c981d70e3030063bf9ac",
+  "unmodified_helper": "packaging/smoke_distribution_artifacts.py",
+  "helper_sha256": "4f322a6289a969bd8d25337ef1e0177dc48b243331140d8319ef1b05d3807c43",
+  "artifact_sha256_before": {
+    "spacr-1.5.1.4-py3-none-any.whl": "0be5f07cf06de0c5d0273267b9da2036378a8f3ad081596b556f71270fdf84ac",
+    "spacr-1.5.1.4.tar.gz": "b552e71a09f5448ec1e7f53a8c603ed45d3c3fdda39e5dc6db58a15f5b1936db"
+  },
+  "artifact_sha256_after": {
+    "spacr-1.5.1.4-py3-none-any.whl": "0be5f07cf06de0c5d0273267b9da2036378a8f3ad081596b556f71270fdf84ac",
+    "spacr-1.5.1.4.tar.gz": "b552e71a09f5448ec1e7f53a8c603ed45d3c3fdda39e5dc6db58a15f5b1936db"
+  },
+  "artifacts_unchanged": true,
+  "raw_normal_report": "full-smoke.json",
+  "normal_helper_exit": 0,
+  "normal_helper_status": "passed",
+  "dependency_preparation": {
+    "initial_offline_refusal": "PyWavelets<2,>=1.4 unavailable; preserved resolver.log/exit",
+    "active_direct_requirements": 65,
+    "missing_direct": [
+      "PyWavelets>=1.4,<2",
+      "pypdf>=6.16.1,<7",
+      "paramiko>=3.5,<5"
+    ],
+    "normal_online_full_graph_dryrun_exit": 0,
+    "pinned_download_wheel_count": 8,
+    "pinned_download_bytes": 11940827,
+    "no_torch_cuda_qt_numpy_replacement": true,
+    "normal_helper_initial_resolver": "Unmodified pip install candidate[qt], offline with local wheelhouse; no --no-deps bypass. Helper later per-format --no-deps installs remain unchanged normal protocol."
+  },
+  "execution": {
+    "python": "3.12.14",
+    "qt": "6.11.2",
+    "qt_platform": "offscreen",
+    "unit": "spacr-candidate-b51-installed-smoke-20261015.service",
+    "terminal": "inactive/MainPID0/ExecMainStatus0",
+    "memory_max_bytes": 8589934592,
+    "swap_max_bytes": 0,
+    "cpu_count": 1,
+    "thread_count": 1,
+    "outer_runtime_seconds": 1200,
+    "child_runtime_seconds": 1100,
+    "normal_inner_functional_timeout_seconds": 180,
+    "locks_released": true,
+    "CUDA_VISIBLE_DEVICES": "",
+    "SPACR_HOME": "unset",
+    "PYTHONPATH": "unset",
+    "home": "Private WD scratch, helper per-format temporary HOME remains unchanged."
+  },
+  "formats": [
+    {
+      "format": "wheel",
+      "status": "passed",
+      "installed_package": "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/__init__.py",
+      "origin_verified": true,
+      "entry_point": "spacr.qt.run",
+      "painted_usable_controls": 16,
+      "heavy_modules_at_ready": [],
+      "core_modules": [
+        "spacr.io",
+        "spacr.measure",
+        "spacr.utils",
+        "spacr.timelapse"
+      ],
+      "qt_screen": "measure",
+      "cli": {
+        "entrypoint": "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/bin/spacr-run",
+        "list_has_measure": true
+      },
+      "offscreen_home_seconds": 6.894123258534819,
+      "home_budget_seconds": 5.0,
+      "within_budget": false
+    },
+    {
+      "format": "sdist",
+      "status": "passed",
+      "installed_package": "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/__init__.py",
+      "origin_verified": true,
+      "entry_point": "spacr.qt.run",
+      "painted_usable_controls": 16,
+      "heavy_modules_at_ready": [],
+      "core_modules": [
+        "spacr.io",
+        "spacr.measure",
+        "spacr.utils",
+        "spacr.timelapse"
+      ],
+      "qt_screen": "measure",
+      "cli": {
+        "entrypoint": "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/bin/spacr-run",
+        "list_has_measure": true
+      },
+      "offscreen_home_seconds": 3.31832776684314,
+      "home_budget_seconds": 5.0,
+      "within_budget": true
+    }
+  ],
+  "scope_limit": "Targeted installed functional evidence from existing dependency base; not a clean full dependency matrix, native-display timing, GPU/model/scientific execution, fullN305, fullCI or1.5.1.5 release acceptance. Candidate VERSION remains1.5.1.4.",
+  "timing_disposition": "Wheel6.894123258534819s exceeds recorded5s field; sdist3.31832776684314s is within field. Original values and false verdict preserved; no rerun, threshold change or native-performance acceptance claimed."
+}

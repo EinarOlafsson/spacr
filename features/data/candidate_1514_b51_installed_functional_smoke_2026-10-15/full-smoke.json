@@ -1,0 +1,188 @@
+{
+  "artifacts": [
+    {
+      "artifact": "spacr-1.5.1.4-py3-none-any.whl",
+      "cli": {
+        "entrypoint": "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/bin/spacr-run",
+        "list_has_measure": true
+      },
+      "format": "wheel",
+      "home": {
+        "argv": [
+          "--no-setup"
+        ],
+        "artifact": "spacr-1.5.1.4-py3-none-any.whl",
+        "elapsed_seconds": 11.908,
+        "entry_point": "spacr.qt.run",
+        "environment": {
+          "executable": "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/bin/python",
+          "implementation": "CPython",
+          "logical_cpu_count": 32,
+          "machine": "x86_64",
+          "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+          "processor": "x86_64",
+          "python": "3.12.14",
+          "qt": "6.11.2",
+          "qt_platform": "offscreen"
+        },
+        "heavy_modules_at_ready": [],
+        "home_readiness": {
+          "at": 6.894123258534819,
+          "budget_s": 5.0,
+          "controls": [
+            "PrimaryButton",
+            "QScrollBar",
+            "GhostButton",
+            "HomePanelAction",
+            "HomeAsideTextSlider",
+            "QScrollBar",
+            "AppTile",
+            "AppTile"
+          ],
+          "detail": "__home__",
+          "duration_s": 6.894123258534819,
+          "event_loop_started_at": 6.764018128509633,
+          "name": "interactive Home",
+          "painted_usable_controls": 16,
+          "root_painted": true,
+          "screen_tree_painted": true,
+          "started_at": 0.0,
+          "thread": "MainThread",
+          "usable_controls": 27,
+          "within_budget": false
+        },
+        "installed_from": "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/__init__.py",
+        "origin_verified": true,
+        "returncode": 0,
+        "version": "1.5.1.4"
+      },
+      "install_seconds": 5.089,
+      "probe": {
+        "artifact": "spacr-1.5.1.4-py3-none-any.whl",
+        "core_modules": [
+          "spacr.io",
+          "spacr.measure",
+          "spacr.utils",
+          "spacr.timelapse"
+        ],
+        "elapsed_seconds": 8.975,
+        "environment": {
+          "executable": "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/bin/python",
+          "implementation": "CPython",
+          "logical_cpu_count": 32,
+          "machine": "x86_64",
+          "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+          "processor": "x86_64",
+          "python": "3.12.14"
+        },
+        "import_seconds": 7.665,
+        "installed_from": "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/__init__.py",
+        "origin_verified": true,
+        "qt_screen": "measure",
+        "qt_seconds": 1.311,
+        "version": "1.5.1.4"
+      },
+      "sha256": "0be5f07cf06de0c5d0273267b9da2036378a8f3ad081596b556f71270fdf84ac",
+      "status": "passed"
+    },
+    {
+      "artifact": "spacr-1.5.1.4.tar.gz",
+      "cli": {
+        "entrypoint": "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/bin/spacr-run",
+        "list_has_measure": true
+      },
+      "format": "sdist",
+      "home": {
+        "argv": [
+          "--no-setup"
+        ],
+        "artifact": "spacr-1.5.1.4.tar.gz",
+        "elapsed_seconds": 8.319,
+        "entry_point": "spacr.qt.run",
+        "environment": {
+          "executable": "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/bin/python",
+          "implementation": "CPython",
+          "logical_cpu_count": 32,
+          "machine": "x86_64",
+          "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+          "processor": "x86_64",
+          "python": "3.12.14",
+          "qt": "6.11.2",
+          "qt_platform": "offscreen"
+        },
+        "heavy_modules_at_ready": [],
+        "home_readiness": {
+          "at": 3.31832776684314,
+          "budget_s": 5.0,
+          "controls": [
+            "PrimaryButton",
+            "QScrollBar",
+            "GhostButton",
+            "HomePanelAction",
+            "HomeAsideTextSlider",
+            "QScrollBar",
+            "AppTile",
+            "AppTile"
+          ],
+          "detail": "__home__",
+          "duration_s": 3.31832776684314,
+          "event_loop_started_at": 3.2362445688340813,
+          "name": "interactive Home",
+          "painted_usable_controls": 16,
+          "root_painted": true,
+          "screen_tree_painted": true,
+          "started_at": 0.0,
+          "thread": "MainThread",
+          "usable_controls": 27,
+          "within_budget": true
+        },
+        "installed_from": "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/__init__.py",
+        "origin_verified": true,
+        "returncode": 0,
+        "version": "1.5.1.4"
+      },
+      "install_seconds": 11.662,
+      "probe": {
+        "artifact": "spacr-1.5.1.4.tar.gz",
+        "core_modules": [
+          "spacr.io",
+          "spacr.measure",
+          "spacr.utils",
+          "spacr.timelapse"
+        ],
+        "elapsed_seconds": 4.825,
+        "environment": {
+          "executable": "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/bin/python",
+          "implementation": "CPython",
+          "logical_cpu_count": 32,
+          "machine": "x86_64",
+          "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+          "processor": "x86_64",
+          "python": "3.12.14"
+        },
+        "import_seconds": 3.857,
+        "installed_from": "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/__init__.py",
+        "origin_verified": true,
+        "qt_screen": "measure",
+        "qt_seconds": 0.967,
+        "version": "1.5.1.4"
+      },
+      "sha256": "b552e71a09f5448ec1e7f53a8c603ed45d3c3fdda39e5dc6db58a15f5b1936db",
+      "status": "passed"
+    }
+  ],
+  "dependency_prepare_seconds": 10.561,
+  "environment": {
+    "executable": "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/bin/python",
+    "implementation": "CPython",
+    "logical_cpu_count": 32,
+    "machine": "x86_64",
+    "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+    "processor": "x86_64",
+    "python": "3.12.14"
+  },
+  "functional_timeout_seconds": 180,
+  "python": "3.12.14 | packaged by Anaconda, Inc. | (main, Aug 27 2026, 14:46:43) [GCC 14.3.0]",
+  "schema_version": 1,
+  "status": "passed"
+}

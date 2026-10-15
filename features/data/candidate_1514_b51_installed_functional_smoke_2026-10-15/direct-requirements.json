@@ -1,0 +1,498 @@
+{
+  "candidate_version": "1.5.1.4",
+  "python_markers": {
+    "implementation_name": "cpython",
+    "implementation_version": "3.12.14",
+    "os_name": "posix",
+    "platform_machine": "x86_64",
+    "platform_release": "7.0.0-38-generic",
+    "platform_system": "Linux",
+    "platform_version": "#38~24.04.4-Ubuntu SMP PREEMPT_DYNAMIC Mon Sep 14 16:37:11 UTC 2",
+    "python_full_version": "3.12.14",
+    "platform_python_implementation": "CPython",
+    "python_version": "3.12",
+    "sys_platform": "linux",
+    "extra": "qt"
+  },
+  "active_direct_count": 65,
+  "missing_or_incompatible": [
+    {
+      "requirement": "PyWavelets<2,>=1.4",
+      "name": "PyWavelets",
+      "installed": null,
+      "status": "missing",
+      "metadata_path": null
+    },
+    {
+      "requirement": "pypdf<7.0,>=6.16.1",
+      "name": "pypdf",
+      "installed": null,
+      "status": "missing",
+      "metadata_path": null
+    },
+    {
+      "requirement": "paramiko<5,>=3.5",
+      "name": "paramiko",
+      "installed": null,
+      "status": "missing",
+      "metadata_path": null
+    }
+  ],
+  "all_active_direct": [
+    {
+      "requirement": "packaging>=21.3",
+      "name": "packaging",
+      "installed": "26.3",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/packaging-26.3.dist-info"
+    },
+    {
+      "requirement": "numpy<3.0,>=1.26.4",
+      "name": "numpy",
+      "installed": "2.5.2",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numpy-2.5.2.dist-info"
+    },
+    {
+      "requirement": "pandas<4.0,>=2.2.1",
+      "name": "pandas",
+      "installed": "3.0.5",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/pandas-3.0.5.dist-info"
+    },
+    {
+      "requirement": "scipy<2.0,>=1.12.0",
+      "name": "scipy",
+      "installed": "1.18.1",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/scipy-1.18.1.dist-info"
+    },
+    {
+      "requirement": "cellpose<5.0,>=4.0.7",
+      "name": "cellpose",
+      "installed": "4.2.1.1",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/cellpose-4.2.1.1.dist-info"
+    },
+    {
+      "requirement": "scikit-image<0.28,>=0.22.0",
+      "name": "scikit-image",
+      "installed": "0.26.0",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/scikit_image-0.26.0.dist-info"
+    },
+    {
+      "requirement": "PyWavelets<2,>=1.4",
+      "name": "PyWavelets",
+      "installed": null,
+      "status": "missing",
+      "metadata_path": null
+    },
+    {
+      "requirement": "scikit-learn<2.0,>=1.5.0",
+      "name": "scikit-learn",
+      "installed": "1.9.0",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/scikit_learn-1.9.0.dist-info"
+    },
+    {
+      "requirement": "scikit-posthocs<0.20,>=0.10.0",
+      "name": "scikit-posthocs",
+      "installed": "0.16.1",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/scikit_posthocs-0.16.1.dist-info"
+    },
+    {
+      "requirement": "trackpy<1.0,>=0.6.2",
+      "name": "trackpy",
+      "installed": "0.7",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/trackpy-0.7.dist-info"
+    },
+    {
+      "requirement": "statsmodels<0.15,>=0.14.0",
+      "name": "statsmodels",
+      "installed": "0.14.6",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/statsmodels-0.14.6.dist-info"
+    },
+    {
+      "requirement": "patsy<2.0,>=0.5.6",
+      "name": "patsy",
+      "installed": "1.0.3",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/patsy-1.0.3.dist-info"
+    },
+    {
+      "requirement": "shap<1.0,>=0.47.0",
+      "name": "shap",
+      "installed": "0.52.0",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/shap-0.52.0.dist-info"
+    },
+    {
+      "requirement": "torch<3.0,>=2.0; sys_platform != \"darwin\" or platform_machine != \"x86_64\" or python_version < \"3.13\"",
+      "name": "torch",
+      "installed": "2.13.0",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/torch-2.13.0.dist-info"
+    },
+    {
+      "requirement": "pyfixest<1,>=0.40.1; python_version >= \"3.10\"",
+      "name": "pyfixest",
+      "installed": "0.60.0",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/pyfixest-0.60.0.dist-info"
+    },
+    {
+      "requirement": "glum<4,>=3.1.2; python_version >= \"3.10\"",
+      "name": "glum",
+      "installed": "3.4.1",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/glum-3.4.1.dist-info"
+    },
+    {
+      "requirement": "gpytorch<2,>=1.11; python_version >= \"3.10\"",
+      "name": "gpytorch",
+      "installed": "1.15.2",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/gpytorch-1.15.2.dist-info"
+    },
+    {
+      "requirement": "tensorboard<3.0,>=2.21",
+      "name": "tensorboard",
+      "installed": "2.21.0",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/tensorboard-2.21.0.dist-info"
+    },
+    {
+      "requirement": "numba<1.0,>=0.60; sys_platform != \"darwin\" or platform_machine != \"x86_64\"",
+      "name": "numba",
+      "installed": "0.67.0",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba-0.67.0.dist-info"
+    },
+    {
+      "requirement": "llvmlite<1.0,>=0.43; sys_platform != \"darwin\" or platform_machine != \"x86_64\"",
+      "name": "llvmlite",
+      "installed": "0.49.0",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/llvmlite-0.49.0.dist-info"
+    },
+    {
+      "requirement": "torchvision<1.0,>=0.15; sys_platform != \"darwin\" or platform_machine != \"x86_64\" or python_version < \"3.13\"",
+      "name": "torchvision",
+      "installed": "0.28.0",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/torchvision-0.28.0.dist-info"
+    },
+    {
+      "requirement": "captum<1.0,>=0.7.0",
+      "name": "captum",
+      "installed": "0.9.0",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/captum-0.9.0.dist-info"
+    },
+    {
+      "requirement": "seaborn<1.0,>=0.13.2",
+      "name": "seaborn",
+      "installed": "0.13.2",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/seaborn-0.13.2.dist-info"
+    },
+    {
+      "requirement": "matplotlib<4.0,>=3.8.3",
+      "name": "matplotlib",
+      "installed": "3.11.1",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/matplotlib-3.11.1.dist-info"
+    },
+    {
+      "requirement": "matplotlib_venn<2.0,>=1.1",
+      "name": "matplotlib_venn",
+      "installed": "1.1.2",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/matplotlib_venn-1.1.2.dist-info"
+    },
+    {
+      "requirement": "pypdf<7.0,>=6.16.1",
+      "name": "pypdf",
+      "installed": null,
+      "status": "missing",
+      "metadata_path": null
+    },
+    {
+      "requirement": "cycler<1,>=0.10",
+      "name": "cycler",
+      "installed": "0.12.1",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/cycler-0.12.1.dist-info"
+    },
+    {
+      "requirement": "PySide6<7,>=6.6",
+      "name": "PySide6",
+      "installed": "6.11.2",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/pyside6-6.11.2.dist-info"
+    },
+    {
+      "requirement": "qtawesome<2,>=1.3",
+      "name": "qtawesome",
+      "installed": "1.4.2",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/qtawesome-1.4.2.dist-info"
+    },
+    {
+      "requirement": "pyqtgraph<1,>=0.13.3",
+      "name": "pyqtgraph",
+      "installed": "0.14.0",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/pyqtgraph-0.14.0.dist-info"
+    },
+    {
+      "requirement": "mpmath<2,>=1.3",
+      "name": "mpmath",
+      "installed": "1.3.0",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/mpmath-1.3.0.dist-info"
+    },
+    {
+      "requirement": "vispy<1.0,>=0.14",
+      "name": "vispy",
+      "installed": "0.16.2",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/vispy-0.16.2.dist-info"
+    },
+    {
+      "requirement": "adjustText<2.0,>=1.2.0",
+      "name": "adjustText",
+      "installed": "1.4.0",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/adjusttext-1.4.0.dist-info"
+    },
+    {
+      "requirement": "bottleneck<2.0,>=1.3.6",
+      "name": "bottleneck",
+      "installed": "1.6.0",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/bottleneck-1.6.0.dist-info"
+    },
+    {
+      "requirement": "numexpr<3.0,>=2.8.4",
+      "name": "numexpr",
+      "installed": "2.14.2",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numexpr-2.14.2.dist-info"
+    },
+    {
+      "requirement": "opencv-python-headless<5.0,>=4.9.0.80",
+      "name": "opencv-python-headless",
+      "installed": "4.14.0.94",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/opencv_python_headless-4.14.0.94.dist-info"
+    },
+    {
+      "requirement": "pillow<13,>=10.2.0",
+      "name": "pillow",
+      "installed": "12.3.0",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/pillow-12.3.0.dist-info"
+    },
+    {
+      "requirement": "tifffile>=2023.4.12",
+      "name": "tifffile",
+      "installed": "2026.8.23",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/tifffile-2026.8.23.dist-info"
+    },
+    {
+      "requirement": "nd2reader<4.0,>=3.3.0",
+      "name": "nd2reader",
+      "installed": "3.3.1",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/nd2reader-3.3.1.dist-info"
+    },
+    {
+      "requirement": "czifile",
+      "name": "czifile",
+      "installed": "2026.8.16",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/czifile-2026.8.16.dist-info"
+    },
+    {
+      "requirement": "readlif",
+      "name": "readlif",
+      "installed": "0.6.6",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/readlif-0.6.6.dist-info"
+    },
+    {
+      "requirement": "openpyxl<4.0,>=3.1",
+      "name": "openpyxl",
+      "installed": "3.1.5",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/openpyxl-3.1.5.dist-info"
+    },
+    {
+      "requirement": "imageio<3.0,>=2.34.0",
+      "name": "imageio",
+      "installed": "2.37.4",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/imageio-2.37.4.dist-info"
+    },
+    {
+      "requirement": "umap-learn<1.0,>=0.5.11",
+      "name": "umap-learn",
+      "installed": "0.5.12",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/umap_learn-0.5.12.dist-info"
+    },
+    {
+      "requirement": "xgboost<4,>=2.0.3",
+      "name": "xgboost",
+      "installed": "3.4.1",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/xgboost-3.4.1.dist-info"
+    },
+    {
+      "requirement": "biopython<2.0,>=1.80",
+      "name": "biopython",
+      "installed": "1.88",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/biopython-1.88.dist-info"
+    },
+    {
+      "requirement": "lxml>=5.1.0",
+      "name": "lxml",
+      "installed": "6.1.2",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/lxml-6.1.2.dist-info"
+    },
+    {
+      "requirement": "psutil<8,>=5.9.8",
+      "name": "psutil",
+      "installed": "7.2.2",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/psutil-7.2.2.dist-info"
+    },
+    {
+      "requirement": "gputil<2.0,>=1.4.0",
+      "name": "gputil",
+      "installed": "1.4.0",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/GPUtil-1.4.0.dist-info"
+    },
+    {
+      "requirement": "nvidia-ml-py<14,>=11.450.51",
+      "name": "nvidia-ml-py",
+      "installed": "13.610.43",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/nvidia_ml_py-13.610.43.dist-info"
+    },
+    {
+      "requirement": "tables<4.0,>=3.8.0",
+      "name": "tables",
+      "installed": "3.11.1",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/tables-3.11.1.dist-info"
+    },
+    {
+      "requirement": "fastremap>=1.14.1",
+      "name": "fastremap",
+      "installed": "1.20.0",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/fastremap-1.20.0.dist-info"
+    },
+    {
+      "requirement": "tqdm>=4.65.0",
+      "name": "tqdm",
+      "installed": "4.70.0",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/tqdm-4.70.0.dist-info"
+    },
+    {
+      "requirement": "requests<3.0,>=2.28",
+      "name": "requests",
+      "installed": "2.34.2",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/requests-2.34.2.dist-info"
+    },
+    {
+      "requirement": "paramiko<5,>=3.5",
+      "name": "paramiko",
+      "installed": null,
+      "status": "missing",
+      "metadata_path": null
+    },
+    {
+      "requirement": "joblib<2.0,>=1.2",
+      "name": "joblib",
+      "installed": "1.6.0",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/joblib-1.6.0.dist-info"
+    },
+    {
+      "requirement": "cloudpickle<4,>=3.1.2",
+      "name": "cloudpickle",
+      "installed": "3.1.2",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/cloudpickle-3.1.2.dist-info"
+    },
+    {
+      "requirement": "natsort<9.0,>=8.0",
+      "name": "natsort",
+      "installed": "8.4.0",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/natsort-8.4.0.dist-info"
+    },
+    {
+      "requirement": "IPython<10,>=8.18.1",
+      "name": "IPython",
+      "installed": "9.17.1",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/ipython-9.17.1.dist-info"
+    },
+    {
+      "requirement": "ipywidgets<9.0,>=8.1.2",
+      "name": "ipywidgets",
+      "installed": "8.1.9",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/ipywidgets-8.1.9.dist-info"
+    },
+    {
+      "requirement": "huggingface-hub<1.0,>=0.25",
+      "name": "huggingface-hub",
+      "installed": "0.36.2",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/huggingface_hub-0.36.2.dist-info"
+    },
+    {
+      "requirement": "protobuf>=5.28.3",
+      "name": "protobuf",
+      "installed": "7.36.1",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/protobuf-7.36.1.dist-info"
+    },
+    {
+      "requirement": "PySide6<7,>=6.6; extra == \"qt\"",
+      "name": "PySide6",
+      "installed": "6.11.2",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/pyside6-6.11.2.dist-info"
+    },
+    {
+      "requirement": "qtawesome<2,>=1.3; extra == \"qt\"",
+      "name": "qtawesome",
+      "installed": "1.4.2",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/qtawesome-1.4.2.dist-info"
+    },
+    {
+      "requirement": "pyqtgraph<1,>=0.13.3; extra == \"qt\"",
+      "name": "pyqtgraph",
+      "installed": "0.14.0",
+      "status": "satisfied",
+      "metadata_path": "/home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/pyqtgraph-0.14.0.dist-info"
+    }
+  ]
+}
