@@ -6546,6 +6546,32 @@ def _for_object(object_type):
     return f" for {object_type}" if object_type else ""
 
 
+def _cellpose_stock_preflight(pretrained):
+    """Return a resolved checkpoint after the stock offline existence check.
+
+    :param pretrained: existing local path or resolved installed stock name.
+    :returns: the unchanged checkpoint string.
+    :raises ModelUnreadable: when automatic downloads are disabled and an
+        installed stock model has no existing local or regular cache file.
+    """
+    if (os.environ.get("SPACR_MODEL_DOWNLOAD", "").strip().casefold()
+            in ("0", "off", "false", "no")
+            and pretrained in _installed_cellpose_models()
+            and not os.path.isfile(pretrained)):
+        cache_root = getattr(cp_models, "MODEL_DIR", os.path.join(
+            os.path.expanduser("~"), ".cellpose", "models"))
+        cached = os.path.join(os.fspath(cache_root), pretrained)
+        if not os.path.isfile(cached):
+            from .model_zoo import ModelUnreadable
+            from .qt.i18n import tr
+
+            raise ModelUnreadable(tr(
+                "Automatic model downloads are disabled by SPACR_MODEL_DOWNLOAD. Cellpose stock model {model} is not cached at {path}. Provide its existing checkpoint or download it before running offline.",
+                model=repr(pretrained), path=cached))
+
+    return pretrained
+
+
 def _resolve_cellpose_pretrained(model_name, object_type=None, restore_type=None):
     """Return the ``pretrained_model`` string Cellpose 4 should actually load.
 
@@ -6593,7 +6619,7 @@ def _resolve_cellpose_pretrained(model_name, object_type=None, restore_type=None
             _report_cellpose_once(
                 ('stock', name, object_type),
                 f"Using Cellpose model {name!r}{clause}.")
-        return name
+        return _cellpose_stock_preflight(name)
 
     if name and name not in LEGACY_CELLPOSE_MODELS and name != CPSAM_MODEL:
         if os.path.isfile(name):
@@ -6615,7 +6641,7 @@ def _resolve_cellpose_pretrained(model_name, object_type=None, restore_type=None
                 f"fall back to the stock cpsam weights, so this stops instead. "
                 f"Check the path, or use 'cpsam' for the stock model.")
         if name == 'sam':
-            return CPSAM_MODEL
+            return _cellpose_stock_preflight(CPSAM_MODEL)
 
         from .model_zoo import ModelZooError
         from .qt.i18n import tr
@@ -6629,7 +6655,7 @@ def _resolve_cellpose_pretrained(model_name, object_type=None, restore_type=None
             f"Cellpose model {name!r} predates Cellpose-SAM and is no longer "
             f"available; using 'cpsam'{clause}.")
 
-    return CPSAM_MODEL
+    return _cellpose_stock_preflight(CPSAM_MODEL)
 
 
 def _choose_model(model_name, device, object_type=None, restore_type=None, object_settings=None):
@@ -6658,21 +6684,6 @@ def _choose_model(model_name, device, object_type=None, restore_type=None, objec
 
     pretrained = _resolve_cellpose_pretrained(
         model_name, object_type=object_type, restore_type=restore_type)
-
-    if (os.environ.get("SPACR_MODEL_DOWNLOAD", "").strip().casefold()
-            in ("0", "off", "false", "no")
-            and pretrained in _installed_cellpose_models()
-            and not os.path.isfile(pretrained)):
-        cache_root = getattr(cp_models, "MODEL_DIR", os.path.join(
-            os.path.expanduser("~"), ".cellpose", "models"))
-        cached = os.path.join(os.fspath(cache_root), pretrained)
-        if not os.path.isfile(cached):
-            from .model_zoo import ModelUnreadable
-            from .qt.i18n import tr
-
-            raise ModelUnreadable(tr(
-                "Automatic model downloads are disabled by SPACR_MODEL_DOWNLOAD. Cellpose stock model {model} is not cached at {path}. Provide its existing checkpoint or download it before running offline.",
-                model=repr(pretrained), path=cached))
 
     from .accelerator import cellpose_kwargs
 

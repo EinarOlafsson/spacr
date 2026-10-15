@@ -1415,7 +1415,9 @@ def _resolve_training_base(requested):
         return str(resolved)
     if '/' in name or '\\' in name or name.startswith('~'):
         raise ModelZooMissing(name)
-    return name
+    from .utils import _resolve_cellpose_pretrained
+
+    return _resolve_cellpose_pretrained(name)
 
 
 #: The plaque model a run segments with when none is named: the cpsam_v2
