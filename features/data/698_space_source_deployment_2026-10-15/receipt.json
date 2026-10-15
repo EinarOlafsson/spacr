@@ -1,0 +1,124 @@
+{
+  "scope": "Actual source upload success followed by terminal managed BUILD_ERROR; not N698 completion.",
+  "source_commit": "35aeaa9ddc1f09cbd85fe75617a68df81adade0f",
+  "space_commit": "66ac681d3040aab1823aed0bf16b4ed5c89589f7",
+  "repo": "einarolafsson/spacr-mask-generator",
+  "payload_files": 1182,
+  "provider_extra": [
+    ".gitattributes"
+  ],
+  "verified_all_payloads": true,
+  "actual_public_control_byte_checks": 8,
+  "managed_runtime_stage": "BUILD_ERROR",
+  "managed_hardware": {
+    "current": null,
+    "requested": "zero-a10g"
+  },
+  "exact_failure": "ERROR: Directory '.[plaque]' is not installable. Neither 'setup.py' nor 'pyproject.toml' found.",
+  "cause": "Observed provider installs mounted requirements in base layer before copying source to /app. Actual payload includes setup.py/pyproject.toml; unavailable in that earlier layer. Startup/model provisioning never reached.",
+  "correction": "Original1183bundle false weight-exclusion claim preserved. Exact legacyCP_model detected and removed before create/upload; no checkpoint uploaded. First source upload timed out and exact empty remote parent was confirmed. Parent separately authorized one successful upload-only retry, all evidence retained.",
+  "limits": [
+    "No build/native/startup/model/GPU/hosted inference/parity acceptance.",
+    "No model checkpoints downloaded or executed locally.",
+    "No paid/storage/secrets/otherSpace changes.",
+    "This evidence commit does not change the live service or packaging source."
+  ],
+  "files": {
+    "account-capacity-snapshot.json": {
+      "sha256": "0573dd4cbe0f5da7612605781b578c0d119ffbfacbc3275ec5874d3875c57593",
+      "bytes": 1622
+    },
+    "source-staging-35aeaa9ddc.json.gz": {
+      "sha256": "3c32abfe5346531cdd7339b5228cdf7334604691880a82613ed3fa4ae8fb8987",
+      "bytes": 102026
+    },
+    "deployment-retry-events.jsonl.gz": {
+      "sha256": "4c67f050800360c985f613732e45be27db03e87fbc40c2ee754f86431a00cd88",
+      "bytes": 530
+    },
+    "read-build-once.py": {
+      "sha256": "19160f68b67da166a0b682af9d027c550279120d0eed122f763d60f12258a45a",
+      "bytes": 2531
+    },
+    "source-deployment-receipt.json": {
+      "sha256": "897547849dcaa20a142efbf9f6c2e5e512f1a92ea0f9fe0486ddd896d05c321e",
+      "bytes": 4229
+    },
+    "prepare-bundle-no-weights.py": {
+      "sha256": "f1708b763e3f6e76c22dabb089646891897b6e6b70b017e6dab973ce97ebf198",
+      "bytes": 4429
+    },
+    "source-staging-35aeaa9ddc-no-weights.json.gz": {
+      "sha256": "bc30e8d871348c4590c2a42a528d9f632f1befb49a710493b44ede917258b6c8",
+      "bytes": 102007
+    },
+    "deployment-retry.log.gz": {
+      "sha256": "4c5d49ca190da0ca1de1c5ed212f8f13e65a1413ad475a7f1052345ac44161bb",
+      "bytes": 760
+    },
+    "capacity-source-review.json": {
+      "sha256": "a17d630ed4655d6dd469a54978b806c34e26fa6a88620d1bb7186d598e03e011",
+      "bytes": 5111
+    },
+    "deployment.exit": {
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    "deployment-retry-result.json": {
+      "sha256": "15007b8dba63030129af623fbd2d5c91050bb7d3b20919a07d030924440917d0",
+      "bytes": 1613
+    },
+    "root-free-deployment-authorization.json": {
+      "sha256": "f6a2841a1c3d5639fb8d03c1ecc1f01c8ab75bb9646c7774864492a8c48413cb",
+      "bytes": 2431
+    },
+    "deployment-retry-all-payload-readback.json.gz": {
+      "sha256": "2dfc8a457e9eb231be92035da6be6f559757affc53ee8c1abcf78dfd550c8c0d",
+      "bytes": 53620
+    },
+    "root-free-deployment-authorization-original-1183.json": {
+      "sha256": "edd6226dd477218aada7039ecc27710989e63320f298f6cb17a63170fe0d376d",
+      "bytes": 1637
+    },
+    "deployment-events.jsonl.gz": {
+      "sha256": "c1b1e65cd453a9b4ef014aaca31c45c5b9ef61bd171d1ad54c6297afa56008e0",
+      "bytes": 701
+    },
+    "deployment-result.json": {
+      "sha256": "c05c4fd134477f312d79df23413ddb9c65383bc901dd63907add8c178d1fbb7b",
+      "bytes": 1567
+    },
+    "deploy-once.py": {
+      "sha256": "c48c39e5865ba687f53711f40ee2c4b36aa24e40db268d462839628489032c3a",
+      "bytes": 11949
+    },
+    "deploy-upload-retry-once.py": {
+      "sha256": "2b8ad28006be8f27be55d0cd6cc5aa99c1110a33697c55f917c080fa04b306b3",
+      "bytes": 8709
+    },
+    "read-build-once.exit": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    "managed-build-snapshot.json": {
+      "sha256": "234467505b7d8a68f9ef8161b4882a02e826828f9509c51aa178fb54334022cf",
+      "bytes": 1747
+    },
+    "managed-build-snapshot.log.gz": {
+      "sha256": "8e278aadf6248b7c2e9df32f46a35e1a67d857a3f2146bf5e369e448de9adfa1",
+      "bytes": 869
+    },
+    "post-timeout-remote-reconciliation.json": {
+      "sha256": "801fa8158855321a737e9fcb7c5a45299f5581245f37f13cbb9eadd73c4d6778",
+      "bytes": 800
+    },
+    "deployment-retry.exit": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    "deployment.log.gz": {
+      "sha256": "187d03fee030c38e3afdd7e14a5b72541a3f91036ee752a7a608d3c070cf4b08",
+      "bytes": 2030
+    }
+  }
+}
