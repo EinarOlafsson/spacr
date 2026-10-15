@@ -132,6 +132,43 @@ def test_optional_pdf_is_paired_after_distinct_bundle_digest_names(qtbot, tmp_pa
     assert all(path.read_bytes() == content for path, content in carried.items())
 
 
+def test_missing_preview_retains_carried_pdf_through_restore_and_resave(qtbot, tmp_path):
+    from PySide6.QtGui import QPainter, QPdfWriter
+
+    first, second = FigureQueue(), FigureQueue()
+    for queue in (first, second):
+        qtbot.addWidget(queue)
+    original_png = append_raster(first, tmp_path, "vector-only", "green")
+    pdf = original_png.with_suffix(".pdf")
+    writer = QPdfWriter(str(pdf))
+    painter = QPainter(writer)
+    painter.drawText(30, 30, "Retained vector figure")
+    painter.end()
+    del writer
+    original_pdf = pdf.read_bytes()
+    run = tmp_path / "original-run"
+    workspace.save(run, workspace.collect({"queue": first}), mode="reference")
+    first.close()
+    document = workspace.load(run)
+    png_record = next(row for row in document["files"] if row["path"].endswith(".png"))
+    (run / png_record["copied"]).unlink()
+    report = workspace.restore({"queue": second}, document, run_dir=run)
+    assert report["restored"] == ["queue"]
+    assert any(row["state"] == "missing" and row["path"] == str(original_png)
+               for row in report["files"])
+    state = second.workspace_state()
+    assert Path(state["figures"][0]["pdf"]).read_bytes() == original_pdf
+    assert Path(second._png_paths[0]).with_suffix(".pdf").read_bytes() == original_pdf
+    saved_again = tmp_path / "saved-again"
+    workspace.save(saved_again, workspace.collect({"queue": second}), mode="reference")
+    copy = next((saved_again / workspace.FILES_DIR).glob("*.pdf"))
+    assert copy.read_bytes() == original_pdf
+    second.close()
+    first_copy = next((run / workspace.FILES_DIR).glob("*.pdf"))
+    assert first_copy.read_bytes() == original_pdf
+    assert copy.read_bytes() == original_pdf
+
+
 @pytest.mark.parametrize("change", [
     {"version": 2}, {"current": True}, {"current": 99}, {"figures": "invalid"},
     {"figures": [{"png": "/tmp/data.pkl", "title": "unsafe"}]},

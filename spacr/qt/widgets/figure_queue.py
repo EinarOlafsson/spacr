@@ -1506,8 +1506,7 @@ class FigureQueue(QWidget):
                                 return False
                     destination = target if kind == "png" else _sibling_pdf(target)
                     shutil.copyfile(path, destination)
-                    if kind == "png":
-                        paths[index] = str(destination)
+                    paths[index] = str(target)
             self.clear()
             self._tempdir = staged
             adopted = True
