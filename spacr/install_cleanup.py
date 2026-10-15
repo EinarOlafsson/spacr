@@ -58,6 +58,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import threading
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass, field, replace
 from typing import Callable, Dict, Iterable, List, Optional, Sequence, Tuple
@@ -4846,22 +4847,107 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     return 0
 
 
-def preview_optional_cleanup(operation_id, *, system=None):
-    """Inspect dedicated cache layouts without granting removal permission.
+_OPTIONAL_CLEANUP_ACTIONS = set()
+_OPTIONAL_CLEANUP_ACTION_LOCK = threading.Lock()
+
+
+def _optional_cleanup_identity(details):
+    """Describe a non-linked cache entry without reading its payload."""
+    if stat.S_ISLNK(details.st_mode):
+        raise ValueError("link")
+    return (details.st_dev, details.st_ino, details.st_mode, details.st_size,
+            details.st_mtime_ns, details.st_ctime_ns)
+
+
+def _optional_cleanup_directory(path):
+    """Open each absolute directory component without following a link."""
+    if not hasattr(os, "O_DIRECTORY") or not hasattr(os, "O_NOFOLLOW"):
+        raise ValueError("no_nofollow_directory_support")
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    descriptor = os.open(os.sep, flags)
+    try:
+        for component in os.path.abspath(path).split(os.sep):
+            if component:
+                child = os.open(component, flags, dir_fd=descriptor)
+                os.close(descriptor)
+                descriptor = child
+        return descriptor
+    except BaseException:
+        os.close(descriptor)
+        raise
+
+
+def _optional_cleanup_tree(descriptor, key):
+    """Inventory only bounded writer-known entries through held directory descriptors."""
+    import re
+    from types import MappingProxyType
+
+    patterns = {
+        "news": r"releases\.json",
+        "backgrounds": r"space-[A-Za-z0-9_-]+-[0-9]+x[0-9]+-s-?[0-9]+-v[0-9]+\.png",
+        "icons": r".+-[0-9a-f]{20}\.png",
+        "sounds": r"[A-Za-z0-9_-]+-[0-9a-f]{12}/(?:click-[0-3]|hover-[0-3]|run_finished|run_failed|bed)\.wav",
+    }
+    root_identity = _optional_cleanup_identity(os.fstat(descriptor))
+    entries = [("", root_identity)]
+    contents = []
+    total = 0
+    with os.scandir(descriptor) as scan:
+        for entry in scan:
+            if len(entries) >= 512:
+                raise ValueError("budget")
+            item = _optional_cleanup_identity(os.stat(entry.name, dir_fd=descriptor, follow_symlinks=False))
+            entries.append((entry.name, item))
+            if stat.S_ISDIR(item[2]) and key == "sounds":
+                if not re.fullmatch(r"[A-Za-z0-9_-]+-[0-9a-f]{12}", entry.name):
+                    raise ValueError("layout")
+                child_fd = os.open(entry.name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=descriptor)
+                try:
+                    if _optional_cleanup_identity(os.fstat(child_fd)) != item:
+                        raise ValueError("changed")
+                    with os.scandir(child_fd) as children:
+                        for child in children:
+                            if len(entries) >= 512:
+                                raise ValueError("budget")
+                            relative = entry.name + "/" + child.name
+                            details = _optional_cleanup_identity(os.stat(child.name, dir_fd=child_fd, follow_symlinks=False))
+                            entries.append((relative, details))
+                            if not stat.S_ISREG(details[2]) or not re.fullmatch(patterns[key], relative):
+                                raise ValueError("layout")
+                            total += details[3]
+                            contents.append(MappingProxyType({"name": relative, "size_bytes": details[3]}))
+                finally:
+                    os.close(child_fd)
+            elif stat.S_ISREG(item[2]) and re.fullmatch(patterns[key], entry.name):
+                total += item[3]
+                contents.append(MappingProxyType({"name": entry.name, "size_bytes": item[3]}))
+            else:
+                raise ValueError("layout")
+    if _optional_cleanup_identity(os.fstat(descriptor)) != root_identity:
+        raise ValueError("changed")
+    contents.sort(key=lambda row: row["name"])
+    return root_identity, tuple(sorted(entries)), tuple(contents), total
+
+
+def preview_optional_cleanup(operation_id, *, system=None, guard=None):
+    """Inspect dedicated caches and offer selection only under a live run guard.
 
     Only the default spaCR home and recognized cache entries are inspected.
     External, symlinked, unknown and protected locations remain unavailable.
-    Inspection is bounded and never follows links. Candidate selection does
-    not establish that another application instance is idle.
+    Inspection is bounded and never follows links. A trusted live application
+    guard can enable candidates; a saved selection cannot authorize removal.
+    This does not establish that every other application instance is idle.
 
     :param operation_id: Fresh identity supplied by the current installer or
         update coordinator, independent of saved privacy preferences.
     :param system: Optional machine adapter for isolated filesystem checks.
+    :param guard: Optional trusted live context-manager factory receiving derived
+        candidate paths and yielding ``None`` only while cleanup is permitted.
     :returns: An immutable operation-bound preview with actual paths, content
-        sizes and a snapshot identity. No file is changed.
+        sizes and a snapshot identity. Without a live guard, removal stays
+        disabled. No file is changed during inspection.
     :raises ValueError: The operation identity is empty or invalid.
     """
-    import re
     from types import MappingProxyType
 
     if not isinstance(operation_id, str) or not operation_id.strip():
@@ -4872,36 +4958,8 @@ def preview_optional_cleanup(operation_id, *, system=None):
     cache_home = configured_home or default_home
     rows = []
     identities = []
-    patterns = {
-        "news": r"releases\.json",
-        "backgrounds": r"space-[A-Za-z0-9_-]+-[0-9]+x[0-9]+-s-?[0-9]+-v[0-9]+\.png",
-        "icons": r".+-[0-9a-f]{20}\.png",
-        "sounds": r"[A-Za-z0-9_-]+-[0-9a-f]{12}/(?:click-[0-3]|hover-[0-3]|run_finished|run_failed|bed)\.wav",
-    }
     variables = {"news": "SPACR_NEWS_CACHE", "backgrounds": "SPACR_SPACE_CACHE",
                  "sounds": "SPACR_SOUND_CACHE", "icons": "SPACR_ICON_CACHE"}
-
-    def identity(details):
-        if stat.S_ISLNK(details.st_mode):
-            raise ValueError("link")
-        return (details.st_dev, details.st_ino, details.st_mode, details.st_size,
-                details.st_mtime_ns, details.st_ctime_ns)
-
-    def open_directory(path):
-        if not hasattr(os, "O_DIRECTORY") or not hasattr(os, "O_NOFOLLOW"):
-            raise ValueError("no_nofollow_directory_support")
-        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
-        descriptor = os.open(os.sep, flags)
-        try:
-            for component in os.path.abspath(path).split(os.sep):
-                if component:
-                    child = os.open(component, flags, dir_fd=descriptor)
-                    os.close(descriptor)
-                    descriptor = child
-            return descriptor
-        except BaseException:
-            os.close(descriptor)
-            raise
 
     def normalized(value, *, expand=True):
         if expand and (value == "~" or value.startswith("~/") or value.startswith("~\\")):
@@ -4913,7 +4971,7 @@ def preview_optional_cleanup(operation_id, *, system=None):
     cache_home = normalized(cache_home)
     locations = {}
     try:
-        home_fd = open_directory(cache_home)
+        home_fd = _optional_cleanup_directory(cache_home)
         try:
             descriptor = os.open(_CACHE_LOCATIONS_FILE, os.O_RDONLY | os.O_NOFOLLOW | getattr(os, "O_NONBLOCK", 0), dir_fd=home_fd)
             with os.fdopen(descriptor, "r", encoding="utf-8") as stream:
@@ -4939,55 +4997,22 @@ def preview_optional_cleanup(operation_id, *, system=None):
         try:
             if configured_home or override or not os.path.isabs(default_home):
                 raise ValueError("external")
-            home_fd = open_directory(default_home)
+            home_fd = _optional_cleanup_directory(default_home)
             try:
-                home_identity = identity(os.fstat(home_fd))
+                home_identity = _optional_cleanup_identity(os.fstat(home_fd))
                 root_fd = os.open(key, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=home_fd)
                 try:
-                    root_identity = identity(os.fstat(root_fd))
-                    entries = [("", root_identity)]
-                    total = 0
-                    with os.scandir(root_fd) as scan:
-                        for entry in scan:
-                            if len(entries) >= 512:
-                                raise ValueError("budget")
-                            item_identity = identity(os.stat(entry.name, dir_fd=root_fd, follow_symlinks=False))
-                            entries.append((entry.name, item_identity))
-                            if stat.S_ISDIR(item_identity[2]) and key == "sounds":
-                                if not re.fullmatch(r"[A-Za-z0-9_-]+-[0-9a-f]{12}", entry.name):
-                                    raise ValueError("layout")
-                                child_fd = os.open(entry.name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=root_fd)
-                                try:
-                                    if identity(os.fstat(child_fd)) != item_identity:
-                                        raise ValueError("changed")
-                                    with os.scandir(child_fd) as children:
-                                        for child in children:
-                                            if len(entries) >= 512:
-                                                raise ValueError("budget")
-                                            relative = entry.name + "/" + child.name
-                                            child_identity = identity(os.stat(child.name, dir_fd=child_fd, follow_symlinks=False))
-                                            entries.append((relative, child_identity))
-                                            if not stat.S_ISREG(child_identity[2]) or not re.fullmatch(patterns[key], relative):
-                                                raise ValueError("layout")
-                                            total += child_identity[3]
-                                            contents.append(MappingProxyType({"name": relative, "size_bytes": child_identity[3]}))
-                                finally:
-                                    os.close(child_fd)
-                            elif stat.S_ISREG(item_identity[2]) and re.fullmatch(patterns[key], entry.name):
-                                total += item_identity[3]
-                                contents.append(MappingProxyType({"name": entry.name, "size_bytes": item_identity[3]}))
-                            else:
-                                raise ValueError("layout")
-                    if identity(os.stat(key, dir_fd=home_fd, follow_symlinks=False)) != root_identity:
+                    root_identity, entries, contents_tuple, total = _optional_cleanup_tree(root_fd, key)
+                    if _optional_cleanup_identity(os.stat(key, dir_fd=home_fd, follow_symlinks=False)) != root_identity:
                         raise ValueError("changed")
+                    contents = list(contents_tuple)
                 finally:
                     os.close(root_fd)
-                if identity(os.fstat(home_fd)) != home_identity:
+                if _optional_cleanup_identity(os.fstat(home_fd)) != home_identity:
                     raise ValueError("changed")
             finally:
                 os.close(home_fd)
-            identities.append((key, home_identity, tuple(sorted(entries))))
-            contents.sort(key=lambda row: row["name"])
+            identities.append((key, home_identity, entries))
             size, selectable, reason = total, False, "coordinator_unavailable"
         except FileNotFoundError:
             reason = "missing"
@@ -5015,24 +5040,137 @@ def preview_optional_cleanup(operation_id, *, system=None):
     for key, path in protected.items():
         rows.append(MappingProxyType({"key": key, "path": path, "size_bytes": None,
                                      "contents": (), "selectable": False, "reason": "protected"}))
-    binding = hashlib.sha256(repr((operation_id, identities, [dict(row) for row in rows])).encode()).hexdigest()
+    inventory = tuple((row["key"], row["path"], row["size_bytes"],
+                       tuple((entry["name"], entry["size_bytes"]) for entry in row["contents"]))
+                      for row in rows)
+    binding = hashlib.sha256(repr((operation_id, identities, inventory)).encode()).hexdigest()
+    candidates = tuple(row["path"] for row in rows if row["reason"] == "coordinator_unavailable")
+    available = False
+    active = False
+    if callable(guard) and candidates:
+        try:
+            with guard(candidates) as refusal:
+                available = refusal is None
+                active = not available
+        except Exception:
+            pass
+    if available or active:
+        rows = [MappingProxyType(dict(row, selectable=available,
+                                      reason="" if available else "active"))
+                if row["reason"] == "coordinator_unavailable" else row for row in rows]
     return MappingProxyType({"operation_id": operation_id, "snapshot_id": binding,
-                             "folders": tuple(rows)})
+                             "folders": tuple(rows), "_snapshots": tuple(identities)})
 
 
-def apply_optional_cleanup(preview, choices, *, system=None):
-    """Validate a fresh selection and refuse unsupported cleanup execution.
+def _optional_cleanup_remove(key, home_fd, root_fd, expected, path):
+    """Detach one selected cache privately and remove only unchanged known entries.
 
-    There is currently no cross-process coordinator lease proving that all
-    spaCR instances have released these caches. Consequently this boundary
-    never deletes anything, even when the immutable preview is unchanged.
-    Saved dictionaries and privacy choices cannot authorize later deletion.
+    Failed or changed detached trees remain in their private sibling directory.
+    Restoration never overwrites a concurrently created original leaf; this
+    boundary retains the detached tree instead of attempting a racy restore.
+    """
+    import secrets
+
+    name = ".spacr-cleanup-" + secrets.token_hex(16)
+    private_fd = None
+    private_identity = None
+    renamed = False
+    removed = 0
+    retained = path
+    try:
+        os.mkdir(name, 0o700, dir_fd=home_fd)
+        private_fd = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=home_fd)
+        private_identity = _optional_cleanup_identity(os.fstat(private_fd))
+        root_identity = _optional_cleanup_identity(os.fstat(root_fd))
+        if _optional_cleanup_identity(os.stat(key, dir_fd=home_fd, follow_symlinks=False)) != root_identity:
+            raise ValueError("changed")
+        os.rename(key, "cache", src_dir_fd=home_fd, dst_dir_fd=private_fd)
+        renamed = True
+        retained = os.path.join(os.path.dirname(path), name)
+        detached = _optional_cleanup_identity(os.stat("cache", dir_fd=private_fd, follow_symlinks=False))
+        if detached[:3] != root_identity[:3]:
+            raise ValueError("changed")
+        _root, actual, _contents, _size = _optional_cleanup_tree(root_fd, key)
+        if [(entry, value[:5] if not entry else value) for entry, value in actual] != [
+                (entry, value[:5] if not entry else value) for entry, value in expected]:
+            raise ValueError("changed")
+        os.mkdir(key, stat.S_IMODE(root_identity[2]), dir_fd=home_fd)
+        for relative, details in expected:
+            if not relative or not stat.S_ISREG(details[2]):
+                continue
+            directory, separator, leaf = relative.partition("/")
+            parent_fd = root_fd
+            child_fd = None
+            try:
+                if separator:
+                    child_fd = os.open(directory, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=root_fd)
+                    expected_directory = dict(expected)[directory]
+                    if _optional_cleanup_identity(os.fstat(child_fd))[:3] != expected_directory[:3]:
+                        raise ValueError("changed")
+                    parent_fd = child_fd
+                else:
+                    leaf = directory
+                current = _optional_cleanup_identity(os.stat(leaf, dir_fd=parent_fd, follow_symlinks=False))
+                if current != details:
+                    raise ValueError("changed")
+                os.unlink(leaf, dir_fd=parent_fd)
+                removed += 1
+            finally:
+                if child_fd is not None:
+                    os.close(child_fd)
+        for relative, details in reversed(expected):
+            if not relative or not stat.S_ISDIR(details[2]):
+                continue
+            current = _optional_cleanup_identity(os.stat(relative, dir_fd=root_fd, follow_symlinks=False))
+            if current[:3] != details[:3]:
+                raise ValueError("changed")
+            os.rmdir(relative, dir_fd=root_fd)
+        current = _optional_cleanup_identity(os.stat("cache", dir_fd=private_fd, follow_symlinks=False))
+        if current[:3] != root_identity[:3]:
+            raise ValueError("changed")
+        os.rmdir("cache", dir_fd=private_fd)
+        current = _optional_cleanup_identity(os.stat(name, dir_fd=home_fd, follow_symlinks=False))
+        if current[:3] != private_identity[:3]:
+            raise ValueError("changed")
+        os.rmdir(name, dir_fd=home_fd)
+        return {"key": key, "ok": True, "removed": removed}
+    except (OSError, ValueError):
+        return {"key": key, "ok": False, "reason": "retained",
+                "removed": removed, "retained_path": retained}
+    finally:
+        if private_fd is not None:
+            os.close(private_fd)
+        if not renamed and private_identity is not None:
+            try:
+                current = _optional_cleanup_identity(os.stat(name, dir_fd=home_fd, follow_symlinks=False))
+                if current[:3] == private_identity[:3]:
+                    os.rmdir(name, dir_fd=home_fd)
+            except (OSError, ValueError):
+                pass
+
+
+def apply_optional_cleanup(preview, choices, *, system=None, guard=None):
+    """Apply a fresh selected-cache action under the application's live run guard.
+
+    Only a trusted Python context-manager factory can enable execution. The
+    application's caller must hold its established run-registration lock and
+    refuse active work throughout the context. This is an application-local
+    safeguard, not proof that every other process is idle. A separate helper
+    or saved dictionary cannot grant that authority.
+
+    Every selected snapshot is validated before mutation. Each action identity
+    is consumed once in this process. Changed, unknown or locked detached
+    entries remain in private staging; no recursive deletion or overwriting
+    restoration is performed. Models, data and other protected roots cannot
+    be selected. Supported no-follow directory descriptors are required.
 
     :param preview: Immutable result of :func:`preview_optional_cleanup`.
     :param choices: Current operation ID, snapshot ID and explicitly chosen
         registered cache keys returned by the GUI.
     :param system: Optional isolated machine adapter used for reinspection.
-    :returns: A failure result with a machine-readable reason; no file changes.
+    :param guard: Trusted live context-manager factory receiving derived paths;
+        it yields ``None`` only while application-local cleanup is permitted.
+    :returns: Action outcome with counts and any private retained paths.
     """
     from collections.abc import Mapping
     from types import MappingProxyType
@@ -5041,17 +5179,51 @@ def apply_optional_cleanup(preview, choices, *, system=None):
         return {"ok": False, "reason": "invalid_selection"}
     keys = choices.get("keys")
     eligible = {row["key"] for row in preview["folders"]
-                if row["reason"] == "coordinator_unavailable"}
+                if row["selectable"] or row["reason"] == "coordinator_unavailable"}
     if (choices.get("operation_id") != preview["operation_id"]
             or choices.get("snapshot_id") != preview["snapshot_id"]
             or not isinstance(keys, (list, tuple)) or not keys
             or any(not isinstance(key, str) or key not in eligible for key in keys)
             or len(set(keys)) != len(keys)):
         return {"ok": False, "reason": "invalid_selection"}
-    current = preview_optional_cleanup(preview["operation_id"], system=system)
-    if current["snapshot_id"] != preview["snapshot_id"]:
-        return {"ok": False, "reason": "preview_changed"}
-    return {"ok": False, "reason": "coordinator_unavailable"}
+    if not callable(guard):
+        return {"ok": False, "reason": "coordinator_unavailable"}
+    paths = {row["key"]: row["path"] for row in preview["folders"]}
+    descriptors = []
+    home_fd = None
+    try:
+        with guard(tuple(paths[key] for key in keys)) as refusal:
+            if refusal is not None:
+                return {"ok": False, "reason": "active"}
+            current = preview_optional_cleanup(preview["operation_id"], system=system)
+            if current["snapshot_id"] != preview["snapshot_id"]:
+                return {"ok": False, "reason": "preview_changed"}
+            snapshots = {key: entries for key, _home, entries in current["_snapshots"]}
+            if any(key not in snapshots for key in keys):
+                return {"ok": False, "reason": "preview_changed"}
+            home_fd = _optional_cleanup_directory(os.path.dirname(paths[keys[0]]))
+            for key in keys:
+                descriptor = os.open(key, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=home_fd)
+                descriptors.append((key, descriptor))
+                _identity, entries, _contents, _size = _optional_cleanup_tree(descriptor, key)
+                if entries != snapshots[key]:
+                    return {"ok": False, "reason": "preview_changed"}
+            with _OPTIONAL_CLEANUP_ACTION_LOCK:
+                if preview["operation_id"] in _OPTIONAL_CLEANUP_ACTIONS:
+                    return {"ok": False, "reason": "operation_used"}
+                _OPTIONAL_CLEANUP_ACTIONS.add(preview["operation_id"])
+            outcomes = [_optional_cleanup_remove(key, home_fd, descriptor, snapshots[key], paths[key])
+                        for key, descriptor in descriptors]
+            return {"ok": all(outcome["ok"] for outcome in outcomes),
+                    "removed": sum(outcome["removed"] for outcome in outcomes),
+                    "folders": outcomes}
+    except (OSError, ValueError, TypeError):
+        return {"ok": False, "reason": "coordinator_unavailable"}
+    finally:
+        for _key, descriptor in descriptors:
+            os.close(descriptor)
+        if home_fd is not None:
+            os.close(home_fd)
 
 
 if __name__ == "__main__":

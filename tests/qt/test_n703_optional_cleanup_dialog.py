@@ -137,3 +137,56 @@ def test_production_preview_disables_deletion_and_explains_why(qtbot, tmp_path):
     assert "cannot confirm" in tree.topLevelItem(0).text(3)
     assert dialog.choices()["snapshot_id"] == actual["snapshot_id"]
     assert dialog.choices()["keys"] == []
+
+
+@pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "fr", "pt", "hi", "ko", "is"])
+def test_actual_inventory_retention_reason_and_keep_button_use_reviewed_locale(qtbot, tmp_path, monkeypatch, language):
+    import importlib
+    from PySide6.QtWidgets import QPushButton
+    from spacr import install_cleanup as ic
+    from spacr.qt import i18n
+    monkeypatch.setattr(i18n, "current_language", lambda: language)
+    folder = tmp_path / ".spacr" / "news"
+    folder.mkdir(parents=True)
+    (folder / "releases.json").write_text("{}")
+    machine = ic._Machine(environ={"HOME": str(tmp_path)}, platform="linux")
+    actual = ic.preview_optional_cleanup("actual-operation", system=machine)
+    dialog = consent._InstallerCleanupDialog(actual)
+    qtbot.addWidget(dialog)
+    catalog = importlib.import_module("spacr.qt.i18n_catalogs." + language)
+    expected_reason = catalog.UI["Kept: spaCR cannot confirm these files are no longer in use."]
+    tree = dialog.findChild(QTreeWidget, "InstallerCleanupFolders")
+    assert tree.topLevelItem(0).text(3) == expected_reason
+    assert dialog.windowTitle() == catalog.UI["Optional cache cleanup"]
+    keep = dialog.findChild(QPushButton, "InstallerCleanupKeep")
+    assert keep.text() == catalog.UI["Keep all files"] and keep.isDefault()
+    assert dialog.choices()["keys"] == []
+    assert not tree.topLevelItem(0).flags() & Qt.ItemIsEnabled
+    assert (folder / "releases.json").read_text() == "{}"
+
+
+def test_live_guard_preview_starts_unchecked_then_selected_gui_choice_reaches_backend(qtbot, tmp_path):
+    from contextlib import contextmanager
+    from PySide6.QtWidgets import QPushButton
+    from spacr import install_cleanup as ic
+    folder = tmp_path / ".spacr" / "news"
+    folder.mkdir(parents=True)
+    (folder / "releases.json").write_text("{}")
+    machine = ic._Machine(environ={"HOME": str(tmp_path)}, platform="linux")
+    @contextmanager
+    def guard(_paths):
+        yield None
+    actual = ic.preview_optional_cleanup("gui-live-" + str(tmp_path), system=machine, guard=guard)
+    dialog = consent._InstallerCleanupDialog(actual)
+    qtbot.addWidget(dialog)
+    tree = dialog.findChild(QTreeWidget, "InstallerCleanupFolders")
+    remove = dialog.findChild(QPushButton, "InstallerCleanupRemove")
+    assert tree.topLevelItem(0).flags() & Qt.ItemIsEnabled
+    assert tree.topLevelItem(0).checkState(0) == Qt.Unchecked and not remove.isEnabled()
+    tree.topLevelItem(0).setCheckState(0, Qt.Checked)
+    assert remove.isEnabled() and not remove.autoDefault()
+    qtbot.mouseClick(remove, Qt.LeftButton)
+    assert dialog.result() == QDialog.Accepted
+    outcome = ic.apply_optional_cleanup(actual, dialog.choices(), system=machine, guard=guard)
+    assert outcome["ok"] and outcome["removed"] == 1
+    assert list(folder.iterdir()) == []

@@ -71,7 +71,11 @@ def test_changed_native_file_refuses_stale_preview(cache):
     preview = ic.preview_optional_cleanup("fresh-operation", system=machine)
     replacement = body + b" "
     (folder / "releases.json").write_bytes(replacement)
-    assert ic.apply_optional_cleanup(preview, selected(preview), system=machine)["reason"] == "preview_changed"
+    from contextlib import contextmanager
+    @contextmanager
+    def guard(_paths):
+        yield None
+    assert ic.apply_optional_cleanup(preview, selected(preview), system=machine, guard=guard)["reason"] == "preview_changed"
     assert (folder / "releases.json").read_bytes() == replacement
 
 
