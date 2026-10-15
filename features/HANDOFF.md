@@ -11,6 +11,10 @@
 
 
 
+## 2026-10-15 Work — standalone privacy preflight corrected with unchanged scan
+
+Shortclean-r2actual19:31:25–19:31:48EDT exit1/22.758s cleanup0, BEFORErecording. Actualverify_visible_paths rejects the mounted/media prepared_root argument before scanning. Thisdata-free13h nowcreatesactualownedemptyTemporaryDirectory(dir=/tmp,prefix=spacr-tutorial-05-), keepsthroughcapture, passesactualneutralroot toUNCHANGEDall-visible scan andcleansfinally. No mounted/personal path exemption or bind claim. Finiteinput-contract smoke0.057s oldrootrejected/newemptyrootaccepted/tempremoved;0windows/noQApplication/GPU, notactualscan/nativeacceptance. Existingexclude_release_history beforePreferences matches originalcapture_refresh544/576 and30sourcepresentation. Finalsource27e9f7fe, privacypeerdf4f/newspeerd077; minimaldelta/actualoutcome indata/n676_home_apply_standalone_path_correction_2026-10-15/privacy-r3/. CorrectedcandidatependingnormalGPUguard, noappfix/cause/tutorialcompletionclaim.
+
 ## 2026-10-15 Original Home — existing CI has assigned running jobs
 
 Read-only follow-up located Tests38816815119 on99789fd25c44. Its run-level
