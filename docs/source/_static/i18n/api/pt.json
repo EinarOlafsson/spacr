@@ -154917,14 +154917,12 @@
     "spacr.qt.widgets.hover_tooltip.HoverTooltip.leaveEvent": {
       "source_blocks_sha256": [
         "7567b0033a455d2469f31f348015ad0ec4243989bdea9a6aceec25c108c6d57c",
-        "0448242df32ae4110ab12a8702d4778a3056f798d4e0677b68414383da6967e1",
         "a9f47202036c0d9cc517998c2ab6e96b6dee49701443ac7fabe3d90661e5bd56"
       ],
-      "source_sha256": "fe4414ab341f2ffd0d4d8200249699f8ef180a75295a041759318d445d0373ff",
-      "text": "Reinicie o temporizador de ocultação quando o cursor sair do próprio POPUP.\n\nMais curto do que o período de graça da âncora de propósito: deixar o popup é um ato deliberado, onde deixar o rótulo pode ser apenas a jornada em direção a ele.\n\n:param event: o evento de saída; repassado à classe base e não lido de outra forma.",
+      "source_sha256": "7db8e214bd14ad48f49a4a7b8fa1dabeae786451c1d9524d551ff397a17daab6",
+      "text": "Reinicie o temporizador de ocultação quando o cursor sair do próprio POPUP.\n\n:param event: o evento de saída; repassado à classe base e não lido de outra forma.",
       "translation_source_blocks_sha256": [
         "7567b0033a455d2469f31f348015ad0ec4243989bdea9a6aceec25c108c6d57c",
-        "0448242df32ae4110ab12a8702d4778a3056f798d4e0677b68414383da6967e1",
         "a9f47202036c0d9cc517998c2ab6e96b6dee49701443ac7fabe3d90661e5bd56"
       ]
     },
