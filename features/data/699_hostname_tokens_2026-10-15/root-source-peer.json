@@ -1,0 +1,8 @@
+{
+  "decision": "ACCEPT exact HostName token repair",
+  "source_commit": "c554061216d0c5bad947c1839f8b2dbd985d980f",
+  "source_sha256": "4ede677ca18da78e872fc26c5c6110faaac3fb3e37fc6ff1f64dba89cf0cf60c",
+  "review": "Exactly three lines in existing _ssh_lookup. One-pass regex supports only official HostName %%/%h tokens, escaped percent is not rescanned; bound valid alias is inserted literally. Current Include framing remains intact; no other definitions, signatures/docstrings or tr calls change.",
+  "tests": "Actual baseline7FAIL2PASS then63owningPASS includes9 native scratch-only alias/escape controls+12Include+42discovery/MFA; no duplicate replay.",
+  "limits": "No real SSH account/Okta/keys/network/native platform/wholeN699 acceptance."
+}
