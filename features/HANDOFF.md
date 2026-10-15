@@ -1,4 +1,27 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
+## 2026-10-15 Home-B — whole workspace delivery and spatial rerun repair
+
+N180 whole original A–D/five-criteria contract is accepted after the real
+FigureQueue carry/PDF fix, normal63API+9runtime targets/full9audit/Help and
+actual final consumers. Prior13,289 Help entries and all foreign catalog
+records remain preserved. Strict API arrival names exactly two new methods;
+the historical13218 floor is unchanged. Final evidence is under
+features/data/180_session_figure_consumers_2026-10-15/. Original's queued
+N690 writer should use this coherent publication as its next baseline.
+
+F534 zero-result reruns now retire only the current slide's stale database
+rows, preserving SQL schemas, other slides/files and original inputs.
+Actual2FAIL baseline becomes19 owningPASS; whole scientific/data acceptance
+remains open. Source owner continues only a bounded map-stage consistency
+follow-up. N647/N648 retain their explicit Windows/macOS functional gates;
+no new Linux replay or invented crash-injection gate is needed.
+
+N704's latest immutable main packet is now
+features/data/704_after_website_main_owner_packet_2026-10-15/ (738files,
+1747images,670readable routes). N615 is a broad docs/tutorial/release item;
+README routes alone do not close it. N328/N384 are historical closed items,
+omitted from today's/open display rather than counted as new completions.
+
 
 ## 2026-10-15 — Original whole-item closeouts and hosted build diagnosis
 
