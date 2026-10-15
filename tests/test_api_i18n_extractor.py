@@ -1584,6 +1584,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in client700_arrivals} == client700_arrivals
     assert not client700_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **client700_arrivals}
+    # 2026-10-15: Item 700: spaCR AI summary scrubbing, saved explanations and question cache keys; one named contract.
+    s700_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
+        / "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json").read_text())
+    assert len(s700_arrivals) == 20
+    assert {key: docs[key] for key in s700_arrivals} == s700_arrivals
+    assert not s700_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **s700_arrivals}
     # 2026-10-14: the nested journal note helper of _transactional_runtime_update gains a docstring; one named contract.
     note_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "install_cleanup_note_api_arrival_2026-10-14.json").read_text())

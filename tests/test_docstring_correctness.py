@@ -2613,6 +2613,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "console_warm_notice_glyphs_api_arrival_2026-10-13.json",
                      "quit_and_warmup_api_arrivals_2026-10-13.json",
                      "700_anonymous_reports_client_api_arrivals_2026-10-14.json",
+                     "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
                      "dna_rain_change_event_api_arrival_2026-10-12.json",
@@ -4198,6 +4199,13 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert {key: docs[key] for key in client700_additions} == client700_additions
     assert not client700_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **client700_additions}
+    # 2026-10-15: Item 700: spaCR AI summary scrubbing, saved explanations and question cache keys; one named contract.
+    s700_additions = json.loads((pathlib.Path(__file__).resolve().parent / "data/release_contracts"
+        / "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json").read_text())
+    assert len(s700_additions) == 20
+    assert {key: docs[key] for key in s700_additions} == s700_additions
+    assert not s700_additions.keys() & zoo_additions.keys()
+    zoo_additions = {**zoo_additions, **s700_additions}
     # 2026-10-14: the nested journal note helper of _transactional_runtime_update gains a docstring; one named contract.
     note_additions = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts" / "install_cleanup_note_api_arrival_2026-10-14.json").read_text())
@@ -4621,6 +4629,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "console_warm_notice_glyphs_api_arrival_2026-10-13.json",
                      "quit_and_warmup_api_arrivals_2026-10-13.json",
                      "700_anonymous_reports_client_api_arrivals_2026-10-14.json",
+                     "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
                      "dna_rain_change_event_api_arrival_2026-10-12.json",
@@ -4667,6 +4676,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "console_warm_notice_glyphs_api_arrival_2026-10-13.json",
                      "quit_and_warmup_api_arrivals_2026-10-13.json",
                      "700_anonymous_reports_client_api_arrivals_2026-10-14.json",
+                     "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
                      "dna_rain_change_event_api_arrival_2026-10-12.json",
