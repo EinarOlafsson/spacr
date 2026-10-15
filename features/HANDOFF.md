@@ -13047,6 +13047,17 @@ tool. It is independent from this publication. F580 UI/guide private delivery
 remains with Original Home for coherent domain publication; finalCI/release
 remain deferred. Memory/laptop261targets and title18targets are in progress.
 
+## Home-B stored section title closure, 2026-10-15
+
+2026-10-15 — Stored section title documentation closure
+The CollapsibleSection.title getter description now states the constructor's
+stored str value, independently of later header text changes. All 18 changed
+API translation targets passed independent technical review and normal scoped
+generation. Coordinator readback verifies every peer binding, exact owned
+records in all ten catalogs, unchanged unrelated records and executable AST.
+Evidence: features/data/678_collapsible_title_api_catalogs_2026-10-15/.
+No widget behavior, caption or signature changed; broad N678 remains open.
+
 ## Home-B file-pair and plate-map publication, 2026-10-15
 
 2026-10-15 — File pairing and plate-map bounded documentation delivery
