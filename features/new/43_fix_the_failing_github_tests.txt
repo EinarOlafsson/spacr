@@ -3844,3 +3844,13 @@ A fresh whole candidate includes the real metadata archive repair plus
 post-assertion image capture in ordinary Qt jobs. Existing native contracts,
 markers/workers/timeouts/thresholds/app/test assertions stay unchanged. One
 manual full CI run is next; no successful diagnostic is used to bypass it.
+
+
+2026-10-15 — Cellpose catalogue fixture CI repair
+    Two test fixtures now use actual ModelEntry metadata, and evaluation tests
+    request an existing controlled local checkpoint instead of a nonexistent
+    absolute path. Production resolution/trust guards and all assertion ASTs
+    are unchanged. Actual hosted-shape baseline5FAIL; intermediate10PASS/10FAIL
+    identified the stale missing path; final owning two modules20PASS8.32s.
+    Models/trainers are intercepted; no real weights, training, GPU or fullCI
+    acceptance is claimed. Evidence:data/43_cellpose_catalogue_fixtures_2026-10-15/.
