@@ -23,6 +23,7 @@ import tempfile
 import unicodedata
 from collections import Counter
 from difflib import SequenceMatcher
+from html.parser import HTMLParser
 from pathlib import Path
 from typing import Callable, Iterable, Mapping
 
@@ -6534,6 +6535,64 @@ def repair_api_translations(
     return repaired
 
 
+def _readme_picker_links_to_index(readme: str) -> bool:
+    """Require the generated picker itself to link its picture to README.md."""
+    begins = list(re.finditer(r"(?m)^\.\. spacr-language-picker-begin[ \t]*$", readme))
+    ends = list(re.finditer(r"(?m)^\.\. spacr-language-picker-end[ \t]*$", readme))
+    if len(begins) != 1 or len(ends) != 1 or begins[0].end() >= ends[0].start():
+        return False
+    block = readme[begins[0].end():ends[0].start()]
+    raw = re.fullmatch(
+        r"\s*\.\. raw:: html[ \t]*\n[ \t]*\n(?P<html>(?:[ \t]+[^\n]*(?:\n|$))*)\s*",
+        block,
+    )
+    if raw is None:
+        return False
+
+    class Picker(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=True)
+            self.valid = True
+            self.stack = []
+            self.counts = Counter()
+
+        def handle_starttag(self, tag, attrs):
+            parents = {"div": None, "a": "div", "picture": "a",
+                       "source": "picture", "img": "picture"}
+            parent = self.stack[-1] if self.stack else None
+            if tag not in parents or parent != parents[tag]:
+                self.valid = False
+                return
+            self.counts[tag] += 1
+            if tag == "a" and [value for name, value in attrs if name == "href"] != ["README.md"]:
+                self.valid = False
+            if tag == "img" and not any(name == "src" and value for name, value in attrs):
+                self.valid = False
+            if tag not in {"source", "img"}:
+                self.stack.append(tag)
+
+        def handle_startendtag(self, tag, attrs):
+            self.handle_starttag(tag, attrs)
+            if tag not in {"source", "img"}:
+                self.valid = False
+
+        def handle_endtag(self, tag):
+            if not self.stack or self.stack[-1] != tag:
+                self.valid = False
+            else:
+                self.stack.pop()
+
+        def handle_data(self, data):
+            if data.strip():
+                self.valid = False
+
+    picker = Picker()
+    picker.feed(raw.group("html"))
+    picker.close()
+    return (picker.valid and not picker.stack
+            and all(picker.counts[tag] == 1 for tag in ("div", "a", "picture", "img")))
+
+
 def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
     languages = tuple(languages)
     if "zh_CN" in languages:
@@ -6897,7 +6956,7 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
             index_path = README_DIR / "README.md"
             index = (index_path.read_text(encoding="utf-8")
                      if index_path.is_file() else "")
-            if ":target: README.md" not in readme:
+            if not _readme_picker_links_to_index(readme):
                 failures.append(
                     f"{language}: the language picker link is broken")
             elif "../../../README.rst" not in index:
