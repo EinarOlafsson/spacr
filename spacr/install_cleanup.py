@@ -1077,7 +1077,8 @@ def _user_data(machine: _Machine) -> List[str]:
         machine.env("TORCH_HOME"),
         machine.env("CELLPOSE_LOCAL_MODELS_PATH"),
     ] + _relocated_caches(machine)
-    return [p for p in paths if p]
+    paths = [path for path in paths if path]
+    return list(dict.fromkeys(paths + [os.path.realpath(path) for path in paths]))
 
 
 def _never_delete(machine: _Machine) -> List[str]:
@@ -1514,6 +1515,9 @@ def _remove_install_unleased(record: InstallRecord, *, ticked: bool = False,
         report.skipped.append((record.root, "kept: part of the new installation"))
         return report
     preserved = list(keep) + _user_data(machine)
+    physical_root = os.path.realpath(record.root)
+    preserved.extend(os.path.join(record.root, os.path.relpath(path, physical_root))
+                     for path in tuple(preserved) if _inside(path, physical_root))
     preserved.extend(path for name in (
         "cache", "test_data", "models", "outputs", "projects", "runs")
         if _exists(path := os.path.join(record.root, name)))
