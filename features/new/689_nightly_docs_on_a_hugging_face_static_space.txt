@@ -169,3 +169,16 @@ still hit quota. No rename, recreation, history deletion, paid plan, upload or
 dispatch was performed. Exact file/variable/URL map, ordered acceptance steps
 and limitations: data/689_quota_migration_plan_2026-10-15/plan.json. Final
 publication remains deferred; this note does not close N689.
+
+2026-10-15 — Avoid redundant source-page catalog-version churn
+Normal html-page-context now removes the unused digest only on plain standard
+viewcode pages; actual API consumers keep invalidation and shared script
+objects stay unchanged. Baseline3FAIL/7PASS, final11PASS; real Sphinx9.1
+context/render proves stable source HTML and appropriately changing API HTML.
+No full build/deployment or quota-saving claim. Evidence:
+features/data/689_viewcode_catalog_churn_2026-10-15/.
+Full HF metadata inventory also proves a historical partial-upload mix:
+3323files/456940125bytes versus publication receipt455793473bytes. Matching
+homepage/receipt alone certifies neither full tree nor current-source docs.
+Quota recovery, atomic coherent redeployment and main-only Pages/redirect
+remain open. See689_deployed_file_footprint_2026-10-15/.

@@ -13551,6 +13551,24 @@ The broader API snapshot audit fails on unrelated N700 providers#6 active
 review/source mismatch, referred to Original Home/Claude; no foreign review
 retirement, global source-current or release claim is made.
 N689 readback11835ed44 proves actual latest deployment403 at1GB; live Space
-serves an older internally consistent revision. Plan10c994619 offers a free
+has an older homepage/publication receipt matching its immutable index;
+full-tree consistency is not proved by that check. Later footprint evidence
+shows a historical partial-upload mix, so a new coherent deployment is required. Plan10c994619 offers a free
 new-Space migration preserving old history, with explicit legacy-routing gates.
 No service/history mutation, full CI, release or tutorial changes here.
+
+## 2026-10-15 Home-B — accessibility semantics and stable viewcode source pages
+
+AI/Live checkbox role/state/Toggle semantics pass21 checks plus independent
+native AT-SPI four-action/four-signal readback. Dock primary Press and expansion
+state pass51 targeted cases; no native Dock/human/other-platform claim. Existing
+public docs/keyboard/rendering remain unchanged and private eligibility shows
+no new API/translation arrivals. Source/native/peer evidence is under655_* data.
+N689 plain viewcode pages now omit unused API-catalog digest while real API
+consumers remain versioned;11 checks and actual normal Sphinx context/render
+acceptance pass without a full build. Current HF tree is historically mixed,
+not wholly certified by matching homepage/receipts;1GB quota and final Pages
+migration remain open. No service/history mutation or storage-saving claim.
+Maintainer's new16-item order now governs work: CI/updater test repairs,
+scorecard tooling and deployment dependencies take precedence; newF580/F561/
+F564 UI requests are preserved but held behind that order.
