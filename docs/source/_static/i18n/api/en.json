@@ -83416,13 +83416,13 @@
     "spacr.qt.widgets.database_set.DatabaseSetWidget.apply_workspace_state": {
       "source_blocks_sha256": [
         "e40feb1ee29670ad6930a472584ab0502bdd9aabd273dfe2d73acfb80ccde164",
-        "9a303ff312eeb772b0f305c2e6501d8d0d163c091c0b099f924fc6661892c9c7",
-        "ea206d0b5c521d4ac39fd53efcf417705f55206609c2fecc7c94574bb389d000",
-        "5308391f45e6b83a58429c365bdf81b3547e0217ba30951610b0227174f7f817",
-        "697b9a175bc9a9a884b4b8970dd987b01d4446d84c280e448097f3b47862d7df"
+        "6ad0e08287e2e2b86af8c88dc0a6bbd2c66cf69d509b62ca700d39e67ac2af2d",
+        "b813f69a09a450d3305e51dc59501b009a1482aa3e62d57c42e9785a6d884917",
+        "92de564480e6b8d7fd3634e6fae3f10cb53b4617faee74d820432b4a21c69e6a",
+        "7b65ee52d867ca737314df800589032c788e8b134f157bc8b40e4ab1bc18930f"
       ],
-      "source_sha256": "2d5b13f3b8043437be8ed298de2791a74b6e85903d3a27577ad3411f78fcfe20",
-      "text": "Re-attach the set. Returns whether anything was attached.\n\nA source that is no longer there is left out and the rest are still\nattached -- one moved plate does not stop the others attaching. The\nworkspace document names every missing one in its own report, so\nnothing dropped here is dropped silently.\n\nWhether each source still exists is checked off the GUI thread, because\nthe paths of a saved workspace can be on a mount that has since gone to\nsleep. The whole set is attached now and the ones that turn out to be\ngone are dropped when the answer arrives, which costs one redraw\ninstead of a blocking stat.\n\nThe return value answers \"was there anything to attach\", not \"was any\nof it still on disk\". :func:`spacr.workspace.restore_workspace`\ntherefore reports the section as restored either way; the sources that\nturn out to be gone are dropped when the check finishes, and the\nsummary line names every source with no database behind it. Unthreaded\n(in tests) the check has already run by the time this returns.\n\n:param state: dict saved by :meth:`workspace_state`; only its\n    ``sources`` list is read, and anything that is not a dict, or has\n    no sources, returns False."
+      "source_sha256": "e96c22e54bbaef37cfb3f78a8ef62419bc18fce6e2ab561c4106741a6cbb7036",
+      "text": "Re-attach the set. Returns whether anything was attached.\n\nSaved sources retain their order. In folder mode, an explicit matching\n``databases`` list can supply a database restored by the workspace\ncore. If the original database is missing and that file exists, the\nset reads the supplied file while retaining the original source key.\nThis association does not rewrite the source roots returned by\n:meth:`get_value` or reconstruct a project folder for a new pipeline.\n\nFilesystem checks run off the GUI thread. Sources with neither an\nexisting original source nor a usable explicit database are dropped\nwhen the answer arrives. Added sources are preserved; replaced,\nremoved and re-added sources cannot receive stale associations.\n\nThe return value answers \"was there anything to attach\", not \"was any\nof it still on disk\" when the check is asynchronous. The workspace\ncore reports missing or changed files separately. Unthreaded, the\ncheck has already run by the time this returns.\n\n:param state: dict saved by :meth:`workspace_state`; reads ``sources``,\n    ``mode`` and an optional positionally matching ``databases`` list.\n    A non-dict or empty source set returns False. File verification\n    and carried-path remapping belong to the workspace core."
     },
     "spacr.qt.widgets.database_set.DatabaseSetWidget.choose_sources": {
       "source_blocks_sha256": [

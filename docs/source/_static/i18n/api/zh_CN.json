@@ -131858,19 +131858,19 @@
     "spacr.qt.widgets.database_set.DatabaseSetWidget.apply_workspace_state": {
       "source_blocks_sha256": [
         "e40feb1ee29670ad6930a472584ab0502bdd9aabd273dfe2d73acfb80ccde164",
-        "9a303ff312eeb772b0f305c2e6501d8d0d163c091c0b099f924fc6661892c9c7",
-        "ea206d0b5c521d4ac39fd53efcf417705f55206609c2fecc7c94574bb389d000",
-        "5308391f45e6b83a58429c365bdf81b3547e0217ba30951610b0227174f7f817",
-        "697b9a175bc9a9a884b4b8970dd987b01d4446d84c280e448097f3b47862d7df"
+        "6ad0e08287e2e2b86af8c88dc0a6bbd2c66cf69d509b62ca700d39e67ac2af2d",
+        "b813f69a09a450d3305e51dc59501b009a1482aa3e62d57c42e9785a6d884917",
+        "92de564480e6b8d7fd3634e6fae3f10cb53b4617faee74d820432b4a21c69e6a",
+        "7b65ee52d867ca737314df800589032c788e8b134f157bc8b40e4ab1bc18930f"
       ],
-      "source_sha256": "2d5b13f3b8043437be8ed298de2791a74b6e85903d3a27577ad3411f78fcfe20",
-      "text": "重新插入设置. 返回是否有任何附件。\n\n一个不再存在的来源被留下,其余的仍然被粘贴 - 一张移动板不会停止其他人粘贴. 工作空间文档名称每一个失踪的人在自己的报告中,所以这里没有落下的东西沉默地落下。\n\n每个来源是否仍然存在,都被检查出于主要的 GUI 执行路径,因为保存的工作空间的路径可能在从那时起睡觉的山上。\n\n返回值答案“有什么要附”,不是“没有一个仍然在磁盘上”。 :func:`spacr.workspace.restore_workspace`因此,报告部分如恢复的任何方式;出于已消失的来源在检查结束时被抛弃,总结线命名每个来源没有数据库背后。\n\n:param state: 由 :meth:`workspace_state` 保存的字典；只读取其 ``sources`` 列表，任何不是字典或没有来源的内容都返回 False。",
+      "source_sha256": "e96c22e54bbaef37cfb3f78a8ef62419bc18fce6e2ab561c4106741a6cbb7036",
+      "text": "重新插入设置. 返回是否有任何附件。\n\n保存的源保留原有顺序。在文件夹模式下，显式提供的对应 ``databases`` 列表可以指定由工作区核心恢复的数据库。如果原始数据库缺失而该文件存在，集合会读取提供的文件，同时保留原始源键。此关联不会改写 :meth:`get_value` 返回的源根路径，也不会为新的处理流程重建项目文件夹。\n\n文件系统检查在 GUI 线程之外运行。结果返回时，既没有仍然存在的原始源、也没有可用的显式数据库的源会被移除。新增的源会保留；被替换的源或移除后重新添加的源不会接收过期的关联。\n\n异步检查时，返回值回答的是“是否有内容可供重新连接”，而不是“是否有内容仍然存在于磁盘上”。工作区核心会单独报告缺失或已更改的文件。不使用工作线程时，此方法返回之前检查已经完成。\n\n:param state: 由 :meth:`workspace_state` 保存的字典；读取 ``sources``、``mode`` 以及可选的按位置对应的 ``databases`` 列表。非字典值或空源集合返回 False。文件验证和随工作区携带的路径重映射由工作区核心负责。",
       "translation_source_blocks_sha256": [
         "e40feb1ee29670ad6930a472584ab0502bdd9aabd273dfe2d73acfb80ccde164",
-        "9a303ff312eeb772b0f305c2e6501d8d0d163c091c0b099f924fc6661892c9c7",
-        "81289abf062b72e76f0e6e44488f3db97fdc37370b911aae063bf10c00f21d01",
-        "5308391f45e6b83a58429c365bdf81b3547e0217ba30951610b0227174f7f817",
-        "720a039f168e6f1182321d4d9cc84276e22b09761a70c09807626e15ebdf633d"
+        "d48968b51e632dfbd701a891a9d91549b9a9da0d26c63f1b8b79ba275c0f55dd",
+        "f09cb36527cb369250b0039c826d2f2d5e055788763d05757e9e7990ed3a2bfa",
+        "92de564480e6b8d7fd3634e6fae3f10cb53b4617faee74d820432b4a21c69e6a",
+        "83cfd34fe45ea363994284a856132027f10e1ff6e30031001dfa46f5506a59b3"
       ]
     },
     "spacr.qt.widgets.database_set.DatabaseSetWidget.choose_sources": {

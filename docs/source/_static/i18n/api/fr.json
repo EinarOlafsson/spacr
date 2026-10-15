@@ -131857,19 +131857,19 @@
     "spacr.qt.widgets.database_set.DatabaseSetWidget.apply_workspace_state": {
       "source_blocks_sha256": [
         "e40feb1ee29670ad6930a472584ab0502bdd9aabd273dfe2d73acfb80ccde164",
-        "9a303ff312eeb772b0f305c2e6501d8d0d163c091c0b099f924fc6661892c9c7",
-        "ea206d0b5c521d4ac39fd53efcf417705f55206609c2fecc7c94574bb389d000",
-        "5308391f45e6b83a58429c365bdf81b3547e0217ba30951610b0227174f7f817",
-        "697b9a175bc9a9a884b4b8970dd987b01d4446d84c280e448097f3b47862d7df"
+        "6ad0e08287e2e2b86af8c88dc0a6bbd2c66cf69d509b62ca700d39e67ac2af2d",
+        "b813f69a09a450d3305e51dc59501b009a1482aa3e62d57c42e9785a6d884917",
+        "92de564480e6b8d7fd3634e6fae3f10cb53b4617faee74d820432b4a21c69e6a",
+        "7b65ee52d867ca737314df800589032c788e8b134f157bc8b40e4ab1bc18930f"
       ],
-      "source_sha256": "2d5b13f3b8043437be8ed298de2791a74b6e85903d3a27577ad3411f78fcfe20",
-      "text": "Recollez l'ensemble. Retourne si quelque chose était attaché.\n\nUne source qui n'est plus là est laissée à l'écart et le reste est toujours attaché -- une plaque déplacée n'arrête pas les autres attachés. Le document de l'espace de travail mentionne chaque manquant dans son propre rapport, de sorte que rien ne tombe ici silencieusement.\n\nSi chaque source existe encore est cochée sur le chemin d'exécution principal GUI, parce que les chemins d'un espace de travail sauvegardé peuvent être sur une monture qui s'est endormie depuis. L'ensemble est attaché maintenant et ceux qui se révèlent partis sont laissés tomber lorsque la réponse arrive, ce qui coûte un redessiner au lieu d'une statistique de blocage.\n\nLa valeur de retour répond \"y avait quelque chose à joindre\", pas \"il n'y en avait pas encore sur le disque\". :func:`spacr.workspace.restore_workspace` signale donc la section telle qu'elle a été restaurée de toute façon; les sources qui s'avèrent disparues sont abandonnées lorsque la vérification se termine, et la ligne de résumé donne le nom de chaque source sans base de données derrière elle.\n\n:param state: dictionnaire enregistré par :meth:`workspace_state` ; seule sa liste ``sources`` est lue, et tout ce qui n’est pas un dictionnaire, ou n’a pas de sources, renvoie False.",
+      "source_sha256": "e96c22e54bbaef37cfb3f78a8ef62419bc18fce6e2ab561c4106741a6cbb7036",
+      "text": "Recollez l'ensemble. Retourne si quelque chose était attaché.\n\nLes sources enregistrées conservent leur ordre. En mode dossier, une liste explicite ``databases`` dont les entrées correspondent peut fournir une base de données restaurée par le noyau de l’espace de travail. Si la base de données d’origine est absente et que ce fichier existe, l’ensemble lit le fichier fourni tout en conservant la clé de la source d’origine. Cette association ne réécrit pas les chemins racines des sources renvoyés par :meth:`get_value` et ne reconstruit pas un dossier de projet pour un nouveau pipeline de traitement.\n\nLes vérifications du système de fichiers s’exécutent hors du thread de l’interface graphique (GUI). Les sources sans source d’origine existante ni base de données explicite utilisable sont retirées lorsque le résultat arrive. Les sources ajoutées sont conservées ; les sources remplacées, ou retirées puis ajoutées de nouveau, ne peuvent pas recevoir d’associations périmées.\n\nLorsque la vérification est asynchrone, la valeur de retour répond à « y avait-il quelque chose à rattacher ? », et non à « en restait-il quelque chose sur le disque ? ». Le noyau de l’espace de travail signale séparément les fichiers absents ou modifiés. Sans thread de travail, la vérification est déjà terminée au moment du retour.\n\n:param state: dictionnaire enregistré par :meth:`workspace_state` ; lit ``sources``, ``mode`` et une liste facultative ``databases`` dont les entrées correspondent par position. Une valeur autre qu’un dictionnaire ou un ensemble de sources vide renvoie False. La vérification des fichiers et la réaffectation des chemins transportés relèvent du noyau de l’espace de travail.",
       "translation_source_blocks_sha256": [
         "e40feb1ee29670ad6930a472584ab0502bdd9aabd273dfe2d73acfb80ccde164",
-        "9a303ff312eeb772b0f305c2e6501d8d0d163c091c0b099f924fc6661892c9c7",
-        "81289abf062b72e76f0e6e44488f3db97fdc37370b911aae063bf10c00f21d01",
-        "5308391f45e6b83a58429c365bdf81b3547e0217ba30951610b0227174f7f817",
-        "720a039f168e6f1182321d4d9cc84276e22b09761a70c09807626e15ebdf633d"
+        "d48968b51e632dfbd701a891a9d91549b9a9da0d26c63f1b8b79ba275c0f55dd",
+        "f09cb36527cb369250b0039c826d2f2d5e055788763d05757e9e7990ed3a2bfa",
+        "92de564480e6b8d7fd3634e6fae3f10cb53b4617faee74d820432b4a21c69e6a",
+        "83cfd34fe45ea363994284a856132027f10e1ff6e30031001dfa46f5506a59b3"
       ]
     },
     "spacr.qt.widgets.database_set.DatabaseSetWidget.choose_sources": {
