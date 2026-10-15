@@ -12988,3 +12988,26 @@ Private dependencies sent to Original Home: F562 exact helper extractor
 (baseline4FAIL/3PASS, after7PASS). Original owns coherent domain source,
 reviews and generation before publication. F580 normal guide localization
 is being prepared separately by Home-B; no adapter-only publication.
+
+## 2026-10-15 Home-B — two independent API cohorts close63 reviewed targets
+
+Camera near-pole approximation/column-layout reuse36 and training lifecycle/
+sorting contracts27 are coherent source/review/generated deliveries. Four
+source files change only docstrings; full executable ASTs match. All63 exact
+targets were independently technically reviewed, including the corrected
+German singleton-array wording. Root cross-cohort readback proves five exact
+owned symbols and preservation of13,399 unrelated locale records (13,473
+English). Normal English source-history pruning removed one already-unreferenced
+row, with no remaining references and all other rows retained; evidence is
+features/data/678_training_sorting_api_catalogs_2026-10-15/. The paired camera/
+layout receipts are infeatures/data/678_volume_column_api_catalogs_2026-10-15/.
+
+Guarded small-job generation is measured:27 targets22.72s/582256KiB with zero
+canonical-collector requests and zero model decoding. The guard aborts before
+any full collector, returning that work to the capped shared heavy queue.
+No ordinary candidate/source/review/preservation gate is bypassed.
+The database/plate-map54target batch is ready in the coordinator with9runtime
+targets; its merge arrival fixture is being regenerated through the normal
+tool. It is independent from this publication. F580 UI/guide private delivery
+remains with Original Home for coherent domain publication; finalCI/release
+remain deferred. Memory/laptop261targets and title18targets are in progress.
