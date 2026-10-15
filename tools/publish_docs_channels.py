@@ -18,6 +18,7 @@ import re
 import shutil
 import time
 from urllib.error import URLError
+from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 
 
@@ -26,6 +27,10 @@ MAIN_URL = "https://einarolafsson.github.io/spacr/"
 NIGHTLY_SPACE = "einarolafsson/spacr-docs-nightly"
 NIGHTLY_URL = "https://einarolafsson-spacr-docs-nightly.static.hf.space/"
 PAGES_LIMIT = 900 * 1000 * 1000
+_HF_STATIC_INJECTION_BYTES = 101
+_HF_STATIC_INJECTION = re.compile(
+    rb'<script>window\.huggingface=\{variables:\{"SPACE_CREATOR_USER_ID":'
+    rb'"[0-9a-f]{24}"\}\};</script>')
 
 
 def verified_video_hosts(build: Path, checkpoint: Path) -> dict:
@@ -355,9 +360,26 @@ def upload_nightly(site: Path, space: str = NIGHTLY_SPACE) -> str:
     return info.oid
 
 
+def _public_index_matches(expected: bytes, received: bytes, url: str) -> bool:
+    """Allow only the observed static-Space creator script around exact bytes."""
+    if received == expected:
+        return True
+    address = urlsplit(url)
+    if (address.scheme != "https"
+            or not (address.hostname or "").endswith(".static.hf.space")
+            or len(received) != len(expected) + _HF_STATIC_INJECTION_BYTES):
+        return False
+    head = re.search(rb"<head\b[^>]*>", expected)
+    if head is None or received[:head.end()] != expected[:head.end()]:
+        return False
+    injection = _HF_STATIC_INJECTION.match(received, head.end())
+    return (injection is not None
+            and received[injection.end():] == expected[head.end():])
+
+
 def verify_nightly(site: Path, url: str = NIGHTLY_URL, attempts: int = 30,
                    interval: float = 10) -> str:
-    """Wait for matching public receipts and this build's exact homepage bytes."""
+    """Match public receipts and exact homepage bytes apart from HF's host script."""
     if attempts < 1 or interval < 0:
         raise ValueError("Expected at least one attempt and a nonnegative interval")
     expected = json.loads((site / "channels.json").read_text())
@@ -377,7 +399,9 @@ def verify_nightly(site: Path, url: str = NIGHTLY_URL, attempts: int = 30,
                 request = Request(url.rstrip("/") + "/" + name + "?source=" + record["commit"],
                                   headers={"Cache-Control": "no-cache"})
                 with urlopen(request, timeout=15) as response:
-                    if response.read(len(expected_index) + 1) == expected_index:
+                    received_index = response.read(
+                        len(expected_index) + _HF_STATIC_INJECTION_BYTES + 1)
+                    if _public_index_matches(expected_index, received_index, url):
                         return record["commit"]
                 last_error = "public index.html does not match the assembled site"
             else:

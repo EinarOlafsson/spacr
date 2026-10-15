@@ -141,3 +141,17 @@ bytes are rejected. Three failures reproduced before; complete owning module
 38PASS/0skip after. No external calls, quota actions or whole-site/media proof
 claimed. Evidence: features/data/689_homepage_readback_2026-10-14/. Historical
 Space quota remains independently unresolved; no final deployment closure.
+
+2026-10-15 — Hosted homepage verification accepts only the known HF envelope
+Actual saved public responses had matching publication/channel receipts and
+the exact immutable index plus one101-byte static-host creator script. The
+previous verifier rejected that valid response. Verification now accepts only
+the precise HTTPS *.static.hf.space script schema/location, preserving every
+other index byte and both metadata comparisons. The read remains bounded by
+expected length plus101 bytes and one sentinel. Duplicate/misplaced/altered
+scripts, wrong IDs/schema/hosts, truncation and unrelated drift stay rejected.
+Saved-response replay changes FAIL to PASS without network calls; all67 owning
+tests pass5.06s. Independent code/evidence peer is0b7a9bb1. Evidence:
+features/data/689_hf_host_envelope_2026-10-15/ and the corresponding peer review.
+This closes this verifier defect only. No live deployment, current-source HF
+publication or Pages migration is claimed; those acceptance gates remain open.

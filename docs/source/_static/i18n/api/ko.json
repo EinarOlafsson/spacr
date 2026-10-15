@@ -73210,16 +73210,16 @@
     },
     "spacr.qt.bridge.RunRegistry": {
       "source_blocks_sha256": [
-        "4d2d05f0f2a5a75aa966e9dddc5010587c4f774b8f36884f871918dae32b241d",
+        "d3984eb704e5db7dd245f3ba040f64d1f384f13dc25f157fe1806c9e169f72c3",
         "0218576172519d0d008ea921822d7b91f661a9714a855a6606dfb26f06e53312",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "96c5e050369d40460d03538b71ff864a825da5dfe1a853ab7f8aef7565e4ef26",
         "9c986a19a5913e497cd5c492f9c30cc2133fb0996a522020ea0a61b4c4d82497"
       ],
-      "source_sha256": "a5045a1332bb15025793919b9764e6efbafb321b07f601a0ec0205222b566422",
-      "text": "모든 작업은 :func:`make_thread`을 통해 시작되며 실행됩니다.\n\n의도적으로 작은 : 목록 플러스 A ``changed`` 그것은 존재한다.그것은 존재하는 표면이있다. *아니요* 작업을 시작한 응용 프로그램 보기 - 홈 페이지 - 무엇을 보여줄 수 있습니까? spaCR 그것은 모든 응용 프로그램을 가르치지 않고 보고하는 것입니다.\n\n:param parent: 상위 위젯입니다.\n빈 실행 레지스트리를 만드십시오.\n\n:param parent: 부모 개체 또는 ``None``",
+      "source_sha256": "3881515bd172a9666218257e7dcf8b2eea5f3c448b68780bca5546ec6148a74f",
+      "text": ":func:`make_thread` 함수가 만든 작업을 해당 핸들이 등록 해제될 때까지 추적합니다.\n\n의도적으로 작은 : 목록 플러스 A ``changed`` 그것은 존재한다.그것은 존재하는 표면이있다. *아니요* 작업을 시작한 응용 프로그램 보기 - 홈 페이지 - 무엇을 보여줄 수 있습니까? spaCR 그것은 모든 응용 프로그램을 가르치지 않고 보고하는 것입니다.\n\n:param parent: 상위 위젯입니다.\n빈 실행 레지스트리를 만드십시오.\n\n:param parent: 부모 개체 또는 ``None``",
       "translation_source_blocks_sha256": [
-        "6b21e8a69e4151fa4349249441b506e09b40bfa21a6bc4b41edc42525003c806",
+        "d3984eb704e5db7dd245f3ba040f64d1f384f13dc25f157fe1806c9e169f72c3",
         "97cc80461d235dbebfdc2275238129d0acab8fbd0c603e17d560233647284063",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "96c5e050369d40460d03538b71ff864a825da5dfe1a853ab7f8aef7565e4ef26",
@@ -73228,12 +73228,14 @@
     },
     "spacr.qt.bridge.RunRegistry.active": {
       "source_blocks_sha256": [
-        "544bce5e36d3c8d0cc25fb355dc2f55cab539c028753be0b0a0d99c97137f637"
+        "3b3cb03f08deab531b8737e63e0b2d864818cb239bb5d5e8bfc918c207d4c857",
+        "9b6ac0a4c35f561d2b44f94b63c7aa93a4f17495090aa43778aeb9bb8d38ac25"
       ],
-      "source_sha256": "544bce5e36d3c8d0cc25fb355dc2f55cab539c028753be0b0a0d99c97137f637",
-      "text": "지금 실행하는 직업을 처리, 가장 오래된 첫 번째.",
+      "source_sha256": "5209ff65983748fa01cb46e8ada8a10547f5dda4fd48c043acae9e585d1d9910",
+      "text": "등록된 핸들을 등록 순서대로 반환합니다.\n\n목록에는 아직 시작되지 않은 작업과 등록 해제를 기다리는 중지된 스레드가 포함됩니다. 스레드의 현재 실행 여부를 기준으로 필터링하지 않습니다.",
       "translation_source_blocks_sha256": [
-        "5c30f2ab9fc765d696ebd65f603292df2e2bd9bed421e8166137a971285213f7"
+        "3b3cb03f08deab531b8737e63e0b2d864818cb239bb5d5e8bfc918c207d4c857",
+        "b439553b7da1eb8b204221803e362ebc55bf3cb91af53900a4e28d8c67153d6e"
       ]
     },
     "spacr.qt.bridge.RunRegistry.cancel_all": {
@@ -73411,25 +73413,27 @@
         "26d9057fd78dc7af66e715481e2fc275e3994a114782ca0cbff7e7c96ce2c74c",
         "8d111b0b98f49879180b16161e821d1c9af02a8800fb882190b076dec818766b",
         "c85b2cb5961d1325951cf5024983a774920c4adc07f1e8f61b3702cf544777b7",
-        "5483f199c9170c66c95f8f90a202b0cb0e9bd0289c23c78bef0de979daa10b79",
+        "adf871c4edd2c071f0e3850ee41ad86051a75f98f9e6f4f18ddacaf6e5595464",
         "c2fc5f28c356838b6a46992e2d58400df4a285d04bd4f6c15453a4742dd63953",
         "1142ee79d8c17bec516b5606fe1ec4da6eeaa92371c89eed5630d6e300b9523d",
         "2b691555682b52e906dafba89cfa84803e464d62b743b5954884a9c171f3b62d",
         "9a9281e5778f1f82e5de95004e123dda5e5b8652d1c59e0fd09d3d37d85181e6",
+        "36e49479120a7d81df0cc74b5f70860e3e3b881ab892bf152165b999ce3f02e7",
         "6c5b2f14c32d33bed068fb7e9c0e7815486ca7a7145c50a6c8e18252b876f5ef",
         "c49ad207a8a67b97e8c20106f0a6625693ee003b39f66d2c35e194aab5df3b15"
       ],
-      "source_sha256": "845d6a874fd43385ffe0accf6a36fbcfd4052de4433478289ab6d4a4e047b4b0",
-      "text": "반환 ``(thread, worker)`` - 호출자는 노동자의 신호와 ``thread.start()``를 연결합니다.\n\n노동자는 Python 소유하고 ``deleteLater``에 연결되어 있지 않습니다; 그것의 마지막 강력한 참조는 그것을 풀어줍니다. QThread 자체는 ``deleteLater``를 유지하기 때문에 그것은 호출자의 실행 이벤트 루프에 속합니다.\n\n호출자는 ``thread.finished``까지 두 가지에 대한 강력한 참조를 유지해야합니다 : 실행하는 동안 QThread 쓰레기 수집이 과정을 감소시킵니다.\n\n이 작업은 또한 추가되었습니다 :func:`registry` 그것이 실행되는 동안, 그것을 시작하지 않은 표면 ( 홈 응용 프로그램 보기)은 무엇을 보여줄 수 있습니다. spaCR 녹음이 끊어지고, 녹음을 꺼낸다. ``thread.finished`` - 누가 가지고 있는가 *콜러의* 애플리케이션 - 대신 ``worker.finished``, 배경 실행 단위에 발행되고 등록을 취할 것입니다 (주요 GUI 실행 경로 QObject) 그것과 함께.\n\n:param fn: 뒷면 실행 단위에서 ``fn(settings)``로 호출 할 수 있습니다.\n:param settings: 단일 논쟁은 ``fn``에 전달되었습니다.\n:param app_key: ``fn``에 표시된 키를 :func:`resolve_pipeline_entry`로 초과합니다.이 작업은 자신의 이름으로 홈에 표시되기를 원하는 광고 호크 작업에만 필요합니다.\n:param journal: 재생 가능성 기록을 만들 수 있습니다. UI 가정 관리만 읽을 수 없으며 분석 실행이 아닙니다.\n:param capture_figures: Matplotlib 그림 가로채기를 준비합니다. 분석 실행에서는 true로 유지하고, 그림을 만들 수 없는 읽기 전용 UI 작업은 작업의 가져오기 경계를 보존하기 위해 false로 설정합니다.\n:returns: 시작되지 않은 ``(QThread, PipelineWorker)`` 쌍.",
+      "source_sha256": "16fcc33ff93d94c44e3587bc9585e1d9f2839d04170fc6394604a75acfce7060",
+      "text": "반환 ``(thread, worker)`` - 호출자는 노동자의 신호와 ``thread.start()``를 연결합니다.\n\n노동자는 Python 소유하고 ``deleteLater``에 연결되어 있지 않습니다; 그것의 마지막 강력한 참조는 그것을 풀어줍니다. QThread 자체는 ``deleteLater``를 유지하기 때문에 그것은 호출자의 실행 이벤트 루프에 속합니다.\n\n호출자는 ``thread.finished``까지 두 가지에 대한 강력한 참조를 유지해야합니다 : 실행하는 동안 QThread 쓰레기 수집이 과정을 감소시킵니다.\n\n이 함수가 반환하기 전에 핸들이 :func:`registry` 에 추가되며, 이때 스레드는 아직 시작되지 않았습니다. 핸들은 ``thread.finished`` 신호가 핸들의 등록 해제 메서드를 호출할 때까지 등록된 상태로 남습니다. 따라서 등록된 핸들에는 시작이나 등록 해제를 기다리는 작업도 포함되며, 현재 실행 중인 스레드의 개수를 뜻하지 않습니다. Home 같은 화면은 이 핸들을 통해 자신이 시작하지 않은 작업도 표시할 수 있습니다. 등록 해제는 ``thread.finished`` 에 연결되며, 스레드가 멈추기 전에 발생하는 ``worker.finished`` 에 연결되지 않습니다.\n\n:param fn: 뒷면 실행 단위에서 ``fn(settings)``로 호출 할 수 있습니다.\n:param settings: 단일 논쟁은 ``fn``에 전달되었습니다.\n:param app_key: ``fn``에 표시된 키를 :func:`resolve_pipeline_entry`로 초과합니다.이 작업은 자신의 이름으로 홈에 표시되기를 원하는 광고 호크 작업에만 필요합니다.\n:param journal: 재생 가능성 기록을 만들 수 있습니다. UI 가정 관리만 읽을 수 없으며 분석 실행이 아닙니다.\n:param user_visible: 사용자에게 보여 줄 작업 목록을 위해 핸들을 표시합니다. False 값은 이 플래그로 필터링하는 화면에서 핸들을 숨깁니다. 핸들은 계속 등록되어 있으며, 이 옵션은 작업을 취소하거나 중지하지 않습니다.\n:param capture_figures: Matplotlib 그림 가로채기를 준비합니다. 분석 실행에서는 true로 유지하고, 그림을 만들 수 없는 읽기 전용 UI 작업은 작업의 가져오기 경계를 보존하기 위해 false로 설정합니다.\n:returns: 시작되지 않은 ``(QThread, PipelineWorker)`` 쌍.",
       "translation_source_blocks_sha256": [
         "26d9057fd78dc7af66e715481e2fc275e3994a114782ca0cbff7e7c96ce2c74c",
         "d685e4a3a3bf2e1d15e722b6db315753180e3eeab72e54dc59ce2c87f507f8ed",
         "f9e35447ddc97f94185f911074ce2e89954a313345261381630291c0989b20b8",
-        "9b32b00cc7ae546e6425a288f31001288d88fbe18ba1c367cd6955cbd00e7a77",
+        "9066a3b3e5b56f6b64d441c662933532df6fbae661a08094ea9a6c4f4ef2411d",
         "ab49f524b54298c36abfa372fe541de639d23064ca389ffddff2fb166ef6edfe",
         "1142ee79d8c17bec516b5606fe1ec4da6eeaa92371c89eed5630d6e300b9523d",
         "2b691555682b52e906dafba89cfa84803e464d62b743b5954884a9c171f3b62d",
         "9a9281e5778f1f82e5de95004e123dda5e5b8652d1c59e0fd09d3d37d85181e6",
+        "36e49479120a7d81df0cc74b5f70860e3e3b881ab892bf152165b999ce3f02e7",
         "6c5b2f14c32d33bed068fb7e9c0e7815486ca7a7145c50a6c8e18252b876f5ef",
         "c49ad207a8a67b97e8c20106f0a6625693ee003b39f66d2c35e194aab5df3b15"
       ]
@@ -122395,13 +122399,13 @@
     "spacr.qt.widgets.activity_spinner.ActivitySpinner.is_spinning": {
       "source_blocks_sha256": [
         "73a3c01626e21532d61f2be4ccdda0841e2218d4566b266bf9fd75ba674fb1d6",
-        "c27b3c39f7038eeca9abe8d235d6f75abeba396221c59fe6eeed6cbe7cb3e31c"
+        "02da540a96a73eee013d2059bffaac187dbe93947f7da417916cea83c1e6694c"
       ],
-      "source_sha256": "6cb2bcd39c075283af12995b8e1bda7c7a86cdc44cd49badef67618e149e290c",
-      "text": "애니메이션 타이머가 실제로 실행되는지 여부.\n\n\"idle costs zero\" 뒤에 있는 주장: 이것이 ``False``이면 위젯은 전혀 이벤트를 게시하지 않습니다.",
+      "source_sha256": "bb3ca13a7abaeccea8dccb98a8453fe974893d3ee00ee105c0d249a7f604172c",
+      "text": "애니메이션 타이머가 실제로 실행되는지 여부.\n\n애니메이션 타이머의 상태만 보고합니다. 표시 전 지연 시간에는 별도의 지연 타이머가 계속 활성 상태여도 ``False`` 값을 반환합니다. 해당 상태는 :meth:`is_waiting` 메서드로 확인합니다.",
       "translation_source_blocks_sha256": [
         "73a3c01626e21532d61f2be4ccdda0841e2218d4566b266bf9fd75ba674fb1d6",
-        "c27b3c39f7038eeca9abe8d235d6f75abeba396221c59fe6eeed6cbe7cb3e31c"
+        "02da540a96a73eee013d2059bffaac187dbe93947f7da417916cea83c1e6694c"
       ]
     },
     "spacr.qt.widgets.activity_spinner.ActivitySpinner.is_waiting": {

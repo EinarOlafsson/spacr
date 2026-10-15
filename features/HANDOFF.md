@@ -13329,3 +13329,31 @@ are preserved; source history stays exact. Normal Help regeneration passes.
 Evidence:features/data/678_path_probe_api_catalogs_2026-10-15/ and
 features/data/678_path_probe_coordinator_review_2026-10-15/. This closes only
 these five symbols, not the wider semantic review or final CI/release gates.
+
+## 2026-10-15 Home-B — registered handles and spinner timer contracts
+Four existing symbols now distinguish registered handles from running threads,
+state registration/retirement timing, document user_visible, and distinguish the
+animation timer from an active appearance delay. Executable AST/comments stay
+unchanged. All source and target reviews are bound to exact hashes. Normal
+generation passes18.30s without canonical collection or decoding:54 changed/new
+targets,16 byte-preserved shifted targets and two proven Hindi/Icelandic return
+repairs. Nine obsolete active review rows retire with exact provenance. Every
+unrelated locale/English entry and source history is preserved. Normal Help
+regeneration passes; precisely two summaries change, all unrelated API summaries
+are exact. Evidence:features/data/678_bridge_spinner_api_catalogs_2026-10-15/
+and features/data/678_bridge_spinner_coordinator_review_2026-10-15/. This closes
+these four contracts, not the wider semantic sweep or final CI/release.
+
+## 2026-10-15 Home-B — strict static-host index verification repaired
+Actual saved public responses had matching publication/channel receipts and
+the exact immutable index plus one101-byte static-host creator script. The
+previous verifier rejected that valid response. Verification now accepts only
+the precise HTTPS *.static.hf.space script schema/location, preserving every
+other index byte and both metadata comparisons. The read remains bounded by
+expected length plus101 bytes and one sentinel. Duplicate/misplaced/altered
+scripts, wrong IDs/schema/hosts, truncation and unrelated drift stay rejected.
+Saved-response replay changes FAIL to PASS without network calls; all67 owning
+tests pass5.06s. Independent code/evidence peer is0b7a9bb1. Evidence:
+features/data/689_hf_host_envelope_2026-10-15/ and the corresponding peer review.
+This closes this verifier defect only. No live deployment, current-source HF
+publication or Pages migration is claimed; those acceptance gates remain open.

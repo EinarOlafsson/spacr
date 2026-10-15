@@ -1,0 +1,63 @@
+[
+  {
+    "name": "hf-publication",
+    "url": "https://einarolafsson-spacr-docs-nightly.static.hf.space/publication.json",
+    "time_utc": "2026-10-15T08:27:35.834205+00:00",
+    "status": 200,
+    "final_url": "https://einarolafsson-spacr-docs-nightly.static.hf.space/publication.json",
+    "headers": {
+      "Content-Type": "application/json; charset=utf-8",
+      "Content-Length": "179",
+      "ETag": "\"1924a128934ce4c47b01850b1b5cc2a708f70d9c\"",
+      "Last-Modified": null,
+      "Cache-Control": null
+    },
+    "bytes": 179,
+    "sha256": "bd09ad0f310661d156993983715ad907ec5483daa34bf6cb2672619bba2b0b16",
+    "body_file": "hf-publication.body"
+  },
+  {
+    "name": "hf-channels",
+    "url": "https://einarolafsson-spacr-docs-nightly.static.hf.space/channels.json",
+    "time_utc": "2026-10-15T08:27:35.971250+00:00",
+    "status": 200,
+    "final_url": "https://einarolafsson-spacr-docs-nightly.static.hf.space/channels.json",
+    "headers": {
+      "Content-Type": "application/json; charset=utf-8",
+      "Content-Length": "401",
+      "ETag": "\"4ef672024f22c6586c9331c5e9de5fc55c940d3a\"",
+      "Last-Modified": null,
+      "Cache-Control": null
+    },
+    "bytes": 401,
+    "sha256": "78718a4dd99850adddac4a2fbea1736147903635b4aabb2f79aa908c98bd498b",
+    "body_file": "hf-channels.body"
+  },
+  {
+    "name": "hf-index",
+    "url": "https://einarolafsson-spacr-docs-nightly.static.hf.space/index.html",
+    "time_utc": "2026-10-15T08:27:36.051901+00:00",
+    "status": 200,
+    "final_url": "https://einarolafsson-spacr-docs-nightly.static.hf.space/index.html",
+    "headers": {
+      "Content-Type": "text/html",
+      "Content-Length": null,
+      "ETag": null,
+      "Last-Modified": null,
+      "Cache-Control": null
+    },
+    "bytes": 238274,
+    "sha256": "62b866c6be21214ac487e9f29272425c57d2d7911a0b48bbf9cb43cbc1868c11",
+    "body_file": "hf-index.body"
+  },
+  {
+    "name": "hf-immutable-index",
+    "url": "https://huggingface.co/spaces/einarolafsson/spacr-docs-nightly/resolve/6185b7581aeee978c501e50f07fb61c19e030d33/index.html",
+    "time_utc": "2026-10-15T08:29:12.176615+00:00",
+    "status": 200,
+    "final_url": "https://huggingface.co/api/resolve-cache/spaces/einarolafsson/spacr-docs-nightly/6185b7581aeee978c501e50f07fb61c19e030d33/index.html?%2Fspaces%2Feinarolafsson%2Fspacr-docs-nightly%2Fresolve%2F6185b7581aeee978c501e50f07fb61c19e030d33%2Findex.html=&etag=%2256326ff99fc6f195d0aac8a6c98982eb438a187a%22",
+    "bytes": 238173,
+    "sha256": "508425e1d17ea89767af2b6d229c204ad3cc12b68c9efc74cfd1b6a3079c6e8b",
+    "body_file": "hf-immutable-index.body"
+  }
+]

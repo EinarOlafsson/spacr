@@ -239,8 +239,9 @@ class ActivitySpinner(QWidget):
     def is_spinning(self) -> bool:
         """Whether the animation timer is actually running.
 
-        The assertion behind "idle costs zero": when this is ``False`` the
-        widget posts no events at all.
+        This reports only the animation timer. During the appearance delay it
+        returns ``False`` while the separate delay timer remains active; use
+        :meth:`is_waiting` to check that state.
         """
         return self._timer.isActive()
 

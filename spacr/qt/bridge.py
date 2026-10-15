@@ -706,7 +706,7 @@ class RunHandle(QObject):
 
 
 class RunRegistry(QObject):
-    """Every job started through :func:`make_thread`, while it runs.
+    """Track jobs created by :func:`make_thread` until their handles retire.
 
     Deliberately tiny: a list plus a ``changed`` signal. It exists so
     that a surface which is *not* the screen that started the job — the
@@ -748,7 +748,11 @@ class RunRegistry(QObject):
             self.changed.emit()
 
     def active(self) -> List[RunHandle]:
-        """Handles for the jobs running right now, oldest first."""
+        """Return registered handles in registration order.
+
+        The list includes unstarted jobs and stopped threads awaiting
+        retirement; it does not filter by whether a thread is running.
+        """
         return list(self._handles)
 
     def is_busy(self) -> bool:
@@ -2236,12 +2240,14 @@ def make_thread(
     A caller must hold a strong reference to both until ``thread.finished``:
     a QThread garbage-collected while running takes the process down.
 
-    The job is also added to :func:`registry` for as long as it runs, so
-    surfaces that did not start it (the Home screen) can show what spaCR
-    is doing. Deregistration hangs off ``thread.finished`` — which has
-    the *caller's* affinity — rather than ``worker.finished``, which is
-    emitted on the worker thread and would take the registry (a GUI-thread
-    QObject) with it.
+    A handle is added to :func:`registry` before this function returns,
+    while the thread is still unstarted. It remains registered until
+    ``thread.finished`` invokes the handle's retirement method. Registered
+    handles therefore include jobs awaiting start or retirement; they are not
+    a count of threads currently executing. Surfaces such as Home can use
+    these handles to show jobs they did not start. Retirement is connected to
+    ``thread.finished`` rather than ``worker.finished``, which is emitted
+    before the thread stops.
 
     :param fn: callable invoked as ``fn(settings)`` on the worker thread.
     :param settings: the single argument handed to ``fn``.
@@ -2250,6 +2256,9 @@ def make_thread(
         want to show up on Home under a name of their own.
     :param journal: create a reproducibility record. Disable only for
         read-only UI housekeeping that is not an analysis run.
+    :param user_visible: mark the handle for user-facing job displays.
+        False hides it from displays that filter this flag; the handle is
+        still registered and this option does not cancel or stop the job.
     :param capture_figures: prepare Matplotlib figure interception. Keep true
         for analysis runs; read-only UI jobs which cannot emit figures set it
         false to preserve the operation import boundary.

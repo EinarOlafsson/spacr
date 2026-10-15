@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review; independent semantic peer requested; no native-speaker signoff",
+  "note": "Four existing symbols:54 new/changed translations,2 exact approved historical return repairs and16 byte-preserved shifted targets. Source/target validators unchanged; unrelated inputs preserved. Normal scoped renderer only, no full collector or global source-currency claim.",
+  "records": [
+    {
+      "label": "spacr.qt.bridge.make_thread#3",
+      "source": "A handle is added to :func:`registry` before this function returns, while the thread is still unstarted. It remains registered until ``thread.finished`` invokes the handle's retirement method. Registered handles therefore include jobs awaiting start or retirement; they are not a count of threads currently executing. Surfaces such as Home can use these handles to show jobs they did not start. Retirement is connected to ``thread.finished`` rather than ``worker.finished``, which is emitted before the thread stops.",
+      "context": "A handle is added to :func:`registry` before this function returns, while the independent execution path is still unstarted. It remains registered until ``thread.finished`` invokes the handle's retirement method. Registered handles therefore include jobs awaiting start or retirement; they are not a count of independent execution paths currently executing. Surfaces such as Home can use these handles to show jobs they did not start. Retirement is connected to ``thread.finished`` rather than ``worker.finished``, which is emitted before the independent execution path stops.",
+      "source_sha256": "adf871c4edd2c071f0e3850ee41ad86051a75f98f9e6f4f18ddacaf6e5595464",
+      "previous_same_source_indexes": [],
+      "kind": "changed or new source",
+      "translation": "Ein Handle wird vor der Rückkehr dieser Funktion zu :func:`registry` hinzugefügt, während der Thread noch nicht gestartet ist. Es bleibt registriert, bis ``thread.finished`` die Ausmusterungsmethode des Handles aufruft. Registrierte Handles umfassen daher auch Jobs, die auf ihren Start oder ihre Ausmusterung warten; sie zählen nicht die gerade ausführenden Threads. Ansichten wie Home können diese Handles verwenden, um Jobs anzuzeigen, die sie nicht selbst gestartet haben. Die Ausmusterung ist mit ``thread.finished`` statt mit ``worker.finished`` verbunden, das vor dem Anhalten des Threads gesendet wird.",
+      "review_basis": "Exact-source technical translation of pre-start registration and retirement semantics, display-only visibility filtering, registered-handle order/count and independent animation/appearance-delay timers. Protected spans and exact API references preserved. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.bridge.make_thread#8",
+      "source": "mark the handle for user-facing job displays. False hides it from displays that filter this flag; the handle is still registered and this option does not cancel or stop the job.",
+      "context": "mark the handle for user-facing job displays. False hides it from displays that filter this flag; the handle is still registered and this option does not cancel or stop the job.",
+      "source_sha256": "36e49479120a7d81df0cc74b5f70860e3e3b881ab892bf152165b999ce3f02e7",
+      "previous_same_source_indexes": [],
+      "kind": "changed or new source",
+      "translation": "das Handle für benutzerseitige Jobanzeigen markieren. False blendet es in Anzeigen aus, die dieses Flag filtern; das Handle bleibt registriert, und diese Option bricht den Job weder ab noch hält sie ihn an.",
+      "review_basis": "Exact-source technical translation of pre-start registration and retirement semantics, display-only visibility filtering, registered-handle order/count and independent animation/appearance-delay timers. Protected spans and exact API references preserved. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.bridge.make_thread#9",
+      "source": "prepare Matplotlib figure interception. Keep true for analysis runs; read-only UI jobs which cannot emit figures set it false to preserve the operation import boundary.",
+      "context": "prepare Matplotlib figure interception. Keep true for analysis runs; read-only UI jobs which cannot emit figures set it false to preserve the operation import boundary.",
+      "source_sha256": "6c5b2f14c32d33bed068fb7e9c0e7815486ca7a7145c50a6c8e18252b876f5ef",
+      "previous_same_source_indexes": [
+        8
+      ],
+      "kind": "shifted unchanged source",
+      "translation": "Bereitet das Abfangen von Matplotlib-Abbildungen vor. Für Analyseläufe true beibehalten; schreibgeschützte UI-Aufträge, die keine Abbildungen erzeugen können, setzen den Wert auf false, um die Importgrenze der Operation zu erhalten.",
+      "review_basis": "Byte-preserved historical target with exact public source/index/target provenance at the new block index; independent source-semantic peer reviewed this shift separately. No native-speaker claim.",
+      "provenance": {
+        "published_base": "08e2519d51783007b8848641762be74787a5de94",
+        "previous_label": "spacr.qt.bridge.make_thread#8",
+        "prior_catalog_source_sha256": "845d6a874fd43385ffe0accf6a36fbcfd4052de4433478289ab6d4a4e047b4b0",
+        "prior_target_sha256": "517ae94e8439096744b89e2ff2f845e1ea6a39c83c67ed21840029be671426b8",
+        "target_byte_preserved": true
+      }
+    },
+    {
+      "label": "spacr.qt.bridge.make_thread#10",
+      "source": "an unstarted ``(QThread, PipelineWorker)`` pair.",
+      "context": "an unstarted ``(QThread, PipelineWorker)`` pair.",
+      "source_sha256": "c49ad207a8a67b97e8c20106f0a6625693ee003b39f66d2c35e194aab5df3b15",
+      "previous_same_source_indexes": [
+        9
+      ],
+      "kind": "shifted unchanged source",
+      "translation": "ein ungestartetes ``(QThread, PipelineWorker)`` Paar.",
+      "review_basis": "Byte-preserved historical target with exact public source/index/target provenance at the new block index; independent source-semantic peer reviewed this shift separately. No native-speaker claim.",
+      "provenance": {
+        "published_base": "08e2519d51783007b8848641762be74787a5de94",
+        "previous_label": "spacr.qt.bridge.make_thread#9",
+        "prior_catalog_source_sha256": "845d6a874fd43385ffe0accf6a36fbcfd4052de4433478289ab6d4a4e047b4b0",
+        "prior_target_sha256": "35192fa29a0e68f4ab4473b0f1e24defca82a568f52cc4244b7d06a29234d0d3",
+        "target_byte_preserved": true
+      }
+    },
+    {
+      "label": "spacr.qt.bridge.RunRegistry#0",
+      "source": "Track jobs created by :func:`make_thread` until their handles retire.",
+      "context": "Track jobs created by :func:`make_thread` until their handles retire.",
+      "source_sha256": "d3984eb704e5db7dd245f3ba040f64d1f384f13dc25f157fe1806c9e169f72c3",
+      "previous_same_source_indexes": [],
+      "kind": "changed or new source",
+      "translation": "Von :func:`make_thread` erstellte Jobs verfolgen, bis ihre Handles ausgemustert werden.",
+      "review_basis": "Exact-source technical translation of pre-start registration and retirement semantics, display-only visibility filtering, registered-handle order/count and independent animation/appearance-delay timers. Protected spans and exact API references preserved. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.bridge.RunRegistry.active#0",
+      "source": "Return registered handles in registration order.",
+      "context": "Return registered handles in registration order.",
+      "source_sha256": "3b3cb03f08deab531b8737e63e0b2d864818cb239bb5d5e8bfc918c207d4c857",
+      "previous_same_source_indexes": [],
+      "kind": "changed or new source",
+      "translation": "Registrierte Handles in der Reihenfolge ihrer Registrierung zurückgeben.",
+      "review_basis": "Exact-source technical translation of pre-start registration and retirement semantics, display-only visibility filtering, registered-handle order/count and independent animation/appearance-delay timers. Protected spans and exact API references preserved. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.bridge.RunRegistry.active#1",
+      "source": "The list includes unstarted jobs and stopped threads awaiting retirement; it does not filter by whether a thread is running.",
+      "context": "The list includes unstarted jobs and stopped independent execution paths awaiting retirement; it does not filter by whether an independent execution path is executing.",
+      "source_sha256": "9b6ac0a4c35f561d2b44f94b63c7aa93a4f17495090aa43778aeb9bb8d38ac25",
+      "previous_same_source_indexes": [],
+      "kind": "changed or new source",
+      "translation": "Die Liste enthält noch nicht gestartete Jobs und angehaltene Threads, deren Ausmusterung aussteht; sie filtert nicht danach, ob ein Thread gerade läuft.",
+      "review_basis": "Exact-source technical translation of pre-start registration and retirement semantics, display-only visibility filtering, registered-handle order/count and independent animation/appearance-delay timers. Protected spans and exact API references preserved. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.activity_spinner.ActivitySpinner.is_spinning#1",
+      "source": "This reports only the animation timer. During the appearance delay it returns ``False`` while the separate delay timer remains active; use :meth:`is_waiting` to check that state.",
+      "context": "This reports only the animation timer. During the appearance delay it returns ``False`` while the separate delay timer remains active; use :meth:`is_waiting` to check that state.",
+      "source_sha256": "02da540a96a73eee013d2059bffaac187dbe93947f7da417916cea83c1e6694c",
+      "previous_same_source_indexes": [],
+      "kind": "changed or new source",
+      "translation": "Dies meldet nur den Animationstimer. Während der Verzögerung vor dem Erscheinen wird ``False`` zurückgegeben, während der separate Verzögerungstimer aktiv bleibt; diesen Zustand mit :meth:`is_waiting` prüfen.",
+      "review_basis": "Exact-source technical translation of pre-start registration and retirement semantics, display-only visibility filtering, registered-handle order/count and independent animation/appearance-delay timers. Protected spans and exact API references preserved. No native-speaker claim."
+    }
+  ]
+}
