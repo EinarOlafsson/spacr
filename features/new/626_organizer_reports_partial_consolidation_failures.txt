@@ -50,3 +50,12 @@ Validation under a 1 GB, single-thread CPU cap:
   change without increasing the memory limit or running a full suite.
 
 VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).
+
+2026-10-15 — Historical DONE status reconciled, not new implementation.
+The tracker95% entry had no remaining original clause. Current organizer and
+folder-consolidation files match the final source pins in the published
+ci_partial_consolidation_injection_2026-10-15 receipt. The owning test differs
+from old hosted8fc only in the already-reviewed copyfileobj injection repair;
+its current SHA matches the actual final five-case PASS/2.03s receipt. No
+unchanged tests rerun. All original failure/preservation/retry requirements
+remain accepted; broader organizer tutorials belong to N639.

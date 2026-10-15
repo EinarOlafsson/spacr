@@ -602,11 +602,11 @@
     {
       "item": "N626",
       "title": "Partial consolidation",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
+      "percent_done": "✅",
+      "time_left_hours": "0",
       "owner": "Home / assigned owner",
-      "description": "See current owner delivery and remaining acceptance gates.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+      "description": "Historically complete: partial consolidation reports failure, preserves input/state and successful copies, stops downstream actions and supports retry.",
+      "completion_basis": "Original closed2026-10-01; current organizer/backend pins and actual corrected five-case CI receipt verified2026-10-15. Not a new implementation tick."
     },
     {
       "item": "N633",
@@ -623,7 +623,7 @@
       "percent_done": 95,
       "time_left_hours": "1–3",
       "owner": "Home / assigned owner",
-      "description": "Organize buttons and original-preservation repair implemented. Item explicitly leaves translations and tutorials for both buttons with owners; current item-specific catalog/tutorial closure not recorded. No new whole-organizer transaction acceptance.",
+      "description": "Software and189 current localized targets verified; Work must bind existing two-button clips/current layout/publication. Exact owner request relayed.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
