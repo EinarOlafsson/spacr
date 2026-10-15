@@ -102,6 +102,7 @@ from PySide6.QtWidgets import (QFrame, QHBoxLayout, QLabel, QToolTip,
                                QVBoxLayout, QWidget)
 
 from ..theme import SPACING, active_palette, font_px
+from ..tooltip_policy import LINGER_MS
 
 
 LOGGER = logging.getLogger(__name__)
@@ -600,7 +601,7 @@ class HoverTooltip(QFrame):
     #: The cost of being generous is a tooltip that lingers a moment after
     #: the cursor has genuinely left, which is the mistake worth making: the
     #: other one loses text the user was reading.
-    HIDE_DELAY_MS = 700
+    HIDE_DELAY_MS = LINGER_MS
 
     def start_hide(self, delay_ms: int = 0) -> None:
         """Schedule a hide after ``delay_ms`` unless the cursor re-enters.
@@ -935,14 +936,10 @@ class HoverTooltip(QFrame):
     def leaveEvent(self, event):
         """Restart the hide timer when the cursor leaves the POPUP itself.
 
-        Shorter than the anchor's grace period on purpose: leaving the popup
-        is a deliberate act, where leaving the label may just be the journey
-        towards it.
-
         :param event: the leave event; passed to the base class and otherwise
             not read.
         """
-        self.start_hide(delay_ms=250)
+        self.start_hide()
         super().leaveEvent(event)
 
 
