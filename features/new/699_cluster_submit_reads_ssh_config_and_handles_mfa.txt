@@ -125,3 +125,19 @@ generator assertions were waived. No real cluster/MFA/macOS/Windows acceptance.
 Receipt: data/699_current_integration_2026-10-14/receipt.json.
 
 2026-10-15 Original Home: coherent SSH discovery/password-first MFA/literal-path source merged with published N702 snapshot provenance. Fresh owning mixed CPU/Qt cohort107PASS12.25s; earlier native local OpenSSH parsing/injected auth129-check receipts retained, no real cluster acceptance claim. Normal English runtime writer completed. Home-B approved additive extractor retained every scientific/model/installer owner. Source publication proceeds with exact known foreign N700 review and current preferences nested-docstring generation failures recorded; no global CI, native MFA or whole-feature acceptance is claimed.
+
+
+2026-10-15 — PRIVATE conditional Include and outer Host-scope repair.
+Actual private native OpenSSH -G comparisons exposed static Include flattening
+reactivating User from an unrelated Host and suppressing outer directives
+after a child Host stopped matching. The existing parser/lookup now preserve
+parent inclusion activation and restore the outer active state per included
+file. Internal top/start/end framing uses None keys; unsupported user keywords
+cannot impersonate it. Host discovery ignores internal markers. No passive
+command/Match evaluation, UI/authentication, signatures/prose or captions changed.
+Baseline8FAIL4PASS1.17s; final54PASS1.28s includes12new native/passive/unknown-key
+controls plus42existing discovery/MFA cases. Actual normal nested1/API/runtime
+source proof shows zero arrivals and all unrelated source bodies unchanged.
+No real SSH account/MFA, private-key read, user/system SSH config, network or
+other-OS acceptance; maintainer-owned cluster validation remains open.
+Evidence:data/699_conditional_ssh_includes_2026-10-15/.

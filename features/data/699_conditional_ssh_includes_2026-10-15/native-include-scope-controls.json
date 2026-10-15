@@ -1,0 +1,22 @@
+[
+  {
+    "case": "active_child_ends_inactive",
+    "user": "outer-after",
+    "port": "22"
+  },
+  {
+    "case": "inactive_child_ends_active",
+    "user": "olafsson",
+    "port": "22"
+  },
+  {
+    "case": "active_child_ends_active",
+    "user": "outer-after",
+    "port": "2233"
+  },
+  {
+    "case": "first_value_wins",
+    "user": "first-user",
+    "port": "22"
+  }
+]
