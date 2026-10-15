@@ -28,12 +28,12 @@ Hours are estimates; external unknowns remain explicit.
 | N697 | 95% | 1–2 | Home / assigned owner | Disconnected brush/volume behavior and235merged checks/unmodified1.35paintgate recorded. Fresh fullCI/native-platform and Work lesson14 recording/publication remain; oldprivate publication/performance notes superseded only to stated extent. |
 | N704 | 90% | 1–3 | Home-B / Home | See current owner delivery and remaining acceptance gates. |
 | N676 | 65% | 12–24+ | Work | 09/11/15 verified media checkpoints;05 hidden Spaceout repair next; requested remaining lessons Work-owned. |
-| N702 | 90% | 2–4 + external | Home / assigned owner | Resolver/offline/coalescing implemented; normal GUI picker export loses exact model provenance. Backend verified-reference repair and UI owner coordination active. |
+| N702 | 90% | 2–4 + external | Home / assigned owner | Resolver/offline/coalescing and verified picker export now published with nine-language audit and10 actual consumer checks. Mask object-grid export still drops provenance; reproduced adapter under targeted repair. |
 | N689 | 85% | 2–4 + external | Home-B / Home | Free docs host verified. CI token reads metadata/tree/README but COMMIT returns403; token write permission and main Pages cutover remain. |
 | F560 | 90% | Unknown | Home / assigned owner | Official Cell-DINO gated weights require maintainer Meta request/access, then actual official factory/checkpoint loading and final hosted/scientific acceptance. Supported-backbone/human-label and CPU/CUDA proofs already recorded, not a new completion. |
 | F370 | 90% | 2–6 + data | Home / assigned owner | Curated six-row tooltips, provenance, generated documents and locales published; remaining model-wide/scientific acceptance separate. |
 | N678 | 90% | 2–4 | Home / assigned owner | See current owner delivery and remaining acceptance gates. |
-| N698 | 70% | 12–24+ | Home / assigned owner | Configuration live; free ZeroGPU source uploaded and1182files verified. Actual managed build exposed requirements-before-source packaging defect; repair active. Hosted inference/browser parity remain. |
+| N698 | 70% | 12–24+ | Home / assigned owner | Free ZeroGPU managed source build succeeded; exact deployed revision is RUNNING/READY on zero-a10g. Public schema check underway; actual hosted inference, browser execution and parity remain open. |
 | N699 | 90% | Unknown | Home / assigned owner | Actual real cluster/password+OTP/cancel/host policy and native platform acceptance need user/account/site. Claude700 is separate; no real SSH/auth/network here. |
 | N03 | ✅ | 0 | Home / assigned owner | Reuse scoped evidence; final candidate CI may reveal a new order counterexample. Do not repeat whole Qt sweeps. |
 | N76 | ✅ | 0 | Home / assigned owner | Historical generated-artifact debt is not a new unimplemented multi-organelle engine; no new whole scientific acceptance claimed. |

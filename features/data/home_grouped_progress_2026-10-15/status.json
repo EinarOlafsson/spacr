@@ -218,7 +218,7 @@
       "percent_done": 90,
       "time_left_hours": "2–4 + external",
       "owner": "Home / assigned owner",
-      "description": "Resolver/offline/coalescing implemented; normal GUI picker export loses exact model provenance. Backend verified-reference repair and UI owner coordination active.",
+      "description": "Resolver/offline/coalescing and verified picker export now published with nine-language audit and10 actual consumer checks. Mask object-grid export still drops provenance; reproduced adapter under targeted repair.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -263,7 +263,7 @@
       "percent_done": 70,
       "time_left_hours": "12–24+",
       "owner": "Home / assigned owner",
-      "description": "Configuration live; free ZeroGPU source uploaded and1182files verified. Actual managed build exposed requirements-before-source packaging defect; repair active. Hosted inference/browser parity remain.",
+      "description": "Free ZeroGPU managed source build succeeded; exact deployed revision is RUNNING/READY on zero-a10g. Public schema check underway; actual hosted inference, browser execution and parity remain open.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
