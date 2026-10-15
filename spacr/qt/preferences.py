@@ -2688,7 +2688,8 @@ def set_borderless_window(on: bool) -> None:
 def get_startup_animation() -> bool:
     """Whether the startup photomosaic blows away when spaCR is ready.
 
-    Preferences > Animation > Startup animation. Reduce motion overrides it.
+    Preferences > Appearance > Animation > Startup animation. Reduce motion
+    overrides it.
 
     :returns: ``True`` unless the switch was turned off; on by default.
     """
