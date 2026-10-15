@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review; independent parent peer review requested; no native-speaker signoff",
+  "note": "Four changed blocks in three existing symbols from UMAP sourcec00a087e749. Normal targeted AST rendering matches source-owner ledger; source-verified full cache reused without collector replay. Superseded records retain source/target evidence. Runtime captions belong to the UI owner.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings#3",
+      "source": "``TIER_STYLE`` settable on artists that already exist -- dot size, dot colour, opacity, outline width. Microseconds; nothing is re-read from disk. ``TIER_REDRAW`` needs the figure replotted, but **from the same embedding** -- image count, image zoom, figure size, which layers are drawn. Tenths of a second, because the thumbnails are re-read, so these are debounced. ``TIER_RERUN`` kept for a later run rather than applied to the finished figure. This tier includes ``n_neighbors``, ``min_dist``, the metric and feature filter, along with clustering, view-layout and output options. Not every setting in this tier changes embedding coordinates. The containing dialog can copy these values to the module through its Propagate settings action when a propagation callback is available.",
+      "context": "``TIER_STYLE`` settable on artists that already exist -- dot size, dot colour, opacity, outline width. Microseconds; nothing is re-read from disk. ``TIER_REDRAW`` needs the figure replotted, but **from the same embedding** -- image count, image zoom, figure size, which layers are drawn. Tenths of a second, because the thumbnails are re-read, so these are debounced. ``TIER_RERUN`` kept for a later run rather than applied to the finished figure. This tier includes ``n_neighbors``, ``min_dist``, the metric and feature filter, along with clustering, view-layout and output options. Not every setting in this tier changes embedding coordinates. The containing dialog can copy these values to the module through its Propagate settings action when a propagation callback is available.",
+      "source_sha256": "996a62cb8a4f0cf67c0989344a504276a07f5f107058b9980e64a754c1354e5b",
+      "previous_same_source_indexes": [],
+      "translation": "``TIER_STYLE`` को पहले से मौजूद ग्राफ़िक ऑब्जेक्ट पर सेट किया जा सकता है: बिंदु का आकार, बिंदु का रंग, अपारदर्शिता और बाहरी रेखा की चौड़ाई। माइक्रोसेकंड लगते हैं; डिस्क से कुछ भी दोबारा नहीं पढ़ा जाता। ``TIER_REDRAW`` में आकृति दोबारा बनानी होती है, लेकिन **उसी एम्बेडिंग से**: तस्वीरों की संख्या, तस्वीर का ज़ूम, आकृति का आकार और दिखाई जाने वाली परतें। थंबनेल फिर पढ़े जाते हैं, इसलिए सेकंड के दसवें हिस्सों के स्तर का समय लगता है और बदलावों के बीच छोटी रुकावट की प्रतीक्षा की जाती है। ``TIER_RERUN`` पूरी हो चुकी आकृति पर लागू करने के बजाय बाद के रन के लिए रखा जाता है। इस स्तर में ``n_neighbors``, ``min_dist``, दूरी का मेट्रिक और फ़ीचर फ़िल्टर के साथ क्लस्टरिंग, दृश्य विन्यास और आउटपुट विकल्प शामिल हैं। इस स्तर की हर सेटिंग एम्बेडिंग निर्देशांक नहीं बदलती। यदि प्रसार का कॉलबैक उपलब्ध है, तो पैनल वाला संवाद अपने Propagate settings कार्य से ये मान मॉड्यूल में कॉपी कर सकता है।",
+      "review_basis": "Exact-source AI technical review of style/redraw/rerun behavior, retained shared tier text, same embedding, clustering/layout/output options, optional propagation action, nullable integer parser, debounce signal and full settings dictionary. Protected names, emphasis and reference order retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings#4",
+      "source": "Each field declares how this panel applies its changes.",
+      "context": "Each field declares how this panel applies its changes.",
+      "source_sha256": "722c5e2b36795b20cf594924d7d1cfd0164a7e9fcbf8dc6f876430462fb4ed92",
+      "previous_same_source_indexes": [],
+      "translation": "हर फ़ील्ड बताता है कि यह पैनल उसके बदलाव कैसे लागू करता है।",
+      "review_basis": "Exact-source AI technical review of style/redraw/rerun behavior, retained shared tier text, same embedding, clustering/layout/output options, optional propagation action, nullable integer parser, debounce signal and full settings dictionary. Protected names, emphasis and reference order retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.Field#3",
+      "source": "the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"``, ``\"choice\"`` or ``\"int_or_none\"``. The nullable integer uses a text editor and the ``_int_or_none`` parser.",
+      "context": "the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"``, ``\"choice\"`` or ``\"int_or_none\"``. The nullable integer uses a text editor and the ``_int_or_none`` parser.",
+      "source_sha256": "8e99e65063d8835ea7d5bd47c1861f1543d131cd034dcaa622ed383fe20f795e",
+      "previous_same_source_indexes": [],
+      "translation": "एडिटर का प्रकार: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"``, ``\"choice\"`` या ``\"int_or_none\"``। खाली मान स्वीकार करने वाला पूर्णांक टेक्स्ट एडिटर और ``_int_or_none`` पार्सर का उपयोग करता है।",
+      "review_basis": "Exact-source AI technical review of style/redraw/rerun behavior, retained shared tier text, same embedding, clustering/layout/output options, optional propagation action, nullable integer parser, debounce signal and full settings dictionary. Protected names, emphasis and reference order retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.UmapFigureSettings#1",
+      "source": "Each change emits :attr:`settings_changed` with the complete settings dictionary after :data:`APPLY_DEBOUNCE_MS`. The containing figure-settings window applies style and redraw tiers without a separate Apply action. Rerun-tier values do not update the current figure; the containing dialog can propagate them to the module for a later run.",
+      "context": "Each change emits :attr:`settings_changed` with the complete settings key-value mapping after :data:`APPLY_DEBOUNCE_MS`. The containing figure-settings window applies style and redraw tiers without a separate Apply action. Rerun-tier values do not update the current figure; the containing dialog can propagate them to the module for a later run.",
+      "source_sha256": "86371b840bf2432a4a221edd8fa2e7c60c74dec90e74579bc73563d598b7c3fe",
+      "previous_same_source_indexes": [],
+      "translation": "हर बदलाव पूर्ण सेटिंग डिक्शनरी के साथ :attr:`settings_changed` को :data:`APPLY_DEBOUNCE_MS` के बाद भेजता है। पैनल वाली आकृति-सेटिंग विंडो शैली और पुनः चित्रण के स्तरों को अलग Apply कार्य के बिना लागू करती है। दोबारा रन वाले स्तर के मान वर्तमान आकृति को अपडेट नहीं करते; संवाद उन्हें बाद के रन के लिए मॉड्यूल तक पहुँचा सकता है।",
+      "review_basis": "Exact-source AI technical review of style/redraw/rerun behavior, retained shared tier text, same embedding, clustering/layout/output options, optional propagation action, nullable integer parser, debounce signal and full settings dictionary. Protected names, emphasis and reference order retained. No native-speaker claim."
+    }
+  ]
+}

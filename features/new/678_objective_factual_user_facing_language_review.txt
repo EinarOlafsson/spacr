@@ -121,3 +121,44 @@ This is owned source preparation; normal English API refresh and nine-locale
 paragraph review remain pending with the shared writer. It does not complete
 N678's final broad pass or claim native-platform acceptance. Source-bound
 ledger: features/data/678_shortcuts_prose_2026-10-15/receipt.json.
+
+2026-10-15 — Published bounded API review batches
+The loading/preferences/theme and figure-queue/montage source corrections
+now have117 independently reviewed targets and normal nine-locale catalogs.
+The export dialog/settings corrections have54 reviewed targets. Picture
+export and shortcut prose now have270 reviewed targets in public348c63b842a,
+including four peer-requested Spanish/Swedish corrections and eight precise
+legacy constructor repairs. All13,394 unrelated API records per locale were
+preserved in the latter batch; both source executable ASTs are unchanged.
+Evidence: features/data/678_picture_shortcut_catalogs_2026-10-15/,
+678_shortcuts_independent_api_review_2026-10-15/ and
+678_picture_export_api_peer_review_2026-10-15/. These notes supersede pending
+translation statements for these exact scopes only; the broad text review,
+tutorial ownership and other acceptance gates remain open.
+2026-10-15 — Bounded Image UMAP tier and editor documentation repair.
+The rerun tier contains clustering, view-layout and output options as well as
+embedding parameters. Corrected the existing module/class prose and one visible
+caption so they no longer claim every such edit changes all point coordinates.
+The caption now identifies the optional Propagate settings action that copies
+values into the module; merely editing this tier does not update the figure.
+Field.kind now includes the implemented int_or_none editor/parser contract.
+Removed the inaccurate duplicate TIER_RERUN comment without introducing a new
+API symbol. Executable AST is unchanged outside the caption and its tr import.
+Four changed rendered blocks in three existing API symbols need the normal
+API review/generation batch. One literal-tr caption needs nine locale runtime
+inputs and the normal writer; no obsolete exact runtime review row exists.
+Evidence: features/data/678_umap_figure_settings_prose_2026-10-15/receipt.json.
+This bounded repair does not complete N678 or claim native-platform acceptance.
+
+2026-10-15 — Image UMAP bounded source/derived-artifact batch complete
+The preceding UMAP source correction now has36 exact API targets and9runtime
+caption targets, all independently technically reviewed and normally generated.
+The sole peer-found Swedish feature-filter/quantifier wording was corrected
+before final API generation. All13,401 unrelated API records per locale and
+10,574 unrelated runtime entries per locale are preserved. Root readback
+proves exactly one UI source/hash addition per runtime catalog and all other
+assignments unchanged. Normal immutable arrival refresh reports892added,
+29changed,150retired; all9,833 baseline identities and hashes remain exact.
+Evidence: features/data/678_umap_runtime_catalogs_2026-10-15/,
+678_umap_api_catalogs_2026-10-15/ and678_umap_api_peer_review_2026-10-15/.
+This closes this source/API/caption scope, not the entire N678 review.

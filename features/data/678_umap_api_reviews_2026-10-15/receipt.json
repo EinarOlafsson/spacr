@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "source_commit": "c00a087e7497698d7e6399ef9eb9acf903e2a3fa",
+  "normal_collector": "Three normal targeted rendered bodies/four blocks match source-owner ledger. Only UMAP Python file changed from full-collector cache; old body identities and full source-file hashes verified. No full collector replay.",
+  "review_count": 36,
+  "source_docs_sha256": {
+    "spacr.qt.widgets.umap_figure_settings": "f5b591231b6da111821280a3ed8f98f3119a01f4d9bd0be5f6090294c90aa5de",
+    "spacr.qt.widgets.umap_figure_settings.Field": "1511c3172149c4cdc00131ecd1fe893d2c6ffa76eba9115ffa91fd60bec94f16",
+    "spacr.qt.widgets.umap_figure_settings.UmapFigureSettings": "4ba8ef309eebaa71cfdc7ba1211494a664a438c6fecf65e80a0bdd8043846d32"
+  },
+  "source_and_context_gates": "PASS all36; normal reviewed_api_block_translations passes for nine complete selected document sets.",
+  "retired_review_rows": [
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-003.json",
+      "record_index": 558,
+      "label": "spacr.qt.widgets.umap_figure_settings.Field#3",
+      "source": "the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` or ``\"choice\"``.",
+      "source_sha256": "7d3411946e5ca1c3d77cd60742e0eef9fc22c88f2b2d818e9fdfbad71c1f7ace"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-009.json",
+      "record_index": 558,
+      "label": "spacr.qt.widgets.umap_figure_settings.Field#3",
+      "source": "the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` or ``\"choice\"``.",
+      "source_sha256": "7d3411946e5ca1c3d77cd60742e0eef9fc22c88f2b2d818e9fdfbad71c1f7ace"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-004.json",
+      "record_index": 381,
+      "label": "spacr.qt.widgets.umap_figure_settings.Field#3",
+      "source": "the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` or ``\"choice\"``.",
+      "source_sha256": "7d3411946e5ca1c3d77cd60742e0eef9fc22c88f2b2d818e9fdfbad71c1f7ace"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-007.json",
+      "record_index": 141,
+      "label": "spacr.qt.widgets.umap_figure_settings.Field#3",
+      "source": "the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` or ``\"choice\"``.",
+      "source_sha256": "7d3411946e5ca1c3d77cd60742e0eef9fc22c88f2b2d818e9fdfbad71c1f7ace"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-007.json",
+      "record_index": 338,
+      "label": "spacr.qt.widgets.umap_figure_settings.Field#3",
+      "source": "the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` or ``\"choice\"``.",
+      "source_sha256": "7d3411946e5ca1c3d77cd60742e0eef9fc22c88f2b2d818e9fdfbad71c1f7ace"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-008.json",
+      "record_index": 445,
+      "label": "spacr.qt.widgets.umap_figure_settings.Field#3",
+      "source": "the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` or ``\"choice\"``.",
+      "source_sha256": "7d3411946e5ca1c3d77cd60742e0eef9fc22c88f2b2d818e9fdfbad71c1f7ace"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-004.json",
+      "record_index": 171,
+      "label": "spacr.qt.widgets.umap_figure_settings.Field#3",
+      "source": "the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` or ``\"choice\"``.",
+      "source_sha256": "7d3411946e5ca1c3d77cd60742e0eef9fc22c88f2b2d818e9fdfbad71c1f7ace"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-007.json",
+      "record_index": 177,
+      "label": "spacr.qt.widgets.umap_figure_settings.Field#3",
+      "source": "the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` or ``\"choice\"``.",
+      "source_sha256": "7d3411946e5ca1c3d77cd60742e0eef9fc22c88f2b2d818e9fdfbad71c1f7ace"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-008.json",
+      "record_index": 488,
+      "label": "spacr.qt.widgets.umap_figure_settings.Field#3",
+      "source": "the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` or ``\"choice\"``.",
+      "source_sha256": "7d3411946e5ca1c3d77cd60742e0eef9fc22c88f2b2d818e9fdfbad71c1f7ace"
+    }
+  ],
+  "unrelated_review_rows": "Exact preservation asserted. Retired source/translation content retained.",
+  "scope": "Review inputs; normal catalog generation separate.",
+  "review_claim": "AI technical review; independent peer review requested, no native-speaker claim."
+}

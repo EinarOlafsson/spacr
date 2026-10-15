@@ -112417,30 +112417,30 @@
         "457e69c96245b55fdbbdd60292d19a02453919646aab895ba67861a46e795490",
         "813c19959fbc284ab6e632f2339ab6e3e4d666df3e51ce25261c25dc12196481",
         "e86316fb33392961bd71630ade8e9a4f0ca018edca168ffab52c4dc6686b39ab",
-        "4b9b132532590a97ab0f0e507fe40d78bb1ed499850892493388af963343e363",
-        "49e2df421677335ff6dfa1ed545f6eeb1a4ca6e009c31eb1edd86b0d15520482"
+        "996a62cb8a4f0cf67c0989344a504276a07f5f107058b9980e64a754c1354e5b",
+        "722c5e2b36795b20cf594924d7d1cfd0164a7e9fcbf8dc6f876430462fb4ed92"
       ],
-      "source_sha256": "4bcaf64be8c468786f816f3e8adbc9bfb1d522afec46956ec126062542708f3e",
-      "text": "Every Image UMAP setting, live-editable against the STATIC figure.\n\nThe live explorer has a settings window whose display options apply to the\nfigure on screen. This module provides the equivalent for\nthe screen -- the ordinary, non-live figure the run leaves in\n:class:`spacr.qt.widgets.figure_queue.FigureQueue`::\n\n    \"the non live image UMAP figure settings should have all the image UMAP\n     settings live editable (you should see changes in the graph directly)\"\n\nTHE COST OF A SETTING IS NOT UNIFORM, and pretending it is would make the\npanel unusable. Three tiers, and every field declares which one it is in:\n\n``TIER_STYLE``\n    settable on artists that already exist -- dot size, dot colour, opacity,\n    outline width. Microseconds; nothing is re-read from disk.\n``TIER_REDRAW``\n    needs the figure replotted, but **from the same embedding** -- image\n    count, image zoom, figure size, which layers are drawn. Tenths of a\n    second, because the thumbnails are re-read, so these are debounced.\n``TIER_RERUN``\n    changes the embedding itself -- ``n_neighbors``, ``min_dist``, the metric,\n    the feature filter. There is no honest way to apply one of these to a\n    finished figure: recomputing moves every point, and the arrangement the\n    user was reading is the whole value of the projection. They are editable\n    and propagated, and the panel says they land on the next run.\n\nThe tier is a fact about the artists and the data, not a policy, which is why\nit lives beside the field rather than in the caller."
+      "source_sha256": "f5b591231b6da111821280a3ed8f98f3119a01f4d9bd0be5f6090294c90aa5de",
+      "text": "Every Image UMAP setting, live-editable against the STATIC figure.\n\nThe live explorer has a settings window whose display options apply to the\nfigure on screen. This module provides the equivalent for\nthe screen -- the ordinary, non-live figure the run leaves in\n:class:`spacr.qt.widgets.figure_queue.FigureQueue`::\n\n    \"the non live image UMAP figure settings should have all the image UMAP\n     settings live editable (you should see changes in the graph directly)\"\n\nTHE COST OF A SETTING IS NOT UNIFORM, and pretending it is would make the\npanel unusable. Three tiers, and every field declares which one it is in:\n\n``TIER_STYLE``\n    settable on artists that already exist -- dot size, dot colour, opacity,\n    outline width. Microseconds; nothing is re-read from disk.\n``TIER_REDRAW``\n    needs the figure replotted, but **from the same embedding** -- image\n    count, image zoom, figure size, which layers are drawn. Tenths of a\n    second, because the thumbnails are re-read, so these are debounced.\n``TIER_RERUN``\n    kept for a later run rather than applied to the finished figure. This\n    tier includes ``n_neighbors``, ``min_dist``, the metric and feature filter,\n    along with clustering, view-layout and output options. Not every setting\n    in this tier changes embedding coordinates. The containing dialog can\n    copy these values to the module through its Propagate settings action\n    when a propagation callback is available.\n\nEach field declares how this panel applies its changes."
     },
     "spacr.qt.widgets.umap_figure_settings.Field": {
       "source_blocks_sha256": [
         "1bb1329bc6d2bb19af21d7613e66585089eae193b5bc24385cccef52c00b1221",
         "24b81051d00918cfe9d4e4cce66abe9c8ef8258fce7a12b9ddb155f693967368",
         "d4fb86ad6d9c5e6c44971d7c15451818e01a86423edc5093f0bb4e0c5f9133e5",
-        "7d3411946e5ca1c3d77cd60742e0eef9fc22c88f2b2d818e9fdfbad71c1f7ace",
+        "8e99e65063d8835ea7d5bd47c1861f1543d131cd034dcaa622ed383fe20f795e",
         "53dea136e96fbfeea3ea78af7292b56d9b4a1db57195ac6640fc935b49d7f4ff",
         "982b6bc6bc5ec9305ebfb42adbf0d5ff4bfa105e5dd5476a813c23ee313ded10",
         "c555e56db4f9d01a24c33fb85333f0f07cc47fc2fbaa64b968f785716373aca0",
         "23317f43478a669144bb78f73e1c3f23b0111a33eac48f038e22069c42073bc0"
       ],
-      "source_sha256": "217dfb18d0c5f7458ed254daaf1e8fff4fedda8a01297887b7b9406eca515cb2",
-      "text": "One editable Image UMAP setting.\n\n:param key: the settings key.\n:param label: the label shown beside the editor.\n:param kind: the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``,\n    ``\"text\"`` or ``\"choice\"``.\n:param low: lower bound for a numeric editor (unused otherwise).\n:param high: upper bound for a numeric editor (unused otherwise).\n:param tier: what applying it takes: :data:`TIER_STYLE`,\n    :data:`TIER_REDRAW` or :data:`TIER_RERUN`.\n:param choices: the options of a ``\"choice\"`` field."
+      "source_sha256": "1511c3172149c4cdc00131ecd1fe893d2c6ffa76eba9115ffa91fd60bec94f16",
+      "text": "One editable Image UMAP setting.\n\n:param key: the settings key.\n:param label: the label shown beside the editor.\n:param kind: the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``,\n    ``\"text\"``, ``\"choice\"`` or ``\"int_or_none\"``. The nullable integer\n    uses a text editor and the ``_int_or_none`` parser.\n:param low: lower bound for a numeric editor (unused otherwise).\n:param high: upper bound for a numeric editor (unused otherwise).\n:param tier: what applying it takes: :data:`TIER_STYLE`,\n    :data:`TIER_REDRAW` or :data:`TIER_RERUN`.\n:param choices: the options of a ``\"choice\"`` field."
     },
     "spacr.qt.widgets.umap_figure_settings.UmapFigureSettings": {
       "source_blocks_sha256": [
         "584bea674fa725bc62607e48eedd993c200fd501812c1e1898aa3dc3b8ac8a92",
-        "cf38f19699f0fdfeb4645b36eca07b627472c6a4713001c7e624416193e2c41c",
+        "86371b840bf2432a4a221edd8fa2e7c60c74dec90e74579bc73563d598b7c3fe",
         "cd0bf5d8e47aef516471abd1fec22cb21061510ff19e146784e26a1057c9c7f4",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "4becb852ed5510f8145e36128baaef5c113efc1648850d7d2dd7adf45cbde1c7",
@@ -112448,8 +112448,8 @@
         "f222b0c4442c6f7fcffc31642b01fc43303e7432057ace43fdfd557b360fe0d7",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
-      "source_sha256": "94006c022b10299a6b096135e77f9a39dafabfd7a1682466f1789dbf80efc711",
-      "text": "Edit Image UMAP figure settings with debounced live application.\n\nEach change emits :attr:`settings_changed` with the complete settings\ndictionary after :data:`APPLY_DEBOUNCE_MS`. The containing figure-settings\nwindow applies style and redraw tiers immediately; rerun-tier values are\nretained for the next embedding run. No separate Apply action is required.\n\n:param values: the settings to open on. ``None`` opens on the defaults.\n:param parent: parent widget.\nBuild the Image UMAP settings panel, grouped by when a change applies.\n\nThe three tiers are the point: settings that restyle the points already\ndrawn, settings that redraw the graph from the same embedding so no\npoint moves, and settings that only take effect on the next run.\n\n:param values: the settings to open with; ``None`` entries fall back to\n    the module defaults.\n:param parent: parent widget, or ``None``."
+      "source_sha256": "4ba8ef309eebaa71cfdc7ba1211494a664a438c6fecf65e80a0bdd8043846d32",
+      "text": "Edit Image UMAP figure settings with debounced live application.\n\nEach change emits :attr:`settings_changed` with the complete settings\ndictionary after :data:`APPLY_DEBOUNCE_MS`. The containing figure-settings\nwindow applies style and redraw tiers without a separate Apply action.\nRerun-tier values do not update the current figure; the containing dialog\ncan propagate them to the module for a later run.\n\n:param values: the settings to open on. ``None`` opens on the defaults.\n:param parent: parent widget.\nBuild the Image UMAP settings panel, grouped by when a change applies.\n\nThe three tiers are the point: settings that restyle the points already\ndrawn, settings that redraw the graph from the same embedding so no\npoint moves, and settings that only take effect on the next run.\n\n:param values: the settings to open with; ``None`` entries fall back to\n    the module defaults.\n:param parent: parent widget, or ``None``."
     },
     "spacr.qt.widgets.umap_figure_settings.UmapFigureSettings.flush": {
       "source_blocks_sha256": [

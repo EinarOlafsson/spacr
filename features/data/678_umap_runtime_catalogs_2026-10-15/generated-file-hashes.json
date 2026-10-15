@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "files": [
+    {
+      "path": "spacr/qt/i18n_catalogs/en.py",
+      "sha256": "d334d124aed1fd304ee2430244f9a7c938e49d0a5a5edad61e83e449e7d8ca48"
+    },
+    {
+      "path": "spacr/qt/i18n_catalogs/de.py",
+      "sha256": "1cfe57b1348b89929bfd2f382296e30e31aec9cb8223bac6aeaf758e3220997c"
+    },
+    {
+      "path": "spacr/qt/i18n_catalogs/es.py",
+      "sha256": "2953238653a4da53f2f626794ef59aa49dd10368b537972d45143ef33a858ba3"
+    },
+    {
+      "path": "spacr/qt/i18n_catalogs/fr.py",
+      "sha256": "58fc0ed3aac338852ec0cd37303f9b134e88bf8c6b7bab7d82894d6298192451"
+    },
+    {
+      "path": "spacr/qt/i18n_catalogs/hi.py",
+      "sha256": "6a8a203c54414bf715cf6ed4140fe8ada9dc73e1c3b1417eeab924a6f760b322"
+    },
+    {
+      "path": "spacr/qt/i18n_catalogs/is.py",
+      "sha256": "2b33f65c01dd55af34e396cd42ea1863c2ddff72aed831a7356818b47a7b0f2b"
+    },
+    {
+      "path": "spacr/qt/i18n_catalogs/ko.py",
+      "sha256": "cd7201c1105db9ad27cd4262be43a929bad35ae70cbc9d420458b2fedba6a165"
+    },
+    {
+      "path": "spacr/qt/i18n_catalogs/pt.py",
+      "sha256": "af3da04a48be19429c7c84eb4929b596b0f7ac8b175740633f54355e1a09c277"
+    },
+    {
+      "path": "spacr/qt/i18n_catalogs/sv.py",
+      "sha256": "1aa245448b25755606dc96a9edb386831ba7fb3ad6f800bd78a262606accfb22"
+    },
+    {
+      "path": "spacr/qt/i18n_catalogs/zh_CN.py",
+      "sha256": "bbc904fff3626a8d01bc6baad0b2fbdd11cdb5c83d6de3cd7ee570d03ad6eb63"
+    }
+  ],
+  "scope": "Normal builder outputs:one selected UI caption/source hash added per language; every unrelated source/target entry proved unchanged by generation-receipt.json."
+}

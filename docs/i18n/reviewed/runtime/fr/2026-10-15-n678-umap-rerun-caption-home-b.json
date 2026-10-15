@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_scope": "AI technical translation against exact UMAP field tiers and the optional Propagate settings callback. Embedding, clustering, view/output options are distinct; current figure is not updated; propagation action must be available for copying values to the next run. Existing source-current localized Propagate settings label reused. No human or native-speaker signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "These settings include embedding, clustering, view and output options. They do not update the current figure. Use Propagate settings, when available, to copy them to the module for the next run.",
+      "source": "These settings include embedding, clustering, view and output options. They do not update the current figure. Use Propagate settings, when available, to copy them to the module for the next run.",
+      "source_sha256": "2efbd50296612488c82cb539df690c41e71e012480e48f8668dee5757039535f",
+      "translation": "Ces paramètres comprennent des options de projection des données, de regroupement, de vue et de sortie. Ils ne mettent pas à jour la figure actuelle. Utilisez Transférer les paramètres, si cette action est disponible, pour les copier dans le module pour la prochaine exécution."
+    }
+  ]
+}
