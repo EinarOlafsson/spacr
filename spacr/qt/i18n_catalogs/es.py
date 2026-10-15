@@ -3818,7 +3818,7 @@ UI = {
     'Choose file': 'Elegir archivo',
     'Choose file…': 'Elegir archivo...',
     'Choose folder': 'Elegir carpeta',
-    'Choose folder…': 'Elegir carpeta...',
+    'Choose folder…': 'Elegir carpeta…',
     'Choose four different crop channels for SubCell.': 'Elija cuatro canales distintos de los recortes para SubCell.',
     "Choose four distinct crop channels before running SubCell's four-plane model.": 'Elija cuatro canales distintos de los recortes antes de ejecutar el modelo de cuatro planos de SubCell.',
     'Choose gRNA count CSVs (one per plate)': 'Elija gRNA count CSVs (uno por placa)',
