@@ -130,7 +130,7 @@ def unused_output_folder(parent: Path, name: str) -> Path:
     parent = Path(parent)
     candidate = parent / name
     number = 2
-    while candidate.exists():
+    while candidate.exists() or candidate.is_symlink():
         candidate = parent / f"{name}_{number}"
         number += 1
     return candidate
@@ -262,12 +262,15 @@ def consolidate_folder(source, output=None, *,
     say = log or (lambda text: print(text, flush=True))
     source = Path(source).expanduser().resolve()
     output = (default_output_folder(source) if output is None
-              else Path(output).expanduser().resolve())
+              else Path(output).expanduser())
+    output_is_link = output.is_symlink()
+    if not output_is_link:
+        output = output.resolve()
     exts = _normalise_extensions(extensions)
     skip = {str(name).casefold() for name in skip_dirs}
     if not source.is_dir():
         raise ValueError(f"Source is not a directory: {source}")
-    if output.exists():
+    if output_is_link or output.exists():
         raise ValueError(f"Output already exists. Choose a NEW directory: {output}")
 
     output.mkdir(parents=True, exist_ok=False)

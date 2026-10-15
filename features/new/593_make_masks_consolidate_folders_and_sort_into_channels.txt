@@ -178,3 +178,18 @@ not foreign metadata isolation or all concurrent mutation prevention. No
 whole-folder transaction, model/network/GPU/fullCI, live data or native
 other-OS/scientific acceptance. Evidence:
 data/593_consolidation_destination_ownership_2026-10-15/receipt.json.
+
+2026-10-15 — occupied output leaf links cannot redirect consolidation:
+An explicit existing leaf symlink is now refused before resolution using
+the existing output-already-exists caption. Previously a dangling leaf was
+resolved into its missing target and consolidation created/copied there.
+Default output naming now counts broken links as occupied and selects the
+next numbered folder, instead of failing mkdir. Normal canonical paths,
+existing-target refusal, source inputs and link/private target bytes stay
+intact. Native public baseline3FAIL/1PASS0.89seconds; four new link cases plus
+existing consolidation naming/copy/cleanup/manifest/CLI contracts pass34 in
+2.17seconds under2G. Parent symlink components retain existing behavior;
+external replacements after checks and prior metadata/cleanup race limits
+remain outside this bounded guard. No live data, model/network/GPU/fullCI,
+native other-OS or scientific acceptance. Evidence:
+data/593_consolidation_output_links_2026-10-15/receipt.json.
