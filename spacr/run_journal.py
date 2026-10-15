@@ -4142,7 +4142,7 @@ def _clear_logs(plan: Dict[str, Any]) -> Tuple[int, int, int, List[str]]:
 
 _CACHE_LOCATIONS_FILE = "cache_locations.json"
 _CACHE_ROWS = (
-    ("models", "spaCR models", ""),
+    ("models", "spaCR models", "SPACR_MODEL_CACHE"),
     ("cellpose", "Cellpose models", "CELLPOSE_LOCAL_MODELS_PATH"),
     ("huggingface", "Hugging Face", "HF_HOME"),
     ("torch", "Torch", "TORCH_HOME"),

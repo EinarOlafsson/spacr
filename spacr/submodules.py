@@ -118,7 +118,6 @@ from .figures.style import (ROLES, TYPE_SCALE, Palette, figure_style,
                             reference_line, resolve_ink, rotate_ticks,
                             theme_target)
 from .plot import save_figure
-from .logging_util import _spacr_home
 
 #: The categorical vocabulary for a plot whose categories genuinely ARE the
 #: data -- one line per measured column, one bar per class. Taken from the
@@ -1371,7 +1370,7 @@ def _resolve_detector_weights(requested, setting):
         raise ValueError(
             f"{setting}={requested!r} is neither a file nor a model_zoo "
             f"key")
-    dest = os.path.join(str(_spacr_home()), 'models')
+    dest = str(model_zoo._model_cache_root())
     os.makedirs(dest, exist_ok=True)
     return str(model_zoo.fetch(entry, dest))
 
@@ -1405,7 +1404,7 @@ def _resolve_training_base(requested):
         return local
     if not getattr(entry, 'uri', None):
         return name
-    dest = os.path.join(str(_spacr_home()), 'models')
+    dest = str(model_zoo._model_cache_root())
     os.makedirs(dest, exist_ok=True)
     return str(model_zoo.fetch(entry, dest))
 
@@ -1586,7 +1585,7 @@ def _resolve_plaque_model(settings, fetch=True):
             f"plaque_model={requested!r} is neither a file that exists, the "
             f"string 'bundled', nor a model_zoo key. Known keys: "
             f"{sorted(e.key for e in model_zoo.catalogue(remote=True))}")
-    dest = os.path.join(str(_spacr_home()), 'models')
+    dest = str(model_zoo._model_cache_root())
     if not fetch:
         for candidate in (str(getattr(entry, 'path', '') or ''),
                           os.path.join(dest, str(getattr(entry, 'name', '')

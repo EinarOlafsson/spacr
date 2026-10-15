@@ -91,6 +91,19 @@ assertions remain intact. Fatal Ruff/index/diff checks pass. No live cache,
 user data, GPU or fullCI operation.
 Evidence: data/644_cache_environment_allowlist_2026-10-14/receipt.json.
 
+2026-10-14 — model-cache relocation core prepared, UI-owner hold:
+The actual model acquisition/resolver, stock Mitonet cache and image-quality
+classifier share SPACR_MODEL_CACHE, defaulting to the existing home/models.
+Models relocation records the same explicit environment variable used by the
+runtime; an external override remains authoritative. Native private files prove
+relocation then cache reuse with no fetch, new acquisition only at the moved
+root, restart metadata application, repeated moves and metadata failure rollback.
+The finite owning cohort passes64 in10.11seconds, with three additional native
+lifecycle checks passing in0.76seconds. Source remains held until Home-B supplies
+dynamic Model Zoo/picker/preview paths, including remembered old defaults and
+preservation of custom targets. This is not a published Move feature or native
+other-OS acceptance. Evidence: data/644_model_cache_relocation_core_2026-10-14/.
+
 2026-10-15 — malformed cache-location values no longer become environment paths:
 Startup now accepts only nonempty string paths without embedded NUL from
 cache_locations.json. Null/bool/numeric/container values and whitespace-only
