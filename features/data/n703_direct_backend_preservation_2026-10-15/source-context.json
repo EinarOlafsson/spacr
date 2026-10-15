@@ -1,0 +1,10 @@
+{
+  "interface_docstrings_signatures_unchanged": true,
+  "tr_calls_unchanged": true,
+  "module_ast_unchanged_outside_user_data": true,
+  "source_sha256": "ede9e40f0faca84e41246f9fe242695d44c3a3d8b2632a0b5eaed6ab99cfad61",
+  "test_sha256": "d23854a9c8508ddc23bb46410795720207dc716cdce779e57f817df02bc190b2",
+  "base_commit": "e4e6f42360cc2a1f7e7ff31083be616e94b29d95",
+  "backend_consumer_blob": "5f2e64cd2254340cf96c27259ecb330c9c6f0971",
+  "no_generated_artifact_needed": "Existing prose/signatures/captions/eligible symbol inventory unchanged; only existing _user_data body changes."
+}

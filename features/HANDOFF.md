@@ -13253,3 +13253,17 @@ Separate next work: exact three retained Icelandic technical corrections,
 docstring-only path_probe wait/cache contracts. Different authors/peers own
 these scopes; Original Home core/installer/scientific and Work tutorials remain
 untouched. Final full CI/release are still deferred until implementation settles.
+
+## 2026-10-15 Home-B — three retained Icelandic lifecycle corrections
+Exact module blocks #1/#4/#5 now preserve completed-job retirement, GUI-thread
+QObject receiver/queued deletion ordering, and strong-reference lifetime.
+Independent source-bound peer1b9dfe0e and normal selected-module writer pass;
+zero canonical collections or model decoding. Other five module targets,13409
+unrelated Icelandic symbols, English/eight other locales, history and reviews
+are byte-exact. Source/English/Help inputs unchanged, so no repeated Help build.
+Evidence:features/data/678_job_runner_icelandic_retained_catalog_2026-10-15/.
+This closes three specific retained errors; the wider semantic sweep stays open.
+
+Private extractor dependency2b54f51f4 plus independent peerb36004542 is handed
+to Original Home for coherent F537/F540 source/18-target integration. No
+standalone publication or scientific acceptance claimed by that dependency.

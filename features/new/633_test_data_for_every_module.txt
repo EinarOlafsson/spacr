@@ -369,3 +369,19 @@ then pass, including existing stream/short/cancel contracts. All API prose,
 signatures and existing string literals are exact; no network/render/model
 run or native Windows claim. Receipt:
 features/data/633_gui_archive_staging_2026-10-15/.
+
+2026-10-15 — COMPLETE MEASURE ARRAY PUBLICATION BEFORE ARCHIVE RETIREMENT
+New .npy arrays are written/flushed/fsynced/closed inside a private sibling
+stage, then published with a no-overwrite hardlink before retiring the .npz.
+A native interrupted-write/retry baseline proves the predecessor left partial
+.npy bytes and then deleted the intact archive on retry. The seven-case
+baseline is5FAIL2PASS1.03seconds: one actual stream regression plus four new
+publication/race seam controls (not four independently demonstrated old races),
+and two already-passing normal controls. Final nine cases pass0.89seconds,
+including existing valid-target/corrupt-source and actual offline CLI expansion.
+Exact bytes/dtype/shape, umask mode, user-created concurrent files/symlinks and
+private cleanup are proved. Unsupported hardlinks warn and retain the intact
+archive; universal mounted-filesystem acceptance is not claimed. Existing
+valid-target policy remains unchanged. No API prose/caption, network/model/
+GPU/live data/fullCI or whole-item closure. Evidence:
+data/633_measure_array_publication_2026-10-15/receipt.json.

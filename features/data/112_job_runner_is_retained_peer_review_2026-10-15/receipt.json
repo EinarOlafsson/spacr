@@ -1,0 +1,55 @@
+{
+  "result": "PASS: three independently reviewed Icelandic targets",
+  "input_commit": "4ce46a5cf6251128a3a52a95888c364ce82d148b",
+  "input_path": "docs/i18n/reviewed/api/is/2026-10-15-job-runner-retained-lifecycle-home-b.json",
+  "input_file_sha256": "7cc6e3c8d598d8b17db161ad35b330e50f5c566dd6a32e2bfcd508ee543a0033",
+  "source_commit": "35aa6c146f3b30eedab48f198166d32ba4e67ff0",
+  "source_file": {
+    "path": "spacr/qt/job_runner.py",
+    "sha256": "ab734fb22124a354a3d5357a32ad3010a9f68a970bafe2cd4e8055ca82458706"
+  },
+  "draft_sha256": "9a490a742b48455ceaace2b320a28ec3cd1201c9726a86d9aa29ef406d72b565",
+  "pairs": [
+    {
+      "label": "spacr.qt.job_runner#1",
+      "source": "Screens such as ``DbBrowserScreen``, ``PlateViewScreen`` and ``ReportScreen`` previously each had their own copy of this logic, and the copies differed: two connected ``thread.finished`` to a *closure*, which never retires the job (see :meth:`_retire_finished_jobs`). This module implements the rules once, for any screen that moves work off the GUI thread.",
+      "source_sha256": "4196eb0fc3448452ffdd1474fa6d9fcd1aec512183f979623d9cb2875f6ddd83",
+      "context_sha256": "a80b94ff03948af31dc3e3a8d3ecb9c535b15696a1a8c59be7578c3ad8784223",
+      "before_target": "Áætlunar sýningar eins og ``DbBrowserScreen``, ``PlateViewScreen`` og ``ReportScreen`` áður hver hafði eigin kopi af þessu logic, og kopiir eru mismunandi: tveir tengjast ``thread.finished`` til *closure*, sem aldrei taka upp vinnu (sjá :meth:`_retire_finished_jobs`). Þessar mælikar fylgja reglum einu sinni, fyrir hvaða umsókn sýningu sem flytja vinnu frá helstu GUI framkvæmd stefnu.",
+      "before_target_sha256": "2d35ac20deb214ea6d118eb7e8c363ecdd78370c06869766f6ab87fe9cbae5f7",
+      "approved_target": "Skjáir á borð við ``DbBrowserScreen``, ``PlateViewScreen`` og ``ReportScreen`` höfðu áður hver sína útfærslu á þessari rökfræði og útfærslurnar voru ólíkar: tvær þeirra tengdu ``thread.finished`` við *fallslokun (closure)* sem gengur aldrei frá verkinu eftir að því lýkur (sjá :meth:`_retire_finished_jobs`). Þessi eining útfærir reglurnar á einum stað fyrir alla skjái sem færa vinnu af GUI-þræðinum.",
+      "approved_target_sha256": "474097a91197d1a9e7220b43e02da549d694a45af03ee452c98f5b9093f5ce85",
+      "result": "PASS"
+    },
+    {
+      "label": "spacr.qt.job_runner#4",
+      "source": "``QThread.finished`` must be connected to a **bound method of a GUI-thread QObject**, never a closure. PySide6 makes the QThread itself the receiver for a closure, and :func:`spacr.qt.bridge.make_thread` connects ``thread.finished -> thread.deleteLater`` first. Slots run in connection order, so the DeferredDelete is posted ahead of the closure's metacall and Qt discards queued events for a destroyed receiver: the job is never retired and ``active_jobs()`` never returns to zero.",
+      "source_sha256": "ac37321b9f04137a4597d4e18330ab830fea36eeb139043632d2250406ce1db6",
+      "context_sha256": "881e8b01d32db2658fbcde0c99b69443140de833e47aa3495931c050f43cbbcb",
+      "before_target": "**QObject viðkomandi þörf.** Connect ``QThread.finished`` til aðferð á QObject sem er hluti af GUI lóð. Að loka er óvæn. PySide6 veitir QThread sjálfan sig sem viðfangandi loka. :func:`spacr.qt.bridge.make_thread` er fyrst tengdur ``thread.finished -> thread.deleteLater``. Slots virkar í tengslum orði. DeferredDelete er því lagt fram áður en loka callback. Qt fjarlægir kvikmyndun eftir að eyðileggja viðkomandi sínu. Þá er vinnu enn aðgerð og ``active_jobs()`` ná aldrei null.",
+      "before_target_sha256": "c37458e9ec7197aa36da0d1352d37b299751d06c24b1dc1ef5117be3778131ec",
+      "approved_target": "``QThread.finished`` verður að tengja við **bundna aðferð QObject-hlutar á GUI-þræðinum**, aldrei við fallslokun (closure). PySide6 gerir sjálfan QThread-hlutinn að viðtakanda fallslokunar, og :func:`spacr.qt.bridge.make_thread` tengir ``thread.finished -> thread.deleteLater`` fyrst. Afgreiðsluföll (slots) keyra í þeirri röð sem þau voru tengd. Því er DeferredDelete sett í biðröð á undan metakalli (metacall) fallslokunarinnar. Qt hendir atburðum í biðröð ef viðtakandanum hefur verið eytt: aldrei er gengið frá verkinu og ``active_jobs()`` verður aldrei aftur núll.",
+      "approved_target_sha256": "4f3e352839d90f3a6030b1da56219a7744d4e0137d257543ffd3142bfb8de766",
+      "result": "PASS"
+    },
+    {
+      "label": "spacr.qt.job_runner#5",
+      "source": "A strong reference to both the QThread and the worker must be held until ``thread.finished``. A QThread garbage-collected while running aborts the process.",
+      "source_sha256": "35459c9d59856122a87e062b581e4055eab02cf6ba3e89cc06ef8affd6c24267",
+      "context_sha256": "b86b36add38a7d26b9ed0067cbab9205d54f947de1cbea68b2546c8bfa9d0b10",
+      "before_target": "Stærri tengsl á bæði QThread og vinnandi verður að halda til ``thread.finished``. A QThread skammt samlað meðan á því að framkvæma abort ferlið.",
+      "before_target_sha256": "386a08b25398898b89778c0734863052fd1114e107cc45192c67a48ea4c822b8",
+      "approved_target": "Halda verður sterkum tilvísunum í bæði QThread-hlutinn og vinnuhlutinn (worker) þar til ``thread.finished`` er sent. Ef QThread-hlutur er fjarlægður við sorphirðu á meðan hann er í keyrslu er ferlinu slitið.",
+      "approved_target_sha256": "6ece9f7931d29c61cdd0d96fca7333887ae545df6301211179372eb525dcaacc",
+      "result": "PASS"
+    }
+  ],
+  "semantic_review": {
+    "#1": "Completed-job retirement and shared implementation are restored; it no longer claims work is never started.",
+    "#4": "Bound GUI-thread QObject receiver, connection order, DeferredDelete preceding metacall, discarded queued events and lost retirement are preserved.",
+    "#5": "Strong references to both objects until thread.finished and process-abort consequence of collecting a running QThread are explicit."
+  },
+  "evidence_correction": "My initial scratch findings stripped leading ** from old block#4 while removing the list marker. The author caught it. This receipt independently reads the exact catalog block using only the actual list-prefix removal and verifies the full old target/hash including **; source/new target semantics never changed.",
+  "normal_gates": "Author input4ce46a5cf records3 source,3 context,3 actual-inline checks plus current selected-module loader PASS; no retirements. Reviewer did not repeat generation or validation.",
+  "boundary": "Reviewer authored neither these targets nor JobRunner source. Technical AI peer only, no native-speaker claim. Block2 and prior reviewed targets remain outside this three-record receipt. No source/catalog edits, tests, collector or writer."
+}
