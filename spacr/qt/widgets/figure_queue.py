@@ -28,7 +28,7 @@ from typing import Any, Dict, Optional, Tuple
 
 from PySide6.QtCore import QEvent, QSize, Qt, QTimer, Signal
 from PySide6.QtGui import (QAccessible, QAccessibleActionInterface, QColor,
-                           QIcon, QImage, QPainter, QPalette, QPen, QPixmap)
+                           QIcon, QImage, QImageReader, QPainter, QPalette, QPen, QPixmap)
 from PySide6.QtWidgets import (
     QAccessibleWidget,
     QDialog,
@@ -925,6 +925,7 @@ class FigureQueue(QWidget):
 
     #: The displayed figure was clicked (not dragged).
     figure_clicked = Signal()
+    _workspace_restored = Signal()
 
     def __init__(self, ram_cap: int = RAM_CAP, parent=None):
         """Build the figure queue.
@@ -1398,6 +1399,139 @@ class FigureQueue(QWidget):
         if current is None:
             return True
         return int(current) == new_index - 1
+
+    def workspace_state(self) -> dict:
+        """Record ordered figure files, titles, run sections and the selected slot.
+
+        Queue-owned PNG previews and sibling PDF pages within the current
+        workspace per-file budget are marked for carrying even in reference
+        mode. External files and larger files remain references. Live Python
+        figures and their pickled cache files are never included.
+
+        :returns: plain state for :meth:`apply_workspace_state`, including the
+            workspace's explicit carry inventory.
+        """
+        from ...workspace import CARRY_KEY, default_copy_limit_mb
+
+        limit = default_copy_limit_mb() * 1024 * 1024
+        root = self._tempdir.resolve() if self._tempdir is not None else None
+        figures = []
+        carry = []
+        titles = self.figure_titles()
+        for index in range(self._count):
+            png = str(self._png_paths.get(index) or "")
+            pdf = _sibling_pdf(png) if png else None
+            row = {"png": png, "title": titles[index]}
+            if pdf is not None and pdf.is_file():
+                row["pdf"] = str(pdf)
+            figures.append(row)
+            for key in ("png", "pdf"):
+                path = Path(row[key]) if row.get(key) else None
+                try:
+                    if (root is not None and path is not None
+                            and not path.is_symlink()
+                            and path.resolve().parent == root
+                            and path.is_file() and path.stat().st_size <= limit):
+                        carry.append({"role": "figure", "path": str(path)})
+                except OSError:
+                    pass
+        return {"version": 1, "figures": figures,
+                "runs": [dict(row) for row in self._runs
+                         if 0 <= row["start"] <= self._count],
+                "current": int(self._current), CARRY_KEY: carry}
+
+    def apply_workspace_state(self, state) -> bool:
+        """Restore saved previews without executing or reconstructing figures.
+
+        Available PNG and PDF files are copied into fresh queue-owned storage;
+        the workspace bundle and original files are left untouched. Missing
+        previews retain their slots for the normal unavailable-image display.
+        The workspace restore report separately identifies missing files.
+        Invalid state or invalid image formats leave this queue unchanged.
+
+        :param state: state from :meth:`workspace_state`, with carried paths
+            already resolved by the workspace restorer.
+        :returns: whether the state was accepted. Files exceeding the current
+            per-file copy budget raise an error reported by the restorer.
+        """
+        from ...workspace import default_copy_limit_mb
+
+        if (not isinstance(state, dict) or type(state.get("version")) is not int
+                or state["version"] != 1):
+            return False
+        rows, runs, current = (state.get("figures"), state.get("runs"),
+                               state.get("current"))
+        if (not isinstance(rows, list) or not isinstance(runs, list)
+                or type(current) is not int
+                or not (-1 <= current < len(rows))
+                or (rows and current < 0)):
+            return False
+        for row in rows:
+            if (not isinstance(row, dict) or not isinstance(row.get("title"), str)
+                    or not isinstance(row.get("png"), str)
+                    or Path(row["png"]).suffix.lower() != ".png"
+                    or ("pdf" in row and (not isinstance(row["pdf"], str)
+                        or Path(row["pdf"]).suffix.lower() != ".pdf"))):
+                return False
+        previous = -1
+        for run in runs:
+            if (not isinstance(run, dict) or not isinstance(run.get("label"), str)
+                    or type(run.get("start")) is not int
+                    or not 0 <= run["start"] <= len(rows)
+                    or run["start"] < previous):
+                return False
+            previous = run["start"]
+        limit = default_copy_limit_mb() * 1024 * 1024
+        staged = Path(tempfile.mkdtemp(prefix="spacr_figq_"))
+        paths = {}
+        adopted = False
+        try:
+            for index, row in enumerate(rows):
+                source = Path(row["png"])
+                target = staged / f"fig_{index:05d}.png"
+                paths[index] = str(source)
+                for kind in ("png", "pdf"):
+                    path = Path(row[kind]) if row.get(kind) else None
+                    if path is None or not path.is_file():
+                        continue
+                    if path.stat().st_size > limit:
+                        raise ValueError(tr("Saved figure files exceed the workspace copy limit."))
+                    if kind == "png":
+                        reader = QImageReader(str(path))
+                        if bytes(reader.format()).lower() != b"png" or not reader.canRead():
+                            return False
+                    else:
+                        with path.open("rb") as stream:
+                            if stream.read(5) != b"%PDF-":
+                                return False
+                    destination = target if kind == "png" else _sibling_pdf(target)
+                    shutil.copyfile(path, destination)
+                    if kind == "png":
+                        paths[index] = str(destination)
+            self.clear()
+            self._tempdir = staged
+            adopted = True
+            self._png_paths.update(paths)
+            self._titles.update({index: row["title"] for index, row in enumerate(rows)})
+            self._runs = [{"label": row["label"], "start": row["start"]} for row in runs]
+            self._count = len(rows)
+            for index in range(self._count):
+                item = QListWidgetItem(f"#{index + 1}")
+                item.setTextAlignment(Qt.AlignCenter)
+                reader = QImageReader(paths[index])
+                if reader.canRead():
+                    reader.setScaledSize(reader.size().scaled(THUMB_SIZE, Qt.KeepAspectRatio))
+                    image = reader.read()
+                    if not image.isNull():
+                        item.setIcon(self._thumb_icon(QPixmap.fromImage(image)))
+                self._list.addItem(item)
+            if rows:
+                self.show_index(current)
+            self._workspace_restored.emit()
+            return True
+        finally:
+            if not adopted:
+                shutil.rmtree(staged, ignore_errors=True)
 
     def _note_unseen_figure(self) -> None:
         """Make it visible that figures are still arriving.
