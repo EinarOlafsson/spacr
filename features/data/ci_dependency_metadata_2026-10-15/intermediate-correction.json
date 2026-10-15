@@ -1,0 +1,25 @@
+{
+  "correction": "Initial parent summary omitted two dev-extra requirements; original raw baseline correctly records all three missing requirements. No log overwrite.",
+  "minimum_baseline_missing": [
+    "markdown-it-py",
+    "paramiko",
+    "readme-renderer"
+  ],
+  "conda_baseline_missing": [
+    "paramiko"
+  ],
+  "approved_first_patch_outcome": {
+    "passed": 5,
+    "failed": 1,
+    "seconds": 0.48,
+    "remaining_missing": [
+      "markdown-it-py",
+      "readme-renderer"
+    ]
+  },
+  "proposed_extra_scope": {
+    "markdown-it-py": "==2.2",
+    "readme-renderer": "==43"
+  },
+  "reason": "Both are already lower-bounded dev extra inputs selected by existing minimum CI contract; conda recipe intentionally covers core dependencies only."
+}

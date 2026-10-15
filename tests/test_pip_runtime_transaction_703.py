@@ -17,7 +17,8 @@ from tests.test_macos_runtime_transaction_703 import _snapshot, _wheel
 
 
 @pytest.fixture
-def installation(tmp_path):
+def installation(tmp_path, monkeypatch):
+    monkeypatch.delenv('PYTHONPATH', raising=False)
     prefix = tmp_path / 'private runtime' / 'venv'
     venv.EnvBuilder(with_pip=True).create(prefix)
     python = prefix / 'bin/python'
@@ -31,6 +32,10 @@ def installation(tmp_path):
         'import sysconfig; print(sysconfig.get_path("purelib"))'], text=True).strip())
     import shutil
     shutil.copytree(Path(packaging.__file__).parent, site / 'packaging', ignore=shutil.ignore_patterns('__pycache__'))
+    assert (site / 'spacr/qt.py').read_text() == 'def main():\n    print("1.5.1.4")\n'
+    identity = ic._retiring_runtime_identity(str(prefix))
+    assert identity['verified'] is True and identity['version'] == '1.5.1.4'
+    assert Path(identity['module']) == (site / 'spacr/__init__.py').resolve()
     kept = prefix / 'unknown-user-folder' / 'keep.bin'
     kept.parent.mkdir()
     kept.write_bytes(b'not installer-owned data')

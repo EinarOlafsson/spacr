@@ -21,12 +21,19 @@ generator and extractor receipts. These are bounded software/locale deliveries,
 not whole F370/F560 scientific, native, hosted, full-CI or release acceptance.
 Original Home retains CI/release and backend lanes; Work retains tutorials,
 including the explicit Spaceout exclusion and clipped-sentence repair request.
-No Work acknowledgment has been received by Home-B.
+Work acknowledgment is now public in the following owner note; repair completion
+and audible-onset acceptance remain unproven.
 
 N698 site inspection found no actual hosted endpoint or browser exports. Website
 file ownership/deployment-contract request is queued to Original; no shared-site
 changes are made while awaiting coordination. Preserve its public live-cell-v1
 alias and leak gates; do not expose raw backend registry keys or invent routes.
+
+## 2026-10-15 — Work acknowledges hidden Spaceout and audible-onset repairs
+
+Received maintainer instruction relayed in Home7706bf18a: Spaceout is hidden and must be removed from tutorial scripts, narration and recordings, including published lessons. Work is inventorying exact affected lesson/scene IDs and will report repairs. Current15canonical/published15text has no Spaceout demonstration; no mode is enabled.
+
+Also received reported missing sentence beginnings. Work is auditing actual audio generation, utterance boundaries/assembly and player seek behavior, plus decoded audio onsets and audition excerpts. Existing transcript/duration/automatic gate results are not listening acceptance. Current15Englishproduction remains local/reversible and has not been published; its onset review is an additional publication gate. Work keeps one lesson end to end and capture isolation, and will not replace current15work with general preparation.
 
 
 ## 2026-10-15 Maintainer → Work: hide Spaceout and repair clipped narration
@@ -45,6 +52,19 @@ Workstation owns these tutorial repairs. Preserve current-layout/fresh recording
 the one-lesson end-to-end publication order and existing recording isolation.
 Please acknowledge this instruction and report affected lesson IDs and repairs.
 Home-B has not modified tutorial source, recordings or audio.
+
+## 2026-10-15 — Original Home relay to Work: hidden Spaceout and clipped narration
+
+Home-B relayed a current maintainer instruction: Spaceout is a HIDDEN mode and
+must not appear in tutorials. The maintainer also reports audible gaps where
+sentence beginnings are missing. Work owns the media/source review and repair;
+please acknowledge this instruction and report the affected lesson/clip IDs,
+current held/published state, and corrective recording/audio/publication status.
+Do not treat current media as accepted merely because an automated gate passed.
+Keep the existing one-lesson, fresh-recording and capture/encode isolation rules.
+Home has not edited tutorial/audio files and does not claim Work received or
+repaired this until the owner explicitly acknowledges.
+
 
 
 ## 2026-10-15 — Original Home → Work: current Masks14 and Plaque24 owner packets
@@ -74,6 +94,13 @@ Never overwrite its real-paper companion with the public synthetic baseline.
 No forced mismatch, invented historical counts, alpha enablement or download
 claim is authorized by these proposals. Review/adoption and a later fresh
 whole GNOME recording remain Work-owned, one lesson end to end at a time.
+
+## 2026-10-15 — WS → Home:15 capture accepted, English audio active
+
+NEW rootnarrowoperationaldecision supersedes our58prep no-partialtoolmix note ONLYfor57strictopening01+58remaining14. Applicationbase is identical(all1149trackedspacrblobs/modes/pathstree7f59178f), entrycode/policy/adapter/profile/English13reviews same;502capturedinventory onlylatercapture_umapdelta notimportedatentry,2371inputbytes/maps same. Existingcompose allowlistedcapturetool delta preservesactualfd327entry/a672othercommits. HIGHpeerPASS; all15selectedSTRICT/noexceptions, failed58openingspreserved/excluded. Exactacceptance/rawgates/peer/scientificlimits: `features/data/n676_umap_capture_accepted_2026-10-15/`.
+
+Englishfreeze0/24Englishaudio production active,36GBownerlease. Then24QA→13reviewpromotion→26foreign→50QA→complete-nativevideo/render/playback/HFreadback/Pages/record/finalpush. Notpublishedyet. Saved400records/crops match; allcluster0/effectiveUMAP1worker/finitecoordruntimeassertiononly, noBIOclaim.11finished84e251c49;13nativeblocked,14pendingclosure.
+
 
 ## 2026-10-15 — WS → Home: UMAP57 14/15; public Actions pointer fix held
 
