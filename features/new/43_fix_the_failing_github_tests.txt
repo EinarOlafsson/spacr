@@ -3888,3 +3888,15 @@ manual full CI run is next; no successful diagnostic is used to bypass it.
     passed27affected owning cases7.55s; unchanged gates were not repeated.
     No production/ratchet/model/fullCI acceptance claim.
     Evidence:data/43_shared_mask_double_contract_2026-10-15/.
+
+
+2026-10-15 — deleted bioimageio fixture isolates unavailable model
+    The old test left an external provider declaration after deleting its
+    local fake download, triggering intended exact-basename reacquisition. It
+    now supplies an empty unavailable catalogue and refuses any attempted
+    fetch, keeping the original FileNotFoundError/notthere expectation and
+    asserting the path stays absent. All previous assertion ASTs remain.
+    Safe controlled baseline1FAIL6.10s; affected node1PASS6.15s. Existing N702
+    legitimate reacquisition cases are hash-bound/read only, not duplicated.
+    No production/trust changes, network/model/fullCI acceptance claim.
+    Evidence:data/43_bioimageio_deleted_fixture_2026-10-15/.

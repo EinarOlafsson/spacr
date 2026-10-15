@@ -1,0 +1,12 @@
+{
+  "source_sha256": "99c20b168d1003e44efd0bc629a07f7799cf26481904bd6976a85d167bd2ca73",
+  "scope": "test-only unavailable/deleted provider scenario; actual original local fixture fetch/delete retained, catalogue controlled empty, fetch tripwire guards refusal, original FileNotFoundError/notthere expectation retained, deleted path absence asserted",
+  "safe_baseline": "1FAIL6.10s. Controlled declared local candidate plus fail-if-called fetch replaces real discovery/transfer; reproduces attempted reacquisition, not original26MB network download.",
+  "final": "affected single actual test1PASS6.15s",
+  "assertion_ASTs_preserved": 65,
+  "existing_accepted_reacquisition": "Two actual N702 test modules read/hash-bound only, no redundant new cases/reruns",
+  "limitations": [
+    "No production/trust/fallback guard altered.",
+    "No external network/model checkpoint decoding, real training, GPU, fullCI or release acceptance."
+  ]
+}
