@@ -1,0 +1,8 @@
+{
+  "head": "57b4e087734983f027ea21301204798515bfbfcd",
+  "clean": true,
+  "files": {
+    "spacr/qt/widgets/figure_queue.py": "eae762279c014d6fe27c1374f87de010960e4fb7fc1fa70061b23c5a4638894e",
+    "spacr/qt/widgets/figure_grid_view.py": "013aaa423739e14dbcafbdeff85f0312c8bdb8828d29c45660a221f078e76d21"
+  }
+}

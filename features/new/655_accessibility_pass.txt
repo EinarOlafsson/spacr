@@ -669,3 +669,19 @@ other-platform, provider/reporting or whole-N655 acceptance is claimed.
   is retained and corrected using the real rollout membership. No caption or
   API arrival, native replay, other-OS or whole N655 completion claim.
   Evidence:data/655_figure_section_actions_2026-10-15/receipt.json.
+
+2026-10-15 — Native Linux figure actions verified through external AT-SPI
+  On frozen57b4, actual Clear figures and section-heading controls expose
+  push-button roles through the external accessibility bridge. One external
+  Press clears the seeded real queue/list; one Press on the current heading
+  folds its real section, hides its cell and preserves the collapsed workspace
+  key. Native expandable/expanded/collapsed states follow that transition.
+  Disabled controls remove actions and refuse invocation while their same
+  Accessible state remains readable; both action counts stay exactly one.
+  Final private Xvfb/D-Bus run passed in4.29s/401856KiB under2G/thread1;
+  the app exited cleanly and all211 loaded source hashes match the pinned tree.
+  Retained fixture failures cover initial scroll readiness and a stale header
+  reference after Clear's normal relayout. The final reader re-enumerates the
+  live tree; no product code or action/state assertions were changed.
+  Evidence:data/655_native_figure_actions_2026-10-15/receipt.json.
+  No speech, human, other-OS or whole-N655 completion claim is added.

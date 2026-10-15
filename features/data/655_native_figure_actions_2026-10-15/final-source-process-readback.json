@@ -1,0 +1,11 @@
+{
+  "head": "57b4e087734983f027ea21301204798515bfbfcd",
+  "loaded_source_count": 211,
+  "initial_final_process_sources_equal": true,
+  "all_loaded_sources_match_git_and_tree": true,
+  "owned_app_pid": 2424194,
+  "owned_app_exited": true,
+  "owned_reader_app_survivors": [],
+  "app_clean_exit": true,
+  "clean_tree_before_evidence": true
+}
