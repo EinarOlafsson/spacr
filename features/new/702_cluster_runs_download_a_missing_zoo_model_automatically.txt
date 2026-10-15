@@ -494,3 +494,14 @@ claim those shared gates, finalCI, native cluster/scientific acceptance or whole
 702 completion. Original nonempty bulk packs/external raw catalogues and
 remaining historical provenance are separate work.
 Evidence: data/702_legacy_offline_integration_2026-10-14/receipt.json.
+2026-10-15 — recorded model filename must actually name a file:
+Metadata now refuses directory-like filename leaves (dot or trailing separator)
+and embedded NUL before the matching-local-byte shortcut or settings export.
+A malformed pin can no longer overwrite existing CSV/JSON outputs. Exact nested
+POSIX/Windows names and ./checkpoint.pt stay valid, as does opaque version001;
+existing traversal/absolute-path/URL/kind/identity checks remain intact. Root
+explicitly delegated this isolated helper hunk. Native baseline10FAIL/4PASS
+6.72seconds; the14new local-byte/serializer cases plus prior recorded-identity/
+CLI/batch owning cohort pass81 in2.22seconds under2G. No scientific model loading,
+network/GPU/fullCI or whole-item closure. Parent702 remains partial. Evidence:
+data/702_pin_filename_leaf_validation_2026-10-15/receipt.json.
