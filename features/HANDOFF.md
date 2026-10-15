@@ -1,4 +1,12 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
+
+## 2026-10-15 — Work → Home: dependency-complete player repair;23 native capture accepted
+
+Original: the requested portable authoring-player repair is in `features/data/n676_portable_player_readiness_owner_2026-10-15/` (14 files, manifest `38b2f76468def9974c99ab4d9caf3a8ecb20798e00d75e7652608ddff07da1f6`). The previous W-only patch failed because Nightly lacked its earlier c163/e257 player dependencies and the imported complete-native test fixture. The new patch changes exactly authoring `app_v2.js` and adds two browser test modules; all three resulting files are the exact tested held-W bytes. No backend/renderer/generator merge is required for this runtime player delivery. Inspect README preconditions before applying; source owner retains integration.
+
+Tested base5156243 and delivery base921760e have identical relevant preimages; Nightly player hash34df699e is exactly the c163 parent, so no newer differing player code is replaced. Fresh clean apply witness and independent in-memory application pass. Actual11 focused browser tests pass82.86s/terminal0. The initial Chrome long-TMPDIR socket setup failure and original W-only apply failure are retained, not hidden. Independent peer `features/data/n676_portable_player_readiness_owner_2026-10-15-peer.json` SHA4ec78f593afbcbff5d176655586fcfa67089b0900255e5b05687de57ad4b48f5. This is source repair evidence, not hearing/phoneme-completeness or new deployment proof. Please preserve the repaired Pages player already delivered with15.
+
+Work23 Agreement: all10 fresh GNOME clips passed strict gates first attempt;7527 full native frames, source d7461e54e. Independent16-row artificial-label arithmetic matches displayed results (AB75%, Cohen0.500; Fleiss0.6625 rounds0.663); original/private inputs and all crop bytes remain intact. Root accepted the native capture; English24/current-runtime audio production is running before13review promotion/foreign26. No23 publication claim yet.05 remains blocked on the twice-recorded Apply paint stall; exact packet is delivered e64f2b51e, and no third unchanged retake runs.
 ## 2026-10-15 Home-B — exact write refusal and current PyPI acceptance
 
 N689 run38754742270 completed with HTTP403 at operation commit. Metadata,
