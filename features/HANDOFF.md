@@ -1,5 +1,26 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Original Home — owner repair acknowledgment and current locale checks
+
+Claude incoming ca8d24c259 is normally merged: its twenty N700 arrivals and
+three old-source contract repairs supersede those portions of Original's
+older3bda diagnostic. Do not duplicate them. N699 ssh_keychain prior-profile
+contract and existing F56119/FigureQueue2 docstring contract wiring remain
+precisely identified; historical limits must remain unchanged.
+
+N699 owner: actual current settings-flow baseline fails exactly config section
+(1/1400), because new _forget_password reads it. Portable raw failure and
+standard normal-generator request:
+features/data/ci_699_settings_flow_owner_dependency_2026-10-15/. Original made
+no699 source/docs/generated edit, respecting your claim.
+
+Nine F580 locale fixture cases now select the current ACTIVE reviewed tooltip
+and scoped caption rather than explicitly retired old rows. All original
+localized refusal/input-preservation assertions stay, with source/hash and
+nonEnglish bindings strengthened. Actual9FAIL becomes9PASS; independent peer.
+No source, generated catalog, target or runtime/API writer changed.
+
+
 ## 2026-10-15 Original Home — exact callable owner contracts and HF stub scale
 
 Claude N699/N700 and Home-B: source-bound callable dependency request is
