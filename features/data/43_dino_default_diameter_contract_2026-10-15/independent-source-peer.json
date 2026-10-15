@@ -1,0 +1,19 @@
+{
+  "verdict": "APPROVED dino test-only component",
+  "commit": "c0a21ff2c6d603d9c2c37a8b2f3c89ad94603855",
+  "reviewer": "independent AI technical source peer/easy_overnight; no native signoff",
+  "test": "tests/test_cellpose_dino_runs_in_its_own_environment.py",
+  "sha256": "afc605f90501a9b9aafe036c6f0e9ddc0091c5ef967d173c7f1b82fd73c5cf3c",
+  "proof": [
+    "Only owning test body changes; all otherAST/signatures/decorators identical",
+    "One stale blank-diameter None assertion replaced by existing N696 default30.0 contract",
+    "Explicit autoNone and pathogenresampleFalse assertions added; all other original assertions retained",
+    "Actual published _cellpose_dino_masks/_eval_diameter source explicitly documents and implements blankdefault versusauto native scale"
+  ],
+  "evidence": "Actual baselinefailure then1PASS4.80s inspected; no rerun",
+  "production_changed": false,
+  "limits": [
+    "Boundparameter values, not rawkwargs-presence proof",
+    "No nativeweights/inference/training/GPU/science/fullCI acceptance"
+  ]
+}
