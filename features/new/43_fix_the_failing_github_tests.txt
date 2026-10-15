@@ -3911,3 +3911,13 @@ manual full CI run is next; no successful diagnostic is used to bypass it.
     and final2PASS6.45s; current public helper ASTs were equal before edits.
     No production, algorithm, caption/API, model or fullCI changes/acceptance.
     Evidence:data/43_imaging_test_contracts_2026-10-15/.
+
+
+2026-10-15 — four runtime fixture consumers verified, no new source fix
+    The two current-runtime-floor and two timestamp-collision cases now pass
+    with the already published shared fixture isolation. Target test files,
+    imported fixture and production cleanup source match pinned public3922
+    before and after execution. Actual4PASS10.52s, no skips; no mac/pip/nightly
+    cohort repetition or code mutation. Disposable local synthetic wheels only;
+    no hostedPython3.9/nativeplatform/fullCI/release acceptance is inferred.
+    Evidence:data/43_runtime_fixture_consumers_2026-10-15/.
