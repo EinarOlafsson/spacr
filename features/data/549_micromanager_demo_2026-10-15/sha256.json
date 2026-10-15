@@ -1,0 +1,16 @@
+{
+  "MMConfig_demo_minimal.cfg": "e3e39464fc995e7815bf7aa8a3b05a99c820b127cf79ec373e8adf1bd72392bc",
+  "REPRODUCE.txt": "33e56bab2516abcabd97f77409e55a058af78c4ddc12535c15a49c940673ae97",
+  "acquired-ledger.json": "f3d44751ba402ab3ca8a14ceb0646b5e7f773f8827fea9c60aaab28451263e5d",
+  "dependencies.json": "9371a4bb320c404f0e8832c90dc77890e27427d9617e9df411109a6763475975",
+  "native-run.json": "24adf4fff50b2ee931f38eddbb0567ee0de0f2ac4bfe2cc1afaf91a03b906cff",
+  "queued-ledger.json": "c50a17a2185af281df0b22dcbd1ca76973f5e98e28b6e069756fbf59d74b199d",
+  "receipt.json": "97a63994f6595275b0062ae73c3a0ffccf5e6ee48487fee08c35f084cb11b4ca",
+  "replay.py": "04031b0cc953f17b9b6aca6c16bb90dc78d602dc6b2bf6f3fbfb0ca9c0e045f2",
+  "resources.txt": "4732ce173a73a1fc21d4a15b2dd180b26d80a0b0a524e4cddaadfb5b582a3046",
+  "spacr_watch/reimaged/demo_A01_e000_t000.tif": "8ccd40d21ae519d2e864f969a985e24df25ae35ed78b22ad4cbd88eb7e4d4b94",
+  "spacr_watch/reimaged/demo_A01_e000_t001.tif": "9d925f5b4e6401cb4405834a9a3c732f9486d85d10214c18cda2099afab9a485",
+  "spacr_watch/reimaged/demo_A01_e001_t000.tif": "23ff84dcf79e6283138a25e287f0bd06d1a10d32ef22755b787db829753d3b4a",
+  "spacr_watch/reimaged/demo_A01_e001_t001.tif": "02b4d95b6d8269236d0bc03b06d3624944eeecbe7560fb06865a83eada0977f2",
+  "validation.log.gz": "fc6abcc71d2e092b49a1ec6a633a992bd384d721721ecb9887e4cbe201ee3847"
+}

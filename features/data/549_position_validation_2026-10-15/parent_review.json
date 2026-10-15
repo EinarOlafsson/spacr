@@ -1,0 +1,57 @@
+{
+  "reviewer": "Home-B coordinator",
+  "scope": "Independent source/technical translation review of the exact two diagnostics in nine locales",
+  "findings": [
+    "All18 source hashes/placeholders match; setting identifier retained.",
+    "Targets preserve invalid/nonfinite coordinate and conflicting field-stage-position meaning; no claim to reject absent z.",
+    "Position parser validates x/y and present z before driver open, preserves exact-equal duplicates and rejects conflicting tuples; no driver behavior edits."
+  ],
+  "review_kind": "AI technical, not native speaker or biological acceptance",
+  "files": [
+    {
+      "path": "docs/i18n/reviewed/runtime/de/2026-10-15-microscope-position-validation.json",
+      "sha256": "719a56f3b4356bb8bd63dc71d2903e5fad57a8191e6434fa8fcc1587d9b3018f",
+      "reviewed_pairs": 2
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/es/2026-10-15-microscope-position-validation.json",
+      "sha256": "3dd45c3d7567e8e7d0dcc770f225a189bddb5d1b05a1e2f47b0f195b99902c20",
+      "reviewed_pairs": 2
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/fr/2026-10-15-microscope-position-validation.json",
+      "sha256": "ff4135c224ac8affd0e74ee2b787c7be1d190bb9b6ef61e84704a49260eaf215",
+      "reviewed_pairs": 2
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/hi/2026-10-15-microscope-position-validation.json",
+      "sha256": "3757f2a46e544e62361bcc5e058cdcf24b5ca7f61774750cd723ca733b5381a1",
+      "reviewed_pairs": 2
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/is/2026-10-15-microscope-position-validation.json",
+      "sha256": "63ede4f3f6e46d648c7a7cc0e57ffaaed7baa0c9d777598176a3f7db6ce8fdfe",
+      "reviewed_pairs": 2
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/ko/2026-10-15-microscope-position-validation.json",
+      "sha256": "222b1fe63578832ffa471deabe842c2c2f9582d93ed2f3166fea8de03a55b413",
+      "reviewed_pairs": 2
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/pt/2026-10-15-microscope-position-validation.json",
+      "sha256": "fb1b43fe4afc0b39ac169c6667b334d1475470a1c2558ee85a17ec213833ee3d",
+      "reviewed_pairs": 2
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/sv/2026-10-15-microscope-position-validation.json",
+      "sha256": "274f9d5947193f5a09830e2606983690b02058f91aafe6ae74b14d0c6992ce90",
+      "reviewed_pairs": 2
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-microscope-position-validation.json",
+      "sha256": "3838db4b29c0467457f610026379c936f18227c5b89f68d4a0ec70e27c9db6b6",
+      "reviewed_pairs": 2
+    }
+  ]
+}

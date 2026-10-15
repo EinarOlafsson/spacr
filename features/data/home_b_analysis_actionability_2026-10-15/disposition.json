@@ -1,0 +1,200 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "source_commit": "f61e4e1fdedacb6bc56856ce133ed5e91f270a24",
+  "method": "Read requests and effective later notes, inspect owning source and existing receipts, hash exact files. No tests/native acceptance/uploads/global generation/item status changes performed by this audit.",
+  "rows": [
+    {
+      "item": "N388",
+      "disposition": "implementation_present_external_data_acceptance",
+      "reason": "Existing bystander settings are consumed by measurement; requested real-screen effect-size comparison needs maintainer data, not invented results.",
+      "source_bindings": [
+        {
+          "path": "features/new/388_the_infected_cell_and_its_neighbours.txt",
+          "sha256": "8f223e7f265b5f8eaba45340e6be25669eb8a56eaaf77f0ad9890a6d5df11b1b"
+        },
+        {
+          "path": "spacr/measure.py",
+          "sha256": "fef2d7ded571f56b398d5f8fbedd9d51825020f69723edfa95fc26a6189bda1b"
+        },
+        {
+          "path": "spacr/settings.py",
+          "sha256": "cf4dfd11b25956d2ed7e401078822c00994948bdc701b47db8b74272260ce6aa"
+        }
+      ]
+    },
+    {
+      "item": "N484",
+      "disposition": "implementation_present_explicit_scope_limits",
+      "reason": "Host-pathogen analysis exists; whole-vacuole trained weights and calibrated assay bundle are explicitly external/not to invent. Part6 skipped as authorized.",
+      "source_bindings": [
+        {
+          "path": "features/new/484_integrated_host_pathogen_analysis_and_inference.txt",
+          "sha256": "94b34f184bd8be9503c39dd0b53330548230e9a51270ae7b0c56a377dd6a8176"
+        },
+        {
+          "path": "spacr/host_pathogen.py",
+          "sha256": "8e73c0b24fc9d0fe903ced3b9c8a74a1c98cf1b8c497b3e6fd4969493b85063c"
+        },
+        {
+          "path": "spacr/settings.py",
+          "sha256": "cf4dfd11b25956d2ed7e401078822c00994948bdc701b47db8b74272260ce6aa"
+        }
+      ]
+    },
+    {
+      "item": "N492",
+      "disposition": "implementation_present_native_platform_acceptance",
+      "reason": "Backend/live preview and published real sample receipt exist; native macOS/Windows and real thresholds/counts remain qualified.",
+      "source_bindings": [
+        {
+          "path": "features/new/492_host_pathogen_live_preview.txt",
+          "sha256": "b4d7cdd7a516a1bb82bd7636d80bc4c0808e616d2e9784a72e156f409be5b9eb"
+        },
+        {
+          "path": "spacr/host_pathogen_preview.py",
+          "sha256": "abd630e42d696891ff473bab2a654035645ff7ed7edb3d3cd3698f0a9f5d3d6e"
+        },
+        {
+          "path": "spacr/qt/widgets/host_pathogen_preview.py",
+          "sha256": "ced0a558f0480e5f452afeee5efa78f30c0219b8049d1c81bb3ed8b0e68447bd"
+        }
+      ]
+    },
+    {
+      "item": "F534",
+      "disposition": "catalog_reconciliation_delivered_external_acceptance",
+      "reason": "Current-source runtime/API reconciliation delivered separately today; paired datasets/GPU whole-slide and crop-PNG acceptance remain outside that receipt.",
+      "source_bindings": [
+        {
+          "path": "features/future/534_map_barcodes_reads_visium_and_xenium_and_maps_them_to_cells.txt",
+          "sha256": "799d1233d73f9d3edfa8665c6ecce70ecb2ee5704a6882f108ba7098c7ce95b4"
+        },
+        {
+          "path": "features/data/534_catalog_source_reconciliation_2026-10-15/receipt.json",
+          "sha256": "45872aff3a106ec3fc38999d8090a8c0d93c0c848eb0f175caff9c911f29e32c"
+        }
+      ]
+    },
+    {
+      "item": "F549",
+      "disposition": "actual_implementation_and_demo_integration_in_progress",
+      "reason": "Finite-coordinate/duplicate validation37PASS integrated; native DemoCamera queue/acquisition replay passed. Exact captions19PASS; normal nine-locale generation and demo receipt integration underway.",
+      "source_bindings": [
+        {
+          "path": "features/future/549_smart_microscopy_feedback.txt",
+          "sha256": "b946f10d125f4ad769de21d5cc8decf28e92a1916b2b68b42c9de37dd8db1be6"
+        },
+        {
+          "path": "spacr/core.py",
+          "sha256": "15d646438155df555d274b683dc3f40d8c8f588b84a4bed2c6cc474d6f0a88dc"
+        },
+        {
+          "path": "features/data/549_position_validation_2026-10-15/receipt.json",
+          "sha256": "ee162e18842b9d5de9d6384db77ae9449bf421db41f526751986c6b12d027de9"
+        }
+      ]
+    },
+    {
+      "item": "F574",
+      "disposition": "implementation_present_external_archive_acceptance",
+      "reason": "Archive-package writers/validators exist; curator/real submission acceptance is external. Do not upload user scientific data or claim curator acceptance.",
+      "source_bindings": [
+        {
+          "path": "features/future/574_mihcsme_rembi_metadata_and_archive_packages.txt",
+          "sha256": "b78eec3dd0f6604044621505ca94229b301ab855b011fbcd97b6b77162e375f9"
+        },
+        {
+          "path": "spacr/report.py",
+          "sha256": "7a1fb1533764663358b9c2ce495d6eaa829e4033ba07bbe57f30ff075054821e"
+        },
+        {
+          "path": "features/data/574_official_idr_probe_2026-10-02.json",
+          "sha256": "3a9459f238a6df3f8d9532aee897a68766fbfe63fcde43993900fca3a5dd2dd8"
+        }
+      ]
+    },
+    {
+      "item": "F576",
+      "disposition": "implementation_present_stale_caption_remainder_resolved",
+      "reason": "Existing source-bound receipt verifies42current captions across9locales. Old LEFT translation note is superseded; no new backend implementation established by this audit.",
+      "source_bindings": [
+        {
+          "path": "features/future/576_postgres_duckdb_parquet_backend.txt",
+          "sha256": "20a45a088f95669d0518079b4ca184d3c52236938c60535151e9dc932ea3cb2b"
+        },
+        {
+          "path": "features/data/576_current_translated_captions_2026-10-14/receipt.json",
+          "sha256": "1771a5850466f3036483d3067852dc300da73e0748f66aac11dcf029b9dd02f6"
+        },
+        {
+          "path": "features/data/576_current_translated_captions_2026-10-14/verify.py",
+          "sha256": "656c8a86996dc580e4a9143defcc8d96e404aa75a35f0cccc2585895f0126a57"
+        }
+      ]
+    },
+    {
+      "item": "F579",
+      "disposition": "implementation_present_maintainer_acceptance_recorded",
+      "reason": "Sandbox deposit DONE is maintainer acceptance in5fbe9253430140e68c134d4c70cec1d9dd18e5f9, superseding older WHAT IS LEFT. No fresh remote deposit/readback performed.",
+      "source_bindings": [
+        {
+          "path": "features/future/579_one_click_zenodo_archive_of_a_run.txt",
+          "sha256": "8293e388697d7bcd34dfb5cfa93fe55bfa513e4890c18a921623037c25e41576"
+        },
+        {
+          "path": "spacr/report.py",
+          "sha256": "7a1fb1533764663358b9c2ce495d6eaa829e4033ba07bbe57f30ff075054821e"
+        }
+      ]
+    },
+    {
+      "item": "F634",
+      "disposition": "implementation_present_species_gate_and_scope_limits",
+      "reason": "Five organism pages/artwork and independent ALPHA_SPECIES registry exist. Empty _SPECIES_WITH_PUBLISHED_LESSONS supersedes old tutorial exception; coming-soon pipelines are not fabricated.",
+      "source_bindings": [
+        {
+          "path": "features/future/634_more_organism_modules_trypanosome_leishmania_giardia_virus_mammalian.txt",
+          "sha256": "8357803b5d3facc30996c5d6cb94e21c32c3a1b583de41919d0d5410cf99c906"
+        },
+        {
+          "path": "spacr/qt/organisms.py",
+          "sha256": "52ca5d9869d1e1831b19911b66e661b7d71acff6394c3267fea5f8d1f880879c"
+        },
+        {
+          "path": "spacr/qt/screens/organism_screen.py",
+          "sha256": "332a6cbff295e55d9244514e1417780933bda7f7bc51916758a3c4bffdc25e73"
+        },
+        {
+          "path": "spacr/settings.py",
+          "sha256": "cf4dfd11b25956d2ed7e401078822c00994948bdc701b47db8b74272260ce6aa"
+        },
+        {
+          "path": "spacr/resources/images/organism_sources.json",
+          "sha256": "8809c4a4223a521bf2b2e1c8ab1f7ba90298d50ba298a1ffdedb0e045579ccfd"
+        }
+      ]
+    },
+    {
+      "item": "N399",
+      "disposition": "implementation_present_publication_work_owned",
+      "reason": "Barcode-search engine exists; Map Barcodes now protected in catalog builder. Tutorial belongs to Work; main publication/release deferred.",
+      "source_bindings": [
+        {
+          "path": "features/new/399_map_barcodes_searches_finds_and_colours_reads.txt",
+          "sha256": "f08e1978c30038f9b520c998f8d24838a9f80a0e300167efc7adf62370b91b49"
+        },
+        {
+          "path": "spacr/barcode_search.py",
+          "sha256": "1c3ee56a3bc3d4af504db2bb543f5fabd440734ee5283b317348558b9c372183"
+        },
+        {
+          "path": "tools/build_i18n_catalogs.py",
+          "sha256": "43cc94d61d09c44621b1df71165c46edace4f90f0ccc18fe7088fe0894beabb1"
+        }
+      ]
+    }
+  ],
+  "new_completion_ticks": false,
+  "actionable_work_found": "F549 actual validation and native demo; currently being integrated, not deferred as merely external."
+}
