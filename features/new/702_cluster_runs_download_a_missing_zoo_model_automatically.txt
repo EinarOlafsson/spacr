@@ -153,3 +153,24 @@ and invalidation, contextual unknown/ambiguous errors and all-model entrypoint
 acceptance remain open; the separate offline component retains its artifact
 hold until owner-generated catalogs and nine actual locale tests pass.
 Evidence: data/702_process_download_coalescing_2026-10-14/receipt.json.
+
+2026-10-14 — ambiguous exact identities refuse stock fallback:
+An exact basename matching multiple zoo entries previously returned None.
+The real Cellpose resolver then treated that known-but-ambiguous name as
+unknown and silently used stock cpsam weights. Native baseline2FAIL/1local
+file guardPASS reproduced the missing refusal and actual fallback message.
+The model resolver now raises ModelZooError with requested identifier, exact
+match count and EVERY candidate key@version [sha256=...] instead of choosing
+or handing ambiguity to a stock fallback. Existing local files still win.
+Unknown identifiers and known legacy behavior are unchanged by this repair.
+
+The error reuses the existing correctly translated '{name} · {n} matches'
+caption; no new source captions, generated artifacts, tool changes or review
+claims. The superficially suitable 'Ambiguous mapping' row was not reused
+because several existing translations have the wrong meaning. The finite
+owning cohort passed44cases in8.21seconds, actual exit0, including the real
+Cellpose resolution path and all nine actual shipped language error paths
+with unchanged exact candidate identities. Public signatures/docstrings are
+unchanged; no network/weights inference/GPU/native-other-OS/fullCI claim.
+Parent702 and the separate offline-catalog artifact hold remain open.
+Evidence: data/702_ambiguous_identity_refusal_2026-10-14/receipt.json.

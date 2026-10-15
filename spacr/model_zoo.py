@@ -3624,7 +3624,15 @@ def _ensure_model_file(requested, *, kinds=(), download=True):
     matches = [item for item in catalogue(remote=True)
                if item.key == identifier or item.name == identifier
                or (path_like and Path(item.name).name == identifier)]
-    if len(matches) != 1:
+    if len(matches) > 1:
+        from .qt.i18n import tr
+
+        choices = "\n".join(
+            f"{item.key}@{item.version} [sha256={item.sha256}]" for item in matches)
+        raise ModelZooError(
+            tr("{name} · {n} matches", name=repr(text), n=len(matches))
+            + ":\n" + choices)
+    if not matches:
         return None
     entry = matches[0]
     if kinds and entry.kind not in kinds:
