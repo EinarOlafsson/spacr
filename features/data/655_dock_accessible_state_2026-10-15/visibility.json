@@ -1,0 +1,22 @@
+{
+  "source_sha256": "6ae995de50835d66754c12d0693e3f15656d06b62fe7aba99564b6b52440e04a",
+  "baseline_source_sha256": "a9b65ea4ad0805f9e0e945ff9876a5dc45822378bd167ff097843507d897a9c9",
+  "public_method_docs_unchanged": true,
+  "module_and_class_docs_unchanged": true,
+  "other_existing_methods_ast_unchanged": true,
+  "changed_existing_methods": [
+    "set_collapsed"
+  ],
+  "comments_unchanged": true,
+  "actual_public_symbol_calls": {
+    "spacr.qt.widgets.dock._AccessibleDockEdge": false,
+    "spacr.qt.widgets.dock._AccessibleDockEdge.__init__": false,
+    "spacr.qt.widgets.dock._AccessibleDockEdge.state": false,
+    "spacr.qt.widgets.dock._AccessibleDockEdge.actionNames": false,
+    "spacr.qt.widgets.dock._AccessibleDockEdge.doAction": false,
+    "spacr.qt.widgets.dock._dock_edge_accessible_factory": false
+  },
+  "actual_scoped_nested_inventory": [],
+  "scope": "Normal policy on every new declaration and normal helper inventory on an isolated one-file source root; no full repository collector or generated output.",
+  "full_module_ast_equal_after_restoring_exact_declared_scope": true
+}
