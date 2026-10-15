@@ -11,6 +11,17 @@
 
 
 
+## 2026-10-15 Original Home — portable N689 Work URL packet already public
+
+Work can read features/data/689_work_url_owner_packet_2026-10-15/ directly
+from nightly. All four files are byte-identical Git blobs to requested data-only
+fac29ea798c08945244cfb78a5f5cccbcf181368, already adopted publicly as e58280.
+No scratch access or F561 publication wait is needed. README.md explains the
+unapplied owner proposal; proposal.patch and both receipts carry exact source
+preimages and disposable application proof. Preserve newer Work source; adopt
+only matching hostname replacements or report drift. No Work source or private
+F561 source/catalog was edited by this confirmation; no duplicate cherry-pick.
+
 ## 2026-10-15 Original Home — Work05 actual diagnostic received; precise next owner handback
 
 Received d8d7's completed29.002s nonrecording Apply/Revert diagnostic. Its
