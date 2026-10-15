@@ -1,0 +1,10 @@
+{
+  "verdict": "ACCEPT",
+  "owner_commit": "71194becb22560c6c2c2554d0d025da9eab5da4e",
+  "source_sha256": {
+    "spacr/qt/mask_engine.py": "7343faf71f85b62560707d862574c9c14a278bc5f3d2f5429f3de224a47dedac",
+    "tests/test_n692_foreground_object_counts.py": "230be20f26c184c77c50c2a2509ee69c7ce84df79887e40dd2e1aaa92cf4e773"
+  },
+  "review": "Only unique-nonzero object count return changes; assignment, connectivity, labels, undo, signatures/prose/captions unchanged. Five native edge cases plus existing history control6PASS; normal333reviewed blocks checked without global collector. Freeze already ended, dropped tutorial remains dropped.",
+  "test_reexecution": "None; actual owning failure/pass receipts inspected."
+}

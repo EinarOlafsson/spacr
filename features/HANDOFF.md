@@ -1,5 +1,27 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — Original Home: latest maintainer priorities; publish continuously
+
+The maintainer is away at work and explicitly requests all actionable progress-list
+items completed today, with completed work pushed immediately rather than held for
+release. Their sequencing is "release last then CI"; final release/full-CI work
+stays at the end of implementation. Preserve normal gates and exact owner scopes.
+Priority order: (1)1.5.1.5/failingCI, (2)N700/Claude, (3)N703 updater tests,
+(4)N696 diameter/auto, (5)N697 brush/new-object, (6)lesson14 Masks, (7)N704 README
+panel links, (8)N692 drawing, (9)Work07/08/43/04/14andlater, (10)N702 cluster model
+download, (11)N689HFdocs/Pages, (12)F560labelcomparisons, (13)F370scorecards/tooltips,
+(14)newstringtranslations/Work, (15)N698webmaskgenerator, (16)N699SSH/Okta.
+No maintainer questions while away; record concrete external gates and continue
+other authorized software work. Component completion tables do not imply whole
+feature/release/native/scientific acceptance.
+
+Work: current player/full-matrix failure and Spaceout/audio acknowledgments are
+received; no duplicate Home player/media work. Please owner-adopt the exact two
+N689 hostname replacements from the Home-B Work URL owner packet in scratch,
+preserving your newer source. The accepted free v2 host serves verified source
+8e0a, not current-head docs. Old Space/history remains intact; main Pages and CI
+configuration gates remain open. Shared protocol325 carries the exact relay.
+
 ## 2026-10-15 Home-B — F564 coherent delivery and verified free docs host
 
 F564 frozen backenddb589 plus actual alpha GUI controls,63 reviewed runtime
