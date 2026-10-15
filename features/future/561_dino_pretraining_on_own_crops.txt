@@ -138,3 +138,21 @@ published N641 source merge. No training/model/GPU/quality acceptance claimed.
 Evidence: features/data/561_dino_controls_2026-10-15/ and related runtime/API
 review/catalog directories. This closes the described software-control gap;
 scientific acceptance is not inferred from fake-backend Qt checks.
+
+
+2026-10-15 — private own-DINO classifier backend prepared (not whole-item closure)
+    Added a trainable own-DINO teacher/head factory with recorded scaling,
+    resize, ordered caller-declared physical channels, freeze/fine-tune policy
+    and strict restricted checkpoint reconstruction. A supervised raw-NHWC
+    producer holds out explicit acquisition groups with the existing shared
+    split and writes the best canonical classifier through private staging
+    and atomic no-overwrite publication. Late cancellation and foreign output
+    races refuse publication. Existing Classify/PIL decoding is unchanged.
+    Source-bound evidence: features/data/561_own_dino_classifier_backend_2026-10-15/.
+    Actual31owning software checks plus3compatibility and4publication followup
+    checks passed; historical failed reproductions/orchestration failures are
+    retained. Only tiny synthetic CPU encoders were trained. UI producer route,
+    normal runtime/API catalogs and actual localized callbacks remain pending;
+    nine-locale18runtime/81API inputs are private drafts. Human phenotype labels,
+    multi-seed independent-cohort performance and biological acceptance remain
+    separate. Historical channel identity is explicitly caller-declared.

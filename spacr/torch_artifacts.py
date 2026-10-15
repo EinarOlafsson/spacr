@@ -28,6 +28,10 @@ def model_configuration(model: nn.Module) -> dict[str, Any]:
 
     :param model: module whose reconstruction settings should be captured.
     """
+    if hasattr(model, "_own_dino_config"):
+        import copy
+        return {"model_name": "own_dino",
+                "own_dino_config": copy.deepcopy(model._own_dino_config)}
     return {
         "model_name": getattr(model, "model_name", model.__class__.__name__),
         "num_classes": int(getattr(model, "num_classes", 1)),
@@ -42,12 +46,12 @@ def dependency_versions() -> dict[str, str]:
     """Return the runtime versions that materially affect a model artifact."""
     versions = {
         "python": platform.python_version(),
-        "torch": torch.__version__,
+        "torch": str(torch.__version__),
     }
     try:
         import torchvision
 
-        versions["torchvision"] = torchvision.__version__
+        versions["torchvision"] = str(torchvision.__version__)
     except Exception:
         versions["torchvision"] = "unavailable"
     return versions
@@ -212,10 +216,13 @@ def _legacy_configuration(payload: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def build_model_from_configuration(config: Mapping[str, Any]) -> nn.Module:
-    """Reconstruct a :class:`TorchModel` without pretrained weights.
+    """Reconstruct a recorded classifier without pretrained downloads.
 
     :param config: recorded model-constructor settings.
     """
+    if config.get("model_name") == "own_dino":
+        from .embeddings import _dino_classifier_from_config
+        return _dino_classifier_from_config(config["own_dino_config"])
     from .utils import TorchModel
 
     return TorchModel(
@@ -235,14 +242,16 @@ def load_model_artifact(
     map_location: Any = "cpu",
     model: nn.Module | None = None,
     strict: bool = True,
+    weights_only: bool = False,
 ) -> tuple[nn.Module, dict[str, Any]]:
     """Load current artifacts and legacy full-module/state-dict checkpoints.
 
     The returned metadata dict always contains ``legacy``. Current artifacts
     retain their optimizer/scheduler/RNG state so callers can resume training.
 
-    :param path: checkpoint to read. Unpickled with ``weights_only=False``,
-        so only files you trust are safe to pass.
+    :param path: checkpoint to read. The legacy default unpickles trusted files.
+    :param weights_only: use restricted tensor-and-primitive decoding and local
+        files only when true; unsupported pickles refuse without unsafe retry.
     :param map_location: forwarded to :func:`torch.load`. The ``cpu`` default
         lets a GPU-trained checkpoint load on a machine without a GPU; an
         unrecognised device string raises ``RuntimeError`` from torch.
@@ -261,13 +270,13 @@ def load_model_artifact(
         ``model`` was supplied.
     :returns: ``(model, metadata)``.
     """
-    if not os.path.isfile(path):
+    if not weights_only and not os.path.isfile(path):
         from .model_zoo import _ensure_model_file
         downloaded = _ensure_model_file(path, kinds=("classifier",))
         if downloaded is not None:
             path = downloaded
     raw = torch.load(os.fspath(path), map_location=map_location,
-                     weights_only=False)
+                     weights_only=weights_only)
     if isinstance(raw, nn.Module):
         return raw, {
             "legacy": True,
@@ -321,6 +330,14 @@ def load_model_artifact(
                 "provide an initialized model explicitly."
             )
         model = build_model_from_configuration(config)
+    if hasattr(model, "_own_dino_config"):
+        from .qt.i18n import tr
+        scale = state_dict.get("channel_scale")
+        if (not strict or not isinstance(scale, torch.Tensor)
+                or model_configuration(model) != config
+                or not torch.equal(scale, model.channel_scale)):
+            raise ValueError(tr(
+                "Own-DINO classifier settings, checkpoint or input are incompatible."))
     model.load_state_dict(state_dict, strict=strict)
     return model, payload
 
