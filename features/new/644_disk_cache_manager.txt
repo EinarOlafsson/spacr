@@ -134,3 +134,13 @@ models, fullCI or native macOS/Windows execution. Original Home must integrate
 the core and UI together before publication; this receipt records private
 source-bound acceptance, not a published feature or other-OS completion.
 Evidence: data/644_model_cache_ui_2026-10-15/receipt.json.
+
+2026-10-15 Home-B — source-current API followup for coherent model-cache UI
+The public resolve_detector paragraph now describes the active shared cache.
+Normal scoped writers updated English and nine locale entries; nine obsolete
+review sources first failed strict loading, then source-bound technical reviews
+and all nine writer/readback/gate cases passed. All unrelated entries, metadata
+and history are unchanged;36 unaffected translated blocks preserved verbatim.
+Evidence: features/data/644_active_model_cache_api_2026-10-15/. Source integration
+combines original core8d1b8738f75 +ownerUIc598753c4d9 +37-test acceptance3f137038049,
+with public allowlist/path-type guards retained. No native other-OS claim.
