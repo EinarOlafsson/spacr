@@ -11,6 +11,30 @@
 
 
 
+## 2026-10-15 Original Home — batched coordination reconciled against published state
+
+Canonical tracker now separates sixteen explicit pre-today closures from
+sixty-nine open/today rows, preserving all eighty-five original records and
+all open items. N328/N384/N626 are historical, not new completions. No whole
+item was newly closed by this reconciliation and no new tick is claimed.
+Published whole closures N180/N197/N468/N690/N702/N687/F549 remain accepted;
+F549 does not acquire an invented physical-hardware gate. N615 retains its
+broader hosted-doc/tutorial/release criteria; no N328 translation work reopened.
+
+Current nightly already includes bcdf's coherent N180 session figures and exact
+two named API arrivals with historical13218 floor retained, dc085's N702
+baseline and the N639 source/runtime/consumer closure. Old N468/N180/N702
+writer reservations are terminal/released; no global writer is active here.
+Do not replay earlier source packets/catalogs or overwrite newer owner repairs.
+N639 remains open only on its real source-bound Work two-button tutorial proof;
+no exact accepted lesson/clip/source receipt has been established by Original.
+An old clip must not be relabelled as showing the new Apply summary. Work owns
+recording/media; Original has requested the precise owner receipt, not a new
+invented video or an unsupported completion claim. F534 real paired-reference
+technical evidence does not establish biological/whole-slide acceptance.
+N689's actual COMMIT403 remains a maintainer token-scope gate; the cancelled
+zero-job attempt is separate. No duplicate probe/token/main/PyPI operation.
+
 ## 2026-10-15 Original Home — portable N689 Work URL packet already public
 
 Work can read features/data/689_work_url_owner_packet_2026-10-15/ directly

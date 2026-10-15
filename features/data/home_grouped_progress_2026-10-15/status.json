@@ -276,24 +276,6 @@
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
-      "item": "N03",
-      "title": "five order dependent qt failures",
-      "percent_done": "✅",
-      "time_left_hours": "0",
-      "owner": "Home / assigned owner",
-      "description": "Reuse scoped evidence; final candidate CI may reveal a new order counterexample. Do not repeat whole Qt sweeps.",
-      "completion_basis": "Recorded whole-item completion; not a new completion today"
-    },
-    {
-      "item": "N76",
-      "title": "more than one organelle",
-      "percent_done": "✅",
-      "time_left_hours": "0",
-      "owner": "Home / assigned owner",
-      "description": "Historical generated-artifact debt is not a new unimplemented multi-organelle engine; no new whole scientific acceptance claimed.",
-      "completion_basis": "Recorded whole-item completion; not a new completion today"
-    },
-    {
       "item": "N112",
       "title": "Documentation correctness",
       "percent_done": 95,
@@ -321,33 +303,6 @@
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
-      "item": "N307",
-      "title": "segmentation qc field browser",
-      "percent_done": "✅",
-      "time_left_hours": "0",
-      "owner": "Home / assigned owner",
-      "description": "Remaining lstat/unlink race explicitly outside bounded repair; no new quarantine requirement inferred.",
-      "completion_basis": "Recorded whole-item completion; not a new completion today"
-    },
-    {
-      "item": "N328",
-      "title": "a source install should not cost a gigabyte",
-      "percent_done": "✅",
-      "time_left_hours": "0",
-      "owner": "Home / assigned owner",
-      "description": "Historically complete: original shallow/sparse/light source installation contract; separate translation refinements remain separately owned.",
-      "completion_basis": "Home-B original-contract review confirms explicit DONE2026-09-19; historical correction, not a newtoday implementation."
-    },
-    {
-      "item": "N337",
-      "title": "measure defaults manders and labels",
-      "percent_done": "✅",
-      "time_left_hours": "0",
-      "owner": "Home / assigned owner",
-      "description": "Six historical foreign settings assigned elsewhere; no repeat54-check or five-new-missing claim.",
-      "completion_basis": "Recorded whole-item completion; not a new completion today"
-    },
-    {
       "item": "N351",
       "title": "close every github issue by fixing it",
       "percent_done": 95,
@@ -355,15 +310,6 @@
       "owner": "Home / assigned owner",
       "description": "146 needs owner confirmation then authorized issue evidence/closure;147 needs Claude acceptance. No comments/closure/account mutation authorized by this read-only task.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
-      "item": "N384",
-      "title": "Report types",
-      "percent_done": "✅",
-      "time_left_hours": "0",
-      "owner": "Home / assigned owner",
-      "description": "Closed by maintainer decision: qualified English API fallback accepted; report type-validation repair published.",
-      "completion_basis": "Historical maintainer closure2026-09-09, explicitly not reopened by2026-10-15 repair; stale tracker95 corrected, not a new implementation."
     },
     {
       "item": "F404",
@@ -447,24 +393,6 @@
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
-      "item": "N517",
-      "title": "drop files as well as folders in make masks and plaque",
-      "percent_done": "✅",
-      "time_left_hours": "0",
-      "owner": "Home / assigned owner",
-      "description": "No file/folder-drop software contract work recorded left; implementation plus current18native/offscreen preservation checks recorded. The historical real-app maintainer check remains separate from source completion.",
-      "completion_basis": "Recorded whole-item completion; not a new completion today"
-    },
-    {
-      "item": "N526",
-      "title": "plaque assay reads any number of pdfs and images",
-      "percent_done": "✅",
-      "time_left_hours": "0",
-      "owner": "Home / assigned owner",
-      "description": "No arbitraryPDF/image batch software contract work recorded left; distinct output allocator fixed with current11cases. That bounded fixture is not a new realPDF-render/model or cross-batch provenance claim.",
-      "completion_basis": "Recorded whole-item completion; not a new completion today"
-    },
-    {
       "item": "F535",
       "title": "cell cycle phase classification three ways",
       "percent_done": 90,
@@ -481,15 +409,6 @@
       "owner": "Home / assigned owner",
       "description": "Explicit DONE WHEN not met: public BBBC019 closure curves must match hand measurements within5%; recorded76%laterframes within5points after4passes does not satisfy a blanket closure claim. New software calibration/index guards do not fix/validate assay accuracy.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
-      "item": "F537",
-      "title": "lineage trees from tracks",
-      "percent_done": "✅",
-      "time_left_hours": "0",
-      "owner": "Home / assigned owner",
-      "description": "Original alpha contract is recorded met after publicCIL movie work: trees render, track generation times and improved division precision documented. Later identity guards are scoped software fixes; no universal/native tracker or new biological accuracy claim.",
-      "completion_basis": "Recorded whole-item completion; not a new completion today"
     },
     {
       "item": "F538",
@@ -582,24 +501,6 @@
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
-      "item": "N593",
-      "title": "make masks consolidate folders and sort into channels",
-      "percent_done": "✅",
-      "time_left_hours": "0",
-      "owner": "Home / assigned owner",
-      "description": "No original consolidation/sort-merge contract work recorded left. Current destination ownership/leaflink guards retain existing source/manifest behavior; cross-process mutation/wholefolder transactions beyond the bounded contract are not newly certified.",
-      "completion_basis": "Recorded whole-item completion; not a new completion today"
-    },
-    {
-      "item": "N594",
-      "title": "classify essentials are enough to train a model",
-      "percent_done": "✅",
-      "time_left_hours": "0",
-      "owner": "Home / assigned owner",
-      "description": "No original Essentials/model+table selection contract work recorded left; real table consumer wiring,37checks and normal runtime/API/arrival closure recorded. Actual fitting/model efficacy separate from choosing/configuring training.",
-      "completion_basis": "Recorded whole-item completion; not a new completion today"
-    },
-    {
       "item": "N615",
       "title": "README language routes",
       "percent_done": 95,
@@ -607,24 +508,6 @@
       "owner": "Home-B / Home",
       "description": "See current owner delivery and remaining acceptance gates.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
-      "item": "N626",
-      "title": "Partial consolidation",
-      "percent_done": "✅",
-      "time_left_hours": "0",
-      "owner": "Home / assigned owner",
-      "description": "Historically complete: partial consolidation reports failure, preserves input/state and successful copies, stops downstream actions and supports retry.",
-      "completion_basis": "Original closed2026-10-01; current organizer/backend pins and actual corrected five-case CI receipt verified2026-10-15. Not a new implementation tick."
-    },
-    {
-      "item": "N633",
-      "title": "test data for every module",
-      "percent_done": "✅",
-      "time_left_hours": "0",
-      "owner": "Home / assigned owner",
-      "description": "Original listed-screen example-data contract explicitly COMPLETE100%/user-accepted alpha after InvestigateHit publication. Later native archive/NPY safety fixes do not revoke that recorded scope; universal file integrity/mountedFS/native science is not implied.",
-      "completion_basis": "Recorded whole-item completion; not a new completion today"
     },
     {
       "item": "N639",
@@ -643,24 +526,6 @@
       "owner": "Home / assigned owner",
       "description": "Any remaining real-display/GPU/per-module timing acceptance requires quiet owner-controlled conditions; do not infer native smoothness from offscreen cases.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
-      "item": "N643",
-      "title": "prune the spacr home folder",
-      "percent_done": "✅",
-      "time_left_hours": "0",
-      "owner": "Home / assigned owner",
-      "description": "Use current purge-before-targeted retirement assertion; do not repeat71 or touch live run/data trees. Unknown/corrupt journals intentionally require manual review.",
-      "completion_basis": "Recorded whole-item completion; not a new completion today"
-    },
-    {
-      "item": "N644",
-      "title": "disk cache manager",
-      "percent_done": "✅",
-      "time_left_hours": "0",
-      "owner": "Home / assigned owner",
-      "description": "No further direct-var audit. Reopen only on actual move/cache ownership failure; preserve external environment and user bytes.",
-      "completion_basis": "Recorded whole-item completion; not a new completion today"
     },
     {
       "item": "N646",
@@ -697,15 +562,6 @@
       "owner": "Home / assigned owner",
       "description": "Sixparts and real vvvv7.4.1 Wine project/runtime/PDF/liveupdate recorded. Native Windows on-screen renderer/readback remains explicitly the maintainer check; Wine window black even for native example, so native pixel acceptance cannot be asserted.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
-      "item": "N693",
-      "title": "export settings from every form",
-      "percent_done": "✅",
-      "time_left_hours": "0",
-      "owner": "Home / assigned owner",
-      "description": "Do not invent transactional-pair requirement absent original acceptance. Native ACL/xattr/power-loss/external-writer semantics remain honest limitations.",
-      "completion_basis": "Recorded whole-item completion; not a new completion today"
     },
     {
       "item": "N686",
@@ -790,5 +646,152 @@
     "N690",
     "N180"
   ],
-  "coordination_reconciliation": "Added seven still-open Home-B items missing from earlier Original subset; authoritative item files and owner receipts retained. Historical pre-today completions need not all be printed."
+  "coordination_reconciliation": "Added seven still-open Home-B items missing from earlier Original subset; authoritative item files and owner receipts retained. Historical pre-today completions need not all be printed.",
+  "historical_closed_rows": [
+    {
+      "item": "N03",
+      "title": "five order dependent qt failures",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Reuse scoped evidence; final candidate CI may reveal a new order counterexample. Do not repeat whole Qt sweeps.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "N76",
+      "title": "more than one organelle",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Historical generated-artifact debt is not a new unimplemented multi-organelle engine; no new whole scientific acceptance claimed.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "N307",
+      "title": "segmentation qc field browser",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Remaining lstat/unlink race explicitly outside bounded repair; no new quarantine requirement inferred.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "N328",
+      "title": "a source install should not cost a gigabyte",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Historically complete: original shallow/sparse/light source installation contract; separate translation refinements remain separately owned.",
+      "completion_basis": "Home-B original-contract review confirms explicit DONE2026-09-19; historical correction, not a newtoday implementation."
+    },
+    {
+      "item": "N337",
+      "title": "measure defaults manders and labels",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Six historical foreign settings assigned elsewhere; no repeat54-check or five-new-missing claim.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "N384",
+      "title": "Report types",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Closed by maintainer decision: qualified English API fallback accepted; report type-validation repair published.",
+      "completion_basis": "Historical maintainer closure2026-09-09, explicitly not reopened by2026-10-15 repair; stale tracker95 corrected, not a new implementation."
+    },
+    {
+      "item": "N517",
+      "title": "drop files as well as folders in make masks and plaque",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "No file/folder-drop software contract work recorded left; implementation plus current18native/offscreen preservation checks recorded. The historical real-app maintainer check remains separate from source completion.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "N526",
+      "title": "plaque assay reads any number of pdfs and images",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "No arbitraryPDF/image batch software contract work recorded left; distinct output allocator fixed with current11cases. That bounded fixture is not a new realPDF-render/model or cross-batch provenance claim.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "F537",
+      "title": "lineage trees from tracks",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Original alpha contract is recorded met after publicCIL movie work: trees render, track generation times and improved division precision documented. Later identity guards are scoped software fixes; no universal/native tracker or new biological accuracy claim.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "N593",
+      "title": "make masks consolidate folders and sort into channels",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "No original consolidation/sort-merge contract work recorded left. Current destination ownership/leaflink guards retain existing source/manifest behavior; cross-process mutation/wholefolder transactions beyond the bounded contract are not newly certified.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "N594",
+      "title": "classify essentials are enough to train a model",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "No original Essentials/model+table selection contract work recorded left; real table consumer wiring,37checks and normal runtime/API/arrival closure recorded. Actual fitting/model efficacy separate from choosing/configuring training.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "N626",
+      "title": "Partial consolidation",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Historically complete: partial consolidation reports failure, preserves input/state and successful copies, stops downstream actions and supports retry.",
+      "completion_basis": "Original closed2026-10-01; current organizer/backend pins and actual corrected five-case CI receipt verified2026-10-15. Not a new implementation tick."
+    },
+    {
+      "item": "N633",
+      "title": "test data for every module",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Original listed-screen example-data contract explicitly COMPLETE100%/user-accepted alpha after InvestigateHit publication. Later native archive/NPY safety fixes do not revoke that recorded scope; universal file integrity/mountedFS/native science is not implied.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "N643",
+      "title": "prune the spacr home folder",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Use current purge-before-targeted retirement assertion; do not repeat71 or touch live run/data trees. Unknown/corrupt journals intentionally require manual review.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "N644",
+      "title": "disk cache manager",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "No further direct-var audit. Reopen only on actual move/cache ownership failure; preserve external environment and user bytes.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "N693",
+      "title": "export settings from every form",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Do not invent transactional-pair requirement absent original acceptance. Native ACL/xattr/power-loss/external-writer semantics remain honest limitations.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    }
+  ],
+  "historical_omission_note": "Pre-today whole-item closures are preserved here for evidence but omitted from the open/today table. This reclassification adds no new completion tick."
 }
