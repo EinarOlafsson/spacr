@@ -1,0 +1,27 @@
+{
+  "verdict": "ACCEPT exact three fixture bodies with actual picker factory contract",
+  "review_kind": "independent AI technical source/evidence review; no test/import/collector rerun",
+  "commit": "410a02f0bfa392362a1f08219ec671f41b4e98b6",
+  "test_sha256": "b73dd8fa9c1796df235607669da7194f8413b42d1f59357596ce3f2d557a4e6e",
+  "receipt_sha256": "ede7c4b6b38c3d6b861cc56ceae111a25dbc93fd40e4a7f414f6cba42ae11055",
+  "checks": [
+    "All12 original module assertion ASTs exact, including four assertions in three affected bodies. Outside exact three test functions AST unchanged.",
+    "Accepted dialog factories preserve both original exact paths and explicit None unverified capsule; actual production method/selection/insertion logic executes.",
+    "Rejected factory returns QDialog.Rejected and chosen_path fails if touched, preserving cancellation early return.",
+    "ModelZooPicker(kinds,parent) matches actual production call; modal/model guards unchanged, no verifier substitution or trust claim.",
+    "Actual production/modal guard files match author declared pins and parent bytes exactly.",
+    "All author evidence file hashes independently verified. Raw3FAIL5.42 then3PASS2.75/exit0/no skips match receipts.",
+    "Network audit blocked one DNSattempt eachrun; no actual remote/model execution claim."
+  ],
+  "unchanged_assertion_count": 12,
+  "changed_functions": [
+    "test_a_model_not_in_the_menu_is_added_rather_than_ignored",
+    "test_cancelling_the_picker_leaves_the_model_alone",
+    "test_the_live_model_row_offers_the_zoo"
+  ],
+  "results": {
+    "baseline": "3FAIL5.42",
+    "final": "3PASS2.75"
+  },
+  "not_claimed": "No native/model quality/fullCI or N441 compiled UI acceptance."
+}
