@@ -988,7 +988,8 @@ def _load_settings_csv(path: str) -> Dict[str, Any]:
                 f"  Export the settings again from the GUI, or use the "
                 f"settings.csv written into <src>/settings/ by any run.")
         key_col, value_col = pair
-        out: Dict[str, Any] = {}
+        raw_values: Dict[str, Any] = {}
+        conflicts = set()
         for row in reader:
             key = row.get(key_col)
             if key is None or not str(key).strip():
@@ -997,8 +998,35 @@ def _load_settings_csv(path: str) -> Dict[str, Any]:
             overflow = row.get(None)
             if overflow and value_col == fieldnames[-1]:
                 raw = ",".join([str(raw)] + [str(x) for x in overflow])
-            out[str(key).strip()] = _parse_csv_value(raw)
-    return out
+            name = str(key).strip()
+            if name in raw_values and raw_values[name] != raw:
+                conflicts.add(name)
+            raw_values[name] = raw
+    if "model_metadata" not in raw_values:
+        return {name: _parse_csv_value(value) for name, value in raw_values.items()}
+    from .model_zoo import ModelZooError, _bad_model_metadata, _validate_model_metadata
+
+    metadata = raw_values["model_metadata"]
+    if isinstance(metadata, str):
+        for parser in (json.loads, ast.literal_eval):
+            try:
+                metadata = parser(raw_values["model_metadata"])
+                break
+            except (ValueError, SyntaxError, TypeError, RecursionError):
+                pass
+    supplied = dict(raw_values)
+    supplied["model_metadata"] = metadata
+    try:
+        metadata = _validate_model_metadata(supplied)
+        pinned_names = set(metadata["settings"])
+        conflicting = conflicts & (pinned_names | {"model_metadata"})
+        if conflicting:
+            _bad_model_metadata(sorted(conflicting)[0], "one CSV value")
+    except ModelZooError as error:
+        raise SettingsError(str(error)) from error
+    return {name: metadata if name == "model_metadata" else value
+            if name in pinned_names else _parse_csv_value(value)
+            for name, value in raw_values.items()}
 
 
 def _load_settings_json(path: str) -> Dict[str, Any]:

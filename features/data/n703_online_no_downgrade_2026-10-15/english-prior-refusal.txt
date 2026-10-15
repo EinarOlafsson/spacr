@@ -1,0 +1,7 @@
+en: API source manifest keys are stale
+en/spacr.model_zoo.download_bundled_models: stale source hash
+en/spacr.model_zoo.download_bundled_models: stale source-block hashes
+en/spacr.model_zoo.download_bundled_models: canonical text differs
+en/spacr.qt.preferences._StoragePage.relocate.finished: stale source hash
+en/spacr.qt.preferences._StoragePage.relocate.finished: stale source-block hashes
+en/spacr.qt.preferences._StoragePage.relocate.finished: canonical text differs

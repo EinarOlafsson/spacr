@@ -9699,7 +9699,7 @@ class AppScreen(QWidget):
         refused = str(explanation.get("refused", "") or "")
         if outcome.get("explained"):
             if explanation.get("text"):
-                light = " [light model]" if explanation.get(
+                light = " [" + tr("lighter model") + "]" if explanation.get(
                     "tier") == "light" else ""
                 self._console.append_notice(
                     "spaCR AI: {text}{light}\n",
