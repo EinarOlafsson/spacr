@@ -22,6 +22,7 @@ for the "AI" switch that sits at the bottom-right of every AppScreen.
 from __future__ import annotations
 
 from PySide6.QtCore import QEvent, QSize, Qt, Signal
+from PySide6.QtGui import QColor, QPainter, QPalette, QPen
 from PySide6.QtWidgets import QLabel
 
 from ..i18n import tr
@@ -84,6 +85,10 @@ class AiToggleLabel(QLabel):
             "subscription via the selected provider."
         )
         super().__init__(tr(source_text), parent)
+        from .figure_grid_view import _strong_focus_style
+
+        self._strong_focus_ring = _strong_focus_style()
+        self.setFocusPolicy(Qt.StrongFocus)
         self.setProperty("_spacr_i18n_text", source_text)
         self.setObjectName("AiToggleLabel")
         self.setCursor(Qt.PointingHandCursor)
@@ -116,7 +121,63 @@ class AiToggleLabel(QLabel):
         if kind in (QEvent.StyleChange, QEvent.PaletteChange,
                     QEvent.ApplicationPaletteChange,
                     QEvent.ApplicationFontChange):
+            from .figure_grid_view import _strong_focus_style
+
+            self._strong_focus_ring = _strong_focus_style()
             self._refresh_style()
+
+    def paintEvent(self, event):
+        """Paint the label and its cached outline while it has keyboard focus.
+
+        :param event: paint request, passed to QLabel before drawing the outline.
+        """
+        super().paintEvent(event)
+        if self.hasFocus():
+            painter = QPainter(self)
+            try:
+                width, colour = self._strong_focus_ring or (
+                    2, self.palette().color(QPalette.Highlight))
+                painter.setPen(QPen(QColor(colour), width))
+                painter.setBrush(Qt.NoBrush)
+                painter.drawRect(self.rect().adjusted(1, 1, -1, -1))
+            finally:
+                painter.end()
+
+    def focusInEvent(self, event):
+        """Repaint the outline when keyboard focus enters the toggle.
+
+        :param event: focus-entry event, forwarded to QLabel.
+        """
+        super().focusInEvent(event)
+        self.update()
+
+    def focusOutEvent(self, event):
+        """Remove the outline when keyboard focus leaves the toggle.
+
+        :param event: focus-exit event, forwarded to QLabel.
+        """
+        super().focusOutEvent(event)
+        self.update()
+
+    def keyPressEvent(self, event):
+        """Toggle once on unmodified Space, Return or numeric Enter while focused.
+
+        Automatic key repeats are consumed without changing state. Other key
+        events are forwarded to QLabel. Activation uses :meth:`setChecked`,
+        preserving the existing state-change signal and routing connections.
+
+        :param event: key-press event delivered to the toggle.
+        """
+        key = event.key()
+        modifiers = event.modifiers()
+        if (self.hasFocus() and key in (Qt.Key_Space, Qt.Key_Return, Qt.Key_Enter)
+                and (modifiers == Qt.NoModifier
+                     or (key == Qt.Key_Enter and modifiers == Qt.KeypadModifier))):
+            if not event.isAutoRepeat():
+                self.setChecked(not self.isChecked())
+            event.accept()
+            return
+        super().keyPressEvent(event)
 
     def minimumSizeHint(self) -> QSize:      # noqa: N802 (Qt naming)
         """Cap how much width this toggle can demand of its row.
