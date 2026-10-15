@@ -665,7 +665,34 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
                if "-runtime-review-twelfth-pass-" not in path.name
                for record in json.loads(path.read_text())["records"]]
     latest_batches = {record["source"] for record in batches}
-    assert not latest_batches & sources
+    repeated_sources = {
+        "Batch size": "8cfe32a04155c2ea30704f9c105e6ff553fdb51ad8e1b153ab4296b554c97f7c",
+        "Learning rate": "f033c501afe798cdcd46e31cc25ca5b73ee2ad88a065eed69ae056a776f7175b",
+        "Train": "e99c90db87c0e400832edcedcc1b14e33cff7559988f4d7032337e17401b2945",
+    }
+    assert latest_batches & sources == repeated_sources.keys()
+    classifier_rows = json.loads((folder / "2026-10-15-f561-classifier-ui-runtime-home-b.json").read_text())["records"]
+    for source, source_hash in repeated_sources.items():
+        current = [row for row in classifier_rows if row["source"] == source]
+        assert len(current) == 1
+        current = current[0]
+        assert current["table"] == "ui" and current["key"] == source
+        assert current["source_sha256"] == source_hash
+        assert hashlib.sha256(source.encode()).hexdigest() == source_hash
+        previous_file = (
+            "2026-09-30-runtime-meaning-fixes-eleventh-pass.json"
+            if source == "Train" or (language == "sv" and source == "Batch size")
+            else "2026-10-01-runtime-review-twelfth-pass-labels.json"
+        )
+        previous = [row for row in json.loads((folder / previous_file).read_text())["records"]
+                    if row["source"] == source]
+        assert len(previous) == 1
+        previous = previous[0]
+        assert previous["table"] == "setting_labels"
+        assert previous["key"] == {"Batch size": "batch_size", "Learning rate": "learning_rate", "Train": "train"}[source]
+        assert previous["source_sha256"] == source_hash
+        assert previous["translation"] == current["translation"] == reviewed[source]
+        assert [row for row in batches if row["source"] == source] == [current]
     sources |= latest_batches
     assert sources <= reviewed.keys()
     return sources
