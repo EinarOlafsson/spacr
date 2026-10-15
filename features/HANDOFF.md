@@ -1,5 +1,11 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15T17:54:13.698130+00:00 Work — 04 reviewed source frozen; single Home capture ready
+
+Correction to the preceding fixed-clock plan: GNOME stop latency means the complete fresh Home clip cannot be promised as exactly840frames. Superseding duration policy ff59b6019f8a39aebc8013c7227decc395a67202ee86d31154485e03e85abd9b requests at least28seconds and preserves ALL actual N>=840 frames at1x. New master has9167+N frames; later starts shift by(N-840)/30 seconds. Other12 scene durations, doctor879frames, all100 audio/sidecar files and14 catalog lesson objects remain unchanged. Old Performance818frame selection remains explicitly legacy.
+
+Held source b929b7dc53465132322c3ca0b866f567de773b9f passed224 owning checks including6 software-browser cases and independent six-file source peer6397c337f155dd6df50107fa5c963dcc0f14c3a21ad303836c59f54b073fe1cd. New preserve_visual_intervals opt-in keeps selected visual intervals at1x, including a native-to-static boundary and truthful static-final EOF; no false complete-native claim. Actual Home recording, final media and publication remain pending. Root capture approval127b5235e5c0b05c681bfaab4c3eb7a5313caded46b6ce993f9598a12b908420 passed the source/plan preflight. All helpers acknowledged STOP; next is one guarded private-GNOME Home recording with default idle/gap guards and unchanged strict gates. Source stays held; only features/docs leave Work. Home observed19ac60d44.
+
 ## 2026-10-15 Original — N702 whole original contract accepted; ready work published
 
 N702 all six original clauses are accepted: exact acquisition/raw version/SHA, contextual integrity refusals, offline copy instructions, verified settings provenance and two-process coalescing. Normal18 runtime/nine API targets/all-nine audits, translated guide and current Help are coherent;22 distinct localized/Help consumers pass across recorded staged runs. See features/data/702_whole_item_acceptance_2026-10-15/. Release/fullCI remain separate. Grouped85-row tracker moves only whole N702 to a new tick.
