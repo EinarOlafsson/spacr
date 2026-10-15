@@ -1,0 +1,136 @@
+{
+  "schema": 1,
+  "review_type": "Independent AI technical semantic review; no human/native-speaker signoff",
+  "source_commit": "dbc777acb4c",
+  "source_file_sha256": "512630cb15f2c7f25d6b9d2cf5ef838c3374367ee373712ec45a4fab1c689561",
+  "source_peer_commit": "fe8fe13f53c",
+  "input_commit": "aa0ab85c8c0",
+  "artifact_commit": "46bfb196edd",
+  "frozen_draft_targets_sha256": "20322aaeaf34ad047bf25fd12e55791c68d5d1e5a220ec1cec7f717db1009abe",
+  "reviewed_count": 9,
+  "symbol": "spacr.qt.app.register_app",
+  "rendered_block_index": 8,
+  "semantic_checks": [
+    "Omitting stage writes no explicit registry entry.",
+    "Missing entries read as stable before maturity.apply assessment.",
+    "maturity.apply assigns alpha only to unassessed apps without a stage declaration.",
+    "Already affirmed stable apps remain stable.",
+    "Omitting or deleting a registry entry is not itself a stability assessment."
+  ],
+  "records": [
+    {
+      "language": "sv",
+      "label": "spacr.qt.app.register_app#8",
+      "source_sha256": "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
+      "context_sha256": "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
+      "translation_sha256": "0049e6818a304489c4062aed0c74faa3c59638dbba3d5b0addc1c1b11804a96b",
+      "review_file": "docs/i18n/reviewed/api/sv/2026-10-15-register-stage-semantics.json",
+      "review_file_sha256": "8b18db2d13cfb14771222289dcfdee88835e00410b5ceccd4a348011e4e2fb4e",
+      "artifact_file": "docs/source/_static/i18n/api/sv.json",
+      "artifact_file_sha256": "eecbaf08eaa30b561feb6ba87937b0af1df81d8e3a5d65fc84296b5aa369f9fa",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.app.register_app#8",
+      "source_sha256": "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
+      "context_sha256": "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
+      "translation_sha256": "ee4c2576d6f70588ccc5ec632503c6ea7aaf5d15e798a6fd68bda5f2b6ce3433",
+      "review_file": "docs/i18n/reviewed/api/de/2026-10-15-register-stage-semantics.json",
+      "review_file_sha256": "4e0f28cf1d797ba2a8e5df8c2951a17e75fa602f2dce7aa5dc7637637f00958c",
+      "artifact_file": "docs/source/_static/i18n/api/de.json",
+      "artifact_file_sha256": "17f59c4d25f5b671a425b0fb98e831f4f6bfe4ab0dbec0f961e5d7f30ad8323f",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.app.register_app#8",
+      "source_sha256": "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
+      "context_sha256": "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
+      "translation_sha256": "1ccdda760f9d95c835a2839b24c6d61027d851d4373474cebb386f01cfede002",
+      "review_file": "docs/i18n/reviewed/api/es/2026-10-15-register-stage-semantics.json",
+      "review_file_sha256": "3ee412ea9683e60c2b9972ef894e98f037c99766dce5343b016f51ce0cf738b7",
+      "artifact_file": "docs/source/_static/i18n/api/es.json",
+      "artifact_file_sha256": "9f5be2845b64294d0dca8f02206ca921f6f4c04aa280b107eb0603536e84630e",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.app.register_app#8",
+      "source_sha256": "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
+      "context_sha256": "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
+      "translation_sha256": "d8cf5b960ff9b08a9f60d82361396c876b86fcdafcea900f877ce23afb5ce752",
+      "review_file": "docs/i18n/reviewed/api/zh_CN/2026-10-15-register-stage-semantics.json",
+      "review_file_sha256": "a9237b3cc8779d1c18ee54227e934924bff152d4fc8074e59296b5b92ad306be",
+      "artifact_file": "docs/source/_static/i18n/api/zh_CN.json",
+      "artifact_file_sha256": "30e9e80cc97afd7f5039e373a140dd2c52b1a6f2a21a20d5a2122497611a2f84",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.app.register_app#8",
+      "source_sha256": "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
+      "context_sha256": "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
+      "translation_sha256": "53598f204731496ab9bb442d6bd5de9c41f4425f411a72f829a9230097d6812e",
+      "review_file": "docs/i18n/reviewed/api/pt/2026-10-15-register-stage-semantics.json",
+      "review_file_sha256": "2263331667d35e5d0f65150dd5f4264efe750654b9d77518ccfb7f84e4a63e1c",
+      "artifact_file": "docs/source/_static/i18n/api/pt.json",
+      "artifact_file_sha256": "03120eb8406bc2ba5c4cbac7a82b859589b2a0fc38a7ca53d4694c7eee0b9767",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.app.register_app#8",
+      "source_sha256": "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
+      "context_sha256": "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
+      "translation_sha256": "767a861991e13da7267a341571778ed5ff896aa768e8685f62bfed3413eb66c6",
+      "review_file": "docs/i18n/reviewed/api/hi/2026-10-15-register-stage-semantics.json",
+      "review_file_sha256": "359c2257cfaa26e8f0eb15df4760c2c6e819e46f99af211b2ff1e14ecdfb9c6e",
+      "artifact_file": "docs/source/_static/i18n/api/hi.json",
+      "artifact_file_sha256": "aa8a1b1bef2b2fe542216c127b0218a02318716fce6413014c72822c3488b5b2",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.app.register_app#8",
+      "source_sha256": "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
+      "context_sha256": "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
+      "translation_sha256": "04a83a2b47f5480ff84b2fee9e78ccc65bff04a733b48fe6e29d64abc5da9629",
+      "review_file": "docs/i18n/reviewed/api/ko/2026-10-15-register-stage-semantics.json",
+      "review_file_sha256": "ec589ce4bb2833f8716d65574717646d1d4515bf58e220bc1aeafcbba5e71228",
+      "artifact_file": "docs/source/_static/i18n/api/ko.json",
+      "artifact_file_sha256": "b8e486a2296fb5432f946fabd85fd7c91c2f645e03db1148ce5e80f5155320a4",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.app.register_app#8",
+      "source_sha256": "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
+      "context_sha256": "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
+      "translation_sha256": "2a3273a25d9f1be20ba3a6aaf0692a0e41d2cadd7382f596a274eb7257e82908",
+      "review_file": "docs/i18n/reviewed/api/is/2026-10-15-register-stage-semantics.json",
+      "review_file_sha256": "cfadb11a5c01186dc6d9b0f0d9b5b3c8c0fd0b10ec49b61ee6e528b1afa4acd2",
+      "artifact_file": "docs/source/_static/i18n/api/is.json",
+      "artifact_file_sha256": "bc017ba9e44f351e534b3badebdadc5024c057994974c6dac8ffdd841c25d0ef",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.app.register_app#8",
+      "source_sha256": "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
+      "context_sha256": "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
+      "translation_sha256": "05f02072b5df4b57e0999869016e5a6306cd904b9893c8ef249604f34fccef14",
+      "review_file": "docs/i18n/reviewed/api/fr/2026-10-15-register-stage-semantics.json",
+      "review_file_sha256": "3e7e7c5bb3cfe8422fbad7564b882f203718efadaa4943b325e4423b961b4e3f",
+      "artifact_file": "docs/source/_static/i18n/api/fr.json",
+      "artifact_file_sha256": "855be25223df57af782fe358dae2004caae761c47c80ca51e1aeb587845c9c5b",
+      "decision": "PASS"
+    }
+  ],
+  "independent_binding": "All nine input records and actual generated :param stage: lines exactly match the independently read targets; source AST body and generated source/block hashes match final source.",
+  "limits": [
+    "Only this changed paragraph in nine locales reviewed; unchanged paragraphs and other symbols are not covered.",
+    "No writer, collector, runtime test or source edit performed by this peer."
+  ],
+  "result": "PASS: nine final generated stage paragraphs preserve the two-phase source semantics."
+}
