@@ -16,7 +16,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
     for filename in (
         "model_compare.py", "embeddings.py", "plot.py", "model_zoo.py",
         "install_cleanup.py", "settings.py", "object.py", "remote_execution.py",
-        "attribution.py",
+        "attribution.py", "measure.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
@@ -123,3 +123,45 @@ def _cf_preserved_channels():
     raise ValueError("An old non-translated diagnostic remains outside the inventory.")
 ''')
     assert sources == set()
+
+
+def test_well_label_reader_captions_enter_only_through_its_owner(extract_backend_sources):
+    captions = {
+        "Cannot recover acquisition metadata from object key {key}.",
+        "The well-label table assigns conflicting labels to {well}.",
+        "Well label {well} is ambiguous across plates; use the full plate_row_column identifier.",
+    }
+    source = 'def _mil_frame_from_db():\n' + ''.join(
+        f'    tr({caption!r})\n' for caption in sorted(captions))
+    assert extract_backend_sources('embeddings.py', source) == captions
+
+
+def test_existing_encoder_entry_captions_remain_inventoried(extract_backend_sources):
+    caption = "No scorecard. Measure retrieval against labelled phenotype controls and attach the results."
+    assert extract_backend_sources('embeddings.py',
+        f'def encoder_entry():\n    return tr({caption!r})\n') == {caption}
+
+
+def test_tabular_phase_holdout_caption_is_extracted(extract_backend_sources):
+    caption = "The requested acquisition groups cannot place every class in both training and held-out data."
+    assert extract_backend_sources('measure.py',
+        f'def _phases_by_xgboost():\n    return tr({caption!r})\n') == {caption}
+
+
+@pytest.mark.parametrize('filename,owner', [
+    ('embeddings.py', '_mil_frame_from_db'),
+    ('measure.py', '_phases_by_xgboost'),
+])
+def test_new_backend_owners_do_not_admit_unrelated_diagnostics(
+        extract_backend_sources, filename, owner):
+    source = f"""
+tr("An unrelated module caption.")
+def unrelated():
+    return tr("An unrelated function caption.")
+class Unrelated:
+    def {owner}(self):
+        return tr("An unrelated class method caption.")
+def {owner}():
+    raise ValueError("An untranslated internal diagnostic.")
+"""
+    assert extract_backend_sources(filename, source) == set()
