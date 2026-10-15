@@ -1,0 +1,14 @@
+{
+  "draft": "2026-10-15-mitonet-verified-cache.json",
+  "draft_sha256": "5c0ad6f9c25a3c032342f37d681c230f4c8fbca8ee7c2ca0ca1f2ec61716097d",
+  "source_sha256": "ba96b219e2cfe1b2234f4526cbd9f6a9b26601179a84ed67901893dcffc33fc8",
+  "target_sha256": "07c06759ffb31f373123cd4d2ee704f5a7e7c002fad8a4f81d8b7b0285483e0a",
+  "normal_source_context_markup_semantic_review_loader": "PASS one exactrow in isolated temporaryreviewdirectory; no global collector",
+  "normal_reviewed_source_context_valid": true,
+  "normal_generic_source_context_valid": false,
+  "generic_limitation": "Generic English-residue heuristic flags retained standard checkpoint/cache/download terminology; no new exception: unchanged normal reviewed API loader validates exact source/context, syntax, semantics, model artifacts, degeneracy and target script.",
+  "independent_peer": "pending",
+  "writer": "NOT RUN; held until Home-B F561 terminal and root approval",
+  "preservation_plan": "Install only one reviewed PT block input after independent peer; normal writer supplied exact symbol scoped docs and existing compiled targets for every other source block; prove all foreign API symbols/blocks/targets/metadata preserved. No decoder or source change. Normal current source/English/block/context gates remain active.",
+  "authoring_history": "First ordinary reviewed-input loader passed; stronger generic English-residue assumption failed on standard borrowed terms. No forced generic acceptance: final exact normal reviewed-loader gates pass unchanged and generic refusal explicitly retained. A packaging shell without failfast created prior input-only commit beba46be31 before receipt existed; this followup completes evidence, no source/generated writes."
+}
