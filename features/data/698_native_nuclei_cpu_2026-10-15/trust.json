@@ -1,0 +1,10 @@
+{
+  "key": "nuclei_from_cellmask_v1",
+  "file": "/home/olafsson/.spacr/models/nuclei_from_cellmask_best",
+  "bytes": 1218648931,
+  "sha256": "2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb47",
+  "trusted_bundled_sha256_exact": true,
+  "architecture": "Cellpose-SAM (cpsam_v2)",
+  "bounded_input": "One declared synthetic128x160uint16cellmask-like field, no biological groundtruth/accuracy claim",
+  "checkpoint_stat_unchanged": true
+}
