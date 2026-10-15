@@ -7,6 +7,7 @@ and the browser WebGPU route must be implemented before whole-item acceptance.
 from __future__ import annotations
 
 import json
+import math
 import os
 from pathlib import Path
 import zipfile
@@ -29,6 +30,20 @@ FAMILY_LABELS = {
     "nuclei_from_cellmask": "Nuclei from cell images", "toxoplasma_from_cellmask": "Vacuoles from cell images",
     "toxoplasma_from_hoechst": "Vacuoles from Hoechst", "live_cell": "Live cells",
 }
+
+
+def _selection_index(value, name, *, minimum=0):
+    if isinstance(value, bool):
+        raise ValueError(tr("{name} must be a finite whole number at least {minimum}.", name=name, minimum=minimum))
+    if isinstance(value, (int, np.integer)):
+        index = int(value)
+    elif isinstance(value, (float, np.floating)) and math.isfinite(value) and value.is_integer():
+        index = int(value)
+    else:
+        raise ValueError(tr("{name} must be a finite whole number at least {minimum}.", name=name, minimum=minimum))
+    if index < minimum:
+        raise ValueError(tr("{name} must be a finite whole number at least {minimum}.", name=name, minimum=minimum))
+    return index
 
 
 def _card(metadata):
@@ -87,13 +102,13 @@ def build_app(provisioned_models, *, preload=False, zero_gpu=False, job_parent=N
                                    api_visibility="private", queue=False)
                     dimensions = gr.Markdown()
                     with gr.Row():
-                        series = gr.Number(0, precision=0, minimum=0, label=tr("Image series / position (zero-based)"))
-                        time = gr.Number(0, precision=0, minimum=0, label=tr("Time frame (zero-based)"))
-                        depth = gr.Number(0, precision=0, minimum=0, label=tr("Z plane (zero-based)"))
+                        series = gr.Number(0, precision=None, minimum=0, label=tr("Image series / position (zero-based)"))
+                        time = gr.Number(0, precision=None, minimum=0, label=tr("Time frame (zero-based)"))
+                        depth = gr.Number(0, precision=None, minimum=0, label=tr("Z plane (zero-based)"))
                     channels = gr.Dropdown([], multiselect=True, max_choices=3, value=[], label=tr("Input channels"))
                     with gr.Row():
-                        page = gr.Number(0, precision=0, minimum=0, label=tr("PDF page (zero-based)"))
-                        dpi = gr.Number(150, precision=0, minimum=1, maximum=600, label=tr("PDF rendering DPI"))
+                        page = gr.Number(0, precision=None, minimum=0, label=tr("PDF page (zero-based)"))
+                        dpi = gr.Number(150, precision=None, minimum=1, maximum=600, label=tr("PDF rendering DPI"))
                     with gr.Row():
                         diameter = gr.Number(None, minimum=0, label=tr("Resolved diameter in pixels"),
                                              info=tr("Use the same effective diameter as your desktop run."))
@@ -114,7 +129,7 @@ def build_app(provisioned_models, *, preload=False, zero_gpu=False, job_parent=N
                             count = 3
                             text = tr("{count} PDF pages; choose the page and rendering DPI.", count=len(description["pages"]))
                         else:
-                            index = int(selected_series)
+                            index = _selection_index(selected_series, tr("Image series"))
                             if index < 0 or index >= len(description["series"]):
                                 raise gr.Error(tr("Image series is out of range."))
                             info = description["series"][index]
@@ -142,22 +157,30 @@ def build_app(provisioned_models, *, preload=False, zero_gpu=False, job_parent=N
                             raise gr.Error(tr("Choose an image or PDF first."))
                         if accepted is not True:
                             raise gr.Error(tr("Confirm upload consent before processing."))
+                        selected_series = _selection_index(selected_series, tr("Image series"))
+                        selected_t = _selection_index(selected_t, tr("Time frame"))
+                        selected_z = _selection_index(selected_z, tr("Z plane"))
+                        selected_page = _selection_index(selected_page, tr("PDF page"))
+                        selected_dpi = _selection_index(selected_dpi, tr("PDF rendering DPI"), minimum=1)
+                        if not isinstance(chosen_channels, (list, tuple)) or not chosen_channels:
+                            raise gr.Error(tr("Choose at least one image channel."))
+                        chosen_channels = [_selection_index(value, tr("Image channel")) for value in chosen_channels]
                         header = describe_upload(path)
                         indices = {}
                         if header["format"] != "PDF":
-                            if int(selected_series) < 0 or int(selected_series) >= len(header["series"]):
+                            if selected_series < 0 or selected_series >= len(header["series"]):
                                 raise gr.Error(tr("Image series is out of range."))
-                            info = header["series"][int(selected_series)]
+                            info = header["series"][selected_series]
                             if "T" in info["axes"]:
-                                indices["T"] = int(selected_t)
+                                indices["T"] = selected_t
                             if "Z" in info["axes"]:
-                                indices["Z"] = int(selected_z)
+                                indices["Z"] = selected_z
                         request = {"family": "toxoplasma_plaque", "model_key": model_key,
                                    "consent_upload": accepted,
                                    "settings": {"diameter": None if native_scale else chosen_diameter,
                                                 "flow_threshold": flow_threshold, "CP_prob": score_threshold},
-                                   "selection": {"series": int(selected_series), "indices": indices,
-                                                 "channels": chosen_channels, "page": int(selected_page), "pdf_dpi": int(selected_dpi)}}
+                                   "selection": {"series": selected_series, "indices": indices,
+                                                 "channels": chosen_channels, "page": selected_page, "pdf_dpi": selected_dpi}}
                         if chosen_diameter is None and not native_scale:
                             raise gr.Error(tr("Enter the resolved diameter or explicitly choose native scale."))
                         return gpu_execute(path, request)

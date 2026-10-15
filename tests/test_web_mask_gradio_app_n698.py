@@ -90,7 +90,7 @@ def test_refused_consent_and_bad_series_never_enter_backend(demo, tmp_path):
     callback = function(actual, "segment_plaque")
     with pytest.raises(Exception, match="consent"):
         callback(str(image), "key", False, 0, 0, 0, [0], 0, 150, 52, False, 0.4, 0)
-    with pytest.raises(Exception, match="out of range"):
+    with pytest.raises(Exception, match="finite whole number"):
         callback(str(image), "key", True, -1, 0, 0, [0], 0, 150, 52, False, 0.4, 0)
     assert calls == []
 
@@ -187,3 +187,60 @@ def test_space_file_entry_imports_source_checkout_and_calls_only_main(monkeypatc
     monkeypatch.setitem(sys.modules, "tools.web_mask_generator.app", types.SimpleNamespace(main=lambda: calls.append("entry")))
     runpy.run_path(str(Path(__file__).parents[1] / "tools/web_mask_generator/space_app.py"), run_name="__main__")
     assert calls == ["entry"]
+
+
+@pytest.mark.parametrize("position", [3, 4, 5, 7, 8])
+@pytest.mark.parametrize("invalid", [0.5, float("nan"), float("inf"), True])
+def test_fractional_nonfinite_and_bool_indices_never_reach_gpu(demo, tmp_path, monkeypatch, position, invalid):
+    import sys
+    import types
+    original, calls = demo
+    gpu_calls = []
+    def gpu(**options):
+        def decorate(function):
+            def wrapped(*args, **kwargs):
+                gpu_calls.append(True)
+                return function(*args, **kwargs)
+            return wrapped
+        return decorate
+    monkeypatch.setitem(sys.modules, "spaces", types.SimpleNamespace(GPU=gpu))
+    actual = app.build_app({}, zero_gpu=True)
+    source = tmp_path / "input.tif"
+    tifffile.imwrite(source, np.ones((5, 7), dtype=np.uint16), metadata={"axes": "YX"})
+    values = [str(source), "toxoplasma_plaque_v4", True, 0, 0, 0, [0], 0, 150, 52, False, 0.4, 0]
+    values[position] = invalid
+    try:
+        import gradio as gr
+        endpoint = next(item for item in actual.fns.values() if item.api_name == "segment_plaque")
+        with pytest.raises((ValueError, gr.Error)):
+            values[position] = endpoint.inputs[position].preprocess(invalid)
+            endpoint.fn(*values)
+        assert gpu_calls == []
+        assert calls == []
+    finally:
+        actual.close()
+
+
+def test_header_choice_callback_rejects_fractional_series_without_truncation(demo, tmp_path):
+    actual, _ = demo
+    source = tmp_path / "image.tif"
+    tifffile.imwrite(source, np.ones((5, 7), dtype=np.uint16), metadata={"axes": "YX"})
+    callback = next(item.fn for item in actual.fns.values() if item.fn and item.fn.__name__ == "choices")
+    with pytest.raises(ValueError, match="finite whole number"):
+        callback(str(source), 0.5)
+
+
+def test_exact_integer_rest_floats_keep_the_explicit_selection(demo, tmp_path):
+    actual, calls = demo
+    source = tmp_path / "input.tif"
+    tifffile.imwrite(source, np.ones((5, 7), dtype=np.uint16), metadata={"axes": "YX"})
+    endpoint = next(item for item in actual.fns.values() if item.api_name == "segment_plaque")
+    values = [str(source), "toxoplasma_plaque_v4", True, 0.0, 0.0, 0.0, [0.0], 0.0, 150.0, 52, False, 0.4, 0]
+    for position in (3, 4, 5, 7, 8):
+        values[position] = endpoint.inputs[position].preprocess(values[position])
+    cached, _ = endpoint.fn(*values)
+    assert Path(cached).is_file()
+    selection = calls[-1]["selection"]
+    assert selection == {"series": 0, "indices": {}, "channels": [0], "page": 0, "pdf_dpi": 150}
+    assert all(type(selection[name]) is int for name in ("series", "page", "pdf_dpi"))
+    assert type(selection["channels"][0]) is int

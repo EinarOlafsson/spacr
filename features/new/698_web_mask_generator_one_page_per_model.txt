@@ -249,3 +249,19 @@ samples, full UI localization/style/accessibility or browser exports accepted.
 Official eligibility/startup guidance and source-only free setup steps are in
 README; no paid resources or account changes. Home-B site interface ack remains
 required. Receipt:features/data/698_gradio_source_2026-10-14/.
+
+2026-10-14 — Original Home: explicit REST selection correctness repair.
+Review found infer() truncated fractional series/T/Z/page/DPI values with int().
+The actual Gradio Number(precision=0) preprocessor also rounded REST values
+before the callback. Index controls now preserve incoming precision, and strict
+validation rejects fractions, NaN/Inf, booleans and negative indices before GPU
+entry. Exact integer-valued REST floats are retained as their same explicit
+integer selection; ordered channels are validated too. Header choices share the
+strict validator. No silent frame/page substitution remains on these controls.
+Validation34distinctactualGradio cases:33PASS/actualexit0/25.53s (including20cases
+using real Number.preprocess then callback with a recorded GPU boundary), plus
+1PASS/actualexit0/7.17s for successful exact REST-float selection. No model/GPU
+or server launched. Original32PASS/1stale negative-index wording failure retained,
+then expectation corrected to the new strict validation wording. Source UI is
+still partialN698; no hosted/parity/fullfeature acceptance inferred. Receipt:
+features/data/698_explicit_rest_indices_2026-10-14/.
