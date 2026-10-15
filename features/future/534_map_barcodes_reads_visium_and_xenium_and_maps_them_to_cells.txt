@@ -547,3 +547,20 @@ The feature remains alpha/partial overall.
     F534 remains ALPHA with the previously recorded scientific/data/GPU and
     whole-slide crop-PNG acceptance limits. This is an IO consistency repair,
     not whole-feature or new biological validation.
+
+2026-10-15 — Zero-result mapping retires verified stale analysis files.
+    A valid Xenium QV filter could leave zero transcripts and correctly
+    clear expression rows, yet retain old analysis CSVs/h5ad beside the new
+    zero-result report. The real tiny-bundle case failed before the repair.
+    The existing report now retains exact per-sample/host producer filenames
+    and streamed SHA256 hashes. After a successful zero-object rerun it
+    retires only unchanged, recorded regular files directly in that output
+    folder. Another sample's records/files, edited former outputs, symlinks,
+    unrelated files and original input bytes remain intact. Legacy files
+    without usable provenance remain untouched rather than guessed by name.
+    Failed computations do not trigger this cleanup. No scientific algorithm,
+    expression writer, API prose/signature, comment or caption changed.
+    Baseline1FAIL7.99s; nine selected owning/boundary cases PASS23.65s and
+    the explicit oversized-report refusal followup PASS7.05s, capped2G.
+    Evidence: data/534_empty_map_outputs_2026-10-15/receipt.json.
+    F534's previously recorded scientific/data/GPU acceptance remains open.

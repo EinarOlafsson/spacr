@@ -298,6 +298,117 @@ def test_xenium_reads_are_counted_into_the_cells_and_join_measure(xenium_run):
     assert "infection" not in again
 
 
+
+def test_zero_qv_map_retires_verified_analyses_and_keeps_other_outputs(tmp_path):
+    import hashlib
+    import pathlib
+
+    source = xenium_slide(tmp_path / "bundle")
+    other_source = xenium_slide(tmp_path / "other_bundle")
+    dst = tmp_path / "fields"
+    oe.run_spatial_masks(_mask_settings(source, dst))
+    oe.run_spatial_masks(_mask_settings(other_source, dst,
+                                        spatial_sample="slide_two"))
+    settings = {"spatial_source": source, "spatial_masks_dir": str(dst),
+                "spatial_objects": "cell", "spatial_pathogen_genes": "CHIKV*",
+                "spatial_min_pathogen_transcripts": 2,
+                "spatial_anndata": True}
+    first = oe.run_spatial_map(settings)
+    assert set(first["files"]) == {"infection", "infected_vs_uninfected",
+                                    "distance_trend", "region_summary",
+                                    "anndata", "overlay"}
+    other = oe.run_spatial_map(dict(settings, spatial_source=other_source))
+    other_files = {name: hashlib.sha256(pathlib.Path(name).read_bytes()).hexdigest()
+                   for name in other["files"].values()}
+    output = pathlib.Path(first["output"])
+    user_file = output / "user-notes.csv"
+    user_file.write_text("keep,my notes\n")
+    changed = pathlib.Path(first["files"]["infection"])
+    changed.write_text(changed.read_text() + "user edited this former output\n")
+    linked = pathlib.Path(first["files"]["region_summary"])
+    linked.unlink()
+    linked.symlink_to(user_file)
+    protected = {str(path): path.read_bytes() for path in (user_file, changed)}
+    inputs = {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
+              for root in (pathlib.Path(source), pathlib.Path(other_source))
+              for path in root.rglob("*") if path.is_file()}
+    before = {table: read_table(first["db"], table=table, canonicalise=False,
+                               report=None)
+              for table in ("cell_expression", "cell_expression_long")}
+    other_prcfs = set(read_table(first["db"], table="spatial_fields",
+                                 canonicalise=False, report=None).query(
+                                     "plateID == 'slide_two'")["prcf"])
+
+    zero = oe.run_spatial_map(dict(settings, spatial_min_qv=100))
+    assert zero["objects"]["cell"]["objects"] == zero["points"] == 0
+    assert set(zero["files"]) == {"overlay"}
+    assert zero["messages"] == ["No object received any count."]
+    for key in ("infected_vs_uninfected", "distance_trend", "anndata"):
+        assert not pathlib.Path(first["files"][key]).exists(), key
+    assert linked.is_symlink()
+    assert {name: pathlib.Path(name).read_bytes() for name in protected} == protected
+    assert {name: hashlib.sha256(pathlib.Path(name).read_bytes()).hexdigest()
+            for name in other_files} == other_files
+    assert {name: hashlib.sha256(pathlib.Path(name).read_bytes()).hexdigest()
+            for name in inputs} == inputs
+    for table, old in before.items():
+        expected = old[old["prcfo"].str.rsplit("_o", n=1).str[0].isin(
+            other_prcfs)].reset_index(drop=True)
+        actual = read_table(first["db"], table=table, canonicalise=False,
+                            report=None)
+        pd.testing.assert_frame_equal(actual, expected)
+
+
+
+@pytest.mark.parametrize("prior_state", ["legacy", "malformed", "outside",
+                                         "duplicate", "oversized", "failed-rerun"])
+def test_zero_qv_map_keeps_unverified_outputs(tmp_path, monkeypatch, prior_state):
+    import hashlib
+    import pathlib
+
+    source = xenium_slide(tmp_path / "bundle")
+    dst = tmp_path / "fields"
+    oe.run_spatial_masks(_mask_settings(source, dst))
+    settings = {"spatial_source": source, "spatial_masks_dir": str(dst),
+                "spatial_objects": "cell", "spatial_pathogen_genes": "CHIKV*",
+                "spatial_min_pathogen_transcripts": 2,
+                "spatial_anndata": False}
+    first = oe.run_spatial_map(settings)
+    report_path = pathlib.Path(first["output"]) / "spatial_map_report.json"
+    report = json.loads(report_path.read_text())
+    outside = dst / "outside.csv"
+    outside.write_text("preserve me\n")
+    if prior_state == "legacy":
+        report.pop("analysis_output_ownership")
+    elif prior_state == "malformed":
+        report["analysis_output_ownership"] = {"version": 1, "runs": [None]}
+    elif prior_state == "outside":
+        report["analysis_output_ownership"]["runs"][0]["files"][
+            "../outside.csv"] = hashlib.sha256(outside.read_bytes()).hexdigest()
+    elif prior_state == "duplicate":
+        report["analysis_output_ownership"]["runs"].append(
+            dict(report["analysis_output_ownership"]["runs"][0]))
+    report_path.write_text(json.dumps(report))
+    if prior_state == "oversized":
+        with report_path.open("a") as handle:
+            handle.write(" " * (1024 * 1024) + "not JSON")
+    original_report = report_path.read_bytes()
+    old_files = {str(path): pathlib.Path(path).read_bytes()
+                 for key, path in first["files"].items() if key != "overlay"}
+    if prior_state == "failed-rerun":
+        def refuse_overlay(*args, **kwargs):
+            raise RuntimeError("deliberate render failure before publication")
+        monkeypatch.setattr(oe, "_st_draw_overlay", refuse_overlay)
+        with pytest.raises(RuntimeError, match="deliberate render failure"):
+            oe.run_spatial_map(dict(settings, spatial_min_qv=100))
+        assert report_path.read_bytes() == original_report
+    else:
+        zero = oe.run_spatial_map(dict(settings, spatial_min_qv=100))
+        assert zero["objects"]["cell"]["objects"] == 0
+    assert {path: pathlib.Path(path).read_bytes() for path in old_files} == old_files
+    assert outside.read_text() == "preserve me\n"
+
+
 def test_visium_hd_bins_are_registered_through_the_full_resolution_image(
         tmp_path):
     outs, umis_in_nuclei = visium_hd_slide(tmp_path / "hd")

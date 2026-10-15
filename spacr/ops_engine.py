@@ -4073,6 +4073,7 @@ def run_spatial_map(settings: Mapping[str, Any]) -> Dict[str, Any]:
     :raises ValueError: when the masks folder holds no fields of this slide
         or a requested plane is not in the fields.
     """
+    import hashlib
     import json
 
     import pandas as pd
@@ -4297,10 +4298,95 @@ def run_spatial_map(settings: Mapping[str, Any]) -> Dict[str, Any]:
                           "assign": round(assign_seconds, 1),
                           "total": round(time.perf_counter() - started, 1)}
     summary["peak_rss_gb"] = _peak_rss_gb()
+    report_path = os.path.join(output, "spatial_map_report.json")
+    suffixes = {"infection": "_infection.csv",
+                "infected_vs_uninfected": "_infected_vs_uninfected.csv",
+                "distance_trend": "_distance_trend.csv",
+                "region_summary": "_region_summary.csv",
+                "anndata": ".h5ad"}
+    runs = []
+    try:
+        if not os.path.islink(report_path):
+            with open(report_path, "rb") as handle:
+                payload = handle.read(1024 * 1024 + 1)
+            previous = json.loads(payload) if len(payload) <= 1024 * 1024 else {}
+            ledger = previous.get("analysis_output_ownership", {})
+            valid = (isinstance(ledger, dict)
+                     and set(ledger) == {"version", "runs"}
+                     and type(ledger["version"]) is int
+                     and ledger["version"] == 1
+                     and isinstance(ledger["runs"], list)
+                     and os.path.realpath(previous.get("output", ""))
+                     == os.path.realpath(output)
+                     and os.path.realpath(previous.get("db", ""))
+                     == os.path.realpath(db))
+            seen = set()
+            for entry in ledger.get("runs", []) if valid else []:
+                if (not isinstance(entry, dict)
+                        or set(entry) != {"plate", "host", "files"}
+                        or not isinstance(entry["plate"], str)
+                        or not isinstance(entry["host"], str)
+                        or not isinstance(entry["files"], dict)):
+                    valid = False
+                    break
+                identity = (entry["plate"], entry["host"])
+                allowed = {f"{entry['plate']}_{entry['host']}{suffix}"
+                           for suffix in suffixes.values()}
+                if identity in seen or any(
+                        not isinstance(name, str) or name not in allowed
+                        or "/" in name or "\\" in name
+                        or not isinstance(digest, str)
+                        or re.fullmatch(r"[0-9a-f]{64}", digest) is None
+                        for name, digest in entry["files"].items()):
+                    valid = False
+                    break
+                seen.add(identity)
+            if valid:
+                runs = ledger["runs"]
+    except (OSError, ValueError, TypeError, AttributeError):
+        pass
+    owned = next((entry for entry in runs
+                  if (entry["plate"], entry["host"]) == (plate, host)), None)
+    if owned is None:
+        owned = {"plate": plate, "host": host, "files": {}}
+        runs.append(owned)
+    for key, suffix in suffixes.items():
+        name = f"{plate}_{host}{suffix}"
+        path = summary["files"].get(key)
+        if (not isinstance(path, str) or "/" in name or "\\" in name
+                or os.path.basename(path) != name or os.path.islink(path)
+                or os.path.dirname(os.path.realpath(path))
+                != os.path.realpath(output) or not os.path.isfile(path)):
+            continue
+        digest = hashlib.sha256()
+        with open(path, "rb") as handle:
+            while chunk := handle.read(1024 * 1024):
+                digest.update(chunk)
+        owned["files"][name] = digest.hexdigest()
+    summary["analysis_output_ownership"] = {"version": 1, "runs": runs}
     report = {key: value for key, value in summary.items()}
-    with open(os.path.join(output, "spatial_map_report.json"), "w",
-              encoding="utf-8") as handle:
+    with open(report_path, "w", encoding="utf-8") as handle:
         json.dump(report, handle, indent=1, default=str)
+    if not len(obs):
+        retired = []
+        for name, expected in owned["files"].items():
+            path = os.path.join(output, name)
+            if (os.path.islink(path) or not os.path.isfile(path)
+                    or os.path.dirname(os.path.realpath(path))
+                    != os.path.realpath(output)):
+                continue
+            digest = hashlib.sha256()
+            with open(path, "rb") as handle:
+                while chunk := handle.read(1024 * 1024):
+                    digest.update(chunk)
+            if digest.hexdigest() == expected:
+                os.remove(path)
+                retired.append(name)
+        if retired:
+            for name in retired:
+                del owned["files"][name]
+            with open(report_path, "w", encoding="utf-8") as handle:
+                json.dump(report, handle, indent=1, default=str)
     _say(f"spatial map: {summary['objects'][host]['objects']} {host} objects "
          f"counted from {summary['points_in_fields']} of {total} points")
     summary["obs"] = obs
