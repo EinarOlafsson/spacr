@@ -15,7 +15,7 @@ from tests.qt.test_n448_complete_curation_status import TEMPLATES
 def test_actual_curation_status_callbacks_use_all_reviewed_sentences(
         qapp, monkeypatch, tmp_path, language):
     review_path = (Path(__file__).parents[2] / 'docs/i18n/reviewed/runtime' / language /
-                   '2026-10-15-n448-complete-curation-status.json')
+                   '2026-10-15-complete-curation-status.json')
     review = json.loads(review_path.read_text())
     records = {row['source']: row for row in review['records']}
     assert set(records) == set(TEMPLATES.values())

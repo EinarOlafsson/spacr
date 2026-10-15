@@ -16,7 +16,7 @@
       "key": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
       "source": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
       "source_sha256": "e411a9bdab572699c12f473e021e724112800582bf149c61c6e34778876e2c4d",
-      "translation": "Modèles entraînés par le responsable de spaCR et par ses utilisateurs, chacun accompagné de la fiche utilisée pour son évaluation."
+      "translation": "Modèles entraînés par le responsable de spaCR et par les utilisateurs de spaCR, chacun accompagné de la fiche utilisée pour son évaluation."
     },
     {
       "table": "ui",
