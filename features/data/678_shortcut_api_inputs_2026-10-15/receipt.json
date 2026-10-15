@@ -1,0 +1,142 @@
+{
+  "schema": 1,
+  "source_commit": "8a20fded961a93cf0b1368c39cbf84fd8db02cc8",
+  "source_file": "spacr/qt/shortcuts.py",
+  "source_sha256": "2956073d782df3eeacc5fda277d24948e8dd795a49c60ac992519405802e3f38",
+  "rendered_symbols": 7,
+  "changed_docstrings_total": 15,
+  "changed_private_docstrings_not_rendered": 8,
+  "blocks_per_language": 22,
+  "languages": [
+    "de",
+    "es",
+    "fr",
+    "hi",
+    "is",
+    "ko",
+    "pt",
+    "sv",
+    "zh_CN"
+  ],
+  "records": 198,
+  "new_translations_of_changed_source": 180,
+  "shifted_source_records": 18,
+  "preserved_shifted_target_records": 11,
+  "corrected_shifted_target_records": 7,
+  "corrected_pairs": [
+    {
+      "language": "is",
+      "label": "spacr.qt.shortcuts.ShortcutOverlay#3",
+      "old_target_sha256": "8114bdeeda6f0dfa8a4e79b934458976beec94d76d1c1a464de6be411d20a998",
+      "new_target_sha256": "4c000056b46db0c9853447a16a4c69d5f4e8465ae745054f4cc825ed81dcc193"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.shortcuts.ShortcutOverlay#4",
+      "old_target_sha256": "df185fd0d16ecedd672a4c18a407b7ad5effd355802beec6e55dcb8ec5602356",
+      "new_target_sha256": "f744024f953f0c95d0e05977748103e21e22661b7fc660deccf7a29a254abe74"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.shortcuts.ShortcutOverlay#3",
+      "old_target_sha256": "475ba329a8e5a6d308982c2b8fd2c64c4e3f7efbbb212ad13eee4336ac4b3795",
+      "new_target_sha256": "292091f3442239ca3cccbe9510bd7e62aca041a81cc50db6c7aed81d455dd00e"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.shortcuts.ShortcutOverlay#3",
+      "old_target_sha256": "c65b63efde708b869a64b29659d4b5adafbe659299bf082b2ed38f00f44cc8ae",
+      "new_target_sha256": "0af79804d387a6f9d232ae6162435a3eea3ecd1c077a29b14f26371a834a061b"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.shortcuts.ShortcutOverlay#4",
+      "old_target_sha256": "c2c55580789f262126d5af8b35ca337debd077834df714e8a6893d5d8cd8039f",
+      "new_target_sha256": "912c73d39306d04757309beb9903529cdfaf79487fdf3a301a1984de9f8e4d88"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.shortcuts.ShortcutOverlay#3",
+      "old_target_sha256": "84b78d86902ca480081a91cb9d4fa288b60609bb472e70f5d840a5ef09ead89e",
+      "new_target_sha256": "dae8efe4343b21a805e9aeed3160977ca33cd44af433dc80235703eea4dd3bde"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.shortcuts.ShortcutOverlay#4",
+      "old_target_sha256": "9ee8efb4e37dcdb0d940384851d50b128ab1afdbd0bbc277d1ba3db0a40006db",
+      "new_target_sha256": "32ed22d567b67952138dabc38eea527f8784ed651e39cc115dfa9bf094a2d365"
+    }
+  ],
+  "constructor_correction_authorization": "Coordinator explicitly authorized proven hi/ko/zh cheat-sheet-as-fraud errors and malformed Icelandic; ko/zh scrolling-as-rotation also corrected in their affected constructor text. Other shifted targets preserved exactly. No unchanged English source or context was rewritten.",
+  "review_provenance": "AI technical source/behavior review; no human or native-speaker signoff. Existing unchanged targets have preservation provenance rather than a new semantic-review claim.",
+  "validation": {
+    "full_normal_collector_runs": 1,
+    "collector_wall_seconds": 34.6,
+    "collector_peak_rss_kib": 201440,
+    "collector_resource_policy": "Shared heavy.lock,2Gcap; no writer or full review loader.",
+    "source_hash_context_and_protected_syntax_checks": 396,
+    "final_syntax_failures": 0,
+    "light_check_wall_seconds": 2.43,
+    "light_check_peak_rss_kib": 229636,
+    "initial_syntax_failures": 50,
+    "intermediate_syntax_failures": 2,
+    "fixes": "Retained protected GUI acronym and exact quoted Change shortcuts… label; restored required RST literal order; separated quoted label from adjacent Chinese prose. No validators or acceptance limits changed.",
+    "normal_loader_status": "Pending API owner retirement of108 superseded rows and coherent normal writer.",
+    "independent_peer_review_status": "Pending coordinator/peer review."
+  },
+  "superseded_existing_rows": 108,
+  "superseded_manifest": "collected.json: superseded_rows; exact path,record_index,label,source hash and historical source retained. No existing review file modified here.",
+  "new_review_files": [
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-10-15-shortcuts-factual-prose-home-b.json",
+      "sha256": "9b44eb4982cc8b96893ec401cfe11d845c02992e275603189c85d795b27c74d0",
+      "record_count": 22
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-10-15-shortcuts-factual-prose-home-b.json",
+      "sha256": "b1445bcff03b7c0ff6f3bb7adb007a4290b475fbcc68465b68b6f70de930d3e9",
+      "record_count": 22
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-10-15-shortcuts-factual-prose-home-b.json",
+      "sha256": "94914a2ce89150ebcf327e3432878e3b412479c90c7c5af8ef4d869602f41832",
+      "record_count": 22
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-10-15-shortcuts-factual-prose-home-b.json",
+      "sha256": "6070f3c7a618dbe77c48970d525052ebd3ea2de1149ec6930919e4dd532a8f82",
+      "record_count": 22
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-10-15-shortcuts-factual-prose-home-b.json",
+      "sha256": "b7c3b39a2ca5f70c97d9add8e8600491a9795d431153c9bcd8ae7dc1b7c2b6eb",
+      "record_count": 22
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-10-15-shortcuts-factual-prose-home-b.json",
+      "sha256": "569050896de1bc21ae2aaad998aa723961640b2cd0c9e5126a44f0f3d079928e",
+      "record_count": 22
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-10-15-shortcuts-factual-prose-home-b.json",
+      "sha256": "0b92b58fb3047d09c326bb47a77b8eb3fb18c77bd2d421c3177d2a5ad0b2eee9",
+      "record_count": 22
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-10-15-shortcuts-factual-prose-home-b.json",
+      "sha256": "253d6d0eadfbbe3fdf41959c8c59c85642a1b01fb8bc8a7204f44766b288fbc5",
+      "record_count": 22
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-10-15-shortcuts-factual-prose-home-b.json",
+      "sha256": "ecd74eb19f1e2f228bc12b017952449a43d22929fd4ed8b149aca7fcbdafccb8",
+      "record_count": 22
+    }
+  ],
+  "scope_exclusions": [
+    "No generated catalog or existing shared review-file edits",
+    "No API writer or runtime lookup",
+    "No Qt test replay",
+    "No whole N678 completion or native-platform claim"
+  ]
+}

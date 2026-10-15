@@ -751,14 +751,20 @@
       "source_sha256": "26f0c8f1c1efb05ac6052ac0bf975170fe73a42c4d7076ef4891d95096f3a483",
       "source": "Keyboard-first shortcuts for the spaCR Qt GUI.",
       "context": "Keyboard-first shortcuts for the spaCR Qt GUI.",
-      "translation": "spaCR Qt GUI 的键盘优先快捷键。"
+      "translation": "spaCR Qt GUI 的键盘优先快捷键。",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Shortcut source documentation corrected/reordered in8a20fded961. Replacement exact-source reviews are in2026-10-15-shortcuts-factual-prose-home-b.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.shortcuts#1",
       "source_sha256": "b0c04dae9e6d28f02e9977c0b48d2ea8ab98f343d97eac4a5c4e7ed195668b3a",
       "source": "Registers global :class:`QShortcut` bindings on the main window so the whole app is usable without a mouse:",
       "context": "Registers global :class:`QShortcut` bindings on the main window so the whole app is usable without a mouse:",
-      "translation": "在主窗口上注册全局 :class:`QShortcut` 绑定，使整个应用无需鼠标即可使用："
+      "translation": "在主窗口上注册全局 :class:`QShortcut` 绑定，使整个应用无需鼠标即可使用：",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Shortcut source documentation corrected/reordered in8a20fded961. Replacement exact-source reviews are in2026-10-15-shortcuts-factual-prose-home-b.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.shortcuts#2",
@@ -774,7 +780,10 @@
       "source_sha256": "f0f20c34719e99f139fd7bd7b88f717827aa459cc9d4e41c5365b4725e11d91f",
       "source": "Switch to the Nth app in the sidebar",
       "context": "Switch to the Nth app in the sidebar",
-      "translation": "切换到侧栏中的第 N 个应用"
+      "translation": "切换到侧栏中的第 N 个应用",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Shortcut source documentation corrected/reordered in8a20fded961. Replacement exact-source reviews are in2026-10-15-shortcuts-factual-prose-home-b.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.shortcuts#4",

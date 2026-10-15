@@ -1,0 +1,366 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "source_commit": "8e0c244105760be0e60e788fc602d3fbbd02e0c8",
+  "scope": "Normal scoped API catalog generation for30 reviewed blocks in10 symbols (including2 shifted unchanged blocks) across9locales, with exact unrelated-record preservation and normal English source/history generation.",
+  "approved_exact_shift_corrections": [
+    {
+      "locale": "is",
+      "label": "spacr.qt.shortcuts.ShortcutOverlay#3",
+      "source_sha256": "8e50d539303f4f0f42f523bb95a270fecfc94d3d550db7654b1b83e7381a1bf2",
+      "context": "Build the shortcut cheat sheet as a card over the window.",
+      "old_target": "Að byggja smá skammt svipaðilinu sem kort yfir glugganum.",
+      "old_target_sha256": "8114bdeeda6f0dfa8a4e79b934458976beec94d76d1c1a464de6be411d20a998",
+      "new_target": "Búa til flýtilyklayfirlitið sem spjald yfir glugganum.",
+      "new_target_sha256": "4c000056b46db0c9853447a16a4c69d5f4e8465ae745054f4cc825ed81dcc193",
+      "correction_reason": "Explicitly authorized factual repair: shortcut guide rather than fraud/deception; scrolling rather than rotation; malformed Icelandic constructor explanation. No unrelated prose rewrite."
+    },
+    {
+      "locale": "is",
+      "label": "spacr.qt.shortcuts.ShortcutOverlay#4",
+      "source_sha256": "545ef3a4856eecb949ed885f08e41a22b2d36977e7158b245bf52be29d455a74",
+      "context": "the window it covers; the card is centred in it and scrolls when the map does not fit.",
+      "old_target": "fönnun sem það dekkar; kortin er miðlaður í það og snúir þegar kortin passar ekki.",
+      "old_target_sha256": "df185fd0d16ecedd672a4c18a407b7ad5effd355802beec6e55dcb8ec5602356",
+      "new_target": "glugginn sem það hylur; spjaldið er miðjað í honum og hægt er að skruna þegar yfirlitið kemst ekki fyrir.",
+      "new_target_sha256": "f744024f953f0c95d0e05977748103e21e22661b7fc660deccf7a29a254abe74",
+      "correction_reason": "Explicitly authorized factual repair: shortcut guide rather than fraud/deception; scrolling rather than rotation; malformed Icelandic constructor explanation. No unrelated prose rewrite."
+    },
+    {
+      "locale": "hi",
+      "label": "spacr.qt.shortcuts.ShortcutOverlay#3",
+      "source_sha256": "8e50d539303f4f0f42f523bb95a270fecfc94d3d550db7654b1b83e7381a1bf2",
+      "context": "Build the shortcut cheat sheet as a card over the window.",
+      "old_target": "खिड़की के ऊपर एक कार्ड के रूप में छोटे-छोटे धोखाधड़ी शीट का निर्माण करें।",
+      "old_target_sha256": "475ba329a8e5a6d308982c2b8fd2c64c4e3f7efbbb212ad13eee4336ac4b3795",
+      "new_target": "विंडो के ऊपर कार्ड के रूप में शॉर्टकट संदर्भ सूची बनाएँ।",
+      "new_target_sha256": "292091f3442239ca3cccbe9510bd7e62aca041a81cc50db6c7aed81d455dd00e",
+      "correction_reason": "Explicitly authorized factual repair: shortcut guide rather than fraud/deception; scrolling rather than rotation; malformed Icelandic constructor explanation. No unrelated prose rewrite."
+    },
+    {
+      "locale": "ko",
+      "label": "spacr.qt.shortcuts.ShortcutOverlay#3",
+      "source_sha256": "8e50d539303f4f0f42f523bb95a270fecfc94d3d550db7654b1b83e7381a1bf2",
+      "context": "Build the shortcut cheat sheet as a card over the window.",
+      "old_target": "창문 위에 카드로 짧은 사기 잎을 구축하십시오.",
+      "old_target_sha256": "c65b63efde708b869a64b29659d4b5adafbe659299bf082b2ed38f00f44cc8ae",
+      "new_target": "단축키 안내를 창 위의 카드로 구성합니다.",
+      "new_target_sha256": "0af79804d387a6f9d232ae6162435a3eea3ecd1c077a29b14f26371a834a061b",
+      "correction_reason": "Explicitly authorized factual repair: shortcut guide rather than fraud/deception; scrolling rather than rotation; malformed Icelandic constructor explanation. No unrelated prose rewrite."
+    },
+    {
+      "locale": "ko",
+      "label": "spacr.qt.shortcuts.ShortcutOverlay#4",
+      "source_sha256": "545ef3a4856eecb949ed885f08e41a22b2d36977e7158b245bf52be29d455a74",
+      "context": "the window it covers; the card is centred in it and scrolls when the map does not fit.",
+      "old_target": "그것이 덮는 창; 카드는 그것에 집중하고 지도가 맞지 않을 때 회전합니다.",
+      "old_target_sha256": "c2c55580789f262126d5af8b35ca337debd077834df714e8a6893d5d8cd8039f",
+      "new_target": "덮는 창입니다. 카드는 그 안에서 가운데에 배치되며, 키맵이 공간에 들어가지 않으면 스크롤됩니다.",
+      "new_target_sha256": "912c73d39306d04757309beb9903529cdfaf79487fdf3a301a1984de9f8e4d88",
+      "correction_reason": "Explicitly authorized factual repair: shortcut guide rather than fraud/deception; scrolling rather than rotation; malformed Icelandic constructor explanation. No unrelated prose rewrite."
+    },
+    {
+      "locale": "zh_CN",
+      "label": "spacr.qt.shortcuts.ShortcutOverlay#3",
+      "source_sha256": "8e50d539303f4f0f42f523bb95a270fecfc94d3d550db7654b1b83e7381a1bf2",
+      "context": "Build the shortcut cheat sheet as a card over the window.",
+      "old_target": "建造短片欺骗板作为窗口上的卡片。",
+      "old_target_sha256": "84b78d86902ca480081a91cb9d4fa288b60609bb472e70f5d840a5ef09ead89e",
+      "new_target": "将快捷键参考表构建为窗口上方的卡片。",
+      "new_target_sha256": "dae8efe4343b21a805e9aeed3160977ca33cd44af433dc80235703eea4dd3bde",
+      "correction_reason": "Explicitly authorized factual repair: shortcut guide rather than fraud/deception; scrolling rather than rotation; malformed Icelandic constructor explanation. No unrelated prose rewrite."
+    },
+    {
+      "locale": "zh_CN",
+      "label": "spacr.qt.shortcuts.ShortcutOverlay#4",
+      "source_sha256": "545ef3a4856eecb949ed885f08e41a22b2d36977e7158b245bf52be29d455a74",
+      "context": "the window it covers; the card is centred in it and scrolls when the map does not fit.",
+      "old_target": "它覆盖的窗口;卡片集中在它,当地图不适合时旋转。",
+      "old_target_sha256": "9ee8efb4e37dcdb0d940384851d50b128ab1afdbd0bbc277d1ba3db0a40006db",
+      "new_target": "所覆盖的窗口；卡片在其中居中显示，映射表无法完全容纳时可滚动。",
+      "new_target_sha256": "32ed22d567b67952138dabc38eea527f8784ed651e39cc115dfa9bf094a2d365",
+      "correction_reason": "Explicitly authorized factual repair: shortcut guide rather than fraud/deception; scrolling rather than rotation; malformed Icelandic constructor explanation. No unrelated prose rewrite."
+    },
+    {
+      "locale": "sv",
+      "label": "spacr.qt.shortcuts.ShortcutOverlay#3",
+      "source_sha256": "8e50d539303f4f0f42f523bb95a270fecfc94d3d550db7654b1b83e7381a1bf2",
+      "context": "Build the shortcut cheat sheet as a card over the window.",
+      "old_target": "Bygg genvägen fusklakan som ett kort över fönstret.",
+      "old_target_sha256": "21ea0c8306f164db60d8e1473f081442db317d9e2b589a2c1c47f121f53f58a0",
+      "new_target": "Bygg kortkommandoöversikten som ett kort över fönstret.",
+      "new_target_sha256": "a0a532896469bc1ee89f5b4f382df9d44dc8ede28979931b447b195dca65f1c9",
+      "correction_reason": "Independent review found literal bedsheet mistranslation; coordinator authorized exactly this eighth constructor-pair correction."
+    }
+  ],
+  "collector_cache_source_files_verified": 669,
+  "source_docs_sha256": {
+    "spacr.qt.widgets.picture_export": "98d11f91777723d4f06f53afec8a33736804e167b61ec424928ab4cd1ce5417b",
+    "spacr.qt.widgets.picture_export.ask_where_to_save": "2880b071c16629d1e930dd95d63f52a61bc1b2908a78b0919db9111cd79aa21d",
+    "spacr.qt.widgets.picture_export.install_picture_save": "75d1d33693e0b475928bfec28e99c4c4c76cb80e7369ee6aaef9f9c2fb49dad1",
+    "spacr.qt.shortcuts": "40ffbcd0cc92ebb7fa5a1e2d037bd42c19a813a0d2ef35fee6256d0dba1d91f4",
+    "spacr.qt.shortcuts.discover": "019f0c097ed8d0a0f82113de702c352ff496614b52bbbe77366c2aa5b8ab2b5e",
+    "spacr.qt.shortcuts.install": "cdb3b07462047e70feb574de143a810c46dc3f388d873a5c7bfecd4671005f94",
+    "spacr.qt.shortcuts.ShortcutOverlay": "b13e17150283f83554e4e6e76ae3606623d3c78b1f56ff99cb325a4ce7deb26e",
+    "spacr.qt.shortcuts.ShortcutOverlay.keyPressEvent": "398946e9166c1eaaffb089effd7de2fc17cb18c983e0cd1895c4f7d8ec38b344",
+    "spacr.qt.shortcuts.ShortcutOverlay.mousePressEvent": "9ed7fb591b4e5c280a6bced7b652e5184f4541a90b4f12018dd81a6d47e46488",
+    "spacr.qt.shortcuts.show_cheat_sheet": "a1a5b879411753c5b7350f8d401a083248a13b1f6ba970bf91bd77471700a898"
+  },
+  "normal_functions": [
+    "public_docstrings (cached with exact source-file verification)",
+    "reviewed_api_block_translations",
+    "_translate_api_documents(reuse_history=True)",
+    "write_language(preserve_other_symbols=True)",
+    "_write_english_api_manifest"
+  ],
+  "locales": {
+    "sv": {
+      "changed_symbols": [
+        "spacr.qt.shortcuts",
+        "spacr.qt.shortcuts.ShortcutOverlay",
+        "spacr.qt.shortcuts.ShortcutOverlay.keyPressEvent",
+        "spacr.qt.shortcuts.ShortcutOverlay.mousePressEvent",
+        "spacr.qt.shortcuts.discover",
+        "spacr.qt.shortcuts.install",
+        "spacr.qt.shortcuts.show_cheat_sheet",
+        "spacr.qt.widgets.picture_export",
+        "spacr.qt.widgets.picture_export.ask_where_to_save",
+        "spacr.qt.widgets.picture_export.install_picture_save"
+      ],
+      "unrelated_records_preserved": 13394,
+      "unrelated_before_sha256": "9f27c1beb4aec5b4d7a410a7c517f0cb9a2a7d621dda9e54ae12a80b59ce8d88",
+      "unrelated_after_sha256": "9f27c1beb4aec5b4d7a410a7c517f0cb9a2a7d621dda9e54ae12a80b59ce8d88",
+      "unchanged_blocks_preserved": 15,
+      "approved_shift_corrections": [
+        "spacr.qt.shortcuts.ShortcutOverlay#3"
+      ],
+      "reviewed_blocks_exact": 30,
+      "catalog_sha256": "71d3dea9f7e594b1f16f348e90844430306dbb5b01feae236cda0822428d85a6"
+    },
+    "de": {
+      "changed_symbols": [
+        "spacr.qt.shortcuts",
+        "spacr.qt.shortcuts.ShortcutOverlay",
+        "spacr.qt.shortcuts.ShortcutOverlay.keyPressEvent",
+        "spacr.qt.shortcuts.ShortcutOverlay.mousePressEvent",
+        "spacr.qt.shortcuts.discover",
+        "spacr.qt.shortcuts.install",
+        "spacr.qt.shortcuts.show_cheat_sheet",
+        "spacr.qt.widgets.picture_export",
+        "spacr.qt.widgets.picture_export.ask_where_to_save",
+        "spacr.qt.widgets.picture_export.install_picture_save"
+      ],
+      "unrelated_records_preserved": 13394,
+      "unrelated_before_sha256": "111f3b10fbf886a3f6283788684fcfb2fe825ae6bf65414c9872163955ede4eb",
+      "unrelated_after_sha256": "111f3b10fbf886a3f6283788684fcfb2fe825ae6bf65414c9872163955ede4eb",
+      "unchanged_blocks_preserved": 16,
+      "approved_shift_corrections": [],
+      "reviewed_blocks_exact": 30,
+      "catalog_sha256": "e7a37187030ebf0d9ee61ddd6cefb9c36bcc1b6e9312f6b08497f2157e8bcecc"
+    },
+    "es": {
+      "changed_symbols": [
+        "spacr.qt.shortcuts",
+        "spacr.qt.shortcuts.ShortcutOverlay",
+        "spacr.qt.shortcuts.ShortcutOverlay.keyPressEvent",
+        "spacr.qt.shortcuts.ShortcutOverlay.mousePressEvent",
+        "spacr.qt.shortcuts.discover",
+        "spacr.qt.shortcuts.install",
+        "spacr.qt.shortcuts.show_cheat_sheet",
+        "spacr.qt.widgets.picture_export",
+        "spacr.qt.widgets.picture_export.ask_where_to_save",
+        "spacr.qt.widgets.picture_export.install_picture_save"
+      ],
+      "unrelated_records_preserved": 13394,
+      "unrelated_before_sha256": "5871d12694ba185cfda5156933e063f159d33ffd37ae5fc4c6dceb69fae27389",
+      "unrelated_after_sha256": "5871d12694ba185cfda5156933e063f159d33ffd37ae5fc4c6dceb69fae27389",
+      "unchanged_blocks_preserved": 16,
+      "approved_shift_corrections": [],
+      "reviewed_blocks_exact": 30,
+      "catalog_sha256": "46bf2300943d77e611451f59d407de7db33b82cb397fbd8bedf18e60a0ac5e04"
+    },
+    "zh_CN": {
+      "changed_symbols": [
+        "spacr.qt.shortcuts",
+        "spacr.qt.shortcuts.ShortcutOverlay",
+        "spacr.qt.shortcuts.ShortcutOverlay.keyPressEvent",
+        "spacr.qt.shortcuts.ShortcutOverlay.mousePressEvent",
+        "spacr.qt.shortcuts.discover",
+        "spacr.qt.shortcuts.install",
+        "spacr.qt.shortcuts.show_cheat_sheet",
+        "spacr.qt.widgets.picture_export",
+        "spacr.qt.widgets.picture_export.ask_where_to_save",
+        "spacr.qt.widgets.picture_export.install_picture_save"
+      ],
+      "unrelated_records_preserved": 13394,
+      "unrelated_before_sha256": "f90126ee44cbf071e71ce8e03f6dd1edc82dfbf805afae20d65acee7c1f876e8",
+      "unrelated_after_sha256": "f90126ee44cbf071e71ce8e03f6dd1edc82dfbf805afae20d65acee7c1f876e8",
+      "unchanged_blocks_preserved": 14,
+      "approved_shift_corrections": [
+        "spacr.qt.shortcuts.ShortcutOverlay#3",
+        "spacr.qt.shortcuts.ShortcutOverlay#4"
+      ],
+      "reviewed_blocks_exact": 30,
+      "catalog_sha256": "fb48e10d2f64fb25da5f63aae7e9ad66fe3de004555f1726b9002dc117b118f1"
+    },
+    "pt": {
+      "changed_symbols": [
+        "spacr.qt.shortcuts",
+        "spacr.qt.shortcuts.ShortcutOverlay",
+        "spacr.qt.shortcuts.ShortcutOverlay.keyPressEvent",
+        "spacr.qt.shortcuts.ShortcutOverlay.mousePressEvent",
+        "spacr.qt.shortcuts.discover",
+        "spacr.qt.shortcuts.install",
+        "spacr.qt.shortcuts.show_cheat_sheet",
+        "spacr.qt.widgets.picture_export",
+        "spacr.qt.widgets.picture_export.ask_where_to_save",
+        "spacr.qt.widgets.picture_export.install_picture_save"
+      ],
+      "unrelated_records_preserved": 13394,
+      "unrelated_before_sha256": "0e122914d866d17dff440fce35dfdc779a553c7694d50afb98b0ccc0f2c33552",
+      "unrelated_after_sha256": "0e122914d866d17dff440fce35dfdc779a553c7694d50afb98b0ccc0f2c33552",
+      "unchanged_blocks_preserved": 16,
+      "approved_shift_corrections": [],
+      "reviewed_blocks_exact": 30,
+      "catalog_sha256": "0ad9e1786276b0c0796357d7210c790a2b349bbcd8fd8ab218b43ada16652d02"
+    },
+    "hi": {
+      "changed_symbols": [
+        "spacr.qt.shortcuts",
+        "spacr.qt.shortcuts.ShortcutOverlay",
+        "spacr.qt.shortcuts.ShortcutOverlay.keyPressEvent",
+        "spacr.qt.shortcuts.ShortcutOverlay.mousePressEvent",
+        "spacr.qt.shortcuts.discover",
+        "spacr.qt.shortcuts.install",
+        "spacr.qt.shortcuts.show_cheat_sheet",
+        "spacr.qt.widgets.picture_export",
+        "spacr.qt.widgets.picture_export.ask_where_to_save",
+        "spacr.qt.widgets.picture_export.install_picture_save"
+      ],
+      "unrelated_records_preserved": 13394,
+      "unrelated_before_sha256": "584f84c433544897595a6fad6c8c66aa916c944f7dd7ee2c18b7480cbd782658",
+      "unrelated_after_sha256": "584f84c433544897595a6fad6c8c66aa916c944f7dd7ee2c18b7480cbd782658",
+      "unchanged_blocks_preserved": 15,
+      "approved_shift_corrections": [
+        "spacr.qt.shortcuts.ShortcutOverlay#3"
+      ],
+      "reviewed_blocks_exact": 30,
+      "catalog_sha256": "6f3990bb882b470c1ed137d2e4cf7395b96d1ac2f7e57902dfb4ca8c8199f6ed"
+    },
+    "ko": {
+      "changed_symbols": [
+        "spacr.qt.shortcuts",
+        "spacr.qt.shortcuts.ShortcutOverlay",
+        "spacr.qt.shortcuts.ShortcutOverlay.keyPressEvent",
+        "spacr.qt.shortcuts.ShortcutOverlay.mousePressEvent",
+        "spacr.qt.shortcuts.discover",
+        "spacr.qt.shortcuts.install",
+        "spacr.qt.shortcuts.show_cheat_sheet",
+        "spacr.qt.widgets.picture_export",
+        "spacr.qt.widgets.picture_export.ask_where_to_save",
+        "spacr.qt.widgets.picture_export.install_picture_save"
+      ],
+      "unrelated_records_preserved": 13394,
+      "unrelated_before_sha256": "802be5a51998bad6d3eed854dc962cdd0a23f399b9be4d1be325c1938ee680a6",
+      "unrelated_after_sha256": "802be5a51998bad6d3eed854dc962cdd0a23f399b9be4d1be325c1938ee680a6",
+      "unchanged_blocks_preserved": 14,
+      "approved_shift_corrections": [
+        "spacr.qt.shortcuts.ShortcutOverlay#3",
+        "spacr.qt.shortcuts.ShortcutOverlay#4"
+      ],
+      "reviewed_blocks_exact": 30,
+      "catalog_sha256": "48fd46ec3f26ade7334cf1ae58d6ff887506732734c7aa2e53f80870300bfd76"
+    },
+    "is": {
+      "changed_symbols": [
+        "spacr.qt.shortcuts",
+        "spacr.qt.shortcuts.ShortcutOverlay",
+        "spacr.qt.shortcuts.ShortcutOverlay.keyPressEvent",
+        "spacr.qt.shortcuts.ShortcutOverlay.mousePressEvent",
+        "spacr.qt.shortcuts.discover",
+        "spacr.qt.shortcuts.install",
+        "spacr.qt.shortcuts.show_cheat_sheet",
+        "spacr.qt.widgets.picture_export",
+        "spacr.qt.widgets.picture_export.ask_where_to_save",
+        "spacr.qt.widgets.picture_export.install_picture_save"
+      ],
+      "unrelated_records_preserved": 13394,
+      "unrelated_before_sha256": "304cc523ee62f74ae510a898cfc9c8f61e3b832988a194a92c0060385a6471f0",
+      "unrelated_after_sha256": "304cc523ee62f74ae510a898cfc9c8f61e3b832988a194a92c0060385a6471f0",
+      "unchanged_blocks_preserved": 14,
+      "approved_shift_corrections": [
+        "spacr.qt.shortcuts.ShortcutOverlay#3",
+        "spacr.qt.shortcuts.ShortcutOverlay#4"
+      ],
+      "reviewed_blocks_exact": 30,
+      "catalog_sha256": "5e7a12d3fc429c0d6f216868e46dd934e2ea094b18ff3fd0c40d658fc6a849e1"
+    },
+    "fr": {
+      "changed_symbols": [
+        "spacr.qt.shortcuts",
+        "spacr.qt.shortcuts.ShortcutOverlay",
+        "spacr.qt.shortcuts.ShortcutOverlay.keyPressEvent",
+        "spacr.qt.shortcuts.ShortcutOverlay.mousePressEvent",
+        "spacr.qt.shortcuts.discover",
+        "spacr.qt.shortcuts.install",
+        "spacr.qt.shortcuts.show_cheat_sheet",
+        "spacr.qt.widgets.picture_export",
+        "spacr.qt.widgets.picture_export.ask_where_to_save",
+        "spacr.qt.widgets.picture_export.install_picture_save"
+      ],
+      "unrelated_records_preserved": 13394,
+      "unrelated_before_sha256": "dce4f00f732a82113acda7d8069723a1c2f0ab1e160a49479babd285f5856daf",
+      "unrelated_after_sha256": "dce4f00f732a82113acda7d8069723a1c2f0ab1e160a49479babd285f5856daf",
+      "unchanged_blocks_preserved": 16,
+      "approved_shift_corrections": [],
+      "reviewed_blocks_exact": 30,
+      "catalog_sha256": "0030b77856b013ff3d723af54e60719269817f1b57216db2161b0ed7a1c8ed3e"
+    }
+  },
+  "english_changed_symbols": [
+    "spacr.qt.shortcuts",
+    "spacr.qt.shortcuts.ShortcutOverlay",
+    "spacr.qt.shortcuts.ShortcutOverlay.keyPressEvent",
+    "spacr.qt.shortcuts.ShortcutOverlay.mousePressEvent",
+    "spacr.qt.shortcuts.discover",
+    "spacr.qt.shortcuts.install",
+    "spacr.qt.shortcuts.show_cheat_sheet",
+    "spacr.qt.widgets.picture_export",
+    "spacr.qt.widgets.picture_export.ask_where_to_save",
+    "spacr.qt.widgets.picture_export.install_picture_save"
+  ],
+  "unexpected_model_decoding": "Fails immediately; none needed. No validation guard patched.",
+  "limitations": [
+    "AI technical review; no native-speaker claim.",
+    "No runtime/global arrivals, Sphinx or external publication."
+  ],
+  "final_peer_followup": {
+    "es": {
+      "changed_blocks": [
+        "spacr.qt.shortcuts.ShortcutOverlay#0",
+        "spacr.qt.shortcuts.discover#0",
+        "spacr.qt.shortcuts.show_cheat_sheet#1"
+      ],
+      "changed_symbols": [
+        "spacr.qt.shortcuts.ShortcutOverlay",
+        "spacr.qt.shortcuts.discover",
+        "spacr.qt.shortcuts.show_cheat_sheet"
+      ],
+      "unrelated_records_preserved": 13401,
+      "all_other_blocks_preserved": true,
+      "catalog_sha256": "46bf2300943d77e611451f59d407de7db33b82cb397fbd8bedf18e60a0ac5e04"
+    },
+    "sv": {
+      "changed_blocks": [
+        "spacr.qt.shortcuts.ShortcutOverlay#3"
+      ],
+      "changed_symbols": [
+        "spacr.qt.shortcuts.ShortcutOverlay"
+      ],
+      "unrelated_records_preserved": 13403,
+      "all_other_blocks_preserved": true,
+      "catalog_sha256": "71d3dea9f7e594b1f16f348e90844430306dbb5b01feae236cda0822428d85a6"
+    }
+  },
+  "final_independent_shortcut_review": "PASS198 after four exact corrections; see678_shortcuts_independent_api_review_2026-10-15."
+}

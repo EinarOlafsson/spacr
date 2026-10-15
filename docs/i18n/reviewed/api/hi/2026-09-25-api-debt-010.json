@@ -3141,7 +3141,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Right-click a picture and save it, as a PNG or as a PDF.",
       "source_sha256": "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3",
-      "translation": "किसी चित्र पर राइट-क्लिक करके उसे PNG या PDF के रूप में सहेजें।"
+      "translation": "किसी चित्र पर राइट-क्लिक करके उसे PNG या PDF के रूप में सहेजें।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "context": "\"here the user should be able to right click on the images to save them as png or pdf\" -- the maintainer, 2026-09-24 (item 505)",
@@ -3160,7 +3163,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A picture on screen is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves THE PICTURE, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
       "source_sha256": "e790835e1bc841edb8e98bae98ca2f407262ea6ec94c1080f578de17f115249b",
-      "translation": "डिस्प्ले पर दिखाई देने वाला चित्र अक्सर वही चीज़ होती है जिसे कोई एक घंटे बाद किसी स्लाइड में चाहता है, और वहाँ तक पहुँचने का रास्ता विंडो की एक कैप्चर की गई तस्वीर थी, विंडो के रिज़ॉल्यूशन पर, आसपास के क्रोम सहित। यह चित्र को ही सहेजता है, उस रिज़ॉल्यूशन पर जिस पर वह रेंडर हुआ था, न कि उस आकार पर जिस पर वह संयोग से दिखाया जा रहा है, उपयोगकर्ता की चुनी हुई फ़ाइल में।"
+      "translation": "डिस्प्ले पर दिखाई देने वाला चित्र अक्सर वही चीज़ होती है जिसे कोई एक घंटे बाद किसी स्लाइड में चाहता है, और वहाँ तक पहुँचने का रास्ता विंडो की एक कैप्चर की गई तस्वीर थी, विंडो के रिज़ॉल्यूशन पर, आसपास के क्रोम सहित। यह चित्र को ही सहेजता है, उस रिज़ॉल्यूशन पर जिस पर वह रेंडर हुआ था, न कि उस आकार पर जिस पर वह संयोग से दिखाया जा रहा है, उपयोगकर्ता की चुनी हुई फ़ाइल में।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "context": "Two formats, and the PDF is not a PNG with a different extension. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
@@ -3169,7 +3175,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "TWO FORMATS, AND THE PDF IS NOT A PNG WITH A DIFFERENT EXTENSION. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
       "source_sha256": "e5dfebda32e1c3002c3fc6ea020427889f6c999e6e426903b6efc849052ca2f8",
-      "translation": "दो फ़ॉर्मेट, और PDF अलग एक्सटेंशन वाला PNG नहीं है। PDF में डाला गया रास्टर केवल फ़ाइल नाम को संतुष्ट करता है और कुछ नहीं; फ़िगर पैनल एक पेज है, और पेज का आकार मिलीमीटर में होता है। :func:`save_picture` PDF को इमेज की अपनी आकृति का पेज देता है और राइटर को वह रिज़ॉल्यूशन बताता है जो Preferences में है, ताकि चित्र उसी आकार पर आए जिस पर वह मापा गया था और उसी रिज़ॉल्यूशन पर छपे।"
+      "translation": "दो फ़ॉर्मेट, और PDF अलग एक्सटेंशन वाला PNG नहीं है। PDF में डाला गया रास्टर केवल फ़ाइल नाम को संतुष्ट करता है और कुछ नहीं; फ़िगर पैनल एक पेज है, और पेज का आकार मिलीमीटर में होता है। :func:`save_picture` PDF को इमेज की अपनी आकृति का पेज देता है और राइटर को वह रिज़ॉल्यूशन बताता है जो Preferences में है, ताकि चित्र उसी आकार पर आए जिस पर वह मापा गया था और उसी रिज़ॉल्यूशन पर छपे।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "context": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
@@ -3178,7 +3187,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
       "source_sha256": "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e",
-      "translation": "रिज़ॉल्यूशन और डिफ़ॉल्ट फ़ॉर्मेट वही हैं जिनकी स्वामी पहले से Figures प्राथमिकताएँ हैं -- :func:`spacr.qt.preferences.get_figure_png_dpi` और :func:`spacr.qt.preferences.get_figure_format` -- इसलिए जिस उपयोगकर्ता ने पहले ही \"300 DPI, PDF\" कह दिया है, उससे दूसरी बार अलग शब्दों में नहीं पूछा जाता।"
+      "translation": "रिज़ॉल्यूशन और डिफ़ॉल्ट फ़ॉर्मेट वही हैं जिनकी स्वामी पहले से Figures प्राथमिकताएँ हैं -- :func:`spacr.qt.preferences.get_figure_png_dpi` और :func:`spacr.qt.preferences.get_figure_format` -- इसलिए जिस उपयोगकर्ता ने पहले ही \"300 DPI, PDF\" कह दिया है, उससे दूसरी बार अलग शब्दों में नहीं पूछा जाता।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "context": "Whatever was handed over, as a :class:`QImage`, or ``None``.",
@@ -3210,7 +3222,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Ask for a path. ``\"\"`` when the user walked away.",
       "source_sha256": "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1",
-      "translation": "पथ के लिए पूछें। ``\"\"`` जब उपयोगकर्ता बिना चुने चला गया।"
+      "translation": "पथ के लिए पूछें। ``\"\"`` जब उपयोगकर्ता बिना चुने चला गया।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "context": "The suffix is put back if the user drops it. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
@@ -3218,7 +3233,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE SUFFIX IS PUT BACK IF THE USER DROPS IT. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
       "source_sha256": "9ca817d52ad3995cbdefaa1ec7984dcb11e056f5b330fad1005e8bc12459e28e",
-      "translation": "यदि उपयोगकर्ता प्रत्यय हटा दे तो उसे वापस लगाया जाता है। बिना प्रत्यय के टाइप किया गया नाम अन्यथा PNG के रूप में लिखा जाता, चाहे कोई भी फ़िल्टर चुना गया हो, और इसी तरह \"save as PDF\" चुपचाप एक रास्टर बना देता है।"
+      "translation": "यदि उपयोगकर्ता प्रत्यय हटा दे तो उसे वापस लगाया जाता है। बिना प्रत्यय के टाइप किया गया नाम अन्यथा PNG के रूप में लिखा जाता, चाहे कोई भी फ़िल्टर चुना गया हो, और इसी तरह \"save as PDF\" चुपचाप एक रास्टर बना देता है।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "context": "the widget the save dialog is parented to.",
@@ -3330,7 +3348,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "called when the menu is used; returns the ``QPixmap`` or ``QImage`` to write. Called AT SAVE TIME rather than now, so the menu always writes the picture currently on screen.",
       "source_sha256": "ee0b4d017bf8c28eb913a0813489f3640edd2d635ac11aad2cc1e2999f3b55db",
-      "translation": "मेनू उपयोग होने पर बुलाया जाता है; लिखने के लिए ``QPixmap`` या ``QImage`` लौटाता है। अभी के बजाय सहेजने के समय बुलाया जाता है, ताकि मेनू हमेशा वही चित्र लिखे जो इस समय दिखाई दे रहा है।"
+      "translation": "मेनू उपयोग होने पर बुलाया जाता है; लिखने के लिए ``QPixmap`` या ``QImage`` लौटाता है। अभी के बजाय सहेजने के समय बुलाया जाता है, ताकि मेनू हमेशा वही चित्र लिखे जो इस समय दिखाई दे रहा है।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "context": "the file name offered, without a suffix. A callable is asked at save time, so a view whose contents change -- Overlay one moment, Flows the next -- offers the name of what is on it now.",
@@ -3338,7 +3359,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the file name offered, without a suffix. A callable is asked at save time, so a view whose contents change -- Overlay one moment, Flows the next -- offers the name of what is on it now.",
       "source_sha256": "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec",
-      "translation": "प्रस्तुत फ़ाइल नाम, बिना प्रत्यय के। कॉल करने योग्य से सहेजने के समय पूछा जाता है, ताकि जिस व्यू की सामग्री बदलती है -- एक पल Overlay, अगले पल Flows -- वह उसी का नाम प्रस्तुत करे जो उस पर अभी है।"
+      "translation": "प्रस्तुत फ़ाइल नाम, बिना प्रत्यय के। कॉल करने योग्य से सहेजने के समय पूछा जाता है, ताकि जिस व्यू की सामग्री बदलती है -- एक पल Overlay, अगले पल Flows -- वह उसी का नाम प्रस्तुत करे जो उस पर अभी है।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "context": "asked first; ``True`` means the right button belongs to something else at this moment and no menu is shown. The live preview's ruler is cleared with a right-click while it is active, and a menu appearing over that would take a tool away to add a file dialog nobody asked for.",

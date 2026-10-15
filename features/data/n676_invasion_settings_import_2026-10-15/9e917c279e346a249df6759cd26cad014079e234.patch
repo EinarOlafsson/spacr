@@ -1,0 +1,157 @@
+From 9e917c279e346a249df6759cd26cad014079e234 Mon Sep 17 00:00:00 2001
+From: Einar Olafsson <einar.olafsson@gmail.com>
+Date: Thu, 15 Oct 2026 01:14:20 -0400
+Subject: [PATCH] Import Invasion tutorial settings through the visible file
+ picker
+
+---
+ tools/tutorials/capture_invasion.py           | 70 +++++++++++++++++--
+ .../test_capture_invasion_settings_import.py  | 48 +++++++++++++
+ 2 files changed, 114 insertions(+), 4 deletions(-)
+ create mode 100644 tools/tutorials/tests/test_capture_invasion_settings_import.py
+
+diff --git a/tools/tutorials/capture_invasion.py b/tools/tutorials/capture_invasion.py
+index 6025b7675..395e81d74 100644
+--- a/tools/tutorials/capture_invasion.py
++++ b/tools/tutorials/capture_invasion.py
+@@ -11,6 +11,70 @@ from native_figure_legend import fit_legend
+ from stage_lesson import read
+ 
+ 
++def import_invasion_settings(app, screen, stage, settings, capture, settle):
++    """Import the prepared configuration through the actual settings picker."""
++    from PySide6.QtCore import Qt, QTimer
++    from PySide6.QtTest import QTest
++    from PySide6.QtWidgets import QDialog, QFileDialog, QLineEdit, QDialogButtonBox
++    from spacr.cli import write_settings_file
++
++    path = Path(stage) / 'invasion_settings.csv'
++    if path.exists() or path.with_suffix('.json').exists():
++        raise ValueError('The private Invasion settings destination must be fresh')
++    write_settings_file(settings, path)
++    if not screen._btn_import.isVisible() or not screen._btn_import.isEnabled():
++        raise ValueError('The actual Import settings button is not available')
++    accepted, errors = [], []
++    active = True
++    watchdog = QTimer(screen)
++    watchdog.setSingleShot(True)
++
++    def fail(message):
++        errors.append(message)
++        dialog = app.activeModalWidget()
++        if isinstance(dialog, QDialog):
++            dialog.reject()
++
++    def choose():
++        if not active:
++            return
++        dialog = app.activeModalWidget()
++        try:
++            if not isinstance(dialog, QFileDialog):
++                raise ValueError('The real Import settings file picker did not open')
++            edit = dialog.findChild(QLineEdit, 'fileNameEdit')
++            if edit is None:
++                raise ValueError('The actual settings picker has no filename field')
++            dialog.accepted.connect(lambda: accepted.append(True))
++            capture_ui.focus(capture, edit)
++            QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
++            QTest.keyClicks(edit, str(path))
++            capture_ui.accept_file_dialog(capture, dialog,
++                dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Open))
++        except Exception as error:
++            fail(str(error))
++
++    watchdog.timeout.connect(lambda: fail('The actual Import settings picker timed out'))
++    capture_ui.when_modal(capture, 350, choose, timeout=60)
++    watchdog.start(90000)
++    try:
++        QTest.mouseClick(screen._btn_import, Qt.LeftButton)
++    finally:
++        active = False
++        watchdog.stop()
++        watchdog.deleteLater()
++    settle(.3)
++    if errors or not accepted:
++        raise ValueError('; '.join(errors) or 'The settings picker was not accepted')
++    actual = screen._settings_model.collect()
++    mismatch = {key: dict(requested=value, actual=actual.get(key))
++                for key, value in settings.items() if actual.get(key) != value}
++    if mismatch:
++        raise ValueError('The genuine settings import did not apply the requested values: ' + str(mismatch))
++    return dict(path=str(path), sha256=digest(path), actual_file_picker=True,
++                requested_settings_read_back=len(settings))
++
++
+ def run_invasion_pipeline(screen, scenes, settle, timeout):
+     """Keep the real Run and completion scenes across deferred or fast runs."""
+     from PySide6.QtCore import Qt
+@@ -53,10 +117,8 @@ def record_invasion(app, window, screen, stage, captures, capture, settle, write
+     # The actual GUI field has six decimals; record its representable value,
+     # not an unrepresentable old script constant or a loosened readback check.
+     settings['bimodality_cutoff'] = .555556
+-    for key, value in settings.items():
+-        if not capture_ui.fill_setting(capture, screen, key, value):
+-            raise ValueError('No current Invasion setting: '+key)
+-        settle(.03)
++    proof['settings_import'] = import_invasion_settings(
++        app, screen, stage, settings, capture, settle)
+     before = screen._settings_model.collect()
+     write_json(captures/'configured_settings.json', before)
+     mismatch = {key: dict(requested=value, actual=before.get(key))
+diff --git a/tools/tutorials/tests/test_capture_invasion_settings_import.py b/tools/tutorials/tests/test_capture_invasion_settings_import.py
+new file mode 100644
+index 000000000..72945168f
+--- /dev/null
++++ b/tools/tutorials/tests/test_capture_invasion_settings_import.py
+@@ -0,0 +1,48 @@
++"""Nested Invasion metadata enters through the real AppScreen CSV picker."""
++from pathlib import Path
++import sys
++
++sys.path[:0] = [str(Path(__file__).resolve().parents[3]),
++                str(Path(__file__).resolve().parents[1])]
++
++import pytest
++from PySide6.QtTest import QTest
++from PySide6.QtWidgets import QApplication
++
++from capture_invasion import import_invasion_settings
++from spacr.qt.screens.app_screen import AppScreen
++
++
++def test_real_invasion_import_picker_applies_nested_metadata_and_all_requested_settings(tmp_path):
++    import json
++    app = QApplication.instance() or QApplication([])
++    screen = AppScreen('invasion')
++    screen.resize(1500, 1000)
++    screen.show()
++    QTest.qWait(100)
++    path = Path(__file__).resolve().parents[1] / 'authoring/catalog/26_invasion_settings.json'
++    requested = json.loads(path.read_text())
++    requested['stain_baseline_wells'] = requested.pop('control_wells')
++    requested['src'] = str(tmp_path)
++    requested['bimodality_cutoff'] = .555556
++    try:
++        proof = import_invasion_settings(app, screen, tmp_path, requested, None,
++            lambda seconds: QTest.qWait(max(1, int(seconds * 1000))))
++        actual = screen._settings_model.collect()
++        assert all(actual[key] == value for key, value in requested.items())
++        assert actual['pathogen_plate_metadata'] == [['c2'], ['c3']]
++        assert proof['actual_file_picker'] and proof['requested_settings_read_back'] == len(requested)
++        assert 'Loaded ' in screen._console.as_text()
++        assert not screen._worker_thread_is_running()
++        assert not hasattr(screen, '_run_started_at')
++        assert Path(proof['path']).read_text().startswith('Key,Value')
++        assert Path(proof['path']).with_suffix('.json').is_file()
++        # A repeated request cannot overwrite the prepared settings evidence.
++        original = Path(proof['path']).read_bytes()
++        with pytest.raises(ValueError, match='fresh'):
++            import_invasion_settings(app, screen, tmp_path, requested, None, lambda _: None)
++        assert Path(proof['path']).read_bytes() == original
++    finally:
++        screen.close()
++        screen.deleteLater()
++        app.processEvents()
+-- 
+2.34.1
+

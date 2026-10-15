@@ -116968,58 +116968,46 @@
     },
     "spacr.qt.shortcuts": {
       "source_blocks_sha256": [
-        "26f0c8f1c1efb05ac6052ac0bf975170fe73a42c4d7076ef4891d95096f3a483",
-        "b0c04dae9e6d28f02e9977c0b48d2ea8ab98f343d97eac4a5c4e7ed195668b3a",
+        "65f4368521a698c22915ab79ef37486844105d0ce8ebbaf2ba9be48934893aa9",
+        "74592b7583c043f62c368606ffcf692990657ed2b158ef7eeead40c3412c1ffa",
         "283cbcc80a66ed5da5f37cf1a26f3311dd808cf85013792d207fd576a4daf32e",
-        "f0f20c34719e99f139fd7bd7b88f717827aa459cc9d4e41c5365b4725e11d91f",
+        "496082281022ae9e84a078c38a740bfadd6d5fdc5a6c4c56aba2f3c27434812d",
         "2fee1e28c0d6bf3a01eb15316f67865135ef4f0d599155d356570dbe72bda555",
         "15171377ee0df3ed557afa0db3e1f3918cbfd579e4114e018f18e1e75384beff",
         "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
-        "b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014",
-        "a82c2a18ac9474918c388dcd2b01787d5a86d44e92dc00df261aa923a818e246",
-        "28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d",
-        "7554498397eaddc0acb386964c5921adc73719d98010a36f581d2d50a7de464c",
-        "57789cb3e56114c2ac0b6da7897da3ab981774d3cce81cbfe4a88b60b4475ecf",
-        "08e3d9a4ad4c1558a7bf0f213ac730d653a98a876106f56d7a9bf7b595bb3aeb",
-        "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce",
-        "de950a18f89d45c160ffc50e17f4bec0cc2d2541ea0dc776a8d4d5f7a3365c25"
+        "f2a0782310323264fda94ede0b8ad10a73d9556a6d6920ddc410176d9057d735",
+        "7c9ecb2fb9908014d596f6c4700049d5bfc0a5a825f11572156472c4bfe21818",
+        "e28ff7179d0185de46de73bafa6bf0f879215c0b7151b774741c7c4e7af2c515"
       ],
-      "source_sha256": "625d90fc6093f086ee76bae19436af671eeaac38ee1e39db5bed502a3cbe6999",
-      "text": "Atalhos orientados ao teclado para a GUI Qt do spaCR.\n\nRegistra ligações globais :class:`QShortcut` na janela principal para que todo o aplicativo seja utilizável sem um mouse:\n\n    Ctrl+0        Ir para o início (Cmd+H oculta a aplicação no macOS)\n    Ctrl+1..9     Alternar para o enésimo aplicativo na barra lateral\n    Ctrl+K        Abra a paleta de comandos\n    Ctrl+Shift+H  Pesquisar no spaCR pelo campo ao lado do menu Ajuda\n    F1  / ?       Mostrar a folha de referência dos atalhos\n    Ctrl+P        Abrir preferências\n    Ctrl+Alt+0    Restaurar as escalas da interface (GUI), da fonte e das prévias para 100 %\n    Ctrl+/        Abra o Console de IA\n    Ctrl+End      Ir para a linha mais recente do console\n    F11           Alternar o modo de tela cheia\n    Esc           Fechar qualquer caixa de diálogo ou janela pop-up aberta\n\n:func:`install` é chamada uma vez a partir de ``MainWindow.__init__``. Cada atalho é documentado em :data:`SHORTCUTS` para que a caixa de diálogo da folha de referência permaneça sincronizada com o que está realmente configurado.\n\nCada tecla global da janela pode ser reatribuída. A folha de referência inclui um botão \"Change shortcuts…\" que abre uma tabela das ações globais da janela; uma tecla introduzida ali substitui a predefinição, uma tecla já usada por outra ação é indicada como conflito e não pode ser guardada. As alterações são mantidas nas Preferências sob :data:`_KEYMAP_KEY`, na notação portátil do Qt, para que um mapa de teclas guardado numa plataforma seja lido da mesma forma nas outras. Teclas de uma única vista (Annotate, Make Masks, o navegador de campos) têm linhas editáveis próprias e alterações guardadas, aplicadas tanto às vistas existentes como às novas.",
+      "source_sha256": "40ffbcd0cc92ebb7fa5a1e2d037bd42c19a813a0d2ef35fee6256d0dba1d91f4",
+      "text": "Atalhos de toda a janela e específicos de cada ecrã para a GUI Qt do spaCR.\n\nAs ações predefinidas de toda a janela incluem:\n\n    Ctrl+0        Ir para o início (Cmd+H oculta a aplicação no macOS)\n    Ctrl+1..9     Abrir a entrada correspondente do registo de aplicações se estiver visível\n    Ctrl+K        Abra a paleta de comandos\n    Ctrl+Shift+H  Pesquisar no spaCR pelo campo ao lado do menu Ajuda\n    F1            Mostrar a folha de referência dos atalhos\n    ?             Usar a ajuda do ecrã ativo ou mostrar o guia de atalhos Ctrl+P        Abrir Preferências Ctrl+Alt+0    Repor as escalas da GUI, do tipo de letra e das pré-visualizações em 100 % Ctrl+/        Mostrar ou ocultar AI Console do módulo ativo Ctrl+End      Ir para a linha mais recente da consola F11           Alternar o ecrã inteiro\n\n:func:`install` cria as associações devolvidas por :func:`installed`. As outras ações de :data:`SHORTCUTS` são associadas pelos menus da janela principal; o gesto de deslocamento utiliza um filtro de eventos. :func:`mapped` inclui as associações próprias dos ecrãs, com o respetivo âmbito e as substituições guardadas. O tratamento de Escape pertence ao ecrã ativo, à sobreposição ou ao diálogo, e não a uma associação instalada aqui.\n\nAs sequências de teclas declaradas para toda a janela podem ser reatribuídas. O guia de atalhos tem um botão \"Change shortcuts…\" que abre uma tabela de ações de toda a janela; uma tecla introduzida substitui a predefinida. Se outra ação já utilizar essa tecla, o conflito é identificado e a associação não pode ser guardada. As substituições são guardadas nas preferências em :data:`_KEYMAP_KEY`, na notação portável do Qt, para que um mapa de teclas guardado numa plataforma seja lido da mesma forma nas outras. As teclas de um único ecrã (Annotate, Make Masks, o navegador de campos, Gate Editor) têm linhas editáveis e substituições guardadas separadas, aplicadas tanto aos ecrãs existentes como aos novos.",
       "translation_source_blocks_sha256": [
-        "26f0c8f1c1efb05ac6052ac0bf975170fe73a42c4d7076ef4891d95096f3a483",
-        "b0c04dae9e6d28f02e9977c0b48d2ea8ab98f343d97eac4a5c4e7ed195668b3a",
+        "dab3c1ccd2838a2cbfa5efceeea79021dff7d429d5c2580500808c76ebf20dc7",
+        "74592b7583c043f62c368606ffcf692990657ed2b158ef7eeead40c3412c1ffa",
         "283cbcc80a66ed5da5f37cf1a26f3311dd808cf85013792d207fd576a4daf32e",
-        "f0f20c34719e99f139fd7bd7b88f717827aa459cc9d4e41c5365b4725e11d91f",
+        "496082281022ae9e84a078c38a740bfadd6d5fdc5a6c4c56aba2f3c27434812d",
         "2fee1e28c0d6bf3a01eb15316f67865135ef4f0d599155d356570dbe72bda555",
         "15171377ee0df3ed557afa0db3e1f3918cbfd579e4114e018f18e1e75384beff",
         "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
-        "b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014",
-        "a82c2a18ac9474918c388dcd2b01787d5a86d44e92dc00df261aa923a818e246",
-        "28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d",
-        "7554498397eaddc0acb386964c5921adc73719d98010a36f581d2d50a7de464c",
-        "63c7624f5ce53bc4193451cf13af672420ca216ccda339640281608f02cbfb1e",
-        "08e3d9a4ad4c1558a7bf0f213ac730d653a98a876106f56d7a9bf7b595bb3aeb",
-        "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce",
-        "b72f14e1bbd813923b82c023b4322d643e59d64d1c149a09e3010444e0dfcf14"
+        "37615ba542a63d6199c121562b8f2810c5eaa81c09e258eab96c7434a20c71a5",
+        "7c9ecb2fb9908014d596f6c4700049d5bfc0a5a825f11572156472c4bfe21818",
+        "f4f6fe8757a2e494df7f2dcc0eee94d1d95be0ddfbe4fd871253d24262e6aaa1"
       ]
     },
     "spacr.qt.shortcuts.ShortcutOverlay": {
       "source_blocks_sha256": [
-        "81fd136bd723455eff86d836a00cf7b2808e06d78199dacf150ef2c7bbc8d4e2",
-        "6bf037cefe871b2991161f468e6b0f6eab2ac4f2347a081e55b0d4d2a4ea7ea0",
-        "d68d23358afd214ef38c69e6d26eee340bd42b9ae8bf19d87c9b256cad5e0548",
-        "9e45f8e9602b44a9148035eba321685afff9ff5a5cf183bf3bf862278d6a5905",
+        "186b990a918025fb3b1a6ce9da18fc549c321d2b683edd8ca800aa7453c90967",
+        "9abd3d4e79273ac86ae6a5c2c43d6cee14da00add47691fb0543664b41f17a99",
+        "3a5855ef2858991d4cb7dc54c6ea110098522ecef03abd44dafb1e21cfae5c4b",
         "8e50d539303f4f0f42f523bb95a270fecfc94d3d550db7654b1b83e7381a1bf2",
         "545ef3a4856eecb949ed885f08e41a22b2d36977e7158b245bf52be29d455a74"
       ],
-      "source_sha256": "5999ee2b251361f60c88210749055b323fb61969b305b58efa1f551bed99ef80",
-      "text": "A sobreposição ``?`` cada atalho, sobre a janela, descartado por qualquer tecla.\n\nUma caixa de diálogo modal era a forma errada para isso. A pergunta que um usuário faz pressionando ``?`` é \"o que posso pressionar *aqui*\", e a resposta vale cerca de dois segundos; uma caixa de diálogo com uma barra de título e um botão de fechamento faz com que eles se comprometam com um modo, encontrem o botão e o deixem. Uma sobreposição diminui o que está para trás, responde e desaparece na próxima tecla ou clique também - incluindo na própria tecla ``?`` que ela é aberta, então ela é aberta.\n\nColocado em colunas por categoria, em vez de uma longa lista, porque quinze ligações em uma coluna é um pergaminho e em três é um olhar.\n\n:param window: A sobreposição é desenhada sobre ela e não como um diálogo próprio, que é todo o argumento acima - então isso não é um pai no sentido comum, mas a coisa sendo anotada.\nCrie a folha de atalho como um cartão sobre a janela.\n\n:param window: a janela que cobre; o cartão é centrado nele e se desloca quando o mapa não se encaixa.",
+      "source_sha256": "b13e17150283f83554e4e6e76ae3606623d3c78b1f56ff99cb325a4ce7deb26e",
+      "text": "Mostrar o mapa de atalhos declarado e associações subordinadas adicionais sobre uma janela.\n\nO cartão translúcido agrupa as ações por categoria e apresenta as substituições guardadas e os âmbitos dos ecrãs. A sua área de deslocamento permite aceder ao conteúdo que não cabe. Os eventos de pressão de teclas e botões do rato tratados pela sobreposição fecham-na; o botão Alterar atalhos fecha-a e abre o editor do mapa de teclas.\n\n:param window: o widget pai a cobrir e a examinar para encontrar associações. A sobreposição acompanha as alterações de tamanho deste widget e não cria uma janela de nível superior separada.\nCrie a folha de atalho como um cartão sobre a janela.\n\n:param window: a janela que cobre; o cartão é centrado nele e se desloca quando o mapa não se encaixa.",
       "translation_source_blocks_sha256": [
-        "81fd136bd723455eff86d836a00cf7b2808e06d78199dacf150ef2c7bbc8d4e2",
-        "6bf037cefe871b2991161f468e6b0f6eab2ac4f2347a081e55b0d4d2a4ea7ea0",
-        "d68d23358afd214ef38c69e6d26eee340bd42b9ae8bf19d87c9b256cad5e0548",
-        "9e45f8e9602b44a9148035eba321685afff9ff5a5cf183bf3bf862278d6a5905",
+        "186b990a918025fb3b1a6ce9da18fc549c321d2b683edd8ca800aa7453c90967",
+        "9abd3d4e79273ac86ae6a5c2c43d6cee14da00add47691fb0543664b41f17a99",
+        "3a5855ef2858991d4cb7dc54c6ea110098522ecef03abd44dafb1e21cfae5c4b",
         "8e50d539303f4f0f42f523bb95a270fecfc94d3d550db7654b1b83e7381a1bf2",
         "545ef3a4856eecb949ed885f08e41a22b2d36977e7158b245bf52be29d455a74"
       ]
@@ -117050,25 +117038,25 @@
     },
     "spacr.qt.shortcuts.ShortcutOverlay.keyPressEvent": {
       "source_blocks_sha256": [
-        "b6256152c56cfa6cb6dea94d4aafb39855c0bfb2a74d3cc8f3ac2cc387a6e39c",
+        "2b2d59f66f044693960f817e69c2a882f4e1d5c99d6f8cdc52f30273d752c17c",
         "029ff431c7e3d16d7434bc072282808870acd8e573c4002c92555da75a6663ee"
       ],
-      "source_sha256": "8a415d4b935330789b18fe12f771e57957bfde5fd9f32b16cb23646584ab0776",
-      "text": "Qualquer chave fecha-lo - que é toda a interação.\n\n:param event: o evento de tecla; qual tecla foi pressionada não é lido.",
+      "source_sha256": "398946e9166c1eaaffb089effd7de2fc17cb18c983e0cd1895c4f7d8ec38b344",
+      "text": "Fechar a sobreposição quando uma pressão de tecla chega a este processador de eventos.\n\n:param event: o evento de tecla; qual tecla foi pressionada não é lido.",
       "translation_source_blocks_sha256": [
-        "b6256152c56cfa6cb6dea94d4aafb39855c0bfb2a74d3cc8f3ac2cc387a6e39c",
+        "2b2d59f66f044693960f817e69c2a882f4e1d5c99d6f8cdc52f30273d752c17c",
         "029ff431c7e3d16d7434bc072282808870acd8e573c4002c92555da75a6663ee"
       ]
     },
     "spacr.qt.shortcuts.ShortcutOverlay.mousePressEvent": {
       "source_blocks_sha256": [
-        "e9bd0b6c877b87c47355562f39b2b8ba9ace34aec37c495e9bac2ea63caaffd0",
+        "173e9f253713a4ee887f369f8e9fb2de3165b97ab14a51bdcb8f2acc120ec513",
         "61a5b73353a3cad05ca2b93892197a897c6284448a4ad0645c49bc7f43124f65"
       ],
-      "source_sha256": "490a04356cf69a2da53623a5469df6ed4e335131cfa33c8ba89cc03b1547b342",
-      "text": "Um clique em qualquer lugar também fecha.\n\n:param event: o evento de clique do mouse; seu botão e sua posição não são lidos.",
+      "source_sha256": "9ed7fb591b4e5c280a6bced7b652e5184f4541a90b4f12018dd81a6d47e46488",
+      "text": "Fechar a sobreposição quando uma pressão de botão do rato chega a este processador de eventos.\n\n:param event: o evento de clique do mouse; seu botão e sua posição não são lidos.",
       "translation_source_blocks_sha256": [
-        "e9bd0b6c877b87c47355562f39b2b8ba9ace34aec37c495e9bac2ea63caaffd0",
+        "173e9f253713a4ee887f369f8e9fb2de3165b97ab14a51bdcb8f2acc120ec513",
         "61a5b73353a3cad05ca2b93892197a897c6284448a4ad0645c49bc7f43124f65"
       ]
     },
@@ -117116,31 +117104,31 @@
     },
     "spacr.qt.shortcuts.discover": {
       "source_blocks_sha256": [
-        "01a2e4ba9eb179fded984ee665b3e689f299f01f1ad3f9bb7e731497a770afe0",
-        "31db50aa67a10b6a7e5d6196f7a7858cc86d9e5a8e0e864cc3140ed17d1c9136",
-        "55270b2ccc89bd3c5b09e4d7169da58e7c3fbcb522c689e8fa2647bb2c72a2cb",
+        "510918330742b7346b601c30bfff9a065e99b5f4859aa4909a9b514a860bd0be",
+        "a8ce4cafe6ca0c2f85735e4609e3e1f8556f7a82f67f909cdfb8f93aa1901f47",
+        "5e4734862eb1e3640fc8e7c3a9bf0ec5d3d59988c07490634681de93a51fe629",
         "d63e4ccef730bbe90834e4bb8144f7794c8361c03fdf39ee48b8c65e503ec759"
       ],
-      "source_sha256": "eba2c20b29573e1f3968b68f6b505f98e8a76f0e7b10c66759026baeb834c0ef",
-      "text": "Cada atalho LIVE em ``window``, declarado ou não.\n\nA tabela declarada é de onde o mapa é tirado, porque uma ligação por triagem não existe até que a triagem seja construída e o mapa tenha que descrevê-la de qualquer maneira. Esta é a outra metade: um atalho adicionado no tempo de execução - um plugin, uma ação de menu - aparece sem ninguém editando uma lista.\n\nQualquer coisa já em :data:`SHORTCUTS` é deixada à sua declaração, que é onde o rótulo e o escopo vivem.\n\n:param window: o widget cujos objetos filhos :class:`QShortcut` e :class:`QAction` são pesquisados; um widget que não pode ser pesquisado produz uma lista vazia.",
+      "source_sha256": "019f0c097ed8d0a0f82113de702c352ff496614b52bbbe77366c2aa5b8ab2b5e",
+      "text": "Encontrar sequências adicionais de atalhos e ações subordinados para o mapa.\n\nSão excluídas as sequências já descritas por :func:`mapped`, incluindo as substituições guardadas para toda a janela. As outras sequências não vazias são deduplicadas segundo a sua notação nativa. A pesquisa inclui os objetos existentes que as contêm, independentemente de estarem ativados ou atualmente visíveis; não determina que ação receberia um evento de teclado.\n\nO mapa declarado fornece rótulos e âmbitos das associações conhecidas mesmo antes de serem construídos os ecrãs a que pertencem.\n\n:param window: o widget cujos objetos filhos :class:`QShortcut` e :class:`QAction` são pesquisados; um widget que não pode ser pesquisado produz uma lista vazia.",
       "translation_source_blocks_sha256": [
-        "01a2e4ba9eb179fded984ee665b3e689f299f01f1ad3f9bb7e731497a770afe0",
-        "31db50aa67a10b6a7e5d6196f7a7858cc86d9e5a8e0e864cc3140ed17d1c9136",
-        "55270b2ccc89bd3c5b09e4d7169da58e7c3fbcb522c689e8fa2647bb2c72a2cb",
+        "510918330742b7346b601c30bfff9a065e99b5f4859aa4909a9b514a860bd0be",
+        "a8ce4cafe6ca0c2f85735e4609e3e1f8556f7a82f67f909cdfb8f93aa1901f47",
+        "5e4734862eb1e3640fc8e7c3a9bf0ec5d3d59988c07490634681de93a51fe629",
         "d63e4ccef730bbe90834e4bb8144f7794c8361c03fdf39ee48b8c65e503ec759"
       ]
     },
     "spacr.qt.shortcuts.install": {
       "source_blocks_sha256": [
-        "45e7b4b654ca3fd84ad04bc622cc6bdb4f934b253eccc6059f392ec9597d6089",
-        "94994e4024a2237591817fc37be0e9fe3460bfd1b0c8f9ae8fc9c854ff815e0e",
+        "6706ba544f6499a712531b101f6ef6451d48fabe2bf7cf327248d878bc005799",
+        "ebf9a5b54b8786da2529631c6a2bcef7aa60741987a6f6560e7e6b208c59d1fb",
         "b08af858cd0d8c067c44c081c63981367bc8f3fa8a6a7bebb3a54e6ecffba6ff"
       ],
-      "source_sha256": "b09fbe714a6e140410814ade3f871c789ff3075382e37a6bbded9195afc5e9e8",
-      "text": "Atribua cada atalho em :data:`SHORTCUTS` em ``window``.\n\nidempotente seguro para chamar de dentro de caminhos de recarga.\n\n:param window: a janela principal à qual os atalhos da aplicação são vinculados.",
+      "source_sha256": "cdb3b07462047e70feb574de143a810c46dc3f388d873a5c7bfecd4671005f94",
+      "text": "Associar os atalhos devolvidos por :func:`installed` a ``window``.\n\nSão reutilizados os objetos existentes que contêm atalhos. As teclas dos menus e o gesto de deslocamento são instalados noutro local; esta função também instala os pontos de ligação opcionais da janela e aplica as substituições guardadas do mapa de teclas.\n\n:param window: a janela principal à qual os atalhos da aplicação são vinculados.",
       "translation_source_blocks_sha256": [
-        "45e7b4b654ca3fd84ad04bc622cc6bdb4f934b253eccc6059f392ec9597d6089",
-        "94994e4024a2237591817fc37be0e9fe3460bfd1b0c8f9ae8fc9c854ff815e0e",
+        "6706ba544f6499a712531b101f6ef6451d48fabe2bf7cf327248d878bc005799",
+        "ebf9a5b54b8786da2529631c6a2bcef7aa60741987a6f6560e7e6b208c59d1fb",
         "b08af858cd0d8c067c44c081c63981367bc8f3fa8a6a7bebb3a54e6ecffba6ff"
       ]
     },
@@ -117184,16 +117172,18 @@
     },
     "spacr.qt.shortcuts.show_cheat_sheet": {
       "source_blocks_sha256": [
-        "2810962954712108ea36b2d3727f5a3025e7d87c9fccda12a3445dc5ff0d612e",
-        "278ba1d823e182486a8d9f53d9423fca337e013794b232fde3ccfbe690cdfb5b",
-        "fe86d015cf241f2c686a498bdc40e932bd0379be1340cabd5f1ff3fcbc465746"
+        "f7baa4bb84230f74777014892a2869b9e5cfca37f40292483e3b57abadc824c3",
+        "c0a54d6ea771ff1e9483058ecb3c2b147eeb06aebd306017db6902002f3069b8",
+        "7b5a6efddc8c0dd46f206c4bdba2f5df116a513c1055d50c3877807a7ff751bc",
+        "7ca3f41e238f8bf92047bfb151d45c774b0b582e92ce5224bdccd3e46d2f5f4f"
       ],
-      "source_sha256": "1f88687fba7e581dac3222bb3b4a8c675c45d0aadf21da91b6677a049f5ce734",
-      "text": "Mostrar todos os atalhos registados, agrupados por categoria.\n\nUma sobreposição quando ``parent`` é uma janela real, então ``?`` responde e sai do caminho. Uma caixa de diálogo modal permanece como o retorno para um chamador sem pai ou de tamanho zero, onde uma sobreposição não teria nada a cobrir.\n\n:param parent: a janela a cobrir. Um :class:`QWidget` de tamanho diferente de zero recebe a sobreposição, substituindo qualquer sobreposição que já tenha; qualquer outra coisa recebe um diálogo modal cujo pai é ele.",
+      "source_sha256": "a1a5b879411753c5b7350f8d401a083248a13b1f6ba970bf91bd77471700a898",
+      "text": "Mostrar a ajuda dos atalhos como uma sobreposição ou um diálogo alternativo.\n\nUm widget com tamanho diferente de zero recebe :class:`ShortcutOverlay`, que inclui os âmbitos de ecrã declarados, as associações guardadas e sequências subordinadas adicionais. Um chamador sem pai ou com tamanho zero recebe, em alternativa, um diálogo modal com a tabela predefinida de toda a janela :data:`SHORTCUTS`.\n\n:param parent: a janela a cobrir. Um :class:`QWidget` com tamanho diferente de zero recebe a sobreposição, substituindo qualquer sobreposição existente. Caso contrário, ``None`` ou um widget com tamanho zero é utilizado como pai do diálogo alternativo.\n:returns: a sobreposição quando é apresentada, ou ``None`` depois de o diálogo alternativo fechar.",
       "translation_source_blocks_sha256": [
-        "2810962954712108ea36b2d3727f5a3025e7d87c9fccda12a3445dc5ff0d612e",
-        "278ba1d823e182486a8d9f53d9423fca337e013794b232fde3ccfbe690cdfb5b",
-        "fe86d015cf241f2c686a498bdc40e932bd0379be1340cabd5f1ff3fcbc465746"
+        "f7baa4bb84230f74777014892a2869b9e5cfca37f40292483e3b57abadc824c3",
+        "063c39805dc5006a546a8a477723de08f0a7bada64e9ca3e59084542669a9db2",
+        "7b5a6efddc8c0dd46f206c4bdba2f5df116a513c1055d50c3877807a7ff751bc",
+        "7ca3f41e238f8bf92047bfb151d45c774b0b582e92ce5224bdccd3e46d2f5f4f"
       ]
     },
     "spacr.qt.shutdown": {
@@ -164364,18 +164354,18 @@
     },
     "spacr.qt.widgets.picture_export": {
       "source_blocks_sha256": [
-        "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3",
-        "e790835e1bc841edb8e98bae98ca2f407262ea6ec94c1080f578de17f115249b",
-        "e5dfebda32e1c3002c3fc6ea020427889f6c999e6e426903b6efc849052ca2f8",
-        "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e"
+        "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+        "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+        "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+        "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438"
       ],
-      "source_sha256": "e3cf46c60a811ef1693d93a5d2811ce3a4e57d35a14002f4d5ac22396eb68af2",
-      "text": "Clique com o botão direito em uma imagem e salve-a como PNG ou como PDF.\n\nUma imagem na tela costuma ser o que alguém quer em um slide uma hora depois, e o caminho até ela era uma captura de tela de uma janela, na resolução da janela, com a moldura ao redor. Isto salva A IMAGEM, na resolução em que foi renderizada e não no tamanho em que por acaso está sendo exibida, em um arquivo escolhido pelo usuário.\n\nDOIS FORMATOS, E O PDF NÃO É UM PNG COM OUTRA EXTENSÃO. Um raster colocado dentro de um PDF satisfaz o nome do arquivo e nada mais; um painel de figura é uma página, e uma página tem um tamanho em milímetros. :func:`save_picture` dá ao PDF uma página com o próprio formato da imagem e informa ao gravador a resolução que as Preferences guardam, para que a imagem fique no tamanho em que foi medida e seja impressa nessa resolução.\n\nA resolução e o formato padrão são os que as preferências de Figures já controlam -- :func:`spacr.qt.preferences.get_figure_png_dpi` e :func:`spacr.qt.preferences.get_figure_format` --, para que um usuário que já disse \"300 DPI, PDF\" não seja perguntado uma segunda vez com outras palavras.",
+      "source_sha256": "98d11f91777723d4f06f53afec8a33736804e167b61ec424928ab4cd1ce5417b",
+      "text": "Salva uma imagem renderizada como PNG ou PDF de uma página.\n\nAs exportações usam o ``QImage`` ou ``QPixmap`` fornecido em vez de capturar o widget ao redor. PNG preserva as dimensões da imagem em pixels e registra a resolução selecionada como metadados em pontos por metro. PDF incorpora a imagem rasterizada em uma página; não converte pixels em arte vetorial.\n\nAs dimensões da página PDF são calculadas a partir das dimensões da imagem em pixels e dos DPI de exportação, com um mínimo de um milímetro para cada dimensão. A imagem preenche a página sem margens. Isso define o tamanho impresso sem usar a calibração de pixels do microscópio.\n\nA resolução padrão e o sufixo do nome do arquivo vêm de :func:`spacr.qt.preferences.get_figure_png_dpi` e :func:`spacr.qt.preferences.get_figure_format`. A escolha explícita de PNG ou PDF no menu de contexto determina o formato final da exportação.",
       "translation_source_blocks_sha256": [
-        "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3",
-        "3db381ce4a8a7c15ebd16c5bf3922b9c09db62c2bb64dff1cb3bd2e06432658f",
-        "d12853cb87032fe7b07e066fc051b99edb9b94eb73bb04bdc33c8fb8f285b98e",
-        "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e"
+        "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+        "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+        "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+        "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438"
       ]
     },
     "spacr.qt.widgets.picture_export.as_image": {
@@ -164394,16 +164384,16 @@
     },
     "spacr.qt.widgets.picture_export.ask_where_to_save": {
       "source_blocks_sha256": [
-        "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1",
-        "9ca817d52ad3995cbdefaa1ec7984dcb11e056f5b330fad1005e8bc12459e28e",
+        "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+        "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
         "e175adca6ea08d81b58e711b99e753b361c04d1455b2a7349e342e757ed2ba3d",
         "0b061d8659b19ef97e93a58012aceb5a4dafc2b4534ffdb7ac0a5df49c840dbe"
       ],
-      "source_sha256": "7af4cf1145ea9001e03ad52f3acdc74f66b8735a954f65f7259e7ac2317c4781",
-      "text": "Pede um caminho. ``\"\"`` quando o usuário desistiu.\n\nO SUFIXO É RECOLOCADO SE O USUÁRIO O OMITIR. Um nome digitado sem sufixo seria, de outra forma, gravado como PNG qualquer que fosse o filtro selecionado, e é assim que \"save as PDF\" produz silenciosamente um raster.\n\n:param parent: o widget que é pai do diálogo de salvamento.\n:param stem: o nome de arquivo oferecido, sem sufixo; limpo por :func:`suggested_name`.",
+      "source_sha256": "2880b071c16629d1e930dd95d63f52a61bc1b2908a78b0919db9111cd79aa21d",
+      "text": "Solicita um caminho de saída; retorna ``\"\"`` quando a caixa de diálogo é cancelada.\n\nSe o nome escolhido não tiver sufixo, acrescenta ``.pdf`` ou ``.png`` conforme o filtro de arquivos selecionado. Um sufixo existente é mantido aqui; depois, :func:`save_as` impõe o formato escolhido no menu.\n\n:param parent: o widget que é pai do diálogo de salvamento.\n:param stem: o nome de arquivo oferecido, sem sufixo; limpo por :func:`suggested_name`.",
       "translation_source_blocks_sha256": [
-        "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1",
-        "5f75687b1c595829984e6b1eb3370ba40abfaf138856835b623c0239dc714211",
+        "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+        "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
         "e175adca6ea08d81b58e711b99e753b361c04d1455b2a7349e342e757ed2ba3d",
         "0b061d8659b19ef97e93a58012aceb5a4dafc2b4534ffdb7ac0a5df49c840dbe"
       ]
@@ -164446,18 +164436,18 @@
       "source_blocks_sha256": [
         "8b5861219280651cceec81a976745180d537938171b370bc5a6d28a0391f2ed7",
         "f31cbdfee2ec61110b20536bb1bd9e3f33c53c02c78b4b6025786d2ca047d33b",
-        "ee0b4d017bf8c28eb913a0813489f3640edd2d635ac11aad2cc1e2999f3b55db",
-        "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec",
+        "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+        "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
         "ba2b8e6f8d41436b57d345131c416e8dc38d90383f75c6c5c5f333a0f256ed11",
         "90be78060899965463fd2f87be06b3657c739b9f648678078efa8c1e6afb359a"
       ],
-      "source_sha256": "d18f03786ef1513c840affd97c5b7d39e6fe7b9bd2cdbe2f1fec21da3afcb5ef",
-      "text": "Dá a ``view`` um menu de clique direito que salva o que ela está mostrando.\n\n:param view: o widget em que o usuário clica com o botão direito.\n:param picture: chamado quando o menu é usado; retorna o ``QPixmap`` ou ``QImage`` a gravar. Chamado NO MOMENTO DE SALVAR, e não agora, para que o menu sempre grave a imagem que está na tela naquele momento.\n:param stem: o nome de arquivo oferecido, sem sufixo. Um chamável é consultado no momento de salvar, para que uma visualização cujo conteúdo muda -- Overlay em um momento, Flows no seguinte -- ofereça o nome do que está nela agora.\n:param unless: consultado primeiro; ``True`` significa que o botão direito pertence a outra coisa neste momento e nenhum menu é exibido. A régua da pré-visualização ao vivo é apagada com um clique direito enquanto está ativa, e um menu aparecendo por cima disso tiraria uma ferramenta para acrescentar um diálogo de arquivo que ninguém pediu.\n:returns: se o menu foi instalado.",
+      "source_sha256": "75d1d33693e0b475928bfec28e99c4c4c76cb80e7369ee6aaef9f9c2fb49dad1",
+      "text": "Dá a ``view`` um menu de clique direito que salva o que ela está mostrando.\n\n:param view: o widget em que o usuário clica com o botão direito.\n:param picture: é chamado antes de abrir o menu de contexto; retorna o ``QPixmap`` ou ``QImage`` a gravar. A imagem retornada é usada após as caixas de diálogo de formato e caminho; a função de retorno não é chamada novamente imediatamente antes da gravação.\n:param stem: o nome de arquivo sugerido, sem sufixo. Um objeto chamável é chamado após a seleção do formato e antes da abertura da caixa de diálogo do caminho.\n:param unless: consultado primeiro; ``True`` significa que o botão direito pertence a outra coisa neste momento e nenhum menu é exibido. A régua da pré-visualização ao vivo é apagada com um clique direito enquanto está ativa, e um menu aparecendo por cima disso tiraria uma ferramenta para acrescentar um diálogo de arquivo que ninguém pediu.\n:returns: se o menu foi instalado.",
       "translation_source_blocks_sha256": [
         "8b5861219280651cceec81a976745180d537938171b370bc5a6d28a0391f2ed7",
         "f31cbdfee2ec61110b20536bb1bd9e3f33c53c02c78b4b6025786d2ca047d33b",
-        "87292e9d3e4a6e54d1962c15b0b5a95f62a8b50c2d42cb52024f172a6e75d1ad",
-        "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec",
+        "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+        "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
         "ba2b8e6f8d41436b57d345131c416e8dc38d90383f75c6c5c5f333a0f256ed11",
         "90be78060899965463fd2f87be06b3657c739b9f648678078efa8c1e6afb359a"
       ]

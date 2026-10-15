@@ -4098,7 +4098,10 @@
       "source_sha256": "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3",
       "context": "Right-click a picture and save it, as a PNG or as a PDF.",
       "translation": "Clique com o botão direito em uma imagem e salve-a como PNG ou como PDF.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export#1",
@@ -4117,7 +4120,10 @@
       "context": "A picture on application view is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves the picture, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
       "translation": "Uma imagem na tela costuma ser o que alguém quer em um slide uma hora depois, e o caminho até ela era uma captura de tela de uma janela, na resolução da janela, com a moldura ao redor. Isto salva A IMAGEM, na resolução em que foi renderizada e não no tamanho em que por acaso está sendo exibida, em um arquivo escolhido pelo usuário.",
       "review_basis": "written from the English (no current MT draft)",
-      "rebound_from": "spacr.qt.widgets.picture_export#2"
+      "rebound_from": "spacr.qt.widgets.picture_export#2",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export#2",
@@ -4126,7 +4132,10 @@
       "context": "Two formats, and the PDF is not a PNG with a different extension. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
       "translation": "DOIS FORMATOS, E O PDF NÃO É UM PNG COM OUTRA EXTENSÃO. Um raster colocado dentro de um PDF satisfaz o nome do arquivo e nada mais; um painel de figura é uma página, e uma página tem um tamanho em milímetros. :func:`save_picture` dá ao PDF uma página com o próprio formato da imagem e informa ao gravador a resolução que as Preferences guardam, para que a imagem fique no tamanho em que foi medida e seja impressa nessa resolução.",
       "review_basis": "written from the English (no current MT draft)",
-      "rebound_from": "spacr.qt.widgets.picture_export#3"
+      "rebound_from": "spacr.qt.widgets.picture_export#3",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export#3",
@@ -4135,7 +4144,10 @@
       "context": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
       "translation": "A resolução e o formato padrão são os que as preferências de Figures já controlam -- :func:`spacr.qt.preferences.get_figure_png_dpi` e :func:`spacr.qt.preferences.get_figure_format` --, para que um usuário que já disse \"300 DPI, PDF\" não seja perguntado uma segunda vez com outras palavras.",
       "review_basis": "written from the English (no current MT draft)",
-      "rebound_from": "spacr.qt.widgets.picture_export#4"
+      "rebound_from": "spacr.qt.widgets.picture_export#4",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export.as_image#0",
@@ -4167,7 +4179,10 @@
       "source_sha256": "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1",
       "context": "Ask for a path. ``\"\"`` when the user walked away.",
       "translation": "Pede um caminho. ``\"\"`` quando o usuário desistiu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
@@ -4175,7 +4190,10 @@
       "source_sha256": "9ca817d52ad3995cbdefaa1ec7984dcb11e056f5b330fad1005e8bc12459e28e",
       "context": "The suffix is put back if the user drops it. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
       "translation": "O SUFIXO É RECOLOCADO SE O USUÁRIO O OMITIR. Um nome digitado sem sufixo seria, de outra forma, gravado como PNG qualquer que fosse o filtro selecionado, e é assim que \"save as PDF\" produz silenciosamente um raster.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export.ask_where_to_save#2",
@@ -4287,7 +4305,10 @@
       "source_sha256": "ee0b4d017bf8c28eb913a0813489f3640edd2d635ac11aad2cc1e2999f3b55db",
       "context": "called when the menu is used; returns the ``QPixmap`` or ``QImage`` to write. Called at save time rather than now, so the menu always writes the picture currently on application view.",
       "translation": "chamado quando o menu é usado; retorna o ``QPixmap`` ou ``QImage`` a gravar. Chamado NO MOMENTO DE SALVAR, e não agora, para que o menu sempre grave a imagem que está na tela naquele momento.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
@@ -4295,7 +4316,10 @@
       "source_sha256": "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec",
       "context": "the file name offered, without a suffix. A callable is asked at save time, so a view whose contents change -- Overlay one moment, Flows the next -- offers the name of what is on it now.",
       "translation": "o nome de arquivo oferecido, sem sufixo. Um chamável é consultado no momento de salvar, para que uma visualização cujo conteúdo muda -- Overlay em um momento, Flows no seguinte -- ofereça o nome do que está nela agora.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export.install_picture_save#4",

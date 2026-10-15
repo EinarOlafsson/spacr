@@ -3897,11 +3897,39 @@ def _prepare_windows_uninstall(root, workdir, *, machine=None, base_prefix=None)
     return {"schema": 1, "workdir": workdir, "root": root, "command": command}
 
 
+
+def _installer_metadata_folder(folder, code, *, windows=None):
+    """Resolve native Windows aliases while refusing symbolic or reparse folder components."""
+    root = os.path.abspath(folder)
+    canonical = os.path.realpath(root)
+    if windows is None:
+        windows = os.name == "nt"
+    if not windows:
+        if root != canonical:
+            raise ValueError({"code": code, "path": root})
+        return root
+    cursor = root
+    while True:
+        try:
+            details = os.lstat(cursor)
+        except FileNotFoundError:
+            pass
+        else:
+            if (stat.S_ISLNK(details.st_mode)
+                    or getattr(details, "st_file_attributes", 0)
+                    & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+                    or not os.path.samefile(cursor, os.path.realpath(cursor))):
+                raise ValueError({"code": code, "path": root})
+        parent = os.path.dirname(cursor)
+        if parent == cursor:
+            break
+        cursor = parent
+    return canonical
+
+
 def _installer_metadata_snapshot(folder, paths):
     """Copy explicit installer sidecars without following links or changing their sources."""
-    root = os.path.abspath(folder)
-    if root != os.path.realpath(root):
-        raise ValueError({"code": "linked_metadata_folder", "path": root})
+    root = _installer_metadata_folder(folder, "linked_metadata_folder")
     selected = sorted(set(os.path.join(os.path.realpath(os.path.dirname(os.path.abspath(path))),
                                        os.path.basename(path)) for path in paths))
     if not 0 < len(selected) <= 32 or any(_inside(path, root) for path in selected):
@@ -3936,9 +3964,9 @@ def _installer_metadata_snapshot(folder, paths):
 
 def _installer_metadata_restore(folder):
     """Validate retained sidecars before atomically restoring their original files or absence."""
-    root = os.path.abspath(folder)
+    root = _installer_metadata_folder(folder, "untrusted_metadata_folder")
     details = os.lstat(root)
-    if (root != os.path.realpath(root) or not stat.S_ISDIR(details.st_mode)
+    if (not stat.S_ISDIR(details.st_mode)
             or (os.name != "nt" and (details.st_uid != os.geteuid()
                                      or stat.S_IMODE(details.st_mode) & 0o077))):
         raise ValueError({"code": "untrusted_metadata_folder", "path": root})

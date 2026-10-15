@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-15",
+  "item": "N703",
+  "runtime_source": "spacr/restart_state.py::save",
+  "runtime_sha256": "13a95703112bb1c10d15ecf9aa6b8d6d158329e9c765d422bccd94b78b0a5aed",
+  "baseline": {
+    "failed": 5,
+    "passed": 1,
+    "seconds": 1.12
+  },
+  "owning": {
+    "passed": 79,
+    "seconds": 18.85,
+    "exit": 0
+  },
+  "scope": "Complete persisted restart text verified before returning success; old module-name validation and None refusal preserved.",
+  "coverage": "Native temporary-file replacements alter settings, running, folders, saved stamp or schema while retaining module. Actual MainWindow methods keep update window open and withhold pip shutdown approval for altered settings; successful JSON conversions unchanged.",
+  "peer": "Installer agent independently accepted exact source diff; runtime proof from owning cohort.",
+  "limits": [
+    "No real package upgrade, live shutdown or process relaunch",
+    "No native other-OS replay, host power-loss or concurrent-writer guarantee",
+    "No full CI/release acceptance"
+  ]
+}

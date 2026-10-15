@@ -4229,7 +4229,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the window to cover. A :class:`QWidget` with a non-zero size gets the overlay, replacing any overlay it already has; anything else gets a modal dialog parented to it.",
       "source_sha256": "fe86d015cf241f2c686a498bdc40e932bd0379be1340cabd5f1ff3fcbc465746",
-      "translation": "要覆盖的窗口。尺寸非零的 :class:`QWidget` 会获得覆盖层，并替换其已有的任何覆盖层；其他任何对象都会得到一个以它为父对象的模态对话框。"
+      "translation": "要覆盖的窗口。尺寸非零的 :class:`QWidget` 会获得覆盖层，并替换其已有的任何覆盖层；其他任何对象都会得到一个以它为父对象的模态对话框。",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Shortcut source documentation corrected/reordered in8a20fded961. Replacement exact-source reviews are in2026-10-15-shortcuts-factual-prose-home-b.json; original source and translation retained as historical evidence."
     },
     {
       "context": ":data:`GRACEFUL`, :data:`FORCE`, :data:`RESTART` or :data:`CANCEL`.",

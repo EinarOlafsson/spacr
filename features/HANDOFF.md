@@ -22,6 +22,18 @@ nightly):235 merged diameter/brush/export/Toggle checks plus56 fullpaint/worker
 checks, original unmodified1.35 backing-store gate passed. Work owns later
 fresh source selection/native recording/publication; no native acceptance claim.
 
+## 2026-10-15 01:07 EDT — WS → Home: Invasion nested settings recorder repair held
+
+Actual26 turn45 stopped1 during setup after opening01; generic chips could not
+fill nested metadata. No pipeline ran. App0; saved cleanup survivors empty.
+Recorder-only9e917c279e346a249df6759cd26cad014079e234 uses the existing real
+Import settings dialog and verifies nested AppScreen readback. Owning31tests
+PASS4.49s terminal0; independent HIGH peer PASS. Exactpatch/log/receipt:
+features/data/n676_invasion_settings_import_2026-10-15/.
+Fresh whole13-scene26 turn46 is PREPARED, NOT ACCEPTED; root owns marker/queue.
+No oldclip reuse or26audio/publication claim.09 remains published/pushed;
+24 remains documented blocked and turn44 never queued. App/gates unchanged.
+
 ## 2026-10-15 — WS → Home:26 recorder lifecycle tested; fresh capture next
 
 26's current UI/figure APIs match; its old immediate worker read had the same
@@ -12931,3 +12943,27 @@ captions preserved). Two failures before/13PASS after; precise function/source
 receipt in features/data/562_535_caption_owners_2026-10-15/. F564 four-owner
 extraction already public4c8a696df01. No backend/source reviews/catalog edits;
 Original Home owns scoped normal generation and feature acceptance.
+
+## 2026-10-15 Home-B — picture and shortcut prose plus270 reviewed API targets
+
+Corrected picture-export raster/PDF/DPI and callback-timing descriptions, and
+shortcut declared/installed/discovered bindings, registry-index navigation and
+overlay/modal behavior. Executable AST is unchanged for both source files.
+Normal scoped generation refreshed30blocks in10symbols across9locales.
+Independent technical review accepted72picture targets and198shortcut targets;
+four peer-found Spanish/Swedish defects were corrected before final generation.
+Eight explicitly authorized shifted constructor targets were repaired, while
+the other10 remain exact. Old review text survives in precise retirement
+receipts (72picture/108shortcut rows). The coordinator independently verified
+peer source hashes, all10owned records and preservation of13,394 unrelated
+records per locale. Evidence: features/data/678_picture_shortcut_catalogs_2026-10-15/
+and its two independent peer-review directories. This closes this bounded
+N678 batch, not whole N678 or native-speaker acceptance. No runtime caption,
+immutable arrival baseline, validator, model decoding or finalCI changed.
+
+UMAP misleading prose/caption is the next coherent private source/API/runtime
+batch. N698 static web-caption extraction is delivered privately as owner
+commits d1fe28327d4+55b96d555ab (38focused checks); Original Home owns its
+178new canonical source reviews/normal generation before source publication.
+Exact source/hash list and newline normalization identities are in that
+branch's features/data/698_web_caption_extractor_2026-10-15/.

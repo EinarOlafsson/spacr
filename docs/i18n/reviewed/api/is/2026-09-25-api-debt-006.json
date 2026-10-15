@@ -1024,7 +1024,10 @@
       "source_sha256": "fe86d015cf241f2c686a498bdc40e932bd0379be1340cabd5f1ff3fcbc465746",
       "context": "the window to cover. A :class:`QWidget` with a non-zero size gets the overlay, replacing any overlay it already has; anything else gets a modal dialog parented to it.",
       "translation": "glugginn sem á að hylja. :class:`QWidget` með stærð sem er ekki núll fær yfirlagið, í stað hvers yfirlags sem hún hefur þegar; allt annað fær háttbundinn glugga með sig sem foreldri.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Shortcut source documentation corrected/reordered in8a20fded961. Replacement exact-source reviews are in2026-10-15-shortcuts-factual-prose-home-b.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.shutdown.ask_how_to_quit#7",

@@ -116968,58 +116968,46 @@
     },
     "spacr.qt.shortcuts": {
       "source_blocks_sha256": [
-        "26f0c8f1c1efb05ac6052ac0bf975170fe73a42c4d7076ef4891d95096f3a483",
-        "b0c04dae9e6d28f02e9977c0b48d2ea8ab98f343d97eac4a5c4e7ed195668b3a",
+        "65f4368521a698c22915ab79ef37486844105d0ce8ebbaf2ba9be48934893aa9",
+        "74592b7583c043f62c368606ffcf692990657ed2b158ef7eeead40c3412c1ffa",
         "283cbcc80a66ed5da5f37cf1a26f3311dd808cf85013792d207fd576a4daf32e",
-        "f0f20c34719e99f139fd7bd7b88f717827aa459cc9d4e41c5365b4725e11d91f",
+        "496082281022ae9e84a078c38a740bfadd6d5fdc5a6c4c56aba2f3c27434812d",
         "2fee1e28c0d6bf3a01eb15316f67865135ef4f0d599155d356570dbe72bda555",
         "15171377ee0df3ed557afa0db3e1f3918cbfd579e4114e018f18e1e75384beff",
         "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
-        "b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014",
-        "a82c2a18ac9474918c388dcd2b01787d5a86d44e92dc00df261aa923a818e246",
-        "28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d",
-        "7554498397eaddc0acb386964c5921adc73719d98010a36f581d2d50a7de464c",
-        "57789cb3e56114c2ac0b6da7897da3ab981774d3cce81cbfe4a88b60b4475ecf",
-        "08e3d9a4ad4c1558a7bf0f213ac730d653a98a876106f56d7a9bf7b595bb3aeb",
-        "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce",
-        "de950a18f89d45c160ffc50e17f4bec0cc2d2541ea0dc776a8d4d5f7a3365c25"
+        "f2a0782310323264fda94ede0b8ad10a73d9556a6d6920ddc410176d9057d735",
+        "7c9ecb2fb9908014d596f6c4700049d5bfc0a5a825f11572156472c4bfe21818",
+        "e28ff7179d0185de46de73bafa6bf0f879215c0b7151b774741c7c4e7af2c515"
       ],
-      "source_sha256": "625d90fc6093f086ee76bae19436af671eeaac38ee1e39db5bed502a3cbe6999",
-      "text": "spaCR Qt GUI 를 위한 키보드 우선 단축키입니다.\n\n메인 창에서 전역 :class:`QShortcut` 바인딩을 등록하여 전체 앱을 마우스 없이 사용할 수 있습니다:\n\n    Ctrl+0        홈으로 이동(macOS에서 Cmd+H는 앱 숨기기)\n    Ctrl+1..9     사이드바에서 N번째 앱으로 전환\n    Ctrl+K        명령 팔레트 열기\n    Ctrl+Shift+H  도움말 메뉴 옆의 입력란에서 spaCR 검색\n    F1  / ?       단축키 치트 시트 표시\n    Ctrl+P        환경설정 열기\n    Ctrl+Alt+0    인터페이스(GUI), 글꼴 및 미리보기 배율을 100 %로 되돌리기\n    Ctrl+/        AI 콘솔 열기\n    Ctrl+End      콘솔의 최신 줄로 이동\n    F11           전체 화면 모드 전환\n    Esc           열린 대화 상자 또는 팝업 닫기\n\n:func:`install`는 ``MainWindow.__init__``에서 한 번 호출됩니다. 모든 바인딩은 :data:`SHORTCUTS`에 문서화되어 있어 치트 시트 대화 상자가 실제로 연결된 내용과 동기화됩니다.\n\n창 전체 단축키는 모두 다시 지정할 수 있습니다. 요약표의 \"Change shortcuts…\" 버튼은 창 전체 작업의 테이블을 엽니다. 여기에 입력한 키가 기본 키를 대체하며 다른 작업이 이미 사용하는 키는 충돌로 표시되어 저장할 수 없습니다. 변경 사항은 Qt의 이식 가능한 표기로 환경설정의 :data:`_KEYMAP_KEY` 아래에 저장하므로 한 플랫폼에서 저장한 키 맵을 다른 플랫폼에서도 동일하게 읽습니다. 한 화면(Annotate, Make Masks, 시야 브라우저)에만 속한 키는 편집 가능한 별도의 행과 저장된 변경 사항을 가지며, 기존 화면과 새 화면 모두에 적용됩니다.",
+      "source_sha256": "40ffbcd0cc92ebb7fa5a1e2d037bd42c19a813a0d2ef35fee6256d0dba1d91f4",
+      "text": "spaCR Qt GUI의 창 전체 및 화면별 단축키.\n\n기본 창 전체 동작은 다음을 포함합니다:\n\n    Ctrl+0        홈으로 이동(macOS에서 Cmd+H는 앱 숨기기)\n    Ctrl+1..9     표시 가능한 경우 해당 앱 레지스트리 항목 열기\n    Ctrl+K        명령 팔레트 열기\n    Ctrl+Shift+H  도움말 메뉴 옆의 입력란에서 spaCR 검색\n    F1            단축키 치트 시트 표시\n    ?             활성 화면의 도움말 동작을 사용하거나 단축키 안내 표시 Ctrl+P        환경설정 열기 Ctrl+Alt+0    GUI 배율, 글꼴 배율 및 미리보기 배율을 100 %로 되돌리기 Ctrl+/        활성 모듈의 AI Console 표시 전환 Ctrl+End      콘솔의 최신 줄로 이동 F11           전체 화면 전환\n\n:func:`install`은 :func:`installed`가 반환한 키 바인딩을 만듭니다. :data:`SHORTCUTS`의 다른 동작은 주 창의 메뉴에서 바인딩하며, 스크롤 제스처는 이벤트 필터를 사용합니다. :func:`mapped`는 화면 자체의 바인딩을 적용 범위 및 저장된 재정의와 함께 포함합니다. Escape 처리는 여기서 설치한 바인딩이 아니라 활성 화면, 오버레이 또는 대화상자가 담당합니다.\n\n선언된 창 전체 키 시퀀스는 다시 지정할 수 있습니다. 단축키 안내의 \"Change shortcuts…\" 버튼은 창 전체 동작 표를 엽니다. 여기에 입력한 키는 기본 키를 대체하며, 다른 동작이 이미 사용하는 키는 충돌로 표시되어 저장할 수 없습니다. 재정의는 Qt의 이식 가능한 표기법으로 환경설정 저장소의 :data:`_KEYMAP_KEY` 아래에 저장되므로, 한 플랫폼에서 저장한 키맵을 다른 플랫폼에서도 동일하게 읽을 수 있습니다. 단일 화면(Annotate, Make Masks, 필드 브라우저, Gate Editor)에 속하는 키에는 별도의 편집 가능한 행과 저장된 재정의가 있으며, 기존 화면과 새 화면 모두에 적용됩니다.",
       "translation_source_blocks_sha256": [
-        "26f0c8f1c1efb05ac6052ac0bf975170fe73a42c4d7076ef4891d95096f3a483",
-        "b0c04dae9e6d28f02e9977c0b48d2ea8ab98f343d97eac4a5c4e7ed195668b3a",
+        "dab3c1ccd2838a2cbfa5efceeea79021dff7d429d5c2580500808c76ebf20dc7",
+        "74592b7583c043f62c368606ffcf692990657ed2b158ef7eeead40c3412c1ffa",
         "283cbcc80a66ed5da5f37cf1a26f3311dd808cf85013792d207fd576a4daf32e",
-        "f0f20c34719e99f139fd7bd7b88f717827aa459cc9d4e41c5365b4725e11d91f",
+        "496082281022ae9e84a078c38a740bfadd6d5fdc5a6c4c56aba2f3c27434812d",
         "2fee1e28c0d6bf3a01eb15316f67865135ef4f0d599155d356570dbe72bda555",
         "15171377ee0df3ed557afa0db3e1f3918cbfd579e4114e018f18e1e75384beff",
         "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
-        "b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014",
-        "a82c2a18ac9474918c388dcd2b01787d5a86d44e92dc00df261aa923a818e246",
-        "28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d",
-        "7554498397eaddc0acb386964c5921adc73719d98010a36f581d2d50a7de464c",
-        "63c7624f5ce53bc4193451cf13af672420ca216ccda339640281608f02cbfb1e",
-        "08e3d9a4ad4c1558a7bf0f213ac730d653a98a876106f56d7a9bf7b595bb3aeb",
-        "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce",
-        "b72f14e1bbd813923b82c023b4322d643e59d64d1c149a09e3010444e0dfcf14"
+        "37615ba542a63d6199c121562b8f2810c5eaa81c09e258eab96c7434a20c71a5",
+        "7c9ecb2fb9908014d596f6c4700049d5bfc0a5a825f11572156472c4bfe21818",
+        "f4f6fe8757a2e494df7f2dcc0eee94d1d95be0ddfbe4fd871253d24262e6aaa1"
       ]
     },
     "spacr.qt.shortcuts.ShortcutOverlay": {
       "source_blocks_sha256": [
-        "81fd136bd723455eff86d836a00cf7b2808e06d78199dacf150ef2c7bbc8d4e2",
-        "6bf037cefe871b2991161f468e6b0f6eab2ac4f2347a081e55b0d4d2a4ea7ea0",
-        "d68d23358afd214ef38c69e6d26eee340bd42b9ae8bf19d87c9b256cad5e0548",
-        "9e45f8e9602b44a9148035eba321685afff9ff5a5cf183bf3bf862278d6a5905",
+        "186b990a918025fb3b1a6ce9da18fc549c321d2b683edd8ca800aa7453c90967",
+        "9abd3d4e79273ac86ae6a5c2c43d6cee14da00add47691fb0543664b41f17a99",
+        "3a5855ef2858991d4cb7dc54c6ea110098522ecef03abd44dafb1e21cfae5c4b",
         "8e50d539303f4f0f42f523bb95a270fecfc94d3d550db7654b1b83e7381a1bf2",
         "545ef3a4856eecb949ed885f08e41a22b2d36977e7158b245bf52be29d455a74"
       ],
-      "source_sha256": "5999ee2b251361f60c88210749055b323fb61969b305b58efa1f551bed99ef80",
-      "text": "``?`` 덮개 - 창 위의 모든 짧은 절단은 모든 키에 의해 제거됩니다.\n\n패션 대화는 이것을위한 잘못된 형태였습니다. 사용자가 ``?``을 눌러 묻는 질문은 \"나는 *here*를 누릴 수있는 것\"이며, 대답은 약 2 초 가치가 있습니다. 제목 바와 닫힌 버튼이있는 대화는 그들이 모드에 헌신하고, 버튼을 찾고, 그것을 떠나게합니다. 덮개가 뒤에 있는 것을 망치고, 응답하고, 다음 키스트로크 또는 클릭에서 사라지며, ``?`` 자체를 포함하여 열어 놓은 키도 그것을 닫습니다.\n\n한 열에 15 개의 링크가 스크롤이고 3 개에 1 개의 시각이 있기 때문에 한 개의 긴 목록 대신 범주에 따라 열에 넣으십시오.\n\n:param window: 창을 덮고 묶음을 읽을 수 있습니다.이 덮개는 대신 자신의 대화로 그 위로 끌려, 이것은 위의 전체 논쟁입니다 - 그래서 이것은 일반적인 의미에서 부모가 아니라 주목되는 것입니다.\n창문 위에 카드로 짧은 사기 잎을 구축하십시오.\n\n:param window: 그것이 덮는 창; 카드는 그것에 집중하고 지도가 맞지 않을 때 회전합니다.",
+      "source_sha256": "b13e17150283f83554e4e6e76ae3606623d3c78b1f56ff99cb325a4ce7deb26e",
+      "text": "선언된 단축키 맵과 추가 하위 바인딩을 창 위에 표시합니다.\n\n반투명 카드는 동작을 범주별로 묶고 저장된 재정의와 화면 적용 범위를 표시합니다. 스크롤 영역을 통해 공간에 들어가지 않는 콘텐츠에 접근할 수 있습니다. 오버레이가 처리하는 키 누름과 마우스 버튼 누름은 오버레이를 닫으며, 단축키 변경 버튼은 이를 닫고 키맵 편집기를 엽니다.\n\n:param window: 덮어서 바인딩을 조사할 부모 위젯입니다. 오버레이는 이 위젯과 함께 크기가 바뀌며 별도의 최상위 창을 만들지 않습니다.\n단축키 안내를 창 위의 카드로 구성합니다.\n\n:param window: 덮는 창입니다. 카드는 그 안에서 가운데에 배치되며, 키맵이 공간에 들어가지 않으면 스크롤됩니다.",
       "translation_source_blocks_sha256": [
-        "81fd136bd723455eff86d836a00cf7b2808e06d78199dacf150ef2c7bbc8d4e2",
-        "6bf037cefe871b2991161f468e6b0f6eab2ac4f2347a081e55b0d4d2a4ea7ea0",
-        "d68d23358afd214ef38c69e6d26eee340bd42b9ae8bf19d87c9b256cad5e0548",
-        "9e45f8e9602b44a9148035eba321685afff9ff5a5cf183bf3bf862278d6a5905",
+        "186b990a918025fb3b1a6ce9da18fc549c321d2b683edd8ca800aa7453c90967",
+        "9abd3d4e79273ac86ae6a5c2c43d6cee14da00add47691fb0543664b41f17a99",
+        "3a5855ef2858991d4cb7dc54c6ea110098522ecef03abd44dafb1e21cfae5c4b",
         "8e50d539303f4f0f42f523bb95a270fecfc94d3d550db7654b1b83e7381a1bf2",
         "545ef3a4856eecb949ed885f08e41a22b2d36977e7158b245bf52be29d455a74"
       ]
@@ -117050,25 +117038,25 @@
     },
     "spacr.qt.shortcuts.ShortcutOverlay.keyPressEvent": {
       "source_blocks_sha256": [
-        "b6256152c56cfa6cb6dea94d4aafb39855c0bfb2a74d3cc8f3ac2cc387a6e39c",
+        "2b2d59f66f044693960f817e69c2a882f4e1d5c99d6f8cdc52f30273d752c17c",
         "029ff431c7e3d16d7434bc072282808870acd8e573c4002c92555da75a6663ee"
       ],
-      "source_sha256": "8a415d4b935330789b18fe12f771e57957bfde5fd9f32b16cb23646584ab0776",
-      "text": "모든 열쇠가 그것을 닫습니다 - 그것은 전체 상호 작용입니다.\n\n:param event: 키 이벤트이며, 어떤 키를 눌렀는지는 읽지 않습니다.",
+      "source_sha256": "398946e9166c1eaaffb089effd7de2fc17cb18c983e0cd1895c4f7d8ec38b344",
+      "text": "키 누름이 이 핸들러에 도달하면 오버레이를 닫습니다.\n\n:param event: 키 이벤트이며, 어떤 키를 눌렀는지는 읽지 않습니다.",
       "translation_source_blocks_sha256": [
-        "b6256152c56cfa6cb6dea94d4aafb39855c0bfb2a74d3cc8f3ac2cc387a6e39c",
+        "2b2d59f66f044693960f817e69c2a882f4e1d5c99d6f8cdc52f30273d752c17c",
         "029ff431c7e3d16d7434bc072282808870acd8e573c4002c92555da75a6663ee"
       ]
     },
     "spacr.qt.shortcuts.ShortcutOverlay.mousePressEvent": {
       "source_blocks_sha256": [
-        "e9bd0b6c877b87c47355562f39b2b8ba9ace34aec37c495e9bac2ea63caaffd0",
+        "173e9f253713a4ee887f369f8e9fb2de3165b97ab14a51bdcb8f2acc120ec513",
         "61a5b73353a3cad05ca2b93892197a897c6284448a4ad0645c49bc7f43124f65"
       ],
-      "source_sha256": "490a04356cf69a2da53623a5469df6ed4e335131cfa33c8ba89cc03b1547b342",
-      "text": "어디서나 한 번의 클릭이 그것을 닫습니다.\n\n:param event: 마우스 누름 이벤트이며, 버튼과 위치는 읽지 않습니다.",
+      "source_sha256": "9ed7fb591b4e5c280a6bced7b652e5184f4541a90b4f12018dd81a6d47e46488",
+      "text": "마우스 버튼 누름이 이 핸들러에 도달하면 오버레이를 닫습니다.\n\n:param event: 마우스 누름 이벤트이며, 버튼과 위치는 읽지 않습니다.",
       "translation_source_blocks_sha256": [
-        "e9bd0b6c877b87c47355562f39b2b8ba9ace34aec37c495e9bac2ea63caaffd0",
+        "173e9f253713a4ee887f369f8e9fb2de3165b97ab14a51bdcb8f2acc120ec513",
         "61a5b73353a3cad05ca2b93892197a897c6284448a4ad0645c49bc7f43124f65"
       ]
     },
@@ -117116,31 +117104,31 @@
     },
     "spacr.qt.shortcuts.discover": {
       "source_blocks_sha256": [
-        "01a2e4ba9eb179fded984ee665b3e689f299f01f1ad3f9bb7e731497a770afe0",
-        "31db50aa67a10b6a7e5d6196f7a7858cc86d9e5a8e0e864cc3140ed17d1c9136",
-        "55270b2ccc89bd3c5b09e4d7169da58e7c3fbcb522c689e8fa2647bb2c72a2cb",
+        "510918330742b7346b601c30bfff9a065e99b5f4859aa4909a9b514a860bd0be",
+        "a8ce4cafe6ca0c2f85735e4609e3e1f8556f7a82f67f909cdfb8f93aa1901f47",
+        "5e4734862eb1e3640fc8e7c3a9bf0ec5d3d59988c07490634681de93a51fe629",
         "d63e4ccef730bbe90834e4bb8144f7794c8361c03fdf39ee48b8c65e503ec759"
       ],
-      "source_sha256": "eba2c20b29573e1f3968b68f6b505f98e8a76f0e7b10c66759026baeb834c0ef",
-      "text": "각 단축은 ``window``에서 라이브로, 선언되었는지 아닌지 여부.\n\n선언 된 테이블은 지도가 추출되는 것입니다, 왜냐하면 그 화면이 구축 될 때까지 스크린 당 묶음이 존재하지 않기 때문에 지도가 그것을 설명해야합니다.이것은 다른 절반입니다 : 실행 시간에 추가 된 단축 - 플러그인, 메뉴 액션 - 누구도 목록을 편집하지 않고 나타납니다.\n\n이미 :data:`SHORTCUTS`에있는 모든 것이 그것의 진술에 남아 있으며, 이는 표지판과 범위가 살고있는 곳입니다.\n\n:param window: 자식 :class:`QShortcut` 과 :class:`QAction` 객체를 검색할 위젯입니다. 검색할 수 없는 위젯이면 빈 목록을 반환합니다.",
+      "source_sha256": "019f0c097ed8d0a0f82113de702c352ff496614b52bbbe77366c2aa5b8ab2b5e",
+      "text": "키맵에 추가할 하위 단축키 및 동작의 키 시퀀스를 찾습니다.\n\n:func:`mapped`에서 이미 설명한 시퀀스는 저장된 창 전체 재정의를 포함해 제외됩니다. 나머지 비어 있지 않은 시퀀스는 플랫폼 고유 표기에 따라 중복을 제거합니다. 검색은 활성화 여부나 현재 표시 여부와 관계없이 기존 보유 객체를 포함하며, 어떤 동작이 키 이벤트를 받게 될지는 판정하지 않습니다.\n\n선언된 키맵은 해당 화면이 생성되기 전에도 알려진 바인딩의 레이블과 적용 범위를 제공합니다.\n\n:param window: 자식 :class:`QShortcut` 과 :class:`QAction` 객체를 검색할 위젯입니다. 검색할 수 없는 위젯이면 빈 목록을 반환합니다.",
       "translation_source_blocks_sha256": [
-        "01a2e4ba9eb179fded984ee665b3e689f299f01f1ad3f9bb7e731497a770afe0",
-        "31db50aa67a10b6a7e5d6196f7a7858cc86d9e5a8e0e864cc3140ed17d1c9136",
-        "55270b2ccc89bd3c5b09e4d7169da58e7c3fbcb522c689e8fa2647bb2c72a2cb",
+        "510918330742b7346b601c30bfff9a065e99b5f4859aa4909a9b514a860bd0be",
+        "a8ce4cafe6ca0c2f85735e4609e3e1f8556f7a82f67f909cdfb8f93aa1901f47",
+        "5e4734862eb1e3640fc8e7c3a9bf0ec5d3d59988c07490634681de93a51fe629",
         "d63e4ccef730bbe90834e4bb8144f7794c8361c03fdf39ee48b8c65e503ec759"
       ]
     },
     "spacr.qt.shortcuts.install": {
       "source_blocks_sha256": [
-        "45e7b4b654ca3fd84ad04bc622cc6bdb4f934b253eccc6059f392ec9597d6089",
-        "94994e4024a2237591817fc37be0e9fe3460bfd1b0c8f9ae8fc9c854ff815e0e",
+        "6706ba544f6499a712531b101f6ef6451d48fabe2bf7cf327248d878bc005799",
+        "ebf9a5b54b8786da2529631c6a2bcef7aa60741987a6f6560e7e6b208c59d1fb",
         "b08af858cd0d8c067c44c081c63981367bc8f3fa8a6a7bebb3a54e6ecffba6ff"
       ],
-      "source_sha256": "b09fbe714a6e140410814ade3f871c789ff3075382e37a6bbded9195afc5e9e8",
-      "text": "각 짧은 짧은 :data:`SHORTCUTS`에서 ``window``로 전환합니다.\n\n무력 - 안전한 내부로 호출을 걸 수 있습니다.\n\n:param window: 애플리케이션 단축키가 연결되는 메인 창입니다.",
+      "source_sha256": "cdb3b07462047e70feb574de143a810c46dc3f388d873a5c7bfecd4671005f94",
+      "text": ":func:`installed`가 반환한 단축키를 ``window``에 바인딩합니다.\n\n기존 단축키 보유 객체를 재사용합니다. 메뉴의 키와 스크롤 제스처는 다른 곳에서 설치하며, 이 함수는 선택적 창 훅도 설치하고 저장된 키맵 재정의를 적용합니다.\n\n:param window: 애플리케이션 단축키가 연결되는 메인 창입니다.",
       "translation_source_blocks_sha256": [
-        "45e7b4b654ca3fd84ad04bc622cc6bdb4f934b253eccc6059f392ec9597d6089",
-        "94994e4024a2237591817fc37be0e9fe3460bfd1b0c8f9ae8fc9c854ff815e0e",
+        "6706ba544f6499a712531b101f6ef6451d48fabe2bf7cf327248d878bc005799",
+        "ebf9a5b54b8786da2529631c6a2bcef7aa60741987a6f6560e7e6b208c59d1fb",
         "b08af858cd0d8c067c44c081c63981367bc8f3fa8a6a7bebb3a54e6ecffba6ff"
       ]
     },
@@ -117184,16 +117172,18 @@
     },
     "spacr.qt.shortcuts.show_cheat_sheet": {
       "source_blocks_sha256": [
-        "2810962954712108ea36b2d3727f5a3025e7d87c9fccda12a3445dc5ff0d612e",
-        "278ba1d823e182486a8d9f53d9423fca337e013794b232fde3ccfbe690cdfb5b",
-        "fe86d015cf241f2c686a498bdc40e932bd0379be1340cabd5f1ff3fcbc465746"
+        "f7baa4bb84230f74777014892a2869b9e5cfca37f40292483e3b57abadc824c3",
+        "c0a54d6ea771ff1e9483058ecb3c2b147eeb06aebd306017db6902002f3069b8",
+        "7b5a6efddc8c0dd46f206c4bdba2f5df116a513c1055d50c3877807a7ff751bc",
+        "7ca3f41e238f8bf92047bfb151d45c774b0b582e92ce5224bdccd3e46d2f5f4f"
       ],
-      "source_sha256": "1f88687fba7e581dac3222bb3b4a8c675c45d0aadf21da91b6677a049f5ce734",
-      "text": "각각의 등록된 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은 짧은\n\n``parent``가 실제 창이 될 때의 대화, 그래서 ``?``가 대답하고 길에서 나옵니다.모델 대화는 부모가없는 또는 0 크기의 호출기의 붕괴로 남아 있으며, 대화는 덮을 것이 없을 것입니다.\n\n:param parent: 가릴 창입니다. 크기가 영이 아닌 :class:`QWidget` 은 오버레이를 받으며 이미 있던 오버레이를 대체합니다. 그 밖의 것은 그것을 부모로 하는 모달 대화 상자를 받습니다.",
+      "source_sha256": "a1a5b879411753c5b7350f8d401a083248a13b1f6ba970bf91bd77471700a898",
+      "text": "단축키 도움말을 오버레이 또는 대체 대화상자로 표시합니다.\n\n크기가 0이 아닌 위젯에는 :class:`ShortcutOverlay`가 제공되며, 선언된 화면 적용 범위, 저장된 바인딩 및 추가 하위 시퀀스가 포함됩니다. 부모가 없거나 크기가 0인 호출자에는 대신 기본 창 전체 :data:`SHORTCUTS` 표가 있는 모달 대화상자가 제공됩니다.\n\n:param parent: 덮을 창입니다. 크기가 0이 아닌 :class:`QWidget`에는 기존 오버레이를 대체하는 오버레이가 제공됩니다. 그렇지 않으면 ``None`` 또는 크기가 0인 위젯이 대체 대화상자의 부모가 됩니다.\n:returns: 오버레이가 표시되면 해당 오버레이를, 대체 대화상자가 닫힌 뒤에는 ``None``을 반환합니다.",
       "translation_source_blocks_sha256": [
-        "2810962954712108ea36b2d3727f5a3025e7d87c9fccda12a3445dc5ff0d612e",
-        "278ba1d823e182486a8d9f53d9423fca337e013794b232fde3ccfbe690cdfb5b",
-        "fe86d015cf241f2c686a498bdc40e932bd0379be1340cabd5f1ff3fcbc465746"
+        "f7baa4bb84230f74777014892a2869b9e5cfca37f40292483e3b57abadc824c3",
+        "063c39805dc5006a546a8a477723de08f0a7bada64e9ca3e59084542669a9db2",
+        "7b5a6efddc8c0dd46f206c4bdba2f5df116a513c1055d50c3877807a7ff751bc",
+        "7ca3f41e238f8bf92047bfb151d45c774b0b582e92ce5224bdccd3e46d2f5f4f"
       ]
     },
     "spacr.qt.shutdown": {
@@ -164364,18 +164354,18 @@
     },
     "spacr.qt.widgets.picture_export": {
       "source_blocks_sha256": [
-        "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3",
-        "e790835e1bc841edb8e98bae98ca2f407262ea6ec94c1080f578de17f115249b",
-        "e5dfebda32e1c3002c3fc6ea020427889f6c999e6e426903b6efc849052ca2f8",
-        "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e"
+        "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+        "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+        "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+        "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438"
       ],
-      "source_sha256": "e3cf46c60a811ef1693d93a5d2811ce3a4e57d35a14002f4d5ac22396eb68af2",
-      "text": "그림을 오른쪽 클릭하여 PNG 또는 PDF 로 저장합니다.\n\n화면의 그림은 한 시간 뒤 누군가가 슬라이드에 넣고 싶어 하는 것일 때가 많은데, 지금까지는 창의 해상도로, 주변 창 장식까지 포함해 창을 스크린샷하는 방법밖에 없었습니다. 이 모듈은 우연히 표시된 크기가 아니라 렌더링된 해상도로 그림 자체를 사용자가 고른 파일에 저장합니다.\n\n두 가지 형식이 있으며, PDF 는 확장자만 다른 PNG 가 아닙니다. PDF 에 래스터를 넣기만 하면 파일 이름만 맞출 뿐입니다. 그림 패널은 페이지이고, 페이지에는 밀리미터 단위의 크기가 있습니다. :func:`save_picture` 는 PDF 에 이미지 자체의 모양을 가진 페이지를 주고 Preferences 의 해상도를 작성기에 알려 주므로, 그림은 측정된 크기로 배치되고 그 해상도로 인쇄됩니다.\n\n해상도와 기본 형식은 Figures 환경 설정이 이미 가지고 있는 것 -- :func:`spacr.qt.preferences.get_figure_png_dpi` 와 :func:`spacr.qt.preferences.get_figure_format` -- 이므로, 이미 \"300 DPI, PDF\" 라고 말한 사용자에게 다른 말로 두 번 묻지 않습니다.",
+      "source_sha256": "98d11f91777723d4f06f53afec8a33736804e167b61ec424928ab4cd1ce5417b",
+      "text": "렌더링된 그림을 PNG 또는 한 페이지 PDF로 저장합니다.\n\n내보내기는 주변 위젯을 캡처하지 않고 제공된 ``QImage`` 또는 ``QPixmap`` 을 사용합니다. PNG는 그림의 픽셀 크기를 유지하고 선택한 해상도를 미터당 도트 수 메타데이터로 기록합니다. PDF는 래스터 그림을 페이지에 삽입하며 픽셀을 벡터 그림으로 바꾸지 않습니다.\n\nPDF 페이지 크기는 그림의 픽셀 크기와 내보내기 DPI로 계산하며, 각 차원의 최솟값은 일 밀리미터입니다. 그림은 여백 없이 페이지를 채웁니다. 이를 통해 현미경 픽셀 보정을 사용하지 않고 인쇄 크기를 정합니다.\n\n기본 해상도와 파일 이름 확장자는 :func:`spacr.qt.preferences.get_figure_png_dpi` 및 :func:`spacr.qt.preferences.get_figure_format` 에서 가져옵니다. 오른쪽 클릭 메뉴에서 명시적으로 선택한 PNG 또는 PDF가 최종 내보내기 형식을 결정합니다.",
       "translation_source_blocks_sha256": [
-        "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3",
-        "3db381ce4a8a7c15ebd16c5bf3922b9c09db62c2bb64dff1cb3bd2e06432658f",
-        "d12853cb87032fe7b07e066fc051b99edb9b94eb73bb04bdc33c8fb8f285b98e",
-        "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e"
+        "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+        "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+        "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+        "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438"
       ]
     },
     "spacr.qt.widgets.picture_export.as_image": {
@@ -164394,16 +164384,16 @@
     },
     "spacr.qt.widgets.picture_export.ask_where_to_save": {
       "source_blocks_sha256": [
-        "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1",
-        "9ca817d52ad3995cbdefaa1ec7984dcb11e056f5b330fad1005e8bc12459e28e",
+        "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+        "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
         "e175adca6ea08d81b58e711b99e753b361c04d1455b2a7349e342e757ed2ba3d",
         "0b061d8659b19ef97e93a58012aceb5a4dafc2b4534ffdb7ac0a5df49c840dbe"
       ],
-      "source_sha256": "7af4cf1145ea9001e03ad52f3acdc74f66b8735a954f65f7259e7ac2317c4781",
-      "text": "경로를 묻습니다. 사용자가 취소하면 ``\"\"`` 입니다.\n\n사용자가 확장자를 빼면 다시 붙입니다. 그렇지 않으면 확장자 없이 입력한 이름은 어떤 필터를 선택했든 PNG 로 기록되며, 이것이 \"save as PDF\" 가 조용히 래스터를 만드는 경로입니다.\n\n:param parent: 저장 대화 상자의 부모가 되는 위젯입니다.\n:param stem: 제안되는 파일 이름이며, 확장자는 없고 :func:`suggested_name` 으로 정리됩니다.",
+      "source_sha256": "2880b071c16629d1e930dd95d63f52a61bc1b2908a78b0919db9111cd79aa21d",
+      "text": "출력 경로를 묻고 대화 상자가 취소되면 ``\"\"`` 를 반환합니다.\n\n선택한 이름에 확장자가 없으면 선택한 파일 필터에 따라 ``.pdf`` 또는 ``.png`` 를 붙입니다. 여기서는 기존 확장자를 유지하며, 이후 :func:`save_as` 가 메뉴에서 선택한 형식을 강제합니다.\n\n:param parent: 저장 대화 상자의 부모가 되는 위젯입니다.\n:param stem: 제안되는 파일 이름이며, 확장자는 없고 :func:`suggested_name` 으로 정리됩니다.",
       "translation_source_blocks_sha256": [
-        "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1",
-        "5f75687b1c595829984e6b1eb3370ba40abfaf138856835b623c0239dc714211",
+        "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+        "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
         "e175adca6ea08d81b58e711b99e753b361c04d1455b2a7349e342e757ed2ba3d",
         "0b061d8659b19ef97e93a58012aceb5a4dafc2b4534ffdb7ac0a5df49c840dbe"
       ]
@@ -164446,18 +164436,18 @@
       "source_blocks_sha256": [
         "8b5861219280651cceec81a976745180d537938171b370bc5a6d28a0391f2ed7",
         "f31cbdfee2ec61110b20536bb1bd9e3f33c53c02c78b4b6025786d2ca047d33b",
-        "ee0b4d017bf8c28eb913a0813489f3640edd2d635ac11aad2cc1e2999f3b55db",
-        "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec",
+        "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+        "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
         "ba2b8e6f8d41436b57d345131c416e8dc38d90383f75c6c5c5f333a0f256ed11",
         "90be78060899965463fd2f87be06b3657c739b9f648678078efa8c1e6afb359a"
       ],
-      "source_sha256": "d18f03786ef1513c840affd97c5b7d39e6fe7b9bd2cdbe2f1fec21da3afcb5ef",
-      "text": "``view`` 에 표시 중인 것을 저장하는 오른쪽 클릭 메뉴를 제공합니다.\n\n:param view: 사용자가 오른쪽 클릭하는 위젯입니다.\n:param picture: 메뉴를 사용할 때 호출되며, 기록할 ``QPixmap`` 또는 ``QImage`` 를 반환합니다. 지금이 아니라 반드시 저장 시점에 호출되므로, 메뉴는 항상 현재 화면에 있는 그림을 기록합니다.\n:param stem: 제안되는 파일 이름이며, 확장자는 없습니다. 호출 가능 객체이면 저장 시점에 호출되므로, 내용이 바뀌는 뷰 -- 어느 순간에는 Overlay, 다음 순간에는 Flows -- 는 현재 표시 중인 것의 이름을 제안합니다.\n:param unless: 먼저 확인됩니다. ``True`` 는 지금 오른쪽 버튼이 다른 것에 속해 있어 메뉴를 표시하지 않는다는 뜻입니다. 실시간 미리 보기의 자는 활성 상태일 때 오른쪽 클릭으로 지워지는데, 그 위에 메뉴가 나타나면 도구를 빼앗고 아무도 요청하지 않은 파일 대화 상자를 띄우게 됩니다.\n:returns: 메뉴가 설치되었는지 여부입니다.",
+      "source_sha256": "75d1d33693e0b475928bfec28e99c4c4c76cb80e7369ee6aaef9f9c2fb49dad1",
+      "text": "``view`` 에 표시 중인 것을 저장하는 오른쪽 클릭 메뉴를 제공합니다.\n\n:param view: 사용자가 오른쪽 클릭하는 위젯입니다.\n:param picture: 컨텍스트 메뉴가 열리기 전에 호출되며, 기록할 ``QPixmap`` 또는 ``QImage`` 를 반환합니다. 반환된 그림은 형식 및 경로 대화 상자가 끝난 후 사용됩니다. 기록 직전에 콜백을 다시 호출하지는 않습니다.\n:param stem: 확장자가 없는 제안 파일 이름입니다. 호출 가능한 객체는 형식을 선택한 후 경로 대화 상자가 열리기 전에 호출됩니다.\n:param unless: 먼저 확인됩니다. ``True`` 는 지금 오른쪽 버튼이 다른 것에 속해 있어 메뉴를 표시하지 않는다는 뜻입니다. 실시간 미리 보기의 자는 활성 상태일 때 오른쪽 클릭으로 지워지는데, 그 위에 메뉴가 나타나면 도구를 빼앗고 아무도 요청하지 않은 파일 대화 상자를 띄우게 됩니다.\n:returns: 메뉴가 설치되었는지 여부입니다.",
       "translation_source_blocks_sha256": [
         "8b5861219280651cceec81a976745180d537938171b370bc5a6d28a0391f2ed7",
         "f31cbdfee2ec61110b20536bb1bd9e3f33c53c02c78b4b6025786d2ca047d33b",
-        "87292e9d3e4a6e54d1962c15b0b5a95f62a8b50c2d42cb52024f172a6e75d1ad",
-        "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec",
+        "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+        "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
         "ba2b8e6f8d41436b57d345131c416e8dc38d90383f75c6c5c5f333a0f256ed11",
         "90be78060899965463fd2f87be06b3657c739b9f648678078efa8c1e6afb359a"
       ]
