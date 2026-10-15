@@ -3972,3 +3972,14 @@ Both original nodes pass58.76s, then pass60.51s on merged incoming source.
 Actual failed temporary-download cleanup fixture passes1.69s, no production
 change. Broader CI remains open; new docs upload is provider1GB storage gate,
 not a complete green or final release. Evidence referenced in current HANDOFF.
+
+2026-10-15 — Current completed04 media CI contract accepted.
+The two owner-reviewed selector expressions now bind Work's actual completed
+04 packet. Original two tests PASS2/0.94s, zero skips/network events; all98
+assertions/all other text and709 protected blobs remain exact. Independent
+source/evidence peer accepted; prior02 proof is preserved, not reclassified
+as a new failure. Current-source CI was pending behind older retained group
+work in the dated scheduler snapshot; capacity reason remains unknown.
+No concurrency/config/cancel/rerun/final dispatch or green-CI claim.
+Evidence:data/ci_current_publication_selector04_2026-10-15/ and
+data/ci_current_scheduler_snapshot_2026-10-15/.

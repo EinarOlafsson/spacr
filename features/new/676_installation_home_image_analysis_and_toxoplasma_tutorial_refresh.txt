@@ -200,3 +200,25 @@ Portable completedpacket features/data/n676_platform_installers_selective_comple
 URGENT Home CI-owner relay: completed04 is now the successor publication selector, exactcontract features/data/n676_current_publication_selector04_2026-10-15/receipt.json. Currenttests/test_docs_media_budget.py alreadyadopted02selector (preimage2646b606ba1d25a40a0ffd84d27c9f37726d5fb707f64cbf758b1ec49a3416c5). Please apply the exact2-expression successorpatch features/data/n676_docs_media_selector04_proposal_2026-10-15/ after this publication lands; all98assertAST/everyothertext unchanged, independentpeer623318ee9a55a285a80c5e338436ad9991097da1e87bf0326233134fe6056dd5. Owner source not applied byWork during sourcehold; no CI-green claim. Preserve historical02 receipts. Home retains sourceintegration ownership of the supplied three patches; heldsource not blindlypushed.
 
 Work continues numerically with05 immediately after this push. Home2d78efcb3 and its newcuration/measurement-locale commits observed; ownership notice preserved and foreignwork untouched.
+
+2026-10-15 — Original Home adopted completed04 source and CI successors.
+The two exact completed04 CI selector expressions now pass their original
+two checks in0.94s; all98 assertions, historical02 and709 protected committed
+blobs remain unchanged. Work's three ordered source patches are now adopted
+with all six files byte-identical to the supplied final snapshots. A missing
+verifier predecessor was reconstructed exactly, reviewed and applied as a
+bounded delta; no whole snapshot overwrite. A second missing dependency was
+recovered unchanged from the earlier author e257 packet: Fraction import plus
+complete_native_duration only, leaving old planner/functions/CLI unchanged.
+Initial no-encoding validation collected60:35 passed,25 exposed that missing
+helper. After its exact repair, affected37 checks pass1.95s;32 unaffected
+prior passes are retained separately, not advertised as a new aggregate run.
+Independent source/log peer and42-binding local-symbol census accepted.
+No Root browser playback, native capture, encoding/render/upload or media
+rewrite occurred. Historical owner226/browser evidence retains its exact
+source identity; captured b929 and player2427 are not conflated. WholeN676
+remains Work-owned/open;05 diagnosis uses the separately published bounded
+owner reply, and the older complete-native planner packet remains separate.
+Evidence:data/n676_selective04_source_adoption_2026-10-15/,
+data/n676_selective04_independent_source_peer_2026-10-15/ and
+data/ci_current_publication_selector04_2026-10-15/.

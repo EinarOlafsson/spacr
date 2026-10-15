@@ -11,6 +11,24 @@
 
 
 
+## 2026-10-15 Original Home — reviewed selective04 tools integrated
+
+Adopted exact ordered K4/K5/K6 source plus reviewed verifier predecessor;
+all six supplied files match owner snapshots. The first no-encoding check
+collected60:35 passed/25 failed on one missing earlier author helper. Exact
+Fraction+complete_native_duration recovered from portable e257, with old
+planner/functions/CLI untouched. Affected37 checks now PASS1.95s;32 unaffected
+prior cases retained separately, never a fabricated single aggregate run.
+Independent source/log peer accepted all eight changed source/test pins and
+all42 local import bindings. No Root browser/native capture/encoding/render/
+upload/media edit; owner historical226/browser and captureb929/player2427
+identities remain distinct. Older full-native planner adoption is separate.
+Evidence:data/n676_selective04_source_adoption_2026-10-15/ and
+data/n676_selective04_independent_source_peer_2026-10-15/.
+Work05 deadline reply is already public61b; current04 CI selectors public755.
+Whole numbered items remain open; no new whole-item tick or finalCI/release.
+
+
 ## 2026-10-15 Original Home — bounded Work04 source prerequisite approved
 
 Root reviewed the missing verifier predecessor rather than replacing the
