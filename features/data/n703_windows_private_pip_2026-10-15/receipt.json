@@ -1,5 +1,5 @@
 {
-  "state": "private implementation validated by owning contracts; source-peer/API closure still pending before public enable",
+  "state": "coherent source and exact selected English/nine-locale API closure validated; native Windows/full CI acceptance pending",
   "base": "b460359010b4614f3a8e5261c3d0a804bc4e1f1f",
   "source_sha256": {
     "spacr/install_cleanup.py": "e8d507258ff2db6ec5a3885c3428c76117f3353e3afdaac87a783210b24329a3",
@@ -50,9 +50,18 @@
     "qt-final had12PASS+2FAIL in finally because finished QThread was already deleted; test cleanup corrected via shiboken isValid, only failed2 rerun and pass. No production change or assertion weakening."
   ],
   "remaining": [
-    "Independent final source peer after native ACL/async changes.",
-    "Normal exact-source start_update_helper public English/nine-locale API closure, combined with root Debian prose before public enable.",
     "Native Windows ACL/file-lock/launcher/restart/dependency acceptance and interruption/manual recovery remain open; no atomic or power-loss recovery claim.",
-    "No full CI or whole N703 completion claimed."
-  ]
+    "No full CI, release, or whole N703 completion claimed."
+  ],
+  "normal_documentation": {
+    "english_symbols": 13488,
+    "english_exit": 0,
+    "selected_nine_locale_symbols": 1,
+    "selected_nine_locale_exit": 0,
+    "changed_paragraph": 1,
+    "help": "Normal summary unchanged; generation not required; original Help preserved",
+    "review_history": "Exact stale paragraph#1 records retired in place; every foreign row and module#2 unchanged",
+    "readme_gate_owner": "features/data/readme_picker_audit_contract_2026-10-15 and readme_picker_audit_peer_2026-10-15; independent23PASS0.76s; current marked HTML contract, not legacy RST",
+    "initial_failures": "Raw sparse dependency failure and actual unchanged-public picker-gate failure preserved; normal writer not repeated."
+  }
 }

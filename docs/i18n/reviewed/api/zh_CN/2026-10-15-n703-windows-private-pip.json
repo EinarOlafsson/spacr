@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review by Codex; no human or native-speaker signoff",
+  "records": [
+    {
+      "label": "spacr.install_cleanup.start_update_helper#1",
+      "source": "Installer-made copies and supported dedicated POSIX or Windows pip environments can use this helper. It waits for the running process to exit before changing the installation; the pip adapter also requires authenticated shutdown approval.",
+      "source_sha256": "cec3fb3c67983bab4fd6ea6ca11c0bcb33e727d5bdffd7eee3df8b03aeb6f8c7",
+      "context": "Installer-made copies and supported dedicated POSIX or Windows pip environments can use this helper. It waits for the executing process to exit before changing the installation; the pip adapter also requires authenticated shutdown approval.",
+      "translation": "由安装程序创建的副本和受支持的专用 POSIX 或 Windows pip 环境可使用此助手。助手等待正在运行的进程退出后才更改安装；pip 适配器还要求经过身份验证的关闭批准。",
+      "review_basis": "AI technical review of the exact current paragraph. Supported dedicated Windows pip environments are added alongside POSIX; installer-made copies, process-exit-before-mutation and authenticated pip shutdown approval are preserved. No universal/shared/Conda support or native-platform acceptance is claimed."
+    }
+  ]
+}
