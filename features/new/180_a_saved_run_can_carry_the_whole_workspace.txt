@@ -242,3 +242,22 @@ API eligibility peer excludes the new direct private class helper. Evidence:
 features/data/n180_actual_app_database_registry_2026-10-15/. No full CI, native
 GUI, fresh UMAP pipeline or whole-item acceptance is claimed. Home-B separately
 owns Graph/comparison/montage contribution and its API/publication closure.
+
+2026-10-15 — Regression plot workspace persistence repaired.
+Actual JSON round trips exposed lost multi-row selection, an explicit disabled
+colour reverting to its default, and current-run state overwritten during load.
+A companion round trip proved shape-only, opacity-only and three-channel views
+lost their secondary columns. State now carries complete selected_keys beside
+legacy active selected_key and independent symbol_by/opacity_by names or None.
+Signals are blocked during restore; absent legacy fields retain their meaning.
+Incoming state wins for matching runs; unrelated live-run state is preserved.
+A finally-restored guard suppresses outgoing snapshots during synchronous load.
+The initial source passed70 owning checks after three failures. Final companion
+source passes47 checks covering regression workspace, per-run and channel/legend
+roles; the cohorts overlap and are not summed. Two public API bodies have18
+exact independently reviewed targets, normal generation and independent source
+review. No new captions, backend, schema, alpha or tutorial changes.
+Final source SHA5a6d4bd10d4325e8952ea33bf96c2f72935b8548384443603ecad2808dac8c4a.
+Evidence:features/data/180_regression_colour_channels_2026-10-15/ and related
+workspace, API, peer and coordinator directories. Whole N180 acceptance remains
+open; no native desktop, final full CI or release claim.

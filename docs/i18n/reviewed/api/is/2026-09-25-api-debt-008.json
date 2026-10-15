@@ -1634,7 +1634,10 @@
       "source_sha256": "91982ec19bf5272331678043dc74904f31e0761968259f7c37cd4b8fedccc42c",
       "context": "key-value mapping as :meth:`plot_state` returns it; structured-data names it lacks keep their current value. Nothing applies when it is not a key-value mapping or no table is loaded.",
       "translation": "orðabók eins og :meth:`plot_state` skilar henni; lyklar sem hana vantar halda núverandi gildi sínu. Engu er beitt þegar hún er ekki orðabók eða engin tafla er hlaðin.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Regression workspace-state contracts expanded in 2b5ba2553db plus1cd00114b270. Replacement exact-source review is2026-10-15-n180-regression-state.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_workspace_state#2",

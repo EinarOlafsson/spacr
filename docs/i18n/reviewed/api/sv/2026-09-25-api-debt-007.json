@@ -3493,7 +3493,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "dict as :meth:`plot_state` returns it; keys it lacks keep their current value. Nothing applies when it is not a dict or no table is loaded.",
       "source_sha256": "91982ec19bf5272331678043dc74904f31e0761968259f7c37cd4b8fedccc42c",
-      "translation": "dict så som :meth:`plot_state` returnerar den; nycklar som saknas behåller sitt aktuella värde. Ingenting tillämpas när det inte är en dict eller när ingen tabell är inläst."
+      "translation": "dict så som :meth:`plot_state` returnerar den; nycklar som saknas behåller sitt aktuella värde. Ingenting tillämpas när det inte är en dict eller när ingen tabell är inläst.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Regression workspace-state contracts expanded in 2b5ba2553db plus1cd00114b270. Replacement exact-source review is2026-10-15-n180-regression-state.json; original source and translation retained as historical evidence."
     },
     {
       "context": "key-value mapping as :meth:`workspace_state` returns it; its ``\"runs\"`` plot states are merged in and its ``\"path\"`` is loaded again when it still exists. A non-key-value mapping applies nothing.",

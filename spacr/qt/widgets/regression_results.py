@@ -29,7 +29,7 @@ import os
 import re
 from typing import Dict, Optional
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QSignalBlocker, Qt, Signal
 from PySide6.QtWidgets import (
     QComboBox, QHBoxLayout, QLabel, QPushButton, QTabWidget,
     QVBoxLayout, QWidget,
@@ -2091,6 +2091,12 @@ class RegressionResultsPanel(QWidget):
         column is stored by name rather than by index, because the combo box
         is rebuilt from each table's own columns and index 3 is a different
         column in the next run.
+
+        ``selected_keys`` carries the complete table selection; the legacy
+        ``selected_key`` also retains the active key used by linked plots.
+        ``symbol_by`` and ``opacity_by`` independently record the chosen
+        marker-shape and opacity columns, including ``None`` for an unused
+        channel, so an empty shape channel does not change opacity's role.
         """
         reader = getattr(self.volcano, "pinned_limits", None)
         pinned = reader() if callable(reader) else (
@@ -2098,12 +2104,15 @@ class RegressionResultsPanel(QWidget):
         return {
             "level": self._level,
             "colour_by": self._colour_by.currentData(),
+            "symbol_by": self._colour_by_2.currentData(),
+            "opacity_by": self._colour_by_3.currentData(),
             "baseline": tuple(self._baseline),
             "compartment": self._compartment,
             "p_value_kind": self._p_value_kind,
             "threshold_method": self._threshold_method,
             "threshold_multiplier": self._threshold_multiplier,
             "selected_key": self._selected_key,
+            "selected_keys": tuple(self.selected_keys()),
             "x_limits": pinned.get("x"),
             "y_limits": pinned.get("y"),
         }
@@ -2118,7 +2127,8 @@ class RegressionResultsPanel(QWidget):
 
         :param state: dict as :meth:`plot_state` returns it; keys it lacks
             keep their current value. Nothing applies when it is not a dict or
-            no table is loaded.
+            no table is loaded. An explicit ``None`` colour disables colouring.
+            Older states containing only ``selected_key`` remain supported.
         """
         if not isinstance(state, dict) or self._frame is None:
             return False
@@ -2131,13 +2141,15 @@ class RegressionResultsPanel(QWidget):
                       "threshold_multiplier"):
             if field in state:
                 setattr(self, f"_{field}", state[field])
-        colour = state.get("colour_by")
-        if colour is not None:
-            index = self._colour_by.findData(colour)
+        for field, combo in (("colour_by", self._colour_by),
+                             ("symbol_by", self._colour_by_2),
+                             ("opacity_by", self._colour_by_3)):
+            if field not in state:
+                continue
+            index = combo.findData(state[field])
             if index >= 0:
-                blocked = self._colour_by.blockSignals(True)
-                self._colour_by.setCurrentIndex(index)
-                self._colour_by.blockSignals(blocked)
+                with QSignalBlocker(combo):
+                    combo.setCurrentIndex(index)
         self._offer_levels()
         self._offer_p_values()
         self._offer_thresholds()
@@ -2152,6 +2164,16 @@ class RegressionResultsPanel(QWidget):
             except Exception:                                    # noqa: BLE001
                 LOG.debug("could not restore the run's axis limits",
                           exc_info=True)
+        keys = state.get("selected_keys")
+        if isinstance(keys, (list, tuple)):
+            with QSignalBlocker(self.table):
+                self.table.select_keys(keys)
+            if not keys and not state.get("selected_key"):
+                self._selected_key = None
+                for plot in self._keyed_plots():
+                    plot.clear_highlight()
+                for histogram in (self.p_values, self.effect_distribution):
+                    histogram.clear_highlight()
         key = state.get("selected_key")
         if key:
             try:
@@ -2198,6 +2220,7 @@ class RegressionResultsPanel(QWidget):
         """
         if not isinstance(state, dict):
             return False
+        self._remember_plot_state()
         runs = state.get("runs")
         if isinstance(runs, dict):
             for key, remembered in runs.items():
@@ -2205,7 +2228,12 @@ class RegressionResultsPanel(QWidget):
                     self._plot_states[str(key)] = dict(remembered)
         path = str(state.get("path") or "")
         if path and os.path.exists(path):
-            return bool(self.load(path))
+            restoring = getattr(self, "_restoring_workspace", False)
+            self._restoring_workspace = True
+            try:
+                return bool(self.load(path))
+            finally:
+                self._restoring_workspace = restoring
         return bool(runs)
 
     def forget_plot_state(self, source) -> bool:
@@ -2269,6 +2297,8 @@ class RegressionResultsPanel(QWidget):
 
     def _remember_plot_state(self) -> None:
         """Save the run on screen, if it has a path to be saved under."""
+        if getattr(self, "_restoring_workspace", False):
+            return
         key = self._plot_state_key(self._path)
         if key and self._frame is not None:
             self._plot_states[key] = self.plot_state()

@@ -23,15 +23,15 @@ The rules:
 * A strong reference to both the QThread and the worker must be held until
   ``thread.finished``. A QThread garbage-collected while running aborts the
   process.
-* The completion handler must run for **every** job, including one whose
-  result is no longer wanted, or the bookkeeping leaks and the screen is
-  permanently "busy". Whether the *result* is used is a separate decision,
-  taken from the generation counter -- see :meth:`cancel`.
+* Result delivery and thread retirement are separate. :meth:`cancel`
+  clears pending deliveries immediately; a late completion then emits no
+  ``job_finished`` signal. The finished-thread sweep still releases the
+  thread references independently.
 
-Everything submitted here goes through ``make_thread``, so it appears in the
-process-wide :func:`spacr.qt.bridge.registry` and turns the background
-activity spinner (:mod:`spacr.qt.widgets.activity_spinner`) without the
-caller doing anything.
+Threaded submissions go through ``make_thread``, so they appear in the
+process-wide :func:`spacr.qt.bridge.registry` and turn the background
+activity spinner (:mod:`spacr.qt.widgets.activity_spinner`). Inline mode
+bypasses this registration and does not change the runner's busy state.
 """
 from __future__ import annotations
 
@@ -77,14 +77,15 @@ SHUTDOWN_BUDGET_MS = 2000
 
 
 def shutdown_all(timeout_ms: int = SHUTDOWN_BUDGET_MS) -> int:
-    """Stop every live JobRunner. Returns how many were asked.
+    """Cancel live runners; return how many shutdown calls completed normally.
 
-    Call once on the way out, before Qt starts destroying widgets. Every
-    runner is cancelled first, so all their threads are asked to stop at the
-    same moment, and then they are waited for against ONE deadline: a window
-    with ten busy screens quits in ``timeout_ms``, not ten times that. A
-    runner that cannot stop in time is parked by `bridge.drain_thread` rather
-    than terminated, so this is bounded.
+    Call before Qt starts destroying widgets. Cancellation is requested for
+    all runners before any wait, then they share one ``timeout_ms`` wait deadline. This
+    bounds thread waiting, not the total application exit time. Threads
+    that outlast the budget are parked by
+    :func:`spacr.qt.bridge.drain_thread`, not terminated. Failed shutdown
+    calls are logged, excluded from the return count, and do not stop the
+    remaining runners from being processed.
 
     :param timeout_ms: the total wait budget across every runner.
     """
@@ -111,9 +112,9 @@ class JobRunner(QObject):
 
     :param parent: the widget that owns the work. Kept as the runner's Qt
         parent so the runner dies with it.
-    :param threaded: ``False`` runs every job inline, emitting the same
-        signals in the same order, so a test can drive a screen
-        synchronously without the behaviour diverging.
+    :param threaded: ``False`` runs work and its handler inline on the
+        calling thread. Failure and completion signals are emitted before
+        return; no worker is registered and busy state does not change.
     :param app_key: the name jobs appear under in the run registry, and so in
         the activity spinner's tooltip.
     :param user_visible: ``False`` for housekeeping the user did not start.
@@ -144,8 +145,9 @@ class JobRunner(QObject):
         holds nothing alive that Qt would otherwise collect.
 
         :param parent: the owning object, or ``None``.
-        :param threaded: run jobs on a worker thread. ``False`` runs each one
-            inline, emitting the same signals in the same order.
+        :param threaded: run jobs on a worker thread. ``False`` runs work and
+            its handler on the calling thread without registering a worker
+            or changing busy state.
         :param app_key: how this runner's work is named in the run registry.
         :param user_visible: whether these jobs count as runs the user started.
             Set ``False`` for housekeeping, so Home's run banner does not show
@@ -168,12 +170,17 @@ class JobRunner(QObject):
 
     def submit(self, fn: Callable[[], Any],
                on_done: Optional[Callable[[Any], None]] = None) -> bool:
-        """Run ``fn()`` off the GUI thread, then ``on_done(result)`` on it.
+        """Submit ``fn()`` and deliver its successful result to ``on_done``.
 
-        :param fn: a zero-argument callable. It runs on a worker thread and
-            **must not touch any widget** -- return the data instead.
-        :param on_done: called on the GUI thread with ``fn``'s return value.
-        :returns: True when the job was started (or, unthreaded, ran).
+        :param fn: a zero-argument callable. In threaded mode it runs off
+            the GUI thread and must not touch widgets. Inline mode runs it
+            on the calling thread.
+        :param on_done: optional handler for ``fn``'s return value, called
+            on the GUI thread in threaded mode or inline otherwise.
+            Cancellation discards pending threaded deliveries.
+        :returns: ``True`` after starting a threaded job, before its outcome
+            is known. Inline mode returns ``False`` if either callable raises
+            an exception; otherwise it returns ``True``.
         """
         if not self._threaded:
             ok = True
@@ -299,25 +306,34 @@ class JobRunner(QObject):
                 return
 
     def is_busy(self) -> bool:
-        """True while a submitted job has not yet delivered its result."""
+        """Whether threaded completions are pending; cancel clears this immediately.
+
+        Inline work does not set this flag. A cancelled worker may still be
+        running after this returns ``False``.
+        """
         return self._busy
 
     def active_jobs(self) -> int:
-        """How many worker threads are still winding down."""
+        """Count tracked worker references, including running or not-yet-retired jobs.
+
+        Finished threads remain counted until the retirement sweep. Shutdown
+        clears this count even when a thread has been parked elsewhere.
+        """
         return len(self._jobs)
 
     def pending_jobs(self) -> int:
-        """How many results have not been delivered yet."""
+        """Count pending threaded completion records, cleared immediately by cancel."""
         return len(self._pending)
 
 
     def cancel(self) -> None:
         """Abandon the results of everything in flight.
 
-        The threads are asked to stop and are then left to retire themselves;
-        they are *not* joined, because joining would block the GUI thread.
-        Their results are dropped on arrival by the generation check, so
-        nothing reaches a handler that may be about to be destroyed.
+        Request thread interruption without waiting, then clear pending
+        deliveries and busy state immediately. Late completions are ignored
+        and emit no ``job_finished`` signal. Worker references remain until
+        retirement or shutdown; interruption does not forcibly stop work.
+        A worker's error signal can still emit ``job_failed``.
         """
         self._generation += 1
         for thread, _worker in list(self._jobs.values()):
@@ -329,7 +345,7 @@ class JobRunner(QObject):
         self._set_busy(False)
 
     def shutdown(self, timeout_ms: int = 3000) -> None:
-        """Cancel, then wait briefly so no QThread outlives the widget.
+        """Cancel deliveries, then wait within a shared budget or park live threads.
 
         Call from ``closeEvent``. Qt aborts the process if a running QThread is
         destroyed, so a bounded wait is needed when a screen closes mid-load.

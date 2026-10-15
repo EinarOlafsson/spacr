@@ -1,0 +1,1306 @@
+{
+  "schema": 1,
+  "review_type": "Independent AI technical semantic review; reviewer did not author source or translation inputs; no human/native-speaker claim",
+  "source_commit": "35aa6c146f3b30eedab48f198166d32ba4e67ff0",
+  "source_file": {
+    "path": "spacr/qt/job_runner.py",
+    "sha256": "ab734fb22124a354a3d5357a32ad3010a9f68a970bafe2cd4e8055ca82458706"
+  },
+  "input_commit": "5832e80fa6a1155134f16be5fb2f6a362fd79f22",
+  "reviewed_count": 153,
+  "changed_block_count": 17,
+  "symbol_count": 9,
+  "review_files": [
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-10-15-job-runner-lifecycle.json",
+      "sha256": "66c1623e92df1fb7ed53caea788e0cddd37f39b9145d502d1538dc09e32f35a3"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-10-15-job-runner-lifecycle.json",
+      "sha256": "0a90f6c9fdca03086c04a852cead112be2540bca94bd8f468d52d8e5acd45c8d"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-10-15-job-runner-lifecycle.json",
+      "sha256": "5bdf239714cd93b9d8dc6975d22c8075173ffdb1265137692b4e9e6087027151"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-10-15-job-runner-lifecycle.json",
+      "sha256": "25e896d155a40f40ec490c0058e2c1d37ff0456a57e75027db77fbc2a968e2fe"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-10-15-job-runner-lifecycle.json",
+      "sha256": "6344cb08c992698a12d98a05b1e3bbe81298004695bd427c68d178875848925d"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-10-15-job-runner-lifecycle.json",
+      "sha256": "ae353f94630dc6ef5049dc2d4a45bfd22cd66f2aa9561a5317a347ba3bb32d20"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-10-15-job-runner-lifecycle.json",
+      "sha256": "bc213a509c2b18ab59177481b39843f014fbc427b886871ed94f1185da874738"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-10-15-job-runner-lifecycle.json",
+      "sha256": "42456a89e1a0bf6815b804cf36a45402f143ae4e44e7d20695a2d942728428b2"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-10-15-job-runner-lifecycle.json",
+      "sha256": "4f33821f69c57eef0d73fed0cd21474e4d8d77e0b020ea743a266e681cab0aa3"
+    }
+  ],
+  "frozen_draft_hashes": {
+    "source_manifest": "b9c6cf845d0a30fa8fd42ca87b79496243c47055633325a17edc24484d976e7b",
+    "approved_targets": "6bc5085e720782354694cc75ed12cf0701ec89075ea9a5e8940ce5513fbc3ee9"
+  },
+  "source_binding": "Independently read final implementation; all nine normal-rendered source bodies match the actual AST docstrings, including class plus __init__ documentation, after whitespace normalization. No extraction or generation rerun.",
+  "semantic_checks": [
+    "Cancellation clears pending results and busy state immediately, without forcibly stopping workers or immediately removing their retained references.",
+    "Late completion has no job_finished delivery after cancel, while a worker error may still emit job_failed.",
+    "Inline mode runs both callables on the caller thread, bypasses worker registration and busy state, and returns False if either callable raises.",
+    "Threaded submission returns True before outcome is known; successful threaded delivery uses the GUI thread.",
+    "active_jobs counts retained worker references, including completed but unswept threads, and shutdown clears its local count even for parked threads.",
+    "shutdown_all requests cancellation for every runner before any waiting, shares one wait deadline, counts normally returning shutdown calls, logs failures and continues. The wait budget does not bound all application exit work."
+  ],
+  "resolved_finding": {
+    "language": "de",
+    "label": "spacr.qt.job_runner.shutdown_all#1",
+    "issue": "The initial phrase before each waiting phase could imply repeated all-runner cancellation; final wording requests all cancellations before waiting on any runner.",
+    "before": "Aufrufen, bevor Qt Widgets zu zerstören beginnt. Für alle Runner wird vor jeder Wartephase der Abbruch angefordert; danach teilen sie sich eine Wartefrist von ``timeout_ms``. Dies begrenzt das Warten auf Threads, nicht die gesamte Beendigungszeit der Anwendung. Threads, die das Budget überschreiten, werden von :func:`spacr.qt.bridge.drain_thread` geparkt und nicht zwangsweise beendet. Fehlgeschlagene Shutdown-Aufrufe werden protokolliert, nicht mitgezählt und verhindern die Verarbeitung der übrigen Runner nicht.",
+    "after": "Aufrufen, bevor Qt Widgets zu zerstören beginnt. Für alle Runner wird der Abbruch angefordert, bevor auf einen Runner gewartet wird; danach teilen sie sich eine Wartefrist von ``timeout_ms``. Dies begrenzt das Warten auf Threads, nicht die gesamte Beendigungszeit der Anwendung. Threads, die das Budget überschreiten, werden von :func:`spacr.qt.bridge.drain_thread` geparkt und nicht zwangsweise beendet. Fehlgeschlagene Shutdown-Aufrufe werden protokolliert, nicht mitgezählt und verhindern die Verarbeitung der übrigen Runner nicht.",
+    "before_sha256": "7bb6145f2e17d9599bdd3918b61315b7b63eaba8a2d410ec224ca7dbb6307bc4",
+    "after_sha256": "b643d8c7ba9d44aef5b519a0c88d408fddc249b09b324514f66ad7be28ccba82",
+    "decision": "PASS after author correction"
+  },
+  "existing_tests_read": [
+    "tests/qt/test_cov_w2_2_job_runner.py",
+    "tests/test_no_runner_outlives_the_application.py"
+  ],
+  "validation_boundary": "Independent semantic and source binding review only. Author reports normal source/context, inline-markup and selected-loader gates passing. No duplicate runtime tests, full collector, decoder, generator, hardware or native-language review.",
+  "records": [
+    {
+      "language": "sv",
+      "label": "spacr.qt.job_runner#6",
+      "source_sha256": "bc320654e9236f092354dfdf4a48f3679a560a8fd8f3256c71db5124f4550c3a",
+      "context_sha256": "c356486475a946e8ae08dca26b30de3019d43b9df0acd91ce144633696431d98",
+      "translation_sha256": "0ef65d708bfb133d571f3991f17191ffee211a6d0a6f00a37b4c94cddaf8d115",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.job_runner#7",
+      "source_sha256": "a3b9d83c75a585f9630ccb48a693bc732ee24fea0f6b3a3c2357eb3d4afbd993",
+      "context_sha256": "fe223a792c8da64bf1240ef6d7d3f55037822b715327e13c5a0f0c76c584d9ae",
+      "translation_sha256": "abc24a02b1614ab32de234122a24e6427a987056c624767b31491507d7cef9c5",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.job_runner.shutdown_all#0",
+      "source_sha256": "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+      "context_sha256": "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+      "translation_sha256": "609692eff62a5f0d46c0e4cabefa896a640aa0ac60c3d9a99458ff80236801cc",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.job_runner.shutdown_all#1",
+      "source_sha256": "111d4fc12551b628e657ce0b1b2fc1267e1adfe25b2bdc23537161951d7f2e63",
+      "context_sha256": "b5d3e0782b3ec0a5aac780af6bbdffec5c812d1ae71dd9c4ad2c69fdb9d2953f",
+      "translation_sha256": "d98021a5ff477e5619898d9a096c24eb399a87e22d08e67674a37a5797c6ed53",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.job_runner.JobRunner#2",
+      "source_sha256": "4bc6c05bb54749ff5a4864f53c0af8290d24c9bf6267c8e055ef36b4cca8799d",
+      "context_sha256": "6c3f109e4e7e576032015e7cffd5785239b252eee97ea771dd0f5fbb4418d83c",
+      "translation_sha256": "932a93aa6e7ca0eac284fb4b73fbaf21ada1453115c78efd230626a4946cdd2c",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.job_runner.JobRunner#8",
+      "source_sha256": "77df66e2774e1a2b804f6a5bdee60bf4ef9944791f1759986060ba2237adda31",
+      "context_sha256": "4a54a5dbee2402438a05327db31f934e9afbe8f32850dec5e350e1e29a0ccea7",
+      "translation_sha256": "e7935266b6e6ceb5974b7ff5e78ca2c20d81e8164342edf08f143205b0c2f64e",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.job_runner.JobRunner.submit#0",
+      "source_sha256": "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+      "context_sha256": "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+      "translation_sha256": "e37aa7161e515255fb994139e8a6d2f93c08be2ff6fa098fad1d42ede8b782a2",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.job_runner.JobRunner.submit#1",
+      "source_sha256": "f08913ad9d21131725f72abb034a529c3dda2332d79899caf1f24c00181cbd19",
+      "context_sha256": "47bf0b5fa56db3f9f6abcb2da32522d56bc92fb969ae8e3b60e789cade5cd4f3",
+      "translation_sha256": "7154426ab483a692dd762bcad56b613e3cbd1d95823be30485c279c2c94c94e5",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.job_runner.JobRunner.submit#2",
+      "source_sha256": "91d4022c8f10c4d8b8245357cf161aa0cc7aa3b9988b52caef6dbc8b7966d423",
+      "context_sha256": "dc0c2cf0554056ff85c86545beb8294ebdf33d7122bdac020289e91d09a801fd",
+      "translation_sha256": "091d64d92d580d03faa92731ad10c5251ad61bd00ed3e2015dfeab391aed3a45",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.job_runner.JobRunner.submit#3",
+      "source_sha256": "90d1db857344eea5f92934a50442464252588b41ad05498017ba9b2a0489cf8b",
+      "context_sha256": "5926c0e7dd303f8a6e26d3142a611fb54ad0c1ced9c99fc53d89644944cc6589",
+      "translation_sha256": "243175ecff0bd6a840939fd79feecddd349df330a23600596f6f848269d8ad08",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.job_runner.JobRunner.is_busy#0",
+      "source_sha256": "d390ff41411dd16f1fc584440d4d51efd0af50fca56ae67423a5fbc6464fc8f9",
+      "context_sha256": "9c562a4b227ab1dcf2121e3519a17d7b68f63310abe1158532e83be52e756fc3",
+      "translation_sha256": "0309fe6b0731c10c40c709014f4877df38ccce2e49541115672b5a91dc62f745",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.job_runner.JobRunner.is_busy#1",
+      "source_sha256": "44768f13d7786faa2d7476e04b92ec6ae31039b936c85320495dceed2e50a285",
+      "context_sha256": "8eea819018daff69731c0f7a80fdfdbfe22804eb22836a83b10911860e57728b",
+      "translation_sha256": "cfb21ee2797c9d356c6546d6efb890156bf891958677c4a94a220ce39e17aeff",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.job_runner.JobRunner.active_jobs#0",
+      "source_sha256": "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+      "context_sha256": "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+      "translation_sha256": "f98305df4e1d0dbdad368ac95fdb26aab12eee9e105037b80624eb9462bc9db7",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.job_runner.JobRunner.active_jobs#1",
+      "source_sha256": "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463",
+      "context_sha256": "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463",
+      "translation_sha256": "fc520e11788cdb676261d7524f27081ba8dd53ff4ea0d9c2e697c186f2dc9ffd",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.job_runner.JobRunner.pending_jobs#0",
+      "source_sha256": "155165745521820a53d42ebbe71c416fdda03348dbba8e835c67e23eed98d193",
+      "context_sha256": "ee8f2562bb8aabba481448d1f2aefedce19a55a437df98135dc4e46cf0dd70b9",
+      "translation_sha256": "356beda6daf96643a644b304a1b1356e398d669dc3b3c5d19859e8d477f6179d",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.job_runner.JobRunner.cancel#1",
+      "source_sha256": "1b5b3f695ec32a5c7d3cbec5cb89d55ce0b1fcdd6e7b3b0d7086454f582d9a24",
+      "context_sha256": "ebfb81797d760ce72efe06f15443e5dc13606bea802a980cf3e22d30fa0dbadb",
+      "translation_sha256": "b417edd926114ca4c5c1b33a8392c15d0a53a6f7b8582434e78305c4aed7cb22",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.job_runner.JobRunner.shutdown#0",
+      "source_sha256": "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+      "context_sha256": "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+      "translation_sha256": "d7a696e1e0737d56bec31e156038a3008ed34de64bb1436b83ef9cb0d0f908aa",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.job_runner#6",
+      "source_sha256": "bc320654e9236f092354dfdf4a48f3679a560a8fd8f3256c71db5124f4550c3a",
+      "context_sha256": "c356486475a946e8ae08dca26b30de3019d43b9df0acd91ce144633696431d98",
+      "translation_sha256": "8d208c92f8712d8a41c0fb0970ddfe9ca06c71cfb7d470c152457eaf30db5e63",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.job_runner#7",
+      "source_sha256": "a3b9d83c75a585f9630ccb48a693bc732ee24fea0f6b3a3c2357eb3d4afbd993",
+      "context_sha256": "fe223a792c8da64bf1240ef6d7d3f55037822b715327e13c5a0f0c76c584d9ae",
+      "translation_sha256": "189e8e64c91ad4b6b6e2b04dcc213cfdf1f556e33fa8ee79536c768771a894a3",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.job_runner.shutdown_all#0",
+      "source_sha256": "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+      "context_sha256": "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+      "translation_sha256": "37f607e94963fc930fc78a71f4bfc11bb4b63b2edeee9a02e909f9f3113b6e6c",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.job_runner.shutdown_all#1",
+      "source_sha256": "111d4fc12551b628e657ce0b1b2fc1267e1adfe25b2bdc23537161951d7f2e63",
+      "context_sha256": "b5d3e0782b3ec0a5aac780af6bbdffec5c812d1ae71dd9c4ad2c69fdb9d2953f",
+      "translation_sha256": "b643d8c7ba9d44aef5b519a0c88d408fddc249b09b324514f66ad7be28ccba82",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.job_runner.JobRunner#2",
+      "source_sha256": "4bc6c05bb54749ff5a4864f53c0af8290d24c9bf6267c8e055ef36b4cca8799d",
+      "context_sha256": "6c3f109e4e7e576032015e7cffd5785239b252eee97ea771dd0f5fbb4418d83c",
+      "translation_sha256": "c375c37b1560940b8611640707507e220c8a49f95ee8fdbd83d6941b5903948d",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.job_runner.JobRunner#8",
+      "source_sha256": "77df66e2774e1a2b804f6a5bdee60bf4ef9944791f1759986060ba2237adda31",
+      "context_sha256": "4a54a5dbee2402438a05327db31f934e9afbe8f32850dec5e350e1e29a0ccea7",
+      "translation_sha256": "c8b30492137e5fb49210ec7ad15a989e003092278bf5b9f99962591440e6fc8c",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.job_runner.JobRunner.submit#0",
+      "source_sha256": "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+      "context_sha256": "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+      "translation_sha256": "b478b48d8a6fda6cd4ee821e80d11590ffe256129acee5b98215bc6c398ee333",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.job_runner.JobRunner.submit#1",
+      "source_sha256": "f08913ad9d21131725f72abb034a529c3dda2332d79899caf1f24c00181cbd19",
+      "context_sha256": "47bf0b5fa56db3f9f6abcb2da32522d56bc92fb969ae8e3b60e789cade5cd4f3",
+      "translation_sha256": "35e66293a4e571644a6bd71a3acbef853492dbda1d0ff4dfad52fb761df80dae",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.job_runner.JobRunner.submit#2",
+      "source_sha256": "91d4022c8f10c4d8b8245357cf161aa0cc7aa3b9988b52caef6dbc8b7966d423",
+      "context_sha256": "dc0c2cf0554056ff85c86545beb8294ebdf33d7122bdac020289e91d09a801fd",
+      "translation_sha256": "6acc900f08279dceea8de276cb65f12612158d7a1915efc8b81356fb955cb8c6",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.job_runner.JobRunner.submit#3",
+      "source_sha256": "90d1db857344eea5f92934a50442464252588b41ad05498017ba9b2a0489cf8b",
+      "context_sha256": "5926c0e7dd303f8a6e26d3142a611fb54ad0c1ced9c99fc53d89644944cc6589",
+      "translation_sha256": "6437ca3bb9dc7dff079302f2a6e696ae31bf24b80c29f032ac1678042297358b",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.job_runner.JobRunner.is_busy#0",
+      "source_sha256": "d390ff41411dd16f1fc584440d4d51efd0af50fca56ae67423a5fbc6464fc8f9",
+      "context_sha256": "9c562a4b227ab1dcf2121e3519a17d7b68f63310abe1158532e83be52e756fc3",
+      "translation_sha256": "4eab6bcc6bf4baf44c1e7122397f6628ccc42f54eade05c60a44f69586eefd52",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.job_runner.JobRunner.is_busy#1",
+      "source_sha256": "44768f13d7786faa2d7476e04b92ec6ae31039b936c85320495dceed2e50a285",
+      "context_sha256": "8eea819018daff69731c0f7a80fdfdbfe22804eb22836a83b10911860e57728b",
+      "translation_sha256": "5a63cd562d375dbc0d1054de3c3cdf846bb61d0a0d800af18c6408eb850914c7",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.job_runner.JobRunner.active_jobs#0",
+      "source_sha256": "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+      "context_sha256": "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+      "translation_sha256": "a31ee936a2c0dd5640eb61303937603cd2cdc1d6524cf53802c1c1fc666adc2a",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.job_runner.JobRunner.active_jobs#1",
+      "source_sha256": "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463",
+      "context_sha256": "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463",
+      "translation_sha256": "b90c595222731b6fc211974fcfd278c1fea679e0c1ac6a4d7ef1d607b27e7ecd",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.job_runner.JobRunner.pending_jobs#0",
+      "source_sha256": "155165745521820a53d42ebbe71c416fdda03348dbba8e835c67e23eed98d193",
+      "context_sha256": "ee8f2562bb8aabba481448d1f2aefedce19a55a437df98135dc4e46cf0dd70b9",
+      "translation_sha256": "cb30b5aedffbd77da9cb71492378b5c92eb90c06fb494add2600662cfc42d5f2",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.job_runner.JobRunner.cancel#1",
+      "source_sha256": "1b5b3f695ec32a5c7d3cbec5cb89d55ce0b1fcdd6e7b3b0d7086454f582d9a24",
+      "context_sha256": "ebfb81797d760ce72efe06f15443e5dc13606bea802a980cf3e22d30fa0dbadb",
+      "translation_sha256": "7778111cc4698f97193864175beaa2f9160ee0f9d62bda9292be7c69ecc2f39a",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.job_runner.JobRunner.shutdown#0",
+      "source_sha256": "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+      "context_sha256": "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+      "translation_sha256": "e575d3403a551fe2c3b1b0b17389d2abe62b73961f657c7134042c32ad3d7996",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.job_runner#6",
+      "source_sha256": "bc320654e9236f092354dfdf4a48f3679a560a8fd8f3256c71db5124f4550c3a",
+      "context_sha256": "c356486475a946e8ae08dca26b30de3019d43b9df0acd91ce144633696431d98",
+      "translation_sha256": "c7bea374f933eb9f735b15867c469d6744a8dfbc6c70586b61a02b6a35949b38",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.job_runner#7",
+      "source_sha256": "a3b9d83c75a585f9630ccb48a693bc732ee24fea0f6b3a3c2357eb3d4afbd993",
+      "context_sha256": "fe223a792c8da64bf1240ef6d7d3f55037822b715327e13c5a0f0c76c584d9ae",
+      "translation_sha256": "2c9d74c671184476dbc9b88cd047a7ca4e1e4b01589ada1166a27f17f18042d2",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.job_runner.shutdown_all#0",
+      "source_sha256": "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+      "context_sha256": "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+      "translation_sha256": "f6f646cbacba9bb9f23e4eaf405e942523ea6b3508f2a988038a2378b54365d1",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.job_runner.shutdown_all#1",
+      "source_sha256": "111d4fc12551b628e657ce0b1b2fc1267e1adfe25b2bdc23537161951d7f2e63",
+      "context_sha256": "b5d3e0782b3ec0a5aac780af6bbdffec5c812d1ae71dd9c4ad2c69fdb9d2953f",
+      "translation_sha256": "5949a141aee0d1a04a60b9b41e211f31f79b2f261b944cf59252f76e86a4c570",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.job_runner.JobRunner#2",
+      "source_sha256": "4bc6c05bb54749ff5a4864f53c0af8290d24c9bf6267c8e055ef36b4cca8799d",
+      "context_sha256": "6c3f109e4e7e576032015e7cffd5785239b252eee97ea771dd0f5fbb4418d83c",
+      "translation_sha256": "5e163d540f53e4ecd83579a83c4d0e4deffd5247b834c441c9959bf7dc8a8385",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.job_runner.JobRunner#8",
+      "source_sha256": "77df66e2774e1a2b804f6a5bdee60bf4ef9944791f1759986060ba2237adda31",
+      "context_sha256": "4a54a5dbee2402438a05327db31f934e9afbe8f32850dec5e350e1e29a0ccea7",
+      "translation_sha256": "f289ca59767510770bc8907279c38179be762bdd3da43f704c5c1f67780d3fd1",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.job_runner.JobRunner.submit#0",
+      "source_sha256": "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+      "context_sha256": "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+      "translation_sha256": "0bfe44a3b009db36692f40e8f2c55f37bb1ef2920d6e940262bf2059c44bb8a9",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.job_runner.JobRunner.submit#1",
+      "source_sha256": "f08913ad9d21131725f72abb034a529c3dda2332d79899caf1f24c00181cbd19",
+      "context_sha256": "47bf0b5fa56db3f9f6abcb2da32522d56bc92fb969ae8e3b60e789cade5cd4f3",
+      "translation_sha256": "5c1dc072ede1de2c20e9caa2e0d92c5d34a6ae0372aafde1d96a4c12e4ef096c",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.job_runner.JobRunner.submit#2",
+      "source_sha256": "91d4022c8f10c4d8b8245357cf161aa0cc7aa3b9988b52caef6dbc8b7966d423",
+      "context_sha256": "dc0c2cf0554056ff85c86545beb8294ebdf33d7122bdac020289e91d09a801fd",
+      "translation_sha256": "905ad10e5ca9801daf9182362dd82e9d4a7151eed62f0639faba1ac66571dff3",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.job_runner.JobRunner.submit#3",
+      "source_sha256": "90d1db857344eea5f92934a50442464252588b41ad05498017ba9b2a0489cf8b",
+      "context_sha256": "5926c0e7dd303f8a6e26d3142a611fb54ad0c1ced9c99fc53d89644944cc6589",
+      "translation_sha256": "6ebea68a8e2a056b0ed67f5b4ce60ea75e5d14fd84e821af9b3afd1f84e13aea",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.job_runner.JobRunner.is_busy#0",
+      "source_sha256": "d390ff41411dd16f1fc584440d4d51efd0af50fca56ae67423a5fbc6464fc8f9",
+      "context_sha256": "9c562a4b227ab1dcf2121e3519a17d7b68f63310abe1158532e83be52e756fc3",
+      "translation_sha256": "df93b4dbb758c0de3431b7cafb767ce9704759bca4d27764cee58d7d9f111e28",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.job_runner.JobRunner.is_busy#1",
+      "source_sha256": "44768f13d7786faa2d7476e04b92ec6ae31039b936c85320495dceed2e50a285",
+      "context_sha256": "8eea819018daff69731c0f7a80fdfdbfe22804eb22836a83b10911860e57728b",
+      "translation_sha256": "bea56a0a54b94ffb13cec82d315fbdde53b8ac0e46522610bf3a9f85bfc0899f",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.job_runner.JobRunner.active_jobs#0",
+      "source_sha256": "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+      "context_sha256": "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+      "translation_sha256": "d4fde1d957eba0d05ee6ecc7cebc598934c832d801c68a867c34c5a30494c5b2",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.job_runner.JobRunner.active_jobs#1",
+      "source_sha256": "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463",
+      "context_sha256": "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463",
+      "translation_sha256": "85776d2fd42a1ba1e0bf42d8e9bde6dcba94b1bb92bb34237e13059e058b639b",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.job_runner.JobRunner.pending_jobs#0",
+      "source_sha256": "155165745521820a53d42ebbe71c416fdda03348dbba8e835c67e23eed98d193",
+      "context_sha256": "ee8f2562bb8aabba481448d1f2aefedce19a55a437df98135dc4e46cf0dd70b9",
+      "translation_sha256": "43b9ab58ee3a5df713338991cab6e8f7c3ee761f31eb972731099edbc693333d",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.job_runner.JobRunner.cancel#1",
+      "source_sha256": "1b5b3f695ec32a5c7d3cbec5cb89d55ce0b1fcdd6e7b3b0d7086454f582d9a24",
+      "context_sha256": "ebfb81797d760ce72efe06f15443e5dc13606bea802a980cf3e22d30fa0dbadb",
+      "translation_sha256": "9eaf4e78677a39c5b981bc6b3b56c3b3bce84151d2aa32d2692403043d297c63",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.job_runner.JobRunner.shutdown#0",
+      "source_sha256": "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+      "context_sha256": "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+      "translation_sha256": "c652f3924d958d0efc4a940c60dd6fb8a56b851dcd3ff1ddb36425321dec7310",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.job_runner#6",
+      "source_sha256": "bc320654e9236f092354dfdf4a48f3679a560a8fd8f3256c71db5124f4550c3a",
+      "context_sha256": "c356486475a946e8ae08dca26b30de3019d43b9df0acd91ce144633696431d98",
+      "translation_sha256": "4f56171103af8c4c6773df1b479e07e6e88d395a131965315451be1e8b8401a3",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.job_runner#7",
+      "source_sha256": "a3b9d83c75a585f9630ccb48a693bc732ee24fea0f6b3a3c2357eb3d4afbd993",
+      "context_sha256": "fe223a792c8da64bf1240ef6d7d3f55037822b715327e13c5a0f0c76c584d9ae",
+      "translation_sha256": "1394dbfd7bd5abda5088df2521cf0f080bf8201db4ccbba5fb39ba89dcd7464e",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.job_runner.shutdown_all#0",
+      "source_sha256": "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+      "context_sha256": "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+      "translation_sha256": "aae691659cab95a5821ee9ddc2621dc46b5a176acea77536f1294b15b3340a96",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.job_runner.shutdown_all#1",
+      "source_sha256": "111d4fc12551b628e657ce0b1b2fc1267e1adfe25b2bdc23537161951d7f2e63",
+      "context_sha256": "b5d3e0782b3ec0a5aac780af6bbdffec5c812d1ae71dd9c4ad2c69fdb9d2953f",
+      "translation_sha256": "e6e57f7486b24edfcb8da7fc91c3ac25fc6d1891bc187ee97ec240cf2a0e0fb8",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.job_runner.JobRunner#2",
+      "source_sha256": "4bc6c05bb54749ff5a4864f53c0af8290d24c9bf6267c8e055ef36b4cca8799d",
+      "context_sha256": "6c3f109e4e7e576032015e7cffd5785239b252eee97ea771dd0f5fbb4418d83c",
+      "translation_sha256": "0519440185b316b68400f8f98041332806543ca39be9df9045065214ca5dba81",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.job_runner.JobRunner#8",
+      "source_sha256": "77df66e2774e1a2b804f6a5bdee60bf4ef9944791f1759986060ba2237adda31",
+      "context_sha256": "4a54a5dbee2402438a05327db31f934e9afbe8f32850dec5e350e1e29a0ccea7",
+      "translation_sha256": "93c506db80d1f7d40ebe51004256979d2041a87db0ff548a340734c7838c6d1e",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.job_runner.JobRunner.submit#0",
+      "source_sha256": "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+      "context_sha256": "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+      "translation_sha256": "2d0bb61d51258d4011d30c7d08d47495eccb386be27b137f74da59d25629f16a",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.job_runner.JobRunner.submit#1",
+      "source_sha256": "f08913ad9d21131725f72abb034a529c3dda2332d79899caf1f24c00181cbd19",
+      "context_sha256": "47bf0b5fa56db3f9f6abcb2da32522d56bc92fb969ae8e3b60e789cade5cd4f3",
+      "translation_sha256": "0d657e4fc1191f66780d2689cba3fa85e1d76d994b77a688cfb0f051af8771bb",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.job_runner.JobRunner.submit#2",
+      "source_sha256": "91d4022c8f10c4d8b8245357cf161aa0cc7aa3b9988b52caef6dbc8b7966d423",
+      "context_sha256": "dc0c2cf0554056ff85c86545beb8294ebdf33d7122bdac020289e91d09a801fd",
+      "translation_sha256": "df42c609e01ea326ad4bdbaa6018d9cba6b3cd5f2717b61de951318796454df1",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.job_runner.JobRunner.submit#3",
+      "source_sha256": "90d1db857344eea5f92934a50442464252588b41ad05498017ba9b2a0489cf8b",
+      "context_sha256": "5926c0e7dd303f8a6e26d3142a611fb54ad0c1ced9c99fc53d89644944cc6589",
+      "translation_sha256": "62b71cd6b88132724a69821a44b6f6ed6871afca276ebd9e56bef62ef1c98d60",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.job_runner.JobRunner.is_busy#0",
+      "source_sha256": "d390ff41411dd16f1fc584440d4d51efd0af50fca56ae67423a5fbc6464fc8f9",
+      "context_sha256": "9c562a4b227ab1dcf2121e3519a17d7b68f63310abe1158532e83be52e756fc3",
+      "translation_sha256": "9f59bad5e5f725b37658a5a8588ab1fa956259cfa7a4a8c77971770652886125",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.job_runner.JobRunner.is_busy#1",
+      "source_sha256": "44768f13d7786faa2d7476e04b92ec6ae31039b936c85320495dceed2e50a285",
+      "context_sha256": "8eea819018daff69731c0f7a80fdfdbfe22804eb22836a83b10911860e57728b",
+      "translation_sha256": "5074d9e5b00950a52b538e884c1007b8fcbc8d1bf3752fedf2f650f11677fcd7",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.job_runner.JobRunner.active_jobs#0",
+      "source_sha256": "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+      "context_sha256": "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+      "translation_sha256": "02769189a3cc511b9778c5879164101fb802dc9b2f8b0b0f331c2e45fde263d1",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.job_runner.JobRunner.active_jobs#1",
+      "source_sha256": "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463",
+      "context_sha256": "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463",
+      "translation_sha256": "2248da1b330ba5b91a7151f5d45d32308d29dae834dae1bc83aa55ca5cafdd60",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.job_runner.JobRunner.pending_jobs#0",
+      "source_sha256": "155165745521820a53d42ebbe71c416fdda03348dbba8e835c67e23eed98d193",
+      "context_sha256": "ee8f2562bb8aabba481448d1f2aefedce19a55a437df98135dc4e46cf0dd70b9",
+      "translation_sha256": "3c4c7f67883126896eeff4f7f16114c60ae33a02f3b55b6a19cbf1a63cfc207c",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.job_runner.JobRunner.cancel#1",
+      "source_sha256": "1b5b3f695ec32a5c7d3cbec5cb89d55ce0b1fcdd6e7b3b0d7086454f582d9a24",
+      "context_sha256": "ebfb81797d760ce72efe06f15443e5dc13606bea802a980cf3e22d30fa0dbadb",
+      "translation_sha256": "ec825fdc9c5f4f40e6aaddcf1b7636d61bbf17185bbacf3484575dd529ad751f",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.job_runner.JobRunner.shutdown#0",
+      "source_sha256": "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+      "context_sha256": "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+      "translation_sha256": "06bccf55011348c8af852ccb06fa50e678e515cee530552be11926c8c7b0bb24",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.job_runner#6",
+      "source_sha256": "bc320654e9236f092354dfdf4a48f3679a560a8fd8f3256c71db5124f4550c3a",
+      "context_sha256": "c356486475a946e8ae08dca26b30de3019d43b9df0acd91ce144633696431d98",
+      "translation_sha256": "4b26c0cd7656e9422a3b1886c0ea95be8c4a9c881ee5bbb7f4537322e014ed8f",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.job_runner#7",
+      "source_sha256": "a3b9d83c75a585f9630ccb48a693bc732ee24fea0f6b3a3c2357eb3d4afbd993",
+      "context_sha256": "fe223a792c8da64bf1240ef6d7d3f55037822b715327e13c5a0f0c76c584d9ae",
+      "translation_sha256": "5cbe4494041e7632d886042667d6afd9522bdd640d2cef2d479b081f6b9a2f75",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.job_runner.shutdown_all#0",
+      "source_sha256": "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+      "context_sha256": "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+      "translation_sha256": "e422fa5bf346903300a2d0263e42451bb73e96afa9c5227cc905ab38d5343481",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.job_runner.shutdown_all#1",
+      "source_sha256": "111d4fc12551b628e657ce0b1b2fc1267e1adfe25b2bdc23537161951d7f2e63",
+      "context_sha256": "b5d3e0782b3ec0a5aac780af6bbdffec5c812d1ae71dd9c4ad2c69fdb9d2953f",
+      "translation_sha256": "dc0a60befb74074dbfaa43dc8dae87f678c95fead35d3b39070b304033daac69",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.job_runner.JobRunner#2",
+      "source_sha256": "4bc6c05bb54749ff5a4864f53c0af8290d24c9bf6267c8e055ef36b4cca8799d",
+      "context_sha256": "6c3f109e4e7e576032015e7cffd5785239b252eee97ea771dd0f5fbb4418d83c",
+      "translation_sha256": "fbabc7e7daa211c2b14ec67f884679f298e24e37513f289976f348002659c9df",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.job_runner.JobRunner#8",
+      "source_sha256": "77df66e2774e1a2b804f6a5bdee60bf4ef9944791f1759986060ba2237adda31",
+      "context_sha256": "4a54a5dbee2402438a05327db31f934e9afbe8f32850dec5e350e1e29a0ccea7",
+      "translation_sha256": "0e952da81863880a70e84e3549bfb47ebc4fd95c47730a6a860e715d40358f01",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.job_runner.JobRunner.submit#0",
+      "source_sha256": "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+      "context_sha256": "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+      "translation_sha256": "dd1e2060a09f028e44b01efbf8ffb92739ae49f376fa8f4d4e96192680a95a46",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.job_runner.JobRunner.submit#1",
+      "source_sha256": "f08913ad9d21131725f72abb034a529c3dda2332d79899caf1f24c00181cbd19",
+      "context_sha256": "47bf0b5fa56db3f9f6abcb2da32522d56bc92fb969ae8e3b60e789cade5cd4f3",
+      "translation_sha256": "93bc52d763262616b0987711f2fab87dd99c5e42177e1795ea245aacfd2cc1ca",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.job_runner.JobRunner.submit#2",
+      "source_sha256": "91d4022c8f10c4d8b8245357cf161aa0cc7aa3b9988b52caef6dbc8b7966d423",
+      "context_sha256": "dc0c2cf0554056ff85c86545beb8294ebdf33d7122bdac020289e91d09a801fd",
+      "translation_sha256": "fe80cb4d3a86b3cb94510a7bb62747d1c76d9b4fbad41424a44c18c65df34d37",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.job_runner.JobRunner.submit#3",
+      "source_sha256": "90d1db857344eea5f92934a50442464252588b41ad05498017ba9b2a0489cf8b",
+      "context_sha256": "5926c0e7dd303f8a6e26d3142a611fb54ad0c1ced9c99fc53d89644944cc6589",
+      "translation_sha256": "3c05f01851aae60032c8fef1017a4900ba3b8d14b13c79127f1bee4aafcafc1e",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.job_runner.JobRunner.is_busy#0",
+      "source_sha256": "d390ff41411dd16f1fc584440d4d51efd0af50fca56ae67423a5fbc6464fc8f9",
+      "context_sha256": "9c562a4b227ab1dcf2121e3519a17d7b68f63310abe1158532e83be52e756fc3",
+      "translation_sha256": "db73b54c2bcae4e28d4a5411c3c5523369785b96c111b07a770d31b9d02df0b6",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.job_runner.JobRunner.is_busy#1",
+      "source_sha256": "44768f13d7786faa2d7476e04b92ec6ae31039b936c85320495dceed2e50a285",
+      "context_sha256": "8eea819018daff69731c0f7a80fdfdbfe22804eb22836a83b10911860e57728b",
+      "translation_sha256": "6aa961f41b919fccd5bf02f588c7315dfa079b6ee627681ae80eb11089357bca",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.job_runner.JobRunner.active_jobs#0",
+      "source_sha256": "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+      "context_sha256": "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+      "translation_sha256": "13dfe05e30330440f3d419aed4aedea62b1c46035cbdf5a465007f2dfe095b8d",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.job_runner.JobRunner.active_jobs#1",
+      "source_sha256": "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463",
+      "context_sha256": "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463",
+      "translation_sha256": "5c6b997633320888f498162c1527b8215393fce1664d0eb40f10636625e82c8e",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.job_runner.JobRunner.pending_jobs#0",
+      "source_sha256": "155165745521820a53d42ebbe71c416fdda03348dbba8e835c67e23eed98d193",
+      "context_sha256": "ee8f2562bb8aabba481448d1f2aefedce19a55a437df98135dc4e46cf0dd70b9",
+      "translation_sha256": "c4286f123d227029075129c083038fd5d2cdddeed1f59f91ca859291f51489ef",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.job_runner.JobRunner.cancel#1",
+      "source_sha256": "1b5b3f695ec32a5c7d3cbec5cb89d55ce0b1fcdd6e7b3b0d7086454f582d9a24",
+      "context_sha256": "ebfb81797d760ce72efe06f15443e5dc13606bea802a980cf3e22d30fa0dbadb",
+      "translation_sha256": "0c0002e5d621e01bb51a2cd3d4cd75ef054502093390132ca0ab7d55849c036e",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.job_runner.JobRunner.shutdown#0",
+      "source_sha256": "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+      "context_sha256": "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+      "translation_sha256": "e0deddd2eff44a91607cf84ea468942cda9523d9a0c61f9b71d7f2f55ce7f1f6",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.job_runner#6",
+      "source_sha256": "bc320654e9236f092354dfdf4a48f3679a560a8fd8f3256c71db5124f4550c3a",
+      "context_sha256": "c356486475a946e8ae08dca26b30de3019d43b9df0acd91ce144633696431d98",
+      "translation_sha256": "17dd57d6f5b5ff90ed22016391d985bd8fdfda836900519f982efb78599763e7",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.job_runner#7",
+      "source_sha256": "a3b9d83c75a585f9630ccb48a693bc732ee24fea0f6b3a3c2357eb3d4afbd993",
+      "context_sha256": "fe223a792c8da64bf1240ef6d7d3f55037822b715327e13c5a0f0c76c584d9ae",
+      "translation_sha256": "df53e5cbd6facd6968c0bd6397a1e79d1f85fdf85d265f6da119bea090bafd8e",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.job_runner.shutdown_all#0",
+      "source_sha256": "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+      "context_sha256": "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+      "translation_sha256": "96cce435df4d3dd710cf52025ef76df45bdf94f506712529d49f5422e5d02787",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.job_runner.shutdown_all#1",
+      "source_sha256": "111d4fc12551b628e657ce0b1b2fc1267e1adfe25b2bdc23537161951d7f2e63",
+      "context_sha256": "b5d3e0782b3ec0a5aac780af6bbdffec5c812d1ae71dd9c4ad2c69fdb9d2953f",
+      "translation_sha256": "739b0fd6a6928ca6ca14e5c38c91c253620c88d669c9e9d33df50f61d2a6ec47",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.job_runner.JobRunner#2",
+      "source_sha256": "4bc6c05bb54749ff5a4864f53c0af8290d24c9bf6267c8e055ef36b4cca8799d",
+      "context_sha256": "6c3f109e4e7e576032015e7cffd5785239b252eee97ea771dd0f5fbb4418d83c",
+      "translation_sha256": "9b0008cc9c29b3b62c61ab8ecf802f853f14c6f727c0bc263d4746e6e4310efb",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.job_runner.JobRunner#8",
+      "source_sha256": "77df66e2774e1a2b804f6a5bdee60bf4ef9944791f1759986060ba2237adda31",
+      "context_sha256": "4a54a5dbee2402438a05327db31f934e9afbe8f32850dec5e350e1e29a0ccea7",
+      "translation_sha256": "b1c9d74a0d8534fca9ab914c706dab589f929cdc8a813e96438568a753e2ce06",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.job_runner.JobRunner.submit#0",
+      "source_sha256": "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+      "context_sha256": "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+      "translation_sha256": "f2ab7607d8b7b54fe5d1b3f2dd5cb92b5b5a6e849eb332c1a5062bb7cbaa71d6",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.job_runner.JobRunner.submit#1",
+      "source_sha256": "f08913ad9d21131725f72abb034a529c3dda2332d79899caf1f24c00181cbd19",
+      "context_sha256": "47bf0b5fa56db3f9f6abcb2da32522d56bc92fb969ae8e3b60e789cade5cd4f3",
+      "translation_sha256": "5dec31e83aa7c74211edfa7cc0fdcca0e5191cda85c2115e9d04ad5298c63af3",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.job_runner.JobRunner.submit#2",
+      "source_sha256": "91d4022c8f10c4d8b8245357cf161aa0cc7aa3b9988b52caef6dbc8b7966d423",
+      "context_sha256": "dc0c2cf0554056ff85c86545beb8294ebdf33d7122bdac020289e91d09a801fd",
+      "translation_sha256": "b4e84317b76d7f5e95053a53f897a2039a7a2ed2c64a1380450e7cbf2de962d8",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.job_runner.JobRunner.submit#3",
+      "source_sha256": "90d1db857344eea5f92934a50442464252588b41ad05498017ba9b2a0489cf8b",
+      "context_sha256": "5926c0e7dd303f8a6e26d3142a611fb54ad0c1ced9c99fc53d89644944cc6589",
+      "translation_sha256": "c5b2e33e5e793c3ddd086cb447ad653812963a2f895dcb2ebbc906e83b54dd4e",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.job_runner.JobRunner.is_busy#0",
+      "source_sha256": "d390ff41411dd16f1fc584440d4d51efd0af50fca56ae67423a5fbc6464fc8f9",
+      "context_sha256": "9c562a4b227ab1dcf2121e3519a17d7b68f63310abe1158532e83be52e756fc3",
+      "translation_sha256": "544642c11d1da8a3cb41226e2a06f4d4ff94b142d5b0c78e3bdb5115e144a8ca",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.job_runner.JobRunner.is_busy#1",
+      "source_sha256": "44768f13d7786faa2d7476e04b92ec6ae31039b936c85320495dceed2e50a285",
+      "context_sha256": "8eea819018daff69731c0f7a80fdfdbfe22804eb22836a83b10911860e57728b",
+      "translation_sha256": "3acf8a00f9fb69362d8994d9067120fe2c5388f065607674d6351f2be7bbadba",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.job_runner.JobRunner.active_jobs#0",
+      "source_sha256": "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+      "context_sha256": "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+      "translation_sha256": "9026e3ae558531c589b7e019ee0c2215eace69e2c9159dea33fe544a92001a15",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.job_runner.JobRunner.active_jobs#1",
+      "source_sha256": "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463",
+      "context_sha256": "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463",
+      "translation_sha256": "db94544c7d5e2556de1c3cb55f8e6b427879c6fa755131b6caedb3ce701bd631",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.job_runner.JobRunner.pending_jobs#0",
+      "source_sha256": "155165745521820a53d42ebbe71c416fdda03348dbba8e835c67e23eed98d193",
+      "context_sha256": "ee8f2562bb8aabba481448d1f2aefedce19a55a437df98135dc4e46cf0dd70b9",
+      "translation_sha256": "95a3a39757ad87eced1a34252efef4cd687f016a3f40873255b2a27f17787a68",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.job_runner.JobRunner.cancel#1",
+      "source_sha256": "1b5b3f695ec32a5c7d3cbec5cb89d55ce0b1fcdd6e7b3b0d7086454f582d9a24",
+      "context_sha256": "ebfb81797d760ce72efe06f15443e5dc13606bea802a980cf3e22d30fa0dbadb",
+      "translation_sha256": "e0734505c429bb73d41b3832ec77b3a202a0f85eecd041cc9b958fc47853174b",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.job_runner.JobRunner.shutdown#0",
+      "source_sha256": "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+      "context_sha256": "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+      "translation_sha256": "9709899d4504cec29f8e1c64143bb014ad981dd78213ab8200fda40923b5aa1d",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.job_runner#6",
+      "source_sha256": "bc320654e9236f092354dfdf4a48f3679a560a8fd8f3256c71db5124f4550c3a",
+      "context_sha256": "c356486475a946e8ae08dca26b30de3019d43b9df0acd91ce144633696431d98",
+      "translation_sha256": "6be329fd7203d4e9a6c79671e15d4e0c85bfea66155a76ceef16b6b0037ba60e",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.job_runner#7",
+      "source_sha256": "a3b9d83c75a585f9630ccb48a693bc732ee24fea0f6b3a3c2357eb3d4afbd993",
+      "context_sha256": "fe223a792c8da64bf1240ef6d7d3f55037822b715327e13c5a0f0c76c584d9ae",
+      "translation_sha256": "46558c16d4af92012969edac6bb5064dd1b69b7cf9916e484d7922da8e987e21",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.job_runner.shutdown_all#0",
+      "source_sha256": "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+      "context_sha256": "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+      "translation_sha256": "fa0c2caff8a255ab0579f3912140c9127de3a39c4a6ba76c01aede71dd757a77",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.job_runner.shutdown_all#1",
+      "source_sha256": "111d4fc12551b628e657ce0b1b2fc1267e1adfe25b2bdc23537161951d7f2e63",
+      "context_sha256": "b5d3e0782b3ec0a5aac780af6bbdffec5c812d1ae71dd9c4ad2c69fdb9d2953f",
+      "translation_sha256": "7ec7c385e40e5a1f63d34ae48edd33d7e1f96ca2c2414a29f7b3e3e788483a52",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.job_runner.JobRunner#2",
+      "source_sha256": "4bc6c05bb54749ff5a4864f53c0af8290d24c9bf6267c8e055ef36b4cca8799d",
+      "context_sha256": "6c3f109e4e7e576032015e7cffd5785239b252eee97ea771dd0f5fbb4418d83c",
+      "translation_sha256": "66ebf6eb4fd73d79d426187c39d6261a7a655fe45afbbb167f7f4cff40cf14af",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.job_runner.JobRunner#8",
+      "source_sha256": "77df66e2774e1a2b804f6a5bdee60bf4ef9944791f1759986060ba2237adda31",
+      "context_sha256": "4a54a5dbee2402438a05327db31f934e9afbe8f32850dec5e350e1e29a0ccea7",
+      "translation_sha256": "ee6fdb549f6988e3889c8e79e0ec08fae01e7019d1ad0eb9082c23b0edb38bba",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.job_runner.JobRunner.submit#0",
+      "source_sha256": "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+      "context_sha256": "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+      "translation_sha256": "02d190f66f120ec40d53a6133afd37ded8977b03005d7b4ef0c68531bf8231b1",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.job_runner.JobRunner.submit#1",
+      "source_sha256": "f08913ad9d21131725f72abb034a529c3dda2332d79899caf1f24c00181cbd19",
+      "context_sha256": "47bf0b5fa56db3f9f6abcb2da32522d56bc92fb969ae8e3b60e789cade5cd4f3",
+      "translation_sha256": "c5bc42a968c684fc3d43d663eaea0de7bd24d409322003d438bab564e1960aba",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.job_runner.JobRunner.submit#2",
+      "source_sha256": "91d4022c8f10c4d8b8245357cf161aa0cc7aa3b9988b52caef6dbc8b7966d423",
+      "context_sha256": "dc0c2cf0554056ff85c86545beb8294ebdf33d7122bdac020289e91d09a801fd",
+      "translation_sha256": "0f6f1547fd716153792158d101e6efa47ea0937a200fa465a5de4ac211e71062",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.job_runner.JobRunner.submit#3",
+      "source_sha256": "90d1db857344eea5f92934a50442464252588b41ad05498017ba9b2a0489cf8b",
+      "context_sha256": "5926c0e7dd303f8a6e26d3142a611fb54ad0c1ced9c99fc53d89644944cc6589",
+      "translation_sha256": "a334bd8feea4830e1efc8e69a291953f11e36e0b683c51962bd1f69d58bb2392",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.job_runner.JobRunner.is_busy#0",
+      "source_sha256": "d390ff41411dd16f1fc584440d4d51efd0af50fca56ae67423a5fbc6464fc8f9",
+      "context_sha256": "9c562a4b227ab1dcf2121e3519a17d7b68f63310abe1158532e83be52e756fc3",
+      "translation_sha256": "8e940ab29170066e72391ae4f95872b6e755abf2f0165c65f5c182883af66356",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.job_runner.JobRunner.is_busy#1",
+      "source_sha256": "44768f13d7786faa2d7476e04b92ec6ae31039b936c85320495dceed2e50a285",
+      "context_sha256": "8eea819018daff69731c0f7a80fdfdbfe22804eb22836a83b10911860e57728b",
+      "translation_sha256": "381515e689f80b4d0cd012abc4f028928a6e1ae3997043766505c78484a499bc",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.job_runner.JobRunner.active_jobs#0",
+      "source_sha256": "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+      "context_sha256": "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+      "translation_sha256": "0508132a56183dac467d57299dfec3b5819926e78fb1a6c49e3080f26093a1c7",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.job_runner.JobRunner.active_jobs#1",
+      "source_sha256": "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463",
+      "context_sha256": "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463",
+      "translation_sha256": "f6c638b50781de7cb0014002058eba5b2c2d1dfae17142ebd2464e4bbf0c5ee7",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.job_runner.JobRunner.pending_jobs#0",
+      "source_sha256": "155165745521820a53d42ebbe71c416fdda03348dbba8e835c67e23eed98d193",
+      "context_sha256": "ee8f2562bb8aabba481448d1f2aefedce19a55a437df98135dc4e46cf0dd70b9",
+      "translation_sha256": "e4115e1a8d6836ac16514f4e4f2c622a4e0e723f5653295a98deaa92ffb8a54d",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.job_runner.JobRunner.cancel#1",
+      "source_sha256": "1b5b3f695ec32a5c7d3cbec5cb89d55ce0b1fcdd6e7b3b0d7086454f582d9a24",
+      "context_sha256": "ebfb81797d760ce72efe06f15443e5dc13606bea802a980cf3e22d30fa0dbadb",
+      "translation_sha256": "30964eea44c3eb3eba2f30a1ed3890c2bb5ee364b1100ad8ee90af4516add3c5",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.job_runner.JobRunner.shutdown#0",
+      "source_sha256": "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+      "context_sha256": "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+      "translation_sha256": "e846a6321b9d9a64d2255966af4d9f19fabfd62f30b584911f0886f8aebaa009",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.job_runner#6",
+      "source_sha256": "bc320654e9236f092354dfdf4a48f3679a560a8fd8f3256c71db5124f4550c3a",
+      "context_sha256": "c356486475a946e8ae08dca26b30de3019d43b9df0acd91ce144633696431d98",
+      "translation_sha256": "7035ba45b4b423959a946dfb85c1b876850d45f6f5d9b8716163bc135384dae0",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.job_runner#7",
+      "source_sha256": "a3b9d83c75a585f9630ccb48a693bc732ee24fea0f6b3a3c2357eb3d4afbd993",
+      "context_sha256": "fe223a792c8da64bf1240ef6d7d3f55037822b715327e13c5a0f0c76c584d9ae",
+      "translation_sha256": "6ff35c401b1b4fa057370a47e9bc88b31d41fe86e5ee22c90f386cef85dfa7ff",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.job_runner.shutdown_all#0",
+      "source_sha256": "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+      "context_sha256": "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+      "translation_sha256": "34e5aa1140173fed3a8a83b928971ea2ca8cd9edf98c8c58852051862a6f2927",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.job_runner.shutdown_all#1",
+      "source_sha256": "111d4fc12551b628e657ce0b1b2fc1267e1adfe25b2bdc23537161951d7f2e63",
+      "context_sha256": "b5d3e0782b3ec0a5aac780af6bbdffec5c812d1ae71dd9c4ad2c69fdb9d2953f",
+      "translation_sha256": "733e69994763b070b29ccbcee5277e275a2395ffe4e83bd9b85b18524af002ee",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.job_runner.JobRunner#2",
+      "source_sha256": "4bc6c05bb54749ff5a4864f53c0af8290d24c9bf6267c8e055ef36b4cca8799d",
+      "context_sha256": "6c3f109e4e7e576032015e7cffd5785239b252eee97ea771dd0f5fbb4418d83c",
+      "translation_sha256": "44f88c9ffb9ce90251dc719d874a606d9278570b70e8ab541c0b81dcdd1fd02f",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.job_runner.JobRunner#8",
+      "source_sha256": "77df66e2774e1a2b804f6a5bdee60bf4ef9944791f1759986060ba2237adda31",
+      "context_sha256": "4a54a5dbee2402438a05327db31f934e9afbe8f32850dec5e350e1e29a0ccea7",
+      "translation_sha256": "d2c5c7a969bf781a790243d15a0a123807336f1b5406689637b3562f31cc7148",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.job_runner.JobRunner.submit#0",
+      "source_sha256": "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+      "context_sha256": "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+      "translation_sha256": "839ada3e9ff6510631d0957fc7b0848b883592bbda6f6675ee8a8199172f33b8",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.job_runner.JobRunner.submit#1",
+      "source_sha256": "f08913ad9d21131725f72abb034a529c3dda2332d79899caf1f24c00181cbd19",
+      "context_sha256": "47bf0b5fa56db3f9f6abcb2da32522d56bc92fb969ae8e3b60e789cade5cd4f3",
+      "translation_sha256": "736003979e354bce98eff52cba2f748c2654282c4e3bee6403bdb16cd608716d",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.job_runner.JobRunner.submit#2",
+      "source_sha256": "91d4022c8f10c4d8b8245357cf161aa0cc7aa3b9988b52caef6dbc8b7966d423",
+      "context_sha256": "dc0c2cf0554056ff85c86545beb8294ebdf33d7122bdac020289e91d09a801fd",
+      "translation_sha256": "c22ae5d1b8ef3fa09d6ae372401488d53d70e044d21245df4fcedcbe97baf7aa",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.job_runner.JobRunner.submit#3",
+      "source_sha256": "90d1db857344eea5f92934a50442464252588b41ad05498017ba9b2a0489cf8b",
+      "context_sha256": "5926c0e7dd303f8a6e26d3142a611fb54ad0c1ced9c99fc53d89644944cc6589",
+      "translation_sha256": "4e387c99be7285c22c70640036539f701db89eb5f1541595a4dfc166f06c8e66",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.job_runner.JobRunner.is_busy#0",
+      "source_sha256": "d390ff41411dd16f1fc584440d4d51efd0af50fca56ae67423a5fbc6464fc8f9",
+      "context_sha256": "9c562a4b227ab1dcf2121e3519a17d7b68f63310abe1158532e83be52e756fc3",
+      "translation_sha256": "2b16315ce5a4a2ac4e628bc0a9bd6a62742525801e8637591d81df3ae90d181e",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.job_runner.JobRunner.is_busy#1",
+      "source_sha256": "44768f13d7786faa2d7476e04b92ec6ae31039b936c85320495dceed2e50a285",
+      "context_sha256": "8eea819018daff69731c0f7a80fdfdbfe22804eb22836a83b10911860e57728b",
+      "translation_sha256": "d9f746559a6095bf2a5b87ccc3fecdf8bb2ca9e3d31a46fa353da16488f6dfb7",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.job_runner.JobRunner.active_jobs#0",
+      "source_sha256": "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+      "context_sha256": "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+      "translation_sha256": "107175e83d52b6f158d6167c83900230e93610db88b8ea44c08f96e2d7307daa",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.job_runner.JobRunner.active_jobs#1",
+      "source_sha256": "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463",
+      "context_sha256": "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463",
+      "translation_sha256": "d29cfceb4751caf316371d399837775054645df3a3b1d6d10201d6add90dba57",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.job_runner.JobRunner.pending_jobs#0",
+      "source_sha256": "155165745521820a53d42ebbe71c416fdda03348dbba8e835c67e23eed98d193",
+      "context_sha256": "ee8f2562bb8aabba481448d1f2aefedce19a55a437df98135dc4e46cf0dd70b9",
+      "translation_sha256": "5225d5be5dddb952e25f9927a3da26c6d8158280707cd448ccffcda2fb74d00c",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.job_runner.JobRunner.cancel#1",
+      "source_sha256": "1b5b3f695ec32a5c7d3cbec5cb89d55ce0b1fcdd6e7b3b0d7086454f582d9a24",
+      "context_sha256": "ebfb81797d760ce72efe06f15443e5dc13606bea802a980cf3e22d30fa0dbadb",
+      "translation_sha256": "bda794f9c978fffa9574f76afd4ff68e27b5c3835b26fbc8b606d8ef92a3aee5",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.job_runner.JobRunner.shutdown#0",
+      "source_sha256": "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+      "context_sha256": "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+      "translation_sha256": "9890fb2972bc5a3cf2d8af19a6aaf2fdcca9964f8a87d54ba697afecca0603de",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.job_runner#6",
+      "source_sha256": "bc320654e9236f092354dfdf4a48f3679a560a8fd8f3256c71db5124f4550c3a",
+      "context_sha256": "c356486475a946e8ae08dca26b30de3019d43b9df0acd91ce144633696431d98",
+      "translation_sha256": "4c565192ce495cfcc664abf945bdc829c67b825255d6bba0f1734091fea69467",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.job_runner#7",
+      "source_sha256": "a3b9d83c75a585f9630ccb48a693bc732ee24fea0f6b3a3c2357eb3d4afbd993",
+      "context_sha256": "fe223a792c8da64bf1240ef6d7d3f55037822b715327e13c5a0f0c76c584d9ae",
+      "translation_sha256": "2a54472e67afd3eab82e668313b25fccb63b90ac5d5f3f83c1f2c4ff203151b5",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.job_runner.shutdown_all#0",
+      "source_sha256": "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+      "context_sha256": "39d81d19aafd8149a64d67c854a7f0877784aa804df709448c46f66cf54464ee",
+      "translation_sha256": "18539ca256f46879bdb1e77d0a47d6a52a733e9bab88c2f57f4e21ae11dc0c47",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.job_runner.shutdown_all#1",
+      "source_sha256": "111d4fc12551b628e657ce0b1b2fc1267e1adfe25b2bdc23537161951d7f2e63",
+      "context_sha256": "b5d3e0782b3ec0a5aac780af6bbdffec5c812d1ae71dd9c4ad2c69fdb9d2953f",
+      "translation_sha256": "73fbb40ca30400b37145a01638e98e45e5f4545d89c3971208bfe0ac20114cd6",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.job_runner.JobRunner#2",
+      "source_sha256": "4bc6c05bb54749ff5a4864f53c0af8290d24c9bf6267c8e055ef36b4cca8799d",
+      "context_sha256": "6c3f109e4e7e576032015e7cffd5785239b252eee97ea771dd0f5fbb4418d83c",
+      "translation_sha256": "c3279944ccdc790a9483449dbbc64c08e4ab986c1718c49ce26738e31572c03d",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.job_runner.JobRunner#8",
+      "source_sha256": "77df66e2774e1a2b804f6a5bdee60bf4ef9944791f1759986060ba2237adda31",
+      "context_sha256": "4a54a5dbee2402438a05327db31f934e9afbe8f32850dec5e350e1e29a0ccea7",
+      "translation_sha256": "9d0b0048458f70c7026eed9bdc728dcb9b47808936a7ec80f10212e9aab28a9c",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.job_runner.JobRunner.submit#0",
+      "source_sha256": "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+      "context_sha256": "192c83ad8168010f5b72ed03045a4e262f042d21553dd16863f64aa2fdc67129",
+      "translation_sha256": "55ce38d97d3e73a453bc7b548b31cd88d00682e16611a0012d38bc58ab32ef4e",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.job_runner.JobRunner.submit#1",
+      "source_sha256": "f08913ad9d21131725f72abb034a529c3dda2332d79899caf1f24c00181cbd19",
+      "context_sha256": "47bf0b5fa56db3f9f6abcb2da32522d56bc92fb969ae8e3b60e789cade5cd4f3",
+      "translation_sha256": "744ca673c38c588f70ace3c7cacb7a0304996c9b412a74c0533943d58451009d",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.job_runner.JobRunner.submit#2",
+      "source_sha256": "91d4022c8f10c4d8b8245357cf161aa0cc7aa3b9988b52caef6dbc8b7966d423",
+      "context_sha256": "dc0c2cf0554056ff85c86545beb8294ebdf33d7122bdac020289e91d09a801fd",
+      "translation_sha256": "1f60ee45ce44af7c7e4dcfa13f8eafd066929e3bb0ff30081351b3d293aa7b5e",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.job_runner.JobRunner.submit#3",
+      "source_sha256": "90d1db857344eea5f92934a50442464252588b41ad05498017ba9b2a0489cf8b",
+      "context_sha256": "5926c0e7dd303f8a6e26d3142a611fb54ad0c1ced9c99fc53d89644944cc6589",
+      "translation_sha256": "9b3547631027139510ccd65374e4c2ba4c816fef5f7825c0659fe7adb826e4ee",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.job_runner.JobRunner.is_busy#0",
+      "source_sha256": "d390ff41411dd16f1fc584440d4d51efd0af50fca56ae67423a5fbc6464fc8f9",
+      "context_sha256": "9c562a4b227ab1dcf2121e3519a17d7b68f63310abe1158532e83be52e756fc3",
+      "translation_sha256": "8ab7d30fab2862a15bb187b81942018d34c093ce8be34c7718b68974265e1d1c",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.job_runner.JobRunner.is_busy#1",
+      "source_sha256": "44768f13d7786faa2d7476e04b92ec6ae31039b936c85320495dceed2e50a285",
+      "context_sha256": "8eea819018daff69731c0f7a80fdfdbfe22804eb22836a83b10911860e57728b",
+      "translation_sha256": "6403ab66787b5f3d2f89bfca824fae023c4528c351c68b7717becd43c4e92d1f",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.job_runner.JobRunner.active_jobs#0",
+      "source_sha256": "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+      "context_sha256": "c2d609254e58871062986dc66200c28c5c42e1944baaf7e5c310fdec079e92cd",
+      "translation_sha256": "a02a7080a712686e580600b3fd52ec0cce60e37f2699fa07a15df99af87f24bb",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.job_runner.JobRunner.active_jobs#1",
+      "source_sha256": "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463",
+      "context_sha256": "fceff749b05d98fe0be8a8dac79e697bdfe58448f013b4ee8025c83a2a47b463",
+      "translation_sha256": "86d70d2cb4ed20f80d19db61e0ff7c7a655c3e3d003ba1e3c18e10d99d48d14e",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.job_runner.JobRunner.pending_jobs#0",
+      "source_sha256": "155165745521820a53d42ebbe71c416fdda03348dbba8e835c67e23eed98d193",
+      "context_sha256": "ee8f2562bb8aabba481448d1f2aefedce19a55a437df98135dc4e46cf0dd70b9",
+      "translation_sha256": "70f55cfb9cce10b58f179cf7b10dcd38f05a7fd7742ec620f206619afcdc5624",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.job_runner.JobRunner.cancel#1",
+      "source_sha256": "1b5b3f695ec32a5c7d3cbec5cb89d55ce0b1fcdd6e7b3b0d7086454f582d9a24",
+      "context_sha256": "ebfb81797d760ce72efe06f15443e5dc13606bea802a980cf3e22d30fa0dbadb",
+      "translation_sha256": "5efb8ee809ea5228dc34848b7d8f13da94857e3439520597dca7e620dec00477",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.job_runner.JobRunner.shutdown#0",
+      "source_sha256": "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+      "context_sha256": "8eed6718ede34a66d43a817edaf5631a23aafa7795c14f99dc46e5d8cfbbc5a1",
+      "translation_sha256": "6f47cfa6f0d70f63142ac87dd12ff73cc7bce238acb6183007852b707860241a",
+      "decision": "PASS"
+    }
+  ],
+  "decision": "PASS"
+}

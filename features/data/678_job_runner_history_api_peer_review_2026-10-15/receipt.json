@@ -1,0 +1,296 @@
+{
+  "schema": 1,
+  "review_type": "Independent AI technical semantic review; no target authorship or human/native-speaker claim",
+  "source_commit": "35aa6c146f3b30eedab48f198166d32ba4e67ff0",
+  "source_file": {
+    "path": "spacr/qt/job_runner.py",
+    "sha256": "ab734fb22124a354a3d5357a32ad3010a9f68a970bafe2cd4e8055ca82458706"
+  },
+  "input_commit": "06b7b03319391b684e1aa17a4d8144d07b65800c",
+  "prior_153_receipt_commit": "bcd6e2f3f62",
+  "reviewed_count": 18,
+  "changed_block_count": 2,
+  "repair_count": 9,
+  "addition_count": 9,
+  "decision": "PASS",
+  "manifest_sha256": "a1a2c8937d2770b2ce3fe819edad58c436eb23e4a5480bbd89eeba5ee037e3e7",
+  "review_files": [
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-10-15-job-runner-history-repair.json",
+      "sha256": "c89ed857b96070d0c6cfb9bd6741537dd519f72b170c8b4cde29f76e96c3f375"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-10-15-job-runner-history-repair.json",
+      "sha256": "196826c887d9aa7ae1715f08268c4e0955939baafb682b711d4f84ebb1ba0c40"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-10-15-job-runner-history-repair.json",
+      "sha256": "cdda2af07148c499ccd436240e37294ec0002007a744b79d55aea27e6ed1d946"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-10-15-job-runner-history-repair.json",
+      "sha256": "52d27388e120cdf837bbf59fa91fa5201f8b4dd4a2af2c311a5de254b81c9a9b"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-10-15-job-runner-history-repair.json",
+      "sha256": "3b6795e86227d06d055eb4597e9a2844c28e68fabcb64397697b55828af336e1"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-10-15-job-runner-history-repair.json",
+      "sha256": "afa51b5e6ac830be60c2e0bf64a2debae99f8413e44cfde8acbfdbb7de7f5bd1"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-10-15-job-runner-history-repair.json",
+      "sha256": "20fdc4e629ce11b5dc5d21a3d0207fcef622d968bc851156082f6eba82aeaf0f"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-10-15-job-runner-history-repair.json",
+      "sha256": "e4b8a2bd29c7ca50deb26347aaff1a8372168fe19db2e4da08538144106b8246"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-10-15-job-runner-history-repair.json",
+      "sha256": "5bbabd7586c52a80cbec144999b652ef54aa04dfcec532990456c7b812932510"
+    }
+  ],
+  "semantic_findings": [
+    "All nine repaired shutdown paragraphs preserve closeEvent context, Qt process-abort consequence for destruction of a running QThread, bounded waiting, timeout_ms shared across the runner threads, and parking rather than forceful termination.",
+    "All nine added shutdown_all timeout parameter targets describe the total wait budget shared across runners, not a separate per-runner allowance.",
+    "These are actual target repairs/additions: old shutdown paragraphs omit timeout_ms, and old localized shutdown_all documents have only two blocks while the English has three. They are not identity-only provenance additions."
+  ],
+  "actual_source_binding": "The current shutdown paragraph and shutdown_all timeout parameter match exact AST docstrings at final source35aa. No source modification.",
+  "baseline_readback": {
+    "baseline": "de8394c0606",
+    "catalogs": [
+      {
+        "path": "docs/source/_static/i18n/api/sv.json",
+        "sha256": "b272caba82411cc39d75622068b4353a3ff0ec013a20bb64596709530cf18120",
+        "selected_records_match": true
+      },
+      {
+        "path": "docs/source/_static/i18n/api/de.json",
+        "sha256": "067207d6f8b4b4f6f7683910a0de0f3b1b468f4e323999f94e7345dfa20ed56d",
+        "selected_records_match": true
+      },
+      {
+        "path": "docs/source/_static/i18n/api/es.json",
+        "sha256": "d620aa80e473adc8b9eb208f20a87669e2bde1c2b5f5f4b5b46108689aa6dd89",
+        "selected_records_match": true
+      },
+      {
+        "path": "docs/source/_static/i18n/api/zh_CN.json",
+        "sha256": "0c9257c30a0a94b26653001b30ada11af03462a11f7ce28e09e09dad2927ea3b",
+        "selected_records_match": true
+      },
+      {
+        "path": "docs/source/_static/i18n/api/pt.json",
+        "sha256": "a0caa43d8c728291261ce3536c539f3bfff393ccd9c54363b078b2aab86165f5",
+        "selected_records_match": true
+      },
+      {
+        "path": "docs/source/_static/i18n/api/hi.json",
+        "sha256": "59a19955131c87d2f9864901e19223695374df60f7f82d9c756a6300e0492f65",
+        "selected_records_match": true
+      },
+      {
+        "path": "docs/source/_static/i18n/api/ko.json",
+        "sha256": "754cc8939fd33955176a89305b00055477ad17732807cb6ece9ef5ee16ca23a9",
+        "selected_records_match": true
+      },
+      {
+        "path": "docs/source/_static/i18n/api/is.json",
+        "sha256": "72c29fad8e4949616dd16162ae2e6cb7a63089ccc8210e3d27d8e875ada99708",
+        "selected_records_match": true
+      },
+      {
+        "path": "docs/source/_static/i18n/api/fr.json",
+        "sha256": "2c94938a177e5b43adc025ab1f79e29b85f87f1abc8657d54061731e58079c5b",
+        "selected_records_match": true
+      }
+    ],
+    "matched_record_count": 18
+  },
+  "prior_153_preservation": "All nine prior review input files match5832e80fa6a byte-for-byte at06b7b033193. The original153 approval remains separate and unchanged.",
+  "validation_boundary": "Read all18 source/target pairs, exact old public catalog records, and committed input files. Author normal gates reported passed. No duplicate collector, decoder, writer, runtime or native-language tests; no claims beyond these18 targets.",
+  "records": [
+    {
+      "language": "sv",
+      "label": "spacr.qt.job_runner.JobRunner.shutdown#1",
+      "source_sha256": "fd8e3acf30deef993bbe19e8315e7f4245bc63a47083b85eefa025e094bc781e",
+      "context_sha256": "fa200f18fd46b73095ed8d61a6de9ef76ce250ed6c69e1605a042c411f7e77bd",
+      "translation_sha256": "8c2905727f42a8b2677ad33a0580bdc41c610d6f15e88a8b3dc8a0955ea297aa",
+      "old_target_sha256": "f3089c0bf45e274084606ebc86db32243fd1ca832a17eeec45c027a40da59664",
+      "change_kind": "repair stale paragraph",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.job_runner.shutdown_all#2",
+      "source_sha256": "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5",
+      "context_sha256": "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5",
+      "translation_sha256": "14f36719c5029cbcd57c3d1aaafa8de23af8238bf8ce7d704226b648179cb42b",
+      "old_target_sha256": null,
+      "change_kind": "add missing parameter block",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.job_runner.JobRunner.shutdown#1",
+      "source_sha256": "fd8e3acf30deef993bbe19e8315e7f4245bc63a47083b85eefa025e094bc781e",
+      "context_sha256": "fa200f18fd46b73095ed8d61a6de9ef76ce250ed6c69e1605a042c411f7e77bd",
+      "translation_sha256": "d7a64272cf93e6dc794afe83a35bcc89fbdbded8a98f360ac9412a501df30e1a",
+      "old_target_sha256": "b50bf0cd870ed7f6b21678218adf4904c36da6871bd813582ffc17a636eff6c0",
+      "change_kind": "repair stale paragraph",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.job_runner.shutdown_all#2",
+      "source_sha256": "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5",
+      "context_sha256": "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5",
+      "translation_sha256": "63b06cbb512511f5067d60085faaa44bc4557cc0e559a1c3358913cce8e6aa7c",
+      "old_target_sha256": null,
+      "change_kind": "add missing parameter block",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.job_runner.JobRunner.shutdown#1",
+      "source_sha256": "fd8e3acf30deef993bbe19e8315e7f4245bc63a47083b85eefa025e094bc781e",
+      "context_sha256": "fa200f18fd46b73095ed8d61a6de9ef76ce250ed6c69e1605a042c411f7e77bd",
+      "translation_sha256": "b6f75dd4b2a36c6f71428f19e6f90701168022402bb2956e1616fe236412843a",
+      "old_target_sha256": "f4bb30cc4264b3de7ae9cc4b6c780ca77dc2f7d7b3cf9c6a4501a3d8e29ccc53",
+      "change_kind": "repair stale paragraph",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.job_runner.shutdown_all#2",
+      "source_sha256": "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5",
+      "context_sha256": "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5",
+      "translation_sha256": "d589565e052abc4464d8a62e78321b749bf7bc6476e4e21140293a666abe022a",
+      "old_target_sha256": null,
+      "change_kind": "add missing parameter block",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.job_runner.JobRunner.shutdown#1",
+      "source_sha256": "fd8e3acf30deef993bbe19e8315e7f4245bc63a47083b85eefa025e094bc781e",
+      "context_sha256": "fa200f18fd46b73095ed8d61a6de9ef76ce250ed6c69e1605a042c411f7e77bd",
+      "translation_sha256": "cace4f7e63bb1f990db42709e8c63522c2a7e2fb66e516b60b765f7d7411ea35",
+      "old_target_sha256": "b227520aebf1ec8dea2a213bd5dbb0e9f63d2c7150dd939f7f6f36952fff9309",
+      "change_kind": "repair stale paragraph",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.job_runner.shutdown_all#2",
+      "source_sha256": "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5",
+      "context_sha256": "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5",
+      "translation_sha256": "d1a641cb2483dbb200fb18f46466402c8618ec7077a9d9fbf6da0edcb9b7f362",
+      "old_target_sha256": null,
+      "change_kind": "add missing parameter block",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.job_runner.JobRunner.shutdown#1",
+      "source_sha256": "fd8e3acf30deef993bbe19e8315e7f4245bc63a47083b85eefa025e094bc781e",
+      "context_sha256": "fa200f18fd46b73095ed8d61a6de9ef76ce250ed6c69e1605a042c411f7e77bd",
+      "translation_sha256": "87af4f9ad80a18a3781aff9f464217095ba1aba2e2081eaa28e0c314a7132693",
+      "old_target_sha256": "adecf620b1220872d4f7ef2fb9ff288b2a1b5281d825af334755a9bd7f18f982",
+      "change_kind": "repair stale paragraph",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.job_runner.shutdown_all#2",
+      "source_sha256": "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5",
+      "context_sha256": "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5",
+      "translation_sha256": "8337562bfe397cffe89a5acf497127d296d5438260635dd80ac9912f096b0dce",
+      "old_target_sha256": null,
+      "change_kind": "add missing parameter block",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.job_runner.JobRunner.shutdown#1",
+      "source_sha256": "fd8e3acf30deef993bbe19e8315e7f4245bc63a47083b85eefa025e094bc781e",
+      "context_sha256": "fa200f18fd46b73095ed8d61a6de9ef76ce250ed6c69e1605a042c411f7e77bd",
+      "translation_sha256": "21f9b84e721e615829065dbe33fbab7effbd1d8ce5a1d5fcde9c4a6c52dca160",
+      "old_target_sha256": "6cd68829f6243f05d9f5b70aba55cb27a62a607a259280c16eea1d79785d4ec9",
+      "change_kind": "repair stale paragraph",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.job_runner.shutdown_all#2",
+      "source_sha256": "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5",
+      "context_sha256": "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5",
+      "translation_sha256": "d28f68d8030cc947d73fc0ed8687232c78a49c6f214e3acfa1a40f4e370c383a",
+      "old_target_sha256": null,
+      "change_kind": "add missing parameter block",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.job_runner.JobRunner.shutdown#1",
+      "source_sha256": "fd8e3acf30deef993bbe19e8315e7f4245bc63a47083b85eefa025e094bc781e",
+      "context_sha256": "fa200f18fd46b73095ed8d61a6de9ef76ce250ed6c69e1605a042c411f7e77bd",
+      "translation_sha256": "632cd03f13a411c2724a9a53b4cecb87edb9140d864dee610d5b2a47e87e1f4f",
+      "old_target_sha256": "28eaf1b5bdb712812c4167d202b4340fc1a1d9860291fe279d5d9cc8658f926b",
+      "change_kind": "repair stale paragraph",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.job_runner.shutdown_all#2",
+      "source_sha256": "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5",
+      "context_sha256": "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5",
+      "translation_sha256": "49e3cded85a0c3f05858c1a349c0e19ff4cf65712e8dc46baf135dfc5847f71a",
+      "old_target_sha256": null,
+      "change_kind": "add missing parameter block",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.job_runner.JobRunner.shutdown#1",
+      "source_sha256": "fd8e3acf30deef993bbe19e8315e7f4245bc63a47083b85eefa025e094bc781e",
+      "context_sha256": "fa200f18fd46b73095ed8d61a6de9ef76ce250ed6c69e1605a042c411f7e77bd",
+      "translation_sha256": "7f047e20642a6eb7d2c0bab59c2f4ce3cb8a6d360a5a7100f585d26c88a12ab3",
+      "old_target_sha256": "1208895b984d52cf5cc4b8ed56e7e9e6411326854c029738bbef9169fd896e9a",
+      "change_kind": "repair stale paragraph",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.job_runner.shutdown_all#2",
+      "source_sha256": "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5",
+      "context_sha256": "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5",
+      "translation_sha256": "e51a698e3aec8916eea5f680ca1cd9dc67b3dee7bff0905400e77a50b64738d7",
+      "old_target_sha256": null,
+      "change_kind": "add missing parameter block",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.job_runner.JobRunner.shutdown#1",
+      "source_sha256": "fd8e3acf30deef993bbe19e8315e7f4245bc63a47083b85eefa025e094bc781e",
+      "context_sha256": "fa200f18fd46b73095ed8d61a6de9ef76ce250ed6c69e1605a042c411f7e77bd",
+      "translation_sha256": "1a073a0660bfccc755ae7ed047c6d67ea5e234ad3dbb4ca5706be66613b01b73",
+      "old_target_sha256": "55e3126081a26ecdce31ad95fb66d542ab3ac1bdf3e2fd7aba7abadd76d69594",
+      "change_kind": "repair stale paragraph",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.job_runner.shutdown_all#2",
+      "source_sha256": "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5",
+      "context_sha256": "489515270617cc56a4c031607ac2769ee3d05add079795a8dc1829715e9d50a5",
+      "translation_sha256": "7508cc363344420237bf9a069f3ea00abd8700435a28f2ad146adb546c1896df",
+      "old_target_sha256": null,
+      "change_kind": "add missing parameter block",
+      "decision": "PASS"
+    }
+  ]
+}
