@@ -1,0 +1,78 @@
+{
+  "head": "16561325aa504cf8e98baeabdc26ddbfbecf6bee",
+  "retained_actual_snapshot_source_head": "e3f732d5c2d776b4fad29470e19b62c7f8c49543",
+  "retained_snapshot_sha256": "98cb1d9895bd58ae6aacb6e3c06ae4a7e6ef2de7d2481f2d383627f920d803c0",
+  "provenance_file_sha256": "c04ab64dd3efb4479a226410958d8e7bd7f8b14977e9f9bbdc66ce457ba9d85f",
+  "source_tool_API_catalog_and_all_other_review_pins_exact": true,
+  "intentional_seven_target_changes_only": {
+    "docs/i18n/reviewed/runtime/hi/2026-10-15-metadata-convention-status.json": {
+      "prior_sha256": "7c0f51c47361c122ca762e94ebb26f9cf37d23aed60b1cea12c324b1c08e5dc8",
+      "current_sha256": "6b1e3c39fed5312e04565c2bbc44cfeda3783a971b0390b023fa63f8297406cb",
+      "intentional_target_rows": [
+        "80b770e2d996dc40cd0b5c279679da0481f716a25e0c782d61d90181902fea1a",
+        "821810ab6b966d095f0a0a21501db2277c66375f3b4f18c9770be70f2a55a9fb"
+      ]
+    },
+    "docs/i18n/reviewed/runtime/ko/2026-10-15-metadata-convention-status.json": {
+      "prior_sha256": "b2fb1de2f7375c5bb7c9c3c01cdf3078eb0436a38260d2506a50d30a074c14c4",
+      "current_sha256": "f9e636e83841f8f71381f70550b38b44af7dc8d9d44c9e3660774490dc70277f",
+      "intentional_target_rows": [
+        "83dcef9065d4facb51a49c97ad99bd74a84ac8457385ef80a1c44cc03f680fba",
+        "80b770e2d996dc40cd0b5c279679da0481f716a25e0c782d61d90181902fea1a",
+        "821810ab6b966d095f0a0a21501db2277c66375f3b4f18c9770be70f2a55a9fb"
+      ]
+    },
+    "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-metadata-convention-status.json": {
+      "prior_sha256": "50103de157e1e2fab30936d2da45dbcb55ab988f8ccdccea6d23a4dc8944e5ef",
+      "current_sha256": "ecfd0404c6a35755a0e0e9dc5ad31d0957a960ca155f04c63d001aea9a36369d",
+      "intentional_target_rows": [
+        "80b770e2d996dc40cd0b5c279679da0481f716a25e0c782d61d90181902fea1a",
+        "821810ab6b966d095f0a0a21501db2277c66375f3b4f18c9770be70f2a55a9fb"
+      ]
+    }
+  },
+  "results": {
+    "sv": {
+      "exact_owned_records": 10,
+      "ordinary_reviewed_total": 7315
+    },
+    "de": {
+      "exact_owned_records": 10,
+      "ordinary_reviewed_total": 7300
+    },
+    "es": {
+      "exact_owned_records": 10,
+      "ordinary_reviewed_total": 7257
+    },
+    "zh_CN": {
+      "exact_owned_records": 10,
+      "ordinary_reviewed_total": 7592
+    },
+    "pt": {
+      "exact_owned_records": 10,
+      "ordinary_reviewed_total": 7277
+    },
+    "hi": {
+      "exact_owned_records": 10,
+      "ordinary_reviewed_total": 7475
+    },
+    "ko": {
+      "exact_owned_records": 10,
+      "ordinary_reviewed_total": 7525
+    },
+    "is": {
+      "exact_owned_records": 10,
+      "ordinary_reviewed_total": 7648
+    },
+    "fr": {
+      "exact_owned_records": 10,
+      "ordinary_reviewed_total": 7297
+    }
+  },
+  "all_normal_refusals": {},
+  "new_original_collector_calls": 0,
+  "no_generated_writes": true,
+  "git_status_clean": true,
+  "all_read_pins_unchanged_during_diagnostic": true,
+  "scope": "READ ONLY allnine ordinary loaders with exact genuine retained canonical snapshot and explicitly rebound seven reviewed targets; not runtime audit, generated catalog or whole locale acceptance."
+}
