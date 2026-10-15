@@ -11,6 +11,28 @@
 
 
 
+## 2026-10-15 Original Home — bounded Work04 source prerequisite approved
+
+Root reviewed the missing verifier predecessor rather than replacing the
+whole file. Exact proposed patch d43cc4639ecc77732301ca7dd3f98c2a6932c9c94a6a8eafa97b3fb969a6ff06
+reconstructs required8c92 from actuala19fd9. Scope: source-path bootstrap,
+narration-interruption/complete-native dispatch and two strict trace/tail/EOF
+helpers; all other original function/CLI/module AST stays unchanged. Root
+explicitly approves that operational dependency and private adoption of the
+three supplied K4/K5/K6 patches, only the six plan files, with exact final
+owner snapshot hashes and finite owning checks/independent peer before push.
+No full snapshot replacement, media/recording/encoding/render/upload, package
+change or native run is authorized by this code-integration step. Keep captured
+sourceb929 and player2427 identities separate. Source remains private while
+validated. Portable plan:data/n676_selective04_source_prerequisite_2026-10-15/.
+
+Actual CI scheduler snapshot: latest61b was pending behind older retained06cb
+group work (10 assigned running,15 unassigned queued,2 success). Push group
+cancel-in-progress=false is unchanged. No current-source failure or provider
+capacity diagnosis follows; no cancel/rerun/dispatch/config mutation performed.
+Evidence:data/ci_current_scheduler_snapshot_2026-10-15/. Final CI stays deferred.
+
+
 ## 2026-10-15 Original Home — completed04 media CI selector accepted
 
 Adopted Work's exact two-selector completed04 successor after79c8 publication.
