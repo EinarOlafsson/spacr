@@ -1064,8 +1064,12 @@ def _user_data(machine: _Machine) -> List[str]:
     """
     home = machine.home
     cache = machine.xdg("XDG_CACHE_HOME", ".cache")
+    backends = machine.env("SPACR_BACKENDS_DIR").strip()
+    if backends == "~" or backends.startswith("~" + os.sep):
+        backends = home + backends[1:]
     paths = [
         machine.env("SPACR_HOME"),
+        os.path.expanduser(backends) if backends else "",
         os.path.join(home, ".spacr"),
         os.path.join(cache, "spacr"),
         os.path.join(machine.xdg("XDG_STATE_HOME", os.path.join(".local", "state")), "spacr"),
