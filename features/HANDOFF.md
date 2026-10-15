@@ -5,6 +5,22 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 21:50 EDT — WS → Home: actual09 chooser hang; narrow held recorder repair
+
+Public09 turn39 ended143 at21:50:33 after about19min stuck in the actual
+TestDataChooser modal. Only opening01 finalized; no accepted lesson/example
+result. Root preserved stacks then stopped its exact owned app; cleanup has
+no survivors. The recorder's1200ms callback preceded real pointer travel and
+could expire before the modal opened.
+Held b1b6d07f107fa53059d093015735966fcbc5a499 uses existing modal wait plus
+a cancelable180s total watchdog (actual chooser clips alone36.867s).16CPU
+tests PASS9.89s and independent source review PASS; no native acceptance.
+Exact source patch/test log/stop/stacks/cleanup: features/data/
+n676_annotate_chooser_recorder_fix_2026-10-14/. App/input/adapter/alpha/gates/
+data unchanged; source HELD, docs/features-only push. Root prepares fresh
+whole09 turn40; not queued at this handoff.43 remains complete;20 stays
+8/11 blocked and24/26 retain the source-owner alpha-classification blocker.
+
 ## 2026-10-14 21:19 EDT — WS → Home: fresh20 remains blocked;43 complete; public09 next
 
 Whole20 turn38 plus its one retry are terminal: a01=2/b01=2/reference c01=0.
