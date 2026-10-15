@@ -1,0 +1,20 @@
+{
+  "reviewer": "Hard independent read-only technical source/evidence peer",
+  "commit": "01d8bdba82fb94c4f889166a67a3830492f058a9",
+  "disposition": "ACCEPT",
+  "fixture_sha256": "901a9e4cf81fafc5cef5684ba858cd75d08ecb60c6cbfba12463feea9cb70cd3",
+  "patch_sha256": "69546e7bb4a5489469fface5fb8aa22e3ca881551c15b4dd825288bc6223f337",
+  "outside_exact_fixture_ast_unchanged": true,
+  "all_original_assertions_ast_unchanged": true,
+  "wait_until_ast_unchanged": true,
+  "original_test_file_sha256": {
+    "tests/qt/test_umap_interactive_toggle.py": "f254c27b1bbd4e88b7144d269f79636d60e9f52bd194a59feeceb5bf21be8d3c",
+    "tests/qt/test_n667_stable_action_help.py": "4ed54e7050be80d4fe24fe2e64299c494f78ec033899aea2ba3af976007b4d49"
+  },
+  "constructor_semantics": "QEnterEvent receives actual widget-local QPointF(rect.center), window QPointF(mapTo(widget.window(),point)), global QPointF(mapToGlobal(point)), matching Qt6 typedEnter API. QApplication.sendEvent remains actual consumer; no generic-event casting or production edit.",
+  "author_evidence": "Single actual originalUMAP baseline139SIGSEGV, no crash retries; rawfinal2PASS6.62s retainedUMAP+existingbuttonfooter read. No reviewer rerun. Finalshellulimit-c0 verified; receiptstates unitLimitCORE0, baselineomissiondisclosed.",
+  "preserved_behavior": "Visibility assertion, shared preferred-delay0, realcallback wait1000, all original testfilebytes and timer/assertion logic unchanged.",
+  "limits": "OffscreenQt6.12 eventfixture only, no native-display/fullCI acceptance",
+  "baseline_log_sha256": "f930686b3c3e86db929f4dda40b56a6a0e8d12c6b45eb640d459e4a0776894b1",
+  "final_log_sha256": "62db5045bb431b67690f546300ed196247e8c269178cf6a975f0bec7377ab490"
+}
