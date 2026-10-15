@@ -1,5 +1,29 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Home-B — Graph controls and factual documentation delivery
+
+The Graph comparison workspace scope is implemented in the two owned widgets:
+71 source-bound integration checks pass, including explicit fallback selection,
+lazy panel handoff, cancelled late work and refusal of synchronous GUI metadata
+probes. Restore starts no data loading, measurement join, rendering or inference;
+normal bounded asynchronous missing-source validation remains enabled. The two
+new panel API methods and existing montage methods have126 independently
+reviewed translation targets. Original Home retains real-app DB registration
+and any demonstrated settings-before-panel core ordering fix; no duplicate
+app_screen/workspace edits were made here. Whole N180 acceptance remains open.
+
+N678 row-exclusion72 and register_app9 translation targets are also complete.
+The latter documents both initial fallback and later maturity classification,
+without changing stage policy. Coordinator independently verifies11 owned API
+symbols in all10 catalogs, source/review hashes and all unrelated incoming
+records against published1d90f7c921b. Doc-only executable ASTs are unchanged.
+Normal Help search regeneration must include the two new public methods before
+publication; its current two-helper DINO manifest prerequisite is being fixed
+through the normal documentation owner. Evidence:
+features/data/180_graph_coordinator_readback_2026-10-15/ and the corresponding
+source, catalog and independent-peer directories. Final full CI and release
+remain deferred per maintainer instructions.
+
 ## 2026-10-15 Original Home — Classify public-route source correction
 
 Classify’s explicit APP_STAGE entry now agrees with the existing later stable
