@@ -70,6 +70,7 @@ import sys
 import tempfile
 import uuid
 from collections import OrderedDict
+from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -779,7 +780,7 @@ def resolve_job_settings(job: Job) -> Dict[str, Any]:
         raise SettingsError(f'unknown module {job.module!r}.')
     resolved = module_defaults(module)
     if isinstance(job.settings, Mapping):
-        resolved.update(_under_todays_names(dict(job.settings)))
+        resolved.update(_under_todays_names(deepcopy(dict(job.settings))))
     elif isinstance(job.settings, str) and job.settings.strip():
         resolved.update(_under_todays_names(load_settings_file(job.settings)))
     apply_overrides(resolved, job.override_args, module)

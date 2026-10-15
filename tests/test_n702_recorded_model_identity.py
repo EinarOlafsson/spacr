@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from spacr import model_zoo as zoo
-from spacr.cli import load_settings_file, write_settings_file
+from spacr.cli import SettingsError, load_settings_file, write_settings_file
 
 
 FIXTURES = Path(__file__).resolve().parents[1] / 'features/data/702_work_model_reference_schema_2026-10-14'
@@ -16,9 +16,11 @@ CASES = [row for row in json.loads((FIXTURES / 'fixture-index-final.json').read_
 
 @pytest.mark.parametrize('case', CASES, ids=lambda case: Path(case['file']).stem)
 def test_independently_prepared_identity_fixtures(case):
-    settings = load_settings_file(str(FIXTURES / case['file']))
+    settings = json.loads((FIXTURES / case['file']).read_text())
     original = copy.deepcopy(settings)
     if case['expected'] == 'reject':
+        with pytest.raises(SettingsError):
+            load_settings_file(str(FIXTURES / case['file']))
         with pytest.raises(zoo.ModelZooError):
             zoo._validate_model_metadata(settings, model_kinds={'pathogen_model_name': ('cellpose',)})
     else:
