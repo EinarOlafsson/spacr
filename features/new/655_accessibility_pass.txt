@@ -389,3 +389,17 @@ usage and other platforms remain open. Guide translations follow separately.
 Evidence:data/655_ai_live_keyboard_2026-10-15/,
 data/655_ai_live_help_acceptance_2026-10-15/,
 data/655_native_ai_live_keyboard_2026-10-15/ and coordinator review folders.
+
+2026-10-15 — Dock collapse responds once to an ordinary keyboard gesture
+The existing dock edge previously toggled for every auto-repeat and for
+modified Space/Return/Enter. Sixteen real-widget assertions reproduced these
+failures. The existing handler now consumes repeat presses without toggling
+and forwards unrelated modified keys, while native numeric Enter remains
+accepted. Release followed by a fresh activation toggles again.
+Final26PASS3.79s includes16 new cases and10 existing collapse/glyph/mouse/resize
+cases;2G/offscreen/thread1/private settings/GPU hidden. Independent peer verified
+all payload hashes and exact AST outside the existing handler, with unchanged
+docstrings/comments. No new caption or API arrival. The initial test fixture
+lifetime failure is retained separately from the actual source baseline.
+Evidence:data/655_dock_keyboard_activation_2026-10-15/ and independent peer.
+Native/human/other-platform and broader N655 acceptance remain open.

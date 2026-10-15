@@ -13433,3 +13433,11 @@ Guide source corrections and117 translation targets remain in independent
 author/peer work. No N700 routing/provider changes or full CI/release claim.
 The active session watchdog defers unavailable items last with no automatic
 retry; independent authorized implementation continues.
+
+## 2026-10-15 Home-B — dock keyboard activation repair ready
+DockEdge.keyPressEvent now ignores held-key repeats and unrelated command
+modifiers while preserving ordinary/numeric Enter activation.16 baseline
+assertions failed;26 targeted new/existing checks pass. Independent33ea810
+source/log peer confirms no other AST or public prose change. Source70837a579.
+The private antecedent wound-caption ownera2e318483 remains coordinated with
+Original Home's source/nine-locale closure; no standalone untranslated push.
