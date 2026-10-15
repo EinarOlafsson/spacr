@@ -136,13 +136,6 @@
     },
     {
       "table": "ui",
-      "key": "The first plate by name is the reference.",
-      "source": "The first plate by name is the reference.",
-      "source_sha256": "9330ed298c868c1e172f2bb044de20850754da1e5e18bf08f9a0343fadb5d51c",
-      "translation": "按名称排序后的第一块板作为参考板。"
-    },
-    {
-      "table": "ui",
       "key": "Turn off Test mode to preview gains for all source fields.",
       "source": "Turn off Test mode to preview gains for all source fields.",
       "source_sha256": "a3723287033d400bf6ce0fca5d3c1341beac8178ad007b734abe911669828190",

@@ -1,0 +1,344 @@
+{
+  "scope": "F580 optional exact reference-plate selection component; whole scientific feature remains partial alpha",
+  "baseline_source": "348c63b842a18663a364a746f3b277bcef5efdc8",
+  "owner_ui_commit": "1426878f095 (adopted a16ffef6c3a)",
+  "baseline": {
+    "failed": 8,
+    "passed": 3,
+    "seconds": 9.28,
+    "fixture": "Native 16x16 NPY two-plate intensity and label fixtures; actual Measure SQLite output"
+  },
+  "core": {
+    "passed": 30,
+    "seconds": 14.83,
+    "warnings": "14 existing multiprocessing fork DeprecationWarnings"
+  },
+  "integration": {
+    "passed": 35,
+    "failed": 1,
+    "seconds": 28.7,
+    "failure": "Legacy alpha registry test hardcoded four controls; corrected exact five-key contract and both original cases pass",
+    "warnings": "4 existing multiprocessing fork DeprecationWarnings",
+    "alpha_followup": {
+      "passed": 2,
+      "seconds": 3.14,
+      "memory_cap": "6G",
+      "shared_lock": true
+    }
+  },
+  "covered": [
+    "Exact plate2 selection gives gains plate1=2, plate2=1; labels and source bytes unchanged",
+    "Blank/None/whitespace keeps first-by-name default; unknown, case-changed, list, comma-list and boolean selections refuse before output",
+    "Actual native Measure records selected reference in SQLite, resumes unchanged selection and refuses changed selection before WAL/settings/resume mutations with database bytes preserved",
+    "CSV and JSON export/import preserve selected string",
+    "Actual AppScreen alpha control has literal ObjectName, hides/shows with preference, reaches read-only preview planner, invalidates old gains after selection changes"
+  ],
+  "localization": {
+    "current_runtime_targets": 36,
+    "languages": 9,
+    "review_kind": "Direct AI technical review plus independent root AI peer review, no native-speaker signoff",
+    "initial_normal_generation_and_full_audit": "PASS; every unrelated catalog value independently preserved",
+    "final_scoped_generation": "PASS: all36 current targets across9 locales;10,572 unrelated catalog values preserved per locale",
+    "guide_owner": "Home-B private coherent inputs/markup correction/artifacts adopted; normal nine-language audit PASS",
+    "runtime_lookup_error_contract": {
+      "passed": 9,
+      "seconds": 1.56,
+      "scope": "Actual setting label/tooltip lookup, actual preview caption tr(), actual missing-selection planner refusal in each locale with native source bytes preserved"
+    },
+    "current_record_peer_receipt": {
+      "path": "current36-peer-receipt.json",
+      "sha256": "0dd6eb3d3c0d57f7c8b846f1f6fc4eb861d529669a3a9f59235c5c08cdb6018b",
+      "scope": "Independent root reread and exact current36 source/target/record/file hashes; previous historical receipts retained unchanged"
+    }
+  },
+  "limits": [
+    "No paired known-exposure/bead acquisition or new biological/scientific tolerance acceptance",
+    "Sessions remain encoded as plates; separate session columns/external bead folders remain unsupported",
+    "No model/provider/network/GPU/live-data writes, final CI or whole suite",
+    "Backend algorithm/statistic unchanged; this selects the reference, not a new calibration method",
+    "The full unchanged13-case arrival negative suite was an avoidable verification expansion; future merge verification stays scoped to actual positive arrival/source proof and changed artifacts."
+  ],
+  "final_acceptance": "PASS in coherent private tree, pending normal merge/publication",
+  "source_sha256": {
+    "spacr/intensity_rescale.py": "5b2b18a72df195021e5b065d0f54d34a301be854fe1ccc5610940cf05dc4d604",
+    "spacr/settings.py": "bdcd24255e3177f107090e47e7549e6fe630c08d1b0e50d510c420fce5ad00e2",
+    "spacr/qt/screens/settings_model.py": "6ad2843744686efe17db8f131284db5cf99b214874949cbd94715255f574a2a5",
+    "spacr/qt/widgets/calibration_preview.py": "c359e075a35738a12ddddb3d0b994fc072dfb88a1b0a33429e77f6153251fd1c"
+  },
+  "distinct_component_test_cases_passed": 64,
+  "passed_test_identities": [
+    [
+      "tests.qt.test_calibration_gain_preview_f580",
+      "test_actual_button_opens_read_only_dialog_and_renders[dark]"
+    ],
+    [
+      "tests.qt.test_calibration_gain_preview_f580",
+      "test_actual_button_opens_read_only_dialog_and_renders[light]"
+    ],
+    [
+      "tests.qt.test_calibration_gain_preview_f580",
+      "test_actual_worker_keeps_event_loop_live_and_displays_exact_gains"
+    ],
+    [
+      "tests.qt.test_calibration_gain_preview_f580",
+      "test_blocked_worker_cannot_publish_stale_result[cancel]"
+    ],
+    [
+      "tests.qt.test_calibration_gain_preview_f580",
+      "test_blocked_worker_cannot_publish_stale_result[close]"
+    ],
+    [
+      "tests.qt.test_calibration_gain_preview_f580",
+      "test_blocked_worker_cannot_publish_stale_result[edit]"
+    ],
+    [
+      "tests.qt.test_calibration_gain_preview_f580",
+      "test_blocked_worker_cannot_publish_stale_result[invalid]"
+    ],
+    [
+      "tests.qt.test_calibration_gain_preview_f580",
+      "test_close_then_reopen_waits_for_retired_source_scan"
+    ],
+    [
+      "tests.qt.test_calibration_gain_preview_f580",
+      "test_invalid_preview_preserves_source[change0-Test mode]"
+    ],
+    [
+      "tests.qt.test_calibration_gain_preview_f580",
+      "test_invalid_preview_preserves_source[change1-Enable intensity]"
+    ],
+    [
+      "tests.qt.test_calibration_gain_preview_f580",
+      "test_invalid_preview_preserves_source[change2-local source]"
+    ],
+    [
+      "tests.qt.test_calibration_gain_preview_f580",
+      "test_invalid_preview_preserves_source[change3-reference]"
+    ],
+    [
+      "tests.qt.test_calibration_gain_preview_f580",
+      "test_measure_alpha_row_owns_button_and_preserves_settings"
+    ],
+    [
+      "tests.qt.test_calibration_gain_preview_f580",
+      "test_multiple_sources_are_independent_and_qc_exclusions_apply"
+    ],
+    [
+      "tests.qt.test_calibration_gain_preview_f580",
+      "test_preview_uses_production_plan_without_writing"
+    ],
+    [
+      "tests.qt.test_f580_reference_plate_control",
+      "test_alpha_control_named_snapshot_preview_and_stale_invalidation"
+    ],
+    [
+      "tests.qt.test_intensity_calibration_alpha_gate",
+      "test_every_calibration_setting_is_registered_as_alpha"
+    ],
+    [
+      "tests.qt.test_intensity_calibration_alpha_gate",
+      "test_the_measure_form_hides_and_shows_the_calibration_settings"
+    ],
+    [
+      "tests.qt.test_reference_plate_preview_owner_f580",
+      "test_preview_copies_reference_selection_and_other_mutable_values"
+    ],
+    [
+      "tests.qt.test_reference_plate_preview_owner_f580",
+      "test_preview_explains_explicit_and_blank_reference"
+    ],
+    [
+      "tests.qt.test_reference_plate_preview_owner_f580",
+      "test_reference_change_invalidates_displayed_preview"
+    ],
+    [
+      "tests.qt.test_reference_plate_preview_owner_f580",
+      "test_reference_editor_identity_is_scoped[mask-intensity_calibration_reference_plate-]"
+    ],
+    [
+      "tests.qt.test_reference_plate_preview_owner_f580",
+      "test_reference_editor_identity_is_scoped[measure-intensity_calibration_reference_plate-IntensityCalibrationReferencePlate]"
+    ],
+    [
+      "tests.qt.test_reference_plate_preview_owner_f580",
+      "test_reference_editor_identity_is_scoped[measure-intensity_calibration_wells-]"
+    ],
+    [
+      "tests.qt.test_reference_plate_preview_owner_f580",
+      "test_reference_editor_identity_is_scoped[measure-src-]"
+    ],
+    [
+      "tests.test_f580_reference_plate_locales",
+      "test_reference_plate_runtime_lookup_and_refusal[de]"
+    ],
+    [
+      "tests.test_f580_reference_plate_locales",
+      "test_reference_plate_runtime_lookup_and_refusal[es]"
+    ],
+    [
+      "tests.test_f580_reference_plate_locales",
+      "test_reference_plate_runtime_lookup_and_refusal[fr]"
+    ],
+    [
+      "tests.test_f580_reference_plate_locales",
+      "test_reference_plate_runtime_lookup_and_refusal[hi]"
+    ],
+    [
+      "tests.test_f580_reference_plate_locales",
+      "test_reference_plate_runtime_lookup_and_refusal[is]"
+    ],
+    [
+      "tests.test_f580_reference_plate_locales",
+      "test_reference_plate_runtime_lookup_and_refusal[ko]"
+    ],
+    [
+      "tests.test_f580_reference_plate_locales",
+      "test_reference_plate_runtime_lookup_and_refusal[pt]"
+    ],
+    [
+      "tests.test_f580_reference_plate_locales",
+      "test_reference_plate_runtime_lookup_and_refusal[sv]"
+    ],
+    [
+      "tests.test_f580_reference_plate_locales",
+      "test_reference_plate_runtime_lookup_and_refusal[zh_CN]"
+    ],
+    [
+      "tests.test_f580_reference_plate_selection",
+      "test_actual_measurement_records_reference_and_changed_selection_refuses_resume"
+    ],
+    [
+      "tests.test_f580_reference_plate_selection",
+      "test_alpha_registry_and_csv_json_roundtrip"
+    ],
+    [
+      "tests.test_f580_reference_plate_selection",
+      "test_blank_selection_preserves_first_plate_default[  ]"
+    ],
+    [
+      "tests.test_f580_reference_plate_selection",
+      "test_blank_selection_preserves_first_plate_default[None]"
+    ],
+    [
+      "tests.test_f580_reference_plate_selection",
+      "test_blank_selection_preserves_first_plate_default[]"
+    ],
+    [
+      "tests.test_f580_reference_plate_selection",
+      "test_missing_or_ambiguous_selection_refuses_without_writes[PLATE2]"
+    ],
+    [
+      "tests.test_f580_reference_plate_selection",
+      "test_missing_or_ambiguous_selection_refuses_without_writes[True]"
+    ],
+    [
+      "tests.test_f580_reference_plate_selection",
+      "test_missing_or_ambiguous_selection_refuses_without_writes[missing]"
+    ],
+    [
+      "tests.test_f580_reference_plate_selection",
+      "test_missing_or_ambiguous_selection_refuses_without_writes[plate1,plate2]"
+    ],
+    [
+      "tests.test_f580_reference_plate_selection",
+      "test_missing_or_ambiguous_selection_refuses_without_writes[selection3]"
+    ],
+    [
+      "tests.test_f580_reference_plate_selection",
+      "test_named_reference_controls_gains_labels_and_provenance"
+    ],
+    [
+      "tests.test_intensity_calibration",
+      "test_a_field_on_an_uncalibrated_plate_is_refused_and_float_data_is_not_clipped"
+    ],
+    [
+      "tests.test_intensity_calibration",
+      "test_a_plate_without_reference_wells_stops_the_run"
+    ],
+    [
+      "tests.test_intensity_calibration",
+      "test_a_reference_well_with_no_signal_above_the_offset_stops_the_run"
+    ],
+    [
+      "tests.test_intensity_calibration",
+      "test_an_unknown_calibration_statistic_is_refused"
+    ],
+    [
+      "tests.test_intensity_calibration",
+      "test_blank_well_names_are_skipped_and_an_empty_plane_has_no_statistic"
+    ],
+    [
+      "tests.test_intensity_calibration",
+      "test_calibration_keeps_labels_and_the_offset_and_widens_uint8"
+    ],
+    [
+      "tests.test_intensity_calibration",
+      "test_changed_reference_bytes_refuse_even_with_original_size_and_timestamp[False-gain]"
+    ],
+    [
+      "tests.test_intensity_calibration",
+      "test_changed_reference_bytes_refuse_even_with_original_size_and_timestamp[False-same_statistics]"
+    ],
+    [
+      "tests.test_intensity_calibration",
+      "test_changed_reference_bytes_refuse_even_with_original_size_and_timestamp[True-gain]"
+    ],
+    [
+      "tests.test_intensity_calibration",
+      "test_changed_reference_bytes_refuse_even_with_original_size_and_timestamp[True-same_statistics]"
+    ],
+    [
+      "tests.test_intensity_calibration",
+      "test_disabling_calibration_cannot_mix_with_retained_calibrated_rows[False]"
+    ],
+    [
+      "tests.test_intensity_calibration",
+      "test_disabling_calibration_cannot_mix_with_retained_calibrated_rows[True]"
+    ],
+    [
+      "tests.test_intensity_calibration",
+      "test_reference_wells_and_statistic_are_validated"
+    ],
+    [
+      "tests.test_intensity_calibration",
+      "test_the_median_statistic_calibrates_a_uniform_reference_well"
+    ],
+    [
+      "tests.test_intensity_calibration",
+      "test_two_exposures_agree_after_bead_calibration"
+    ],
+    [
+      "tests.test_intensity_calibration",
+      "test_unchanged_calibration_and_legacy_disabled_projects_resume[False]"
+    ],
+    [
+      "tests.test_intensity_calibration",
+      "test_unchanged_calibration_and_legacy_disabled_projects_resume[True]"
+    ],
+    [
+      "tests.test_intensity_calibration",
+      "test_unverified_calibrated_history_refuses_before_resume_clears_rows[legacy_identity]"
+    ],
+    [
+      "tests.test_intensity_calibration",
+      "test_unverified_calibrated_history_refuses_before_resume_clears_rows[missing_field_provenance]"
+    ]
+  ],
+  "resource_policy": {
+    "owning_pytest_native_and_arrival_flow_consumer_help": "Shared heavy.lock,6G,one process,blankCUDA/offscreen",
+    "runtime_catalog_writer": "Cheap AST/review-only class outside lock,2G cap,~0.5GB observed; no model/network/Torch",
+    "unused_exception": "Exact2-case alpha exception not used; cohort passed under normal lock"
+  },
+  "generated_artifact_checks": {
+    "passed": 23,
+    "seconds": 188.61,
+    "normal_tools": [
+      "build_setting_consumer_map.py",
+      "settings_flow.py --rst",
+      "build_help_search_index.py",
+      "i18n_caption_arrivals.py --refresh"
+    ],
+    "includes": "Fresh settings-flow artifacts, API consumer links, full existing13-case immutable-arrival proof cohort, exact new-setting consumer and flow assertions"
+  },
+  "distinct_total_passed": 87
+}

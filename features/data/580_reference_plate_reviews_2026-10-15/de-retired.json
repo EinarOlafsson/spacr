@@ -1,0 +1,12 @@
+{
+  "reason": "Replaced by optional explicitly named reference plate; old caption no longer used",
+  "records": [
+    {
+      "table": "ui",
+      "key": "The first plate by name is the reference.",
+      "source": "The first plate by name is the reference.",
+      "source_sha256": "9330ed298c868c1e172f2bb044de20850754da1e5e18bf08f9a0343fadb5d51c",
+      "translation": "Die nach Namen sortierte erste Platte dient als Referenz."
+    }
+  ]
+}
