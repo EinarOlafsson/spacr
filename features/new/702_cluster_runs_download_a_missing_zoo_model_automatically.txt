@@ -688,3 +688,21 @@ features/data/702_shared_stock_preflight_2026-10-15/.
     cluster acceptance, model integrity beyond existing checks and whole702
     remain separate. Evidence:data/702_shared_stock_preflight_2026-10-15/
     anddata/448_440_421_runtime_closure_2026-10-15/.
+
+
+2026-10-15 — PRIVATE verified picker pin backend.
+Normal picker selection returns a local path, but automatic export capture
+intentionally skips paths; trusted selected-row identity is lost. New private
+background verifier binds exact trusted bundled identity and actual held-FD
+SHA-256/regular-file identity, preserving raw declared publisher version and
+exact existing backend-prefix requests. Its immutable result retains no FD.
+A pure cheap attachment helper validates old pins, current request/kind,
+trusted conjunction and current file identity, then deep-copies ordinary JSON
+metadata. Custom same-basename paths and unverified selections are not pinned;
+raw forged results, changed bytes/paths, wrong consumers and cancellation refuse.
+Baseline1FAIL1PASS; prior-source owning26PASS0.78s; final typed internal
+cancellation-only correction3PASS0.63s. Normal scoped nested4/API/caption proof
+shows zero new arrivals and all original bodies/signatures/prose unchanged.
+Source remains private pending separate GUI-owner asynchronous picker/export
+adapter and acceptance. No real model/remote/network/GPU/whole702/fullCI claim.
+Evidence:data/702_verified_picker_pin_backend_2026-10-15/.

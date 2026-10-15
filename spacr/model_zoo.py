@@ -3820,6 +3820,137 @@ def _capture_model_metadata(module, settings):
     return result
 
 
+_MODEL_REFERENCE_VERIFIED = object()
+_MODEL_REFERENCE_STAT_FIELDS = ("st_dev", "st_ino", "st_size", "st_mtime_ns", "st_ctime_ns")
+
+
+@dataclass(frozen=True)
+class _VerifiedModelReference:
+    """Immutable background verification result, retaining no open descriptor.
+
+    :param record: immutable existing-schema key/value pairs.
+    :param path: absolute local file whose bytes were verified.
+    :param identity: device, inode, size and nanosecond modification/change times.
+    :param _verification: private verifier marker preventing accidental raw-pin
+        attachment; this is not a same-process adversary or authentication boundary.
+    """
+
+    record: Tuple[Tuple[str, Any], ...]
+    path: str
+    identity: Tuple[int, ...]
+    _verification: Any = _dc_field(default=None, repr=False, compare=False)
+
+
+def _verified_model_reference(entry, path, *, requested_value=None, cancelled=None):
+    """Verify a selected trusted file in a worker and preserve its exact request.
+
+    :param entry: selected ModelEntry; custom, stock or untrusted entries remain
+        unpinned rather than being identified from their filenames.
+    :param path: actual local file, read in bounded chunks on one held descriptor.
+    :param requested_value: exact setting value, normally ``str(path)``; an
+        existing matching backend prefix may wrap that same path.
+    :param cancelled: optional cooperative callback checked between reads.
+    :returns: immutable verified result, or None for an untrusted selection.
+    :raises ModelZooError: for conflicting identity, unreadable/changed bytes or
+        a request which does not name the selected file.
+    :raises DownloadCancelled: when cancellation is requested; no result is issued.
+    """
+    import stat
+
+    if not isinstance(entry, ModelEntry) or entry.source == "stock":
+        return None
+    matches = [raw for raw in BUNDLED_REMOTE_MODELS
+               if raw.get("key", raw.get("name")) == entry.key
+               and raw.get("name") == entry.name
+               and raw.get("kind", "cellpose") == entry.kind
+               and raw.get("sha256") == entry.sha256
+               and re.fullmatch(r"[0-9a-f]{64}", str(raw.get("sha256") or ""))]
+    if not matches:
+        return None
+    local_value = os.fspath(path)
+    requested = local_value if requested_value is None else requested_value
+    if requested != local_value:
+        from ._segmentation_backends import (
+            _cellpose3_choice, _cellpose_dino_choice, _prefixed_choice,
+        )
+
+        selected = (_cellpose3_choice(requested) if entry.kind == "cellpose3"
+                    else _cellpose_dino_choice(requested) if entry.kind == "cellpose_dino"
+                    else _prefixed_choice(entry.kind, requested)
+                    if entry.kind in PREFIXED_KINDS else None)
+        if selected != local_value:
+            _bad_model_metadata("requested_value", str(local_value))
+    record = _model_reference_from_record(requested, matches[0])
+    _match_model_reference(record)
+    actual_path = Path(path).expanduser().absolute()
+    expected = record["sha256"]
+    try:
+        with os.fdopen(os.open(actual_path, os.O_RDONLY | getattr(os, "O_NONBLOCK", 0)), "rb") as handle:
+            before = os.fstat(handle.fileno())
+            if not stat.S_ISREG(before.st_mode) or before.st_size <= 0:
+                _bad_model_metadata(str(path), f"sha256={expected}")
+            digest = hashlib.sha256()
+            total = 0
+            while True:
+                if cancelled is not None and cancelled():
+                    raise DownloadCancelled()
+                chunk = handle.read(min(1024 * 1024, before.st_size - total + 1))
+                if not chunk:
+                    break
+                total += len(chunk)
+                if total > before.st_size:
+                    _bad_model_metadata(str(path), f"sha256={expected}")
+                digest.update(chunk)
+            after = os.fstat(handle.fileno())
+            current = actual_path.stat()
+            identity = tuple(getattr(before, key) for key in _MODEL_REFERENCE_STAT_FIELDS)
+            if (total != before.st_size or digest.hexdigest() != expected
+                    or tuple(getattr(after, key) for key in _MODEL_REFERENCE_STAT_FIELDS) != identity
+                    or tuple(getattr(current, key) for key in _MODEL_REFERENCE_STAT_FIELDS) != identity):
+                _bad_model_metadata(str(path), f"sha256={expected}")
+            if cancelled is not None and cancelled():
+                raise DownloadCancelled()
+    except OSError:
+        _bad_model_metadata(str(path), f"sha256={expected}")
+    return _VerifiedModelReference(tuple(record.items()), str(actual_path), identity,
+                                   _MODEL_REFERENCE_VERIFIED)
+
+
+def _attach_model_reference(module, settings, name, verified):
+    """Attach one verified picker result to a copied matching settings payload.
+
+    :param module: actual consuming module key.
+    :param settings: current settings; existing pins are validated before merging.
+    :param name: selected setting, whose request and consumer kind must still match.
+    :param verified: verifier-produced immutable result, never a raw supplied dict.
+    :returns: independent settings with one ordinary JSON-schema pin attached.
+    :raises ModelZooError: for stale input/file identity, forged result, invalid
+        existing pins or incompatible current consumer. No hashing occurs here.
+    """
+    from copy import deepcopy
+
+    kinds = _model_input_kinds(module, settings)
+    metadata = _validate_model_metadata(settings, model_kinds=kinds)
+    if (not isinstance(verified, _VerifiedModelReference)
+            or verified._verification is not _MODEL_REFERENCE_VERIFIED):
+        _bad_model_metadata(name, "model_metadata")
+    record = dict(verified.record)
+    candidate = {**settings, "model_metadata": {"schema_version": 1, "settings": {name: record}}}
+    _validate_model_metadata_structure(candidate, model_kinds=kinds)
+    _match_model_reference(record)
+    try:
+        current = Path(verified.path).stat()
+    except OSError:
+        _bad_model_metadata(name, f"sha256={record['sha256']}")
+    if tuple(getattr(current, key) for key in _MODEL_REFERENCE_STAT_FIELDS) != verified.identity:
+        _bad_model_metadata(name, f"sha256={record['sha256']}")
+    result = deepcopy(settings)
+    pins = metadata["settings"] if metadata is not None else {}
+    pins[name] = record
+    result["model_metadata"] = {"schema_version": 1, "settings": pins}
+    return result
+
+
 def _bad_model_metadata(field, expected):
     """Raise a translated diagnostic naming the incompatible metadata field."""
     from .qt.i18n import tr
