@@ -11,6 +11,27 @@
 
 
 
+## 2026-10-15 Original Home — both installed candidate formats pass functional smoke
+
+Unmodified packaging/smoke_distribution_artifacts.py from frozen b51fb194bb
+passes for BOTH wheel and sdist in a disposable environment. Each actual -I
+probe verifies site-packages and direct_url origin; Home paints16 usable
+controls with no heavy modules, core io/measure/utils/timelapse import, Measure
+opens, and installed CLI version/list pass. Eight hash-pinned small dependency
+wheels total11940827 bytes; complete normal resolver/install, no --no-deps
+installation bypass. Historical shared installation was explicitly not removed.
+Source archive rebuilt with the normal isolated backend; artifact hashes stayed
+unchanged before/after. Evidence:data/candidate_1514_b51_installed_functional_smoke_2026-10-15/.
+
+Functional PASS is not a performance verdict. Wheel offscreen Home6.894s
+exceeds the recorded5s budget (within_budget=false); sdist3.318s is within it.
+Both results/failures remain unchanged; no timing rerun, threshold relaxation,
+metadata downgrade, native/performance/fullN305/fullCI/release claim. Actual
+candidate remains1.5.1.4, not1.5.1.5. Normal real-display cold/warm benchmark
+plan is prepared, not launched: current protected GPU compute jobs prevent an
+idle turn, and final release acceptance remains deferred by maintainer order.
+No protected job, live desktop, model, or shared environment was modified.
+
 ## 2026-10-15 Original Home — fresh source-pinned distribution candidates verified
 
 Ordinary isolated PEP517 build completed from published b51fb194bb183990ab25c981d70e3030063bf9ac.
