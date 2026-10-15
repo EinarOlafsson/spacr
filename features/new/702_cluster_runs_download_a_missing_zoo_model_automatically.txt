@@ -343,3 +343,16 @@ Three new native cases and finite resolver/planning/coalescing cohort passed
 41tests in2.65seconds, exit0. Settings/pins unchanged; no external network,
 GPU or fullCI claim. Parent702 remains partial.
 Evidence: data/702_wrong_cache_planning_2026-10-14/receipt.json.
+
+2026-10-14 — OPS/spatial/standalone constructors honor registered model pins:
+OPS verifies its recorded Cellpose input before construction while keeping
+validated CPU/default constructor behavior. Spatial Mask Generation resolves
+its original spatial_cellpose_model pin at the actual window's construction
+boundary, before converting it to a derived Cellpose argument map. Standalone
+Cellpose mask generation resolves whichever pinned model_name/custom_model
+field is actually selected. Original settings and metadata remain unchanged.
+Four actual constructor/window boundary cases and finite OPS/Cellpose owning
+cohort passed19tests in6.46seconds, exit0. Constructors are intercepted;
+spatial input is a native private Xenium fixture. Legacy unpinned acquisition
+behavior is unchanged; no real model/network/GPU/fullCI. Parent702 partial.
+Evidence: data/702_other_registered_pinned_consumers_2026-10-14/receipt.json.

@@ -1061,7 +1061,11 @@ def _cellpose_model(settings: Mapping[str, Any], gpu: bool):
         from .accelerator import cellpose_kwargs
 
         kwargs = cellpose_kwargs()
-    name = str(settings.get("cellpose_model") or "").strip()
+    from .model_zoo import _resolve_pinned_model_file
+
+    pinned = _resolve_pinned_model_file(settings, "cellpose_model", kinds=("cellpose",))
+    name = (str(pinned) if pinned is not None
+            else str(settings.get("cellpose_model") or "").strip())
     if name in ("", "cpsam"):
         return models.CellposeModel(**kwargs)
     return models.CellposeModel(pretrained_model=name, **kwargs)
@@ -3857,8 +3861,13 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
             nuclei = _st_threshold_nuclei(image, threshold, nucleus_px)
         else:
             if model is None:
+                from .model_zoo import _resolve_pinned_model_file
+
+                pinned = _resolve_pinned_model_file(
+                    settings, "spatial_cellpose_model", kinds=("cellpose",))
                 model = _cellpose_model(
-                    {"cellpose_model": settings.get("spatial_cellpose_model")},
+                    {"cellpose_model": str(pinned) if pinned is not None
+                     else settings.get("spatial_cellpose_model")},
                     bool(settings.get("spatial_gpu", False)))
             extra: Dict[str, Any] = {}
             if diameter:
