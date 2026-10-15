@@ -296,13 +296,6 @@
       "translation": "NCBI Taxonomy"
     },
     {
-      "key": "Pan, from any tool",
-      "source": "Pan, from any tool",
-      "source_sha256": "778abbd7904eeb2ed756fd39c45c0fb9bb631776ae43f029402d2546ed0a5574",
-      "table": "ui",
-      "translation": "Mit jedem Werkzeug verschieben"
-    },
-    {
       "key": "ParaScape",
       "source": "ParaScape",
       "source_sha256": "0225899eb61d7d4adef63d128be212d195c731d28184bd198acd78374db4ff96",
@@ -413,13 +406,6 @@
       "source_sha256": "c155dd941b001bcd748c5963271171f9c3a754ac809e705ce304adb8d2bc881f",
       "table": "ui",
       "translation": "Schwarz- und Weißpunkt durch Ziehen im Bildhistogramm einstellen."
-    },
-    {
-      "key": "Shift or Alt + drag",
-      "source": "Shift or Alt + drag",
-      "source_sha256": "61ff206138ebad2ee38e9ec13a0b782892f5c2a81ff43c37d5739ef1472c4cf5",
-      "table": "ui",
-      "translation": "Shift oder Alt + ziehen"
     },
     {
       "key": "Snapshot committed ParaScape source",

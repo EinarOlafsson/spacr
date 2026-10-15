@@ -8,13 +8,15 @@ from __future__ import annotations
 import json
 import logging
 import os
+import threading
 from pathlib import Path
 from typing import Callable, List, Optional
 
-from PySide6.QtCore import Qt, QTimer, QUrl
+from PySide6.QtCore import QObject, Qt, QThread, QTimer, QUrl, Signal
 from PySide6.QtGui import QColor, QDesktopServices
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QApplication,
     QCheckBox,
     QComboBox,
     QDialog,
@@ -23,6 +25,7 @@ from PySide6.QtWidgets import (
     QFormLayout,
     QHBoxLayout,
     QHeaderView,
+    QInputDialog,
     QLabel,
     QLineEdit,
     QMessageBox,
@@ -36,11 +39,15 @@ from PySide6.QtWidgets import (
 )
 
 from ...remote_execution import (
+    _SSH_SESSIONS,
     ACTIVE_STATES,
     ExecutionProfile,
     RemoteExecutionError,
     RemoteJob,
     RemoteJobManager,
+    _discover_ssh_settings,
+    _remote_argv,
+    _run_command,
 )
 from ..bridge import make_thread
 from ..i18n import tr
@@ -48,8 +55,8 @@ from ..iconset import icon
 from ..theme import SPACING, active_palette
 from ..widgets import Card, Divider
 from ..widgets.collapsible_splitter import CollapsibleSplitter
-from .settings_model import attach_api_tooltip
 from ..widgets.sortable_table import install_sorting, table_item
+from .settings_model import attach_api_tooltip
 
 LOG = logging.getLogger(__name__)
 
@@ -71,6 +78,93 @@ def _item(value) -> QTableWidgetItem:
     item = table_item("" if value is None else str(value))
     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
     return item
+
+
+class _SSHAuthBroker(QObject):
+    """Marshal ephemeral SSH challenges onto the application GUI thread."""
+
+    requested = Signal(object)
+
+    def __init__(self, app):
+        super().__init__(app)
+        self._notices = []
+        self._workers = []
+        self._pending = []
+        self.requested.connect(self._show, Qt.QueuedConnection)
+        app.aboutToQuit.connect(self._shutdown)
+
+    def _request(self, title, instructions, prompts):
+        """Wait only in the SSH worker; Qt retains control of the window."""
+        if QThread.currentThread() == self.thread():
+            raise RemoteExecutionError(tr("SSH authentication must run in the background."))
+        request = {"title": title, "instructions": instructions, "prompts": prompts,
+                   "event": threading.Event(), "answers": None, "cancelled": False}
+        self._pending.append(request)
+        self.requested.emit(request)
+        try:
+            if not request["event"].wait(185):
+                request["cancelled"] = True
+                return None
+            return request["answers"]
+        finally:
+            self._pending.remove(request)
+
+    def _shutdown(self):
+        """Cancel challenges before closing transports off the GUI thread."""
+        for request in list(self._pending):
+            request["cancelled"] = True
+            request["event"].set()
+        threading.Thread(target=_SSH_SESSIONS.close, daemon=True).start()
+
+    def _show(self, request):
+        """Show server text verbatim, masking prompts whose echo flag is false."""
+        if request["cancelled"]:
+            return
+        answers = []
+        for notice in self._notices:
+            notice.close()
+        self._notices.clear()
+        if not request["prompts"] and request["instructions"]:
+            notice = QMessageBox(QApplication.activeWindow())
+            notice.setWindowTitle(str(request["title"]) or tr("SSH authentication"))
+            notice.setTextFormat(Qt.PlainText)
+            notice.setText(str(request["instructions"]))
+            notice.show()
+            self._notices.append(notice)
+        for prompt, echo in request["prompts"]:
+            dialog = QInputDialog(QApplication.activeWindow())
+            dialog.setWindowTitle(str(request["title"]) or tr("SSH authentication"))
+            text = str(request["instructions"])
+            dialog.setLabelText((text + "\n\n" if text else "") + str(prompt))
+            for label in dialog.findChildren(QLabel):
+                label.setTextFormat(Qt.PlainText)
+            dialog.setTextEchoMode(QLineEdit.Normal if echo else QLineEdit.Password)
+            timer = QTimer(dialog)
+            timer.setSingleShot(True)
+            timer.timeout.connect(dialog.reject)
+            timer.start(180000)
+            accepted = dialog.exec() == QDialog.Accepted
+            timer.stop()
+            if not accepted or request["cancelled"]:
+                answers.clear()
+                request["event"].set()
+                return
+            answers.append(dialog.textValue())
+            dialog.setTextValue("")
+        if not request["cancelled"]:
+            request["answers"] = answers
+        request["event"].set()
+
+
+def _ensure_ssh_broker():
+    """Keep the authentication bridge alive after a profile editor closes."""
+    app = QApplication.instance()
+    broker = getattr(app, "_spacr_ssh_auth_broker", None)
+    if broker is None:
+        broker = _SSHAuthBroker(app)
+        app._spacr_ssh_auth_broker = broker
+    _SSH_SESSIONS.prompt = broker._request
+    return broker
 
 
 class ExecutionProfileDialog(QDialog):
@@ -96,6 +190,9 @@ class ExecutionProfileDialog(QDialog):
         self.setWindowTitle(tr("Execution profile"))
         self.setMinimumWidth(650)
         self._original_name = profile.name if profile else ""
+        self._ssh_options = {}
+        self._connection_worker = None
+        _ensure_ssh_broker()
         self._build_ui()
         if profile is not None:
             self._load(profile)
@@ -108,8 +205,7 @@ class ExecutionProfileDialog(QDialog):
         outer = QVBoxLayout(self)
         intro = QLabel(
             tr(
-                "Profiles store connection commands, never passwords. Configure "
-                "SSH keys or your cloud CLI outside spaCR."
+                "Profiles store connection settings, never passwords or OTPs. SSH prompts stay in this session."
             ),
             self,
         )
@@ -147,6 +243,39 @@ class ExecutionProfileDialog(QDialog):
             "on this computer. Configure key authentication outside spaCR."
         )
         self._add_profile_row(form, "SSH host", self._host, "host")
+
+        discovery = QHBoxLayout()
+        self._find_ssh_button = QPushButton(tr("Find my SSH settings"), self)
+        self._find_ssh_button.setObjectName("FindSSHSettings")
+        self._find_ssh_button.clicked.connect(lambda: self._find_ssh())
+        self._choose_ssh_button = QPushButton(tr("Choose folder…"), self)
+        self._choose_ssh_button.clicked.connect(self._choose_ssh_folder)
+        discovery.addWidget(self._find_ssh_button)
+        discovery.addWidget(self._choose_ssh_button)
+        form.addRow(discovery)
+        self._ssh_aliases = QComboBox(self)
+        self._ssh_aliases.setObjectName("SSHDiscoveredAliases")
+        self._ssh_aliases.currentIndexChanged.connect(self._select_ssh)
+        form.addRow(tr("SSH settings"), self._ssh_aliases)
+        self._ssh_hostname = QLineEdit(self)
+        self._ssh_user = QLineEdit(self)
+        self._ssh_port = QSpinBox(self)
+        self._ssh_port.setRange(0, 65535)
+        self._ssh_port.setSpecialValueText(tr("From SSH settings"))
+        self._ssh_key = QLineEdit(self)
+        self._ssh_jump = QLineEdit(self)
+        for label, widget, key in (("SSH host name", self._ssh_hostname, "ssh_hostname"), ("SSH user", self._ssh_user, "ssh_user"), ("SSH port", self._ssh_port, "ssh_port"),
+                                   ("SSH identity file", self._ssh_key, "ssh_identity_file"), ("SSH jump host", self._ssh_jump, "ssh_jump_host")):
+            widget.setObjectName(key)
+            widget.setToolTip(tr("Non-secret SSH settings. Review imported paths and routing before connecting."))
+            self._add_profile_row(form, label, widget, key)
+        self._ssh_interactive = QCheckBox(tr("Authenticate in spaCR (keyboard-interactive / MFA)"), self)
+        self._ssh_interactive.setObjectName("SSHInteractiveAuthentication")
+        self._ssh_interactive.setToolTip(tr("Great Lakes may ask for a Kerberos password and Okta verification. spaCR shows server prompts verbatim and stores no password or OTP."))
+        form.addRow(self._ssh_interactive)
+        self._test_ssh = QPushButton(tr("Test connection"), self)
+        self._test_ssh.clicked.connect(self._test_connection)
+        form.addRow(self._test_ssh)
 
         self._workdir = QLineEdit(self)
         self._workdir.setObjectName("ProfileWorkdir")
@@ -348,7 +477,8 @@ class ExecutionProfileDialog(QDialog):
         ssh_or_slurm = backend in {"ssh", "slurm"}
         for widget in (
             self._host, self._workdir, self._local_root, self._remote_root,
-            self._runner,
+            self._runner, self._ssh_hostname, self._choose_ssh_button, self._ssh_user, self._ssh_port, self._ssh_key, self._ssh_jump,
+            self._ssh_aliases, self._find_ssh_button, self._ssh_interactive, self._test_ssh,
         ):
             widget.setEnabled(ssh_or_slurm)
         self._slurm.setEnabled(backend == "slurm")
@@ -364,6 +494,13 @@ class ExecutionProfileDialog(QDialog):
         index = self._backend.findData(profile.backend)
         self._backend.setCurrentIndex(max(0, index))
         self._host.setText(profile.host)
+        self._ssh_hostname.setText(profile.ssh_options.get("hostname", ""))
+        self._ssh_options = dict(profile.ssh_options)
+        self._ssh_user.setText(profile.ssh_options.get("user", ""))
+        self._ssh_port.setValue(int(profile.ssh_options.get("port", "0")))
+        self._ssh_key.setText(profile.ssh_options.get("identityfile", ""))
+        self._ssh_jump.setText(profile.ssh_options.get("proxyjump", ""))
+        self._ssh_interactive.setChecked(profile.ssh_interactive)
         self._workdir.setText(profile.workdir)
         self._local_root.setText(profile.local_root)
         self._remote_root.setText(profile.remote_root)
@@ -393,7 +530,112 @@ class ExecutionProfileDialog(QDialog):
             log_command=self._log_command.text(),
             job_id_pattern=self._job_pattern.text(),
             poll_seconds=self._poll.value(),
+            ssh_options=self._connection_options(),
+            ssh_interactive=self._ssh_interactive.isChecked(),
         ).validate()
+
+    def _find_ssh(self, folder=None):
+        """Populate aliases only after an explicit read-only discovery action."""
+        try:
+            rows = _discover_ssh_settings(folder)
+        except (OSError, ValueError, RemoteExecutionError):
+            self._error.setText(tr("SSH settings could not be read. Choose a folder containing a readable config file."))
+            return
+        self._ssh_aliases.clear()
+        for row in rows:
+            self._ssh_aliases.addItem(f'{row["alias"]} → {row["hostname"]}', row)
+        if not rows:
+            self._error.setText(tr("No SSH aliases or public host names were found."))
+        else:
+            self._error.setText(tr("SSH settings imported. Conditional Match blocks are not evaluated; review the connection before testing."))
+            self._select_ssh(0)
+
+    def _choose_ssh_folder(self):
+        """Read a user-selected configuration folder without copying keys."""
+        folder = QFileDialog.getExistingDirectory(self, tr("Choose SSH settings folder"))
+        if folder:
+            self._find_ssh(folder)
+
+    def _select_ssh(self, index):
+        """Apply one alias and its explicit non-secret connection settings."""
+        row = self._ssh_aliases.itemData(index)
+        if not row:
+            return
+        try:
+            port = int(row.get("port", "22"))
+            if not 1 <= port <= 65535:
+                raise ValueError
+        except ValueError:
+            self._error.setText(tr("SSH port must be between 1 and 65535."))
+            return
+        self._host.setText(row["alias"])
+        self._ssh_options = {key: value for key, value in row.items() if key != "alias"}
+        self._ssh_hostname.setText(row.get("hostname", ""))
+        self._ssh_user.setText(row.get("user", ""))
+        self._ssh_port.setValue(port)
+        self._ssh_key.setText(row.get("identityfile", ""))
+        self._ssh_jump.setText(row.get("proxyjump", ""))
+        self._ssh_interactive.setChecked(True)
+
+    def _connection_options(self):
+        """Collect paths and routing fields, never authentication responses."""
+        options = dict(self._ssh_options)
+        for key, value in (("hostname", self._ssh_hostname.text()), ("user", self._ssh_user.text()), ("port", str(self._ssh_port.value()) if self._ssh_port.value() else ""),
+                           ("identityfile", self._ssh_key.text()), ("proxyjump", self._ssh_jump.text())):
+            if value.strip():
+                options[key] = value.strip()
+            else:
+                options.pop(key, None)
+        if options.get("proxyjump"):
+            options.pop("proxycommand", None)
+        return options
+
+    def _test_connection(self):
+        """Run hostname, then Slurm discovery, on a background SSH channel."""
+        if self._connection_worker is not None:
+            return
+        try:
+            profile = ExecutionProfile(name="connection-test", backend="slurm" if self._backend.currentData() == "slurm" else "ssh", host=self._host.text(), workdir="/tmp",
+                                       ssh_options=self._connection_options(), ssh_interactive=self._ssh_interactive.isChecked()).validate()
+        except RemoteExecutionError as exc:
+            self._error.setText(str(exc))
+            return
+        self._connection_error = ""
+        slurm = self._backend.currentData() == "slurm"
+        self._test_ssh.setEnabled(False)
+        self._error.setText(tr("Testing SSH connection…"))
+
+        def operation(_settings):
+            """Check the remote hostname before querying Slurm on the worker thread."""
+            stages = [("hostname", ["hostname"])]
+            if slurm:
+                stages.append(("sinfo", ["sinfo", "--noheader"]))
+            for stage, argv in stages:
+                try:
+                    result = _run_command(_remote_argv(profile, argv), timeout=60)
+                    if result.returncode:
+                        raise RemoteExecutionError(tr("Remote command returned a non-zero exit status."))
+                except RemoteExecutionError as exc:
+                    self._connection_error = tr("{stage} failed: {error}").format(stage=stage, error=exc)
+                    break
+
+        thread, worker = make_thread(operation, {}, app_key="ssh_connection_test", journal=False, capture_figures=False)
+        self._connection_worker = (thread, worker)
+        _ensure_ssh_broker()._workers.append((self, thread, worker))
+        worker.finished.connect(self._connection_finished)
+        thread.finished.connect(self._connection_retired)
+        thread.start()
+
+    def _connection_finished(self, ok):
+        """Report the precise failed stage without retaining secret responses."""
+        self._test_ssh.setEnabled(True)
+        self._error.setText(self._connection_error or (tr("SSH connection test passed.") if ok else tr("SSH connection test failed.")))
+
+    def _connection_retired(self):
+        """Release a finished worker while keeping a running worker owned."""
+        self._connection_worker = None
+        broker = _ensure_ssh_broker()
+        broker._workers[:] = [entry for entry in broker._workers if entry[0] is not self]
 
     def _validate_and_accept(self) -> None:
         """Keep the dialog open and show validation errors inline."""

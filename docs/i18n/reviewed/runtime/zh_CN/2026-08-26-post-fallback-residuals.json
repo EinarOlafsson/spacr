@@ -443,13 +443,6 @@
       "translation": "显示的通道。'All channels' 按图像存储时的形式显示；选择一个通道时仅显示该平面。这是显示控件——分割通道在实时设置中配置。"
     },
     {
-      "key": "How far one wheel notch zooms. Higher jumps across a large field faster; lower gives the fine steps that trimming an object boundary needs. Shift or Alt + drag pans, from any tool.",
-      "source": "How far one wheel notch zooms. Higher jumps across a large field faster; lower gives the fine steps that trimming an object boundary needs. Shift or Alt + drag pans, from any tool.",
-      "source_sha256": "011eeb1cfb0968c4988785fc5ebb6e2b46d6a3fbe1fdea0b6db25ef60749231a",
-      "table": "ui",
-      "translation": "滚轮每一格的缩放幅度。较大的值可更快跨越大视野；较小的值提供修整对象边界所需的精细步进。使用任何工具时，都可按住 Shift 或 Alt 并拖动来平移。"
-    },
-    {
       "key": "How many arrows — the features best represented in this plane.",
       "source": "How many arrows — the features best represented in this plane.",
       "source_sha256": "dd31631cba9ad89738be11205b7a37f2b24d1c29af323fdf9f42aef246ece8eb",

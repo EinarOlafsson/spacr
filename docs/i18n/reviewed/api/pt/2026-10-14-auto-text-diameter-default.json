@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Codex), no human or native-speaker signoff",
+  "note": "N696 AUTO_TEXT assignment documentation, bound to approved widget snapshot 9caa0afca39d68d263907fa52367a944d8067c256a17363b4a54c773ba637305. Private source-owner integration required before normal publication. Describes how an unset value is displayed; object diameter None uses the magnification default. Grey text describes appearance, not disabled editing. No claim that blank or None requests explicit automatic diameter.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.AUTO_TEXT#0",
+      "source": "What an unset value reads as. ``None`` means \"work it out\" for most of these, and an empty cell would read as \"nobody has filled this in yet\", which is a different claim. An object diameter is the exception: its ``None`` is the magnification default, drawn greyed (item 696).",
+      "source_sha256": "f6c89a8d1f1a761997a7edd3edbca226fc8b5338bb02a808fedc270df8b3a567",
+      "context": "What an unset value reads as. ``None`` means \"work it out\" for most of these, and an empty cell would read as \"nobody has filled this in yet\", which is a different claim. An object diameter is the exception: its ``None`` is the magnification default, drawn greyed (item 696).",
+      "translation": "Como é apresentado um valor não definido. ``None`` significa \"work it out\" (determinar automaticamente) para a maioria desses valores, enquanto uma célula vazia sugeriria \"ninguém preencheu isto ainda\", o que transmite uma afirmação diferente. O diâmetro de um objeto é a exceção: seu ``None`` é o valor padrão correspondente à ampliação, apresentado em cinza (item 696).",
+      "review_basis": "Written from the exact approved English assignment docstring; AI technical review of unset-value, magnification-default and grey-display semantics; protected quote work it out retained with a localized gloss; literal None and item number preserved."
+    }
+  ]
+}

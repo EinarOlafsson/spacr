@@ -6691,6 +6691,15 @@ class MainWindow(QMainWindow):
         that case, where re-running the whole of `_theme_screen` would
         re-apply the stylesheet to the tree for nothing.
 
+        A screen in a window that already has its backdrop
+        (:meth:`window_backdrop`) builds none, as an `AppScreen` does: it
+        clears its surfaces and the window's one shows through. A second
+        field laid over the first ticked on its own timer, so every field
+        beat reached the compositor as two whole-window repaints. Measured
+        offscreen at 2560x1440 with Make Masks open: 60 window flushes a
+        second against 30 on Home, and on the capture host 105 painted
+        frames a second against 58.
+
         Never raises: a module opens with or without its decoration.
         """
         try:
@@ -6702,6 +6711,10 @@ class MainWindow(QMainWindow):
                 theme_background_path,
             )
             if not get_ambient_enabled():
+                return
+            if self.window_backdrop() is not None:
+                screen._uses_window_backdrop = True
+                screen._surrendered_its_backdrop = True
                 return
             from .widgets.ambient import (install_ambient,
                                           _the_heavy_import_lock_is_free)
@@ -6799,6 +6812,8 @@ class MainWindow(QMainWindow):
             return
         own = getattr(screen, "_ambient", None)
         if own is None:
+            own = self._a_screen_backdrop_built_beside_the_window_one(screen)
+        if own is None:
             if getattr(screen, "_surrendered_its_backdrop", False):
                 screen._uses_window_backdrop = True
                 self._stop_painting_over_the_window_backdrop(screen)
@@ -6834,6 +6849,29 @@ class MainWindow(QMainWindow):
                 clear()
         except Exception:                                    # noqa: BLE001
             pass
+
+    @staticmethod
+    def _a_screen_backdrop_built_beside_the_window_one(screen):
+        """The backdrop :meth:`_install_screen_backdrop` gave ``screen``, or None.
+
+        That installer keeps no ``_ambient`` on the screen, so a screen
+        themed before the window had its backdrop (the dock backdrop waits
+        for the heavy-import lock) kept its own field for good. It is the
+        screen's direct `AmbientWidget` child that is not already retiring.
+
+        :param screen: a screen in the stack.
+        :returns: the backdrop to retire, or None.
+        """
+        try:
+            from .widgets.ambient import AmbientWidget
+
+            for child in list(screen.children()):
+                if (isinstance(child, AmbientWidget)
+                        and not child.property("spacrRetiringBackdrop")):
+                    return child
+        except Exception:                                    # noqa: BLE001
+            return None
+        return None
 
     def _stop_painting_over_the_window_backdrop(self, screen) -> None:
         """Clear a screen's surfaces and repaint it, now that it defers again.

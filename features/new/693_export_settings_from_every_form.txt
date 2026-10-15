@@ -2,8 +2,7 @@
 EXPORT SETTINGS FROM EVERY FORM
 ================================================================================
 
-Status:    built 2026-10-12 (not alpha); ships in 1.5.1.5; translations of the
-           new strings pending (WS)
+Status:    DONE 2026-10-14 (not alpha); ships in 1.5.1.5
 Requested: GitHub issue EinarOlafsson/spacr #140 by @jak18015 (duplicated as
            #141 and #142): "Measure (and other screens): add 'Export
            settings…' to save the current form as a settings CSV".
@@ -65,3 +64,28 @@ the settings to {path}. On the cluster run: spacr-run {module} --settings
 
 2026-10-12 — built and pushed to nightly (Home). Round trip measured on all 23
 AppScreen keys: no value drifted after Export, a fresh form and Import.
+
+2026-10-14 — remaining acceptance completed (Home):
+One actual caption gap remained: AppScreen imported set_translatable_text as
+_set_text, hiding "Export settings…" from the normal catalog extractor. The
+call now uses its canonical name. Normal generators added that one caption
+and its source hash to all nine language catalogs, with exact-source AI
+technical review records (no human/native-speaker signoff). Every earlier
+translated target is preserved. The normal arrival generator from N697
+retains all 9833 historical baseline records and every existing arrival,
+retirement and source-body change; no pin or ceiling was raised.
+
+All 89 distinct owning/contract cases pass across the recorded runs: the
+initial cohort passed 87; its two loader imports failed because the test
+launch mixed a Torch 2.14 CPU overlay with installed Torchvision 0.28. Only
+those two nodes were rerun with the existing compatible Torch 2.13 /
+Torchvision 0.28 pair and passed (17.38 s, exit 0). No package was installed
+or source assertion changed. The acceptance covers button placement and
+non-default export/import on all 24 currently registered AppScreen keys,
+the CSV/JSON writer, non-GUI loaders, spacr-run dry-run, snapshot save/cancel/
+error behavior, and the actual Export button in all nine non-English locales.
+The three public export-helper API entries match current source in all ten
+catalogs; all five new GUI-guide messages are translated in all nine guide
+catalogs. This is Linux CPU/offscreen Qt 6.12 evidence, not a new native
+Windows/macOS recording.
+Evidence: features/data/693_export_caption_acceptance_2026-10-14/receipt.json.

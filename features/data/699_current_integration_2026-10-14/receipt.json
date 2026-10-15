@@ -1,0 +1,38 @@
+{
+  "status": "Coherent nightly source implementation; global documentation/caption/release acceptance remains open",
+  "baseline_new_cases_failed": 5,
+  "owning_passed_distinct": 129,
+  "cpu_cases": {
+    "passed": 74,
+    "seconds": 1.46
+  },
+  "gui_cases": {
+    "passed": 55,
+    "seconds": 10.18
+  },
+  "runtime_generation": "normal writer; all9 languages; every unrelated source-current row preserved",
+  "english_api_symbols": 13475,
+  "publication_holds": [],
+  "source_sha256": {
+    "spacr/remote_execution.py": "5186e225bfc68645bea1e505f7e0ede44be0853a88f84085bccdace411d18943",
+    "spacr/qt/screens/distributed_jobs.py": "5ba00885ec476b22257c88215598b73fe5c942ae4041e2bce05346070717cf97",
+    "tests/test_n699_password_then_mfa_and_paths.py": "b33227e5c792559382ac1ba8d2e625d05eb1ee82833295c5b695399fe3bb14c1"
+  },
+  "limits": [
+    "Native OpenSSH parsing probes use /dev/null and loopback HostName with -G; no connection or user SSH config read",
+    "Transport authentication is injected, not actual cluster acceptance",
+    "Real account MFA and native macOS/Windows acceptance remain open"
+  ],
+  "latest_merged_validation": {
+    "passed": 107,
+    "seconds": 12.25,
+    "exit_code": 0,
+    "cohort": "remote execution, SSH discovery/MFA/password/path, real Qt distributed screen and N702 Qt integration",
+    "log": "/mnt/wd4tb/scratch/n699-current-integration-20261015/merged-owning.log"
+  },
+  "remaining_global_gates": [
+    "Known N700 exact-source reviewed caption gap; no gate waiver or N700 edits.",
+    "Normal documentation writer now refuses published Home-B preferences callback _StoragePage.relocate.finished without docstring. Owner repair requested; no fresh whole-manifest acceptance claimed."
+  ],
+  "extractor_owner_review": "Home-B approved additive N699 extraction; normal merge retains all published model/installer/scientific extractor owners."
+}

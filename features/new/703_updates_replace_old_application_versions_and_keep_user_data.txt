@@ -567,3 +567,15 @@ byte-identical to the193PASS source. Only Easy's unrelated journal fixture
 changes merged into the purge test file; its owned function is AST-identical.
 Ten actual post-merge locale/purge checks PASS/exit0/1.83s. The complete193-case
 cohort was reused, with no extra full-CI/native acceptance claim.
+
+2026-10-15 00:40 EDT — Final current-public publication closure
+Normal merge includes public1e329bcd55b; every runtime catalog was taken intact
+from public then regenerated with normal source-current writer/audit APIs. The
+four exact previously validated N703 review files were byte-pinned; all13 owned
+rows and10,554 unrelated current rows per locale validate across all9 locales.
+English/source audit passes with7,724UI entries. Actual final dependency checks
+are10PASS/exit0/2.69s. The production/owning test source remains byte-identical
+to the193PASS cohort, reused without repetition. The shared purge file retains
+current unrelated journal changes; its owned assertion is AST-identical.
+No new fullCI/native acceptance or foreign caption-arrival waiver is claimed.
+Source-bound proof: publication-receipt.json in the existing retirement evidence.

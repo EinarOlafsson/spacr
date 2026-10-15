@@ -760,6 +760,9 @@ class Run:
     :ivar stdout_path: captured standard-output log path, when one is attached.
     :ivar error_traceback: formatted exception traceback for failed or
         cancelled runs; empty for successful runs.
+    :ivar diameters: per object, the diameter it was segmented with, e.g.
+        ``"120 px (magnification 20x default)"`` or ``"auto (Cellpose
+        estimated 57.3 px)"`` (item 696).
     """
     app_key: str
     settings: Dict[str, Any]
@@ -779,6 +782,10 @@ class Run:
     stages: List[Dict[str, Any]] = field(default_factory=list)
     stdout_path: Optional[Path] = None
     error_traceback: str = ""
+    diameters: Dict[str, str] = field(default_factory=dict, init=False)
+    _diameter_estimates: Dict[str, List[float]] = field(
+        default_factory=dict, init=False, repr=False,
+    )
     _path_candidates: List[Tuple[str, Path, bool]] = field(
         default_factory=list, repr=False,
     )
@@ -1201,6 +1208,7 @@ class Run:
             "provenance_warnings": self.provenance_warnings,
             "warnings":       self.run_warnings,
             "stages":         self.stages,
+            "diameters":      self.diameters,
             "performance":    performance,
             "n_settings":    len(self.settings),
             "traceback":     self.error_traceback or None,
@@ -1274,6 +1282,36 @@ _ACTIVE_RUN_DIRS: Set[str] = set()
 _ACTIVE_RUNS_LOCK = threading.RLock()
 if hasattr(os, "register_at_fork"):
     os.register_at_fork(after_in_child=_ACTIVE_RUNS_LOCK._at_fork_reinit)
+
+
+def _record_diameter(object_type: str, used: str,
+                     estimate: Optional[float] = None) -> None:
+    """Note on the open run which diameter ``object_type`` was segmented with.
+
+    Written into ``manifest.json`` under ``diameters`` (item 696). Each
+    estimate Cellpose returns for a batch is kept, and the object's entry
+    states their median, so a run of many batches names one diameter.
+    Without an open run this does nothing.
+
+    :param object_type: the object, e.g. ``'cell'``.
+    :param used: what was used, as
+        :func:`spacr.object_settings_table._diameter_used_text` words it.
+    :param estimate: Cellpose's estimate for one batch, in pixels.
+    """
+    run = current_run()
+    if run is None:
+        return
+    if estimate is None:
+        if object_type not in run._diameter_estimates:
+            run.diameters[object_type] = str(used)
+        return
+    estimates = run._diameter_estimates.setdefault(object_type, [])
+    estimates.append(float(estimate))
+    ordered = sorted(estimates)
+    middle = len(ordered) // 2
+    median = (ordered[middle] if len(ordered) % 2
+              else (ordered[middle - 1] + ordered[middle]) / 2)
+    run.diameters[object_type] = f"auto (Cellpose estimated {median:.4g} px)"
 
 
 def current_run() -> Optional["Run"]:

@@ -941,11 +941,12 @@ def coerce_expected_types(settings: Dict[str, Any],
         :func:`_check_types` honours.
     :returns: a new dict; the input is not modified.
     """
+    from .object_settings_table import _canonical_diameters
     from .settings import expected_types
 
     per_app = _APP_TYPE_OVERRIDES.get(app, {})
-    out = dict(settings)
-    for key, value in settings.items():
+    out = _canonical_diameters(dict(settings))
+    for key, value in out.items():
         if not isinstance(value, str) or key not in expected_types:
             continue
         text = value.strip()
@@ -984,10 +985,12 @@ def _check_types(settings: Dict[str, Any], app: str = "") -> List[Problem]:
     """
     from .settings import expected_types
 
+    from .object_settings_table import _OBJECT_DIAMETER_KEYS
+
     per_app = _APP_TYPE_OVERRIDES.get(app, {})
     problems: List[Problem] = []
     for key, value in settings.items():
-        if key not in expected_types:
+        if key not in expected_types or key in _OBJECT_DIAMETER_KEYS:
             continue
         expected = per_app.get(
             key, _EXPECTED_TYPE_OVERRIDES.get(key, expected_types[key]))
@@ -1371,8 +1374,36 @@ def _flow_threshold_problems(key: str, value: Any, number: float) -> List[Proble
     return []
 
 
+def _check_object_diameters(settings: Dict[str, Any]) -> List[Problem]:
+    """Each object diameter is a positive number, 0, "auto" or blank (item 696).
+
+    0 and "auto" are the same answer, Cellpose estimating the size; blank is
+    the magnification default. Anything else stops the run here rather than
+    inside Cellpose.
+    """
+    from .object_settings_table import _OBJECT_DIAMETER_KEYS, _diameter_setting
+
+    problems: List[Problem] = []
+    for key in sorted(_OBJECT_DIAMETER_KEYS):
+        if key not in settings:
+            continue
+        value = settings[key]
+        try:
+            _diameter_setting(value)
+        except ValueError:
+            problems.append(Problem(
+                ERROR, key,
+                f"{key}={value!r} is not a diameter.",
+                "Give the expected object size in pixels, 0 or auto to let "
+                "Cellpose estimate it, or leave it blank to use the "
+                "magnification default."))
+    return problems
+
+
 def _check_numeric_sanity(settings: Dict[str, Any]) -> List[Problem]:
     """Diameters, percentiles, thresholds and batch sizes are in usable ranges."""
+    from .object_settings_table import _OBJECT_DIAMETER_KEYS
+
     problems: List[Problem] = []
 
     for key, value in settings.items():
@@ -1380,7 +1411,8 @@ def _check_numeric_sanity(settings: Dict[str, Any]) -> List[Problem]:
             continue
         number = _numeric(value)
 
-        if number is not None and (key.endswith("_diameter") or key == "diameter"):
+        if (number is not None and key not in _OBJECT_DIAMETER_KEYS
+                and (key.endswith("_diameter") or key == "diameter")):
             if number <= 0:
                 problems.append(Problem(
                     ERROR, key, f"{key}={value} must be greater than zero.",
@@ -1870,6 +1902,7 @@ def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
     problems.extend(_check_unknown_keys(settings, app))
     problems.extend(_check_retired_keys(settings))
     problems.extend(_check_numeric_sanity(settings))
+    problems.extend(_check_object_diameters(settings))
     problems.extend(_check_required_paths(settings, app))
     problems.extend(_check_app_specific(settings, app))
     try:
@@ -2114,15 +2147,20 @@ def _describe_inputs(inventories: Sequence[_Inventory]) -> str:
 
 def _describe_objects(settings: Dict[str, Any], app: str) -> List[str]:
     """One line per object type the run would work on."""
+    from .object_settings_table import _DIAMETER_OBJECTS, _diameter_used_text
+
     lines: List[str] = []
     for name in OBJECT_NAMES:
         if app == "mask":
             channel = settings.get(f"{name}_channel")
             if channel is None:
                 continue
-            diameter = settings.get(f"{name}_diameter")
             detail = f"{name}: channel {channel}"
-            if diameter is not None:
+            diameter = settings.get(f"{name}_diameter")
+            if name in _DIAMETER_OBJECTS:
+                detail += ", diameter " + _diameter_used_text(
+                    diameter, settings.get('magnification', 40), name)
+            elif diameter is not None:
                 detail += f", diameter {diameter} px"
             else:
                 detail += f", diameter from magnification {settings.get('magnification', 20)}x"

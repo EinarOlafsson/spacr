@@ -753,3 +753,36 @@ def test_the_track_preview_segments_with_the_tracked_objects_run_model(
             f"{track.current_params()['model']!r}")
     finally:
         track.deleteLater()
+
+
+# --------------------------------------------------------------------------
+# Item 696: the preview segments at the diameter the run segments at
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("stored", [None, "auto", 0, 75])
+@pytest.mark.parametrize("obj", ["cell", "nucleus", "pathogen"])
+def test_the_preview_uses_the_diameter_the_run_will_use(panel, monkeypatch,
+                                                        stored, obj):
+    """One rule for both: blank is the magnification default, 0 and auto
+    are Cellpose estimating it, a number is itself."""
+    from spacr.object import _eval_diameter
+    from spacr.qt.widgets import live_preview as LP
+    from spacr.utils import _get_diam
+
+    calls = []
+
+    class _Model:
+        def eval(self, image, **kwargs):
+            calls.append(kwargs["diameter"])
+            return np.zeros(np.asarray(image).shape[:2], np.int32), [None]
+
+    monkeypatch.setattr(LP, "preview_cellpose_model", lambda name: _Model())
+    panel.apply_settings({"magnification": 20, f"{obj}_channel": 0,
+                          f"{obj}_diameter": stored})
+    panel._object_box.setCurrentIndex(panel._object_box.findData(obj))
+    panel._image = np.zeros((8, 8), dtype=np.uint16)
+    request = panel._build_request()
+    LP._segment_multi(request)
+
+    run = _eval_diameter(stored, obj, _get_diam(20, obj))
+    assert calls[-1] == run
