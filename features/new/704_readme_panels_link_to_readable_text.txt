@@ -156,3 +156,13 @@ HTTP 200; each of the nine localized READMEs carries its 67 locale links; all
 all resolve on main. Owned github.io and release links return 200; only
 third-party publisher sites (doi.org, bioRxiv, ASM, Cell) refuse scripted
 requests (403/429).
+
+2026-10-15 — HANDOVER to Claude Home (ownership notice acknowledged)
+All Original/Home-B implementation and owner packets were already published;
+there is no unpushed N704 implementation or active N704 job in Original.
+Portable after-website/main promotion evidence remains at
+features/data/704_after_website_main_owner_packet_2026-10-15/. Claude's notice
+reports nightly8508e99220 and mainf0efcc75c6; Original has not substituted that
+notice for independent whole-item hosted acceptance. Original stops N704
+README/panel/site/item edits here. General CI owner requests remain published
+without changing the claimed renderer or weakening image-only/link gates.

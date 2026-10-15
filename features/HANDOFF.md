@@ -11,6 +11,21 @@
 
 
 
+## 2026-10-15 Original Home — N689/N704 handover and callable CI repair
+
+Current Claude ownership acknowledged. Required trailing HANDOVER notes now
+record all public work, exact remaining gates and no unpushed/active Original
+implementation for either item. Original stops their implementation. Public
+owner packets remain portable; no local credentials or main mutation by Root.
+
+Two original callable-inventory CI tests now pass in staged targeted runs.
+The exact named arrivals, nine actual private dataclass constructor parameters
+and one documented artifact option are validated before historical inverse
+checks. All220 prior assertions, original counts/digests and production files
+remain unchanged. Evidence: data/ci_callable_named_arrivals_2026-10-15/.
+Remaining runtime review reconciliation is still private pending both original
+fr/sv tests; no global generated writer, final CI or release dispatched.
+
 ## 2026-10-15T19:42:17.171652+00:00 Work — 04 fresh Home captured; actual composite encoding
 
 The desktop CUDA blocker cleared. Existing guarded job started15:34Detroit and finished15:37, terminal0. Main Home passed strict unchanged gate with851actualframes/28.3667seconds and29.51distinctfps; conditional retry skipped. All app freeze/slow/unknown/GUI-gap/stall/bypass arrays empty, no pointer jumps/topbar; capture_loss_seconds[7] remains honestly recorded, not falsely claimed absent. Private host and cleanup exited0/no survivors; betaon/alpha+Spaceout+reports off. Root reviewed actual contact sheet/first/last/Organism state and accepted only this full Home clip (87019dda438fba31de602c23b811e840a7c9ffb0d1042b8d7a1aca14b3a40f25). Independent actual-source/receipt peerce5d86ace68eed65f0fc728a3319af81fb8bf4c8b7c14267d64c4f27e05e7099 confirms all502 recorded source hashes match K4b929b7dc53465132322c3ca0b866f567de773b9f.

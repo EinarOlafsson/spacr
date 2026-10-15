@@ -242,3 +242,16 @@ Owner action: check existing HF_DOCS_TOKEN write permission to the existing
 einarolafsson/spacr-docs-nightly-v2 Space; no broad local token substitution
 or repeated probe without an actual permission correction. Main cutover,
 canonical variables and current-head deployment remain separate.
+
+2026-10-15 — HANDOVER to Claude Home (current maintainer ownership notice)
+Original Home acknowledges the N689 claim and stops N689 code, workflow, docs
+and item edits after this handover. All working implementation is already on
+nightly; no unpushed N689 implementation or active N689 job remains here.
+Published free-v2 host/tree/public-site receipts and validated configurable
+workflow/verifier remain in the dated evidence referenced above. The actual
+CI-secret probe38754742270 reached commit and returned HTTP403; token access,
+canonical variables, main Pages and current-source hosted acceptance were not
+claimed complete by Original. No broad local credential substitution or paid
+service action was taken. Work's portable URL patch/preimages are published at
+features/data/689_work_url_owner_packet_2026-10-15/. Claude owns reconciliation
+of those remaining gates and any newer implementation; general CI continues.
