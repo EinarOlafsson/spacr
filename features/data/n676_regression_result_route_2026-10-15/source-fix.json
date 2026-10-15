@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "status": "frozen; owning tests passed; independent source peer pending",
+  "source_preimage_commit": "94dba45d98d25c82beda7a169d7e40aa129cd4ca",
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_refresh.py",
+      "bytes": 142745,
+      "sha256": "94ba94d7365273253700a9a7b76a08fb2cdad58791651593ce29bea3dea0a561"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/tests/test_capture_regression_results.py",
+      "bytes": 3835,
+      "sha256": "bba6d4cbd7ada96ef02375780d975fbca4e5cb108bef59b714f44bdbb274b408"
+    }
+  ],
+  "test_log": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson13-r55/results-route-tests-r3.log",
+    "bytes": 235,
+    "sha256": "98b438f2e67b71f3fb2c253fe0df5c06f47d25ba52f36c5fefb08c77d387cd0c"
+  },
+  "test_result": {
+    "passed": 2,
+    "seconds": 4.74,
+    "terminal_exit_status": 0,
+    "RAM_cap": "4G",
+    "private_profile": true,
+    "offscreen": true,
+    "CUDA_VISIBLE_DEVICES": "",
+    "Mesa_vendor_forced": true,
+    "worktree_first_import_verified": true,
+    "owned_lease_removed": true,
+    "child_terminal": true
+  },
+  "canonical_english": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/13_regression.json",
+    "bytes": 5550,
+    "sha256": "f7c7fc4683813d3481d1ae17840153fc124199ccd8324a269e24bc11f2297992"
+  },
+  "canonical_visuals": [
+    "01_module",
+    "02_download",
+    "19_setting_analysis_unit",
+    "19_setting_annotation_source",
+    "19_setting_guide_min_wells",
+    "19_setting_guide_permutation_seed",
+    "19_setting_guide_permutations",
+    "19_setting_inference",
+    "19_setting_level",
+    "19_setting_paired_data",
+    "21_batch_running",
+    "25_result_results",
+    "25_result_runs",
+    "26_detail_coefficients",
+    "26_detail_p_values"
+  ],
+  "change": "Only Regression bypasses unselected obsolete scene24 hidden FigureQueue list click. Other modules retain exactly the original generic figure inspection. Existing real public Runs/Results/detail-tab tour remains unchanged. Figure exports, counts, pipeline acceptance and data/settings stay unchanged.",
+  "test_scope": [
+    "Real current Regression AppScreen receives explicit synthetic two-row result via actual pipeline-result slot and genuine Matplotlib figure via figure-ready slot; no model or scientific claim.",
+    "Nonempty actual FigureQueue remains hidden on detail page while public tab bar is visible; obsolete show_figure is forbidden; actual Runs/Results/Measurements/Cells/detail tab mouse clicks succeed, preserving collected settings and not starting a run.",
+    "Other modules retain original last-figure index, settle, scene24 order."
+  ],
+  "history": [
+    "r1 correctly exposed that before any result delivery the Figures card is owner-hidden; test fixture corrected to deliver actual slot result, not privately show it.",
+    "r2 two passed; r3 strengthens regression with actual nonempty queued figure and also passes. All logs preserved."
+  ],
+  "limitations": [
+    "CPU/offscreen UI regression only, no new native capture/gate or scientific acceptance. Fresh whole lesson required on committed source."
+  ]
+}

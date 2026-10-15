@@ -1,0 +1,7 @@
+{
+  "app_exit_code": 0,
+  "recorder_rc": null,
+  "failure": "Traceback (most recent call last):\n  File \"/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_host_mode.py\", line 646, in driver\n    outcome['rc'] = capture_refresh.main()\n                    ~~~~~~~~~~~~~~~~~~~~^^\n  File \"/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_refresh.py\", line 2024, in main\n    capture_ui.show_figure(capture, queue, queue.count() - 1)\n    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_ui.py\", line 209, in show_figure\n    raise RuntimeError('The figure list is not visible to click: '\n                       f\"sizes={split.sizes() if split is not None else None} \"\n                       f\"chain={' < '.join(chain[:12])}\")\nRuntimeError: The figure list is not visible to click: sizes=[0, 88] chain=QListWidget:FiguresList(hidden)[80x13] < CollapsibleSplitter:-(hidden)[100x13] < FigureQueue:-(hidden)[100x30] < QWidget:-(hidden)[100x30] < QStackedWidget:-[1008x1001] < CollapsibleSplitter:-[2250x1001] < QWidget:CardBody[2250x1001] < QWidget:qt_scrollarea_viewport[2250x1001] < QScrollArea:-[2250x1001] < _CardBuiltWhenShown:Card[2276x1065] < CollapsibleSplitter:-[2276x1251] < QWidget:-[2284x1251]\n",
+  "clips": {},
+  "gate_failed": []
+}
