@@ -1,0 +1,101 @@
+{
+  "schema": 1,
+  "lesson": "26_invasion",
+  "held_recorder_commit": "eb5f8df8dd2001f87470ca79580135087a3b7b79",
+  "strict_union": 11,
+  "total_visuals": 13,
+  "blocked_visuals": [
+    "01_module",
+    "14_actual_completion"
+  ],
+  "raw_gates_changed": false,
+  "whole_capture_accepted": false,
+  "published": false,
+  "files": [
+    {
+      "file": "legend-tests.txt",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/lesson26-r46/legend-tests-final.log",
+      "bytes": 124,
+      "sha256": "42c54bb79851917ff7817593a6cca264e96a5f1d5b39fe8032c41785b7f0e47f",
+      "byte_identical_copy": true
+    },
+    {
+      "file": "legend-route-fix-review.json",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/lesson26-r46/legend-route-fix-review.json",
+      "bytes": 4042,
+      "sha256": "df49436950ad742dbda788f1dc80a6e501305bb1a301554ab96b1e693a997831",
+      "byte_identical_copy": true
+    },
+    {
+      "file": "r47-science-content-review.json",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/lesson26-r47/r47-science-content-review.json",
+      "bytes": 7310,
+      "sha256": "293a5912f7cc2cac79f34942bb33d7f1661e1b7d8487f1f9b0b997df655a890f",
+      "byte_identical_copy": true
+    },
+    {
+      "file": "lesson26-r47/host_gate_summary.json",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/lesson26-r47/captures/invasion/host_gate_summary.json",
+      "bytes": 7157,
+      "sha256": "d147731d13f8d603e7ec0d44de6c4d16334c33835b76d0262a71ae263e447e0c",
+      "byte_identical_copy": true
+    },
+    {
+      "file": "lesson26-r47/01_module.gate.json",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/lesson26-r47/captures/invasion/01_module.gate.json",
+      "bytes": 2787,
+      "sha256": "6b3c4681d10d67eb1a635ef1119aad2463fd657253007f3e09988818a1e8d560",
+      "byte_identical_copy": true
+    },
+    {
+      "file": "lesson26-r47/14_actual_completion.gate.json",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/lesson26-r47/captures/invasion/14_actual_completion.gate.json",
+      "bytes": 2986,
+      "sha256": "160817110fa8ae0ba2f72c9a77b4b16fc5020b281a04f7d1739bb917ca733a19",
+      "byte_identical_copy": true
+    },
+    {
+      "file": "lesson26-r47-b/host_gate_summary.json",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/lesson26-r47-b/captures/invasion/host_gate_summary.json",
+      "bytes": 1419,
+      "sha256": "c6f5ebe75724539913de6963011a605b624fbad969f2cad150649f19cb845148",
+      "byte_identical_copy": true
+    },
+    {
+      "file": "lesson26-r47-b/01_module.gate.json",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/lesson26-r47-b/captures/invasion/01_module.gate.json",
+      "bytes": 2791,
+      "sha256": "118c94a5c7e8459f06445554de88ceba87fdb977b7858c6a846c6a8b07a6a0cc",
+      "byte_identical_copy": true
+    },
+    {
+      "file": "lesson26-r47-b/14_actual_completion.gate.json",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/lesson26-r47-b/captures/invasion/14_actual_completion.gate.json",
+      "bytes": 2943,
+      "sha256": "56336e2094e0e08259d35144d01d2d29f60a717ee0756fcbf837037d0203a4bb",
+      "byte_identical_copy": true
+    },
+    {
+      "file": "eb5f8df8dd2001f87470ca79580135087a3b7b79.patch",
+      "bytes": 6258,
+      "sha256": "8ae8f74ae998d84eb7cbb1134bc72c79400442d9cb40ce6eb38c6d66ec2211eb"
+    }
+  ],
+  "full_science_source_bindings": [
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/lesson26-r47/captures/invasion/scientific_acceptance.json",
+      "bytes": 1052894,
+      "sha256": "1e1fa2317d84ba4a328285682ca674f98e9b914c08e45ef32307501a1c7544cc",
+      "role": "Full scoped science receipt retained onWS; compact independently checked summary included instead"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/lesson26-r47-b/captures/invasion/scientific_acceptance.json",
+      "bytes": 1052894,
+      "sha256": "037492638de7e9a35cfcd167d5796f6285435d7fc0fc032cbb2b0237d54e2059",
+      "role": "Full scoped science receipt retained onWS; compact independently checked summary included instead"
+    }
+  ],
+  "no_more_diagnostics_or_retakes_authorized": true,
+  "next_lesson": "11_openplaque",
+  "next_status": "prepared only; no next capture acceptance"
+}

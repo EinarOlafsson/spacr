@@ -1,0 +1,167 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "source_commit": "ec3fbeb08ca35133ec3d4e2eb5b0f635ddadef9b",
+  "scope": "Normal scoped API generation for six reviewed blocks in four symbols across nine locales, retaining all unrelated records and unchanged selected blocks.",
+  "collector_cache_source_files_verified": 669,
+  "resumed_after_existing_owner_prerequisite": "64f66231a00 export runtime reviews; normal Portuguese history contextualization refused stale runtime reviews before adoption.",
+  "passed_outputs_preserved_without_rewriting": {
+    "sv": "08019d63da038184de29dc4db630fb09c0033024a210edbdad6983e5c8247b16",
+    "de": "cc75defdcc27160cad81ea1f25bf276d024ccf09935cc45301fae11d8c79cf73",
+    "es": "9b8444f7acb8c11f3fc3c72e603f5ec27dedf7ced64806a28960ea5f951a20ba",
+    "zh_CN": "0e9ce5bd71a3ca4ed3aee9b66ff3a49800e0910a5192a6f12b2efbd021362a76"
+  },
+  "baseline_catalog_commit": "83e9acb5ac0",
+  "source_docs_sha256": {
+    "spacr.qt.widgets.file_list.suggest_file_pairs": "5eb745f9845f5672270485cdf78ce93e52056f02c5d706f6685ab7c62cae615d",
+    "spacr.qt.widgets.file_list.PairedFileTableWidget.attach_database": "3b0cfae063958ccf29f1532da1c032deae567d0202dc16401cef1cd008375735",
+    "spacr.qt.widgets.file_list.PairedFileTableWidget.dropEvent": "59dd0d457c462f99721a48136a5c4c1c45c5948bd8ccc01079f081103a78285b",
+    "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag": "c3d17d37e529f731cad6d9f594bda1e7943efb63412743a639a12dcf6fc95d3a"
+  },
+  "normal_functions": [
+    "public_docstrings (cached with exact source-file verification; only four normal AST-rendered file-list/plate-map bodies replaced)",
+    "reviewed_api_block_translations",
+    "_translate_api_documents(reuse_history=True)",
+    "write_language(preserve_other_symbols=True)",
+    "_write_english_api_manifest"
+  ],
+  "locales": {
+    "sv": {
+      "changed_symbols": [
+        "spacr.qt.widgets.file_list.PairedFileTableWidget.attach_database",
+        "spacr.qt.widgets.file_list.PairedFileTableWidget.dropEvent",
+        "spacr.qt.widgets.file_list.suggest_file_pairs",
+        "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag"
+      ],
+      "unrelated_records_preserved": 13400,
+      "unrelated_before_sha256": "9e4885ee7628a4d285632d75c664f0f4bc65f297eec332717447ef3ec01861b3",
+      "unrelated_after_sha256": "9e4885ee7628a4d285632d75c664f0f4bc65f297eec332717447ef3ec01861b3",
+      "unchanged_blocks_preserved": 12,
+      "reviewed_blocks_exact": 6,
+      "catalog_sha256": "08019d63da038184de29dc4db630fb09c0033024a210edbdad6983e5c8247b16"
+    },
+    "de": {
+      "changed_symbols": [
+        "spacr.qt.widgets.file_list.PairedFileTableWidget.attach_database",
+        "spacr.qt.widgets.file_list.PairedFileTableWidget.dropEvent",
+        "spacr.qt.widgets.file_list.suggest_file_pairs",
+        "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag"
+      ],
+      "unrelated_records_preserved": 13400,
+      "unrelated_before_sha256": "ea53937a62b0fb89f50df97b2d892ecb549f1c073404f5aa894b4452510bf346",
+      "unrelated_after_sha256": "ea53937a62b0fb89f50df97b2d892ecb549f1c073404f5aa894b4452510bf346",
+      "unchanged_blocks_preserved": 12,
+      "reviewed_blocks_exact": 6,
+      "catalog_sha256": "cc75defdcc27160cad81ea1f25bf276d024ccf09935cc45301fae11d8c79cf73"
+    },
+    "es": {
+      "changed_symbols": [
+        "spacr.qt.widgets.file_list.PairedFileTableWidget.attach_database",
+        "spacr.qt.widgets.file_list.PairedFileTableWidget.dropEvent",
+        "spacr.qt.widgets.file_list.suggest_file_pairs",
+        "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag"
+      ],
+      "unrelated_records_preserved": 13400,
+      "unrelated_before_sha256": "63f18c2a80f8bc705d049e27b37ccd5400f7a01463365b28242f64f5b30faa04",
+      "unrelated_after_sha256": "63f18c2a80f8bc705d049e27b37ccd5400f7a01463365b28242f64f5b30faa04",
+      "unchanged_blocks_preserved": 12,
+      "reviewed_blocks_exact": 6,
+      "catalog_sha256": "9b8444f7acb8c11f3fc3c72e603f5ec27dedf7ced64806a28960ea5f951a20ba"
+    },
+    "zh_CN": {
+      "changed_symbols": [
+        "spacr.qt.widgets.file_list.PairedFileTableWidget.attach_database",
+        "spacr.qt.widgets.file_list.PairedFileTableWidget.dropEvent",
+        "spacr.qt.widgets.file_list.suggest_file_pairs",
+        "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag"
+      ],
+      "unrelated_records_preserved": 13400,
+      "unrelated_before_sha256": "37c107cc9aeb77e5a06b29d8292754fa9d974d788af0dee13a5a52f2c9eda602",
+      "unrelated_after_sha256": "37c107cc9aeb77e5a06b29d8292754fa9d974d788af0dee13a5a52f2c9eda602",
+      "unchanged_blocks_preserved": 12,
+      "reviewed_blocks_exact": 6,
+      "catalog_sha256": "0e9ce5bd71a3ca4ed3aee9b66ff3a49800e0910a5192a6f12b2efbd021362a76"
+    },
+    "pt": {
+      "changed_symbols": [
+        "spacr.qt.widgets.file_list.PairedFileTableWidget.attach_database",
+        "spacr.qt.widgets.file_list.PairedFileTableWidget.dropEvent",
+        "spacr.qt.widgets.file_list.suggest_file_pairs",
+        "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag"
+      ],
+      "unrelated_records_preserved": 13400,
+      "unrelated_before_sha256": "4a40ec381f2c066291f0d1d309ffb3df0f3fe49c0b4973d8cc0fc5d3fd8ae0f0",
+      "unrelated_after_sha256": "4a40ec381f2c066291f0d1d309ffb3df0f3fe49c0b4973d8cc0fc5d3fd8ae0f0",
+      "unchanged_blocks_preserved": 12,
+      "reviewed_blocks_exact": 6,
+      "catalog_sha256": "9338089aea18bf3c7bf4b2208c44502cc78b6df2c4e80dcdfaa322af44dbf56e"
+    },
+    "hi": {
+      "changed_symbols": [
+        "spacr.qt.widgets.file_list.PairedFileTableWidget.attach_database",
+        "spacr.qt.widgets.file_list.PairedFileTableWidget.dropEvent",
+        "spacr.qt.widgets.file_list.suggest_file_pairs",
+        "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag"
+      ],
+      "unrelated_records_preserved": 13400,
+      "unrelated_before_sha256": "c5029d7569f2a827c96d96895077e628638fb6f62f9ee01b0a13cf7f2ff66b18",
+      "unrelated_after_sha256": "c5029d7569f2a827c96d96895077e628638fb6f62f9ee01b0a13cf7f2ff66b18",
+      "unchanged_blocks_preserved": 12,
+      "reviewed_blocks_exact": 6,
+      "catalog_sha256": "3f0d6e27d525efeb7e7ce2251d17350794a09677bfcd6ffd491dc465d473074f"
+    },
+    "ko": {
+      "changed_symbols": [
+        "spacr.qt.widgets.file_list.PairedFileTableWidget.attach_database",
+        "spacr.qt.widgets.file_list.PairedFileTableWidget.dropEvent",
+        "spacr.qt.widgets.file_list.suggest_file_pairs",
+        "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag"
+      ],
+      "unrelated_records_preserved": 13400,
+      "unrelated_before_sha256": "cbe74ba9878e00efb4e8f21931f5139be24b0f81d932fc455bc051cdc7882e23",
+      "unrelated_after_sha256": "cbe74ba9878e00efb4e8f21931f5139be24b0f81d932fc455bc051cdc7882e23",
+      "unchanged_blocks_preserved": 12,
+      "reviewed_blocks_exact": 6,
+      "catalog_sha256": "0b013cde8e0d32cacb234d82c247fa1bc38b50de8c9f0107e201d2a280dd4d69"
+    },
+    "is": {
+      "changed_symbols": [
+        "spacr.qt.widgets.file_list.PairedFileTableWidget.attach_database",
+        "spacr.qt.widgets.file_list.PairedFileTableWidget.dropEvent",
+        "spacr.qt.widgets.file_list.suggest_file_pairs",
+        "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag"
+      ],
+      "unrelated_records_preserved": 13400,
+      "unrelated_before_sha256": "fd039cfd737d279334f104977a8e70e89b9b185d7d71fda90e4d5bd075e394b1",
+      "unrelated_after_sha256": "fd039cfd737d279334f104977a8e70e89b9b185d7d71fda90e4d5bd075e394b1",
+      "unchanged_blocks_preserved": 12,
+      "reviewed_blocks_exact": 6,
+      "catalog_sha256": "e37a1b853ef9c69e68c8ad7164634577d048b69d269a2918730beeb3e312f786"
+    },
+    "fr": {
+      "changed_symbols": [
+        "spacr.qt.widgets.file_list.PairedFileTableWidget.attach_database",
+        "spacr.qt.widgets.file_list.PairedFileTableWidget.dropEvent",
+        "spacr.qt.widgets.file_list.suggest_file_pairs",
+        "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag"
+      ],
+      "unrelated_records_preserved": 13400,
+      "unrelated_before_sha256": "039e33a11965ec7edd82ac8a80db19542cc1f16414d22846c3cf0c5e04063ceb",
+      "unrelated_after_sha256": "039e33a11965ec7edd82ac8a80db19542cc1f16414d22846c3cf0c5e04063ceb",
+      "unchanged_blocks_preserved": 12,
+      "reviewed_blocks_exact": 6,
+      "catalog_sha256": "36669ed9fd140b3ed9ca02572746713d23f00c28694ce0dff7966a1cec010813"
+    }
+  },
+  "english_changed_symbols": [
+    "spacr.qt.widgets.file_list.PairedFileTableWidget.attach_database",
+    "spacr.qt.widgets.file_list.PairedFileTableWidget.dropEvent",
+    "spacr.qt.widgets.file_list.suggest_file_pairs",
+    "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag"
+  ],
+  "unexpected_model_decoding": "Fails immediately; none needed. No validation guard patched.",
+  "limitations": [
+    "Technical translation review; no native-speaker claim.",
+    "No runtime/global arrivals, Sphinx or external publication."
+  ]
+}

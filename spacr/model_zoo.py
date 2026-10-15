@@ -4840,7 +4840,10 @@ def scorecard_html(entry) -> str:
     :returns: the HTML table, or ``""`` when there is no scorecard to show.
     """
     metrics = dict(getattr(entry, "metrics", None) or {})
-    if not any(key in metrics for _label, key in SCORECARD_ROWS):
+    detector_rows = tuple((label, key) for label, key in
+                          (("mAP50", "mAP50"), ("mAP50–95", "mAP50_95"))
+                          if key in metrics)
+    if not any(key in metrics for _label, key in SCORECARD_ROWS + detector_rows):
         return ""
     name = (getattr(entry, "display_name", "") or getattr(entry, "name", "")
             or getattr(entry, "key", ""))
@@ -4850,9 +4853,6 @@ def scorecard_html(entry) -> str:
             return "not recorded"
         return value if str(value).strip() else "not recorded"
     rows = []
-    detector_rows = tuple((label, key) for label, key in
-                          (("mAP50", "mAP50"), ("mAP50–95", "mAP50_95"))
-                          if key in metrics)
     for label, key in SCORECARD_ROWS + detector_rows:
         stock = metrics.get(f"stock_{key}", "") if key in ("f1", "aji", "dice") else ""
         value = metrics.get(key, "")

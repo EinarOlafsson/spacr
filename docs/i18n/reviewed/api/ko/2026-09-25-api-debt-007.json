@@ -3178,7 +3178,10 @@
       "source_sha256": "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc",
       "context": "count CSV paths; each is paired with the score whose filename tokens it uniquely matches best, unmatched ones fill score rows still missing a count, and any left over get rows of their own.",
       "translation": "개수 CSV 경로입니다. 각각 파일 이름 토큰이 유일하게 가장 잘 일치하는 점수와 짝지어지며, 짝이 없는 것은 아직 개수가 없는 점수 행을 채우고, 그래도 남은 것은 자체 행을 받습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "File pairing/attachment and one-based coordinate source documentation corrected inf419206a0ed+1f930c37d55+409c1060994. Replacement exact-source review is2026-10-15-file-plate-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.flow.FlowHost.heightForWidth#1",

@@ -169,8 +169,8 @@ class _Well(QPushButton):
     def __init__(self, row: int, column: int, parent=None):
         """Build one well of the plate.
 
-        :param row: the well's row index, counting from zero.
-        :param column: its column index, counting from zero.
+        :param row: the well's one-based row number.
+        :param column: the well's one-based column number.
         :param parent: parent widget.
 
         The pair is the well's IDENTITY, not just its position: the picker
@@ -393,8 +393,8 @@ class PlateMapPicker(QDialog):
     def begin_drag(self, row: int, column: int, modifiers=None) -> None:
         """Anchor a drag on one well.
 
-        :param row: zero-based plate row of the pressed well.
-        :param column: zero-based plate column of the pressed well.
+        :param row: one-based plate row of the pressed well.
+        :param column: one-based plate column of the pressed well.
         :param modifiers: the keyboard state at the press. With Ctrl the
             rectangle adds to what is already chosen; without it the drag
             replaces the selection, which is what every other grid in this

@@ -1,0 +1,47 @@
+{
+  "baseline": "f260582a63a",
+  "behavior_ast_unchanged": true,
+  "peer_source_and_input_hashes_match": true,
+  "locales": {
+    "en": {
+      "owned_exact": 2,
+      "unrelated_preserved": 13476
+    },
+    "de": {
+      "owned_exact": 2,
+      "unrelated_preserved": 13402
+    },
+    "es": {
+      "owned_exact": 2,
+      "unrelated_preserved": 13402
+    },
+    "fr": {
+      "owned_exact": 2,
+      "unrelated_preserved": 13402
+    },
+    "hi": {
+      "owned_exact": 2,
+      "unrelated_preserved": 13402
+    },
+    "is": {
+      "owned_exact": 2,
+      "unrelated_preserved": 13402
+    },
+    "ko": {
+      "owned_exact": 2,
+      "unrelated_preserved": 13402
+    },
+    "pt": {
+      "owned_exact": 2,
+      "unrelated_preserved": 13402
+    },
+    "sv": {
+      "owned_exact": 2,
+      "unrelated_preserved": 13402
+    },
+    "zh_CN": {
+      "owned_exact": 2,
+      "unrelated_preserved": 13402
+    }
+  }
+}
