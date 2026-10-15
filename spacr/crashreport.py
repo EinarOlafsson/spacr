@@ -948,7 +948,7 @@ REPORTS_PER_DAY = 5
 #: Hosted-AI questions per install per UTC day answered by the best model.
 AI_BEST_PER_DAY = 5
 
-#: Further questions per install per UTC day answered by the light model.
+#: Further questions per install per UTC day answered by the lighter model.
 AI_LIGHT_PER_DAY = 10
 
 #: Outcome of a report the relay accepted.

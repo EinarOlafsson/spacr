@@ -25,7 +25,7 @@
     "tools/build_i18n_catalogs.py": "f22f46ab0e75555f706ef9818795013c3402e179de4f4a604a0e427ee699ada3"
   },
   "root_peer_review": "Exact F47017d4702225c/F536e1f1e38db98 helper diffs have no source blocker. Source-only review; no independent native/scientific/runtime translation acceptance claim.",
-  "global_gates": "No global CI/release claim. Prior executed N700 full-nine exact-English and explicit-review failures retained in features/data/scientific_backends_integration_2026-10-15/. Later foreign F549 two-row runtime closure owner active; preserve every current target on final merge.",
+  "global_gates": "Prior N700/F549 refusal logs are historical. Latest merged public owner repairs permit this actual normal arrival refresh PASS (883added,29changed,144retired; pinned9833baseline unchanged). No final/fullCI or global runtime audit rerun/claim; 121 own checks remain source-unchanged.",
   "limits": [
     "Legacy no-hash annotations remain unverified; no label copying or annotation-time binding",
     "No new assay biological accuracy or expert curation acceptance",
@@ -93,5 +93,68 @@
     },
     "incoming_commit": "7cc4092063215e8e1b2035c94d2808d4b27bd2a9"
   },
-  "source_publication_note": "Normal initial push rejected concurrent advancement; reconciled incoming7cc40920632 and regenerated English normally. Unchanged121 acceptance retained; no gate waiver or global green claim."
+  "source_publication_note": "Normal pushes rejected concurrent advancements; latest incoming df9084ca115 includes public F549/N700 owner repairs. English generated normally; all27 owned targets exact and all unrelated incoming current targets preserved. Unchanged121 acceptance retained; no final/global CI claim.",
+  "latest_concurrent_merge_preservation": {
+    "normal_operation": "write_english then audit(sources,()); non-English artifacts only ordinary Git merge, no hand edits",
+    "locale_proof": {
+      "sv": {
+        "owned_exact_reviewed_rows": 3,
+        "unrelated_source_current_targets_preserved": 10569,
+        "foreign_missing_or_stale_targets": []
+      },
+      "de": {
+        "owned_exact_reviewed_rows": 3,
+        "unrelated_source_current_targets_preserved": 10569,
+        "foreign_missing_or_stale_targets": []
+      },
+      "es": {
+        "owned_exact_reviewed_rows": 3,
+        "unrelated_source_current_targets_preserved": 10569,
+        "foreign_missing_or_stale_targets": []
+      },
+      "zh_CN": {
+        "owned_exact_reviewed_rows": 3,
+        "unrelated_source_current_targets_preserved": 10569,
+        "foreign_missing_or_stale_targets": []
+      },
+      "pt": {
+        "owned_exact_reviewed_rows": 3,
+        "unrelated_source_current_targets_preserved": 10569,
+        "foreign_missing_or_stale_targets": []
+      },
+      "hi": {
+        "owned_exact_reviewed_rows": 3,
+        "unrelated_source_current_targets_preserved": 10569,
+        "foreign_missing_or_stale_targets": []
+      },
+      "ko": {
+        "owned_exact_reviewed_rows": 3,
+        "unrelated_source_current_targets_preserved": 10569,
+        "foreign_missing_or_stale_targets": []
+      },
+      "is": {
+        "owned_exact_reviewed_rows": 3,
+        "unrelated_source_current_targets_preserved": 10569,
+        "foreign_missing_or_stale_targets": []
+      },
+      "fr": {
+        "owned_exact_reviewed_rows": 3,
+        "unrelated_source_current_targets_preserved": 10569,
+        "foreign_missing_or_stale_targets": []
+      }
+    },
+    "incoming_commit": "df9084ca115a89c8c8f90834d8ced12d3f970a27"
+  },
+  "normal_current_arrivals": {
+    "exit": 0,
+    "result": {
+      "added": 883,
+      "baseline": 9833,
+      "changed": 29,
+      "retired": 144
+    },
+    "immutable_baseline_preserved": true,
+    "all_arrivals_have_exact_current_nine_locale_review_evidence": true,
+    "log": "normal-arrivals.log.gz"
+  }
 }

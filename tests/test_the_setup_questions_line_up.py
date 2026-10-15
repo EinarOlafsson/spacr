@@ -21,6 +21,33 @@ from spacr.qt.widgets.setup_slides import (FORM_GAP_PX,   # noqa: E402
                                            SetupSlides)
 
 
+@pytest.fixture(autouse=True)
+def _the_provider_step_is_offered_back(monkeypatch):
+    """Offer the AI-provider question again, so its row is still measured.
+
+    Item 700 (2026-10-14) took the question out of first-run setup: a new
+    user starts on spaCR AI (free) and changes provider in Preferences.
+    The slide still draws the provider row for a question list that offers
+    it, so its alignment is measured through exactly that list.
+    """
+    from spacr.qt import preferences as prefs
+    from spacr.qt import setup_screen
+
+    shipped = setup_screen.questions
+
+    def with_the_provider_question():
+        rows = list(shipped())
+        choices = setup_screen._provider_choices()
+        if choices:
+            rows.append(("ai_provider", "AI provider",
+                         prefs.get_preferred_provider,
+                         prefs.set_preferred_provider, choices))
+        return rows
+
+    monkeypatch.setattr(setup_screen, "questions",
+                        with_the_provider_question)
+
+
 @pytest.fixture()
 def slides(qtbot):
     made = SetupSlides()
