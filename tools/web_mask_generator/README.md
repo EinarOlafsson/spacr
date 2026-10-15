@@ -218,3 +218,14 @@ normalization, thresholds and filters, without exposing checkpoint paths.
 This adapter requires the updated N696 backend; CPU tests exercise its actual
 helpers with injected model evaluation and establish no real-model parity.
 Service/UI enablement for these routes remains a separate integration step.
+
+All eight dedicated Gradio tabs now have callable hosted-route interfaces.
+Segmentation routes show label boundaries; the well detector shows actual
+bounding rectangles and offers confidence/axis-ratio controls. Plaque diameter
+requires explicit resolved pixels or native scale. Other Mask routes distinguish
+blank (magnification default), Auto and explicit pixels, and accept optional
+JSON desktop normalization/filter overrides. Each panel owns its callbacks so
+selecting one family cannot execute another family's late-bound closure.
+This source UI has CPU component/callback coverage, not deployed GPU acceptance.
+ZeroGPU model placement/cache lifetime for all approved weights, real quota
+behavior and scientific parity remain to be accepted on the intended host.

@@ -244,3 +244,60 @@ def test_exact_integer_rest_floats_keep_the_explicit_selection(demo, tmp_path):
     assert selection == {"series": 0, "indices": {}, "channels": [0], "page": 0, "pdf_dpi": 150}
     assert all(type(selection[name]) is int for name in ("series", "page", "pdf_dpi"))
     assert type(selection["channels"][0]) is int
+
+
+@pytest.mark.parametrize('family', list(app.FAMILY_LABELS))
+def test_each_actual_endpoint_captures_its_own_family_and_settings(demo, tmp_path, family):
+    actual, calls = demo
+    source = tmp_path / 'image.tif'
+    tifffile.imwrite(source, np.arange(35, dtype=np.uint16).reshape(5, 7), metadata={'axes': 'YX'})
+    endpoint = 'segment_plaque' if family == 'toxoplasma_plaque' else 'detect_wells' if family == 'toxoplasma_well_detector' else 'segment_' + family
+    callback = function(actual, endpoint)
+    callback(str(source), family + '_v1', True, 0, 0, 0, [0], 0, 150, 32, False, 0.6, -2, 40,
+             '{"background": 123, "remove_border_objects": true}', 0.4, 0.8)
+    request = calls[-1]
+    assert request['family'] == family and request['model_key'] == family + '_v1'
+    if family == 'toxoplasma_plaque':
+        assert request['settings'] == {'diameter': 32, 'flow_threshold': 0.6, 'CP_prob': -2}
+    elif family == 'toxoplasma_well_detector':
+        assert request['settings'] == {'confidence': 0.4, 'min_axis_ratio': 0.8}
+    else:
+        assert request['settings'] == {'diameter': 32, 'flow_threshold': 0.6, 'CP_prob': -2, 'magnification': 40, 'background': 123, 'remove_border_objects': True}
+
+
+def test_generic_blank_auto_and_invalid_settings_remain_distinct(demo, tmp_path):
+    actual, calls = demo
+    source = tmp_path / 'image.tif'
+    tifffile.imwrite(source, np.ones((5, 7), dtype=np.uint16), metadata={'axes': 'YX'})
+    callback = function(actual, 'segment_live_cell')
+    args = [str(source), 'live_cell_v1', True, 0, 0, 0, [0], 0, 150, None, False, 0.4, 0]
+    callback(*args)
+    assert calls[-1]['settings']['diameter'] is None
+    args[10] = True
+    callback(*args)
+    assert calls[-1]['settings']['diameter'] == 'auto'
+    before = len(calls)
+    for invalid in ('{invalid', '[]', '{"checkpoint": "/untrusted"}'):
+        with pytest.raises(Exception):
+            callback(*args, 20, invalid)
+    assert len(calls) == before
+    with pytest.raises(Exception, match='one channel'):
+        callback(*[args[i] if i != 6 else [0, 1] for i in range(len(args))])
+    assert len(calls) == before
+
+
+def test_detector_preview_uses_actual_boxes_and_no_mask(tmp_path):
+    from tools.web_mask_generator.detector import build_well_result_zip
+    from spacr.plaque import Well
+    source = tmp_path / 'image.tif'
+    image = np.zeros((5, 7), dtype=np.uint8)
+    tifffile.imwrite(source, image)
+    target = tmp_path / 'detector.zip'
+    build_well_result_zip(target, input_file=source, image=image, image_axes='YX', wells=[Well(1, 1, 5, 4, 0.9)],
+                          model_id='detector', model_version='1', weights_sha256='ab' * 32, settings={})
+    overlay = app._preview(target)
+    assert np.all(overlay[1, 1:5] == [255, 70, 70])
+    assert np.all(overlay[3, 1:5] == [255, 70, 70])
+    assert np.all(overlay[2, 2:4] == 0)
+    with zipfile.ZipFile(target) as archive:
+        assert 'mask.tif' not in archive.namelist()

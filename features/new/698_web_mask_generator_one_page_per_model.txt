@@ -319,3 +319,18 @@ registry cases PASS/actualexit0/3.79s, including distinct dispatch for all eight
 families; dispatch tests inject adapters and make no scientific inference claim.
 UI enablement, approved weights, actual GPU/browser parity and deployment remain
 open; parentN698 partial. Receipt:features/data/698_all_family_service_2026-10-14/.
+
+2026-10-14 — Original Home: dedicated Gradio UI now exposes runnable callbacks
+for all eight model classes, with per-family closure factories (no loop-variable
+cross-routing), current version/provenance, consent and explicit image selection.
+Plaque resolved/native diameter remains distinct from generic blank/magnification
+and Auto; generic routes accept desktop normalization/filter JSON overrides.
+Well detection exposes confidence/axis-ratio and draws actual rectangles, with
+no fake segmentation mask. All callbacks share the bounded queue/private staging
+and strict nonfractional REST selection rules. Validation44 actual-Gradio cases
+PASS/actualexit0/40.60s, including each family's captured settings, original
+plaque API compatibility, JSON/path refusal, detector geometry preview and prior
+REST preprocessing regression cohort. Model service mocked; no server/GPU or
+real weights started. Native ZeroGPU placement/quota and actual checkpoint,
+scientific/browser parity, accessibility/localization and public hosting remain
+acceptance gates; parentN698 partial. Receipt:features/data/698_all_family_ui_2026-10-14/.
