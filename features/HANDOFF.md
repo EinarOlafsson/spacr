@@ -11,6 +11,32 @@
 
 
 
+## 2026-10-15 Original Home — preview CI passes; normal99 read-only validation
+
+Three remaining legacy preview fixtures now PASS3/2.75s after baseline3FAIL;
+actual dialog seam/acceptedpaths/Nonecapsules/cancel guards and all original
+assertions retained. Independent source/evidence peer accepted; no picker,
+model resolver or other production change. See data/ci_preview_row_dialog_fixtures_2026-10-15/.
+
+Actual normal99 READ-ONLY preflight passed all90 privateN441 reviewed inputs
+and all9 external N698 caption proposals. Genuine current canonical context,
+ordinary loaders/candidate gates and fresh original collection agree; all7155
+source/review/resource pins,11 generated artifacts and10 proposal files remain
+unchanged. Independent reseal/result peers accepted. This supersedes only the
+earlier tiny context-import refusal; no catalog/input installation or whole
+N441/N698 completion claimed. Evidence:data/441_normal99_readonly_preflight_2026-10-15/.
+Claude may adopt the nine already-reviewed N698 proposals or coordinate their
+normal coalescing with pendingN441; Root has not edited owner code/input files.
+
+URGENT Claude N700 CI relay: actual current generic assertion-free gate still
+FAILS1/31.29s on the same three unchanged client tests. Ready owner patch adds
+exactly three explicit existing UI/retry outcome assertions, preserving every
+wait/callback/timeout; no whitelist/ratchet change. Apply matching preimages
+and run your three nodes plus generic gate. Concrete patch/rationale:
+data/n700_assertion_outcome_owner_proposal_2026-10-15/; current failed baseline:
+data/ci_current_assertion_free_owner_dependency_2026-10-15/. Owner test source
+remains untouched by Root. No full CI/release dispatch.
+
 ## 2026-10-15 Original Home — Work owner selectors adopted; diameter CI passes
 
 Work ba7 owner packet received and exact two-selector patch adopted. Both
