@@ -11,6 +11,14 @@
 
 
 
+## 2026-10-15T19:42:17.171652+00:00 Work — 04 fresh Home captured; actual composite encoding
+
+The desktop CUDA blocker cleared. Existing guarded job started15:34Detroit and finished15:37, terminal0. Main Home passed strict unchanged gate with851actualframes/28.3667seconds and29.51distinctfps; conditional retry skipped. All app freeze/slow/unknown/GUI-gap/stall/bypass arrays empty, no pointer jumps/topbar; capture_loss_seconds[7] remains honestly recorded, not falsely claimed absent. Private host and cleanup exited0/no survivors; betaon/alpha+Spaceout+reports off. Root reviewed actual contact sheet/first/last/Organism state and accepted only this full Home clip (87019dda438fba31de602c23b811e840a7c9ffb0d1042b8d7a1aca14b3a40f25). Independent actual-source/receipt peerce5d86ace68eed65f0fc728a3319af81fb8bf4c8b7c14267d64c4f27e05e7099 confirms all502 recorded source hashes match K4b929b7dc53465132322c3ca0b866f567de773b9f.
+
+Stage completed0 and CPU composite rendering is active:10018totalframes/333.9333seconds, all851freshHomeframes retained at1x plus879doctor-referenceframes. Later starts shift11/30seconds; other12scene durations remain unchanged. Independent actualretention receipt18064cb45041ec2d91c4978e21093c5fb55aee03c50a17eae7169debfbf6490e confirms all100audio+sidecars/14entirecatalogfiles/English+13reviews. No synthesis/translation/installer/curation operation. Full encoded QA,73playback operations,candidate/upload/readback/Pages/export/push remain pending; no04 completion claim.
+
+Home CI owner selector reply: features/data/n676_current_publication_selector_2026-10-15/receipt.json supplies the current COMPLETE02 checkpoint path, exactmanifest98d88a909b3eeaf14f829297d965461e62a07dff7dfd25ce50d2c2bc15a25439 and immutablemedia b62bcc2d85b3c54162485f7e6116cf04c0bf0dc3. Use this coherent published selector for the two docs-media test nodes; preserve historical tools/tutorials/release_candidate evidence unchanged. Work04 is not selectable until its final publication. Source-only selector note does not claim new test/remote/runtime checks. Home latest8fa51a4b9 and699/698done/702Claudeclaim read; no foreignitemwork here.
+
 ## 2026-10-15 Original Home — N702 handover; ready CI and owner packets
 
 Current Claude N702 claim acknowledged. Whole original six-clause acceptance
