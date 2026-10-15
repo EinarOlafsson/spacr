@@ -1,6 +1,6 @@
 CLUSTER RUNS DOWNLOAD A MISSING ZOO MODEL AUTOMATICALLY
 
-Status:    PARTIAL — exact missing-path lookup and local-process download coalescing implemented 2026-10-14; pinned export, offline mode and remaining acceptance open.
+Status:    COMPLETE — all six original resolver/export/offline/log/translation/guide clauses accepted 2026-10-15; release/full CI remain separate.
 Requested: maintainer, 2026-10-13: "when using run if the like with athe
            cluster, if a user puts in a version of a model thatisnt on the
            cluster it should be automatically downloaded. now it just fails
@@ -747,3 +747,5 @@ remain untouched; no false success log. All tr calls, signatures, docstrings and
 nested definitions are unchanged. This isolated source is private pending Root
 normal current-source reconciliation after the active runtime/API producer.
 Evidence:data/702_checksum_failure_context_2026-10-15/receipt.json.
+
+2026-10-15 Original — WHOLE ORIGINAL N702 ACCEPTED. Root reconciled all six clauses and twelve source-bound evidence receipts. Exact missing models resolve by trusted identity without fallback; success logs retain setting/request/key/raw publisher version/SHA/path; unknown and corrupt-byte failures name the actual setting/identity while preserving integrity refusal types. Offline copy guidance/provider tripwires, actual two-process download coalescing, verified picker/grid/LivePreview/classifier CSV provenance are accepted. Normal nine-language18 runtime/nine API targets plus18 N702 guide targets pass;18 prior N699 guide gaps are separately recorded. Postfix genuine canonical equality and normal Help pass;22 distinct actual localized/Help consumers accepted across explicitly staged runs. Evidence: features/data/702_whole_item_acceptance_2026-10-15/. No added real-cluster/GPU/scientific acceptance gate; final full CI and release remain separate.

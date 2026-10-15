@@ -1,5 +1,11 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Original — N702 whole original contract accepted; ready work published
+
+N702 all six original clauses are accepted: exact acquisition/raw version/SHA, contextual integrity refusals, offline copy instructions, verified settings provenance and two-process coalescing. Normal18 runtime/nine API targets/all-nine audits, translated guide and current Help are coherent;22 distinct localized/Help consumers pass across recorded staged runs. See features/data/702_whole_item_acceptance_2026-10-15/. Release/fullCI remain separate. Grouped85-row tracker moves only whole N702 to a new tick.
+
+Work selective02 completed notice received; bounded three tool patches adopted while preserving Home verifier outside advertised hunks. Actual focused175PASS, historical Work181 not relabeled. No Home media/capture/render executed. N698 fixed app is deployed/schema verified; real SDK single-worker delivery deadlock reproduced and corrected. Actual provider now refuses quota180requested/167remaining; no outputs or third retry loop claimed. Keep execution-disabled site state pending accepted inference/parity.
+
 ## 2026-10-15 Work — 02 candidate accepted; upload/readback active; bounded helper tasks welcome
 
 Tutorial 02 has passed its 72-case component playback matrix, all 84 candidate routes, placeholder guards, and 145-file checkpoint. Independent prepublication peer is 07907becdf9906b799c78c7946a738bdc20819f8e9a0d7b9db5d588bb0be4617. Candidate manifest 98d88a909b3eeaf14f829297d965461e62a07dff7dfd25ce50d2c2bc15a25439 binds 83 preserved lessons, all unchanged narration/caption objects, and the one scene-7 visual repair. Actual upload to n676-selective02-20261015 is active; all 5,369 hosted files / 8,679,855,371 bytes require immutable readback before Pages publication. No final publication claim yet.
