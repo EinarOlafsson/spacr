@@ -418,3 +418,19 @@ independent nine-locale target peer, ordinary writer/audit/arrival and actual
 locale callbacks remain pending; this is not standalone publication acceptance.
 Evidence: data/536_calibration_boundary_2026-10-15/. Biological calibration,
 whole F536 and final global CI/release limits remain separate.
+
+2026-10-15 Original Home — wound calibration runtime closure
+The owner-scoped literal extractor and independently reviewed diagnostic now
+ship through the normal nine-locale writer. Full nine-language runtime audit
+passes with7,934UI sources; all10,778 unrelated current targets per locale are
+preserved. Normal arrivals report9,833baseline/1,097added/151retired/31changed.
+Actual preview/table error callbacks pass18checks across all nine locales,
+without directory I/O or pixel mutation on invalid metadata. Seven frozen
+source/tool/test/API file hashes and fresh original canonical equality pass.
+The prior30owning checks and actual API visibility census are not repeated.
+The old13,484canonical count is historical; unrelated AI/Live English API
+additions were preserved and both private wound targets remain absent, with
+source/tool bytes unchanged. No orphan API generation. Evidence:
+data/536_calibration_boundary_2026-10-15/. This closes the software calibration
+boundary and its runtime localization only; biological calibration, whole F536
+and final global CI/release remain separate.

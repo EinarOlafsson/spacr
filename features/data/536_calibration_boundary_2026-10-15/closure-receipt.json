@@ -1,0 +1,68 @@
+{
+  "normal_runtime": {
+    "mode": "normal exact review lookup and write_language; preserve every unrelated source-current target",
+    "locales": {
+      "sv": {
+        "owned_reviewed_rows": 1,
+        "unrelated_preserved_rows": 10778
+      },
+      "de": {
+        "owned_reviewed_rows": 1,
+        "unrelated_preserved_rows": 10778
+      },
+      "es": {
+        "owned_reviewed_rows": 1,
+        "unrelated_preserved_rows": 10778
+      },
+      "zh_CN": {
+        "owned_reviewed_rows": 1,
+        "unrelated_preserved_rows": 10778
+      },
+      "pt": {
+        "owned_reviewed_rows": 1,
+        "unrelated_preserved_rows": 10778
+      },
+      "hi": {
+        "owned_reviewed_rows": 1,
+        "unrelated_preserved_rows": 10778
+      },
+      "ko": {
+        "owned_reviewed_rows": 1,
+        "unrelated_preserved_rows": 10778
+      },
+      "is": {
+        "owned_reviewed_rows": 1,
+        "unrelated_preserved_rows": 10778
+      },
+      "fr": {
+        "owned_reviewed_rows": 1,
+        "unrelated_preserved_rows": 10778
+      }
+    },
+    "canonical_owned_occurrences": 1,
+    "actual_API_eligibility_source_tool_bytes_unchanged": true,
+    "historical_API_inventory_english_sha256": "02297213551624abce3d92fba8f5edcda0809da68b3d61104f4ffab4a830579e",
+    "current_merged_english_manifest_sha256": "eb0291aa523a6693e9a719a11f793afcb8c409268ff69c5cfc9c0c99ba0897e3",
+    "separate_wound_API_targets_still_absent": true,
+    "normal_full_nine_runtime_audit_exit": 0,
+    "normal_arrivals": {
+      "baseline": 9833,
+      "added": 1097,
+      "retired": 151,
+      "changed": 31
+    },
+    "source_file_sha256_unchanged": {
+      "spacr/measure.py": "2030a63b4f38e4a34bfc732763a19ad9f786aef15ec94ca294905c5aaaff6a29",
+      "tools/build_i18n_catalogs.py": "e534cb131ccbdcf630632ff37e6ad5b2450f6fe8c60066f6c96a6790e2e6c697",
+      "spacr/qt/i18n.py": "f9416268933e1d763279e2755e7317a48fd494630288d87b89a66e1ed080d754",
+      "tests/test_wound_calibration_boundary.py": "0756d1fdefd60f215f87221b24e803c10effcd35c425674927be9a696f557e8b",
+      "tools/build_documentation_i18n.py": "6f3a86f5ce51672dcf11b420f6c1a14a7d1e7fec9f5b353676749ac4b5e530ad",
+      "docs/source/_static/i18n/api/en.json": "eb0291aa523a6693e9a719a11f793afcb8c409268ff69c5cfc9c0c99ba0897e3",
+      "tests/test_runtime_backend_caption_owners.py": "828d231b748741631055647df6ce3d94e691112ba6acf4c1108599a9d2012f69"
+    }
+  },
+  "actual_localized_callbacks": "18PASS28deselected2.81s, zero skips; actual preview and table interfaces across all9runtime languages, invalid scales refuse before directory reads and original pixels unchanged.",
+  "owning_tests": "Prior30PASS2.00s plus actual source-bound API inventory; unchanged owning/API checks not repeated.",
+  "API_disposition": "Both newhelper and prose-changed checker individually absent in actual normal canonical API inventory. Historical13,484 count and oldEnglish hash remain historical; incoming unrelated AI/Live API additions preserved, source/tool bytes and both current English absences checked. No orphan API reviews/generation.",
+  "limits": "Positive/finite metadata and valid-input numerical application boundary only; no biological calibration/assay accuracy, whole F536, global CI or release acceptance."
+}
