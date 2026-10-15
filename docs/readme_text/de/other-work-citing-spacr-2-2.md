@@ -1,0 +1,1 @@
+- [IRE1α fördert den Phagosomal-Calcium-Fluss zur Verbesserung der makrophagenfungiziden Aktivität.](<https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>)

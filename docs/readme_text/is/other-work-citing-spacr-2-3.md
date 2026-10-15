@@ -1,0 +1,1 @@
+- [Toxoplasma GRA8 er nauðsynlegur fyrir aðstoðproteín ALG-2 og er mikilvægt fyrir efnahagsleikum parasita.](<https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>)

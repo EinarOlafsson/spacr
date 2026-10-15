@@ -1,0 +1,1 @@
+- [Toxoplasma GRA8 greift das Wirts-ESCRT-Zubehörprotein ALG-2 auf und ist für die metabolische Integrität des Parasiten notwendig.](<https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>)

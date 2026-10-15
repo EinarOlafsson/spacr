@@ -1,0 +1,1 @@
+- [Hydrogen sulfide dynamically upregulates copper uptake and localization.](<https://www.biorxiv.org/content/10.64898/2026.07.30.741779v1>)

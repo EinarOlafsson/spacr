@@ -1,0 +1,1 @@
+- [Sprach- und Übersetzungshandbuch](<../../source/localization.rst>) — Schnittstellensprachen, kontextbezogene Hilfe und Politik der wissenschaftlichen Ergebnisse.

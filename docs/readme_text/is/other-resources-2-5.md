@@ -1,0 +1,1 @@
+- [Sjálf tungumál og þýðingu leiðbeining](<../../source/localization.rst>) — samskipti tungumál, kontext hjálp og vísindaleg útleiðslu.

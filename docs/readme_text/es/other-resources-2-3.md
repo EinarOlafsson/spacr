@@ -1,0 +1,1 @@
+- [Guía de características](<../../source/features.rst>) — capacidades, madurez e integraciones opcionales.

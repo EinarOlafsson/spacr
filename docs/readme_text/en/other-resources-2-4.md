@@ -1,0 +1,1 @@
+- [Curated API reference](<https://einarolafsson.github.io/spacr/api/index.html>) — supported entry points by task, with the complete module reference one level deeper.

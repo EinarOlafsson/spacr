@@ -1,5 +1,7 @@
 |Website| |Platforms| |Python| |Qt| |Test counts| |Coverage| |Issues| |Conda| |PyPI| |Docker| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
 
+网站： `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/projects/spacr/>`_
+
 .. |Website| image:: https://img.shields.io/badge/Website-spaCR-0A7BBB
    :target: https://einarolafsson.github.io/projects/spacr/
    :alt: spaCR 网站
@@ -94,11 +96,11 @@
 
 .. raw:: html
 
-   <div><a href="../../source/features.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/spacr.desktop.svg"><img src="../../readme_images/zh_CN/spacr.svg" alt="spaCR. CRISPR 筛选的空间表型分析。 spaCR 对显微镜图像中的单细胞进行分割和测量，将逐对象表型与测序得到的向导 RNA 丰度整合，并估计哪些基因与表型变化相关。以孔板图像和 FASTQ 读段为输入，它生成逐对象测量值、训练后的分类器、逐向导 RNA 和逐基因效应估计值，以及按优先级排序的命中结果列表。 分区、测量、标记和分类模块也没有序列手臂运行。 Make Masks 修正分割掩膜，并使用 Box 工具标注带类别标签的独立矩形以进行 YOLO 导出。框保留自己的标签和历史记录，不会更改原始图像或掩膜。 各工具的说明见 功能指南。 图像、掩膜和裁剪图像块是磁盘上的文件。测量值、标注和模型预测是项目 SQLite 数据库 measurements.db 中的表。 可作为桌面应用程序运行，也可在工作站、服务器或集群上以无图形界面方式运行。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/spacr.desktop.svg"><img src="../../readme_images/zh_CN/spacr.svg" alt="spaCR. CRISPR 筛选的空间表型分析。 spaCR 对显微镜图像中的单细胞进行分割和测量，将逐对象表型与测序得到的向导 RNA 丰度整合，并估计哪些基因与表型变化相关。以孔板图像和 FASTQ 读段为输入，它生成逐对象测量值、训练后的分类器、逐向导 RNA 和逐基因效应估计值，以及按优先级排序的命中结果列表。 分区、测量、标记和分类模块也没有序列手臂运行。 Make Masks 修正分割掩膜，并使用 Box 工具标注带类别标签的独立矩形以进行 YOLO 导出。框保留自己的标签和历史记录，不会更改原始图像或掩膜。 各工具的说明见 功能指南。 图像、掩膜和裁剪图像块是磁盘上的文件。测量值、标注和模型预测是项目 SQLite 数据库 measurements.db 中的表。 可作为桌面应用程序运行，也可在工作站、服务器或集群上以无图形界面方式运行。"></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/try-spacr.desktop.svg"><img src="../../readme_images/zh_CN/try-spacr.svg" alt="试用 spaCR."></picture></div>
+   <div><a href="../../readme_text/zh_CN/try-spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/try-spacr.desktop.svg"><img src="../../readme_images/zh_CN/try-spacr.svg" alt="试用 spaCR."></picture></a></div>
 
 .. code-block:: bash
 
@@ -109,23 +111,27 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/try-spacr-2.desktop.svg"><img src="../../readme_images/zh_CN/try-spacr-2.svg" alt="在 Import、Make Masks、Annotate 或实验分析界面中使用 加载测试数据… 下载示例数据。在终端中使用 spacr-download。"></picture></div>
+   <div><a href="../../readme_text/zh_CN/try-spacr-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/try-spacr-2.desktop.svg"><img src="../../readme_images/zh_CN/try-spacr-2.svg" alt="在 Import、Make Masks、Annotate 或实验分析界面中使用 加载测试数据… 下载示例数据。在终端中使用 spacr-download。"></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/hardware-support.desktop.svg"><img src="../../readme_images/zh_CN/hardware-support.svg" alt="硬件支持."></picture></div>
+   <div><a href="../../readme_text/zh_CN/hardware-support.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/hardware-support.desktop.svg"><img src="../../readme_images/zh_CN/hardware-support.svg" alt="硬件支持."></picture></a></div>
 
 .. spacr-hardware-begin
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-hardware-1.desktop.svg"><img src="../../readme_images/zh_CN/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. 支持（稳定） 已实现（beta） 仅支持 CPU."></picture></div>
+   <div><a href="../../readme_text/zh_CN/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-hardware-1.desktop.svg"><img src="../../readme_images/zh_CN/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. 支持（稳定） 已实现（beta） 仅支持 CPU."></picture></a></div>
 
 .. spacr-hardware-end
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-spacr.desktop.svg"><img src="../../readme_images/zh_CN/install-spacr.svg" alt="安装 spaCR. 请选择安装方式： 桌面应用程序：适用于 Linux、macOS 或 Windows 的安装程序，自带 Python。 pip：在 Conda 环境中运行 python -m pip install spacr。 conda-forge：在 Conda 环境中运行 conda install conda-forge::spacr。 Docker：在 Linux 容器中运行命令行处理流程，可使用 CPU 镜像或 NVIDIA GPU 镜像："></picture></div>
+   <div><a href="../../readme_text/zh_CN/hardware-support-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/hardware-support-2.desktop.svg"><img src="../../readme_images/zh_CN/hardware-support-2.svg" alt="CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM took 444.5 s on the CPU and 3.2 s on Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This is a historical example, not a speed guarantee. GPU acceleration requires a usable backend and compatible libraries. See the recorded hardware measurement."></picture></a></div>
+
+.. raw:: html
+
+   <div><a href="../../readme_text/zh_CN/install-spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-spacr.desktop.svg"><img src="../../readme_images/zh_CN/install-spacr.svg" alt="安装 spaCR. 请选择安装方式： 桌面应用程序：适用于 Linux、macOS 或 Windows 的安装程序，自带 Python。 pip：在 Conda 环境中运行 python -m pip install spacr。 conda-forge：在 Conda 环境中运行 conda install conda-forge::spacr。 Docker：在 Linux 容器中运行命令行处理流程，可使用 CPU 镜像或 NVIDIA GPU 镜像："></picture></a></div>
 
 .. code-block:: bash
 
@@ -134,11 +140,11 @@
 
 .. raw:: html
 
-   <div><a href="../../source/installer_guide.rst#container-images"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-spacr-2.desktop.svg"><img src="../../readme_images/zh_CN/install-spacr-2.svg" alt="Docker 指南 介绍了 GPU 设置、数据挂载和处理流程命令。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/install-spacr-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-spacr-2.desktop.svg"><img src="../../readme_images/zh_CN/install-spacr-2.svg" alt="Docker 指南 介绍了 GPU 设置、数据挂载和处理流程命令。"></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/desktop-application.desktop.svg"><img src="../../readme_images/zh_CN/desktop-application.svg" alt="桌面应用程序. 安装器包装自己的 Python. Conda 不需要。"></picture></div>
+   <div><a href="../../readme_text/zh_CN/desktop-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/desktop-application.desktop.svg"><img src="../../readme_images/zh_CN/desktop-application.svg" alt="桌面应用程序. 安装器包装自己的 Python. Conda 不需要。"></picture></a></div>
 
 .. spacr-installer-links-begin
 
@@ -158,7 +164,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/desktop-application-2.desktop.svg"><img src="../../readme_images/zh_CN/desktop-application-2.svg" alt="在 Linux 上，将下载的文件设为可执行文件并运行："></picture></div>
+   <div><a href="../../readme_text/zh_CN/desktop-application-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/desktop-application-2.desktop.svg"><img src="../../readme_images/zh_CN/desktop-application-2.svg" alt="在 Linux 上，将下载的文件设为可执行文件并运行："></picture></a></div>
 
 .. code-block:: bash
 
@@ -167,7 +173,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/desktop-application-3.desktop.svg"><img src="../../readme_images/zh_CN/desktop-application-3.svg" alt="在 macOS 中,打开 .pkg. 目前的 beta 没有通知; 如果 Gatekeeper 阻止它,请选择 系统设置 → 隐私和安全 → 打开 无论如何。 有关更新、卸载、离线使用和故障排查的说明，请参阅 安装指南；有关工作站和服务器的配置建议以及 GPU 兼容性表，请参阅 系统要求。"></picture></div>
+   <div><a href="../../readme_text/zh_CN/desktop-application-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/desktop-application-3.desktop.svg"><img src="../../readme_images/zh_CN/desktop-application-3.svg" alt="在 macOS 中,打开 .pkg. 目前的 beta 没有通知; 如果 Gatekeeper 阻止它,请选择 系统设置 → 隐私和安全 → 打开 无论如何。 有关更新、卸载、离线使用和故障排查的说明，请参阅 安装指南；有关工作站和服务器的配置建议以及 GPU 兼容性表，请参阅 系统要求。"></picture></a></div>
 
 .. raw:: html
 
@@ -175,7 +181,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/pypi-installation.desktop.svg"><img src="../../readme_images/zh_CN/pypi-installation.svg" alt="使用 PyPI 安装. 如需使用 PyPI 版本，请在 Conda 环境中通过 pip 安装 spaCR。Python 3.12 可选择的科学计算扩展包最为丰富："></picture></div>
+   <div><a href="../../readme_text/zh_CN/pypi-installation.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/pypi-installation.desktop.svg"><img src="../../readme_images/zh_CN/pypi-installation.svg" alt="使用 PyPI 安装. 如需使用 PyPI 版本，请在 Conda 环境中通过 pip 安装 spaCR。Python 3.12 可选择的科学计算扩展包最为丰富："></picture></a></div>
 
 .. code-block:: bash
 
@@ -187,7 +193,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/pypi-installation-2.desktop.svg"><img src="../../readme_images/zh_CN/pypi-installation-2.svg" alt="spaCR 支持 Python 3.9 through 3.14，但 Python 3.14.1 除外，torchvision 不包含该版本。最繁重的 CUDA 和 ROCm 工作流程建议使用 Linux；macOS 和 Windows 也受支持，两者都会使用各自的 GPU — macOS 通过 Metal，它涵盖 Apple Silicon 和 Intel Mac 中的 AMD 显卡，Windows 则通过 CUDA 或 DirectML。 标准安装包含 Qt 桌面界面。在服务器、集群或 CI 运行器上，可运行命令行流程而不打开该界面："></picture></div>
+   <div><a href="../../readme_text/zh_CN/pypi-installation-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/pypi-installation-2.desktop.svg"><img src="../../readme_images/zh_CN/pypi-installation-2.svg" alt="spaCR 支持 Python 3.9 through 3.14，但 Python 3.14.1 除外，torchvision 不包含该版本。最繁重的 CUDA 和 ROCm 工作流程建议使用 Linux；macOS 和 Windows 也受支持，两者都会使用各自的 GPU — macOS 通过 Metal，它涵盖 Apple Silicon 和 Intel Mac 中的 AMD 显卡，Windows 则通过 CUDA 或 DirectML。 标准安装包含 Qt 桌面界面。在服务器、集群或 CI 运行器上，可运行命令行流程而不打开该界面："></picture></a></div>
 
 .. code-block:: bash
 
@@ -196,11 +202,11 @@
 
 .. raw:: html
 
-   <div><a href="../../source/installer_guide.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/pypi-installation-3.desktop.svg"><img src="../../readme_images/zh_CN/pypi-installation-3.svg" alt="可选集成单独安装,例如 spacr[zarr]、 spacr[omero]、spacr[napari] 和 spacr[czi,nd2,lif]. 查看完整的附件和 Python 版本兼容性表的 安装导游。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/pypi-installation-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/pypi-installation-3.desktop.svg"><img src="../../readme_images/zh_CN/pypi-installation-3.svg" alt="可选集成单独安装,例如 spacr[zarr]、 spacr[omero]、spacr[napari] 和 spacr[czi,nd2,lif]. 查看完整的附件和 Python 版本兼容性表的 安装导游。"></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/conda-forge-installation.desktop.svg"><img src="../../readme_images/zh_CN/conda-forge-installation.svg" alt="使用 conda-forge 安装. 官方 conda-forge 软件包会将 spaCR 及其桌面应用依赖项安装到当前环境中："></picture></div>
+   <div><a href="../../readme_text/zh_CN/conda-forge-installation.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/conda-forge-installation.desktop.svg"><img src="../../readme_images/zh_CN/conda-forge-installation.svg" alt="使用 conda-forge 安装. 官方 conda-forge 软件包会将 spaCR 及其桌面应用依赖项安装到当前环境中："></picture></a></div>
 
 .. code-block:: bash
 
@@ -211,7 +217,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source.svg" alt="从源代码安装. 克隆代码仓库并以可编辑模式安装。这样工作副本 就是 已安装的软件包，修改无需重新安装即可生效:"></picture></div>
+   <div><a href="../../readme_text/zh_CN/install-from-source.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source.svg" alt="从源代码安装. 克隆代码仓库并以可编辑模式安装。这样工作副本 就是 已安装的软件包，修改无需重新安装即可生效:"></picture></a></div>
 
 .. code-block:: bash
 
@@ -224,7 +230,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source-2.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source-2.svg" alt="这会克隆默认分支 main，即最新的发布版本。开发在 nightly 分支上进行；如需改为克隆该分支，请添加 --branch nightly。如需克隆特定版本:"></picture></div>
+   <div><a href="../../readme_text/zh_CN/install-from-source-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source-2.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source-2.svg" alt="这会克隆默认分支 main，即最新的发布版本。开发在 nightly 分支上进行；如需改为克隆该分支，请添加 --branch nightly。如需克隆特定版本:"></picture></a></div>
 
 .. code-block:: bash
 
@@ -232,7 +238,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source-3.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source-3.svg" alt="之后如需拉取更新，请在克隆目录中运行:"></picture></div>
+   <div><a href="../../readme_text/zh_CN/install-from-source-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source-3.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source-3.svg" alt="之后如需拉取更新，请在克隆目录中运行:"></picture></a></div>
 
 .. code-block:: bash
 
@@ -241,11 +247,11 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source-4.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source-4.svg" alt="依赖项或入口点变化时才需重新安装。Python 代码修改会直接生效； spacr-doctor 可确定当前使用的安装。"></picture></div>
+   <div><a href="../../readme_text/zh_CN/install-from-source-4.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source-4.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source-4.svg" alt="依赖项或入口点变化时才需重新安装。Python 代码修改会直接生效； spacr-doctor 可确定当前使用的安装。"></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source-light.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source-light.svg" alt="从源代码安装（精简版）. 贡献者需要版本历史；如果只需运行 spaCR，可选择下列方式。测量于 2026-10-07 对 nightly 的 05302fd5c 提交进行，使用 packaging/measure_clone_forms.sh:"></picture></div>
+   <div><a href="../../readme_text/zh_CN/install-from-source-light.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source-light.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source-light.svg" alt="从源代码安装（精简版）. 贡献者需要版本历史；如果只需运行 spaCR，可选择下列方式。测量于 2026-10-07 对 nightly 的 05302fd5c 提交进行，使用 packaging/measure_clone_forms.sh:"></picture></a></div>
 
 .. code-block:: bash
 
@@ -265,11 +271,11 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source-light-2.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source-light-2.svg" alt="nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 --filter=blob:none 不会缩小检出文件：其 Git 对象存储仍占用 2032 MB。Git 不报告按需延迟获取的对象，因此没有测得下载总量。nightly 的版本控制文件检出后占用 3416 MB（2026-10-08 测得），不含 Git 历史。下载大小和耗时随分支而变化。"></picture></div>
+   <div><a href="../../readme_text/zh_CN/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source-light-2.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source-light-2.svg" alt="nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 --filter=blob:none 不会缩小检出文件：其 Git 对象存储仍占用 2032 MB。Git 不报告按需延迟获取的对象，因此没有测得下载总量。nightly 的版本控制文件检出后占用 3416 MB（2026-10-08 测得），不含 Git 历史。下载大小和耗时随分支而变化。"></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/command-line-entry-points.desktop.svg"><img src="../../readme_images/zh_CN/command-line-entry-points.svg" alt="命令行入口."></picture></div>
+   <div><a href="../../readme_text/zh_CN/command-line-entry-points.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/command-line-entry-points.desktop.svg"><img src="../../readme_images/zh_CN/command-line-entry-points.svg" alt="命令行入口."></picture></a></div>
 
 .. code-block:: bash
 
@@ -288,39 +294,39 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/command-line-entry-points-2.desktop.svg"><img src="../../readme_images/zh_CN/command-line-entry-points-2.svg" alt="spacr-run --list 会列出具有无界面命令行入口的模块。仅在 GUI 中提供的标注、数据整理、比较和探索模块不会列出。"></picture></div>
+   <div><a href="../../readme_text/zh_CN/command-line-entry-points-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/command-line-entry-points-2.desktop.svg"><img src="../../readme_images/zh_CN/command-line-entry-points-2.svg" alt="spacr-run --list 会列出具有无界面命令行入口的模块。仅在 GUI 中提供的标注、数据整理、比较和探索模块不会列出。"></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/core-workflow.desktop.svg"><img src="../../readme_images/zh_CN/core-workflow.svg" alt="核心工作流程. 主要工作流程由六个模块组成： Mask 使用 Cellpose 分割细胞、细胞核、病原体和细胞器。 Measure 将形态、强度、纹理、空间和共定位特征以及对象图像裁剪写入 SQLite。 Annotate 在键盘驱动的网格中标注图像裁剪，并支持主动学习队列。 Classify 训练基于图像或测量值的模型，并在每个检查点记录留出数据上的性能。 Map Barcodes 将 FASTQ 读段映射到孔位和 gRNA，并提供丰度、碰撞和覆盖度质控。 Regression 使用适合连续值、比例和计数响应的模型族估计向导 RNA、基因、条件和对照效应。"></picture></div>
+   <div><a href="../../readme_text/zh_CN/core-workflow.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/core-workflow.desktop.svg"><img src="../../readme_images/zh_CN/core-workflow.svg" alt="核心工作流程. 主要工作流程由六个模块组成： Mask 使用 Cellpose 分割细胞、细胞核、病原体和细胞器。 Measure 将形态、强度、纹理、空间和共定位特征以及对象图像裁剪写入 SQLite。 Annotate 在键盘驱动的网格中标注图像裁剪，并支持主动学习队列。 Classify 训练基于图像或测量值的模型，并在每个检查点记录留出数据上的性能。 Map Barcodes 将 FASTQ 读段映射到孔位和 gRNA，并提供丰度、碰撞和覆盖度质控。 Regression 使用适合连续值、比例和计数响应的模型族估计向导 RNA、基因、条件和对照效应。"></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/spacr-modules.desktop.svg"><img src="../../readme_images/zh_CN/spacr-modules.svg" alt="spaCR 模块."></picture></div>
+   <div><a href="../../readme_text/zh_CN/spacr-modules.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/spacr-modules.desktop.svg"><img src="../../readme_images/zh_CN/spacr-modules.svg" alt="spaCR 模块."></picture></a></div>
 
 .. spacr-workflow-begin
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-workflow-1.desktop.svg"><img src="../../readme_images/zh_CN/generated-workflow-1.svg" alt="核心. Core sequence from microscopy images through segmentation, measurements, annotations, classification, barcode mapping and regression."></picture></div>
+   <div><a href="../../readme_text/zh_CN/generated-workflow-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-workflow-1.desktop.svg"><img src="../../readme_images/zh_CN/generated-workflow-1.svg" alt="核心. Core sequence from microscopy images through segmentation, measurements, annotations, classification, barcode mapping and regression."></picture></a></div>
 
 | |Module_mask|\ |Module_measure|\ |Module_annotate|\ |Module_classify_merged|\ |Module_map_barcodes|\ |Module_regression|
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-workflow-2.desktop.svg"><img src="../../readme_images/zh_CN/generated-workflow-2.svg" alt="数据. Import images and tables into spaCR projects and execute reproducible multi-plate workflows."></picture></div>
+   <div><a href="../../readme_text/zh_CN/generated-workflow-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-workflow-2.desktop.svg"><img src="../../readme_images/zh_CN/generated-workflow-2.svg" alt="数据. Import images and tables into spaCR projects and execute reproducible multi-plate workflows."></picture></a></div>
 
 | |Module_foreign|\ |Module_embeddings|\ |Module_run_compare|\ |Module_experiment_design|\ |Module_power|\ |Module_dose_response|\ |Module_qc_dashboard|
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-workflow-3.desktop.svg"><img src="../../readme_images/zh_CN/generated-workflow-3.svg" alt="工具. Point these at a project: edit masks by hand, stitch tiles, read an embedding, draw a gate, build a plot, check quality."></picture></div>
+   <div><a href="../../readme_text/zh_CN/generated-workflow-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-workflow-3.desktop.svg"><img src="../../readme_images/zh_CN/generated-workflow-3.svg" alt="工具. Point these at a project: edit masks by hand, stitch tiles, read an embedding, draw a gate, build a plot, check quality."></picture></a></div>
 
 | |Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-workflow-4.desktop.svg"><img src="../../readme_images/zh_CN/generated-workflow-4.svg" alt="生物体. 针对特定生物体的图像分析和定量实验测定结果。"></picture></div>
+   <div><a href="../../readme_text/zh_CN/generated-workflow-4.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-workflow-4.desktop.svg"><img src="../../readme_images/zh_CN/generated-workflow-4.svg" alt="生物体. 针对特定生物体的图像分析和定量实验测定结果。"></picture></a></div>
 
 | |Module_toxoplasma|
 
@@ -404,43 +410,43 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/spacr-modules-2.desktop.svg"><img src="../../readme_images/zh_CN/spacr-modules-2.svg" alt="这里列出所有在主界面上有入口卡片的模块，顺序与主界面一致：先是六个流程模块，然后是其余模块。选择卡片可打开对应模块的 API 页面。"></picture></div>
+   <div><a href="../../readme_text/zh_CN/spacr-modules-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/spacr-modules-2.desktop.svg"><img src="../../readme_images/zh_CN/spacr-modules-2.svg" alt="这里列出所有在主界面上有入口卡片的模块，顺序与主界面一致：先是六个流程模块，然后是其余模块。选择卡片可打开对应模块的 API 页面。"></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-resources.desktop.svg"><img src="../../readme_images/zh_CN/other-resources.svg" alt="其他资源."></picture></div>
+   <div><a href="../../readme_text/zh_CN/other-resources.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-resources.desktop.svg"><img src="../../readme_images/zh_CN/other-resources.svg" alt="其他资源."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="https://einarolafsson.github.io/spacr/tutorials/"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-resources-2-1.desktop.svg"><img src="../../readme_images/zh_CN/other-resources-2-1.svg" alt="交互式教程 — 从安装到筛选命中结果分析的引导式工作流程。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/other-resources-2-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-resources-2-1.desktop.svg"><img src="../../readme_images/zh_CN/other-resources-2-1.svg" alt="交互式教程 — 从安装到筛选命中结果分析的引导式工作流程。"></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../source/python_api.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-resources-2-2.desktop.svg"><img src="../../readme_images/zh_CN/other-resources-2-2.svg" alt="Python API 快速启动 - 从脚本、笔记本或集群运行和验证流程。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/other-resources-2-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-resources-2-2.desktop.svg"><img src="../../readme_images/zh_CN/other-resources-2-2.svg" alt="Python API 快速启动 - 从脚本、笔记本或集群运行和验证流程。"></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../source/features.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-resources-2-3.desktop.svg"><img src="../../readme_images/zh_CN/other-resources-2-3.svg" alt="特色引导 RNA - 能力、成熟度和可选集成。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/other-resources-2-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-resources-2-3.desktop.svg"><img src="../../readme_images/zh_CN/other-resources-2-3.svg" alt="特色引导 RNA - 能力、成熟度和可选集成。"></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="https://einarolafsson.github.io/spacr/api/index.html"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-resources-2-4.desktop.svg"><img src="../../readme_images/zh_CN/other-resources-2-4.svg" alt="清理 API 参考 - 按任务支持输入点,完整的模块参考一个级别更深。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/other-resources-2-4.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-resources-2-4.desktop.svg"><img src="../../readme_images/zh_CN/other-resources-2-4.svg" alt="清理 API 参考 - 按任务支持输入点,完整的模块参考一个级别更深。"></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../source/localization.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-resources-2-5.desktop.svg"><img src="../../readme_images/zh_CN/other-resources-2-5.svg" alt="语言与翻译引导 RNA — 界面语言、上下文帮助和科学输出政策。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/other-resources-2-5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-resources-2-5.desktop.svg"><img src="../../readme_images/zh_CN/other-resources-2-5.svg" alt="语言与翻译引导 RNA — 界面语言、上下文帮助和科学输出政策。"></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../source/localization.rst#contextual-help"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/language-translation.desktop.svg"><img src="../../readme_images/zh_CN/language-translation.svg" alt="语言与翻译. 界面的导航和首选项支持十种语言。AI 和 LIVE 控件、模块说明以及经过审核的上下文帮助也会翻译。无需重启，即可在 spaCR → 首选项 → 语言 中更改语言。日志、路径、数据库值和测量结果不会被翻译；科学输出始终使用规范英语。请参阅 上下文帮助政策。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/language-translation.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/language-translation.desktop.svg"><img src="../../readme_images/zh_CN/language-translation.svg" alt="语言与翻译. 界面的导航和首选项支持十种语言。AI 和 LIVE 控件、模块说明以及经过审核的上下文帮助也会翻译。无需重启，即可在 spaCR → 首选项 → 语言 中更改语言。日志、路径、数据库值和测量结果不会被翻译；科学输出始终使用规范英语。请参阅 上下文帮助政策。"></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../REVIEW_SCOPE_2026-09-04.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/language-translation-2.desktop.svg"><img src="../../readme_images/zh_CN/language-translation-2.svg" alt="The nine non-English catalogs are machine-drafted and technically reviewed rather than read end to end by a native speaker. The 评论范围 records which languages have had a human pass and every term left in English by decision."></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/language-translation-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/language-translation-2.desktop.svg"><img src="../../readme_images/zh_CN/language-translation-2.svg" alt="The nine non-English catalogs are machine-drafted and technically reviewed rather than read end to end by a native speaker. The 评论范围 records which languages have had a human pass and every term left in English by decision."></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/animated-setting-guidance.desktop.svg"><img src="../../readme_images/zh_CN/animated-setting-guidance.svg" alt="动画设置指南. 带有视觉说明的设置会在工具提示中提供 Animation 控件。浏览 设置动画图库 或 设置动画注册表。"></picture></div>
+   <div><a href="../../readme_text/zh_CN/animated-setting-guidance.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/animated-setting-guidance.desktop.svg"><img src="../../readme_images/zh_CN/animated-setting-guidance.svg" alt="动画设置指南. 带有视觉说明的设置会在工具提示中提供 Animation 控件。浏览 设置动画图库 或 设置动画注册表。"></picture></a></div>
 
 .. raw:: html
 
@@ -448,7 +454,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/data.desktop.svg"><img src="../../readme_images/zh_CN/data.svg" alt="数据. 参考数据集."></picture></div>
+   <div><a href="../../readme_text/zh_CN/data.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/data.desktop.svg"><img src="../../readme_images/zh_CN/data.svg" alt="数据. 参考数据集."></picture></a></div>
 
 | |DataBioStudies|\ |DataHuggingFace|\ |DataNCBI|\ |DataSpaCRPower|\ |DataBioRxiv|
 
@@ -474,7 +480,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/model-zoo.desktop.svg"><img src="../../readme_images/zh_CN/model-zoo.svg" alt="模型库. spaCR ships a catalogue of trained models and fetches them on demand. Open Model Zoo from the home screen to browse and install them, or name a key in a settings file -- pathogen_model: toxoplasma_pv_v1 -- and the model is downloaded and checksum-verified the first time it is needed. Every published entry carries a SHA-256; an entry without one is refused rather than installed, because a truncated or substituted checkpoint cannot be told from the real one."></picture></div>
+   <div><a href="../../readme_text/zh_CN/model-zoo.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/model-zoo.desktop.svg"><img src="../../readme_images/zh_CN/model-zoo.svg" alt="模型库. spaCR ships a catalogue of trained models and fetches them on demand. Open Model Zoo from the home screen to browse and install them, or name a key in a settings file -- pathogen_model: toxoplasma_pv_v1 -- and the model is downloaded and checksum-verified the first time it is needed. Every published entry carries a SHA-256; an entry without one is refused rather than installed, because a truncated or substituted checkpoint cannot be told from the real one."></picture></a></div>
 
 .. spacr-model-zoo-begin
 
@@ -485,7 +491,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-model-zoo-1.desktop.svg"><img src="../../readme_images/zh_CN/generated-model-zoo-1.svg" alt="旧模型."></picture></div>
+   <div><a href="../../readme_text/zh_CN/generated-model-zoo-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-model-zoo-1.desktop.svg"><img src="../../readme_images/zh_CN/generated-model-zoo-1.svg" alt="旧模型."></picture></a></div>
 
 .. raw:: html
 
@@ -493,17 +499,21 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-model-zoo-2.desktop.svg"><img src="../../readme_images/zh_CN/generated-model-zoo-2.svg" alt="替代模型."></picture></div>
+   <div><a href="../../readme_text/zh_CN/generated-model-zoo-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-model-zoo-2.desktop.svg"><img src="../../readme_images/zh_CN/generated-model-zoo-2.svg" alt="替代模型."></picture></a></div>
 
 .. raw:: html
 
    <div><a href="../../models/toxoplasma_pv_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-model-zoo-2-link-1.desktop.svg"><img src="../../readme_images/zh_CN/generated-model-zoo-2-link-1.svg" alt="toxoplasma_pv_v5"></picture></a><a href="../../models/toxoplasma_plaque_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-model-zoo-2-link-2.desktop.svg"><img src="../../readme_images/zh_CN/generated-model-zoo-2-link-2.svg" alt="toxoplasma_plaque_v3"></picture></a></div>
 
+.. raw:: html
+
+   <div><a href="../../readme_text/zh_CN/generated-model-zoo-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-model-zoo-3.desktop.svg"><img src="../../readme_images/zh_CN/generated-model-zoo-3.svg" alt="掩膜生成器"></picture></a></div>
+
 .. spacr-model-zoo-end
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/diagnosing-performance.desktop.svg"><img src="../../readme_images/zh_CN/diagnosing-performance.svg" alt="性能诊断. 生成硬件报告并将其附到性能相关问题中:"></picture></div>
+   <div><a href="../../readme_text/zh_CN/diagnosing-performance.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/diagnosing-performance.desktop.svg"><img src="../../readme_images/zh_CN/diagnosing-performance.svg" alt="性能诊断. 生成硬件报告并将其附到性能相关问题中:"></picture></a></div>
 
 .. code-block:: bash
 
@@ -511,15 +521,15 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/diagnosing-performance-2.desktop.svg"><img src="../../readme_images/zh_CN/diagnosing-performance-2.svg" alt="节省到 ~/.spacr/reports 并打印路径. --quick 将更长的基准标志; --out PATH 设置位置。 不读取项目数据。测量导入、数值库运算、窗口构建和动画的耗时，并报告 Apple Silicon 上的 x86_64 仿真情况以及 NumPy 使用的 BLAS 实现。"></picture></div>
+   <div><a href="../../readme_text/zh_CN/diagnosing-performance-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/diagnosing-performance-2.desktop.svg"><img src="../../readme_images/zh_CN/diagnosing-performance-2.svg" alt="节省到 ~/.spacr/reports 并打印路径. --quick 将更长的基准标志; --out PATH 设置位置。 不读取项目数据。测量导入、数值库运算、窗口构建和动画的耗时，并报告 Apple Silicon 上的 x86_64 仿真情况以及 NumPy 使用的 BLAS 实现。"></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/command-line-reference.desktop.svg"><img src="../../readme_images/zh_CN/command-line-reference.svg" alt="命令线参考. 下面的每个命令都以 pip install spacr 安装,所有命令都会接受 --help。"></picture></div>
+   <div><a href="../../readme_text/zh_CN/command-line-reference.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/command-line-reference.desktop.svg"><img src="../../readme_images/zh_CN/command-line-reference.svg" alt="命令线参考. 下面的每个命令都以 pip install spacr 安装,所有命令都会接受 --help。"></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/launching-the-application.desktop.svg"><img src="../../readme_images/zh_CN/launching-the-application.svg" alt="启动申请."></picture></div>
+   <div><a href="../../readme_text/zh_CN/launching-the-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/launching-the-application.desktop.svg"><img src="../../readme_images/zh_CN/launching-the-application.svg" alt="启动申请."></picture></a></div>
 
 .. code-block:: bash
 
@@ -529,7 +539,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/when-spacr-will-not-start.desktop.svg"><img src="../../readme_images/zh_CN/when-spacr-will-not-start.svg" alt="当 spaCR 不开始时."></picture></div>
+   <div><a href="../../readme_text/zh_CN/when-spacr-will-not-start.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/when-spacr-will-not-start.desktop.svg"><img src="../../readme_images/zh_CN/when-spacr-will-not-start.svg" alt="当 spaCR 不开始时."></picture></a></div>
 
 .. code-block:: bash
 
@@ -538,11 +548,11 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/when-spacr-will-not-start-2.desktop.svg"><img src="../../readme_images/zh_CN/when-spacr-will-not-start-2.svg" alt="spacr-doctor 每项检查输出一行，并为每个失败项给出一条可运行的命令。它还会报告路径上的是哪个 spacr。 safespacr 以默认值读取每项偏好设置，并关闭背景、动画、详细日志和预加载。当已保存的偏好设置导致程序无法启动时使用它。在安全模式下保存的偏好设置会正常写入并保留。"></picture></div>
+   <div><a href="../../readme_text/zh_CN/when-spacr-will-not-start-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/when-spacr-will-not-start-2.desktop.svg"><img src="../../readme_images/zh_CN/when-spacr-will-not-start-2.svg" alt="spacr-doctor 每项检查输出一行，并为每个失败项给出一条可运行的命令。它还会报告路径上的是哪个 spacr。 safespacr 以默认值读取每项偏好设置，并关闭背景、动画、详细日志和预加载。当已保存的偏好设置导致程序无法启动时使用它。在安全模式下保存的偏好设置会正常写入并保留。"></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/running-modules-headlessly.desktop.svg"><img src="../../readme_images/zh_CN/running-modules-headlessly.svg" alt="无图形界面发运行模块. 没有 Qt,没有显示器 - 用于集群、服务器和CI。"></picture></div>
+   <div><a href="../../readme_text/zh_CN/running-modules-headlessly.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/running-modules-headlessly.desktop.svg"><img src="../../readme_images/zh_CN/running-modules-headlessly.svg" alt="无图形界面发运行模块. 没有 Qt,没有显示器 - 用于集群、服务器和CI。"></picture></a></div>
 
 .. code-block:: bash
 
@@ -555,11 +565,11 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/running-modules-headlessly-2.desktop.svg"><img src="../../readme_images/zh_CN/running-modules-headlessly-2.svg" alt="validate 读取运行时会读取的同一组设置，并列出每个问题（例如缺少的设置或不存在的路径）及其修复方法。"></picture></div>
+   <div><a href="../../readme_text/zh_CN/running-modules-headlessly-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/running-modules-headlessly-2.desktop.svg"><img src="../../readme_images/zh_CN/running-modules-headlessly-2.svg" alt="validate 读取运行时会读取的同一组设置，并列出每个问题（例如缺少的设置或不存在的路径）及其修复方法。"></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/inspecting-a-run.desktop.svg"><img src="../../readme_images/zh_CN/inspecting-a-run.svg" alt="检查一次运行. 每个运行记录为 ~/.spacr/runs 与其设置,加密输入,输出,警告,版本和种子。"></picture></div>
+   <div><a href="../../readme_text/zh_CN/inspecting-a-run.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/inspecting-a-run.desktop.svg"><img src="../../readme_images/zh_CN/inspecting-a-run.svg" alt="检查一次运行. 每个运行记录为 ~/.spacr/runs 与其设置,加密输入,输出,警告,版本和种子。"></picture></a></div>
 
 .. code-block:: bash
 
@@ -568,7 +578,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/auditing-data-and-installation.desktop.svg"><img src="../../readme_images/zh_CN/auditing-data-and-installation.svg" alt="数据审计与安装."></picture></div>
+   <div><a href="../../readme_text/zh_CN/auditing-data-and-installation.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/auditing-data-and-installation.desktop.svg"><img src="../../readme_images/zh_CN/auditing-data-and-installation.svg" alt="数据审计与安装."></picture></a></div>
 
 .. code-block:: bash
 
@@ -578,7 +588,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/environment.desktop.svg"><img src="../../readme_images/zh_CN/environment.svg" alt="环境."></picture></div>
+   <div><a href="../../readme_text/zh_CN/environment.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/environment.desktop.svg"><img src="../../readme_images/zh_CN/environment.svg" alt="环境."></picture></a></div>
 
 .. code-block:: bash
 
@@ -586,23 +596,23 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/environment-2.desktop.svg"><img src="../../readme_images/zh_CN/environment-2.svg" alt="旋转日志写为 ~/.spacr/logs/spacr.log. 将此文件添加到错误报告中。"></picture></div>
+   <div><a href="../../readme_text/zh_CN/environment-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/environment-2.desktop.svg"><img src="../../readme_images/zh_CN/environment-2.svg" alt="旋转日志写为 ~/.spacr/logs/spacr.log. 将此文件添加到错误报告中。"></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="https://github.com/EinarOlafsson/spacr/issues"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/contributing-and-support.desktop.svg"><img src="../../readme_images/zh_CN/contributing-and-support.svg" alt="贡献与支持. 请通过 GitHub Issues 提交错误报告和范围明确的功能请求。报告故障时，请提供 spaCR 版本、操作系统、Python 版本、模块设置和相关日志片段。spacr-doctor 会收集其中的大部分信息；报告性能问题时还应附上硬件报告。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/contributing-and-support.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/contributing-and-support.desktop.svg"><img src="../../readme_images/zh_CN/contributing-and-support.svg" alt="贡献与支持. 请通过 GitHub Issues 提交错误报告和范围明确的功能请求。报告故障时，请提供 spaCR 版本、操作系统、Python 版本、模块设置和相关日志片段。spacr-doctor 会收集其中的大部分信息；报告性能问题时还应附上硬件报告。"></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="https://github.com/EinarOlafsson/spacr/blob/main/LICENSE"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/licensing.desktop.svg"><img src="../../readme_images/zh_CN/licensing.svg" alt="许可. spaCR is released under the BSD 3 条款许可证. 如果 spaCR 有助于发表作品,则引用被评估,并且不符合许可的条件,请参见下面的 引用 spaCR。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/licensing.desktop.svg"><img src="../../readme_images/zh_CN/licensing.svg" alt="许可. spaCR is released under the BSD 3 条款许可证. 如果 spaCR 有助于发表作品,则引用被评估,并且不符合许可的条件,请参见下面的 引用 spaCR。"></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="https://einarolafsson.github.io/spacr/tutorials/"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/tutorials.desktop.svg"><img src="../../readme_images/zh_CN/tutorials.svg" alt="教程. spaCR 交互式教程库 提供安装和模块使用的分步教程。每节课程均列出可用的旁白和语言。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/tutorials.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/tutorials.desktop.svg"><img src="../../readme_images/zh_CN/tutorials.svg" alt="教程. spaCR 交互式教程库 提供安装和模块使用的分步教程。每节课程均列出可用的旁白和语言。"></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/citing-spacr.desktop.svg"><img src="../../readme_images/zh_CN/citing-spacr.svg" alt="引用 spaCR. 如果 spaCR 对您的研究有所帮助，请引用： Olafsson EB, et al. 一张以图像为基础的 CRISPR 筛选将 EAF1 定义为 T. gondii ESCRT 模块化器。"></picture></div>
+   <div><a href="../../readme_text/zh_CN/citing-spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/citing-spacr.desktop.svg"><img src="../../readme_images/zh_CN/citing-spacr.svg" alt="引用 spaCR. 如果 spaCR 对您的研究有所帮助，请引用： Olafsson EB, et al. 一张以图像为基础的 CRISPR 筛选将 EAF1 定义为 T. gondii ESCRT 模块化器。"></picture></a></div>
 
 .. raw:: html
 
@@ -610,32 +620,32 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-work-citing-spacr.desktop.svg"><img src="../../readme_images/zh_CN/other-work-citing-spacr.svg" alt="其他作品引用 spaCR."></picture></div>
+   <div><a href="../../readme_text/zh_CN/other-work-citing-spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-work-citing-spacr.desktop.svg"><img src="../../readme_images/zh_CN/other-work-citing-spacr.svg" alt="其他作品引用 spaCR."></picture></a></div>
 
 .. spacr-citing-papers-begin
 
 .. raw:: html
 
-   <div><a href="https://journals.asm.org/doi/full/10.1128/msphere.01011-24"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-work-citing-spacr-2-1.desktop.svg"><img src="../../readme_images/zh_CN/other-work-citing-spacr-2-1.svg" alt="代谢适应性和Toxoplasma gondii中的营养素挖掘:从吸入路径缺乏突变物的见解。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/other-work-citing-spacr-2-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-work-citing-spacr-2-1.desktop.svg"><img src="../../readme_images/zh_CN/other-work-citing-spacr-2-1.svg" alt="代谢适应性和Toxoplasma gondii中的营养素挖掘:从吸入路径缺乏突变物的见解。"></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-work-citing-spacr-2-2.desktop.svg"><img src="../../readme_images/zh_CN/other-work-citing-spacr-2-2.svg" alt="IRE1α promotes phagosomal calcium flux to enhance macrophage fungicidal activity."></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/other-work-citing-spacr-2-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-work-citing-spacr-2-2.desktop.svg"><img src="../../readme_images/zh_CN/other-work-citing-spacr-2-2.svg" alt="IRE1α promotes phagosomal calcium flux to enhance macrophage fungicidal activity."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-work-citing-spacr-2-3.desktop.svg"><img src="../../readme_images/zh_CN/other-work-citing-spacr-2-3.svg" alt="Toxoplasma GRA8 包含主 ESCRT 配件蛋白质 ALG-2 并且对寄生虫的代谢完整性至关重要。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/other-work-citing-spacr-2-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-work-citing-spacr-2-3.desktop.svg"><img src="../../readme_images/zh_CN/other-work-citing-spacr-2-3.svg" alt="Toxoplasma GRA8 包含主 ESCRT 配件蛋白质 ALG-2 并且对寄生虫的代谢完整性至关重要。"></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="https://www.biorxiv.org/content/10.64898/2026.07.30.741779v1"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-work-citing-spacr-2-4.desktop.svg"><img src="../../readme_images/zh_CN/other-work-citing-spacr-2-4.svg" alt="Hydrogen sulfide dynamically upregulates copper uptake and localization."></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/other-work-citing-spacr-2-4.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-work-citing-spacr-2-4.desktop.svg"><img src="../../readme_images/zh_CN/other-work-citing-spacr-2-4.svg" alt="Hydrogen sulfide dynamically upregulates copper uptake and localization."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="https://www.researchsquare.com/article/rs-7368254/v1"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-work-citing-spacr-2-5.desktop.svg"><img src="../../readme_images/zh_CN/other-work-citing-spacr-2-5.svg" alt="spaCR: CRISPR-Cas9 筛选的空间现象分析(预印版本 1)。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/other-work-citing-spacr-2-5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/other-work-citing-spacr-2-5.desktop.svg"><img src="../../readme_images/zh_CN/other-work-citing-spacr-2-5.svg" alt="spaCR: CRISPR-Cas9 筛选的空间现象分析(预印版本 1)。"></picture></a></div>
 
 .. spacr-citing-papers-end
 
 .. raw:: html
 
-   <div><a href="../TRANSLATION_MODELS.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/acknowledgments.desktop.svg"><img src="../../readme_images/zh_CN/acknowledgments.svg" alt="致谢. spaCR 构建于开放科学软件之上，包括 NumPy、pandas、scikit-image、scikit-learn、Cellpose、PyTorch 和 Qt。有关多语言文档和界面目录所使用的模型，请参阅翻译模型署名。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/acknowledgments.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/acknowledgments.desktop.svg"><img src="../../readme_images/zh_CN/acknowledgments.svg" alt="致谢. spaCR 构建于开放科学软件之上，包括 NumPy、pandas、scikit-image、scikit-learn、Cellpose、PyTorch 和 Qt。有关多语言文档和界面目录所使用的模型，请参阅翻译模型署名。"></picture></a></div>

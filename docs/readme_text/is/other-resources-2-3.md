@@ -1,0 +1,1 @@
+- [Leikstjóri](<../../source/features.rst>) — hæfileika, fullnægjandi og valfrjáls tengsl.

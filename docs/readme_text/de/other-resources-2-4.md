@@ -1,0 +1,1 @@
+- [Kuratierte API Referenz](<https://einarolafsson.github.io/spacr/api/index.html>) — unterstützte Eingabepunkte nach Aufgabe, wobei das komplette Modul eine Ebene tiefer verweist.

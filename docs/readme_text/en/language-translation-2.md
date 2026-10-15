@@ -1,0 +1,1 @@
+The nine non-English catalogs are machine-drafted and technically reviewed rather than read end to end by a native speaker. The [review scope](<../../i18n/REVIEW_SCOPE_2026-09-04.md>) records which languages have had a human pass and every term left in English by decision.

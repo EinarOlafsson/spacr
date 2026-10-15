@@ -1,0 +1,1 @@
+- [Gagnvirkt kennsluefni](<https://einarolafsson.github.io/spacr/tutorials/>) — leiðsögn um verkferla frá uppsetningu til rannsóknar á niðurstöðum skimunar.

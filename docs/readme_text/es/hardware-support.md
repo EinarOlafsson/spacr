@@ -1,0 +1,1 @@
+## Soporte de hardware

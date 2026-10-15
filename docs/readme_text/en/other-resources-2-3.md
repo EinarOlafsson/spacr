@@ -1,0 +1,1 @@
+- [Feature guide](<../../source/features.rst>) — capabilities, maturity and optional integrations.

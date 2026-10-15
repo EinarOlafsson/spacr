@@ -1,0 +1,1 @@
+- [O Toxoplasma GRA8 envolve a proteína acessória do hospedeiro ESCRT ALG-2 e é necessário para a integridade metabólica do parasita.](<https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>)

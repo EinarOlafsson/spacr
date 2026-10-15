@@ -1,5 +1,7 @@
 |Website| |Platforms| |Python| |Qt| |Test counts| |Coverage| |Issues| |Conda| |PyPI| |Docker| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
 
+Sitio web: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/projects/spacr/>`_
+
 .. |Website| image:: https://img.shields.io/badge/Website-spaCR-0A7BBB
    :target: https://einarolafsson.github.io/projects/spacr/
    :alt: Sitio web de spaCR
@@ -94,11 +96,11 @@
 
 .. raw:: html
 
-   <div><a href="../../source/features.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/spacr.desktop.svg"><img src="../../readme_images/es/spacr.svg" alt="spaCR. Análisis espacial del fenotipo en cribados CRISPR. spaCR segmenta y mide células individuales en imágenes de microscopía, integra los fenotipos por objeto con la abundancia de guías derivada de la secuenciación y estima qué genes están asociados con cambios fenotípicos. A partir de imágenes de placas y lecturas FASTQ, produce mediciones por objeto, clasificadores entrenados, estimaciones del efecto por guía y por gen y una lista ordenada de resultados. Los módulos de segmentación, medición, anotación y clasificación también funcionan sin un brazo de secuenciación. Make Masks corrige máscaras de segmentación y anota rectángulos independientes con etiquetas de clase mediante la herramienta Box para exportarlos a YOLO. Los recuadros conservan sus propias etiquetas e historial sin modificar las imágenes ni las máscaras de origen. Consulte la guía de funciones para conocer cada herramienta. Las imágenes, máscaras y recortes son archivos en disco. Las mediciones, anotaciones y predicciones del modelo son tablas de la base de datos SQLite measurements.db del proyecto. Se ejecuta como una aplicación de escritorio o sin interfaz gráfica en una estación de trabajo, servidor o clúster."></picture></a></div>
+   <div><a href="../../readme_text/es/spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/spacr.desktop.svg"><img src="../../readme_images/es/spacr.svg" alt="spaCR. Análisis espacial del fenotipo en cribados CRISPR. spaCR segmenta y mide células individuales en imágenes de microscopía, integra los fenotipos por objeto con la abundancia de guías derivada de la secuenciación y estima qué genes están asociados con cambios fenotípicos. A partir de imágenes de placas y lecturas FASTQ, produce mediciones por objeto, clasificadores entrenados, estimaciones del efecto por guía y por gen y una lista ordenada de resultados. Los módulos de segmentación, medición, anotación y clasificación también funcionan sin un brazo de secuenciación. Make Masks corrige máscaras de segmentación y anota rectángulos independientes con etiquetas de clase mediante la herramienta Box para exportarlos a YOLO. Los recuadros conservan sus propias etiquetas e historial sin modificar las imágenes ni las máscaras de origen. Consulte la guía de funciones para conocer cada herramienta. Las imágenes, máscaras y recortes son archivos en disco. Las mediciones, anotaciones y predicciones del modelo son tablas de la base de datos SQLite measurements.db del proyecto. Se ejecuta como una aplicación de escritorio o sin interfaz gráfica en una estación de trabajo, servidor o clúster."></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/try-spacr.desktop.svg"><img src="../../readme_images/es/try-spacr.svg" alt="Probar spaCR."></picture></div>
+   <div><a href="../../readme_text/es/try-spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/try-spacr.desktop.svg"><img src="../../readme_images/es/try-spacr.svg" alt="Probar spaCR."></picture></a></div>
 
 .. code-block:: bash
 
@@ -109,23 +111,27 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/try-spacr-2.desktop.svg"><img src="../../readme_images/es/try-spacr-2.svg" alt="Use Cargar datos de prueba… en Import, Make Masks, Annotate o una pantalla de ensayo para descargar datos de ejemplo. Desde una terminal, use spacr-download."></picture></div>
+   <div><a href="../../readme_text/es/try-spacr-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/try-spacr-2.desktop.svg"><img src="../../readme_images/es/try-spacr-2.svg" alt="Use Cargar datos de prueba… en Import, Make Masks, Annotate o una pantalla de ensayo para descargar datos de ejemplo. Desde una terminal, use spacr-download."></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/hardware-support.desktop.svg"><img src="../../readme_images/es/hardware-support.svg" alt="Soporte de hardware."></picture></div>
+   <div><a href="../../readme_text/es/hardware-support.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/hardware-support.desktop.svg"><img src="../../readme_images/es/hardware-support.svg" alt="Soporte de hardware."></picture></a></div>
 
 .. spacr-hardware-begin
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/generated-hardware-1.desktop.svg"><img src="../../readme_images/es/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. compatible (estable) implementado (beta) solo compatible con CPU."></picture></div>
+   <div><a href="../../readme_text/es/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/generated-hardware-1.desktop.svg"><img src="../../readme_images/es/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. compatible (estable) implementado (beta) solo compatible con CPU."></picture></a></div>
 
 .. spacr-hardware-end
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/install-spacr.desktop.svg"><img src="../../readme_images/es/install-spacr.svg" alt="Instalar spaCR. Elija una vía de instalación: Aplicación de escritorio: un instalador para Linux, macOS o Windows con su propio Python. pip: python -m pip install spacr en un entorno de Conda. conda-forge: conda install conda-forge::spacr en un entorno de Conda. Docker: los flujos de procesamiento de línea de comandos en un contenedor Linux, con la imagen para CPU o la imagen para GPU NVIDIA:"></picture></div>
+   <div><a href="../../readme_text/es/hardware-support-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/hardware-support-2.desktop.svg"><img src="../../readme_images/es/hardware-support-2.svg" alt="CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM took 444.5 s on the CPU and 3.2 s on Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This is a historical example, not a speed guarantee. GPU acceleration requires a usable backend and compatible libraries. See the recorded hardware measurement."></picture></a></div>
+
+.. raw:: html
+
+   <div><a href="../../readme_text/es/install-spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/install-spacr.desktop.svg"><img src="../../readme_images/es/install-spacr.svg" alt="Instalar spaCR. Elija una vía de instalación: Aplicación de escritorio: un instalador para Linux, macOS o Windows con su propio Python. pip: python -m pip install spacr en un entorno de Conda. conda-forge: conda install conda-forge::spacr en un entorno de Conda. Docker: los flujos de procesamiento de línea de comandos en un contenedor Linux, con la imagen para CPU o la imagen para GPU NVIDIA:"></picture></a></div>
 
 .. code-block:: bash
 
@@ -134,11 +140,11 @@
 
 .. raw:: html
 
-   <div><a href="../../source/installer_guide.rst#container-images"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/install-spacr-2.desktop.svg"><img src="../../readme_images/es/install-spacr-2.svg" alt="La guía de Docker explica la configuración de la GPU, el montaje de datos y los comandos de los flujos de procesamiento."></picture></a></div>
+   <div><a href="../../readme_text/es/install-spacr-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/install-spacr-2.desktop.svg"><img src="../../readme_images/es/install-spacr-2.svg" alt="La guía de Docker explica la configuración de la GPU, el montaje de datos y los comandos de los flujos de procesamiento."></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/desktop-application.desktop.svg"><img src="../../readme_images/es/desktop-application.svg" alt="Aplicación de escritorio. Los instaladores agrupan sus propios Python. No se requiere Conda."></picture></div>
+   <div><a href="../../readme_text/es/desktop-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/desktop-application.desktop.svg"><img src="../../readme_images/es/desktop-application.svg" alt="Aplicación de escritorio. Los instaladores agrupan sus propios Python. No se requiere Conda."></picture></a></div>
 
 .. spacr-installer-links-begin
 
@@ -158,7 +164,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/desktop-application-2.desktop.svg"><img src="../../readme_images/es/desktop-application-2.svg" alt="En Linux, marque el archivo descargado como ejecutable y ejecútelo:"></picture></div>
+   <div><a href="../../readme_text/es/desktop-application-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/desktop-application-2.desktop.svg"><img src="../../readme_images/es/desktop-application-2.svg" alt="En Linux, marque el archivo descargado como ejecutable y ejecútelo:"></picture></a></div>
 
 .. code-block:: bash
 
@@ -167,7 +173,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/desktop-application-3.desktop.svg"><img src="../../readme_images/es/desktop-application-3.svg" alt="En macOS, abra el archivo .pkg. La beta actual no está notarizada; si Gatekeeper la bloquea, seleccione Ajustes del Sistema → Privacidad y seguridad → Abrir igualmente. Consulte la guía de instalación para obtener instrucciones de actualización, desinstalación, uso sin conexión y solución de problemas, y los requisitos del sistema para ver recomendaciones sobre estaciones de trabajo y servidores, así como tablas de compatibilidad de GPU."></picture></div>
+   <div><a href="../../readme_text/es/desktop-application-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/desktop-application-3.desktop.svg"><img src="../../readme_images/es/desktop-application-3.svg" alt="En macOS, abra el archivo .pkg. La beta actual no está notarizada; si Gatekeeper la bloquea, seleccione Ajustes del Sistema → Privacidad y seguridad → Abrir igualmente. Consulte la guía de instalación para obtener instrucciones de actualización, desinstalación, uso sin conexión y solución de problemas, y los requisitos del sistema para ver recomendaciones sobre estaciones de trabajo y servidores, así como tablas de compatibilidad de GPU."></picture></a></div>
 
 .. raw:: html
 
@@ -175,7 +181,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/pypi-installation.desktop.svg"><img src="../../readme_images/es/pypi-installation.svg" alt="Instalación desde PyPI. Para la versión de PyPI, instale spaCR con pip dentro de un entorno Conda. Python 3.12 ofrece la mayor variedad de paquetes científicos opcionales:"></picture></div>
+   <div><a href="../../readme_text/es/pypi-installation.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/pypi-installation.desktop.svg"><img src="../../readme_images/es/pypi-installation.svg" alt="Instalación desde PyPI. Para la versión de PyPI, instale spaCR con pip dentro de un entorno Conda. Python 3.12 ofrece la mayor variedad de paquetes científicos opcionales:"></picture></a></div>
 
 .. code-block:: bash
 
@@ -187,7 +193,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/pypi-installation-2.desktop.svg"><img src="../../readme_images/es/pypi-installation-2.svg" alt="spaCR admite Python 3.9 through 3.14, salvo Python 3.14.1, que torchvision excluye. Se recomienda Linux para los flujos de trabajo CUDA y ROCm más exigentes; macOS y Windows también son compatibles, y ambos usan sus GPU — macOS mediante Metal, que cubre Apple Silicon y las tarjetas AMD de los Mac con Intel, y Windows mediante CUDA o DirectML. La instalación estándar incluye la interfaz de escritorio Qt. En un servidor, clúster o ejecutor de CI, ejecute los flujos de trabajo de línea de comandos sin abrirla:"></picture></div>
+   <div><a href="../../readme_text/es/pypi-installation-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/pypi-installation-2.desktop.svg"><img src="../../readme_images/es/pypi-installation-2.svg" alt="spaCR admite Python 3.9 through 3.14, salvo Python 3.14.1, que torchvision excluye. Se recomienda Linux para los flujos de trabajo CUDA y ROCm más exigentes; macOS y Windows también son compatibles, y ambos usan sus GPU — macOS mediante Metal, que cubre Apple Silicon y las tarjetas AMD de los Mac con Intel, y Windows mediante CUDA o DirectML. La instalación estándar incluye la interfaz de escritorio Qt. En un servidor, clúster o ejecutor de CI, ejecute los flujos de trabajo de línea de comandos sin abrirla:"></picture></a></div>
 
 .. code-block:: bash
 
@@ -196,11 +202,11 @@
 
 .. raw:: html
 
-   <div><a href="../../source/installer_guide.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/pypi-installation-3.desktop.svg"><img src="../../readme_images/es/pypi-installation-3.svg" alt="Optional integrations are installed separately, for example spacr[zarr], spacr[omero], spacr[napari] y spacr[czi,nd2,lif]. See the Guía de instalación for the complete extras y Python-version compatibility table."></picture></a></div>
+   <div><a href="../../readme_text/es/pypi-installation-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/pypi-installation-3.desktop.svg"><img src="../../readme_images/es/pypi-installation-3.svg" alt="Optional integrations are installed separately, for example spacr[zarr], spacr[omero], spacr[napari] y spacr[czi,nd2,lif]. See the Guía de instalación for the complete extras y Python-version compatibility table."></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/conda-forge-installation.desktop.svg"><img src="../../readme_images/es/conda-forge-installation.svg" alt="Instalación con conda-forge. El paquete oficial de conda-forge instala spaCR y sus dependencias de escritorio en el entorno activo:"></picture></div>
+   <div><a href="../../readme_text/es/conda-forge-installation.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/conda-forge-installation.desktop.svg"><img src="../../readme_images/es/conda-forge-installation.svg" alt="Instalación con conda-forge. El paquete oficial de conda-forge instala spaCR y sus dependencias de escritorio en el entorno activo:"></picture></a></div>
 
 .. code-block:: bash
 
@@ -211,7 +217,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/install-from-source.desktop.svg"><img src="../../readme_images/es/install-from-source.svg" alt="Instalación desde el código fuente. Clone el repositorio e instálelo en modo editable, de modo que su copia de trabajo sea el paquete instalado y los cambios surtan efecto sin reinstalar:"></picture></div>
+   <div><a href="../../readme_text/es/install-from-source.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/install-from-source.desktop.svg"><img src="../../readme_images/es/install-from-source.svg" alt="Instalación desde el código fuente. Clone el repositorio e instálelo en modo editable, de modo que su copia de trabajo sea el paquete instalado y los cambios surtan efecto sin reinstalar:"></picture></a></div>
 
 .. code-block:: bash
 
@@ -224,7 +230,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/install-from-source-2.desktop.svg"><img src="../../readme_images/es/install-from-source-2.svg" alt="Así se clona main, la rama predeterminada, que contiene la última versión publicada. El desarrollo se hace en nightly; añada --branch nightly para clonar esa rama en su lugar. Para una versión concreta:"></picture></div>
+   <div><a href="../../readme_text/es/install-from-source-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/install-from-source-2.desktop.svg"><img src="../../readme_images/es/install-from-source-2.svg" alt="Así se clona main, la rama predeterminada, que contiene la última versión publicada. El desarrollo se hace en nightly; añada --branch nightly para clonar esa rama en su lugar. Para una versión concreta:"></picture></a></div>
 
 .. code-block:: bash
 
@@ -232,7 +238,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/install-from-source-3.desktop.svg"><img src="../../readme_images/es/install-from-source-3.svg" alt="Para incorporar cambios posteriores, ejecute desde dentro del clon:"></picture></div>
+   <div><a href="../../readme_text/es/install-from-source-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/install-from-source-3.desktop.svg"><img src="../../readme_images/es/install-from-source-3.svg" alt="Para incorporar cambios posteriores, ejecute desde dentro del clon:"></picture></a></div>
 
 .. code-block:: bash
 
@@ -241,11 +247,11 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/install-from-source-4.desktop.svg"><img src="../../readme_images/es/install-from-source-4.svg" alt="Reinstale cuando cambien las dependencias o los puntos de entrada. Los cambios en el código Python se aplican directamente; spacr-doctor identifica la instalación activa."></picture></div>
+   <div><a href="../../readme_text/es/install-from-source-4.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/install-from-source-4.desktop.svg"><img src="../../readme_images/es/install-from-source-4.svg" alt="Reinstale cuando cambien las dependencias o los puntos de entrada. Los cambios en el código Python se aplican directamente; spacr-doctor identifica la instalación activa."></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/install-from-source-light.desktop.svg"><img src="../../readme_images/es/install-from-source-light.svg" alt="Instalación desde el código fuente (ligera). Los colaboradores necesitan el historial de versiones; para ejecutar spaCR, elija una de las opciones siguientes. Mediciones de nightly en 05302fd5c el 2026-10-07, realizadas con packaging/measure_clone_forms.sh:"></picture></div>
+   <div><a href="../../readme_text/es/install-from-source-light.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/install-from-source-light.desktop.svg"><img src="../../readme_images/es/install-from-source-light.svg" alt="Instalación desde el código fuente (ligera). Los colaboradores necesitan el historial de versiones; para ejecutar spaCR, elija una de las opciones siguientes. Mediciones de nightly en 05302fd5c el 2026-10-07, realizadas con packaging/measure_clone_forms.sh:"></picture></a></div>
 
 .. code-block:: bash
 
@@ -265,11 +271,11 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/install-from-source-light-2.desktop.svg"><img src="../../readme_images/es/install-from-source-light-2.svg" alt="El clon completo de nightly descargó 9.25 GiB. Añadir --filter=blob:none al clon superficial no reduce la copia de trabajo: su almacén de objetos Git aún ocupa 2032 MB. Git no informa de las descargas diferidas de objetos, por lo que no se midió un total de descarga. Los archivos versionados de nightly ocupan 3416 MB en la copia de trabajo (medidos el 2026-10-08), sin el historial de Git. El tamaño y la duración de la descarga varían según la rama."></picture></div>
+   <div><a href="../../readme_text/es/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/install-from-source-light-2.desktop.svg"><img src="../../readme_images/es/install-from-source-light-2.svg" alt="El clon completo de nightly descargó 9.25 GiB. Añadir --filter=blob:none al clon superficial no reduce la copia de trabajo: su almacén de objetos Git aún ocupa 2032 MB. Git no informa de las descargas diferidas de objetos, por lo que no se midió un total de descarga. Los archivos versionados de nightly ocupan 3416 MB en la copia de trabajo (medidos el 2026-10-08), sin el historial de Git. El tamaño y la duración de la descarga varían según la rama."></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/command-line-entry-points.desktop.svg"><img src="../../readme_images/es/command-line-entry-points.svg" alt="Comandos de línea de comandos."></picture></div>
+   <div><a href="../../readme_text/es/command-line-entry-points.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/command-line-entry-points.desktop.svg"><img src="../../readme_images/es/command-line-entry-points.svg" alt="Comandos de línea de comandos."></picture></a></div>
 
 .. code-block:: bash
 
@@ -288,39 +294,39 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/command-line-entry-points-2.desktop.svg"><img src="../../readme_images/es/command-line-entry-points-2.svg" alt="spacr-run --list enumera los módulos con puntos de entrada de línea de comandos para ejecutarse sin interfaz gráfica. Se omiten los módulos de anotación, curación, comparación y exploración disponibles únicamente en la interfaz gráfica."></picture></div>
+   <div><a href="../../readme_text/es/command-line-entry-points-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/command-line-entry-points-2.desktop.svg"><img src="../../readme_images/es/command-line-entry-points-2.svg" alt="spacr-run --list enumera los módulos con puntos de entrada de línea de comandos para ejecutarse sin interfaz gráfica. Se omiten los módulos de anotación, curación, comparación y exploración disponibles únicamente en la interfaz gráfica."></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/core-workflow.desktop.svg"><img src="../../readme_images/es/core-workflow.svg" alt="Flujo de trabajo principal. El flujo de trabajo principal comprende seis módulos: Mask segmenta células, núcleos, patógenos y orgánulos con Cellpose. Measure guarda en SQLite características morfológicas, de intensidad, textura, espaciales y de colocalización, junto con recortes de objetos. Annotate etiqueta recortes en una cuadrícula controlada con el teclado y admite colas de aprendizaje activo. Classify entrena modelos basados en imágenes o mediciones y registra con cada punto de control el rendimiento en los datos reservados. Map Barcodes asigna las lecturas FASTQ a los pocillos y los gRNA, con controles de calidad de abundancia, colisiones y cobertura. Regression estima los efectos de guías, genes, condiciones y controles con familias de modelos adecuadas para respuestas continuas, fraccionarias y de recuento."></picture></div>
+   <div><a href="../../readme_text/es/core-workflow.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/core-workflow.desktop.svg"><img src="../../readme_images/es/core-workflow.svg" alt="Flujo de trabajo principal. El flujo de trabajo principal comprende seis módulos: Mask segmenta células, núcleos, patógenos y orgánulos con Cellpose. Measure guarda en SQLite características morfológicas, de intensidad, textura, espaciales y de colocalización, junto con recortes de objetos. Annotate etiqueta recortes en una cuadrícula controlada con el teclado y admite colas de aprendizaje activo. Classify entrena modelos basados en imágenes o mediciones y registra con cada punto de control el rendimiento en los datos reservados. Map Barcodes asigna las lecturas FASTQ a los pocillos y los gRNA, con controles de calidad de abundancia, colisiones y cobertura. Regression estima los efectos de guías, genes, condiciones y controles con familias de modelos adecuadas para respuestas continuas, fraccionarias y de recuento."></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/spacr-modules.desktop.svg"><img src="../../readme_images/es/spacr-modules.svg" alt="Módulos de spaCR."></picture></div>
+   <div><a href="../../readme_text/es/spacr-modules.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/spacr-modules.desktop.svg"><img src="../../readme_images/es/spacr-modules.svg" alt="Módulos de spaCR."></picture></a></div>
 
 .. spacr-workflow-begin
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/generated-workflow-1.desktop.svg"><img src="../../readme_images/es/generated-workflow-1.svg" alt="Principal. Core sequence from microscopy images through segmentation, measurements, annotations, classification, barcode mapping and regression."></picture></div>
+   <div><a href="../../readme_text/es/generated-workflow-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/generated-workflow-1.desktop.svg"><img src="../../readme_images/es/generated-workflow-1.svg" alt="Principal. Core sequence from microscopy images through segmentation, measurements, annotations, classification, barcode mapping and regression."></picture></a></div>
 
 | |Module_mask|\ |Module_measure|\ |Module_annotate|\ |Module_classify_merged|\ |Module_map_barcodes|\ |Module_regression|
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/generated-workflow-2.desktop.svg"><img src="../../readme_images/es/generated-workflow-2.svg" alt="Datos. Import images and tables into spaCR projects and execute reproducible multi-plate workflows."></picture></div>
+   <div><a href="../../readme_text/es/generated-workflow-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/generated-workflow-2.desktop.svg"><img src="../../readme_images/es/generated-workflow-2.svg" alt="Datos. Import images and tables into spaCR projects and execute reproducible multi-plate workflows."></picture></a></div>
 
 | |Module_foreign|\ |Module_embeddings|\ |Module_run_compare|\ |Module_experiment_design|\ |Module_power|\ |Module_dose_response|\ |Module_qc_dashboard|
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/generated-workflow-3.desktop.svg"><img src="../../readme_images/es/generated-workflow-3.svg" alt="Herramientas. Point these at a project: edit masks by hand, stitch tiles, read an embedding, draw a gate, build a plot, check quality."></picture></div>
+   <div><a href="../../readme_text/es/generated-workflow-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/generated-workflow-3.desktop.svg"><img src="../../readme_images/es/generated-workflow-3.svg" alt="Herramientas. Point these at a project: edit masks by hand, stitch tiles, read an embedding, draw a gate, build a plot, check quality."></picture></a></div>
 
 | |Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/generated-workflow-4.desktop.svg"><img src="../../readme_images/es/generated-workflow-4.svg" alt="Organismo. Análisis de imágenes específico del organismo y resultados cuantitativos de ensayos."></picture></div>
+   <div><a href="../../readme_text/es/generated-workflow-4.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/generated-workflow-4.desktop.svg"><img src="../../readme_images/es/generated-workflow-4.svg" alt="Organismo. Análisis de imágenes específico del organismo y resultados cuantitativos de ensayos."></picture></a></div>
 
 | |Module_toxoplasma|
 
@@ -404,43 +410,43 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/spacr-modules-2.desktop.svg"><img src="../../readme_images/es/spacr-modules-2.svg" alt="Todos los módulos con una tarjeta en la pantalla de inicio, en el orden de esa pantalla: primero los seis módulos de la secuencia de procesamiento y después los demás. Seleccione una tarjeta para abrir la página de API del módulo."></picture></div>
+   <div><a href="../../readme_text/es/spacr-modules-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/spacr-modules-2.desktop.svg"><img src="../../readme_images/es/spacr-modules-2.svg" alt="Todos los módulos con una tarjeta en la pantalla de inicio, en el orden de esa pantalla: primero los seis módulos de la secuencia de procesamiento y después los demás. Seleccione una tarjeta para abrir la página de API del módulo."></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-resources.desktop.svg"><img src="../../readme_images/es/other-resources.svg" alt="Otros recursos."></picture></div>
+   <div><a href="../../readme_text/es/other-resources.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-resources.desktop.svg"><img src="../../readme_images/es/other-resources.svg" alt="Otros recursos."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="https://einarolafsson.github.io/spacr/tutorials/"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-resources-2-1.desktop.svg"><img src="../../readme_images/es/other-resources-2-1.svg" alt="Tutoriales interactivos — flujos de trabajo guiados desde la instalación hasta la investigación de resultados positivos."></picture></a></div>
+   <div><a href="../../readme_text/es/other-resources-2-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-resources-2-1.desktop.svg"><img src="../../readme_images/es/other-resources-2-1.svg" alt="Tutoriales interactivos — flujos de trabajo guiados desde la instalación hasta la investigación de resultados positivos."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../source/python_api.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-resources-2-2.desktop.svg"><img src="../../readme_images/es/other-resources-2-2.svg" alt="Inicio rápido Python API — ejecutar y validar flujos de trabajo desde scripts, cuadernos o un clúster."></picture></a></div>
+   <div><a href="../../readme_text/es/other-resources-2-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-resources-2-2.desktop.svg"><img src="../../readme_images/es/other-resources-2-2.svg" alt="Inicio rápido Python API — ejecutar y validar flujos de trabajo desde scripts, cuadernos o un clúster."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../source/features.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-resources-2-3.desktop.svg"><img src="../../readme_images/es/other-resources-2-3.svg" alt="Guía de características — capacidades, madurez e integraciones opcionales."></picture></a></div>
+   <div><a href="../../readme_text/es/other-resources-2-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-resources-2-3.desktop.svg"><img src="../../readme_images/es/other-resources-2-3.svg" alt="Guía de características — capacidades, madurez e integraciones opcionales."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="https://einarolafsson.github.io/spacr/api/index.html"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-resources-2-4.desktop.svg"><img src="../../readme_images/es/other-resources-2-4.svg" alt="Referencia comisariada API — puntos de entrada soportados por tarea, con el módulo completo de referencia un nivel más profundo."></picture></a></div>
+   <div><a href="../../readme_text/es/other-resources-2-4.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-resources-2-4.desktop.svg"><img src="../../readme_images/es/other-resources-2-4.svg" alt="Referencia comisariada API — puntos de entrada soportados por tarea, con el módulo completo de referencia un nivel más profundo."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../source/localization.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-resources-2-5.desktop.svg"><img src="../../readme_images/es/other-resources-2-5.svg" alt="Guía de idioma y traducción — lenguajes de interfaz, ayuda contextual y política de salida científica."></picture></a></div>
+   <div><a href="../../readme_text/es/other-resources-2-5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-resources-2-5.desktop.svg"><img src="../../readme_images/es/other-resources-2-5.svg" alt="Guía de idioma y traducción — lenguajes de interfaz, ayuda contextual y política de salida científica."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../source/localization.rst#contextual-help"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/language-translation.desktop.svg"><img src="../../readme_images/es/language-translation.svg" alt="Idioma y traducción. La interfaz admite diez idiomas en la navegación y las preferencias. Los controles AI y LIVE, las descripciones de los módulos y la ayuda contextual revisada también se traducen. Cambie el idioma en spaCR → Preferencias → Idioma sin reiniciar. Los registros, las rutas, los valores de la base de datos y las mediciones nunca se traducen; los resultados científicos permanecen en inglés canónico. Consulte la política de ayuda contextual."></picture></a></div>
+   <div><a href="../../readme_text/es/language-translation.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/language-translation.desktop.svg"><img src="../../readme_images/es/language-translation.svg" alt="Idioma y traducción. La interfaz admite diez idiomas en la navegación y las preferencias. Los controles AI y LIVE, las descripciones de los módulos y la ayuda contextual revisada también se traducen. Cambie el idioma en spaCR → Preferencias → Idioma sin reiniciar. Los registros, las rutas, los valores de la base de datos y las mediciones nunca se traducen; los resultados científicos permanecen en inglés canónico. Consulte la política de ayuda contextual."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../REVIEW_SCOPE_2026-09-04.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/language-translation-2.desktop.svg"><img src="../../readme_images/es/language-translation-2.svg" alt="Los nueve catálogos no ingleses son redactados por máquina y revisados técnicamente en lugar de leer de extremo a extremo por un hablante nativo. Los registros ámbito de aplicación de la revisión que los idiomas han tenido un pase humano y cada término dejado en inglés por decisión."></picture></a></div>
+   <div><a href="../../readme_text/es/language-translation-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/language-translation-2.desktop.svg"><img src="../../readme_images/es/language-translation-2.svg" alt="Los nueve catálogos no ingleses son redactados por máquina y revisados técnicamente en lugar de leer de extremo a extremo por un hablante nativo. Los registros ámbito de aplicación de la revisión que los idiomas han tenido un pase humano y cada término dejado en inglés por decisión."></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/animated-setting-guidance.desktop.svg"><img src="../../readme_images/es/animated-setting-guidance.svg" alt="Guía animada de ajustes. Los ajustes con una explicación visual incluyen un control Animación en su información emergente. Consulte la galería de animaciones de ajustes o el registro de animaciones de ajustes."></picture></div>
+   <div><a href="../../readme_text/es/animated-setting-guidance.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/animated-setting-guidance.desktop.svg"><img src="../../readme_images/es/animated-setting-guidance.svg" alt="Guía animada de ajustes. Los ajustes con una explicación visual incluyen un control Animación en su información emergente. Consulte la galería de animaciones de ajustes o el registro de animaciones de ajustes."></picture></a></div>
 
 .. raw:: html
 
@@ -448,7 +454,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/data.desktop.svg"><img src="../../readme_images/es/data.svg" alt="Datos. Conjuntos de datos de referencia."></picture></div>
+   <div><a href="../../readme_text/es/data.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/data.desktop.svg"><img src="../../readme_images/es/data.svg" alt="Datos. Conjuntos de datos de referencia."></picture></a></div>
 
 | |DataBioStudies|\ |DataHuggingFace|\ |DataNCBI|\ |DataSpaCRPower|\ |DataBioRxiv|
 
@@ -474,7 +480,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/model-zoo.desktop.svg"><img src="../../readme_images/es/model-zoo.svg" alt="Biblioteca de modelos. spaCR envía un catálogo de modelos entrenados y los trae a pedido. Abra Model Zoo desde la pantalla de inicio para navegar e instalarlos, o nombre una clave en un archivo de configuración -- pathogen_model: toxoplasma_pv_v1 -- y el modelo se descarga y comprueba la primera vez que es necesario. Cada entrada publicada lleva un SHA-256; una entrada sin uno se rechaza en lugar de instalarse, porque un puesto de control truncado o sustituido no se puede decir desde el real."></picture></div>
+   <div><a href="../../readme_text/es/model-zoo.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/model-zoo.desktop.svg"><img src="../../readme_images/es/model-zoo.svg" alt="Biblioteca de modelos. spaCR envía un catálogo de modelos entrenados y los trae a pedido. Abra Model Zoo desde la pantalla de inicio para navegar e instalarlos, o nombre una clave en un archivo de configuración -- pathogen_model: toxoplasma_pv_v1 -- y el modelo se descarga y comprueba la primera vez que es necesario. Cada entrada publicada lleva un SHA-256; una entrada sin uno se rechaza en lugar de instalarse, porque un puesto de control truncado o sustituido no se puede decir desde el real."></picture></a></div>
 
 .. spacr-model-zoo-begin
 
@@ -485,7 +491,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/generated-model-zoo-1.desktop.svg"><img src="../../readme_images/es/generated-model-zoo-1.svg" alt="Modelos anteriores."></picture></div>
+   <div><a href="../../readme_text/es/generated-model-zoo-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/generated-model-zoo-1.desktop.svg"><img src="../../readme_images/es/generated-model-zoo-1.svg" alt="Modelos anteriores."></picture></a></div>
 
 .. raw:: html
 
@@ -493,17 +499,21 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/generated-model-zoo-2.desktop.svg"><img src="../../readme_images/es/generated-model-zoo-2.svg" alt="Alternativas."></picture></div>
+   <div><a href="../../readme_text/es/generated-model-zoo-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/generated-model-zoo-2.desktop.svg"><img src="../../readme_images/es/generated-model-zoo-2.svg" alt="Alternativas."></picture></a></div>
 
 .. raw:: html
 
    <div><a href="../../models/toxoplasma_pv_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/generated-model-zoo-2-link-1.desktop.svg"><img src="../../readme_images/es/generated-model-zoo-2-link-1.svg" alt="toxoplasma_pv_v5"></picture></a><a href="../../models/toxoplasma_plaque_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/generated-model-zoo-2-link-2.desktop.svg"><img src="../../readme_images/es/generated-model-zoo-2-link-2.svg" alt="toxoplasma_plaque_v3"></picture></a></div>
 
+.. raw:: html
+
+   <div><a href="../../readme_text/es/generated-model-zoo-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/generated-model-zoo-3.desktop.svg"><img src="../../readme_images/es/generated-model-zoo-3.svg" alt="Generador de máscaras"></picture></a></div>
+
 .. spacr-model-zoo-end
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/diagnosing-performance.desktop.svg"><img src="../../readme_images/es/diagnosing-performance.svg" alt="Diagnóstico del rendimiento. Genere un informe de hardware y adjúntelo a una incidencia relacionada con el rendimiento:"></picture></div>
+   <div><a href="../../readme_text/es/diagnosing-performance.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/diagnosing-performance.desktop.svg"><img src="../../readme_images/es/diagnosing-performance.svg" alt="Diagnóstico del rendimiento. Genere un informe de hardware y adjúntelo a una incidencia relacionada con el rendimiento:"></picture></a></div>
 
 .. code-block:: bash
 
@@ -511,15 +521,15 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/diagnosing-performance-2.desktop.svg"><img src="../../readme_images/es/diagnosing-performance-2.svg" alt="Guarda en ~/.spacr/reports e imprime la ruta. --quick omite los parámetros de referencia más largos; --out PATH establece la ubicación. No lee datos del proyecto. Mide el tiempo de las importaciones, las bibliotecas numéricas, la creación de ventanas y la animación, e informa de la emulación x86_64 en Apple Silicon y de la implementación de BLAS que usa NumPy."></picture></div>
+   <div><a href="../../readme_text/es/diagnosing-performance-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/diagnosing-performance-2.desktop.svg"><img src="../../readme_images/es/diagnosing-performance-2.svg" alt="Guarda en ~/.spacr/reports e imprime la ruta. --quick omite los parámetros de referencia más largos; --out PATH establece la ubicación. No lee datos del proyecto. Mide el tiempo de las importaciones, las bibliotecas numéricas, la creación de ventanas y la animación, e informa de la emulación x86_64 en Apple Silicon y de la implementación de BLAS que usa NumPy."></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/command-line-reference.desktop.svg"><img src="../../readme_images/es/command-line-reference.svg" alt="Referencia de la línea de órdenes. Cada comando de abajo está instalado por pip install spacr. Todos aceptan --help."></picture></div>
+   <div><a href="../../readme_text/es/command-line-reference.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/command-line-reference.desktop.svg"><img src="../../readme_images/es/command-line-reference.svg" alt="Referencia de la línea de órdenes. Cada comando de abajo está instalado por pip install spacr. Todos aceptan --help."></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/launching-the-application.desktop.svg"><img src="../../readme_images/es/launching-the-application.svg" alt="Lanzamiento de la aplicación."></picture></div>
+   <div><a href="../../readme_text/es/launching-the-application.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/launching-the-application.desktop.svg"><img src="../../readme_images/es/launching-the-application.svg" alt="Lanzamiento de la aplicación."></picture></a></div>
 
 .. code-block:: bash
 
@@ -529,7 +539,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/when-spacr-will-not-start.desktop.svg"><img src="../../readme_images/es/when-spacr-will-not-start.svg" alt="Cuando spaCR no se iniciará."></picture></div>
+   <div><a href="../../readme_text/es/when-spacr-will-not-start.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/when-spacr-will-not-start.desktop.svg"><img src="../../readme_images/es/when-spacr-will-not-start.svg" alt="Cuando spaCR no se iniciará."></picture></a></div>
 
 .. code-block:: bash
 
@@ -538,11 +548,11 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/when-spacr-will-not-start-2.desktop.svg"><img src="../../readme_images/es/when-spacr-will-not-start-2.svg" alt="spacr-doctor imprime una línea por comprobación, con un comando para ejecutar por cada fallo. También informa qué spacr está en la ruta. safespacr lee cada preferencia con su valor predeterminado y desactiva el fondo, las animaciones, el registro detallado y la precarga. Úselo cuando una preferencia guardada impide el inicio. Las preferencias guardadas en modo seguro se escriben normalmente y se conservan."></picture></div>
+   <div><a href="../../readme_text/es/when-spacr-will-not-start-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/when-spacr-will-not-start-2.desktop.svg"><img src="../../readme_images/es/when-spacr-will-not-start-2.svg" alt="spacr-doctor imprime una línea por comprobación, con un comando para ejecutar por cada fallo. También informa qué spacr está en la ruta. safespacr lee cada preferencia con su valor predeterminado y desactiva el fondo, las animaciones, el registro detallado y la precarga. Úselo cuando una preferencia guardada impide el inicio. Las preferencias guardadas en modo seguro se escriben normalmente y se conservan."></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/running-modules-headlessly.desktop.svg"><img src="../../readme_images/es/running-modules-headlessly.svg" alt="Módulos de ejecución sin interfaz gráfica. No Qt, no display — para clusters, servidores e IC."></picture></div>
+   <div><a href="../../readme_text/es/running-modules-headlessly.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/running-modules-headlessly.desktop.svg"><img src="../../readme_images/es/running-modules-headlessly.svg" alt="Módulos de ejecución sin interfaz gráfica. No Qt, no display — para clusters, servidores e IC."></picture></a></div>
 
 .. code-block:: bash
 
@@ -555,11 +565,11 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/running-modules-headlessly-2.desktop.svg"><img src="../../readme_images/es/running-modules-headlessly-2.svg" alt="validate lee la misma configuración que leería la ejecución y enumera cada problema, como un ajuste ausente o una ruta que no existe, junto con una solución."></picture></div>
+   <div><a href="../../readme_text/es/running-modules-headlessly-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/running-modules-headlessly-2.desktop.svg"><img src="../../readme_images/es/running-modules-headlessly-2.svg" alt="validate lee la misma configuración que leería la ejecución y enumera cada problema, como un ajuste ausente o una ruta que no existe, junto con una solución."></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/inspecting-a-run.desktop.svg"><img src="../../readme_images/es/inspecting-a-run.svg" alt="Inspeccionar una ejecución. Cada ejecución se lleva a cabo a ~/.spacr/runs con sus ajustes, entradas de hashed, salidas, advertencias, versiones y semillas."></picture></div>
+   <div><a href="../../readme_text/es/inspecting-a-run.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/inspecting-a-run.desktop.svg"><img src="../../readme_images/es/inspecting-a-run.svg" alt="Inspeccionar una ejecución. Cada ejecución se lleva a cabo a ~/.spacr/runs con sus ajustes, entradas de hashed, salidas, advertencias, versiones y semillas."></picture></a></div>
 
 .. code-block:: bash
 
@@ -568,7 +578,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/auditing-data-and-installation.desktop.svg"><img src="../../readme_images/es/auditing-data-and-installation.svg" alt="Datos de auditoría e instalación."></picture></div>
+   <div><a href="../../readme_text/es/auditing-data-and-installation.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/auditing-data-and-installation.desktop.svg"><img src="../../readme_images/es/auditing-data-and-installation.svg" alt="Datos de auditoría e instalación."></picture></a></div>
 
 .. code-block:: bash
 
@@ -578,7 +588,7 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/environment.desktop.svg"><img src="../../readme_images/es/environment.svg" alt="Entorno."></picture></div>
+   <div><a href="../../readme_text/es/environment.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/environment.desktop.svg"><img src="../../readme_images/es/environment.svg" alt="Entorno."></picture></a></div>
 
 .. code-block:: bash
 
@@ -586,23 +596,23 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/environment-2.desktop.svg"><img src="../../readme_images/es/environment-2.svg" alt="Los registros de rotación se escriben en ~/.spacr/logs/spacr.log. Adjuntar ese archivo a un informe de fallo."></picture></div>
+   <div><a href="../../readme_text/es/environment-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/environment-2.desktop.svg"><img src="../../readme_images/es/environment-2.svg" alt="Los registros de rotación se escriben en ~/.spacr/logs/spacr.log. Adjuntar ese archivo a un informe de fallo."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="https://github.com/EinarOlafsson/spacr/issues"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/contributing-and-support.desktop.svg"><img src="../../readme_images/es/contributing-and-support.svg" alt="Contribuciones y soporte. Envíe informes de errores y solicitudes de funciones concretas mediante GitHub Issues. Al informar de un fallo, incluya la versión de spaCR, el sistema operativo, la versión de Python, los ajustes del módulo y el fragmento de registro pertinente. spacr-doctor recopila la mayor parte de esta información; incluya el informe de hardware cuando notifique problemas de rendimiento."></picture></a></div>
+   <div><a href="../../readme_text/es/contributing-and-support.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/contributing-and-support.desktop.svg"><img src="../../readme_images/es/contributing-and-support.svg" alt="Contribuciones y soporte. Envíe informes de errores y solicitudes de funciones concretas mediante GitHub Issues. Al informar de un fallo, incluya la versión de spaCR, el sistema operativo, la versión de Python, los ajustes del módulo y el fragmento de registro pertinente. spacr-doctor recopila la mayor parte de esta información; incluya el informe de hardware cuando notifique problemas de rendimiento."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="https://github.com/EinarOlafsson/spacr/blob/main/LICENSE"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/licensing.desktop.svg"><img src="../../readme_images/es/licensing.svg" alt="Licencia. spaCR se libera bajo el Licencia de 3-clausura BSD. Si spaCR contribuyó al trabajo publicado, una citación es apreciada y no es una condición de la licencia — véase Citar spaCR a continuación."></picture></a></div>
+   <div><a href="../../readme_text/es/licensing.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/licensing.desktop.svg"><img src="../../readme_images/es/licensing.svg" alt="Licencia. spaCR se libera bajo el Licencia de 3-clausura BSD. Si spaCR contribuyó al trabajo publicado, una citación es apreciada y no es una condición de la licencia — véase Citar spaCR a continuación."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="https://einarolafsson.github.io/spacr/tutorials/"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/tutorials.desktop.svg"><img src="../../readme_images/es/tutorials.svg" alt="Tutoriales. La biblioteca de tutoriales interactivos de spaCR ofrece guías de instalación y uso de los módulos. Cada lección indica la narración y los idiomas disponibles."></picture></a></div>
+   <div><a href="../../readme_text/es/tutorials.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/tutorials.desktop.svg"><img src="../../readme_images/es/tutorials.svg" alt="Tutoriales. La biblioteca de tutoriales interactivos de spaCR ofrece guías de instalación y uso de los módulos. Cada lección indica la narración y los idiomas disponibles."></picture></a></div>
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/citing-spacr.desktop.svg"><img src="../../readme_images/es/citing-spacr.svg" alt="Citar spaCR. Si spaCR contribuye a su investigación, cite: Olafsson EB, et al. Una cribado de imagen agrupada basada en CRISPR identifica EAF1 como un modulador T. gondii de subversión ESCRT."></picture></div>
+   <div><a href="../../readme_text/es/citing-spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/citing-spacr.desktop.svg"><img src="../../readme_images/es/citing-spacr.svg" alt="Citar spaCR. Si spaCR contribuye a su investigación, cite: Olafsson EB, et al. Una cribado de imagen agrupada basada en CRISPR identifica EAF1 como un modulador T. gondii de subversión ESCRT."></picture></a></div>
 
 .. raw:: html
 
@@ -610,32 +620,32 @@
 
 .. raw:: html
 
-   <div><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-work-citing-spacr.desktop.svg"><img src="../../readme_images/es/other-work-citing-spacr.svg" alt="Otros trabajos citando spaCR."></picture></div>
+   <div><a href="../../readme_text/es/other-work-citing-spacr.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-work-citing-spacr.desktop.svg"><img src="../../readme_images/es/other-work-citing-spacr.svg" alt="Otros trabajos citando spaCR."></picture></a></div>
 
 .. spacr-citing-papers-begin
 
 .. raw:: html
 
-   <div><a href="https://journals.asm.org/doi/full/10.1128/msphere.01011-24"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-work-citing-spacr-2-1.desktop.svg"><img src="../../readme_images/es/other-work-citing-spacr-2-1.svg" alt="Adaptabilidad metabólica y recolección de nutrientes en Toxoplasma gondii: percepciones de mutantes deficientes en la vía de ingestión."></picture></a></div>
+   <div><a href="../../readme_text/es/other-work-citing-spacr-2-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-work-citing-spacr-2-1.desktop.svg"><img src="../../readme_images/es/other-work-citing-spacr-2-1.svg" alt="Adaptabilidad metabólica y recolección de nutrientes en Toxoplasma gondii: percepciones de mutantes deficientes en la vía de ingestión."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-work-citing-spacr-2-2.desktop.svg"><img src="../../readme_images/es/other-work-citing-spacr-2-2.svg" alt="IRE1α promueve el flujo de calcio fagosomal para mejorar la actividad fungicida de los macrófagos."></picture></a></div>
+   <div><a href="../../readme_text/es/other-work-citing-spacr-2-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-work-citing-spacr-2-2.desktop.svg"><img src="../../readme_images/es/other-work-citing-spacr-2-2.svg" alt="IRE1α promueve el flujo de calcio fagosomal para mejorar la actividad fungicida de los macrófagos."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-work-citing-spacr-2-3.desktop.svg"><img src="../../readme_images/es/other-work-citing-spacr-2-3.svg" alt="El toxoplasma GRA8 activa la proteína accesoria ESCRT ALG-2 y es necesario para la integridad metabólica del parásito."></picture></a></div>
+   <div><a href="../../readme_text/es/other-work-citing-spacr-2-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-work-citing-spacr-2-3.desktop.svg"><img src="../../readme_images/es/other-work-citing-spacr-2-3.svg" alt="El toxoplasma GRA8 activa la proteína accesoria ESCRT ALG-2 y es necesario para la integridad metabólica del parásito."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="https://www.biorxiv.org/content/10.64898/2026.07.30.741779v1"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-work-citing-spacr-2-4.desktop.svg"><img src="../../readme_images/es/other-work-citing-spacr-2-4.svg" alt="Hydrogen sulfide dynamically upregulates copper uptake and localization."></picture></a></div>
+   <div><a href="../../readme_text/es/other-work-citing-spacr-2-4.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-work-citing-spacr-2-4.desktop.svg"><img src="../../readme_images/es/other-work-citing-spacr-2-4.svg" alt="Hydrogen sulfide dynamically upregulates copper uptake and localization."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="https://www.researchsquare.com/article/rs-7368254/v1"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-work-citing-spacr-2-5.desktop.svg"><img src="../../readme_images/es/other-work-citing-spacr-2-5.svg" alt="spaCR: Análisis espacial del fenotipo de cribados CRISPR-Cas9 (versión preliminar 1)."></picture></a></div>
+   <div><a href="../../readme_text/es/other-work-citing-spacr-2-5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/other-work-citing-spacr-2-5.desktop.svg"><img src="../../readme_images/es/other-work-citing-spacr-2-5.svg" alt="spaCR: Análisis espacial del fenotipo de cribados CRISPR-Cas9 (versión preliminar 1)."></picture></a></div>
 
 .. spacr-citing-papers-end
 
 .. raw:: html
 
-   <div><a href="../TRANSLATION_MODELS.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/acknowledgments.desktop.svg"><img src="../../readme_images/es/acknowledgments.svg" alt="Agradecimientos. spaCR se basa en software científico abierto, como NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch y Qt. Consulte la atribución de los modelos de traducción para conocer los modelos utilizados en la documentación multilingüe y los catálogos de la interfaz."></picture></a></div>
+   <div><a href="../../readme_text/es/acknowledgments.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/es/acknowledgments.desktop.svg"><img src="../../readme_images/es/acknowledgments.svg" alt="Agradecimientos. spaCR se basa en software científico abierto, como NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch y Qt. Consulte la atribución de los modelos de traducción para conocer los modelos utilizados en la documentación multilingüe y los catálogos de la interfaz."></picture></a></div>

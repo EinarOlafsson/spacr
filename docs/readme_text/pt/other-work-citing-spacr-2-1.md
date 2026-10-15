@@ -1,0 +1,1 @@
+- [Adaptação metabólica e eliminação de nutrientes em Toxoplasma gondii: insights de mutantes deficientes em vias de ingestão.](<https://journals.asm.org/doi/full/10.1128/msphere.01011-24>)

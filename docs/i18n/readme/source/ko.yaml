@@ -8,6 +8,8 @@ blocks:
 - raw: |-
     |Website| |Platforms| |Python| |Qt| |Test counts| |Coverage| |Issues| |Conda| |PyPI| |Docker| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
 
+    웹사이트: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/projects/spacr/>`_
+
     .. |Website| image:: https://img.shields.io/badge/Website-spaCR-0A7BBB
        :target: https://einarolafsson.github.io/projects/spacr/
        :alt: spaCR 웹사이트
@@ -113,6 +115,12 @@ blocks:
     터미널에서는 ``spacr-download``\ 를 사용합니다.
 - h2: 하드웨어 지원
 - generated: hardware
+- p: CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core
+    i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM took 444.5 s on the CPU and 3.2 s on
+    Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This is a
+    historical example, not a speed guarantee. GPU acceleration requires a usable backend and
+    compatible libraries. See the `recorded hardware measurement
+    <features/new/319_use_non_nvidia_accelerators_where_they_exist.txt>`_.
 - h2: spaCR 설치
 - p: '설치 방법을 선택하세요:'
 - list:

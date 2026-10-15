@@ -1,0 +1,1 @@
+Die neun nicht-englischen Kataloge werden von einem Muttersprachler maschinengefertigt und technisch überarbeitet, anstatt zu Ende zu lesen. Die [Überprüfungsspielraum](<../../i18n/REVIEW_SCOPE_2026-09-04.md>) Aufzeichnungen, welche Sprachen einen menschlichen Pass hatten und jeder Begriff auf Englisch durch Entscheidung übrig geblieben ist.

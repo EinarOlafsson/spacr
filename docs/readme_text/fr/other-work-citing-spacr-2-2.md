@@ -1,0 +1,1 @@
+- [L'IRE1α favorise le flux phagosomique de calcium pour améliorer l'activité fongicide des macrophages.](<https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>)

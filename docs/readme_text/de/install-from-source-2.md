@@ -1,0 +1,1 @@
+Dieser Befehl klont ` main `, den Standard-Branch mit der neuesten Version. Entwickelt wird auf ` nightly `; fügen Sie ` --branch nightly ` hinzu, um stattdessen diesen Branch zu klonen. Für eine bestimmte Version:

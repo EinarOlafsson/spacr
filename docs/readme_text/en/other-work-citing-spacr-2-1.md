@@ -1,0 +1,1 @@
+- [Metabolic adaptability and nutrient scavenging in Toxoplasma gondii: insights from ingestion pathway-deficient mutants.](<https://journals.asm.org/doi/full/10.1128/msphere.01011-24>)
