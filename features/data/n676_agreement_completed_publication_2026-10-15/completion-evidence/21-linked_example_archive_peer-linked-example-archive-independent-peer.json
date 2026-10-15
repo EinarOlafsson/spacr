@@ -1,0 +1,215 @@
+{
+  "schema": 1,
+  "status": "pass",
+  "lesson": "23_agreement",
+  "archive": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc/web/examples/Agreement_artificial_labels_real_crops.zip",
+    "sha256": "47bb5556de177f3fd5beb97b55564eb0890d0e5d3739da0aba2f1902ab4d360c",
+    "bytes": 2143021
+  },
+  "baseline_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc/release-manifest.json",
+    "sha256": "d2cc730ac0513092ca6a8660eda66a80451ca9f77933a611b6ce9e91cc19b4aa",
+    "bytes": 1170655
+  },
+  "baseline_archive_entry": {
+    "path": "web/examples/Agreement_artificial_labels_real_crops.zip",
+    "sha256": "47bb5556de177f3fd5beb97b55564eb0890d0e5d3739da0aba2f1902ab4d360c",
+    "bytes": 2143021
+  },
+  "actual_acceptance": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson23-r60/captures/agreement/agreement_acceptance.json",
+    "sha256": "e25bc0078481d6249b3fbb61587a605204441e63f6cce0c21323d54abc0a7296",
+    "bytes": 22112
+  },
+  "captured_database": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson23-r60/agreement_runs/DEMO-labels-real-crops-d1d80mk4/measurements/measurements.db",
+    "sha256": "e7e21f04027f75140f7bc842b7d134af51a1af9d862c1c31df6b92d022778825",
+    "bytes": 8192
+  },
+  "archive_database_sha256": "fc37e6037f777d6974003cb326083f35b606477c5b6f520e62deb69a075049b3",
+  "archive_database_bytes": 8192,
+  "physical_database_bytes_equal": false,
+  "semantics": {
+    "saved16png_paths_and_DEMO_A_B_C_labels_exact": true,
+    "sorted_source_crop_order_exact": true,
+    "png_byte_identity_count": 16,
+    "all_relative_paths_resolve_under_extracted_agreement_project": true,
+    "zip_entries": 18,
+    "duplicate_or_unsafe_or_symlink_members": false,
+    "archive_schema_columns": [
+      "png_path",
+      "file_name",
+      "plateID",
+      "rowID",
+      "columnID",
+      "fieldID",
+      "prcfo",
+      "cell_id",
+      "annotate",
+      "al_prob_0",
+      "al_prob_1",
+      "infected",
+      "tutorial_demo_01",
+      "tutorial_demo_02",
+      "tutorial_demo_03",
+      "tutorial_demo_04",
+      "tutorial_demo_05",
+      "tutorial_demo_06",
+      "DEMO_A",
+      "DEMO_B",
+      "DEMO_C"
+    ],
+    "captured_schema_columns": [
+      "png_path",
+      "file_name",
+      "plateID",
+      "rowID",
+      "columnID",
+      "fieldID",
+      "prcfo",
+      "cell_id",
+      "annotate",
+      "al_prob_0",
+      "al_prob_1",
+      "infected",
+      "tutorial_demo_01",
+      "tutorial_demo_02",
+      "tutorial_demo_03",
+      "tutorial_demo_04",
+      "tutorial_demo_05",
+      "tutorial_demo_06",
+      "DEMO_A",
+      "DEMO_B",
+      "DEMO_C"
+    ],
+    "schema_scope": "Shared four teaching columns match exactly; captured DB may also retain original downloadable measurement/annotation columns, which the portable practice ZIP need not carry.",
+    "README_artificial_nonhuman_nonbiological_limits_match": true
+  },
+  "crops": [
+    {
+      "png_path": "data/crops/plate1_E01_10_1_4.png",
+      "zip_member": "agreement/data/crops/plate1_E01_10_1_4.png",
+      "bytes": 152033,
+      "sha256": "4b576d127ee2a21a00138eeffff44ebf93aed735c3598b1919b9d057d351e822",
+      "captured_crop_matches": true
+    },
+    {
+      "png_path": "data/crops/plate1_E01_10_1_45.png",
+      "zip_member": "agreement/data/crops/plate1_E01_10_1_45.png",
+      "bytes": 126492,
+      "sha256": "6a54094afc567325ba0b49676ac8245f6d02fe85da2d9d22f83df20880b7f0e0",
+      "captured_crop_matches": true
+    },
+    {
+      "png_path": "data/crops/plate1_E01_14_1_3.png",
+      "zip_member": "agreement/data/crops/plate1_E01_14_1_3.png",
+      "bytes": 101733,
+      "sha256": "ecaec92b79632e54f0026b1e1790ced9049fc782ffd02b9be0215f0691884f85",
+      "captured_crop_matches": true
+    },
+    {
+      "png_path": "data/crops/plate1_E01_1_1_18.png",
+      "zip_member": "agreement/data/crops/plate1_E01_1_1_18.png",
+      "bytes": 139464,
+      "sha256": "9aa884f0464c68ca23b8aeb4ea572de5433de9f9dd81d7aef1e5f6650d45ff49",
+      "captured_crop_matches": true
+    },
+    {
+      "png_path": "data/crops/plate1_E01_1_1_7.png",
+      "zip_member": "agreement/data/crops/plate1_E01_1_1_7.png",
+      "bytes": 154415,
+      "sha256": "bcc292a4b85a59aceb46485f092ba2f677b6cf0ce80a0d3cd048c7a16b66d241",
+      "captured_crop_matches": true
+    },
+    {
+      "png_path": "data/crops/plate1_E01_20_1_35.png",
+      "zip_member": "agreement/data/crops/plate1_E01_20_1_35.png",
+      "bytes": 205687,
+      "sha256": "b14d22867efd4f239f965346c059235ce3c435ab0bf0fc101a9da3ec4b917da1",
+      "captured_crop_matches": true
+    },
+    {
+      "png_path": "data/crops/plate1_E01_20_1_36.png",
+      "zip_member": "agreement/data/crops/plate1_E01_20_1_36.png",
+      "bytes": 144985,
+      "sha256": "2e76ede5e0343ff58172b63feb746b71f883354de145681f20231530ac5003a6",
+      "captured_crop_matches": true
+    },
+    {
+      "png_path": "data/crops/plate1_E01_20_1_6.png",
+      "zip_member": "agreement/data/crops/plate1_E01_20_1_6.png",
+      "bytes": 153947,
+      "sha256": "c60eee68317c3b0fa0803a76ffcb40ec590f1d64ae498d7107f0cdc6230f8015",
+      "captured_crop_matches": true
+    },
+    {
+      "png_path": "data/crops/plate1_E01_20_1_77.png",
+      "zip_member": "agreement/data/crops/plate1_E01_20_1_77.png",
+      "bytes": 60382,
+      "sha256": "bdfb4eff3d6c944617aff23666ce24bc9c7ac44e72a11c27b568ddf8e7629d3a",
+      "captured_crop_matches": true
+    },
+    {
+      "png_path": "data/crops/plate1_E01_21_1_48.png",
+      "zip_member": "agreement/data/crops/plate1_E01_21_1_48.png",
+      "bytes": 190753,
+      "sha256": "b3a33dba329f4ea45ba04a55731e13776ec79693255efe4abc984221ad5a229d",
+      "captured_crop_matches": true
+    },
+    {
+      "png_path": "data/crops/plate1_E01_9_1_30.png",
+      "zip_member": "agreement/data/crops/plate1_E01_9_1_30.png",
+      "bytes": 131740,
+      "sha256": "92d500218178716c6a6dabd4c21fed2ecf667e1975ac304186c9735f4a5c0312",
+      "captured_crop_matches": true
+    },
+    {
+      "png_path": "data/crops/plate1_E02_10_1_24.png",
+      "zip_member": "agreement/data/crops/plate1_E02_10_1_24.png",
+      "bytes": 117602,
+      "sha256": "c5c6019db968271cc93ddc099b0a344eb4f2594ce44fd64bb983a0c4aab7e4d6",
+      "captured_crop_matches": true
+    },
+    {
+      "png_path": "data/crops/plate1_E02_10_1_3.png",
+      "zip_member": "agreement/data/crops/plate1_E02_10_1_3.png",
+      "bytes": 101562,
+      "sha256": "dee3ba0c693af722b648471ba2842a5ee1bbda312a263cdd483e8e0029464b25",
+      "captured_crop_matches": true
+    },
+    {
+      "png_path": "data/crops/plate1_E02_10_1_34.png",
+      "zip_member": "agreement/data/crops/plate1_E02_10_1_34.png",
+      "bytes": 83004,
+      "sha256": "94943e224e2110d2ab00c774d1b470d278bbb791f80d3adf989b2448580b08b4",
+      "captured_crop_matches": true
+    },
+    {
+      "png_path": "data/crops/plate1_E02_10_1_4.png",
+      "zip_member": "agreement/data/crops/plate1_E02_10_1_4.png",
+      "bytes": 130091,
+      "sha256": "6039d45226be72267c2bc64028d8b2bee550f52b435bc294ad29e1d07755ce1d",
+      "captured_crop_matches": true
+    },
+    {
+      "png_path": "data/crops/plate1_E02_11_1_12.png",
+      "zip_member": "agreement/data/crops/plate1_E02_11_1_12.png",
+      "bytes": 146438,
+      "sha256": "e96103e1c167169a155dc8ae9c946565f800d24386e249f100eb1aee39fbdc3a",
+      "captured_crop_matches": true
+    }
+  ],
+  "original_archive_and_captured_database_stats_unchanged": true,
+  "source_resolver_binding": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/agreement.py",
+    "sha256": "ce62f3fcfb081e331e525d8eb3dc79f3dd5a8b89889616e8c66f111d39942a7d",
+    "bytes": 41655
+  },
+  "scope_limits": [
+    "Source-only relative-path resolution checked against current Agreement._resolve_crop: database grandparent plus stored relative path. No GUI/user extraction was executed.",
+    "Exact PNG-byte equality substantiates identical pixels; no decode, new model/refit or biological/human correctness claim.",
+    "SQLite queried read-only from native file and deserialized ZIP bytes in memory with query_only; no original ZIP/database writes.",
+    "No browser/audio/tests/network/source edits; root owns final publication acceptance."
+  ]
+}

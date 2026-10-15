@@ -1,0 +1,5684 @@
+{
+  "02_agreement_fold": {
+    "image": "02_agreement_fold.png",
+    "appearance": {
+      "theme": "dark",
+      "backdrop": "data_art_impulse_lens",
+      "painted_frames": 874
+    },
+    "hidden_decorative_backdrops": [],
+    "capture_surface": "gnome_capture_host_screencast",
+    "sha256": "03470145fa923c295d91a97e38ba6ccc91efea3e5dbcec9bc3632fbc443c3caa",
+    "buttons": [
+      {
+        "text": "",
+        "name": "MinimiseWindow",
+        "tooltip": "Minimise",
+        "rect": [
+          3660,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "MaximiseWindow",
+        "tooltip": "Maximise, or restore the size before",
+        "rect": [
+          3700,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "FullScreenToggle",
+        "tooltip": "Full screen (F11). The window has no title bar; drag the menu bar to move it.",
+        "rect": [
+          3741,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "CloseWindow",
+        "tooltip": "Quit spaCR",
+        "rect": [
+          3782,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Home",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          152,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "__home__",
+        "module_key": "__home__"
+      },
+      {
+        "text": "Mask",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          246,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "mask",
+        "module_key": "mask"
+      },
+      {
+        "text": "Measure",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          297,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "measure",
+        "module_key": "measure"
+      },
+      {
+        "text": "Annotate",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          348,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "annotate",
+        "module_key": "annotate"
+      },
+      {
+        "text": "Classify",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          399,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "classify_merged",
+        "module_key": "classify_merged"
+      },
+      {
+        "text": "Map Barcodes",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          450,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "map_barcodes",
+        "module_key": "map_barcodes"
+      },
+      {
+        "text": "Regression",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          501,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "regression",
+        "module_key": "regression"
+      },
+      {
+        "text": "",
+        "name": "FoldButton",
+        "tooltip": "Annotator Agreement\nCompute Cohen's or Fleiss' κ across annotation columns and review discordant crops.",
+        "rect": [
+          3740,
+          74,
+          76,
+          76
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Open source…",
+        "name": "PrimaryButton",
+        "tooltip": "",
+        "rect": [
+          372,
+          188,
+          218,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Settings",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          602,
+          188,
+          146,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Back",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          759,
+          188,
+          116,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Next",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          886,
+          188,
+          114,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Skip to last annotated",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          1012,
+          188,
+          276,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Class counts",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          1300,
+          188,
+          186,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Coverage",
+        "name": "",
+        "tooltip": "Summarize annotation provenance by class, well, plate and active-learning round. This identifies label sets concentrated within a small number of wells or plates.",
+        "rect": [
+          1498,
+          188,
+          158,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Retrain",
+        "name": "",
+        "tooltip": "Fit a model on the labels made so far, score every crop with it, and re-rank the uncertainty queue — without leaving this screen. Held out by well, so the accuracy is not an artefact of labelling one field of view. Each round writes a model card.",
+        "rect": [
+          1668,
+          188,
+          138,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Suggest…",
+        "name": "",
+        "tooltip": "Fit boosted trees on the labels made so far and write the model's proposed label onto every crop you have not answered yet — most confident first, dashed rather than solid, and only where you have not already decided. Then keep them all, throw them all away, or answer the ones it got wrong one at a time.",
+        "rect": [
+          1818,
+          188,
+          159,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Rounds",
+        "name": "",
+        "tooltip": "Held-out accuracy per round, and whether the last stretch of labelling moved it. A flat curve indicates that more labels no longer improve the model.",
+        "rect": [
+          1989,
+          188,
+          141,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Train…",
+        "name": "",
+        "tooltip": "Train a model on the current annotations, on the images or on the measured features, and apply it to the whole dataset.",
+        "rect": [
+          2142,
+          188,
+          152,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Auto-annotate…",
+        "name": "",
+        "tooltip": "Label a whole population at once — by metadata, by measurement thresholds, by a gate, or by UMAP cluster.",
+        "rect": [
+          2306,
+          188,
+          192,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "View in database",
+        "name": "",
+        "tooltip": "Open png_list in the Database Browser to see the annotation column as it is stored.",
+        "rect": [
+          2510,
+          188,
+          200,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Annotate page",
+        "name": "",
+        "tooltip": "Give every image on this page the same class. Asks which.",
+        "rect": [
+          2721,
+          188,
+          177,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Clear page",
+        "name": "",
+        "tooltip": "Remove the annotations on this page only. Undoable.",
+        "rect": [
+          2910,
+          188,
+          152,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Clear column",
+        "name": "DangerButton",
+        "tooltip": "",
+        "rect": [
+          3074,
+          188,
+          206,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Load test data",
+        "name": "",
+        "tooltip": "Download an example plate to annotate, and fill in the settings that go with it.",
+        "rect": [
+          3291,
+          188,
+          174,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Generate annotation database…",
+        "name": "",
+        "tooltip": "Build a set of crops to annotate by streaming them from the merged arrays or from the coordinates in measurements.db, without measuring the plate again. The result is registered as a new png_list table.",
+        "rect": [
+          372,
+          260,
+          345,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "?",
+        "name": "",
+        "tooltip": "Show the full keyboard reference",
+        "rect": [
+          3684,
+          344,
+          120,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Open source…",
+        "name": "PrimaryButton",
+        "tooltip": "",
+        "rect": [
+          1929,
+          1386,
+          330,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Console ▾",
+        "name": "AnnotateConsoleSwitch",
+        "tooltip": "Show or hide the Console + AI pane.",
+        "rect": [
+          3627,
+          2062,
+          117,
+          40
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      }
+    ],
+    "dialogs": [],
+    "clip": {
+      "video": "02_agreement_fold.mp4",
+      "receipt": "02_agreement_fold.capture.json",
+      "receipt_sha256": "cff630dba5ece580cd705a79648eddddacb6a4485ff7bf2f1a8299b58ab56fd9",
+      "sha256": "c7fd2d0fca546e370114a954b4e43865ade5f51eeec6df8dc3912b5fc7e53e84",
+      "native_video": "02_agreement_fold.native.mp4",
+      "native_sha256": "13a14fc8ca9e7b95a425a0dd2d754eb5c9e81f26dd20fdbead66d32804fba376",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "distinct_fps": 28.87,
+        "fps": 30,
+        "min_fps": 27.9,
+        "cursor_max_step_px": 46.3,
+        "cursor_bound_px": 76.8,
+        "cursor_found_fraction": 1.0,
+        "top_bar_hidden": true,
+        "app_painted_fps": 171.68,
+        "app_freeze_seconds": [],
+        "capture_loss_seconds": [
+          2,
+          4,
+          6
+        ],
+        "loadavg": [
+          4.486328125,
+          5.720703125
+        ],
+        "file": "02_agreement_fold.gate.json"
+      }
+    }
+  },
+  "04_demo_database": {
+    "image": "04_demo_database.png",
+    "appearance": {
+      "theme": "dark",
+      "backdrop": "data_art_impulse_lens",
+      "painted_frames": 4794
+    },
+    "hidden_decorative_backdrops": [],
+    "capture_surface": "gnome_capture_host_screencast",
+    "sha256": "832d7026b414f8289925345298109a9967b4b8a222d4438aa02bb179dc123885",
+    "buttons": [
+      {
+        "text": "",
+        "name": "MinimiseWindow",
+        "tooltip": "Minimise",
+        "rect": [
+          3660,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "MaximiseWindow",
+        "tooltip": "Maximise, or restore the size before",
+        "rect": [
+          3700,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "FullScreenToggle",
+        "tooltip": "Full screen (F11). The window has no title bar; drag the menu bar to move it.",
+        "rect": [
+          3741,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "CloseWindow",
+        "tooltip": "Quit spaCR",
+        "rect": [
+          3782,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Home",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          152,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "__home__",
+        "module_key": "__home__"
+      },
+      {
+        "text": "Mask",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          246,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "mask",
+        "module_key": "mask"
+      },
+      {
+        "text": "Measure",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          297,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "measure",
+        "module_key": "measure"
+      },
+      {
+        "text": "Annotate",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          348,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "annotate",
+        "module_key": "annotate"
+      },
+      {
+        "text": "Classify",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          399,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "classify_merged",
+        "module_key": "classify_merged"
+      },
+      {
+        "text": "Map Barcodes",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          450,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "map_barcodes",
+        "module_key": "map_barcodes"
+      },
+      {
+        "text": "Regression",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          501,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "regression",
+        "module_key": "regression"
+      },
+      {
+        "text": "",
+        "name": "FoldButton",
+        "tooltip": "Annotator Agreement\nCompute Cohen's or Fleiss' κ across annotation columns and review discordant crops.",
+        "rect": [
+          3740,
+          74,
+          76,
+          76
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Open source…",
+        "name": "PrimaryButton",
+        "tooltip": "",
+        "rect": [
+          372,
+          188,
+          218,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Settings",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          602,
+          188,
+          146,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Back",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          759,
+          188,
+          116,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Next",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          886,
+          188,
+          114,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Skip to last annotated",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          1012,
+          188,
+          276,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Class counts",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          1300,
+          188,
+          186,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Coverage",
+        "name": "",
+        "tooltip": "Summarize annotation provenance by class, well, plate and active-learning round. This identifies label sets concentrated within a small number of wells or plates.",
+        "rect": [
+          1498,
+          188,
+          158,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Retrain",
+        "name": "",
+        "tooltip": "Fit a model on the labels made so far, score every crop with it, and re-rank the uncertainty queue — without leaving this screen. Held out by well, so the accuracy is not an artefact of labelling one field of view. Each round writes a model card.",
+        "rect": [
+          1668,
+          188,
+          138,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Suggest…",
+        "name": "",
+        "tooltip": "Fit boosted trees on the labels made so far and write the model's proposed label onto every crop you have not answered yet — most confident first, dashed rather than solid, and only where you have not already decided. Then keep them all, throw them all away, or answer the ones it got wrong one at a time.",
+        "rect": [
+          1818,
+          188,
+          159,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Rounds",
+        "name": "",
+        "tooltip": "Held-out accuracy per round, and whether the last stretch of labelling moved it. A flat curve indicates that more labels no longer improve the model.",
+        "rect": [
+          1989,
+          188,
+          141,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Train…",
+        "name": "",
+        "tooltip": "Train a model on the current annotations, on the images or on the measured features, and apply it to the whole dataset.",
+        "rect": [
+          2142,
+          188,
+          152,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Auto-annotate…",
+        "name": "",
+        "tooltip": "Label a whole population at once — by metadata, by measurement thresholds, by a gate, or by UMAP cluster.",
+        "rect": [
+          2306,
+          188,
+          192,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "View in database",
+        "name": "",
+        "tooltip": "Open png_list in the Database Browser to see the annotation column as it is stored.",
+        "rect": [
+          2510,
+          188,
+          200,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Annotate page",
+        "name": "",
+        "tooltip": "Give every image on this page the same class. Asks which.",
+        "rect": [
+          2721,
+          188,
+          177,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Clear page",
+        "name": "",
+        "tooltip": "Remove the annotations on this page only. Undoable.",
+        "rect": [
+          2910,
+          188,
+          152,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Clear column",
+        "name": "DangerButton",
+        "tooltip": "",
+        "rect": [
+          3074,
+          188,
+          206,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Load test data",
+        "name": "",
+        "tooltip": "Download an example plate to annotate, and fill in the settings that go with it.",
+        "rect": [
+          3291,
+          188,
+          174,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Generate annotation database…",
+        "name": "",
+        "tooltip": "Build a set of crops to annotate by streaming them from the merged arrays or from the coordinates in measurements.db, without measuring the plate again. The result is registered as a new png_list table.",
+        "rect": [
+          372,
+          260,
+          345,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "?",
+        "name": "",
+        "tooltip": "Show the full keyboard reference",
+        "rect": [
+          3684,
+          344,
+          120,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Console ▾",
+        "name": "AnnotateConsoleSwitch",
+        "tooltip": "Show or hide the Console + AI pane.",
+        "rect": [
+          3627,
+          2062,
+          117,
+          40
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Choose database…",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3234,
+          652,
+          216,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Choose run folder…",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3462,
+          652,
+          225,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Open",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3699,
+          652,
+          92,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Compute agreement",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          398,
+          1347,
+          400,
+          60
+        ],
+        "enabled": false,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "✕",
+        "name": "",
+        "tooltip": "Close",
+        "rect": [
+          788,
+          440,
+          36,
+          36
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      }
+    ],
+    "dialogs": [],
+    "clip": {
+      "video": "04_demo_database.mp4",
+      "receipt": "04_demo_database.capture.json",
+      "receipt_sha256": "c42390f6bdd464e2e216cd563bd102b0ae03782220201c2f97c3cc019c403ee3",
+      "sha256": "48ee9bace5ef44a11fee48a4c2e52b8ba3c4d4b3cc5e99e374efe44cfcba03ed",
+      "native_video": "04_demo_database.native.mp4",
+      "native_sha256": "770551864e75931a5060e06557bd6f8c169ba6527fb8283615405662c9d8d0cc",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "distinct_fps": 28.92,
+        "fps": 30,
+        "min_fps": 27.9,
+        "cursor_max_step_px": 36.7,
+        "cursor_bound_px": 76.8,
+        "cursor_found_fraction": 1.0,
+        "top_bar_hidden": true,
+        "app_painted_fps": 170.85,
+        "app_freeze_seconds": [],
+        "capture_loss_seconds": [
+          4,
+          19
+        ],
+        "loadavg": [
+          5.720703125,
+          6.564453125
+        ],
+        "file": "04_demo_database.gate.json"
+      }
+    }
+  },
+  "05_one_column_not_a_comparison": {
+    "image": "05_one_column_not_a_comparison.png",
+    "appearance": {
+      "theme": "dark",
+      "backdrop": "data_art_impulse_lens",
+      "painted_frames": 9576
+    },
+    "hidden_decorative_backdrops": [],
+    "capture_surface": "gnome_capture_host_screencast",
+    "sha256": "24f16b74094d03a49ab38c8bdab927024c9d234c97990c0ee591ecaee11dc5c3",
+    "buttons": [
+      {
+        "text": "",
+        "name": "MinimiseWindow",
+        "tooltip": "Minimise",
+        "rect": [
+          3660,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "MaximiseWindow",
+        "tooltip": "Maximise, or restore the size before",
+        "rect": [
+          3700,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "FullScreenToggle",
+        "tooltip": "Full screen (F11). The window has no title bar; drag the menu bar to move it.",
+        "rect": [
+          3741,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "CloseWindow",
+        "tooltip": "Quit spaCR",
+        "rect": [
+          3782,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Home",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          152,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "__home__",
+        "module_key": "__home__"
+      },
+      {
+        "text": "Mask",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          246,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "mask",
+        "module_key": "mask"
+      },
+      {
+        "text": "Measure",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          297,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "measure",
+        "module_key": "measure"
+      },
+      {
+        "text": "Annotate",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          348,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "annotate",
+        "module_key": "annotate"
+      },
+      {
+        "text": "Classify",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          399,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "classify_merged",
+        "module_key": "classify_merged"
+      },
+      {
+        "text": "Map Barcodes",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          450,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "map_barcodes",
+        "module_key": "map_barcodes"
+      },
+      {
+        "text": "Regression",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          501,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "regression",
+        "module_key": "regression"
+      },
+      {
+        "text": "",
+        "name": "FoldButton",
+        "tooltip": "Annotator Agreement\nCompute Cohen's or Fleiss' κ across annotation columns and review discordant crops.",
+        "rect": [
+          3740,
+          74,
+          76,
+          76
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Open source…",
+        "name": "PrimaryButton",
+        "tooltip": "",
+        "rect": [
+          372,
+          188,
+          218,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Settings",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          602,
+          188,
+          146,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Back",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          759,
+          188,
+          116,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Next",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          886,
+          188,
+          114,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Skip to last annotated",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          1012,
+          188,
+          276,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Class counts",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          1300,
+          188,
+          186,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Coverage",
+        "name": "",
+        "tooltip": "Summarize annotation provenance by class, well, plate and active-learning round. This identifies label sets concentrated within a small number of wells or plates.",
+        "rect": [
+          1498,
+          188,
+          158,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Retrain",
+        "name": "",
+        "tooltip": "Fit a model on the labels made so far, score every crop with it, and re-rank the uncertainty queue — without leaving this screen. Held out by well, so the accuracy is not an artefact of labelling one field of view. Each round writes a model card.",
+        "rect": [
+          1668,
+          188,
+          138,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Suggest…",
+        "name": "",
+        "tooltip": "Fit boosted trees on the labels made so far and write the model's proposed label onto every crop you have not answered yet — most confident first, dashed rather than solid, and only where you have not already decided. Then keep them all, throw them all away, or answer the ones it got wrong one at a time.",
+        "rect": [
+          1818,
+          188,
+          159,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Rounds",
+        "name": "",
+        "tooltip": "Held-out accuracy per round, and whether the last stretch of labelling moved it. A flat curve indicates that more labels no longer improve the model.",
+        "rect": [
+          1989,
+          188,
+          141,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Train…",
+        "name": "",
+        "tooltip": "Train a model on the current annotations, on the images or on the measured features, and apply it to the whole dataset.",
+        "rect": [
+          2142,
+          188,
+          152,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Auto-annotate…",
+        "name": "",
+        "tooltip": "Label a whole population at once — by metadata, by measurement thresholds, by a gate, or by UMAP cluster.",
+        "rect": [
+          2306,
+          188,
+          192,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "View in database",
+        "name": "",
+        "tooltip": "Open png_list in the Database Browser to see the annotation column as it is stored.",
+        "rect": [
+          2510,
+          188,
+          200,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Annotate page",
+        "name": "",
+        "tooltip": "Give every image on this page the same class. Asks which.",
+        "rect": [
+          2721,
+          188,
+          177,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Clear page",
+        "name": "",
+        "tooltip": "Remove the annotations on this page only. Undoable.",
+        "rect": [
+          2910,
+          188,
+          152,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Clear column",
+        "name": "DangerButton",
+        "tooltip": "",
+        "rect": [
+          3074,
+          188,
+          206,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Load test data",
+        "name": "",
+        "tooltip": "Download an example plate to annotate, and fill in the settings that go with it.",
+        "rect": [
+          3291,
+          188,
+          174,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Generate annotation database…",
+        "name": "",
+        "tooltip": "Build a set of crops to annotate by streaming them from the merged arrays or from the coordinates in measurements.db, without measuring the plate again. The result is registered as a new png_list table.",
+        "rect": [
+          372,
+          260,
+          345,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "?",
+        "name": "",
+        "tooltip": "Show the full keyboard reference",
+        "rect": [
+          3684,
+          344,
+          120,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Console ▾",
+        "name": "AnnotateConsoleSwitch",
+        "tooltip": "Show or hide the Console + AI pane.",
+        "rect": [
+          3627,
+          2062,
+          117,
+          40
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3183,
+          669,
+          33,
+          27
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Choose database…",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3234,
+          652,
+          216,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Choose run folder…",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3462,
+          652,
+          225,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Open",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3699,
+          652,
+          92,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Compute agreement",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          398,
+          1347,
+          400,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "✕",
+        "name": "",
+        "tooltip": "Close",
+        "rect": [
+          788,
+          440,
+          36,
+          36
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      }
+    ],
+    "dialogs": [],
+    "clip": {
+      "video": "05_one_column_not_a_comparison.mp4",
+      "receipt": "05_one_column_not_a_comparison.capture.json",
+      "receipt_sha256": "a1ab77be0e8ac41d154ed207976a0e298fe850b626aa74f2b0d495d9341cdd3b",
+      "sha256": "8d28cc2287077dec7bd62aa5be792d420ca4e0ea761740c02638f3b1ef9cfbae",
+      "native_video": "05_one_column_not_a_comparison.native.mp4",
+      "native_sha256": "c27626babf9862714585e09fb648123247b76a2792c48c411f430cb106577c2e",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "distinct_fps": 29.17,
+        "fps": 30,
+        "min_fps": 27.9,
+        "cursor_max_step_px": 36.1,
+        "cursor_bound_px": 76.8,
+        "cursor_found_fraction": 1.0,
+        "top_bar_hidden": true,
+        "app_painted_fps": 155.42,
+        "app_freeze_seconds": [],
+        "capture_loss_seconds": [
+          0
+        ],
+        "loadavg": [
+          6.564453125,
+          7.169921875
+        ],
+        "file": "05_one_column_not_a_comparison.gate.json"
+      }
+    }
+  },
+  "06_two_columns": {
+    "image": "06_two_columns.png",
+    "appearance": {
+      "theme": "dark",
+      "backdrop": "data_art_impulse_lens",
+      "painted_frames": 12452
+    },
+    "hidden_decorative_backdrops": [],
+    "capture_surface": "gnome_capture_host_screencast",
+    "sha256": "8e757e44249b8388903fcde46f0a045f592e86f1747503697d9fbe66ab7f5643",
+    "buttons": [
+      {
+        "text": "",
+        "name": "MinimiseWindow",
+        "tooltip": "Minimise",
+        "rect": [
+          3660,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "MaximiseWindow",
+        "tooltip": "Maximise, or restore the size before",
+        "rect": [
+          3700,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "FullScreenToggle",
+        "tooltip": "Full screen (F11). The window has no title bar; drag the menu bar to move it.",
+        "rect": [
+          3741,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "CloseWindow",
+        "tooltip": "Quit spaCR",
+        "rect": [
+          3782,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Home",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          152,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "__home__",
+        "module_key": "__home__"
+      },
+      {
+        "text": "Mask",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          246,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "mask",
+        "module_key": "mask"
+      },
+      {
+        "text": "Measure",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          297,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "measure",
+        "module_key": "measure"
+      },
+      {
+        "text": "Annotate",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          348,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "annotate",
+        "module_key": "annotate"
+      },
+      {
+        "text": "Classify",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          399,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "classify_merged",
+        "module_key": "classify_merged"
+      },
+      {
+        "text": "Map Barcodes",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          450,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "map_barcodes",
+        "module_key": "map_barcodes"
+      },
+      {
+        "text": "Regression",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          501,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "regression",
+        "module_key": "regression"
+      },
+      {
+        "text": "",
+        "name": "FoldButton",
+        "tooltip": "Annotator Agreement\nCompute Cohen's or Fleiss' κ across annotation columns and review discordant crops.",
+        "rect": [
+          3740,
+          74,
+          76,
+          76
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Open source…",
+        "name": "PrimaryButton",
+        "tooltip": "",
+        "rect": [
+          372,
+          188,
+          218,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Settings",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          602,
+          188,
+          146,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Back",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          759,
+          188,
+          116,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Next",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          886,
+          188,
+          114,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Skip to last annotated",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          1012,
+          188,
+          276,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Class counts",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          1300,
+          188,
+          186,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Coverage",
+        "name": "",
+        "tooltip": "Summarize annotation provenance by class, well, plate and active-learning round. This identifies label sets concentrated within a small number of wells or plates.",
+        "rect": [
+          1498,
+          188,
+          158,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Retrain",
+        "name": "",
+        "tooltip": "Fit a model on the labels made so far, score every crop with it, and re-rank the uncertainty queue — without leaving this screen. Held out by well, so the accuracy is not an artefact of labelling one field of view. Each round writes a model card.",
+        "rect": [
+          1668,
+          188,
+          138,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Suggest…",
+        "name": "",
+        "tooltip": "Fit boosted trees on the labels made so far and write the model's proposed label onto every crop you have not answered yet — most confident first, dashed rather than solid, and only where you have not already decided. Then keep them all, throw them all away, or answer the ones it got wrong one at a time.",
+        "rect": [
+          1818,
+          188,
+          159,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Rounds",
+        "name": "",
+        "tooltip": "Held-out accuracy per round, and whether the last stretch of labelling moved it. A flat curve indicates that more labels no longer improve the model.",
+        "rect": [
+          1989,
+          188,
+          141,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Train…",
+        "name": "",
+        "tooltip": "Train a model on the current annotations, on the images or on the measured features, and apply it to the whole dataset.",
+        "rect": [
+          2142,
+          188,
+          152,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Auto-annotate…",
+        "name": "",
+        "tooltip": "Label a whole population at once — by metadata, by measurement thresholds, by a gate, or by UMAP cluster.",
+        "rect": [
+          2306,
+          188,
+          192,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "View in database",
+        "name": "",
+        "tooltip": "Open png_list in the Database Browser to see the annotation column as it is stored.",
+        "rect": [
+          2510,
+          188,
+          200,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Annotate page",
+        "name": "",
+        "tooltip": "Give every image on this page the same class. Asks which.",
+        "rect": [
+          2721,
+          188,
+          177,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Clear page",
+        "name": "",
+        "tooltip": "Remove the annotations on this page only. Undoable.",
+        "rect": [
+          2910,
+          188,
+          152,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Clear column",
+        "name": "DangerButton",
+        "tooltip": "",
+        "rect": [
+          3074,
+          188,
+          206,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Load test data",
+        "name": "",
+        "tooltip": "Download an example plate to annotate, and fill in the settings that go with it.",
+        "rect": [
+          3291,
+          188,
+          174,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Generate annotation database…",
+        "name": "",
+        "tooltip": "Build a set of crops to annotate by streaming them from the merged arrays or from the coordinates in measurements.db, without measuring the plate again. The result is registered as a new png_list table.",
+        "rect": [
+          372,
+          260,
+          345,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "?",
+        "name": "",
+        "tooltip": "Show the full keyboard reference",
+        "rect": [
+          3684,
+          344,
+          120,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Console ▾",
+        "name": "AnnotateConsoleSwitch",
+        "tooltip": "Show or hide the Console + AI pane.",
+        "rect": [
+          3627,
+          2062,
+          117,
+          40
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3183,
+          669,
+          33,
+          27
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Choose database…",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3234,
+          652,
+          216,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Choose run folder…",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3462,
+          652,
+          225,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Open",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3699,
+          652,
+          92,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Compute agreement",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          398,
+          1347,
+          400,
+          60
+        ],
+        "enabled": false,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "✕",
+        "name": "",
+        "tooltip": "Close",
+        "rect": [
+          788,
+          440,
+          36,
+          36
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      }
+    ],
+    "dialogs": [],
+    "clip": {
+      "video": "06_two_columns.mp4",
+      "receipt": "06_two_columns.capture.json",
+      "receipt_sha256": "20d296d8b6d8340b3295513f97ae29ab2ee145a01d697fca47a9311aed9a4fd2",
+      "sha256": "0e40ffa307071bf295498404cb402ae82b02c46cfb447b17469d3adb7f415109",
+      "native_video": "06_two_columns.native.mp4",
+      "native_sha256": "25d95eb3cb72174d124ce94f6f9d47939cd18fc1a0a4234efff61159e92453d0",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "distinct_fps": 29.37,
+        "fps": 30,
+        "min_fps": 27.9,
+        "cursor_max_step_px": 8.0,
+        "cursor_bound_px": 76.8,
+        "cursor_found_fraction": 1.0,
+        "top_bar_hidden": true,
+        "app_painted_fps": 162.74,
+        "app_freeze_seconds": [],
+        "capture_loss_seconds": [
+          6,
+          24
+        ],
+        "loadavg": [
+          7.169921875,
+          7.673828125
+        ],
+        "file": "06_two_columns.gate.json"
+      }
+    }
+  },
+  "07_pairwise_results": {
+    "image": "07_pairwise_results.png",
+    "appearance": {
+      "theme": "dark",
+      "backdrop": "data_art_impulse_lens",
+      "painted_frames": 17417
+    },
+    "hidden_decorative_backdrops": [],
+    "capture_surface": "gnome_capture_host_screencast",
+    "sha256": "1539731ed7d386b5ce076731656f3b034a821fb573f9d780edcbebf666b533cc",
+    "buttons": [
+      {
+        "text": "",
+        "name": "MinimiseWindow",
+        "tooltip": "Minimise",
+        "rect": [
+          3660,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "MaximiseWindow",
+        "tooltip": "Maximise, or restore the size before",
+        "rect": [
+          3700,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "FullScreenToggle",
+        "tooltip": "Full screen (F11). The window has no title bar; drag the menu bar to move it.",
+        "rect": [
+          3741,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "CloseWindow",
+        "tooltip": "Quit spaCR",
+        "rect": [
+          3782,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Home",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          152,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "__home__",
+        "module_key": "__home__"
+      },
+      {
+        "text": "Mask",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          246,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "mask",
+        "module_key": "mask"
+      },
+      {
+        "text": "Measure",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          297,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "measure",
+        "module_key": "measure"
+      },
+      {
+        "text": "Annotate",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          348,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "annotate",
+        "module_key": "annotate"
+      },
+      {
+        "text": "Classify",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          399,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "classify_merged",
+        "module_key": "classify_merged"
+      },
+      {
+        "text": "Map Barcodes",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          450,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "map_barcodes",
+        "module_key": "map_barcodes"
+      },
+      {
+        "text": "Regression",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          501,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "regression",
+        "module_key": "regression"
+      },
+      {
+        "text": "",
+        "name": "FoldButton",
+        "tooltip": "Annotator Agreement\nCompute Cohen's or Fleiss' κ across annotation columns and review discordant crops.",
+        "rect": [
+          3740,
+          74,
+          76,
+          76
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Open source…",
+        "name": "PrimaryButton",
+        "tooltip": "",
+        "rect": [
+          372,
+          188,
+          218,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Settings",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          602,
+          188,
+          146,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Back",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          759,
+          188,
+          116,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Next",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          886,
+          188,
+          114,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Skip to last annotated",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          1012,
+          188,
+          276,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Class counts",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          1300,
+          188,
+          186,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Coverage",
+        "name": "",
+        "tooltip": "Summarize annotation provenance by class, well, plate and active-learning round. This identifies label sets concentrated within a small number of wells or plates.",
+        "rect": [
+          1498,
+          188,
+          158,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Retrain",
+        "name": "",
+        "tooltip": "Fit a model on the labels made so far, score every crop with it, and re-rank the uncertainty queue — without leaving this screen. Held out by well, so the accuracy is not an artefact of labelling one field of view. Each round writes a model card.",
+        "rect": [
+          1668,
+          188,
+          138,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Suggest…",
+        "name": "",
+        "tooltip": "Fit boosted trees on the labels made so far and write the model's proposed label onto every crop you have not answered yet — most confident first, dashed rather than solid, and only where you have not already decided. Then keep them all, throw them all away, or answer the ones it got wrong one at a time.",
+        "rect": [
+          1818,
+          188,
+          159,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Rounds",
+        "name": "",
+        "tooltip": "Held-out accuracy per round, and whether the last stretch of labelling moved it. A flat curve indicates that more labels no longer improve the model.",
+        "rect": [
+          1989,
+          188,
+          141,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Train…",
+        "name": "",
+        "tooltip": "Train a model on the current annotations, on the images or on the measured features, and apply it to the whole dataset.",
+        "rect": [
+          2142,
+          188,
+          152,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Auto-annotate…",
+        "name": "",
+        "tooltip": "Label a whole population at once — by metadata, by measurement thresholds, by a gate, or by UMAP cluster.",
+        "rect": [
+          2306,
+          188,
+          192,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "View in database",
+        "name": "",
+        "tooltip": "Open png_list in the Database Browser to see the annotation column as it is stored.",
+        "rect": [
+          2510,
+          188,
+          200,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Annotate page",
+        "name": "",
+        "tooltip": "Give every image on this page the same class. Asks which.",
+        "rect": [
+          2721,
+          188,
+          177,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Clear page",
+        "name": "",
+        "tooltip": "Remove the annotations on this page only. Undoable.",
+        "rect": [
+          2910,
+          188,
+          152,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Clear column",
+        "name": "DangerButton",
+        "tooltip": "",
+        "rect": [
+          3074,
+          188,
+          206,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Load test data",
+        "name": "",
+        "tooltip": "Download an example plate to annotate, and fill in the settings that go with it.",
+        "rect": [
+          3291,
+          188,
+          174,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Generate annotation database…",
+        "name": "",
+        "tooltip": "Build a set of crops to annotate by streaming them from the merged arrays or from the coordinates in measurements.db, without measuring the plate again. The result is registered as a new png_list table.",
+        "rect": [
+          372,
+          260,
+          345,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "?",
+        "name": "",
+        "tooltip": "Show the full keyboard reference",
+        "rect": [
+          3684,
+          344,
+          120,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Console ▾",
+        "name": "AnnotateConsoleSwitch",
+        "tooltip": "Show or hide the Console + AI pane.",
+        "rect": [
+          3627,
+          2062,
+          117,
+          40
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3183,
+          669,
+          33,
+          27
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Choose database…",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3234,
+          652,
+          216,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Choose run folder…",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3462,
+          652,
+          225,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Open",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3699,
+          652,
+          92,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Compute agreement",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          398,
+          1347,
+          400,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "✕",
+        "name": "",
+        "tooltip": "Close",
+        "rect": [
+          788,
+          440,
+          36,
+          36
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      }
+    ],
+    "dialogs": [],
+    "clip": {
+      "video": "07_pairwise_results.mp4",
+      "receipt": "07_pairwise_results.capture.json",
+      "receipt_sha256": "9a36c98c344a649d0c9d15187ef590ab0c6212f9c804a45b8810211e11ddc37b",
+      "sha256": "5aa8bf5a3a44688030473109197880bc04d6d86eb392987bf3c1e983e65b440f",
+      "native_video": "07_pairwise_results.native.mp4",
+      "native_sha256": "9f82f43139f4f16f9c711b03c2e3d656498d901e2b47479146f61fc09b0a14a6",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "distinct_fps": 28.8,
+        "fps": 30,
+        "min_fps": 27.9,
+        "cursor_max_step_px": 33.8,
+        "cursor_bound_px": 76.8,
+        "cursor_found_fraction": 1.0,
+        "top_bar_hidden": true,
+        "app_painted_fps": 150.78,
+        "app_freeze_seconds": [],
+        "capture_loss_seconds": [
+          2,
+          4
+        ],
+        "loadavg": [
+          7.673828125,
+          7.3193359375
+        ],
+        "file": "07_pairwise_results.gate.json"
+      }
+    }
+  },
+  "08_confusion_matrix": {
+    "image": "08_confusion_matrix.png",
+    "appearance": {
+      "theme": "dark",
+      "backdrop": "data_art_impulse_lens",
+      "painted_frames": 21645
+    },
+    "hidden_decorative_backdrops": [],
+    "capture_surface": "gnome_capture_host_screencast",
+    "sha256": "06d0534f060dc2aa810b60d8f473c497ddabec2e28e90619cf14c34e380bd9d2",
+    "buttons": [
+      {
+        "text": "",
+        "name": "MinimiseWindow",
+        "tooltip": "Minimise",
+        "rect": [
+          3660,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "MaximiseWindow",
+        "tooltip": "Maximise, or restore the size before",
+        "rect": [
+          3700,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "FullScreenToggle",
+        "tooltip": "Full screen (F11). The window has no title bar; drag the menu bar to move it.",
+        "rect": [
+          3741,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "CloseWindow",
+        "tooltip": "Quit spaCR",
+        "rect": [
+          3782,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Home",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          152,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "__home__",
+        "module_key": "__home__"
+      },
+      {
+        "text": "Mask",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          246,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "mask",
+        "module_key": "mask"
+      },
+      {
+        "text": "Measure",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          297,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "measure",
+        "module_key": "measure"
+      },
+      {
+        "text": "Annotate",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          348,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "annotate",
+        "module_key": "annotate"
+      },
+      {
+        "text": "Classify",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          399,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "classify_merged",
+        "module_key": "classify_merged"
+      },
+      {
+        "text": "Map Barcodes",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          450,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "map_barcodes",
+        "module_key": "map_barcodes"
+      },
+      {
+        "text": "Regression",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          501,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "regression",
+        "module_key": "regression"
+      },
+      {
+        "text": "",
+        "name": "FoldButton",
+        "tooltip": "Annotator Agreement\nCompute Cohen's or Fleiss' κ across annotation columns and review discordant crops.",
+        "rect": [
+          3740,
+          74,
+          76,
+          76
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Open source…",
+        "name": "PrimaryButton",
+        "tooltip": "",
+        "rect": [
+          372,
+          188,
+          218,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Settings",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          602,
+          188,
+          146,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Back",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          759,
+          188,
+          116,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Next",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          886,
+          188,
+          114,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Skip to last annotated",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          1012,
+          188,
+          276,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Class counts",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          1300,
+          188,
+          186,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Coverage",
+        "name": "",
+        "tooltip": "Summarize annotation provenance by class, well, plate and active-learning round. This identifies label sets concentrated within a small number of wells or plates.",
+        "rect": [
+          1498,
+          188,
+          158,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Retrain",
+        "name": "",
+        "tooltip": "Fit a model on the labels made so far, score every crop with it, and re-rank the uncertainty queue — without leaving this screen. Held out by well, so the accuracy is not an artefact of labelling one field of view. Each round writes a model card.",
+        "rect": [
+          1668,
+          188,
+          138,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Suggest…",
+        "name": "",
+        "tooltip": "Fit boosted trees on the labels made so far and write the model's proposed label onto every crop you have not answered yet — most confident first, dashed rather than solid, and only where you have not already decided. Then keep them all, throw them all away, or answer the ones it got wrong one at a time.",
+        "rect": [
+          1818,
+          188,
+          159,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Rounds",
+        "name": "",
+        "tooltip": "Held-out accuracy per round, and whether the last stretch of labelling moved it. A flat curve indicates that more labels no longer improve the model.",
+        "rect": [
+          1989,
+          188,
+          141,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Train…",
+        "name": "",
+        "tooltip": "Train a model on the current annotations, on the images or on the measured features, and apply it to the whole dataset.",
+        "rect": [
+          2142,
+          188,
+          152,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Auto-annotate…",
+        "name": "",
+        "tooltip": "Label a whole population at once — by metadata, by measurement thresholds, by a gate, or by UMAP cluster.",
+        "rect": [
+          2306,
+          188,
+          192,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "View in database",
+        "name": "",
+        "tooltip": "Open png_list in the Database Browser to see the annotation column as it is stored.",
+        "rect": [
+          2510,
+          188,
+          200,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Annotate page",
+        "name": "",
+        "tooltip": "Give every image on this page the same class. Asks which.",
+        "rect": [
+          2721,
+          188,
+          177,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Clear page",
+        "name": "",
+        "tooltip": "Remove the annotations on this page only. Undoable.",
+        "rect": [
+          2910,
+          188,
+          152,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Clear column",
+        "name": "DangerButton",
+        "tooltip": "",
+        "rect": [
+          3074,
+          188,
+          206,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Load test data",
+        "name": "",
+        "tooltip": "Download an example plate to annotate, and fill in the settings that go with it.",
+        "rect": [
+          3291,
+          188,
+          174,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Generate annotation database…",
+        "name": "",
+        "tooltip": "Build a set of crops to annotate by streaming them from the merged arrays or from the coordinates in measurements.db, without measuring the plate again. The result is registered as a new png_list table.",
+        "rect": [
+          372,
+          260,
+          345,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "?",
+        "name": "",
+        "tooltip": "Show the full keyboard reference",
+        "rect": [
+          3684,
+          344,
+          120,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Console ▾",
+        "name": "AnnotateConsoleSwitch",
+        "tooltip": "Show or hide the Console + AI pane.",
+        "rect": [
+          3627,
+          2062,
+          117,
+          40
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3183,
+          669,
+          33,
+          27
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Choose database…",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3234,
+          652,
+          216,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Choose run folder…",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3462,
+          652,
+          225,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Open",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3699,
+          652,
+          92,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Compute agreement",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          398,
+          1282,
+          400,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "✕",
+        "name": "",
+        "tooltip": "Close",
+        "rect": [
+          788,
+          440,
+          36,
+          36
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      }
+    ],
+    "dialogs": [],
+    "clip": {
+      "video": "08_confusion_matrix.mp4",
+      "receipt": "08_confusion_matrix.capture.json",
+      "receipt_sha256": "979ec3121cd2472fbfb39322a357ed59e4f75b663a524175ebc8f0cfba3b3711",
+      "sha256": "20e61f862f50cbd3a2992331ad4b1e0fd59dbedecddd9b9982bd934a19f49ece",
+      "native_video": "08_confusion_matrix.native.mp4",
+      "native_sha256": "c4ebd50467b95174ff233c04b7a80e9812819f9d58c3cb4776035f2fa97aa283",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "distinct_fps": 28.82,
+        "fps": 30,
+        "min_fps": 27.9,
+        "cursor_max_step_px": 37.1,
+        "cursor_bound_px": 76.8,
+        "cursor_found_fraction": 1.0,
+        "top_bar_hidden": true,
+        "app_painted_fps": 144.28,
+        "app_freeze_seconds": [],
+        "capture_loss_seconds": [
+          2,
+          3
+        ],
+        "loadavg": [
+          7.3193359375,
+          6.6826171875
+        ],
+        "file": "08_confusion_matrix.gate.json"
+      }
+    }
+  },
+  "09_disagreement_crop_1": {
+    "image": "09_disagreement_crop_1.png",
+    "appearance": {
+      "theme": "dark",
+      "backdrop": "data_art_impulse_lens",
+      "painted_frames": 24756
+    },
+    "hidden_decorative_backdrops": [],
+    "capture_surface": "gnome_capture_host_screencast",
+    "sha256": "3cc13e9a8a7eda80cb74b7bb05175890d85ab9c7f9053b8fec6ac9eff3f48339",
+    "buttons": [
+      {
+        "text": "",
+        "name": "MinimiseWindow",
+        "tooltip": "Minimise",
+        "rect": [
+          3660,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "MaximiseWindow",
+        "tooltip": "Maximise, or restore the size before",
+        "rect": [
+          3700,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "FullScreenToggle",
+        "tooltip": "Full screen (F11). The window has no title bar; drag the menu bar to move it.",
+        "rect": [
+          3741,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "CloseWindow",
+        "tooltip": "Quit spaCR",
+        "rect": [
+          3782,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Home",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          152,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "__home__",
+        "module_key": "__home__"
+      },
+      {
+        "text": "Mask",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          246,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "mask",
+        "module_key": "mask"
+      },
+      {
+        "text": "Measure",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          297,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "measure",
+        "module_key": "measure"
+      },
+      {
+        "text": "Annotate",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          348,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "annotate",
+        "module_key": "annotate"
+      },
+      {
+        "text": "Classify",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          399,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "classify_merged",
+        "module_key": "classify_merged"
+      },
+      {
+        "text": "Map Barcodes",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          450,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "map_barcodes",
+        "module_key": "map_barcodes"
+      },
+      {
+        "text": "Regression",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          501,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "regression",
+        "module_key": "regression"
+      },
+      {
+        "text": "",
+        "name": "FoldButton",
+        "tooltip": "Annotator Agreement\nCompute Cohen's or Fleiss' κ across annotation columns and review discordant crops.",
+        "rect": [
+          3740,
+          74,
+          76,
+          76
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Open source…",
+        "name": "PrimaryButton",
+        "tooltip": "",
+        "rect": [
+          372,
+          188,
+          218,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Settings",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          602,
+          188,
+          146,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Back",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          759,
+          188,
+          116,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Next",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          886,
+          188,
+          114,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Skip to last annotated",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          1012,
+          188,
+          276,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Class counts",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          1300,
+          188,
+          186,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Coverage",
+        "name": "",
+        "tooltip": "Summarize annotation provenance by class, well, plate and active-learning round. This identifies label sets concentrated within a small number of wells or plates.",
+        "rect": [
+          1498,
+          188,
+          158,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Retrain",
+        "name": "",
+        "tooltip": "Fit a model on the labels made so far, score every crop with it, and re-rank the uncertainty queue — without leaving this screen. Held out by well, so the accuracy is not an artefact of labelling one field of view. Each round writes a model card.",
+        "rect": [
+          1668,
+          188,
+          138,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Suggest…",
+        "name": "",
+        "tooltip": "Fit boosted trees on the labels made so far and write the model's proposed label onto every crop you have not answered yet — most confident first, dashed rather than solid, and only where you have not already decided. Then keep them all, throw them all away, or answer the ones it got wrong one at a time.",
+        "rect": [
+          1818,
+          188,
+          159,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Rounds",
+        "name": "",
+        "tooltip": "Held-out accuracy per round, and whether the last stretch of labelling moved it. A flat curve indicates that more labels no longer improve the model.",
+        "rect": [
+          1989,
+          188,
+          141,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Train…",
+        "name": "",
+        "tooltip": "Train a model on the current annotations, on the images or on the measured features, and apply it to the whole dataset.",
+        "rect": [
+          2142,
+          188,
+          152,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Auto-annotate…",
+        "name": "",
+        "tooltip": "Label a whole population at once — by metadata, by measurement thresholds, by a gate, or by UMAP cluster.",
+        "rect": [
+          2306,
+          188,
+          192,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "View in database",
+        "name": "",
+        "tooltip": "Open png_list in the Database Browser to see the annotation column as it is stored.",
+        "rect": [
+          2510,
+          188,
+          200,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Annotate page",
+        "name": "",
+        "tooltip": "Give every image on this page the same class. Asks which.",
+        "rect": [
+          2721,
+          188,
+          177,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Clear page",
+        "name": "",
+        "tooltip": "Remove the annotations on this page only. Undoable.",
+        "rect": [
+          2910,
+          188,
+          152,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Clear column",
+        "name": "DangerButton",
+        "tooltip": "",
+        "rect": [
+          3074,
+          188,
+          206,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Load test data",
+        "name": "",
+        "tooltip": "Download an example plate to annotate, and fill in the settings that go with it.",
+        "rect": [
+          3291,
+          188,
+          174,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Generate annotation database…",
+        "name": "",
+        "tooltip": "Build a set of crops to annotate by streaming them from the merged arrays or from the coordinates in measurements.db, without measuring the plate again. The result is registered as a new png_list table.",
+        "rect": [
+          372,
+          260,
+          345,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "?",
+        "name": "",
+        "tooltip": "Show the full keyboard reference",
+        "rect": [
+          3684,
+          344,
+          120,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Console ▾",
+        "name": "AnnotateConsoleSwitch",
+        "tooltip": "Show or hide the Console + AI pane.",
+        "rect": [
+          3627,
+          2062,
+          117,
+          40
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3183,
+          669,
+          33,
+          27
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Choose database…",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3234,
+          652,
+          216,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Choose run folder…",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3462,
+          652,
+          225,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Open",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3699,
+          652,
+          92,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Compute agreement",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          398,
+          1282,
+          400,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "✕",
+        "name": "",
+        "tooltip": "Close",
+        "rect": [
+          788,
+          440,
+          36,
+          36
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      }
+    ],
+    "dialogs": [],
+    "clip": {
+      "video": "09_disagreement_crop_1.mp4",
+      "receipt": "09_disagreement_crop_1.capture.json",
+      "receipt_sha256": "9dcf14ec2efa39e289a86ab8d84dd64e73f15950e5d8509dad3e6f32f3e4a507",
+      "sha256": "8d0c68559368b2c76f21dcaf7715960740207ae5c134e5ff1a38973ddaccc8eb",
+      "native_video": "09_disagreement_crop_1.native.mp4",
+      "native_sha256": "dd64f956a9621f11a29e3f758a5517bfca15b6c026caf1defc4485561c6caa51",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "distinct_fps": 28.68,
+        "fps": 30,
+        "min_fps": 27.9,
+        "cursor_max_step_px": 36.9,
+        "cursor_bound_px": 76.8,
+        "cursor_found_fraction": 1.0,
+        "top_bar_hidden": true,
+        "app_painted_fps": 152.2,
+        "app_freeze_seconds": [],
+        "capture_loss_seconds": [
+          0,
+          5,
+          6,
+          17
+        ],
+        "loadavg": [
+          6.6826171875,
+          6.63720703125
+        ],
+        "file": "09_disagreement_crop_1.gate.json"
+      }
+    }
+  },
+  "10_three_columns": {
+    "image": "10_three_columns.png",
+    "appearance": {
+      "theme": "dark",
+      "backdrop": "data_art_impulse_lens",
+      "painted_frames": 28536
+    },
+    "hidden_decorative_backdrops": [],
+    "capture_surface": "gnome_capture_host_screencast",
+    "sha256": "b61bc423ff7a0e6ea3a8356c0e8a9e3a396f503226a9baad37682b5d7b3c87da",
+    "buttons": [
+      {
+        "text": "",
+        "name": "MinimiseWindow",
+        "tooltip": "Minimise",
+        "rect": [
+          3660,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "MaximiseWindow",
+        "tooltip": "Maximise, or restore the size before",
+        "rect": [
+          3700,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "FullScreenToggle",
+        "tooltip": "Full screen (F11). The window has no title bar; drag the menu bar to move it.",
+        "rect": [
+          3741,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "CloseWindow",
+        "tooltip": "Quit spaCR",
+        "rect": [
+          3782,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Home",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          152,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "__home__",
+        "module_key": "__home__"
+      },
+      {
+        "text": "Mask",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          246,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "mask",
+        "module_key": "mask"
+      },
+      {
+        "text": "Measure",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          297,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "measure",
+        "module_key": "measure"
+      },
+      {
+        "text": "Annotate",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          348,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "annotate",
+        "module_key": "annotate"
+      },
+      {
+        "text": "Classify",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          399,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "classify_merged",
+        "module_key": "classify_merged"
+      },
+      {
+        "text": "Map Barcodes",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          450,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "map_barcodes",
+        "module_key": "map_barcodes"
+      },
+      {
+        "text": "Regression",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          501,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "regression",
+        "module_key": "regression"
+      },
+      {
+        "text": "",
+        "name": "FoldButton",
+        "tooltip": "Annotator Agreement\nCompute Cohen's or Fleiss' κ across annotation columns and review discordant crops.",
+        "rect": [
+          3740,
+          74,
+          76,
+          76
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Open source…",
+        "name": "PrimaryButton",
+        "tooltip": "",
+        "rect": [
+          372,
+          188,
+          218,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Settings",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          602,
+          188,
+          146,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Back",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          759,
+          188,
+          116,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Next",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          886,
+          188,
+          114,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Skip to last annotated",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          1012,
+          188,
+          276,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Class counts",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          1300,
+          188,
+          186,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Coverage",
+        "name": "",
+        "tooltip": "Summarize annotation provenance by class, well, plate and active-learning round. This identifies label sets concentrated within a small number of wells or plates.",
+        "rect": [
+          1498,
+          188,
+          158,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Retrain",
+        "name": "",
+        "tooltip": "Fit a model on the labels made so far, score every crop with it, and re-rank the uncertainty queue — without leaving this screen. Held out by well, so the accuracy is not an artefact of labelling one field of view. Each round writes a model card.",
+        "rect": [
+          1668,
+          188,
+          138,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Suggest…",
+        "name": "",
+        "tooltip": "Fit boosted trees on the labels made so far and write the model's proposed label onto every crop you have not answered yet — most confident first, dashed rather than solid, and only where you have not already decided. Then keep them all, throw them all away, or answer the ones it got wrong one at a time.",
+        "rect": [
+          1818,
+          188,
+          159,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Rounds",
+        "name": "",
+        "tooltip": "Held-out accuracy per round, and whether the last stretch of labelling moved it. A flat curve indicates that more labels no longer improve the model.",
+        "rect": [
+          1989,
+          188,
+          141,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Train…",
+        "name": "",
+        "tooltip": "Train a model on the current annotations, on the images or on the measured features, and apply it to the whole dataset.",
+        "rect": [
+          2142,
+          188,
+          152,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Auto-annotate…",
+        "name": "",
+        "tooltip": "Label a whole population at once — by metadata, by measurement thresholds, by a gate, or by UMAP cluster.",
+        "rect": [
+          2306,
+          188,
+          192,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "View in database",
+        "name": "",
+        "tooltip": "Open png_list in the Database Browser to see the annotation column as it is stored.",
+        "rect": [
+          2510,
+          188,
+          200,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Annotate page",
+        "name": "",
+        "tooltip": "Give every image on this page the same class. Asks which.",
+        "rect": [
+          2721,
+          188,
+          177,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Clear page",
+        "name": "",
+        "tooltip": "Remove the annotations on this page only. Undoable.",
+        "rect": [
+          2910,
+          188,
+          152,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Clear column",
+        "name": "DangerButton",
+        "tooltip": "",
+        "rect": [
+          3074,
+          188,
+          206,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Load test data",
+        "name": "",
+        "tooltip": "Download an example plate to annotate, and fill in the settings that go with it.",
+        "rect": [
+          3291,
+          188,
+          174,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Generate annotation database…",
+        "name": "",
+        "tooltip": "Build a set of crops to annotate by streaming them from the merged arrays or from the coordinates in measurements.db, without measuring the plate again. The result is registered as a new png_list table.",
+        "rect": [
+          372,
+          260,
+          345,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "?",
+        "name": "",
+        "tooltip": "Show the full keyboard reference",
+        "rect": [
+          3684,
+          344,
+          120,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Console ▾",
+        "name": "AnnotateConsoleSwitch",
+        "tooltip": "Show or hide the Console + AI pane.",
+        "rect": [
+          3627,
+          2062,
+          117,
+          40
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3183,
+          669,
+          33,
+          27
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Choose database…",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3234,
+          652,
+          216,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Choose run folder…",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3462,
+          652,
+          225,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Open",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3699,
+          652,
+          92,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Compute agreement",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          398,
+          1282,
+          400,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "✕",
+        "name": "",
+        "tooltip": "Close",
+        "rect": [
+          788,
+          440,
+          36,
+          36
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      }
+    ],
+    "dialogs": [],
+    "clip": {
+      "video": "10_three_columns.mp4",
+      "receipt": "10_three_columns.capture.json",
+      "receipt_sha256": "84a9c19aad2216a1bd342218bb3c5d8ece79796a4ef941445460ce55c3ee2029",
+      "sha256": "fc99440831114527a8cdb8da918a643b7d0660a35a35dd91e7a73871c8258a2f",
+      "native_video": "10_three_columns.native.mp4",
+      "native_sha256": "467c91ccbdb41dc33203e6db35cce03810e584618b32de74ddebb962e6afa14f",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "distinct_fps": 29.23,
+        "fps": 30,
+        "min_fps": 27.9,
+        "cursor_max_step_px": 36.7,
+        "cursor_bound_px": 76.8,
+        "cursor_found_fraction": 1.0,
+        "top_bar_hidden": true,
+        "app_painted_fps": 152.28,
+        "app_freeze_seconds": [],
+        "capture_loss_seconds": [
+          0,
+          25
+        ],
+        "loadavg": [
+          6.63720703125,
+          6.79150390625
+        ],
+        "file": "10_three_columns.gate.json"
+      }
+    }
+  },
+  "11_three_pass_results": {
+    "image": "11_three_pass_results.png",
+    "appearance": {
+      "theme": "dark",
+      "backdrop": "data_art_impulse_lens",
+      "painted_frames": 32565
+    },
+    "hidden_decorative_backdrops": [],
+    "capture_surface": "gnome_capture_host_screencast",
+    "sha256": "3a16c053a8a425e6a1e5d9ff9059d0491266ee613540af105ca0f1497e445e87",
+    "buttons": [
+      {
+        "text": "",
+        "name": "MinimiseWindow",
+        "tooltip": "Minimise",
+        "rect": [
+          3660,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "MaximiseWindow",
+        "tooltip": "Maximise, or restore the size before",
+        "rect": [
+          3700,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "FullScreenToggle",
+        "tooltip": "Full screen (F11). The window has no title bar; drag the menu bar to move it.",
+        "rect": [
+          3741,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "CloseWindow",
+        "tooltip": "Quit spaCR",
+        "rect": [
+          3782,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Home",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          152,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "__home__",
+        "module_key": "__home__"
+      },
+      {
+        "text": "Mask",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          246,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "mask",
+        "module_key": "mask"
+      },
+      {
+        "text": "Measure",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          297,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "measure",
+        "module_key": "measure"
+      },
+      {
+        "text": "Annotate",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          348,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "annotate",
+        "module_key": "annotate"
+      },
+      {
+        "text": "Classify",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          399,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "classify_merged",
+        "module_key": "classify_merged"
+      },
+      {
+        "text": "Map Barcodes",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          450,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "map_barcodes",
+        "module_key": "map_barcodes"
+      },
+      {
+        "text": "Regression",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          501,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "regression",
+        "module_key": "regression"
+      },
+      {
+        "text": "",
+        "name": "FoldButton",
+        "tooltip": "Annotator Agreement\nCompute Cohen's or Fleiss' κ across annotation columns and review discordant crops.",
+        "rect": [
+          3740,
+          74,
+          76,
+          76
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Open source…",
+        "name": "PrimaryButton",
+        "tooltip": "",
+        "rect": [
+          372,
+          188,
+          218,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Settings",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          602,
+          188,
+          146,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Back",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          759,
+          188,
+          116,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Next",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          886,
+          188,
+          114,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Skip to last annotated",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          1012,
+          188,
+          276,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Class counts",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          1300,
+          188,
+          186,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Coverage",
+        "name": "",
+        "tooltip": "Summarize annotation provenance by class, well, plate and active-learning round. This identifies label sets concentrated within a small number of wells or plates.",
+        "rect": [
+          1498,
+          188,
+          158,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Retrain",
+        "name": "",
+        "tooltip": "Fit a model on the labels made so far, score every crop with it, and re-rank the uncertainty queue — without leaving this screen. Held out by well, so the accuracy is not an artefact of labelling one field of view. Each round writes a model card.",
+        "rect": [
+          1668,
+          188,
+          138,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Suggest…",
+        "name": "",
+        "tooltip": "Fit boosted trees on the labels made so far and write the model's proposed label onto every crop you have not answered yet — most confident first, dashed rather than solid, and only where you have not already decided. Then keep them all, throw them all away, or answer the ones it got wrong one at a time.",
+        "rect": [
+          1818,
+          188,
+          159,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Rounds",
+        "name": "",
+        "tooltip": "Held-out accuracy per round, and whether the last stretch of labelling moved it. A flat curve indicates that more labels no longer improve the model.",
+        "rect": [
+          1989,
+          188,
+          141,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Train…",
+        "name": "",
+        "tooltip": "Train a model on the current annotations, on the images or on the measured features, and apply it to the whole dataset.",
+        "rect": [
+          2142,
+          188,
+          152,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Auto-annotate…",
+        "name": "",
+        "tooltip": "Label a whole population at once — by metadata, by measurement thresholds, by a gate, or by UMAP cluster.",
+        "rect": [
+          2306,
+          188,
+          192,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "View in database",
+        "name": "",
+        "tooltip": "Open png_list in the Database Browser to see the annotation column as it is stored.",
+        "rect": [
+          2510,
+          188,
+          200,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Annotate page",
+        "name": "",
+        "tooltip": "Give every image on this page the same class. Asks which.",
+        "rect": [
+          2721,
+          188,
+          177,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Clear page",
+        "name": "",
+        "tooltip": "Remove the annotations on this page only. Undoable.",
+        "rect": [
+          2910,
+          188,
+          152,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Clear column",
+        "name": "DangerButton",
+        "tooltip": "",
+        "rect": [
+          3074,
+          188,
+          206,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Load test data",
+        "name": "",
+        "tooltip": "Download an example plate to annotate, and fill in the settings that go with it.",
+        "rect": [
+          3291,
+          188,
+          174,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Generate annotation database…",
+        "name": "",
+        "tooltip": "Build a set of crops to annotate by streaming them from the merged arrays or from the coordinates in measurements.db, without measuring the plate again. The result is registered as a new png_list table.",
+        "rect": [
+          372,
+          260,
+          345,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "?",
+        "name": "",
+        "tooltip": "Show the full keyboard reference",
+        "rect": [
+          3684,
+          344,
+          120,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Console ▾",
+        "name": "AnnotateConsoleSwitch",
+        "tooltip": "Show or hide the Console + AI pane.",
+        "rect": [
+          3627,
+          2062,
+          117,
+          40
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3183,
+          669,
+          33,
+          27
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Choose database…",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3234,
+          652,
+          216,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Choose run folder…",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3462,
+          652,
+          225,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Open",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3699,
+          652,
+          92,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Compute agreement",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          398,
+          1282,
+          400,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "✕",
+        "name": "",
+        "tooltip": "Close",
+        "rect": [
+          788,
+          440,
+          36,
+          36
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      }
+    ],
+    "dialogs": [],
+    "clip": {
+      "video": "11_three_pass_results.mp4",
+      "receipt": "11_three_pass_results.capture.json",
+      "receipt_sha256": "1841150b30bc763314490cf463857b2d29ec9c0a89138b48952bd773bd1f821d",
+      "sha256": "f0e796048aa7bb19d4aebe4fb18eabd5ac16d5357ea2ee30e7e52de22e872853",
+      "native_video": "11_three_pass_results.native.mp4",
+      "native_sha256": "3b6262c18afd7a19536befbe07539d9ef0bba8139db30f0e8a61fa13c26009a3",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "distinct_fps": 28.39,
+        "fps": 30,
+        "min_fps": 27.9,
+        "cursor_max_step_px": 69.5,
+        "cursor_bound_px": 76.8,
+        "cursor_found_fraction": 1.0,
+        "top_bar_hidden": true,
+        "app_painted_fps": 143.2,
+        "app_freeze_seconds": [],
+        "capture_loss_seconds": [
+          1,
+          3,
+          5,
+          6,
+          10
+        ],
+        "loadavg": [
+          6.79150390625,
+          6.5087890625
+        ],
+        "file": "11_three_pass_results.gate.json"
+      }
+    }
+  },
+  "12_pairwise_restored": {
+    "image": "12_pairwise_restored.png",
+    "appearance": {
+      "theme": "dark",
+      "backdrop": "data_art_impulse_lens",
+      "painted_frames": 36270
+    },
+    "hidden_decorative_backdrops": [],
+    "capture_surface": "gnome_capture_host_screencast",
+    "sha256": "fadbd77208678dab6b7c96365026c2a28b1939a2669314abeda21fa7153f28e3",
+    "buttons": [
+      {
+        "text": "",
+        "name": "MinimiseWindow",
+        "tooltip": "Minimise",
+        "rect": [
+          3660,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "MaximiseWindow",
+        "tooltip": "Maximise, or restore the size before",
+        "rect": [
+          3700,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "FullScreenToggle",
+        "tooltip": "Full screen (F11). The window has no title bar; drag the menu bar to move it.",
+        "rect": [
+          3741,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "CloseWindow",
+        "tooltip": "Quit spaCR",
+        "rect": [
+          3782,
+          9,
+          32,
+          32
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Home",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          152,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "__home__",
+        "module_key": "__home__"
+      },
+      {
+        "text": "Mask",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          246,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "mask",
+        "module_key": "mask"
+      },
+      {
+        "text": "Measure",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          297,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "measure",
+        "module_key": "measure"
+      },
+      {
+        "text": "Annotate",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          348,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "annotate",
+        "module_key": "annotate"
+      },
+      {
+        "text": "Classify",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          399,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "classify_merged",
+        "module_key": "classify_merged"
+      },
+      {
+        "text": "Map Barcodes",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          450,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "map_barcodes",
+        "module_key": "map_barcodes"
+      },
+      {
+        "text": "Regression",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          10,
+          501,
+          309,
+          51
+        ],
+        "enabled": true,
+        "nav_key": "regression",
+        "module_key": "regression"
+      },
+      {
+        "text": "",
+        "name": "FoldButton",
+        "tooltip": "Annotator Agreement\nCompute Cohen's or Fleiss' κ across annotation columns and review discordant crops.",
+        "rect": [
+          3740,
+          74,
+          76,
+          76
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Open source…",
+        "name": "PrimaryButton",
+        "tooltip": "",
+        "rect": [
+          372,
+          188,
+          218,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Settings",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          602,
+          188,
+          146,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Back",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          759,
+          188,
+          116,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Next",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          886,
+          188,
+          114,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Skip to last annotated",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          1012,
+          188,
+          276,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Class counts",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          1300,
+          188,
+          186,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Coverage",
+        "name": "",
+        "tooltip": "Summarize annotation provenance by class, well, plate and active-learning round. This identifies label sets concentrated within a small number of wells or plates.",
+        "rect": [
+          1498,
+          188,
+          158,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Retrain",
+        "name": "",
+        "tooltip": "Fit a model on the labels made so far, score every crop with it, and re-rank the uncertainty queue — without leaving this screen. Held out by well, so the accuracy is not an artefact of labelling one field of view. Each round writes a model card.",
+        "rect": [
+          1668,
+          188,
+          138,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Suggest…",
+        "name": "",
+        "tooltip": "Fit boosted trees on the labels made so far and write the model's proposed label onto every crop you have not answered yet — most confident first, dashed rather than solid, and only where you have not already decided. Then keep them all, throw them all away, or answer the ones it got wrong one at a time.",
+        "rect": [
+          1818,
+          188,
+          159,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Rounds",
+        "name": "",
+        "tooltip": "Held-out accuracy per round, and whether the last stretch of labelling moved it. A flat curve indicates that more labels no longer improve the model.",
+        "rect": [
+          1989,
+          188,
+          141,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Train…",
+        "name": "",
+        "tooltip": "Train a model on the current annotations, on the images or on the measured features, and apply it to the whole dataset.",
+        "rect": [
+          2142,
+          188,
+          152,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Auto-annotate…",
+        "name": "",
+        "tooltip": "Label a whole population at once — by metadata, by measurement thresholds, by a gate, or by UMAP cluster.",
+        "rect": [
+          2306,
+          188,
+          192,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "View in database",
+        "name": "",
+        "tooltip": "Open png_list in the Database Browser to see the annotation column as it is stored.",
+        "rect": [
+          2510,
+          188,
+          200,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Annotate page",
+        "name": "",
+        "tooltip": "Give every image on this page the same class. Asks which.",
+        "rect": [
+          2721,
+          188,
+          177,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Clear page",
+        "name": "",
+        "tooltip": "Remove the annotations on this page only. Undoable.",
+        "rect": [
+          2910,
+          188,
+          152,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Clear column",
+        "name": "DangerButton",
+        "tooltip": "",
+        "rect": [
+          3074,
+          188,
+          206,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Load test data",
+        "name": "",
+        "tooltip": "Download an example plate to annotate, and fill in the settings that go with it.",
+        "rect": [
+          3291,
+          188,
+          174,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Generate annotation database…",
+        "name": "",
+        "tooltip": "Build a set of crops to annotate by streaming them from the merged arrays or from the coordinates in measurements.db, without measuring the plate again. The result is registered as a new png_list table.",
+        "rect": [
+          372,
+          260,
+          345,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "?",
+        "name": "",
+        "tooltip": "Show the full keyboard reference",
+        "rect": [
+          3684,
+          344,
+          120,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Console ▾",
+        "name": "AnnotateConsoleSwitch",
+        "tooltip": "Show or hide the Console + AI pane.",
+        "rect": [
+          3627,
+          2062,
+          117,
+          40
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3183,
+          669,
+          33,
+          27
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Choose database…",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3234,
+          652,
+          216,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Choose run folder…",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3462,
+          652,
+          225,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Open",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          3699,
+          652,
+          92,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Compute agreement",
+        "name": "",
+        "tooltip": "",
+        "rect": [
+          398,
+          1228,
+          400,
+          60
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "✕",
+        "name": "",
+        "tooltip": "Close",
+        "rect": [
+          788,
+          440,
+          36,
+          36
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      }
+    ],
+    "dialogs": [],
+    "clip": {
+      "video": "12_pairwise_restored.mp4",
+      "receipt": "12_pairwise_restored.capture.json",
+      "receipt_sha256": "486939c26edfa65bd10e294f0193f21113275a0358868e8b4a8411258984524a",
+      "sha256": "e44658a621568c8e0294f9be55398e38a535b0a8f647432ea6b394ef16f17c54",
+      "native_video": "12_pairwise_restored.native.mp4",
+      "native_sha256": "f00ea6d72a85e90b20b6d7bbaf048fc0551d8eea5437356938e0a0d75cd853b3",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "distinct_fps": 29.1,
+        "fps": 30,
+        "min_fps": 27.9,
+        "cursor_max_step_px": 57.0,
+        "cursor_bound_px": 76.8,
+        "cursor_found_fraction": 1.0,
+        "top_bar_hidden": true,
+        "app_painted_fps": 150.63,
+        "app_freeze_seconds": [],
+        "capture_loss_seconds": [
+          1,
+          8,
+          13
+        ],
+        "loadavg": [
+          6.5087890625,
+          6.91455078125
+        ],
+        "file": "12_pairwise_restored.gate.json"
+      }
+    }
+  }
+}

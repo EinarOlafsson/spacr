@@ -1,0 +1,171 @@
+{
+  "schema": 1,
+  "lesson": "23_agreement",
+  "status": "PASS source binding, owning translated_lesson validation and bounded technical meaning review",
+  "raw_english_sha256": "afb0b5fe5bddf068e987492a3b2d207b66903638637c40d79da3e79510b361fc",
+  "normalized_english_sha256": "96e5428fb8b5497679b75ab680d877326ced9f3446ad3c38615c7c6cf0ac1617",
+  "review_count": 13,
+  "spoken_locales": [
+    "es",
+    "fr",
+    "hi",
+    "it",
+    "ja",
+    "pt-BR",
+    "zh-CN"
+  ],
+  "caption_only_locales": [
+    "da",
+    "de",
+    "is",
+    "ko",
+    "nb",
+    "sv"
+  ],
+  "reviews": [
+    {
+      "language": "da",
+      "target_catalog": "captions_da.json",
+      "spoken": false,
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/23_agreement.da.json",
+      "sha256": "ef5ae519e3ce6decd8c896d4d525007d03f3e8a25ca7f516525af7345cd17725",
+      "source_git_bytes_exact": true,
+      "translated_lesson_pass": true,
+      "scene_count": 10
+    },
+    {
+      "language": "de",
+      "target_catalog": "captions_de.json",
+      "spoken": false,
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/23_agreement.de.json",
+      "sha256": "5f62551d6342d5234f4792e52b81437ad455fcab053a1f6c8860bd3b1c335f9d",
+      "source_git_bytes_exact": true,
+      "translated_lesson_pass": true,
+      "scene_count": 10
+    },
+    {
+      "language": "es",
+      "target_catalog": "lessons_es.json",
+      "spoken": true,
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/23_agreement.es.json",
+      "sha256": "4e0f0d741beadcf3edad88add814c58077877a3cba7dfd49dacb5b3f4378d38c",
+      "source_git_bytes_exact": true,
+      "translated_lesson_pass": true,
+      "scene_count": 10
+    },
+    {
+      "language": "fr",
+      "target_catalog": "lessons_fr.json",
+      "spoken": true,
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/23_agreement.fr.json",
+      "sha256": "e2d98e6b8ddc6d97e35e29aa9a7ef09a6a2cefe1ff2cff639c3614f9fcda9739",
+      "source_git_bytes_exact": true,
+      "translated_lesson_pass": true,
+      "scene_count": 10
+    },
+    {
+      "language": "hi",
+      "target_catalog": "lessons_hi.json",
+      "spoken": true,
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/23_agreement.hi.json",
+      "sha256": "d9ab7c6b41c8e124302c42dd0ed1a90484a83ee47368aa70a748ca6df68965c0",
+      "source_git_bytes_exact": true,
+      "translated_lesson_pass": true,
+      "scene_count": 10
+    },
+    {
+      "language": "is",
+      "target_catalog": "captions_is.json",
+      "spoken": false,
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/23_agreement.is.json",
+      "sha256": "966e1348d74723d725ce5eb29257a81cb98c2c78626a730929680f10e929338e",
+      "source_git_bytes_exact": true,
+      "translated_lesson_pass": true,
+      "scene_count": 10
+    },
+    {
+      "language": "it",
+      "target_catalog": "lessons_it.json",
+      "spoken": true,
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/23_agreement.it.json",
+      "sha256": "0a177edccf5dc0b3879ab5b97d3b1d085f37db5de197736e9409385154d11a00",
+      "source_git_bytes_exact": true,
+      "translated_lesson_pass": true,
+      "scene_count": 10
+    },
+    {
+      "language": "ja",
+      "target_catalog": "lessons_ja.json",
+      "spoken": true,
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/23_agreement.ja.json",
+      "sha256": "108a5fce4952d00984c5dbb1ab0066433bc8475b719e8d0254aaea905f7fd36b",
+      "source_git_bytes_exact": true,
+      "translated_lesson_pass": true,
+      "scene_count": 10
+    },
+    {
+      "language": "ko",
+      "target_catalog": "captions_ko.json",
+      "spoken": false,
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/23_agreement.ko.json",
+      "sha256": "b7fde6fe781aecba6b860e1156687674e39dd54e519bd52c8cc00607a287469a",
+      "source_git_bytes_exact": true,
+      "translated_lesson_pass": true,
+      "scene_count": 10
+    },
+    {
+      "language": "nb",
+      "target_catalog": "captions_nb.json",
+      "spoken": false,
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/23_agreement.nb.json",
+      "sha256": "d0f04b008b0d0226600172d64b4ac7d6838db91bc7dd04938eb4af7514618d14",
+      "source_git_bytes_exact": true,
+      "translated_lesson_pass": true,
+      "scene_count": 10
+    },
+    {
+      "language": "pt-BR",
+      "target_catalog": "lessons_pt-BR.json",
+      "spoken": true,
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/23_agreement.pt-BR.json",
+      "sha256": "5d70b56d61f1f707737ed6522b57bccae125e93b33e34a07820bb02b465e874d",
+      "source_git_bytes_exact": true,
+      "translated_lesson_pass": true,
+      "scene_count": 10
+    },
+    {
+      "language": "sv",
+      "target_catalog": "captions_sv.json",
+      "spoken": false,
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/23_agreement.sv.json",
+      "sha256": "6cb384536fa69c9535c3201582931a0d27233a3c31ef3215bf25a49396426163",
+      "source_git_bytes_exact": true,
+      "translated_lesson_pass": true,
+      "scene_count": 10
+    },
+    {
+      "language": "zh-CN",
+      "target_catalog": "lessons_zh-CN.json",
+      "spoken": true,
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/23_agreement.zh-CN.json",
+      "sha256": "dd119939579ef27fce27e760af7391f6b9423a2215ee1c29ccb7ba8be49e3905",
+      "source_git_bytes_exact": true,
+      "translated_lesson_pass": true,
+      "scene_count": 10
+    }
+  ],
+  "owning_validator_sha256": "642ed9bf340bda46c3259087e0b3b2685032d0995be1383b7f1916d65128b083",
+  "raw_science_sha256": "e25bc0078481d6249b3fbb61587a605204441e63f6cce0c21323d54abc0a7296",
+  "technical_meaning_review": {
+    "artificial_DEMO_teaching_labels_preserved_in_all13": true,
+    "pairwise_nine_of_twelve_75percent_kappa_point5_preserved": true,
+    "three_pass_Fleiss_point6625_correctly_rounded_about_point663_in_all13": true,
+    "small_sample_uncertainty_and_two_of_three_label_disagreement_qualifications_preserved": true,
+    "no_text_changes": true
+  },
+  "limits": [
+    "No native-speaker or listening approval; no phoneme/onset completeness claim.",
+    "Technical review of existing source-bound prose; no text edits, promotion, catalog writes, synthesis or models.",
+    "Current actual English24QA remains root-owned prerequisite before13promotion."
+  ]
+}

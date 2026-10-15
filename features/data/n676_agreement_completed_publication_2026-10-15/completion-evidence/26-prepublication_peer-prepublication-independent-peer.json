@@ -1,0 +1,140 @@
+{
+  "schema": 1,
+  "lesson": "23_agreement",
+  "status": "pass",
+  "blocking_issues": [],
+  "source_commit": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+  "candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek",
+  "manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/release-manifest.json",
+    "bytes": 1179215,
+    "sha256": "8065f31b9a758cd0a823efbeb8e631cbc740c1c88ca0ea21d7a41e08eab2dcd4"
+  },
+  "baseline_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc/release-manifest.json",
+    "bytes": 1170655,
+    "sha256": "d2cc730ac0513092ca6a8660eda66a80451ca9f77933a611b6ce9e91cc19b4aa"
+  },
+  "repository_player_sha256": "8d628ce33e0976464f60490e20e0feb57fc07d3989ec1c520cc5891f404e6159",
+  "all10_strict_7527_native_frames_bound": true,
+  "current50_audio_and_sidecar_hashes_bound": true,
+  "browser_matrix_72_steps_and71_receipts_bound": true,
+  "candidate84_routes_passed": true,
+  "placeholder_mutations_passed": 2,
+  "checkpoint145_files_all_hashes_and_sizes_match": true,
+  "preserved_other_lessons": 83,
+  "preserved_catalogs": 14,
+  "inherited_media_entries": 5265,
+  "inherited_media_manifest_bytes": 8412898618,
+  "timing": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/production/23_agreement/video/native-live-timings.json",
+    "bytes": 25889,
+    "sha256": "b6180c0a1b618e164fa8de2a07c74933541ca483e14e6aa16c3fd9049c5efc4b"
+  },
+  "master": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/production/23_agreement/video/23_agreement_silent.mp4",
+    "bytes": 183616179,
+    "sha256": "26739694b066255cec96777a6b70b10bf906174630bb7d50a48686e1aa6c479d"
+  },
+  "sampled_master_review": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/sampled-master-review.json",
+    "bytes": 2504,
+    "sha256": "6b12e3e31926559f00308300f7b4715c962618fcb4e73f0df973d9235740c807"
+  },
+  "evidence": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/root-accepted-science.json",
+      "bytes": 5064,
+      "sha256": "eab58fb7259259bac1aea6c4c35cd16c4bf8cd7f9987a528b74aeffb0e1a4f99"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/independent-capture-science-review.json",
+      "bytes": 38317,
+      "sha256": "8dbbad12c5e4d9527a5f377ee4f87e6f695ca779ea8d323a3cd3e2faa19e2463"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/all50-audio-promotion-peer.json",
+      "bytes": 72478,
+      "sha256": "9b21c2275058e54adc80c5dc4517fb692e99caf2c3afb29016762c7478b98f4e"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/completed-browser-matrix-independent-peer.json",
+      "bytes": 54264,
+      "sha256": "57b3b65767b13d2f4810b6138ee980529185bb04b6a6ca4064c931c5ea6d2bbb"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/finished-timing-media-peer.json",
+      "bytes": 16864,
+      "sha256": "0bbf5d26466343d030ed6f84828046125e52403e51696e7629e5bb283bca225f"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/master-full-decode-and-pts.json",
+      "bytes": 2125,
+      "sha256": "add265d5f30d7349714162ac55450cd043922b05bfa90d9c9a6e5edeb7084b85"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/root-selected-acceptance.json",
+      "bytes": 7398,
+      "sha256": "6562792dd1ebb160d2db07af07dec0c7fd89cb31940a89e05302608a11737c13"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/sampled-master-review.json",
+      "bytes": 2504,
+      "sha256": "6b12e3e31926559f00308300f7b4715c962618fcb4e73f0df973d9235740c807"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/candidate-preservation.json",
+      "bytes": 14758,
+      "sha256": "32a7118625fbc7c9ef530969f04850612f90c8e941b2422f5deb4ee5678d7890"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson23-r60/exact-source.json",
+      "bytes": 58045,
+      "sha256": "0760bf85d70dcc4127d0e694ddd081eeba503d3b14d2c95fad11b9dec69e2eeb"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/checks/candidate-browser-checks.json",
+      "bytes": 127523,
+      "sha256": "8a93b860a66720db2c89546483c1c3c024adaa79f8fff06376c5e6e06e8d2bcb"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/checks/placeholder-mutation-checks.json",
+      "bytes": 510,
+      "sha256": "82911c9c78e8a8ca86586184627103cea2432ae6fad2193e0e308360e7191414"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/release_candidate/checkpoint.json",
+      "bytes": 25849,
+      "sha256": "6f7d5dacfe01fd53fca5db0c84bb7636702dab94823d39e3ca3b6d9329702f5a"
+    }
+  ],
+  "terminal_logs": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-verify-candidate.log",
+      "bytes": 3740,
+      "sha256": "6f2885bb4a9ba004aff450672e729976d74eb9b1fc38cd2de36733d491dd8585"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-placeholder.log",
+      "bytes": 466,
+      "sha256": "449d9d60f32c63d8e904ee8e44cb8be4272c6e4743b71ca2c1a0ffc8be14b403"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-checkpoint.log",
+      "bytes": 568,
+      "sha256": "5f70e07d04ca0bea5ef1c8292dc775e8ad60492bfd89633f7a98077444d9681c"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson23-r60-20261015-candidate-preservation.log",
+      "bytes": 946,
+      "sha256": "3a7b1aa2751c58a9b23a1c3ac574dd4f09381b847033395a247989b82860f8be"
+    }
+  ],
+  "publication_accepted": false,
+  "limits": [
+    "Bounded prepublication metadata/receipt and145checkpoint hash review, not new browser/decode/network/full-media stream hashing.",
+    "Inherited83lessonobjects and media SHA/size identities are manifest inheritance, not freshly remade84GNOME tutorials.",
+    "No HF upload/readback, Pages/publication record/export/push or liveSpace deployment accepted here.",
+    "No whole watching, human listening/first-word completeness/native-speaker or biological acceptance."
+  ]
+}

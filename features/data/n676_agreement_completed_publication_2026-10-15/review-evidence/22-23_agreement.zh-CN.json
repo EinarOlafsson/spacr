@@ -1,0 +1,33 @@
+{
+  "lesson": "23_agreement",
+  "english_sha256": "96e5428fb8b5497679b75ab680d877326ced9f3446ad3c38615c7c6cf0ac1617",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Annotator Agreement：比较独立的标注轮次",
+  "description": "选择标注列，比较一致性，并检查标签不一致的裁剪图像。",
+  "objectives": [
+    "打开示例数据库并选择两个标注轮次。",
+    "阅读成对一致性和混淆矩阵。",
+    "检查不一致之处，并比较三个标注轮次。"
+  ],
+  "prerequisite": "解压链接中的Annotator Agreement示例，并把数据库与裁剪图像放在一起。其中包含来自Annotate示例的十六张图像，以及三列用于教学的人工标签DEMO_A、DEMO_B和DEMO_C。进行您自己的分析时，请使用对同一批图像独立收集的标注。",
+  "scenes": [
+    "从Home打开Annotate，然后选择Annotator Agreement。用这个工具比较在不同标注轮次中收集的标签。结果可以帮助您找到需要复核的图像。",
+    "打开示例数据库。把解压出的裁剪图像文件夹放在它旁边，以便加载图像预览。DEMO列包含用于教学的人工标签；在研究中评估一致性时，请使用您自己独立标注的列。",
+    "从列表中至少选择两个标注列。在本例中，先选择DEMO A和DEMO B。请检查列名，确保比较的是预期的轮次。",
+    "点击Compute agreement。所选的两个轮次共有十二张已标注的裁剪图像。另有三张只在其中一个轮次中有标签，还有一张两个轮次都没有标签。成对一致性使用两个轮次都标注过的裁剪图像。",
+    "阅读成对结果。两个轮次在十二张中的九张上一致，一致率为百分之七十五，科恩卡帕为零点五。请结合共同标签的数量来解读这些数值；样本较小时，估计并不确定。",
+    "打开混淆矩阵。行代表DEMO A，列代表DEMO B。对角线是一致的标签：类别一有五个，类别二有四个。对角线以外的格子是三处不一致。",
+    "选择一处不一致，查看其裁剪图像以及每个轮次给出的标签。把图像与您的类别定义进行对照。复核后如需修改标签，请回到Annotate。",
+    "添加DEMO C，再次点击Compute agreement。成对表格现在显示全部三对。每一对使用各自的共同标签，而总体汇总使用在所选三个轮次中都有标签的裁剪图像。",
+    "阅读总体的弗莱斯卡帕和完全一致的汇总。本例的弗莱斯卡帕约为零点六六三。也请查看不一致列表：其中可能包含只在三个轮次中的两个有标签的裁剪图像。",
+    "要重新只看一对，请只选择A和B，然后点击Compute agreement。结果只保留在这个比较视图中；您的标注列仍保存在源数据库中。继续使用Annotate收集另一轮独立标注，或复核已发现的不一致。"
+  ]
+}
