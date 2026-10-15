@@ -10,6 +10,10 @@ view loads a field and shows crops from its configured object mask. Use
 **Crop settings…** to choose the object, mask planes, image channels, crop
 size and filters before measuring the whole experiment.
 
+With **Show alpha features** enabled, intensity calibration accepts an optional
+named reference plate in ``intensity_calibration_reference_plate``; leave it
+blank to use the first plate by name.
+
 Compare objects from several fields
 -----------------------------------
 

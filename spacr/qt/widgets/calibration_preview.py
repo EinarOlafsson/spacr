@@ -106,7 +106,7 @@ def _preview_settings(model):
     """
     keys = {'src', 'timelapse', 'test_mode', 'intensity_calibration',
             'intensity_calibration_wells', 'intensity_calibration_statistic',
-            'intensity_calibration_offset'}
+            'intensity_calibration_offset', 'intensity_calibration_reference_plate'}
     keys.update(key for key in model._defaults if key.endswith('_mask_dim'))
     return copy.deepcopy({key: model._valid_committed_value(key) for key in keys})
 
@@ -175,7 +175,7 @@ class _CalibrationPreview(QDialog):
         layout = QVBoxLayout(self)
         help_label = QLabel(' '.join([
             tr('Preview only: each source folder is planned separately.'),
-            tr('The first plate by name is the reference.'),
+            tr('The selected reference plate is used; leave it blank to use the first plate by name.'),
             tr('Gains use the camera offset and reference wells; images and measurements are unchanged.')]), self)
         help_label.setWordWrap(True)
         layout.addWidget(help_label)

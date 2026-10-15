@@ -1,0 +1,12 @@
+{
+  "reason": "Unconditional first-plate reference replaced by explicit selection and blank default",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration",
+      "source": "Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the first plate's. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
+      "source_sha256": "2a0bb710f1b278e5440c1034f00e07fff92f82d110e722ad0b3f2f249a23f6df",
+      "translation": "मापन से पहले इमेजिंग सत्रों के बीच तीव्रताओं का अंशांकन करें: हर प्लेट एक सत्र है, हर प्लेट पर इमेज किए गए बीड या संदर्भ वेल मापे जाते हैं, और हर प्लेट के तीव्रता चैनल इस तरह स्केल होते हैं कि उसके संदर्भ वेल पहली प्लेट से मेल खाएँ। यह तालिकाओं के बैच सुधार के विपरीत, छवि स्तर पर दिनों के बीच एक्सपोज़र, लैंप और डिटेक्टर के विचलन को सुधारता है। गेन measurements.db:intensity_rescale में दर्ज होते हैं। डिफ़ॉल्ट False।"
+    }
+  ]
+}

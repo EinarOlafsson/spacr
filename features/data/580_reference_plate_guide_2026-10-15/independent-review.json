@@ -1,0 +1,63 @@
+{
+  "reviewer": "Home-B coordinator, independent of nine translated target author. AI technical review, not native-speaker signoff.",
+  "source_commit": "1426878f095",
+  "inputs": "67509b3b86e with precise Korean markup followup7192a1bcbae",
+  "pairs_read": 9,
+  "approved": true,
+  "records": [
+    {
+      "language": "sv",
+      "source_sha256": "034d69047939c17d577db62bb9fa24e295e465e41fa3f6ead470f63f74176be0",
+      "target_sha256": "93ba0169ffa752d0e5b7f9d33115d724fe59c112d9646e13633adddd048f75ca",
+      "technical_review": "PASS alpha visibility condition, optional named reference, exact literal setting and blank-to-first-by-name fallback; actual runtime UI label retained"
+    },
+    {
+      "language": "de",
+      "source_sha256": "034d69047939c17d577db62bb9fa24e295e465e41fa3f6ead470f63f74176be0",
+      "target_sha256": "ddd7695a53a7271324753aa28dbf1a0490501ec89d64307448fb33a7f4a2e1e8",
+      "technical_review": "PASS alpha visibility condition, optional named reference, exact literal setting and blank-to-first-by-name fallback; actual runtime UI label retained"
+    },
+    {
+      "language": "es",
+      "source_sha256": "034d69047939c17d577db62bb9fa24e295e465e41fa3f6ead470f63f74176be0",
+      "target_sha256": "60de6ce3bdc5f0ba11dab10da91ffd563edb5c24763c346725bc6210d124b8f8",
+      "technical_review": "PASS alpha visibility condition, optional named reference, exact literal setting and blank-to-first-by-name fallback; actual runtime UI label retained"
+    },
+    {
+      "language": "pt",
+      "source_sha256": "034d69047939c17d577db62bb9fa24e295e465e41fa3f6ead470f63f74176be0",
+      "target_sha256": "cd40a89ba391378f650faf7a37f2c8467540c6ec195cfb1aae57ff76a0fe4042",
+      "technical_review": "PASS alpha visibility condition, optional named reference, exact literal setting and blank-to-first-by-name fallback; actual runtime UI label retained"
+    },
+    {
+      "language": "fr",
+      "source_sha256": "034d69047939c17d577db62bb9fa24e295e465e41fa3f6ead470f63f74176be0",
+      "target_sha256": "e59d537bd0b31bdc6ba1c0228c8bbd632be5ac2173879ea0a92fc7a28a28fd13",
+      "technical_review": "PASS alpha visibility condition, optional named reference, exact literal setting and blank-to-first-by-name fallback; actual runtime UI label retained"
+    },
+    {
+      "language": "is",
+      "source_sha256": "034d69047939c17d577db62bb9fa24e295e465e41fa3f6ead470f63f74176be0",
+      "target_sha256": "d750e318776fff7b91f3868f96dc4ee6b12ee851ad663ed1efcd8fad48d8fb1b",
+      "technical_review": "PASS alpha visibility condition, optional named reference, exact literal setting and blank-to-first-by-name fallback; actual runtime UI label retained"
+    },
+    {
+      "language": "zh_CN",
+      "source_sha256": "034d69047939c17d577db62bb9fa24e295e465e41fa3f6ead470f63f74176be0",
+      "target_sha256": "55c58c9f1bd6332ea95a537497137e8f674f21e6d09ee3b66b8cca3d775983e8",
+      "technical_review": "PASS alpha visibility condition, optional named reference, exact literal setting and blank-to-first-by-name fallback; actual runtime UI label retained"
+    },
+    {
+      "language": "ko",
+      "source_sha256": "034d69047939c17d577db62bb9fa24e295e465e41fa3f6ead470f63f74176be0",
+      "target_sha256": "57220383a5913055977d970719b9e9aef80bc13da429d027e70fde78c74680c7",
+      "technical_review": "PASS alpha visibility condition, optional named reference, exact literal setting and blank-to-first-by-name fallback; actual runtime UI label retained"
+    },
+    {
+      "language": "hi",
+      "source_sha256": "034d69047939c17d577db62bb9fa24e295e465e41fa3f6ead470f63f74176be0",
+      "target_sha256": "675fb2aa622753deefd8fd7caf1fda904752ec69f30157915eec7d329366d72c",
+      "technical_review": "PASS alpha visibility condition, optional named reference, exact literal setting and blank-to-first-by-name fallback; actual runtime UI label retained"
+    }
+  ]
+}

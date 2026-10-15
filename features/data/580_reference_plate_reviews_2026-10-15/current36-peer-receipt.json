@@ -1,0 +1,327 @@
+{
+  "reviewer": "Original Home root, independent AI technical peer; no human/native signoff",
+  "decision": "APPROVED exact current36 source/translation pairs, independently reread after metadata/fourth-record additions",
+  "prior_receipts_preserved": [
+    "root-peer-review.json",
+    "toggle-tooltip-peer-review.json"
+  ],
+  "hash_convention": "record_sha256 uses UTF-8 JSON ensure_ascii=False sort_keys=True separators comma/colon; full-file hashes bind current metadata too",
+  "limits": "Normal derived-artifact and source-current checks remain required; no whole-feature scientific acceptance",
+  "files": [
+    {
+      "language": "sv",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-f580-reference-plate-selection-20261015/features/data/580_reference_plate_reviews_2026-10-15/sv.json",
+      "file_sha256": "c6e9168524abbfeb2b0f9c716ba86f5dea6cc6a30011d106f5de12d3d7557f01",
+      "records": [
+        {
+          "table": "setting_labels",
+          "key": "intensity_calibration_reference_plate",
+          "source_sha256": "5f130424f3906406540b225c01aaf006754ef43f57b23b92811e26ab94e0e77b",
+          "translation_sha256": "5be6836ac853ea5c50a2da40095a0962843bcff5d653247fbabea583277285fa",
+          "record_sha256": "3ee7054b03725181cf14fe58b3cf5c8ed39697f0fa9633532871fe6dfbf0ae53"
+        },
+        {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_reference_plate",
+          "source_sha256": "27064d75d03189106a742bd4d78c8137f3386b75c6f724734f0f84a4722fbaa6",
+          "translation_sha256": "a7abfb0836bf1a830a7ed5a014c1068d49394a08d225d1aaec399c5f7b5fdd9b",
+          "record_sha256": "0e6127732c9ac66cdad1f438df264fb5871da02e8f5d764b068ea348b0daf876"
+        },
+        {
+          "table": "ui",
+          "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
+          "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
+          "translation_sha256": "87485efa485def21c7dc6fb16edbae9561c091008d8a7348ee4e892dc39cb867",
+          "record_sha256": "8f5f7ca25ab8310fe9bc648d9d367929746cfe64b5af068da2c8b5f8efb432ca"
+        },
+        {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration",
+          "source_sha256": "b3af4d372f54d2f8a45252a1588ce6d9f3e9fcc1fdea7e42145ba03675aad04a",
+          "translation_sha256": "4cf0501490ae49144079cd37e615e641d63a68b2be7834eaab647ff650a8b5ba",
+          "record_sha256": "c7217aa7dd1b2880f13c99909a533218fd7beffc3eae94113e788940b880b88b"
+        }
+      ]
+    },
+    {
+      "language": "de",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-f580-reference-plate-selection-20261015/features/data/580_reference_plate_reviews_2026-10-15/de.json",
+      "file_sha256": "40a0f91f6d17696576b6826bb0c3a6313212fb4b977ca0e38647fa0178ef2cac",
+      "records": [
+        {
+          "table": "setting_labels",
+          "key": "intensity_calibration_reference_plate",
+          "source_sha256": "5f130424f3906406540b225c01aaf006754ef43f57b23b92811e26ab94e0e77b",
+          "translation_sha256": "8824a157b13c54898892d3c0322fdb1d4e43e3a4215d694b626156f41c63ccfc",
+          "record_sha256": "1d1a899f9a7e7b16bb61a33791cf50991efcb48f4599cd1546ccf97fc6ec1dea"
+        },
+        {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_reference_plate",
+          "source_sha256": "27064d75d03189106a742bd4d78c8137f3386b75c6f724734f0f84a4722fbaa6",
+          "translation_sha256": "480bc97d615e7211c78ded075ec6ba5389cdcfd4e5582b6874e16492c18fd641",
+          "record_sha256": "b4fb022607ebe48db7c0f7c3ccd58f4ad862cd2bf05e6c7c4bd1c8d88db37541"
+        },
+        {
+          "table": "ui",
+          "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
+          "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
+          "translation_sha256": "bafa34524cf35de191c1cbf0c33fc1f99f943d9844ca3e859a9a41f3c2a3f968",
+          "record_sha256": "7675ad4053780cd49422b4d882f06a6c984c7632a1a207a776169f72816d0a86"
+        },
+        {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration",
+          "source_sha256": "b3af4d372f54d2f8a45252a1588ce6d9f3e9fcc1fdea7e42145ba03675aad04a",
+          "translation_sha256": "71b757f4e42672836ed379678102833ddd3172fdeba26c0a612159123108396d",
+          "record_sha256": "8b7c8b3937796d5373a8ca4797987f873543b9f78616649b8a202fa58e874115"
+        }
+      ]
+    },
+    {
+      "language": "es",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-f580-reference-plate-selection-20261015/features/data/580_reference_plate_reviews_2026-10-15/es.json",
+      "file_sha256": "bd1f1ad597ea19bc6f0c282ff7b1c5e0408a9c4f09020e4005aaaf6c9c882319",
+      "records": [
+        {
+          "table": "setting_labels",
+          "key": "intensity_calibration_reference_plate",
+          "source_sha256": "5f130424f3906406540b225c01aaf006754ef43f57b23b92811e26ab94e0e77b",
+          "translation_sha256": "5d273c6d3f057396ec420987a953a46ee75d46708b06363d5bae6d0619af6809",
+          "record_sha256": "2aa9f6f2e29794d18d3d13111fd1536f40c69af6ff1714e3bcd28d84e757d368"
+        },
+        {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_reference_plate",
+          "source_sha256": "27064d75d03189106a742bd4d78c8137f3386b75c6f724734f0f84a4722fbaa6",
+          "translation_sha256": "accbcd760705eb475c12dc740ef6f27b5dea033385b2d8a842584b7b3299ba0e",
+          "record_sha256": "907be5b1848f297d8d6a1866cf53c47168b2c3aa8d4152fa187bac0acd40bc24"
+        },
+        {
+          "table": "ui",
+          "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
+          "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
+          "translation_sha256": "070d4a1967bbd05cfdfdb0d82cd43637fee94d6d84ffedc39b17df9028ca7d5a",
+          "record_sha256": "df3daa0b97dc2d3aff870bf985a7fd4d265f9224f57dd366848e86a10eb26d5d"
+        },
+        {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration",
+          "source_sha256": "b3af4d372f54d2f8a45252a1588ce6d9f3e9fcc1fdea7e42145ba03675aad04a",
+          "translation_sha256": "a4bb8076a6e7848559598a998b958105715d30d310fe63b4ae078b90d3fb8852",
+          "record_sha256": "c00215b6d7cef331f72618cb387cae3a467fae6e3b22b86aa2dbe852ab572c77"
+        }
+      ]
+    },
+    {
+      "language": "zh_CN",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-f580-reference-plate-selection-20261015/features/data/580_reference_plate_reviews_2026-10-15/zh_CN.json",
+      "file_sha256": "be3f607bac8df0d6e87926297dadd758d466e5cb7c137cce8982cd666ceac925",
+      "records": [
+        {
+          "table": "setting_labels",
+          "key": "intensity_calibration_reference_plate",
+          "source_sha256": "5f130424f3906406540b225c01aaf006754ef43f57b23b92811e26ab94e0e77b",
+          "translation_sha256": "c504c08bacdb383edfe1c87dd7a856c6ace33712b43d83ded97b63e920e64787",
+          "record_sha256": "16c1829070fe071ff7925b9b2406a2cb446b7f2022f5d1668ee190ca02746434"
+        },
+        {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_reference_plate",
+          "source_sha256": "27064d75d03189106a742bd4d78c8137f3386b75c6f724734f0f84a4722fbaa6",
+          "translation_sha256": "ec59c718e9347f512e4ba4b618fd73713369479d14cc050ce4d3e510b5a7467d",
+          "record_sha256": "075ca9b52c9afb78360b41ff22cd9bfe87fa7da0739ebab2ff9090f61476a7e4"
+        },
+        {
+          "table": "ui",
+          "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
+          "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
+          "translation_sha256": "7dd7175323c53b54df1b8c75736f6a8d69f953e8922f2ad5542ba88e348d822e",
+          "record_sha256": "36cfcaa542cfaca458a58ca3ab92ae337795e8a8fe4f487659d3f6881efca769"
+        },
+        {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration",
+          "source_sha256": "b3af4d372f54d2f8a45252a1588ce6d9f3e9fcc1fdea7e42145ba03675aad04a",
+          "translation_sha256": "38af03ddd48e45a131b0dc08e3f1a296958e216c28714cc47339d203e2e7c840",
+          "record_sha256": "91cb8dd6636b6bb7fdd4586be5e087949f06f83ef033888be2abec7055ca78f3"
+        }
+      ]
+    },
+    {
+      "language": "pt",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-f580-reference-plate-selection-20261015/features/data/580_reference_plate_reviews_2026-10-15/pt.json",
+      "file_sha256": "60cd45a61fd14fe2f1b92110c89f664ed406fbb081feb5d1812dff8d7a9d7666",
+      "records": [
+        {
+          "table": "setting_labels",
+          "key": "intensity_calibration_reference_plate",
+          "source_sha256": "5f130424f3906406540b225c01aaf006754ef43f57b23b92811e26ab94e0e77b",
+          "translation_sha256": "f8a4be76c996a035986abb70959a583ead61b82401c7b85f75a4b5eb1bbcd197",
+          "record_sha256": "90306dd8b535debfea31f1eea9be42d6b61994a696a55a6bfea3f2cc35787266"
+        },
+        {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_reference_plate",
+          "source_sha256": "27064d75d03189106a742bd4d78c8137f3386b75c6f724734f0f84a4722fbaa6",
+          "translation_sha256": "1ebe2b7ad0d6e71d1a4f11dd8b76c7a8111a44f345a1105060d720360f1151a0",
+          "record_sha256": "1d526c3c8130050557dd6a7da445a2017730f18b9de1a612377751f3b5e1da4c"
+        },
+        {
+          "table": "ui",
+          "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
+          "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
+          "translation_sha256": "85e35a9d146cd298624497de0eb07affec9729d20df3279dbfd11d719fe44491",
+          "record_sha256": "1e6ed66817de122a9f6dc78fc20e3adfa47ca0e9b0089bee72ffa5198a1e31cf"
+        },
+        {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration",
+          "source_sha256": "b3af4d372f54d2f8a45252a1588ce6d9f3e9fcc1fdea7e42145ba03675aad04a",
+          "translation_sha256": "7a4570cbd4cea8468e6a78f78f920e08f4b5eca6052b53cf0b00ca2225d73008",
+          "record_sha256": "d6317bfd686cb27ab2c381af00b2139a485013ab8e4cecafbb31b2158a7ff49e"
+        }
+      ]
+    },
+    {
+      "language": "hi",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-f580-reference-plate-selection-20261015/features/data/580_reference_plate_reviews_2026-10-15/hi.json",
+      "file_sha256": "832a169cb3609407d8e0b3e120d04a41df204643f5c0b39f24e4dcfe8d7f6725",
+      "records": [
+        {
+          "table": "setting_labels",
+          "key": "intensity_calibration_reference_plate",
+          "source_sha256": "5f130424f3906406540b225c01aaf006754ef43f57b23b92811e26ab94e0e77b",
+          "translation_sha256": "5412086de0d38a3c133680fbfaaf82273c625314b354cb3ffdbaad89d3692978",
+          "record_sha256": "f68a708a917389b996e5208d561bca93d9092b3a48c4eb2f1f1d5a92f81f75a5"
+        },
+        {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_reference_plate",
+          "source_sha256": "27064d75d03189106a742bd4d78c8137f3386b75c6f724734f0f84a4722fbaa6",
+          "translation_sha256": "d70b884b1613c0acaf1546664d5484fd23827b9c3d4eecbe8b572fe40df68c73",
+          "record_sha256": "065ca43651f41b2afc4d273f52070f2b2e3aac9c55231a8a8829dfe28ed71547"
+        },
+        {
+          "table": "ui",
+          "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
+          "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
+          "translation_sha256": "be0d589568c4b75decb9e759bcb694109b9623647c7f43faf698e8135e94e352",
+          "record_sha256": "87f9ad8eae9a9dee3648f9a865c769cb8c307c1b5118f450a10e8be50ac63948"
+        },
+        {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration",
+          "source_sha256": "b3af4d372f54d2f8a45252a1588ce6d9f3e9fcc1fdea7e42145ba03675aad04a",
+          "translation_sha256": "40542fb2d79e83850ca8596bbcbc10e3b81d0b374b5ae8021dca40b72fd1d546",
+          "record_sha256": "deb1e4669cb4effef9c6661b154dcb70e69041b18a7ee2f1a18f092b4250dfd6"
+        }
+      ]
+    },
+    {
+      "language": "ko",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-f580-reference-plate-selection-20261015/features/data/580_reference_plate_reviews_2026-10-15/ko.json",
+      "file_sha256": "41e285fc9002dda1e79831e7afbdc28a80277ba14039d9743cd8a0ba3bfcef36",
+      "records": [
+        {
+          "table": "setting_labels",
+          "key": "intensity_calibration_reference_plate",
+          "source_sha256": "5f130424f3906406540b225c01aaf006754ef43f57b23b92811e26ab94e0e77b",
+          "translation_sha256": "876b7d22947f70b5d8ae077a1ce4791db824cfd386d01566932b3a06db67abf6",
+          "record_sha256": "1b48036b0ff9322f19784c2c6bf052ecec672c324e8fd6cabd401f4155e2e5fa"
+        },
+        {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_reference_plate",
+          "source_sha256": "27064d75d03189106a742bd4d78c8137f3386b75c6f724734f0f84a4722fbaa6",
+          "translation_sha256": "79122dc3d9f33ae7c8df1e713606ce9d5252a7141eb1961d5df82d051eddb58a",
+          "record_sha256": "fbff8f64ef2ef278aa0e2ab7024aa9f8666b88f83134fbb91e90967a4a2ab3a4"
+        },
+        {
+          "table": "ui",
+          "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
+          "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
+          "translation_sha256": "b5cdb6ecf3997319d563f35840781d89b1535b5d4cf5e7d4def1a7b48083a13f",
+          "record_sha256": "a437366684c6e0c03cec2015b8ff9675bc5b8980c4f3d287c842238ff9216b15"
+        },
+        {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration",
+          "source_sha256": "b3af4d372f54d2f8a45252a1588ce6d9f3e9fcc1fdea7e42145ba03675aad04a",
+          "translation_sha256": "d1cd3d870d7424c90716e369df65159270104d8bb9d9d09af5eee0fab2aa01c1",
+          "record_sha256": "b6f90cfeac3792abc25f4d355576761460385e16c54d3077cc4d86a897db944b"
+        }
+      ]
+    },
+    {
+      "language": "is",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-f580-reference-plate-selection-20261015/features/data/580_reference_plate_reviews_2026-10-15/is.json",
+      "file_sha256": "f5cbcca1f526b9b6221dd1959029cbeecb0966ec9a276f46f5880e2eeda0814a",
+      "records": [
+        {
+          "table": "setting_labels",
+          "key": "intensity_calibration_reference_plate",
+          "source_sha256": "5f130424f3906406540b225c01aaf006754ef43f57b23b92811e26ab94e0e77b",
+          "translation_sha256": "f22b881afd3a93e960c64109cc417ef86cf4e0f9d4a33304e75ef545e1975ca5",
+          "record_sha256": "a5a29606c3c5fecb79246de2973ae34309d8cec89a974f92656b247cc83949e1"
+        },
+        {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_reference_plate",
+          "source_sha256": "27064d75d03189106a742bd4d78c8137f3386b75c6f724734f0f84a4722fbaa6",
+          "translation_sha256": "e8e5451d2d3730858fc9e89ea839b21200915ce6ef14ab967004659a7a98a717",
+          "record_sha256": "665bc2687103afbac99d654efc1373977fe4a6c79a44b2f158e00cbcc1b196fb"
+        },
+        {
+          "table": "ui",
+          "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
+          "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
+          "translation_sha256": "261894276d7a71d9363c0559c106ad5181d8cad3bf1dba1d57721e05fadccea1",
+          "record_sha256": "4e29de4a1441099c8ba15ec7ffd9daddaee7eb8ef827055112ad33b97a35df6e"
+        },
+        {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration",
+          "source_sha256": "b3af4d372f54d2f8a45252a1588ce6d9f3e9fcc1fdea7e42145ba03675aad04a",
+          "translation_sha256": "c6653a27427fb5cf332fee375abd74a596b1997fe4897452831a58db14ce6838",
+          "record_sha256": "74c2864271108fe89f4f11a7d3edfc84eee92d7608a5bbb5e6aca894635af3c9"
+        }
+      ]
+    },
+    {
+      "language": "fr",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-f580-reference-plate-selection-20261015/features/data/580_reference_plate_reviews_2026-10-15/fr.json",
+      "file_sha256": "bc67aae85d73bd4d80de3714ed118617cdc24d909054055286f3f299d3b944a7",
+      "records": [
+        {
+          "table": "setting_labels",
+          "key": "intensity_calibration_reference_plate",
+          "source_sha256": "5f130424f3906406540b225c01aaf006754ef43f57b23b92811e26ab94e0e77b",
+          "translation_sha256": "fcc8d46b2e9c64784fc3bc7c24658a582cd880f3e24af67bcf14e4b9dc98a258",
+          "record_sha256": "d8e032a843391e323ac1bd480ea5ae65460e8432c2e6fb4fb6d6e5aafce2cc8e"
+        },
+        {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration_reference_plate",
+          "source_sha256": "27064d75d03189106a742bd4d78c8137f3386b75c6f724734f0f84a4722fbaa6",
+          "translation_sha256": "386d223fd6b83a6a969596639715e890c8de45617417b48b264e0baf761ccb03",
+          "record_sha256": "71ecf57680d9a3d8da17bbc98aa0490642e722dad59bb5ec53c44c17c14434a7"
+        },
+        {
+          "table": "ui",
+          "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
+          "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
+          "translation_sha256": "66ce3ef554fc3f44e69e7c70c0eabe32a8060eb8cc8cfb362e6ed3d8ebbeee19",
+          "record_sha256": "d8cfbaa7210be9a84974921a372699512c157aa66febdd4644b893aa1aa6d349"
+        },
+        {
+          "table": "setting_tooltips",
+          "key": "intensity_calibration",
+          "source_sha256": "b3af4d372f54d2f8a45252a1588ce6d9f3e9fcc1fdea7e42145ba03675aad04a",
+          "translation_sha256": "26ffbd626e2c07930312379b8f3418250ffa48221e3bb26e6a71b30859e2cbcb",
+          "record_sha256": "093ece5c5416dba87761a105d1e3396a24a8bd2f0b72ce4573dd4dd54d75913b"
+        }
+      ]
+    }
+  ]
+}

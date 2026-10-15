@@ -553,6 +553,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'inputs',
     'intensity_calibration',
     'intensity_calibration_offset',
+    'intensity_calibration_reference_plate',
     'intensity_calibration_statistic',
     'intensity_calibration_wells',
     'intensity_statistic',

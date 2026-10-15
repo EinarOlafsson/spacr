@@ -1,0 +1,18 @@
+{
+  "spacr/qt/widgets/column_aligned_row.py": {
+    "executable_ast_identical": true,
+    "current_sha256": "f1af2c86aeba7569f378933b6cdf891430b24bffca4470147fffbfa33c990c3b"
+  },
+  "spacr/qt/widgets/sortable_table.py": {
+    "executable_ast_identical": true,
+    "current_sha256": "cc971e65ef26b65a572376b43020b59047c4937802ceb487430469ccd44f2ec8"
+  },
+  "spacr/qt/widgets/training_monitor.py": {
+    "executable_ast_identical": true,
+    "current_sha256": "98ee28eeb368d5e2b3dc196295f87b3243b0fb5544e4c579e2c5d79b8f910f22"
+  },
+  "spacr/qt/widgets/volume_view.py": {
+    "executable_ast_identical": true,
+    "current_sha256": "b15a2ce6fbcb7f49497c0f7d929656fd52cb9a7cf5ad7f7091f6a5508d58b209"
+  }
+}
