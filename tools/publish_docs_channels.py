@@ -11,15 +11,17 @@ build artifacts.
 from __future__ import annotations
 
 import argparse
+import base64
 import hashlib
 import json
 from pathlib import Path
 import re
 import shutil
+import sys
 import time
 from urllib.error import URLError
 from urllib.parse import urlsplit
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, Request, build_opener, urlopen
 
 
 MEDIA_ROOT = "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/"
@@ -360,6 +362,75 @@ def upload_nightly(site: Path, space: str = NIGHTLY_SPACE) -> str:
     return info.oid
 
 
+def verify_space_access(space: str) -> dict:
+    """Prove token write access while retaining every current Space file byte.
+
+    The authenticated commit endpoint receives only the existing pinned README.
+    No files are removed, hardware requested or existing history rewritten.
+    A no-content-change commit may be recorded by the hosting service.
+    """
+    if not re.fullmatch(r"einarolafsson/spacr-docs-[a-z0-9-]+", space):
+        raise ValueError("Expected a spaCR documentation Space")
+    from huggingface_hub import HfApi, hf_hub_download
+    from huggingface_hub.hf_api import RepoFile, RepoFolder
+    from huggingface_hub.utils import build_hf_headers
+
+    api = HfApi()
+    info = api.space_info(space)
+    parent = info.sha
+    if info.sdk != "static" or not re.fullmatch(r"[0-9a-f]{40}", parent or ""):
+        raise ValueError("Expected an existing static Space with an immutable parent")
+
+    def tree(revision):
+        entries = {}
+        for entry in api.list_repo_tree(space, repo_type="space", revision=revision,
+                                        recursive=True):
+            if isinstance(entry, RepoFolder):
+                continue
+            if not isinstance(entry, RepoFile) or entry.path in entries:
+                raise ValueError("Unexpected or duplicate Space tree entry")
+            lfs = None if entry.lfs is None else (entry.lfs.sha256, entry.lfs.size)
+            entries[entry.path] = (entry.size, entry.blob_id, lfs)
+        return entries
+
+    before = tree(parent)
+    readme = before.get("README.md")
+    if readme is None or readme[0] > 65536 or readme[2] is not None:
+        raise ValueError("Expected a small existing Git README")
+    path = hf_hub_download(repo_id=space, repo_type="space", filename="README.md",
+                           revision=parent)
+    raw = Path(path).read_bytes()
+    git_hash = hashlib.sha1(f"blob {len(raw)}\0".encode() + raw).hexdigest()
+    if (len(raw), git_hash, None) != readme:
+        raise ValueError("Pinned README content differs from the immutable tree")
+    payload = [
+        {"key": "header", "value": {
+            "summary": "Verify documentation workflow write access without content changes",
+            "description": "", "parentCommit": parent}},
+        {"key": "file", "value": {"path": "README.md", "encoding": "base64",
+                                   "content": base64.b64encode(raw).decode("ascii")}},
+    ]
+    headers = {**build_hf_headers(token=api.token), "Content-Type": "application/x-ndjson"}
+    class NoRedirect(HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, headers, newurl):
+            return None
+
+    request = Request(
+        f"{api.endpoint}/api/spaces/{space}/commit/main", headers=headers,
+        data=b"".join(json.dumps(row).encode() + b"\n" for row in payload), method="POST")
+    with build_opener(NoRedirect()).open(request, timeout=30) as response:
+        if not 200 <= response.status < 300:
+            raise ValueError("Space commit endpoint did not accept the access check")
+        revision = json.load(response)["commitOid"]
+    if not re.fullmatch(r"[0-9a-f]{40}", revision or ""):
+        raise ValueError("Expected an immutable write-access verification commit")
+    if tree(revision) != before:
+        raise ValueError("Space tree changed during write-access verification")
+    return {"space": space, "parent_revision": parent, "revision": revision,
+            "tree_unchanged": True, "files_verified": len(before),
+            "readme_sha256": hashlib.sha256(raw).hexdigest()}
+
+
 def verify_space_tree(site: Path, space: str, revision: str) -> dict:
     """Match every assembled file against one immutable uploaded Space revision.
 
@@ -506,6 +577,8 @@ def main(argv=None) -> int:
     tree.add_argument("--site", type=Path, required=True)
     tree.add_argument("--space", required=True)
     tree.add_argument("--revision", required=True)
+    access = sub.add_parser("verify-space-access")
+    access.add_argument("--space", required=True)
     args = parser.parse_args(argv)
     if args.command == "configure":
         # Load only the compatibility extension from the publisher's tools.
@@ -538,6 +611,14 @@ def main(argv=None) -> int:
         print(verify_nightly(args.site, args.url, args.attempts, args.interval))
     elif args.command == "verify-space-tree":
         print(json.dumps(verify_space_tree(args.site, args.space, args.revision)))
+    elif args.command == "verify-space-access":
+        try:
+            print(json.dumps(verify_space_access(args.space)))
+        except Exception as error:
+            response = getattr(error, "response", None)
+            print(json.dumps({"space": args.space, "error": type(error).__name__,
+                              "status": getattr(response, "status_code", getattr(error, "code", None))}), file=sys.stderr)
+            return 1
     else:
         print(upload_nightly(args.site, args.space))
     return 0

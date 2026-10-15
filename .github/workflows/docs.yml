@@ -4,6 +4,19 @@ on:
   push:
     branches: [main, nightly]
   workflow_dispatch:
+    inputs:
+      mode:
+        description: Publish docs, or verify only the existing Space write token
+        required: true
+        default: publish
+        type: choice
+        options: [publish, verify-host-access]
+      access_space:
+        description: Existing static Space for the content-preserving access check
+        required: true
+        default: einarolafsson/spacr-docs-nightly-v2
+        type: choice
+        options: [einarolafsson/spacr-docs-nightly-v2, einarolafsson/spacr-docs-nightly]
 
 permissions:
   contents: read
@@ -17,8 +30,48 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  verify-host-access:
+    name: Verify the existing documentation Space write token
+    if: github.event_name == 'workflow_dispatch' && inputs.mode == 'verify-host-access'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    concurrency:
+      group: docs-nightly-space
+      cancel-in-progress: false
+    env:
+      HF_TOKEN: ${{ secrets.HF_DOCS_TOKEN }}
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      ACCESS_SPACE: ${{ inputs.access_space }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          sparse-checkout: tools
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.10"
+      - name: Install the publication client
+        run: python -m pip install "huggingface_hub>=0.25"
+      - name: Verify write permission without changing published file contents
+        run: |
+          set -euo pipefail
+          if [ -z "$HF_TOKEN" ]; then
+            echo "::error::Repository secret HF_DOCS_TOKEN is missing."
+            exit 1
+          fi
+          tools/run_capped.sh 2G python tools/publish_docs_channels.py verify-space-access \
+            --space "$ACCESS_SPACE" | tee space-access.json
+      - name: Record the immutable access receipt
+        run: |
+          {
+            echo "### Documentation token verification"
+            cat space-access.json
+            echo "No documentation build, site upload or hosting-plan change was requested."
+          } >> "$GITHUB_STEP_SUMMARY"
+
   resolve:
     name: Pin the documentation branch
+    if: github.event_name != 'workflow_dispatch' || inputs.mode != 'verify-host-access'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     outputs:
