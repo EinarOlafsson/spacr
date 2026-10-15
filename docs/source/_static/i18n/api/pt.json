@@ -171379,19 +171379,19 @@
         "dee68aea6a999302631ad6b8faa7e53095f9af5a8abacc2f052997e2e10e4fea",
         "15984737436809b1e7f3727fe823eddee893b6ee3a593f9c63d0b353c5ba9a97",
         "9ee10ead2494d4e865f0fa02a60b48cb44e69e649c5105f17432d217f95bbfc6",
-        "ae9f0d0b6c52cf8d6913acd7d66d55c5924a0e7e700988e90a21c490b2e668a5",
+        "32de88b350c8269fe17655b563778d3eb4c8a280d793c95453b9fd8aa55c900f",
         "bc79a88ee90789bd2ab00c082be22f2949ed4e48a9c6e99949ba43a8b5df33b0",
         "a717c3b2e871fd5833fac949f21407a007da8463434307d43ad29682ca38b8ba"
       ],
-      "source_sha256": "4980a914264421b7abdf0aa255a417749b71f9bd0d320808564b2eeca5455749",
-      "text": "Editor de coluna/valor para excluir linhas de dados de entrada UMAP.\n\nTudo o que este widget oferece ao usuário sai de um banco de dados de medições, e ambas as leituras costumavam acontecer no caminho de execução principal GUI:\n\n* ``discover_columns`` abre todos os bancos de dados que a configuração ``src`` resolve e executa ``sqlite_master`` mais um ``PRAGMA table_info`` por tabela. Ele é conduzido a partir de ``SettingsWidgets._refresh_contextual_widgets``, então ele é executado toda vez que ``src`` ou ``tables`` é definido.\n* ``distinct_values`` executa um ``SELECT DISTINCT … LIMIT 501`` para cada par ``(database, table)`` em que a coluna escolhida aparece — e as colunas que o usuário realmente usa para exclusão (``plateID``, ``columnID``, ``rowID``) possuem poucos valores distintos em toda a tabela; portanto, o LIMIT nunca é atingido e o SQLite varre todas as linhas. Medição em um measurements.db com 200 000 linhas × 8 tabelas e cache de páginas aquecido: **196 ms por coluna**. Como a caixa de combinação da coluna é editável, ``currentTextChanged`` dispara a cada tecla. Oito edições rápidas congelaram a janela por **894 ms** em um único bloco contínuo; o próprio ``set_source`` custou 183 ms e uma escolha deliberada de coluna, 220 ms. Com execução em worker, os mesmos três tempos são 29 ms, 5 ms e 2 ms.\n\nEntão ambos passam por um :class:`~spacr.qt.job_runner.JobRunner` de propriedade do editor, e o valor lido é adicionalmente desbancado. Três regras mantêm isso juntos:\n\n* ``_value_cache`` e ``_column_sources`` são o estado principal do caminho de execução GUI. O trabalhador retorna dados simples e o manipulador de conclusão - que o Qt executa no caminho principal de execução GUI - é a única coisa que os escreve.\n* Descoberta de esquema e valor de leitura **Separados** Corredores. :meth:`JobRunner.cancel` funciona por geração, de modo que um corredor não pode substituir um valor lido sem também deixar cair o esquema lido do qual o valor lido depende.\n* Um temporizador debounce coalesce teclas digitadas, e :meth:`JobRunner.cancel` deixa cair o que quer que uma tecla digitada anterior começou, então a última edição ganha em vez da leitura mais lenta.",
+      "source_sha256": "12beaaf3559ea4f5022a57a1affcbcec527169a4bedfa6aef986ac5d326c24cd",
+      "text": "Editor de coluna/valor para excluir linhas de dados de entrada UMAP.\n\nTudo o que este widget oferece ao usuário sai de um banco de dados de medições, e ambas as leituras costumavam acontecer no caminho de execução principal GUI:\n\n* ``discover_columns`` abre todos os bancos de dados que a configuração ``src`` resolve e executa ``sqlite_master`` mais um ``PRAGMA table_info`` por tabela. Ele é conduzido a partir de ``SettingsWidgets._refresh_contextual_widgets``, então ele é executado toda vez que ``src`` ou ``tables`` é definido.\n* ``distinct_values`` executa um ``SELECT DISTINCT … LIMIT 501`` para cada par ``(database, table)`` em que a coluna escolhida aparece — e as colunas que o usuário realmente usa para exclusão (``plateID``, ``columnID``, ``rowID``) possuem poucos valores distintos em toda a tabela; portanto, o LIMIT nunca é atingido e o SQLite varre todas as linhas. Medição em um measurements.db com 200 000 linhas × 8 tabelas e cache de páginas aquecido: **196 ms por coluna**. Como a caixa de combinação da coluna é editável, ``currentTextChanged`` dispara a cada tecla. Oito edições rápidas congelaram a janela por **894 ms** em um único bloco contínuo; o próprio ``set_source`` custou 183 ms e uma escolha deliberada de coluna, 220 ms. Com execução em worker, os mesmos três tempos são 29 ms, 5 ms e 2 ms.\n\nEntão ambos passam por um :class:`~spacr.qt.job_runner.JobRunner` de propriedade do editor, e o valor lido é adicionalmente desbancado. Três regras mantêm isso juntos:\n\n* ``_value_cache`` e ``_column_sources`` são estado da thread GUI. As threads de trabalho devolvem dados simples, que os tratadores de conclusão na thread GUI instalam. Alterar a origem limpa a cache de valores antes de chegar o esquema de substituição.\n* Descoberta de esquema e valor de leitura **Separados** Corredores. :meth:`JobRunner.cancel` funciona por geração, de modo que um corredor não pode substituir um valor lido sem também deixar cair o esquema lido do qual o valor lido depende.\n* Um temporizador debounce coalesce teclas digitadas, e :meth:`JobRunner.cancel` deixa cair o que quer que uma tecla digitada anterior começou, então a última edição ganha em vez da leitura mais lenta.",
       "translation_source_blocks_sha256": [
         "e661151a82e49a520f2fb700b3b930098651856e62e8723951917d32738f9b0b",
         "f20a7e164d54c4fe0872f0e3fd851d866e117c07d9a1883ec8bad71c17cd3400",
         "e4f4a33d45d70556d4054850c1ffebf1e1239cec7c5a4391d84702355556e524",
         "58baf3424081f737a92b95dc8720982b50327eabed01fa70cae86af863e14953",
         "9ee10ead2494d4e865f0fa02a60b48cb44e69e649c5105f17432d217f95bbfc6",
-        "d5c5fcc9e087cdf926fe46a19b46736262140d7bd3c04fd504fe75ccce9b1432",
+        "94887b98ac3a003e152cc0ab859fbdbc4f74d5ed5dc03d45d25a4d89e95f7fa9",
         "bc79a88ee90789bd2ab00c082be22f2949ed4e48a9c6e99949ba43a8b5df33b0",
         "a717c3b2e871fd5833fac949f21407a007da8463434307d43ad29682ca38b8ba"
       ]
@@ -171403,7 +171403,7 @@
         "966013206f025197c12534f268e177f3941ac0ea40ca6aff50e6d018f3db95be",
         "618f640958edba3ccd8eb00ae6407b66cb1e7e5c194a33eb7ccab3b0dba51734",
         "b8b5b817212bae4173cada55ff3745f0643748aea8a3e132b95401ebfb818331",
-        "c1b00e51152ec17dcea4e5269f7c958c9d8d78438e503004fbc53b862d71a3fc",
+        "d6dbe68118403214c557afeba108672806e2a4ceaa9af33f5366c07e33bfdb1c",
         "2eb1274a5e35b66f4392b115ff96d443f4e04cc446dd2f0ff433cce6adb71644",
         "75f3acedc31beab280e741e0f25b0deb7353f70fd110e6fc3749859d33c413d4",
         "15bf17354e1be45b0675e0ba2514b62418fbad02ca975fca0f0e14579f8b2fb9",
@@ -171411,15 +171411,15 @@
         "18cd0699afc14d577b431789ed60bd0bc69fb62e88adc61c17ef29bcfe884d26",
         "570b81780e0fcdf2a8eb49aaebfa81cb75adbc38ca9c60173525ca6ea4b6f529"
       ],
-      "source_sha256": "133cbed42dbdf3da07e43c60179b1c70b5c11a3884647d535aff5012d89b1296",
-      "text": "Adicione uma ou mais exclusões de linha UMAP escolhendo colunas e valores.\n\nO banco de dados lê atrás dos dois dropdowns executados em unidades de execução em segundo plano; veja o docstring do módulo pelo motivo medido. Nada sobre o contrato público do widget mudou :meth:`set_source` ainda pega uma fonte e retorna, ele simplesmente não espera mais pelo sqlite antes que ele o faça.\n\n:param value: regras iniciais, sob qualquer forma :func:`spacr.row_exclusions.normalize_row_exclusions` aceita.\n:param parent: Qt pai.\n:param threaded: ``False`` executa ambas as leituras em linha, na mesma ordem, emitindo os mesmos sinais um chamador que deve ter os valores que os retornos instantâneos  :meth:`set_source` podem pedir por isso. Palavra-chave somente, e padrão, porque o site de chamada enviado ( ``SettingsWidgets._widget_for``) passa  ``value`` e  ``parent`` e nada mais.\n:param debounce_ms: quanto tempo uma edição de coluna espera antes de ser lida. ``0`` lê na próxima volta do ciclo de eventos sem se unir.\nCrie o editor de exclusão de linha.\n\nDois corredores, não um: ``cancel`` abandona tudo o que um corredor tem em voo, e substituir o valor de um pressionamento de tecla lido também não deve abandonar o esquema lido que diz em quais bancos de dados a coluna ainda vive.\n\n:param value: exclusões para começar.\n:param parent: widget pai, ou ``None``.\n:param threaded: leia sobre as unidades de execução em segundo plano. Defina ``False`` nos testes para que uma leitura seja concluída antes de retornar.\n:param debounce_ms: quanto tempo a digitação se instala antes que um valor lido seja executado.",
+      "source_sha256": "1551325b7b603a67afa8cb725be736dc56d2dac2594e61a7a282a8e1501e55c9",
+      "text": "Adicione uma ou mais exclusões de linha UMAP escolhendo colunas e valores.\n\nO banco de dados lê atrás dos dois dropdowns executados em unidades de execução em segundo plano; veja o docstring do módulo pelo motivo medido. Nada sobre o contrato público do widget mudou :meth:`set_source` ainda pega uma fonte e retorna, ele simplesmente não espera mais pelo sqlite antes que ele o faça.\n\n:param value: regras iniciais, sob qualquer forma :func:`spacr.row_exclusions.normalize_row_exclusions` aceita.\n:param parent: Qt pai.\n:param threaded: ``False`` executa ambas as leituras em linha, na mesma ordem, emitindo os mesmos sinais um chamador que deve ter os valores que os retornos instantâneos  :meth:`set_source` podem pedir por isso. Palavra-chave somente, e padrão, porque o site de chamada enviado ( ``SettingsWidgets._widget_for``) passa  ``value`` e  ``parent`` e nada mais.\n:param debounce_ms: quanto tempo uma edição de coluna espera antes de ser lida. ``0`` agenda a leitura para uma passagem posterior do ciclo de eventos; as edições anteriores ao disparo do temporizador ainda podem ser agrupadas.\nCrie o editor de exclusão de linha.\n\nDois corredores, não um: ``cancel`` abandona tudo o que um corredor tem em voo, e substituir o valor de um pressionamento de tecla lido também não deve abandonar o esquema lido que diz em quais bancos de dados a coluna ainda vive.\n\n:param value: exclusões para começar.\n:param parent: widget pai, ou ``None``.\n:param threaded: leia sobre as unidades de execução em segundo plano. Defina ``False`` nos testes para que uma leitura seja concluída antes de retornar.\n:param debounce_ms: quanto tempo a digitação se instala antes que um valor lido seja executado.",
       "translation_source_blocks_sha256": [
         "d5bfd69cae64697afee305b98d0ce85e11dd454bdd6566f6db248d2b543ed760",
         "cbfe8822e354a2b4ace7e99025c2ed6210110597e145cb27a80c26bc96a36a1f",
         "966013206f025197c12534f268e177f3941ac0ea40ca6aff50e6d018f3db95be",
         "618f640958edba3ccd8eb00ae6407b66cb1e7e5c194a33eb7ccab3b0dba51734",
         "b8b5b817212bae4173cada55ff3745f0643748aea8a3e132b95401ebfb818331",
-        "c1b00e51152ec17dcea4e5269f7c958c9d8d78438e503004fbc53b862d71a3fc",
+        "d6dbe68118403214c557afeba108672806e2a4ceaa9af33f5366c07e33bfdb1c",
         "2eb1274a5e35b66f4392b115ff96d443f4e04cc446dd2f0ff433cce6adb71644",
         "75f3acedc31beab280e741e0f25b0deb7353f70fd110e6fc3749859d33c413d4",
         "15bf17354e1be45b0675e0ba2514b62418fbad02ca975fca0f0e14579f8b2fb9",
@@ -171440,18 +171440,18 @@
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.closeEvent": {
       "source_blocks_sha256": [
-        "fc7297bf79c14ac9f0fa1576df3f7fe6f64e1c346efb7ab8faf9ea53146cbd1f",
+        "786c1fdc31d88d01989592de4761b76a4cbdcce12a679b26c21bd2eca2092cc8",
         "62152c11aa07004be9f8d65639f44b9b1fddb980f3999ed34ce73e2f6e26c25f",
         "9bee93fdc7bcb8998b2677b898ae32e715d5c3b9adcd288e0c4a97aecfdaab95",
-        "2c15de80058dba9c9551d82b14cf764d4ef1b5623fbd0fa58ffe69cdf5651a04"
+        "f0fac7a4d9c1b268a2b2df9ba0f5c12f1deddf6b3fd166959a1a3207cfb1f62b"
       ],
-      "source_sha256": "7d62184d9caf47e150cd529672547c0c3e2afeb7b3a604750e5a20aa4973eed8",
-      "text": "Fechar a leitura não deve deixar um fio para trás.\n\nO Qt aborta o processo quando uma QThread em execução é destruída, e um worker que entrega dados a um widget enquanto está terminando causa uso após liberação. ``JobRunner.shutdown`` trata ambos os casos.\n\nNão é a única linha de defesa, deliberadamente, porque nem sempre é alcançado: este editor é uma criança dentro de um painel de configurações, e navegar para longe desse painel destrói-lo sem qualquer evento próximo. O que cobre esse caso é o próprio corredor – o QThreads não tem pais e se aposenta, e o ``JobRunner._relay`` pega o ``RuntimeError`` PySide6 quando um trabalhador se instala depois que a metade C++ do seu corredor desaparece.\n\n:param event: o evento de fechamento; repassado sem alterações à classe base depois que os workers são encerrados.",
+      "source_sha256": "4156e48885a50bacfcaec9ec3c4cd1e896b5cb262a1e11f86dea008cde33c441",
+      "text": "Cancelar a entrega de resultados e gerir o encerramento dos dois executores ao fechar durante uma leitura.\n\nO Qt aborta o processo quando uma QThread em execução é destruída, e um worker que entrega dados a um widget enquanto está terminando causa uso após liberação. ``JobRunner.shutdown`` trata ambos os casos.\n\nNão é a única linha de defesa, deliberadamente, porque nem sempre é alcançado: este editor é uma criança dentro de um painel de configurações, e navegar para longe desse painel destrói-lo sem qualquer evento próximo. O que cobre esse caso é o próprio corredor – o QThreads não tem pais e se aposenta, e o ``JobRunner._relay`` pega o ``RuntimeError`` PySide6 quando um trabalhador se instala depois que a metade C++ do seu corredor desaparece.\n\n:param event: o evento de fecho; passado sem alterações à classe base depois de ambos os executores terem tentado encerrar com uma espera limitada.",
       "translation_source_blocks_sha256": [
-        "fc7297bf79c14ac9f0fa1576df3f7fe6f64e1c346efb7ab8faf9ea53146cbd1f",
+        "786c1fdc31d88d01989592de4761b76a4cbdcce12a679b26c21bd2eca2092cc8",
         "e11be8a906c9d4f938ebaad21b17c9ea8eaa51139cd25aaf1254d9152d5e698e",
         "9bee93fdc7bcb8998b2677b898ae32e715d5c3b9adcd288e0c4a97aecfdaab95",
-        "2c15de80058dba9c9551d82b14cf764d4ef1b5623fbd0fa58ffe69cdf5651a04"
+        "f0fac7a4d9c1b268a2b2df9ba0f5c12f1deddf6b3fd166959a1a3207cfb1f62b"
       ]
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.get_value": {
@@ -171479,15 +171479,15 @@
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_source": {
       "source_blocks_sha256": [
         "163839b354c2f7bfbe0e224579adb3cf8a0763c394c8fb4926243d37a9bf0048",
-        "b674e94c85b78d48b3657a2ef0c316b982763036e99280cc6c490c14c56fe5b8",
+        "83dbd00398dc87552d446fe6c460a45e0b4ba0631a56f218c5ac8518a970c269",
         "87d80f5603b7c2266e0ff92fcd40f3855c868b26ea33552f3c6694aa292391af",
         "e60b773e8c7d1cbaf0ec2aa60a74fe57aba465a2516e7e85517694a1febff1fa"
       ],
-      "source_sha256": "b65063fcbea16743b3b9a7eabb761809733ef80daa3725d3c1d5ac04f85a3fad",
-      "text": "Popula as opções de coluna/valor a partir de um DB de medidas descartado.\n\nRetorna assim que o esquema lido é despachado. As dropdowns mantêm o que estão mostrando até que o trabalhador entregue - uma lista que é meio segundo mais velha bate uma janela congelada e, na primeira chamada, eles não estão mostrando nada de qualquer maneira.\n\n:param source: qualquer coisa que :func:`source_paths` aceite: uma pasta de execução, sua pasta ``measurements``, um arquivo ``.db`` ou uma lista deles.\n:param tables: restringe as colunas a estes nomes de tabela; ``None`` lê todas as tabelas.",
+      "source_sha256": "0eda86201147005dbc8b9efbfa460800369b037a9b0755d01bca0e2bc6fe10d7",
+      "text": "Popula as opções de coluna/valor a partir de um DB de medidas descartado.\n\nNo modo predefinido com threads, devolve o controlo depois de iniciar a leitura do esquema. As escolhas de colunas e os valores assinalados existentes permanecem visíveis durante a leitura, incluindo regras restauradas antes de definir a primeira origem. Com ``threaded=False``, as leituras são executadas diretamente na chamada.\n\n:param source: qualquer coisa que :func:`source_paths` aceite: uma pasta de execução, sua pasta ``measurements``, um arquivo ``.db`` ou uma lista deles.\n:param tables: restringe as colunas a estes nomes de tabela; ``None`` lê todas as tabelas.",
       "translation_source_blocks_sha256": [
         "163839b354c2f7bfbe0e224579adb3cf8a0763c394c8fb4926243d37a9bf0048",
-        "b674e94c85b78d48b3657a2ef0c316b982763036e99280cc6c490c14c56fe5b8",
+        "2c2389dc635d24005b894466e5f9b93749a91db69b1877bedd353ba424d9dc39",
         "38cc33db135f23dae1172f244d27fc1d037f242d5d0e1665218db07cfa3554f8",
         "e60b773e8c7d1cbaf0ec2aa60a74fe57aba465a2516e7e85517694a1febff1fa"
       ]
@@ -171506,14 +171506,14 @@
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.shutdown": {
       "source_blocks_sha256": [
-        "21285b0f07806ec462ce9b57fe75338e0778312fbeb1e85344d312ebfc06b8f7",
-        "01ebdf8f200e32e2f5d672b4957d27c9b784b66887d7674bd9db3995a8a96aa9"
+        "95762b24932f0db659a4ccafdb82b868c26b491a558b4f81d9f168984a577915",
+        "a307f39ad4481a09b804d70a39962dc18d6e8657a437dcc8e39813332134b9c0"
       ],
-      "source_sha256": "366af60fc4c5bda86796e6c2cf9ccf5df7d642578bed0483f88f6b579ef6dbdf",
-      "text": "Pare de ler e deixe nenhum trabalhador sobreviver ao widget.\n\nPúblico porque um host que possui esse editor dentro de uma visualização de aplicativo maior pode chamá-lo diretamente Qt oferece um evento próximo à janela, não a todos os widgets dentro dela, então uma visualização do aplicativo que quer que as leituras sejam interrompidas no momento em que o usuário navega tem que dizer isso. Idempotente.",
+      "source_sha256": "6be5e6528b02b0cc4f9a9a236698ba6a32bdb9e469d49c5f4dc8987b87021eb4",
+      "text": "Descartar os resultados pendentes e gerir o encerramento dos dois executores com esperas limitadas.\n\nÉ público para que o contentor que possui este editor dentro de um ecrã maior o possa chamar diretamente — o Qt entrega um evento de fecho à janela, não a cada widget nela contido. Assim, um ecrã que queira descartar resultados pendentes quando o utilizador sai tem de o chamar. As leituras lentas da base de dados podem continuar em threads de trabalho mantidas à parte sem entregar os resultados a este editor. É idempotente.",
       "translation_source_blocks_sha256": [
-        "21285b0f07806ec462ce9b57fe75338e0778312fbeb1e85344d312ebfc06b8f7",
-        "20f9228f1e42c43f14ce22b52d841cc7c965a1b42969acd637cdcbac1c5aae80"
+        "95762b24932f0db659a4ccafdb82b868c26b491a558b4f81d9f168984a577915",
+        "e45b981b1e3cd2793410106a7878e40c8e91faeb18ca53973899f8ec626e00d2"
       ]
     },
     "spacr.qt.widgets.row_exclusion.discover_columns": {
@@ -171554,14 +171554,14 @@
     },
     "spacr.qt.widgets.row_exclusion.source_paths": {
       "source_blocks_sha256": [
-        "31fce773288e3a9b369a346b0f54ce6082c1bd5746ada000db4ccd4ce5854891",
+        "18409b06b2b55101460d174e48285d90cded7e28db25c837a93a169ec94a41d5",
         "2ed4efbe0590e3c33e8093da33f2d99b04ef6c5c5be3d9a08fb922cccfeaf3c4",
         "cd16c0e1cf402bd4756d0e1ad98af3ef027a69c376c55515da96e8e99c55049f"
       ],
-      "source_sha256": "a8f09b0eebe8d43b292acd8916590683b30a0ce957374ba172caa0155f302a8e",
-      "text": "Retornar os arquivos ``measurements.db`` ``source`` resolve a.\n\nAceita um caminho, uma lista de caminhos ou o repr de uma lista (que é o que um campo de texto de configurações mantém após uma queda de várias pastas) e tolera uma pasta de sessão de processamento, sua subpasta ``measurements`` ou o próprio banco de dados. Caminhos que não existem são descartados em vez de relatados: isso alimenta um dropdown, e um ``src`` meio digitado não é um erro.\n\n:param source: um caminho, uma lista ou tupla de caminhos, ou o texto de uma lista assim; entradas vazias são ignoradas e ``~`` é expandido.",
+      "source_sha256": "b85b5688c6bda7c11df18c5408c7923744ce688a264c8bedeec58a4a06785e32",
+      "text": "Devolve os caminhos dos ficheiros de base de dados existentes para os quais ``source`` é resolvido.\n\nAceita um caminho, uma lista de caminhos ou o repr de uma lista (que é o que um campo de texto de configurações mantém após uma queda de várias pastas) e tolera uma pasta de sessão de processamento, sua subpasta ``measurements`` ou o próprio banco de dados. Caminhos que não existem são descartados em vez de relatados: isso alimenta um dropdown, e um ``src`` meio digitado não é um erro.\n\n:param source: um caminho, uma lista ou tupla de caminhos, ou o texto de uma lista assim; entradas vazias são ignoradas e ``~`` é expandido.",
       "translation_source_blocks_sha256": [
-        "31fce773288e3a9b369a346b0f54ce6082c1bd5746ada000db4ccd4ce5854891",
+        "18409b06b2b55101460d174e48285d90cded7e28db25c837a93a169ec94a41d5",
         "e9022cdbe9f85989f5b028361d99a46e68c38bba92aa50e1240e87ebda0c946a",
         "cd16c0e1cf402bd4756d0e1ad98af3ef027a69c376c55515da96e8e99c55049f"
       ]

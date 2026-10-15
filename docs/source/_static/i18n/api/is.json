@@ -171379,19 +171379,19 @@
         "dee68aea6a999302631ad6b8faa7e53095f9af5a8abacc2f052997e2e10e4fea",
         "15984737436809b1e7f3727fe823eddee893b6ee3a593f9c63d0b353c5ba9a97",
         "9ee10ead2494d4e865f0fa02a60b48cb44e69e649c5105f17432d217f95bbfc6",
-        "ae9f0d0b6c52cf8d6913acd7d66d55c5924a0e7e700988e90a21c490b2e668a5",
+        "32de88b350c8269fe17655b563778d3eb4c8a280d793c95453b9fd8aa55c900f",
         "bc79a88ee90789bd2ab00c082be22f2949ed4e48a9c6e99949ba43a8b5df33b0",
         "a717c3b2e871fd5833fac949f21407a007da8463434307d43ad29682ca38b8ba"
       ],
-      "source_sha256": "4980a914264421b7abdf0aa255a417749b71f9bd0d320808564b2eeca5455749",
-      "text": "Stóla/verða útgáfur til að fjarlægja ránum frá UMAP innfangs gögnum.\n\nAllt þetta widget bjóða notandi kemur út úr mælingum gögnum, og báðir lesur notað til að gerast á heiminum GUI framkvæmd leið:\n\n* ``discover_columns`` opnar hverri gögnum sem ``src`` settar á og virkar ``sqlite_master`` plus ``PRAGMA table_info`` per tól. Það er dreifið frá ``SettingsWidgets._refresh_contextual_widgets``, svo það fer hverjum ``src`` eða ``tables`` er sett.\n* ``distinct_values`` rennir ``SELECT DISTINCT … LIMIT 501`` á ``(database, table)`` parum sem valin stólur birtist í — og kolumnar sem notandinn virkilega eru ekki á (``plateID``, ``columnID``, ``rowID``) haldið nokkrar mismunandi reikningar um allan tabla, svo LIMIT er aldrei náð og SQLite skanna á hverri rödd. Miður á 200 000 rúnum × 8 tólum measurements.db með heitt síðu cache: **196 ms á kolumn**, og stóranum kombo er úthlutað, svo ``currentTextChanged`` brennir á hverri keystroke. Aðta fljótlega útgáfu fræsa vinstri fyrir **894 ms** í einn óbreytandi blokk; ``set_source`` sjálfur kostar 183 ms og einn hugsanlega ræð val 220 ms. Með vinnum útgáfa, sömu þremur eru 29 ms, 5 ms og 2 ms.\n\nSvo bæði fara í gegnum :class:`~spacr.qt.job_runner.JobRunner` eigandi af útgáfurinni, og verðlastir eru einnig niðurbúa.\n\n* ``_value_cache`` og ``_column_sources`` eru mikilvægast GUI útgáfu stefnumót. starfsmann endurheimtir ljóst gögnum og fullkomna handmenninn - sem Qt fer á mikilvægustu GUI útvarpinu - er það eina sem skrifa þá.\n* Skema uppgötvun og gildi lesur fá **sérandi** runners. :meth:`JobRunner.cancel` virkar á kynslóð, svo að einn runneri getur ekki yfirgefið gildi lesa án þess að einnig drop skema lesa sem gildi lestur er afhyggð.\n* A debounce timer hleyps keystrokes, og :meth:`JobRunner.cancel` drop hvað fyrri keystroke byrjaði, svo síðasta útgáfa vinnur en langsamasti lesing.",
+      "source_sha256": "12beaaf3559ea4f5022a57a1affcbcec527169a4bedfa6aef986ac5d326c24cd",
+      "text": "Stóla/verða útgáfur til að fjarlægja ránum frá UMAP innfangs gögnum.\n\nAllt þetta widget bjóða notandi kemur út úr mælingum gögnum, og báðir lesur notað til að gerast á heiminum GUI framkvæmd leið:\n\n* ``discover_columns`` opnar hverri gögnum sem ``src`` settar á og virkar ``sqlite_master`` plus ``PRAGMA table_info`` per tól. Það er dreifið frá ``SettingsWidgets._refresh_contextual_widgets``, svo það fer hverjum ``src`` eða ``tables`` er sett.\n* ``distinct_values`` rennir ``SELECT DISTINCT … LIMIT 501`` á ``(database, table)`` parum sem valin stólur birtist í — og kolumnar sem notandinn virkilega eru ekki á (``plateID``, ``columnID``, ``rowID``) haldið nokkrar mismunandi reikningar um allan tabla, svo LIMIT er aldrei náð og SQLite skanna á hverri rödd. Miður á 200 000 rúnum × 8 tólum measurements.db með heitt síðu cache: **196 ms á kolumn**, og stóranum kombo er úthlutað, svo ``currentTextChanged`` brennir á hverri keystroke. Aðta fljótlega útgáfu fræsa vinstri fyrir **894 ms** í einn óbreytandi blokk; ``set_source`` sjálfur kostar 183 ms og einn hugsanlega ræð val 220 ms. Með vinnum útgáfa, sömu þremur eru 29 ms, 5 ms og 2 ms.\n\nSvo bæði fara í gegnum :class:`~spacr.qt.job_runner.JobRunner` eigandi af útgáfurinni, og verðlastir eru einnig niðurbúa.\n\n* ``_value_cache`` og ``_column_sources`` eru ástand á GUI-þræðinum. Vinnsluþræðir skila einföldum gögnum sem lokameðhöndlarar á GUI-þræðinum setja inn. Þegar skipt er um uppruna er gildisskyndiminnið tæmt áður en nýja skemaið berst.\n* Skema uppgötvun og gildi lesur fá **sérandi** runners. :meth:`JobRunner.cancel` virkar á kynslóð, svo að einn runneri getur ekki yfirgefið gildi lesa án þess að einnig drop skema lesa sem gildi lestur er afhyggð.\n* A debounce timer hleyps keystrokes, og :meth:`JobRunner.cancel` drop hvað fyrri keystroke byrjaði, svo síðasta útgáfa vinnur en langsamasti lesing.",
       "translation_source_blocks_sha256": [
         "e661151a82e49a520f2fb700b3b930098651856e62e8723951917d32738f9b0b",
         "f20a7e164d54c4fe0872f0e3fd851d866e117c07d9a1883ec8bad71c17cd3400",
         "e4f4a33d45d70556d4054850c1ffebf1e1239cec7c5a4391d84702355556e524",
         "58baf3424081f737a92b95dc8720982b50327eabed01fa70cae86af863e14953",
         "9ee10ead2494d4e865f0fa02a60b48cb44e69e649c5105f17432d217f95bbfc6",
-        "d5c5fcc9e087cdf926fe46a19b46736262140d7bd3c04fd504fe75ccce9b1432",
+        "94887b98ac3a003e152cc0ab859fbdbc4f74d5ed5dc03d45d25a4d89e95f7fa9",
         "bc79a88ee90789bd2ab00c082be22f2949ed4e48a9c6e99949ba43a8b5df33b0",
         "a717c3b2e871fd5833fac949f21407a007da8463434307d43ad29682ca38b8ba"
       ]
@@ -171403,7 +171403,7 @@
         "966013206f025197c12534f268e177f3941ac0ea40ca6aff50e6d018f3db95be",
         "618f640958edba3ccd8eb00ae6407b66cb1e7e5c194a33eb7ccab3b0dba51734",
         "b8b5b817212bae4173cada55ff3745f0643748aea8a3e132b95401ebfb818331",
-        "c1b00e51152ec17dcea4e5269f7c958c9d8d78438e503004fbc53b862d71a3fc",
+        "d6dbe68118403214c557afeba108672806e2a4ceaa9af33f5366c07e33bfdb1c",
         "2eb1274a5e35b66f4392b115ff96d443f4e04cc446dd2f0ff433cce6adb71644",
         "75f3acedc31beab280e741e0f25b0deb7353f70fd110e6fc3749859d33c413d4",
         "15bf17354e1be45b0675e0ba2514b62418fbad02ca975fca0f0e14579f8b2fb9",
@@ -171411,15 +171411,15 @@
         "18cd0699afc14d577b431789ed60bd0bc69fb62e88adc61c17ef29bcfe884d26",
         "570b81780e0fcdf2a8eb49aaebfa81cb75adbc38ca9c60173525ca6ea4b6f529"
       ],
-      "source_sha256": "133cbed42dbdf3da07e43c60179b1c70b5c11a3884647d535aff5012d89b1296",
-      "text": "Hættu einn eða fleiri UMAP slökkum með því að velja kolumnar og gildi.\n\nÁætlunin lætur á bak við tvö dropdowns sem rennast á bakgrunni framkvæmda einum; sjá mótamálin dokstring fyrir mættan ástæða. ekkert um opinber samning widget breytist — :meth:`set_source` enn tekur orðin og kemur aftur, það er bara ekki lengur að bíða fyrir sqlite áður en það gerir það.\n\n:param value: Fyrstu reglur, í hvaða form :func:`spacr.row_exclusions.normalize_row_exclusions` samþykkir.\n:param parent: Qt foreldrar\n:param threaded: ``False`` virkar bæði lesur í línu, í sömu orði, út sömu merki — samtal sem þarf að hafa verð sem snemma :meth:`set_source` endurkomu getur beðið um það. Keyword aðeins, og fyrirvalda, vegna þess að sendin samtal staður (``SettingsWidgets._widget_for``) fara ``value`` og ``parent`` og ekkert annað.\n:param debounce_ms: hve lengi er að bíða í stefnu áður en hún er lesin. ``0`` lesa á næsta árangri sem skiptir við, án þess að koma í veg fyrir.\nAð byggja út úr slíkum útgáfu.\n\nTveir hlaupendur, ekki einn: ``cancel`` yfirgefur allt sem hlaupandi hefur í flugi, og að yfirgefa verðlaun keystroke ætti ekki einnig að hætta skema lesa sem segir hvaða gögn stefninn jafnvel lifir í.\n\n:param value: Þessar útskot til að byrja með.\n:param parent: yfirgræja, eða ``None``.\n:param threaded: Sæt ``False`` í prófunum svo að lesing endar áður en það kemur aftur.\n:param debounce_ms: Hversu lengi tilefni settar áður en verðlassi er að fara.",
+      "source_sha256": "1551325b7b603a67afa8cb725be736dc56d2dac2594e61a7a282a8e1501e55c9",
+      "text": "Hættu einn eða fleiri UMAP slökkum með því að velja kolumnar og gildi.\n\nÁætlunin lætur á bak við tvö dropdowns sem rennast á bakgrunni framkvæmda einum; sjá mótamálin dokstring fyrir mættan ástæða. ekkert um opinber samning widget breytist — :meth:`set_source` enn tekur orðin og kemur aftur, það er bara ekki lengur að bíða fyrir sqlite áður en það gerir það.\n\n:param value: Fyrstu reglur, í hvaða form :func:`spacr.row_exclusions.normalize_row_exclusions` samþykkir.\n:param parent: Qt foreldrar\n:param threaded: ``False`` virkar bæði lesur í línu, í sömu orði, út sömu merki — samtal sem þarf að hafa verð sem snemma :meth:`set_source` endurkomu getur beðið um það. Keyword aðeins, og fyrirvalda, vegna þess að sendin samtal staður (``SettingsWidgets._widget_for``) fara ``value`` og ``parent`` og ekkert annað.\n:param debounce_ms: hve lengi breyting á dálki bíður áður en hún er lesin. ``0`` skipuleggur lesturinn fyrir síðari umferð atvikalykkjunnar; breytingar áður en tímastillirinn virkjar lesturinn geta enn sameinast.\nAð byggja út úr slíkum útgáfu.\n\nTveir hlaupendur, ekki einn: ``cancel`` yfirgefur allt sem hlaupandi hefur í flugi, og að yfirgefa verðlaun keystroke ætti ekki einnig að hætta skema lesa sem segir hvaða gögn stefninn jafnvel lifir í.\n\n:param value: Þessar útskot til að byrja með.\n:param parent: yfirgræja, eða ``None``.\n:param threaded: Sæt ``False`` í prófunum svo að lesing endar áður en það kemur aftur.\n:param debounce_ms: Hversu lengi tilefni settar áður en verðlassi er að fara.",
       "translation_source_blocks_sha256": [
         "d5bfd69cae64697afee305b98d0ce85e11dd454bdd6566f6db248d2b543ed760",
         "cbfe8822e354a2b4ace7e99025c2ed6210110597e145cb27a80c26bc96a36a1f",
         "966013206f025197c12534f268e177f3941ac0ea40ca6aff50e6d018f3db95be",
         "618f640958edba3ccd8eb00ae6407b66cb1e7e5c194a33eb7ccab3b0dba51734",
         "b8b5b817212bae4173cada55ff3745f0643748aea8a3e132b95401ebfb818331",
-        "c1b00e51152ec17dcea4e5269f7c958c9d8d78438e503004fbc53b862d71a3fc",
+        "d6dbe68118403214c557afeba108672806e2a4ceaa9af33f5366c07e33bfdb1c",
         "2eb1274a5e35b66f4392b115ff96d443f4e04cc446dd2f0ff433cce6adb71644",
         "75f3acedc31beab280e741e0f25b0deb7353f70fd110e6fc3749859d33c413d4",
         "15bf17354e1be45b0675e0ba2514b62418fbad02ca975fca0f0e14579f8b2fb9",
@@ -171440,18 +171440,18 @@
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.closeEvent": {
       "source_blocks_sha256": [
-        "fc7297bf79c14ac9f0fa1576df3f7fe6f64e1c346efb7ab8faf9ea53146cbd1f",
+        "786c1fdc31d88d01989592de4761b76a4cbdcce12a679b26c21bd2eca2092cc8",
         "62152c11aa07004be9f8d65639f44b9b1fddb980f3999ed34ce73e2f6e26c25f",
         "9bee93fdc7bcb8998b2677b898ae32e715d5c3b9adcd288e0c4a97aecfdaab95",
-        "2c15de80058dba9c9551d82b14cf764d4ef1b5623fbd0fa58ffe69cdf5651a04"
+        "f0fac7a4d9c1b268a2b2df9ba0f5c12f1deddf6b3fd166959a1a3207cfb1f62b"
       ],
-      "source_sha256": "7d62184d9caf47e150cd529672547c0c3e2afeb7b3a604750e5a20aa4973eed8",
-      "text": "Að loka miðlitið ætti ekki að láta takmarka bak.\n\nQt abortar ferli þegar útgáfur QThread er eyðileggur, og starfsmenn sem veitir í widget á leiðinni út er notkun-eftir-free. ``JobRunner.shutdown`` gerir bæði.\n\nEkki eina forsætislinni, í hugsögðu, vegna þess að það er ekki alltaf náð: þessi útgáfur er barn inni settingspanel og að fara frá þeim paneli eyða það án neinu nærri viðburði. Það sem dregur þetta mál er rennari sjálfur - QThreads eru óþjálfaðir og hóf sig, og ``JobRunner._relay`` fanga ``RuntimeError`` PySide6 upp þegar vinnandi settar eftir að C++ hálf rennara hans hefur farið.\n\n:param event: lokunaratburðurinn; sendur óbreyttur áfram til grunnklasans eftir að vinnsluþráðunum hefur verið lokað.",
+      "source_sha256": "4156e48885a50bacfcaec9ec3c4cd1e896b5cb262a1e11f86dea008cde33c441",
+      "text": "Hætta við afhendingu niðurstaðna og ganga frá báðum verkkeyrslum þegar lokað er í miðjum lestri.\n\nQt abortar ferli þegar útgáfur QThread er eyðileggur, og starfsmenn sem veitir í widget á leiðinni út er notkun-eftir-free. ``JobRunner.shutdown`` gerir bæði.\n\nEkki eina forsætislinni, í hugsögðu, vegna þess að það er ekki alltaf náð: þessi útgáfur er barn inni settingspanel og að fara frá þeim paneli eyða það án neinu nærri viðburði. Það sem dregur þetta mál er rennari sjálfur - QThreads eru óþjálfaðir og hóf sig, og ``JobRunner._relay`` fanga ``RuntimeError`` PySide6 upp þegar vinnandi settar eftir að C++ hálf rennara hans hefur farið.\n\n:param event: lokunaratvikið; sent óbreytt áfram til grunnklasans eftir að báðar verkkeyrslur hafa reynt að ljúka með takmarkaðri bið.",
       "translation_source_blocks_sha256": [
-        "fc7297bf79c14ac9f0fa1576df3f7fe6f64e1c346efb7ab8faf9ea53146cbd1f",
+        "786c1fdc31d88d01989592de4761b76a4cbdcce12a679b26c21bd2eca2092cc8",
         "e11be8a906c9d4f938ebaad21b17c9ea8eaa51139cd25aaf1254d9152d5e698e",
         "9bee93fdc7bcb8998b2677b898ae32e715d5c3b9adcd288e0c4a97aecfdaab95",
-        "2c15de80058dba9c9551d82b14cf764d4ef1b5623fbd0fa58ffe69cdf5651a04"
+        "f0fac7a4d9c1b268a2b2df9ba0f5c12f1deddf6b3fd166959a1a3207cfb1f62b"
       ]
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.get_value": {
@@ -171479,15 +171479,15 @@
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_source": {
       "source_blocks_sha256": [
         "163839b354c2f7bfbe0e224579adb3cf8a0763c394c8fb4926243d37a9bf0048",
-        "b674e94c85b78d48b3657a2ef0c316b982763036e99280cc6c490c14c56fe5b8",
+        "83dbd00398dc87552d446fe6c460a45e0b4ba0631a56f218c5ac8518a970c269",
         "87d80f5603b7c2266e0ff92fcd40f3855c868b26ea33552f3c6694aa292391af",
         "e60b773e8c7d1cbaf0ec2aa60a74fe57aba465a2516e7e85517694a1febff1fa"
       ],
-      "source_sha256": "b65063fcbea16743b3b9a7eabb761809733ef80daa3725d3c1d5ac04f85a3fad",
-      "text": "Populate kolumn/valur val frá droped mælingar DB.\n\nDropdowns halda hvað þeir sýna til vinnumaður sendi - lista sem er hálft á þriðja stál bregst frædd vetrinn, og á fyrstu hringnum þeir sýnir ekkert alls.\n\n:param source: hvaðeina sem :func:`source_paths` samþykkir: keyrslumappa, ``measurements`` mappa hennar, ``.db`` skrá, eða listi af þeim.\n:param tables: takmarka dálkana við þessi töfluheiti; ``None`` les hverja töflu.",
+      "source_sha256": "0eda86201147005dbc8b9efbfa460800369b037a9b0755d01bca0e2bc6fe10d7",
+      "text": "Populate kolumn/valur val frá droped mælingar DB.\n\nÍ sjálfgefnum þræðaham skilar kallið sér eftir að skemalesturinn hefur verið settur af stað. Fyrirliggjandi dálkaval og merkt gildi haldast sýnileg meðan hann keyrir, þar á meðal reglur sem voru endurheimtar áður en fyrsti uppruninn var stilltur. Með ``threaded=False`` fara lestrarnir fram beint í kallinu.\n\n:param source: hvaðeina sem :func:`source_paths` samþykkir: keyrslumappa, ``measurements`` mappa hennar, ``.db`` skrá, eða listi af þeim.\n:param tables: takmarka dálkana við þessi töfluheiti; ``None`` les hverja töflu.",
       "translation_source_blocks_sha256": [
         "163839b354c2f7bfbe0e224579adb3cf8a0763c394c8fb4926243d37a9bf0048",
-        "b674e94c85b78d48b3657a2ef0c316b982763036e99280cc6c490c14c56fe5b8",
+        "2c2389dc635d24005b894466e5f9b93749a91db69b1877bedd353ba424d9dc39",
         "38cc33db135f23dae1172f244d27fc1d037f242d5d0e1665218db07cfa3554f8",
         "e60b773e8c7d1cbaf0ec2aa60a74fe57aba465a2516e7e85517694a1febff1fa"
       ]
@@ -171506,14 +171506,14 @@
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.shutdown": {
       "source_blocks_sha256": [
-        "21285b0f07806ec462ce9b57fe75338e0778312fbeb1e85344d312ebfc06b8f7",
-        "01ebdf8f200e32e2f5d672b4957d27c9b784b66887d7674bd9db3995a8a96aa9"
+        "95762b24932f0db659a4ccafdb82b868c26b491a558b4f81d9f168984a577915",
+        "a307f39ad4481a09b804d70a39962dc18d6e8657a437dcc8e39813332134b9c0"
       ],
-      "source_sha256": "366af60fc4c5bda86796e6c2cf9ccf5df7d642578bed0483f88f6b579ef6dbdf",
-      "text": "Hættu að lesa og láta enginn vinnandi yfirleika widgetina.\n\nÁhvern vegna þess að veitingastaður sem eigir þessa útgáfa innan stærra hugbúnaðar sýningu getur kallað það beint — Qt veitir nærri viðburði í gluggi, ekki á hvert hugbúnaður innan, þannig að hugbúnað sýning sem vill að lesa hættir að stundum sem notandi navigates fjarlægð hefur að segja það.",
+      "source_sha256": "6be5e6528b02b0cc4f9a9a236698ba6a32bdb9e469d49c5f4dc8987b87021eb4",
+      "text": "Henda niðurstöðum sem bíða og ganga frá báðum verkkeyrslum með takmarkaðri bið.\n\nOpinber aðferð svo hýsingarhluti sem á þennan ritil innan stærri skjás geti kallað beint á hana — Qt sendir lokunaratvik til gluggans en ekki hvers viðmótshlutar innan hans. Skjár sem vill henda biðniðurstöðum þegar notandi fer annað verður því að kalla á hana. Hægir gagnagrunnslestrar geta haldið áfram í vinnsluþráðum sem eru lagðir til hliðar án þess að skila niðurstöðum til þessa ritils. Endurtekin köll hafa sömu áhrif.",
       "translation_source_blocks_sha256": [
-        "21285b0f07806ec462ce9b57fe75338e0778312fbeb1e85344d312ebfc06b8f7",
-        "20f9228f1e42c43f14ce22b52d841cc7c965a1b42969acd637cdcbac1c5aae80"
+        "95762b24932f0db659a4ccafdb82b868c26b491a558b4f81d9f168984a577915",
+        "e45b981b1e3cd2793410106a7878e40c8e91faeb18ca53973899f8ec626e00d2"
       ]
     },
     "spacr.qt.widgets.row_exclusion.discover_columns": {
@@ -171554,14 +171554,14 @@
     },
     "spacr.qt.widgets.row_exclusion.source_paths": {
       "source_blocks_sha256": [
-        "31fce773288e3a9b369a346b0f54ce6082c1bd5746ada000db4ccd4ce5854891",
+        "18409b06b2b55101460d174e48285d90cded7e28db25c837a93a169ec94a41d5",
         "2ed4efbe0590e3c33e8093da33f2d99b04ef6c5c5be3d9a08fb922cccfeaf3c4",
         "cd16c0e1cf402bd4756d0e1ad98af3ef027a69c376c55515da96e8e99c55049f"
       ],
-      "source_sha256": "a8f09b0eebe8d43b292acd8916590683b30a0ce957374ba172caa0155f302a8e",
-      "text": "Til baka ``measurements.db`` skáld ``source`` er leyft til.\n\nsamþykkir leið, lista leiðs, eða repr listanum (þ.e. það er það sem settingar textafelli holds eftir multi-folder drop), og þolir meðferð-session mappur, ``measurements`` subfolder, eða gögn sjálf. Rútur sem ekki eru til staðar eru niður í stað þess að sýna: þetta veitir niður, og hálfa-type ``src`` er ekki mistök.\n\n:param source: slóð, listi eða túpla af slóðum, eða texti slíks lista; tómum færslum er sleppt og ``~`` er útvíkkað.",
+      "source_sha256": "b85b5688c6bda7c11df18c5408c7923744ce688a264c8bedeec58a4a06785e32",
+      "text": "Skilar slóðum fyrirliggjandi gagnagrunnsskráa sem ``source`` vísar á.\n\nsamþykkir leið, lista leiðs, eða repr listanum (þ.e. það er það sem settingar textafelli holds eftir multi-folder drop), og þolir meðferð-session mappur, ``measurements`` subfolder, eða gögn sjálf. Rútur sem ekki eru til staðar eru niður í stað þess að sýna: þetta veitir niður, og hálfa-type ``src`` er ekki mistök.\n\n:param source: slóð, listi eða túpla af slóðum, eða texti slíks lista; tómum færslum er sleppt og ``~`` er útvíkkað.",
       "translation_source_blocks_sha256": [
-        "31fce773288e3a9b369a346b0f54ce6082c1bd5746ada000db4ccd4ce5854891",
+        "18409b06b2b55101460d174e48285d90cded7e28db25c837a93a169ec94a41d5",
         "e9022cdbe9f85989f5b028361d99a46e68c38bba92aa50e1240e87ebda0c946a",
         "cd16c0e1cf402bd4756d0e1ad98af3ef027a69c376c55515da96e8e99c55049f"
       ]

@@ -171380,19 +171380,19 @@
         "dee68aea6a999302631ad6b8faa7e53095f9af5a8abacc2f052997e2e10e4fea",
         "15984737436809b1e7f3727fe823eddee893b6ee3a593f9c63d0b353c5ba9a97",
         "9ee10ead2494d4e865f0fa02a60b48cb44e69e649c5105f17432d217f95bbfc6",
-        "ae9f0d0b6c52cf8d6913acd7d66d55c5924a0e7e700988e90a21c490b2e668a5",
+        "32de88b350c8269fe17655b563778d3eb4c8a280d793c95453b9fd8aa55c900f",
         "bc79a88ee90789bd2ab00c082be22f2949ed4e48a9c6e99949ba43a8b5df33b0",
         "a717c3b2e871fd5833fac949f21407a007da8463434307d43ad29682ca38b8ba"
       ],
-      "source_sha256": "4980a914264421b7abdf0aa255a417749b71f9bd0d320808564b2eeca5455749",
-      "text": "列/值编辑器,以排除从 UMAP 输入数据中的行。\n\n这个 widget 提供给用户的一切都来自一个测量数据库,两者都被用来发生在主要 GUI 执行路径:\n\n* ``discover_columns`` 打开每个数据库 ``src`` 设置解决到并运行 ``sqlite_master`` 加上每张表中的 ``PRAGMA table_info``. 它从 ``SettingsWidgets._refresh_contextual_widgets`` 驱动,因此每次设置 ``src`` 或 ``tables`` 时都会运行。\n* ``distinct_values`` 跑一 ``SELECT DISTINCT … LIMIT 501`` 为 ``(database, table)`` 选择的列出现在 — 并且一个用户实际上排除的列(``plateID``, ``columnID``, ``rowID``)在整个桌子上保持一堆不同的值,所以限制永远不会达到。 SQLite 每行扫描,测量为200000罗 × 8 桌子 measurements.db 用温暖的页面缓存: **196 ms 每列**,和列组合是可编辑的,所以 ``currentTextChanged`` 8个快速编辑冻结窗口 **第894章** 在一个不被打破的区块中。 ``set_source`` 它本身成本为183 ms,单个故意列选项为220 ms. 与工作进程执行相同的三个是29 ms,5 ms和2 ms。\n\n因此,两者都通过编辑所拥有的 :class:`~spacr.qt.job_runner.JobRunner` ,并且值阅读额外进行启动。\n\n* ``_value_cache`` 和 ``_column_sources`` 是主要的 GUI 执行路状态. 工作进程返回平板数据,完成操作员 - 该操作员 Qt 在主要 GUI 实施路径上执行 - 是唯一写下它们的东西。\n* 图表发现和值阅读获得 **分离** 跑者. :meth:`JobRunner.cancel` 工作于一代,所以一个跑者不能超越一个值阅读,而不放弃图表阅读,值阅读取决于。\n* 一个推迟时间器会加热键盘,而:meth:`JobRunner.cancel`会下降任何以前的键盘开始,所以最后一张编辑胜利,而不是最慢的阅读。",
+      "source_sha256": "12beaaf3559ea4f5022a57a1affcbcec527169a4bedfa6aef986ac5d326c24cd",
+      "text": "列/值编辑器,以排除从 UMAP 输入数据中的行。\n\n这个 widget 提供给用户的一切都来自一个测量数据库,两者都被用来发生在主要 GUI 执行路径:\n\n* ``discover_columns`` 打开每个数据库 ``src`` 设置解决到并运行 ``sqlite_master`` 加上每张表中的 ``PRAGMA table_info``. 它从 ``SettingsWidgets._refresh_contextual_widgets`` 驱动,因此每次设置 ``src`` 或 ``tables`` 时都会运行。\n* ``distinct_values`` 跑一 ``SELECT DISTINCT … LIMIT 501`` 为 ``(database, table)`` 选择的列出现在 — 并且一个用户实际上排除的列(``plateID``, ``columnID``, ``rowID``)在整个桌子上保持一堆不同的值,所以限制永远不会达到。 SQLite 每行扫描,测量为200000罗 × 8 桌子 measurements.db 用温暖的页面缓存: **196 ms 每列**,和列组合是可编辑的,所以 ``currentTextChanged`` 8个快速编辑冻结窗口 **第894章** 在一个不被打破的区块中。 ``set_source`` 它本身成本为183 ms,单个故意列选项为220 ms. 与工作进程执行相同的三个是29 ms,5 ms和2 ms。\n\n因此,两者都通过编辑所拥有的 :class:`~spacr.qt.job_runner.JobRunner` ,并且值阅读额外进行启动。\n\n* ``_value_cache`` 和 ``_column_sources`` 是 GUI 线程的状态。工作线程返回普通数据，由 GUI 线程的完成处理器写入。更换数据源会在新模式到达之前清空值缓存。\n* 图表发现和值阅读获得 **分离** 跑者. :meth:`JobRunner.cancel` 工作于一代,所以一个跑者不能超越一个值阅读,而不放弃图表阅读,值阅读取决于。\n* 一个推迟时间器会加热键盘,而:meth:`JobRunner.cancel`会下降任何以前的键盘开始,所以最后一张编辑胜利,而不是最慢的阅读。",
       "translation_source_blocks_sha256": [
         "e661151a82e49a520f2fb700b3b930098651856e62e8723951917d32738f9b0b",
         "f20a7e164d54c4fe0872f0e3fd851d866e117c07d9a1883ec8bad71c17cd3400",
         "e4f4a33d45d70556d4054850c1ffebf1e1239cec7c5a4391d84702355556e524",
         "58baf3424081f737a92b95dc8720982b50327eabed01fa70cae86af863e14953",
         "9ee10ead2494d4e865f0fa02a60b48cb44e69e649c5105f17432d217f95bbfc6",
-        "d5c5fcc9e087cdf926fe46a19b46736262140d7bd3c04fd504fe75ccce9b1432",
+        "94887b98ac3a003e152cc0ab859fbdbc4f74d5ed5dc03d45d25a4d89e95f7fa9",
         "bc79a88ee90789bd2ab00c082be22f2949ed4e48a9c6e99949ba43a8b5df33b0",
         "a717c3b2e871fd5833fac949f21407a007da8463434307d43ad29682ca38b8ba"
       ]
@@ -171404,7 +171404,7 @@
         "966013206f025197c12534f268e177f3941ac0ea40ca6aff50e6d018f3db95be",
         "618f640958edba3ccd8eb00ae6407b66cb1e7e5c194a33eb7ccab3b0dba51734",
         "b8b5b817212bae4173cada55ff3745f0643748aea8a3e132b95401ebfb818331",
-        "c1b00e51152ec17dcea4e5269f7c958c9d8d78438e503004fbc53b862d71a3fc",
+        "d6dbe68118403214c557afeba108672806e2a4ceaa9af33f5366c07e33bfdb1c",
         "2eb1274a5e35b66f4392b115ff96d443f4e04cc446dd2f0ff433cce6adb71644",
         "75f3acedc31beab280e741e0f25b0deb7353f70fd110e6fc3749859d33c413d4",
         "15bf17354e1be45b0675e0ba2514b62418fbad02ca975fca0f0e14579f8b2fb9",
@@ -171412,15 +171412,15 @@
         "18cd0699afc14d577b431789ed60bd0bc69fb62e88adc61c17ef29bcfe884d26",
         "570b81780e0fcdf2a8eb49aaebfa81cb75adbc38ca9c60173525ca6ea4b6f529"
       ],
-      "source_sha256": "133cbed42dbdf3da07e43c60179b1c70b5c11a3884647d535aff5012d89b1296",
-      "text": "通过选择列和值来添加一个或多个 UMAP 序列排除。\n\n数据库在背景执行单元上运行的两个下载背后阅读; 请参见模块为测量原因进行 docstring. 关于 widget 的公共合同没有改变 - :meth:`set_source` 仍然采取来源并返回,它只是不再等待 sqlite 之前。\n\n:param value: 原始规则,在任何形式 :func:`spacr.row_exclusions.normalize_row_exclusions` 接受。\n:param parent: Qt 父母。\n:param threaded: ``False`` 运行两条线,在同一顺序,发出相同的信号 - 一个呼叫者必须有即时 :meth:`set_source` 返回可以要求的值。 只有关键字,并且默认,因为发送的通话网站(``SettingsWidgets._widget_for``)通过``value``和``parent``和其他任何东西。\n:param debounce_ms: 一个列编辑在阅读之前等多久 ``0`` 在下一个事件旋转中阅读,而无需加热。\n创建序列排除编辑器。\n\n两个跑者,而不是一个: ``cancel`` 放弃所有一个跑者在飞行中,并超越一个关键字的价值阅读也不应该放弃图表阅读,说哪个数据库列甚至生活在其中。\n\n:param value: 除外,就开始了。\n:param parent: 父控件，或 ``None``。\n:param threaded: 在测试中设置 ``False`` 以便在返回之前完成阅读。\n:param debounce_ms: 在值阅读之前,打字会设置多少时间。",
+      "source_sha256": "1551325b7b603a67afa8cb725be736dc56d2dac2594e61a7a282a8e1501e55c9",
+      "text": "通过选择列和值来添加一个或多个 UMAP 序列排除。\n\n数据库在背景执行单元上运行的两个下载背后阅读; 请参见模块为测量原因进行 docstring. 关于 widget 的公共合同没有改变 - :meth:`set_source` 仍然采取来源并返回,它只是不再等待 sqlite 之前。\n\n:param value: 原始规则,在任何形式 :func:`spacr.row_exclusions.normalize_row_exclusions` 接受。\n:param parent: Qt 父母。\n:param threaded: ``False`` 运行两条线,在同一顺序,发出相同的信号 - 一个呼叫者必须有即时 :meth:`set_source` 返回可以要求的值。 只有关键字,并且默认,因为发送的通话网站(``SettingsWidgets._widget_for``)通过``value``和``parent``和其他任何东西。\n:param debounce_ms: 列编辑后等待多久才读取。``0`` 将读取安排到后续一次事件循环；计时器触发前的编辑仍可合并。\n创建序列排除编辑器。\n\n两个跑者,而不是一个: ``cancel`` 放弃所有一个跑者在飞行中,并超越一个关键字的价值阅读也不应该放弃图表阅读,说哪个数据库列甚至生活在其中。\n\n:param value: 除外,就开始了。\n:param parent: 父控件，或 ``None``。\n:param threaded: 在测试中设置 ``False`` 以便在返回之前完成阅读。\n:param debounce_ms: 在值阅读之前,打字会设置多少时间。",
       "translation_source_blocks_sha256": [
         "d5bfd69cae64697afee305b98d0ce85e11dd454bdd6566f6db248d2b543ed760",
         "cbfe8822e354a2b4ace7e99025c2ed6210110597e145cb27a80c26bc96a36a1f",
         "966013206f025197c12534f268e177f3941ac0ea40ca6aff50e6d018f3db95be",
         "618f640958edba3ccd8eb00ae6407b66cb1e7e5c194a33eb7ccab3b0dba51734",
         "b8b5b817212bae4173cada55ff3745f0643748aea8a3e132b95401ebfb818331",
-        "c1b00e51152ec17dcea4e5269f7c958c9d8d78438e503004fbc53b862d71a3fc",
+        "d6dbe68118403214c557afeba108672806e2a4ceaa9af33f5366c07e33bfdb1c",
         "2eb1274a5e35b66f4392b115ff96d443f4e04cc446dd2f0ff433cce6adb71644",
         "75f3acedc31beab280e741e0f25b0deb7353f70fd110e6fc3749859d33c413d4",
         "15bf17354e1be45b0675e0ba2514b62418fbad02ca975fca0f0e14579f8b2fb9",
@@ -171441,18 +171441,18 @@
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.closeEvent": {
       "source_blocks_sha256": [
-        "fc7297bf79c14ac9f0fa1576df3f7fe6f64e1c346efb7ab8faf9ea53146cbd1f",
+        "786c1fdc31d88d01989592de4761b76a4cbdcce12a679b26c21bd2eca2092cc8",
         "62152c11aa07004be9f8d65639f44b9b1fddb980f3999ed34ce73e2f6e26c25f",
         "9bee93fdc7bcb8998b2677b898ae32e715d5c3b9adcd288e0c4a97aecfdaab95",
-        "2c15de80058dba9c9551d82b14cf764d4ef1b5623fbd0fa58ffe69cdf5651a04"
+        "f0fac7a4d9c1b268a2b2df9ba0f5c12f1deddf6b3fd166959a1a3207cfb1f62b"
       ],
-      "source_sha256": "7d62184d9caf47e150cd529672547c0c3e2afeb7b3a604750e5a20aa4973eed8",
-      "text": "关闭中间阅读不应该留下一个线条。\n\nQt 堕胎过程,当一个执行 QThread 被摧毁时,一个在其出路上交付到一个 widget 的工作进程是使用后免费的。 ``JobRunner.shutdown`` 处理两者。\n\n不是唯一的防御线,故意,因为它并不总是达到:这个编辑器是一个孩子在一个设置面板内,从那个面板远导航破坏它没有任何接近的事件。 这个案例覆盖的是跑者本身 - QThreads 是无家可归的,退休自己,而 ``JobRunner._relay`` 抓住 ``RuntimeError`` PySide6 升起,当一个工作进程在跑者的 C++ 半已经消失后安排。\n\n:param event: 关闭事件；在工作线程关闭后原样传递给基类。",
+      "source_sha256": "4156e48885a50bacfcaec9ec3c4cd1e896b5cb262a1e11f86dea008cde33c441",
+      "text": "在读取过程中关闭时，取消结果交付并为两个任务运行器执行收尾。\n\nQt 堕胎过程,当一个执行 QThread 被摧毁时,一个在其出路上交付到一个 widget 的工作进程是使用后免费的。 ``JobRunner.shutdown`` 处理两者。\n\n不是唯一的防御线,故意,因为它并不总是达到:这个编辑器是一个孩子在一个设置面板内,从那个面板远导航破坏它没有任何接近的事件。 这个案例覆盖的是跑者本身 - QThreads 是无家可归的,退休自己,而 ``JobRunner._relay`` 抓住 ``RuntimeError`` PySide6 升起,当一个工作进程在跑者的 C++ 半已经消失后安排。\n\n:param event: 关闭事件；两个任务运行器尝试在有限等待时间内完成关闭后，原样传递给基类。",
       "translation_source_blocks_sha256": [
-        "fc7297bf79c14ac9f0fa1576df3f7fe6f64e1c346efb7ab8faf9ea53146cbd1f",
+        "786c1fdc31d88d01989592de4761b76a4cbdcce12a679b26c21bd2eca2092cc8",
         "e11be8a906c9d4f938ebaad21b17c9ea8eaa51139cd25aaf1254d9152d5e698e",
         "9bee93fdc7bcb8998b2677b898ae32e715d5c3b9adcd288e0c4a97aecfdaab95",
-        "2c15de80058dba9c9551d82b14cf764d4ef1b5623fbd0fa58ffe69cdf5651a04"
+        "f0fac7a4d9c1b268a2b2df9ba0f5c12f1deddf6b3fd166959a1a3207cfb1f62b"
       ]
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.get_value": {
@@ -171480,15 +171480,15 @@
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_source": {
       "source_blocks_sha256": [
         "163839b354c2f7bfbe0e224579adb3cf8a0763c394c8fb4926243d37a9bf0048",
-        "b674e94c85b78d48b3657a2ef0c316b982763036e99280cc6c490c14c56fe5b8",
+        "83dbd00398dc87552d446fe6c460a45e0b4ba0631a56f218c5ac8518a970c269",
         "87d80f5603b7c2266e0ff92fcd40f3855c868b26ea33552f3c6694aa292391af",
         "e60b773e8c7d1cbaf0ec2aa60a74fe57aba465a2516e7e85517694a1febff1fa"
       ],
-      "source_sha256": "b65063fcbea16743b3b9a7eabb761809733ef80daa3725d3c1d5ac04f85a3fad",
-      "text": "来自一个落下的测量DB的列/值选项。\n\n投降点保持他们所展示的任何东西,直到工作进程交付 - 一份半一秒钟的列表打了一个冷冻的窗口,在第一次呼叫时,他们看不出什么。\n\n:param source: :func:`source_paths` 接受的任何内容：运行文件夹、其 ``measurements`` 文件夹、``.db`` 文件，或由它们组成的列表。\n:param tables: 将列限制在这些表名范围内；为 ``None`` 时读取所有表。",
+      "source_sha256": "0eda86201147005dbc8b9efbfa460800369b037a9b0755d01bca0e2bc6fe10d7",
+      "text": "来自一个落下的测量DB的列/值选项。\n\n在默认的线程模式下，派发模式读取任务后即返回。读取期间，现有的列选择和勾选值保持可见，包括首次设置数据源之前恢复的规则。使用 ``threaded=False`` 时，在调用内同步执行读取。\n\n:param source: :func:`source_paths` 接受的任何内容：运行文件夹、其 ``measurements`` 文件夹、``.db`` 文件，或由它们组成的列表。\n:param tables: 将列限制在这些表名范围内；为 ``None`` 时读取所有表。",
       "translation_source_blocks_sha256": [
         "163839b354c2f7bfbe0e224579adb3cf8a0763c394c8fb4926243d37a9bf0048",
-        "b674e94c85b78d48b3657a2ef0c316b982763036e99280cc6c490c14c56fe5b8",
+        "2c2389dc635d24005b894466e5f9b93749a91db69b1877bedd353ba424d9dc39",
         "38cc33db135f23dae1172f244d27fc1d037f242d5d0e1665218db07cfa3554f8",
         "e60b773e8c7d1cbaf0ec2aa60a74fe57aba465a2516e7e85517694a1febff1fa"
       ]
@@ -171507,14 +171507,14 @@
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.shutdown": {
       "source_blocks_sha256": [
-        "21285b0f07806ec462ce9b57fe75338e0778312fbeb1e85344d312ebfc06b8f7",
-        "01ebdf8f200e32e2f5d672b4957d27c9b784b66887d7674bd9db3995a8a96aa9"
+        "95762b24932f0db659a4ccafdb82b868c26b491a558b4f81d9f168984a577915",
+        "a307f39ad4481a09b804d70a39962dc18d6e8657a437dcc8e39813332134b9c0"
       ],
-      "source_sha256": "366af60fc4c5bda86796e6c2cf9ccf5df7d642578bed0483f88f6b579ef6dbdf",
-      "text": "停止阅读,不要让任何工作进程过度使用 widget。\n\n公共,因为一个主持人拥有这个编辑器在一个更大的应用程序视图可以直接呼唤它 - Qt 提供一个接近的事件到窗口,而不是每个 widget 在它里面,所以一个应用程序的视图想要阅读停止时,用户导航远离必须这样说。",
+      "source_sha256": "6be5e6528b02b0cc4f9a9a236698ba6a32bdb9e469d49c5f4dc8987b87021eb4",
+      "text": "丢弃待处理的结果，并在有限等待时间内为两个任务运行器执行收尾。\n\n此方法公开，使较大界面中拥有该编辑器的宿主可直接调用。Qt 将关闭事件发送给窗口，而不是其中的每个控件，因此界面若要在用户离开时丢弃待处理结果，必须调用此方法。缓慢的数据库读取可继续在交由后台托管的工作线程中运行，但不会将结果送达此编辑器。此方法具有幂等性。",
       "translation_source_blocks_sha256": [
-        "21285b0f07806ec462ce9b57fe75338e0778312fbeb1e85344d312ebfc06b8f7",
-        "20f9228f1e42c43f14ce22b52d841cc7c965a1b42969acd637cdcbac1c5aae80"
+        "95762b24932f0db659a4ccafdb82b868c26b491a558b4f81d9f168984a577915",
+        "e45b981b1e3cd2793410106a7878e40c8e91faeb18ca53973899f8ec626e00d2"
       ]
     },
     "spacr.qt.widgets.row_exclusion.discover_columns": {
@@ -171555,14 +171555,14 @@
     },
     "spacr.qt.widgets.row_exclusion.source_paths": {
       "source_blocks_sha256": [
-        "31fce773288e3a9b369a346b0f54ce6082c1bd5746ada000db4ccd4ce5854891",
+        "18409b06b2b55101460d174e48285d90cded7e28db25c837a93a169ec94a41d5",
         "2ed4efbe0590e3c33e8093da33f2d99b04ef6c5c5be3d9a08fb922cccfeaf3c4",
         "cd16c0e1cf402bd4756d0e1ad98af3ef027a69c376c55515da96e8e99c55049f"
       ],
-      "source_sha256": "a8f09b0eebe8d43b292acd8916590683b30a0ce957374ba172caa0155f302a8e",
-      "text": "返回 ``measurements.db`` 文件 ``source`` 解决到。\n\n接受路径、路径列表或列表的回复(这是一个设置文本字段在多文件夹滴后保持的),并容忍处理会议文件夹、其 ``measurements`` 子文件夹或数据库本身。 没有存在的路径被推翻,而不是报告:这营养了下跌,半型``src``不是错误。\n\n:param source: 一个路径、路径的列表或元组，或此类列表的文本；空条目会被跳过，``~`` 会被展开。",
+      "source_sha256": "b85b5688c6bda7c11df18c5408c7923744ce688a264c8bedeec58a4a06785e32",
+      "text": "返回 ``source`` 所解析到的现有数据库文件路径。\n\n接受路径、路径列表或列表的回复(这是一个设置文本字段在多文件夹滴后保持的),并容忍处理会议文件夹、其 ``measurements`` 子文件夹或数据库本身。 没有存在的路径被推翻,而不是报告:这营养了下跌,半型``src``不是错误。\n\n:param source: 一个路径、路径的列表或元组，或此类列表的文本；空条目会被跳过，``~`` 会被展开。",
       "translation_source_blocks_sha256": [
-        "31fce773288e3a9b369a346b0f54ce6082c1bd5746ada000db4ccd4ce5854891",
+        "18409b06b2b55101460d174e48285d90cded7e28db25c837a93a169ec94a41d5",
         "e9022cdbe9f85989f5b028361d99a46e68c38bba92aa50e1240e87ebda0c946a",
         "cd16c0e1cf402bd4756d0e1ad98af3ef027a69c376c55515da96e8e99c55049f"
       ]
