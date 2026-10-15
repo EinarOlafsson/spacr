@@ -11,8 +11,24 @@ Copy this file and its adjacent `requirements.txt` to the root of the selected
 source staging bundle. Keep the project's `README.rst`, `setup.py`,
 `pyproject.toml`, `MANIFEST.in`, `LICENSE`, all selected `spacr` files, the web
 folder, `tools/build_model_cards.py`, `tools/build_score_cards.py` and setuptools'
-Linux desktop/icon data inputs. Do not clone or upload repository history,
+Linux desktop/icon data inputs. Do not upload development-repository history,
 private data, tutorials or credentials.
+
+The managed build installs requirements before copying the Space source into
+`/app`, so a local `.[plaque]` requirement cannot resolve there. The requirements
+instead use the immutable public source snapshot
+`einarolafsson/spacr-mask-generator@66ac681d3040aab1823aed0bf16b4ed5c89589f7`
+as an ordinary noneditable Git dependency with the `plaque` extra and normal
+dependency resolution. That reviewed snapshot contains the required package
+inputs and excludes the legacy checkpoint; it does not read this managed
+requirements file from its setup/build backend. The small public Space source
+is used instead of the multi-gigabyte development repository. The observed managed
+base image installs Git and Git LFS and runs `git lfs install` before Python
+requirements, so ordinary Git checkout can resolve the snapshot's package data.
+The required finite Git metadata and package assets are fetched during the build;
+checkpoint weights are absent from that snapshot. No runtime pip invocation,
+dependency bypass, visitor URL or credential is involved. A future source or
+dependency change requires a new immutable reviewed source pin.
 
 The Space's managed SDK supplies Gradio and spaces. Do not also include the
 local-development `requirements-space.txt`, which targets a different SDK.
@@ -26,15 +42,17 @@ its actual settings. README metadata does not allocate hardware. No paid GPU,
 PRO upgrade or paid fallback is configured. Keep the existing model-upload Space
 separate. Set `SPACR_WEB_ZERO_GPU=1` only after selecting real ZeroGPU hardware.
 
-This source does not download weights automatically. Before enabling inference,
-provision the exact approved model files from their actual public model/dataset
-repository type and immutable revision, independently verify the catalogue
-SHA-256, and set `SPACR_WEB_MODELS_JSON` to the operator-controlled local paths.
-An empty mapping can construct the UI but cannot process a model request. All
-advertised model versions require their own verified files; do not imply that a
-missing version is available or silently substitute another one. Public examples
-remain disabled until genuine reviewed test-split records are supplied through
-`SPACR_WEB_EXAMPLES_JSON`.
+Ordinary local startup does not download weights. Managed startup downloads
+only when BOTH `SPACR_WEB_ZERO_GPU=1` and `SPACR_WEB_PROVISION_MODELS=1` explicitly
+opt into the verified provisioning described below; leave `SPACR_WEB_MODELS_JSON`
+unset for that route. Alternatively, without the provisioning opt-in, the
+operator may provision the exact approved public model/dataset files at immutable
+revisions, independently verify the catalogue SHA-256, and set
+`SPACR_WEB_MODELS_JSON` to those trusted local paths. An empty mapping can
+construct the UI but cannot process a model request. All advertised model versions
+require their own verified files; do not imply that a missing version is available
+or silently substitute another one. Public examples remain disabled until genuine
+reviewed test-split records are supplied through `SPACR_WEB_EXAMPLES_JSON`.
 
 Uploads require explicit consent. The result ZIP includes the original upload.
 Job staging is removed when the result is copied to the download cache; cache

@@ -1,4 +1,4 @@
-.[plaque]
+spacr[plaque] @ git+https://huggingface.co/spaces/einarolafsson/spacr-mask-generator@66ac681d3040aab1823aed0bf16b4ed5c89589f7
 huggingface-hub==0.36.2
 torch==2.13.0
 torchvision==0.28.0

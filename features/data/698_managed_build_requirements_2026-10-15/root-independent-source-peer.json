@@ -1,0 +1,7 @@
+{
+  "decision": "ACCEPT narrow packaging repair",
+  "source_commit": "84615c61607759607c01429fe7d349cfb8242e9a",
+  "review": "One PEP508 full immutable public Git requirement retains plaque extra and all four dependency pins. Snapshot66ac independently uploaded/readback verified; build log proves Git/LFS initialized before requirements and source COPY afterward. No local runtime pip, dependency bypass, source/module/API or service setting mutation. README now correctly distinguishes explicit two-flag opt-in from ordinary local startup.",
+  "checks": "All source/evidence bytes/hash pins exact; actual final normal offline pip two-test XML reviewed with zero failures/errors/skips. No repeated successful cohort.",
+  "remaining": "Actual managed clone/resolver/native build/provision/inference acceptance still required."
+}

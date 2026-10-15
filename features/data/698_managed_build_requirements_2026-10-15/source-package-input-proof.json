@@ -1,0 +1,85 @@
+{
+  "immutable_source_url": "git+https://huggingface.co/spaces/einarolafsson/spacr-mask-generator@66ac681d3040aab1823aed0bf16b4ed5c89589f7",
+  "actual_package_tree_source": "35aeaa9ddc1f09cbd85fe75617a68df81adade0f",
+  "snapshot_input_proofs": {
+    "setup.py": {
+      "git_blob": "b1bb1edeb8bd67d6cbde7d4786abaf47cc5af7e1",
+      "bytes": 15880,
+      "sha256": "747e7e12f20ef783ee29b53365e775c47872753ced0eb615739774074098efab"
+    },
+    "pyproject.toml": {
+      "git_blob": "f94ab378a170af36d3c27b0123baaa64530b9e2a",
+      "bytes": 8534,
+      "sha256": "f5aa8190ce8dba5575fb99c9ec3882def9ced69cc272ffe2c5dec55238931733"
+    },
+    "MANIFEST.in": {
+      "git_blob": "26c004ffa0f781f7edcca8101f2a0efba5ae80fb",
+      "bytes": 8037,
+      "sha256": "301061915426835f6fce4603f91e11b37805dec05eaf7955b735785ad88d2f40"
+    },
+    "README.rst": {
+      "git_blob": "2196a26af8c75dd699ecc66948cdaec6a8df0163",
+      "bytes": 56181,
+      "sha256": "e5de6f959002ea81d50922cfe752fd23dbb80e1345b8a4cb670dd2d9ce90c922"
+    },
+    "LICENSE": {
+      "git_blob": "4233f804647ab1c4a5441b43067467e230fc61da",
+      "bytes": 1562,
+      "sha256": "cb4f671e392ee5229fa2c1909fbbf748b1db36702ed5e0624f3f34117007881c"
+    },
+    "packaging/linux/io.github.olafssonlab.spacr.desktop": {
+      "git_blob": "32b276c78d629a845d09c02b9fc2f3649ce7b0dc",
+      "bytes": 226,
+      "sha256": "550756257c9b39f09b71145465ebc42110c7f348f4d9145243fb31ba431d6327"
+    },
+    "packaging/linux/icons/hicolor/16x16/apps/io.github.olafssonlab.spacr.png": {
+      "git_blob": "a63f52fdf9a8e0b970cd478c2d1199d2df09e52d",
+      "bytes": 674,
+      "sha256": "fe55043288ecce530b412fe79c5086b6c9d499df3e6c73ab69949974a201fb9f"
+    },
+    "packaging/linux/icons/hicolor/32x32/apps/io.github.olafssonlab.spacr.png": {
+      "git_blob": "af7c757a477b4e671ab7215a08cb94dfb52ee340",
+      "bytes": 1398,
+      "sha256": "79c4f409096135c2f5e2c5f3882539e46461bcb8c3af7c02d3ba9ce62875a541"
+    },
+    "packaging/linux/icons/hicolor/48x48/apps/io.github.olafssonlab.spacr.png": {
+      "git_blob": "03a4391272fa6418236c30790289cdf499b06351",
+      "bytes": 3086,
+      "sha256": "87aa8a9f58269f89dfb2b7c320ed520ade33ece2dadfc42d817b08bcdbc9f09c"
+    },
+    "packaging/linux/icons/hicolor/64x64/apps/io.github.olafssonlab.spacr.png": {
+      "git_blob": "8fb88bded9994eff4b591272186744ec855a5337",
+      "bytes": 4410,
+      "sha256": "740caf5d0e59f0e36e7eeb2c117714c714648b526a10cf7770b23981ecb22b0b"
+    },
+    "packaging/linux/icons/hicolor/128x128/apps/io.github.olafssonlab.spacr.png": {
+      "git_blob": "d51124958c274db5717c0e192436d4ac675fedbd",
+      "bytes": 11055,
+      "sha256": "f72b98c47c1cf5f89ac0638c33684a80e50107ce0d62ede87140cac06166eeed"
+    },
+    "packaging/linux/icons/hicolor/256x256/apps/io.github.olafssonlab.spacr.png": {
+      "git_blob": "32a3f8cb3f1e932f8f96ab31ab8984f4153a7704",
+      "bytes": 24667,
+      "sha256": "fd9a013a8a139f2dde9e501499ff32b6c895cff623c1ca54de13353da390f4b6"
+    },
+    "packaging/linux/icons/hicolor/512x512/apps/io.github.olafssonlab.spacr.png": {
+      "git_blob": "eef8f6d28b557974cc9af963e9a236b965225514",
+      "bytes": 55123,
+      "sha256": "41c63f227209556bdfaa1f91473ae5120d493d1544d3dcd71d82d99a9bfbb857"
+    }
+  },
+  "setup_imports": [
+    "import sys",
+    "import re",
+    "from html import unescape",
+    "from setuptools import setup, find_packages"
+  ],
+  "setup_file_reads": [
+    "open('README.rst', 'r', encoding='utf-8')"
+  ],
+  "no_recursion": "Actual setup.py and pyproject build metadata do not read managed root requirements.txt or invoke pip/runtime startup. Source checkout can install ordinary dependencies/plaque extra before /app source COPY.",
+  "git_lfs_proof": "Preserved actual managed BUILD_ERROR log includes base apt install git git-lfs followed by git lfs install. Snapshot169LFSobjects SHA/size all bound in deployment proof. No local git-lfs executable installed; no actual remoteclone/download claimed.",
+  "footprint": "HF immutable snapshot1182files129636002B. GitHub source commit37332files4443760391B deliberately not dependency; no full development checkout/history. VCS still fetches required finite Git metadata/assets from the small public Space.",
+  "excluded_checkpoint": "spacr/resources/models/toxo_plaque_cyto_e25000_X1120_Y1120.CP_model",
+  "limit": "Actual next managed resolver/VCS/LFS/build remains acceptance, not proved by local toy source fixture."
+}

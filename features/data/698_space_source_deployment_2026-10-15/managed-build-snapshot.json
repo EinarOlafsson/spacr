@@ -1,0 +1,26 @@
+{
+  "observed_at_utc": "2026-10-15T15:36:25.831347+00:00",
+  "repo": "einarolafsson/spacr-mask-generator",
+  "expected_commit": "66ac681d3040aab1823aed0bf16b4ed5c89589f7",
+  "actions": "GET only; no restart/settings/upload/download/inference",
+  "source": {
+    "id": "einarolafsson/spacr-mask-generator",
+    "sha": "66ac681d3040aab1823aed0bf16b4ed5c89589f7",
+    "sdk": "gradio",
+    "private": false
+  },
+  "runtime": {
+    "stage": "BUILD_ERROR",
+    "hardware": {
+      "current": null,
+      "requested": "zero-a10g"
+    },
+    "errorMessage": "Job failed with exit code: 1. Reason: cache miss: [run 2/2] COPY --from=pipfreeze --link /pipfreeze/ /pipfreeze/\ncache miss: [run 1/2] COPY --link ./ /app\ncache miss: [pipfreeze 2/2] RUN pip freeze > /pipfreeze/freeze.txt\ncache miss: [base 6/7] RUN --mount=target=/tmp/requirements.txt,source=requirements.txt     pip install --no-cache-dir -r /tmp/requirements.txt \"torch<=2.13.0\"     gradio[oauth,mcp]==6.17.3     \"uvicorn>=0.14.0\" \"websockets>=10.4\"     spaces==0.51.3\ncache miss: [pipfreeze 1/2] RUN mkdir -p /pipfreeze\ncache miss: [run 1/2] LINK COPY --link ./ /app\ncache miss: [run 2/2] LINK COPY --from=pipfreeze --link /pipfreeze/ /pipfreeze/\ncache miss: [base 7/7] RUN mkdir -p /home/user && ( [ -e /home/user/app ] || ln -s /app/ /home/user/app ) || true\n{\"total\":26,\"completed\":20,\"user_total\":14,\"user_cached\":5,\"user_completed\":8,\"user_cacheable\":13,\"from\":1,\"miss\":8,\"client_duration_ms\":51353}\n",
+    "gcTimeout": 172800,
+    "resources": null
+  },
+  "build_log_http_status": 200,
+  "build_log_content_type": "text/event-stream",
+  "build_log_bytes": 2371,
+  "build_log_sha256": "9d4244618e326fdf5c7bc293c7ebad935f2eaa6a81e1ab967184b6f1be1fb7c9"
+}
