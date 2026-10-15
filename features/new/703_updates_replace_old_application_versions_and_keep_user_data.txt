@@ -444,3 +444,33 @@ source-path prerequisite and combined arrival closure, not claimed passed.
 Native OS/install/update acceptance and parent N703/full-CI remain open.
 Raw evidence: /mnt/wd4tb/scratch/n703-installer-sidecars-20261014/owning.xml and
 owning.exit; source/remaining scope is recorded in delivery-receipt.json there.
+
+
+2026-10-14 23:54 EDT — Current-nightly installer integration and CLI locale closure
+Integrated the seven private N703 source deliveries onto current public nightly,
+reusing the already-public pip transaction engine. The owner-provided extractor
+now includes install_cleanup.py. Normal runtime generation wrote all nine
+reviewed locales for the ten formerly held CLI captions, preserving EVERY
+unrelated source-current target; English/catalog source audit passed. Normal
+scoped generation verified both owned API symbols for all nine locales, preserved
+every unrelated localized symbol and passed the 13,474-symbol English audit.
+The ordinary source-history writer pruned one no-longer-referenced historical
+English entry; no generated artifact was hand-merged.
+
+63 distinct owning checks now PASS on this combined source. The initial run
+passed61 with two German/Icelandic help assertions failing because argparse
+wrapped compound words at hyphens under an unspecified terminal width. The
+fixture now fixes COLUMNS=240; its exact review/rendered-text assertions are
+unchanged, and all nine affected language cases passed. Nine additional metadata
+help locale cases passed in the first cohort. Original failures remain in WD
+scratch. The three GUI handoff methods exactly match the prior45PASS delivery,
+so that unchanged cohort was reused. Fatal Ruff, Bash syntax and diff checks pass.
+
+Global caption-arrival acceptance remains HELD: the public arrival tool still
+has neither a refresh callable nor CLI. No no-op invocation is counted as a
+check, no fixture was hand-edited, and root's separate N700 review hold is not
+waived. Native Windows/macOS/Linux installer acceptance, unsupported shared
+Python/frozen Debian adapters, full hosted CI and parentN703 remain open. The
+Debian outside helper exists but lacks a privileged verified rollback transaction;
+its refusal is retained and no real dpkg/root/package operation was run.
+Source-bound receipt: features/data/n703_current_catalog_closure_2026-10-14/.

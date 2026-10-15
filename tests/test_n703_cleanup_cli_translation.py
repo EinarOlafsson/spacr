@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 @pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])
 def test_actual_cli_help_and_error_templates_use_exact_reviewed_locale(monkeypatch, capsys, language):
     monkeypatch.setenv('SPACR_LANGUAGE', language)
+    monkeypatch.setenv('COLUMNS', '240')
     records = json.loads((ROOT / 'docs/i18n/reviewed/runtime' / language /
                           '2026-10-14-n703-uninstall-cli.json').read_text())['records']
     assert len(records) == 9
@@ -54,3 +55,19 @@ def test_each_added_cli_caption_is_a_literal_translation_call():
              and node.func.id == 'tr' and node.args and isinstance(node.args[0], ast.Constant)}
     records = json.loads((ROOT / 'docs/i18n/reviewed/runtime/sv/2026-10-14-n703-uninstall-cli.json').read_text())['records']
     assert {row['source'] for row in records} <= calls
+
+
+@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])
+def test_installer_metadata_command_help_uses_exact_reviewed_locale(monkeypatch, capsys, language):
+    monkeypatch.setenv('SPACR_LANGUAGE', language)
+    monkeypatch.setenv('COLUMNS', '240')
+    records = json.loads((ROOT / 'docs/i18n/reviewed/runtime' / language /
+                          '2026-10-14-n703-installer-metadata.json').read_text())['records']
+    assert len(records) == 1
+    source, target = records[0]['source'], records[0]['translation']
+    assert source != target
+    assert ic.tr(source) == target
+    with pytest.raises(SystemExit) as stopped:
+        ic._main(['--help'])
+    assert stopped.value.code == 0
+    assert ' '.join(target.split()) in ' '.join(capsys.readouterr().out.split())

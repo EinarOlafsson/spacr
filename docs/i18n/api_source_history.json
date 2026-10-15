@@ -111,15 +111,6 @@
       ],
       "source_sha256": "c60be06622ffe4c46fa6bdbafd5ebb235ba81be8a7249e68758361f50acf2850",
       "text": "Enrol this screen and its panels with the workspace registry.\n\nRegistered as CALLABLES returning the attribute, never as the widget:\n`_results_panel` is rebuilt when the module changes, and a captured\nreference would hand a run journal a deleted C++ peer to ask."
-    },
-    "fe4414ab341f2ffd0d4d8200249699f8ef180a75295a041759318d445d0373ff": {
-      "source_blocks_sha256": [
-        "7567b0033a455d2469f31f348015ad0ec4243989bdea9a6aceec25c108c6d57c",
-        "0448242df32ae4110ab12a8702d4778a3056f798d4e0677b68414383da6967e1",
-        "a9f47202036c0d9cc517998c2ab6e96b6dee49701443ac7fabe3d90661e5bd56"
-      ],
-      "source_sha256": "fe4414ab341f2ffd0d4d8200249699f8ef180a75295a041759318d445d0373ff",
-      "text": "Restart the hide timer when the cursor leaves the POPUP itself.\n\nShorter than the anchor's grace period on purpose: leaving the popup\nis a deliberate act, where leaving the label may just be the journey\ntowards it.\n\n:param event: the leave event; passed to the base class and otherwise\n    not read."
     }
   }
 }
