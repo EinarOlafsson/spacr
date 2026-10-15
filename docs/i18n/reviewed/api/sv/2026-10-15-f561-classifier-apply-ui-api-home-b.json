@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+      "source": "Whether crop loading, embedding, training or classifier application is in flight.",
+      "context": "Whether extracted image region loading, embedding, training or machine-learning classification model application is in flight.",
+      "source_sha256": "120441c091d7112f425351b6a36e80330d23b72fd287fcd605cf0835cc095d46",
+      "previous_same_source_indexes": [],
+      "translation": "Om inläsning av bildutsnitt, inbäddning, träning eller tillämpning av en klassificerare pågår.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw full channel-last crops, model-output identity and delivery-only cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "Includes the training and application runners until their workers have retired, even after their final results have reached the screen.",
+      "context": "Includes the training and application runners until their workers have retired, even after their final results have reached the screen.",
+      "source_sha256": "7d56e2a1bc3c6e82cb5924fd911f2b6670a9fd2a7b10a1f73318e70916a8f6b6",
+      "previous_same_source_indexes": [],
+      "translation": "Omfattar körarna för träning och tillämpning tills deras arbetstrådar har avregistrerats, även efter att deras slutresultat har nått vyn i det grafiska gränssnittet.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw full channel-last crops, model-output identity and delivery-only cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._apply_dino_classifier.finished#0",
+      "source": "Retain outputs only for the still-current, uncancelled crop selection.",
+      "context": "Retain outputs only for the still-current, uncancelled extracted image region selection.",
+      "source_sha256": "878d2e481199a504f1389703f1803831f0e9321380a975bc99adf5140d005634",
+      "previous_same_source_indexes": [],
+      "translation": "Behåll utdata endast för det fortfarande aktuella, inte avbrutna urvalet av bildutsnitt.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw full channel-last crops, model-output identity and delivery-only cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._apply_dino_classifier.work#0",
+      "source": "Apply the actual artifact to unchanged full raw channel-last crops.",
+      "context": "Apply the actual artifact to unchanged full raw channel-last extracted image regions.",
+      "source_sha256": "cbf6262bdf4f5c22821cfc4671c5551914f2fe2e4e114ec7666bc3aa6d21156f",
+      "previous_same_source_indexes": [],
+      "translation": "Tillämpa den faktiska modellartefakten på oförändrade, fullständiga råa bildutsnitt med kanalaxeln sist.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw full channel-last crops, model-output identity and delivery-only cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._save_classifier_application.finished#0",
+      "source": "Report the exported snapshot only while its source result is current.",
+      "context": "Report the exported snapshot only while its source result is current.",
+      "source_sha256": "6bbdadd9d4d29b5e5b69b72287b7597682f307430825a3793943262ea0da9e9a",
+      "previous_same_source_indexes": [],
+      "translation": "Rapportera den exporterade ögonblicksbilden endast så länge dess ursprungsresultat är aktuellt.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw full channel-last crops, model-output identity and delivery-only cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._save_classifier_application.work#0",
+      "source": "Write every output column with saved class names and channel provenance.",
+      "context": "Write every output column with saved class names and channel provenance.",
+      "source_sha256": "40a4395cee6abd5955aab1c9fc4d2a82c48025ebead2d5455b7901d51b3b31b5",
+      "previous_same_source_indexes": [],
+      "translation": "Skriv varje utdatakolumn med sparade klassnamn och kanalernas ursprung.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw full channel-last crops, model-output identity and delivery-only cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._show_classifier_application.show_view#0",
+      "source": "Render the selected real output without rerunning or changing the model.",
+      "context": "Render the selected real output without rerunning or changing the model.",
+      "source_sha256": "93743ba21e3852d83a30b6a0490ed09e9c7029b97a9a2ce6069296364d58ec3e",
+      "previous_same_source_indexes": [],
+      "translation": "Återge valda faktiska utdata utan att köra modellen igen eller ändra den.",
+      "review_basis": "Exact-source technical translation authoring with separate coordinator semantic review. Raw full channel-last crops, model-output identity and delivery-only cancellation/lifecycle and protected literals retained; normal source/context and actual inline markup gates passed. No native-speaker claim."
+    }
+  ],
+  "review_kind": "Exact-source technical translation with independent coordinator semantic review; no native-speaker signoff",
+  "note": "F561 saved-classifier application source29941d1693. Seven changed/new blocks in six UI-owned symbols; five are new enabled nested helpers. Existing closeEvent and all backend records remain unchanged. Catalog generation is separate."
+}
