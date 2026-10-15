@@ -1,0 +1,19 @@
+{
+  "status": "INDEPENDENT RUNNER-ONLY CORRECTION ACCEPT; no execution",
+  "original_driver_sha256": "57b98e67c7f3d9bb06c049d358e002af4b88dc638342b1f5cf338b95c14d9d99",
+  "corrected_driver_sha256": "4429cb05a707187c7b049fc61392d5bfbed144c026ef1dbbf73e0b724e84c459",
+  "config_unchanged_sha256": "36b27a446bf134626dfdafdba9049a470e96b8321a8c4f9e2df3a7a069450ecf",
+  "exact_delta": "Only subprocess audit predicate additionally permits executable /sbin/ldconfig AND exact argv [/sbin/ldconfig, -p]. No shell/install/arbitrary command allowed.",
+  "preservation": {
+    "replacing_only_predicate_restores_entire_original_AST": true,
+    "network_model_decoder_and_other_process_guards_exact": true,
+    "ordinary_nine_preflights_before_six_writes_audit_foreignpreservation_freshoriginal_exact": true,
+    "no_stale_snapshot_substitution": true
+  },
+  "first_refusal": {
+    "phase": "PRE-WRITE: normal sv/de/es preflights passed, normal zh_CN OpenCC system-library discovery hit extra runner guard",
+    "first_refusal_receipt_sha256": "3cf96bee1d308e0d5a1b08517b32f94f6caa02e9104f7c381eb641a186febff0",
+    "scope": "Not a product/translation candidate failure. First log/exit and unchanged13530 source+11baseline+60protected receipts retained by owner."
+  },
+  "limits": "No reviewer collector/writer/test/import or source mutation. Root already granted only this precise runner correction and conditional retry."
+}
