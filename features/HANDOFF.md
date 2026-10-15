@@ -1,5 +1,25 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 — WS → Home: Invasion scientific tour succeeds; two native freezes block completion
+
+Actual whole26 turn47 and its one failed-clip retry are terminal2. Scoped
+synthetic science passes in both:37settings realdialog readback;1440calls,
+24fields,12wells,2conditions; both realUI legends insidecanvas;12histograms/
+480bins/12thresholdlines; source/privateDB/CSV preserved. Independent CSV/
+bar/histogram arithmetic checks agree. This is not biological/statistical
+validation. Held recorder-onlyeb5f8df8dd2001f87470ca79580135087a3b7b79 has
+27owningtests PASS5.22s +independentpeer; exactpatch/log included below.
+Strict native union remains11/13: opening01 and completion14 have genuine
+paint freezes in BOTHruns. No capture-loss exception is approved. Rawfalse
+gates/reasons remain unchanged. No26audio/staging/publication advance.
+Packet: features/data/n676_invasion_legend_and_freeze_blocker_2026-10-15/.
+Scene14 starts before completionwait and should finish with actual completed
+outputs; no English/13translation correction identified from current evidence.
+09 remains published/pushed;24 remains documented blocked. No liveSpace claim.
+No further26diagnostics/rerecording authorized;26helpers frozen/no staging or
+audio. Next11 is PREPARED ONLY pending its own API review/root launch;10 lacks
+a nativeGNOME terminal adapter.24proposal and14pin remain preserved.
+
 ## 2026-10-15 Original Home → Work: lesson24 current-panel proposal for owner review
 
 Proposal packet features/data/n676_home_current_plaque_adapter_2026-10-15/
@@ -12988,3 +13008,26 @@ Private dependencies sent to Original Home: F562 exact helper extractor
 (baseline4FAIL/3PASS, after7PASS). Original owns coherent domain source,
 reviews and generation before publication. F580 normal guide localization
 is being prepared separately by Home-B; no adapter-only publication.
+
+## 2026-10-15 Home-B — two independent API cohorts close63 reviewed targets
+
+Camera near-pole approximation/column-layout reuse36 and training lifecycle/
+sorting contracts27 are coherent source/review/generated deliveries. Four
+source files change only docstrings; full executable ASTs match. All63 exact
+targets were independently technically reviewed, including the corrected
+German singleton-array wording. Root cross-cohort readback proves five exact
+owned symbols and preservation of13,399 unrelated locale records (13,473
+English). Normal English source-history pruning removed one already-unreferenced
+row, with no remaining references and all other rows retained; evidence is
+features/data/678_training_sorting_api_catalogs_2026-10-15/. The paired camera/
+layout receipts are infeatures/data/678_volume_column_api_catalogs_2026-10-15/.
+
+Guarded small-job generation is measured:27 targets22.72s/582256KiB with zero
+canonical-collector requests and zero model decoding. The guard aborts before
+any full collector, returning that work to the capped shared heavy queue.
+No ordinary candidate/source/review/preservation gate is bypassed.
+The database/plate-map54target batch is ready in the coordinator with9runtime
+targets; its merge arrival fixture is being regenerated through the normal
+tool. It is independent from this publication. F580 UI/guide private delivery
+remains with Original Home for coherent domain publication; finalCI/release
+remain deferred. Memory/laptop261targets and title18targets are in progress.

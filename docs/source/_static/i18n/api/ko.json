@@ -129151,23 +129151,23 @@
     "spacr.qt.widgets.column_aligned_row.align_row_to_columns": {
       "source_blocks_sha256": [
         "1d027bfcfd9210dcdbc58785d18d05bc90971737883f281325d8211f8b6d55d8",
-        "db93827e50fd5861e93237f7fd901cb6781f0bdb7210ceb075852f8bd6201009",
+        "0d4421cced46003a8d05e52d6b3842c5c794dea2c03653505c139f1d96c3dd6e",
         "93b9bd24f6d013a0e84ab3d64cac1c07632278437e682bd56e0fabd79aa5eb5c",
         "3ded0dfd7c5311f8fe08a9a1270a476a7e538e7bf4f948132a3e1bd10bffec88",
         "7b259578d5de9b82d8b13bc1f20772fb12a9efe051287de87ee7af8c2aa2d6fb",
         "acbaeaa72163960db71238c7393144a3bf23f8cc44c38798a825e9e25b57a05b",
-        "e4a5496eff817ef56a05a7ba71fb32a9d0a63620b240319b823b0740e8f1118e"
+        "f796a98915f1f220509207ae94d012b95f7e0fe85dae6b30df12128008345ca6"
       ],
-      "source_sha256": "dabcf6588ca5c4a4f30cd9c8e3b717cf0e2ab754e8e3ba400578e6cf3a5cea00",
-      "text": "``strip``의 위젯을 ``header``의 섹션 위로 다시 삽입합니다.\n\nIdempotent : 이미 이 헤더를 따르는 스트립은 변함없이 반환되므로 반복되는 쇼는 아무것도 비용이 들지 않으며 두 개의 레이아웃을 스택 할 수 없습니다.\n\n:param strip: 그것의 기존 레이아웃은 파괴되고 파괴됩니다 - 위젯은 살아남고 ``strip``로 복구됩니다.\n:param header: ``QHeaderView``은 그 열을 따릅니다.\n:param columns: ``(widget, column index or None)`` 순서에서 불일치된 것들은 흔들려야 합니다.\n:param on_invalidate: 레이아웃으로 전환; 관리 된 위젯의 크기 힌트가 변경되면 호출, 그래서 헤더의 소유자는 그 이후로 번역 된 표지판에 열을 다시 적응할 수 있습니다.\n:returns: 설치된 레이아웃, 또는 ``None`` 할 일이 없을 때.",
+      "source_sha256": "0722ce2688299ab6c18c7c0d9d5cc4bd500decc63cf288e05cfcbb007aa0af94",
+      "text": "``strip``의 위젯을 ``header``의 섹션 위로 다시 삽입합니다.\n\n스트립에 기존 ``ColumnAlignedRow`` 객체가 있으면 그대로 반환합니다. 이 객체의 헤더, 위젯과 열의 연결 및 무효화 콜백은 새 인수와 비교하지 않으며 새 인수로 교체하지도 않습니다.\n\n:param strip: 그것의 기존 레이아웃은 파괴되고 파괴됩니다 - 위젯은 살아남고 ``strip``로 복구됩니다.\n:param header: ``QHeaderView``은 그 열을 따릅니다.\n:param columns: ``(widget, column index or None)`` 순서에서 불일치된 것들은 흔들려야 합니다.\n:param on_invalidate: 레이아웃으로 전환; 관리 된 위젯의 크기 힌트가 변경되면 호출, 그래서 헤더의 소유자는 그 이후로 번역 된 표지판에 열을 다시 적응할 수 있습니다.\n:returns: 기존 레이아웃 또는 새로 설치한 레이아웃입니다. ``columns`` 값이 비어 있으면 빈 레이아웃도 반환합니다. 스트립이나 헤더가 없거나 해당 Qt 객체가 삭제되었으면 ``None`` 값을 반환합니다.",
       "translation_source_blocks_sha256": [
         "1d027bfcfd9210dcdbc58785d18d05bc90971737883f281325d8211f8b6d55d8",
-        "db93827e50fd5861e93237f7fd901cb6781f0bdb7210ceb075852f8bd6201009",
+        "0d4421cced46003a8d05e52d6b3842c5c794dea2c03653505c139f1d96c3dd6e",
         "93b9bd24f6d013a0e84ab3d64cac1c07632278437e682bd56e0fabd79aa5eb5c",
         "3ded0dfd7c5311f8fe08a9a1270a476a7e538e7bf4f948132a3e1bd10bffec88",
         "7b259578d5de9b82d8b13bc1f20772fb12a9efe051287de87ee7af8c2aa2d6fb",
         "acbaeaa72163960db71238c7393144a3bf23f8cc44c38798a825e9e25b57a05b",
-        "e4a5496eff817ef56a05a7ba71fb32a9d0a63620b240319b823b0740e8f1118e"
+        "f796a98915f1f220509207ae94d012b95f7e0fe85dae6b30df12128008345ca6"
       ]
     },
     "spacr.qt.widgets.column_picker": {
@@ -173727,28 +173727,28 @@
     "spacr.qt.widgets.sortable_table.install_sorting": {
       "source_blocks_sha256": [
         "b11ded6a64f63cc4849cfce62c3ead0a9d23aa419dadf2238a39a031e2ddfd10",
-        "686101677b15bd3f817879385643c71d84a66d3874e53ef25d2ea35d7aae8cf9",
+        "e41b133bb713bef074803c33b9636cd66e7eeaf44a31fc71ff052df929388726",
         "64f9ea786ebb1e7ecaba4b4d085d60099cb1cc6d2176de27d771ea7c46f4f25d"
       ],
-      "source_sha256": "e48ad3364a41a5bde6b19a6a9cbdb6cd6bd46b8721c27333c7e362bedbfdf83c",
-      "text": "``view``에 3개 상태의 세멘트 분류를 설치하고 반환합니다.\n\n``QTableWidget``, ``QTreeWidget``, 또는 ``QTableView``을 수락합니다. ``QTableView``은 :class:`SortableProxyModel`에 삽입되며 ``setModel`` 이후 즉시 이 기능을 호출하고 나중에 시각의 선택 모델을 얻습니다.\n\n:param view: 정렬 가능하게 만들 뷰입니다. 헤더가 없는 뷰는 그대로 반환되며, 이미 설치된 뷰는 초기 순서만 다시 기록됩니다.",
+      "source_sha256": "e48de96b6d78894d9081312795001353c93e1b08cf59293fe31354bcf05bf887",
+      "text": "``view``에 3개 상태의 세멘트 분류를 설치하고 반환합니다.\n\n``QTableWidget``, ``QTreeWidget`` 또는 ``QTableView`` 객체를 받습니다. 프록시가 아닌 모델을 가진 ``QTableView`` 객체는 :class:`SortableProxyModel` 객체로 감쌉니다. 기존 ``QSortFilterProxyModel`` 객체는 자체 비교 동작과 함께 유지하며, 모델이 없는 뷰는 감싸지 않습니다. ``setModel`` 호출 직후 이 함수를 호출하고, 그 다음 뷰의 선택 모델을 가져오세요.\n\n:param view: 정렬 가능하게 만들 뷰입니다. 헤더가 없는 뷰는 그대로 반환되며, 이미 설치된 뷰는 초기 순서만 다시 기록됩니다.",
       "translation_source_blocks_sha256": [
         "b11ded6a64f63cc4849cfce62c3ead0a9d23aa419dadf2238a39a031e2ddfd10",
-        "686101677b15bd3f817879385643c71d84a66d3874e53ef25d2ea35d7aae8cf9",
+        "e41b133bb713bef074803c33b9636cd66e7eeaf44a31fc71ff052df929388726",
         "64f9ea786ebb1e7ecaba4b4d085d60099cb1cc6d2176de27d771ea7c46f4f25d"
       ]
     },
     "spacr.qt.widgets.sortable_table.is_missing": {
       "source_blocks_sha256": [
         "b34ec42b2f257bb6de3f89dac1df685d85f634ebfe4f4f5a22e48233076bac3d",
-        "346d13b32d0cc981d1bfea4f6888995268b54d469ee33a8b13c19d28c2b966e0",
+        "bb52e60989e40c494cddcea3c8135eb8aba4549eda7d0f87be39d468d8b0a5af",
         "2810efc3b65489b377421afea1d55e57b0f09da1466a8c64b34b178c6be9d32a"
       ],
-      "source_sha256": "116e3fa13e7b01ae96c7260991e800c8791c39cb391a1f67bf1f1f0e5dee5720",
-      "text": "``value``가 텅 비어 있는지 또는 실종된 센티넬이 있는지 반환합니다.\n\n이것은 ``None``, 흰색 스트립, ``NaN``, pandas ``NA`` 및 ``NaT``을 포함합니다.\n\n:param value: 임의 유형의 셀 값입니다.",
+      "source_sha256": "73b31aceec684d8bf047cb77e0e99d690d1f0dea3405c50de11d79442332b5a0",
+      "text": "``value``가 텅 비어 있는지 또는 실종된 센티넬이 있는지 반환합니다.\n\n여기에는 ``None``, 빈 문자열, ``NaN``, pandas의 ``NA`` 값과 ``NaT`` 값이 포함됩니다. ``None`` 여부와 문자열을 검사한 뒤 ``pandas.isna`` 결과를 ``bool`` 값으로 변환합니다. 따라서 결측값을 담은 단일 원소 배열은 ``True`` 값을 반환할 수 있으며, 원소가 여러 개인 모호한 결과는 ``False`` 값을 반환합니다.\n\n:param value: 임의 유형의 셀 값입니다.",
       "translation_source_blocks_sha256": [
         "b34ec42b2f257bb6de3f89dac1df685d85f634ebfe4f4f5a22e48233076bac3d",
-        "346d13b32d0cc981d1bfea4f6888995268b54d469ee33a8b13c19d28c2b966e0",
+        "bb52e60989e40c494cddcea3c8135eb8aba4549eda7d0f87be39d468d8b0a5af",
         "2810efc3b65489b377421afea1d55e57b0f09da1466a8c64b34b178c6be9d32a"
       ]
     },
@@ -175974,16 +175974,16 @@
       "source_blocks_sha256": [
         "9225e18da1090cadad6813bfaaec9556ec36601bdada6eb23c30824d49f5d7b0",
         "001da4cd4f825a8553850d2ef97132d2063e606c83d7590fde194a552156c9c3",
-        "e3f3f390ab1f96947adf3cad4893a98e4483dc41953cb8dcf5eb06302f134b1f",
+        "4b4b8663f09ddb44515b7cde7fb52f65b1ad4bed4ad824391d30716153be2a73",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "ceec366506d2a347fed4252d39c49866d93f132338fa5f4cc4a2316be9a86da3"
       ],
-      "source_sha256": "1c228d24da84e177fd58c3ff7b1c7e2efec7361d05c39c4980029a294d4728c4",
-      "text": "훈련 메트릭을 점진적으로 업데이트 된 곡선으로 표시합니다.\n\n``plots``은 패널 당 :class:`pyqtgraph.PlotWidget`을 보유하고 있으며, 키는 ``\"loss\"``, ``\"accuracy\"`` 및 ``\"per_class\"``입니다. ``curves``은 각 측정기 :class:`pyqtgraph.PlotDataItem`을 보유하고 있으며, 그 측정기가 처음 나타나고 그 이후의 모든 시대에 다시 사용되었을 때 만들어집니다.\n\n둘 다 에피소드가 도착하고 대체되지 않기 때문에 한 번 복용 한 참조는 패널의 수명에 유효합니다.\n\n매개변수\n----------\n부모 : QWidget, 선택적 부모 위젯, 또는 ``None``.",
+      "source_sha256": "609c4ea6dc02febae880b2ccf06c3f8fed111994686a3a00c37c83ee873df6ee",
+      "text": "훈련 메트릭을 점진적으로 업데이트 된 곡선으로 표시합니다.\n\n``plots``은 패널 당 :class:`pyqtgraph.PlotWidget`을 보유하고 있으며, 키는 ``\"loss\"``, ``\"accuracy\"`` 및 ``\"per_class\"``입니다. ``curves``은 각 측정기 :class:`pyqtgraph.PlotDataItem`을 보유하고 있으며, 그 측정기가 처음 나타나고 그 이후의 모든 시대에 다시 사용되었을 때 만들어집니다.\n\n플롯 위젯은 생성자에서 만들어지며, 각 지표가 처음 나타날 때 곡선이 추가됩니다. :meth:`clear` 메서드는 새 실행을 위해 곡선과 저장된 점을 제거하지만 플롯 위젯과 두 딕셔너리는 유지합니다. 학습 실행의 손실과 지표를 추적하는 패널을 만듭니다.\n\n매개변수\n----------\n부모 : QWidget, 선택적 부모 위젯, 또는 ``None``.",
       "translation_source_blocks_sha256": [
         "9225e18da1090cadad6813bfaaec9556ec36601bdada6eb23c30824d49f5d7b0",
         "001da4cd4f825a8553850d2ef97132d2063e606c83d7590fde194a552156c9c3",
-        "df579f2716f60aef02e80b214224cad0eecc8a579a03425d4186eae4d762c923",
+        "3f7f9fdd0ada67a1d79e56c0718189a24e7ccbe8ee93dfd1cf531137c49833e3",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "ceec366506d2a347fed4252d39c49866d93f132338fa5f4cc4a2316be9a86da3"
       ]
@@ -178222,16 +178222,16 @@
     },
     "spacr.qt.widgets.volume_view.angles_from_axes": {
       "source_blocks_sha256": [
-        "2c98212f7aa857adfd2c58116ae7bba41f0b7848d02070006f228444772028e7",
-        "5cc82e3179c9c66dfe72bb34c1381de4f63ad9cc78a3034ff26fcefb2367d71d",
+        "b4e86eb4b9ab6790a385f4a86e8787e9f402b1557235449d69feb6912a2cf72a",
+        "3b12d0b23a4be31e3919034224a6179de7d3a04086bc11e4fe5453108a122af7",
         "fb6c82c72ea807f3582ee9604d55518952e10d7c29d70ff49deeb43ae512fb83",
         "138833a2d86a57eef4bfd790e8c42664bffa82af4e59319546098b37a54145d5"
       ],
-      "source_sha256": "ac06b42f4c9804397a8f2e18f0b0e6fc091789b769026df49a8a3c9c5db055b6",
-      "text": "matplotlib 이 이 프레임을 그리게 하는 ``(elev, azim, roll)`` 입니다.\n\n``elev`` 는 ``[-90, 90]`` 안에 유지되므로 수직 방향이 뒤집히지 않습니다. 그다음 롤이 프레임이 가진 시선 축 둘레의 회전을 모두 담당합니다. 바로 아래(또는 위)를 볼 때는 방위각이 자유로우므로 롤이 영이 되도록 선택합니다.\n\n:param u: 화면의 오른쪽을 가리키는 축입니다.\n:param w: 화면 밖을 가리키는 축입니다.",
+      "source_sha256": "5f1609b1291db5475f47f6c54cf52403943a7e25e88338ae2e0a126a5b855f58",
+      "text": "주어진 화면 축에 대한 ``(elev, azim, roll)`` 값을 도 단위로 반환합니다.\n\n``elev`` 값을 ``[-90, 90]`` 안에 유지하여 수직 방향이 뒤집히지 않게 합니다. 이때 롤 각도는 시선을 중심으로 한 좌표 프레임의 회전을 나타냅니다. 어느 극이든 그 근처에서 정규화 후 ``abs(w[2]) > 1.0 - 1e-9`` 조건이면 반환하는 고도각은 ``89.9999`` 또는 ``-89.9999`` 도입니다. 방위각은 ``u`` 값에서 정하며 롤은 0입니다. 이 분기는 정확한 극을 반환하는 대신 주어진 좌표 프레임을 의도적으로 근사합니다.\n\n:param u: 화면의 오른쪽을 가리키는 축입니다.\n:param w: 화면 밖을 가리키는 축입니다.",
       "translation_source_blocks_sha256": [
-        "2c98212f7aa857adfd2c58116ae7bba41f0b7848d02070006f228444772028e7",
-        "5cc82e3179c9c66dfe72bb34c1381de4f63ad9cc78a3034ff26fcefb2367d71d",
+        "b4e86eb4b9ab6790a385f4a86e8787e9f402b1557235449d69feb6912a2cf72a",
+        "3b12d0b23a4be31e3919034224a6179de7d3a04086bc11e4fe5453108a122af7",
         "fb6c82c72ea807f3582ee9604d55518952e10d7c29d70ff49deeb43ae512fb83",
         "138833a2d86a57eef4bfd790e8c42664bffa82af4e59319546098b37a54145d5"
       ]

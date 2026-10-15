@@ -78,7 +78,10 @@ def is_missing(value) -> bool:
     """Return whether ``value`` is empty or a recognized missing sentinel.
 
     This includes ``None``, blank strings, ``NaN``, pandas ``NA``, and
-    ``NaT``. Array-like values are not treated as individual missing cells.
+    ``NaT``. After the ``None`` and string checks, the result of
+    ``pandas.isna`` is converted to ``bool``. A single-element array containing
+    a missing value can therefore return ``True``; ambiguous multi-element
+    results return ``False``.
 
     :param value: a cell value of any type.
     """
@@ -615,9 +618,11 @@ def install_sorting(view):
     """Install three-state semantic sorting on ``view`` and return it.
 
     Accepts a ``QTableWidget``, ``QTreeWidget``, or ``QTableView``. A
-    ``QTableView`` is wrapped in :class:`SortableProxyModel`; call this
-    function immediately after ``setModel`` and obtain the view's selection
-    model afterwards.
+    ``QTableView`` with a non-proxy model is wrapped in
+    :class:`SortableProxyModel`. An existing ``QSortFilterProxyModel`` is
+    preserved with its own comparison behavior; a view without a model is
+    not wrapped. Call this function immediately after ``setModel`` and
+    obtain the view's selection model afterwards.
 
     :param view: the view to make sortable; a view with no header is
         returned untouched, and one already installed only has its initial

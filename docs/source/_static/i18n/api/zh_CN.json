@@ -129152,23 +129152,23 @@
     "spacr.qt.widgets.column_aligned_row.align_row_to_columns": {
       "source_blocks_sha256": [
         "1d027bfcfd9210dcdbc58785d18d05bc90971737883f281325d8211f8b6d55d8",
-        "db93827e50fd5861e93237f7fd901cb6781f0bdb7210ceb075852f8bd6201009",
+        "0d4421cced46003a8d05e52d6b3842c5c794dea2c03653505c139f1d96c3dd6e",
         "93b9bd24f6d013a0e84ab3d64cac1c07632278437e682bd56e0fabd79aa5eb5c",
         "3ded0dfd7c5311f8fe08a9a1270a476a7e538e7bf4f948132a3e1bd10bffec88",
         "7b259578d5de9b82d8b13bc1f20772fb12a9efe051287de87ee7af8c2aa2d6fb",
         "acbaeaa72163960db71238c7393144a3bf23f8cc44c38798a825e9e25b57a05b",
-        "e4a5496eff817ef56a05a7ba71fb32a9d0a63620b240319b823b0740e8f1118e"
+        "f796a98915f1f220509207ae94d012b95f7e0fe85dae6b30df12128008345ca6"
       ],
-      "source_sha256": "dabcf6588ca5c4a4f30cd9c8e3b717cf0e2ab754e8e3ba400578e6cf3a5cea00",
-      "text": "重新插入 ``strip`` 的 widgets 超越 ``header`` 的部分。\n\nIdempotent:已经跟随这个标题的条纹被返回不变,所以重复的显示不花费任何代价,不能插入两个布局。\n\n:param strip: 它的现有布局被打破和破坏 - 维吉特生存,修复在 ``strip``。\n:param header: ``QHeaderView`` 随之而来的列。\n:param columns: ``(widget, column index or None)`` 在顺序中,不合并的应引进。\n:param on_invalidate: 转移到布局;当一个管理的 widget 的尺寸指示变化时,呼叫,所以标题的所有者可以重新调整列到从那时起翻译的标题。\n:returns: 安装的布局,或 ``None`` 当没有什么可做的。",
+      "source_sha256": "0722ce2688299ab6c18c7c0d9d5cc4bd500decc63cf288e05cfcbb007aa0af94",
+      "text": "重新插入 ``strip`` 的 widgets 超越 ``header`` 的部分。\n\n如果条带上已有 ``ColumnAlignedRow``，则原样返回。其表头、控件与列的对应关系以及失效回调不会与新参数比较，也不会被新参数替换。\n\n:param strip: 它的现有布局被打破和破坏 - 维吉特生存,修复在 ``strip``。\n:param header: ``QHeaderView`` 随之而来的列。\n:param columns: ``(widget, column index or None)`` 在顺序中,不合并的应引进。\n:param on_invalidate: 转移到布局;当一个管理的 widget 的尺寸指示变化时,呼叫,所以标题的所有者可以重新调整列到从那时起翻译的标题。\n:returns: 已有或新安装的布局；当 ``columns`` 为空时，也包括空布局。如果条带或表头缺失，或者其 Qt 对象已被删除，则返回 ``None``。",
       "translation_source_blocks_sha256": [
         "1d027bfcfd9210dcdbc58785d18d05bc90971737883f281325d8211f8b6d55d8",
-        "db93827e50fd5861e93237f7fd901cb6781f0bdb7210ceb075852f8bd6201009",
+        "0d4421cced46003a8d05e52d6b3842c5c794dea2c03653505c139f1d96c3dd6e",
         "93b9bd24f6d013a0e84ab3d64cac1c07632278437e682bd56e0fabd79aa5eb5c",
         "3ded0dfd7c5311f8fe08a9a1270a476a7e538e7bf4f948132a3e1bd10bffec88",
         "7b259578d5de9b82d8b13bc1f20772fb12a9efe051287de87ee7af8c2aa2d6fb",
         "acbaeaa72163960db71238c7393144a3bf23f8cc44c38798a825e9e25b57a05b",
-        "e4a5496eff817ef56a05a7ba71fb32a9d0a63620b240319b823b0740e8f1118e"
+        "f796a98915f1f220509207ae94d012b95f7e0fe85dae6b30df12128008345ca6"
       ]
     },
     "spacr.qt.widgets.column_picker": {
@@ -173728,28 +173728,28 @@
     "spacr.qt.widgets.sortable_table.install_sorting": {
       "source_blocks_sha256": [
         "b11ded6a64f63cc4849cfce62c3ead0a9d23aa419dadf2238a39a031e2ddfd10",
-        "686101677b15bd3f817879385643c71d84a66d3874e53ef25d2ea35d7aae8cf9",
+        "e41b133bb713bef074803c33b9636cd66e7eeaf44a31fc71ff052df929388726",
         "64f9ea786ebb1e7ecaba4b4d085d60099cb1cc6d2176de27d771ea7c46f4f25d"
       ],
-      "source_sha256": "e48ad3364a41a5bde6b19a6a9cbdb6cd6bd46b8721c27333c7e362bedbfdf83c",
-      "text": "在 ``view`` 上安装三位数序列,然后返回。\n\n接受 ``QTableWidget``、 ``QTreeWidget`` 或 ``QTableView``. ``QTableView`` 被插入 :class:`SortableProxyModel`; 立即在 ``setModel`` 之后呼叫此函数,然后获得视图的选择模型。\n\n:param view: 要使其可排序的视图；没有表头的视图原样返回，已经安装过的视图只会重新记录其初始顺序。",
+      "source_sha256": "e48de96b6d78894d9081312795001353c93e1b08cf59293fe31354bcf05bf887",
+      "text": "在 ``view`` 上安装三位数序列,然后返回。\n\n接受 ``QTableWidget``、``QTreeWidget`` 或 ``QTableView``。对于模型不是代理的 ``QTableView``，会使用 :class:`SortableProxyModel` 包装。已有的 ``QSortFilterProxyModel`` 会保留其自身的比较行为；没有模型的视图不会被包装。请在 ``setModel`` 之后立即调用此函数，然后再获取视图的选择模型。\n\n:param view: 要使其可排序的视图；没有表头的视图原样返回，已经安装过的视图只会重新记录其初始顺序。",
       "translation_source_blocks_sha256": [
         "b11ded6a64f63cc4849cfce62c3ead0a9d23aa419dadf2238a39a031e2ddfd10",
-        "686101677b15bd3f817879385643c71d84a66d3874e53ef25d2ea35d7aae8cf9",
+        "e41b133bb713bef074803c33b9636cd66e7eeaf44a31fc71ff052df929388726",
         "64f9ea786ebb1e7ecaba4b4d085d60099cb1cc6d2176de27d771ea7c46f4f25d"
       ]
     },
     "spacr.qt.widgets.sortable_table.is_missing": {
       "source_blocks_sha256": [
         "b34ec42b2f257bb6de3f89dac1df685d85f634ebfe4f4f5a22e48233076bac3d",
-        "346d13b32d0cc981d1bfea4f6888995268b54d469ee33a8b13c19d28c2b966e0",
+        "bb52e60989e40c494cddcea3c8135eb8aba4549eda7d0f87be39d468d8b0a5af",
         "2810efc3b65489b377421afea1d55e57b0f09da1466a8c64b34b178c6be9d32a"
       ],
-      "source_sha256": "116e3fa13e7b01ae96c7260991e800c8791c39cb391a1f67bf1f1f0e5dee5720",
-      "text": "返回是否 ``value`` 是空的或已被认可失踪的终端。\n\n其中包括 ``None``、白色线条、 ``NaN``、pandas ``NA`` 和 ``NaT``. 类似序列的值不被视为单个失踪细胞。\n\n:param value: 任意类型的单元格值。",
+      "source_sha256": "73b31aceec684d8bf047cb77e0e99d690d1f0dea3405c50de11d79442332b5a0",
+      "text": "返回是否 ``value`` 是空的或已被认可失踪的终端。\n\n这包括 ``None``、空白字符串、``NaN``、pandas 的 ``NA`` 和 ``NaT``。完成 ``None`` 和字符串检查后，会将 ``pandas.isna`` 的结果转换为 ``bool``。因此，包含缺失值的单元素数组可以返回 ``True``；包含多个元素且真值不明确的结果返回 ``False``。\n\n:param value: 任意类型的单元格值。",
       "translation_source_blocks_sha256": [
         "b34ec42b2f257bb6de3f89dac1df685d85f634ebfe4f4f5a22e48233076bac3d",
-        "346d13b32d0cc981d1bfea4f6888995268b54d469ee33a8b13c19d28c2b966e0",
+        "bb52e60989e40c494cddcea3c8135eb8aba4549eda7d0f87be39d468d8b0a5af",
         "2810efc3b65489b377421afea1d55e57b0f09da1466a8c64b34b178c6be9d32a"
       ]
     },
@@ -175975,16 +175975,16 @@
       "source_blocks_sha256": [
         "9225e18da1090cadad6813bfaaec9556ec36601bdada6eb23c30824d49f5d7b0",
         "001da4cd4f825a8553850d2ef97132d2063e606c83d7590fde194a552156c9c3",
-        "e3f3f390ab1f96947adf3cad4893a98e4483dc41953cb8dcf5eb06302f134b1f",
+        "4b4b8663f09ddb44515b7cde7fb52f65b1ad4bed4ad824391d30716153be2a73",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "ceec366506d2a347fed4252d39c49866d93f132338fa5f4cc4a2316be9a86da3"
       ],
-      "source_sha256": "1c228d24da84e177fd58c3ff7b1c7e2efec7361d05c39c4980029a294d4728c4",
-      "text": "显示训练尺寸作为不断更新曲线。\n\n``plots`` 持有 1 :class:`pyqtgraph.PlotWidget` 每板,键为 ``\"loss\"``, ``\"accuracy\"`` 和 ``\"per_class\"``. ``curves`` 保有 :class:`pyqtgraph.PlotDataItem` 为每个尺寸,创建当该尺寸首次出现并重新使用为每个后期。\n\n两者都被人口化,随着时代的到来,也没有被取代,所以一旦采取的参考仍然有效的面板的寿命. 构建面板,跟踪训练处理会议的损失和测量。\n\n参数\n----------\n父母: QWidget,可选 父母 widget,或 ``None``。",
+      "source_sha256": "609c4ea6dc02febae880b2ccf06c3f8fed111994686a3a00c37c83ee873df6ee",
+      "text": "显示训练尺寸作为不断更新曲线。\n\n``plots`` 持有 1 :class:`pyqtgraph.PlotWidget` 每板,键为 ``\"loss\"``, ``\"accuracy\"`` 和 ``\"per_class\"``. ``curves`` 保有 :class:`pyqtgraph.PlotDataItem` 为每个尺寸,创建当该尺寸首次出现并重新使用为每个后期。\n\n绘图控件在构造函数中创建；各项指标首次出现时才添加相应曲线。:meth:`clear` 为新一轮运行移除曲线和已保存的数据点，同时保留绘图控件及两个字典。构建用于跟踪训练运行的损失和指标的面板。\n\n参数\n----------\n父母: QWidget,可选 父母 widget,或 ``None``。",
       "translation_source_blocks_sha256": [
         "9225e18da1090cadad6813bfaaec9556ec36601bdada6eb23c30824d49f5d7b0",
         "001da4cd4f825a8553850d2ef97132d2063e606c83d7590fde194a552156c9c3",
-        "df579f2716f60aef02e80b214224cad0eecc8a579a03425d4186eae4d762c923",
+        "3f7f9fdd0ada67a1d79e56c0718189a24e7ccbe8ee93dfd1cf531137c49833e3",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "ceec366506d2a347fed4252d39c49866d93f132338fa5f4cc4a2316be9a86da3"
       ]
@@ -178223,16 +178223,16 @@
     },
     "spacr.qt.widgets.volume_view.angles_from_axes": {
       "source_blocks_sha256": [
-        "2c98212f7aa857adfd2c58116ae7bba41f0b7848d02070006f228444772028e7",
-        "5cc82e3179c9c66dfe72bb34c1381de4f63ad9cc78a3034ff26fcefb2367d71d",
+        "b4e86eb4b9ab6790a385f4a86e8787e9f402b1557235449d69feb6912a2cf72a",
+        "3b12d0b23a4be31e3919034224a6179de7d3a04086bc11e4fe5453108a122af7",
         "fb6c82c72ea807f3582ee9604d55518952e10d7c29d70ff49deeb43ae512fb83",
         "138833a2d86a57eef4bfd790e8c42664bffa82af4e59319546098b37a54145d5"
       ],
-      "source_sha256": "ac06b42f4c9804397a8f2e18f0b0e6fc091789b769026df49a8a3c9c5db055b6",
-      "text": "使 matplotlib 绘制出此坐标系的 ``(elev, azim, roll)``。\n\n``elev`` 被限制在 ``[-90, 90]`` 内，使竖直方向永不翻转；滚转角则承载该坐标系绕视线方向的任何转动。当垂直向下（或向上）看时，方位角可以任意取值，因此会选择使滚转角为零的方位角。\n\n:param u: 屏幕上指向右方的轴。\n:param w: 指向屏幕外的轴。",
+      "source_sha256": "5f1609b1291db5475f47f6c54cf52403943a7e25e88338ae2e0a126a5b855f58",
+      "text": "返回给定屏幕坐标轴对应的 ``(elev, azim, roll)``，单位为度。\n\n``elev`` 保持在 ``[-90, 90]`` 内，因此竖直方向不会翻转；滚转角随后表示该坐标框架绕视线的旋转。在任一极点附近，即归一化后满足 ``abs(w[2]) > 1.0 - 1e-9`` 时，返回的仰角为 ``89.9999`` 或 ``-89.9999`` 度。方位角根据 ``u`` 选取，滚转角为零。此分支有意近似给定的坐标框架，而不返回精确的极点。\n\n:param u: 屏幕上指向右方的轴。\n:param w: 指向屏幕外的轴。",
       "translation_source_blocks_sha256": [
-        "2c98212f7aa857adfd2c58116ae7bba41f0b7848d02070006f228444772028e7",
-        "5cc82e3179c9c66dfe72bb34c1381de4f63ad9cc78a3034ff26fcefb2367d71d",
+        "b4e86eb4b9ab6790a385f4a86e8787e9f402b1557235449d69feb6912a2cf72a",
+        "3b12d0b23a4be31e3919034224a6179de7d3a04086bc11e4fe5453108a122af7",
         "fb6c82c72ea807f3582ee9604d55518952e10d7c29d70ff49deeb43ae512fb83",
         "138833a2d86a57eef4bfd790e8c42664bffa82af4e59319546098b37a54145d5"
       ]

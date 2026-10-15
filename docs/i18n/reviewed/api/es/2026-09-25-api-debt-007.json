@@ -1783,7 +1783,10 @@
       "source_sha256": "2c98212f7aa857adfd2c58116ae7bba41f0b7848d02070006f228444772028e7",
       "context": "The ``(elev, azim, roll)`` that make matplotlib draw this frame.",
       "translation": "Los ``(elev, azim, roll)`` que hacen que matplotlib dibuje este sistema de referencia.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Camera/layout source documentation corrected in8f0fc8f4655+9b9314e184d. Replacement exact-source review is2026-10-15-volume-column-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.volume_view.angles_from_axes#1",
@@ -1791,7 +1794,10 @@
       "source_sha256": "5cc82e3179c9c66dfe72bb34c1381de4f63ad9cc78a3034ff26fcefb2367d71d",
       "context": "``elev`` is kept inside ``[-90, 90]`` so the vertical never flips; the roll then carries whatever turn about the line of sight the frame has. Looking straight down (or up) the azimuth is free, so it is chosen to make the roll zero.",
       "translation": "``elev`` se mantiene dentro de ``[-90, 90]`` para que la vertical nunca se voltee; el alabeo recoge entonces cualquier giro alrededor de la línea de visión que tenga el sistema de referencia. Mirando justo hacia abajo (o hacia arriba) el azimut es libre, así que se elige para que el alabeo sea cero.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Camera/layout source documentation corrected in8f0fc8f4655+9b9314e184d. Replacement exact-source review is2026-10-15-volume-column-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.volume_view.angles_from_axes#2",

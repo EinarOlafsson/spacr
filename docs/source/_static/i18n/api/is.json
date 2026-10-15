@@ -129151,23 +129151,23 @@
     "spacr.qt.widgets.column_aligned_row.align_row_to_columns": {
       "source_blocks_sha256": [
         "1d027bfcfd9210dcdbc58785d18d05bc90971737883f281325d8211f8b6d55d8",
-        "db93827e50fd5861e93237f7fd901cb6781f0bdb7210ceb075852f8bd6201009",
+        "0d4421cced46003a8d05e52d6b3842c5c794dea2c03653505c139f1d96c3dd6e",
         "93b9bd24f6d013a0e84ab3d64cac1c07632278437e682bd56e0fabd79aa5eb5c",
         "3ded0dfd7c5311f8fe08a9a1270a476a7e538e7bf4f948132a3e1bd10bffec88",
         "7b259578d5de9b82d8b13bc1f20772fb12a9efe051287de87ee7af8c2aa2d6fb",
         "acbaeaa72163960db71238c7393144a3bf23f8cc44c38798a825e9e25b57a05b",
-        "e4a5496eff817ef56a05a7ba71fb32a9d0a63620b240319b823b0740e8f1118e"
+        "f796a98915f1f220509207ae94d012b95f7e0fe85dae6b30df12128008345ca6"
       ],
-      "source_sha256": "dabcf6588ca5c4a4f30cd9c8e3b717cf0e2ab754e8e3ba400578e6cf3a5cea00",
-      "text": "Re-laða widgets ``strip`` út yfir hluta ``header``.\n\nÓmögulegt: Strekkur sem er þegar eftir þessari header er aftur óbreytt, þannig að endurtekin sýning kostar ekki neitt og getur ekki stack tveimur áætlunum.\n\n:param strip: thvað sem heldur á hnöppum.  er tæmt og eytt -- græjurnar lifa af, endurbirtar á ``strip``.\n:param header: ``QHeaderView`` sem er fylgt með kolumnum.\n:param columns: ``(widget, column index or None)`` í röðinni ætti óhyggjuð að fylgjast.\n:param on_invalidate: flutt til skipulag; kallað þegar stærð útgáfu sem er stjórnað breytist, þannig að höfuðinn eigandi getur endurtekið kolumnið til viðbrögð sem hefur verið þýdd síðan.\n:returns: að setja upp, eða ``None`` þegar það var ekkert að gera.",
+      "source_sha256": "0722ce2688299ab6c18c7c0d9d5cc4bd500decc63cf288e05cfcbb007aa0af94",
+      "text": "Re-laða widgets ``strip`` út yfir hluta ``header``.\n\nFyrirliggjandi ``ColumnAlignedRow`` á ræmunni er skilað óbreyttu. Haus þess, tengingar milli viðmótshluta og dálka og ógildingarendurkall eru hvorki borin saman við nýju viðföngin né skipt út fyrir þau.\n\n:param strip: thvað sem heldur á hnöppum.  er tæmt og eytt -- græjurnar lifa af, endurbirtar á ``strip``.\n:param header: ``QHeaderView`` sem er fylgt með kolumnum.\n:param columns: ``(widget, column index or None)`` í röðinni ætti óhyggjuð að fylgjast.\n:param on_invalidate: flutt til skipulag; kallað þegar stærð útgáfu sem er stjórnað breytist, þannig að höfuðinn eigandi getur endurtekið kolumnið til viðbrögð sem hefur verið þýdd síðan.\n:returns: fyrirliggjandi eða nýuppsettri uppröðun, einnig tómri uppröðun þegar ``columns`` er tómt. Skilar ``None`` ef ræmuna eða hausinn vantar eða Qt-hlut þess hefur verið eytt.",
       "translation_source_blocks_sha256": [
         "1d027bfcfd9210dcdbc58785d18d05bc90971737883f281325d8211f8b6d55d8",
-        "db93827e50fd5861e93237f7fd901cb6781f0bdb7210ceb075852f8bd6201009",
+        "0d4421cced46003a8d05e52d6b3842c5c794dea2c03653505c139f1d96c3dd6e",
         "93b9bd24f6d013a0e84ab3d64cac1c07632278437e682bd56e0fabd79aa5eb5c",
         "3ded0dfd7c5311f8fe08a9a1270a476a7e538e7bf4f948132a3e1bd10bffec88",
         "7b259578d5de9b82d8b13bc1f20772fb12a9efe051287de87ee7af8c2aa2d6fb",
         "acbaeaa72163960db71238c7393144a3bf23f8cc44c38798a825e9e25b57a05b",
-        "e4a5496eff817ef56a05a7ba71fb32a9d0a63620b240319b823b0740e8f1118e"
+        "f796a98915f1f220509207ae94d012b95f7e0fe85dae6b30df12128008345ca6"
       ]
     },
     "spacr.qt.widgets.column_picker": {
@@ -173727,28 +173727,28 @@
     "spacr.qt.widgets.sortable_table.install_sorting": {
       "source_blocks_sha256": [
         "b11ded6a64f63cc4849cfce62c3ead0a9d23aa419dadf2238a39a031e2ddfd10",
-        "686101677b15bd3f817879385643c71d84a66d3874e53ef25d2ea35d7aae8cf9",
+        "e41b133bb713bef074803c33b9636cd66e7eeaf44a31fc71ff052df929388726",
         "64f9ea786ebb1e7ecaba4b4d085d60099cb1cc6d2176de27d771ea7c46f4f25d"
       ],
-      "source_sha256": "e48ad3364a41a5bde6b19a6a9cbdb6cd6bd46b8721c27333c7e362bedbfdf83c",
-      "text": "Sættu þriggja staðar semantískt sorti á ``view`` og snúa það aftur.\n\nsamþykkir ``QTableWidget``, ``QTreeWidget`` eða ``QTableView``. ``QTableView`` er settur í :class:`SortableProxyModel`; hringja til þess aðgerða strax eftir ``setModel`` og fá útgáfu valmyndum síðar.\n\n:param view: sýnin sem á að gera raðanlega; sýn án hauss er skilað óbreyttri, og í sýn sem þegar er uppsett er aðeins upphafsröðin stimpluð aftur.",
+      "source_sha256": "e48de96b6d78894d9081312795001353c93e1b08cf59293fe31354bcf05bf887",
+      "text": "Sættu þriggja staðar semantískt sorti á ``view`` og snúa það aftur.\n\nTekur við ``QTableWidget``, ``QTreeWidget`` eða ``QTableView``. ``QTableView`` með líkani sem er ekki staðgengilslíkan er vafið í :class:`SortableProxyModel`. Fyrirliggjandi ``QSortFilterProxyModel`` er varðveitt með eigin samanburðarhegðun; sýn án líkans er ekki vafin. Kallaðu á þessa aðgerð strax eftir ``setModel`` og sæktu síðan vallíkan sýnarinnar.\n\n:param view: sýnin sem á að gera raðanlega; sýn án hauss er skilað óbreyttri, og í sýn sem þegar er uppsett er aðeins upphafsröðin stimpluð aftur.",
       "translation_source_blocks_sha256": [
         "b11ded6a64f63cc4849cfce62c3ead0a9d23aa419dadf2238a39a031e2ddfd10",
-        "686101677b15bd3f817879385643c71d84a66d3874e53ef25d2ea35d7aae8cf9",
+        "e41b133bb713bef074803c33b9636cd66e7eeaf44a31fc71ff052df929388726",
         "64f9ea786ebb1e7ecaba4b4d085d60099cb1cc6d2176de27d771ea7c46f4f25d"
       ]
     },
     "spacr.qt.widgets.sortable_table.is_missing": {
       "source_blocks_sha256": [
         "b34ec42b2f257bb6de3f89dac1df685d85f634ebfe4f4f5a22e48233076bac3d",
-        "346d13b32d0cc981d1bfea4f6888995268b54d469ee33a8b13c19d28c2b966e0",
+        "bb52e60989e40c494cddcea3c8135eb8aba4549eda7d0f87be39d468d8b0a5af",
         "2810efc3b65489b377421afea1d55e57b0f09da1466a8c64b34b178c6be9d32a"
       ],
-      "source_sha256": "116e3fa13e7b01ae96c7260991e800c8791c39cb391a1f67bf1f1f0e5dee5720",
-      "text": "Til baka hvort ``value`` er leitt eða viðurkennd missandi sentinel.\n\nÞetta inniheldur ``None``, hvítum ströndum, ``NaN``, pandas ``NA`` og ``NaT``.\n\n:param value: reitargildi af hvaða gerð sem er.",
+      "source_sha256": "73b31aceec684d8bf047cb77e0e99d690d1f0dea3405c50de11d79442332b5a0",
+      "text": "Til baka hvort ``value`` er leitt eða viðurkennd missandi sentinel.\n\nÞetta nær yfir ``None``, tóma strengi, ``NaN``, pandas ``NA`` og ``NaT``. Eftir athuganir á ``None`` og strengjum er niðurstöðu ``pandas.isna`` breytt í ``bool``. Fylki með einu staki sem inniheldur vantað gildi getur því skilað ``True``; tvíræðar niðurstöður með mörgum stökum skila ``False``.\n\n:param value: reitargildi af hvaða gerð sem er.",
       "translation_source_blocks_sha256": [
         "b34ec42b2f257bb6de3f89dac1df685d85f634ebfe4f4f5a22e48233076bac3d",
-        "346d13b32d0cc981d1bfea4f6888995268b54d469ee33a8b13c19d28c2b966e0",
+        "bb52e60989e40c494cddcea3c8135eb8aba4549eda7d0f87be39d468d8b0a5af",
         "2810efc3b65489b377421afea1d55e57b0f09da1466a8c64b34b178c6be9d32a"
       ]
     },
@@ -175974,16 +175974,16 @@
       "source_blocks_sha256": [
         "9225e18da1090cadad6813bfaaec9556ec36601bdada6eb23c30824d49f5d7b0",
         "001da4cd4f825a8553850d2ef97132d2063e606c83d7590fde194a552156c9c3",
-        "e3f3f390ab1f96947adf3cad4893a98e4483dc41953cb8dcf5eb06302f134b1f",
+        "4b4b8663f09ddb44515b7cde7fb52f65b1ad4bed4ad824391d30716153be2a73",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "ceec366506d2a347fed4252d39c49866d93f132338fa5f4cc4a2316be9a86da3"
       ],
-      "source_sha256": "1c228d24da84e177fd58c3ff7b1c7e2efec7361d05c39c4980029a294d4728c4",
-      "text": "Skilja þjálfunarfræðingar eins og endurnýjandi krúfur.\n\n``plots`` hefur einn :class:`pyqtgraph.PlotWidget` á skál, keyptur ``\"loss\"``, ``\"accuracy\"`` og ``\"per_class\"``. ``curves`` hefur :class:`pyqtgraph.PlotDataItem` fyrir hverri metrik, skapað þegar þessi metrik birtist fyrst og nýtt fyrir hvert tímabundi eftir það.\n\nBæði eru vinsamlegur eins og æra koma og engin er skipt, þannig að leiðbeiningu sem taka einu sinni er gildi fyrir lífið á panelinu. Byggðu panelinn sem fylgir tapum og metrikum þjálfun meðferð session.\n\nFæribreytur\n-----------\nforeldrar: QWidget, óþægilegt foreldra widget eða ``None``.",
+      "source_sha256": "609c4ea6dc02febae880b2ccf06c3f8fed111994686a3a00c37c83ee873df6ee",
+      "text": "Skilja þjálfunarfræðingar eins og endurnýjandi krúfur.\n\n``plots`` hefur einn :class:`pyqtgraph.PlotWidget` á skál, keyptur ``\"loss\"``, ``\"accuracy\"`` og ``\"per_class\"``. ``curves`` hefur :class:`pyqtgraph.PlotDataItem` fyrir hverri metrik, skapað þegar þessi metrik birtist fyrst og nýtt fyrir hvert tímabundi eftir það.\n\nMyndritshlutarnir eru búnir til í smiðnum; ferlum er bætt við þegar mæligildi þeirra birtast fyrst. :meth:`clear` fjarlægir ferla og geymda punkta fyrir nýja keyrslu en heldur myndritshlutunum og báðum orðabókunum. Byggir spjaldið sem fylgist með tapgildum og mæligildum þjálfunarkeyrslu.\n\nFæribreytur\n-----------\nforeldrar: QWidget, óþægilegt foreldra widget eða ``None``.",
       "translation_source_blocks_sha256": [
         "9225e18da1090cadad6813bfaaec9556ec36601bdada6eb23c30824d49f5d7b0",
         "001da4cd4f825a8553850d2ef97132d2063e606c83d7590fde194a552156c9c3",
-        "df579f2716f60aef02e80b214224cad0eecc8a579a03425d4186eae4d762c923",
+        "3f7f9fdd0ada67a1d79e56c0718189a24e7ccbe8ee93dfd1cf531137c49833e3",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "ceec366506d2a347fed4252d39c49866d93f132338fa5f4cc4a2316be9a86da3"
       ]
@@ -178222,16 +178222,16 @@
     },
     "spacr.qt.widgets.volume_view.angles_from_axes": {
       "source_blocks_sha256": [
-        "2c98212f7aa857adfd2c58116ae7bba41f0b7848d02070006f228444772028e7",
-        "5cc82e3179c9c66dfe72bb34c1381de4f63ad9cc78a3034ff26fcefb2367d71d",
+        "b4e86eb4b9ab6790a385f4a86e8787e9f402b1557235449d69feb6912a2cf72a",
+        "3b12d0b23a4be31e3919034224a6179de7d3a04086bc11e4fe5453108a122af7",
         "fb6c82c72ea807f3582ee9604d55518952e10d7c29d70ff49deeb43ae512fb83",
         "138833a2d86a57eef4bfd790e8c42664bffa82af4e59319546098b37a54145d5"
       ],
-      "source_sha256": "ac06b42f4c9804397a8f2e18f0b0e6fc091789b769026df49a8a3c9c5db055b6",
-      "text": "``(elev, azim, roll)`` sem fá matplotlib til að teikna þennan ramma.\n\n``elev`` er haldið innan ``[-90, 90]`` svo lóðrétta stefnan snýst aldrei við; veltan ber þá hvaða snúning um sjónlínuna sem ramminn hefur. Þegar horft er beint niður (eða upp) er stefnuhornið frjálst, svo það er valið þannig að veltan verði núll.\n\n:param u: ás skjásins sem vísar til hægri.\n:param w: ásinn sem vísar út úr skjánum.",
+      "source_sha256": "5f1609b1291db5475f47f6c54cf52403943a7e25e88338ae2e0a126a5b855f58",
+      "text": "Skilar ``(elev, azim, roll)`` í gráðum fyrir tilgreinda skjáása.\n\n``elev`` er haldið innan ``[-90, 90]`` svo lóðrétta stefnan snúist aldrei við; veltihornið lýsir þá snúningi viðmiðunarrammans um sjónlínuna. Nálægt hvorum pólnum sem er, þar sem ``abs(w[2]) > 1.0 - 1e-9`` eftir stöðlun, er hæðarhornið sem skilað er ``89.9999`` eða ``-89.9999`` gráður. Áttarhornið er valið út frá ``u`` og veltihornið er núll. Þessi grein nálgar tilgreindan viðmiðunarramma vísvitandi í stað þess að skila nákvæmum pól.\n\n:param u: ás skjásins sem vísar til hægri.\n:param w: ásinn sem vísar út úr skjánum.",
       "translation_source_blocks_sha256": [
-        "2c98212f7aa857adfd2c58116ae7bba41f0b7848d02070006f228444772028e7",
-        "5cc82e3179c9c66dfe72bb34c1381de4f63ad9cc78a3034ff26fcefb2367d71d",
+        "b4e86eb4b9ab6790a385f4a86e8787e9f402b1557235449d69feb6912a2cf72a",
+        "3b12d0b23a4be31e3919034224a6179de7d3a04086bc11e4fe5453108a122af7",
         "fb6c82c72ea807f3582ee9604d55518952e10d7c29d70ff49deeb43ae512fb83",
         "138833a2d86a57eef4bfd790e8c42664bffa82af4e59319546098b37a54145d5"
       ]
