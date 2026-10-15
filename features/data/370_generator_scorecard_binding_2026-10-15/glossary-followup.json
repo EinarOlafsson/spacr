@@ -1,0 +1,51 @@
+{
+  "source_parent": "7209aca03",
+  "change": "Exclude only historical_scorecards and scorecard_provenance containers from current-score glossary inference. Preserve both containers in delivered records and retain ordinary current metrics/prose.",
+  "reproduction": "Normal output readback added an AP/mAP explanation for PVv4 solely from archived old metrics, though its current six rows contain neither.",
+  "baseline": "1 failed,17 deselected,1.27s",
+  "final": "1 passed,17 deselected,1.21s",
+  "source_sha256": "e0ee90250088731df534da170028b1f13d3e75c211083adfd52b52d144e6fe42",
+  "test_sha256": "7c38e11c8c7f9808a65f6e3f84b2c6b146a4aa0dba81cfb19e1ccf5eab7ceee2",
+  "artifacts": {
+    "glossary-before.sh": {
+      "sha256": "a700f24cc44b0e0494ea11a755ef7fd2c1c5be4785c7651983d8d635469f55ba",
+      "raw_sha256": "a700f24cc44b0e0494ea11a755ef7fd2c1c5be4785c7651983d8d635469f55ba"
+    },
+    "glossary-before.log.gz": {
+      "sha256": "dd7a4232f4a3a73ebdb9738257ce4acae6d40957aed70bb08bfc6650ca1aec72",
+      "raw_sha256": "5cdc8ef0b19db2c2d54d0e51421a7cc7d2aa61272553c442f151db6adb667843"
+    },
+    "glossary-before.time": {
+      "sha256": "f066ecf22f7b25e016971e751bdf80d64760a882e7ec601a22ce28950806f9b6",
+      "raw_sha256": "f066ecf22f7b25e016971e751bdf80d64760a882e7ec601a22ce28950806f9b6"
+    },
+    "glossary-before.exit": {
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "raw_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    "glossary-before.xml.gz": {
+      "sha256": "6ace33845f6a5ca12c5983609e23bab42c66618990dbe9c15755a5b038e2723c",
+      "raw_sha256": "0409d073579f55c6ee91ea01b1f3eb31cc05d90d0aaa19019e1e4b2dfc87537e"
+    },
+    "glossary-after.sh": {
+      "sha256": "1d68e0d79b15207ef533d330cf95b7d0a7fc583952bc387f07f4e6a1400c2ee9",
+      "raw_sha256": "1d68e0d79b15207ef533d330cf95b7d0a7fc583952bc387f07f4e6a1400c2ee9"
+    },
+    "glossary-after.log.gz": {
+      "sha256": "7d8357ce458a7ff5a3e1365fa77ffc78b61edd578a4aff2eec1ca99a67befe39",
+      "raw_sha256": "b260fb3dbcc92b7ed39563bcebd0377e165d495e88a9a004e92d6ee6752f4286"
+    },
+    "glossary-after.time": {
+      "sha256": "df88748254655319fc26ef52a091ea43f374e682713cda7882057c6b5e05d0f9",
+      "raw_sha256": "df88748254655319fc26ef52a091ea43f374e682713cda7882057c6b5e05d0f9"
+    },
+    "glossary-after.exit": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "glossary-after.xml.gz": {
+      "sha256": "4973e81f4d1759139f57a7f76b7762ed7270fe79b8d9e8be007ddffb48f6eefa",
+      "raw_sha256": "8ead05018e42c35985c15dc14958f9d8a752c687d6d42a999ab55892e51817c0"
+    }
+  }
+}

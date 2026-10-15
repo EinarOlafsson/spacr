@@ -101,3 +101,12 @@ def test_both_generators_keep_raw_declaration_identity_until_binding():
         expected = model_zoo._builtin_entry_from_mapping(raw(key)).metrics
         assert readme_records[key]["metrics"] == expected
         assert card_records[key]["metrics"] == expected
+
+
+def test_archived_metrics_do_not_become_current_glossary_claims():
+    record = build_score_cards.rescored(raw())
+    assert "mAP" in record["metrics"]["historical_scorecards"][0]["metrics"]
+    current = "\n".join(build_model_cards.how_to_read(record))
+    assert "**AP**" not in current
+    assert "**mAP**" not in current
+    assert "**F1**" in current and "**AJI**" in current
