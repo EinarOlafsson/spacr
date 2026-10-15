@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical source/translation review; independent root peer pending; no human/native signoff",
+  "records": [
+    {
+      "label": "spacr.qt.make_masks_demo.download_tem_example#3",
+      "source": "called on the GUI thread as ``on_done(result, error)``, as :func:`download_make_masks_example` calls it.",
+      "context": "called on the main GUI execution path as ``on_done(result, error)``, as :func:`download_make_masks_example` calls it.",
+      "source_sha256": "a69bc9f35b747e19af0d8a52dfe41d4ea33c9b10436f03cec2579d13618dd060",
+      "translation": "appelé dans le thread de la GUI sous la forme ``on_done(result, error)``, comme :func:`download_make_masks_example` l’appelle.",
+      "review_basis": "Exact existing French technical text: callback invoked on GUI thread with unchanged on_done(result, error) argument identity and download_make_masks_example Sphinx reference. French thread de la GUI is standard technical wording; no source/target/gate change and no native/human signoff. Independent root peer pending."
+    }
+  ]
+}

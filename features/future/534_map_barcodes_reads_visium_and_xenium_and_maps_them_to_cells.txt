@@ -529,3 +529,21 @@ The feature remains alpha/partial overall.
     execution and whole-slide crop-PNG acceptance remain open as documented.
     No new data, model, network, GPU, rendered-docs or full-CI run occurred.
     Evidence: data/534_catalog_source_reconciliation_2026-10-15/receipt.json.
+
+2026-10-15 — Empty segmentation reruns retire their stale field records.
+    A rerun that found zero objects removed its old generated NPY fields but
+    left spatial_fields/spatial_objects rows pointing at those deleted files.
+    Two real tiny-Xenium fixture cases reproduced the stale rows, both for
+    the only slide and beside a second slide in the same output folder.
+    Both spatial tables now receive the empty replacement; the helper keeps
+    their existing column types and removes only this sample's rows. Fresh
+    zero-result and repeated already-empty runs avoid empty/no-column writes.
+    Other-slide rows/files and original input bytes remain unchanged.
+    Baseline: 2FAIL6.09s. Final owning spatial_submodules: 19PASS20.21s,
+    capped2G/thread1, including existing Measure/Xenium/Visium fixture routes.
+    Only run_spatial_masks and _st_replace_plate_rows changed; their API
+    prose/signatures, all other module AST and all comments remain exact.
+    Evidence: data/534_empty_rerun_consistency_2026-10-15/receipt.json.
+    F534 remains ALPHA with the previously recorded scientific/data/GPU and
+    whole-slide crop-PNG acceptance limits. This is an IO consistency repair,
+    not whole-feature or new biological validation.

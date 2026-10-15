@@ -1,0 +1,109 @@
+{
+  "scope": "Authorized one atomic four-file managed packaging update; source/readback accepted, actual rebuild pending.",
+  "parent_space_commit": "66ac681d3040aab1823aed0bf16b4ed5c89589f7",
+  "space_commit": "3371bce879bb15a6597d6f268071ebfb2df1e23c",
+  "published_source_commit": "50c3f21b4db3d64e496af31a25539ce00731e67f",
+  "exact_private_patch": "84615c61607759607c01429fe7d349cfb8242e9a",
+  "four_files": {
+    "tools/web_mask_generator/space/README.md": {
+      "sha256": "6de854bd1cb76114ba6985b47fc4f46d4daf1c6f3daa1832598b1431fcb1f641",
+      "bytes": 6896
+    },
+    "README.md": {
+      "sha256": "6de854bd1cb76114ba6985b47fc4f46d4daf1c6f3daa1832598b1431fcb1f641",
+      "bytes": 6896
+    },
+    "tools/web_mask_generator/space/requirements.txt": {
+      "sha256": "0400ed232f553caa687b4b6532942e900fe01d51f5b435cd97c037dc4b27514c",
+      "bytes": 202
+    },
+    "requirements.txt": {
+      "sha256": "0400ed232f553caa687b4b6532942e900fe01d51f5b435cd97c037dc4b27514c",
+      "bytes": 202
+    }
+  },
+  "payload_readback_files": 1182,
+  "unchanged_source_files": 1178,
+  "provider_gitattributes_unchanged": true,
+  "actual_four_file_public_byte_readback": true,
+  "actual_update_commits": 1,
+  "prewrite_failure": "Original guard mistakenly used emptycreation a020 attributes instead of immutable66ac uploaded-source attributes. Preserved guardfailure had zero mutation_attempts. Read-only reconciliation proved exact66parent and actualattrs; correcteddriver made the one authorized commit.",
+  "runtime_at_update_terminal": {
+    "stage": "BUILDING",
+    "requested": "zero-a10g",
+    "current": null
+  },
+  "latest_snapshot": "managed-build-after-packaging.json: BUILDING15:48:12UTC, no error; cached base then Restoring cache. SSE ConnectionError is idle bounded8s capture stop, notbuildfailure.",
+  "actions_not_taken": [
+    "No create/recreate/settings/storage/secrets/hardware/provider/otherSpace changes.",
+    "No model weights uploaded or downloaded locally.",
+    "No inference or website endpoint update.",
+    "No source/test rerun or fullCI."
+  ],
+  "files": {
+    "packaging-update-prewrite-reconciliation.json": {
+      "sha256": "a11b9579a4bafa9a5ffbff560fe5714df3bb7883f0996d204e309f380c683d82",
+      "bytes": 586
+    },
+    "packaging-update-result.json": {
+      "sha256": "e08ca3ef343d059dbdfc54094649b130796d29f2fadb3bc64f156890adfee194",
+      "bytes": 1175
+    },
+    "packaging-update-final-result.json": {
+      "sha256": "7bb83ad67ef2ac51bd4e22af3f49a1b9bf7d735aedb230c0b63df62e9d430243",
+      "bytes": 2339
+    },
+    "update-packaging-once.py": {
+      "sha256": "5a947cc992634fdd685fa703a74d2b85e19f1ea3347149fd7dad7247ef4b1099",
+      "bytes": 7879
+    },
+    "read-build-after-packaging.py": {
+      "sha256": "d659e73694ddb86a4e97ea4e4ba1ba70c2ddcb681c71752dcbb39cc900db3056",
+      "bytes": 2545
+    },
+    "packaging-update-final-events.jsonl.gz": {
+      "sha256": "9a66695e3cba0256a551c58c71e9cbb9ee0f933bc2f6cd4cae69c88a27947ee6",
+      "bytes": 607
+    },
+    "packaging-update-final.exit": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    "packaging-update.exit": {
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    "packaging-update-final-all-payload-readback.json.gz": {
+      "sha256": "f6d1501391b006e0fd76a18b089d3a0df5ef61a0f2aaa3c0c7844030dd405a11",
+      "bytes": 53201
+    },
+    "managed-build-after-packaging.json": {
+      "sha256": "a3dbd35fad3e51f45287d7c561bf7125b211898371a3d4ae1f0258077ea8d7f3",
+      "bytes": 851
+    },
+    "read-build-after-packaging.exit": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    "packaging-update-events.jsonl.gz": {
+      "sha256": "c0815dd57208f3ca0dc83c458a933c250c637589bb68d4472cea45915d4b8988",
+      "bytes": 372
+    },
+    "update-packaging-prewrite-corrected-once.py": {
+      "sha256": "0dd8fe6105f9a24dcc4255cf3aded1e13e1b59a0147575c20c6f82e8cd07dadc",
+      "bytes": 8001
+    },
+    "packaging-update-final.log.gz": {
+      "sha256": "9a66695e3cba0256a551c58c71e9cbb9ee0f933bc2f6cd4cae69c88a27947ee6",
+      "bytes": 607
+    },
+    "managed-build-after-packaging.log.gz": {
+      "sha256": "7a298aead259b17de6e28b10a0d53d677ba221e659b9b6a82efb9b1fb024d672",
+      "bytes": 578
+    },
+    "packaging-update.log.gz": {
+      "sha256": "71c2502eb17d85cefcc01ca7628face20501c48f3cb8ff44325b01548b96605e",
+      "bytes": 593
+    }
+  }
+}

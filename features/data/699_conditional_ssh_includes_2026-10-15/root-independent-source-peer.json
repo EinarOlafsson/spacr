@@ -1,0 +1,11 @@
+{
+  "decision": "ACCEPT bounded conditional Include repair",
+  "source_commit_chain": [
+    "4721d81a60dcbf6ae380a9d9badca42dd85aac5e",
+    "42838dc9d1ae9c439ab77da6abde04efa6775fc7"
+  ],
+  "source_sha256": "f3d0fc4c9fcf1c8ce3f1b720fba565dd407415f5f9057092ac82c42dfb4fcbe2",
+  "independent_review": "Only existing two helper bodies differ; all other AST/signatures/docs and all actual tr calls unchanged. Balanced None-key markers cannot collide with textual directives; child Host clauses gated by all parent states; parent activity restored after each include; discovery ignores internal markers; first-value/Match nonexecution retained.",
+  "tests_reviewed": "Ten real scratch-only ssh -G -F controls disable canonicalization/ControlMaster, use only supplied configs and reserved invalid domains; source-discovery Match-exec sentinel never runs. Unknown textual marker cases tested. Actual54PASS owning receipt and8FAIL4PASS baseline retained; no repeated tests.",
+  "limits": "No real user/systemconfig/credentials/network/authentication or native-platform/wholeN699 claim. HostName %h omission separately found, not hidden by this bounded acceptance."
+}

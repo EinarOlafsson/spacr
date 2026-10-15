@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "status": "PASS bounded83-lesson inheritance and10-native/50-track binding check",
+  "selected_native_scenes": 10,
+  "source_tracks": 50,
+  "per_clip_source_commits": {
+    "02_agreement_fold": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+    "04_demo_database": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+    "05_one_column_not_a_comparison": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+    "06_two_columns": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+    "07_pairwise_results": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+    "08_confusion_matrix": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+    "09_disagreement_crop_1": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+    "10_three_columns": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+    "11_three_pass_results": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+    "12_pairwise_restored": "d7461e54ed5325997f6ff1328b90bd2818329f4d"
+  },
+  "current_native_timing": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/23_agreement/video/native-live-timings.json",
+    "bytes": 25889,
+    "sha256": "b6180c0a1b618e164fa8de2a07c74933541ca483e14e6aa16c3fd9049c5efc4b"
+  },
+  "refreshed_lesson": "23_agreement",
+  "candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek",
+  "baseline_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc/release-manifest.json",
+    "bytes": 1170655,
+    "sha256": "d2cc730ac0513092ca6a8660eda66a80451ca9f77933a611b6ce9e91cc19b4aa"
+  },
+  "candidate_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/release-manifest.json",
+    "bytes": 1179215,
+    "sha256": "8065f31b9a758cd0a823efbeb8e631cbc740c1c88ca0ea21d7a41e08eab2dcd4"
+  },
+  "root_capture_acceptance": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/root-selected-acceptance.json",
+    "bytes": 7398,
+    "sha256": "6562792dd1ebb160d2db07af07dec0c7fd89cb31940a89e05302608a11737c13"
+  },
+  "preserved_media_entries": 5265,
+  "preserved_media_manifest_bytes": 8412898618,
+  "preserved_lesson_objects_per_catalog": 83,
+  "catalogs": [
+    {
+      "catalog": "captions_da.json",
+      "objects_preserved": 83,
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc/web/catalog/captions_da.json",
+        "bytes": 697187,
+        "sha256": "73f8b7caa2285a555a82fd5647677eeb6bd7eec6f8f2a73b1120e2ce1cd3b88d"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/web/catalog/captions_da.json",
+        "bytes": 697693,
+        "sha256": "62d0b264efb3564bf1e71e2c731deda841e689f94ba00dadce2997cd47e6b2f3"
+      }
+    },
+    {
+      "catalog": "captions_de.json",
+      "objects_preserved": 83,
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc/web/catalog/captions_de.json",
+        "bytes": 744162,
+        "sha256": "6ef980a1dcab9ab49a09669335b1f5c2b9ec25b55a3addbdaed1ba23c23b5c10"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/web/catalog/captions_de.json",
+        "bytes": 744668,
+        "sha256": "66a72441413588402e397456b60bef236b996549654ff7336a1462fc01738115"
+      }
+    },
+    {
+      "catalog": "captions_is.json",
+      "objects_preserved": 83,
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc/web/catalog/captions_is.json",
+        "bytes": 701950,
+        "sha256": "ce19c6fd3f6b46311ed95a0e7b93d6693f29a1b7b08b360a2abd69acbbe96546"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/web/catalog/captions_is.json",
+        "bytes": 702456,
+        "sha256": "df70792658f8a4e41f7f193580c827b5c800ec171360378c1f5c609b263b881e"
+      }
+    },
+    {
+      "catalog": "captions_ko.json",
+      "objects_preserved": 83,
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc/web/catalog/captions_ko.json",
+        "bytes": 738655,
+        "sha256": "09884904edc38006f4dd9dd589579744e49357008ea8e658914847991e2a6603"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/web/catalog/captions_ko.json",
+        "bytes": 739161,
+        "sha256": "ede10fc1f5534c382cdaf212de98e85ce9966ab2d86c8822d66b2c2c7ce849fe"
+      }
+    },
+    {
+      "catalog": "captions_nb.json",
+      "objects_preserved": 83,
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc/web/catalog/captions_nb.json",
+        "bytes": 693038,
+        "sha256": "a12b0839b7b36a4f8ea9c9b6817d0935ee663a17b4c864a3cdc4ed7364cc2cc0"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/web/catalog/captions_nb.json",
+        "bytes": 693544,
+        "sha256": "6a3a7c81695c821851cefb8702b3c49f36c9c9384f25f8e2f2b3e590a0678013"
+      }
+    },
+    {
+      "catalog": "captions_sv.json",
+      "objects_preserved": 83,
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc/web/catalog/captions_sv.json",
+        "bytes": 701944,
+        "sha256": "4e7b6c497e95a074262889e51777358ba641437af1e696d9dcf31bed412556f5"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/web/catalog/captions_sv.json",
+        "bytes": 702450,
+        "sha256": "15cfd9e0c3f91b70015ce2141019a246845b48668d9e3e2cdc340bbc0e5fbf36"
+      }
+    },
+    {
+      "catalog": "lessons_en.json",
+      "objects_preserved": 83,
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc/web/catalog/lessons_en.json",
+        "bytes": 674165,
+        "sha256": "4cfbfe42e1a0c38e49741bddaa78fa785e4bb22465144c7b58c9a41fe8a8b960"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/web/catalog/lessons_en.json",
+        "bytes": 674671,
+        "sha256": "388174ba80733420c884e83c14f86209c5acd7f16ff09608f9e5103d92fdc112"
+      }
+    },
+    {
+      "catalog": "lessons_es.json",
+      "objects_preserved": 83,
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc/web/catalog/lessons_es.json",
+        "bytes": 1104570,
+        "sha256": "1cc0e983122b660f0d48bea01b6b9e19c4243ad561a62e79402146b22a45783e"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/web/catalog/lessons_es.json",
+        "bytes": 1105076,
+        "sha256": "d683bc9ec4ccd2df8a94fb51b4d5e197bff259d1bc0d5d90b60d1347705eef47"
+      }
+    },
+    {
+      "catalog": "lessons_fr.json",
+      "objects_preserved": 83,
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc/web/catalog/lessons_fr.json",
+        "bytes": 1148315,
+        "sha256": "0c87f38bda6780e548abd9c5cf44456d402bfd0c6004cf607db547879003989f"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/web/catalog/lessons_fr.json",
+        "bytes": 1148821,
+        "sha256": "23faac04b34a4688b8adf2f19c53c515f9f70bf49d358d0a2faf2e416fe37f8c"
+      }
+    },
+    {
+      "catalog": "lessons_hi.json",
+      "objects_preserved": 83,
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc/web/catalog/lessons_hi.json",
+        "bytes": 1832943,
+        "sha256": "3992f97f03765be644eaa5a0f96ade639ef3befcf4fdb2fe7c287769de17d636"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/web/catalog/lessons_hi.json",
+        "bytes": 1833449,
+        "sha256": "0e361a267ee30e1fb92fc45eaf1771024b5ddd54027f0b4ef65d4b01a82c9302"
+      }
+    },
+    {
+      "catalog": "lessons_it.json",
+      "objects_preserved": 83,
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc/web/catalog/lessons_it.json",
+        "bytes": 1093207,
+        "sha256": "312cdb6e8ba484b3a2b7d27de01cb434fec6b4fed9fa3ce3832f1790047d1432"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/web/catalog/lessons_it.json",
+        "bytes": 1093713,
+        "sha256": "282966c194535ece06c49a156416ee51e75dd41ef43278cb6fd752f8edb2c7e0"
+      }
+    },
+    {
+      "catalog": "lessons_ja.json",
+      "objects_preserved": 83,
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc/web/catalog/lessons_ja.json",
+        "bytes": 1222809,
+        "sha256": "71c18b5b9d173694c3b0dfe48be3a57cd1b332c92568ee751691d7a995e810a2"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/web/catalog/lessons_ja.json",
+        "bytes": 1223315,
+        "sha256": "727b87dfa705ca6b2a6a51f6730b34502c5d407e18b53703451b0ed704301987"
+      }
+    },
+    {
+      "catalog": "lessons_pt-BR.json",
+      "objects_preserved": 83,
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc/web/catalog/lessons_pt-BR.json",
+        "bytes": 1087341,
+        "sha256": "0a99ba69fb865c463d8c0f226c40921919335b3398d88623de8914fc545fd009"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/web/catalog/lessons_pt-BR.json",
+        "bytes": 1087847,
+        "sha256": "ad6851ce435de9864bfb7c6558612d221e59afa802db384c7fbcfe568c057b9b"
+      }
+    },
+    {
+      "catalog": "lessons_zh-CN.json",
+      "objects_preserved": 83,
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/release-candidate-append-13n40vgc/web/catalog/lessons_zh-CN.json",
+        "bytes": 948873,
+        "sha256": "f8fe41fdd8edc4aecead693119f0477400ffde767f281ccb5bf2052d7b255087"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/web/catalog/lessons_zh-CN.json",
+        "bytes": 949379,
+        "sha256": "d24bad1ede2ff4933515101572149df66f784cc14dcc65c8195311211289ecce"
+      }
+    }
+  ],
+  "physical_media_scope": "Manifest SHA256/size identity plus current file existence/size; no fresh large-media stream hashes",
+  "limitations": [
+    "Owning verify_release_candidate must verify actual candidate bytes/playback/new23 tracks and source timing",
+    "No upload, hosted playback, publication or live deployment acceptance from this comparison",
+    "No mutation, rendering or network by this checker"
+  ],
+  "actual_file_delta": {
+    "baseline_entries": 5463,
+    "candidate_entries": 5510,
+    "added_paths": [
+      "media_host/23_agreement/audio/en/af_aoede.json",
+      "media_host/23_agreement/audio/en/af_aoede.m4a",
+      "media_host/23_agreement/audio/en/af_bella.json",
+      "media_host/23_agreement/audio/en/af_bella.m4a",
+      "media_host/23_agreement/audio/en/af_jessica.json",
+      "media_host/23_agreement/audio/en/af_jessica.m4a",
+      "media_host/23_agreement/audio/en/af_river.json",
+      "media_host/23_agreement/audio/en/af_river.m4a",
+      "media_host/23_agreement/audio/en/af_sarah.json",
+      "media_host/23_agreement/audio/en/af_sarah.m4a",
+      "media_host/23_agreement/audio/en/af_sky.json",
+      "media_host/23_agreement/audio/en/af_sky.m4a",
+      "media_host/23_agreement/audio/en/am_adam.json",
+      "media_host/23_agreement/audio/en/am_adam.m4a",
+      "media_host/23_agreement/audio/en/am_echo.json",
+      "media_host/23_agreement/audio/en/am_echo.m4a",
+      "media_host/23_agreement/audio/en/am_eric.json",
+      "media_host/23_agreement/audio/en/am_eric.m4a",
+      "media_host/23_agreement/audio/en/am_fenrir.json",
+      "media_host/23_agreement/audio/en/am_fenrir.m4a",
+      "media_host/23_agreement/audio/en/am_liam.json",
+      "media_host/23_agreement/audio/en/am_liam.m4a",
+      "media_host/23_agreement/audio/en/am_michael.json",
+      "media_host/23_agreement/audio/en/am_michael.m4a",
+      "media_host/23_agreement/audio/en/am_onyx.json",
+      "media_host/23_agreement/audio/en/am_onyx.m4a",
+      "media_host/23_agreement/audio/en/am_puck.json",
+      "media_host/23_agreement/audio/en/am_puck.m4a",
+      "media_host/23_agreement/audio/en/am_santa.json",
+      "media_host/23_agreement/audio/en/am_santa.m4a",
+      "media_host/23_agreement/audio/en/bf_alice.json",
+      "media_host/23_agreement/audio/en/bf_alice.m4a",
+      "media_host/23_agreement/audio/en/bf_emma.json",
+      "media_host/23_agreement/audio/en/bf_emma.m4a",
+      "media_host/23_agreement/audio/en/bf_isabella.json",
+      "media_host/23_agreement/audio/en/bf_isabella.m4a",
+      "media_host/23_agreement/audio/en/bf_lily.json",
+      "media_host/23_agreement/audio/en/bf_lily.m4a",
+      "media_host/23_agreement/audio/en/bm_daniel.json",
+      "media_host/23_agreement/audio/en/bm_daniel.m4a",
+      "media_host/23_agreement/audio/en/bm_fable.json",
+      "media_host/23_agreement/audio/en/bm_fable.m4a",
+      "media_host/23_agreement/audio/en/bm_george.json",
+      "media_host/23_agreement/audio/en/bm_george.m4a",
+      "media_host/23_agreement/audio/en/bm_lewis.json",
+      "media_host/23_agreement/audio/en/bm_lewis.m4a",
+      "media_host/23_agreement/video/native-live-timings.json"
+    ],
+    "removed_paths": []
+  }
+}

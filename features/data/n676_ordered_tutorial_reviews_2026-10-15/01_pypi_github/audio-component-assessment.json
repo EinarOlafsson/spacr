@@ -1,0 +1,1532 @@
+{
+  "schema": 1,
+  "lesson": "01_pypi_github",
+  "component": "AUDIO only",
+  "decision": "KEEP existing50 audio tracks; no evidence-backed utterance repair required",
+  "tracks_to_keep": [
+    {
+      "language": "en",
+      "voice": "af_aoede",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/af_aoede.m4a",
+        "bytes": 667890,
+        "sha256": "52c4d238f3aa41855c6a2a34f546fdbece79de49716276b5295da3a6d6263a67"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/af_aoede.json",
+        "bytes": 32186,
+        "sha256": "26680a9fc6025b1815ff001dfa13b5df2b8891abf10fe1613cb97a3f05620369"
+      },
+      "render_fingerprint": "a6bf97583517d373f807333ce312db851aeda432ba0b4bd1398fdf2a180e0a0f",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2541568,
+      "decoded_duration": 105.89866666666667,
+      "sidecar_duration": 105.875,
+      "duration_difference_seconds": 0.02366666666667072,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "en",
+      "voice": "af_bella",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/af_bella.m4a",
+        "bytes": 672721,
+        "sha256": "4b7e9a7e0cad5dbc7f0da4e489c2c34fcf1a68cc874294e6f5e9e17606400ced"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/af_bella.json",
+        "bytes": 32674,
+        "sha256": "eea96de00491751936b3a0df0d7b3448d2cd91db0e3129ffc0f97c011ba210f9"
+      },
+      "render_fingerprint": "adb3e6c31d17c02674078684afe5fc2bbda0b6520f21bd7367462080d3e7234c",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2619392,
+      "decoded_duration": 109.14133333333334,
+      "sidecar_duration": 109.105,
+      "duration_difference_seconds": 0.03633333333333155,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "en",
+      "voice": "af_heart",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/af_heart.m4a",
+        "bytes": 666233,
+        "sha256": "38617826a9b1638eed9fccfdc5c8bd0fdd91757716ce99fd0cd85bc5be4f500c"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/af_heart.json",
+        "bytes": 32270,
+        "sha256": "a7154ba6a8eade607c34efeb224bb75d919b2918f06ef97694c46c75d78b542a"
+      },
+      "render_fingerprint": "16bd60f41ccc607afd5554e52556ee7b0a0d62e0059143869febb9b4ecf8ede3",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2573312,
+      "decoded_duration": 107.22133333333333,
+      "sidecar_duration": 107.215,
+      "duration_difference_seconds": 0.006333333333330415,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "en",
+      "voice": "af_jessica",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/af_jessica.m4a",
+        "bytes": 649550,
+        "sha256": "6c185b7b9e027453692c1f59df709010355ef53a482421fddab16f4968d586f2"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/af_jessica.json",
+        "bytes": 32411,
+        "sha256": "f54a1e3f1a757b3e830e5f2442b4edd35491da61de2ff1496add0087cc67cec1"
+      },
+      "render_fingerprint": "d8ab7a50b56ac2082b4fcfc1a4134c489b91f852c1ee5737fa3f1bb501d29c2b",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2507776,
+      "decoded_duration": 104.49066666666667,
+      "sidecar_duration": 104.49,
+      "duration_difference_seconds": 0.0006666666666745868,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "en",
+      "voice": "af_river",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/af_river.m4a",
+        "bytes": 663530,
+        "sha256": "7bb5be1bfe140cfa7628beb5604690affb86d2afffaa0a1e44fb651e9ccdf5da"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/af_river.json",
+        "bytes": 32553,
+        "sha256": "24ffacb359717c908ecf2231149b0dc67139c5226c8b282d21d561df4cec7252"
+      },
+      "render_fingerprint": "518f88f1bfdac2458ed2b20532792f04f8b159f94c7fb47fffe29c4b9ad9ad50",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2540544,
+      "decoded_duration": 105.856,
+      "sidecar_duration": 105.835,
+      "duration_difference_seconds": 0.021000000000000796,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "en",
+      "voice": "af_sarah",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/af_sarah.m4a",
+        "bytes": 675516,
+        "sha256": "816ab13c0b1e02d613814dca13573d90a332f4845af39317c20ea77c5c7e5f2a"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/af_sarah.json",
+        "bytes": 32530,
+        "sha256": "1e9183346206deef631e9b933ef938fbc92a3e5ab843912eb3bdcace859674c1"
+      },
+      "render_fingerprint": "acdeeb61fd71f17e31433d13e3accf9b3d38782ec4fb350244efd477100f9f6d",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2583552,
+      "decoded_duration": 107.648,
+      "sidecar_duration": 107.645,
+      "duration_difference_seconds": 0.0030000000000001137,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "en",
+      "voice": "af_sky",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/af_sky.m4a",
+        "bytes": 683119,
+        "sha256": "368654d7153c1d3d862fd3616b441e43d6f7050e8c16ae9b3a75d991fde9d94d"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/af_sky.json",
+        "bytes": 32461,
+        "sha256": "3cd1f6b68f28749e6b84c2e5d0676e0fd45c2fb123cf784a1a2328f71ac5dc44"
+      },
+      "render_fingerprint": "0397bd8789066792cc97307beade03d55795a0f141fe138e7656f88f1a86d4d3",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2648064,
+      "decoded_duration": 110.336,
+      "sidecar_duration": 110.295,
+      "duration_difference_seconds": 0.04099999999999682,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "en",
+      "voice": "am_adam",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/am_adam.m4a",
+        "bytes": 673924,
+        "sha256": "931e1b188502513c62ddb8b24f89661e3228625678916838892a0a5ca9bb75a7"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/am_adam.json",
+        "bytes": 32523,
+        "sha256": "0212cfae328d0d0f01443643f073e07a426be4c4295dc4bbe1bc0f469a0b0244"
+      },
+      "render_fingerprint": "41a6430cf986759a726efb717a39a8576b5887773118f479a441221622fba98c",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2580480,
+      "decoded_duration": 107.52,
+      "sidecar_duration": 107.505,
+      "duration_difference_seconds": 0.015000000000000568,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "en",
+      "voice": "am_echo",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/am_echo.m4a",
+        "bytes": 706709,
+        "sha256": "05c057db7f7e8caa43d0d039d4305e3d550d82129546166ad14c0e49091b3cd5"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/am_echo.json",
+        "bytes": 32361,
+        "sha256": "20911a8395d17d2cea6ba771f0084755b9036afa744bff23e452b92a5e8dda38"
+      },
+      "render_fingerprint": "815dd7747cef5b29e4aed9c9cf74404f68c3c23ba1afbcac5bec52f30d390a9a",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2706432,
+      "decoded_duration": 112.768,
+      "sidecar_duration": 112.755,
+      "duration_difference_seconds": 0.01300000000000523,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "en",
+      "voice": "am_eric",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/am_eric.m4a",
+        "bytes": 649676,
+        "sha256": "e1bb13d458cbce9de26620082d1ca94afa0d7663c30c5ac1a906061f58713181"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/am_eric.json",
+        "bytes": 32571,
+        "sha256": "de4a9b2c3dc80218b71d9d22ed4004967ee75f3e3a1f703431d2e9bbab476814"
+      },
+      "render_fingerprint": "333b6bdcca0fbdabe1bcf6e0c1ee95130d018130732670aa94aaffeb57464d36",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2533376,
+      "decoded_duration": 105.55733333333333,
+      "sidecar_duration": 105.555,
+      "duration_difference_seconds": 0.002333333333325527,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "en",
+      "voice": "am_fenrir",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/am_fenrir.m4a",
+        "bytes": 690072,
+        "sha256": "c6cf22dd4ab3201af67c0530e8373c69ff2a0e7019ddb2b5fceb4b3c663b4579"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/am_fenrir.json",
+        "bytes": 32436,
+        "sha256": "fc1d28a23025e4fdb699109488fb51bcd43b8b00156f357412e4d85817050d9f"
+      },
+      "render_fingerprint": "f8acd7e6c86bd2172b4792f02eaac69b9d974e4777745a5e46fa0a2c055e2cb6",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2588672,
+      "decoded_duration": 107.86133333333333,
+      "sidecar_duration": 107.825,
+      "duration_difference_seconds": 0.03633333333333155,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "en",
+      "voice": "am_liam",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/am_liam.m4a",
+        "bytes": 684713,
+        "sha256": "0d7a9b09756e63806a3570a5932e453da26eeac489ac8b99218f644e8efeffb2"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/am_liam.json",
+        "bytes": 32441,
+        "sha256": "9d1826dbefccc5cba95657ce1a1514c62dd86831c5ebe96922aac0cfefd103ba"
+      },
+      "render_fingerprint": "1c27f47d27037c063a5a35f27f3cafb968f89ea94c50435ac24843b189ecfaad",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2593792,
+      "decoded_duration": 108.07466666666667,
+      "sidecar_duration": 108.065,
+      "duration_difference_seconds": 0.009666666666674928,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "en",
+      "voice": "am_michael",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/am_michael.m4a",
+        "bytes": 723852,
+        "sha256": "c17e50e6c891f15318fd14b8a59f2983aaedab9d4772e649c9729644ec7f2f7b"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/am_michael.json",
+        "bytes": 32464,
+        "sha256": "b39ffb94c8e53b3c419e414aa7bb12c6c065ec72855f1a57168d354bfb800746"
+      },
+      "render_fingerprint": "96d6d8081b54abf58db8935dfa57c6948a3239d44270780580dc9a37b66d8bcf",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2774016,
+      "decoded_duration": 115.584,
+      "sidecar_duration": 115.545,
+      "duration_difference_seconds": 0.03900000000000148,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "en",
+      "voice": "am_onyx",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/am_onyx.m4a",
+        "bytes": 713569,
+        "sha256": "484c9413db774df7bdeeb8a819e4676f969b02733c1c2b7cf774b43e9e3c3571"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/am_onyx.json",
+        "bytes": 32424,
+        "sha256": "a86b9c3f3d1010879bb354b9b0f88d379567ac9460d3873d8f2e498dc243e520"
+      },
+      "render_fingerprint": "25f0cf0994107128e646ebbbfd1d23292504ee2d09f5e09bb37640cdb861db41",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2775040,
+      "decoded_duration": 115.62666666666667,
+      "sidecar_duration": 115.615,
+      "duration_difference_seconds": 0.011666666666670267,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "en",
+      "voice": "am_puck",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/am_puck.m4a",
+        "bytes": 685851,
+        "sha256": "2503d22becb6582aee78cbdae2e0c42336372458f74e1c9abcd107c4f66edc1e"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/am_puck.json",
+        "bytes": 32115,
+        "sha256": "46d6d404ad94e9b9a01de1c80af93721268ac25c9aea60f2d97b77feb88ddab2"
+      },
+      "render_fingerprint": "5e7a05b99ad205b50fea2027ba97a27ef6e75c7365564f8b4f553c6d666dc53e",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2611200,
+      "decoded_duration": 108.8,
+      "sidecar_duration": 108.8,
+      "duration_difference_seconds": 0.0,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "en",
+      "voice": "am_santa",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/am_santa.m4a",
+        "bytes": 746258,
+        "sha256": "3ebe270300d2860112ee23565e692a42a45ff7dd85eb998799009c33bb46c9b2"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/am_santa.json",
+        "bytes": 32310,
+        "sha256": "b9a0296c74a00cf01389e5905dab1f48201c41a2bb0fe06473cde9fda0667c77"
+      },
+      "render_fingerprint": "61523c7a1268953d3021cfabe85b732043ed361cbe2eaeaeb8904b92b727624d",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2836480,
+      "decoded_duration": 118.18666666666667,
+      "sidecar_duration": 118.16,
+      "duration_difference_seconds": 0.026666666666670835,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "en",
+      "voice": "bf_alice",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/bf_alice.m4a",
+        "bytes": 687663,
+        "sha256": "26d42e007b735effdc9cc494e07b69460bd2f986c45887f8b0464c4d292a6efd"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/bf_alice.json",
+        "bytes": 32239,
+        "sha256": "3bf886231c5fb5ac39c0e19bee000f62b11d81d21a9350eb50801b17bf3475d6"
+      },
+      "render_fingerprint": "6a316f4eea048dbe0cbaac02657f95edd52476046a1c8968880bdf5e11bf29ae",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2666496,
+      "decoded_duration": 111.104,
+      "sidecar_duration": 111.09,
+      "duration_difference_seconds": 0.013999999999995794,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "en",
+      "voice": "bf_emma",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/bf_emma.m4a",
+        "bytes": 669801,
+        "sha256": "65d997208ed16bce2c26c7270521e4c43f184ff088af09153805ae91a89a7c30"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/bf_emma.json",
+        "bytes": 32363,
+        "sha256": "3023005a65e29b68f9c2d69101f4eab82254f3b27aa74de270c085ee7cc2a5e9"
+      },
+      "render_fingerprint": "5e91d1e790d0be4db47cafe234f82f778e6b34308a012d0444c3de00b8991777",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2557952,
+      "decoded_duration": 106.58133333333333,
+      "sidecar_duration": 106.575,
+      "duration_difference_seconds": 0.006333333333330415,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "en",
+      "voice": "bf_isabella",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/bf_isabella.m4a",
+        "bytes": 684488,
+        "sha256": "5ca03604c33b7858f740fed8a2fca39da738fa49895aa978502257b11d9355bc"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/bf_isabella.json",
+        "bytes": 32469,
+        "sha256": "8635ea7b3ead276e54d55dd2782555b565da93a378bd361564b676ecb9b207a9"
+      },
+      "render_fingerprint": "c55dfa491007ded32fb2c764e4714b77107bf6302a10ad599b8985fd46fa0839",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2617344,
+      "decoded_duration": 109.056,
+      "sidecar_duration": 109.045,
+      "duration_difference_seconds": 0.01099999999999568,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "en",
+      "voice": "bf_lily",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/bf_lily.m4a",
+        "bytes": 703520,
+        "sha256": "c26cb8a3140262131b451507a4a7ca4b2382041603fa008677801fc8b72ee823"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/bf_lily.json",
+        "bytes": 32353,
+        "sha256": "56cbbc67ca319e1d4fc378819e63b53ab3b428e7c8100e0138c688a3e79020ac"
+      },
+      "render_fingerprint": "bdf69d0bd06ae8a236bc667d06b666e5d7699259353eb451a940f9e30d85ac52",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2682880,
+      "decoded_duration": 111.78666666666666,
+      "sidecar_duration": 111.78,
+      "duration_difference_seconds": 0.006666666666660603,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "en",
+      "voice": "bm_daniel",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/bm_daniel.m4a",
+        "bytes": 699292,
+        "sha256": "c75cfe4e4c7127161bf1547f63de950adaa83c2f458e0cfd0160205d461fb9f9"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/bm_daniel.json",
+        "bytes": 32459,
+        "sha256": "6e124b796f6e7c8eb568465a032db9680c9cb4f4d3bfa89a63e47a7e1c46397e"
+      },
+      "render_fingerprint": "1627da5bde7989865eeb67c76f12d847142f842f4e4df88578692f7b64bfbbc0",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2644992,
+      "decoded_duration": 110.208,
+      "sidecar_duration": 110.185,
+      "duration_difference_seconds": 0.022999999999996135,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "en",
+      "voice": "bm_fable",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/bm_fable.m4a",
+        "bytes": 719846,
+        "sha256": "603b39fd791bb47868f68b20bed73f098886174851f15c6e14c7b76369cc3757"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/bm_fable.json",
+        "bytes": 32257,
+        "sha256": "59c7280f69f9e7afaae03eddf290b52dd22e9b8b9d3eda43cb1d15f7dd6d031c"
+      },
+      "render_fingerprint": "7a56f9aadb5598eac1beeecb9e1a8f6f5c5ef2191102c93b47c19e51006c5294",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2813952,
+      "decoded_duration": 117.248,
+      "sidecar_duration": 117.245,
+      "duration_difference_seconds": 0.0030000000000001137,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "en",
+      "voice": "bm_george",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/bm_george.m4a",
+        "bytes": 749492,
+        "sha256": "5df52fa3e77d77d69b2979fd2ca7fdc0d00e2cfbea9b18fdaf5487b7206e19e0"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/bm_george.json",
+        "bytes": 32656,
+        "sha256": "421744cddd3bbdee972a6c9ef9d826d94da117bebe39cbc6139cf7d93c3a3276"
+      },
+      "render_fingerprint": "d916fcb426195d53ec68155812b5dafd3c9e2ebed5030105acb4fc5337f79dcc",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2856960,
+      "decoded_duration": 119.04,
+      "sidecar_duration": 119.03,
+      "duration_difference_seconds": 0.010000000000005116,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "en",
+      "voice": "bm_lewis",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/bm_lewis.m4a",
+        "bytes": 724887,
+        "sha256": "f7a278f5eb15f555fe940412eb7eb67e98498cc0f236fe147af29f0b76fab7e5"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/bm_lewis.json",
+        "bytes": 32384,
+        "sha256": "b07601f7fed72cba51bf06a1a0f95e6a30558c73088fa1f1a02310b76ccafbac"
+      },
+      "render_fingerprint": "9e4364f06731a5f1fa8cb0354e84cbbdb4435eecd8ad20edfe7703017f0e0042",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2759680,
+      "decoded_duration": 114.98666666666666,
+      "sidecar_duration": 114.985,
+      "duration_difference_seconds": 0.0016666666666651508,
+      "scene_count": 8,
+      "utterances": 21
+    },
+    {
+      "language": "es",
+      "voice": "ef_dora",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/es/ef_dora.m4a",
+        "bytes": 675021,
+        "sha256": "eec52ffe28fd271f24b807dcf426320692b094dac7596b3b339a8a6ecc824292"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/es/ef_dora.json",
+        "bytes": 28161,
+        "sha256": "b944047d2813bc495d49a5f48e03cc709fa09a134215061b99993ea7c701335c"
+      },
+      "render_fingerprint": "0c46f090ebbff0d650c3b032ffc46cf86a795b589ae7c19c7dce5520f8561487",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2688000,
+      "decoded_duration": 112.0,
+      "sidecar_duration": 111.96,
+      "duration_difference_seconds": 0.04000000000000625,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "es",
+      "voice": "em_alex",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/es/em_alex.m4a",
+        "bytes": 683200,
+        "sha256": "837ead6698afd2112ca23120577e9f188c9aa1f4adf7ac1c9e13d7851349f05e"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/es/em_alex.json",
+        "bytes": 28166,
+        "sha256": "41b5b5705eaa0304d2def6800c7f49227e91947941b7b4357dd368a3afa2a989"
+      },
+      "render_fingerprint": "f6a2daa57805aa716411fd6a11468c962d30a28f3a75337ff1a22235edeecde3",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2702336,
+      "decoded_duration": 112.59733333333334,
+      "sidecar_duration": 112.595,
+      "duration_difference_seconds": 0.0023333333333397377,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "es",
+      "voice": "em_santa",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/es/em_santa.m4a",
+        "bytes": 686458,
+        "sha256": "15ef39d4370ff98b2e6b0f8699f89bf04e8204511dbe4a377aec26d723ad999e"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/es/em_santa.json",
+        "bytes": 28205,
+        "sha256": "29f568bc55ea68c1ea9673461effdeeebfd946aa8600b9f005b84d48aa06b794"
+      },
+      "render_fingerprint": "dcb64452b98a4815746b3ca1cd1eceb785d4d94f8bbaba4f3c512913f3b7dd4a",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2713600,
+      "decoded_duration": 113.06666666666666,
+      "sidecar_duration": 113.04,
+      "duration_difference_seconds": 0.026666666666656624,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "fr",
+      "voice": "ff_siwis",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/fr/ff_siwis.m4a",
+        "bytes": 695563,
+        "sha256": "e4c6338c79a77c565bdc90633d43e3b0ba3420eb2d7d41f5cecd980f944df265"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/fr/ff_siwis.json",
+        "bytes": 28733,
+        "sha256": "dd459b69d6675fb5a189abcbb38e158c195ef23d211c5b0f24e15cd96930654e"
+      },
+      "render_fingerprint": "1410aa8f4ac294ffef9dfb8323de7832650b7d9bc7de19ddf7739f09e8845126",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2760704,
+      "decoded_duration": 115.02933333333333,
+      "sidecar_duration": 115.0,
+      "duration_difference_seconds": 0.02933333333332655,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "hi",
+      "voice": "hf_alpha",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/hi/hf_alpha.m4a",
+        "bytes": 763842,
+        "sha256": "b1f255531c5eab13f02a77a886838c3c7fc58cc3ffef3a73449ca76788f7e4b8"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/hi/hf_alpha.json",
+        "bytes": 41121,
+        "sha256": "81a957a9d00f8861e8d5302c278d5624abbfb1a83475926a8cfa28584d1aa52f"
+      },
+      "render_fingerprint": "465bc04022e95bab858107ef5549cbf9bddf9193d8d6d45fc575d3e4051db442",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 3006464,
+      "decoded_duration": 125.26933333333334,
+      "sidecar_duration": 125.23,
+      "duration_difference_seconds": 0.039333333333331666,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "hi",
+      "voice": "hf_beta",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/hi/hf_beta.m4a",
+        "bytes": 670781,
+        "sha256": "fa9daeaa950de08c1cc2a93e96d1fe409fe98605b09762101bb610b777a72a11"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/hi/hf_beta.json",
+        "bytes": 41282,
+        "sha256": "8069127d68a4d0d3da9bdb76a61e4d6fe21456b64ad4f01810bb49b93f3f6235"
+      },
+      "render_fingerprint": "68de7e26411763a6973029aea0586ad20bd72b86139f7a0dd36cd4640575a468",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2657280,
+      "decoded_duration": 110.72,
+      "sidecar_duration": 110.685,
+      "duration_difference_seconds": 0.03499999999999659,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "hi",
+      "voice": "hm_omega",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/hi/hm_omega.m4a",
+        "bytes": 807984,
+        "sha256": "ff8de2186b801875a0c9c8f43a7803ab1f50fd8b871d8eccdbcc9699cd00dd6e"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/hi/hm_omega.json",
+        "bytes": 41184,
+        "sha256": "595d6693062b8ffb84f42e3918cccd587172e5dd998accea1c746d6030fc5ab5"
+      },
+      "render_fingerprint": "bbb07fe9e7a66230a36c4df3427995319911a2fe2ac548005a8c970f7fff0e30",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 3171328,
+      "decoded_duration": 132.13866666666667,
+      "sidecar_duration": 132.13,
+      "duration_difference_seconds": 0.008666666666670153,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "hi",
+      "voice": "hm_psi",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/hi/hm_psi.m4a",
+        "bytes": 816498,
+        "sha256": "0e6e3e77f2d1b16ac1ea9d720fe1821e171c1060964d4e8b557aef9177826a99"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/hi/hm_psi.json",
+        "bytes": 41212,
+        "sha256": "6b3cc669a9b9bec2ae734f217f2df4dc267241cae8bcced8a436b584b5ca1e84"
+      },
+      "render_fingerprint": "fd57a30751e1a87e4ca2505addf72c192fca42e937e17a8a14c567f0444f9537",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 3202048,
+      "decoded_duration": 133.41866666666667,
+      "sidecar_duration": 133.385,
+      "duration_difference_seconds": 0.03366666666667584,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "it",
+      "voice": "if_sara",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/it/if_sara.m4a",
+        "bytes": 678175,
+        "sha256": "031cdd06b6b3c18300c113f71e68caa57439a050a50203091268af1243f33cda"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/it/if_sara.json",
+        "bytes": 28006,
+        "sha256": "cc95b4f49b2fceaec2a2ce3e9428878668b9bbe1eaa17109935448ae4f96b2a2"
+      },
+      "render_fingerprint": "253542f8006fba5c0e35c4af0f7b2f225809347aed09048f696858185352babc",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2670592,
+      "decoded_duration": 111.27466666666666,
+      "sidecar_duration": 111.235,
+      "duration_difference_seconds": 0.039666666666661854,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "it",
+      "voice": "im_nicola",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/it/im_nicola.m4a",
+        "bytes": 760861,
+        "sha256": "71d04c58a58762e1593dbe0c641d8ee89de2e5a75205a0e9ac1a63f3ec671637"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/it/im_nicola.json",
+        "bytes": 27942,
+        "sha256": "e88ccddf4c5aaeee78bc71d841e8af8d3f2cc114ca3e2e042c70e7461743f199"
+      },
+      "render_fingerprint": "0fce6ce8ba7d515c5f18194dc1f99ae5b47e357a76e89036e55326552bf4dab0",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 3003392,
+      "decoded_duration": 125.14133333333334,
+      "sidecar_duration": 125.13,
+      "duration_difference_seconds": 0.011333333333340079,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "ja",
+      "voice": "jf_alpha",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/ja/jf_alpha.m4a",
+        "bytes": 808802,
+        "sha256": "7d982eb29640b1a0016b18160417b4cc10e428690d5a595ebd4ae449abd3bca2"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/ja/jf_alpha.json",
+        "bytes": 31462,
+        "sha256": "8b5520d217a8d81fdfa16ab234ffb148337f8664d4a9012a95acf788eac8b735"
+      },
+      "render_fingerprint": "f7499701be90f6a5ff10d7c892b263939be3247d0d545188e8f0daf58cbe2c95",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 3177472,
+      "decoded_duration": 132.39466666666667,
+      "sidecar_duration": 132.37,
+      "duration_difference_seconds": 0.024666666666661285,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "ja",
+      "voice": "jf_gongitsune",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/ja/jf_gongitsune.m4a",
+        "bytes": 998381,
+        "sha256": "2e3493a9fb51fba3019604397183cdbee66f8e8f1bff597701625ea78a158c16"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/ja/jf_gongitsune.json",
+        "bytes": 31475,
+        "sha256": "bac7d3f18741c2393d5cef7886c394d6c4f9896a0f99af8ca391235388c68dbc"
+      },
+      "render_fingerprint": "34495f1427ffa35dff03eada9233ce766459391afe1d405391db2e81ca17db62",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 3783680,
+      "decoded_duration": 157.65333333333334,
+      "sidecar_duration": 157.62,
+      "duration_difference_seconds": 0.03333333333333144,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "ja",
+      "voice": "jf_nezumi",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/ja/jf_nezumi.m4a",
+        "bytes": 1053444,
+        "sha256": "999b9f5f7717a8729affc6ff6cad469e2ab71c66d5c90f419a09433e7f5b8cba"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/ja/jf_nezumi.json",
+        "bytes": 31392,
+        "sha256": "2bc6e46221cd41771054b3e5c6ac8c44d21236ec8a08dfc99a4d8af366252450"
+      },
+      "render_fingerprint": "ddebead2332d1a042bf1e6dcb99caf7f208f4e6d1b56bf85f2321921f7c26492",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 3927040,
+      "decoded_duration": 163.62666666666667,
+      "sidecar_duration": 163.61,
+      "duration_difference_seconds": 0.01666666666665151,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "ja",
+      "voice": "jf_tebukuro",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/ja/jf_tebukuro.m4a",
+        "bytes": 1011452,
+        "sha256": "da499b4fb9ca409f3f9d8261bf4b35f423f98890bb26a1c9df02fc76179778ee"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/ja/jf_tebukuro.json",
+        "bytes": 31550,
+        "sha256": "019cce13683311de46a453700a0a8b0dfcbf92e43f6da34c8838f83443be2c8a"
+      },
+      "render_fingerprint": "774bc09e0b002bf768193521baba496ff7ff7df3394a76282fa6a5215d689703",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 3817472,
+      "decoded_duration": 159.06133333333332,
+      "sidecar_duration": 159.045,
+      "duration_difference_seconds": 0.01633333333333553,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "ja",
+      "voice": "jm_kumo",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/ja/jm_kumo.m4a",
+        "bytes": 884868,
+        "sha256": "200393afc45541d51eafd0efe62953fbdbc2eeeb4125688483589b8d2625e4e2"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/ja/jm_kumo.json",
+        "bytes": 31427,
+        "sha256": "97725befd0d7dc84e500c248373cf46b01257b4604bf15dc27576b9878c24d4a"
+      },
+      "render_fingerprint": "3ceb0e12c1c554ca7dd6d1b03b0a5ff29aba5e4913ccbf8c9e6d7e2827cf0efe",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 3437568,
+      "decoded_duration": 143.232,
+      "sidecar_duration": 143.225,
+      "duration_difference_seconds": 0.007000000000005002,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "pt-BR",
+      "voice": "pf_dora",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/pt-BR/pf_dora.m4a",
+        "bytes": 672466,
+        "sha256": "4bf9807aa793cf871f608f804d2ed508c04ac645d2e864058743dc49e818182e"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/pt-BR/pf_dora.json",
+        "bytes": 28658,
+        "sha256": "fc7e9894668d31dd40d7fe115333983efc3b4966b2e8397d5520883e29725038"
+      },
+      "render_fingerprint": "cab4ed937fc6cc73e436626bf5c7a357a1283dbf394f2361ce92c11bbd31496d",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2650112,
+      "decoded_duration": 110.42133333333334,
+      "sidecar_duration": 110.385,
+      "duration_difference_seconds": 0.03633333333333155,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "pt-BR",
+      "voice": "pm_alex",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/pt-BR/pm_alex.m4a",
+        "bytes": 673110,
+        "sha256": "3d60297d6db1e2d3bae9cd172fb29bed3b0bd6680d6d515c95322fe424bd9579"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/pt-BR/pm_alex.json",
+        "bytes": 28629,
+        "sha256": "5364947b047b755a23948e8600843042fd44c80bcf70142c05cecfa51090ce5f"
+      },
+      "render_fingerprint": "53cf45621973c94b26c324eef989ce6bec8753c1b75aa8118107f26094ba672e",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2660352,
+      "decoded_duration": 110.848,
+      "sidecar_duration": 110.835,
+      "duration_difference_seconds": 0.01300000000000523,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "pt-BR",
+      "voice": "pm_santa",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/pt-BR/pm_santa.m4a",
+        "bytes": 679459,
+        "sha256": "0ebd432577a58feeb4d9dba997341eac1840f1c6f7c7e39cb9008d7acc2dc4be"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/pt-BR/pm_santa.json",
+        "bytes": 28680,
+        "sha256": "99d577311ed34c94d4773296e3a03a20ca426238f19f133c768b0e60d62d856d"
+      },
+      "render_fingerprint": "124b81c7f6f92eb9185b771c1897ce2293f249c1074a7870dc4914e9f05a80d7",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2683904,
+      "decoded_duration": 111.82933333333334,
+      "sidecar_duration": 111.79,
+      "duration_difference_seconds": 0.039333333333331666,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zf_xiaobei",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/zh-CN/zf_xiaobei.m4a",
+        "bytes": 700589,
+        "sha256": "154074c2be3f3b3ee1da07ee208344e13569be42cd7bb74241e456b576188021"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/zh-CN/zf_xiaobei.json",
+        "bytes": 28017,
+        "sha256": "dae06247afa12f4041ef8012dc3e2e1e12f378b557ccf74c98d86906c2f8b1dd"
+      },
+      "render_fingerprint": "a4227cf98d7d5841ad8635af4d5d17d7cc98c46e6ad5b965fce274bc179221e4",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2777088,
+      "decoded_duration": 115.712,
+      "sidecar_duration": 115.7,
+      "duration_difference_seconds": 0.012000000000000455,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zf_xiaoni",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/zh-CN/zf_xiaoni.m4a",
+        "bytes": 609599,
+        "sha256": "3c3f60ad216e0b6ce461a72101ce130845fdc2f824cabcb6c72b779d5f052dc9"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/zh-CN/zf_xiaoni.json",
+        "bytes": 28191,
+        "sha256": "4c7f416b683a50aa2ec026e04fdc6964d449d4490846c99023dce3d6702dafb7"
+      },
+      "render_fingerprint": "c3171497e83c937061ec3ffe8ffdc9be72c6c01332206ddc447a6a21918db29b",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2410496,
+      "decoded_duration": 100.43733333333333,
+      "sidecar_duration": 100.415,
+      "duration_difference_seconds": 0.022333333333321548,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zf_xiaoxiao",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/zh-CN/zf_xiaoxiao.m4a",
+        "bytes": 611766,
+        "sha256": "d0253c17f7c240566abcbc6abfbfef825e033bf5f384f44a20a7cafe38bbd51c"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/zh-CN/zf_xiaoxiao.json",
+        "bytes": 27959,
+        "sha256": "f373a64354c9ce681155323e2c9195e669bd6e38a201aec69c0e42d03bfdb456"
+      },
+      "render_fingerprint": "70f9572646158422248fd70fbab8101933e309d4309bc6a23cdef2551e4bc7fe",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2386944,
+      "decoded_duration": 99.456,
+      "sidecar_duration": 99.42,
+      "duration_difference_seconds": 0.036000000000001364,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zf_xiaoyi",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/zh-CN/zf_xiaoyi.m4a",
+        "bytes": 587794,
+        "sha256": "e612cb2bfcc1db2d77a7489e85ff9e755d6ed8f820957f654c4f87947bb962f0"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/zh-CN/zf_xiaoyi.json",
+        "bytes": 28182,
+        "sha256": "f4c2a4b73c0bf482eb9ec2f1eb4c6a9c00c61281f60e3614eeb93faa1754d08f"
+      },
+      "render_fingerprint": "0a4188d1a29bc1d77a74f73fe638e061a03a57a6d37c2531bdd39f33cd03a083",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2325504,
+      "decoded_duration": 96.896,
+      "sidecar_duration": 96.875,
+      "duration_difference_seconds": 0.021000000000000796,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zm_yunjian",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/zh-CN/zm_yunjian.m4a",
+        "bytes": 583253,
+        "sha256": "cc5622f67cdce5337fbdc8b8abdd35687c26b4a83bb23f1fe55885a05476c9c7"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/zh-CN/zm_yunjian.json",
+        "bytes": 28205,
+        "sha256": "cb9cefcc266f1da7c2ce27c8b9e5c66830b2a73a2f89797825ee920fdfd392c6"
+      },
+      "render_fingerprint": "1eb22625f4ebd4ce579f34c0889a80b122c5a82ecbe5e3dfd32225879e2be827",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2317312,
+      "decoded_duration": 96.55466666666666,
+      "sidecar_duration": 96.515,
+      "duration_difference_seconds": 0.039666666666661854,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zm_yunxi",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/zh-CN/zm_yunxi.m4a",
+        "bytes": 551410,
+        "sha256": "a1412e9df0c1abe18538ab27e08fe44368f2158a4f7431cd23cf2fc16649db59"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/zh-CN/zm_yunxi.json",
+        "bytes": 28309,
+        "sha256": "89394ba6aefb368231e885fb8d1c821d0492ed2b75f1a61d2469b9b1b1dc878d"
+      },
+      "render_fingerprint": "5c6df69a3ff15dfee9651aa22cf2af972369abd11c8538face9062a6a05a258b",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2200576,
+      "decoded_duration": 91.69066666666667,
+      "sidecar_duration": 91.685,
+      "duration_difference_seconds": 0.005666666666670039,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zm_yunxia",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/zh-CN/zm_yunxia.m4a",
+        "bytes": 624631,
+        "sha256": "42ec744d7d0f8adf265a3644a6ff7b2950a7865c5b54a7e2d032c06c759a74ce"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/zh-CN/zm_yunxia.json",
+        "bytes": 28175,
+        "sha256": "799995fbe0025eee3f7a1f4529846fbcd2e4c07f7983046e1ceca09a2ca16db6"
+      },
+      "render_fingerprint": "8e15a0adfd9898ce3acf27d151bc454c46ee4f833f662bddf09f36b46ee15b73",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2488320,
+      "decoded_duration": 103.68,
+      "sidecar_duration": 103.665,
+      "duration_difference_seconds": 0.015000000000000568,
+      "scene_count": 8,
+      "utterances": 8
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zm_yunyang",
+      "audio": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/zh-CN/zm_yunyang.m4a",
+        "bytes": 549765,
+        "sha256": "54c3c1ece2b10580cf7e6c06f05f80c439e88865daade9c191f88344fbff7e57"
+      },
+      "sidecar": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/zh-CN/zm_yunyang.json",
+        "bytes": 28069,
+        "sha256": "8559035611ef6cc4154b07258ace119a554789e268da739f68a9715e5b8121c1"
+      },
+      "render_fingerprint": "226deee43d15fa4d44d6ce8f4442bbdd9da0de540e02d59ee51ce0083983033b",
+      "decoded_finite_mono_24k": true,
+      "decode_returncode": 0,
+      "decoded_samples": 2187264,
+      "decoded_duration": 91.136,
+      "sidecar_duration": 91.105,
+      "duration_difference_seconds": 0.0309999999999917,
+      "scene_count": 8,
+      "utterances": 8
+    }
+  ],
+  "tracks_to_repair": [],
+  "utterances_to_resynthesize": [],
+  "required_source_edits": [],
+  "source_commit": "972ac89c91db8b3842cd75bb30991b8b1af35898",
+  "baseline_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/release-manifest.json",
+    "bytes": 1179215,
+    "sha256": "8065f31b9a758cd0a823efbeb8e631cbc740c1c88ca0ea21d7a41e08eab2dcd4"
+  },
+  "inspections": {
+    "all50_AAC_full_decode_finite": true,
+    "exact50_media_and_sidecar_hashes_match_published_manifest": true,
+    "all712_raw_cache_input_PCM_hash_and_phoneme_lineage_verified": true,
+    "all712_raw_trim_duration_matches_sidecar_within2ms": true,
+    "actual_audio_scene_count": 400,
+    "raw_utterances_checked": 712,
+    "decoded_minus_sidecar_duration_range_seconds": [
+      0.0,
+      0.04099999999999682
+    ],
+    "zero_concrete_identity_or_duration_faults": true,
+    "lowest_retained_head_700ms_cosine_after_narrow_lag_check": 0.847048973041164,
+    "lowest_retained_tail_700ms_cosine_after_narrow_lag_check": 0.9300994459978322,
+    "cosine_is_observation_not_a_perceptual_gate": true
+  },
+  "metadata_text_cross_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/caption-component-assessment.json",
+    "bytes": 39909,
+    "sha256": "a8e2563836edab39680b402c4f017504b556e8db8ebdc0ae28ce5a3519ab4591"
+  },
+  "pronunciation": {
+    "current_profile": {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/authoring/tools/pronunciation.py",
+      "bytes": 15525,
+      "sha256": "02aa4ec36da9af845c908788388fa61b4b3c99c4492b90a2e5c225e6f83cb87b"
+    },
+    "all50_sidecar_profile_hashes_match_current": true,
+    "all24English_PyPI_occurrences_use_reviewed_pype_speech_and_stored_phonemes": true,
+    "pypi_occurrences": [
+      {
+        "language": "en",
+        "voice": "af_aoede",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɔn pˈIp, fˈInd spˈAsəɹ ænd ɹˈɛd ði ˌɪnztəlˈAʃən kəmˈænd bəsˈId ðə kˈɜɹənt ɹəlˈis."
+      },
+      {
+        "language": "en",
+        "voice": "af_bella",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɔn pˈIp, fˈInd spˈAsəɹ ænd ɹˈɛd ði ˌɪnztəlˈAʃən kəmˈænd bəsˈId ðə kˈɜɹənt ɹəlˈis."
+      },
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɔn pˈIp, fˈInd spˈAsəɹ ænd ɹˈɛd ði ˌɪnztəlˈAʃən kəmˈænd bəsˈId ðə kˈɜɹənt ɹəlˈis."
+      },
+      {
+        "language": "en",
+        "voice": "af_jessica",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɔn pˈIp, fˈInd spˈAsəɹ ænd ɹˈɛd ði ˌɪnztəlˈAʃən kəmˈænd bəsˈId ðə kˈɜɹənt ɹəlˈis."
+      },
+      {
+        "language": "en",
+        "voice": "af_river",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɔn pˈIp, fˈInd spˈAsəɹ ænd ɹˈɛd ði ˌɪnztəlˈAʃən kəmˈænd bəsˈId ðə kˈɜɹənt ɹəlˈis."
+      },
+      {
+        "language": "en",
+        "voice": "af_sarah",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɔn pˈIp, fˈInd spˈAsəɹ ænd ɹˈɛd ði ˌɪnztəlˈAʃən kəmˈænd bəsˈId ðə kˈɜɹənt ɹəlˈis."
+      },
+      {
+        "language": "en",
+        "voice": "af_sky",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɔn pˈIp, fˈInd spˈAsəɹ ænd ɹˈɛd ði ˌɪnztəlˈAʃən kəmˈænd bəsˈId ðə kˈɜɹənt ɹəlˈis."
+      },
+      {
+        "language": "en",
+        "voice": "am_adam",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɔn pˈIp, fˈInd spˈAsəɹ ænd ɹˈɛd ði ˌɪnztəlˈAʃən kəmˈænd bəsˈId ðə kˈɜɹənt ɹəlˈis."
+      },
+      {
+        "language": "en",
+        "voice": "am_echo",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɔn pˈIp, fˈInd spˈAsəɹ ænd ɹˈɛd ði ˌɪnztəlˈAʃən kəmˈænd bəsˈId ðə kˈɜɹənt ɹəlˈis."
+      },
+      {
+        "language": "en",
+        "voice": "am_eric",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɔn pˈIp, fˈInd spˈAsəɹ ænd ɹˈɛd ði ˌɪnztəlˈAʃən kəmˈænd bəsˈId ðə kˈɜɹənt ɹəlˈis."
+      },
+      {
+        "language": "en",
+        "voice": "am_fenrir",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɔn pˈIp, fˈInd spˈAsəɹ ænd ɹˈɛd ði ˌɪnztəlˈAʃən kəmˈænd bəsˈId ðə kˈɜɹənt ɹəlˈis."
+      },
+      {
+        "language": "en",
+        "voice": "am_liam",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɔn pˈIp, fˈInd spˈAsəɹ ænd ɹˈɛd ði ˌɪnztəlˈAʃən kəmˈænd bəsˈId ðə kˈɜɹənt ɹəlˈis."
+      },
+      {
+        "language": "en",
+        "voice": "am_michael",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɔn pˈIp, fˈInd spˈAsəɹ ænd ɹˈɛd ði ˌɪnztəlˈAʃən kəmˈænd bəsˈId ðə kˈɜɹənt ɹəlˈis."
+      },
+      {
+        "language": "en",
+        "voice": "am_onyx",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɔn pˈIp, fˈInd spˈAsəɹ ænd ɹˈɛd ði ˌɪnztəlˈAʃən kəmˈænd bəsˈId ðə kˈɜɹənt ɹəlˈis."
+      },
+      {
+        "language": "en",
+        "voice": "am_puck",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɔn pˈIp, fˈInd spˈAsəɹ ænd ɹˈɛd ði ˌɪnztəlˈAʃən kəmˈænd bəsˈId ðə kˈɜɹənt ɹəlˈis."
+      },
+      {
+        "language": "en",
+        "voice": "am_santa",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɔn pˈIp, fˈInd spˈAsəɹ ænd ɹˈɛd ði ˌɪnztəlˈAʃən kəmˈænd bəsˈId ðə kˈɜɹənt ɹəlˈis."
+      },
+      {
+        "language": "en",
+        "voice": "bf_alice",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɒn pˈIp, fˈInd spˈAsə and ɹˈɛd ði ɪnstəlˈAʃᵊn kəmˈɑːnd bɪsˈId ðə kˈʌɹənt ɹɪlˈiːs."
+      },
+      {
+        "language": "en",
+        "voice": "bf_emma",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɒn pˈIp, fˈInd spˈAsə and ɹˈɛd ði ɪnstəlˈAʃᵊn kəmˈɑːnd bɪsˈId ðə kˈʌɹənt ɹɪlˈiːs."
+      },
+      {
+        "language": "en",
+        "voice": "bf_isabella",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɒn pˈIp, fˈInd spˈAsə and ɹˈɛd ði ɪnstəlˈAʃᵊn kəmˈɑːnd bɪsˈId ðə kˈʌɹənt ɹɪlˈiːs."
+      },
+      {
+        "language": "en",
+        "voice": "bf_lily",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɒn pˈIp, fˈInd spˈAsə and ɹˈɛd ði ɪnstəlˈAʃᵊn kəmˈɑːnd bɪsˈId ðə kˈʌɹənt ɹɪlˈiːs."
+      },
+      {
+        "language": "en",
+        "voice": "bm_daniel",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɒn pˈIp, fˈInd spˈAsə and ɹˈɛd ði ɪnstəlˈAʃᵊn kəmˈɑːnd bɪsˈId ðə kˈʌɹənt ɹɪlˈiːs."
+      },
+      {
+        "language": "en",
+        "voice": "bm_fable",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɒn pˈIp, fˈInd spˈAsə and ɹˈɛd ði ɪnstəlˈAʃᵊn kəmˈɑːnd bɪsˈId ðə kˈʌɹənt ɹɪlˈiːs."
+      },
+      {
+        "language": "en",
+        "voice": "bm_george",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɒn pˈIp, fˈInd spˈAsə and ɹˈɛd ði ɪnstəlˈAʃᵊn kəmˈɑːnd bɪsˈId ðə kˈʌɹənt ɹɪlˈiːs."
+      },
+      {
+        "language": "en",
+        "voice": "bm_lewis",
+        "scene": 2,
+        "sentence": 1,
+        "display_text": "On PyPI, find spaCR and read the installation command beside the current release.",
+        "speech_text": "On [pype](/pˈIp/), find spacer and read the installation command beside the current release.",
+        "phonemes": "ˌɒn pˈIp, fˈInd spˈAsə and ɹˈɛd ði ɪnstəlˈAʃᵊn kəmˈɑːnd bɪsˈId ðə kˈʌɹənt ɹɪlˈiːs."
+      }
+    ]
+  },
+  "targeted_followup": {
+    "receipt": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/two-track-lag-inspection.json",
+      "bytes": 19960,
+      "sha256": "b7f901f4c6b3fc22e983e42563e9223f1f27a486b0adae7bb7d1eb54aa613a4b"
+    },
+    "bm_fable": "All22 sentence heads/tails align at a constant5ms offset, consistent with the existing alimiter attack=5 chain; exact selected mastering filter is not persisted, so causal attribution remains qualified. No omitted word or active retained onset/tail established. Do not resynthesize for this lag alone.",
+    "zm_yunyang": "Zero best lag; one scene6 head remains0.847 cosine after search, tail0.998 in initial comparison. Mastering/lossy waveform differences remain unclassified; no concrete clipping or wrong utterance demonstrated.",
+    "action": "Preserve both tracks. These observations do not justify blanket or targeted synthesis without perceptual/new concrete fault evidence."
+  },
+  "raw_prefix_scope": "Discarded nonzero low-energy prefixes are measured in the raw-cache inspection but unclassified. They alone are not evidence of clipped consonants or inaudible noise. Retained-edge raw/AAC matches do not prove first-word completeness.",
+  "existing_player_evidence": {
+    "current_authoring_player": {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/authoring/web/app_v2.js",
+      "bytes": 102935,
+      "sha256": "8d628ce33e0976464f60490e20e0feb57fc07d3989ec1c520cc5891f404e6159"
+    },
+    "actual01_receipt_cases": [
+      {
+        "receipt": {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/checks/candidate-browser-checks.json",
+          "bytes": 127523,
+          "sha256": "8a93b860a66720db2c89546483c1c3c024adaa79f8fff06376c5e6e06e8d2bcb"
+        },
+        "actual01_case": {
+          "lesson": "01_pypi_github",
+          "audio_sha256": "38617826a9b1638eed9fccfdc5c8bd0fdd91757716ce99fd0cd85bc5be4f500c",
+          "clocks": {
+            "audio": 29.533888,
+            "video": 29.747694,
+            "expected": 29.529756037867834,
+            "width": 2560,
+            "height": 1440,
+            "error": null,
+            "requested_audio_time": 28.279999999999998,
+            "seek_elapsed_seconds": 1.5070956039708108,
+            "hosted_web_copy": "http://127.0.0.1:40517/media_host/01_pypi_github/web/01_pypi_github_silent.mp4"
+          },
+          "chapter_text_matches_audio": true,
+          "native_caption_reloads": 2,
+          "sentence_cue_checks": [],
+          "passed": true
+        }
+      },
+      {
+        "receipt": {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/checks/published-media-browser-checks.json",
+          "bytes": 134406,
+          "sha256": "9e9f28c40630e7cd2086737a7a895d3ede1cfff1d6fb7e6e08ee106ae9ff296b"
+        },
+        "actual01_case": {
+          "lesson": "01_pypi_github",
+          "audio_sha256": "38617826a9b1638eed9fccfdc5c8bd0fdd91757716ce99fd0cd85bc5be4f500c",
+          "clocks": {
+            "audio": 29.279536,
+            "video": 29.503552,
+            "expected": 29.27543962318705,
+            "width": 2560,
+            "height": 1440,
+            "error": null,
+            "requested_audio_time": 28.279999999999998,
+            "seek_elapsed_seconds": 1.5072373789735138,
+            "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/7adc8b69d40e491cc5d1a2b4464af80b48264f14/01_pypi_github/web/01_pypi_github_silent.mp4"
+          },
+          "chapter_text_matches_audio": true,
+          "native_caption_reloads": 2,
+          "sentence_cue_checks": [],
+          "passed": true
+        }
+      }
+    ],
+    "qualification": "Actual current candidate/hosted84 checks cover representative01 af_heart seek/chapter text and caption reloads, not every voice or auditory content. Existing player readiness fix is already in current8d source; no new browser run was performed."
+  },
+  "evidence": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/audio-waveform-cache-inspection.json",
+      "bytes": 1431039,
+      "sha256": "69960e5240708ab7ccbe203791bd744f65746a3073a09cc937454d669e03ca98"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/audio-inspection-run-r1.log",
+      "bytes": 879,
+      "sha256": "b52370e9cff6262d9dc8a41c882d8b2d0083d4434bcd9f60a3969f4cb812ac02"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/inspect_existing_audio.py",
+      "bytes": 7707,
+      "sha256": "8699c35fae1a03141b0bb32bdac622d32df4c2105bcef80c613d2e7904bcda71"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/two-track-lag-inspection.json",
+      "bytes": 19960,
+      "sha256": "b7f901f4c6b3fc22e983e42563e9223f1f27a486b0adae7bb7d1eb54aa613a4b"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/two-track-lag-run.log",
+      "bytes": 565,
+      "sha256": "329be3ceeb2bd441d199ba3df93926534f3db897f3012a8ca7f028e7d82b4291"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/inspect_two_track_lags.py",
+      "bytes": 4363,
+      "sha256": "846e4661b60c609f4b86ffd08e0723b66656c1dab0597e8bb19ffda1b1aed852"
+    }
+  ],
+  "audio_synthesis_performed": false,
+  "audio_or_sidecar_mutated": false,
+  "human_listening_performed": false,
+  "native_speaker_review": false,
+  "word_completeness_verified": false,
+  "listening_capability": "No supported audio-input/perception tool is available in this session; no listening assessment or ASR was performed.",
+  "limits": [
+    "KEEP is a bounded technical preservation decision, not a human hearing or language-quality acceptance.",
+    "FullAAC decode/sample support and source/cache/metadata identity cannot determine every quiet consonant or actual spoken word.",
+    "No model/refit/synthesis/source edits/package install/provider/network fallback, browser rerun or full-video decode.",
+    "Two-track followup authorized for observed correlations only; original50track inspection preserved. No biological claim."
+  ]
+}

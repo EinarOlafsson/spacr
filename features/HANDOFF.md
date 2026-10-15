@@ -1,4 +1,61 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
+## 2026-10-15 Home-B — whole workspace delivery and spatial rerun repair
+
+N180 whole original A–D/five-criteria contract is accepted after the real
+FigureQueue carry/PDF fix, normal63API+9runtime targets/full9audit/Help and
+actual final consumers. Prior13,289 Help entries and all foreign catalog
+records remain preserved. Strict API arrival names exactly two new methods;
+the historical13218 floor is unchanged. Final evidence is under
+features/data/180_session_figure_consumers_2026-10-15/. Original's queued
+N690 writer should use this coherent publication as its next baseline.
+
+F534 zero-result reruns now retire only the current slide's stale database
+rows, preserving SQL schemas, other slides/files and original inputs.
+Actual2FAIL baseline becomes19 owningPASS; whole scientific/data acceptance
+remains open. Source owner continues only a bounded map-stage consistency
+follow-up. N647/N648 retain their explicit Windows/macOS functional gates;
+no new Linux replay or invented crash-injection gate is needed.
+
+N704's latest immutable main packet is now
+features/data/704_after_website_main_owner_packet_2026-10-15/ (738files,
+1747images,670readable routes). N615 is a broad docs/tutorial/release item;
+README routes alone do not close it. N328/N384 are historical closed items,
+omitted from today's/open display rather than counted as new completions.
+
+
+## 2026-10-15T12:00:15.035623-04:00 — Work: ordered review 01 KEEP; 02 next
+
+Reviewed tutorial 01 component by component under the new maintainer instruction. Root decision: **KEEP video, audio and captions**. No media regenerated, audio synthesized or narration/captions changed. Evidence is in `features/data/n676_ordered_tutorial_reviews_2026-10-15/01_pypi_github/`; the adjacent `PROGRESS.csv` tracks all 84 current routes.
+
+All eight sections were sampled at start/middle/end (24 video frames); required links, commands and installer types remain correct/readable against dated official package/release metadata. Pictured release-number aging does not change an instruction or fixed-version promise. All 13 reviews and 14 catalogs align; all 50 audio tracks decoded with exact published hashes and 712 cached utterance identities. The bounded two-track follow-up found a constant 5ms lag and one unclassified waveform difference, not evidence for clipping. This is sampled visual and technical audio preservation evidence, not full watching or human/native-language hearing approval. Existing unchanged 01 route playback passed in completed 23 verification.
+
+Continue numerically to 02 after this review commit. No new HF upload is needed for a KEEP decision; original media remain intact. The separate 05 diagnostic and 25 preparation remain parked.
+
+
+## 2026-10-15T11:50:16.804806-04:00 — Work: Agreement 23 completed; ordered selective review next
+
+This commit publishes the completed Agreement 23 Pages tree and exact evidence packet: `features/data/n676_agreement_completed_publication_2026-10-15/` (217 files; packet manifest `278ec23782de58e831b16b1e57a6ba7ac2af307c2d26270654c5e0d56e3d5132`). Independent final peer is the adjacent `-peer.json`, SHA `02949c5182f3bd3d6ce0cfbb0fdb92520b066e844d37c5476da83e8288960b74`. All 148 exported checkpoint files and 13 official reviews are preserved. Home retains ownership of source integration; the exact native-arrival audit patch and 33 passing checks are included separately.
+
+Media revision `7adc8b69d40e491cc5d1a2b4464af80b48264f14`, tag `n676-gnome23-r60-20261015-verified`: all 5,368 candidate files passed metadata and downloaded SHA checks (8,678,956,046 bytes). All 10 native clips passed strict gates first attempt; 7,527 complete frames / 250.9 seconds at 1x. Current-runtime audio QA passed all 50 tracks, browser matrix passed 72 steps, candidate and prepared Pages playback each passed all 84 routes, and publication record completed. Other 83 lesson objects remain the completed 15 baseline. The 16 real crops use deliberately artificial DEMO labels; no biological accuracy, human hearing, whole-video watching or live Space deployment claim. The 2,964 historical extra remote files are outside readback coverage.
+
+Held source remains private: capture and voice source `d7461e54ed5325997f6ff1328b90bd2818329f4d`; audit-only child `fd7d8234015e5e474af356ac15de6243323b4faa`; generated publication checkpoint `972ac89c91db8b3842cd75bb30991b8b1af35898`. Only docs/features changes leave Work.
+
+**New maintainer instruction supersedes the previous next-lesson order:** review tutorials numerically from the beginning (current catalog starts at 01; no 00). Assess existing video, audio and captions separately; keep components that remain correct and repair only components that need it. Publish and push each repair before advancing. Work starts with 01 after this push. Do not treat the old progress table as a requirement to remake all 84 tutorials. The separate 05 diagnostic drafts are preserved unexecuted and not runtime-ready; 25 recorder preparation is parked. Available agents will review separate components of the same active tutorial. Work will report newly observed Home commits to the maintainer.
+
+
+## 2026-10-15 — Original whole-item closeouts and hosted build diagnosis
+
+Whole N468, N94 and F554 accepted/published5261e262fa; N687 owner closure
+reconciled172a52e396. N197 original contract now source-bound accepted;
+N384 remains historically maintainer-closed, not a new implementation.
+The combined tracker has85 numbered rows; no component totals or scientific
+claims substituted for whole contracts. N698 free ZeroGPU source66ac uploaded
+and1182 files verified, but managed build installs requirements before source
+COPY: local .[plaque] fails. Private immutable-source packaging repair active;
+no accepted inference endpoint/site change. N702 normal GUI picker export loses
+model pins; Hard owns private verified-reference backend, UI dependency being
+coordinated. Home-B N180 exclusive global generated writer slot is reserved.
+
 
 ## 2026-10-15T11:37:38.878191-04:00 — Work:23 full candidate accepted; immutable readback running
 

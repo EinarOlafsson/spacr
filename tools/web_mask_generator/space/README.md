@@ -11,8 +11,32 @@ Copy this file and its adjacent `requirements.txt` to the root of the selected
 source staging bundle. Keep the project's `README.rst`, `setup.py`,
 `pyproject.toml`, `MANIFEST.in`, `LICENSE`, all selected `spacr` files, the web
 folder, `tools/build_model_cards.py`, `tools/build_score_cards.py` and setuptools'
-Linux desktop/icon data inputs. Do not clone or upload repository history,
+Linux desktop/icon data inputs. Do not upload development-repository history,
 private data, tutorials or credentials.
+
+The managed build installs requirements before copying the Space source into
+`/app`, so a local `.[plaque]` requirement cannot resolve there. Its pip Git
+partial clone also failed against the public Hub. Requirements therefore use the
+ordinary spaCR source distribution at immutable public Space revision
+`85b41cf7084471679f8c1076df8ee4f0b18b09b6`, with independent SHA-256
+`a2068b97a8973a64fa13febbd81b87e933befb7684779be50d356fe969ce457f`.
+The HTTPS URL keeps the `plaque` extra and normal dependency resolution, with no
+Git checkout, runtime pip invocation or dependency bypass. Normal pip validates
+the archive's hash before building it; changed or unavailable bytes refuse.
+
+The source archive was produced by ordinary `setuptools.build_meta.build_sdist`
+from the reviewed minimal public source snapshot `66ac681d3040aab1823aed0bf16b4ed5c89589f7`
+(code `35aeaa9ddc1f09cbd85fe75617a68df81adade0f`). It contains all 664 runtime
+Python files, 969 unchanged original package files and eight normal generated
+metadata files. Existing distribution policy prunes review generators, installer
+copies and other nonpackage inputs; the archive inventory records those choices.
+It contains no repository history or checkpoint weights. Its setup/build backend
+does not read the old managed requirements file included by normal distribution
+policy, so installation does not recurse. Required setup/README/pyproject and Linux
+packaging data are included. The package metadata retains its actual version
+1.5.1.4; the source snapshot is explicit and does not imply a release or hosted
+acceptance. A future source/dependency change requires another reviewed archive,
+immutable uploaded revision and checksum; do not replace the URL with a branch.
 
 The Space's managed SDK supplies Gradio and spaces. Do not also include the
 local-development `requirements-space.txt`, which targets a different SDK.
@@ -26,15 +50,17 @@ its actual settings. README metadata does not allocate hardware. No paid GPU,
 PRO upgrade or paid fallback is configured. Keep the existing model-upload Space
 separate. Set `SPACR_WEB_ZERO_GPU=1` only after selecting real ZeroGPU hardware.
 
-This source does not download weights automatically. Before enabling inference,
-provision the exact approved model files from their actual public model/dataset
-repository type and immutable revision, independently verify the catalogue
-SHA-256, and set `SPACR_WEB_MODELS_JSON` to the operator-controlled local paths.
-An empty mapping can construct the UI but cannot process a model request. All
-advertised model versions require their own verified files; do not imply that a
-missing version is available or silently substitute another one. Public examples
-remain disabled until genuine reviewed test-split records are supplied through
-`SPACR_WEB_EXAMPLES_JSON`.
+Ordinary local startup does not download weights. Managed startup downloads
+only when BOTH `SPACR_WEB_ZERO_GPU=1` and `SPACR_WEB_PROVISION_MODELS=1` explicitly
+opt into the verified provisioning described below; leave `SPACR_WEB_MODELS_JSON`
+unset for that route. Alternatively, without the provisioning opt-in, the
+operator may provision the exact approved public model/dataset files at immutable
+revisions, independently verify the catalogue SHA-256, and set
+`SPACR_WEB_MODELS_JSON` to those trusted local paths. An empty mapping can
+construct the UI but cannot process a model request. All advertised model versions
+require their own verified files; do not imply that a missing version is available
+or silently substitute another one. Public examples remain disabled until genuine
+reviewed test-split records are supplied through `SPACR_WEB_EXAMPLES_JSON`.
 
 Uploads require explicit consent. The result ZIP includes the original upload.
 Job staging is removed when the result is copied to the download cache; cache

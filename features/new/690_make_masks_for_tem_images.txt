@@ -2,7 +2,8 @@
 MAKE MASKS FOR TRANSMISSION ELECTRON MICROSCOPY (TEM) IMAGES
 ================================================================================
 
-Status:    built 2026-10-11 (no submodule; TEM support inside Make Masks); tutorial pending
+Status: DONE 2026-10-15 — original TEM workflow and translations accepted;
+        separate TEM tutorial explicitly withdrawn by maintainer via WS.
 Requested: 2026-10-11 — "I'd like to add a submodual to make masks where users
            can make masks on them data, add that as a new feature" and "Not mask
            generation, make masks. And add a new submodule or just a me training
@@ -167,3 +168,18 @@ TEM images; Contrast preset > Electron microscopy; zoom into a field; brush
 two mitochondria, divide one, undo; save and show the mask beside
 ground_truth_masks; next image; mention .dm3/.dm4/.mrc open the same way.
 
+
+2026-10-15 — Whole original TEM contract reconciled and accepted.
+Current owning source/test evidence retains49 backend and10 Qt PASS cases,
+readers/pixel scale/contrast/save/large-image support, public licensed example
+and recorded assisted-draft F1. Eleven runtime sources have99 current compiled
+reviewed targets; ten API symbols are source/context current across nine locales.
+One correct existing French callback paragraph now has an independently reviewed
+source/context record. The normal review/reuse/overlay/write_language producer
+was a byte-for-byte no-op for all ten API artifacts. Ordinary selected one-symbol
+French audit passes with one actual canonical capture plus fresh-original equality;
+all runtime and source pins remain exact. No model or unchanged test replay.
+The maintainer withdrew TEM/FIB-SEM tutorial creation (WS handoff d44a9c6a65d,
+retained CURRENT HANDOFF); the old tutorial-pending line is superseded, not
+falsely marked recorded. Whole N690 complete, without new scientific/native
+certification. Evidence:data/690_current_original_contract_reconciliation_2026-10-15/.

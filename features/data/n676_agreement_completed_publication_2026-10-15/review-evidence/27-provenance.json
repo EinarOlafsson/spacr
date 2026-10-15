@@ -1,0 +1,11 @@
+{
+  "commit": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+  "version": "1.5.1.4",
+  "module": "agreement",
+  "download_requested": false,
+  "dataset_cache": "/tmp/spacr-tutorial-current/example_data",
+  "app_source_modified": false,
+  "cache_isolated_with_bind_mount": true,
+  "completed_capture": true,
+  "selected_scenes": "02_agreement_fold,04_demo_database,05_one_column_not_a_comparison,06_two_columns,07_pairwise_results,08_confusion_matrix,09_disagreement_crop_1,10_three_columns,11_three_pass_results,12_pairwise_restored"
+}

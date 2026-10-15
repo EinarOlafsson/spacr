@@ -2769,7 +2769,7 @@ class OrganizeForMeasureDialog(QDialog):
             return label
         shown = marker or tr("(nothing)")
         kind = (tr("channel {n}", n=label[1]) if label[0] == "channel"
-                else tr("the {role} mask of channel {n}", role=label[2],
+                else tr("the {role} mask of channel {n}", role=tr(label[2]),
                         n=label[1]))
         box = QMessageBox(self)
         box.setWindowTitle(tr("What does this part of the name mean?"))
@@ -2903,7 +2903,7 @@ class OrganizeForMeasureDialog(QDialog):
             if target is None:
                 problems.append(tr(
                     "A {role} mask column belongs to channel {n}, which "
-                    "there is not.", role=column.role, n=column.of_channel))
+                    "there is not.", role=tr(column.role), n=column.of_channel))
                 continue
             if column.of_channel in roles:
                 problems.append(tr(
@@ -2979,7 +2979,7 @@ class OrganizeForMeasureDialog(QDialog):
         column = self.columns[index]
         if column.kind == "channel":
             return tr("Channel {n}", n=self._channel_of(index))
-        return tr("{role} mask (channel {n})", role=column.role,
+        return tr("{role} mask (channel {n})", role=tr(column.role),
                   n=column.of_channel)
 
     def _rebuild_editors(self) -> None:

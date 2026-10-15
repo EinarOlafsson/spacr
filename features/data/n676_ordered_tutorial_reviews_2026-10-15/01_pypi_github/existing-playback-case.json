@@ -1,0 +1,29 @@
+{
+  "source_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/checks/published-media-browser-checks.json",
+    "bytes": 134406,
+    "sha256": "9e9f28c40630e7cd2086737a7a895d3ede1cfff1d6fb7e6e08ee106ae9ff296b"
+  },
+  "public_receipt": "features/data/n676_agreement_completed_publication_2026-10-15/checkpoint/published-media-browser-checks.json",
+  "manifest_sha256": "8065f31b9a758cd0a823efbeb8e631cbc740c1c88ca0ea21d7a41e08eab2dcd4",
+  "case": {
+    "lesson": "01_pypi_github",
+    "audio_sha256": "38617826a9b1638eed9fccfdc5c8bd0fdd91757716ce99fd0cd85bc5be4f500c",
+    "clocks": {
+      "audio": 29.279536,
+      "video": 29.503552,
+      "expected": 29.27543962318705,
+      "width": 2560,
+      "height": 1440,
+      "error": null,
+      "requested_audio_time": 28.279999999999998,
+      "seek_elapsed_seconds": 1.5072373789735138,
+      "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/7adc8b69d40e491cc5d1a2b4464af80b48264f14/01_pypi_github/web/01_pypi_github_silent.mp4"
+    },
+    "chapter_text_matches_audio": true,
+    "native_caption_reloads": 2,
+    "sentence_cue_checks": [],
+    "passed": true
+  },
+  "scope": "Existing unchanged 01 route playback case from completed23 verification; not a new full-watch or listening run."
+}

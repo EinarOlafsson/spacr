@@ -1,0 +1,445 @@
+{
+  "input_commit": "c9e3dfadf3",
+  "result": "PASS",
+  "records": 72,
+  "api_records": 63,
+  "runtime_records": 9,
+  "file_hashes_verified": 18,
+  "source_context_manifest_matches": true,
+  "committed_draft_targets_match": true,
+  "rows": [
+    {
+      "language": "sv",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#0",
+      "source_sha256": "c3685d19dccd8c3022f73ffdfb41e5cdfcbb6e4b904cae0388d32261a0ebb2d7",
+      "target_sha256": "f06742bb954d00403ca6a88f620d81204b6c3e8dfba922864ec15eaf94a5a660"
+    },
+    {
+      "language": "sv",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#1",
+      "source_sha256": "3219f8fde06159a0689b3eb08b6795f161fb35a988e169e2bdc0902a24c99784",
+      "target_sha256": "86ea7fca6a9fb211099f16c8324b96ccad5d73f11d99762d143b1bd70367a1f3"
+    },
+    {
+      "language": "sv",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#2",
+      "source_sha256": "26daec1be91b1ebbf8464ec95e6834bdbcd105e5d29a7bc63f61d3f6e5c3e51d",
+      "target_sha256": "5b661af0fb22963479e0cbe92607dd0c162edfb50267323282101b96aca376c7"
+    },
+    {
+      "language": "sv",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#0",
+      "source_sha256": "9ebdf6dbe22f47a6114fffff957d2cc30f9581afa25e65a89b5cef7fb1f02eae",
+      "target_sha256": "e9aed9d5bc7b98e12350ee7deb7048c96af11cf2503978055c6d6ead51f8e810"
+    },
+    {
+      "language": "sv",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#1",
+      "source_sha256": "9073960d4c16f7846832ac1d62572574275912f05a410e39603f72e95445100b",
+      "target_sha256": "403f4a0a0a83d0b049195cfb768889aed79d8e17da960f32c97aa8fd0def0199"
+    },
+    {
+      "language": "sv",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#2",
+      "source_sha256": "64c6ac287109b151fe4b0bcdf6c7a566c648895b1c5b4d71d327e93bdd53d2ea",
+      "target_sha256": "536adbeba27ed476ee34161f492ee9494593d3756d1dc57ba76fe114acb23bd0"
+    },
+    {
+      "language": "sv",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#3",
+      "source_sha256": "f3723209ba1d25b491a244802912bdca7498e1c061e859f3fb06660a3a1ca48b",
+      "target_sha256": "20829ead433a2318d791bbb2064df7e958e34f0c5a5bdb10687a16b80af9198f"
+    },
+    {
+      "language": "sv",
+      "identity": "Saved figure files exceed the workspace copy limit.",
+      "source_sha256": "a00aed39d21803af10a4daaf1649b80f40901e1db7ea5a52e67a3451fbdcbb9a",
+      "target_sha256": "95be6b6540344be5bbb65fc64930fc76c30920c1e1844c81b215feb02b6a9ea1"
+    },
+    {
+      "language": "de",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#0",
+      "source_sha256": "c3685d19dccd8c3022f73ffdfb41e5cdfcbb6e4b904cae0388d32261a0ebb2d7",
+      "target_sha256": "a8272ca57c74d099c4b2b408ae7a36ec22658280d4243a6442096a8b5b0eb0b2"
+    },
+    {
+      "language": "de",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#1",
+      "source_sha256": "3219f8fde06159a0689b3eb08b6795f161fb35a988e169e2bdc0902a24c99784",
+      "target_sha256": "209fa1fec6ed2e23a7bcfd64afa8b2db859f971601de3d622a31c39f3c8ec57e"
+    },
+    {
+      "language": "de",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#2",
+      "source_sha256": "26daec1be91b1ebbf8464ec95e6834bdbcd105e5d29a7bc63f61d3f6e5c3e51d",
+      "target_sha256": "41808a349e080393acd29b7c74733891c336e8b55369f975e6bccd1186942371"
+    },
+    {
+      "language": "de",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#0",
+      "source_sha256": "9ebdf6dbe22f47a6114fffff957d2cc30f9581afa25e65a89b5cef7fb1f02eae",
+      "target_sha256": "c7704cf1eb37541fa06a134c7fca719f05d2d9f70e6c8c9d3d5ddbaceef85b18"
+    },
+    {
+      "language": "de",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#1",
+      "source_sha256": "9073960d4c16f7846832ac1d62572574275912f05a410e39603f72e95445100b",
+      "target_sha256": "83c3524cc9150574bc56956aae8337468c860f2fedabe22c5307726eceb2d986"
+    },
+    {
+      "language": "de",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#2",
+      "source_sha256": "64c6ac287109b151fe4b0bcdf6c7a566c648895b1c5b4d71d327e93bdd53d2ea",
+      "target_sha256": "4eb56b863a4e69f481b481ea00143141d3ff7fa64df5f653af81959ff854629a"
+    },
+    {
+      "language": "de",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#3",
+      "source_sha256": "f3723209ba1d25b491a244802912bdca7498e1c061e859f3fb06660a3a1ca48b",
+      "target_sha256": "09962c35e0a9d90383667352519e459dc594e0d45408087e216182b8e837eac3"
+    },
+    {
+      "language": "de",
+      "identity": "Saved figure files exceed the workspace copy limit.",
+      "source_sha256": "a00aed39d21803af10a4daaf1649b80f40901e1db7ea5a52e67a3451fbdcbb9a",
+      "target_sha256": "ab5292b21b704a4e7eb815b88516222df3ed90af4aa4379924c54a4718684647"
+    },
+    {
+      "language": "es",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#0",
+      "source_sha256": "c3685d19dccd8c3022f73ffdfb41e5cdfcbb6e4b904cae0388d32261a0ebb2d7",
+      "target_sha256": "cbc247d980206a910ac10be5946e7c9b76be00be03c4b2f01ac1998ac87b55e5"
+    },
+    {
+      "language": "es",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#1",
+      "source_sha256": "3219f8fde06159a0689b3eb08b6795f161fb35a988e169e2bdc0902a24c99784",
+      "target_sha256": "9c90189c03c8dfc33a25de0b1bbf4fe8f59d1bd4ecf35b7ac9342f0f4e3e21e2"
+    },
+    {
+      "language": "es",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#2",
+      "source_sha256": "26daec1be91b1ebbf8464ec95e6834bdbcd105e5d29a7bc63f61d3f6e5c3e51d",
+      "target_sha256": "14aeb2afc0b5f97cd1cbc0b51d0002f2499ad6bf853640216d7ea10e22cf89fc"
+    },
+    {
+      "language": "es",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#0",
+      "source_sha256": "9ebdf6dbe22f47a6114fffff957d2cc30f9581afa25e65a89b5cef7fb1f02eae",
+      "target_sha256": "db6fc0754c00c3f734100e75df599efebc726a0e39631eae297e03f7b4716679"
+    },
+    {
+      "language": "es",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#1",
+      "source_sha256": "9073960d4c16f7846832ac1d62572574275912f05a410e39603f72e95445100b",
+      "target_sha256": "d2100bab1663c05ff6c87b74eb930ac13d1b13ff9a6bd8772f53783165bcae57"
+    },
+    {
+      "language": "es",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#2",
+      "source_sha256": "64c6ac287109b151fe4b0bcdf6c7a566c648895b1c5b4d71d327e93bdd53d2ea",
+      "target_sha256": "6554a14eb9cec1d782160b47e06547bfdbf368c5994d44629c34c4a2104140b4"
+    },
+    {
+      "language": "es",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#3",
+      "source_sha256": "f3723209ba1d25b491a244802912bdca7498e1c061e859f3fb06660a3a1ca48b",
+      "target_sha256": "5d87d392a202dc1f845a8416aad412958ccf454f8186dbededbb1e4914342bbf"
+    },
+    {
+      "language": "es",
+      "identity": "Saved figure files exceed the workspace copy limit.",
+      "source_sha256": "a00aed39d21803af10a4daaf1649b80f40901e1db7ea5a52e67a3451fbdcbb9a",
+      "target_sha256": "2036c34462d3a97a846ea2cd0b7de6e555c0e2371353774da8cff68af7499d57"
+    },
+    {
+      "language": "fr",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#0",
+      "source_sha256": "c3685d19dccd8c3022f73ffdfb41e5cdfcbb6e4b904cae0388d32261a0ebb2d7",
+      "target_sha256": "88b3ba6a442c52c984e9b7dd2def1bd8de3e733aef01a9cf806f257791ee98c6"
+    },
+    {
+      "language": "fr",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#1",
+      "source_sha256": "3219f8fde06159a0689b3eb08b6795f161fb35a988e169e2bdc0902a24c99784",
+      "target_sha256": "7581e2804aae840fa74fd2da62ed659d9ac8906ee561fb85d6567eb0d5bbd4f6"
+    },
+    {
+      "language": "fr",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#2",
+      "source_sha256": "26daec1be91b1ebbf8464ec95e6834bdbcd105e5d29a7bc63f61d3f6e5c3e51d",
+      "target_sha256": "4b0721ad2e868a4e602851e033e363cd378d6592e5ddc7b59bfa25cfd7fbf0b1"
+    },
+    {
+      "language": "fr",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#0",
+      "source_sha256": "9ebdf6dbe22f47a6114fffff957d2cc30f9581afa25e65a89b5cef7fb1f02eae",
+      "target_sha256": "35a8519e6144d47eebce023b6e3466b41dc36696515257a16a163e5ce97cead8"
+    },
+    {
+      "language": "fr",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#1",
+      "source_sha256": "9073960d4c16f7846832ac1d62572574275912f05a410e39603f72e95445100b",
+      "target_sha256": "e63c893db3dcf9efcf4b75988aeb81e3c5b9291f67a83301eaabb53a9d7d025e"
+    },
+    {
+      "language": "fr",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#2",
+      "source_sha256": "64c6ac287109b151fe4b0bcdf6c7a566c648895b1c5b4d71d327e93bdd53d2ea",
+      "target_sha256": "68bae5bd368ab35960734dacd0c5a6e279881ea4d3d62c2fbb5dcda2cabe6a67"
+    },
+    {
+      "language": "fr",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#3",
+      "source_sha256": "f3723209ba1d25b491a244802912bdca7498e1c061e859f3fb06660a3a1ca48b",
+      "target_sha256": "0866b842c594e8ad78023ca76f4643ec2e15fa4cf513fd4c20daa3ed11cbb974"
+    },
+    {
+      "language": "fr",
+      "identity": "Saved figure files exceed the workspace copy limit.",
+      "source_sha256": "a00aed39d21803af10a4daaf1649b80f40901e1db7ea5a52e67a3451fbdcbb9a",
+      "target_sha256": "0493dd5fda65a3f15862691f3e659f8676e80ed3629610dd20473f1e2ca59481"
+    },
+    {
+      "language": "pt",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#0",
+      "source_sha256": "c3685d19dccd8c3022f73ffdfb41e5cdfcbb6e4b904cae0388d32261a0ebb2d7",
+      "target_sha256": "8719207877be1e3d15c96261650cef990add8eac5b67708b6eb479d6bfcb085f"
+    },
+    {
+      "language": "pt",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#1",
+      "source_sha256": "3219f8fde06159a0689b3eb08b6795f161fb35a988e169e2bdc0902a24c99784",
+      "target_sha256": "785549a7c09d43d69dc60446b2d75dabfd7adb064b7daa8577cff59720b042ad"
+    },
+    {
+      "language": "pt",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#2",
+      "source_sha256": "26daec1be91b1ebbf8464ec95e6834bdbcd105e5d29a7bc63f61d3f6e5c3e51d",
+      "target_sha256": "229b12eaabdcfc2e4cf4f4cda187ac0b825199766a2e82fa1c6de5106309d21c"
+    },
+    {
+      "language": "pt",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#0",
+      "source_sha256": "9ebdf6dbe22f47a6114fffff957d2cc30f9581afa25e65a89b5cef7fb1f02eae",
+      "target_sha256": "e6cb6b9ab23c272784a533669e951259c859e291ffab7de6049a07965d2104cc"
+    },
+    {
+      "language": "pt",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#1",
+      "source_sha256": "9073960d4c16f7846832ac1d62572574275912f05a410e39603f72e95445100b",
+      "target_sha256": "0b0aec0cb14512d5b6f11106cdbeaac13e423bfb726c71a3b1fd215dbc342f98"
+    },
+    {
+      "language": "pt",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#2",
+      "source_sha256": "64c6ac287109b151fe4b0bcdf6c7a566c648895b1c5b4d71d327e93bdd53d2ea",
+      "target_sha256": "4909e7d2f0aa32b5e2dbe23c3a066407d04b208df3f5dcffd659c9913b6e09c0"
+    },
+    {
+      "language": "pt",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#3",
+      "source_sha256": "f3723209ba1d25b491a244802912bdca7498e1c061e859f3fb06660a3a1ca48b",
+      "target_sha256": "8112985b2e51acb4a18370b354610771df99cd04429912ac55b1af25a362dfb2"
+    },
+    {
+      "language": "pt",
+      "identity": "Saved figure files exceed the workspace copy limit.",
+      "source_sha256": "a00aed39d21803af10a4daaf1649b80f40901e1db7ea5a52e67a3451fbdcbb9a",
+      "target_sha256": "6326d4293218055ee87ae241a98369e7ba69bc0162f420dcb2e396ce791c4b7b"
+    },
+    {
+      "language": "is",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#0",
+      "source_sha256": "c3685d19dccd8c3022f73ffdfb41e5cdfcbb6e4b904cae0388d32261a0ebb2d7",
+      "target_sha256": "46606ad1530e1ccbe8eb1ab9139ba2e7e04eb4510da73aecb15b31ded452e7e4"
+    },
+    {
+      "language": "is",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#1",
+      "source_sha256": "3219f8fde06159a0689b3eb08b6795f161fb35a988e169e2bdc0902a24c99784",
+      "target_sha256": "2d19b81d3802ff35cae44d12bab76a712d860a4782cc4a67929293482254d212"
+    },
+    {
+      "language": "is",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#2",
+      "source_sha256": "26daec1be91b1ebbf8464ec95e6834bdbcd105e5d29a7bc63f61d3f6e5c3e51d",
+      "target_sha256": "d49806f79a6815d9f460abeade0fc2f06d3efcd0f95b7ccdac7d16288fc8ece5"
+    },
+    {
+      "language": "is",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#0",
+      "source_sha256": "9ebdf6dbe22f47a6114fffff957d2cc30f9581afa25e65a89b5cef7fb1f02eae",
+      "target_sha256": "702fc150adde792c57fb032f3fc7e011d7bf7f06c310be04ab9b2a101b24cb27"
+    },
+    {
+      "language": "is",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#1",
+      "source_sha256": "9073960d4c16f7846832ac1d62572574275912f05a410e39603f72e95445100b",
+      "target_sha256": "64e17c19ae02dd8c7bd18f8aca168aa1a610d7d194d1848c7c7df66ca9288b96"
+    },
+    {
+      "language": "is",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#2",
+      "source_sha256": "64c6ac287109b151fe4b0bcdf6c7a566c648895b1c5b4d71d327e93bdd53d2ea",
+      "target_sha256": "3abeebe8f791b147b578c4dcec26852ce26ae5c098c7d4e9a7f0be4225e36ea3"
+    },
+    {
+      "language": "is",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#3",
+      "source_sha256": "f3723209ba1d25b491a244802912bdca7498e1c061e859f3fb06660a3a1ca48b",
+      "target_sha256": "b68e80346d8361a93a22d1104b546672715c4915d28fde7da623f13930df2891"
+    },
+    {
+      "language": "is",
+      "identity": "Saved figure files exceed the workspace copy limit.",
+      "source_sha256": "a00aed39d21803af10a4daaf1649b80f40901e1db7ea5a52e67a3451fbdcbb9a",
+      "target_sha256": "0d91352d9de9a7d14e60566e8a094eda4a87e441376f5106268f5425ef627e6c"
+    },
+    {
+      "language": "zh_CN",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#0",
+      "source_sha256": "c3685d19dccd8c3022f73ffdfb41e5cdfcbb6e4b904cae0388d32261a0ebb2d7",
+      "target_sha256": "ecba52d381a981ab113b525377d4a3d35e7e0c4999a0a701b073d90273a93f44"
+    },
+    {
+      "language": "zh_CN",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#1",
+      "source_sha256": "3219f8fde06159a0689b3eb08b6795f161fb35a988e169e2bdc0902a24c99784",
+      "target_sha256": "2759bb345e9ca99931b1ba056e91c26de8ba90836b60ef6944225f0ecbe89486"
+    },
+    {
+      "language": "zh_CN",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#2",
+      "source_sha256": "26daec1be91b1ebbf8464ec95e6834bdbcd105e5d29a7bc63f61d3f6e5c3e51d",
+      "target_sha256": "54fc0666182eca5a04d9f9a7cf09068288f06dc890e849089dd12d353274c329"
+    },
+    {
+      "language": "zh_CN",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#0",
+      "source_sha256": "9ebdf6dbe22f47a6114fffff957d2cc30f9581afa25e65a89b5cef7fb1f02eae",
+      "target_sha256": "0f41709bf2982732bedbd73624f1ccd2c6543a49566f1aa40a9233e5c350c96c"
+    },
+    {
+      "language": "zh_CN",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#1",
+      "source_sha256": "9073960d4c16f7846832ac1d62572574275912f05a410e39603f72e95445100b",
+      "target_sha256": "332c654c677951edcef362b21c8c2be38264e68c28c70629f79eb8ea98bd217b"
+    },
+    {
+      "language": "zh_CN",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#2",
+      "source_sha256": "64c6ac287109b151fe4b0bcdf6c7a566c648895b1c5b4d71d327e93bdd53d2ea",
+      "target_sha256": "be41585e0cc79b0f8a9f08819d9cefa4bf76c265772174d9bc26383792391c8e"
+    },
+    {
+      "language": "zh_CN",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#3",
+      "source_sha256": "f3723209ba1d25b491a244802912bdca7498e1c061e859f3fb06660a3a1ca48b",
+      "target_sha256": "3114d7ca601ef67772bc430a8bd6f953c8233b5d0c6c3426f9506f4f2dc5f0ae"
+    },
+    {
+      "language": "zh_CN",
+      "identity": "Saved figure files exceed the workspace copy limit.",
+      "source_sha256": "a00aed39d21803af10a4daaf1649b80f40901e1db7ea5a52e67a3451fbdcbb9a",
+      "target_sha256": "6e26aa35f0b1f1316f26682d1bd30137da0dd5392b267b3d982d0279a8b355b1"
+    },
+    {
+      "language": "hi",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#0",
+      "source_sha256": "c3685d19dccd8c3022f73ffdfb41e5cdfcbb6e4b904cae0388d32261a0ebb2d7",
+      "target_sha256": "2264ffd8f5bb7f74ab37dcabecf7b96cfa6a45434f37a402e284afae335cc17e"
+    },
+    {
+      "language": "hi",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#1",
+      "source_sha256": "3219f8fde06159a0689b3eb08b6795f161fb35a988e169e2bdc0902a24c99784",
+      "target_sha256": "67ed441ff1edbf604cd17ba1225ed01a8d35a013d77cd6953d5e3d456a997001"
+    },
+    {
+      "language": "hi",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#2",
+      "source_sha256": "26daec1be91b1ebbf8464ec95e6834bdbcd105e5d29a7bc63f61d3f6e5c3e51d",
+      "target_sha256": "f8525c01a90b3e343df207f61fe74f294e713e26450407bbf16a95baea676cb2"
+    },
+    {
+      "language": "hi",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#0",
+      "source_sha256": "9ebdf6dbe22f47a6114fffff957d2cc30f9581afa25e65a89b5cef7fb1f02eae",
+      "target_sha256": "72546ce1db25e90e430f2f0559b044bdcfc7b4536eb68fca8c8a40fcb741b163"
+    },
+    {
+      "language": "hi",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#1",
+      "source_sha256": "9073960d4c16f7846832ac1d62572574275912f05a410e39603f72e95445100b",
+      "target_sha256": "54fb5a97d8e3353c5aaaa55f4a613c32c46188cb9faf19edb09ae9597255bc25"
+    },
+    {
+      "language": "hi",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#2",
+      "source_sha256": "64c6ac287109b151fe4b0bcdf6c7a566c648895b1c5b4d71d327e93bdd53d2ea",
+      "target_sha256": "5bdf8f3a2fbd2895dee8435d5c611720eb459954322a6469a6d3b84cef828a84"
+    },
+    {
+      "language": "hi",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#3",
+      "source_sha256": "f3723209ba1d25b491a244802912bdca7498e1c061e859f3fb06660a3a1ca48b",
+      "target_sha256": "28f0fb8c52fe7253f5960e8450d153fce21c7b995b994e521253df26ec6bcf90"
+    },
+    {
+      "language": "hi",
+      "identity": "Saved figure files exceed the workspace copy limit.",
+      "source_sha256": "a00aed39d21803af10a4daaf1649b80f40901e1db7ea5a52e67a3451fbdcbb9a",
+      "target_sha256": "1b8d65fc7c8342b246893b8b4422d336868abb5702a22ce21f65bb295b350236"
+    },
+    {
+      "language": "ko",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#0",
+      "source_sha256": "c3685d19dccd8c3022f73ffdfb41e5cdfcbb6e4b904cae0388d32261a0ebb2d7",
+      "target_sha256": "4d55e59c0f5952562a24ef36ae4661912d003b7b653f2db66378e04a558bdf52"
+    },
+    {
+      "language": "ko",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#1",
+      "source_sha256": "3219f8fde06159a0689b3eb08b6795f161fb35a988e169e2bdc0902a24c99784",
+      "target_sha256": "348317deb789f26a54044c023c84107ac74886ffc6fe74bb27c6053e4b1c1dc7"
+    },
+    {
+      "language": "ko",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state#2",
+      "source_sha256": "26daec1be91b1ebbf8464ec95e6834bdbcd105e5d29a7bc63f61d3f6e5c3e51d",
+      "target_sha256": "c309e0daecafc4cac51209e9427a575fc36c12936e6b96aa7c55802f0979120f"
+    },
+    {
+      "language": "ko",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#0",
+      "source_sha256": "9ebdf6dbe22f47a6114fffff957d2cc30f9581afa25e65a89b5cef7fb1f02eae",
+      "target_sha256": "a87602051c02aa9e7280c0aeeed1743571c8ce4a47c3f84196667d1159bae40a"
+    },
+    {
+      "language": "ko",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#1",
+      "source_sha256": "9073960d4c16f7846832ac1d62572574275912f05a410e39603f72e95445100b",
+      "target_sha256": "b36ce285d1a0af7714ff94cd1a6550eeb31c40ada62d5e7c836479f9e652569e"
+    },
+    {
+      "language": "ko",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#2",
+      "source_sha256": "64c6ac287109b151fe4b0bcdf6c7a566c648895b1c5b4d71d327e93bdd53d2ea",
+      "target_sha256": "08adea4eb6e6dd1c178bbc7282da1573df0c4c42d02e8d96c6595d794cedc977"
+    },
+    {
+      "language": "ko",
+      "identity": "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state#3",
+      "source_sha256": "f3723209ba1d25b491a244802912bdca7498e1c061e859f3fb06660a3a1ca48b",
+      "target_sha256": "9d63a6635b692434f22882596f42fb9f13f80f3904c3584c56a50af3a3f0d9ca"
+    },
+    {
+      "language": "ko",
+      "identity": "Saved figure files exceed the workspace copy limit.",
+      "source_sha256": "a00aed39d21803af10a4daaf1649b80f40901e1db7ea5a52e67a3451fbdcbb9a",
+      "target_sha256": "1ed494e38e2296129bbaf2c3c10e011a085a80a1207f85383fb68cd64fae6dfa"
+    }
+  ],
+  "execution": "Standard-library read-only git/JSON/AST/hash verification; no runtime imports, test, collector or generator."
+}

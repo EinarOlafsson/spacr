@@ -6,6 +6,42 @@
   "historical_scope_ledger": "/mnt/wd4tb/scratch/original-home-today-completion-scopes-20261015.json",
   "rows": [
     {
+      "item": "N690",
+      "title": "make masks for tem images",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Complete: TEM readers, pixel scale, contrast, drawing/save, public example, recorded draft F1 and current translations; separate tutorial withdrawn.",
+      "completion_basis": "Whole original contract independently reconciled2026-10-15; exact current source/artifact evidence verified."
+    },
+    {
+      "item": "N180",
+      "title": "a saved run can carry the whole workspace",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Complete: settings, ordered databases, montage, Graph/regression views and carried session figures restore through the workspace protocol.",
+      "completion_basis": "Whole original contract independently reconciled2026-10-15; exact current source/artifact evidence verified."
+    },
+    {
+      "item": "F549",
+      "title": "Microscope acquisition",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Complete alpha: transformed simulated events and actual native Micro-Manager demo queue/reload/acquire; four TIFF outputs verified.",
+      "completion_basis": "Original DONE WHEN independently accepted2026-10-15;11 current owning definitions and14 portable evidence identities verified."
+    },
+    {
+      "item": "N197",
+      "title": "Page/focus navigation",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Complete: Help/keyboard/palette reach the same full scoped hotkey map, native key spelling and nine-language page captions.",
+      "completion_basis": "Whole original contract independently accepted2026-10-15; exact source/test pins and retained14PASS reviewed."
+    },
+    {
       "item": "N468",
       "title": "plaque assay has plaque and figure modes",
       "percent_done": "✅",
@@ -182,7 +218,7 @@
       "percent_done": 90,
       "time_left_hours": "2–4 + external",
       "owner": "Home / assigned owner",
-      "description": "Actual clean remote cluster run resolves/downloads required zoo model and completes readback; requires real job/site/user inputs. Do not replay owning model tests or install backends speculatively.",
+      "description": "Resolver/offline/coalescing implemented; normal GUI picker export loses exact model provenance. Backend verified-reference repair and UI owner coordination active.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -267,24 +303,6 @@
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
-      "item": "N180",
-      "title": "a saved run can carry the whole workspace",
-      "percent_done": 95,
-      "time_left_hours": "2–4",
-      "owner": "Home / assigned owner",
-      "description": "Whole-workspace user acceptance still not certified. Review exact contributor coverage against original contract; preserve named deferred skips. No fresh UMAP pipeline/src-root conversion or duplicate Home-B widget edits.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
-      "item": "N197",
-      "title": "Page/focus navigation",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
-      "owner": "Home / assigned owner",
-      "description": "See current owner delivery and remaining acceptance gates.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
       "item": "F288",
       "title": "zero issues green ci and per module coverage",
       "percent_done": 85,
@@ -314,11 +332,11 @@
     {
       "item": "N328",
       "title": "a source install should not cost a gigabyte",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
+      "percent_done": "✅",
+      "time_left_hours": "0",
       "owner": "Home / assigned owner",
-      "description": "External OWNER gate: Home-B consolidated README/translation refinement of named45draft blocks and shell prose; not an external hosting/account impossibility. No new source-clone algorithm defect established.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+      "description": "Historically complete: original shallow/sparse/light source installation contract; separate translation refinements remain separately owned.",
+      "completion_basis": "Home-B original-contract review confirms explicit DONE2026-09-19; historical correction, not a newtoday implementation."
     },
     {
       "item": "N337",
@@ -341,11 +359,11 @@
     {
       "item": "N384",
       "title": "Report types",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
+      "percent_done": "✅",
+      "time_left_hours": "0",
       "owner": "Home / assigned owner",
-      "description": "See current owner delivery and remaining acceptance gates.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+      "description": "Closed by maintainer decision: qualified English API fallback accepted; report type-validation repair published.",
+      "completion_basis": "Historical maintainer closure2026-09-09, explicitly not reopened by2026-10-15 repair; stale tracker95 corrected, not a new implementation."
     },
     {
       "item": "F404",
@@ -501,15 +519,6 @@
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
-      "item": "F549",
-      "title": "Microscope acquisition",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
-      "owner": "Home / assigned owner",
-      "description": "See current owner delivery and remaining acceptance gates.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
       "item": "F559",
       "title": "deep learning image qc",
       "percent_done": 85,
@@ -602,11 +611,11 @@
     {
       "item": "N626",
       "title": "Partial consolidation",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
+      "percent_done": "✅",
+      "time_left_hours": "0",
       "owner": "Home / assigned owner",
-      "description": "See current owner delivery and remaining acceptance gates.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+      "description": "Historically complete: partial consolidation reports failure, preserves input/state and successful copies, stops downstream actions and supports retry.",
+      "completion_basis": "Original closed2026-10-01; current organizer/backend pins and actual corrected five-case CI receipt verified2026-10-15. Not a new implementation tick."
     },
     {
       "item": "N633",
@@ -623,7 +632,7 @@
       "percent_done": 95,
       "time_left_hours": "1–3",
       "owner": "Home / assigned owner",
-      "description": "Organize buttons and original-preservation repair implemented. Item explicitly leaves translations and tutorials for both buttons with owners; current item-specific catalog/tutorial closure not recorded. No new whole-organizer transaction acceptance.",
+      "description": "Software and189 current localized targets verified; Work must bind existing two-button clips/current layout/publication. Exact owner request relayed.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -687,15 +696,6 @@
       "time_left_hours": "Unknown",
       "owner": "Home / assigned owner",
       "description": "Sixparts and real vvvv7.4.1 Wine project/runtime/PDF/liveupdate recorded. Native Windows on-screen renderer/readback remains explicitly the maintainer check; Wine window black even for native example, so native pixel acceptance cannot be asserted.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
-      "item": "N690",
-      "title": "make masks for tem images",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
-      "owner": "Home / assigned owner",
-      "description": "TEM readers/contrast/sample workflow built. Item still records nine-language generated runtime/API artifacts blocked at its oldsource boundary and a non-alpha tutorial needed; reconcile current catalogs rather than claiming the historicalN678failure still exists today.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -784,7 +784,11 @@
     "N468",
     "N94",
     "F554",
-    "N687"
+    "N687",
+    "N197",
+    "F549",
+    "N690",
+    "N180"
   ],
   "coordination_reconciliation": "Added seven still-open Home-B items missing from earlier Original subset; authoritative item files and owner receipts retained. Historical pre-today completions need not all be printed."
 }

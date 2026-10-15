@@ -810,12 +810,14 @@ def _ssh_config_directives(paths):
                         if not os.path.isabs(expanded):
                             expanded = str(base / expanded)
                         for included in sorted(glob.glob(expanded)):
+                            directives.append((None, "include_start"))
                             visit(included, base, stack | {canonical})
+                            directives.append((None, "include_end"))
                 else:
                     directives.append((keyword, values))
     for candidate in paths:
         path = Path(candidate)
-        directives.append(("__top", []))
+        directives.append((None, "top"))
         visit(path, path.parent, set())
     return directives
 
@@ -839,13 +841,19 @@ def _ssh_lookup(host, directives, *, home=None, default_port="22"):
     """Apply first-value precedence without evaluating Match conditions."""
     selected = {}
     active = True
+    include_active = []
     allowed = {"hostname", "user", "port", "identityfile", "proxyjump", "proxycommand",
                "controlmaster", "controlpersist", "controlpath", "userknownhostsfile"}
     for keyword, values in directives:
-        if keyword == "__top":
-            active = True
+        if keyword is None:
+            if values == "top":
+                active = True
+            elif values == "include_start":
+                include_active.append(active)
+            elif values == "include_end":
+                active = include_active.pop()
         elif keyword == "host":
-            active = _ssh_host_matches(host, values)
+            active = all(include_active) and _ssh_host_matches(host, values)
         elif keyword == "match":
             active = False
         elif active and keyword in allowed and values:

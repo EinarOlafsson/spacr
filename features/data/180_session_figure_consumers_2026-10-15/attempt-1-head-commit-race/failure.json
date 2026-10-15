@@ -1,0 +1,10 @@
+{
+  "failure": "Exact HEAD assertion raced the producer evidence/artifact commit.",
+  "exit": 1,
+  "wall_seconds": 0.07,
+  "actual_commit": "ab983f6e0e4a597081b8f7242d7a9dfde352711c",
+  "expected_precommit_head": "08405c50da40b23fa614cd068485a50313cd61a6",
+  "all_22_output_hashes_matched": true,
+  "product_imports_or_consumer_assertions_reached": false,
+  "correction": "Change only expected HEAD argument to the sealed producer commit. All source/output hash and consumer assertions remain unchanged."
+}

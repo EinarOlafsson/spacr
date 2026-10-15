@@ -126,3 +126,14 @@ ALPHA NOTE (2026-09-27)
     timelapses and live plate-view UI remain outside this acceptance. The
     demo used fixture measurements; scientific event detection was not
     revalidated by this run.
+
+2026-10-15 — Original Home whole-original-contract acceptance.
+Both stated DONE WHEN clauses are met: the existing simulation proves transformed
+event positions, and the native Micro-Manager demo queues/reloads/acquires the
+positions. Root independently checked11 relevant microscope/watch/simulator
+definitions remain byte-identical to the actual demo source65949c5, and all14
+portable evidence identities including four native TIFFs. Home-B separately
+confirmed all13 owning definitions and normal nine-language diagnostics.
+Whole F549 is complete and remains alpha. No physical microscope calibration,
+vendor-specific acquisition, biological detection or safety certification is
+implied; those were not additional original demo acceptance requirements.

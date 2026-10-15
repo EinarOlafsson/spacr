@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "lesson": "23_agreement",
+  "status": "pass",
+  "blocking_issues": [],
+  "packet_root": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/completed-publication-packet",
+  "packet": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/completed-publication-packet",
+  "packet_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/completed-publication-packet/packet-manifest.json",
+    "bytes": 77895,
+    "sha256": "278ec23782de58e831b16b1e57a6ba7ac2af307c2d26270654c5e0d56e3d5132"
+  },
+  "source_commit": "fd7d8234015e5e474af356ac15de6243323b4faa",
+  "capture_source_commit": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+  "voice_source_commit": "d7461e54ed5325997f6ff1328b90bd2818329f4d",
+  "native_arrival_only_commit": "fd7d8234015e5e474af356ac15de6243323b4faa",
+  "packet_files_checked": 217,
+  "manifest_file_records_checked": 216,
+  "all_packet_paths_hashes_and_sizes_match": true,
+  "export_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/published23-checkpoint-export-20261015/export-manifest.json",
+    "bytes": 54369,
+    "sha256": "3eda6a3b46b76a4f2bdade1fe77deca3c7a1228f9187c638534e15637af896b5"
+  },
+  "checkpoint_files_checked": 148,
+  "checkpoint_bytes": 115963769,
+  "official_review_count": 13,
+  "required_completed_artifacts_checked": 30,
+  "source_independent_science_16_artificial_rows_bound": true,
+  "all50_technical_audio_and72_browser_steps_bound": true,
+  "all10_strict_7527_native_frames_bound": true,
+  "HF_files_metadata_and_downloadSHA_matched": 5368,
+  "HF_bytes_read_back": 8678956046,
+  "immutable_HF_revision": "7adc8b69d40e491cc5d1a2b4464af80b48264f14",
+  "all84_hosted_Pages_cases_passed": true,
+  "publication_record_completed": true,
+  "native_arrival_owning_tests_passed": 33,
+  "native_arrival_exact_literal_only": true,
+  "preserved_other_lesson_objects": 83,
+  "preserved_catalogs": 14,
+  "final_acceptance": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/root-selected-acceptance.final-source.json",
+    "bytes": 8318,
+    "sha256": "8f276f3c0c8a48d950262341f46ef906b93719a694d7dbb237af6a85d09f632f"
+  },
+  "final_publication_review": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson23-r60/final-publication-review.json",
+    "bytes": 5071,
+    "sha256": "675cf043d062083c183ae47ece7be37d6a3db2ebdb788c79658b365c5322b1d9"
+  },
+  "limits": [
+    "Final existing-artifact packet/hash/source-chain review only; no runtime/browser/decode/network/model or fresh bulk-media hash verification.",
+    "HostedPages-tree playback and immutableHF readback do not prove liveSpace deployment;2964historicalremoteextras remain outside coverage.",
+    "Artificial DEMO teaching labels and saved statistics do not establish human annotator or biological performance.",
+    "No hearing/word-completeness/native-language/human/whole-watch acceptance; actualmastervisualreview is sampled.",
+    "Root still owns checked copy/commit/push; no ROOT/REPORT mutation by peer."
+  ]
+}

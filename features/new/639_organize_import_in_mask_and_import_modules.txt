@@ -56,3 +56,17 @@ interruption before/after transfer and the actual shutil EXDEV fallback with
 byte/mode preservation. This is not whole-organizer or cross-file transaction
 acceptance; tutorial/catalog work stays with its owners. Receipt and raw
 baseline failure: features/data/639_converted_original_preservation_2026-10-15/.
+
+2026-10-15 — MASK ROLE DISPLAY USES THE EXISTING TRANSLATIONS
+The role chooser was translated, but table headers, the marker question and
+invalid-channel problems inserted English role IDs into translated sentences.
+Those three display interpolations now translate the existing cell/nucleus/
+pathogen/organelle terms; canonical role IDs, planner arguments and file paths
+remain unchanged. The actual Swedish/French widget baseline failed 21 of 24
+cases; all 24 plus the two existing organizer modules now pass (72 total).
+The existing nine-language role rows and accepted N180 full runtime audit are
+reused, with no new caption, API prose or catalog generation. Evidence:
+features/data/639_organizer_role_display_2026-10-15/.
+The untranslated Apply summary and its inaccurate flat-layout merge promise
+remain a separate display repair. The two-button tutorial remains Work-owned;
+this note does not close the whole item.

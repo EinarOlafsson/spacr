@@ -1,9 +1,63 @@
 {
   "date": "2026-10-15",
   "format": "One row per numbered item; whole-item ticks only; estimated remaining active hours; external waits may be unknown. Historical completed items omitted.",
-  "source": "Canonical combined85-row tracker, omitting its13 pre-today completions as requested; all72 remaining/today rows retained with current Home-B owner updates.",
-  "latest_home_b_public": "9de217e24c",
+  "source": "Canonical combined tracker, omitting15 pre-today closed items; all70 remaining/today rows retained with current owner updates.",
+  "latest_home_b_public": "bcdf081f6a",
   "rows": [
+    {
+      "item": "N180",
+      "title": "a saved run can carry the whole workspace",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home-B / shared owner",
+      "description": "Complete original workspace contract accepted: real session figures/PDFs survive save/close/restore, missing-PNG resave repaired, nine-language API/runtime and actual Help/search consumers pass.",
+      "completion_basis": "Whole original A–D/five criteria independently accepted2026-10-15;18 owning cases/overlapping3 followups, normal63API+9runtime/full9audit and actual finalconsumersPASS."
+    },
+    {
+      "item": "F549",
+      "title": "Microscope acquisition",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Complete alpha: transformed simulated events and actual native Micro-Manager demo queue/reload/acquire; four TIFF outputs verified.",
+      "completion_basis": "Original DONE WHEN independently accepted2026-10-15;11 current owning definitions and14 portable evidence identities verified."
+    },
+    {
+      "item": "N197",
+      "title": "Page/focus navigation",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home-B / shared owner",
+      "description": "Complete original keyboard-map contract accepted: Help/key/palette entry points, full scoped map, native key spelling and wrapping; today’s actual Annotate page/focus repair and final nine-language output verified.",
+      "completion_basis": "Whole original contract independently reconciled2026-10-15; six actual GUI regression cases and two corrected CI contracts already passed, published normal runtime closure retained."
+    },
+    {
+      "item": "N468",
+      "title": "plaque assay has plaque and figure modes",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Easy / Home",
+      "description": "Complete: Plaque/Figure workflow, all original captions in nine languages, factual three-tab API prose and offline Help.",
+      "completion_basis": "Whole original contract independently accepted2026-10-15; current source pins and portable acceptance evidence verified"
+    },
+    {
+      "item": "N94",
+      "title": "train test splits must group by well",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Complete: shared strict cell/field/well/plate splitting, default well, refusal and durable group/cell split reports across all callers.",
+      "completion_basis": "Whole original contract independently accepted2026-10-15; current source pins and portable acceptance evidence verified"
+    },
+    {
+      "item": "F554",
+      "title": "spotiflow spot detection",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Complete alpha: isolated Spotiflow installation, real-field/object-prefix comparisons, paired CPU/GPU evidence and strict original OPS replay.",
+      "completion_basis": "Whole original contract independently accepted2026-10-15; current source pins and portable acceptance evidence verified"
+    },
     {
       "item": "N687",
       "title": "Website v2 and release synchronization",
@@ -145,7 +199,7 @@
       "percent_done": 90,
       "time_left_hours": "1–3",
       "owner": "Home-B / shared owner",
-      "description": "Readable-panel source published. Current main packet requires738 generated files after60 actual link/image dependencies discovered; owner refreshing exact portable proposal, hosted/PyPI acceptance remains.",
+      "description": "Refreshed exact738-file main publication packet and independent1747-image proof pushed c457283835. Actual main/hosted/PyPI acceptance remains with promotion/release owner.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -208,7 +262,7 @@
       "percent_done": 70,
       "time_left_hours": "12–24+",
       "owner": "Home",
-      "description": "Configuration website live and verified in English/Swedish; hosted GPU and WebGPU inference unavailable. Three-caption backend closure active.",
+      "description": "Configuration site built; free hosted source upload and packaging correction verified across1182files. Actual hosted build/inference acceptance remains.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -221,39 +275,12 @@
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
-      "item": "N94",
-      "title": "train test splits must group by well",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
-      "owner": "Home",
-      "description": "Latest source/translation owner acceptance and broader scientific/release acceptance not established by this ledger;27 targeted cases are not a whole-package proof.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
       "item": "N112",
       "title": "Documentation correctness",
       "percent_done": 95,
       "time_left_hours": "1–3",
       "owner": "Home-B / shared owner",
       "description": "Private-doc/strict inventory fixes pass; foreign N700/API and active new-feature review obligations remain.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
-      "item": "N180",
-      "title": "a saved run can carry the whole workspace",
-      "percent_done": 95,
-      "time_left_hours": "2–4",
-      "owner": "Home-B / shared owner",
-      "description": "Actual GUI gap found: session-created FigureQueue PNG/PDF assets lack a carry contributor. Queue/AppScreen repair and real reference-save/close/restore regression active; existing widget accessibility preserved.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
-      "item": "N197",
-      "title": "Page/focus navigation",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
-      "owner": "Home-B / shared owner",
-      "description": "See current owner delivery and remaining acceptance gates.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -275,30 +302,12 @@
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
-      "item": "N328",
-      "title": "a source install should not cost a gigabyte",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
-      "owner": "Home",
-      "description": "External OWNER gate: Home-B consolidated README/translation refinement of named45draft blocks and shell prose; not an external hosting/account impossibility. No new source-clone algorithm defect established.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
       "item": "N351",
       "title": "close every github issue by fixing it",
       "percent_done": 95,
       "time_left_hours": "Unknown",
       "owner": "Home",
       "description": "146 needs owner confirmation then authorized issue evidence/closure;147 needs Claude acceptance. No comments/closure/account mutation authorized by this read-only task.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
-      "item": "N384",
-      "title": "Report types",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
-      "owner": "Home-B / shared owner",
-      "description": "See current owner delivery and remaining acceptance gates.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -374,15 +383,6 @@
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
-      "item": "N468",
-      "title": "plaque assay has plaque and figure modes",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
-      "owner": "Home",
-      "description": "Plaque/Figure implementation and later native table/geometry repairs recorded. The item still leaves59new/changed locale entries in the translation backlog; current closure is not documented here. Work24recorder/native tutorial blocker is a separate child, not proof of an application regression.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
       "item": "F470",
       "title": "object crops from the cross channel ground truth to judge every label",
       "percent_done": 80,
@@ -434,24 +434,6 @@
       "time_left_hours": "Unknown",
       "owner": "Home",
       "description": "Detector route records median2.4% hand-count error, but later notes explicitly retain real detector cross-validation/external-lab biological acceptance and call the feature partial overall. CSV/preview/diameter fixes do not close those gates.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
-      "item": "F549",
-      "title": "Microscope acquisition",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
-      "owner": "Home-B / shared owner",
-      "description": "See current owner delivery and remaining acceptance gates.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
-      "item": "F554",
-      "title": "spotiflow spot detection",
-      "percent_done": 95,
-      "time_left_hours": "Unknown",
-      "owner": "Home",
-      "description": "Strict historical OPS replay still needs unavailable original tiles, measurements.db and pool10library. Real Spotiflow install, MERFISH comparison and CPU/GPU timing are recorded complete; no surrogate or invented truth.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -519,11 +501,11 @@
     },
     {
       "item": "N615",
-      "title": "README language routes",
+      "title": "API, docs, translations, tutorials and release acceptance",
       "percent_done": 95,
-      "time_left_hours": "1–3",
-      "owner": "Home-B / shared owner",
-      "description": "See current owner delivery and remaining acceptance gates.",
+      "time_left_hours": "Unknown",
+      "owner": "Home / Work; Home-B scoped docs",
+      "description": "Broad original scope remains: current hosted docs/N689 permission, Work05 tutorial publication and main/release acceptance. README-route obligations already covered.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -568,7 +550,7 @@
       "percent_done": 90,
       "time_left_hours": "2–6 + platforms",
       "owner": "Home-B / shared owner",
-      "description": "Safe help/native actions, plate/grip focus, accessibleClear action and all3 numericEnter repairs published. Sectionfold role/action/state repair29PASS pendingpeer; whole native/human acceptance separate.",
+      "description": "Linux Clear/fold native accessibility actions and three numeric-Enter repairs published, with current source preservation verified. Explicit wider platform/human acceptance remains.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -593,9 +575,9 @@
       "item": "N690",
       "title": "make masks for tem images",
       "percent_done": 95,
-      "time_left_hours": "1–3",
+      "time_left_hours": "0.5–1",
       "owner": "Home",
-      "description": "TEM readers/contrast/sample workflow built. Item still records nine-language generated runtime/API artifacts blocked at its oldsource boundary and a non-alpha tutorial needed; reconcile current catalogs rather than claiming the historicalN678failure still exists today.",
+      "description": "Current runtime/source checks pass; original tutorial obligation explicitly dropped by Work. One existing French API paragraph review/normal selected audit queued after N180.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -604,7 +586,7 @@
       "percent_done": 90,
       "time_left_hours": "2–6",
       "owner": "Home-B",
-      "description": "Free site deployed; all15 repaired hosted samples pass90/95/<1MB (min92/97,max397826bytes). Explicit physical60fps acceptance remains; Homepage metadata correction scoped.",
+      "description": "Free site, package Homepage, ten README links and all15 hosted audits accepted. Explicit physical-device60fps acceptance remains.",
       "completion_basis": "Planning estimate; whole item remains open"
     },
     {
@@ -649,7 +631,7 @@
       "percent_done": 75,
       "time_left_hours": "8–24 + data",
       "owner": "Home-B",
-      "description": "Remaining spatial workflow/data acceptance; prior verification is not new implementation.",
+      "description": "Zero-result slide reruns now retire stale database rows while preserving schemas, other slides/files and inputs;2FAIL→19PASS. Whole remaining spatial data/GPU acceptance stays open.",
       "completion_basis": "Planning estimate; whole item remains open"
     }
   ],

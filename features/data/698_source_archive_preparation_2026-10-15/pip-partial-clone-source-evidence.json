@@ -1,0 +1,24 @@
+{
+  "actual_managed_pip_version": "UNOBSERVED: pip install-U stage cached; no installed-version output in retained log. Cannot infer latest.",
+  "local_pip": {
+    "version": "26.1.2",
+    "vcs_git_source_sha256": "4d37aa0eecd2fbf04548db944ad556984da7183a4abaf521041264fc20905d5d",
+    "flag_supported": false
+  },
+  "official_pip_source": {
+    "url": "https://raw.githubusercontent.com/pypa/pip/26.2.1/src/pip/_internal/vcs/git.py",
+    "version_tag": "26.2.1",
+    "sha256": "2f9daba8937ef8aab4923011f3ff528bc44911c36550b25d93a562a60f1995f0",
+    "flag_supported": true,
+    "mechanism": "strtobool(environment flag) gates only the clone --filter=blob:none option; later resolve_revision/immutable checkout still occur."
+  },
+  "provider_docs": {
+    "dependencies": "https://huggingface.co/docs/hub/spaces-dependencies",
+    "overview": "https://huggingface.co/docs/hub/spaces-overview",
+    "vcs": "https://pip.pypa.io/en/stable/topics/vcs-support/"
+  },
+  "supported_pre_requirements": "Provider documents pre-requirements.txt installed before main requirements and permits updating pip.",
+  "build_variable_limit": "Official Gradio overview guarantees variables exposed to app; this inspection found no explicit guarantee they reach managed base-stage pip RUN. No flag-only mutation justified.",
+  "selected_alternative": "Normal immutable source-sdist URL plus SHA256 fragment, preserved plaque extra/normal dependencies; no Git partial clone or build-env assumption.",
+  "external_mutations": []
+}

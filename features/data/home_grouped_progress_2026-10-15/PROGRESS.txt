@@ -5,6 +5,10 @@ Hours are estimates; external unknowns remain explicit.
 
 | Item | Percent done | Time left (hours) | Owner | Detailed description |
 |---|---:|---:|---|---|
+| N690 | ✅ | 0 | Home / assigned owner | Complete: TEM readers, pixel scale, contrast, drawing/save, public example, recorded draft F1 and current translations; separate tutorial withdrawn. |
+| N180 | ✅ | 0 | Home / assigned owner | Complete: settings, ordered databases, montage, Graph/regression views and carried session figures restore through the workspace protocol. |
+| F549 | ✅ | 0 | Home / assigned owner | Complete alpha: transformed simulated events and actual native Micro-Manager demo queue/reload/acquire; four TIFF outputs verified. |
+| N197 | ✅ | 0 | Home / assigned owner | Complete: Help/keyboard/palette reach the same full scoped hotkey map, native key spelling and nine-language page captions. |
 | N468 | ✅ | 0 | Easy / Home | Complete: Plaque/Figure workflow, all original captions in nine languages, factual three-tab API prose and offline Help. |
 | N94 | ✅ | 0 | Home / assigned owner | Complete: shared strict cell/field/well/plate splitting, default well, refusal and durable group/cell split reports across all callers. |
 | F554 | ✅ | 0 | Home / assigned owner | Complete alpha: isolated Spotiflow installation, real-field/object-prefix comparisons, paired CPU/GPU evidence and strict original OPS replay. |
@@ -24,7 +28,7 @@ Hours are estimates; external unknowns remain explicit.
 | N697 | 95% | 1–2 | Home / assigned owner | Disconnected brush/volume behavior and235merged checks/unmodified1.35paintgate recorded. Fresh fullCI/native-platform and Work lesson14 recording/publication remain; oldprivate publication/performance notes superseded only to stated extent. |
 | N704 | 90% | 1–3 | Home-B / Home | See current owner delivery and remaining acceptance gates. |
 | N676 | 65% | 12–24+ | Work | 09/11/15 verified media checkpoints;05 hidden Spaceout repair next; requested remaining lessons Work-owned. |
-| N702 | 90% | 2–4 + external | Home / assigned owner | Actual clean remote cluster run resolves/downloads required zoo model and completes readback; requires real job/site/user inputs. Do not replay owning model tests or install backends speculatively. |
+| N702 | 90% | 2–4 + external | Home / assigned owner | Resolver/offline/coalescing implemented; normal GUI picker export loses exact model provenance. Backend verified-reference repair and UI owner coordination active. |
 | N689 | 85% | 2–4 + external | Home-B / Home | Free docs host verified. CI token reads metadata/tree/README but COMMIT returns403; token write permission and main Pages cutover remain. |
 | F560 | 90% | Unknown | Home / assigned owner | Official Cell-DINO gated weights require maintainer Meta request/access, then actual official factory/checkpoint loading and final hosted/scientific acceptance. Supported-backbone/human-label and CPU/CUDA proofs already recorded, not a new completion. |
 | F370 | 90% | 2–6 + data | Home / assigned owner | Curated six-row tooltips, provenance, generated documents and locales published; remaining model-wide/scientific acceptance separate. |
@@ -34,15 +38,13 @@ Hours are estimates; external unknowns remain explicit.
 | N03 | ✅ | 0 | Home / assigned owner | Reuse scoped evidence; final candidate CI may reveal a new order counterexample. Do not repeat whole Qt sweeps. |
 | N76 | ✅ | 0 | Home / assigned owner | Historical generated-artifact debt is not a new unimplemented multi-organelle engine; no new whole scientific acceptance claimed. |
 | N112 | 95% | 1–3 | Home / assigned owner | Private-doc/strict inventory fixes pass; foreign N700/API and active new-feature review obligations remain. |
-| N180 | 95% | 2–4 | Home / assigned owner | Whole-workspace user acceptance still not certified. Review exact contributor coverage against original contract; preserve named deferred skips. No fresh UMAP pipeline/src-root conversion or duplicate Home-B widget edits. |
-| N197 | 95% | 1–3 | Home / assigned owner | See current owner delivery and remaining acceptance gates. |
 | F288 | 85% | 4–8 | Home / assigned owner | Fresh exact-source full30 green plus ordinary union/ratchet; use preserved real Ops raw only if its source/test/provenance bindings still match. Root owns CI and issue owners retain scope. |
 | N305 | 90% | 4–8 + platform | Home / assigned owner | Quiet real-display installed wheel+sdist trace, supported frozen OS matrix and representative CPU/GPU pipeline profiles; GPU only through authorized scheduling. No such run in this audit. |
 | N307 | ✅ | 0 | Home / assigned owner | Remaining lstat/unlink race explicitly outside bounded repair; no new quarantine requirement inferred. |
-| N328 | 95% | 1–3 | Home / assigned owner | External OWNER gate: Home-B consolidated README/translation refinement of named45draft blocks and shell prose; not an external hosting/account impossibility. No new source-clone algorithm defect established. |
+| N328 | ✅ | 0 | Home / assigned owner | Historically complete: original shallow/sparse/light source installation contract; separate translation refinements remain separately owned. |
 | N337 | ✅ | 0 | Home / assigned owner | Six historical foreign settings assigned elsewhere; no repeat54-check or five-new-missing claim. |
 | N351 | 95% | Unknown | Home / assigned owner | 146 needs owner confirmation then authorized issue evidence/closure;147 needs Claude acceptance. No comments/closure/account mutation authorized by this read-only task. |
-| N384 | 95% | 1–3 | Home / assigned owner | See current owner delivery and remaining acceptance gates. |
+| N384 | ✅ | 0 | Home / assigned owner | Closed by maintainer decision: qualified English API fallback accepted; report type-validation repair published. |
 | F404 | 90% | Unknown | Home / assigned owner | PV scorecard after F370 curated source reconciliation and actual Windows/macOS runs remain; do not count alpha implementation as full acceptance. |
 | N419 | 95% | 1–3 | Home / assigned owner | Latest item-local followups still assign normal9-language/API refresh and current tutorial to Workstation owner; current whole-parent acceptance not explicitly reconciled here. Work14 source-binding proposal is not a recording. |
 | N420 | 90% | Unknown | Home / assigned owner | Actual vendor authentication/browser/account and native Windows installer/login acceptance still require their real platform/user. No more arbitrary transport feature work. |
@@ -60,7 +62,6 @@ Hours are estimates; external unknowns remain explicit.
 | F538 | 90% | Unknown | Home / assigned owner | Feature-wide acceptance explicitly still needs known-amount real double-stain data and correction/validation of registration/PSF mismatch and strong-spill clipping. Real single-stain and processed-display/export work is recorded; new boundary guards do not close remaining science. |
 | F540 | 90% | Unknown | Home / assigned owner | Actual control-plate Zprime>0.5 DONE WHEN remains unmet on the real plate, although per-cell calls agree95-97% with blind calls. Threshold/channel/software guards do not supply that plate-level acceptance. |
 | F542 | 90% | Unknown | Home / assigned owner | Detector route records median2.4% hand-count error, but later notes explicitly retain real detector cross-validation/external-lab biological acceptance and call the feature partial overall. CSV/preview/diameter fixes do not close those gates. |
-| F549 | 95% | 1–3 | Home / assigned owner | See current owner delivery and remaining acceptance gates. |
 | F559 | 85% | Unknown | Home / assigned owner | Expert non-blur debris/bubble/saturation/empty-field labels or existing truth-table location, plus maintainer shipped-weight/package-data decision. Blur calibration and UI/editor built; synthetic data does not replace expert labels. |
 | F561 | 90% | 2–5 + data | Home / assigned owner | Safe own-classifier application29PASS; final UI/API/runtime integration active, scientific acceptance separate. |
 | F562 | 90% | Unknown | Home / assigned owner | MIL algorithm, column form and stored-embedding reader/safety are implemented. Recorded known-responder validation uses resampled real-cell spike-in wells rather than independent titrated wells; actual screen/result-production and generalization remain to reconcile (historical note says noGUI crop_embedding producer). No new real-screen/MIL efficacy claim from join/numeric guards. |
@@ -71,9 +72,9 @@ Hours are estimates; external unknowns remain explicit.
 | N593 | ✅ | 0 | Home / assigned owner | No original consolidation/sort-merge contract work recorded left. Current destination ownership/leaflink guards retain existing source/manifest behavior; cross-process mutation/wholefolder transactions beyond the bounded contract are not newly certified. |
 | N594 | ✅ | 0 | Home / assigned owner | No original Essentials/model+table selection contract work recorded left; real table consumer wiring,37checks and normal runtime/API/arrival closure recorded. Actual fitting/model efficacy separate from choosing/configuring training. |
 | N615 | 95% | 1–3 | Home-B / Home | See current owner delivery and remaining acceptance gates. |
-| N626 | 95% | 1–3 | Home / assigned owner | See current owner delivery and remaining acceptance gates. |
+| N626 | ✅ | 0 | Home / assigned owner | Historically complete: partial consolidation reports failure, preserves input/state and successful copies, stops downstream actions and supports retry. |
 | N633 | ✅ | 0 | Home / assigned owner | Original listed-screen example-data contract explicitly COMPLETE100%/user-accepted alpha after InvestigateHit publication. Later native archive/NPY safety fixes do not revoke that recorded scope; universal file integrity/mountedFS/native science is not implied. |
-| N639 | 95% | 1–3 | Home / assigned owner | Organize buttons and original-preservation repair implemented. Item explicitly leaves translations and tutorials for both buttons with owners; current item-specific catalog/tutorial closure not recorded. No new whole-organizer transaction acceptance. |
+| N639 | 95% | 1–3 | Home / assigned owner | Software and189 current localized targets verified; Work must bind existing two-button clips/current layout/publication. Exact owner request relayed. |
 | N641 | 90% | 4–8 + idle host | Home / assigned owner | Any remaining real-display/GPU/per-module timing acceptance requires quiet owner-controlled conditions; do not infer native smoothness from offscreen cases. |
 | N643 | ✅ | 0 | Home / assigned owner | Use current purge-before-targeted retirement assertion; do not repeat71 or touch live run/data trees. Unknown/corrupt journals intentionally require manual review. |
 | N644 | ✅ | 0 | Home / assigned owner | No further direct-var audit. Reopen only on actual move/cache ownership failure; preserve external environment and user bytes. |
@@ -81,7 +82,6 @@ Hours are estimates; external unknowns remain explicit.
 | N655 | 90% | 1–3 | Home-B / Home | Safe resize, plate focus, Clear Figures and keypad fixes published; human/native platform acceptance remains. |
 | N675 | 90% | 1–3 + review | Home / assigned owner | Publish existing correction via authorized external owner, normal PR checks/review/feedstock merge/package release, then clean current-channel install. No duplicate patch/build; no account/PR mutation in this audit. |
 | N685 | 95% | Unknown | Home / assigned owner | Sixparts and real vvvv7.4.1 Wine project/runtime/PDF/liveupdate recorded. Native Windows on-screen renderer/readback remains explicitly the maintainer check; Wine window black even for native example, so native pixel acceptance cannot be asserted. |
-| N690 | 95% | 1–3 | Home / assigned owner | TEM readers/contrast/sample workflow built. Item still records nine-language generated runtime/API artifacts blocked at its oldsource boundary and a non-alpha tutorial needed; reconcile current catalogs rather than claiming the historicalN678failure still exists today. |
 | N693 | ✅ | 0 | Home / assigned owner | Do not invent transactional-pair requirement absent original acceptance. Native ACL/xattr/power-loss/external-writer semantics remain honest limitations. |
 | N686 | 90% | 2–6 | Home-B | Deployed; all15 hosted audit routes pass90/95/<1MB thresholds. Physical60fps acceptance remains. |
 | N687 | ✅ | 0 | Home-B | Complete: flow theme, fonts, real model showcase, papers, release sync and prominent localized Website links; all15 hosted audit routes pass. |
