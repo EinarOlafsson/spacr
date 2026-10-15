@@ -13458,3 +13458,34 @@ independent target peer are required before publication. No full translated
 HTML, hosted, native-speaker or tutorial acceptance is claimed.
 Evidence:data/655_678_features_guide_inputs_2026-10-15/ and
 data/655_678_features_guide_catalogs_2026-10-15/.
+
+## 2026-10-15 Home-B — help-area keyboard resizing complete
+
+2026-10-15 — Help-area resize grip now works with the keyboard
+The narrow help-strip edge was skipped by Tab, ignored Up and drew no visible
+focus. Five baseline assertions failed. It now accepts Tab and bounded
+font-line Up/Down resizing, including held-arrow repeats; unrelated modifiers
+are ignored and Tab leaves. Ordinary and stronger focus repaint correctly in
+Dark, Light and High contrast. Existing mouse methods and public API prose
+are unchanged; all five new private overrides are excluded by normal policy.
+Final46PASS5.16s covers9new+37existing checks,2G/offscreen/thread1/GPUhidden.
+An actual Preferences probe reaches the grip with two Tab presses from
+Cancel, changes97 to115, writes the existing private saved-height key and
+restores115 after actual close/reopen. It takes3.39s/340456KiB/4G, attempts no
+network connection and leaves source unchanged. This is offscreen consumer
+acceptance, not native/human or other-platform acceptance.
+One shared hover/accessibility caption has9 independent reviewed targets and
+normal runtime artifacts, preserving10777 unrelated targets perlocale. Nine
+obsolete mouse-only review rows are retained as retired provenance, every
+other record unchanged. Normal source audit passes; no gate is weakened.
+The guide adds9 reviewed/compiled targets;1539 existing records (including
+the prior117 targets) and297 other-domain files remain unchanged.126 actual
+compiled gettext lookups pass. Source, runtime target, guide target and old
+record retirement each have separate independent peer evidence.
+Evidence:data/655_hint_resize_keyboard_2026-10-15/,
+data/655_hint_resize_preferences_consumer_2026-10-15/,
+data/655_hint_resize_runtime_artifacts_2026-10-15/ and corresponding peer/
+guide evidence. Broader N655 native/human/macOS/Windows/tutorial gates remain.
+
+Original Home owns unsettled N703 cleanup behavior. Home-B is separately
+repairing the current normal README picker audit contract; no final full CI.
