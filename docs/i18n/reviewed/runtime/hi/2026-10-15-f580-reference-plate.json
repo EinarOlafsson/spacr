@@ -12,13 +12,6 @@
       "source": "Intensity calibration reference plate",
       "source_sha256": "5f130424f3906406540b225c01aaf006754ef43f57b23b92811e26ab94e0e77b",
       "translation": "तीव्रता अंशांकन की संदर्भ प्लेट"
-    },
-    {
-      "table": "ui",
-      "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
-      "source": "The selected reference plate is used; leave it blank to use the first plate by name.",
-      "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
-      "translation": "चुनी गई संदर्भ प्लेट का उपयोग होता है; नाम के क्रम में पहली प्लेट का उपयोग करने के लिए इसे खाली छोड़ें।"
     }
   ],
   "independent_review": {
@@ -53,6 +46,15 @@
       "translation": "मापन से पहले इमेजिंग सत्रों के बीच तीव्रताओं का अंशांकन करें: हर प्लेट एक सत्र है, हर प्लेट पर इमेज किए गए बीड या संदर्भ वेल मापे जाते हैं, और हर प्लेट के तीव्रता चैनल इस तरह स्केल होते हैं कि उसके संदर्भ वेल चुनी गई संदर्भ प्लेट से मेल खाएँ; संदर्भ प्लेट की सेटिंग खाली होने पर नाम के क्रम में पहली प्लेट का उपयोग होता है। यह तालिकाओं के बैच सुधार के विपरीत, छवि स्तर पर दिनों के बीच एक्सपोज़र, लैंप और डिटेक्टर के विचलन को सुधारता है। गेन measurements.db:intensity_rescale में दर्ज होते हैं। डिफ़ॉल्ट False।",
       "retired": "2026-10-15 F580 source 6a1b51bfd7 superseded this exact source; retained with its original target. Replacement: 2026-10-15-f580-session-controls-home-b.json",
       "replacement_source_sha256": "702ffd4ce775c916ec9780f57ae711c3a9f5356166e5e4746492b2c53f594a86"
+    },
+    {
+      "table": "ui",
+      "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
+      "source": "The selected reference plate is used; leave it blank to use the first plate by name.",
+      "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
+      "translation": "चुनी गई संदर्भ प्लेट का उपयोग होता है; नाम के क्रम में पहली प्लेट का उपयोग करने के लिए इसे खाली छोड़ें।",
+      "retired": "2026-10-15 F580: exact prior GUI caption absent from normal canonical source snapshot; superseded by session-aware preview. Original source and target preserved.",
+      "retirement_canonical_snapshot_sha256": "8d084109dc7aa838c844a4cb574194a1b960252e93207dca25770547b9309da7"
     }
   ]
 }

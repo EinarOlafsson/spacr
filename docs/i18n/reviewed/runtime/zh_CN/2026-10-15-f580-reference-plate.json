@@ -12,13 +12,6 @@
       "source": "Intensity calibration reference plate",
       "source_sha256": "5f130424f3906406540b225c01aaf006754ef43f57b23b92811e26ab94e0e77b",
       "translation": "强度校准参考板"
-    },
-    {
-      "table": "ui",
-      "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
-      "source": "The selected reference plate is used; leave it blank to use the first plate by name.",
-      "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
-      "translation": "使用所选参考板；留空时使用按名称排序的第一块板。"
     }
   ],
   "independent_review": {
@@ -53,6 +46,15 @@
       "translation": "测量前在成像会话之间校准强度：每块板为一个会话，测量每块板上成像的微球或参照孔，并缩放每块板的强度通道，使其参照孔与所选参照板一致；参照板设置为空时，使用按名称排序的第一块板。这会在图像层面校正不同日期之间的曝光、光源和检测器漂移，不同于对表格进行批次校正。增益记录在 measurements.db:intensity_rescale 中。默认值 False。",
       "retired": "2026-10-15 F580 source 6a1b51bfd7 superseded this exact source; retained with its original target. Replacement: 2026-10-15-f580-session-controls-home-b.json",
       "replacement_source_sha256": "702ffd4ce775c916ec9780f57ae711c3a9f5356166e5e4746492b2c53f594a86"
+    },
+    {
+      "table": "ui",
+      "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
+      "source": "The selected reference plate is used; leave it blank to use the first plate by name.",
+      "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
+      "translation": "使用所选参考板；留空时使用按名称排序的第一块板。",
+      "retired": "2026-10-15 F580: exact prior GUI caption absent from normal canonical source snapshot; superseded by session-aware preview. Original source and target preserved.",
+      "retirement_canonical_snapshot_sha256": "8d084109dc7aa838c844a4cb574194a1b960252e93207dca25770547b9309da7"
     }
   ]
 }

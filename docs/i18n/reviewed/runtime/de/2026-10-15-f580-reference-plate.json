@@ -12,13 +12,6 @@
       "source": "Intensity calibration reference plate",
       "source_sha256": "5f130424f3906406540b225c01aaf006754ef43f57b23b92811e26ab94e0e77b",
       "translation": "Referenzplatte für die Intensitätskalibrierung"
-    },
-    {
-      "table": "ui",
-      "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
-      "source": "The selected reference plate is used; leave it blank to use the first plate by name.",
-      "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
-      "translation": "Die ausgewählte Referenzplatte wird verwendet; bleibt die Angabe leer, wird die erste Platte nach Namen verwendet."
     }
   ],
   "independent_review": {
@@ -53,6 +46,15 @@
       "translation": "Kalibriert Intensitäten über Bildgebungssitzungen hinweg vor der Messung: Jede Platte ist eine Sitzung, die auf jeder Platte aufgenommenen Beads oder Referenz-Wells werden gemessen, und die Intensitätskanäle jeder Platte werden so skaliert, dass ihre Referenz-Wells denen der gewählten Referenzplatte entsprechen; bei leerer Referenzplatten-Einstellung wird die erste Platte nach Namen verwendet. Das korrigiert Belichtungs-, Lampen- und Detektordrift zwischen Tagen auf Bildebene, anders als eine Batch-Korrektur von Tabellen. Die Faktoren werden in measurements.db:intensity_rescale gespeichert. Standard False.",
       "retired": "2026-10-15 F580 source 6a1b51bfd7 superseded this exact source; retained with its original target. Replacement: 2026-10-15-f580-session-controls-home-b.json",
       "replacement_source_sha256": "702ffd4ce775c916ec9780f57ae711c3a9f5356166e5e4746492b2c53f594a86"
+    },
+    {
+      "table": "ui",
+      "key": "The selected reference plate is used; leave it blank to use the first plate by name.",
+      "source": "The selected reference plate is used; leave it blank to use the first plate by name.",
+      "source_sha256": "355a2128798dcbfd6aa5ac98906d95531338cd96ee96e4f167d05ca6a77cf343",
+      "translation": "Die ausgewählte Referenzplatte wird verwendet; bleibt die Angabe leer, wird die erste Platte nach Namen verwendet.",
+      "retired": "2026-10-15 F580: exact prior GUI caption absent from normal canonical source snapshot; superseded by session-aware preview. Original source and target preserved.",
+      "retirement_canonical_snapshot_sha256": "8d084109dc7aa838c844a4cb574194a1b960252e93207dca25770547b9309da7"
     }
   ]
 }
