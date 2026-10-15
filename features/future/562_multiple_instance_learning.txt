@@ -243,3 +243,18 @@ full nine-locale runtime audit PASS; normal immutable arrivals PASS with
 9833baseline/1076added/151retired/30changed. Source hashes unchanged throughout.
 Evidence:data/562_finite_features_2026-10-15/. Scientific efficacy, actual model
 training, fullCI/release and whole-feature acceptance remain separate/open.
+
+2026-10-15 — Stored-object join cardinality and acquisition identity (alpha).
+The read-only _mil_frame_from_db boundary refuses contradictory known
+plate/row/column/field metadata for one object key and contradictory stored
+embedding or provenance rows. Exact duplicate stored rows coalesce into one
+cell; legitimate alternative crop views retain the first valid path. Later
+known metadata survives an earlier blank and retains authority over parsed
+key metadata. No DB writes/migration, renaming, training or algorithm changes.
+Actual old-source18-case counterexample16FAIL2PASS1.90s; patched owning
+61PASS4deselected6.93s includes18new real SQLite cases and43existing reader/
+direct-MIL cases, with all4training tests excluded. Every private source DB
+remains byte-exact. Evidence:data/562_db_cardinality_2026-10-15/. Two new
+literal diagnostic targets drafted in9locales; normal review/writer closure
+and18actual localized refusal callbacks remain pending at this source note.
+No biological efficacy, native model training or whole-feature/fullCI claim.
