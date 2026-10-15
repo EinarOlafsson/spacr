@@ -1,0 +1,207 @@
+{
+  "schema": 1,
+  "review_type": "Independent AI technical semantic translation review; reviewer did not author the source or translated targets; no human/native-speaker claim",
+  "decision": "PASS",
+  "source_commit": "1cd00114b27014354fad8a9b2c80fe60a6cc1cb1",
+  "source_file": {
+    "path": "spacr/qt/widgets/regression_results.py",
+    "sha256": "5a6d4bd10d4325e8952ea33bf96c2f72935b8548384443603ecad2808dac8c4a"
+  },
+  "input_commit": "3920b274c58947656201e473b8d0bb966671bbcf",
+  "reviewed_count": 18,
+  "block_count": 2,
+  "review_files": [
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-10-15-n180-regression-state.json",
+      "sha256": "0c4f8ae79dfcf5fea876a985f95cc0541444fa27a92a6e6417598e28a78478d0"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-10-15-n180-regression-state.json",
+      "sha256": "50d78a3c8eb56e8cb6a82bbefa2ff5e13f3fd387ea67dfad6b73823a69f21b81"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-10-15-n180-regression-state.json",
+      "sha256": "2e9e4b7afdce3f110278954f643c72811fb1fa8dffde74b9f1d2e1c16127e7da"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-10-15-n180-regression-state.json",
+      "sha256": "f88ea3440490f0a8279b56b23c64077367db61265f7f83e21b26e7222fd1525f"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-10-15-n180-regression-state.json",
+      "sha256": "154d4907b695d02de6d2a1313637c05bf28852db82155414480a85dc32c4a22f"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-10-15-n180-regression-state.json",
+      "sha256": "7bcbb6b61fece84f6e882b0ef1b928696e4b5b512813d453748c6a1085c7f2d4"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-10-15-n180-regression-state.json",
+      "sha256": "0a9c2e19beb3f00e14714bc999f02553e9040047b4c2ca26b7ea07aa67f16e6d"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-10-15-n180-regression-state.json",
+      "sha256": "aa9bd2e6184e540cf1c9f6bbec065adb4275f9661831a5a5f58a4b2ece59f7ef"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-10-15-n180-regression-state.json",
+      "sha256": "0899c333e2b521304d0f9f307104c73cf173ed11fa0e0762f0bb050306c864f6"
+    }
+  ],
+  "frozen_draft_sha256": {
+    "sources": "58ca07b94a2e554638ae2a842017d097844aa4bbf6e9cd74957586a965ad8f13",
+    "targets": "859af7fac80537193a7b462d1f5b1a67398ba1d03da9c759c8cd7f78bd915808"
+  },
+  "semantic_checks": [
+    "Complete selected_keys table state is distinguished from legacy active selected_key used by linked plots.",
+    "Marker-shape and opacity columns have separate names and None slots; unused shape must not move opacity into the shape role.",
+    "Missing state fields preserve current values, explicit None colour disables colouring, non-dict/no-frame does not apply, and legacy single-key state is retained."
+  ],
+  "records": [
+    {
+      "language": "sv",
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.plot_state#3",
+      "source_sha256": "6b7fbfc79c84713931aaf236ea440d9da4ab78939c35bb4499516d29287854d7",
+      "context_sha256": "22f0af83e7630983e5620d4d313ecfc78b729a8c8e6da21ae385206284accdbd",
+      "translation_sha256": "3a23402799c7e46ef361c77f2e27fcc310565bce6c62c24b00e6d1824c2e6309",
+      "decision": "PASS"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_plot_state#2",
+      "source_sha256": "59d56f2f9b7ce963e660ceb4200cb732546a925446469009844f0a5d2e857343",
+      "context_sha256": "c5699d07b8f90f39b88d9a968194ac993f54aa73e00654bf5b6b74c4e1349518",
+      "translation_sha256": "f53e064eafa266fe8797a5ac04ba03a873be0a12de2a21b299714a220bde3add",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.plot_state#3",
+      "source_sha256": "6b7fbfc79c84713931aaf236ea440d9da4ab78939c35bb4499516d29287854d7",
+      "context_sha256": "22f0af83e7630983e5620d4d313ecfc78b729a8c8e6da21ae385206284accdbd",
+      "translation_sha256": "462e2a58c689185f5bd54394120369bde905f80c54e6c01bbd4552879f47501d",
+      "decision": "PASS"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_plot_state#2",
+      "source_sha256": "59d56f2f9b7ce963e660ceb4200cb732546a925446469009844f0a5d2e857343",
+      "context_sha256": "c5699d07b8f90f39b88d9a968194ac993f54aa73e00654bf5b6b74c4e1349518",
+      "translation_sha256": "7e1016a5b72a2e96cee8d13adad1272b2a299b46a5bb27759a961d50717e2e55",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.plot_state#3",
+      "source_sha256": "6b7fbfc79c84713931aaf236ea440d9da4ab78939c35bb4499516d29287854d7",
+      "context_sha256": "22f0af83e7630983e5620d4d313ecfc78b729a8c8e6da21ae385206284accdbd",
+      "translation_sha256": "ae74840792517902306848204f53288822ba01ecb655a944646e13648dc39238",
+      "decision": "PASS"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_plot_state#2",
+      "source_sha256": "59d56f2f9b7ce963e660ceb4200cb732546a925446469009844f0a5d2e857343",
+      "context_sha256": "c5699d07b8f90f39b88d9a968194ac993f54aa73e00654bf5b6b74c4e1349518",
+      "translation_sha256": "27174cce192d15adb0cb4af541a51a432cc684c7b87b8260688036aee53e93d6",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.plot_state#3",
+      "source_sha256": "6b7fbfc79c84713931aaf236ea440d9da4ab78939c35bb4499516d29287854d7",
+      "context_sha256": "22f0af83e7630983e5620d4d313ecfc78b729a8c8e6da21ae385206284accdbd",
+      "translation_sha256": "07def8305bb785352c0f066865bf0b5c1c0389da381fb1faad81cd01c5e3980e",
+      "decision": "PASS"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_plot_state#2",
+      "source_sha256": "59d56f2f9b7ce963e660ceb4200cb732546a925446469009844f0a5d2e857343",
+      "context_sha256": "c5699d07b8f90f39b88d9a968194ac993f54aa73e00654bf5b6b74c4e1349518",
+      "translation_sha256": "17b8546ab2b62b259a818edbb61650b56db610d867df24405ee940037941a27d",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.plot_state#3",
+      "source_sha256": "6b7fbfc79c84713931aaf236ea440d9da4ab78939c35bb4499516d29287854d7",
+      "context_sha256": "22f0af83e7630983e5620d4d313ecfc78b729a8c8e6da21ae385206284accdbd",
+      "translation_sha256": "2449d072c01fd77a68cc3ee3eb222a0b2a5b19240a6b806a044980618f8efb8c",
+      "decision": "PASS"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_plot_state#2",
+      "source_sha256": "59d56f2f9b7ce963e660ceb4200cb732546a925446469009844f0a5d2e857343",
+      "context_sha256": "c5699d07b8f90f39b88d9a968194ac993f54aa73e00654bf5b6b74c4e1349518",
+      "translation_sha256": "0d176a28910db1caef487758f69a188538a87cd9a48a3c8d0bda9343896275e5",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.plot_state#3",
+      "source_sha256": "6b7fbfc79c84713931aaf236ea440d9da4ab78939c35bb4499516d29287854d7",
+      "context_sha256": "22f0af83e7630983e5620d4d313ecfc78b729a8c8e6da21ae385206284accdbd",
+      "translation_sha256": "6b4bd73c4e623b9ce5ef467f7b7d4087e0c42fef4239475c09f5828d1af01553",
+      "decision": "PASS"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_plot_state#2",
+      "source_sha256": "59d56f2f9b7ce963e660ceb4200cb732546a925446469009844f0a5d2e857343",
+      "context_sha256": "c5699d07b8f90f39b88d9a968194ac993f54aa73e00654bf5b6b74c4e1349518",
+      "translation_sha256": "f7f441415d739a906297b43f057571e4bd35d816be2ffd31bf85cd60044d9bc8",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.plot_state#3",
+      "source_sha256": "6b7fbfc79c84713931aaf236ea440d9da4ab78939c35bb4499516d29287854d7",
+      "context_sha256": "22f0af83e7630983e5620d4d313ecfc78b729a8c8e6da21ae385206284accdbd",
+      "translation_sha256": "603bec7c103a6becb1e20031639befd2b6585f481f9a3c19b259bf6e0f3ac985",
+      "decision": "PASS"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_plot_state#2",
+      "source_sha256": "59d56f2f9b7ce963e660ceb4200cb732546a925446469009844f0a5d2e857343",
+      "context_sha256": "c5699d07b8f90f39b88d9a968194ac993f54aa73e00654bf5b6b74c4e1349518",
+      "translation_sha256": "0e9fb5d672297ed14d57320fe1e739cc27ff6a680bc0aa79745326c22d8408f3",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.plot_state#3",
+      "source_sha256": "6b7fbfc79c84713931aaf236ea440d9da4ab78939c35bb4499516d29287854d7",
+      "context_sha256": "22f0af83e7630983e5620d4d313ecfc78b729a8c8e6da21ae385206284accdbd",
+      "translation_sha256": "a2f499b4fb98a04a174ad28e2a6b33f464f0d1c4cb3cb9f0f840fcbc28be5a02",
+      "decision": "PASS"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_plot_state#2",
+      "source_sha256": "59d56f2f9b7ce963e660ceb4200cb732546a925446469009844f0a5d2e857343",
+      "context_sha256": "c5699d07b8f90f39b88d9a968194ac993f54aa73e00654bf5b6b74c4e1349518",
+      "translation_sha256": "daaa56e50c54953c9096ce4886d996a2bc14c3cb107aab440a3dc16b3d847146",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.plot_state#3",
+      "source_sha256": "6b7fbfc79c84713931aaf236ea440d9da4ab78939c35bb4499516d29287854d7",
+      "context_sha256": "22f0af83e7630983e5620d4d313ecfc78b729a8c8e6da21ae385206284accdbd",
+      "translation_sha256": "4ab629e9f748366db911796de178c3d78f347f87cc2c38887ea30adf3c538953",
+      "decision": "PASS"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_plot_state#2",
+      "source_sha256": "59d56f2f9b7ce963e660ceb4200cb732546a925446469009844f0a5d2e857343",
+      "context_sha256": "c5699d07b8f90f39b88d9a968194ac993f54aa73e00654bf5b6b74c4e1349518",
+      "translation_sha256": "2abfbe1c6b667e0dadb8262e53fde7ecc5b77c25578743f8d4e6c219ac0e73cb",
+      "decision": "PASS"
+    }
+  ],
+  "validation_boundary": "All18 pairs independently read and exact committed bytes bound; both public documentation bodies checked against final AST. Author reports normal source/context/inline/selected-loader checks. No duplicate generator, full collector, runtime test or native-language certification."
+}
