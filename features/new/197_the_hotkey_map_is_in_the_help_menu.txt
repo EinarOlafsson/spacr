@@ -135,3 +135,17 @@ fits.
 across the shortcut, palette, window and menu suites.
 
 VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).
+
+2026-10-15 — Annotate navigation captions match the actual actions.
+The shared Left/Right declarations called those keys Previous/Next image on
+Annotate, where they move focus within the current crop grid. Scoped help
+now reuses Move focus left/right there; PageUp/PageDown and their existing
+Alt-arrow aliases say Previous page/Next page. Keys, callbacks, saved
+rebinding identities and other screens' captions are unchanged. A real
+six-crop screen baseline failed both caption cases; the finite owning replay
+passes six cases, including page movement, restored pages and F8 rebinding.
+Caption-only delivery preserves the tested executable AST and all published
+docstrings; the longer N678 prose review stays separate. Eighteen reviewed
+inputs cover the two new page captions across nine locales. Root's batched
+normal runtime writer is pending; no native-platform acceptance is claimed.
+Proof: features/data/197_annotation_shortcut_captions_2026-10-15/receipt.json.

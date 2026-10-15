@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_scope": "AI technical review by Codex against Annotate crop-grid PageUp/PageDown and Alt+Left/Alt+Right actions. Page refers to a page of crops, distinct from moving focus within the current page. No human or native-speaker signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Previous page",
+      "source": "Previous page",
+      "source_sha256": "1208ec01f223c616b981ee76749e4f435f9c6bc2998d6cc43a9f59d71bd6f697",
+      "translation": "पिछला पृष्ठ"
+    },
+    {
+      "table": "ui",
+      "key": "Next page",
+      "source": "Next page",
+      "source_sha256": "c08ac736a5e29c291b681cbdc15f06901a735f28d2e04645b92cf331861cb8c0",
+      "translation": "अगला पृष्ठ"
+    }
+  ]
+}

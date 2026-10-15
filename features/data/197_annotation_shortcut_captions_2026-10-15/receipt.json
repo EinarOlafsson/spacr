@@ -1,0 +1,52 @@
+{
+  "new_runtime_captions": [
+    "Previous page",
+    "Next page"
+  ],
+  "reused_runtime_captions": [
+    "Move focus left",
+    "Move focus right"
+  ],
+  "presentation_fix": "Only Annotate Left/Right describe crop focus; PageUp/PageDown and Alt+Left/Alt+Right describe page navigation. Other scopes, keys, callbacks and rebinding identities remain unchanged.",
+  "executable_difference_scope": [
+    "shortcuts._screen_specs label substitution only",
+    "shortcuts._screen_label two tr() entries"
+  ],
+  "other_executable_ast_identical": true,
+  "validation": {
+    "initial_setup_error": "First collection could not import a sibling test fixture; replaced that dependency with a self-contained 12-image SQLite fixture. No runtime assertions were weakened.",
+    "before": {
+      "result": "2 failed, 1 passed",
+      "pytest_seconds": 12.16,
+      "wall_seconds": 15.33,
+      "peak_rss_kib": 898912,
+      "exit_code": 1
+    },
+    "after": {
+      "result": "6 passed",
+      "pytest_seconds": 3.97,
+      "wall_seconds": 7.1,
+      "peak_rss_kib": 870520,
+      "exit_code": 0
+    },
+    "constraints": "Actual Linux Qt6.12 overlay; CPU/offscreen, 2G cap, one numerical thread, no swap; private temporary six-crop pages. No native Windows/macOS claim.",
+    "assertion_scope": "Real arrow events preserve page/offset while changing focused crop. Actual PageDown/PageUp and Alt aliases change then restore page/offset. F8 rebinding preserves crop-focus action and help caption. Existing modifier/keypad/page-alias/rebound-number cases pass.",
+    "test_expansion": "Alt-page signal/caption checks were added after baseline when the maintainer coordinator approved page wording; original failing arrow/page caption assertions and all waits were retained."
+  },
+  "items": [
+    "N197"
+  ],
+  "source_base": "3335cf1d55ce707a68fb6f3674b1763ee545baaf",
+  "source_file": "spacr/qt/shortcuts.py",
+  "source_sha256": "c2d3f0be532b268f14ff245063b79c3f12a59120baa1c562052775310bf48444",
+  "all_preexisting_docstrings_preserved": true,
+  "test_sha256": "5ada3c3a5e3c79976b08e28f1bd427b2d0f078b7062d007eb8b09a491f94f519",
+  "historical_executed_source_commit": "cc744e0d064fcd0a692a4b1aef1d4c281be8f14c",
+  "historical_executed_source_sha256": "2956073d782df3eeacc5fda277d24948e8dd795a49c60ac992519405802e3f38",
+  "whole_executable_ast_identical_to_tested_source": true,
+  "test_execution_scope": "The attached finite six-case result was executed on cc744 source in its original private tree. This caption-only delivery preserves its complete executable AST and the original public docstrings; no second Qt execution is claimed on the newer integration base.",
+  "publication_dependencies": [
+    "Root batched normal nine-locale runtime catalog writer; reviewed runtime inputs supplied in this commit"
+  ],
+  "native_platform_acceptance": false
+}
