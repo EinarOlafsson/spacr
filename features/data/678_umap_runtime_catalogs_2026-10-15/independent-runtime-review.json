@@ -1,0 +1,63 @@
+{
+  "reviewer": "Home-B coordinator; did not author source or nine translated inputs. Independent AI technical review, not native-speaker signoff.",
+  "input_commit": "179aa369493b5bd5ec8d03c8f034be02300e064b",
+  "source_commit": "c00a087e7497698d7e6399ef9eb9acf903e2a3fa",
+  "pairs_read": 9,
+  "approved": true,
+  "records": [
+    {
+      "language": "de",
+      "source_sha256": "2efbd50296612488c82cb539df690c41e71e012480e48f8668dee5757039535f",
+      "target_sha256": "77de539c4d36748b22c800b8fbb52dd6b2d8b059eab293fedcded6ee8bdbbb82",
+      "technical_semantics": "PASS: embedding/clustering/view/output distinct; current figure unchanged; optional propagation action copies to module for next run"
+    },
+    {
+      "language": "es",
+      "source_sha256": "2efbd50296612488c82cb539df690c41e71e012480e48f8668dee5757039535f",
+      "target_sha256": "9fc02f37bd51b11c98916facce96bd60f7b9aa3f16e15b2e1275311212fd31e7",
+      "technical_semantics": "PASS: embedding/clustering/view/output distinct; current figure unchanged; optional propagation action copies to module for next run"
+    },
+    {
+      "language": "fr",
+      "source_sha256": "2efbd50296612488c82cb539df690c41e71e012480e48f8668dee5757039535f",
+      "target_sha256": "93c884d8b1cb55ea0e381cf352df485b04b39d9f98932ce963f2d6f5311ece1a",
+      "technical_semantics": "PASS: embedding/clustering/view/output distinct; current figure unchanged; optional propagation action copies to module for next run"
+    },
+    {
+      "language": "hi",
+      "source_sha256": "2efbd50296612488c82cb539df690c41e71e012480e48f8668dee5757039535f",
+      "target_sha256": "f5b5fce3ed8f756d3d26ce4515ce58253ea4bc542b97fbcd64594f7dd3d0e586",
+      "technical_semantics": "PASS: embedding/clustering/view/output distinct; current figure unchanged; optional propagation action copies to module for next run"
+    },
+    {
+      "language": "is",
+      "source_sha256": "2efbd50296612488c82cb539df690c41e71e012480e48f8668dee5757039535f",
+      "target_sha256": "054ef6a3b9271129385ebbf2765b050fee718b874fee555f905b72f9cb14b837",
+      "technical_semantics": "PASS: embedding/clustering/view/output distinct; current figure unchanged; optional propagation action copies to module for next run"
+    },
+    {
+      "language": "ko",
+      "source_sha256": "2efbd50296612488c82cb539df690c41e71e012480e48f8668dee5757039535f",
+      "target_sha256": "bc8dd24a95badede26a95a2ad677ae6f26d17ca4aa5a608d5ddf50e8ae3393e8",
+      "technical_semantics": "PASS: embedding/clustering/view/output distinct; current figure unchanged; optional propagation action copies to module for next run"
+    },
+    {
+      "language": "pt",
+      "source_sha256": "2efbd50296612488c82cb539df690c41e71e012480e48f8668dee5757039535f",
+      "target_sha256": "f262d4f93e610572c64b34ab07b0de5fd774715c855b25e1475b3dcbc8ae6ae1",
+      "technical_semantics": "PASS: embedding/clustering/view/output distinct; current figure unchanged; optional propagation action copies to module for next run"
+    },
+    {
+      "language": "sv",
+      "source_sha256": "2efbd50296612488c82cb539df690c41e71e012480e48f8668dee5757039535f",
+      "target_sha256": "d2591635120829177e6b90dad058fcbf473fde3768109bf86da58f87ba7b9181",
+      "technical_semantics": "PASS: embedding/clustering/view/output distinct; current figure unchanged; optional propagation action copies to module for next run"
+    },
+    {
+      "language": "zh_CN",
+      "source_sha256": "2efbd50296612488c82cb539df690c41e71e012480e48f8668dee5757039535f",
+      "target_sha256": "c0aea66009367f871c0661904969a170059a0c9672d97e9571cd01981d5c9df6",
+      "technical_semantics": "PASS: embedding/clustering/view/output distinct; current figure unchanged; optional propagation action copies to module for next run"
+    }
+  ]
+}
