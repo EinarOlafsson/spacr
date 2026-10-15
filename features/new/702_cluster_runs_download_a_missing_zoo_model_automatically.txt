@@ -296,3 +296,20 @@ file SHA; first-run two assertions corrected that expectation while preserving
 actual raw-byte verification. No model/GPU/network/fullCI acceptance claim.
 Other consumers/planning remain separate; parent702 stays partial.
 Evidence: data/702_mask_pinned_worker_construction_2026-10-14/receipt.json.
+
+2026-10-14 — strict planning honors pins before missing-path refusal:
+Actual settings validation checks recorded structure/binding, consumer kind,
+local checksum and exact trusted identity in download=False mode before
+generic validation. Invalid metadata is a structured error. A valid recorded
+model_path/custom_model/pathogen_model can plan the exact current bytes even
+when its old laptop basename no longer matches the catalogue filename. It
+does not discover model providers or fetch weights. Recognized metadata is
+not incorrectly warned as an unknown setting. Original values remain intact.
+
+Eight native pinned planning cases and finite validation/CLI integrity cohort
+passed148tests in7.98seconds, exit0. Cellpose3/DINO pathogen pins are covered;
+scientific backend compatibility stays in the shared registry. Would-acquire
+planning is not execution readiness. Legacy unpinned catalogue planning,
+external trusted catalogue wiring and remaining consumers remain separate;
+no real model/network/GPU/fullCI. Parent702 stays partial.
+Evidence: data/702_strict_pinned_model_planning_2026-10-14/receipt.json.
