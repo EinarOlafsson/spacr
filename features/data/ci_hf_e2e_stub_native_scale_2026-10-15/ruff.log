@@ -1,0 +1,62 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/test_hf_e2e_integration.py:27:1
+   |
+25 |     wired end-to-end; deep pipeline coverage lives elsewhere.
+26 |   """
+27 | / from __future__ import annotations
+28 | |
+29 | | import os
+30 | | import shutil
+31 | | import time
+32 | | from pathlib import Path
+33 | |
+34 | | import numpy as np
+35 | | import pytest
+   | |_____________^
+help: Organize imports
+   |
+36 |
+   -
+37 | STUB_ENV = "SPACR_HF_E2E_STUB"
+   |
+
+F401 [*] `shutil` imported but unused
+  --> tests/test_hf_e2e_integration.py:30:8
+   |
+29 | import os
+30 | import shutil
+   |        ^^^^^^
+31 | import time
+32 | from pathlib import Path
+   |
+help: Remove unused import: `shutil`
+   |
+29 | import os
+   - import shutil
+30 | import time
+   |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/test_hf_e2e_integration.py:98:27
+    |
+ 96 |     """
+ 97 |     import tifffile
+ 98 |     plate = dst / "plate1"; plate.mkdir(parents=True, exist_ok=True)
+    |                           ^
+ 99 |     rng = np.random.default_rng(0)
+100 |     yy, xx = np.mgrid[:64, :64]
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/test_hf_e2e_integration.py:144:32
+    |
+142 |     stub mode exercises the same lookup the real mode does.
+143 |     """
+144 |     settings = dst / "settings"; settings.mkdir(parents=True,
+    |                                ^
+145 |                                                     exist_ok=True)
+146 |     (settings / _PACK_CSV["mask"]).write_text(
+    |
+
+Found 4 errors.
+[*] 2 fixable with the `--fix` option.

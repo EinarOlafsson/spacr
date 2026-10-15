@@ -150,6 +150,9 @@ def _make_stub_settings(dst: Path) -> Path:
         "channels,\"[0, 1, 2]\"\n"
         "cell_channel,0\n"
         "nucleus_channel,1\n"
+        # Retain the synthetic plate's native scale; real HF CSVs keep their own sizes.
+        "cell_diameter,auto\n"
+        "nucleus_diameter,auto\n"
         "plot,false\n"
         "test_mode,false\n"
         "batch_size,2\n"
