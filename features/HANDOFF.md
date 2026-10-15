@@ -13031,3 +13031,20 @@ targets; its merge arrival fixture is being regenerated through the normal
 tool. It is independent from this publication. F580 UI/guide private delivery
 remains with Original Home for coherent domain publication; finalCI/release
 remain deferred. Memory/laptop261targets and title18targets are in progress.
+
+## Home-B file-pair and plate-map publication, 2026-10-15
+
+2026-10-15 — File pairing and plate-map bounded documentation delivery
+The pairing fallback, database attachment/drop routing and one-based plate-map
+coordinate descriptions now have 54 independently reviewed API targets across
+nine locales, normally generated. Root readback verified the four exact owned
+symbols and 13,400 unrelated records per translated catalog unchanged. The
+single database-fallback caption has nine reviewed runtime translations and
+actual translation lookup checks. Normal post-merge arrival regeneration kept
+the immutable 9,833-entry baseline exactly; derived deltas are 894 additions,
+29 changed bodies and 150 retirements. No pairing algorithm changed.
+Evidence: features/data/678_file_plate_api_catalogs_2026-10-15/ and
+features/data/678_file_pair_runtime_catalogs_2026-10-15/. This closes the bounded
+batch, not the complete N678 review. Original Home owns the separate N641
+FilePathListWidget asynchronous-drop implementation; our paired-table helpers
+and the plate-map scope remain separate.
