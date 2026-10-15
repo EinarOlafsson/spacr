@@ -394,7 +394,9 @@
       "source_sha256": "697b9a175bc9a9a884b4b8970dd987b01d4446d84c280e448097f3b47862d7df",
       "context": "key-value mapping saved by :meth:`workspace_state`; only its ``sources`` list is read, and anything that is not a key-value mapping, or has no sources, returns False.",
       "translation": "von :meth:`workspace_state` gespeichertes Wörterbuch; nur seine Liste ``sources`` wird gelesen, und alles, was kein Wörterbuch ist oder keine Quellen hat, gibt False zurück.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "N180 explicit carried database restoration changed apply_workspace_state parameters in2164d07de80+7c32cd3279f; superseded by2026-10-15-n180-database-restore-home-b.json. Original source/context/target text retained."
     },
     {
       "label": "spacr.qt.widgets.database_set.DatabaseSetWidget.remove_source#2",
