@@ -564,3 +564,16 @@ The feature remains alpha/partial overall.
     the explicit oversized-report refusal followup PASS7.05s, capped2G.
     Evidence: data/534_empty_map_outputs_2026-10-15/receipt.json.
     F534's previously recorded scientific/data/GPU acceptance remains open.
+
+2026-10-15 — Empty Visium mapping replaces stale spot-coverage rows.
+    A valid rerun with registered bins outside every current field cleared
+    expression rows but left old cell_spot_coverage rows. Actual sole-slide
+    and two-slide cases reproduced the inconsistency (2FAIL10.09s). The map
+    stage now submits empty coverage replacements for existing Visium tables,
+    deriving their schema and removing only current-field rows. Other sample
+    rows/types, original source bytes and merged masks remain unchanged.
+    Five affected map/coverage checks PASS20.20s under2G/thread1. Only the
+    existing _st_replace_image_rows and run_spatial_map bodies changed; API
+    prose, signatures, comments and all other AST remain exact. Evidence:
+    data/534_empty_spot_coverage_2026-10-15/receipt.json. A separate report
+    symlink write guard is pending; scientific/data/GPU acceptance remains open.

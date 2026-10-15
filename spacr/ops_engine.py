@@ -2710,11 +2710,21 @@ def _st_replace_image_rows(db: str, table: str, frame, prcf) -> None:
     parts = [frame]
     if os.path.exists(db) and table in database_tables(db):
         old = read_table(db, table=table, canonicalise=False, report=None)
+        if frame.empty and not len(frame.columns):
+            if "prcfo" not in old.columns:
+                return
+            images = old["prcfo"].astype(str).str.rsplit("_o", n=1).str[0]
+            if not images.isin(keys).any():
+                return
+            frame = old.iloc[:0].copy()
+            parts = [frame]
         if "prcfo" in old.columns:
             images = old["prcfo"].astype(str).str.rsplit("_o", n=1).str[0]
             old = old[~images.isin(keys).to_numpy()]
         if len(old):
             parts.insert(0, old)
+    elif frame.empty and not len(frame.columns):
+        return
     combined = pd.concat(parts, ignore_index=True) if len(parts) > 1 \
         else frame
     write_database(combined, db, table, if_exists="replace")
@@ -4202,12 +4212,12 @@ def run_spatial_map(settings: Mapping[str, Any]) -> Dict[str, Any]:
                                           store["prcfs"], labels, genes,
                                           matrix, platform)
         written["counted"] = float(matrix.sum())
-        if store["coverage"]:
-            table = f"{kind}_spot_coverage"
-            _st_replace_image_rows(db, table,
-                                   pd.concat(store["coverage"],
-                                             ignore_index=True),
-                                   store["prcfs"])
+        table = f"{kind}_spot_coverage"
+        if store["coverage"] or (platform != "xenium"
+                                  and table in database_tables(db)):
+            coverage = (pd.concat(store["coverage"], ignore_index=True)
+                        if store["coverage"] else pd.DataFrame())
+            _st_replace_image_rows(db, table, coverage, store["prcfs"])
             written["tables"] += (table,)
         summary["objects"][kind] = written
         if kind == kinds[0]:

@@ -409,6 +409,65 @@ def test_zero_qv_map_keeps_unverified_outputs(tmp_path, monkeypatch, prior_state
     assert outside.read_text() == "preserve me\n"
 
 
+
+@pytest.mark.parametrize("keep_other_slide", [False, True])
+def test_zero_visium_coverage_replaces_only_current_field_rows(
+        tmp_path, keep_other_slide):
+    import hashlib
+    import pathlib
+    import sqlite3
+
+    source, _ = visium_hd_slide(tmp_path / "bundle")
+    dst = tmp_path / "fields"
+    oe.run_spatial_masks(_mask_settings(source, dst,
+                                        spatial_cell_expansion_um=0.0))
+    settings = {"spatial_source": source, "spatial_masks_dir": str(dst),
+                "spatial_objects": "cell", "spatial_bin_um": 2,
+                "spatial_anndata": False}
+    first = oe.run_spatial_map(settings)
+    if keep_other_slide:
+        other_source, _ = visium_hd_slide(tmp_path / "other_bundle")
+        oe.run_spatial_masks(_mask_settings(other_source, dst,
+                                            spatial_sample="slide_two",
+                                            spatial_cell_expansion_um=0.0))
+        oe.run_spatial_map(dict(settings, spatial_source=other_source))
+    table = "cell_spot_coverage"
+    before = read_table(first["db"], table=table, canonicalise=False,
+                        report=None)
+    assert len(before)
+    fields = read_table(first["db"], table="spatial_fields", canonicalise=False,
+                        report=None)
+    current = set(fields.loc[fields["plateID"] == "slide one", "prcf"])
+    expected = before[~before["prcfo"].str.rsplit("_o", n=1).str[0].isin(
+        current)].reset_index(drop=True)
+    with sqlite3.connect(first["db"]) as connection:
+        schema = connection.execute('PRAGMA table_info("cell_spot_coverage")').fetchall()
+    positions = pathlib.Path(source) / "binned_outputs" / "square_002um" /         "spatial" / "tissue_positions.parquet"
+    shifted = pd.read_parquet(positions)
+    shifted["pxl_row_in_fullres"] += 100000
+    shifted["pxl_col_in_fullres"] += 100000
+    shifted.to_parquet(positions)
+    originals = {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
+                 for path in pathlib.Path(source).rglob("*") if path.is_file()}
+    merged = {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
+              for path in (dst / "merged").glob("*.npy")}
+
+    zero = oe.run_spatial_map(settings)
+    assert zero["objects"]["cell"]["objects"] == zero["points_in_fields"] == 0
+    actual = read_table(first["db"], table=table, canonicalise=False,
+                        report=None)
+    assert len(actual) == len(expected)
+    assert list(actual.columns) == list(expected.columns)
+    if keep_other_slide:
+        pd.testing.assert_frame_equal(actual, expected)
+    with sqlite3.connect(first["db"]) as connection:
+        assert connection.execute('PRAGMA table_info("cell_spot_coverage")').fetchall() == schema
+    assert {name: hashlib.sha256(pathlib.Path(name).read_bytes()).hexdigest()
+            for name in originals} == originals
+    assert {name: hashlib.sha256(pathlib.Path(name).read_bytes()).hexdigest()
+            for name in merged} == merged
+
+
 def test_visium_hd_bins_are_registered_through_the_full_resolution_image(
         tmp_path):
     outs, umis_in_nuclei = visium_hd_slide(tmp_path / "hd")
