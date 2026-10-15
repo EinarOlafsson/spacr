@@ -45,6 +45,11 @@ def cards():
             ('Activate the environment you created', 'conda activate spacr-pip'),
             ('Check the active Python environment path', 'python -c "import sys; print(sys.prefix)"')],
          'Choose an unused environment name. Conda supplies Python; pip supplies spaCR in the next step.'),
+        ('05_doctor', 'spaCR Doctor: generated command reference', [
+            ('Run from the installed spaCR environment', 'spacr-doctor --no-gpu-probe'),
+            ('Summary of the recorded CPU installation', '13 passed | 1 warning | 0 failed | 0 errored | 4 skipped'),
+            ('Recorded backend and optional file-format reader', 'CPU passed | GPU probe skipped | Optional CZI reader missing')],
+         'Recorded spaCR 1.5.1.3 CPU installation; no new run. Install the CZI extra only if needed.'),
         ('conda_01_create', 'Install from conda-forge in a new Conda environment', [
             ('Solve Python and spaCR together', 'conda create -n spacr-conda -c conda-forge python=3.12 spacr'),
             ('Use a different name if this environment already exists', 'Review Conda’s package plan before accepting it')],

@@ -1,0 +1,27 @@
+{
+  "status": "PRIVATE BLOCKED: exact six source files adopted, missing owner prerequisite; no passing acceptance",
+  "base": "98db7ac93e5ba4e5adc14c7a885939b40b35d344",
+  "actual_tests": {
+    "collected": 60,
+    "passed": 35,
+    "failed": 25,
+    "skipped": 0,
+    "seconds": 3.71,
+    "exit": 1
+  },
+  "single_failure_cause": "ImportError: complete_native_duration missing from native_live_timing",
+  "required_owner_packet": {
+    "file": "tools/tutorials/native_live_timing.py",
+    "current_blob": "1d37097497ad78e59c6a0eccb777010fb4f7debe",
+    "current_sha256": "97565538fe70e1f49e06ac61da23373cdde853a576f3589977d6880e16583e5f",
+    "requested": "Supply minimal exact predecessor patch adding complete_native_duration(receipt, fps) and its source-bound owning tests/preimages. Include any strictly required existing-module dependencies; preserve all other current timing/planning/CLI behavior. Do not supply only a full latest snapshot.",
+    "consumer": "retained_visual_refresh._checked_home, import line241/call line300; compares complete_native_duration(receipt,30) to retained frame_count / 30.",
+    "packet_search": "Current completed04 portable source/patch manifests contain the import and call but do not export native_live_timing.py or a definition of complete_native_duration."
+  },
+  "limits": [
+    "No source fixes or fixture changes made after terminal failure.",
+    "No encoding/browser/render/capture/upload/model/network ran.",
+    "Historical owner226 browser evidence remains historical, not fresh Root acceptance.",
+    "CI completed04 media selectors untouched."
+  ]
+}
