@@ -16,7 +16,7 @@
       "key": "{judged} discarded — nothing was deleted  —  now on {now}",
       "source": "{judged} discarded — nothing was deleted  —  now on {now}",
       "source_sha256": "b665f8beb440b281b2e17044ba1b03af03a657b6c69e95defde52fca16aa45bf",
-      "translation": "{judged} 已弃用 — 未删除任何内容  —  当前为 {now}"
+      "translation": "{judged} 已排除 — 未删除任何内容  —  当前为 {now}"
     },
     {
       "table": "ui",
@@ -30,7 +30,7 @@
       "key": "{judged} discarded — nothing was deleted  —  no unjudged fields are left in this queue",
       "source": "{judged} discarded — nothing was deleted  —  no unjudged fields are left in this queue",
       "source_sha256": "b0a307ec0a861ce67c56f8611a86e4aa409026b9f3de23b3161836519c7a8751",
-      "translation": "{judged} 已弃用 — 未删除任何内容  —  此队列中没有尚未评判的视野"
+      "translation": "{judged} 已排除 — 未删除任何内容  —  此队列中没有尚未评判的视野"
     },
     {
       "table": "ui",
@@ -44,7 +44,7 @@
       "key": "{judged} discarded — nothing was deleted  —  that was the last field in this folder",
       "source": "{judged} discarded — nothing was deleted  —  that was the last field in this folder",
       "source_sha256": "153f5a4649d4e44f8dffc2b552a0b62ac2ee269b6473179576c385cf1e324bf3",
-      "translation": "{judged} 已弃用 — 未删除任何内容  —  这是此文件夹中的最后一个视野"
+      "translation": "{judged} 已排除 — 未删除任何内容  —  这是此文件夹中的最后一个视野"
     },
     {
       "table": "ui",
@@ -58,7 +58,7 @@
       "key": "{judged} discarded — nothing was deleted",
       "source": "{judged} discarded — nothing was deleted",
       "source_sha256": "d86e3b68a129c9923846bc31725449fe874b3679d1c3368b85f4be0d523d834c",
-      "translation": "{judged} 已弃用 — 未删除任何内容"
+      "translation": "{judged} 已排除 — 未删除任何内容"
     }
   ]
 }
