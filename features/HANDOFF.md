@@ -13441,3 +13441,20 @@ assertions failed;26 targeted new/existing checks pass. Independent33ea810
 source/log peer confirms no other AST or public prose change. Source70837a579.
 The private antecedent wound-caption ownera2e318483 remains coordinated with
 Original Home's source/nine-locale closure; no standalone untranslated push.
+
+## 2026-10-15 Home-B — features guide normal nine-language closure
+
+2026-10-15 — Current features guide and all nine language catalogs reconciled
+The normal full features-domain gettext update/import now covers13 source
+messages in nine locales:117 technically reviewed targets. Four paragraphs
+were corrected against actual controls, covering five stale claims about the
+startup preference path, overlap selection, response diagnostics and export
+availability. The AI/Live paragraph documents keyboard activation and the
+observed screen-reader keypad interception fallback. Existing current-source
+arrivals are translated; the shorter obsolete Make Masks paragraph is retired
+with provenance. All117 compiled gettext lookups pass;1422 unrelated message
+records and297 other-domain PO files remain unchanged. Source/prose peer and
+independent target peer are required before publication. No full translated
+HTML, hosted, native-speaker or tutorial acceptance is claimed.
+Evidence:data/655_678_features_guide_inputs_2026-10-15/ and
+data/655_678_features_guide_catalogs_2026-10-15/.
