@@ -190,3 +190,19 @@ This is bounded validation before the provider read, not atomic file ownership.
 Still actionable: DatabaseSetWidget restores folder sources and ignores the
 verified carried databases list; its owner adapter must support that state.
 No whole-item, full-CI or native GUI completion is claimed.
+
+2026-10-15 — Folder-mode carried database adapter completed.
+Explicit aligned database references remapped by the core now remain usable
+when the original folder/database is missing. Existing original databases win;
+logical source roots and saved order remain unchanged. Filesystem probes stay
+off the GUI thread. Per-source versions preserve pending associations for
+surviving rows while rejecting replaced/removed/re-added/closed stale results;
+ambiguous duplicate source keys are refused. Actual relocated SQLite tests
+reproduced two failures; final three owning Qt modules41PASS16.84s, clean.
+All36 changed API translation targets have independent technical review and
+normal generation; unrelated records preserved. Source peers and actual logs
+are in features/data/180_carried_database_adapter_2026-10-15/ and related API
+and peer directories. No new caption, backend/default or source-root guessing.
+Still actionable: Graph/measurement-comparison control state and lazy montage
+handoff, now explicitly owned by Home-B. This adapter is not whole N180 closure
+or a promise that a fresh arbitrary pipeline can rebuild missing source roots.

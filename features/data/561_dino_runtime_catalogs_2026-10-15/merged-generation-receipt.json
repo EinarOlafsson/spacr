@@ -1,0 +1,156 @@
+{
+  "source_commit": "9e0e33d369adb96f3089719720ae26f301cefc02",
+  "mode": "Normal exact-source reviewed_runtime_translations and write_language; no model inference",
+  "scope": "Explicit current/retired editorial UI sources; every unrelated entry preserved",
+  "retired_sources": [],
+  "review_kind": "AI technical review, no native-speaker or human linguistic acceptance claimed",
+  "owned_sources": [
+    "Checkpoint selected. Press Embed to use it.",
+    "Choose a spaCR DINO checkpoint",
+    "Choose an existing spaCR DINO checkpoint file.",
+    "Epoch {epoch}/{total} \u2014 loss {loss:.3f}",
+    "Epochs",
+    "Epochs:",
+    "Pretraining failed.",
+    "Pretraining progress",
+    "Pretraining stopped.",
+    "Starting pretraining\u2026",
+    "Train up to this total number of epochs, including epochs already saved in the checkpoint.",
+    "Use own DINO checkpoint\u2026"
+  ],
+  "locales": {
+    "sv": {
+      "review_file_hashes": {
+        "2026-10-15-own-dino-controls-home-b.json": "f33be73b81e52ed7fa1b1fe739c8cade36d09248633e9d1c77a3873915fcf888"
+      },
+      "normal_review_lookup_passed": true,
+      "normal_candidate_gates_passed": true,
+      "selected_rows": 12,
+      "unrelated_source_current_rows": 10757,
+      "formatted_placeholders_passed": true,
+      "unrelated_targets_preserved": true,
+      "all_source_hashes_current": true,
+      "exact_key_coverage": true
+    },
+    "de": {
+      "review_file_hashes": {
+        "2026-10-15-own-dino-controls-home-b.json": "d270718a3a0a4c2ec842fd71b99b0904a2d05f6ed34809e6f27c670e4e7d2593"
+      },
+      "normal_review_lookup_passed": true,
+      "normal_candidate_gates_passed": true,
+      "selected_rows": 12,
+      "unrelated_source_current_rows": 10757,
+      "formatted_placeholders_passed": true,
+      "unrelated_targets_preserved": true,
+      "all_source_hashes_current": true,
+      "exact_key_coverage": true
+    },
+    "es": {
+      "review_file_hashes": {
+        "2026-10-15-own-dino-controls-home-b.json": "c1a2ec766480187d1827ae2dc9932cdf1128e80db135335e56a8535bcf6a5bb9"
+      },
+      "normal_review_lookup_passed": true,
+      "normal_candidate_gates_passed": true,
+      "selected_rows": 12,
+      "unrelated_source_current_rows": 10757,
+      "formatted_placeholders_passed": true,
+      "unrelated_targets_preserved": true,
+      "all_source_hashes_current": true,
+      "exact_key_coverage": true
+    },
+    "zh_CN": {
+      "review_file_hashes": {
+        "2026-10-15-own-dino-controls-home-b.json": "6794bee4109456a226a58ac2f995ff744f635f53b413b4b9d5798999c63f55ef"
+      },
+      "normal_review_lookup_passed": true,
+      "normal_candidate_gates_passed": true,
+      "selected_rows": 12,
+      "unrelated_source_current_rows": 10757,
+      "formatted_placeholders_passed": true,
+      "unrelated_targets_preserved": true,
+      "all_source_hashes_current": true,
+      "exact_key_coverage": true
+    },
+    "pt": {
+      "review_file_hashes": {
+        "2026-10-15-own-dino-controls-home-b.json": "069691c9ac0def166c38db8c99f9a4d6b7e8f6d037c70b4735b34c052ca4cf6f"
+      },
+      "normal_review_lookup_passed": true,
+      "normal_candidate_gates_passed": true,
+      "selected_rows": 12,
+      "unrelated_source_current_rows": 10757,
+      "formatted_placeholders_passed": true,
+      "unrelated_targets_preserved": true,
+      "all_source_hashes_current": true,
+      "exact_key_coverage": true
+    },
+    "hi": {
+      "review_file_hashes": {
+        "2026-10-15-own-dino-controls-home-b.json": "7abe89f92850bd606d0b55c03871050d16d32d6db71402f592eda2d37a79fc0b"
+      },
+      "normal_review_lookup_passed": true,
+      "normal_candidate_gates_passed": true,
+      "selected_rows": 12,
+      "unrelated_source_current_rows": 10757,
+      "formatted_placeholders_passed": true,
+      "unrelated_targets_preserved": true,
+      "all_source_hashes_current": true,
+      "exact_key_coverage": true
+    },
+    "ko": {
+      "review_file_hashes": {
+        "2026-10-15-own-dino-controls-home-b.json": "73c095702f6a5c07432f7ce7e05a321998bdcafbb837d17750791a5c62732678"
+      },
+      "normal_review_lookup_passed": true,
+      "normal_candidate_gates_passed": true,
+      "selected_rows": 12,
+      "unrelated_source_current_rows": 10757,
+      "formatted_placeholders_passed": true,
+      "unrelated_targets_preserved": true,
+      "all_source_hashes_current": true,
+      "exact_key_coverage": true
+    },
+    "is": {
+      "review_file_hashes": {
+        "2026-10-15-own-dino-controls-home-b.json": "9481f745b9ae2d744867f284ed7d701d3453f766df31768c9c1c6525b0f9e00b"
+      },
+      "normal_review_lookup_passed": true,
+      "normal_candidate_gates_passed": true,
+      "selected_rows": 12,
+      "unrelated_source_current_rows": 10757,
+      "formatted_placeholders_passed": true,
+      "unrelated_targets_preserved": true,
+      "all_source_hashes_current": true,
+      "exact_key_coverage": true
+    },
+    "fr": {
+      "review_file_hashes": {
+        "2026-10-15-own-dino-controls-home-b.json": "b89ae37883100d26130d4edfd1651397acf92761bfca3c5b967154365be6024a"
+      },
+      "normal_review_lookup_passed": true,
+      "normal_candidate_gates_passed": true,
+      "selected_rows": 12,
+      "unrelated_source_current_rows": 10757,
+      "formatted_placeholders_passed": true,
+      "unrelated_targets_preserved": true,
+      "all_source_hashes_current": true,
+      "exact_key_coverage": true
+    }
+  },
+  "passed": true,
+  "normal_input_baseline": "902630241d7ec1fad177fc26d31006ed48965021",
+  "initial_normal_source_snapshot_sha256": "fcfd7592b28e15d828b83d4677a2c22959e559509f07b49e7e1f27a8a140bb8e",
+  "unrelated_english_source_drift": [],
+  "normal_canonical_recheck": "PASS; exact serialized source snapshot, all source file hashes unchanged before writing",
+  "english_normal_source_audit": "PASS",
+  "full_unrelated_translation_safety_audit": "Not rerun: unrelated translations preserved exactly",
+  "normal_arrivals": {
+    "baseline": 9833,
+    "added": 1087,
+    "retired": 151,
+    "changed": 30
+  },
+  "immutable_baseline_count": 9833,
+  "immutable_baseline_sha256": "13f1889ba09ee47355f44e448d668b55c213b63dcedbc328a2e566c606a083c1",
+  "immutable_baseline_unchanged": true
+}

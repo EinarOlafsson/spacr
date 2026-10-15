@@ -266,7 +266,7 @@ def test_one_selected_row_can_be_reordered(listing, tmp_path):
 
 
 def test_a_drop_of_files_fills_the_list_and_anything_else_does_not(listing,
-                                                                   tmp_path):
+                                                                   tmp_path, qtbot):
     where = QPointF(listing.rect().center())
     text = _text_mime()
 
@@ -305,6 +305,7 @@ def test_a_drop_of_files_fills_the_list_and_anything_else_does_not(listing,
     drop = QDropEvent(where, Qt.CopyAction, files, Qt.LeftButton,
                       Qt.NoModifier)
     listing.dropEvent(drop)
+    qtbot.waitUntil(lambda: bool(listing.paths()))
     assert [os.path.basename(p) for p in listing.paths()] == ["a.csv"]
 
 

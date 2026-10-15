@@ -113,6 +113,22 @@ def _the_ones_still_there(sources: Sequence[str]) -> List[str]:
     return [path for path in sources if os.path.exists(path)]
 
 
+def _restored_source_paths(sources, databases, mode):
+    """Resolve explicit saved database associations off the GUI thread."""
+    present = _the_ones_still_there(sources)
+    overrides = {}
+    if (mode == "folder" and len(databases) == len(sources)
+            and len(set(sources)) == len(sources)):
+        for source, database in zip(sources, databases):
+            original = database_for_source(source, mode)
+            if (database and database != original
+                    and os.path.isfile(database) and not os.path.isfile(original)):
+                overrides[source] = database
+                if source not in present:
+                    present.append(source)
+    return present, overrides
+
+
 def _threaded_by_default() -> bool:
     """Whether a new widget reads its databases on a worker thread.
 
@@ -203,6 +219,10 @@ class DatabaseSetWidget(QWidget):
         self._min_items = max(0, int(min_items))
         self._on_colour_by = on_colour_by
         self._sources: List[str] = []
+        self._database_overrides = {}
+        self._restore_generation = 0
+        self._source_serial = 0
+        self._source_versions = {}
         self._plan = None
         #: THE READS LEAVE THE GUI THREAD. `_read_the_merge` stats every
         #: database and then opens each of them with sqlite, and the paths are
@@ -325,7 +345,12 @@ class DatabaseSetWidget(QWidget):
             paths are stripped and de-duplicated, and settings placeholders
             such as ``path`` are dropped.
         """
+        self._restore_generation += 1
+        self._presence_jobs.cancel()
+        self._database_overrides = {}
         self._sources = self._clean(value)
+        self._source_serial += 1
+        self._source_versions = dict.fromkeys(self._sources, self._source_serial)
         self._rebuild()
 
     def sources(self) -> List[str]:
@@ -334,7 +359,7 @@ class DatabaseSetWidget(QWidget):
 
     def database_paths(self) -> List[str]:
         """The database each source names -- what a merge would open."""
-        return [database_for_source(source, self._mode)
+        return [self._database_overrides.get(source, database_for_source(source, self._mode))
                 for source in self._sources]
 
     def plan(self):
@@ -363,27 +388,27 @@ class DatabaseSetWidget(QWidget):
     def apply_workspace_state(self, state) -> bool:
         """Re-attach the set. Returns whether anything was attached.
 
-        A source that is no longer there is left out and the rest are still
-        attached -- one moved plate does not stop the others attaching. The
-        workspace document names every missing one in its own report, so
-        nothing dropped here is dropped silently.
+        Saved sources retain their order. In folder mode, an explicit matching
+        ``databases`` list can supply a database restored by the workspace
+        core. If the original database is missing and that file exists, the
+        set reads the supplied file while retaining the original source key.
+        This association does not rewrite the source roots returned by
+        :meth:`get_value` or reconstruct a project folder for a new pipeline.
 
-        Whether each source still exists is checked off the GUI thread, because
-        the paths of a saved workspace can be on a mount that has since gone to
-        sleep. The whole set is attached now and the ones that turn out to be
-        gone are dropped when the answer arrives, which costs one redraw
-        instead of a blocking stat.
+        Filesystem checks run off the GUI thread. Sources with neither an
+        existing original source nor a usable explicit database are dropped
+        when the answer arrives. Added sources are preserved; replaced,
+        removed and re-added sources cannot receive stale associations.
 
         The return value answers "was there anything to attach", not "was any
-        of it still on disk". :func:`spacr.workspace.restore_workspace`
-        therefore reports the section as restored either way; the sources that
-        turn out to be gone are dropped when the check finishes, and the
-        summary line names every source with no database behind it. Unthreaded
-        (in tests) the check has already run by the time this returns.
+        of it still on disk" when the check is asynchronous. The workspace
+        core reports missing or changed files separately. Unthreaded, the
+        check has already run by the time this returns.
 
-        :param state: dict saved by :meth:`workspace_state`; only its
-            ``sources`` list is read, and anything that is not a dict, or has
-            no sources, returns False.
+        :param state: dict saved by :meth:`workspace_state`; reads ``sources``,
+            ``mode`` and an optional positionally matching ``databases`` list.
+            A non-dict or empty source set returns False. File verification
+            and carried-path remapping belong to the workspace core.
         """
         if not isinstance(state, dict):
             return False
@@ -391,12 +416,27 @@ class DatabaseSetWidget(QWidget):
         if not sources:
             return False
         self.set_value(sources)
+        databases = state.get("databases")
+        databases = (tuple(str(path) if path else "" for path in databases)
+                     if isinstance(databases, (list, tuple)) else ())
+        mode = self._mode if state.get("mode", self._mode) == self._mode else ""
         self._presence_jobs.submit(
-            partial(_the_ones_still_there, tuple(sources)),
-            partial(self._present_sources_arrived, tuple(sources)))
+            partial(_restored_source_paths, tuple(sources), databases, mode),
+            partial(self._restored_sources_arrived, self._restore_generation,
+                    dict(self._source_versions)))
         return bool(self._sources)
 
-    def _present_sources_arrived(self, checked, present) -> None:
+    def _restored_sources_arrived(self, generation, versions, result) -> None:
+        """Accept associations only for the still-current restoration."""
+        if generation != self._restore_generation:
+            return
+        present, overrides = result
+        checked = tuple(source for source, version in versions.items()
+                        if self._source_versions.get(source) == version)
+        overrides = {source: path for source, path in overrides.items() if source in checked}
+        self._present_sources_arrived(checked, present, overrides)
+
+    def _present_sources_arrived(self, checked, present, overrides=None) -> None:
         """Drop the restored sources that are not there. GUI thread only.
 
         Only the ones this answer was ABOUT are dropped -- a source the user
@@ -407,13 +447,19 @@ class DatabaseSetWidget(QWidget):
         reaches here at all: that generation guard is the runner's.
         """
         gone = set(checked) - set(present or ())
-        if not gone:
-            return
         keep = [path for path in self._sources if path not in gone]
-        if keep == self._sources:
+        resolved = {source: path for source, path in self._database_overrides.items()
+                    if source in keep}
+        resolved.update({source: path for source, path in (overrides or {}).items()
+                         if source in keep})
+        if keep == self._sources and resolved == self._database_overrides:
             return
         try:
-            self.set_value(keep)
+            self._sources = keep
+            self._source_versions = {source: version for source, version in self._source_versions.items()
+                                     if source in keep}
+            self._database_overrides = resolved
+            self._rebuild()
             self.value_changed.emit()
         except RuntimeError:
             pass
@@ -432,6 +478,7 @@ class DatabaseSetWidget(QWidget):
         PySide6 raises when a worker settles after its runner's C++ half has
         gone.
         """
+        self._restore_generation += 1
         self._reading = False
         self._read_again = False
         self._jobs.shutdown()
@@ -479,6 +526,8 @@ class DatabaseSetWidget(QWidget):
             text = str(path).strip()
             if text and text not in self._sources:
                 self._sources.append(text)
+                self._source_serial += 1
+                self._source_versions[text] = self._source_serial
                 added += 1
         if added:
             self._rebuild()
@@ -506,6 +555,8 @@ class DatabaseSetWidget(QWidget):
                     break
         if target is None or len(self._sources) <= self._min_items:
             return False
+        self._source_versions.pop(target, None)
+        self._database_overrides.pop(target, None)
         self._sources.remove(target)
         self._rebuild()
         self.value_changed.emit()
@@ -515,6 +566,10 @@ class DatabaseSetWidget(QWidget):
         """Empty the set."""
         if not self._sources:
             return
+        self._restore_generation += 1
+        self._presence_jobs.cancel()
+        self._database_overrides = {}
+        self._source_versions = {}
         self._sources = []
         self._rebuild()
         self.value_changed.emit()

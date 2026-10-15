@@ -412,3 +412,32 @@ Left:
     fails after the logging_util tests in one process (also on base);
     test_documentation_i18n en catalog stale for home.RecentRunsPanel /
     TotalsPanel (from 0af688ea0..ea74caf5b, needs a catalog rebuild).
+
+2026-10-15 — FilePathListWidget folder-drop collection moved off GUI thread.
+The actual drop handler baseline proved os.listdir ran on the GUI thread.
+Multi-path drops now collect directory members on the existing drop scanner,
+then append ready batches on the GUI thread in drop order. Clear/replacement
+invalidate pending delivery; close uses existing scanner cancellation. Refused
+scanner submissions drain the pending queue without inline filesystem fallback.
+Synchronous add_paths/pick_folder and all pairing code remain unchanged.
+Six distinct lifecycle/order/refusal cases PASS; initial three output failures
+were a new fixture naming .txt as unsupported although table mode supports it.
+The fixture alone changed to .png, and all three failed cases passed. All raw
+results remain in features/data/n641_async_path_drop_2026-10-15/.
+Two new nested callback paragraphs have 18 exact-source technical AI review
+records plus independent peer review. Normal generated API closure follows the
+current public owner pairing merge; no native smoothness/full-CI claim.
+Normal API closure: all 18 source/context/target review gates and all nine
+selected-symbol writers passed, preserving every unrelated generated record.
+Normal complete English API manifest audit passed (13,480 symbols); fresh
+collector and all 669 Python source hashes matched the frozen snapshot. The
+initial normal-context failure and three GUI-acronym corrections remain in
+the evidence with independent v2 peer review. Owner pairing was normal-merged;
+FilePathListWidget AST remains identical to the tested source.
+The existing URL/invalid-drop contract now waits for asynchronous delivery
+before its unchanged exact CSV assertion: 1 PASS, 1.07s. Seven distinct
+acceptance nodes are covered across the six new cases and this existing one.
+Incoming F580 adds only excluded private API prose; actual published visibility
+proof and unchanged normal public inputs justify reusing the English audit.
+An unnecessary queued audit was stopped before Python launched, with actual
+wrapper/flock termination preserved; it is not reported as a passing audit.

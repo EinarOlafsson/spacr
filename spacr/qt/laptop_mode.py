@@ -1,14 +1,16 @@
-"""Run well on a small machine without becoming a smaller application.
+"""Measure hardware constraints and suppress the ambient backdrop for this process.
 
-This is the fallback reached after normal optimisations. It turns down
-decorative rendering costs instead of removing application features.
+Hardware-based decisions use the usable CPU count, physical memory and the
+``SPACR_LAPTOP_MODE`` override. GUI startup instead passes an explicit decision
+from the selected performance level; its hardware reading is diagnostic.
 
-Nothing here changes what a run computes. Every setting it touches is
-about how the application is DRAWN.
+Suppression affects backdrop rendering. This module does not set worker-thread
+limits or analysis parameters, and it does not replace stored animation
+preferences.
 
-It is chosen automatically, it can be overridden either way, and it says
-what it turned down -- a mode that quietly makes the application different
-is one nobody can debug.
+``apply`` sets ``SPACR_NO_BACKDROP`` when suppression is requested and the
+ambient backdrop is enabled. Disabling removes only a suppression created by
+this module; a pre-existing crash-recovery override is retained.
 """
 from __future__ import annotations
 
@@ -34,11 +36,11 @@ _FALSE = {"0", "false", "no", "off"}
 
 
 def usable_cores() -> int:
-    """Cores this process may actually use, not cores the machine has.
+    """Return the CPU affinity count, falling back to ``os.cpu_count``.
 
-    `os.sched_getaffinity` where it exists: a container or a scheduler can
-    pin the process to fewer than `cpu_count` reports, and pinning is
-    exactly the situation this mode is for.
+    ``os.sched_getaffinity`` accounts for process pinning when available. If
+    it is unavailable or fails, use the reported CPU count instead. The
+    result is at least one; the fallback does not measure affinity limits.
     """
     try:
         return max(1, len(os.sched_getaffinity(0)))
@@ -57,7 +59,7 @@ def total_memory_gib() -> Optional[float]:
 
 
 def override() -> Optional[bool]:
-    """What the environment says, or None when it says nothing."""
+    """Parse the environment override; return ``None`` if absent or unrecognized."""
     raw = str(os.environ.get(OVERRIDE_VARIABLE, "")).strip().lower()
     if raw in _TRUE:
         return True
@@ -67,7 +69,7 @@ def override() -> Optional[bool]:
 
 
 def measure() -> Dict[str, object]:
-    """What the decision is made from, so it can be reported and tested."""
+    """Return CPU count, physical memory, threshold flags and the parsed override."""
     cores = usable_cores()
     memory = total_memory_gib()
     return {
@@ -80,11 +82,11 @@ def measure() -> Dict[str, object]:
 
 
 def wanted(reading: Optional[Dict[str, object]] = None) -> Tuple[bool, str]:
-    """Whether to run in laptop mode, and the sentence that says why.
+    """Return the hardware-based laptop-mode decision and its explanation.
 
     :returns: ``(on, why)``. The reason is always populated, including when
-        the answer is no -- "spaCR decided not to" is a thing a user reports
-        and somebody has to be able to check.
+        the decision is off. An explicit environment override takes
+        precedence over the core-count and physical-memory threshold flags.
     """
     reading = measure() if reading is None else reading
     chosen = reading.get("override")
@@ -112,11 +114,11 @@ def wanted(reading: Optional[Dict[str, object]] = None) -> Tuple[bool, str]:
 
 
 def what_it_turns_down() -> Tuple[Tuple[str, str], ...]:
-    """Each thing the mode changes, and what a user loses by it.
+    """Return the animation and backdrop-blur descriptions used in diagnostics.
 
-    ONLY DRAWING. Nothing here is read by a pipeline, so a run computes the
-    same answer in either mode -- which is the promise that makes an
-    automatic decision acceptable at all.
+    Each pair contains an effect name and its description for UI notes and
+    logs. This function returns text; :func:`apply` performs the process-local
+    backdrop suppression.
     """
     return (
         ("the ambient background animation",
@@ -127,7 +129,7 @@ def what_it_turns_down() -> Tuple[Tuple[str, str], ...]:
 
 
 def describe() -> str:
-    """The whole decision as one block, for the launch log."""
+    """Format the hardware-based decision and effect descriptions for diagnostic logs."""
     on, why = wanted()
     lines = [why]
     if on:
@@ -168,16 +170,16 @@ _suppressed_here = False
 
 
 def apply(on: Optional[bool] = None) -> Dict[str, object]:
-    """Turn the mode on or off. Returns what was decided and what changed.
+    """Apply process-local backdrop suppression and report the decision and actions.
 
-    :param on: force the answer; ``None`` measures the machine.
-    :returns: ``{"on", "why", "changed"}`` -- `changed` names each thing
-        actually done, so a caller can say what happened rather than
-        claim it.
+    :param on: explicit decision; ``None`` uses :func:`wanted`, including its
+        hardware reading and environment override.
+    :returns: a mapping with ``on``, ``why`` and ``changed``. ``on`` is the
+        decision; ``changed`` lists actions actually performed and may be empty.
 
-    NOTHING HERE IS PERSISTED. See :data:`_NO_BACKDROP` for why: this is a
-    decision about one run on one machine, and the user's stored preference
-    is not this module's to answer.
+    Suppression is process-local and does not replace the stored animation
+    preference. Disabling clears only suppression created by this module,
+    retaining any pre-existing crash-recovery override.
     """
     global _suppressed_here
 

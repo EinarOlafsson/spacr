@@ -1,6 +1,6 @@
 """The Embeddings screen's Pretrain on these crops button is alpha-gated.
 
-``EmbeddingsDinoPretrainButton`` is registered in
+``EmbeddingsDinoControls`` and ``EmbeddingsDinoPretrainButton`` are registered in
 ``spacr.settings.ALPHA_FEATURES``, so it is hidden until Preferences ->
 "Show alpha features" is on. Hiding is display only: a checkpoint path given
 while it is hidden still trains, and the result reaches the next Embed.
@@ -38,20 +38,26 @@ def screen(qtbot, alpha):
 
 
 def test_the_button_follows_the_alpha_switch(screen, alpha):
-    from PySide6.QtWidgets import QPushButton
+    from PySide6.QtWidgets import QPushButton, QWidget
 
     from spacr.qt.preferences import _apply_alpha_widgets
     from spacr.settings import ALPHA_FEATURES
 
-    assert ALPHA_FEATURES[561]["widgets"] == ("EmbeddingsDinoPretrainButton",)
+    assert set(ALPHA_FEATURES[561]["widgets"]) == {
+        "EmbeddingsDinoControls", "EmbeddingsDinoPretrainButton"}
+    container = screen.findChild(QWidget, "EmbeddingsDinoControls")
     button = screen.findChild(QPushButton, "EmbeddingsDinoPretrainButton")
+    assert container is not None and container.isHidden()
     assert button is not None and button.isHidden()
+    children = [container, button, screen._dino_checkpoint,
+                screen._dino_epochs, screen._dino_progress_bar]
+    assert all(not widget.isVisibleTo(screen) for widget in children)
     alpha["on"] = True
     _apply_alpha_widgets(screen)
-    assert not button.isHidden()
+    assert all(widget.isVisibleTo(screen) for widget in children)
     alpha["on"] = False
     _apply_alpha_widgets(screen)
-    assert button.isHidden()
+    assert all(not widget.isVisibleTo(screen) for widget in children)
 
 
 def test_a_run_started_while_hidden_reaches_the_next_embed(

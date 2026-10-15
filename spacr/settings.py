@@ -7522,7 +7522,7 @@ ALPHA_FEATURES = {
         'widgets': ('EmbeddingsWellMilButton',),
     },
     561: {
-        'widgets': ('EmbeddingsDinoPretrainButton',),
+        'widgets': ('EmbeddingsDinoPretrainButton', 'EmbeddingsDinoControls'),
     },
     558: {
         'widgets': ('CellposeWorkbenchVirtualStain', 'MaskVirtualStainApply',
