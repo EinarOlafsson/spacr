@@ -91128,14 +91128,14 @@
     "spacr.qt.preferences.get_startup_animation": {
       "source_blocks_sha256": [
         "06d9ced10cfa6c290d7b087d19c6219380a81aa4288cead0b5ae41ca695facd0",
-        "bf962cdc3a6e361cafc27977bc7114a1ba0f5e345e3608ea0aad4ff64e6bbe6c",
+        "062bb851e1ef54484010b1eb00ed6063401aedcb9c054c148b7fefc427cacf69",
         "a41cb17ecc7dfa570962e92ccddd54b127ec24026d930393e9bddbed6ca02857"
       ],
-      "source_sha256": "d314346cbd17e4651aecd9cae83fb2d300d15d18e3160419f9f5b5bfbb3ba42d",
-      "text": "spaCR 就绪时启动照片马赛克是否被吹散。\n\nPreferences > 动画 > 启动动画。减少动态效果会覆盖它。\n\n:returns: 除非开关被关闭，否则为 ``True``；默认开启。",
+      "source_sha256": "3f7ad6f39cae82cafbcd3f0d3d7d7de21466cabc2acce2c39e83ee07fe8adbc3",
+      "text": "spaCR 就绪时启动照片马赛克是否被吹散。\n\n偏好设置 > 外观 > 动画 > 启动动画。“减少动态效果”优先于此设置。\n\n:returns: 除非开关被关闭，否则为 ``True``；默认开启。",
       "translation_source_blocks_sha256": [
         "06d9ced10cfa6c290d7b087d19c6219380a81aa4288cead0b5ae41ca695facd0",
-        "bf962cdc3a6e361cafc27977bc7114a1ba0f5e345e3608ea0aad4ff64e6bbe6c",
+        "062bb851e1ef54484010b1eb00ed6063401aedcb9c054c148b7fefc427cacf69",
         "a41cb17ecc7dfa570962e92ccddd54b127ec24026d930393e9bddbed6ca02857"
       ]
     },
@@ -119920,15 +119920,15 @@
     "spacr.qt.theme.focus_ring_qss": {
       "source_blocks_sha256": [
         "2b6d5dd422ff455fbe7156ea9df34d112b1b79f4a3f22ec7815560f4733755ef",
-        "fd075950bec55c3dadc5e8e0e08ea9b1a7ba22b77653b870c5c6fa3224d7d2f9",
+        "bdf41810b280e49bdfc0c8e698420630d948396d417d19eef9640392040228dc",
         "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
         "aaaff570937cff2a7032c27f02b7eee514fdf3a5278ba0b820aa6632c61da9e0"
       ],
-      "source_sha256": "f9736dec835b6f030d2649c6a0321eee80b6ef9feaa4e07fd1ee119906cdf718",
-      "text": "在拥有键盘焦点的控件周围加粗环的规则。\n\nPreferences > 外观 > 辅助功能 > 更强的焦点轮廓。主题绘制的唯一焦点标记是 1 px 的强调色边框，在繁杂的背景上很容易看丢；这个环宽 :data:`FOCUS_RING_PX`，颜色取自 :func:`focus_ring_colour`。\n\n:param theme: :data:`THEMES` 之一。\n:returns: QSS，在该偏好设置开启期间由 :func:`stylesheet` 最后追加。",
+      "source_sha256": "0fc1ce6b7b20e5b7c66850c951c0c7b0949f141bc5ed872081f0a6f1bb0b1c0f",
+      "text": "在拥有键盘焦点的控件周围加粗环的规则。\n\n偏好设置 > 外观 > 无障碍 > 更明显的焦点轮廓。这些规则会将所列控件的普通焦点边框替换为宽度为 :data:`FOCUS_RING_PX` 像素、颜色取自 :func:`focus_ring_colour` 的边框。\n\n:param theme: :data:`THEMES` 之一。\n:returns: QSS，在该偏好设置开启期间由 :func:`stylesheet` 最后追加。",
       "translation_source_blocks_sha256": [
         "2b6d5dd422ff455fbe7156ea9df34d112b1b79f4a3f22ec7815560f4733755ef",
-        "fd075950bec55c3dadc5e8e0e08ea9b1a7ba22b77653b870c5c6fa3224d7d2f9",
+        "bdf41810b280e49bdfc0c8e698420630d948396d417d19eef9640392040228dc",
         "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
         "aaaff570937cff2a7032c27f02b7eee514fdf3a5278ba0b820aa6632c61da9e0"
       ]
@@ -126561,15 +126561,15 @@
       "source_blocks_sha256": [
         "3d04e012aa6fc1ebfc36aedee2bc8d2741214455f1b6aa54074afe1e8b1d1673",
         "ebc6c311e7f8e90747e37132d95f7e7554165f00a6d747ecc5b50f8c69ddd3e3",
-        "b7c043c24743e7176b9e75b8f634b4b24b651ac5a997fb82f3fd2503ce342b16",
+        "13fcffa0dec03b0049d3ae96f0b0a5b15c370e54c09a9a972bcbec5d269edd2f",
         "a34f954babda05655f0c60cd07273c3e678f790c323d8f15cb3cd8984766c143"
       ],
-      "source_sha256": "bf06e84aaa4ba562f7583ac1c93755f699f512f5312671236615458f684399bb",
-      "text": "显示由 regression coefficient 所代表的测量细胞。\n\n:mod:`spacr.cell_montage` 选择对象并记录选择理由; 该模块解决并显示其提取图像区域,除了处理会议的数字。 每个附加的数据库都解决了自己的出口-PNG 或 ``merged/<fov>.npy`` 来源,因此多板组合可以将实验与不同的存储配置相结合。 提取的图像区域掩膜图像层和图像数据渠道来自 :class:`spacr.crops.CropSpec` 或默认情况下,处理会议的 ``measurements.db`` 数据。\n\n图像阅读通过 :class:`spacr.qt.job_runner.JobRunner` 运行,只有主要的 GUI 执行路完成处理器更新 Widgets. 转换到最多 300 提取图像区域到 ``QPixmap`` 仍然在主要 GUI 实施路径,因为 QPixmap 无法通过独立的执行路径传输; 记录的 224 像素小型转换需要大约 21 毫秒,为 300 个提取图片区域。\n\n选项卡保持可见,当提取的图像区域不可用,并报告其状态、工具提示和禁用行动中的原因。",
+      "source_sha256": "e41c56ed2ac7a0e2892de57c453c74115298ba8630c716a9133db8e0059c3332",
+      "text": "显示由 regression coefficient 所代表的测量细胞。\n\n:mod:`spacr.cell_montage` 选择对象并记录选择理由; 该模块解决并显示其提取图像区域,除了处理会议的数字。 每个附加的数据库都解决了自己的出口-PNG 或 ``merged/<fov>.npy`` 来源,因此多板组合可以将实验与不同的存储配置相结合。 提取的图像区域掩膜图像层和图像数据渠道来自 :class:`spacr.crops.CropSpec` 或默认情况下,处理会议的 ``measurements.db`` 数据。\n\n图像读取通过 :class:`spacr.qt.job_runner.JobRunner` 执行，只有 GUI 线程中的完成处理程序会更新控件。拼图数量上限限制所选对象数，默认值为 :data:`spacr.cell_montage.MAX_OBJECTS` (2,000)。图像数组到 ``QPixmap`` 的转换在 GUI 线程中执行；图像加载和裁剪区域选择在后台任务中执行。\n\n选项卡保持可见,当提取的图像区域不可用,并报告其状态、工具提示和禁用行动中的原因。",
       "translation_source_blocks_sha256": [
         "3d04e012aa6fc1ebfc36aedee2bc8d2741214455f1b6aa54074afe1e8b1d1673",
         "a573c439772d5e6c83122350309b41abd22721ca241b0bf67bd7e60f719591a1",
-        "ea3bfe02c93fd2f036cfbab9bbfc4a0fc2d3d9ef673c5781285c1a208307f704",
+        "933a697aa16decb842423c3e379810568d5194ac3c6980989fbfb650e2a6d5a7",
         "10d03f7e0727f257cca82f456e4910613c36c7a6d337776d722b9058061baec4"
       ]
     },
@@ -140868,34 +140868,34 @@
     "spacr.qt.widgets.figure_queue": {
       "source_blocks_sha256": [
         "05ee442e2e23be7c6b1b3971cc43ee7d5f73765b8338df6b0ecf767e52252522",
-        "1734036571703c85bfba4bfe861fe038edf94432b499fd955e636becd990b60c",
+        "0a8a923a7290e46fa98b9d549f11e960c2cae85b3caf76eee84b0ce2bd6aafb2",
         "659aae6ce3a3d0d5b84c417215d3b095fb1ccef970ec1ce62c29abeeb9002633"
       ],
-      "source_sha256": "64b6b80b8eedef4b6e8d13955ceee484ac26147d13296a577b475be5fd0dcb0a",
-      "text": "收集、导航和恢复由工作流处理会议发出的数字。\n\n面板结合一个小条线,前/后控制器,位置标签和一个可振动的全分辨率视图. 每个到达的数字都以临时 PNG 写成。 最新的 100 个全 分辨率 ``QPixmap`` 对象留在记忆中; 旧的输入按需求重新加载它们 PNG,而小条则留在回忆中. 清理工作列表或摧毁其所有者将删除临时目录。\n\n在 PDF 模式下, PNG 预览即时出现,工作者在更换它之前将 vector 页面拉斯特化为 2,200 像素,这在昂贵的 vector rendering 期间保持 GUI 响应性;记录的 9 个面板,16 到 12 英寸的数字需要大约 815 ms 以同步拉斯蒂化。",
+      "source_sha256": "2b6fc1e464daa8323dd5a108388a4f40d65d4d6c48507fcebbb173af482e2bdd",
+      "text": "收集、导航和恢复由工作流处理会议发出的数字。\n\n该面板组合了缩略图条、前进/后退控件、位置标签和可缩放的全分辨率视图。每个新到达的图都写入临时 PNG。全分辨率 ``QPixmap`` 对象使用按最久未使用顺序淘汰条目的缓存，条目数量受 ``ram_cap`` 限制（默认 100）。被淘汰的条目会按需重新加载其 PNG，而缩略图保留在内存中。清空队列或销毁其所有者时会删除临时目录。\n\n在 PDF 模式下, PNG 预览即时出现,工作者在更换它之前将 vector 页面拉斯特化为 2,200 像素,这在昂贵的 vector rendering 期间保持 GUI 响应性;记录的 9 个面板,16 到 12 英寸的数字需要大约 815 ms 以同步拉斯蒂化。",
       "translation_source_blocks_sha256": [
         "0645338614fac3648acfec8c7bd15994f93a4225ab3375aa9e78830a758de443",
-        "3953db9fe354c4cb56c88b2e107f2db2600bed66f379162c4070d01c8f8ed6b1",
+        "b5a9ceb8ed447163c69bdd2a745df789636747344736a5ea88836769b407a6b7",
         "659aae6ce3a3d0d5b84c417215d3b095fb1ccef970ec1ce62c29abeeb9002633"
       ]
     },
     "spacr.qt.widgets.figure_queue.FigureQueue": {
       "source_blocks_sha256": [
         "184c45133afc5f52807a3a2b81277f6bddebaddec93f1c0192c74ddb52afabcc",
-        "c174d732cf708ee9800172bb8c81ff8518022b93cea74f050f12ee407c7269be",
+        "2f5af36587413de43f63fbdb76d5b55364852292dcbddbe9ec2e128b9f0a7c0d",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "2bfd5ab3ce97ffd6cbf7d8a5e199183b26d6f638397bcbcdd9b06af763a52cdc",
-        "0294eb65f2207c44b99891a8e6e718eb2fcddea321af4287cb8fa8b35a2def3b",
+        "2d2f3c1144a325739b062f10cebfc9c2d727cb671d6285bdd0fe2d36ae5ccac8",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
-      "source_sha256": "ae5bd2e960eb0870e236582b252e0f10ab1493ba35e62861462af1b4a62ab062",
-      "text": "可旋转的,RAM连接的工作流数字画廊。\n\n:param ram_cap: 画廊可以持有多少字符的比特 老字符被放下留在它下面,这就是上面的 \"RAM-bounded\" 意味着什么 - 发行数百个字符的工作流不应该无限增长。\n:param parent: 父控件。\n创建数字列表。\n\n:param ram_cap: 要记住多少比特的全分辨率 pixmaps;旧的被最不常用的使用排除。\n:param parent: 父控件，或 ``None``。",
+      "source_sha256": "c59f395d1af2db49d9066d9a06e796ac01bc0fe589e85da0580b4e888e56291e",
+      "text": "可旋转的,RAM连接的工作流数字画廊。\n\n:param ram_cap: RAM 缓存中全分辨率像素图的最大数量，默认为 100。最久未使用的条目会被淘汰；其 PNG 文件仍可用于重新加载。这是条目数量限制，不是字节上限，也不是整个进程的内存上限。\n:param parent: 父控件。\n创建数字列表。\n\n:param ram_cap: 要缓存在内存中的全分辨率像素图的最大数量，默认为 100；按最久未使用顺序淘汰条目。\n:param parent: 父控件，或 ``None``。",
       "translation_source_blocks_sha256": [
         "69fa66fc3a8d9a49c76e0c720f4785767d821c0819d9d18189cdca2d1bcadc65",
-        "c386e4fe811f38b59f77f26202a04fb5024a8ee56b7149ab964485e3539ae770",
+        "2f5af36587413de43f63fbdb76d5b55364852292dcbddbe9ec2e128b9f0a7c0d",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "adef3b5f64ff7336b47f9f0d40d25cbdbb5b5a07269f5bc7d63114070bd9aaeb",
-        "0294eb65f2207c44b99891a8e6e718eb2fcddea321af4287cb8fa8b35a2def3b",
+        "2d2f3c1144a325739b062f10cebfc9c2d727cb671d6285bdd0fe2d36ae5ccac8",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ]
     },
@@ -141358,15 +141358,15 @@
         "4e566c3ae3a7641a0682fa43a72166dbd239d51fc8a340e058b894e7085c7c51",
         "5d1bade3f3f006a7b29f832308904eae8abd5d8171b6ef7d36b56b2ef2bc6df1",
         "75de52ce3e854518b2222832c3a2e83ebea4e1c983939c05344e0a0658b8badf",
-        "8876ac6e5bc4e455ddf122dd547a30cfa451806bffbf3a172922366d11b33798"
+        "2945d7185cf8c8c6930b6372a5c4cfceabef9724d890b12cdd1d078ff07623db"
       ],
-      "source_sha256": "36faddaa4e53d2c8cb75173764820f365a675b8d47e6648532156ed7b45a995d",
-      "text": "返回附加到 Matplotlib 数字的每个文本对象。\n\n包含轴标题和标签,标签标记,笔记,传说和传说标题,图标标和文本直接存储在图标上. 函数没有 Qt 依赖性,并且安全地从图标发送工作进程呼叫。\n\n:param fig: Matplotlib 要检查。\n:returns: 文本对象以跨顺序,双重对象被移除。",
+      "source_sha256": "0533bfe48e0bb81671d16c9e1d183cab130d86863509b702edab6eb71cae568b",
+      "text": "返回附加到 Matplotlib 数字的每个文本对象。\n\n包含轴标题和标签,标签标记,笔记,传说和传说标题,图标标和文本直接存储在图标上. 函数没有 Qt 依赖性,并且安全地从图标发送工作进程呼叫。\n\n:param fig: Matplotlib 要检查。\n:returns: 按遍历顺序排列的文本对象，省略缺失条目。保留重复引用。",
       "translation_source_blocks_sha256": [
         "4e566c3ae3a7641a0682fa43a72166dbd239d51fc8a340e058b894e7085c7c51",
         "5d1bade3f3f006a7b29f832308904eae8abd5d8171b6ef7d36b56b2ef2bc6df1",
         "75de52ce3e854518b2222832c3a2e83ebea4e1c983939c05344e0a0658b8badf",
-        "8876ac6e5bc4e455ddf122dd547a30cfa451806bffbf3a172922366d11b33798"
+        "2945d7185cf8c8c6930b6372a5c4cfceabef9724d890b12cdd1d078ff07623db"
       ]
     },
     "spacr.qt.widgets.figure_queue.figure_text_size_override": {
@@ -156349,20 +156349,16 @@
     },
     "spacr.qt.widgets.loading_screen": {
       "source_blocks_sha256": [
-        "9dfc6eaae61ef1a32cce790b87fe891bed8311038cd0173df4194f7cb0c2042f",
-        "966d19113647321bd2952fc71d33d47463e23d515ad93ff653ed13e75bc65b45",
-        "aaef0d5cce47f0c0de331228126728fc18b205ead2ccd1483b74db3e02cb811d",
-        "dfac6cc31c8ddd27935cd584523d2559c8b149fda7bf9918e493813ea508bab5",
-        "c57965ea9bb50b4f8537eff451de663d0ae6b83ed406e99d9dacba7fc0a19848"
+        "7a6017b8c545c3ea6dfbb8f4a8bd6f2909be4a500c2f4977b4d37d9d62d16058",
+        "d5cdd19db82248472abddbc3a3a038aebd742124e1467a731f7853087f11a6be",
+        "2fd99810ff3b8c85c93df3d5bfb3c3a60830f5213a637de784ca54326bc69655"
       ],
-      "source_sha256": "27f0798de29d105437d2ffe515d0cb7607f35447e7126829ab6025a7db4ea1ce",
-      "text": "覆盖预载的筛选。\n\nspaCR 输入 ~3.1 s 的重型模块 (torch, cellpose, pandas 和工作流取决于它们) 之前,第一次点击一个模块可以是即时的。 测量在一个真正的窗口发射: ``spacr.core`` 单独是 1968 ms 和 ``spacr.deep_spacr`` 711 ms。\n\n这些进口必须在主要执行路径上进行 - 这样他们就可以在一个工作进程赛车 Qt 自己的 GPU 启动和分区上进行,这被记录在上方 :class:`spacr.qt.app._PipelinePreloader`. 因此,事件路径被封锁了几秒钟,并且在那个时候看起来互动的窗口不会响应。\n\n该应用程序视图覆盖整个窗口,直到进口完成,所以阻止的事件路径不会错过一个粘贴窗口。\n\n进展是由条线而不是条线显示的:三阶段的:data:`STRAP_LINE`照亮相反,作为模块负载 - 显微镜,然后单细胞分析,然后基因型到基因类。",
+      "source_sha256": "4605eda09bd7bda7a1cb31af86456afb7a578da00f24bbef56d20c257ffcbb98",
+      "text": "全窗口加载遮罩和启动照片马赛克动画。\n\n应用程序构建窗口时会显示此遮罩。启用提前预加载时，:class:`spacr.qt.app._PipelinePreloader` 在工作线程中导入处理流程模块，并通过 GUI 线程的定时器报告进度。默认的按需策略会在不导入这些模块的情况下结束加载阶段。随后，宿主窗口会根据启动偏好设置关闭遮罩或开始照片马赛克动画。\n\n报告的进度会点亮 :data:`STRAP_LINE` 的三个阶段，并填充其下方的细线。:meth:`LoadingScreen.show_mosaic` 将普通徽标替换为照片马赛克；:meth:`LoadingScreen.blow_away` 以动画方式移除它。:func:`replay_startup_animation` 会在现有窗口上方重新播放这一序列。",
       "translation_source_blocks_sha256": [
-        "9dfc6eaae61ef1a32cce790b87fe891bed8311038cd0173df4194f7cb0c2042f",
-        "6ddda941c386644b19d6ab4f5f16389884154efea2027ec35656214062b936e9",
-        "e82c82ac9b76b66c53ec220cccf0ab136ded27aac1a3cb17b72bd70e225a99c0",
-        "36eb7bda5f8e70efc69206aa4496f425d28557f7edb2e01a5d9b7e8528322412",
-        "c57965ea9bb50b4f8537eff451de663d0ae6b83ed406e99d9dacba7fc0a19848"
+        "7a6017b8c545c3ea6dfbb8f4a8bd6f2909be4a500c2f4977b4d37d9d62d16058",
+        "a2955dbc820ffd24aa88d847e363d6bf3dbad81be99d2a34c1b3a2d160736bfb",
+        "2fd99810ff3b8c85c93df3d5bfb3c3a60830f5213a637de784ca54326bc69655"
       ]
     },
     "spacr.qt.widgets.loading_screen.BlowAway": {
@@ -156443,7 +156439,7 @@
     },
     "spacr.qt.widgets.loading_screen.LoadingScreen": {
       "source_blocks_sha256": [
-        "f2f204bdacd46fadc46d60591eab68aebcee6262a4a71b261cab6abc0586343d",
+        "ce6bd0230d8d9c6451d89f42549da34961fe16fe4d5a57b7f8d427b3ca97158f",
         "9d0d992e12b6e5e79e85c2827c3390f0eb05da130f8bf3bc38b208ebff8ebc91",
         "619496b64201578f415641b518e6de423a288f3d7397fee3041d5abdd200c337",
         "ada9aa48a8ee85116a0fc4811d7f74c466533db848c615f9956704a4862f1b2a",
@@ -156452,10 +156448,10 @@
         "a81ecebeba3f16457722827ac2f7f382059d6171ff92c127ed705792c0ac5aa2",
         "6efd675df1a57f09d37c3ddb82543ffbbb103b217a3d0cda666761f18f99f44f"
       ],
-      "source_sha256": "1d965b9967f591349b138e79a49421d86f7d7527cd5563369b7913d264bc2172",
-      "text": "在流水线模块导入完成之前显示的全窗口覆盖层。\n\n默认情况下，它在标语行旁显示白色标志。调用 :meth:`show_mosaic` 后，它改为在标语行上方显示 spaCR 照片马赛克，而 :meth:`blow_away` 通过把马赛克的图块吹离窗口来结束它，露出下方的窗口。\n\n:param total: 将报告多少步。零或负数表示 \"unknown\" 。此时各阶段保持暗淡，而不是除以它。\n:param parent: 它所填充的窗口。它按父窗口调整大小并随之变化，而不是一个独立的顶层窗口 -- 第二个窗口会有自己的任务栏条目，还可能被拖离它本应覆盖的对象。\n构建在窗口组装期间覆盖它的启动画面。\n\n按构造不透明：它覆盖一个只建了一半的窗口，任何透明都会露出它本要隐藏的东西。\n\n:param total: 进度条数到多少步；``0`` 不显示比例。\n:param parent: 要覆盖的窗口；采用其几何尺寸。",
+      "source_sha256": "0807e66d934569840a2ccbaefc680a27d1382cadbdd43e7693d3db66870f20ac",
+      "text": "带有可选照片马赛克动画的全窗口加载遮罩。\n\n默认情况下，它在标语行旁显示白色标志。调用 :meth:`show_mosaic` 后，它改为在标语行上方显示 spaCR 照片马赛克，而 :meth:`blow_away` 通过把马赛克的图块吹离窗口来结束它，露出下方的窗口。\n\n:param total: 将报告多少步。零或负数表示 \"unknown\" 。此时各阶段保持暗淡，而不是除以它。\n:param parent: 它所填充的窗口。它按父窗口调整大小并随之变化，而不是一个独立的顶层窗口 -- 第二个窗口会有自己的任务栏条目，还可能被拖离它本应覆盖的对象。\n构建在窗口组装期间覆盖它的启动画面。\n\n按构造不透明：它覆盖一个只建了一半的窗口，任何透明都会露出它本要隐藏的东西。\n\n:param total: 进度条数到多少步；``0`` 不显示比例。\n:param parent: 要覆盖的窗口；采用其几何尺寸。",
       "translation_source_blocks_sha256": [
-        "29b9e3edb2706230d69db8eeb56c8f1fa1d9caf170992e142d3c1dd6c2c59218",
+        "ce6bd0230d8d9c6451d89f42549da34961fe16fe4d5a57b7f8d427b3ca97158f",
         "d4ff49473441a5a3c33659ad0a6791ccd540d74c21b916a9f8095e96aa609b73",
         "619496b64201578f415641b518e6de423a288f3d7397fee3041d5abdd200c337",
         "ada9aa48a8ee85116a0fc4811d7f74c466533db848c615f9956704a4862f1b2a",
@@ -156703,17 +156699,33 @@
         "20fc474295a1f4667a38d7ac75060407b89ee3485cdfe8d592bf2325bbb6c156"
       ]
     },
+    "spacr.qt.widgets.loading_screen.replay_startup_animation": {
+      "source_blocks_sha256": [
+        "b3f3091c0f092a29eda04742a58c4e54a25c2d3861fb35815db9ff5eeebeb59e",
+        "cadcec354bb6efc8df952337831c882079280af0eee04248b29ea6ba3644446c",
+        "152efb5b5401382d36f20a888c053df26ef069aef9653fa0c92148cf28094c29",
+        "9e29f201cf930607d9e4c06d28289c973eed643fe6a3c71a71ff4561235c16b2"
+      ],
+      "source_sha256": "f9e2a1e4905f0f97a0f3148305ec630e850a47bb523c6374e170054e10a658a5",
+      "text": "在 ``window`` 内再次播放启动序列。\n\n帮助 > 显示启动动画。带有徽标的黑色容器再次覆盖窗口，停留两秒后像启动时一样飘散。即使关闭了“偏好设置 > 外观 > 动画 > 启动动画”也会播放；启用“偏好设置 > 外观 > 无障碍 > 减少动态效果”时，徽标会先停留，再用一秒淡出。单击或按键可跳过动画。窗口的大小、状态和键盘焦点保持不变。\n\n:param window: 播放它的窗口。\n:returns: 现在正在播放的覆盖层，或当无法读取徽标或窗口上已有覆盖层时为 ``None``。",
+      "translation_source_blocks_sha256": [
+        "b3f3091c0f092a29eda04742a58c4e54a25c2d3861fb35815db9ff5eeebeb59e",
+        "cadcec354bb6efc8df952337831c882079280af0eee04248b29ea6ba3644446c",
+        "152efb5b5401382d36f20a888c053df26ef069aef9653fa0c92148cf28094c29",
+        "9e29f201cf930607d9e4c06d28289c973eed643fe6a3c71a71ff4561235c16b2"
+      ]
+    },
     "spacr.qt.widgets.loading_screen.startup_animation_allowed": {
       "source_blocks_sha256": [
         "6ee09ebe0b618dbedd2ec494ff82a33a88e4db8e0253153a95763686c820fc77",
-        "128acc75bee70055e4fd0dea159793a681b16d83dbaa5391bb41c7ed398ccc85",
+        "e3b3dfb79482cd5a8f9b03dab742ca292c1630b4a1e5254d7b637468b5d70280",
         "d87f9f300b8097a74bca9e3462dd053a4ae1df3e833ca223c8da944485aebae8"
       ],
-      "source_sha256": "b35789d2caef389c9ad17926c01fa3bc02ec4ef87a68a45d6fff29b695dee4fb",
-      "text": "窗口就绪时照片马赛克是否可以被吹散。\n\n在设置了 :data:`NO_SPLASH_ENV`、处于 offscreen 平台、辅助功能 > 减少动态效果开启，或 Preferences > 动画 > 启动动画关闭时为否。无法读取的偏好设置按否计：静止的覆盖层始终是安全的。\n\n:returns: 当吹散应当播放时为 ``True``。",
+      "source_sha256": "668216481cc0366123ce5abcbd0c0e6e152c4e0de5177235e284c4e0826a7231",
+      "text": "窗口就绪时照片马赛克是否可以被吹散。\n\n当设置了 :data:`NO_SPLASH_ENV`、使用离屏平台、启用了“偏好设置 > 外观 > 无障碍 > 减少动态效果”，或关闭了“偏好设置 > 外观 > 动画 > 启动动画”时不允许播放。无法读取偏好设置时会禁用动画。\n\n:returns: 当吹散应当播放时为 ``True``。",
       "translation_source_blocks_sha256": [
         "6ee09ebe0b618dbedd2ec494ff82a33a88e4db8e0253153a95763686c820fc77",
-        "128acc75bee70055e4fd0dea159793a681b16d83dbaa5391bb41c7ed398ccc85",
+        "e3b3dfb79482cd5a8f9b03dab742ca292c1630b4a1e5254d7b637468b5d70280",
         "d87f9f300b8097a74bca9e3462dd053a4ae1df3e833ca223c8da944485aebae8"
       ]
     },

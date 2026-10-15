@@ -91127,14 +91127,14 @@
     "spacr.qt.preferences.get_startup_animation": {
       "source_blocks_sha256": [
         "06d9ced10cfa6c290d7b087d19c6219380a81aa4288cead0b5ae41ca695facd0",
-        "bf962cdc3a6e361cafc27977bc7114a1ba0f5e345e3608ea0aad4ff64e6bbe6c",
+        "062bb851e1ef54484010b1eb00ed6063401aedcb9c054c148b7fefc427cacf69",
         "a41cb17ecc7dfa570962e92ccddd54b127ec24026d930393e9bddbed6ca02857"
       ],
-      "source_sha256": "d314346cbd17e4651aecd9cae83fb2d300d15d18e3160419f9f5b5bfbb3ba42d",
-      "text": "Indique si la photomosaïque de démarrage s’envole quand spaCR est prêt.\n\nPreferences > Animation > Animation de démarrage. Réduire les animations l’emporte sur elle.\n\n:returns: ``True`` sauf si l’interrupteur a été désactivé ; activé par défaut.",
+      "source_sha256": "3f7ad6f39cae82cafbcd3f0d3d7d7de21466cabc2acce2c39e83ee07fe8adbc3",
+      "text": "Indique si la photomosaïque de démarrage s’envole quand spaCR est prêt.\n\nPréférences > Apparence > Animation > Animation de démarrage. Réduire les mouvements est prioritaire.\n\n:returns: ``True`` sauf si l’interrupteur a été désactivé ; activé par défaut.",
       "translation_source_blocks_sha256": [
         "06d9ced10cfa6c290d7b087d19c6219380a81aa4288cead0b5ae41ca695facd0",
-        "bf962cdc3a6e361cafc27977bc7114a1ba0f5e345e3608ea0aad4ff64e6bbe6c",
+        "062bb851e1ef54484010b1eb00ed6063401aedcb9c054c148b7fefc427cacf69",
         "a41cb17ecc7dfa570962e92ccddd54b127ec24026d930393e9bddbed6ca02857"
       ]
     },
@@ -119919,15 +119919,15 @@
     "spacr.qt.theme.focus_ring_qss": {
       "source_blocks_sha256": [
         "2b6d5dd422ff455fbe7156ea9df34d112b1b79f4a3f22ec7815560f4733755ef",
-        "fd075950bec55c3dadc5e8e0e08ea9b1a7ba22b77653b870c5c6fa3224d7d2f9",
+        "bdf41810b280e49bdfc0c8e698420630d948396d417d19eef9640392040228dc",
         "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
         "aaaff570937cff2a7032c27f02b7eee514fdf3a5278ba0b820aa6632c61da9e0"
       ],
-      "source_sha256": "f9736dec835b6f030d2649c6a0321eee80b6ef9feaa4e07fd1ee119906cdf718",
-      "text": "Les règles qui posent un anneau épais autour du contrôle ayant le focus clavier.\n\nPreferences > Apparence > Accessibilité > Contours de focus renforcés. Un contour d’accent de 1 px est la seule marque de focus que dessinent les thèmes, et sur un arrière-plan chargé il est facile à perdre ; celui-ci a une largeur de :data:`FOCUS_RING_PX` dans :func:`focus_ring_colour`.\n\n:param theme: l’un des :data:`THEMES`.\n:returns: QSS, ajouté en dernier par :func:`stylesheet` tant que la préférence est activée.",
+      "source_sha256": "0fc1ce6b7b20e5b7c66850c951c0c7b0949f141bc5ed872081f0a6f1bb0b1c0f",
+      "text": "Les règles qui posent un anneau épais autour du contrôle ayant le focus clavier.\n\nPréférences > Apparence > Accessibilité > Contours de focus renforcés. Ces règles remplacent les bordures de focus normales des widgets indiqués par une bordure de :data:`FOCUS_RING_PX` pixels dans la couleur de :func:`focus_ring_colour`.\n\n:param theme: l’un des :data:`THEMES`.\n:returns: QSS, ajouté en dernier par :func:`stylesheet` tant que la préférence est activée.",
       "translation_source_blocks_sha256": [
         "2b6d5dd422ff455fbe7156ea9df34d112b1b79f4a3f22ec7815560f4733755ef",
-        "fd075950bec55c3dadc5e8e0e08ea9b1a7ba22b77653b870c5c6fa3224d7d2f9",
+        "bdf41810b280e49bdfc0c8e698420630d948396d417d19eef9640392040228dc",
         "e390b08005796c8a06753c50881054a82312610dd55a26a1525e7bf30c32571c",
         "aaaff570937cff2a7032c27f02b7eee514fdf3a5278ba0b820aa6632c61da9e0"
       ]
@@ -126560,15 +126560,15 @@
       "source_blocks_sha256": [
         "3d04e012aa6fc1ebfc36aedee2bc8d2741214455f1b6aa54074afe1e8b1d1673",
         "ebc6c311e7f8e90747e37132d95f7e7554165f00a6d747ecc5b50f8c69ddd3e3",
-        "b7c043c24743e7176b9e75b8f634b4b24b651ac5a997fb82f3fd2503ce342b16",
+        "13fcffa0dec03b0049d3ae96f0b0a5b15c370e54c09a9a972bcbec5d269edd2f",
         "a34f954babda05655f0c60cd07273c3e678f790c323d8f15cb3cd8984766c143"
       ],
-      "source_sha256": "bf06e84aaa4ba562f7583ac1c93755f699f512f5312671236615458f684399bb",
-      "text": "Afficher les cellules mesurées représentées par un coefficient de régression.\n\n:mod:`spacr.cell_montage` sélectionne les objets et enregistre la raison de la sélection; ce module résout et affiche leurs régions d'image extraites à côté des chiffres de la session de traitement. Chaque base de données jointe résout sa propre source exportée-PNG ou ``merged/<fov>.npy`` afin que les montages multi-plaques puissent combiner des expériences avec différentes configurations de stockage. La région d'image extraite masque la couche d'images et les canaux de données image proviennent de :class:`spacr.crops.CropSpec` ou, par défaut, des métadonnées ``measurements.db`` de la session de traitement.\n\nLa lecture d'image passe par :class:`spacr.qt.job_runner.JobRunner` et seul le gestionnaire de chemin d'exécution principal GUI met à jour les widgets. La conversion d'au plus 300 régions d'images extraites en ``QPixmap`` reste sur le chemin principal d' exécution GUI parce que QPixmap n'est pas transférable sur les chemins d'exécuter indépendants; la conversion de vignettes de 224 pixels enregistrée prend environ 21 millisecondes pour 300 régions.\n\nL'onglet reste visible lorsque les régions d'image extraites ne sont pas disponibles et indique la raison de son état, son infobulle et son action désactivée. la découverte de source de la région-image extraite est mise en cache après une charge et invalidée lorsque le coefficient, les bases de données ou les paramètres de région-images extraits changent.",
+      "source_sha256": "e41c56ed2ac7a0e2892de57c453c74115298ba8630c716a9133db8e0059c3332",
+      "text": "Afficher les cellules mesurées représentées par un coefficient de régression.\n\n:mod:`spacr.cell_montage` sélectionne les objets et enregistre la raison de la sélection; ce module résout et affiche leurs régions d'image extraites à côté des chiffres de la session de traitement. Chaque base de données jointe résout sa propre source exportée-PNG ou ``merged/<fov>.npy`` afin que les montages multi-plaques puissent combiner des expériences avec différentes configurations de stockage. La région d'image extraite masque la couche d'images et les canaux de données image proviennent de :class:`spacr.crops.CropSpec` ou, par défaut, des métadonnées ``measurements.db`` de la session de traitement.\n\nLa lecture des images passe par :class:`spacr.qt.job_runner.JobRunner` et seul le gestionnaire de fin exécuté dans le fil de la GUI met à jour les widgets. La limite du montage restreint les objets sélectionnés et vaut par défaut :data:`spacr.cell_montage.MAX_OBJECTS` (2,000). La conversion des tableaux d’image en ``QPixmap`` s’effectue dans le fil de la GUI ; le chargement des images et la sélection des recadrages s’effectuent dans le traitement en arrière-plan.\n\nL'onglet reste visible lorsque les régions d'image extraites ne sont pas disponibles et indique la raison de son état, son infobulle et son action désactivée. la découverte de source de la région-image extraite est mise en cache après une charge et invalidée lorsque le coefficient, les bases de données ou les paramètres de région-images extraits changent.",
       "translation_source_blocks_sha256": [
         "3d04e012aa6fc1ebfc36aedee2bc8d2741214455f1b6aa54074afe1e8b1d1673",
         "a573c439772d5e6c83122350309b41abd22721ca241b0bf67bd7e60f719591a1",
-        "ea3bfe02c93fd2f036cfbab9bbfc4a0fc2d3d9ef673c5781285c1a208307f704",
+        "933a697aa16decb842423c3e379810568d5194ac3c6980989fbfb650e2a6d5a7",
         "10d03f7e0727f257cca82f456e4910613c36c7a6d337776d722b9058061baec4"
       ]
     },
@@ -140867,34 +140867,34 @@
     "spacr.qt.widgets.figure_queue": {
       "source_blocks_sha256": [
         "05ee442e2e23be7c6b1b3971cc43ee7d5f73765b8338df6b0ecf767e52252522",
-        "1734036571703c85bfba4bfe861fe038edf94432b499fd955e636becd990b60c",
+        "0a8a923a7290e46fa98b9d549f11e960c2cae85b3caf76eee84b0ce2bd6aafb2",
         "659aae6ce3a3d0d5b84c417215d3b095fb1ccef970ec1ce62c29abeeb9002633"
       ],
-      "source_sha256": "64b6b80b8eedef4b6e8d13955ceee484ac26147d13296a577b475be5fd0dcb0a",
-      "text": "Recueillir, naviguer et remodeler les chiffres émis par une session de traitement des flux de travail.\n\nLe panneau combine une bande de vignettes, des commandes avant/arrière, une étiquette de position et une vue en résolution complète zoomable. Chaque figure arrivante est écrite à un PNG temporaire. Les 100 objets ``QPixmap`` les plus récents restent dans la mémoire; les anciennes entrées rechargent leur PNG sur demande, tandis que les vignettes restent en mémoire. Effacer la liste de travail ou détruire son propriétaire supprime le répertoire temporaire.\n\nEn mode PDF, l'aperçu PNG s'affiche immédiatement et un travailleur rastérise la page vectorielle à 2 200 pixels avant de la remplacer. Cela maintient la réponse GUI pendant le rendu vectif coûteux; la figure enregistrée de 9 pans, 16-par-12 pouces a exigé environ 815 ms pour rastériser synchronement.",
+      "source_sha256": "2b6fc1e464daa8323dd5a108388a4f40d65d4d6c48507fcebbb173af482e2bdd",
+      "text": "Recueillir, naviguer et remodeler les chiffres émis par une session de traitement des flux de travail.\n\nLe panneau combine une bande de vignettes, des commandes avant/arrière, une indication de position et une vue zoomable en pleine résolution. Chaque figure reçue est écrite dans un PNG temporaire. Les objets ``QPixmap`` en pleine résolution utilisent un cache qui évince les entrées les moins récemment utilisées, limité au nombre d’entrées ``ram_cap`` (100 par défaut). Les entrées évincées rechargent leur PNG à la demande, tandis que les vignettes restent en mémoire. Vider la file ou détruire son propriétaire supprime le répertoire temporaire.\n\nEn mode PDF, l'aperçu PNG s'affiche immédiatement et un travailleur rastérise la page vectorielle à 2 200 pixels avant de la remplacer. Cela maintient la réponse GUI pendant le rendu vectif coûteux; la figure enregistrée de 9 pans, 16-par-12 pouces a exigé environ 815 ms pour rastériser synchronement.",
       "translation_source_blocks_sha256": [
         "0645338614fac3648acfec8c7bd15994f93a4225ab3375aa9e78830a758de443",
-        "3953db9fe354c4cb56c88b2e107f2db2600bed66f379162c4070d01c8f8ed6b1",
+        "b5a9ceb8ed447163c69bdd2a745df789636747344736a5ea88836769b407a6b7",
         "659aae6ce3a3d0d5b84c417215d3b095fb1ccef970ec1ce62c29abeeb9002633"
       ]
     },
     "spacr.qt.widgets.figure_queue.FigureQueue": {
       "source_blocks_sha256": [
         "184c45133afc5f52807a3a2b81277f6bddebaddec93f1c0192c74ddb52afabcc",
-        "c174d732cf708ee9800172bb8c81ff8518022b93cea74f050f12ee407c7269be",
+        "2f5af36587413de43f63fbdb76d5b55364852292dcbddbe9ec2e128b9f0a7c0d",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "2bfd5ab3ce97ffd6cbf7d8a5e199183b26d6f638397bcbcdd9b06af763a52cdc",
-        "0294eb65f2207c44b99891a8e6e718eb2fcddea321af4287cb8fa8b35a2def3b",
+        "2d2f3c1144a325739b062f10cebfc9c2d727cb671d6285bdd0fe2d36ae5ccac8",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
-      "source_sha256": "ae5bd2e960eb0870e236582b252e0f10ab1493ba35e62861462af1b4a62ab062",
-      "text": "Galerie de chiffres de flux de travail scrollable et en RAM.\n\n:param ram_cap: combien d'octets de chiffres la galerie peut contenir. Les chiffres plus anciens sont abandonnés pour rester sous elle, ce qui est ce que \"RAM-bounded\" signifie au-dessus -- un flux de travail émettant des centaines de chiffres ne doit pas croître sans limite.\n:param parent: widget parent.\nConstruisez la liste des figures.\n\n:param ram_cap: combien d'octets de pixmaps à résolution complète à conserver en mémoire; les plus anciens sont expulsés par l'usage le moins récent.\n:param parent: widget parent, ou ``None``.",
+      "source_sha256": "c59f395d1af2db49d9066d9a06e796ac01bc0fe589e85da0580b4e888e56291e",
+      "text": "Galerie de chiffres de flux de travail scrollable et en RAM.\n\n:param ram_cap: nombre maximal de pixmaps en pleine résolution dans le cache RAM, 100 par défaut. Les entrées les moins récemment utilisées sont évincées ; leurs fichiers PNG restent disponibles pour être rechargés. Il s’agit d’un nombre d’entrées, et non d’une limite en octets ou d’une limite de toute la mémoire du processus.\n:param parent: widget parent.\nConstruisez la liste des figures.\n\n:param ram_cap: nombre maximal de pixmaps en pleine résolution à mettre en cache en mémoire, 100 par défaut ; les entrées les moins récemment utilisées sont évincées.\n:param parent: widget parent, ou ``None``.",
       "translation_source_blocks_sha256": [
         "69fa66fc3a8d9a49c76e0c720f4785767d821c0819d9d18189cdca2d1bcadc65",
-        "c386e4fe811f38b59f77f26202a04fb5024a8ee56b7149ab964485e3539ae770",
+        "2f5af36587413de43f63fbdb76d5b55364852292dcbddbe9ec2e128b9f0a7c0d",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "adef3b5f64ff7336b47f9f0d40d25cbdbb5b5a07269f5bc7d63114070bd9aaeb",
-        "0294eb65f2207c44b99891a8e6e718eb2fcddea321af4287cb8fa8b35a2def3b",
+        "2d2f3c1144a325739b062f10cebfc9c2d727cb671d6285bdd0fe2d36ae5ccac8",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ]
     },
@@ -141357,15 +141357,15 @@
         "4e566c3ae3a7641a0682fa43a72166dbd239d51fc8a340e058b894e7085c7c51",
         "5d1bade3f3f006a7b29f832308904eae8abd5d8171b6ef7d36b56b2ef2bc6df1",
         "75de52ce3e854518b2222832c3a2e83ebea4e1c983939c05344e0a0658b8badf",
-        "8876ac6e5bc4e455ddf122dd547a30cfa451806bffbf3a172922366d11b33798"
+        "2945d7185cf8c8c6930b6372a5c4cfceabef9724d890b12cdd1d078ff07623db"
       ],
-      "source_sha256": "36faddaa4e53d2c8cb75173764820f365a675b8d47e6648532156ed7b45a995d",
-      "text": "Retourne chaque objet texte attaché à une figure de Matplotlib.\n\nComprend les titres d'axe et les étiquettes, les étiquettes à cocher, les annotations, les légendes et les titres de légende, le titre de la figure, et le texte stocké directement sur la figure. La fonction n'a pas de dépendance Qt et est sûre d'appeler de l'opérateur de rendu de figure.\n\n:param fig: Un personnage de Matplotlib à inspecter.\n:returns: Objets textuels en ordre de traversée, avec suppression d'objets dupliqués.",
+      "source_sha256": "0533bfe48e0bb81671d16c9e1d183cab130d86863509b702edab6eb71cae568b",
+      "text": "Retourne chaque objet texte attaché à une figure de Matplotlib.\n\nComprend les titres d'axe et les étiquettes, les étiquettes à cocher, les annotations, les légendes et les titres de légende, le titre de la figure, et le texte stocké directement sur la figure. La fonction n'a pas de dépendance Qt et est sûre d'appeler de l'opérateur de rendu de figure.\n\n:param fig: Un personnage de Matplotlib à inspecter.\n:returns: Objets texte dans l’ordre de parcours, sans les entrées manquantes. Les références répétées sont conservées.",
       "translation_source_blocks_sha256": [
         "4e566c3ae3a7641a0682fa43a72166dbd239d51fc8a340e058b894e7085c7c51",
         "5d1bade3f3f006a7b29f832308904eae8abd5d8171b6ef7d36b56b2ef2bc6df1",
         "75de52ce3e854518b2222832c3a2e83ebea4e1c983939c05344e0a0658b8badf",
-        "8876ac6e5bc4e455ddf122dd547a30cfa451806bffbf3a172922366d11b33798"
+        "2945d7185cf8c8c6930b6372a5c4cfceabef9724d890b12cdd1d078ff07623db"
       ]
     },
     "spacr.qt.widgets.figure_queue.figure_text_size_override": {
@@ -156348,20 +156348,16 @@
     },
     "spacr.qt.widgets.loading_screen": {
       "source_blocks_sha256": [
-        "9dfc6eaae61ef1a32cce790b87fe891bed8311038cd0173df4194f7cb0c2042f",
-        "966d19113647321bd2952fc71d33d47463e23d515ad93ff653ed13e75bc65b45",
-        "aaef0d5cce47f0c0de331228126728fc18b205ead2ccd1483b74db3e02cb811d",
-        "dfac6cc31c8ddd27935cd584523d2559c8b149fda7bf9918e493813ea508bab5",
-        "c57965ea9bb50b4f8537eff451de663d0ae6b83ed406e99d9dacba7fc0a19848"
+        "7a6017b8c545c3ea6dfbb8f4a8bd6f2909be4a500c2f4977b4d37d9d62d16058",
+        "d5cdd19db82248472abddbc3a3a038aebd742124e1467a731f7853087f11a6be",
+        "2fd99810ff3b8c85c93df3d5bfb3c3a60830f5213a637de784ca54326bc69655"
       ],
-      "source_sha256": "27f0798de29d105437d2ffe515d0cb7607f35447e7126829ab6025a7db4ea1ce",
-      "text": "Le criblage qui couvre le précharge.\n\nspaCR importe ~3.1 s de modules lourds (torch, cellpose,pandas et le flux de travail qui en dépend) avant que le premier clic sur un module puisse être instantané. Mesuré sur un lancement à fenêtre réelle: ``spacr.core`` seul est 1968 ms et ``spacr.deep_spacr`` 711 ms.\n\nCes importations doivent être exécutées sur le chemin d'exécution principal -- les exécuter sur un worker entraîne l'initialisation GPU de Qt et des segfaults, qui sont enregistrés au-dessus de :class:`spacr.qt.app._PipelinePreloader`. La boucle d'événements est donc bloquée pendant quelques secondes, et une fenêtre qui semblait interactive pendant ce temps ne répondrait pas.\n\nCette vue d'application couvre toute la fenêtre jusqu'à ce que les importations soient faites, de sorte que la boucle d'événement bloquée n'est pas confondue avec une fenêtre accrochée.\n\nLe progrès est démontré par la ligne de sangle plutôt qu'une barre : les trois phases de :data:`STRAP_LINE` s'allument à tour de rôle lorsque les modules chargent -- la microscopie, puis l'analyse monocellulaire, puis le génotype-to-phénotype. Le dénominateur est le nombre de modules, qui est connu avant l'importation du premier.",
+      "source_sha256": "4605eda09bd7bda7a1cb31af86456afb7a578da00f24bbef56d20c257ffcbb98",
+      "text": "Couverture de chargement sur toute la fenêtre et animation de photomosaïque au démarrage.\n\nL’application affiche cette couverture pendant la construction de sa fenêtre. Avec le préchargement anticipé, :class:`spacr.qt.app._PipelinePreloader` importe les modules du pipeline dans un fil de travail et signale la progression par un minuteur du fil de la GUI. La politique par défaut à la demande termine la phase de chargement sans importer ces modules. La fenêtre hôte ferme ensuite la couverture ou lance son animation de photomosaïque, selon les préférences de démarrage.\n\nLa progression signalée illumine les trois phases de :data:`STRAP_LINE` et remplit le trait fin placé dessous. :meth:`LoadingScreen.show_mosaic` remplace le logo simple par la photomosaïque ; :meth:`LoadingScreen.blow_away` anime sa disparition. :func:`replay_startup_animation` rejoue la séquence par-dessus une fenêtre existante.",
       "translation_source_blocks_sha256": [
-        "9dfc6eaae61ef1a32cce790b87fe891bed8311038cd0173df4194f7cb0c2042f",
-        "6ddda941c386644b19d6ab4f5f16389884154efea2027ec35656214062b936e9",
-        "e82c82ac9b76b66c53ec220cccf0ab136ded27aac1a3cb17b72bd70e225a99c0",
-        "36eb7bda5f8e70efc69206aa4496f425d28557f7edb2e01a5d9b7e8528322412",
-        "c57965ea9bb50b4f8537eff451de663d0ae6b83ed406e99d9dacba7fc0a19848"
+        "7a6017b8c545c3ea6dfbb8f4a8bd6f2909be4a500c2f4977b4d37d9d62d16058",
+        "a2955dbc820ffd24aa88d847e363d6bf3dbad81be99d2a34c1b3a2d160736bfb",
+        "2fd99810ff3b8c85c93df3d5bfb3c3a60830f5213a637de784ca54326bc69655"
       ]
     },
     "spacr.qt.widgets.loading_screen.BlowAway": {
@@ -156442,7 +156438,7 @@
     },
     "spacr.qt.widgets.loading_screen.LoadingScreen": {
       "source_blocks_sha256": [
-        "f2f204bdacd46fadc46d60591eab68aebcee6262a4a71b261cab6abc0586343d",
+        "ce6bd0230d8d9c6451d89f42549da34961fe16fe4d5a57b7f8d427b3ca97158f",
         "9d0d992e12b6e5e79e85c2827c3390f0eb05da130f8bf3bc38b208ebff8ebc91",
         "619496b64201578f415641b518e6de423a288f3d7397fee3041d5abdd200c337",
         "ada9aa48a8ee85116a0fc4811d7f74c466533db848c615f9956704a4862f1b2a",
@@ -156451,10 +156447,10 @@
         "a81ecebeba3f16457722827ac2f7f382059d6171ff92c127ed705792c0ac5aa2",
         "6efd675df1a57f09d37c3ddb82543ffbbb103b217a3d0cda666761f18f99f44f"
       ],
-      "source_sha256": "1d965b9967f591349b138e79a49421d86f7d7527cd5563369b7913d264bc2172",
-      "text": "Couverture pleine fenêtre affichée jusqu’à ce que les modules du pipeline soient importés.\n\nPar défaut elle affiche la marque blanche à côté de la ligne d’accroche. Une fois :meth:`show_mosaic` appelée, elle affiche à la place la photomosaïque de spaCR au-dessus de la ligne d’accroche, et :meth:`blow_away` y met fin en soufflant les tuiles de la mosaïque hors de la fenêtre pour révéler la fenêtre en dessous.\n\n:param total: combien d’étapes seront signalées. Zéro ou négatif signifie \"unknown\", et les phases restent atténuées plutôt que de diviser par cette valeur.\n:param parent: la fenêtre qu’elle remplit. Elle est dimensionnée sur le parent et redimensionnée avec lui, plutôt que d’être une fenêtre de niveau supérieur séparée -- une seconde fenêtre aurait sa propre entrée dans la barre des tâches et pourrait être entraînée loin de ce qu’elle doit couvrir.\nConstruire l’écran d’accueil qui couvre la fenêtre pendant son assemblage.\n\nOpaque par construction : elle couvre une fenêtre à moitié construite, et toute transparence montrerait ce qu’elle existe pour cacher.\n\n:param total: jusqu’à combien d’étapes compte la barre de progression ; ``0`` n’affiche aucune proportion.\n:param parent: la fenêtre à couvrir ; sa géométrie est reprise.",
+      "source_sha256": "0807e66d934569840a2ccbaefc680a27d1382cadbdd43e7693d3db66870f20ac",
+      "text": "Couverture de chargement sur toute la fenêtre avec animation de photomosaïque facultative.\n\nPar défaut elle affiche la marque blanche à côté de la ligne d’accroche. Une fois :meth:`show_mosaic` appelée, elle affiche à la place la photomosaïque de spaCR au-dessus de la ligne d’accroche, et :meth:`blow_away` y met fin en soufflant les tuiles de la mosaïque hors de la fenêtre pour révéler la fenêtre en dessous.\n\n:param total: combien d’étapes seront signalées. Zéro ou négatif signifie \"unknown\", et les phases restent atténuées plutôt que de diviser par cette valeur.\n:param parent: la fenêtre qu’elle remplit. Elle est dimensionnée sur le parent et redimensionnée avec lui, plutôt que d’être une fenêtre de niveau supérieur séparée -- une seconde fenêtre aurait sa propre entrée dans la barre des tâches et pourrait être entraînée loin de ce qu’elle doit couvrir.\nConstruire l’écran d’accueil qui couvre la fenêtre pendant son assemblage.\n\nOpaque par construction : elle couvre une fenêtre à moitié construite, et toute transparence montrerait ce qu’elle existe pour cacher.\n\n:param total: jusqu’à combien d’étapes compte la barre de progression ; ``0`` n’affiche aucune proportion.\n:param parent: la fenêtre à couvrir ; sa géométrie est reprise.",
       "translation_source_blocks_sha256": [
-        "29b9e3edb2706230d69db8eeb56c8f1fa1d9caf170992e142d3c1dd6c2c59218",
+        "ce6bd0230d8d9c6451d89f42549da34961fe16fe4d5a57b7f8d427b3ca97158f",
         "d4ff49473441a5a3c33659ad0a6791ccd540d74c21b916a9f8095e96aa609b73",
         "619496b64201578f415641b518e6de423a288f3d7397fee3041d5abdd200c337",
         "ada9aa48a8ee85116a0fc4811d7f74c466533db848c615f9956704a4862f1b2a",
@@ -156702,17 +156698,33 @@
         "20fc474295a1f4667a38d7ac75060407b89ee3485cdfe8d592bf2325bbb6c156"
       ]
     },
+    "spacr.qt.widgets.loading_screen.replay_startup_animation": {
+      "source_blocks_sha256": [
+        "b3f3091c0f092a29eda04742a58c4e54a25c2d3861fb35815db9ff5eeebeb59e",
+        "cadcec354bb6efc8df952337831c882079280af0eee04248b29ea6ba3644446c",
+        "152efb5b5401382d36f20a888c053df26ef069aef9653fa0c92148cf28094c29",
+        "9e29f201cf930607d9e4c06d28289c973eed643fe6a3c71a71ff4561235c16b2"
+      ],
+      "source_sha256": "f9e2a1e4905f0f97a0f3148305ec630e850a47bb523c6374e170054e10a658a5",
+      "text": "Rejouer la séquence de démarrage dans ``window``.\n\nAide > Afficher l’animation de démarrage. Le conteneur noir portant le logo réapparaît par-dessus la fenêtre, reste deux secondes puis se disperse comme au démarrage. L’animation se joue même si Préférences > Apparence > Animation > Animation de démarrage est désactivé ; avec Préférences > Apparence > Accessibilité > Réduire les mouvements, le logo reste affiché puis disparaît par fondu en une seconde. Un clic ou une touche permet de passer l’animation. La taille, l’état et le focus clavier de la fenêtre sont conservés.\n\n:param window: la fenêtre dans laquelle la jouer.\n:returns: la couverture en cours de lecture, ou ``None`` quand le logo ne peut pas être lu ou qu’une couverture est déjà sur la fenêtre.",
+      "translation_source_blocks_sha256": [
+        "b3f3091c0f092a29eda04742a58c4e54a25c2d3861fb35815db9ff5eeebeb59e",
+        "cadcec354bb6efc8df952337831c882079280af0eee04248b29ea6ba3644446c",
+        "152efb5b5401382d36f20a888c053df26ef069aef9653fa0c92148cf28094c29",
+        "9e29f201cf930607d9e4c06d28289c973eed643fe6a3c71a71ff4561235c16b2"
+      ]
+    },
     "spacr.qt.widgets.loading_screen.startup_animation_allowed": {
       "source_blocks_sha256": [
         "6ee09ebe0b618dbedd2ec494ff82a33a88e4db8e0253153a95763686c820fc77",
-        "128acc75bee70055e4fd0dea159793a681b16d83dbaa5391bb41c7ed398ccc85",
+        "e3b3dfb79482cd5a8f9b03dab742ca292c1630b4a1e5254d7b637468b5d70280",
         "d87f9f300b8097a74bca9e3462dd053a4ae1df3e833ca223c8da944485aebae8"
       ],
-      "source_sha256": "b35789d2caef389c9ad17926c01fa3bc02ec4ef87a68a45d6fff29b695dee4fb",
-      "text": "Indique si la photomosaïque peut s’envoler quand la fenêtre est prête.\n\nNon quand :data:`NO_SPLASH_ENV` est défini, sur la plateforme offscreen, tant qu’Accessibilité > Réduire les animations est activé, ou quand Preferences > Animation > Animation de démarrage est désactivé. Une préférence illisible compte pour non : une couverture immobile est toujours sans risque.\n\n:returns: ``True`` quand l’envol doit se jouer.",
+      "source_sha256": "668216481cc0366123ce5abcbd0c0e6e152c4e0de5177235e284c4e0826a7231",
+      "text": "Indique si la photomosaïque peut s’envoler quand la fenêtre est prête.\n\nNon lorsque :data:`NO_SPLASH_ENV` est définie, sur la plateforme hors écran, lorsque Préférences > Apparence > Accessibilité > Réduire les mouvements est activé ou lorsque Préférences > Apparence > Animation > Animation de démarrage est désactivé. Une préférence illisible désactive l’animation.\n\n:returns: ``True`` quand l’envol doit se jouer.",
       "translation_source_blocks_sha256": [
         "6ee09ebe0b618dbedd2ec494ff82a33a88e4db8e0253153a95763686c820fc77",
-        "128acc75bee70055e4fd0dea159793a681b16d83dbaa5391bb41c7ed398ccc85",
+        "e3b3dfb79482cd5a8f9b03dab742ca292c1630b4a1e5254d7b637468b5d70280",
         "d87f9f300b8097a74bca9e3462dd053a4ae1df3e833ca223c8da944485aebae8"
       ]
     },
