@@ -1,5 +1,28 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-15 Home-B — active integration and source-owner dependencies
+
+F561 real training/application source and23-symbol API closure are integrated
+privately, with54UI sources plus one backend diagnostic in all nine locales.
+Normal nine-language runtime audit/fresh canonical and actual45GUI buttons,
+nine dialogs/486lookups pass; backend application refusal passes nine locales.
+Original owns the shared strict API test: exact19-helper fixture plus one
+nested Classifier.__init__ admission must be wired without raising historical
+13218 floor. Exact fixture is retained with combined API evidence; this is an
+active coordinated dependency, not a whole-item completion or full-CI claim.
+
+N655 WARNING: private418e custom ValueInterface crashes actual external AT-SPI
+GetState enumeration despite33 passing in-process tests. DO NOT publish/adopt
+that source. The owner is removing custom pointer/value-interface handling and
+will verify safe Grip/actions/value text. Prior peer82f is explicitly superseded.
+No unsafe source has been pushed by Home-B; final fallback remains pending.
+
+N689 actual CI probe38743415875 returnedHTTP403 with an existing token; all build
+and deploy jobs skipped as intended. Live permission/canonical variables/main
+routing remain open; no broad local credential copied. Portable Work patch is
+features/data/689_work_url_owner_packet_2026-10-15/proposal.patch, with both exact
+preimage/proposed hashes and instructions. Work should preserve newer source.
+
 ## 2026-10-15 — maintainer reporting and unattended work rule
 
 Use ONE progress-table row per whole numbered item. Combine every subtask under
