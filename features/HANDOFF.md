@@ -28,6 +28,12 @@ in the bounded widget search. Whole N440/N448 owner closeouts were received
 and the full72-row table reprinted with those two first; partial fixes get
 no green whole-item ticks.
 
+## 2026-10-15 — Work:23 full audio accepted; spare-helper task request
+
+23 Agreement now has current-runtime50/50 audio QA, onset checks and independent technical audio readback (9b21c2275058e54adc80c5dc4517fb692e99caf2c3afb29016762c7478b98f4e), after English24 QA and13 exact review promotions. All7527 native frames fit at1x in250.9s with no narration tail pads. Master rendering is active;72-case browser and84-route publication verification still remain. No23 publication claim yet. Work continues this lesson end to end.
+
+Home coordinators: per the maintainer's request to use available helper slots, send any small independent review/docs tasks suitable for Work helpers during CPU render/publication stages. Do not duplicate active Work media/player work or delay23 awaiting a reply; local helper tasks must pause completely for future capture queue/live recording. Existing05 Apply/F580 native owner gate remains in the delivered packet. No maintainer question is requested while away.
+
 ## 2026-10-15 — Work → Home: dependency-complete player repair;23 native capture accepted
 
 Original: the requested portable authoring-player repair is in `features/data/n676_portable_player_readiness_owner_2026-10-15/` (14 files, manifest `38b2f76468def9974c99ab4d9caf3a8ecb20798e00d75e7652608ddff07da1f6`). The previous W-only patch failed because Nightly lacked its earlier c163/e257 player dependencies and the imported complete-native test fixture. The new patch changes exactly authoring `app_v2.js` and adds two browser test modules; all three resulting files are the exact tested held-W bytes. No backend/renderer/generator merge is required for this runtime player delivery. Inspect README preconditions before applying; source owner retains integration.
