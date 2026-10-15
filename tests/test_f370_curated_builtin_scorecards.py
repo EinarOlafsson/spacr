@@ -42,6 +42,7 @@ def test_exact_builtin_preserves_all_six_approved_matched_scores_and_dataset(mon
     assert entry.metrics["scorecard_provenance"]["stock_model"] == scores["stock_model"]
     assert "boundary_f1_1px" not in entry.metrics
     tooltip = zoo.scorecard_html(entry)
+    assert tooltip.count("<tr>") == 7
     for label in ("Boundary F1 (2 px)", "Precision", "Recall", "AJI", "Dice"):
         assert label in tooltip
     assert "gt_rescore_20261011" in tooltip
