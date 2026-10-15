@@ -1,0 +1,1 @@
+- [Python  API início rápido](<../../source/python_api.rst>) — run and validate pipelines from scripts, notebooks or a cluster.

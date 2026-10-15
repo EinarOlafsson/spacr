@@ -4,7 +4,8 @@ from __future__ import annotations
 from PySide6.QtCore import (Property, QAbstractAnimation, QPropertyAnimation,
                             QRect, QSize, Qt)
 from PySide6.QtGui import QBrush, QColor, QMouseEvent, QPainter, QPen, QPicture
-from PySide6.QtWidgets import QCheckBox, QSizePolicy
+from PySide6.QtWidgets import (QCheckBox, QSizePolicy, QStyle,
+                                QStyleOptionFocusRect)
 
 from ..theme import _painting_palette
 
@@ -94,11 +95,18 @@ class Toggle(QCheckBox):
         if lent and self._look() != self._pictured:
             self._changing()
             lent = False
-        if lent and not self.text():
+        if lent and not self.text() and not self.hasFocus():
             return
         painter = QPainter(self)
         try:
             painter.setRenderHint(QPainter.Antialiasing, True)
+            if self.hasFocus():
+                option = QStyleOptionFocusRect()
+                option.initFrom(self)
+                self.style().drawPrimitive(QStyle.PE_Widget, option, painter, self)
+                option.rect = self.rect().adjusted(3, 3, -3, -3)
+                self.style().drawPrimitive(
+                    QStyle.PE_FrameFocusRect, option, painter, self)
             palette = _painting_palette()
             if not lent:
                 self._paint_switch(painter, palette)
@@ -287,7 +295,9 @@ class Toggle(QCheckBox):
             if self.isChecked()
             else self._minimum_knob_x()
         )
-        if not self.isVisible():
+        from ..preferences import get_reduce_motion
+
+        if not self.isVisible() or get_reduce_motion():
             self._anim.stop()
             self._set_knob_pos(end_x)
             return

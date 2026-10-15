@@ -1,0 +1,1 @@
+Os nove catálogos não ingleses são elaborados por máquina e tecnicamente revisados em vez de lidos de ponta a ponta por um falante nativo. Os registros [âmbito de revisão](<../../i18n/REVIEW_SCOPE_2026-09-04.md>) que as línguas tiveram um passe humano e todos os termos deixados em inglês por decisão.

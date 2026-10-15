@@ -16,6 +16,9 @@ import json
 from pathlib import Path
 import re
 import shutil
+import time
+from urllib.error import URLError
+from urllib.request import Request, urlopen
 
 
 MEDIA_ROOT = "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/"
@@ -171,6 +174,20 @@ def site_size(root: Path) -> int:
     return sum(path.stat().st_size for path in root.rglob("*") if path.is_file())
 
 
+def write_channel_receipt(output: Path, receipt: dict) -> dict:
+    """Record the complete site size, including the receipt being published."""
+    target = output / "channels.json"
+    content_size = site_size(output) - (target.stat().st_size if target.exists() else 0)
+    receipt["size_bytes"] = content_size
+    while True:
+        content = json.dumps(receipt, indent=2) + "\n"
+        total = content_size + len(content.encode("utf-8"))
+        if total == receipt["size_bytes"]:
+            target.write_text(content, encoding="utf-8")
+            return receipt
+        receipt["size_bytes"] = total
+
+
 def read_record(source: Path, branch: str) -> dict:
     record = json.loads((source / "publication.json").read_text())
     if record["branch"] != branch or not (source / "index.html").is_file():
@@ -237,13 +254,12 @@ def assemble_main(main: Path, output: Path, base_path: str = "/spacr",
     add_banner(output, channel_banner("main", f"{base}/", nightly_url))
     write_nightly_stub(output, base, nightly_url)
     (output / ".nojekyll").touch()
-    size = site_size(output)
-    if size > limit:
-        raise ValueError(f"Main Pages site is {size:,} bytes; budget is {limit:,}")
     receipt = {"schema": 2, "channels": {"main": record}, "nightly_url": nightly_url,
-               "size_bytes": size, "limit_bytes": limit,
+               "limit_bytes": limit,
                "media_files": len(list((output / "_media").glob("*")))}
-    (output / "channels.json").write_text(json.dumps(receipt, indent=2) + "\n")
+    write_channel_receipt(output, receipt)
+    if receipt["size_bytes"] > limit:
+        raise ValueError(f"Main Pages site is {receipt['size_bytes']:,} bytes; budget is {limit:,}")
     return receipt
 
 
@@ -308,25 +324,61 @@ def assemble_nightly(nightly: Path, output: Path, main_url: str = MAIN_URL,
     index_links = explicit_index_links(output)
     (output / "README.md").write_text(SPACE_README.format(main_url=main_url))
     receipt = {"schema": 2, "channels": {"nightly": record}, "nightly_url": nightly_url,
-               "size_bytes": site_size(output), "index_links": index_links,
+               "index_links": index_links,
                "media_files": len(list((output / "_media").glob("*")))}
-    (output / "channels.json").write_text(json.dumps(receipt, indent=2) + "\n")
-    return receipt
+    return write_channel_receipt(output, receipt)
 
 
 def upload_nightly(site: Path, space: str = NIGHTLY_SPACE) -> str:
-    """Replace the Space's files with ``site``; removed pages are deleted.
+    """Replace the Space's files in one commit; removed pages are deleted.
 
     The token comes from ``HF_TOKEN`` (CI secret) or the local login.
+    ``upload_folder`` may split uploads into commits in newer Hub clients,
+    leaving a mixed site if a later batch reaches the repository quota.
     """
-    from huggingface_hub import HfApi
+    from huggingface_hub import CommitOperationAdd, CommitOperationDelete, HfApi
     record = json.loads((site / "channels.json").read_text())["channels"]["nightly"]
     if not (site / "index.html").is_file() or not (site / "README.md").is_file():
         raise ValueError("Expected an assembled nightly site")
-    info = HfApi().upload_folder(
-        repo_id=space, repo_type="space", folder_path=site, delete_patterns=["*"],
+    api = HfApi()
+    parent = api.space_info(space).sha
+    remote = set(api.list_repo_files(space, repo_type="space", revision=parent))
+    local = {path.relative_to(site).as_posix(): path for path in site.rglob("*")
+             if path.is_file() and not {".git", ".cache"}.intersection(path.relative_to(site).parts)}
+    operations = [CommitOperationDelete(path_in_repo=path)
+                  for path in sorted(remote - local.keys() - {".gitattributes"})]
+    operations.extend(CommitOperationAdd(path_in_repo=path, path_or_fileobj=local[path])
+                      for path in sorted(local))
+    info = api.create_commit(
+        repo_id=space, repo_type="space", operations=operations, parent_commit=parent,
         commit_message=f"nightly docs {record['commit'][:12]}")
     return info.oid
+
+
+def verify_nightly(site: Path, url: str = NIGHTLY_URL, attempts: int = 30,
+                   interval: float = 10) -> str:
+    """Wait for the public site to serve this build's source and size receipt."""
+    if attempts < 1 or interval < 0:
+        raise ValueError("Expected at least one attempt and a nonnegative interval")
+    expected = json.loads((site / "channels.json").read_text())
+    record = expected["channels"]["nightly"]
+    last_error = "public receipt does not match the assembled site"
+    for attempt in range(attempts):
+        try:
+            received = {}
+            for name in ("publication.json", "channels.json"):
+                request = Request(url.rstrip("/") + "/" + name + "?source=" + record["commit"],
+                                  headers={"Cache-Control": "no-cache"})
+                with urlopen(request, timeout=15) as response:
+                    received[name] = json.load(response)
+            if received["publication.json"] == record and received["channels.json"] == expected:
+                return record["commit"]
+            last_error = "public receipt does not match the assembled site"
+        except (URLError, TimeoutError, ValueError) as error:
+            last_error = type(error).__name__
+        if attempt + 1 < attempts:
+            time.sleep(interval)
+    raise RuntimeError(f"Nightly deployment unverified for {record['commit']}: {last_error}")
 
 
 def main(argv=None) -> int:
@@ -356,6 +408,11 @@ def main(argv=None) -> int:
     upload = sub.add_parser("upload-nightly")
     upload.add_argument("--site", type=Path, required=True)
     upload.add_argument("--space", default=NIGHTLY_SPACE)
+    verify = sub.add_parser("verify-nightly")
+    verify.add_argument("--site", type=Path, required=True)
+    verify.add_argument("--url", default=NIGHTLY_URL)
+    verify.add_argument("--attempts", type=int, default=30)
+    verify.add_argument("--interval", type=float, default=10)
     args = parser.parse_args(argv)
     if args.command == "configure":
         # Load only the compatibility extension from the publisher's tools.
@@ -384,6 +441,8 @@ def main(argv=None) -> int:
     elif args.command == "assemble-nightly":
         print(json.dumps(assemble_nightly(args.nightly, args.output, args.main_url,
                                           args.nightly_url)))
+    elif args.command == "verify-nightly":
+        print(verify_nightly(args.site, args.url, args.attempts, args.interval))
     else:
         print(upload_nightly(args.site, args.space))
     return 0

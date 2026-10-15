@@ -140,6 +140,8 @@ let videoClockCorrectionPending = false;
 // narration is the master clock and must never wait for the picture.
 let videoCatchingUpToNarration = false;
 let nativeFrameSyncHandle = null;
+let completeNativeSceneIndex = null;
+let completeNativeNarrationWaiting = false;
 // A localized narration can outlast the silent visual master. The video stays
 // genuinely playing at a browser-safe minimum rate near its final frame so
 // native phone controls still offer a truthful Pause button while audio ends.
@@ -1113,6 +1115,8 @@ async function loadNarration(resume = true, outerCurrent = () => true) {
   narrationAudioAvailable = false;
   audioTimings = null;
   visualTimings = null;
+  completeNativeSceneIndex = null;
+  completeNativeNarrationWaiting = false;
   clearCaptions();
   if (elements.voice.value === "silent") {
     configureMediaSync();
@@ -1186,8 +1190,13 @@ function configureMediaSync() {
   seekNarrationToVideo();
 }
 
+function completeNativePlayback() {
+  return visualTimings?.complete_native_clips === true &&
+    visualTimings?.native_live_video === true;
+}
+
 function narrationOwnsCompletion() {
-  return narrationAudioAvailable && elements.voice.value !== "silent" &&
+  return !completeNativePlayback() && narrationAudioAvailable && elements.voice.value !== "silent" &&
     Number.isFinite(elements.audio.duration) && elements.audio.duration > 0 &&
     !elements.audio.ended;
 }
@@ -1253,6 +1262,11 @@ function parkVideoForNarration(force = false) {
 }
 
 function finishNarratedPlayback() {
+  if (completeNativePlayback()) {
+    completeNativeNarrationWaiting = true;
+    updateWatchUI();
+    return;
+  }
   if (narrationAudioAvailable && elements.voice.value !== "silent") {
     videoParkedForNarration = false;
     narratedPlaybackCompleted = true;
@@ -1343,7 +1357,7 @@ function updateSceneSyncRate(audioSeconds) {
   const referenceDuration = Number(reference.scene_end) - Number(reference.speech_start);
   const referenceTotal = timingDuration(visualTimings, elements.video.duration);
   if (selectedDuration <= 0 || referenceDuration <= 0 || referenceTotal <= 0) return;
-  syncRate = reference.native_live_video ? 1
+  syncRate = completeNativePlayback() || reference.native_live_video ? 1
     : elements.video.duration / referenceTotal * referenceDuration / selectedDuration;
   programmedVideoRate = clamp(syncRate, 0.0625, 16);
   elements.video.defaultPlaybackRate = programmedVideoRate;
@@ -1362,6 +1376,10 @@ function updateSceneSyncRate(audioSeconds) {
 // an explicit video seek or a load/resume boundary. Normal playback flows in
 // the other direction: stable narration time drives the silent video.
 function seekNarrationToVideo() {
+  if (completeNativePlayback()) {
+    syncCompleteNativeNarration(true);
+    return;
+  }
   if (videoParkedForNarration || !narrationAudioAvailable ||
       elements.voice.value === "silent" ||
       !elements.audio.duration || !elements.video.duration) return;
@@ -1384,7 +1402,47 @@ function narrationHoldApplies() {
     !videoParkedForNarration && !narratedPlaybackCompleted;
 }
 
+// Only newly verified complete-clip timelines use the picture as the clock.
+// Speech is never stretched. It rests after its actual speech boundary while
+// every remaining recorded frame plays, then starts at the next visual scene.
+function syncCompleteNativeNarration(seek = false) {
+  if (!completeNativePlayback() || !narrationAudioAvailable ||
+      elements.voice.value === "silent" || !elements.video.duration ||
+      !elements.audio.duration || !audioTimings) return;
+  const visualTime = elements.video.currentTime / elements.video.duration *
+    timingDuration(visualTimings, elements.video.duration);
+  const located = timingScene(visualTimings, visualTime);
+  const spoken = located && audioTimings.scenes?.[located.index];
+  if (!spoken) return;
+  const start = Number(spoken.speech_start) || 0;
+  const end = Number(spoken.speech_end);
+  if (!Number.isFinite(end) || end < start) return;
+  const changed = completeNativeSceneIndex !== located.index;
+  if (changed || seek) {
+    completeNativeSceneIndex = located.index;
+    const elapsed = Math.max(0, visualTime - Number(located.scene.speech_start));
+    const target = seek ? Math.min(start + elapsed, end) : start;
+    if (Math.abs(elements.audio.currentTime - target) > 0.015) {
+      elements.audio.currentTime = Math.min(target, elements.audio.duration);
+    }
+    completeNativeNarrationWaiting = target >= end;
+  } else if (elements.audio.currentTime >= end) {
+    completeNativeNarrationWaiting = true;
+  }
+  updateSceneSyncRate(start);
+  if (completeNativeNarrationWaiting || elements.video.paused ||
+      elements.video.ended || videoIsLoading()) {
+    if (!elements.audio.paused) elements.audio.pause();
+  } else if (elements.audio.paused && !elements.audio.ended) {
+    elements.audio.play().catch(() => showToast("Select play again to start narration."));
+  }
+}
+
 function updateNarrationHold() {
+  if (completeNativePlayback()) {
+    syncCompleteNativeNarration(false);
+    return;
+  }
   if (narrationHoldApplies() && videoIsLoading()) {
     // Also re-pause narration that another path started during the hold.
     narrationHeldForVideo = true;
@@ -1404,6 +1462,10 @@ function updateNarrationHold() {
 // narration is held instead (updateNarrationHold resumes it with the picture),
 // so no play() races a pause() and no false "select play again" appears.
 function playNarration() {
+  if (completeNativePlayback()) {
+    syncCompleteNativeNarration(false);
+    return Promise.resolve();
+  }
   if (narrationHoldApplies() && videoIsLoading()) {
     narrationHeldForVideo = true;
     return Promise.resolve();
@@ -1423,6 +1485,10 @@ function setVideoTimeFromNarration(target) {
 }
 
 function syncVideoToNarration(force = false) {
+  if (completeNativePlayback()) {
+    syncCompleteNativeNarration(false);
+    return;
+  }
   if (videoParkedForNarration || !narrationAudioAvailable ||
       elements.voice.value === "silent" ||
       !elements.audio.duration || !elements.video.duration) return;
@@ -1481,6 +1547,8 @@ async function loadLessonDetail(isCurrent = () => true) {
     if (!isCurrent()) return;
     audioTimings = timings;
     visualTimings = referenceTimings;
+    completeNativeSceneIndex = null;
+    completeNativeNarrationWaiting = false;
     configureMediaSync();
     startNativeFrameSync();
     rebuildChapterData();
@@ -1669,6 +1737,10 @@ function renderCaptions() {
   updateCaptionTrackMode();
 }
 
+function chapterDisplayTime(chapter) {
+  return completeNativePlayback() ? videoTimeFromAudio(chapter.start) : chapter.start;
+}
+
 function renderChapters() {
   elements.chapters.innerHTML = "";
   elements.chapters.lang = effectiveCaptionLanguage();
@@ -1677,7 +1749,7 @@ function renderChapters() {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "chapter-button";
-    button.innerHTML = `<span class="chapter-time">${formatTime(chapter.start)}</span><span class="chapter-copy"><strong>${escapeHTML(chapter.label)}</strong><small>${escapeHTML(truncate(chapter.text, 82))}</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>`;
+    button.innerHTML = `<span class="chapter-time">${formatTime(chapterDisplayTime(chapter))}</span><span class="chapter-copy"><strong>${escapeHTML(chapter.label)}</strong><small>${escapeHTML(truncate(chapter.text, 82))}</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>`;
     button.addEventListener("click", () => seekTo(chapter.start));
     elements.chapters.appendChild(button);
     if (chapter.related.length) elements.chapters.appendChild(makeRelatedLessons(chapter.related));
@@ -1687,7 +1759,7 @@ function renderChapters() {
 function renderTranscript() {
   elements.transcript.lang = effectiveCaptionLanguage();
   elements.transcript.dir = "auto";
-  elements.transcript.innerHTML = chapterData.map(chapter => `<div class="transcript-entry"><button type="button" data-seek="${chapter.start}">${formatTime(chapter.start)}</button><p>${escapeHTML(chapter.text)}</p></div>`).join("");
+  elements.transcript.innerHTML = chapterData.map(chapter => `<div class="transcript-entry"><button type="button" data-seek="${chapter.start}">${formatTime(chapterDisplayTime(chapter))}</button><p>${escapeHTML(chapter.text)}</p></div>`).join("");
   elements.transcript.querySelectorAll("[data-seek]").forEach(button => button.addEventListener("click", () => seekTo(Number(button.dataset.seek))));
   elements.transcript.querySelectorAll(".transcript-entry").forEach((entry, index) => {
     const related = chapterData[index].related;
@@ -1696,6 +1768,10 @@ function renderTranscript() {
 }
 
 function seekTo(audioSeconds) {
+  if (completeNativePlayback()) {
+    completeNativeSceneIndex = null;
+    completeNativeNarrationWaiting = false;
+  }
   if (narrationAudioAvailable && elements.audio.duration &&
       elements.voice.value !== "silent") {
     const bounded = Math.min(
@@ -1743,8 +1819,12 @@ function mediaClock() {
 
 function updateWatchUI() {
   const clock = mediaClock();
-  elements.watchTime.textContent = `${formatTime(clock.current)} / ${formatTime(clock.duration)}`;
-  elements.watchBar.style.width = `${Math.min(100, clock.ratio * 100)}%`;
+  const shownCurrent = completeNativePlayback() ? elements.video.currentTime : clock.current;
+  const shownDuration = completeNativePlayback() ? elements.video.duration : clock.duration;
+  elements.watchTime.textContent = `${formatTime(shownCurrent)} / ${formatTime(shownDuration)}`;
+  const shownRatio = completeNativePlayback() && elements.video.duration
+    ? elements.video.currentTime / elements.video.duration : clock.ratio;
+  elements.watchBar.style.width = `${Math.min(100, shownRatio * 100)}%`;
   const currentIndex = chapterData.findIndex((chapter, index) => clock.current >= chapter.start && (!chapterData[index + 1] || clock.current < chapterData[index + 1].start));
   elements.chapters.querySelectorAll(".chapter-button").forEach((button, index) => button.classList.toggle("current", index === currentIndex));
 }
@@ -2007,6 +2087,10 @@ elements.video.addEventListener("seeking", () => {
 elements.video.addEventListener("seeked", () => {
   if (videoClockCorrectionPending) {
     videoClockCorrectionPending = false;
+    if (completeNativePlayback()) {
+      syncCompleteNativeNarration(true);
+      return;
+    }
     // One correction per settled seek. A chapter jump made while it was in
     // flight is applied now; held narration cannot have moved meanwhile.
     syncVideoToNarration(false);

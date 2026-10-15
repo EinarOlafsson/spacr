@@ -1,0 +1,1 @@
+- [Metabolische Anpassungsfähigkeit und Nährstoffverschrottung in Toxoplasma gondii: Erkenntnisse aus ingestionsweg-defizienten Mutanten.](<https://journals.asm.org/doi/full/10.1128/msphere.01011-24>)

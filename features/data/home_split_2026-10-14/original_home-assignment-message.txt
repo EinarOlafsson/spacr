@@ -1,0 +1,15 @@
+MESSAGE TO ORIGINAL HOME
+
+You own exactly115 flagged non-tutorial records.
+
+ci dependencies performance reconciliation (18): N03, N07, N43, N47, N54, N60, N235, N259, F288, N294, N305, N308, N312, N328, N344, N351, N354, N641
+
+installer lifecycle cluster (18): N45, N158, N180, N190, N221, N234b, N324, N420, F586, N598, N643, N644, N646, N675, N693, N699, N702, N703
+
+imaging masks models assays data (79): N02, N18, N37, N69, N72, N76, N91, N94, N97, N114, N155, N186, N194, N231, N244, N307, N326, N337, N341, N345, N346, F370, N375, N379, N382, F404, N417, N418, N419, N421, F423, F424, N429, N439, N440, N441, N442, N443, N445, N448, N449, N463, N467, N468, F470, N482, N485, N498, N511, N517, N525, N526, F535, F536, F537, F538, F540, F542, F554, F556, F559, F560, F561, F562, F564, F567, F580, N593, N594, N596, N633, N639, N685, N690, N691, N692, N696, N697, N698
+
+Work only in private WD worktrees from current nightly; scratch on WD. Read AGENTS.md and CURRENT HANDOFF. This replaces the old six-item split. Tutorials/recordings/media belong exclusively to Work; N700 belongs exclusively to Claude. Read each file's current trailing notes before implementing: some records are stale, and historical milestones must not cause duplicate implementations. Ship one bounded change at a time with necessary owning checks, commit without AI trailers, then fetch/merge and normal-push origin HEAD:nightly. Never force-push. Do not stop at an unacknowledged handoff. After each completion print all scopes completed TODAY, newest first, with the five requested columns and green ticks. No invented percentages/time estimates or native/scientific acceptance. No protected GPU/jobs/data changes or paid/destructive hosting actions. All future implementations retain alpha registration/ObjectNames. Claim concrete source/test files before edits; request patches from the exclusive owner for shared dependencies.
+
+Prioritize remaining actual CI failures, Make Masks/N696/N697 source integration and source blockers for Work20/24/26; retain N699/N702 and N703. Home-B commits de6fbf1899 and subsequent receipts are now published: fetch before integration. Import Work43 coherent checkpoint through its verified recipe; coordinate this tutorial integration with Work.
+
+Single-owner boundaries: Original Home owns app.py, app_screen.py, run_journal.py, updater.py, restart_state.py, install_consent.py, registry/schema/settings definitions and general CI/release workflows. Home-B owns README/docs/site/publication code, catalog/translation tooling, preferences.py, theme.py, i18n.py, accessibility/shared widgets, regression/figure/gate/UMAP source. Respect existing in-progress Claude shared-file edits before starting; mixed items need owner-supplied patches. Work exclusively owns tutorial code/catalog/media. Each session may normal-push its completed changes after merging latest remote; no force pushes.

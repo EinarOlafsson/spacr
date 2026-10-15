@@ -1,0 +1,1 @@
+- [IRE1α promotes phagosomal calcium flux to enhance macrophage fungicidal activity.](<https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>)

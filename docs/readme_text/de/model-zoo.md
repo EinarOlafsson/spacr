@@ -1,0 +1,3 @@
+## Modellzoo
+
+spaCR liefert einen Katalog von ausgebildeten Modellen und holt sie auf Anfrage ab. Öffnen Sie <strong>Model Zoo</strong> vom Home-Bildschirm, um sie zu durchsuchen und zu installieren, oder benennen Sie einen Schlüssel in einer Einstellungsdatei -- ` pathogen_model: toxoplasma_pv_v1 ` -- und das Modell wird heruntergeladen und Checksummen-verifiziert, wenn es zum ersten Mal benötigt wird. Jeder veröffentlichte Eintrag trägt eine SHA-256; ein Eintrag ohne einen wird abgelehnt, anstatt installiert, weil ein verkürzter oder ersetzter Checkpoint nicht vom realen angezeigt werden kann.

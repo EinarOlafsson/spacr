@@ -1,0 +1,1 @@
+- [Python API Schnellstart](<../../source/python_api.rst>) — Pipelines aus Skripten, Notebooks oder einem Cluster ausführen und validieren.

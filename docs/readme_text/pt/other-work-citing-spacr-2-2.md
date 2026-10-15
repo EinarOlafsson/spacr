@@ -1,0 +1,1 @@
+- [O IRE1 promove o fluxo de cálcio fagossomal para aumentar a atividade fungicida dos macrófagos.](<https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>)

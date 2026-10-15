@@ -1,0 +1,675 @@
+[
+  {
+    "scope": "Reduced motion suppresses background/card/hint/More transitions",
+    "pass": true,
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "durations": {
+      "#fx": "0s",
+      ".fc-hint svg": "0s",
+      ".fc-morebtn svg": "0s",
+      ".fc-inner": "0s"
+    }
+  },
+  {
+    "scope": "Reduced motion: static background after interaction",
+    "pass": true,
+    "theme": "field",
+    "draws": 2
+  },
+  {
+    "scope": "Reduced motion: static background after interaction",
+    "pass": true,
+    "theme": "advection",
+    "draws": 4
+  },
+  {
+    "scope": "Reduced motion: static background after interaction",
+    "pass": true,
+    "theme": "field_phenomena",
+    "draws": 6
+  },
+  {
+    "scope": "Reduced motion: static background after interaction",
+    "pass": true,
+    "theme": "waves",
+    "draws": 8
+  },
+  {
+    "scope": "Reduced motion: static background after interaction",
+    "pass": true,
+    "theme": "blobs",
+    "draws": 10
+  },
+  {
+    "scope": "Reduced motion: static background after interaction",
+    "pass": true,
+    "theme": "stratified",
+    "draws": 12
+  },
+  {
+    "scope": "Reduced motion: static background after interaction",
+    "pass": true,
+    "theme": "growth",
+    "draws": 13
+  },
+  {
+    "scope": "Live system-preference changes remove transitions",
+    "pass": true
+  },
+  {
+    "scope": "Reduced-motion tutorial clips remain paused",
+    "pass": true
+  },
+  {
+    "scope": "Reduced-motion controls remain static with JavaScript disabled",
+    "pass": true
+  },
+  {
+    "scope": "WebGL-disabled CSS fallback and installation content",
+    "pass": true,
+    "colorScheme": "light"
+  },
+  {
+    "scope": "WebGL-disabled CSS fallback and installation content",
+    "pass": true,
+    "colorScheme": "dark"
+  },
+  {
+    "scope": "Cold mobile first view below1MB (software WebGL where present)",
+    "pass": true,
+    "origin": "http://127.0.0.1:8897",
+    "path": "/",
+    "transferredBytes": 247561,
+    "requests": [
+      {
+        "url": "http://127.0.0.1:8897/",
+        "status": 200,
+        "mime": "text/html",
+        "transferredBytes": 3235
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/css/site.css?v=48db19d7e8",
+        "status": 200,
+        "mime": "text/css",
+        "transferredBytes": 10055
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/fonts/open-sans-300.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 18303
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/fonts/open-sans-400.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 18407
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/fonts/open-sans-italic-300.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 19143
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/js/fx.js?v=48db19d7e8",
+        "status": 200,
+        "mime": "text/javascript",
+        "transferredBytes": 11682
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/img/spacr/spacr_logo_color_800.webp",
+        "status": 200,
+        "mime": "image/webp",
+        "transferredBytes": 162616
+      },
+      {
+        "url": "http://127.0.0.1:8897/favicon.svg",
+        "status": 200,
+        "mime": "image/svg+xml",
+        "transferredBytes": 402
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/js/fx/field.js?v=48db19d7e8",
+        "status": 200,
+        "mime": "text/javascript",
+        "transferredBytes": 3718
+      }
+    ],
+    "stylesheets": [
+      {
+        "url": "http://127.0.0.1:8897/assets/css/site.css?v=48db19d7e8",
+        "sha256": "f6ce82076ba0ef281c1d083724872c660230a48b6fc209fc6c750aa8abd2bf17"
+      }
+    ]
+  },
+  {
+    "scope": "Cold mobile first view below1MB (software WebGL where present)",
+    "pass": true,
+    "origin": "http://127.0.0.1:8897",
+    "path": "/projects/spacr/",
+    "transferredBytes": 392492,
+    "requests": [
+      {
+        "url": "http://127.0.0.1:8897/assets/img/spacr/spacr_logo_color_800.webp",
+        "status": 200,
+        "mime": "image/webp",
+        "transferredBytes": 162616
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/fonts/open-sans-300.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 18303
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/css/site.css?v=48db19d7e8",
+        "status": 200,
+        "mime": "text/css",
+        "transferredBytes": 10055
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/fonts/open-sans-400.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 18407
+      },
+      {
+        "url": "http://127.0.0.1:8897/projects/spacr/",
+        "status": 200,
+        "mime": "text/html",
+        "transferredBytes": 24401
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/js/volcano.js?v=48db19d7e8",
+        "status": 200,
+        "mime": "text/javascript",
+        "transferredBytes": 6253
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/js/fx.js?v=48db19d7e8",
+        "status": 200,
+        "mime": "text/javascript",
+        "transferredBytes": 11682
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/fonts/open-sans-italic-300.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 19143
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/img/spacr/overview-stack.light.webp",
+        "status": 200,
+        "mime": "image/webp",
+        "transferredBytes": 117512
+      },
+      {
+        "url": "http://127.0.0.1:8897/favicon.svg",
+        "status": 200,
+        "mime": "image/svg+xml",
+        "transferredBytes": 402
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/js/fx/field.js?v=48db19d7e8",
+        "status": 200,
+        "mime": "text/javascript",
+        "transferredBytes": 3718
+      }
+    ],
+    "stylesheets": [
+      {
+        "url": "http://127.0.0.1:8897/assets/css/site.css?v=48db19d7e8",
+        "sha256": "f6ce82076ba0ef281c1d083724872c660230a48b6fc209fc6c750aa8abd2bf17"
+      }
+    ]
+  },
+  {
+    "scope": "Cold mobile first view below1MB (software WebGL where present)",
+    "pass": true,
+    "origin": "http://127.0.0.1:8897",
+    "path": "/projects/parascape/",
+    "transferredBytes": 119295,
+    "requests": [
+      {
+        "url": "http://127.0.0.1:8897/projects/parascape/",
+        "status": 200,
+        "mime": "text/html",
+        "transferredBytes": 4612
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/img/parascape/map.light.webp",
+        "status": 200,
+        "mime": "image/webp",
+        "transferredBytes": 32973
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/css/site.css?v=48db19d7e8",
+        "status": 200,
+        "mime": "text/css",
+        "transferredBytes": 10055
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/fonts/open-sans-300.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 18303
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/fonts/open-sans-400.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 18407
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/fonts/open-sans-italic-300.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 19143
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/js/fx.js?v=48db19d7e8",
+        "status": 200,
+        "mime": "text/javascript",
+        "transferredBytes": 11682
+      },
+      {
+        "url": "http://127.0.0.1:8897/favicon.svg",
+        "status": 200,
+        "mime": "image/svg+xml",
+        "transferredBytes": 402
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/js/fx/field.js?v=48db19d7e8",
+        "status": 200,
+        "mime": "text/javascript",
+        "transferredBytes": 3718
+      }
+    ],
+    "stylesheets": [
+      {
+        "url": "http://127.0.0.1:8897/assets/css/site.css?v=48db19d7e8",
+        "sha256": "f6ce82076ba0ef281c1d083724872c660230a48b6fc209fc6c750aa8abd2bf17"
+      }
+    ]
+  },
+  {
+    "scope": "Cold mobile first view below1MB (software WebGL where present)",
+    "pass": true,
+    "origin": "http://127.0.0.1:8897",
+    "path": "/projects/timepose/",
+    "transferredBytes": 71814,
+    "requests": [
+      {
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgNTEyIj48IS0tIUZvbnQgQXdlc29tZSBGcmVlIDYuNS4yIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlL2ZyZWUgQ29weXJpZ2h0IDIwMjQgRm9udGljb25zLCBJbmMuLS0+PHBhdGggZD0iTTM4LjggNS4xQzI4LjQtMy4xIDEzLjMtMS4yIDUuMSA5LjJTLTEuMiAzNC43IDkuMiA0Mi45bDU5MiA0NjRjMTAuNCA4LjIgMjUuNSA2LjMgMzMuNy00LjFzNi4zLTI1LjUtNC4xLTMzLjdMNTI1LjYgMzg2LjdjMzkuNi00MC42IDY2LjQtODYuMSA3OS45LTExOC40YzMuMy03LjkgMy4zLTE2LjcgMC0yNC42Yy0xNC45LTM1LjctNDYuMi04Ny43LTkzLTEzMS4xQzQ2NS41IDY4LjggNDAwLjggMzIgMzIwIDMyYy02OC4yIDAtMTI1IDI2LjMtMTY5LjMgNjAuOEwzOC44IDUuMXpNMjIzLjEgMTQ5LjVDMjQ4LjYgMTI2LjIgMjgyLjcgMTEyIDMyMCAxMTJjNzkuNSAwIDE0NCA2NC41IDE0NCAxNDRjMCAyNC45LTYuMyA0OC4zLTE3LjQgNjguN0w0MDggMjk0LjVjOC40LTE5LjMgMTAuNi00MS40IDQuOC02My4zYy0xMS4xLTQxLjUtNDcuOC02OS40LTg4LjYtNzEuMWMtNS44LS4yLTkuMiA2LjEtNy40IDExLjdjMi4xIDYuNCAzLjMgMTMuMiAzLjMgMjAuM2MwIDEwLjItMi40IDE5LjgtNi42IDI4LjNsLTkwLjMtNzAuOHpNMzczIDM4OS45Yy0xNi40IDYuNS0zNC4zIDEwLjEtNTMgMTAuMWMtNzkuNSAwLTE0NC02NC41LTE0NC0xNDRjMC02LjkgLjUtMTMuNiAxLjQtMjAuMkw4My4xIDE2MS41QzYwLjMgMTkxLjIgNDQgMjIwLjggMzQuNSAyNDMuN2MtMy4zIDcuOS0zLjMgMTYuNyAwIDI0LjZjMTQuOSAzNS43IDQ2LjIgODcuNyA5MyAxMzEuMUMxNzQuNSA0NDMuMiAyMzkuMiA0ODAgMzIwIDQ4MGM0Ny44IDAgODkuOS0xMi45IDEyNi4yLTMyLjVMMzczIDM4OS45eiIvPjwvc3ZnPg==",
+        "status": 200,
+        "mime": "image/svg+xml",
+        "transferredBytes": 0
+      },
+      {
+        "url": "http://127.0.0.1:8897/projects/timepose/",
+        "status": 200,
+        "mime": "text/html",
+        "transferredBytes": 34702
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/fonts/open-sans-400.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 18407
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/fonts/open-sans-300.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 18303
+      },
+      {
+        "url": "http://127.0.0.1:8897/favicon.svg",
+        "status": 200,
+        "mime": "image/svg+xml",
+        "transferredBytes": 402
+      }
+    ],
+    "stylesheets": []
+  },
+  {
+    "scope": "Cold mobile first view below1MB (software WebGL where present)",
+    "pass": true,
+    "origin": "http://127.0.0.1:8897",
+    "path": "/projects/cellect/",
+    "transferredBytes": 63584,
+    "requests": [
+      {
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgNTEyIj48IS0tIUZvbnQgQXdlc29tZSBGcmVlIDYuNS4yIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlL2ZyZWUgQ29weXJpZ2h0IDIwMjQgRm9udGljb25zLCBJbmMuLS0+PHBhdGggZD0iTTM4LjggNS4xQzI4LjQtMy4xIDEzLjMtMS4yIDUuMSA5LjJTLTEuMiAzNC43IDkuMiA0Mi45bDU5MiA0NjRjMTAuNCA4LjIgMjUuNSA2LjMgMzMuNy00LjFzNi4zLTI1LjUtNC4xLTMzLjdMNTI1LjYgMzg2LjdjMzkuNi00MC42IDY2LjQtODYuMSA3OS45LTExOC40YzMuMy03LjkgMy4zLTE2LjcgMC0yNC42Yy0xNC45LTM1LjctNDYuMi04Ny43LTkzLTEzMS4xQzQ2NS41IDY4LjggNDAwLjggMzIgMzIwIDMyYy02OC4yIDAtMTI1IDI2LjMtMTY5LjMgNjAuOEwzOC44IDUuMXpNMjIzLjEgMTQ5LjVDMjQ4LjYgMTI2LjIgMjgyLjcgMTEyIDMyMCAxMTJjNzkuNSAwIDE0NCA2NC41IDE0NCAxNDRjMCAyNC45LTYuMyA0OC4zLTE3LjQgNjguN0w0MDggMjk0LjVjOC40LTE5LjMgMTAuNi00MS40IDQuOC02My4zYy0xMS4xLTQxLjUtNDcuOC02OS40LTg4LjYtNzEuMWMtNS44LS4yLTkuMiA2LjEtNy40IDExLjdjMi4xIDYuNCAzLjMgMTMuMiAzLjMgMjAuM2MwIDEwLjItMi40IDE5LjgtNi42IDI4LjNsLTkwLjMtNzAuOHpNMzczIDM4OS45Yy0xNi40IDYuNS0zNC4zIDEwLjEtNTMgMTAuMWMtNzkuNSAwLTE0NC02NC41LTE0NC0xNDRjMC02LjkgLjUtMTMuNiAxLjQtMjAuMkw4My4xIDE2MS41QzYwLjMgMTkxLjIgNDQgMjIwLjggMzQuNSAyNDMuN2MtMy4zIDcuOS0zLjMgMTYuNyAwIDI0LjZjMTQuOSAzNS43IDQ2LjIgODcuNyA5MyAxMzEuMUMxNzQuNSA0NDMuMiAyMzkuMiA0ODAgMzIwIDQ4MGM0Ny44IDAgODkuOS0xMi45IDEyNi4yLTMyLjVMMzczIDM4OS45eiIvPjwvc3ZnPg==",
+        "status": 200,
+        "mime": "image/svg+xml",
+        "transferredBytes": 0
+      },
+      {
+        "url": "http://127.0.0.1:8897/projects/cellect/",
+        "status": 200,
+        "mime": "text/html",
+        "transferredBytes": 26472
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/fonts/open-sans-300.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 18303
+      },
+      {
+        "url": "http://127.0.0.1:8897/assets/fonts/open-sans-400.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 18407
+      },
+      {
+        "url": "http://127.0.0.1:8897/favicon.svg",
+        "status": 200,
+        "mime": "image/svg+xml",
+        "transferredBytes": 402
+      }
+    ],
+    "stylesheets": []
+  },
+  {
+    "scope": "Cold mobile first view below1MB (software WebGL where present)",
+    "pass": true,
+    "origin": "https://einarolafsson.github.io",
+    "path": "/",
+    "transferredBytes": 248322,
+    "requests": [
+      {
+        "url": "https://einarolafsson.github.io/",
+        "status": 200,
+        "mime": "text/html",
+        "transferredBytes": 3430
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/js/fx.js?v=e96c4a36f9",
+        "status": 200,
+        "mime": "application/javascript",
+        "transferredBytes": 11716
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/fonts/open-sans-400.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 18390
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/fonts/open-sans-300.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 18287
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/css/site.css?v=e96c4a36f9",
+        "status": 200,
+        "mime": "text/css",
+        "transferredBytes": 10405
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/fonts/open-sans-italic-300.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 19132
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/img/spacr/spacr_logo_color_800.webp",
+        "status": 200,
+        "mime": "image/webp",
+        "transferredBytes": 162673
+      },
+      {
+        "url": "https://einarolafsson.github.io/favicon.svg",
+        "status": 200,
+        "mime": "image/svg+xml",
+        "transferredBytes": 407
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/js/fx/field.js?v=e96c4a36f9",
+        "status": 200,
+        "mime": "application/javascript",
+        "transferredBytes": 3882
+      }
+    ],
+    "stylesheets": [
+      {
+        "url": "https://einarolafsson.github.io/assets/css/site.css?v=e96c4a36f9",
+        "sha256": "2ae946adf4f02892eff0dbc9ce0fe8526dd703732b8a64ad56b83d405ac5eb0e"
+      }
+    ]
+  },
+  {
+    "scope": "Cold mobile first view below1MB (software WebGL where present)",
+    "pass": true,
+    "origin": "https://einarolafsson.github.io",
+    "path": "/projects/spacr/",
+    "transferredBytes": 394015,
+    "requests": [
+      {
+        "url": "https://einarolafsson.github.io/projects/spacr/",
+        "status": 200,
+        "mime": "text/html",
+        "transferredBytes": 25130
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/css/site.css?v=e96c4a36f9",
+        "status": 200,
+        "mime": "text/css",
+        "transferredBytes": 10199
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/fonts/open-sans-300.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 18338
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/fonts/open-sans-400.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 18532
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/img/spacr/spacr_logo_color_800.webp",
+        "status": 200,
+        "mime": "image/webp",
+        "transferredBytes": 162686
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/img/spacr/overview-stack.light.webp",
+        "status": 200,
+        "mime": "image/webp",
+        "transferredBytes": 117563
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/fonts/open-sans-italic-300.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 19178
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/js/fx.js?v=e96c4a36f9",
+        "status": 200,
+        "mime": "application/javascript",
+        "transferredBytes": 11766
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/js/volcano.js?v=e96c4a36f9",
+        "status": 200,
+        "mime": "application/javascript",
+        "transferredBytes": 6386
+      },
+      {
+        "url": "https://einarolafsson.github.io/favicon.svg",
+        "status": 200,
+        "mime": "image/svg+xml",
+        "transferredBytes": 548
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/js/fx/field.js?v=e96c4a36f9",
+        "status": 200,
+        "mime": "application/javascript",
+        "transferredBytes": 3689
+      }
+    ],
+    "stylesheets": [
+      {
+        "url": "https://einarolafsson.github.io/assets/css/site.css?v=e96c4a36f9",
+        "sha256": "2ae946adf4f02892eff0dbc9ce0fe8526dd703732b8a64ad56b83d405ac5eb0e"
+      }
+    ]
+  },
+  {
+    "scope": "Cold mobile first view below1MB (software WebGL where present)",
+    "pass": true,
+    "origin": "https://einarolafsson.github.io",
+    "path": "/projects/parascape/",
+    "transferredBytes": 120061,
+    "requests": [
+      {
+        "url": "https://einarolafsson.github.io/projects/parascape/",
+        "status": 200,
+        "mime": "text/html",
+        "transferredBytes": 4820
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/fonts/open-sans-400.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 18442
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/fonts/open-sans-300.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 18277
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/css/site.css?v=e96c4a36f9",
+        "status": 200,
+        "mime": "text/css",
+        "transferredBytes": 10355
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/img/parascape/map.light.webp",
+        "status": 200,
+        "mime": "image/webp",
+        "transferredBytes": 33028
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/fonts/open-sans-italic-300.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 19316
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/js/fx.js?v=e96c4a36f9",
+        "status": 200,
+        "mime": "application/javascript",
+        "transferredBytes": 11712
+      },
+      {
+        "url": "https://einarolafsson.github.io/favicon.svg",
+        "status": 200,
+        "mime": "image/svg+xml",
+        "transferredBytes": 433
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/js/fx/field.js?v=e96c4a36f9",
+        "status": 200,
+        "mime": "application/javascript",
+        "transferredBytes": 3678
+      }
+    ],
+    "stylesheets": [
+      {
+        "url": "https://einarolafsson.github.io/assets/css/site.css?v=e96c4a36f9",
+        "sha256": "2ae946adf4f02892eff0dbc9ce0fe8526dd703732b8a64ad56b83d405ac5eb0e"
+      }
+    ]
+  },
+  {
+    "scope": "Cold mobile first view below1MB (software WebGL where present)",
+    "pass": true,
+    "origin": "https://einarolafsson.github.io",
+    "path": "/projects/timepose/",
+    "transferredBytes": 72309,
+    "requests": [
+      {
+        "url": "https://einarolafsson.github.io/projects/timepose/",
+        "status": 200,
+        "mime": "text/html",
+        "transferredBytes": 35043
+      },
+      {
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgNTEyIj48IS0tIUZvbnQgQXdlc29tZSBGcmVlIDYuNS4yIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlL2ZyZWUgQ29weXJpZ2h0IDIwMjQgRm9udGljb25zLCBJbmMuLS0+PHBhdGggZD0iTTM4LjggNS4xQzI4LjQtMy4xIDEzLjMtMS4yIDUuMSA5LjJTLTEuMiAzNC43IDkuMiA0Mi45bDU5MiA0NjRjMTAuNCA4LjIgMjUuNSA2LjMgMzMuNy00LjFzNi4zLTI1LjUtNC4xLTMzLjdMNTI1LjYgMzg2LjdjMzkuNi00MC42IDY2LjQtODYuMSA3OS45LTExOC40YzMuMy03LjkgMy4zLTE2LjcgMC0yNC42Yy0xNC45LTM1LjctNDYuMi04Ny43LTkzLTEzMS4xQzQ2NS41IDY4LjggNDAwLjggMzIgMzIwIDMyYy02OC4yIDAtMTI1IDI2LjMtMTY5LjMgNjAuOEwzOC44IDUuMXpNMjIzLjEgMTQ5LjVDMjQ4LjYgMTI2LjIgMjgyLjcgMTEyIDMyMCAxMTJjNzkuNSAwIDE0NCA2NC41IDE0NCAxNDRjMCAyNC45LTYuMyA0OC4zLTE3LjQgNjguN0w0MDggMjk0LjVjOC40LTE5LjMgMTAuNi00MS40IDQuOC02My4zYy0xMS4xLTQxLjUtNDcuOC02OS40LTg4LjYtNzEuMWMtNS44LS4yLTkuMiA2LjEtNy40IDExLjdjMi4xIDYuNCAzLjMgMTMuMiAzLjMgMjAuM2MwIDEwLjItMi40IDE5LjgtNi42IDI4LjNsLTkwLjMtNzAuOHpNMzczIDM4OS45Yy0xNi40IDYuNS0zNC4zIDEwLjEtNTMgMTAuMWMtNzkuNSAwLTE0NC02NC41LTE0NC0xNDRjMC02LjkgLjUtMTMuNiAxLjQtMjAuMkw4My4xIDE2MS41QzYwLjMgMTkxLjIgNDQgMjIwLjggMzQuNSAyNDMuN2MtMy4zIDcuOS0zLjMgMTYuNyAwIDI0LjZjMTQuOSAzNS43IDQ2LjIgODcuNyA5MyAxMzEuMUMxNzQuNSA0NDMuMiAyMzkuMiA0ODAgMzIwIDQ4MGM0Ny44IDAgODkuOS0xMi45IDEyNi4yLTMyLjVMMzczIDM4OS45eiIvPjwvc3ZnPg==",
+        "status": 200,
+        "mime": "image/svg+xml",
+        "transferredBytes": 0
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/fonts/open-sans-400.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 18427
+      },
+      {
+        "url": "https://einarolafsson.github.io/favicon.svg",
+        "status": 200,
+        "mime": "image/svg+xml",
+        "transferredBytes": 396
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/fonts/open-sans-300.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 18443
+      }
+    ],
+    "stylesheets": []
+  },
+  {
+    "scope": "Cold mobile first view below1MB (software WebGL where present)",
+    "pass": true,
+    "origin": "https://einarolafsson.github.io",
+    "path": "/projects/cellect/",
+    "transferredBytes": 64131,
+    "requests": [
+      {
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgNTEyIj48IS0tIUZvbnQgQXdlc29tZSBGcmVlIDYuNS4yIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlL2ZyZWUgQ29weXJpZ2h0IDIwMjQgRm9udGljb25zLCBJbmMuLS0+PHBhdGggZD0iTTM4LjggNS4xQzI4LjQtMy4xIDEzLjMtMS4yIDUuMSA5LjJTLTEuMiAzNC43IDkuMiA0Mi45bDU5MiA0NjRjMTAuNCA4LjIgMjUuNSA2LjMgMzMuNy00LjFzNi4zLTI1LjUtNC4xLTMzLjdMNTI1LjYgMzg2LjdjMzkuNi00MC42IDY2LjQtODYuMSA3OS45LTExOC40YzMuMy03LjkgMy4zLTE2LjcgMC0yNC42Yy0xNC45LTM1LjctNDYuMi04Ny43LTkzLTEzMS4xQzQ2NS41IDY4LjggNDAwLjggMzIgMzIwIDMyYy02OC4yIDAtMTI1IDI2LjMtMTY5LjMgNjAuOEwzOC44IDUuMXpNMjIzLjEgMTQ5LjVDMjQ4LjYgMTI2LjIgMjgyLjcgMTEyIDMyMCAxMTJjNzkuNSAwIDE0NCA2NC41IDE0NCAxNDRjMCAyNC45LTYuMyA0OC4zLTE3LjQgNjguN0w0MDggMjk0LjVjOC40LTE5LjMgMTAuNi00MS40IDQuOC02My4zYy0xMS4xLTQxLjUtNDcuOC02OS40LTg4LjYtNzEuMWMtNS44LS4yLTkuMiA2LjEtNy40IDExLjdjMi4xIDYuNCAzLjMgMTMuMiAzLjMgMjAuM2MwIDEwLjItMi40IDE5LjgtNi42IDI4LjNsLTkwLjMtNzAuOHpNMzczIDM4OS45Yy0xNi40IDYuNS0zNC4zIDEwLjEtNTMgMTAuMWMtNzkuNSAwLTE0NC02NC41LTE0NC0xNDRjMC02LjkgLjUtMTMuNiAxLjQtMjAuMkw4My4xIDE2MS41QzYwLjMgMTkxLjIgNDQgMjIwLjggMzQuNSAyNDMuN2MtMy4zIDcuOS0zLjMgMTYuNyAwIDI0LjZjMTQuOSAzNS43IDQ2LjIgODcuNyA5MyAxMzEuMUMxNzQuNSA0NDMuMiAyMzkuMiA0ODAgMzIwIDQ4MGM0Ny44IDAgODkuOS0xMi45IDEyNi4yLTMyLjVMMzczIDM4OS45eiIvPjwvc3ZnPg==",
+        "status": 200,
+        "mime": "image/svg+xml",
+        "transferredBytes": 0
+      },
+      {
+        "url": "https://einarolafsson.github.io/projects/cellect/",
+        "status": 200,
+        "mime": "text/html",
+        "transferredBytes": 26863
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/fonts/open-sans-400.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 18429
+      },
+      {
+        "url": "https://einarolafsson.github.io/assets/fonts/open-sans-300.woff2",
+        "status": 200,
+        "mime": "font/woff2",
+        "transferredBytes": 18276
+      },
+      {
+        "url": "https://einarolafsson.github.io/favicon.svg",
+        "status": 200,
+        "mime": "image/svg+xml",
+        "transferredBytes": 563
+      }
+    ],
+    "stylesheets": []
+  }
+]

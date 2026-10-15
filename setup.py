@@ -243,6 +243,8 @@ setup(
             'tomli>=2.0; python_version < "3.11"',
             'hypothesis>=6.100,<7',
             'docutils>=0.20.1,<0.24',
+            'markdown-it-py>=2.2,<5',
+            'readme-renderer>=43,<45',
             'pyarrow>=14.0.2,<26',
             'ruff>=0.9,<1',
             'mypy>=1.11,<2',

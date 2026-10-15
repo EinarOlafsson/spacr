@@ -1,0 +1,1 @@
+- [Guía de idioma y traducción](<../../source/localization.rst>) — lenguajes de interfaz, ayuda contextual y política de salida científica.

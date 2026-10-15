@@ -1,0 +1,1 @@
+- [Heilluð API reference](<https://einarolafsson.github.io/spacr/api/index.html>) — stuðlað innfangspunktur eftir verkefni, með fullkomna mótum tengslum einn hærra.

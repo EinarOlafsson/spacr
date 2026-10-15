@@ -1,0 +1,1 @@
+## Ákvarðanir gögnum og uppsetningu

@@ -1,0 +1,358 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-10-15T00:18:32.384810+00:00",
+  "scope": "Independent bounded local receipt/source/reference review before root publication commit/push; no media rehash/decode, app/browser/test execution or network.",
+  "status": "pass",
+  "checks": [
+    {
+      "check": "Exact manifest matches upload receipt",
+      "passed": true
+    },
+    {
+      "check": "Actual local HF readback receipt all5180 matched",
+      "passed": true
+    },
+    {
+      "check": "329s full-native timing14refs12unique/rate1",
+      "passed": true
+    },
+    {
+      "check": "Timing small-file hash matches manifest",
+      "passed": true
+    },
+    {
+      "check": "Manifest master reference equals actual previously sampled329s master binding",
+      "passed": true
+    },
+    {
+      "check": "Actual completed web rendition receipt9870frames and manifest reference",
+      "passed": true
+    },
+    {
+      "check": "Candidate player exactad6 source and published-tree copy",
+      "passed": true
+    },
+    {
+      "check": "All14catalogs non43 objects exactly baseline04 unchanged",
+      "passed": true
+    },
+    {
+      "check": "Generated JS all83non43 objects exactly unchanged",
+      "passed": true
+    },
+    {
+      "check": "43generated50voices8cohorts and exacttiming/master/web routes",
+      "passed": true
+    },
+    {
+      "check": "Prepared Pages index points exact HF revision and verifiedtag",
+      "passed": true
+    },
+    {
+      "check": "Working and index app/human_input/hostadapter match captureda5dc",
+      "passed": true
+    },
+    {
+      "check": "Existing candidate84case receipt passed and bound exactmanifest",
+      "passed": true
+    }
+  ],
+  "candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/release-candidate-append-6o9a_hxy",
+  "manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/release-candidate-append-6o9a_hxy/release-manifest.json",
+    "sha256": "409b94d52a74ae00422a57519169f4ba47fea3aa727e88b65407fff0e8c2aeec",
+    "bytes": 1144828
+  },
+  "publication_receipt_snapshot": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/release-candidate-append-6o9a_hxy/publication-receipt.json",
+    "sha256": "42a57729e7564a08cb0091f3faacbeb9c92410ed146cfdb726f645433a8d2052",
+    "bytes": 149705
+  },
+  "HF_receipt_claims": {
+    "commit": "2cae1e4c0c5a2525d04e7e733485f4f8fa135c73",
+    "tag": "n676-gnome43-r34-20261014-verified",
+    "files": 5180,
+    "bytes": 7629074648,
+    "review": "Local root-produced readback receipt only; this peer did not repeat remote requests."
+  },
+  "timing": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/release-candidate-append-6o9a_hxy/media_host/43_illumination/video/native-live-timings.json",
+    "sha256": "1e10f2f8dc2385cad33db9cce115a6e76eb32752c95c414c6c11779f15903c7e",
+    "bytes": 28642
+  },
+  "player": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/release-candidate-append-6o9a_hxy/web/app_v2.js",
+    "sha256": "ad6d9e72c071ebccdce74ce569d5e1ad06b0e05487000d4230048c565e54d485",
+    "bytes": 98851
+  },
+  "master_and_web_bindings_from_manifest_only": [
+    {
+      "path": "media_host/43_illumination/video/43_illumination_silent.mp4",
+      "sha256": "ae0757eb75453bd10db3116086e85495ae4a0d3d14bb89ec4ccabaeb20e8f0f5",
+      "bytes": 187888259
+    },
+    {
+      "path": "media_host/43_illumination/web/43_illumination_silent.mp4",
+      "sha256": "757fd44007fecb700d758fef409344e19186604c0ea10b06793428ea0bf9ccbb",
+      "bytes": 38681624
+    }
+  ],
+  "rendition_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/web-renditions/43_illumination/rendition-checks.json",
+    "sha256": "351df1ed01e62c4193f28b6bcd15d9864dd09c1b8b98960d0a7c4862e0d74bf0",
+    "bytes": 1022
+  },
+  "sampled_master_review": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson43-r34/complete-master-review.json",
+    "sha256": "8e79c5fb0ea4adf7457882589586a30a06e8de9a4918f1a7c2a719ad2cdc6003",
+    "bytes": 4018
+  },
+  "baseline_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i/release-manifest.json",
+    "sha256": "8dd2e98facc69ea62721498db0b3b30f9b38c760b9d7bd65fa36795c850e8660",
+    "bytes": 1136143
+  },
+  "catalog_comparisons": [
+    {
+      "catalog": "captions_da.json",
+      "non43_objects_compared": 83,
+      "different_ids": [],
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/release-candidate-append-6o9a_hxy/web/catalog/captions_da.json",
+        "sha256": "abd06e7565ce99303c62b74d328493481ab8087c84c07f0c30ec79b582338caf",
+        "bytes": 695896
+      },
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i/web/catalog/captions_da.json",
+        "sha256": "ab17540f28d6f1c376920e55e1a19714eb02f317fb52d6b3f5e72bf62f868e41",
+        "bytes": 695390
+      }
+    },
+    {
+      "catalog": "captions_de.json",
+      "non43_objects_compared": 83,
+      "different_ids": [],
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/release-candidate-append-6o9a_hxy/web/catalog/captions_de.json",
+        "sha256": "f4545093f64345e2881f90abfce05d44f031703b71cdd694cd148f54ebc37867",
+        "bytes": 742875
+      },
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i/web/catalog/captions_de.json",
+        "sha256": "3fc81b91987098a7cfbb26d4d56afec39d3b0aba3dba20e38e49c0f6f56d081b",
+        "bytes": 742369
+      }
+    },
+    {
+      "catalog": "captions_is.json",
+      "non43_objects_compared": 83,
+      "different_ids": [],
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/release-candidate-append-6o9a_hxy/web/catalog/captions_is.json",
+        "sha256": "c3bad2a7c36f818409d0a5f63e701aa74ce006ca0cfb6c938841b4e3e9cfe8dc",
+        "bytes": 700654
+      },
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i/web/catalog/captions_is.json",
+        "sha256": "b47c415273da2d12220c7dc7379f7941ca3b59737fc35d652accaf929590f403",
+        "bytes": 700148
+      }
+    },
+    {
+      "catalog": "captions_ko.json",
+      "non43_objects_compared": 83,
+      "different_ids": [],
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/release-candidate-append-6o9a_hxy/web/catalog/captions_ko.json",
+        "sha256": "c8688afb068b0c1798aac645fe8f4f9e509f59d676420b2ad6763824c4a39663",
+        "bytes": 737322
+      },
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i/web/catalog/captions_ko.json",
+        "sha256": "064b443d1c1b69e02b2987ec91c362a9d7df440762e3e647772f772f58afcc7f",
+        "bytes": 736819
+      }
+    },
+    {
+      "catalog": "captions_nb.json",
+      "non43_objects_compared": 83,
+      "different_ids": [],
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/release-candidate-append-6o9a_hxy/web/catalog/captions_nb.json",
+        "sha256": "c025193e0c9c5b775688280c90e0410c28559def0ca23b1ff42a3a55e0c686d3",
+        "bytes": 691736
+      },
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i/web/catalog/captions_nb.json",
+        "sha256": "e07f2ee9ebc6a40b0b0bcd64fdab6a14f966529fd961336ca74be0fd6b63fd1d",
+        "bytes": 691230
+      }
+    },
+    {
+      "catalog": "captions_sv.json",
+      "non43_objects_compared": 83,
+      "different_ids": [],
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/release-candidate-append-6o9a_hxy/web/catalog/captions_sv.json",
+        "sha256": "0dcba015ba8dbb890a42bc119d83ad26634e7a050e24432c2e611fad88d75467",
+        "bytes": 700636
+      },
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i/web/catalog/captions_sv.json",
+        "sha256": "c495044d645bf13f9cae76500540ceae32ee26f87955eb861dd0eaea8cb57e35",
+        "bytes": 700130
+      }
+    },
+    {
+      "catalog": "lessons_en.json",
+      "non43_objects_compared": 83,
+      "different_ids": [],
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/release-candidate-append-6o9a_hxy/web/catalog/lessons_en.json",
+        "sha256": "23b238188465cd1c47c71f483f7c0f4ee33e4a1914c1fdfe92f1fe0cfc3df40c",
+        "bytes": 672863
+      },
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i/web/catalog/lessons_en.json",
+        "sha256": "3c95ea72d68484628391d5e76c0b512eb2a59e585f7f30c8b8aa1fe163e3b05a",
+        "bytes": 672357
+      }
+    },
+    {
+      "catalog": "lessons_es.json",
+      "non43_objects_compared": 83,
+      "different_ids": [],
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/release-candidate-append-6o9a_hxy/web/catalog/lessons_es.json",
+        "sha256": "64ba46a0a2aecd4f4c92fcb9676884ca7fd914c443796842883276029861d215",
+        "bytes": 1103398
+      },
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i/web/catalog/lessons_es.json",
+        "sha256": "99a11cbca990796b653fe819627ada01c0af1d97353fcd9956b35737a528c722",
+        "bytes": 1102892
+      }
+    },
+    {
+      "catalog": "lessons_fr.json",
+      "non43_objects_compared": 83,
+      "different_ids": [],
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/release-candidate-append-6o9a_hxy/web/catalog/lessons_fr.json",
+        "sha256": "7f53a715d7265e976b965eb0db7d803c34b56f4c9c55381da0d8f7887b3cf82f",
+        "bytes": 1147162
+      },
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i/web/catalog/lessons_fr.json",
+        "sha256": "f865a537220196ea0bc457bbfffa047ec441043aec602d30ae4086b98c742b37",
+        "bytes": 1146656
+      }
+    },
+    {
+      "catalog": "lessons_hi.json",
+      "non43_objects_compared": 83,
+      "different_ids": [],
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/release-candidate-append-6o9a_hxy/web/catalog/lessons_hi.json",
+        "sha256": "027baa5f400ee22b13a1f73b98aa804382fd63fbbbabfd0be6aa2db51e840e9f",
+        "bytes": 1831887
+      },
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i/web/catalog/lessons_hi.json",
+        "sha256": "135cb883bcb867b73407ac9fb023ebac93711f7df58e57d597a645cdaa49ccfa",
+        "bytes": 1831381
+      }
+    },
+    {
+      "catalog": "lessons_it.json",
+      "non43_objects_compared": 83,
+      "different_ids": [],
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/release-candidate-append-6o9a_hxy/web/catalog/lessons_it.json",
+        "sha256": "e79aff3b4029fbede9a06d86428e7081b25fb1fd4a3b521ffd46ca577c333219",
+        "bytes": 1092039
+      },
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i/web/catalog/lessons_it.json",
+        "sha256": "ac20a841339be533b7692c828830a0abb143bc484dbd6c5e4cee6d88fb13aca5",
+        "bytes": 1091533
+      }
+    },
+    {
+      "catalog": "lessons_ja.json",
+      "non43_objects_compared": 83,
+      "different_ids": [],
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/release-candidate-append-6o9a_hxy/web/catalog/lessons_ja.json",
+        "sha256": "87996adc95054111c0f73fd9be1fafe4ef20017f443558c853ece0906f1478d6",
+        "bytes": 1221648
+      },
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i/web/catalog/lessons_ja.json",
+        "sha256": "6b75891ec46b47dde8eab492e4280586ee39e434a4f4f2d090a2ad4ac552e072",
+        "bytes": 1221142
+      }
+    },
+    {
+      "catalog": "lessons_pt-BR.json",
+      "non43_objects_compared": 83,
+      "different_ids": [],
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/release-candidate-append-6o9a_hxy/web/catalog/lessons_pt-BR.json",
+        "sha256": "0b3937a83b408d51fb4de1d95694c194f7555acda15180bd2cf1f8e5e4deeb22",
+        "bytes": 1086200
+      },
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i/web/catalog/lessons_pt-BR.json",
+        "sha256": "3acaa504be9b1ee8655c22871adef9678e2066c9a5722040b215b9edf4eec3c6",
+        "bytes": 1085694
+      }
+    },
+    {
+      "catalog": "lessons_zh-CN.json",
+      "non43_objects_compared": 83,
+      "different_ids": [],
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/release-candidate-append-6o9a_hxy/web/catalog/lessons_zh-CN.json",
+        "sha256": "c79639b4be6ded3dbbd7e369b4ba32350b47c6be21a24d46f3d4b8f06c94bb76",
+        "bytes": 947624
+      },
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i/web/catalog/lessons_zh-CN.json",
+        "sha256": "2c2f17091911a34ddaeed861f2bad227abf2f33cf6ea6682866112d467e04c6b",
+        "bytes": 947118
+      }
+    }
+  ],
+  "source": {
+    "root": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014",
+    "HEAD": "e257c1f3c3e04408968f656eade6a452dbe0bfc0",
+    "captured_app_base": "a5dc7353bc1da39795c565dd4d4dd27f3f2ba5af",
+    "compared_paths": [
+      "spacr",
+      "tools/tutorials/human_input.py",
+      "tools/tutorials/capture_host_adapter.py"
+    ],
+    "working_tree_differences": [],
+    "index_differences": [],
+    "generated_release_files_expected_dirty_until_root_commit": true
+  },
+  "candidate_browser_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/release-candidate-append-6o9a_hxy/checks/candidate-browser-checks.json",
+    "sha256": "c055f3004cd2d6338ee40faf65333bb361105a8e1010a637274f8adef551431f",
+    "bytes": 127551
+  },
+  "hosted_published_check": {
+    "status": "pending_root_terminal_confirmation",
+    "root_session": 12787,
+    "scope": "Actual --published hosted Pages tree playback; not live public Space deployment."
+  },
+  "Nightly_commit_push": "root_owned_pending",
+  "limits": [
+    "84routes/catalog objects and existing candidate playback are not84newGNOME remakes.",
+    "Manifest uploaded/published false and release_hold true are immutable candidate-build metadata; actual upload/readback is separately recorded in publication-receipt.json.",
+    "No whole-film human listening/native-language/biological acceptance asserted.",
+    "Live Space public deployment remains separately pending Home-owned quota/403 resolution.",
+    "Turn35 stays frozen/inactive until root technical43 completion artifact."
+  ]
+}

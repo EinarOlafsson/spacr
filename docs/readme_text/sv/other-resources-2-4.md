@@ -1,0 +1,1 @@
+- [Kurerad API referens](<https://einarolafsson.github.io/spacr/api/index.html>) – understödda ingångspunkter för uppgift, med den fullständiga modulreferensen en nivå djupare.

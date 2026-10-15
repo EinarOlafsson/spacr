@@ -373,7 +373,7 @@ def _network_config_path() -> Path:
     override = os.environ.get(_ENV_NETWORK_CONFIG)
     if override:
         return Path(override)
-    return Path.home() / ".spacr" / "network.json"
+    return _spacr_home() / "network.json"
 
 
 def _read_network_config() -> dict:
@@ -403,7 +403,9 @@ def _write_network_config(proxy: str = "", ca_bundle: str = "") -> None:
     if wanted != _read_network_config():
         path = _network_config_path()
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(wanted), encoding="utf-8")
+        from .run_journal import _atomic_write_text
+
+        _atomic_write_text(path, json.dumps(wanted))
     _apply_network_settings()
 
 

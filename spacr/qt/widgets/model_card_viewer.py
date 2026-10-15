@@ -139,8 +139,6 @@ class ModelCardViewer(QFrame):
         self._link = QLabel("", self)
         self._link.setOpenExternalLinks(True)
         self._link.setTextInteractionFlags(Qt.TextBrowserInteraction)
-        for button in (self._prev, self._next):
-            button.setFocusPolicy(Qt.NoFocus)
         row.addWidget(self._prev)
         row.addWidget(self._counter, 1)
         row.addWidget(self._next)
@@ -176,6 +174,7 @@ class ModelCardViewer(QFrame):
         :param card: the card data, or None to show nothing.
         """
         self._card = card
+        self.setAccessibleName(str(card.get("display_name", "")) if card else "")
         self._page = 0
         self._failed = False
         self._pixmaps = [None] * cards.PAGE_COUNT
@@ -219,6 +218,9 @@ class ModelCardViewer(QFrame):
             self.next_page()
         elif event.key() == Qt.Key_Left:
             self.previous_page()
+        elif (event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space)
+              and event.modifiers() == Qt.NoModifier and self.hasFocus()):
+            self._enlarge()
         else:
             super().keyPressEvent(event)
 
@@ -321,6 +323,7 @@ class ModelCardViewer(QFrame):
         self.setStyleSheet(
             f"QFrame#{VIEWER_NAME} {{ border: 1px solid {p['border_soft']};"
             f" border-radius: {RADIUS['md']}px; }}"
+            f"QFrame#{VIEWER_NAME}:focus {{ border-color: {p['accent']}; }}"
             f"QFrame#{VIEWER_NAME} QLabel {{ background: transparent;"
             f" color: {p['fg']}; }}"
             f"QTextBrowser#ModelCardText {{ background: transparent;"

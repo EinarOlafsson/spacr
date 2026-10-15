@@ -212,3 +212,23 @@ they need an explicit deferred handoff/ownership contract, script relocation and
 native DLL/other-process validation. Their existing in-place API must not be
 advertised as transactional. Optional per-folder cleanup and remaining native
 installer acceptance are also still required. N703 remains partial.
+
+2026-10-14 — PRIVATE PIP TRANSACTION ENGINE (GUI HANDOFF STILL IN PROGRESS)
+The private POSIX runtime transaction now accepts an isolated Python/pip
+installation command as well as the existing uv command. Both package install
+and pip check target only the sibling clone. Pinned pip updates use the exact
+requested version for the staged identity probe; the uv adapter keeps its
+existing minimum-version semantics. The original runtime is retained until
+verification and is restored after dependency, import, identity or restart
+failure. Other Python interpreters and unsupported package operations are
+refused before any package command runs.
+
+Nine real offline fake-wheel/private-venv cases passed in 27.09 s, including
+byte-identical rollback, wrong-version rejection and final console-script
+relocation. Both selected existing uv regression cases also passed. An initial
+test-module import error is preserved separately and was corrected using the
+repository's tests-package import convention; no production workaround was
+needed. Fatal Ruff passed. No live environment, network, accounts or GPU were
+used. This engine component does not yet replace the generic pip GUI route:
+a deferred shutdown/ownership handoff is the next implementation step. Shared,
+Conda and Windows activation and native platform acceptance remain open.

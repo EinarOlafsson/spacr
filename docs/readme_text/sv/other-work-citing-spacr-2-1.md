@@ -1,0 +1,1 @@
+- [Metabol anpassningsförmåga och näringsavlagring i Toxoplasma gondii: insikter från intag väg-deficen mutanter.](<https://journals.asm.org/doi/full/10.1128/msphere.01011-24>)

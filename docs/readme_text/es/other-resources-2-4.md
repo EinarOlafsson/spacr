@@ -1,0 +1,1 @@
+- [Referencia comisariada API](<https://einarolafsson.github.io/spacr/api/index.html>) — puntos de entrada soportados por tarea, con el módulo completo de referencia un nivel más profundo.

@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-10-15T00:47:59.035871+00:00",
+  "scope": "Bounded read-only failedturn36 receipt review and one actual first-frame extraction; no app/Qt/GPU launch.",
+  "source_capture_commit": "a82cc5d110710b1aba24a0e2eafe112fbd87c9ae",
+  "failure": "Recorded opening01 cannot find publicparent toxoplasma via current Home/sidebar selector; actual frame has noToxoplasmaHome tile. Owning HIGH agents diagnose actual publicroute.",
+  "host_outcome": {
+    "app_exit_code": 0,
+    "recorder_rc": null,
+    "failure_last_line": "RuntimeError: No sidebar row or Home tile opens toxoplasma (hidden with alpha off?)",
+    "clips": {},
+    "gate_failed": []
+  },
+  "cleanup": {
+    "exit_code": 1,
+    "survivors_after_cleanup": []
+  },
+  "cleanup_qualification": "exit_code1 is failed hostturn outcome; no success capture claimed. survivors_after_cleanup empty. ExactGNOMEshellPID204674 absent on ps check.",
+  "other_roles_started": false,
+  "actual_phase_output_names": [
+    "a01.out",
+    "a01.rc"
+  ],
+  "receipt_bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/capture_host_proto/turn36/runner36.status",
+      "sha256": "ba84964fb6f461ed7f4000bb653f70ecfedc752ad64defd282ea00720e39289f",
+      "bytes": 215
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/capture_host_proto/turn36/output/a01.rc",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson24-r36/host-run.json",
+      "sha256": "e2b02a807e4476fda7a29064bd78e4e96407256f73475dddbb20f2f1cbe8cd4d",
+      "bytes": 2471
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson24-r36/gnome-host/cleanup.json",
+      "sha256": "75c9ae32733b323c48b654979ccd7d383e654d187b7c4ce6e2b9b705e009dfad",
+      "bytes": 54
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson24-r36/captures/analyze_plaques/provenance.json",
+      "sha256": "6cc30b954a2d930ee832cd9d4ecf6b143894a6667c50c6b73519ba1410a51f35",
+      "bytes": 99
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson24-r36/exact-source.json",
+      "sha256": "bb8dba53ea33cc367f177c08f95ced09b3f9b2469f380c21f781a0e1ecfe40cd",
+      "bytes": 54675
+    }
+  ],
+  "actual_home_frame": {
+    "image": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson24/turn36-actual-home-first-frame.png",
+      "sha256": "4797407e3a30516f0da5c3c8037023a6d27e46b34d7e1e1cdcee4991ac389922",
+      "bytes": 1435260
+    },
+    "source_video_path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson24-r36/captures/analyze_plaques/01_module.native.mp4",
+    "source_video_bytes": 1670627,
+    "source_video_duration_seconds": 1.533333,
+    "video_dimensions": [
+      2560,
+      1440
+    ],
+    "extraction": "First actual decoded frame; CPU2G cap,ffmpeg1thread,no crop/overlay/reconstruction.",
+    "visible_observations": [
+      "Home12tiles:5Core,3Data,4Tools.",
+      "NoToxoplasmaHome tile visible.",
+      "SidebarCore expanded;Data/Tools/Help sections collapsed."
+    ],
+    "limits": "Oneactualframe does not prove all legitimate publicroutes unavailable."
+  },
+  "turn37": {
+    "path": "/media/carruthers/mnt3/claude/capture_host_proto/turn37",
+    "prepared_only": true,
+    "AST_and_bash_n": "pass",
+    "approval_created": false,
+    "queued_or_run": false,
+    "new_source_pin": "Root supplies clean tested committed publicroute repair later.",
+    "original43_completion_marker": "turn35/root-approval.json (unchanged;SHA3aad20a55944b16865841e7f4b730392278828273a8cdce2b25c0330e421a233)",
+    "stages": [
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson24-r37",
+        "absent": true,
+        "socket_bytes_including_NUL": 91
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson24-r37-b",
+        "absent": true,
+        "socket_bytes_including_NUL": 93
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson24-c-r37",
+        "absent": true,
+        "socket_bytes_including_NUL": 93
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson24-c-r37-b",
+        "absent": true,
+        "socket_bytes_including_NUL": 95
+      }
+    ]
+  },
+  "preserved_original_turns": [
+    35,
+    36
+  ],
+  "limits": [
+    "No finalizednativeclips/scientific/count acceptance from failedturn36.",
+    "No source/driver/input/audio/catalogue edits."
+  ]
+}

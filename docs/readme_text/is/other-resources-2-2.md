@@ -1,0 +1,1 @@
+- [Python API snemma byrjun](<../../source/python_api.rst>) — hlaupa og staðfest pipelines frá skriptum, notebooks eða klúster.

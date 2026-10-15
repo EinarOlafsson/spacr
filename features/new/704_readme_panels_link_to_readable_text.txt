@@ -2,7 +2,7 @@
 README PANELS LINK TO READABLE TEXT
 ================================================================================
 
-Status:    specified and source-audited; implementation not started
+Status:    implemented and locally validated; hosted publication pending
 Requested: maintainer's Home takeover queue, 2026-10-13: every README text
            panel image links to its readable text version. Where a panel
            already links to a page, its text starts the linked page, so
@@ -60,3 +60,64 @@ plan: features/data/704_panel_text_link_preflight_2026-10-14/. Home independentl
 verified all 83 source bytes and four artifact identities. This is preparation,
 not generated, rendered, hosted or whole-item acceptance. Implementation stays
 after release and the held branches in the maintainer's queue order.
+
+2026-10-14 15:20 EDT — Home-B implemented the assigned generator scope.
+All 65 prose/table/list-row panels now open their own faithful readable text
+page in each of the ten README languages (650 generated Markdown pages).
+The same authoring blocks supply image and text; ordinary generation owns and
+checks both, including missing/stale/obsolete text pages and generated blocks.
+Original detail URLs remain inline with rebased local paths/fragments, while
+installer/download/navigation buttons retain their original direct targets.
+The 17 model pages now begin with complete score text and baseline values from
+the plotting data; their index begins with the score-grid heading. Full desktop
+labels are retained in readable text; phone labels remain their existing shorter
+visual forms. No literal responsive-wording equivalence is claimed.
+
+Normal README/model generation completed. The 1,660 existing README panel SVGs,
+icon assets and model-score SVGs are byte-identical to the branch base; body/title
+sizes, responsive pictures, card colours/bars and two-card rows are unchanged.
+The focused six-file cohort passed all 118 cases (zero failures/skips, 20.14s),
+including rendered Markdown structure/word order across all ten languages,
+local continuation routes, PyPI link conversion, figure currency and existing
+presentation contracts. Initial cohort was 115 passed/3 failed: it exposed
+Korean emphasis delimiters rendered literally next to Hangul, plus a temporary
+fixture-root mistake and model-image ordering contract; all three were fixed.
+Text-only correction used the owning generator's compose(render=False) and
+page writer, followed by normal model generation; no generated files hand-edited.
+
+Evidence: data/704_readable_panel_implementation_2026-10-14/receipt.json and
+the retained initial/final test reports. The dev extra now explicitly declares
+markdown-it-py for rendering checks; runtime dependencies are unchanged.
+This closes local implementation, NOT whole-item hosted acceptance. Original
+Home still owns publication: verify actual GitHub and PyPI links/rendering and
+leading content on the published source, including all locale routes, and
+promote approved README/docs outputs to main using the established procedure.
+
+2026-10-14 — Home-B verified PyPI sanitization and prepared exact promotion.
+The four owning PyPI packaging checks passed in 1.26s. The explicit panel-link
+check now uses readme_renderer.rst (PyPI's actual sanitizing renderer), verifying
+each of the 65 English panel images retains its own exact readable destination
+after rendering setup.py's real long_description. The existing image/alt and
+external-link checks also pass. No runtime packaging defect was demonstrated.
+setup.py intentionally resolves these links against main, not nightly.
+
+A documentation-only promotion patch contains exactly 678 files: ten READMEs,
+650 readable pages, seventeen model pages and their index. All 1,707 image assets
+referenced by those READMEs already match main e0bedd1534d71708f65b60a2d9e24b6328d4ce9d
+byte-for-byte. The patch applies to an alternate index loaded from that exact
+main commit and produces tree 189ef70712fa327c66896502100ad0c681a7ddac without
+changing any branch, working tree or remote. Patch, exact file list and source
+manifest: /mnt/wd4tb/scratch/home-b-n704-20261014/promotion/.
+Receipt: data/704_pypi_sanitizer_acceptance_2026-10-14/receipt.json.
+This is renderer verification and promotion preparation, not a PyPI upload,
+actual public route acceptance or whole-item completion. Original Home owns
+the remaining publication and hosted checks.
+
+Follow-up: PyPI renderer checks now import the declared dev dependency directly,
+so a clean CI environment cannot skip sanitizer acceptance. The dev-only bound
+readme-renderer>=43,<45 preserves the unchanged minimum-py39 Docutils 0.20.1
+constraint: renderer 43 supports that floor; renderer 44 needs Docutils>=0.21.2.
+The four checks pass with both installed renderer 44/Docutils 0.21.2 and the
+isolated renderer 43/Docutils 0.20.1 pair. These were Python 3.12 executions,
+not a claim of a new native Python 3.9 run. No runtime dependencies or minimum
+constraint files changed. Final receipts retain both actual-renderer cohorts.

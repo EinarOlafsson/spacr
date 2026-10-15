@@ -1,0 +1,1 @@
+- [El toxoplasma GRA8 activa la proteína accesoria ESCRT ALG-2 y es necesario para la integridad metabólica del parásito.](<https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>)

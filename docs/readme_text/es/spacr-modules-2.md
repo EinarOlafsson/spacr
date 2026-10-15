@@ -1,0 +1,1 @@
+Todos los módulos con una tarjeta en la pantalla de inicio, en el orden de esa pantalla: primero los seis módulos de la secuencia de procesamiento y después los demás. Seleccione una tarjeta para abrir la página de API del módulo.

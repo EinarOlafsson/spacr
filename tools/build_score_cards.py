@@ -604,6 +604,46 @@ def _short_holdout(card: Mapping[str, Any]) -> str:
     return re.sub(r" held-out ", " ", str(card.get("holdout") or ""))
 
 
+def readable_score(entry: Mapping[str, Any], status: str = "default") -> str:
+    """The complete score picture as copyable text, from its plotting data.
+
+    Use full desktop labels: phone labels only abbreviate these same values.
+    Include baseline values represented by bars as well as printed numbers.
+    """
+    card = scores(entry)
+    head = headline(entry, card)
+    version = _version(_key(entry))
+    if status in TAG_WORDS:
+        version += f" · {TAG_WORDS[status]}"
+    lines = [f"# {title_of(entry)}", "", version, ""]
+    if head:
+        label, mine, theirs = head
+        caption = (f"{label} · {card['holdout']}" if card["holdout"]
+                   else f"{label} at IoU 0.5")
+        lines += [f"**{mine:.3f}** — {caption}", ""]
+        if theirs is not None and card["baseline"]:
+            delta = mine - theirs
+            sign = "+" if delta >= 0 else "−"
+            lines += [f"{sign}{abs(delta):.3f} vs {baseline_name(card)}", ""]
+        else:
+            lines += ["no stock detector" if is_detector(entry)
+                      else "no baseline", ""]
+    else:
+        lines += ["Held-out score not recorded", ""]
+    baseline = baseline_name(card)
+    has_baseline = bool(baseline) and any(
+        theirs is not None for _label, _mine, theirs in card["rows"])
+    columns = ["Metric", "this model"] + ([baseline] if has_baseline else [])
+    lines += ["| " + " | ".join(columns) + " |",
+              "| " + " | ".join("---" for _ in columns) + " |"]
+    for label, mine, theirs in card["rows"]:
+        values = [label, f"{mine:.3f}" if mine is not None else "—"]
+        if has_baseline:
+            values.append(f"{theirs:.3f}" if theirs is not None else "—")
+        lines.append("| " + " | ".join(values) + " |")
+    return "\n".join(lines) + "\n"
+
+
 def render_svg(entry: Mapping[str, Any], status: str = "default",
                layout: str = "desktop", rim: str = RIM) -> str:
     """The score card of one zoo record as standalone SVG text."""

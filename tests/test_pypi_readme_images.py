@@ -25,17 +25,25 @@ class Images(HTMLParser):
         super().__init__()
         self.images = []
         self.links = []
+        self.image_targets = {}
+        self.target = None
 
     def handle_starttag(self, tag, attrs):
         values = dict(attrs)
         if tag == "img":
             self.images.append(values)
+            self.image_targets[values["src"]] = self.target
         if tag == "a" and "href" in values:
+            self.target = values["href"]
             self.links.append(values["href"])
+
+    def handle_endtag(self, tag):
+        if tag == "a":
+            self.target = None
 
 
 def test_packaged_readme_renders_all_original_images(metadata):
-    renderer = pytest.importorskip("readme_renderer.rst")
+    from readme_renderer import rst as renderer
     render = renderer.render
     from docutils.core import publish_parts
 
@@ -75,6 +83,31 @@ def test_packaged_readme_renders_all_original_images(metadata):
     assert "raw:: html" not in packaged["long_description"]
     assert {i["alt"]: i["src"].split("/main/")[-1] for i in converted.images} == {
         i["alt"]: i["src"].split("/main/")[-1] for i in original.images}
+
+
+def test_pypi_keeps_each_readable_panel_destination(metadata):
+    from tests.readme_source_words import readme_tool
+
+    from readme_renderer import rst as renderer
+    packaged, _ = metadata
+    warnings = io.StringIO()
+    html = renderer.render(packaged["long_description"], stream=warnings)
+    assert html is not None, warnings.getvalue()
+    article = Images()
+    article.feed(html)
+    destinations = {
+        "https://github.com/EinarOlafsson/spacr/blob/main/"
+        f"docs/readme_text/en/{name}.md"
+        for name in readme_tool().compose("en", render=False).pages
+    }
+    assert len(destinations) == 65
+    assert destinations <= set(article.links)
+    for name in readme_tool().compose("en", render=False).pages:
+        image = ("https://raw.githubusercontent.com/EinarOlafsson/spacr/main/"
+                 f"docs/readme_images/en/{name}.svg")
+        assert article.image_targets[image] == (
+            "https://github.com/EinarOlafsson/spacr/blob/main/"
+            f"docs/readme_text/en/{name}.md")
 
 
 def test_conversion_handles_figures_links_and_preserves_external_urls(metadata):

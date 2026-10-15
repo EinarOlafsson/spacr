@@ -201,6 +201,31 @@ def test_main_pages_guard_defaults_to_900_mb():
     assert inspect.signature(assemble_main).parameters['limit'].default == PAGES_LIMIT
 
 
+@pytest.mark.parametrize('branch', ['main', 'nightly'])
+@pytest.mark.parametrize('previous_receipt', [False, True])
+def test_channel_receipt_counts_every_published_byte(tmp_path, branch, previous_receipt):
+    from publish_docs_channels import site_size
+    source = site(tmp_path, branch)
+    if previous_receipt:
+        (source / 'channels.json').write_text('{"obsolete": "' + 'x' * 1000 + '"}')
+    output = tmp_path / 'published'
+    assemble = assemble_main if branch == 'main' else assemble_nightly
+    receipt = assemble(source, output)
+    assert receipt['size_bytes'] == site_size(output)
+    assert json.loads((output / 'channels.json').read_text()) == receipt
+
+
+def test_main_size_guard_includes_its_own_publication_receipt(tmp_path):
+    from publish_docs_channels import site_size
+    source = site(tmp_path, 'main')
+    accepted = tmp_path / 'accepted'
+    assemble_main(source, accepted, limit=10_000)
+    exact_size = site_size(accepted)
+    assert exact_size < 10_000
+    with pytest.raises(ValueError, match='Main Pages site is .* budget is'):
+        assemble_main(source, tmp_path / 'too_large', limit=exact_size - 100)
+
+
 def test_old_nightly_pages_urls_redirect_to_the_same_space_path(tmp_path):
     import re
     import subprocess
@@ -237,7 +262,7 @@ def test_an_existing_404_page_keeps_its_content_and_gains_the_redirect(tmp_path)
     assert text.startswith('<html><head><script>') and '<title>Lost</title>' in text
 
 
-def test_nightly_site_is_a_static_space_and_upload_deletes_removed_pages(tmp_path, monkeypatch):
+def test_nightly_site_uploads_atomically_and_deletes_removed_pages(tmp_path, monkeypatch):
     import types
     space = tmp_path / 'space'
     assemble_nightly(site(tmp_path, 'nightly'), space)
@@ -246,15 +271,108 @@ def test_nightly_site_is_a_static_space_and_upload_deletes_removed_pages(tmp_pat
     calls = []
 
     class Api:
-        def upload_folder(self, **kwargs):
+        def space_info(self, repo_id):
+            assert repo_id == NIGHTLY_SPACE
+            return types.SimpleNamespace(sha='parent-sha')
+
+        def list_repo_files(self, repo_id, **kwargs):
+            assert repo_id == NIGHTLY_SPACE
+            assert kwargs == {'repo_type': 'space', 'revision': 'parent-sha'}
+            return ['obsolete.html', 'index.html', '.gitattributes']
+
+        def create_commit(self, **kwargs):
             calls.append(kwargs)
             return types.SimpleNamespace(oid='abc')
 
-    monkeypatch.setitem(sys.modules, 'huggingface_hub', types.SimpleNamespace(HfApi=Api))
+    monkeypatch.setitem(sys.modules, 'huggingface_hub', types.SimpleNamespace(
+        HfApi=Api, CommitOperationAdd=lambda **kw: ('add', kw),
+        CommitOperationDelete=lambda **kw: ('delete', kw)))
     from publish_docs_channels import NIGHTLY_SPACE, upload_nightly
     assert upload_nightly(space) == 'abc'
-    assert calls == [{'repo_id': NIGHTLY_SPACE, 'repo_type': 'space', 'folder_path': space,
-                      'delete_patterns': ['*'], 'commit_message': 'nightly docs nightly-sha'}]
+    assert len(calls) == 1
+    operations = calls[0].pop('operations')
+    assert calls == [{'repo_id': NIGHTLY_SPACE, 'repo_type': 'space',
+                      'parent_commit': 'parent-sha', 'commit_message': 'nightly docs nightly-sha'}]
+    assert [op for op in operations if op[0] == 'delete'] == [
+        ('delete', {'path_in_repo': 'obsolete.html'})]
+    assert {op[1]['path_in_repo'] for op in operations if op[0] == 'add'} == {
+        p.relative_to(space).as_posix() for p in space.rglob('*') if p.is_file()}
+    assert all(op[1]['path_or_fileobj'].is_file() for op in operations if op[0] == 'add')
+
+
+def test_failed_nightly_commit_is_not_retried_in_smaller_batches(tmp_path, monkeypatch):
+    import types
+    import publish_docs_channels as publisher
+    space = tmp_path / 'space'
+    assemble_nightly(site(tmp_path, 'nightly'), space)
+    calls = []
+
+    class Api:
+        def space_info(self, repo_id):
+            return types.SimpleNamespace(sha='parent-sha')
+
+        def list_repo_files(self, *args, **kwargs):
+            return []
+
+        def create_commit(self, **kwargs):
+            calls.append(kwargs)
+            raise RuntimeError('quota exceeded')
+
+    monkeypatch.setitem(sys.modules, 'huggingface_hub', types.SimpleNamespace(
+        HfApi=Api, CommitOperationAdd=lambda **kw: kw, CommitOperationDelete=lambda **kw: kw))
+    with pytest.raises(RuntimeError, match='quota exceeded'):
+        publisher.upload_nightly(space)
+    assert len(calls) == 1
+
+
+@pytest.mark.parametrize('wrong_receipt', ['source', 'size', 'publication'])
+def test_nightly_verification_rejects_stale_public_receipts(tmp_path, monkeypatch, wrong_receipt):
+    import io
+    import publish_docs_channels as publisher
+    space = tmp_path / 'space'
+    receipt = assemble_nightly(site(tmp_path, 'nightly'), space)
+    public = json.loads((space / 'publication.json').read_text())
+    if wrong_receipt == 'source':
+        receipt['channels']['nightly']['commit'] = 'old-source'
+    elif wrong_receipt == 'size':
+        receipt['size_bytes'] += 1
+    else:
+        public['commit'] = 'old-source'
+    requests = []
+
+    def fetch(request, timeout):
+        requests.append(request.full_url)
+        assert timeout == 15
+        payload = public if 'publication.json' in request.full_url else receipt
+        return io.BytesIO(json.dumps(payload).encode())
+
+    monkeypatch.setattr(publisher, 'urlopen', fetch)
+    with pytest.raises(RuntimeError, match='Nightly deployment unverified for nightly-sha'):
+        publisher.verify_nightly(space, attempts=2, interval=0)
+    assert len(requests) == 4
+
+
+def test_nightly_verification_waits_for_matching_publication(tmp_path, monkeypatch):
+    import io
+    from urllib.error import URLError
+    import publish_docs_channels as publisher
+    space = tmp_path / 'space'
+    receipt = assemble_nightly(site(tmp_path, 'nightly'), space)
+    calls, sleeps = [], []
+
+    def fetch(request, timeout):
+        calls.append(request.full_url)
+        if len(calls) == 1:
+            raise URLError('deployment propagating')
+        name = request.full_url.split('/')[-1].split('?')[0]
+        assert request.get_header('Cache-control') == 'no-cache'
+        return io.BytesIO((space / name).read_bytes())
+
+    monkeypatch.setattr(publisher, 'urlopen', fetch)
+    monkeypatch.setattr(publisher.time, 'sleep', sleeps.append)
+    assert publisher.verify_nightly(space, attempts=2, interval=1) == 'nightly-sha'
+    assert sleeps == [1]
+    assert len(calls) == 3
 
 
 def test_incompatible_catalog_is_registered_and_english_is_publishable(tmp_path):

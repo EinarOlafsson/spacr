@@ -1,0 +1,121 @@
+{
+  "item": "N655",
+  "scope": "Linux external AT-SPI tree, naming, help and real control action acceptance",
+  "source_commit": "8a9327faddfdf8bacbada07c49a3e83a768f4fb2",
+  "result": "PASS: actual spaCR MainWindow and Preferences inspected by independent system-Python D-Bus AT-SPI client",
+  "environment": {
+    "python": "3.12.13",
+    "pyside": "6.12.0",
+    "external_client": "/usr/bin/python3, Gio D-Bus API",
+    "atspi": "2.52.0",
+    "platform": "Linux Xvfb/xcb",
+    "GDK_BACKEND": "x11",
+    "memory_cap": "4G",
+    "GPU": "disabled; software rendering"
+  },
+  "external_nodes": 1397,
+  "same_pid_roots": [
+    {
+      "depth": 0,
+      "name": "python",
+      "description": "",
+      "role": "application",
+      "declared_child_count": 0,
+      "children": 0,
+      "bus_name": ":1.0",
+      "path": "/org/a11y/atspi/accessible/root"
+    },
+    {
+      "depth": 0,
+      "name": "spaCR N655 external acceptance",
+      "description": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+      "role": "application",
+      "declared_child_count": 2,
+      "children": 2,
+      "bus_name": ":1.3",
+      "path": "/org/a11y/atspi/accessible/root"
+    }
+  ],
+  "control": {
+    "expected_found": 1,
+    "actions": [
+      [
+        "Toggle",
+        "Toggles the state",
+        ""
+      ],
+      [
+        "Press",
+        "Triggers the action",
+        ""
+      ],
+      [
+        "Set Focus",
+        "Sets the focus",
+        ""
+      ]
+    ],
+    "action_result": true,
+    "state_before_names": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible",
+      "checkable"
+    ],
+    "state_after_names": [
+      "checked",
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible",
+      "checkable"
+    ]
+  },
+  "native_signal": "HIGH_CONTRAST_TOGGLED True",
+  "process_time_source_files": 241,
+  "prior_observation_correction": "The October8 reader chose the first matching PID root. GTK platform-theme integration registers an empty python application root before Qt registers its populated root under a separate D-Bus name. Enumerating all same-PID roots exposes the real Qt tree. No Qt/application bridge defect was established by the old first-root result.",
+  "source_isolation": {
+    "settings": "Private QSettings NativeFormat and IniFormat paths",
+    "desktop": "Private dbus-run-session and Xvfb display",
+    "configuration": "Private XDG config/cache/runtime and SPACR_HOME/network/log paths",
+    "existing_desktop_modified": false
+  },
+  "iterations_retained": [
+    "Initial inherited GDK_BACKEND=wayland conflicted with private Xvfb; corrected to x11",
+    "Initial GI-reader event-loop attempt stopped; final independent client uses explicit one-second D-Bus RPC deadlines and15-second alarm",
+    "D-Bus Properties.GetAll is unsupported by Qt accessible adaptor; final client uses standard individual Get properties",
+    "First actual-spaCR run found/actioned hidden tab control; final run explicitly selected Appearance and proved showing+visible before action"
+  ],
+  "limits": [
+    "External AT-SPI acceptance is not audible speech or a human screen-reader usability review",
+    "No Windows/macOS acceptance",
+    "Tutorial refresh remains Work-owned"
+  ],
+  "reference_urls": [
+    "https://doc.qt.io/qt-6/qaccessible.html",
+    "https://gnome.pages.gitlab.gnome.org/gtk/atspi2/method.Accessible.get_process_id.html"
+  ],
+  "replay": "GDK_BACKEND=x11 XDG_RUNTIME_DIR=<scratch>/runtime XDG_CONFIG_HOME=<scratch>/config XDG_CACHE_HOME=<scratch>/cache SPACR_PROBE_APP=spacr-app SPACR_PROBE_EXPECTED=\"High contrast\" tools/run_capped.sh 4G /usr/bin/dbus-run-session -- /usr/bin/xvfb-run -a -s \"-screen 0 1400x1000x24\" <scratch>/probe.sh",
+  "replay_note": "Archived scripts preserve actual execution paths in /mnt/wd4tb/scratch/n655-external-reader-20261014 and the private N655 worktree; revise those explicit paths when replaying on another checkout.",
+  "payload_sha256": {
+    "control-reader.json.gz": "b0ad24b1c1c1ac1aad72195b769b335143f418355aa0de3f5fc7b11de54dce98",
+    "control.log.gz": "dda2d7e6bb5c21fa3d13121c2be1b468728996956c1e960dbc40dd3ffaba7bb4",
+    "control.py": "2c6c3d9c3143f84471d8aeefbf6b4a2fad77293b48be5bf458fda26172ab5de6",
+    "initial-display-mismatch-reader.json.gz": "425ac0dfcacdfeaf8a008ea42d88719e0cb4ec5550a75f6251fefa200a7adb3e",
+    "initial-display-mismatch.log.gz": "a9c679c1d408861a6985cb4506437d52c06e07bcf82e3272f32ad7c6d7cd210d",
+    "probe-direct-get.log.gz": "4e14db18bc43e099531f6d1437d9a361234a488474df7ad01dd8000636b57625",
+    "probe-direct.log.gz": "5ecdefd0e3af52c31bfac9a14bb034b05378cd8af38efc65b4bffc80452d6259",
+    "probe-spacr-visible.log.gz": "3f88f4e67efb3cfb21334819e5a7f75c004db6244b635fcf9e70f837dd09956d",
+    "probe.sh": "348d5f29e9762d1fad6a048cd73c0f38343fe953eae773f9dc9f1c99d02ba676",
+    "read-bus.py": "7f79f90658083ec8b2a2173d52747ec688856d95cafcceaf3008a818f7688813",
+    "spacr-app-reader.json.gz": "671bff67c5cc6381d67828dbd4501808810dc5c74344e1bcb48ac509cb58a71a",
+    "spacr-app.log.gz": "b189459a9cdf7aa432d352e3a720c92563f89ceeb9bf09447fb6054e10b13f2d",
+    "spacr-app.py": "460d5a3e4b48799e31d15c5010fafc28f573cef887ca08dc3d2b8ec30a191cf7",
+    "spacr-inactive-tab-reader.json.gz": "46c70ea29f50a3fcdc1ab296fec588ef6450c6eb1fa4783f925722ba9f413946",
+    "spacr-inactive-tab.log.gz": "d02684e235eba5b253ec938920a9f0d595357ea6b1ff65f04ac5e7a2a3e70cc1",
+    "spacr-process-source.json.gz": "9971912c969a953155d68a9e411f73fbe20ce39afafb4389cb33d2e0c74145b1"
+  }
+}

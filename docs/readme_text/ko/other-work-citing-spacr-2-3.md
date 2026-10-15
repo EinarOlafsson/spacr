@@ -1,0 +1,1 @@
+- [Toxoplasma GRA8은 호스트 ESCRT 액세서리 단백질 ALG-2를 포함하고 기생충의 신진 대사 무결성을 위해 필요합니다.](<https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>)

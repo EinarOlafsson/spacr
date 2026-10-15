@@ -103,3 +103,39 @@ than30days to create two free Spaces; visitor quotas and Gradio/runtime limits
 still apply. Owner eligibility and real hosted/browser/desktop parity remain
 requirements, not observed acceptance. No implementation, tests, GPU job, site
 publication or upload occurred. All required routes/options remain OPEN.
+
+2026-10-14 — Original Home: first implemented result-download backend component.
+tools/web_mask_generator/results.py now packages actual caller-supplied 2-D
+segmentation outputs: original uploaded bytes, selected YX/CYX TIFF, uint32
+labels, actual optional flows/scores, canonical per-object CSV via spacr.tabular,
+README and provenance/checksum manifest. Raw logits stay raw and are explicitly
+not advertised as calibrated probabilities. Missing backend outputs require
+reasons; no placeholder arrays are synthesized. Sparse high label IDs retain
+their IDs without allocating by maximum label. Atomic publication preserves a
+previous ZIP when CSV/ZIP/final replace fails. No network or inference occurs.
+This is partial implementation, not completion of N698: no web UI/hosting,
+WebGPU exports, actual model routing/inference or desktop/browser parity claimed.
+CPU synthetic result-package evidence: features/data/698_result_package_2026-10-14/.
+Owning closure: 35 PASS, actual exit 0, 2.44s; new tool 123/123 statements
+and 62/62 branch arcs covered. Original upload and supplied arrays round-trip,
+object IDs/areas/centroids/per-channel intensities and every manifest hash checked;
+invalid inputs and simulated full-disk/writer/final-replace failures preserve
+previous output. Normal feature-index check and diff check pass. No native,
+scientific real-data, hosted GPU or full-CI acceptance inferred from these tests.
+
+2026-10-14 — Original Home: implemented bounded offline upload decoding.
+The second N698 backend component reads TIFF/OME-TIFF, PNG/JPEG/BMP and PDF
+pages. Header choices precede pixel decode; non-singleton T/Z/other axes require
+explicit indices and selected channels keep their chosen order and exact dtype.
+PDF rasterization records page and DPI. No projection/normalization/blending or
+microscope calibration is inferred. Configured file/decoded-byte/plane-pixel
+limits and a PDF page limit reject before decode/render. CZI/ND2 adapters and
+actual inference/web routes remain open. The reader's selection receipt can
+travel in the download manifest alongside the true inference settings.
+Owning closure: 40 reader cases plus 35 package cases PASS (actual exit 0,
+3.51s); new reader 135/135 statements and 52/52 branch arcs covered. Real local
+OME/time/Z/channel, multiple TIFF series, ordinary image and two-page PDF fixtures
+exercise actual decoders. Initial 68 PASS/1 FAIL identified unsupported PDF page
+context management; explicit native handle closes fixed it; original result is
+retained. No hosted/GPU/browser or scientific parity acceptance is claimed.
+Evidence: features/data/698_upload_inputs_2026-10-14/.

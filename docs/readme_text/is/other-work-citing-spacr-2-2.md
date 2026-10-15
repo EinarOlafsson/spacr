@@ -1,0 +1,1 @@
+- [IRE1α stuðlar að fagosomal kalsiumflokk til að bæta makrofága svítilverkefni.](<https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>)

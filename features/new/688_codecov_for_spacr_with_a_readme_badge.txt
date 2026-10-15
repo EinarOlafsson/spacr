@@ -2,8 +2,8 @@
 CODECOV FOR spaCR, WITH A README BADGE
 ================================================================================
 
-Status:    DONE 2026-10-10 (nightly); main gets its first upload on the
-           next push to main. See the 2026-10-10 note.
+Status:    PARTIAL — nightly upload and all ten README badges implemented;
+           first main upload remains pending approved main promotion.
 Requested: 2026-10-10 — "configure https://app.codecov.io/github/EinarOlafsson/
            spacr/new for spacr and add a badge when you are done"
 Owner:     Home (CI); WS (README badge in the localized READMEs)
@@ -95,3 +95,12 @@ DELIBERATELY NOT DONE
   "unknown"). Switch to branch/main after the first push to main uploads.
 - Left for WS: add the same badge to the 9 localized READMEs and regenerate
   them with their tool.
+
+2026-10-14 — Home-B current-source acceptance follow-up.
+All nine localized READMEs already contain the Coverage badge and Codecov
+repository target; the earlier translation follow-up is no longer outstanding.
+Current nightly Codecov badge reports98%; main still reports unknown. Current
+workflow retains nonblocking upload, branch flags and token/OIDC authentication;
+the per-module ratchet remains unchanged. No new implementation was needed for
+these already-landed parts. First main upload and any subsequent branch/main
+badge switch remain tied to original Home's approved main promotion/release.

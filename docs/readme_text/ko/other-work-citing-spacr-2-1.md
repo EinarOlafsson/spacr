@@ -1,0 +1,1 @@
+- [Toxoplasma gondii에서 신진 대사 적응성 및 영양 탐색 : 섭취 경로 결핍 돌연변이의 인식.](<https://journals.asm.org/doi/full/10.1128/msphere.01011-24>)

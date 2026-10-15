@@ -2,10 +2,9 @@
 ACCESSIBILITY PASS
 ================================================================================
 
-Status:    DONE 2026-10-04 — accessible names through one central helper,
-           a High contrast theme in Preferences > Appearance, an a11y lint
-           over all 48 module screens and a Tab-order check on the Core
-           screens. Not alpha: accessibility is not an experiment.
+Status:    PARTIAL — controls/keyboard repairs and Linux AT-SPI/Orca output
+           verified; caption/API debt reconciled. Native usability, macOS/Windows
+           and the Appearance tutorial refresh remain open. Not alpha.
 Requested: 2026-10-04, by the maintainer, who approved this program-level
            feature in the step-4 review ("is the program itself missing
            something?"), from the gap audit of the same day.
@@ -127,3 +126,121 @@ WHAT IS LEFT
   Left: 10 new UI captions need WS translations and caption-arrival
   registration (tests/qt/test_i18n_caption_arrivals.py fails until then);
   Preferences tutorials showing Appearance need re-recording (spacr-d7).
+
+2026-10-14 — Home-B custom switch focus and reduced motion repair
+  Toggle paints its own switch and caption, bypassing Qt's normal checkbox
+  focus drawing. It now draws the native keyboard-focus mark and the existing
+  Stronger focus outlines stylesheet border, including when the moving field
+  owns the switch's static picture. The current-theme three-pixel outline is
+  verified for Dark, Light and High contrast. Tab still enters/leaves the
+  switch and Space toggles it once. Reduce motion now moves the knob directly
+  to its final state instead of starting its 140 ms animation; ordinary
+  animation and drag behaviour remain covered by the owning switch tests.
+  No preference reads were added to the paint path, and no captions, shared
+  theme/preferences helpers or runtime catalogs changed.
+  Ten actual Qt6.12 regression cases fail on the unmodified base and pass with
+  this repair. Scoped owning cohort:60PASS22.01s, Linux/offscreen/Python3.12.13,
+  CUDA hidden, software rendering,6G memory cap. All10 changed statement lines
+  and6 changed branch arcs were executed. Existing field composition and
+  Accessibility preference tests pass unchanged. This closes these two concrete
+  switch defects; native screen-reader speech, macOS/Windows acceptance and
+  the Work-owned Appearance tutorial refresh remain separate open scope.
+  Proof: data/655_toggle_focus_motion_2026-10-14/receipt.json.
+
+2026-10-14 — Home-B model-card keyboard access repaired
+  The Qt model-card viewer's Previous/Next buttons now participate in native
+  Tab order and activate with Space. Return, numeric Enter and Space enlarge
+  the current page when the viewer itself owns focus; modifier combinations
+  and events from its child buttons do not open an unintended dialog. Existing
+  empty-card and enlarged-viewer guards prevent empty or recursive dialogs.
+  Keyboard focus has a visible frame border, and QAccessible receives the
+  current model display name, updated on selection and cleared with the card.
+  Existing translated captions and API docstrings/signatures are unchanged.
+  Ten new owning cases:6FAIL4PASS before, all10PASS after. Full scoped model-card
+  cohort46PASS12.87s on Qt6.12/Python3.12.13, Linux/offscreen/6G/CUDA hidden;
+  the whole changed module reached204/204statements and34/34branch arcs.
+  This closes these concrete viewer access gaps, not native reader speech,
+  macOS/Windows acceptance or the Work-owned tutorial refresh.
+  Proof: data/655_model_card_keyboard_2026-10-14/receipt.json.
+
+2026-10-14 — Home-B reconciled the explicit caption/API acceptance debt
+  The October12 note's ten pending captions are ALREADY IMPLEMENTED and
+  registered: all10 current source literals have generated runtime targets,
+  matching source/target SHA-256 values and exact reviewed-record proofs in
+  all9 locales (90 source/locale checks). The caption-arrival contract already
+  includes them; no ceiling, manifest or catalog was changed today.
+  The15 recorded Accessibility API arrivals also match the current preferences
+  and theme AST docstrings. English entries are exact; all135 localized symbol
+  entries have current source/block hashes and297 exact translated-block
+  bindings to their existing October12 reviewed records. The repeatable scoped
+  verifier passed. This closes the stale caption/catalog/API follow-up notes
+  as acceptance reconciliation of historical work, not new translations or
+  native-speaker review.
+  Remaining N655 acceptance: native screen-reader speech/platform review,
+  actual macOS/Windows checks and the Work-owned Appearance tutorial refresh.
+  Proof: data/655_caption_api_reconciliation_2026-10-14/receipt.json; reproduce
+  with python features/data/655_caption_api_reconciliation_2026-10-14/verify.py.
+
+2026-10-14 — Home-B Linux external AT-SPI acceptance
+  The old October8 zero-child observation selected the first accessibility
+  application with the Qt process PID. GTK platform-theme integration registers
+  an empty root named python before Qt registers its populated root under a
+  separate D-Bus name with the SAME PID. That probe therefore did not establish
+  a broken Qt bridge. An independent bounded system-Python AT-SPI D-Bus client
+  now enumerates all matching roots and inspected1397 actual spaCR nodes.
+  Real MainWindow and Preferences ran on Qt6.12/Linux/xcb in private Xvfb and
+  DBus sessions with private QSettings/config/cache/runtime/network/log paths,
+  hidden CUDA/software rendering and a4G memory cap. The client found the
+  visible High contrast check box, its name and full help, and its enabled,
+  focusable, showing, visible and checkable states. Its external Toggle action
+  succeeded, added CHECKED to the external state, and emitted the real Qt
+  toggled signal. Process-time hashes bind241 loaded spaCR source files.
+  This closes the recorded Linux external-tree/bridge observation. It is not
+  audible speech or human screen-reader usability acceptance. Windows/macOS,
+  actual reader speech and Work's Appearance tutorial refresh remain open.
+  Proof: data/655_external_reader_acceptance_2026-10-14/receipt.json; bounded
+  client and exact replay scripts included, with failed setup iterations kept.
+
+2026-10-14 — Home-B native Linux Orca speech-generation acceptance
+  Actual external Orca46.1 now receives focus and state events from the real
+  spaCR Preferences High contrast check box on Qt6.12/Linux/xcb. Its generated
+  speech text includes "High contrast check box not checked.", the full help
+  description and then "checked" after the independent AT-SPI client toggles
+  the control. External focus/action results are true; visible, focused and
+  checked states agree with the real Qt toggled signal. The receipt binds241
+  process-time source hashes and archives1397 inspected accessibility nodes.
+  The first bounded attempt lacked native window focus because private Xvfb
+  has no window manager. One authorized replay set X input focus on that
+  private Preferences window; it passed. Both attempts and exact scripts are
+  retained. No application source, live desktop or user preferences changed.
+  Orca speech/braille output remained disabled and audio endpoints isolated.
+  SPEECH OUTPUT here proves generated utterance text, not audible synthesized
+  speech or delivery to a speech engine. This closes the bounded native Linux
+  reader focus/help/state generation check. Human screen-reader usability,
+  audible speech, actual macOS/Windows checks and Work's Appearance tutorial
+  refresh remain separate acceptance scope; this is not full N655 closure.
+  Proof: data/655_orca_speech_generation_2026-10-14/receipt.json.
+
+2026-10-14 — Home-B current-nightly integration acceptance
+  Replayed the finite owning/native checks on exact merged0e52d443b4 after11
+  loaded dependencies changed with nightly integration. All106 switch/viewer
+  owning tests pass in26.30s. Independent AT-SPI and actual Orca each inspect
+  1415 nodes; the visible High contrast control retains external focus/action/
+  state acceptance and Orca generates its name, checkbox role, initial state,
+  full help and changed checked state. Both native process maps bind the same
+  242 current spaCR source files, including newly loaded crashreport.py.
+  Runs were sequential, capped6G/4G, GPU hidden and native desktop/settings
+  isolated. No application edits or extra test expansion. Audio stayed off;
+  audible/human, macOS/Windows and Work tutorial acceptance remain open.
+  Proof: data/655_current_integration_2026-10-14/receipt.json.
+
+2026-10-14 — Home-B final integration f7b358 acceptance
+  The final nightly merge f7b35846aa changes the process-loaded run_journal
+  dependency, so the existing finite owning/native cohort was replayed once.
+  All106 owning tests pass in29.86s. Independent AT-SPI and actual Orca each
+  inspect1415 nodes; external High contrast focus/action/state and Orca's
+  name/role/initial-state/help/checked utterance generation pass unchanged.
+  Both process maps match242 current source files. No application edits.
+  Sequential6G/4G caps, private native desktop/settings, GPU hidden, audio off.
+  Audible/human, macOS/Windows and Work tutorial acceptance remain open.
+  Proof: data/655_final_integration_f7b358_2026-10-14/receipt.json.

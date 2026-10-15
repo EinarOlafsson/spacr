@@ -231,7 +231,7 @@ def test_the_palette_is_the_score_cards_and_never_warm():
             f"{value} is a warm colour")
 
 
-def test_a_single_link_makes_the_whole_image_a_link_and_several_become_buttons():
+def test_panels_open_readable_text_and_keep_every_detail_button():
     tool = _tool()
     blocks = [
         {"kind": "heading", "level": 2, "text": "Guides"},
@@ -247,9 +247,12 @@ def test_a_single_link_makes_the_whole_image_a_link_and_several_become_buttons()
                                                 "code"]
     assert units[0]["targets"] == ["docs/a.rst"]
     images: dict = {}
+    pages: dict = {}
     markup = tool._panel_markup("en", "guides-2", units[1]["blocks"], images,
-                                render=False)
-    assert "<a href" not in markup.split("\n\n")[0]
+                                render=False, pages=pages)
+    assert '<a href="docs/readme_text/en/guides-2.md"><picture>' in markup
+    assert '[one](<../../b.rst>)' in pages["guides-2"]
+    assert '[two](<../../c.rst>)' in pages["guides-2"]
     assert markup.count('href="docs/b.rst"') == 1
     assert markup.count('href="docs/c.rst"') == 1
 

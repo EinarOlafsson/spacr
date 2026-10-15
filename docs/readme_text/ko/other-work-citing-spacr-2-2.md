@@ -1,0 +1,1 @@
+- [IRE1α는 마크로파지 곰팡이 활동을 향상시키기 위해 파고소마 칼슘 흐름을 촉진합니다.](<https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>)

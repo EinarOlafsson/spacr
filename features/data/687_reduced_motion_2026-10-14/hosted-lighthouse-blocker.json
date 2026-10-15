@@ -1,0 +1,49 @@
+{
+  "created_at": "2026-10-14T19:38:58.656397+00:00",
+  "purpose": "N686/N687 current live mobile Lighthouse performance and accessibility acceptance without local host contention",
+  "official_documents": [
+    "https://developers.google.com/speed/docs/insights/v5/get-started",
+    "https://developers.google.com/speed/docs/insights/v5/reference/pagespeedapi/runpagespeed"
+  ],
+  "documentation_fact": "Google documents optional API keys and supplies a no-key JavaScript example.",
+  "request": {
+    "endpoint": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed",
+    "url": "https://einarolafsson.github.io/",
+    "strategy": "mobile",
+    "category": [
+      "performance",
+      "accessibility"
+    ],
+    "api_key": false,
+    "credentials_used": false,
+    "timeout_seconds": 55,
+    "attempts": 1
+  },
+  "result": {
+    "http_status": 429,
+    "status": "RESOURCE_EXHAUSTED",
+    "message": "Quota exceeded for quota metric 'Queries' and limit 'Queries per day' of service 'pagespeedonline.googleapis.com' for consumer 'project_number:583797351490'.",
+    "quota_limit": "defaultPerDayPerProject",
+    "quota_limit_value": "0",
+    "body_file": "home.json",
+    "headers_file": "home.headers",
+    "body_sha256": "b07e0d9634ca262f9a4107c301f9779f894812bb18948f295a60b829f511b412",
+    "lighthouse_scores_obtained": false
+  },
+  "remaining_pages_not_attempted": [
+    "/projects/spacr/",
+    "/projects/parascape/",
+    "/projects/timepose/",
+    "/projects/cellect/"
+  ],
+  "stop_reason": "Explicit instruction to stop after quota/unavailability; service reports a shared anonymous daily quota limit of zero.",
+  "actions_not_taken": [
+    "no retry",
+    "no API key or service provisioning",
+    "no billing activation",
+    "no deployment",
+    "no local benchmark"
+  ],
+  "source_scope": "Only the current public homepage was submitted. Private site-src e33c81e was not deployed or measured by hosted Lighthouse.",
+  "acceptance": "Current mobile Lighthouse>=90 performance and>=95 accessibility remain unproven."
+}

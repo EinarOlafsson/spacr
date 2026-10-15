@@ -1,0 +1,1 @@
+- [Référence curée API](<https://einarolafsson.github.io/spacr/api/index.html>) — points d'entrée pris en charge par tâche, avec la référence complète du module un niveau plus profond.

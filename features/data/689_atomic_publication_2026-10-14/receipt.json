@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "item": "N689",
+  "source_base": "f7b35846aa",
+  "result": "atomic upload and public receipt gate implemented; repository storage quota remains unresolved",
+  "verification": {
+    "command": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 6G python -m pytest tests/test_docs_channels.py -q",
+    "passed": 34,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 3.65,
+    "workflow_yaml": "parsed",
+    "diff_check": "passed"
+  },
+  "read_only_observation": {
+    "observed_utc": "2026-10-15T02:06:06Z",
+    "space": "einarolafsson/spacr-docs-nightly",
+    "repository_head": "20ca04ba1f3c98b0ab8e79ebb8bffa50d60ecb9b",
+    "used_storage_bytes": 988829585,
+    "repository_file_count": 3323,
+    "repository_tree_bytes": 456935993,
+    "repository_and_public_source": "0b94804723836c42274bb13f71f59a95461b562c",
+    "public_receipt_size_bytes": 455793473,
+    "runtime_stage": "RUNNING"
+  },
+  "scope": [
+    "tools/publish_docs_channels.py",
+    ".github/workflows/docs.yml",
+    "tests/test_docs_channels.py"
+  ],
+  "behavior": [
+    "Use one create_commit call with parent_commit pinned to the exact revision used for the obsolete-file list.",
+    "Retain remote .gitattributes, remove obsolete site files, and submit complete local site additions together.",
+    "Propagate commit failures; never retry a failed complete site as smaller partial commits.",
+    "Require public publication.json and channels.json to match the assembled source and full receipt before the workflow reports verified publication.",
+    "Poll a bounded number of times for propagation; network/receipt failure cannot count as verified publication."
+  ],
+  "service_mutations_performed": false,
+  "quota_repair_performed": false,
+  "limitations": [
+    "The existing Space repository remains close to its reported 1 GB quota. Atomic uploads still fail if Hugging Face cannot accept their data.",
+    "No history squash, LFS deletion, Space recreation, paid change, token change, or live upload was performed.",
+    "A returned repository commit is not proof of a served deployment; the new public receipt gate has only been verified through focused regression fixtures.",
+    "Old public receipts predate the complete-size-accounting repair; the observed size mismatch alone does not prove a partial upload."
+  ],
+  "official_references": [
+    "https://huggingface.co/docs/huggingface_hub/en/package_reference/hf_api#huggingface_hub.HfApi.upload_folder",
+    "https://huggingface.co/docs/huggingface_hub/en/package_reference/hf_api#huggingface_hub.HfApi.create_commit",
+    "https://huggingface.co/docs/hub/en/storage-limits#how-can-i-free-up-storage-space-in-my-accountorganization"
+  ]
+}

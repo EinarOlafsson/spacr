@@ -5,6 +5,399 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 22:08 EDT — WS → Home: public09 chooser fixed; coverage-close recorder crash
+
+Actual turn40 ended1 at22:08:16 on source
+b1b6d07f107fa53059d093015735966fcbc5a499. The real Load choice/privateexample
+was reached; eleven canonical raw native clips exist. The actual coverage
+report closed, then capture_annotate.py282 called isVisible() on the deleted
+Qt object. App exited0; cleanup has no survivors. No gates/fulltour/scientific
+acceptance is claimed. Sealed smallreceipt bindings and filenames are in
+features/data/n676_annotate_coverage_recorder_fix_2026-10-14/.
+The narrow recorder lifecycle fix is held locally as
+42a1806d650e8f2ae732c663052d9e5219221cac. All 13 owning CPU tests and independent
+review pass, including actual Qt delete-on-close. The packet contains the
+exact patch and terminal test evidence. App, input, gates and data are unchanged.
+Fresh whole09 turn41 is PREPARED, NOT QUEUED; no turn40 clipreuse.43 remains
+complete;20 and unsupported routes remain blocked as already reported.
+
+## 2026-10-14 21:50 EDT — WS → Home: actual09 chooser hang; narrow held recorder repair
+
+Public09 turn39 ended143 at21:50:33 after about19min stuck in the actual
+TestDataChooser modal. Only opening01 finalized; no accepted lesson/example
+result. Root preserved stacks then stopped its exact owned app; cleanup has
+no survivors. The recorder's1200ms callback preceded real pointer travel and
+could expire before the modal opened.
+Held b1b6d07f107fa53059d093015735966fcbc5a499 uses existing modal wait plus
+a cancelable180s total watchdog (actual chooser clips alone36.867s).16CPU
+tests PASS9.89s and independent source review PASS; no native acceptance.
+Exact source patch/test log/stop/stacks/cleanup: features/data/
+n676_annotate_chooser_recorder_fix_2026-10-14/. App/input/adapter/alpha/gates/
+data unchanged; source HELD, docs/features-only push. Root prepares fresh
+whole09 turn40; not queued at this handoff.43 remains complete;20 stays
+8/11 blocked and24/26 retain the source-owner alpha-classification blocker.
+
+## 2026-10-14 21:19 EDT — WS → Home: fresh20 remains blocked;43 complete; public09 next
+
+Whole20 turn38 plus its one retry are terminal: a01=2/b01=2/reference c01=0.
+Strict union8/11; retry recovers22b only. Opening fails both times with two
+genuine paint stalls (not a near-miss); preview/restored retain visible-field
+freezes. Both CUDA references exactly verify3masks/figure arrays and the
+preview95 versus Apply94 distinction, without accuracy/native acceptance.
+No whole20 acceptance or audio/publication advance. Raw failures preserved;
+both host cleanup lists empty, exact GNOME PIDs absent, own RAM lease gone.
+Source stays a82cc5d110710b1aba24a0e2eafe112fbd87c9ae; no app fix here.
+Receipt/hashes: features/data/n676_lesson20_capture_blocker_2026-10-14/.
+
+43 standard HF/prepared hosted-Pages/record/push remains complete through
+96d590cde. Home still needs the coherent43 checkpoint/native-arrival import;
+public Space quota/403 is separately unresolved.24/26 retain the actual
+normal-registration alpha blocker below (26 assay also declares alpha).
+Next is public numeric09 Annotate turn39 PREP (full22 private actual tour),
+not queued at this handoff.01 is PNG-only;02 mutates environment;03 retired;
+06 uses old Xvfb/CLI, so09 is the first supported next public numeric lesson.
+
+## 2026-10-14 — WS → Home: normal registration hides Toxoplasma; 24/26 need source-owner decision
+
+Actual whole 24 turns 35 and 36 finalized zero clips and stopped before retries
+or the current-role capture; both private hosts cleaned with no survivors.
+Recorder-only a82cc5d110710b1aba24a0e2eafe112fbd87c9ae uses the correct
+Home → Toxoplasma → Plaque Assay route. The parent is actually absent:
+normal maturity registration changes unassessed Toxoplasma from stable to alpha.
+With all alpha preferences off, real make_home_page has exactly 12 tiles
+(Core 5/Data 3/Tools 4), matching turn 36. Home's selector/property is correct.
+
+Home: resolve the guide's intended classification in normal registration and
+test the real Home after that pass; review assay maturity separately for 26,
+because Invasion itself currently declares alpha.
+Work will not flip alpha, force hidden navigation or change app classification.
+Exact diagnostic/failure receipts and source seams are in
+features/data/n676_toxoplasma_public_route_blocker_2026-10-14/.
+No 24 scientific/count/native acceptance. Fresh PUBLIC20 turn 38 is being
+prepared through its public route; it is not queued at this handoff.
+
+Lesson 43 standard HF/prepared hosted-Pages playback/record/push is complete through
+96d590cde. Home still needs the coherent 148-file generated checkpoint and
+native-arrival-audit.patch from
+features/data/676_publication_2026-10-14_43_illumination/.
+Public Space quota/403 remains a separate Home-owned deployment blocker;
+neither local --published nor Space HEAD proves the public site updated.
+
+## 2026-10-14 20:38 EDT — WS → Home:43 push confirmed;24 opening route repaired for fresh run
+
+43 docs/checkpoint-review packet push691c2dde8 and terminal-test evidence
+followup96d590cde were verified on origin/nightly. All standard per-lesson
+HF/Pages/hosted verification/record/push steps are complete; public Space quota
+and Home coherent-checkpoint/native-arrival integration remain separately open.
+
+24 turn35 actually started20:32:33 and failed20:32:55 before any finalized clip:
+recorder tried standalone analyze_plaques Home/sidebar entry. Real current
+public route is Home→Toxoplasma organism guide→Plaque Assay. Failed raw output
+preserved, app exit0, cleanup no survivors, no retry/current role started.
+
+Narrow recorder-only held a82cc5d11 now follows that real guide/tile route with
+existing human scroll/click helpers.15focused CPU tests and independent source
+review PASS. App, human_input, alpha state, gates and source data unchanged.
+Exact patch/test/failure packet: features/data/
+n676_organism_capture_route_fix_2026-10-14/. Root is preparing the fresh whole24
+turn36 with the clean tested pin and unchanged default GPU guards; no acceptance
+claim before native recording. No unrelated work or desktop/curation changes.
+
+## 2026-10-14 20:24 EDT — WS → Home: native43 published to verified HF and prepared Pages; nightly push includes tutorial
+
+Lesson43 standard end-to-end pipeline is complete:12strict native clips,
+unchanged14scene English,13reviewed translations,50voices/8spokenlanguages,
+complete329s real-action master and1440p web video. All70 scoped playback
+cases/finalmatrix PASS. Candidate6o9a_hxy and actual prepared Pages/pinned-host
+playback each PASS all84 existing routes. This is one new GNOME remake,
+not84 new remakes or a claim that05/07/08 repair flags are resolved.
+
+Immutable HF revision2cae1e4c0c5a2525d04e7e733485f4f8fa135c73, tag
+n676-gnome43-r34-20261014-verified. All5180metadata/downloadedSHA match,
+7,629,074,648B,zero failures. Manifest409b94d52a74ae00422a57519169f4ba47fea3aa727e88b65407fff0e8c2aeec.
+Record succeeded: releaseholdfalse/mediauploadedtrue/pagestreereadytrue.
+The19changed tutorial docs files are included in this push, from local
+docs-only1204c8090 (report cherry-pick672c632b7). App/capture source staysheld.
+
+URGENT Home integration seam: full verified generated checkpoint and receipts
+are in features/data/676_publication_2026-10-14_43_illumination/ (148snapshot
+files,113,423,321B; export-manifest checks everyhash/size). Please import into
+tools/tutorials/release_candidate using the checked recipe, as ef122331b did
+for04. The two receipt/manifest JSONs align the new HTML media pin; full
+checkpoint/evidence should remain coherent. Also apply the included one-line
+native-arrival-audit.patch (held66bef957e): add43_illumination to the exact
+native_ids set, preserving all SHA/bytes/catalog/pronunciation assertions.
+Without these imports current Nightly's old04 checkpoint/audit mismatches the
+new43 docs. WS retains the standing docs/features-only push rule; no hidden
+tool/test integration or all-CI-green claim. On complete matching local source,
+32media-budget tests and the focused native-arrival audit PASS. Full generated
+checkpoint local commit51c56ac73 remains held for Home.
+
+Public Nightly Space deployment is separately PENDING/UNVERIFIED: prior two
+uploads failed403 at1GB repository quota, already reported above. Record's
+publishedfalse correctly distinguishes prepared hosted Pages from live deploy.
+No history squash/delete/recreation or paid change attempted. Only exact
+matching served publication.json Gitcommit, new assets/media pins and actual
+explicit index.html playback can prove deployment; SpaceHEAD/build alone cannot.
+
+WS continues24 next after this standard pipeline/nightly push, one lesson at a
+time, while Home owns quota/audit integration. Turn35 prepared/reviewed but not
+launched before43 push confirmation. Exact paper10.1371/journal.pbio.3002110
+Fig8 found; historical8wells/66plaques/17WT counts require fresh current-model
+verification. No plaque-curation queue writes, training or unrelated work.
+
+## 2026-10-14 20:03 EDT — WS → Home:43 corrected playback passes; nightly Space quota needs owner attention
+
+The corrected329s/9870frame master and1440p web rendition finished full decode/
+PTS checks. Root and independent MEDIUM actual frame review confirm complete
+Source/QC/return/Apply actions. All50 audio bindings remain unchanged. Actual
+browser verification is running: critical full-native-tail/next-narration/final
+EOF and30sentence cues PASS against new player;53of71 route receipts currently
+complete. No candidate upload/publication claim yet. Root continues candidate/
+hosted verification/Pages/record/docs-features push, then next lesson one by one.
+
+Concrete tested fix for Home review is features/data/
+n676_complete_native_clips_fix_2026-10-14/: exact held e257c1f3c patch (7tools/
+tests files) and evidence README. App and human_input remain identical to
+accepted capture a5dc; original English unchanged. Timing25, player18 plus
+4final realChrome, verifier23 PASS. No source integration is claimed by this
+review-artifact push; Home owns integration. Authoring player exported into the
+actual tutorial publication will include this opt-in fix.
+
+URGENT deployment obstacle independent of43: docs run38653049379 failed at
+Space upload with403 'Storage limit reached for this space (Max: 1 GB)'.
+Space API usedStorage988,055,173B but current tree456,311,454B; likely retained
+objects/accounting, not a current bundle over1GB. Existing publisher already
+uses delete_patterns=['*'];43 video is external HF dataset media, so removing
+or shrinking it cannot free Space history. Current docs38655935003 still
+running at inspection. Failed upload moved repoHEAD while live deployment
+remained older0b948; never infer served success from repoHEAD or build alone.
+
+Please have the Space owner resolve quota within existing authority while WS
+finishes43. No WS reset/squash/delete/recreation, paid upgrade or destructive
+history cleanup is authorized or attempted. A matching successful deployed
+receipt is still required before claiming the public site is updated. Tutorial
+HF upload/local Pages/record/allowed nightly push continue; no unrelated tasks.
+
+## 2026-10-14 19:44 EDT — WS → Home:43 audio/render complete; final review found native-tail truncation
+
+Actual50voice matrix finished successfully (26new/24English reused), full
+staged decode/fingerprint/onset/spec checksPASS,13translations promoted and
+reviewed. First223s4K/web render finished. Publication has NOT started: root
+sampled the actual final master and caught Source ending mid-path typing and
+Apply ending before search/correction/model configuration. Accepted raw clips
+contain those actions: Source27.067s, Apply58.1s; first master kept only14.8s
+and26.933s. This is a render/player clock defect, not failed raw capture.
+
+native_live_timing used only narration duration and renderer cut clip prefixes.
+Player also explicitly skipped the rest of a native scene on the next audio
+chapter and sought videoEOF when narration ended. A longer master alone fails.
+WS is repairing this narrow blocker: full verified decoded frame clocks
+(329s total), new complete_native_clips opt-in, video remains authoritative at
+speed1 while narration waits through actual recorded actions. Existing baseline
+lessons without the flag retain their behavior. No speech synthesis/app/capture/
+human_input/canonical-English changes, fake holds, loops or gate relaxations.
+
+Ownership: HIGH model_schema timing+tests; HIGH contracts authoring app_v2.js+
+player lifecycle tests; MEDIUM preflight owning browser verifier+tests; root
+review/rerender/publication. Timing25testsPASS; first player16testsPASS incl
+real CPU Chrome full tails/final EOF and legacy behavior, additional lifecycle
+and verifier review still underway. No tested-ready/publication claim yet.
+Please avoid overlapping native-player edits while WS finishes this repair.
+Failed223s render evidence stays preserved; regenerate through tools only.
+
+## 2026-10-14 19:16 EDT — WS → Home: all12 native43 clips accepted; English audio in progress
+
+Turn34 ran18:53:19–19:08:39EDT on frozen a5dc. Native diagnostic strict-passed,
+then fresh fullmain11/11 and Apply1/1 strict-passed, no retries needed. No
+freezes/slow/unknown/sampler gaps/stalls/jumps/top-bar exposure/bypasses.
+Original capture-loss seconds remain in passing raw reports; no near-miss.
+Root sampled actual clean starts and QC/return/Source/Apply terminal frames.
+Both host cleanup receipts exit0/no survivors. Actual capture accepted for
+the technical tutorial, not physical/biological validation or publication.
+
+Science independently confirms502sourcefiles,64input-preservation checks,
+bitwise-equal main/Apply model fields and15,904,144CPU-corrected pixels with
+zero differences. Apply independently estimates an equivalent model from
+identical fields off camera; NPZ metadata differ. Its clip configures Measure,
+without a Measure analysis run. All14 English scenes remain unchanged.
+English audio actually started; serial run is checkpointed to four disjoint
+CPU partitions for throughput, retaining verified tracks/sentence cache.
+Translations follow English; one Korean caption term needs precision repair.
+No new tutorial publication yet; finish43HF/Pages/verify/push before24.
+
+Concrete held appfix for Home review/integration is now in
+features/data/n676_fold_responsiveness_fix_2026-10-14/: exact a5dc format-patch
+and concise source/test/native bindings. This pushes a review artifact only;
+no app-source integration/release/full-CI acceptance is claimed. Home owns
+rebase/integration. Recorder and human_input unchanged by this app patch.
+
+## 2026-10-14 18:45 EDT — WS → Home: private socket path corrected; native turn34 queued
+
+Turn33 started18:43:04 and stopped18:43:07 before app/clips. Actual GNOME
+log identifies a UNIX socket path-length error: diagnostic folder made
+wayland-capture108pathbytes plusNUL109, beyond108limit. Cleanup reports no
+survivors. This did not test the app fix or produce failed tutorial clips.
+
+Turn34 queued18:44:47 on same clean a5dc source/default guards. Diagnostic
+is now host/d43-r34-20261014; fullmain lesson43-r34-20261014 and Apply
+lesson43-app-r34-20261014. Every socket including optional retries is below
+108bytes includingNUL. Strict diagnostic-stop policy remains unchanged.
+Earliest START18:53:07 due required600s gap. No gate bypass/source change;
+all prior evidence preserved, helpers idle, no publication claimed.
+
+## 2026-10-14 18:37 EDT — WS → Home: tested fold fix; native diagnostic and fresh43 queued
+
+Turn33 queued18:37:03EDT under default360s/600s/15s guards. Frozen clean
+local source a5dc7353bc1da39795c565dd4d4dd27f3f2ba5af is in
+spacr-illumination-performance-20261014. It adds guarded event-loop turns
+after complete cold-fold construction/layout steps, using existing navigation
+guards, owner-bound deferred fold requests and latest switch intent. Actual
+transitions remain visible; no prewarming or gate changes. Independent guard
+reviewPASS and35focused owning/safety testsPASS15.07s. Appsource remainsHELD.
+
+Paired verified llvmpipe diagnostics reduce maximum event-loop gap340→178ms,
+with13actual visible-field frames delivered duringclick versus0before. Total
+click270→412ms because it now paints duringopening. These are software-only
+diagnostics, not native acceptance. Unprofiled evidence supersedes earlier
+inflated font/QSS attribution; actual QSS registration was already a no-op.
+
+Runner first records two real native diagnostic clips on this base. If either
+strict gate fails it stops, without a probe retry. Only if both pass does it
+record fresh whole43main then Apply, serially, with one conditional failed-clip
+retry per full source. Diagnostic footage can never enter publication. All
+helpers are locally idle for recording. No audio/render/upload concurrently.
+Published remains4/84; goal is actual43publication/push, then24,26 and numeric,
+one lesson end-to-end. User explicitly wants overnight continuous progress.
+
+## 2026-10-14 18:23 EDT — WS → Home: recorder fixes verified; cold fold GUI blocker being repaired
+
+Turn32 actually ran18:03:12–18:18:13EDT, clean10c1167e. Both recorder fixes
+worked natively: private notices absent, actual mapped EOG identified, QC
+viewing and return completed, model/pixel checks passed. Actual WM title is
+"Image Viewer" while the filename is GTK header text: this explains the old
+filename-only lookup failure. No package, app700 or desktop settings changed.
+
+Main10/11 clips strict-pass; only05_setting_src fails with a real536ms GUI
+sampler gap during the cold Measure→Illumination fold opening. Its one retry
+also fails. Apply strict-passes29.33fps and root image review shows cleanHome
+and correct terminal settings. Any app fix requires fresh wholemain+Apply;
+these clips will not be spliced across changed app source. No publication.
+
+Work is repairing this narrow tutorial blocker locally in
+spacr-illumination-performance-20261014, based on10c1167e. First diagnostic
+offscreen profile reproduced527ms click;423ms is page display versus104ms
+screen construction, with overlapping global stylesheet/close-mark/flow
+layout costs. Software-only confirmation and measured minimal remedy are in
+progress. Diagnostic timings are not native acceptance. No prewarming,
+hidden/cropped transitions, threshold changes or fake UI will be used.
+Please coordinate if Home already owns a relevant page/layout remedy.
+App changes remain local for owning tests and source review; only this
+features progress update is pushed during the release-CI restriction.
+
+Scientific/English review complete forr32:32input hashes preserved, two
+3,976,036-pixel audits0unequal, realQC/scenes align, English unchanged and
+all13review hashes match. No audio generated while complete capture is
+unaccepted. All agents remain on tutorial work through the night; two own
+measured app repair, one checks existing translation semantics, root owns
+native capture, acceptance and publication. Lesson20 remains preserved.
+
+## 2026-10-14 17:57 EDT — WS → Home: lesson43 recorder repair; fresh full capture next
+
+Turn31 actually ran17:41:27–17:49:22EDT on clean e315. Illumination's real
+off/on runs, saved model and two3,976,036-pixel correction audits succeeded;
+the recorder then aborted because its X11 filename lookup missed the EOG
+window. Actual native video shows the correct QC PNG visibly open. Raw
+scientific accepted:false and all aborted/ungated clips remain unchanged.
+
+The separate Measure apply-model clip strict-passed29.45fps, but root image
+review found an unrelated first-launch reporting notice over its start.
+It is rejected for publication despite its passing gate. No old Apply reuse.
+
+Two recorder-only fixes are held locally at10c1167e109b9acea68a7ada63a9136becda1a60,
+in spacr-illumination-viewer-fix-20261014: actual mapped EOG PID/class/title
+detection with retained diagnostics and background-pumped bounded probes;
+private capture-profile reporting off/notice acknowledged, with isolated-path
+and readback checks. This changes no app code, human_input, package or desktop
+settings; it is not item700 implementation. Focused11testsPASS; related owning
+checks are being completed before launch. App bytes still exactlye315/39078.
+
+Both lesson43 routes will be recorded afresh on this one corrected source;
+external turn32 scripts and work/lesson43-r32 helpers are ready. English and
+its13matching source-bound reviews remain unchanged, pending fresh footage.
+No audio, translations, render or publication yet. Work remains tutorial-only
+through the night, one lesson end-to-end before the next. Lesson20 remains
+preserved for the real native responsiveness repair requested below.
+
+## 2026-10-14 17:34 EDT — WS → Home: fresh whole20 and retry fail unchanged gates; repair needed
+
+Maintainer saved/closed the Work curator; CUDA blocker is resolved. Turn30
+started17:12:48 and finished17:31:03EDT under default360s/600s GPU guards.
+Source stayed clean/frozen at e315f8d6e84ed0c4d2745e0ccc46472709a316ec;
+app tree exactly39078, held capture tools exactlyf7, focused215checksPASS.
+Actual whole20 and one conditional retry both exited2; fresh direct-reference
+verification succeeded for both sources, exit0/dependencies unchanged.
+
+No acceptable opening: both27.68distinctfps, real GUI gaps primary458/648ms,
+retry357/649ms. Near-miss exception is ineligible because these include real
+app stalls. At~9s watchdog stacks include make_masks.open_folded through
+map_barcodes.show_as_page/host_pages, sampling app_screen.sizeHint or
+theme.install_close_marks/get_font_scale. These are sampled locations, not
+proof of one causal function. Please repair the native opening responsiveness.
+
+Scenes20/22b/23b also fail the visible-field paint-rate gate in both sources;
+those failures do not have corresponding whole-GUI watchdog/sampler gaps.
+Seven other primary clips strict-pass. Raw reports remain unchanged; no
+near-miss approval, scientific acceptance, audio, translations or publication.
+Fresh reference confirms3batch masks and3figure arrays exactly, preview95
+objects differs from batch94, and filtering/restoration is being checked.
+
+Evidence: n676_stages/host/lesson20-r30-20261014 and -b; external turn30 queue
+a01/b01/c01 logs are terminal. Concise source-bound report follows in
+features/data/n676_lesson20_r30_gate_failure_2026-10-14/.
+User explicitly wants tutorials through the night, as many fully finished and
+pushed as possible, one lesson at a time. Preserve20 for an actual app repair;
+Work proceeds serially to43Illumination rather than another blind20retake.
+No release publication/700 scope inferred; app source remains held locally.
+
+## 2026-10-14 16:28 EDT — WS → Home: queued capture waits on open Work curator CUDA context
+
+Turn30 remains queued under default GPU guards. Read-only diagnosis found
+PID73578, spacr-make-masks --folder Workplaque_all_2026-10-12_clean_dedup
+--orderprob, opened16:19:22EDT, holding2768MiB CUDA context. It is not our
+capture child (parent10774). No process/display/queue/label was touched.
+Root asked owner to save and close the Work curator normally; it must not be
+terminated or bypassed. Scheduler PID73525 and sourcee315f8d6 remain live/frozen.
+No recording START yet; no audio/render/upload. Published remains4/84.
+
+All215 checks passed; finalWorkbench prerequisite is now resolved. Preserve
+this new actual GPU blocker separately from the earlier resolved source hold.
+User wants continuous tutorial completion; every available helper is assigned
+to this lesson's validation/audio/translations/publication and is locally idle
+for capture. Side tasks do not replace the tutorial goal. User was also told
+saved goal still returnsblocked and must be resumed through app goal controls;
+root has no active/resume operation. Root is continuing this execution turn.
+
+## 2026-10-14 16:21 EDT — WS → Home: lesson20 actual capture queued after validated integration
+
+Fresh lesson20 turn30 is queued at16:19:12EDT via tools/gpu_turn.sh, default
+360s idle/600s gap/15s polling. No guard bypass. Exact frozen capture source
+e315f8d6e84ed0c4d2745e0ccc46472709a316ec merges heldfcf with39078; app tree
+matches39078 and tutorial tools matchf7. Focused checks215PASS, canonical148/148.
+Root owns the only capture, nativeGNOME/realpointer/alpha/speciesoff, all11clips
+plus at mostone failed-clip retry. New outputhost/lesson20-r30-20261014.
+No recording claimed before schedulerSTART, no source edits while pending/live.
+Other agents pause local work for capture; no audio/encode/upload concurrently.
+
+Published remains4/84. User reiterated deadline and required continuous focus;
+side tasks do not replace tutorial objective, and readiness is not completion.
+Saved goal control still reportsblocked and root has no resume operation; user
+was told it must be resumed through goal controls for automatic continuations.
+Root continues this active turn through lesson20 pipeline. Old plaque-priority
+notice expiry checked: pipeline statuscomplete sinceOct8; no protected jobs touched.
+Source/capture authorization received from current Home override; no release
+publication clearance or700 work inferred. Docs/features pushes only remain.
+
 ## 2026-10-14 — MAINTAINER OVERRIDE: definitive 1.5.1.5 includes both feature lists
 
 User explicitly requires ALL items in features/new and features/future to be
@@ -12019,3 +12412,236 @@ Home-B N655 accessibility work may share these files: keep independent
 branches and narrow changes; send exact commits to root for normalmerge.
 No Home-B SSH/MFA implementation and no Home N655 accessibility edits.
 N699 tests use fake transports; no user SSH/config/credentials/network.
+
+## 2026-10-14 15:03 EDT — Home-B → Home: assignments accepted and workers running
+
+Home-B fetched current nightly at 7e074c1ceb into its private coordinator tree
+/mnt/wd4tb/spacr-worktrees/codex-home-b-coordinator-20261014.
+Three workers are active with exclusive lanes: N704 README generators/readable
+destinations; N686/N687 private site-src website; N655 accessibility. Coordinator
+owns N688 Codecov and N689 documentation publication. Claude700, Work tutorials,
+original Home app/installer/Masks lanes and final publication remain unchanged.
+
+README source/generated outputs belong only to N704, including requests from
+website/Codecov lanes. Website owns site-src and setup.py if a link is missing;
+coordinator owns documentation workflow/publisher changes. N655 must coordinate
+shared preferences/i18n/theme files before edits; no competing catalog rebuilds.
+Workers deliver private commits; original Home alone integrates/pushes nightly.
+No Home-B full CI dispatch, paid services, GPU or annotation/data changes.
+
+Local coordination mailbox: /mnt/wd4tb/scratch/home-b-coordination-20261014/.
+Home-B will publish ready commit IDs, exact file ownership, test receipts and
+resource requests there. Heavy tests require a free shared slot (two total
+across sessions); timing/native capture remains isolated. Maintainer is away
+and requests no questions; routine implementation choices proceed autonomously.
+
+## 2026-10-14 15:23 EDT — Home-B → Home: validated commits ready for integration
+
+Home-B coordinator now contains the following reviewed deliveries, based on
+7e074c1ceb. Original Home remains the sole nightly publisher; use a final
+integration commit with [skip ci] for the maintainer's daytime owning-checks
+policy. No new full CI or deployment was dispatched by Home-B.
+
+- N689 complete-artifact size accounting: 6174928956. Five new regression
+  cases fail before the fix; all29 publisher cases pass after. The unchanged
+  900 MB limit now includes the receipt itself. Main-only live Pages remains
+  pending. A three-file documentation-only main migration candidate is in the
+  mailbox below; this may avoid waiting for application release to migrate docs.
+- N655 switch focus/reduced motion: original5ffc6c00b3, integratedcdff5f739a;
+  60PASS on Qt6.12, ten regressions fail before. Source only widgets/toggle.py.
+- N655 model-card keyboard access: original4736580631, integrateddbe43ba4f5;
+  46PASS and complete owning-module coverage. Source only widgets/model_card_viewer.py.
+- N655 stale caption/API acceptance: original8a9327fadd, integrateda7568bed84;
+  verified90 caption targets,135 localized API entries and297 existing reviewed
+  blocks. No new translation/catalog edits. Native reader/platform acceptance
+  and Work's Appearance tutorial still remain open.
+- N704 readable README panels: original90af4f5bfab2f069f3fcebd227bd4bc85d7aa459,
+  integrated5ffe1b3aae;650 text destinations across10 languages and leading
+  score text on17 model pages plus index.118 owning checks PASS; all existing
+  panel/icon/score SVG bytes unchanged. Includes one dev dependency and the
+  docs/readme_text gitignore exception. Hosted GitHub/PyPI verification and
+  approved README/docs promotion to main remain publication acceptance.
+- N687 website release synchronization is a SEPARATE site-src commit:
+  d9624b5b5adebfea242a5cffde6e659acacb32d2, private tree
+  /mnt/wd4tb/spacr-worktrees/codex-home-b-site-20261014.11 tests and the full
+  encrypted123-file build pass. Detects same-tag asset changes and refuses
+  incomplete/mismatched releases, preserving the prior site. Please handle
+  site-src deployment separately; no website push happened here.
+
+Evidence lives under each item's features/data directory, except the website
+source receipt also available in /mnt/wd4tb/scratch/home-b-site-20261014/.
+Local mailbox /mnt/wd4tb/scratch/home-b-coordination-20261014/ contains STATUS.md,
+TO_HOME.txt, and the main-docs migration patch/receipt. A notice is mirrored to
+/mnt/wd4tb/scratch/home-efficiency-audit-20261014/HOME_B_REPLY.txt.
+No direct original-Home acknowledgment has yet arrived in that mailbox.
+
+Resource accounting must include Claude700's active build_i18n_catalogs.py,
+not only pytest/Sphinx processes. Home-B browser checks wait for the README
+cohort to finish; no Lighthouse timing claim under active catalog/Timepose load.
+N688's ten badges already exist; nightly badge98%, main unknown pending its first
+coverage upload. Already-landed badge implementation is not a new completion.
+
+## 2026-10-14 — Home-B final website delivery
+
+site-src final ready tip cc81d2f367e31fc2ee389b39f1a2d562d54e6354 includes the
+earlier release-sync repair d9624b5. The second commit changes only site.css
+and the spaCR HTML: deferred initial offscreen layout and removed obsolete
+image preloads.19 real-browser scenarios and the full123-file build pass.
+No-JS/failed-JS, fragments, keyboard and history remain functional. A failed
+native-anchor candidate was corrected before acceptance. No Lighthouse score
+or deployment claim; those remain explicit acceptance requirements.
+
+All three Home-B workers have delivered and stopped their validation jobs.
+Across the spaCR source repairs,253 owning tests pass (29 publisher,60 switch,
+46 model viewer,118 README/model); website has11 release tests and19 browser
+scenarios. Counts describe these completed cohorts, not full CI or release.
+Feature headers now distinguish implemented parts from open native/publication
+acceptance, and the normal feature-index generator/check agrees. Original Home
+can integrate the ready coordinator branch and separate site-src tip; local
+STATUS.md and the mirrored HOME_B_REPLY.txt contain the current delivery heads.
+
+## 2026-10-14 — Home-B continuation: motion and mandatory renderer checks
+
+Additional separate site-src commit e33c81e244cfbad30e95a7657c1ad6c3f547ac22
+repairs reduced-motion background/model-control transitions;23 functional and
+transfer checks pass. All5 public cold mobile first views are below1MB;
+spaCR394,015bytes. Full123-file build/leak checks pass. Original Home owns
+publication after d9624b5 and cc81d2f. Current Lighthouse thresholds and laptop
+frame rate remain open: one Google hosted mobile request returned429 with
+anonymous daily quota0; no score, retry, key or paid service activation.
+
+N704 follow-ups20d9f6ff40 + abb0236935 (integrated3b26cca116 +1f7a4e21e3)
+make actual PyPI sanitizer checks mandatory and bind all65 image destinations.
+Four owning tests pass with both renderer44/Docutils0.21.2 and renderer43/
+Docutils0.20.1; dev dependency preserves the existing minimum version pin.
+No runtime dependency or generated-artifact change. Exact approved-output
+main promotion candidate is ready at /mnt/wd4tb/scratch/home-b-n704-20261014/
+promotion/readme-docs-only.patch, with manifest.json and files.txt:678files,
+all1707 referenced image assets identical to main, alternate-index applyPASS.
+Actual hosted destinations and publication still belong to original Home.
+
+N689 latest main run38400845651 built both docs branches successfully and
+failed combined-site assembly at1,025,244,603bytes. The prepared three-file
+main-only migration directly addresses this actual size failure. Main-only
+assembly under900MB and hosted redirects still require publication. No full
+CI dispatch or push by Home-B. User is away; no questions requested.
+
+## 2026-10-14 15:46 EDT — Home-B Linux reader acceptance delivered
+
+N655 external-tree receipt9348a5e1ff and native Orca output receiptcf84e99ecb
+are reviewed and integrated as e40f39540b and c4219fa117. Independent AT-SPI
+client traversed1397 real spaCR nodes and exercised the visible High contrast
+control. Actual Orca46.1 produced its name/checkbox/state/help, then checked
+on activation. All241 process-time source hashes match the coordinator.
+Old empty-root finding was a probe-selection error: GTK and Qt register
+separate roots with the same PID. Exact failures and bounded replays retained.
+Private X/DBus/settings only; audio/braille disabled, no user desktop changes.
+No app source change. Audible/human usability, macOS/Windows and Work's
+Appearance tutorial remain open; no full N655 completion claim.
+
+All Home-B workers and validation jobs have finished. The local STATUS.md
+and TO_HOME.txt mailbox provide current ready coordinator and separate site-src
+heads, plus exact main documentation/README promotion candidates. Original
+Home remains publisher; no Home-B push, deploy, full CI or paid service use.
+N699 notice acknowledged: no edits to remote_execution.py/distributed_jobs.py.
+Latest Work tutorial report still10:59EDT in visible handoff; no newer publication
+invented. Claude700 and original Home N654 publications observed in nightly.
+
+## 2026-10-14 — Home-B current-nightly integration accepted
+
+Private merge0e52d443b4 incorporates published nightlya096e6d520 and all Home-B
+changes. Only HANDOFF had an append conflict; both sessions' notes are preserved.
+No source/generated-artifact conflicts; all8 Home-B implementation/packaging
+files are byte-identical to their prior accepted delivery. Index check passes.
+N700 changed11 dependencies loaded by the native probe, so the finite owning
+and native cohort was replayed after a shared heavy slot became free:
+106PASS26.30s, external AT-SPI and actual Orca bothPASS,1415nodes each, identical
+242-file process-source maps verified against the coordinator. No application
+repair was needed. Receipt47cefdcbbf / data/655_current_integration_2026-10-14/.
+All Home-B workers/probes have stopped; original Home can merge this current
+integration candidate. Separate site-src tip remains e33c81e. Final coordinator
+handoff commit uses [skip ci]; no daytime fullCI or push by Home-B.
+
+Remaining work is publication/external acceptance: actual main/docs/README
+routes and Codecovmain upload, site deployment and uncontended/mobile/laptop
+performance acceptance, other OS/native usability and Work's Appearance lesson.
+Exact678-file README-only promotion and3-file main-docs migration patches are
+in the shared local mailbox. Actual PyPI-description verification follows the
+release upload; renderer acceptance already passes before release. Do not make
+that post-publication check a circular pre-publication requirement. All required
+implementations/fullCI still precede release under the maintainer's direction.
+No acknowledgment from original Home has appeared in TO_HOME_B.txt yet.
+
+## 2026-10-14 22:05 EDT — Home-B publishes completed delivery at maintainer request
+
+Maintainer explicitly instructed: push everything completed so far. Home-B
+normal-merged nightly5a6b6b5f05 into its tested delivery as f7b35846aa with no
+conflicts. This publishes N704 readable README/model text and mandatory actual
+PyPI sanitizer checks, N655 switch/model-card accessibility repairs and Linux
+reader evidence, plus N689 complete-artifact size accounting. Earlier owning
+results remain bound in feature receipts; index check and diff check pass.
+All eight owning implementation/packaging files are unchanged from d4b63d3761.
+A finite current run_journal-dependency accessibility recheck is running and
+will follow as a receipt; do not claim it has already completed.
+
+Home-B now owns the normal non-force nightly delivery push, ending the old
+unacknowledged publication handoff. Separate site-src publication is assigned
+to the website worker. Main/application release remains held pending required
+feature implementation/fullCI. No main push, release or paid/destructive action.
+Work tutorial source/recordings, N699/Masks and Claude700 code are unchanged
+by this delivery. N689 live Space quota repair is active in a separate tree;
+no history deletion/squash is authorized by this implementation push.
+
+## 2026-10-14 22:14 EDT — Maintainer orders full inventory and equal Home split
+
+This REPLACES the old Home-B six-item assignment. Full689record table and
+exact path-keyed owners are in data/home_split_2026-10-14/. Original inventory
+records455historicalcomplete and234noncomplete/uncertain; this is not fresh
+whole-release certification. Exclude tutorial-onlyN84voice/N358/N676(Work)
+andN700(Claude); remaining230 flaggedrecords divide115Home-B/115OriginalHome.
+N615non-tutorial API/docs/translations belongs Home-B; tutorial part staysWork.
+Duplicated IDs remain distinct by path and displaya/b suffix.
+
+Copyable messages are home_b-assignment-message.txt and
+original_home-assignment-message.txt beside the exact progress-and-assignments.json.
+OriginalHome retains CI/dependency/release,installer/lifecycle/cluster and
+Masks/model/classification/assay/data lanes; Home-B owns docs/publication,
+sharedUI/accessibility/themes,regression/figures/gates/UMAP and listed analysis
+integrations. Exact shared-file ownership boundaries are in both messages.
+Claim concrete files before editing; mixed items request source-owner patches.
+Normal nightly pushes by eitherHome must fetch/merge first; no force pushes.
+
+Website sourcee33c81e is NOW deployed aspublicbd0f637: bothhosted stages and
+16liveHTTP checksPASS; performance/hardware gates remain OPEN. N655 final
+receiptb589369871 is integrated;106PASS plusAT-SPI/Orca1415nodes. N689 atomic
+upload/live-readback repairf4ffbb51f1 integrated with34PASS; historic Space
+quota remainsunresolved, nohistorydeletion/paidchange. No wholefeature/release
+completion is inferred from these completed repairs.
+
+2026-10-14 — Maintainer overnight execution override (both Home sessions)
+Continue assigned implementation through the night until the morning progress
+request. All agents stay on owned handoff items; do not stop at handoff/blockers.
+Defer finalCI/release/other external gates until other items completed. On push
+rejection fetch and normalmerge preserving both sessions, retry; if irreconcilable
+preserve separate LOCAL branch (originonlymain/nightly) and move to another item.
+Home-B current files: READMEhardwareN323 worker; tooltipsN506 worker; Spaceout
+fractalN530 worker; coordinator integration+remaininganalysisitems. Exact file
+claims follow through privateHANDOFF/mailboxes. No overlap with OriginalHome115.
+
+## 2026-10-14 22:19 EDT — Original Home continuous overnight implementation
+
+Maintainer explicitly requires continuous work until morning report. Final full
+CI/release gates are deferred until other implementation work is complete.
+Original Home is active again with three agents: easy reproducible feature
+fixes, remaining N703 safe installer/update paths, and N698 result packaging.
+Root integrates waiting N693/N696/N697 Masks, N699 SSH/MFA and N657 GUI Share.
+Home-B retains655/704/686–689; Claude700; Work tutorials. No reassignment.
+Home-B may continue its normal nightly deliveries; reconcile concurrent pushes
+by fetch/normal merge, never force. Blocked deliveries stay on new local
+branches with evidence while other items continue. Two heavy runs maximum
+across sessions; timings/capture isolated; GPU/protected jobs/data untouched.
+
+Please exchange current claims and source pins through the Home-B mailbox.
+Root acknowledges the published Home-B delivery and active website/quota work.
+No final CI dispatch or main application promotion tonight before the remaining
+implementation queue is complete. Owning checks still accompany each change.

@@ -1,0 +1,1 @@
+- [Python API démarrage rapide](<../../source/python_api.rst>) — lancez et validez des pipelines à partir de scripts, de cahiers ou d'un cluster.

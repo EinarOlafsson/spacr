@@ -1,0 +1,1 @@
+- [代谢适应性和Toxoplasma gondii中的营养素挖掘:从吸入路径缺乏突变物的见解。](<https://journals.asm.org/doi/full/10.1128/msphere.01011-24>)

@@ -1,0 +1,1 @@
+- [Adaptabilidad metabólica y recolección de nutrientes en Toxoplasma gondii: percepciones de mutantes deficientes en la vía de ingestión.](<https://journals.asm.org/doi/full/10.1128/msphere.01011-24>)
