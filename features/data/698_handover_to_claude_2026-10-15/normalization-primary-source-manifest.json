@@ -1,0 +1,40 @@
+{
+  "source_revision": "f2c39fe2f838cf35ce7da92824f5a5e3ee6e88a7",
+  "sources": [
+    {
+      "source": "onnxruntime/core/providers/js/js_execution_provider.cc",
+      "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/f2c39fe2f838cf35ce7da92824f5a5e3ee6e88a7/onnxruntime/core/providers/js/js_execution_provider.cc",
+      "file": "js_execution_provider.cc",
+      "sha256": "367d8f48a6b4513d6f61ae8ad33bc2eb252b8589e38a32e764f1a0a3f87ca430",
+      "bytes": 65500
+    },
+    {
+      "source": "onnxruntime/contrib_ops/js/js_contrib_kernels.cc",
+      "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/f2c39fe2f838cf35ce7da92824f5a5e3ee6e88a7/onnxruntime/contrib_ops/js/js_contrib_kernels.cc",
+      "file": "js_contrib_kernels.cc",
+      "sha256": "3ce284545da3c14f6e0fde3dcbe37a03c790f462cb0a018e0216230ce396fde9",
+      "bytes": 5435
+    },
+    {
+      "source": "onnxruntime/core/optimizer/constant_folding.cc",
+      "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/f2c39fe2f838cf35ce7da92824f5a5e3ee6e88a7/onnxruntime/core/optimizer/constant_folding.cc",
+      "file": "constant_folding.cc",
+      "sha256": "628f7eba6072aa7bdf2078ac5fce1cbf579e1feb5282419b35534d675efd677c",
+      "bytes": 30198
+    },
+    {
+      "source": "onnxruntime/core/optimizer/graph_transformer_utils.cc",
+      "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/f2c39fe2f838cf35ce7da92824f5a5e3ee6e88a7/onnxruntime/core/optimizer/graph_transformer_utils.cc",
+      "file": "graph_transformer_utils.cc",
+      "sha256": "1ffe419f3a9546bbff0c75490d8a0216b1e3ce9848318049740c4663cc4c27ca",
+      "bytes": 35415
+    },
+    {
+      "source": "onnxruntime/core/graph/graph.cc",
+      "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/f2c39fe2f838cf35ce7da92824f5a5e3ee6e88a7/onnxruntime/core/graph/graph.cc",
+      "file": "graph.cc",
+      "sha256": "bc848ea7fe58fc42575a43ad0278f0e7b1707b6d4558cabf7828c190cd38c705",
+      "bytes": 309539
+    }
+  ]
+}

@@ -9,6 +9,18 @@
 > as claimed; when it does, hand that item over the same way. Your other work (1.5.1.5 release, CI 43/288,
 > 703, tutorials 676, translations) is unaffected.
 
+
+## 2026-10-15 Original Home — N698 handover complete
+
+Maintainer current Claude N698 claim acknowledged; all Original N698 work
+stopped. Its trailing item note and portable packet
+features/data/698_handover_to_claude_2026-10-15/ describe published managed
+source/quota failure and the preserved unvalidated355e0314b1 offline prototype.
+Exact source/tests/patch/guard receipts/operator proposal are included for
+owner adoption; no actual export/browser/native-inference claim. No paidroute,
+quota retry or N698 worker is active. All working changes were already public.
+
+
 ## 2026-10-15 Original Home — owner repair acknowledgment and current locale checks
 
 Claude incoming ca8d24c259 is normally merged: its twenty N700 arrivals and

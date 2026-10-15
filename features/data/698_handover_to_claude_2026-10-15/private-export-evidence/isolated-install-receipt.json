@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "normal_resolver": true,
+  "installed_packages": 2,
+  "rows": {
+    "onnx": {
+      "version": "1.23.2",
+      "location": "/mnt/wd4tb/scratch/n698-well-v2-export-proposal-20261015/venv/lib/python3.12/site-packages/onnx-1.23.2.dist-info"
+    },
+    "ml_dtypes": {
+      "version": "0.5.4",
+      "location": "/mnt/wd4tb/scratch/n698-well-v2-export-proposal-20261015/venv/lib/python3.12/site-packages/ml_dtypes-0.5.4.dist-info"
+    },
+    "torch": {
+      "version": "2.13.0",
+      "location": "/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/torch-2.13.0.dist-info"
+    },
+    "ultralytics": {
+      "version": "8.4.157",
+      "location": "/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/ultralytics-8.4.157.dist-info"
+    },
+    "onnxruntime": {
+      "version": "1.30.0",
+      "location": "/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/onnxruntime-1.30.0.dist-info"
+    }
+  },
+  "models_imported_or_run": false,
+  "shared_environment_mutated": false
+}

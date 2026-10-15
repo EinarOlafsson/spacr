@@ -1,0 +1,44 @@
+{
+  "scope": "Private CPU export tool and isolated mechanics; no actual checkpoint model load/export/prediction or browser/scientific acceptance",
+  "source_pins": {
+    "tools/web_mask_generator/export_well_onnx.py": {
+      "sha256": "25ac238e6d1454a0b608559b23e4dab0008271055ea23dd1f3714fdc37c03b6b",
+      "bytes": 14193
+    },
+    "tests/test_web_well_browser_export_n698.py": {
+      "sha256": "e3fb7f4889911b714da704ff3115c404f9b48fa8c934ab0987fe780af77e132a",
+      "bytes": 12644
+    }
+  },
+  "implementation": "Explicit immutable well-v2 only; private checkpoint copy; held-source identity/hash checks; offline native phase; no auto-install; no overwrite of foreign output; operator-policy/hash/opset/graph-type/dynamicHW/external-data gates",
+  "baseline": "Original module entry missing, actualexit1; rawlog retained",
+  "guard_tests": {
+    "cases": 32,
+    "passed": 32,
+    "seconds": 1.36,
+    "real_onnx_graphs": true,
+    "model_weights": "Tiny disposable file with patched identity only; never realmodel",
+    "native_engine": "Injected, no Torch/model import"
+  },
+  "native_configuration_followup": {
+    "cases": 1,
+    "passed": 1,
+    "seconds": 0.68,
+    "runtime": "Fake Torch/Ultralytics modules only",
+    "finding": "Installed8.4.157 desktop defaults nmsNone and disablesend2end. Draft nmsFalse corrected before any realmodel execution to nmsNone/headFalse. Existing32 guard test bodies unchanged; affected actualnativeconfiguration tested separately."
+  },
+  "distinct_test_cases_passed": 33,
+  "source_lint": "Normal Ruff all configured selectors PASS; earlier import-order refusals fixed normally",
+  "dependencies": "New isolated scratchvenv normalresolver dryrun/install each onlyONNX1.23.2+ml_dtypes0.5.4 at approvedhashes; sharedTorch/Ultralytics/ORT unchanged",
+  "runtime_policy": "Actual exported manifest marks native_reference_validation not_run and browser/scientific_acceptance false; policy is operator-approvedinput, no officialbrowsercompatibility inferred",
+  "remaining": [
+    "Independent source peer before actual model execution",
+    "Pinned real WebGPU operator policy and Work coordination",
+    "Separately approved CPU export/ORT/native tensor+Well reference proof in idlewindow",
+    "Actual WebGPU browser/device and scientific acceptance remain open"
+  ],
+  "service_requests": 0,
+  "weight_downloads": 0,
+  "actual_model_loads": 0,
+  "actual_exports": 0
+}
