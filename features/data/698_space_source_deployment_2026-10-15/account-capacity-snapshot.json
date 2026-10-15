@@ -1,0 +1,60 @@
+{
+  "observed_at_utc": "2026-10-15T15:19:27.157491+00:00",
+  "method": "Authenticated GET only; allowlisted fields. No token/email value/private auth metadata persisted.",
+  "account": {
+    "name": "einarolafsson",
+    "type": "user",
+    "isPro": false,
+    "canPay": false,
+    "email_present": false,
+    "public": {
+      "type": "user",
+      "isPro": false,
+      "createdAt": "2023-10-04T20:53:22.000Z"
+    }
+  },
+  "personal_spaces": [
+    {
+      "id": "einarolafsson/spacr-model-upload",
+      "sdk": "gradio",
+      "private": false,
+      "stage": "RUNNING",
+      "hardware": {
+        "current": "zero-a10g",
+        "requested": "zero-a10g"
+      },
+      "resources": null
+    },
+    {
+      "id": "einarolafsson/spacr-docs-nightly",
+      "sdk": "static",
+      "private": false,
+      "stage": "RUNNING",
+      "hardware": {
+        "current": null,
+        "requested": null
+      },
+      "resources": null
+    },
+    {
+      "id": "einarolafsson/spacr-docs-nightly-v2",
+      "sdk": "static",
+      "private": false,
+      "stage": "RUNNING",
+      "hardware": {
+        "current": null,
+        "requested": null
+      },
+      "resources": null
+    }
+  ],
+  "list_complete": true,
+  "existing_or_requested_zero_gpu_count": 1,
+  "zero_gpu_repositories": [
+    "einarolafsson/spacr-model-upload"
+  ],
+  "target_exists": false,
+  "free_slot_count_arithmetic_only": 1,
+  "eligibility_caveat": "Account good standing/verified-email acceptance and capacity allocation remain provider-authoritative; canPay=false and account age alone do not establish eligibility. No slot reserved.",
+  "mutations": []
+}

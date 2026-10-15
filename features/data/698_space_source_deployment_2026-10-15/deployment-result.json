@@ -1,0 +1,56 @@
+{
+  "target": "einarolafsson/spacr-mask-generator",
+  "source_commit": "35aeaa9ddc1f09cbd85fe75617a68df81adade0f",
+  "mutation_attempts": [
+    {
+      "operation": "create_space",
+      "payload": {
+        "name": "spacr-mask-generator",
+        "organization": "einarolafsson",
+        "private": false,
+        "type": "space",
+        "sdk": "gradio",
+        "hardware": "zero-a10g",
+        "variables": [
+          {
+            "key": "SPACR_WEB_ZERO_GPU",
+            "value": "1"
+          },
+          {
+            "key": "SPACR_WEB_PROVISION_MODELS",
+            "value": "1"
+          }
+        ]
+      }
+    },
+    {
+      "operation": "upload_source_once",
+      "files": 1182,
+      "parent_commit": "a020b17c09b277739e56f0be0ee4de63c5e454f9"
+    }
+  ],
+  "status": "STOPPED_NO_RETRY",
+  "fresh_guard": {
+    "observed_at_utc": "2026-10-15T15:29:17.448424+00:00",
+    "effective_user": "einarolafsson",
+    "personal": true,
+    "isPro": false,
+    "canPay": false,
+    "created_at": "2023-10-04T20:53:22.000Z",
+    "existing_zero_spaces": [
+      "einarolafsson/spacr-model-upload"
+    ],
+    "target_absent": true,
+    "provider_eligibility_authoritative": true
+  },
+  "create_status_code": 200,
+  "created_url": "https://huggingface.co/spaces/einarolafsson/spacr-mask-generator",
+  "preupload_runtime": {
+    "stage": "NO_APP_FILE",
+    "current": null,
+    "requested": "zero-a10g",
+    "new_repo_head": "a020b17c09b277739e56f0be0ee4de63c5e454f9"
+  },
+  "error_type": "ConnectionError",
+  "finished_at_utc": "2026-10-15T15:29:43.599385+00:00"
+}
