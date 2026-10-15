@@ -24,8 +24,13 @@ from typing import Dict, Optional
 from .. import _after
 
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal
-from PySide6.QtGui import QColor, QPainter, QPalette, QPen, QTextDocument, QTextOption
-from PySide6.QtWidgets import QFrame, QLabel, QTextEdit, QVBoxLayout, QWidget
+from PySide6.QtGui import (
+    QAccessible, QAccessibleActionInterface, QAccessibleValueChangeEvent,
+    QAccessibleValueInterface, QColor, QPainter, QPalette, QPen, QTextDocument,
+    QTextOption,
+)
+from PySide6.QtWidgets import QAccessibleWidget, QFrame, QLabel, QTextEdit, QVBoxLayout, QWidget
+from shiboken6 import VoidPtr, getCppPointer
 
 #: What the bar says when nothing is under the pointer.
 DEFAULT_HINT = "Hover a control to see what it does."
@@ -59,6 +64,24 @@ class _HintResizeHandle(QFrame):
         self.setFrameShadow(QFrame.Sunken)
         self.setFixedHeight(8)
         self.setCursor(Qt.SizeVerCursor)
+        bar.installEventFilter(self)
+
+    def eventFilter(self, watched, event) -> bool:
+        """Report actual strip-height changes to clients observing this grip."""
+        if (watched is self._bar and event.type() == QEvent.Resize
+                and event.oldSize().height() != event.size().height()):
+            QAccessible.updateAccessibility(
+                QAccessibleValueChangeEvent(self, event.size().height()))
+        return super().eventFilter(watched, event)
+
+    def _resize_to(self, height: int) -> None:
+        """Commit an enabled assistive or keyboard resize only when it changes height."""
+        if not self.isEnabled():
+            return
+        previous = self._bar.height()
+        self._bar._set_manual_height(height)
+        if self._bar.height() != previous:
+            self._bar.helpHeightCommitted.emit(self._bar.height())
 
     def changeEvent(self, event) -> None:
         """Refresh the cached focus outline when the widget style changes."""
@@ -99,12 +122,9 @@ class _HintResizeHandle(QFrame):
         """Grow with Up and shrink with Down, committing only changed heights."""
         if (self.hasFocus() and event.modifiers() == Qt.NoModifier
                 and event.key() in (Qt.Key_Up, Qt.Key_Down)):
-            previous = self._bar.height()
             step = max(1, self._bar.fontMetrics().lineSpacing())
             direction = 1 if event.key() == Qt.Key_Up else -1
-            self._bar._set_manual_height(previous + direction * step)
-            if self._bar.height() != previous:
-                self._bar.helpHeightCommitted.emit(self._bar.height())
+            self._resize_to(self._bar.height() + direction * step)
             event.accept()
             return
         super().keyPressEvent(event)
@@ -135,6 +155,110 @@ class _HintResizeHandle(QFrame):
             event.accept()
             return
         super().mouseReleaseEvent(event)
+
+
+class _HintResizeValue(QAccessibleValueInterface):
+    """Expose the help strip's current height and live pixel bounds."""
+
+    def __init__(self, handle):
+        """Keep the existing grip that owns the resize operation."""
+        super().__init__()
+        self._handle = handle
+
+    def currentValue(self):
+        """Return the actual reserved height in logical pixels."""
+        return self._handle._bar.height()
+
+    def minimumValue(self):
+        """Return the height needed for the current four text rows."""
+        return self._handle._bar._minimum_help_height()
+
+    def maximumValue(self):
+        """Return the current height limit that preserves the preceding page."""
+        return self._handle._bar._maximum_help_height()
+
+    def minimumStepSize(self):
+        """Return one logical pixel, the smallest supported drag adjustment."""
+        return 1
+
+    def setCurrentValue(self, value):
+        """Apply an enabled whole-pixel value only when it is within the live bounds."""
+        if (isinstance(value, bool) or not isinstance(value, (int, float))
+                or not self.minimumValue() <= value <= self.maximumValue()
+                or int(value) != value):
+            return
+        self._handle._resize_to(int(value))
+
+
+class _AccessibleHintResize(QAccessibleWidget):
+    """Describe the help edge as a grip with bounded height actions and value."""
+
+    def __init__(self, handle):
+        """Keep the value-interface wrapper alive while Qt owns this adapter."""
+        super().__init__(handle, QAccessible.Grip)
+        self._value = _HintResizeValue(handle)
+
+    def interface_cast(self, kind):
+        """Expose the retained value interface and preserve normal widget interfaces."""
+        if kind == QAccessible.ValueInterface:
+            return VoidPtr(getCppPointer(self._value)[0])
+        return super().interface_cast(kind)
+
+    def state(self):
+        """Add resize semantics to the normal enabled, focus and visibility state."""
+        state = super().state()
+        state.sizeable = True
+        return state
+
+    def text(self, kind):
+        """Report current pixel height while retaining the translated name and help."""
+        if kind == QAccessible.Value:
+            return str(self._value.currentValue())
+        return super().text(kind)
+
+    def actionNames(self):
+        """Offer only enabled height changes within the current layout bounds."""
+        if not self.widget().isEnabled():
+            return []
+        actions = []
+        if self._value.currentValue() < self._value.maximumValue():
+            actions.append(QAccessibleActionInterface.increaseAction())
+        if self._value.currentValue() > self._value.minimumValue():
+            actions.append(QAccessibleActionInterface.decreaseAction())
+        return actions + super().actionNames()
+
+    def doAction(self, action):
+        """Use the existing font-line resize step for supported assistive actions."""
+        if action not in self.actionNames():
+            return
+        handle = self.widget()
+        step = max(1, handle._bar.fontMetrics().lineSpacing())
+        if action == QAccessibleActionInterface.increaseAction():
+            handle._resize_to(handle._bar.height() + step)
+        elif action == QAccessibleActionInterface.decreaseAction():
+            handle._resize_to(handle._bar.height() - step)
+        else:
+            super().doAction(action)
+
+    def keyBindingsForAction(self, action):
+        """Name the existing unmodified height keys for assistive clients."""
+        if action == QAccessibleActionInterface.increaseAction():
+            return ["Up"]
+        if action == QAccessibleActionInterface.decreaseAction():
+            return ["Down"]
+        return super().keyBindingsForAction(action)
+
+
+def _hint_resize_accessible_factory(_key, widget):
+    """Provide a retained accessibility adapter only for this help resize grip."""
+    if isinstance(widget, _HintResizeHandle):
+        interface = _AccessibleHintResize(widget)
+        widget._accessible_resize = interface
+        return interface
+    return None
+
+
+QAccessible.installFactory(_hint_resize_accessible_factory)
 
 
 class HintBar(QLabel):
