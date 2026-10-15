@@ -2758,7 +2758,10 @@
       "review_basis": "MT draft edited in AI review",
       "source": "the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` or ``\"choice\"``.",
       "source_sha256": "7d3411946e5ca1c3d77cd60742e0eef9fc22c88f2b2d818e9fdfbad71c1f7ace",
-      "translation": "le type d’éditeur : ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` ou ``\"choice\"``."
+      "translation": "le type d’éditeur : ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` ou ``\"choice\"``.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "UMAP source documentation corrected inc00a087e749. Replacement exact-source review is2026-10-15-umap-tier-prose.json; original source and translation retained as historical evidence."
     },
     {
       "context": "lower bound for a numeric editor (unused otherwise).",
