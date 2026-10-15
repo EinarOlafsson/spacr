@@ -1,0 +1,768 @@
+{
+  "spacr.qt.ai.providers": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers#0",
+      "source": "Provider abstraction — one class per AI vendor. Each shells out to the vendor's own coding-agent CLI so authentication piggy-backs on the user's chat subscription (Claude.ai Pro, ChatGPT Plus/Pro/Team, Google account) — no separate API billing.",
+      "source_sha256": "4b4f4c864a6d6a54405a9db239b604eece859287d4ab76d60f77fcfa52db6998",
+      "context": "Provider abstraction — one class per AI vendor. Each shells out to the vendor's own coding-agent CLI so authentication piggy-backs on the user's chat subscription (Claude.ai Pro, ChatGPT Plus/Pro/Team, Google account) — no separate API billing.",
+      "context_sha256": "4b4f4c864a6d6a54405a9db239b604eece859287d4ab76d60f77fcfa52db6998",
+      "status": "REUSE_EXISTING_UNCHANGED_SOURCE_BLOCK_ALL9",
+      "reused_targets": {
+        "sv": {
+          "old_index": 0,
+          "translation": "Providerabstraktion – en klass per AI-leverantör. Varje skal ut till leverantörens egen kodning-agent CLI så autentisering piggy-backs på användarens chatt prenumeration (Claude.ai Pro, ChatGPT Plus/Pro/Team, Google-konto) — ingen separat API fakturering."
+        },
+        "de": {
+          "old_index": 0,
+          "translation": "Provider-Abstraktion – eine Klasse pro KI-Anbieter. Die Authentifizierung erfolgt über das Chat-Abonnement des Benutzers (Claude.ai Pro, ChatGPT Plus/Pro/Team, Google-Konto) – keine separate API-Abrechnung."
+        },
+        "es": {
+          "old_index": 0,
+          "translation": "Abstracción del proveedor — una clase por proveedor de IA. Cada uno de ellos se dirige a la propia CLI del proveedor para que se haga una autenticación de la suscripción de chat del usuario (Claude.ai Pro, ChatGPT Plus/Pro/Team, cuenta de Google) — no hay facturación API separada."
+        },
+        "zh_CN": {
+          "old_index": 0,
+          "translation": "供应商抽象 - 每个 AI 供应者一类. 每一个发射到供应商自己的编码代理 CLI 因此,用户的聊天订阅(Claude.ai Pro,ChatGPT Plus/Pro/Team,谷歌帐户)上没有单独的 API 计算。"
+        },
+        "pt": {
+          "old_index": 0,
+          "translation": "Abstração de fornecedor uma classe por fornecedor de IA. Cada shell para fora para o próprio fornecedor de codificação-agente CLI então autenticação piggy-backs na assinatura de bate-papo do usuário (Claude.ai Pro, ChatGPT Plus / Pro / Team, conta do Google) não separada API faturamento."
+        },
+        "hi": {
+          "old_index": 0,
+          "translation": "प्रत्येक विक्रेता के अपने कोडिंग एजेंट CLI के लिए बाहर निकलता है ताकि उपयोगकर्ता के चैट सदस्यता (Claude.ai प्रो, चैटGPT प्लस/प्रो/समूह, Google खाता) पर पुष्टिकरण piggy-backs - कोई अलग API बिल नहीं।"
+        },
+        "ko": {
+          "old_index": 0,
+          "translation": "공급자 추출 - AI 판매자 당 1 클래스. 각 샷은 판매자의 자신의 코딩 에이전트 CLI 그래서 사용자의 채팅 구독 (Claude.ai 프로, ChatGPT 플러스/프로/팀, 구글 계정)에 인증 piggy-backs - 별도의 API 청구하지 않습니다."
+        },
+        "is": {
+          "old_index": 0,
+          "translation": "Útdráttarlag veitenda — einn flokkur fyrir hvern gervigreindarveitanda. Hver flokkur keyrir eigið forritunarfulltrúa-CLI veitandans, þannig að auðkenning notar spjalláskrift notandans (Claude.ai Pro, ChatGPT Plus/Pro/Team eða Google-reikning) og engin sérstök API-gjaldtaka þarf að eiga sér stað."
+        },
+        "fr": {
+          "old_index": 0,
+          "translation": "Abstraction du fournisseur — une classe par fournisseur d'IA. Chaque shell vers le propre code-agent CLI du fournisseur afin d'authentification des piggy-backs sur l'abonnement de chat de l'utilisateur (Claude.ai Pro, ChatGPT Plus/Pro/Team, compte Google) — pas de facturation séparée API."
+        }
+      }
+    },
+    {
+      "index": 1,
+      "label": "spacr.qt.ai.providers#1",
+      "source": "Anthropic Claude → the `claude` CLI (\"Claude Code\")",
+      "source_sha256": "f9e0fccea5d254c463195200455d44c1032c5e293c0bd094c11eb9fc9e9df3e3",
+      "context": "Anthropic Claude → the `claude` CLI (\"Claude Code\")",
+      "context_sha256": "f9e0fccea5d254c463195200455d44c1032c5e293c0bd094c11eb9fc9e9df3e3",
+      "status": "REUSE_EXISTING_UNCHANGED_SOURCE_BLOCK_ALL9",
+      "reused_targets": {
+        "sv": {
+          "old_index": 1,
+          "translation": "Antropisk Claude → `claude` CLI (\"Claude Code\")"
+        },
+        "de": {
+          "old_index": 1,
+          "translation": "Anthropologischer Claude → der CLI `claude` (\"Claude Code\")"
+        },
+        "es": {
+          "old_index": 1,
+          "translation": "Claude Antrópico → el CLI `claude` (\"Claude Code\")"
+        },
+        "zh_CN": {
+          "old_index": 1,
+          "translation": "天文学 Claude → `claude` CLI (\"Claude Code\")"
+        },
+        "pt": {
+          "old_index": 1,
+          "translation": "Antrópico Claude → o `claude` CLI (\"Claude Code\")"
+        },
+        "hi": {
+          "old_index": 1,
+          "translation": "एंथ्रोपिक क्लॉड → `claude` CLI (\"Claude Code\")"
+        },
+        "ko": {
+          "old_index": 1,
+          "translation": "안드로피 클로드 → `claude` CLI (\"Claude Code\")"
+        },
+        "is": {
+          "old_index": 1,
+          "translation": "Ánþróppar Claude → `claude` CLI (\"Claude Code\")"
+        },
+        "fr": {
+          "old_index": 1,
+          "translation": "Claude anthropique → le CLI `claude` (\"Claude Code\")"
+        }
+      }
+    },
+    {
+      "index": 2,
+      "label": "spacr.qt.ai.providers#2",
+      "source": "OpenAI ChatGPT   → the `codex`  CLI",
+      "source_sha256": "bf089d3a5d44c06643d8a156c082fec6272315b4a6a95fa9e784cc070314796d",
+      "context": "OpenAI ChatGPT   → the `codex`  CLI",
+      "context_sha256": "bf089d3a5d44c06643d8a156c082fec6272315b4a6a95fa9e784cc070314796d",
+      "status": "REUSE_EXISTING_UNCHANGED_SOURCE_BLOCK_ALL9",
+      "reused_targets": {
+        "sv": {
+          "old_index": 2,
+          "translation": "ÖppnaAI ChatgPT → `codex` CLI"
+        },
+        "de": {
+          "old_index": 2,
+          "translation": "OpenAI ChatGPT → das `codex` CLI"
+        },
+        "es": {
+          "old_index": 2,
+          "translation": "OpenAI ChatGPT → el `codex` CLI"
+        },
+        "zh_CN": {
+          "old_index": 2,
+          "translation": "开启AI ChatGPT → `codex` CLI"
+        },
+        "pt": {
+          "old_index": 2,
+          "translation": "OpenAI ChatGPT → a CLI `codex`"
+        },
+        "hi": {
+          "old_index": 2,
+          "translation": "OpenAI ChatGPT → के लिए `codex` CLI"
+        },
+        "ko": {
+          "old_index": 2,
+          "translation": "오픈AI ChatGPT → `codex` CLI"
+        },
+        "is": {
+          "old_index": 2,
+          "translation": "OpenAI ChatGPT → `codex` CLI"
+        },
+        "fr": {
+          "old_index": 2,
+          "translation": "Ouvrir le chatGPT de l'AI → le `codex` CLI"
+        }
+      }
+    },
+    {
+      "index": 3,
+      "label": "spacr.qt.ai.providers#3",
+      "source": "Google Gemini    → the `gemini` CLI",
+      "source_sha256": "c8eb1abaea3fd9e65154f8b0379b34997df41da37898a111bd525655a170d856",
+      "context": "Google Gemini    → the `gemini` CLI",
+      "context_sha256": "c8eb1abaea3fd9e65154f8b0379b34997df41da37898a111bd525655a170d856",
+      "status": "REUSE_EXISTING_UNCHANGED_SOURCE_BLOCK_ALL9",
+      "reused_targets": {
+        "sv": {
+          "old_index": 3,
+          "translation": "Google Gemini → CLI `gemini`"
+        },
+        "de": {
+          "old_index": 3,
+          "translation": "Google Gemini → das `gemini` CLI"
+        },
+        "es": {
+          "old_index": 3,
+          "translation": "Google Gemini → el `gemini` CLI"
+        },
+        "zh_CN": {
+          "old_index": 3,
+          "translation": "Google 双胞胎 → `gemini` CLI"
+        },
+        "pt": {
+          "old_index": 3,
+          "translation": "Google Gemini → o CLI `gemini`"
+        },
+        "hi": {
+          "old_index": 3,
+          "translation": "Google Gemini → के लिए `gemini` CLI"
+        },
+        "ko": {
+          "old_index": 3,
+          "translation": "구글 쌍둥이 → `gemini` CLI"
+        },
+        "is": {
+          "old_index": 3,
+          "translation": "Google Gemini → og `gemini` CLI"
+        },
+        "fr": {
+          "old_index": 3,
+          "translation": "Google Gemini → le `gemini` CLI"
+        }
+      }
+    },
+    {
+      "index": 4,
+      "label": "spacr.qt.ai.providers#4",
+      "source": "A fourth, :class:`HostedProvider`, needs no CLI and no account: it asks spaCR's relay, which answers with a free hosted model, and it is the default when none of the three is installed and signed in (:func:`default_provider`).",
+      "source_sha256": "8edaac55540b63385aa21dc664338a88fa38ef6f988f1f6a2d9429836ffbd46c",
+      "context": "A fourth, :class:`HostedProvider`, needs no CLI and no account: it asks spaCR's relay, which answers with a free hosted model, and it is the default when none of the three is installed and signed in (:func:`default_provider`).",
+      "context_sha256": "8edaac55540b63385aa21dc664338a88fa38ef6f988f1f6a2d9429836ffbd46c",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 5,
+      "label": "spacr.qt.ai.providers#5",
+      "source": "Each provider",
+      "source_sha256": "204ef948c059dfc36f49b4566c67f63df6ea4fca201470d6568a4f114b0e48c5",
+      "context": "Each provider",
+      "context_sha256": "204ef948c059dfc36f49b4566c67f63df6ea4fca201470d6568a4f114b0e48c5",
+      "status": "REUSE_EXISTING_UNCHANGED_SOURCE_BLOCK_ALL9",
+      "reused_targets": {
+        "sv": {
+          "old_index": 4,
+          "translation": "Varje leverantör"
+        },
+        "de": {
+          "old_index": 4,
+          "translation": "Jeder Anbieter"
+        },
+        "es": {
+          "old_index": 4,
+          "translation": "Cada proveedor"
+        },
+        "zh_CN": {
+          "old_index": 4,
+          "translation": "每个供应商"
+        },
+        "pt": {
+          "old_index": 4,
+          "translation": "Cada fornecedor"
+        },
+        "hi": {
+          "old_index": 4,
+          "translation": "प्रत्येक प्रदाता"
+        },
+        "ko": {
+          "old_index": 4,
+          "translation": "각 공급자"
+        },
+        "is": {
+          "old_index": 4,
+          "translation": "Allir veitendur"
+        },
+        "fr": {
+          "old_index": 4,
+          "translation": "Chaque prestataire"
+        }
+      }
+    },
+    {
+      "index": 6,
+      "label": "spacr.qt.ai.providers#6",
+      "source": "Conversation context is carried by concatenating the full message history into each prompt (simplest approach that works uniformly across all three CLIs). For subscription users token count is not a concern.",
+      "source_sha256": "b04c1a7ddf7c66c049907c96cc7b7c221e04b49f907ca3fedf95f2398fc960fa",
+      "context": "Conversation context is carried by concatenating the full message history into each prompt (simplest approach that works uniformly across all three CLIs). For subscription users token count is not a concern.",
+      "context_sha256": "b04c1a7ddf7c66c049907c96cc7b7c221e04b49f907ca3fedf95f2398fc960fa",
+      "status": "REUSE_EXISTING_UNCHANGED_SOURCE_BLOCK_ALL9",
+      "reused_targets": {
+        "sv": {
+          "old_index": 5,
+          "translation": "Konversation i sammanhanget sker genom att man sammanställer hela meddelandehistoriken i varje prompt (enkla tillvägagångssätt som fungerar enhetligt över alla tre CLI). För prenumerationsanvändare är tokenräkning inte ett problem."
+        },
+        "de": {
+          "old_index": 5,
+          "translation": "Der Gesprächskontext wird durch die Verkettung der gesamten Nachrichtenhistorie in jede Eingabeaufforderung (einfachste Vorgehensweise, die einheitlich über alle drei CLIs funktioniert) getragen."
+        },
+        "es": {
+          "old_index": 5,
+          "translation": "El contexto de conversación se lleva a cabo concatenando el historial completo de mensajes en cada prompt (enfoque más simple que funciona uniformemente en los tres CLIS)."
+        },
+        "zh_CN": {
+          "old_index": 5,
+          "translation": "对话背景是通过将完整的消息历史集成到每个快点(最简单的方法,在所有三个CLI上均匀运行)。"
+        },
+        "pt": {
+          "old_index": 5,
+          "translation": "O contexto de conversação é realizado concatenando o histórico de mensagens completo em cada prompt (abordagem mais simples que funciona uniformemente em todas as três CLIs). Para usuários de assinatura, a contagem de tokens não é uma preocupação."
+        },
+        "hi": {
+          "old_index": 5,
+          "translation": "वार्तालाप संदर्भ को प्रत्येक प्रमोटा में पूर्ण संदेश इतिहास को संकलित करके चलाया जाता है (सबसे सरल दृष्टिकोण जो सभी तीन सीएलआई के माध्यम से समान रूप से काम करता है)।"
+        },
+        "ko": {
+          "old_index": 5,
+          "translation": "대화의 맥락은 모든 움직임에 전체 메시지 역사 (세 개의 CLI를 통하여 동일하게 작동하는 가장 간단한 접근 방식)를 포장함으로써 이루어집니다."
+        },
+        "is": {
+          "old_index": 5,
+          "translation": "Samtal samskipti er gerð með því að smella fullri skilaboð í hvert skreyt (sérsta aðferð sem virkar einfaldlega á öllum þremur CLI)."
+        },
+        "fr": {
+          "old_index": 5,
+          "translation": "Le contexte de conversation est porté par la concaténation de l'historique complet du message dans chaque invite (approche la plus simple qui fonctionne uniformément dans les trois ILC)."
+        }
+      }
+    },
+    {
+      "index": 7,
+      "label": "spacr.qt.ai.providers#7",
+      "source": "How each CLI is installed is data, not prose: :data:`INSTALL_METHODS` holds one row per way of installing it on each operating system, and both the ``install_hint`` a screen shows and the command :mod:`spacr.qt.ai.cli_install` runs are read from those rows. The GitHub CLI is described the same way by :class:`GitHubCli`, which shares the :class:`CommandLineTool` interface without being a chat provider.",
+      "source_sha256": "5e39a047e529c1f881b126d604183a6aa1aeaf05947e692118f706eb62fbbd7a",
+      "context": "How each CLI is installed is data, not prose: :data:`INSTALL_METHODS` holds one row per way of installing it on each operating system, and both the ``install_hint`` an application view shows and the command :mod:`spacr.qt.ai.cli_install` runs are read from those rows. The GitHub CLI is described the same way by :class:`GitHubCli`, which shares the :class:`CommandLineTool` interface without being a chat provider.",
+      "context_sha256": "afb0176335763a9517f02d207ac2f960ee8d336eb45602e186077c3a7fa278bf",
+      "status": "REUSE_EXISTING_UNCHANGED_SOURCE_BLOCK_ALL9",
+      "reused_targets": {
+        "sv": {
+          "old_index": 6,
+          "translation": "Hur varje CLI installeras är data, inte prosa: :data:`INSTALL_METHODS` innehåller en rad per sätt att installera det på varje operativsystem, och både den ``install_hint`` som en programvy visar och kommandot som :mod:`spacr.qt.ai.cli_install` kör läses från de raderna. GitHub CLI beskrivs på samma sätt av :class:`GitHubCli`, som delar gränssnittet :class:`CommandLineTool` utan att vara en chattleverantör."
+        },
+        "de": {
+          "old_index": 6,
+          "translation": "Wie jede CLI installiert wird, sind Daten, keine Prosa: :data:`INSTALL_METHODS` enthält eine Zeile pro Installationsweg auf jedem Betriebssystem, und sowohl der ``install_hint``, den eine Ansicht anzeigt, als auch der Befehl, den :mod:`spacr.qt.ai.cli_install` ausführt, werden aus diesen Zeilen gelesen. Die GitHub-CLI wird auf dieselbe Weise durch :class:`GitHubCli` beschrieben, das die Schnittstelle :class:`CommandLineTool` teilt, ohne ein Chat-Anbieter zu sein."
+        },
+        "es": {
+          "old_index": 6,
+          "translation": "Cómo se instala cada CLI son datos, no prosa: :data:`INSTALL_METHODS` contiene una fila por cada forma de instalarla en cada sistema operativo, y tanto el ``install_hint`` que muestra una pantalla como el comando que ejecuta :mod:`spacr.qt.ai.cli_install` se leen de esas filas. La CLI de GitHub se describe de la misma forma mediante :class:`GitHubCli`, que comparte la interfaz :class:`CommandLineTool` sin ser un proveedor de chat."
+        },
+        "zh_CN": {
+          "old_index": 6,
+          "translation": "每个 CLI 的安装方式是数据而不是文字描述：:data:`INSTALL_METHODS` 为每个操作系统上的每种安装方式保存一行，界面显示的 ``install_hint`` 和 :mod:`spacr.qt.ai.cli_install` 运行的命令都从这些行中读取。GitHub CLI 也以同样的方式由 :class:`GitHubCli` 描述，它共享 :class:`CommandLineTool` 接口，但并不是聊天提供方。"
+        },
+        "pt": {
+          "old_index": 6,
+          "translation": "Como cada CLI é instalada é um dado, não prosa: :data:`INSTALL_METHODS` contém uma linha por forma de instalá-la em cada sistema operacional, e tanto o ``install_hint`` que uma tela mostra quanto o comando que :mod:`spacr.qt.ai.cli_install` executa são lidos dessas linhas. A CLI do GitHub é descrita da mesma forma por :class:`GitHubCli`, que compartilha a interface :class:`CommandLineTool` sem ser um provedor de chat."
+        },
+        "hi": {
+          "old_index": 6,
+          "translation": "हर CLI कैसे इंस्टॉल होता है, यह गद्य नहीं बल्कि डेटा है: :data:`INSTALL_METHODS` में हर ऑपरेटिंग सिस्टम पर उसे इंस्टॉल करने के हर तरीके के लिए एक पंक्ति है, और पेज जो ``install_hint`` दिखाता है तथा :mod:`spacr.qt.ai.cli_install` जो कमांड चलाता है, दोनों इन्हीं पंक्तियों से पढ़े जाते हैं। GitHub CLI का वर्णन भी इसी तरह :class:`GitHubCli` करता है, जो चैट प्रदाता हुए बिना :class:`CommandLineTool` इंटरफ़ेस साझा करता है।"
+        },
+        "ko": {
+          "old_index": 6,
+          "translation": "각 CLI 의 설치 방법은 산문이 아니라 데이터입니다. :data:`INSTALL_METHODS` 는 운영 체제별로 설치 방법마다 한 행을 담으며, 화면이 보여 주는 ``install_hint`` 와 :mod:`spacr.qt.ai.cli_install` 이 실행하는 명령 모두 그 행에서 읽습니다. GitHub CLI 도 :class:`GitHubCli` 가 같은 방식으로 기술하며, 이 클래스는 채팅 제공자가 아니면서 :class:`CommandLineTool` 인터페이스를 공유합니다."
+        },
+        "is": {
+          "old_index": 6,
+          "translation": "Hvernig hvert CLI er sett upp eru gögn, ekki laust mál: :data:`INSTALL_METHODS` geymir eina röð fyrir hverja uppsetningarleið á hverju stýrikerfi, og bæði ``install_hint`` sem skjámynd sýnir og skipunin sem :mod:`spacr.qt.ai.cli_install` keyrir eru lesin úr þeim röðum. GitHub CLI er lýst á sama hátt af :class:`GitHubCli`, sem deilir :class:`CommandLineTool` viðmótinu án þess að vera spjallþjónusta."
+        },
+        "fr": {
+          "old_index": 6,
+          "translation": "La façon d’installer chaque CLI est une donnée, pas de la prose : :data:`INSTALL_METHODS` contient une ligne par mode d’installation sur chaque système d’exploitation, et l’``install_hint`` qu’affiche une vue comme la commande qu’exécute :mod:`spacr.qt.ai.cli_install` sont lus dans ces lignes. La CLI GitHub est décrite de la même façon par :class:`GitHubCli`, qui partage l’interface :class:`CommandLineTool` sans être un fournisseur de chat."
+        }
+      }
+    }
+  ],
+  "spacr.qt.ai.providers.HostedProvider": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.HostedProvider#0",
+      "source": "spaCR's hosted assistant: advice from spaCR's relay, no account needed.",
+      "source_sha256": "da1c14bc6ca951debdab9274c15473950d7f2b9bc30c4717bbb10f044ee912c5",
+      "context": "spaCR's hosted assistant: advice from spaCR's relay, no account needed.",
+      "context_sha256": "da1c14bc6ca951debdab9274c15473950d7f2b9bc30c4717bbb10f044ee912c5",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 1,
+      "label": "spacr.qt.ai.providers.HostedProvider#1",
+      "source": "It sends only what :func:`_hosted_request` keeps, the anonymised error summary and the question, to the relay's ``/diagnose`` route through :func:`spacr.crashreport.diagnose_remotely`. The answer is generated advice and is labelled as such. It is the provider used when no vendor CLI is installed and signed in (:func:`default_provider`), and it is unavailable when the network is forbidden (:func:`spacr.crashreport.network_allowed`).",
+      "source_sha256": "2ca72c0c5556408e970a3c110a76f18f5acb527529aaa6347309111fc7f66ca2",
+      "context": "It sends only what :func:`_hosted_request` keeps, the anonymised error summary and the question, to the relay's ``/diagnose`` route through :func:`spacr.crashreport.diagnose_remotely`. The answer is generated advice and is labelled as such. It is the provider used when no vendor CLI is installed and signed in (:func:`default_provider`), and it is unavailable when the network is forbidden (:func:`spacr.crashreport.network_allowed`).",
+      "context_sha256": "2ca72c0c5556408e970a3c110a76f18f5acb527529aaa6347309111fc7f66ca2",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ],
+  "spacr.qt.ai.providers.HostedProvider.check_signed_in": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.HostedProvider.check_signed_in#0",
+      "source": "There is no sign-in to check.",
+      "source_sha256": "61dde51b6fdaf6c129b9ba1eaec8c62d36e61c49d74b2ed86d26959efa8757c3",
+      "context": "There is no sign-in to check.",
+      "context_sha256": "61dde51b6fdaf6c129b9ba1eaec8c62d36e61c49d74b2ed86d26959efa8757c3",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 1,
+      "label": "spacr.qt.ai.providers.HostedProvider.check_signed_in#1",
+      "source": "``None``.",
+      "source_sha256": "19ccd0650c179313ee4cbd83c8934366e43399e557de86bef36b957f4709e1c3",
+      "context": "``None``.",
+      "context_sha256": "19ccd0650c179313ee4cbd83c8934366e43399e557de86bef36b957f4709e1c3",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ],
+  "spacr.qt.ai.providers.HostedProvider.is_configured": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.HostedProvider.is_configured#0",
+      "source": "Whether the hosted provider may be used: the network is allowed.",
+      "source_sha256": "f29084ee2c2db3bbc90867ab9f7255cc03c6ec31b5b4c56ac04a269b4312cefa",
+      "context": "Whether the hosted provider may be used: the network is allowed.",
+      "context_sha256": "f29084ee2c2db3bbc90867ab9f7255cc03c6ec31b5b4c56ac04a269b4312cefa",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ],
+  "spacr.qt.ai.providers.HostedProvider.is_installed": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.HostedProvider.is_installed#0",
+      "source": "Nothing to install: the hosted provider is always present.",
+      "source_sha256": "b255adbc5f5930c788d1bde6fcec235a02073a9ee95ec24b6988f153494821bf",
+      "context": "Nothing to install: the hosted provider is always present.",
+      "context_sha256": "b255adbc5f5930c788d1bde6fcec235a02073a9ee95ec24b6988f153494821bf",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ],
+  "spacr.qt.ai.providers.HostedProvider.is_logged_in": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.HostedProvider.is_logged_in#0",
+      "source": "Nothing to sign in to: the relay needs no account.",
+      "source_sha256": "020c83ebfd2aceeb05d7b9ea39267e8c87a66e37083d96772343264b6b4e25dc",
+      "context": "Nothing to sign in to: the relay needs no account.",
+      "context_sha256": "020c83ebfd2aceeb05d7b9ea39267e8c87a66e37083d96772343264b6b4e25dc",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ],
+  "spacr.qt.ai.providers.HostedProvider.source_of_key": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.HostedProvider.source_of_key#0",
+      "source": "Say where answers come from, in place of a CLI's location.",
+      "source_sha256": "f10b011b84c37cc94d13bd5266e900d547c34cfdeb99bf9b6953a9dacf79e2dc",
+      "context": "Say where answers come from, in place of a CLI's location.",
+      "context_sha256": "f10b011b84c37cc94d13bd5266e900d547c34cfdeb99bf9b6953a9dacf79e2dc",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ],
+  "spacr.qt.ai.providers.HostedProvider.stream_chat": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.HostedProvider.stream_chat#0",
+      "source": "Ask the relay and yield its advice, then a line saying what it is.",
+      "source_sha256": "e5d24ec2cf7eb660bc2ba8c938708ea6b3ca3394da7f34b72d6d9e1bdcca0541",
+      "context": "Ask the relay and yield its advice, then a line saying what it is.",
+      "context_sha256": "e5d24ec2cf7eb660bc2ba8c938708ea6b3ca3394da7f34b72d6d9e1bdcca0541",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 1,
+      "label": "spacr.qt.ai.providers.HostedProvider.stream_chat#1",
+      "source": "conversation history as ``{role, content}`` dicts; only the anonymised summary and the newest question leave this computer.",
+      "source_sha256": "274d88becafc4c017d49f19efba6109161035e4ca2d817a1e65c090316e51861",
+      "context": "conversation history as ``{role, content}`` key-value mappings; only the anonymised summary and the newest question leave this computer.",
+      "context_sha256": "230d99df83d81281f327f58105bab4122ff6f045b05a74bd55b08eb716f82d47",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 2,
+      "label": "spacr.qt.ai.providers.HostedProvider.stream_chat#2",
+      "source": "ignored; the relay holds spaCR's own prompt.",
+      "source_sha256": "5a2809f3c5a835d099945c170edbda416aeb8a6dc26d4f83550e9f283159efc6",
+      "context": "ignored; the relay holds spaCR's own prompt.",
+      "context_sha256": "5a2809f3c5a835d099945c170edbda416aeb8a6dc26d4f83550e9f283159efc6",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 3,
+      "label": "spacr.qt.ai.providers.HostedProvider.stream_chat#3",
+      "source": "ignored; the relay chooses its free model.",
+      "source_sha256": "31618f6f07924368276efb82ee7734b63c648083266347e900b047e6bfe2519b",
+      "context": "ignored; the relay chooses its free model.",
+      "context_sha256": "31618f6f07924368276efb82ee7734b63c648083266347e900b047e6bfe2519b",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 4,
+      "label": "spacr.qt.ai.providers.HostedProvider.stream_chat#4",
+      "source": "iterator yielding the answer.",
+      "source_sha256": "5253a2a87f8317744e0a53bab28cc26a31aeb443fd7de567c973fd54026ba4d6",
+      "context": "iterator yielding the answer.",
+      "context_sha256": "5253a2a87f8317744e0a53bab28cc26a31aeb443fd7de567c973fd54026ba4d6",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 5,
+      "label": "spacr.qt.ai.providers.HostedProvider.stream_chat#5",
+      "source": "with a message that says the free daily limit is reached, or that the relay could not be reached.",
+      "source_sha256": "656f3c754e1a7a99b682f4c18a57aac46a6c1d75f42b092e3dd0ae776a520471",
+      "context": "with a message that says the free daily limit is reached, or that the relay could not be reached.",
+      "context_sha256": "656f3c754e1a7a99b682f4c18a57aac46a6c1d75f42b092e3dd0ae776a520471",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ],
+  "spacr.qt.ai.providers.HostedProviderRefused": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.HostedProviderRefused#0",
+      "source": "spaCR's relay gave no advice: its free daily limit, or no connection.",
+      "source_sha256": "4ad93904e2d91853b453752668492fe9f42b913c2439d3082f5ab7765089f5ca",
+      "context": "spaCR's relay gave no advice: its free daily limit, or no connection.",
+      "context_sha256": "4ad93904e2d91853b453752668492fe9f42b913c2439d3082f5ab7765089f5ca",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 1,
+      "label": "spacr.qt.ai.providers.HostedProviderRefused#1",
+      "source": "A :class:`ProviderFailed`, so the console writes the message as it stands after \"[AI error]\".",
+      "source_sha256": "e51a2e6e13d3dd34e1eaca745a2372d37a25b3b0c6351d6471e0c1327dfbcd85",
+      "context": "A :class:`ProviderFailed`, so the console writes the message as it stands after \"[AI error]\".",
+      "context_sha256": "e51a2e6e13d3dd34e1eaca745a2372d37a25b3b0c6351d6471e0c1327dfbcd85",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 2,
+      "label": "spacr.qt.ai.providers.HostedProviderRefused#2",
+      "source": "the sentence the user reads.",
+      "source_sha256": "b63411dc819ca143936fbc35fcfb3829af7cc744b35ff43c25e604f46185fc24",
+      "context": "the sentence the user reads.",
+      "context_sha256": "b63411dc819ca143936fbc35fcfb3829af7cc744b35ff43c25e604f46185fc24",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 3,
+      "label": "spacr.qt.ai.providers.HostedProviderRefused#3",
+      "source": "``\"quota\"``, ``\"network\"`` or ``\"error\"``, from :class:`spacr.crashreport.RelayRefused`, kept on the exception as ``reason``.",
+      "source_sha256": "3c36b4ab540322a7577d328c4eb038a6f944be73463cc53e604c9751e94d12de",
+      "context": "``\"quota\"``, ``\"network\"`` or ``\"error\"``, from :class:`spacr.crashreport.RelayRefused`, kept on the exception as ``reason``.",
+      "context_sha256": "3c36b4ab540322a7577d328c4eb038a6f944be73463cc53e604c9751e94d12de",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 4,
+      "label": "spacr.qt.ai.providers.HostedProviderRefused#4",
+      "source": "Keep the reason; the message is the whole text shown.",
+      "source_sha256": "5797f57330dc8b6799b318070c4b2d0825f80b7063eb369e143e3dd8f5c53c7e",
+      "context": "Keep the reason; the message is the whole text shown.",
+      "context_sha256": "5797f57330dc8b6799b318070c4b2d0825f80b7063eb369e143e3dd8f5c53c7e",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ],
+  "spacr.qt.ai.providers.apply_provider_choice": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.apply_provider_choice#0",
+      "source": "Save a provider choice and use it at once in every open console.",
+      "source_sha256": "a5ae9b6824253caab45554dd059e571e432bb89a10de613f7ebf6a357531ce9b",
+      "context": "Save a provider choice and use it at once in every open console.",
+      "context_sha256": "a5ae9b6824253caab45554dd059e571e432bb89a10de613f7ebf6a357531ce9b",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 1,
+      "label": "spacr.qt.ai.providers.apply_provider_choice#1",
+      "source": "A vendor CLI that is not installed and signed in is saved but not applied; the consoles keep spaCR AI (free) until it is set up.",
+      "source_sha256": "42bc83f8f8d1f55156cffeb7bd988b995768a6b2b063555cdb7ac139baba044d",
+      "context": "A vendor CLI that is not installed and signed in is saved but not applied; the consoles keep spaCR AI (free) until it is set up.",
+      "context_sha256": "42bc83f8f8d1f55156cffeb7bd988b995768a6b2b063555cdb7ac139baba044d",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 2,
+      "label": "spacr.qt.ai.providers.apply_provider_choice#2",
+      "source": "a name from :data:`PROVIDER_CHOICES`.",
+      "source_sha256": "7c2df80173c2376095e0e6e4d8509171924ef3afbff3790530f77329090d0f50",
+      "context": "a name from :data:`PROVIDER_CHOICES`.",
+      "context_sha256": "7c2df80173c2376095e0e6e4d8509171924ef3afbff3790530f77329090d0f50",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 3,
+      "label": "spacr.qt.ai.providers.apply_provider_choice#3",
+      "source": "whether the chosen provider can answer now.",
+      "source_sha256": "3787fde9e9f01afffe459d9ce287165c359bd0353aeead7536e479c4240323a7",
+      "context": "whether the chosen provider can answer now.",
+      "context_sha256": "3787fde9e9f01afffe459d9ce287165c359bd0353aeead7536e479c4240323a7",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ],
+  "spacr.qt.ai.providers.configured_providers": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.configured_providers#0",
+      "source": "Return the providers that can answer now, spaCR AI (free) first.",
+      "source_sha256": "12149d7875dc77cebe728c15fd063f97b5ff1ea5dba019b89072cb2e5e826de3",
+      "context": "Return the providers that can answer now, spaCR AI (free) first.",
+      "context_sha256": "12149d7875dc77cebe728c15fd063f97b5ff1ea5dba019b89072cb2e5e826de3",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 1,
+      "label": "spacr.qt.ai.providers.configured_providers#1",
+      "source": "The hosted provider leads whenever the network is allowed, since it is the default; a vendor CLI follows when it is installed and logged in.",
+      "source_sha256": "ddca870541939d143b270a919500d0be204d97450cf055f814a2e2b900121f11",
+      "context": "The hosted provider leads whenever the network is allowed, since it is the default; a vendor CLI follows when it is installed and logged in.",
+      "context_sha256": "ddca870541939d143b270a919500d0be204d97450cf055f814a2e2b900121f11",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ],
+  "spacr.qt.ai.providers.default_provider": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.default_provider#0",
+      "source": "Return the provider the AI switch uses.",
+      "source_sha256": "a500cdcdc24198f5c346b4724bf0dd40f4af992093840579e4567ddee0592759",
+      "context": "Return the provider the AI switch uses.",
+      "context_sha256": "a500cdcdc24198f5c346b4724bf0dd40f4af992093840579e4567ddee0592759",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 1,
+      "label": "spacr.qt.ai.providers.default_provider#1",
+      "source": "the provider Preferences names, or ``\"\"``.",
+      "source_sha256": "8edf3b29587838d71e60bfb3d547710432695f278b0dee9be491297a42dbdbbb",
+      "context": "the provider Preferences names, or ``\"\"``.",
+      "context_sha256": "8edf3b29587838d71e60bfb3d547710432695f278b0dee9be491297a42dbdbbb",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 2,
+      "label": "spacr.qt.ai.providers.default_provider#2",
+      "source": "``preferred`` when it can answer; otherwise spaCR AI (free); otherwise, with the network forbidden, the first vendor CLI that is installed and logged in; ``None`` when nothing can answer.",
+      "source_sha256": "2b58f2c2f4c4029a55f5f207e230cfe244ce03e5db1872d465e1f7685ee4c7e5",
+      "context": "``preferred`` when it can answer; otherwise spaCR AI (free); otherwise, with the network forbidden, the first vendor CLI that is installed and logged in; ``None`` when nothing can answer.",
+      "context_sha256": "2b58f2c2f4c4029a55f5f207e230cfe244ce03e5db1872d465e1f7685ee4c7e5",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ],
+  "spacr.qt.ai.providers.effective_provider_name": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.effective_provider_name#0",
+      "source": "Return the name of the provider Preferences shows as chosen.",
+      "source_sha256": "c2683425f4995c2cde5db5eace9a0b488258a90c1ddc9aadcf155a3fa18ece07",
+      "context": "Return the name of the provider Preferences shows as chosen.",
+      "context_sha256": "c2683425f4995c2cde5db5eace9a0b488258a90c1ddc9aadcf155a3fa18ece07",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 1,
+      "label": "spacr.qt.ai.providers.effective_provider_name#1",
+      "source": "the stored preference; ``\"\"`` (never chosen) means spaCR AI (free).",
+      "source_sha256": "83d70395c1cc35623156af8638390c8d233418aa12173ba9d8e9644b70b6e365",
+      "context": "the stored preference; ``\"\"`` (never chosen) means spaCR AI (free).",
+      "context_sha256": "83d70395c1cc35623156af8638390c8d233418aa12173ba9d8e9644b70b6e365",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 2,
+      "label": "spacr.qt.ai.providers.effective_provider_name#2",
+      "source": "a name from :data:`PROVIDER_CHOICES`.",
+      "source_sha256": "7c2df80173c2376095e0e6e4d8509171924ef3afbff3790530f77329090d0f50",
+      "context": "a name from :data:`PROVIDER_CHOICES`.",
+      "context_sha256": "7c2df80173c2376095e0e6e4d8509171924ef3afbff3790530f77329090d0f50",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ],
+  "spacr.qt.ai.providers.get_provider": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.get_provider#0",
+      "source": "Look up a provider by its short id.",
+      "source_sha256": "641f498aafa0c9c8081b6422e6a5654c5e44b26ad2e139e5f07c4015aa0055d1",
+      "context": "Look up a provider by its short id.",
+      "context_sha256": "641f498aafa0c9c8081b6422e6a5654c5e44b26ad2e139e5f07c4015aa0055d1",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 1,
+      "label": "spacr.qt.ai.providers.get_provider#1",
+      "source": "provider id (``\"claude\"``, ``\"codex\"``, ``\"gemini\"`` or :data:`HOSTED_PROVIDER_NAME`).",
+      "source_sha256": "9cb91fc3bc8e6be1f7ab8cdbbe128db0647159821906d7a4c5ad1d66dd0f60e7",
+      "context": "provider id (``\"claude\"``, ``\"codex\"``, ``\"gemini\"`` or :data:`HOSTED_PROVIDER_NAME`).",
+      "context_sha256": "9cb91fc3bc8e6be1f7ab8cdbbe128db0647159821906d7a4c5ad1d66dd0f60e7",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 2,
+      "label": "spacr.qt.ai.providers.get_provider#2",
+      "source": "the matching provider, or ``None`` if no such id.",
+      "source_sha256": "046475e3c0fd377d4cf1c4d6d932652640b458b7edd33c1d0b97aa8e4c6a490f",
+      "context": "the matching provider, or ``None`` if no such id.",
+      "context_sha256": "046475e3c0fd377d4cf1c4d6d932652640b458b7edd33c1d0b97aa8e4c6a490f",
+      "status": "REUSE_EXISTING_UNCHANGED_SOURCE_BLOCK_ALL9",
+      "reused_targets": {
+        "sv": {
+          "old_index": 2,
+          "translation": "Den matchande leverantören, eller ``None`` om ingen sådan identifiering finns."
+        },
+        "de": {
+          "old_index": 2,
+          "translation": "der entsprechende Anbieter oder ``None``, wenn keine solche ID vorliegt."
+        },
+        "es": {
+          "old_index": 2,
+          "translation": "el proveedor que coincida, o ``None`` si no existe tal identificación."
+        },
+        "zh_CN": {
+          "old_index": 2,
+          "translation": "相匹配的提供商,或者 ``None`` 如果没有这样的ID。"
+        },
+        "pt": {
+          "old_index": 2,
+          "translation": "o provedor correspondente, ou ``None`` se não houver tal id."
+        },
+        "hi": {
+          "old_index": 2,
+          "translation": "अनुरूप प्रदाता, या ``None`` यदि ऐसा कोई आईडी नहीं है।"
+        },
+        "ko": {
+          "old_index": 2,
+          "translation": "해당 공급자 또는 ``None``이 없는 경우."
+        },
+        "is": {
+          "old_index": 2,
+          "translation": "samningsplaðandi, eða ``None`` ef ekki er slík ID."
+        },
+        "fr": {
+          "old_index": 2,
+          "translation": "le fournisseur correspondant, ou ``None`` si aucun tel id."
+        }
+      }
+    }
+  ],
+  "spacr.qt.ai.providers.list_providers": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.list_providers#0",
+      "source": "Return every vendor CLI provider, regardless of install state.",
+      "source_sha256": "d0cc25d3d78c49820b7c0ca675fe2afac44aaf43081501732a9e4f1450b80609",
+      "context": "Return every vendor CLI provider, regardless of install state.",
+      "context_sha256": "d0cc25d3d78c49820b7c0ca675fe2afac44aaf43081501732a9e4f1450b80609",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 1,
+      "label": "spacr.qt.ai.providers.list_providers#1",
+      "source": "The hosted provider is not one of them: it has nothing to install or sign in to. :func:`hosted_provider` returns it.",
+      "source_sha256": "41268dab5a3a8a3efec7f3a88b2e684bd3d8ce3641df48169f1fc5a975c57033",
+      "context": "The hosted provider is not one of them: it has nothing to install or sign in to. :func:`hosted_provider` returns it.",
+      "context_sha256": "41268dab5a3a8a3efec7f3a88b2e684bd3d8ce3641df48169f1fc5a975c57033",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ]
+}

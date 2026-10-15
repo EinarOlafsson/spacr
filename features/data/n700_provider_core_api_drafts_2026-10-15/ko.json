@@ -1,0 +1,168 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical draft (Codex); no human or native-speaker signoff",
+  "note": "Private provider-core API authoring packet only; not installed in active review roots. The seven unchanged module blocks and get_provider#2 are reused byte-exact from the normal inventory, not retranslated. Ordinary full validation and independent technical peer remain separate.",
+  "records": [
+    {
+      "label": "spacr.qt.ai.providers#4",
+      "source": "A fourth, :class:`HostedProvider`, needs no CLI and no account: it asks spaCR's relay, which answers with a free hosted model, and it is the default when none of the three is installed and signed in (:func:`default_provider`).",
+      "source_sha256": "8edaac55540b63385aa21dc664338a88fa38ef6f988f1f6a2d9429836ffbd46c",
+      "context": "A fourth, :class:`HostedProvider`, needs no CLI and no account: it asks spaCR's relay, which answers with a free hosted model, and it is the default when none of the three is installed and signed in (:func:`default_provider`).",
+      "translation": "네 번째 제공자는 :class:`HostedProvider` 입니다. CLI도 계정도 필요하지 않습니다. spaCR의 릴레이에 요청하면 무료 호스팅 모델로 응답하며, 앞의 세 제공자 중 설치되어 있고 로그인도 된 제공자가 하나도 없을 때 기본값으로 사용됩니다 (:func:`default_provider`).",
+      "review_basis": "Exact previously independently accepted Hosted paragraph target, adee31189a and ac81713531"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider#0",
+      "source": "spaCR's hosted assistant: advice from spaCR's relay, no account needed.",
+      "source_sha256": "da1c14bc6ca951debdab9274c15473950d7f2b9bc30c4717bbb10f044ee912c5",
+      "context": "spaCR's hosted assistant: advice from spaCR's relay, no account needed.",
+      "translation": "spaCR의 호스팅 도우미: 계정 없이 spaCR 릴레이에서 받는 조언입니다.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider#1",
+      "source": "It sends only what :func:`_hosted_request` keeps, the anonymised error summary and the question, to the relay's ``/diagnose`` route through :func:`spacr.crashreport.diagnose_remotely`. The answer is generated advice and is labelled as such. It is the provider used when no vendor CLI is installed and signed in (:func:`default_provider`), and it is unavailable when the network is forbidden (:func:`spacr.crashreport.network_allowed`).",
+      "source_sha256": "2ca72c0c5556408e970a3c110a76f18f5acb527529aaa6347309111fc7f66ca2",
+      "context": "It sends only what :func:`_hosted_request` keeps, the anonymised error summary and the question, to the relay's ``/diagnose`` route through :func:`spacr.crashreport.diagnose_remotely`. The answer is generated advice and is labelled as such. It is the provider used when no vendor CLI is installed and signed in (:func:`default_provider`), and it is unavailable when the network is forbidden (:func:`spacr.crashreport.network_allowed`).",
+      "translation": "이 제공자는 :func:`_hosted_request` 가 남긴 익명화된 오류 요약과 질문만 릴레이의 ``/diagnose`` 경로로 :func:`spacr.crashreport.diagnose_remotely` 를 통해 보냅니다. 답변은 생성된 조언이며 그렇게 표시됩니다. 설치되어 있고 로그인도 된 공급업체 CLI가 하나도 없을 때 사용되는 제공자이며 (:func:`default_provider`), 네트워크가 금지되면 사용할 수 없습니다 (:func:`spacr.crashreport.network_allowed`).",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.check_signed_in#0",
+      "source": "There is no sign-in to check.",
+      "source_sha256": "61dde51b6fdaf6c129b9ba1eaec8c62d36e61c49d74b2ed86d26959efa8757c3",
+      "context": "There is no sign-in to check.",
+      "translation": "확인할 로그인이 없습니다.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.check_signed_in#1",
+      "source": "``None``.",
+      "source_sha256": "19ccd0650c179313ee4cbd83c8934366e43399e557de86bef36b957f4709e1c3",
+      "context": "``None``.",
+      "translation": "``None``.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.is_configured#0",
+      "source": "Whether the hosted provider may be used: the network is allowed.",
+      "source_sha256": "f29084ee2c2db3bbc90867ab9f7255cc03c6ec31b5b4c56ac04a269b4312cefa",
+      "context": "Whether the hosted provider may be used: the network is allowed.",
+      "translation": "호스팅 제공자를 사용할 수 있는지 여부: 네트워크가 허용되어 있습니다.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.is_installed#0",
+      "source": "Nothing to install: the hosted provider is always present.",
+      "source_sha256": "b255adbc5f5930c788d1bde6fcec235a02073a9ee95ec24b6988f153494821bf",
+      "context": "Nothing to install: the hosted provider is always present.",
+      "translation": "설치할 것이 없습니다. 호스팅 제공자는 항상 존재합니다.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.is_logged_in#0",
+      "source": "Nothing to sign in to: the relay needs no account.",
+      "source_sha256": "020c83ebfd2aceeb05d7b9ea39267e8c87a66e37083d96772343264b6b4e25dc",
+      "context": "Nothing to sign in to: the relay needs no account.",
+      "translation": "로그인할 것이 없습니다. 릴레이에는 계정이 필요하지 않습니다.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.source_of_key#0",
+      "source": "Say where answers come from, in place of a CLI's location.",
+      "source_sha256": "f10b011b84c37cc94d13bd5266e900d547c34cfdeb99bf9b6953a9dacf79e2dc",
+      "context": "Say where answers come from, in place of a CLI's location.",
+      "translation": "CLI 위치 대신 답변의 출처를 알려 줍니다.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.stream_chat#0",
+      "source": "Ask the relay and yield its advice, then a line saying what it is.",
+      "source_sha256": "e5d24ec2cf7eb660bc2ba8c938708ea6b3ca3394da7f34b72d6d9e1bdcca0541",
+      "context": "Ask the relay and yield its advice, then a line saying what it is.",
+      "translation": "릴레이에 요청하여 조언을 제공한 뒤, 그 답변의 성격을 설명하는 한 줄을 제공합니다.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.stream_chat#1",
+      "source": "conversation history as ``{role, content}`` dicts; only the anonymised summary and the newest question leave this computer.",
+      "source_sha256": "274d88becafc4c017d49f19efba6109161035e4ca2d817a1e65c090316e51861",
+      "context": "conversation history as ``{role, content}`` key-value mappings; only the anonymised summary and the newest question leave this computer.",
+      "translation": "``{role, content}`` 딕셔너리로 된 대화 기록입니다. 익명화된 요약과 가장 최근 질문만 이 컴퓨터를 떠납니다.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.stream_chat#2",
+      "source": "ignored; the relay holds spaCR's own prompt.",
+      "source_sha256": "5a2809f3c5a835d099945c170edbda416aeb8a6dc26d4f83550e9f283159efc6",
+      "context": "ignored; the relay holds spaCR's own prompt.",
+      "translation": "무시됩니다. 릴레이가 spaCR 자체 프롬프트를 보유합니다.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.stream_chat#3",
+      "source": "ignored; the relay chooses its free model.",
+      "source_sha256": "31618f6f07924368276efb82ee7734b63c648083266347e900b047e6bfe2519b",
+      "context": "ignored; the relay chooses its free model.",
+      "translation": "무시됩니다. 릴레이가 무료 모델을 선택합니다.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.stream_chat#4",
+      "source": "iterator yielding the answer.",
+      "source_sha256": "5253a2a87f8317744e0a53bab28cc26a31aeb443fd7de567c973fd54026ba4d6",
+      "context": "iterator yielding the answer.",
+      "translation": "답변을 제공하는 반복자입니다.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProvider.stream_chat#5",
+      "source": "with a message that says the free daily limit is reached, or that the relay could not be reached.",
+      "source_sha256": "656f3c754e1a7a99b682f4c18a57aac46a6c1d75f42b092e3dd0ae776a520471",
+      "context": "with a message that says the free daily limit is reached, or that the relay could not be reached.",
+      "translation": "무료 일일 한도에 도달했거나 릴레이에 연결할 수 없었다는 메시지와 함께 발생합니다.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProviderRefused#0",
+      "source": "spaCR's relay gave no advice: its free daily limit, or no connection.",
+      "source_sha256": "4ad93904e2d91853b453752668492fe9f42b913c2439d3082f5ab7765089f5ca",
+      "context": "spaCR's relay gave no advice: its free daily limit, or no connection.",
+      "translation": "spaCR 릴레이가 조언을 제공하지 않았습니다. 무료 일일 한도에 도달했거나 연결되지 않았습니다.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProviderRefused#1",
+      "source": "A :class:`ProviderFailed`, so the console writes the message as it stands after \"[AI error]\".",
+      "source_sha256": "e51a2e6e13d3dd34e1eaca745a2372d37a25b3b0c6351d6471e0c1327dfbcd85",
+      "context": "A :class:`ProviderFailed`, so the console writes the message as it stands after \"[AI error]\".",
+      "translation": ":class:`ProviderFailed` 이므로 콘솔은 \"[AI error]\" 뒤에 메시지를 그대로 씁니다.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProviderRefused#2",
+      "source": "the sentence the user reads.",
+      "source_sha256": "b63411dc819ca143936fbc35fcfb3829af7cc744b35ff43c25e604f46185fc24",
+      "context": "the sentence the user reads.",
+      "translation": "사용자가 읽는 문장입니다.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProviderRefused#3",
+      "source": "``\"quota\"``, ``\"network\"`` or ``\"error\"``, from :class:`spacr.crashreport.RelayRefused`, kept on the exception as ``reason``.",
+      "source_sha256": "3c36b4ab540322a7577d328c4eb038a6f944be73463cc53e604c9751e94d12de",
+      "context": "``\"quota\"``, ``\"network\"`` or ``\"error\"``, from :class:`spacr.crashreport.RelayRefused`, kept on the exception as ``reason``.",
+      "translation": "``\"quota\"``, ``\"network\"`` 또는 ``\"error\"`` 이며, :class:`spacr.crashreport.RelayRefused` 에서 가져와 예외의 ``reason`` 으로 유지됩니다.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    },
+    {
+      "label": "spacr.qt.ai.providers.HostedProviderRefused#4",
+      "source": "Keep the reason; the message is the whole text shown.",
+      "source_sha256": "5797f57330dc8b6799b318070c4b2d0825f80b7063eb369e143e3dd8f5c53c7e",
+      "context": "Keep the reason; the message is the whole text shown.",
+      "translation": "이유를 유지합니다. 메시지가 화면에 표시되는 전체 텍스트입니다.",
+      "review_basis": "AI-authored technical draft against exact current English and ordinary API context; independent peer pending"
+    }
+  ]
+}
