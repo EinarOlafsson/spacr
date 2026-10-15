@@ -383,3 +383,13 @@ Existing planning fixtures now inject the new pure entry seam instead of the
 broad execution catalogue. Actual execution discovery/offline caption policy
 remains a separate hold; no model/network/GPU/fullCI. Parent702 partial.
 Evidence: data/702_legacy_pure_model_planning_2026-10-14/receipt.json.
+
+2026-10-14 — root combined runtime integration verified:
+Exact pinned-byte acquisition, registered model-constructor boundaries, strict
+planning and actual CLI journal provenance now pass246 owning CPU/GUI cases
+in30.78seconds, exit0 on the combined public-policy source. Original laptop
+requests and pins remain in saved settings; effective loaded paths/hashes
+are separate provenance. Planning avoids provider discovery and HTTP. No
+private offline-caption policy was silently adopted. Real weights, scientific
+parity, native cluster acceptance and finalCI remain open; parent702 partial.
+Evidence: data/702_integrated_model_runtime_2026-10-14/receipt.json.
