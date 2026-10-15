@@ -1087,6 +1087,11 @@ class ObjectSettingsGrid(QWidget):
         from ... import model_zoo
         from .model_zoo_picker import choose_model
 
+        chooser = getattr(self, "_model_chooser", None)
+        if callable(chooser):
+            before = self.settings()
+            chooser(obj)
+            return self.settings() != before
         path = choose_model(self, kinds=self.MODEL_KINDS + tuple(
             kind for kind in model_zoo.PREFIXED_KINDS
             if kind not in self.MODEL_KINDS))

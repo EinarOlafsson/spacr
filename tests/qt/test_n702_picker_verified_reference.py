@@ -502,3 +502,134 @@ def test_actual_worker_start_status_uses_its_reviewed_locale(
     qtbot.waitUntil(lambda: picker.chosen_path() is not None)
     assert picker.chosen_path() == str(selected_model[0])
     assert dict(picker._chosen_reference.record)['sha256'] == selected_model[1]['sha256']
+
+
+@pytest.mark.parametrize('obj', ['cell', 'nucleus', 'pathogen'])
+def test_actual_mask_grid_selection_exports_its_verified_pin(
+        selected_model, qtbot, monkeypatch, tmp_path, obj):
+    path, raw, entry = selected_model
+    screen = AppScreen('mask')
+    qtbot.addWidget(screen)
+    model = screen._settings_model
+    grid = screen._object_grid
+    assert grid is not None
+    key = f'{obj}_model_name'
+    if obj != 'cell':
+        assert model.set_value_for_key(f'{obj}_channel', 1)
+    assert obj in grid.objects()
+    real_dialog = picker_module.ModelZooPicker
+    dialogs = []
+
+    def factory(*args, **kwargs):
+        dialog = real_dialog(*args, **kwargs)
+        dialog._rebuild([replace(entry, path=str(path))])
+        dialog.table.selectRow(0)
+        dialogs.append(dialog)
+        dialog.exec = lambda: _REAL_DIALOG_EXEC(dialog)
+        deadline = QTimer(dialog)
+        deadline.setSingleShot(True)
+        deadline.timeout.connect(dialog.reject)
+        deadline.start(5000)
+        QTimer.singleShot(0, dialog._accept_selected)
+        return dialog
+
+    monkeypatch.setattr(picker_module, 'ModelZooPicker', factory)
+    assert grid.choose_model_for(obj)
+    assert dialogs and dialogs[0].chosen_path() == str(path)
+    assert dialogs[0]._chosen_reference is not None
+    assert grid.settings()[key] == str(path)
+    assert model.collect()[key] == str(path)
+    destination = tmp_path / 'mask-selected.csv'
+    monkeypatch.setattr(QFileDialog, 'getSaveFileName', lambda *a, **k: (str(destination), ''))
+    screen._on_export_settings()
+    exported = load_settings_file(str(destination))
+    assert exported[key] == str(path)
+    assert exported['model_metadata']['settings'][key] == zoo._model_reference_from_record(
+        str(path), raw)
+    before = model.collect()
+    assert not grid.choose_model_for(obj)
+    assert model.collect() == before
+
+
+@pytest.mark.parametrize('action', ['cancel', 'changed_after_verification'])
+@pytest.mark.parametrize('prior_pin', [False, True])
+def test_grid_cancel_or_refusal_preserves_fields_and_all_previous_pins(
+        selected_model, qtbot, monkeypatch, tmp_path, action, prior_pin):
+    from copy import deepcopy
+
+    path, raw, entry = selected_model
+    screen = AppScreen('mask')
+    qtbot.addWidget(screen)
+    model = screen._settings_model
+    grid = screen._object_grid
+    old = tmp_path / 'prior-grid.pt'
+    old.write_bytes(path.read_bytes())
+    model.set_value_for_key('cell_model_name', str(old))
+    model.set_value_for_key('nucleus_model_name', str(old))
+    pins = {'nucleus_model_name': zoo._model_reference_from_record(str(old), raw)}
+    if prior_pin:
+        pins['cell_model_name'] = zoo._model_reference_from_record(str(old), raw)
+    assert model.set_hidden_value('model_metadata', {'schema_version': 1, 'settings': pins})
+    before = deepcopy(model.collect())
+    grid_before = deepcopy(grid.settings())
+    real_dialog = picker_module.ModelZooPicker
+    original_write = model.set_value_for_key
+    messages = []
+    monkeypatch.setattr(QMessageBox, 'warning', lambda *a, **k: messages.append(a[2]))
+
+    def write(key, value):
+        result = original_write(key, value)
+        if key == 'cell_model_name' and value == str(path):
+            path.write_bytes(b'changed after accepted grid selection')
+        return result
+
+    def factory(*args, **kwargs):
+        dialog = real_dialog(*args, **kwargs)
+        dialog._rebuild([replace(entry, path=str(path))])
+        dialog.table.selectRow(0)
+        dialog.exec = lambda: _REAL_DIALOG_EXEC(dialog)
+        deadline = QTimer(dialog)
+        deadline.setSingleShot(True)
+        deadline.timeout.connect(dialog.reject)
+        deadline.start(5000)
+        QTimer.singleShot(0, dialog.reject if action == 'cancel' else dialog._accept_selected)
+        return dialog
+
+    monkeypatch.setattr(model, 'set_value_for_key', write)
+    monkeypatch.setattr(picker_module, 'ModelZooPicker', factory)
+    assert not grid.choose_model_for('cell')
+    assert len(messages) == (1 if action == 'changed_after_verification' else 0)
+    assert model.collect() == before
+    assert grid.settings() == grid_before
+    assert old.read_bytes() == b'controlled trusted checkpoint bytes'
+
+
+def test_grid_missing_widget_keeps_existing_state_without_opening_picker(
+        selected_model, qtbot, monkeypatch):
+    from copy import deepcopy
+
+    screen = AppScreen('mask')
+    qtbot.addWidget(screen)
+    grid = screen._object_grid
+    model = screen._settings_model
+    before = deepcopy(grid.settings())
+    monkeypatch.delitem(model._widgets, 'cell_model_name')
+    monkeypatch.setattr(picker_module, 'ModelZooPicker', lambda *a, **k: pytest.fail(
+        'A missing owner widget must not open a chooser'))
+    assert not grid.choose_model_for('cell')
+    assert grid.settings() == before
+
+
+@pytest.mark.parametrize('selected', [None, 'standalone-new.pt', 'standalone-old.pt'])
+def test_standalone_grid_keeps_its_original_path_only_selection_contract(
+        qtbot, monkeypatch, selected):
+    from spacr.qt.widgets.object_settings_grid import ObjectSettingsGrid
+
+    grid = ObjectSettingsGrid()
+    qtbot.addWidget(grid)
+    grid.set_settings({'cell_channel': 0, 'cell_model_name': 'standalone-old.pt',
+                       'nucleus_channel': 1, 'nucleus_model_name': 'nucleus-old.pt'})
+    assert 'model_name' in grid.questions()
+    monkeypatch.setattr(picker_module, 'choose_model', lambda *a, **k: selected)
+    assert grid.choose_model_for('cell') is (selected == 'standalone-new.pt')
+    assert grid.settings()['cell_model_name'] == (selected or 'standalone-old.pt')

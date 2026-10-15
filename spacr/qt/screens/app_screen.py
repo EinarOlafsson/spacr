@@ -2961,6 +2961,9 @@ class AppScreen(QWidget):
             self._category_blurbs.setdefault(title, blurb)
             grid = ObjectSettingsGrid(section)
             grid.set_app_key(self.app_key)
+            grid._model_chooser = lambda obj: self._choose_a_model_for(
+                model._widgets[f"{obj}_model_name"], f"{obj}_model_name"
+            ) if f"{obj}_model_name" in model._widgets else None
             binding = ObjectGridBinding(grid, model, self)
             binding.seed()
             owned = binding.owned_keys()
