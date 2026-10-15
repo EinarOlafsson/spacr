@@ -1,0 +1,35 @@
+{
+  "item": "F564",
+  "component": "opt-in reference-channel preservation in scored counterfactuals",
+  "status": "CPU mechanical contract accepted, alpha; no whole-feature scientific acceptance",
+  "base": "03a0578c37405fc58a047466662221b77fcbd758",
+  "source_sha256": {
+    "spacr/attribution.py": "5feb0d79f47630e82c3f0308ede453dce38e5628418fc789dd8b8034351e7085",
+    "tests/test_generative_counterfactuals.py": "4415ecab268e041358699c03082702f06c876620d5f7281a8dd39493d99d26a4"
+  },
+  "unchanged_alpha_registration_sha256": "cf4dfd11b25956d2ed7e401078822c00994948bdc701b47db8b74272260ce6aa",
+  "checks": [
+    {
+      "scope": "full existing and reference owning module before final float32 overflow guard",
+      "passed": 45,
+      "actual_exit": 0,
+      "seconds": 45.93,
+      "evidence": "/mnt/wd4tb/scratch/f564-reference-channels-20261014/final*"
+    },
+    {
+      "scope": "final source reference tests including conversion overflow; 21 unchanged baseline tests deselected",
+      "passed": 25,
+      "actual_exit": 0,
+      "seconds": 4.12,
+      "evidence": "/mnt/wd4tb/scratch/f564-reference-channels-20261014/reference-closure*"
+    }
+  ],
+  "prior_failure": "owning.log: baseline NaN correctly unavailable for single-class synthetic fixture; fixture corrected to contain both classes",
+  "limits": [
+    "Existing sequence float32 working representation retained; standalone clone helper preserves matching float16/32/64 dtype.",
+    "Synthetic deterministic edit generator and recording classifier prove array/scoring mechanics, not biological success.",
+    "Other channels may redraw structure. No new structure-loss training objective.",
+    "No real microscopy, new model weights, GPU, protected data, UI or schema changes.",
+    "Existing alpha gating unchanged; larger/pretrained diffusion and scientific validation remain open."
+  ]
+}
