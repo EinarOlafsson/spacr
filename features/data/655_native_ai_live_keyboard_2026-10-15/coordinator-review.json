@@ -1,0 +1,20 @@
+{
+  "reviewer": "Home-B coordinator, independent native probe reader",
+  "native_evidence_commit": "2042dde60d8ba7db760b52563139eff3540d4355",
+  "source_commit": "e1f97a89a0e1270d8842e5a71f91db651d7b1cb8",
+  "current_control_source_exact": true,
+  "tested_process_source_files_verified": 203,
+  "all_payload_hashes_verified": true,
+  "same_application_and_reader_assertions_across_attempts": true,
+  "native_semantics": "Read actual XTest sender and recorder/reader; event filter observes and returns False. Only Before gets initial focus. Six actual toggled signals and states follow native keys; both numeric Enter events carry Qt.Key_Enter and Qt.KeypadModifier.",
+  "failed_attempt_retained": "Orca intercepted keypad Enter. Corrected probe removes private reader launch only, without changing application or assertion scripts. No Orca keypad acceptance claim.",
+  "tested_Help_source_artifact_hashes_exact": true,
+  "no_repeated_tests_native_runs_or_generation": true,
+  "limits": [
+    "No audible speech or human screen-reader usability acceptance.",
+    "No Orca keypad activation claim; its desktop default binding intercepts that key as demonstrated.",
+    "Native AT-SPI label role/check-state semantics remain limited and require separate work if stronger screen-reader behavior is needed.",
+    "No native held-key repeat or command-modifier test in this probe; those cases belong the separately recorded source-owner tests.",
+    "No provider/reporting/routing request, data/model workload, GPU or network workflow; no full N655/N700 completion or other-platform claim."
+  ]
+}

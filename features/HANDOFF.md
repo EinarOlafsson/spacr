@@ -13368,3 +13368,28 @@ Independent coordinator payload/source/reader review passed without replay.
 Evidence:data/655_native_figure_heading_2026-10-15/. Native role remains panel;
 audio was disabled. No audible speech, human usability, Windows/macOS or full
 application acceptance is claimed. Broader N655 gates stay open.
+
+## 2026-10-15 Home-B — AI/Live keyboard source, API, Help and native delivery
+
+2026-10-15 — Home-B AI/Live keyboard navigation and visible focus
+The two existing controls now participate in Tab/Shift+Tab navigation and
+show ordinary/strong focus outlines. Space, Return and numeric-keypad Enter
+toggle once; held repeats and unrelated modifiers do not change state.
+Provider routing, reporting, labels and existing mouse behavior are unchanged.
+Final targeted owning cohort:51PASS2.87s, capped2G, Qt offscreen, GPU hidden.
+Four newly documented event methods have81 reviewed nine-locale API targets;
+normal generation retained prior entries and source history. Normal Help adds
+four summaries; actual index/query consumers and five existing checks pass.
+An isolated native X11/AT-SPI/XTest run verifies both names, focus traversal
+and six actual toggle signals, including Qt numeric-keypad modifiers. The
+initial Orca-intercepted keypad run remains recorded; the passing native run
+does not claim Orca keypad support. Roles/check-state semantics, audible/human
+usage and other platforms remain open. Guide translations follow separately.
+Evidence:data/655_ai_live_keyboard_2026-10-15/,
+data/655_ai_live_help_acceptance_2026-10-15/,
+data/655_native_ai_live_keyboard_2026-10-15/ and coordinator review folders.
+
+Guide source corrections and117 translation targets remain in independent
+author/peer work. No N700 routing/provider changes or full CI/release claim.
+The active session watchdog defers unavailable items last with no automatic
+retry; independent authorized implementation continues.
