@@ -1,0 +1,128 @@
+{
+  "date": "2026-10-15",
+  "base_commit": "348c63b842a18663a364a746f3b277bcef5efdc8",
+  "source": "spacr/qt/widgets/file_list.py",
+  "before_sha256": "a48c2e66b27adf968df7a27cb434bef429220b3645af4d98c3f2292d38b42f85",
+  "after_sha256": "ca1e7b5f5f47c53339d8dfbbb8a9127a65b8d7c5f71d8f8c30b7beeefaded743",
+  "executable_ast_identical": true,
+  "before_after_cases_identical": true,
+  "cases": {
+    "count_tie_fallback": [
+      {
+        "plate": "plate 1",
+        "score": "plate1_scores.csv",
+        "count": "/first/plate1_counts.csv",
+        "database": null
+      },
+      {
+        "plate": "",
+        "score": null,
+        "count": "/second/plate1_counts.csv",
+        "database": null
+      }
+    ],
+    "no_overlap_fallback": [
+      {
+        "plate": "plate 1",
+        "score": "alpha_scores.csv",
+        "count": "gamma_counts.csv",
+        "database": null
+      },
+      {
+        "plate": "plate 2",
+        "score": "beta_scores.csv",
+        "count": "delta_counts.csv",
+        "database": null
+      }
+    ],
+    "incomplete_labels": {
+      "score_only": [
+        {
+          "plate": "",
+          "score": "scores.csv",
+          "count": null,
+          "database": null
+        }
+      ],
+      "count_only": [
+        {
+          "plate": "",
+          "score": null,
+          "count": "counts.csv",
+          "database": null
+        }
+      ],
+      "database_only": [
+        {
+          "plate": "",
+          "score": null,
+          "count": null,
+          "database": "measurements.db"
+        }
+      ]
+    },
+    "database_tie": [
+      {
+        "plate": "plate1",
+        "score": "plate1_scores.csv",
+        "count": "plate1_counts.csv",
+        "database": null
+      },
+      {
+        "plate": "plate1",
+        "score": null,
+        "count": null,
+        "database": "/first/plate1/measurements.db"
+      },
+      {
+        "plate": "plate1",
+        "score": null,
+        "count": null,
+        "database": "/second/plate1/measurements.db"
+      }
+    ],
+    "row_position_labels": [
+      {
+        "score": "score.csv",
+        "count": null,
+        "plate": ""
+      },
+      {
+        "score": "score.csv",
+        "count": "count.csv",
+        "plate": "plate7"
+      },
+      {
+        "score": "score.csv",
+        "count": "count.csv",
+        "plate": "plate 3"
+      }
+    ]
+  },
+  "ledger": [
+    {
+      "symbol": "spacr.qt.widgets.file_list._number_unlabelled_plates",
+      "before": "Give every row without a parsed plate name one generated from its order.\n\n`plate 1`, `plate 2`, in row order. The rule is that a name shared by the\nfiles is used when there is one, and a row whose files carry no name gets\none generated from its position instead.\n\nNUMBERED BY ROW, NOT BY A COUNTER OVER THE UNLABELLED. A table whose\nsecond row is parsed as `plate7` would otherwise run `plate 1`, `plate7`,\n`plate 2`, which reads as though the middle row were out of sequence. The\nnumber is the row's position and nothing else, so a generated label says\nwhere the row is rather than how many blank ones preceded it.\n\nREGENERATED ON EVERY PROPOSAL, which is what makes it safe. A generated\nlabel is a default the user is expected to overwrite, and `_repropose`\nrebuilds every row from scratch -- so a row labelled `plate 2` that ends\nup first after a deletion is renumbered rather than left asserting a fact\nabout a plate. A label the user has actually typed is pinned by the\nwidget and survives this, exactly as a manually placed database does.\n\n:param rows: proposed rows, in the order they will be shown.\n:returns: the same rows, with blank plate cells filled in.",
+      "after": "Name unlabelled score/count pairs from their row positions.\n\nA row containing both a score and a count receives `plate 1`, `plate 2`,\nor another position-based label when its plate cell is blank. Existing\nlabels are preserved. A row missing either source keeps its blank label,\nincluding database-only rows without a parsed plate name.\n\nNUMBERED BY ROW, NOT BY A COUNTER OVER THE UNLABELLED. A table whose\nsecond row is parsed as `plate7` would otherwise run `plate 1`, `plate7`,\n`plate 2`, which reads as though the middle row were out of sequence. The\nnumber is the row's position and nothing else, so a generated label says\nwhere the row is rather than how many blank ones preceded it.\n\nREGENERATED ON EVERY PROPOSAL, which is what makes it safe. A generated\nlabel is a default the user is expected to overwrite, and `_repropose`\nrebuilds every row from scratch -- so a row labelled `plate 2` that ends\nup first after a deletion is renumbered rather than left asserting a fact\nabout a plate. A label the user has actually typed is pinned by the\nwidget and survives this, exactly as a manually placed database does.\n\n:param rows: proposed rows, in the order they will be shown.\n:returns: the same rows, with blank plate cells filled for score/count pairs.",
+      "finding": "Generated labels require both score and count; existing labels persist and numbering uses the row position."
+    },
+    {
+      "symbol": "spacr.qt.widgets.file_list.suggest_file_pairs",
+      "before": "Propose visible score/count/database rows by filename tokens.\n\nA proposal is never authoritative: the editable table is the contract the\nuser confirms. Unique best matches are used; ties remain unpaired.\n\n``databases`` is keyword-only and defaults to nothing, so the two-argument\ncall every existing caller makes still means what it did. A database is\nmatched against BOTH cells of a row it may join -- a plate is named by its\nscore CSV as often as by its count CSV -- and one that matches nothing is\nlisted on its own row rather than being dropped or guessed onto row 0.\n\n:param scores: score CSV paths; each starts a row, in the order given.\n:param counts: count CSV paths; each is paired with the score whose\n    filename tokens it uniquely matches best, unmatched ones fill score\n    rows still missing a count, and any left over get rows of their own.",
+      "after": "Propose visible score/count/database rows by filename tokens.\n\nA proposal is never authoritative: the editable table is the contract the\nuser confirms. Each score first takes its unique best match among unused\ncount paths. Remaining count paths then fill score rows without a count,\nin input order, including rows whose token matches were tied or absent.\nDatabase matches require a unique best match without an input-order\nfallback; any databases left unmatched receive separate rows.\n\n``databases`` is keyword-only and defaults to nothing, so the two-argument\ncall every existing caller makes still means what it did. A database is\nmatched against BOTH cells of a row it may join -- a plate is named by its\nscore CSV as often as by its count CSV -- and one that matches nothing is\nlisted on its own row rather than being dropped or guessed onto row 0.\n\n:param scores: score CSV paths; each starts a row, in the order given.\n:param counts: count CSV paths, in fallback pairing order. Score rows\n    select unique best filename-token matches first; remaining paths fill\n    score rows still missing a count, and any left over get their own rows.",
+      "finding": "Counts use input-order fallback after unmatched or tied token selection; databases do not."
+    }
+  ],
+  "public_api_dependencies": [
+    "spacr.qt.widgets.file_list.suggest_file_pairs"
+  ],
+  "private_docstrings_changed": [
+    "spacr.qt.widgets.file_list._number_unlabelled_plates"
+  ],
+  "limitations": [
+    "Only two selected pairing-helper docstrings reviewed; not full N678 completion.",
+    "No Qt/native/whole-widget acceptance claimed by pure-helper execution.",
+    "Normal English API refresh and nine-locale paragraph review remain with the API lane.",
+    "No runtime behavior, scientific algorithm, visible caption or command changed."
+  ]
+}

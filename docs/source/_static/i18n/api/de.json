@@ -142562,16 +142562,16 @@
       "source_blocks_sha256": [
         "22e4f32547c7d75e221c68b8faff32eeed58a0d87cd190ca74472bf5abe722a0",
         "2c9bfad05a3678a87b35682043a4a88c6aa3f6e7bbf50a4af52bd35d96d3b2da",
-        "91df4ebf297c9ff16c4646769cefc835b5c607e5302c6b67b4917841b655753b",
+        "cd0fdc773ef0448abed8cde10a3a7bb6026ba11332018bbb221f32a3f4d57348",
         "0c3f723ee3c9759a265f31384573f8c8722426a787eb871b6fdb0a2eab6d4cb5",
         "1530385e1ff22c0f9c0b8f519e60c2e82e357ba30d0ff40248e354abce4b17c5"
       ],
-      "source_sha256": "85c8887cf440665cf6664e9bd0898bd5a96439c409104cc567e34c7fbd2c2472",
-      "text": "Fügen Sie eine Messdatenbank an eine Labor-Mikroplattenreihe an und sagen Sie, welche.\n\n``row`` ist die Zeile, auf die der Benutzer den Drop gerichtet hat -- eine EXPLICIT-Zuweisung, die in Erinnerung bleibt und die Re-Vorlage überlebt, die der nächste Drop CSV auslöst.\n\nOhne Zeile wird die Datenbank zunächst der Token-Paarung angeboten, so dass ``plate2/measurements/measurements.db`` Labor-Mikroplatte 2 findet, wo immer diese Zeile ist. Erst wenn nichts in ihrem Pfad eine Labor-Microplatte nennt, fällt sie auf die erste Zeile zurück, die keine Datenbank hat -- und der zurückgegebene Satz, der auch unter der Tabelle angezeigt wird, NAMES diese Zeile. Eine Datenbank, die an Zeile 0 in der Stille befestigt ist, sind die Messungen eines Labor- Mikroplatte ruhig auf eine andere Labor-mikroplatte gutgeschrieben.\n\nGibt den Satz zurück, so dass ein Anrufer mit einer Konsole die gleichen Wörter protokolliert, die der Benutzer liest.\n\n:param path: Pfad zur Messdatenbank, als Zeichenkette oder pfadartiges Objekt; ein leerer Pfad löst :class:`ValueError` aus.",
+      "source_sha256": "3b0cfae063958ccf29f1532da1c032deae567d0202dc16401cef1cd008375735",
+      "text": "Fügen Sie eine Messdatenbank an eine Labor-Mikroplattenreihe an und sagen Sie, welche.\n\n``row`` ist die Zeile, auf die der Benutzer den Drop gerichtet hat -- eine EXPLICIT-Zuweisung, die in Erinnerung bleibt und die Re-Vorlage überlebt, die der nächste Drop CSV auslöst.\n\nOhne angegebene Zeile wird die Datenbank zuerst der Token-Zuordnung angeboten. So findet ``plate2/measurements/measurements.db`` Platte 2 unabhängig von deren Zeilenposition, wenn ihre Token eindeutig übereinstimmen. Bleibt die Datenbank nach der Zuordnung in einer eigenen Zeile, wird sie mit der ersten Zeile ohne Datenbank verbunden, sofern eine solche existiert. Diese Ersatzzuordnung gilt auch, wenn der Pfad einen Plattennamen enthält, der keine eindeutige Übereinstimmung ergab. Der zurückgegebene Satz, der auch unter der Tabelle erscheint, nennt die gewählte Zeile.\n\nGibt den Satz zurück, so dass ein Anrufer mit einer Konsole die gleichen Wörter protokolliert, die der Benutzer liest.\n\n:param path: Pfad zur Messdatenbank, als Zeichenkette oder pfadartiges Objekt; ein leerer Pfad löst :class:`ValueError` aus.",
       "translation_source_blocks_sha256": [
         "2ff902a844690522a7c0cdc0611ef074c344024d57ff695edafe428f0992da12",
         "2c9bfad05a3678a87b35682043a4a88c6aa3f6e7bbf50a4af52bd35d96d3b2da",
-        "77a2f7477ac5c8558ce62af20d7671bc09184e4ad0dd4c4f6d0d55fda1e7d813",
+        "67c9cbdcdbf492d4b6b2f8b8a5abcd78262726d9f434038126f95c039e334a8f",
         "0c3f723ee3c9759a265f31384573f8c8722426a787eb871b6fdb0a2eab6d4cb5",
         "1530385e1ff22c0f9c0b8f519e60c2e82e357ba30d0ff40248e354abce4b17c5"
       ]
@@ -142604,15 +142604,15 @@
       "source_blocks_sha256": [
         "dfbf6651acc193c1efcc274703be1bae61742eabf12591c7e3813776052e57b1",
         "8c304584f915098778e21bfec70615e11cbe06f60612d5e34d2aef16cdcb969d",
-        "81805f4ab609a4d715318f26225994f96892b3bb1d9fdb431e161d598dbb467f",
+        "ac4a388a506cd73c944d1483f245d85faf4e6ea88c375bbd896f960c6d676670",
         "cab53d6c009ea9919ebe8acbd8da090a5e7b73899768e4dece024a4a6fc01cda"
       ],
-      "source_sha256": "99c938a4bc562aa448434d3fad7471475cf93dfa87e1fbf96d240e7ecd337b9c",
-      "text": "Route jede fallen gelassene Datei in die Spalte, und Zeile, es gehört in.\n\nEin Tropfen über die Spalte \"Score\" oder \"Count\" geht dorthin, unabhängig davon, wie die Datei aussieht -- der Benutzer zielte darauf ab. Ein Tropfen irgendwo anders wird nach Header sortiert, so dass das Abwerfen des gesamten Satzes auf einmal beide Spalten korrekt füllt.\n\nEine Datenbank wird durch ihre Erweiterung und nie durch Ziel entschieden: eine ``.db`` fallengelassene Spalte ist ein falsches Ziel, keine Anforderung, die Regression auf eine sqlite-Datei zu passen, und ein CSV fallen gelassen auf die Datenbank-Spalte ist ebenfalls ein CSV. Was für eine Datenbank hinzugefügt wird, ist das ROW -- es auf die Zeile eines Labor-Mikroplattens zu legen, hängt es an DAS Labor-Microplate, das ist die eine Sache, die das Token-Paaring nicht wissen kann, wenn die Datei ``measurements.db`` heißt, wie alle anderen.\n\n:param event: das Ablageereignis; seine lokalen Datei-URLs und die Ablageposition werden gelesen, und es wird ignoriert, wenn es keine verwendbaren Pfade trägt.",
+      "source_sha256": "59dd0d457c462f99721a48136a5c4c1c45c5948bd8ccc01079f081103a78285b",
+      "text": "Route jede fallen gelassene Datei in die Spalte, und Zeile, es gehört in.\n\nEin Tropfen über die Spalte \"Score\" oder \"Count\" geht dorthin, unabhängig davon, wie die Datei aussieht -- der Benutzer zielte darauf ab. Ein Tropfen irgendwo anders wird nach Header sortiert, so dass das Abwerfen des gesamten Satzes auf einmal beide Spalten korrekt füllt.\n\nEine Datenbank wird anhand ihrer Dateiendung erkannt, niemals anhand der Ablageposition: Eine in der Bewertungsspalte abgelegte ``.db`` wurde falsch platziert; sie fordert keine Regressionsanpassung anhand einer sqlite-Datei an. Ebenso bleibt eine in der Datenbankspalte abgelegte CSV eine CSV. Eine in der Datenbankspalte einer vorhandenen Zeile abgelegte Datenbank wird dieser Zeile ausdrücklich zugeordnet. Das Ablegen über einer anderen Spalte oder außerhalb einer vorhandenen Zeile verwendet die automatische Zuordnung einschließlich der in :meth:`attach_database` beschriebenen Ersatzzuordnung.\n\n:param event: das Ablageereignis; seine lokalen Datei-URLs und die Ablageposition werden gelesen, und es wird ignoriert, wenn es keine verwendbaren Pfade trägt.",
       "translation_source_blocks_sha256": [
         "dfbf6651acc193c1efcc274703be1bae61742eabf12591c7e3813776052e57b1",
         "8c304584f915098778e21bfec70615e11cbe06f60612d5e34d2aef16cdcb969d",
-        "a84453f45d1bbce92b4a3e640dae1a4f2ad746d36bdbea8a70c6582d15db2ad1",
+        "3b7c0eb9fbeb7ec2c25d8219c66271184e9fb665e46f69f244af48e26ac90422",
         "cab53d6c009ea9919ebe8acbd8da090a5e7b73899768e4dece024a4a6fc01cda"
       ]
     },
@@ -142705,19 +142705,19 @@
     "spacr.qt.widgets.file_list.suggest_file_pairs": {
       "source_blocks_sha256": [
         "b629b679dd452878c2a1c0b43c0ec15db56164dc78c3e72722a5f6c4e633fa5c",
-        "a015b52f12bb504e577dc8e67e03281ba87decf93c9eb650ad71c05400d2fb93",
+        "183f1f2f326b6decdb4521fc63a6baff1d505288ba7bb827178f93be0316e404",
         "762b38dac4aa9ab6ffc69213de58bd67cbf9cd39bcef3f4e5f8b3f64171fde17",
         "0c41bd8d47aec349427925e1dc0004e0c2f59b15d09fb7208733977c356e7e03",
-        "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc"
+        "cb896871135f23c6d9ad148700a08af292db5dbb45d6da998fc3b045ce58b5cc"
       ],
-      "source_sha256": "8e75346ccd85b3235784262ba25ea2f9c53ff155c21b5d94d0f07b0f692e5493",
-      "text": "Propose sichtbare Score/Count/Datenbankzeilen nach Dateinamen-Token.\n\nEin Vorschlag ist nie maßgeblich: Die editierbare Tabelle ist der Vertrag, den der Benutzer bestätigt. Einzigartige beste Übereinstimmungen werden verwendet; Krawatten bleiben unpaart.\n\n``databases`` ist nur-Schlüsselwort und standardmäßig auf nichts, so dass der Zwei-Argument-Aufruf, den jeder existierende Aufrufer macht, immer noch das bedeutet, was er getan hat. Eine Datenbank wird mit BEIDEN Zellen einer Zeile verglichen, der sie angeschlossen werden kann -- eine Labor-Mikroplatte wird ebenso häufig nach ihrer Punktzahl CSV wie nach ihrer Anzahl CSV benannt -- und eine, die mit nichts übereinstimmt, wird in einer eigenen Zeile aufgelistet, anstatt in Zeile 0 abgelegt oder erraten zu werden.\n\n:param scores: Pfade der Score-CSVs; jeder beginnt eine Zeile, in der angegebenen Reihenfolge.\n:param counts: Pfade der Zähl-CSVs; jeder wird mit dem Score gepaart, dessen Dateinamen-Token er eindeutig am besten trifft, nicht zugeordnete füllen Score-Zeilen, denen noch eine Zählung fehlt, und übrig gebliebene erhalten eigene Zeilen.",
+      "source_sha256": "5eb745f9845f5672270485cdf78ce93e52056f02c5d706f6685ab7c62cae615d",
+      "text": "Propose sichtbare Score/Count/Datenbankzeilen nach Dateinamen-Token.\n\nEin Vorschlag ist nie verbindlich: Maßgeblich ist die bearbeitbare Tabelle, die der Benutzer bestätigt. Jede Bewertungsdatei erhält zunächst ihre eindeutig beste Übereinstimmung unter den noch unbenutzten Pfaden zu Zähldateien. Verbleibende Zählpfade füllen anschließend Bewertungszeilen ohne Zähldatei in Eingabereihenfolge, auch bei gleich guten oder fehlenden Token-Übereinstimmungen. Datenbanken benötigen eine eindeutig beste Übereinstimmung ohne Ersatzzuordnung nach Eingabereihenfolge; nicht zugeordnete Datenbanken erhalten eigene Zeilen.\n\n``databases`` ist nur-Schlüsselwort und standardmäßig auf nichts, so dass der Zwei-Argument-Aufruf, den jeder existierende Aufrufer macht, immer noch das bedeutet, was er getan hat. Eine Datenbank wird mit BEIDEN Zellen einer Zeile verglichen, der sie angeschlossen werden kann -- eine Labor-Mikroplatte wird ebenso häufig nach ihrer Punktzahl CSV wie nach ihrer Anzahl CSV benannt -- und eine, die mit nichts übereinstimmt, wird in einer eigenen Zeile aufgelistet, anstatt in Zeile 0 abgelegt oder erraten zu werden.\n\n:param scores: Pfade der Score-CSVs; jeder beginnt eine Zeile, in der angegebenen Reihenfolge.\n:param counts: Pfade zu Zähl-CSV-Dateien in der Reihenfolge für die Ersatzzuordnung. Bewertungszeilen wählen zunächst eindeutig beste Dateinamen-Token-Übereinstimmungen; verbleibende Pfade füllen Bewertungszeilen ohne Zähldatei, und übrige Pfade erhalten eigene Zeilen.",
       "translation_source_blocks_sha256": [
         "b629b679dd452878c2a1c0b43c0ec15db56164dc78c3e72722a5f6c4e633fa5c",
-        "a015b52f12bb504e577dc8e67e03281ba87decf93c9eb650ad71c05400d2fb93",
+        "183f1f2f326b6decdb4521fc63a6baff1d505288ba7bb827178f93be0316e404",
         "f49a22d7e121f9948739e673d39e61a4ebb7db4a5a91783abf673cfe5f5e1ddd",
         "0c41bd8d47aec349427925e1dc0004e0c2f59b15d09fb7208733977c356e7e03",
-        "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc"
+        "cb896871135f23c6d9ad148700a08af292db5dbb45d6da998fc3b045ce58b5cc"
       ]
     },
     "spacr.qt.widgets.flash": {
@@ -167643,16 +167643,16 @@
     "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag": {
       "source_blocks_sha256": [
         "c6f7963877fb1381ea3337639c4e9b6ce67631f626eccbb93b6cd95d4e96e41d",
-        "e77dde0f8aed11c914cc799894cc28abd622f411c9680d52e0c96249c8cfb546",
-        "7f8295d65558a9a4fe8de5a7dd5ce33ea6f1965c35961b735f694512d5e4269c",
+        "48c509ac62ad8f95597b50c9212732bd70cdaf6d3cae6584f086ecfffd9397cd",
+        "18cfd53dba60fff2bac3946587aa4857635d24a2608cbee9dc2f859544a19717",
         "34c54415494582b6ede3722c54dcb41554683f1d7649246d5a3307593d787f71"
       ],
-      "source_sha256": "a4747e1f4b18314c3c3a4f89bb22233464bef5f464569e7744eb340da65eeb86",
-      "text": "Verankern Sie einen Zug an einer Mikroplatten-Probenposition.\n\n:param row: Nullbasierte Labor-Mikroplattenreihe der gepressten Mikroplatten-Probenposition.\n:param column: Null-basierte Labor-Mikroplattensäule der gepressten Mikroplatten-Probenposition.\n:param modifiers: der Tastaturzustand an der Presse. Mit Strg fügt das Rechteck zu dem hinzu, was bereits gewählt ist; ohne ihn ersetzt der Drag die Auswahl, was jedes andere Gitter in dieser Anwendung tut.",
+      "source_sha256": "c3d17d37e529f731cad6d9f594bda1e7943efb63412743a639a12dcf6fc95d3a",
+      "text": "Verankern Sie einen Zug an einer Mikroplatten-Probenposition.\n\n:param row: die ab eins nummerierte Plattenzeile der gedrückten Vertiefung.\n:param column: die ab eins nummerierte Plattenspalte der gedrückten Vertiefung.\n:param modifiers: der Tastaturzustand an der Presse. Mit Strg fügt das Rechteck zu dem hinzu, was bereits gewählt ist; ohne ihn ersetzt der Drag die Auswahl, was jedes andere Gitter in dieser Anwendung tut.",
       "translation_source_blocks_sha256": [
         "8af3b3fdefec12e6ea6c98e764adc14cdd1d5270f534cf55030bcf17a6b8dfb4",
-        "6e801f249d1c0cce18b7477acf66655bb80815a13c2122c9a13770e8010c04e8",
-        "7c6d28be25a678184dc0313a996cddc860ac6762e320008c93a75a3fd1bad24e",
+        "82966fb3fdd9d21e8b24ca13990788b2a13d0c14f0a63a6f4d4a87fcd1f15e56",
+        "20a77c38a13ca3fba66479cf91c16cf4abe6837edc6f1a91af39d00da9c4f7a3",
         "34c54415494582b6ede3722c54dcb41554683f1d7649246d5a3307593d787f71"
       ]
     },

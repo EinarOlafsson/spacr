@@ -142563,16 +142563,16 @@
       "source_blocks_sha256": [
         "22e4f32547c7d75e221c68b8faff32eeed58a0d87cd190ca74472bf5abe722a0",
         "2c9bfad05a3678a87b35682043a4a88c6aa3f6e7bbf50a4af52bd35d96d3b2da",
-        "91df4ebf297c9ff16c4646769cefc835b5c607e5302c6b67b4917841b655753b",
+        "cd0fdc773ef0448abed8cde10a3a7bb6026ba11332018bbb221f32a3f4d57348",
         "0c3f723ee3c9759a265f31384573f8c8722426a787eb871b6fdb0a2eab6d4cb5",
         "1530385e1ff22c0f9c0b8f519e60c2e82e357ba30d0ff40248e354abce4b17c5"
       ],
-      "source_sha256": "85c8887cf440665cf6664e9bd0898bd5a96439c409104cc567e34c7fbd2c2472",
-      "text": "将测量数据库粘贴到一个实验室微板序列,然后说哪个。\n\n``row`` 是用户针对下跌的序列 - 一个 EXPLICIT 任务,它被记住并生存了下一个下跌 CSV 引发的重新提议。\n\n没有序列,数据库被提供给标志相结合的第一,所以 ``plate2/measurements/measurements.db`` 发现实验室微板2 随时随地发生。 只有当没有什么在其轨道上命名实验室小板,它会落到没有数据库的第一行 - 并返回的句子,也显示在表下,名称,这个序列。\n\n返回句子,以便使用控制台的呼叫器记录用户正在阅读的相同词语。\n\n:param path: 测量数据库的路径，可以是字符串或类路径对象；空路径会抛出 :class:`ValueError`。",
+      "source_sha256": "3b0cfae063958ccf29f1532da1c032deae567d0202dc16401cef1cd008375735",
+      "text": "将测量数据库粘贴到一个实验室微板序列,然后说哪个。\n\n``row`` 是用户针对下跌的序列 - 一个 EXPLICIT 任务,它被记住并生存了下一个下跌 CSV 引发的重新提议。\n\n未指定行时，数据库先参与词元配对，因此当词元产生唯一匹配时，``plate2/measurements/measurements.db`` 会找到第 2 块微孔板，无论其所在行的位置如何。若配对后数据库仍独占一行，就将其附加到第一个没有数据库的行（如果存在）。即使路径中包含微孔板名称，只要未产生唯一匹配，也会采用此后备方式。返回的句子会指出选中的行，并显示在表格下方。\n\n返回句子,以便使用控制台的呼叫器记录用户正在阅读的相同词语。\n\n:param path: 测量数据库的路径，可以是字符串或类路径对象；空路径会抛出 :class:`ValueError`。",
       "translation_source_blocks_sha256": [
         "2ff902a844690522a7c0cdc0611ef074c344024d57ff695edafe428f0992da12",
         "2c9bfad05a3678a87b35682043a4a88c6aa3f6e7bbf50a4af52bd35d96d3b2da",
-        "77a2f7477ac5c8558ce62af20d7671bc09184e4ad0dd4c4f6d0d55fda1e7d813",
+        "67c9cbdcdbf492d4b6b2f8b8a5abcd78262726d9f434038126f95c039e334a8f",
         "0c3f723ee3c9759a265f31384573f8c8722426a787eb871b6fdb0a2eab6d4cb5",
         "1530385e1ff22c0f9c0b8f519e60c2e82e357ba30d0ff40248e354abce4b17c5"
       ]
@@ -142605,15 +142605,15 @@
       "source_blocks_sha256": [
         "dfbf6651acc193c1efcc274703be1bae61742eabf12591c7e3813776052e57b1",
         "8c304584f915098778e21bfec70615e11cbe06f60612d5e34d2aef16cdcb969d",
-        "81805f4ab609a4d715318f26225994f96892b3bb1d9fdb431e161d598dbb467f",
+        "ac4a388a506cd73c944d1483f245d85faf4e6ea88c375bbd896f960c6d676670",
         "cab53d6c009ea9919ebe8acbd8da090a5e7b73899768e4dece024a4a6fc01cda"
       ],
-      "source_sha256": "99c938a4bc562aa448434d3fad7471475cf93dfa87e1fbf96d240e7ecd337b9c",
-      "text": "路由每个落下文件到列,并顺序,它属于。\n\n一滴超越分数或计算列,无论文件是什么样子 - 用户瞄准它. 一滴在其他地方是由标题分类,所以下载整个集同时仍然填补两个列正确。\n\n数据库是由其扩展决定,从来不是由目标:一个 ``.db`` 落在分数列是错误的,不是一个请求,以适应一个 sqlite 文件的逆转,而一个 CSV 落到数据库列也是仍然是一个 CSV. 数据库的目标是ROW - 将其扔在实验室微板的序列上将其连接到该实验室小板,这是一个东西,标志组合不能知道当文件被称为``measurements.db``像其他任何人一样。\n\n:param event: 拖放事件；会读取其本地文件 URL 和拖放位置，当它不携带任何可用路径时会被忽略。",
+      "source_sha256": "59dd0d457c462f99721a48136a5c4c1c45c5948bd8ccc01079f081103a78285b",
+      "text": "路由每个落下文件到列,并顺序,它属于。\n\n一滴超越分数或计算列,无论文件是什么样子 - 用户瞄准它. 一滴在其他地方是由标题分类,所以下载整个集同时仍然填补两个列正确。\n\n数据库由扩展名识别，而不由放置位置决定：将 ``.db`` 放入评分列属于放错位置，并不表示要求对 sqlite 文件拟合回归；同样，放入数据库列的 CSV 仍是 CSV。将数据库放入已有行的数据库列，会明确附加到该行。放在其他列上或已有行之外时，使用自动附加方式，包括 :meth:`attach_database` 所述的后备方式。\n\n:param event: 拖放事件；会读取其本地文件 URL 和拖放位置，当它不携带任何可用路径时会被忽略。",
       "translation_source_blocks_sha256": [
         "dfbf6651acc193c1efcc274703be1bae61742eabf12591c7e3813776052e57b1",
         "8c304584f915098778e21bfec70615e11cbe06f60612d5e34d2aef16cdcb969d",
-        "a84453f45d1bbce92b4a3e640dae1a4f2ad746d36bdbea8a70c6582d15db2ad1",
+        "3b7c0eb9fbeb7ec2c25d8219c66271184e9fb665e46f69f244af48e26ac90422",
         "cab53d6c009ea9919ebe8acbd8da090a5e7b73899768e4dece024a4a6fc01cda"
       ]
     },
@@ -142706,19 +142706,19 @@
     "spacr.qt.widgets.file_list.suggest_file_pairs": {
       "source_blocks_sha256": [
         "b629b679dd452878c2a1c0b43c0ec15db56164dc78c3e72722a5f6c4e633fa5c",
-        "a015b52f12bb504e577dc8e67e03281ba87decf93c9eb650ad71c05400d2fb93",
+        "183f1f2f326b6decdb4521fc63a6baff1d505288ba7bb827178f93be0316e404",
         "762b38dac4aa9ab6ffc69213de58bd67cbf9cd39bcef3f4e5f8b3f64171fde17",
         "0c41bd8d47aec349427925e1dc0004e0c2f59b15d09fb7208733977c356e7e03",
-        "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc"
+        "cb896871135f23c6d9ad148700a08af292db5dbb45d6da998fc3b045ce58b5cc"
       ],
-      "source_sha256": "8e75346ccd85b3235784262ba25ea2f9c53ff155c21b5d94d0f07b0f692e5493",
-      "text": "通过文件名标志提供可见的分数/计算/数据库行。\n\n一个提议永远不会有权威:可编辑的表是用户确认的合同。\n\n``databases``是单一的关键词和默认的任何东西,所以两个论点呼叫每个现有呼叫器仍然意味着它做了什么。 一个数据库是对BOTH细胞的序列,它可以加入 - 一个实验室微板被命名为它的分数 CSV 如其计算 CSV - 而一个匹配什么都没有列出自己的序列而不是落下或猜测到序列0。\n\n:param scores: 评分 CSV 路径；每个路径开始一行，按给定顺序排列。\n:param counts: 计数 CSV 路径；每个路径会与其文件名标记唯一最佳匹配的评分配对，未匹配的路径会填入尚缺计数的评分行，剩余的各自单独成行。",
+      "source_sha256": "5eb745f9845f5672270485cdf78ce93e52056f02c5d706f6685ab7c62cae615d",
+      "text": "通过文件名标志提供可见的分数/计算/数据库行。\n\n建议从不具有最终决定权：用户确认的是可编辑表格。每个评分文件先从尚未使用的计数文件路径中选择唯一最佳匹配。剩余计数路径随后按输入顺序填入尚无计数文件的评分行，包括词元匹配并列或没有匹配的行。数据库必须有唯一最佳匹配，不会按输入顺序进行后备配对；未匹配的数据库各占一行。\n\n``databases``是单一的关键词和默认的任何东西,所以两个论点呼叫每个现有呼叫器仍然意味着它做了什么。 一个数据库是对BOTH细胞的序列,它可以加入 - 一个实验室微板被命名为它的分数 CSV 如其计算 CSV - 而一个匹配什么都没有列出自己的序列而不是落下或猜测到序列0。\n\n:param scores: 评分 CSV 路径；每个路径开始一行，按给定顺序排列。\n:param counts: 计数 CSV 文件路径，按后备配对顺序排列。评分行先选择文件名词元的唯一最佳匹配；剩余路径填入仍缺少计数文件的评分行，多余路径各占一行。",
       "translation_source_blocks_sha256": [
         "b629b679dd452878c2a1c0b43c0ec15db56164dc78c3e72722a5f6c4e633fa5c",
-        "a015b52f12bb504e577dc8e67e03281ba87decf93c9eb650ad71c05400d2fb93",
+        "183f1f2f326b6decdb4521fc63a6baff1d505288ba7bb827178f93be0316e404",
         "f49a22d7e121f9948739e673d39e61a4ebb7db4a5a91783abf673cfe5f5e1ddd",
         "0c41bd8d47aec349427925e1dc0004e0c2f59b15d09fb7208733977c356e7e03",
-        "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc"
+        "cb896871135f23c6d9ad148700a08af292db5dbb45d6da998fc3b045ce58b5cc"
       ]
     },
     "spacr.qt.widgets.flash": {
@@ -167644,16 +167644,16 @@
     "spacr.qt.widgets.plate_map_picker.PlateMapPicker.begin_drag": {
       "source_blocks_sha256": [
         "c6f7963877fb1381ea3337639c4e9b6ce67631f626eccbb93b6cd95d4e96e41d",
-        "e77dde0f8aed11c914cc799894cc28abd622f411c9680d52e0c96249c8cfb546",
-        "7f8295d65558a9a4fe8de5a7dd5ce33ea6f1965c35961b735f694512d5e4269c",
+        "48c509ac62ad8f95597b50c9212732bd70cdaf6d3cae6584f086ecfffd9397cd",
+        "18cfd53dba60fff2bac3946587aa4857635d24a2608cbee9dc2f859544a19717",
         "34c54415494582b6ede3722c54dcb41554683f1d7649246d5a3307593d787f71"
       ],
-      "source_sha256": "a4747e1f4b18314c3c3a4f89bb22233464bef5f464569e7744eb340da65eeb86",
-      "text": "Anchor 一个拖在一个微板样本位置。\n\n:param row: 基于零的实验室微板序列压缩微板样本位置。\n:param column: 以零为基础的实验室微板列的压缩微板样本位置。\n:param modifiers: Ctrl 将直角添加到已选择的东西;没有它,拖取取代选项,这就是该应用程序中的每个其他网络所做的事情。",
+      "source_sha256": "c3d17d37e529f731cad6d9f594bda1e7943efb63412743a639a12dcf6fc95d3a",
+      "text": "Anchor 一个拖在一个微板样本位置。\n\n:param row: 所按下孔位在微孔板中的行号，从一开始编号。\n:param column: 所按下孔位在微孔板中的列号，从一开始编号。\n:param modifiers: Ctrl 将直角添加到已选择的东西;没有它,拖取取代选项,这就是该应用程序中的每个其他网络所做的事情。",
       "translation_source_blocks_sha256": [
         "8af3b3fdefec12e6ea6c98e764adc14cdd1d5270f534cf55030bcf17a6b8dfb4",
-        "6e801f249d1c0cce18b7477acf66655bb80815a13c2122c9a13770e8010c04e8",
-        "7c6d28be25a678184dc0313a996cddc860ac6762e320008c93a75a3fd1bad24e",
+        "82966fb3fdd9d21e8b24ca13990788b2a13d0c14f0a63a6f4d4a87fcd1f15e56",
+        "20a77c38a13ca3fba66479cf91c16cf4abe6837edc6f1a91af39d00da9c4f7a3",
         "34c54415494582b6ede3722c54dcb41554683f1d7649246d5a3307593d787f71"
       ]
     },

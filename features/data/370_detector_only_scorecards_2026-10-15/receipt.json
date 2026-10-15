@@ -1,0 +1,26 @@
+{
+  "scope": "F370 detector-only tooltip scorecard visibility, not whole model-scorecard publication acceptance",
+  "source_before_commit": "f260582a63a81e957f22a3bd348baa1e06184a90",
+  "checks": {
+    "baseline": {
+      "tests": 6,
+      "failures": 3,
+      "errors": 0,
+      "seconds": 0.325
+    },
+    "owning": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 0.11699999999999999
+    }
+  },
+  "limits": [
+    "No score recalculation, model inference, download, GPU or dataset edits",
+    "No metric values, model defaults, curation or selection changed",
+    "API docstring and runtime string literals unchanged",
+    "Model card/source consistency, dataset publication and other F370 acceptance remain open"
+  ],
+  "source_sha256": "5380259ac8c822eb1d986b690893e2c939a77ccccf988db6ce94595baf06ac47",
+  "resource": "CPU, offscreen, one thread, capped2G, shared heavy lock"
+}
