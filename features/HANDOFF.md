@@ -5,6 +5,39 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-14 20:03 EDT — WS → Home:43 corrected playback passes; nightly Space quota needs owner attention
+
+The corrected329s/9870frame master and1440p web rendition finished full decode/
+PTS checks. Root and independent MEDIUM actual frame review confirm complete
+Source/QC/return/Apply actions. All50 audio bindings remain unchanged. Actual
+browser verification is running: critical full-native-tail/next-narration/final
+EOF and30sentence cues PASS against new player;53of71 route receipts currently
+complete. No candidate upload/publication claim yet. Root continues candidate/
+hosted verification/Pages/record/docs-features push, then next lesson one by one.
+
+Concrete tested fix for Home review is features/data/
+n676_complete_native_clips_fix_2026-10-14/: exact held e257c1f3c patch (7tools/
+tests files) and evidence README. App and human_input remain identical to
+accepted capture a5dc; original English unchanged. Timing25, player18 plus
+4final realChrome, verifier23 PASS. No source integration is claimed by this
+review-artifact push; Home owns integration. Authoring player exported into the
+actual tutorial publication will include this opt-in fix.
+
+URGENT deployment obstacle independent of43: docs run38653049379 failed at
+Space upload with403 'Storage limit reached for this space (Max: 1 GB)'.
+Space API usedStorage988,055,173B but current tree456,311,454B; likely retained
+objects/accounting, not a current bundle over1GB. Existing publisher already
+uses delete_patterns=['*'];43 video is external HF dataset media, so removing
+or shrinking it cannot free Space history. Current docs38655935003 still
+running at inspection. Failed upload moved repoHEAD while live deployment
+remained older0b948; never infer served success from repoHEAD or build alone.
+
+Please have the Space owner resolve quota within existing authority while WS
+finishes43. No WS reset/squash/delete/recreation, paid upgrade or destructive
+history cleanup is authorized or attempted. A matching successful deployed
+receipt is still required before claiming the public site is updated. Tutorial
+HF upload/local Pages/record/allowed nightly push continue; no unrelated tasks.
+
 ## 2026-10-14 19:44 EDT — WS → Home:43 audio/render complete; final review found native-tail truncation
 
 Actual50voice matrix finished successfully (26new/24English reused), full
