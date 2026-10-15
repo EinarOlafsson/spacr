@@ -5,7 +5,41 @@ Toxoplasma PV v1
 
 **Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen. Round 2: 229 training images (round 1's 104 plus 125 newly curated RH and ME49 fields), 100 epochs, base cpsam_v2
 
-**Measured.** F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending
+**Measured.** F1 0.793 against stock cpsam_v2's 0.402 on the 486 strict hold-out fields at IoU 0.5; AJI 0.558 against 0.052
+
+.. list-table:: Published scorecard
+   :header-rows: 1
+
+   * - Metric
+     - This model
+     - Stock
+     - Difference
+   * - F1
+     - 0.7930
+     - 0.4016
+     - 0.3914
+   * - Boundary F1 (2 px)
+     - 0.8271
+     - 0.2584
+     - 0.5687
+   * - Precision
+     - 0.8604
+     - 0.2921
+     - 0.5683
+   * - Recall
+     - 0.7354
+     - 0.6427
+     - 0.0927
+   * - AJI
+     - 0.5579
+     - 0.0517
+     - 0.5062
+   * - Dice
+     - 0.7941
+     - 0.1149
+     - 0.6792
+
+Evaluation set: ``gt_rescore_20261011``; version ``strict hold-out, pooled``; 486 scored fields and 14315 annotated objects.
 
 * F1 0.864 at IoU 0.5 against 0.713 for stock cpsam on the 11 wells round 1 also held out (round 1 scored 0.867); AJI 0.809 against 0.426
 * accuracy falls sharply above IoU 0.8 -- suited to counting and area rather than precise morphometry
@@ -13,6 +47,18 @@ Toxoplasma PV v1
 * Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, defaults; receipt features/data/model_rescore_curated_gt_2026-10-11/receipt.json): strict hold-out, fields this model never saw, F1 0.793 at IoU 0.5 on n = 486 of 655 fields (n differs between models); common subset unseen by every pv model, n = 163, F1 0.783 (95% bootstrap CI 0.710 to 0.830). Without the 98 paged round-3 fields (n = 65): F1 0.732. Earlier numbers in this row are superseded by this re-score where they differ. Default unchanged.
 
 Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam>`_, as ``cpsam_v2_toxo_r2``.
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam/resolve/main/cards/page1.png
+   :alt: Published scorecard for Toxoplasma PV v1: cards/page1.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam/blob/main/cards/page1.png
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam/resolve/main/cards/page2.png
+   :alt: Published scorecard for Toxoplasma PV v1: cards/page2.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam/blob/main/cards/page2.png
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam/resolve/main/cards/page3.png
+   :alt: Published scorecard for Toxoplasma PV v1: cards/page3.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam/blob/main/cards/page3.png
 
 SHA-256 ``182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0``.
 
@@ -23,7 +69,41 @@ Toxoplasma Plaque v1
 
 **Trained on.** Toxoplasma gondii plaque assays; round 3, evaluated in-domain (NAS) and against a literature generalisation set
 
-**Measured.** F1 0.856 in-domain; 0.806 on literature (3-fold cross-validated, SD 0.020)
+**Measured.** F1 0.707 against stock cpsam's 0.258 on the 498 strict hold-out fields at IoU 0.5; AJI 0.657 against 0.265
+
+.. list-table:: Published scorecard
+   :header-rows: 1
+
+   * - Metric
+     - This model
+     - Stock
+     - Difference
+   * - F1
+     - 0.7074
+     - 0.2581
+     - 0.4493
+   * - Boundary F1 (2 px)
+     - 0.6794
+     - 0.3269
+     - 0.3525
+   * - Precision
+     - 0.8298
+     - 0.2050
+     - 0.6248
+   * - Recall
+     - 0.6165
+     - 0.3484
+     - 0.2680
+   * - AJI
+     - 0.6572
+     - 0.2649
+     - 0.3923
+   * - Dice
+     - 0.8191
+     - 0.4667
+     - 0.3524
+
+Evaluation set: ``gt_rescore_20261011``; version ``strict hold-out, pooled``; 498 scored fields and 19993 annotated objects.
 
 * F1 0.856 in-domain and 0.806 on the literature set (3-fold cross-validated, SD 0.020), against 0.718 for round 1
 * round 3 trades precision (0.939 down to 0.858) for recall (0.631 up to 0.811) on the literature set, which is the right direction for a counting assay
@@ -31,6 +111,18 @@ Toxoplasma Plaque v1
 * Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, defaults; receipt features/data/model_rescore_curated_gt_2026-10-11/receipt.json): strict hold-out, fields this model never saw, F1 0.707 at IoU 0.5 on n = 498 of 562 fields (n differs between models); common subset unseen by every plaque model, n = 114, F1 0.402 (95% bootstrap CI 0.300 to 0.504). Without the v3-seeded Gel Doc truth (n = 81): F1 0.472. Earlier numbers in this row are superseded by this re-score where they differ. 263-field set seen counts: v1 54, v2 178, v3 137, v4 0; GRA8 Plate1 (hold-out of v3) is the same physical plate as ReimagedPlate1 (training data of v4). Default unchanged.
 
 Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam>`_, as ``cpsam_plaque_r3``.
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam/resolve/main/cards/page1.png
+   :alt: Published scorecard for Toxoplasma Plaque v1: cards/page1.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam/blob/main/cards/page1.png
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam/resolve/main/cards/page2.png
+   :alt: Published scorecard for Toxoplasma Plaque v1: cards/page2.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam/blob/main/cards/page2.png
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam/resolve/main/cards/page3.png
+   :alt: Published scorecard for Toxoplasma Plaque v1: cards/page3.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam/blob/main/cards/page3.png
 
 SHA-256 ``eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d``.
 
@@ -41,7 +133,41 @@ Toxoplasma Plaque v2 (round 5)
 
 **Trained on.** Toxoplasma plaque assays stained with crystal violet, from three microscopes and from published figures. Round 5: 332 training fields grouped by figure and by plate so none straddles the split, 100 epochs, base cpsam_v2, empty wells kept as negatives
 
-**Measured.** not scored against stock; on 81 held-out fields it ties round 3 on literature (0.819 vs 0.820) and beats it by 0.166 on phone-camera wells (0.415 vs 0.249)
+**Measured.** F1 0.455 against stock cpsam_v2's 0.189 on the 282 strict hold-out fields at IoU 0.5; AJI 0.514 against 0.181
+
+.. list-table:: Published scorecard
+   :header-rows: 1
+
+   * - Metric
+     - This model
+     - Stock
+     - Difference
+   * - F1
+     - 0.4548
+     - 0.1891
+     - 0.2657
+   * - Boundary F1 (2 px)
+     - 0.5679
+     - 0.2447
+     - 0.3232
+   * - Precision
+     - 0.5004
+     - 0.2007
+     - 0.2997
+   * - Recall
+     - 0.4169
+     - 0.1787
+     - 0.2381
+   * - AJI
+     - 0.5145
+     - 0.1812
+     - 0.3332
+   * - Dice
+     - 0.6961
+     - 0.3141
+     - 0.3820
+
+Evaluation set: ``gt_rescore_20261011``; version ``strict hold-out, pooled``; 282 scored fields and 8130 annotated objects.
 
 * no longer the default: toxoplasma_plaque_v3 replaced it on 2026-10-10 (F1 0.844 against 0.799 on 263 held-out fields; this model scores 0.013 on Gel Doc wells), and toxoplasma_plaque_v4 on 2026-10-11; kept so recorded runs reproduce
 * COMPLEMENTS toxoplasma_plaque_v1 rather than replacing it: prefer v1 (round 3) for microscope-only work, where it scores 0.836 against this model's 0.808 on PFA-fixed wells and is far more precise; prefer this one for mixed or unknown sources
@@ -54,6 +180,18 @@ Toxoplasma Plaque v2 (round 5)
 * Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, defaults; receipt features/data/model_rescore_curated_gt_2026-10-11/receipt.json): strict hold-out, fields this model never saw, F1 0.455 at IoU 0.5 on n = 282 of 562 fields (n differs between models); common subset unseen by every plaque model, n = 114, F1 0.360 (95% bootstrap CI 0.249 to 0.472). Without the v3-seeded Gel Doc truth (n = 81): F1 0.406. Earlier numbers in this row are superseded by this re-score where they differ. 263-field set seen counts: v1 54, v2 178, v3 137, v4 0; GRA8 Plate1 (hold-out of v3) is the same physical plate as ReimagedPlate1 (training data of v4). Default unchanged.
 
 Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5>`_, as ``cpsam_plaque_r5``.
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5/resolve/main/cards/page1.png
+   :alt: Published scorecard for Toxoplasma Plaque v2 (round 5): cards/page1.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5/blob/main/cards/page1.png
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5/resolve/main/cards/page2.png
+   :alt: Published scorecard for Toxoplasma Plaque v2 (round 5): cards/page2.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5/blob/main/cards/page2.png
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5/resolve/main/cards/page3.png
+   :alt: Published scorecard for Toxoplasma Plaque v2 (round 5): cards/page3.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5/blob/main/cards/page3.png
 
 SHA-256 ``0927023a745ac6a19bae0ec72c89b7b864a4ff8d047a41f3f1e9767e1a4d0600``.
 
@@ -117,7 +255,41 @@ Toxoplasma PV v2 (round 5)
 
 **Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen (RH and ME49). Round 5: 556 images, 100 epochs, base cpsam_v2
 
-**Measured.** F1 0.817 +/- 0.036 by 5-fold cross-validation over 619 pairs; ~0.86 against 0.713 for stock on the 11 in-house held-out wells
+**Measured.** F1 0.713 against stock cpsam_v2's 0.364 on the 258 strict hold-out fields at IoU 0.5; AJI 0.451 against 0.049
+
+.. list-table:: Published scorecard
+   :header-rows: 1
+
+   * - Metric
+     - This model
+     - Stock
+     - Difference
+   * - F1
+     - 0.7130
+     - 0.3638
+     - 0.3492
+   * - Boundary F1 (2 px)
+     - 0.7340
+     - 0.2301
+     - 0.5040
+   * - Precision
+     - 0.7658
+     - 0.2560
+     - 0.5098
+   * - Recall
+     - 0.6670
+     - 0.6287
+     - 0.0383
+   * - AJI
+     - 0.4507
+     - 0.0488
+     - 0.4019
+   * - Dice
+     - 0.6782
+     - 0.1116
+     - 0.5666
+
+Evaluation set: ``gt_rescore_20261011``; version ``strict hold-out, pooled``; 258 scored fields and 5766 annotated objects.
 
 * supersedes toxoplasma_pv_v1 (round 2, 229 images): more than twice the training data and cross-validated rather than single-split
 * 5-fold CV over 619 pairs: F1 0.817 (SD 0.036), AJI 0.714, Dice 0.802
@@ -126,6 +298,18 @@ Toxoplasma PV v2 (round 5)
 * Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, defaults; receipt features/data/model_rescore_curated_gt_2026-10-11/receipt.json): strict hold-out, fields this model never saw, F1 0.713 at IoU 0.5 on n = 258 of 655 fields (n differs between models); common subset unseen by every pv model, n = 163, F1 0.761 (95% bootstrap CI 0.691 to 0.806). Without the 98 paged round-3 fields (n = 65): F1 0.742. Earlier numbers in this row are superseded by this re-score where they differ. Default unchanged.
 
 Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r5>`_, as ``cpsam_v2_toxo_r5``.
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r5/resolve/main/cards/page1.png
+   :alt: Published scorecard for Toxoplasma PV v2 (round 5): cards/page1.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r5/blob/main/cards/page1.png
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r5/resolve/main/cards/page2.png
+   :alt: Published scorecard for Toxoplasma PV v2 (round 5): cards/page2.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r5/blob/main/cards/page2.png
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r5/resolve/main/cards/page3.png
+   :alt: Published scorecard for Toxoplasma PV v2 (round 5): cards/page3.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r5/blob/main/cards/page3.png
 
 SHA-256 ``17c689e3b117745561e20a885c2a2a998ed360fa97cac8c0446316ae5905c10f``.
 
@@ -136,15 +320,61 @@ Toxoplasma PV v3 (round 6)
 
 **Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen (RH and ME49). Round 6 retrains round 5's data with cellpose 4.2.1.1, 100 epochs, base cpsam_v2
 
-**Measured.** F1 0.860 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.803 against 0.505
+**Measured.** F1 0.750 against stock cpsam_v2's 0.390 on the 269 strict hold-out fields at IoU 0.5; AJI 0.528 against 0.055
+
+.. list-table:: Published scorecard
+   :header-rows: 1
+
+   * - Metric
+     - This model
+     - Stock
+     - Difference
+   * - F1
+     - 0.7504
+     - 0.3899
+     - 0.3606
+   * - Boundary F1 (2 px)
+     - 0.7826
+     - 0.2537
+     - 0.5289
+   * - Precision
+     - 0.7998
+     - 0.2794
+     - 0.5204
+   * - Recall
+     - 0.7068
+     - 0.6447
+     - 0.0621
+   * - AJI
+     - 0.5278
+     - 0.0553
+     - 0.4725
+   * - Dice
+     - 0.7499
+     - 0.1236
+     - 0.6263
+
+Evaluation set: ``gt_rescore_20261011``; version ``strict hold-out, pooled``; 269 scored fields and 6443 annotated objects.
 
 * NEWEST IS NOT BEST HERE: round 6 does not beat round 2 on the anchor wells -- 0.8602 against 0.8648 -- and the PV project still promotes round 5
-* it is the first PV round whose checkpoint was chosen on a held-out validation set (108 fields) instead of on the test wells
+* the shipped weights are the FINAL epoch 100, not a validation-chosen checkpoint: the training records show no checkpoint selection (recorded 2026-10-12)
 * 5-fold cross-validation, grouped by source: F1 0.8168 +/- 0.028, AJI 0.7516, Dice 0.8424
 * the 11 anchor wells have been held out since round 1, so they are the only fields no PV round has ever trained on
 * Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, defaults; receipt features/data/model_rescore_curated_gt_2026-10-11/receipt.json): strict hold-out, fields this model never saw, F1 0.750 at IoU 0.5 on n = 269 of 655 fields (n differs between models); common subset unseen by every pv model, n = 163, F1 0.790 (95% bootstrap CI 0.726 to 0.835). Without the 98 paged round-3 fields (n = 65): F1 0.754. Earlier numbers in this row are superseded by this re-score where they differ. Default unchanged.
 
 Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r6 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r6>`_, as ``cpsam_v2_toxo_r6``.
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r6/resolve/main/cards/page1.png
+   :alt: Published scorecard for Toxoplasma PV v3 (round 6): cards/page1.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r6/blob/main/cards/page1.png
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r6/resolve/main/cards/page2.png
+   :alt: Published scorecard for Toxoplasma PV v3 (round 6): cards/page2.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r6/blob/main/cards/page2.png
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r6/resolve/main/cards/page3.png
+   :alt: Published scorecard for Toxoplasma PV v3 (round 6): cards/page3.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r6/blob/main/cards/page3.png
 
 SHA-256 ``146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e``.
 
@@ -155,7 +385,7 @@ Toxoplasma PV v4 (round 7)
 
 **Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles: round 6's DsRed and anti-Toxoplasma-biotin fields plus the Toxoplasma channel of a new 384-well plate. Round 7, cellpose 4.2.1.1, 100 epochs, base cpsam_v2
 
-**Measured.** F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505
+**Measured.** F1 0.761 against stock cpsam_v2's 0.377 on the 209 strict hold-out fields at IoU 0.5; AJI 0.582 against 0.040
 
 .. list-table:: Published scorecard
    :header-rows: 1
@@ -164,36 +394,32 @@ Toxoplasma PV v4 (round 7)
      - This model
      - Stock
      - Difference
-   * - f1
-     - 0.8536
-     - 0.7648
-     - 0.0888
-   * - aji
-     - 0.7755
-     - 0.5050
-     - 0.2705
-   * - dice
-     - 0.8905
-     - 0.6431
-     - 0.2474
-   * - precision
-     - 0.8493
-     - 0.7539
-     - 0.0954
-   * - recall
-     - 0.8580
-     - 0.7760
-     - 0.0820
-   * - pixel_iou
-     - 0.8055
-     - 0.5239
-     - 0.2816
-   * - mAP
-     - 0.4921
-     - 0.3620
-     - 0.1301
+   * - F1
+     - 0.7611
+     - 0.3771
+     - 0.3840
+   * - Boundary F1 (2 px)
+     - 0.8053
+     - 0.2229
+     - 0.5825
+   * - Precision
+     - 0.7687
+     - 0.2647
+     - 0.5040
+   * - Recall
+     - 0.7538
+     - 0.6557
+     - 0.0981
+   * - AJI
+     - 0.5820
+     - 0.0396
+     - 0.5424
+   * - Dice
+     - 0.8348
+     - 0.0906
+     - 0.7442
 
-Evaluation set: ``pv_r7_test``; version ``r7-published-truth``; 10 scored fields and 683 annotated objects.
+Evaluation set: ``gt_rescore_20261011``; version ``strict hold-out, pooled``; 209 scored fields and 5515 annotated objects.
 
 * Scorecard metrics are means over nonempty fields, not pooled object counts; see aggregation.json.
 * NEWEST IS NOT BEST HERE: on 20 held-out fields of the new plate it was trained on, round 7 scores F1 0.748 against 0.899 for round 6 (recall 0.636 against 0.829) -- prefer toxoplasma_pv_v3 on that plate
@@ -204,9 +430,17 @@ Evaluation set: ``pv_r7_test``; version ``r7-published-truth``; 10 scored fields
 
 Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7>`_, as ``cpsam_v2_toxo_r7``.
 
-.. image:: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7/resolve/main/scorecard.png
-   :alt: Published scorecard for Toxoplasma PV v4 (round 7)
-   :target: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7/blob/main/scorecard.csv
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7/resolve/main/cards/page1.png
+   :alt: Published scorecard for Toxoplasma PV v4 (round 7): cards/page1.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7/blob/main/cards/page1.png
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7/resolve/main/cards/page2.png
+   :alt: Published scorecard for Toxoplasma PV v4 (round 7): cards/page2.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7/blob/main/cards/page2.png
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7/resolve/main/cards/page3.png
+   :alt: Published scorecard for Toxoplasma PV v4 (round 7): cards/page3.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7/blob/main/cards/page3.png
 
 SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``.
 
@@ -217,7 +451,7 @@ Toxoplasma PV v5 (round 8, alternative)
 
 **Trained on.** Toxoplasma parasitophorous vacuoles from lab immunofluorescence and DsRed fields and published-figure crops. Round 8, cellpose 4.0.9, best of 100 epochs (epoch 20), base cpsam_v2
 
-**Measured.** F1 0.792 against stock cpsam_v2's 0.559 on the 50 held-out fields at IoU 0.5
+**Measured.** F1 0.733 against stock cpsam_v2's 0.383 on the 481 strict hold-out fields at IoU 0.5; AJI 0.585 against 0.051
 
 .. list-table:: Published scorecard
    :header-rows: 1
@@ -226,20 +460,32 @@ Toxoplasma PV v5 (round 8, alternative)
      - This model
      - Stock
      - Difference
-   * - f1
-     - 0.7921
-     - 0.5586
-     - 0.2335
-   * - precision
-     - 0.7531
-     - 0.4635
-     - 0.2896
-   * - recall
-     - 0.8354
-     - 0.7028
-     - 0.1326
+   * - F1
+     - 0.7329
+     - 0.3831
+     - 0.3497
+   * - Boundary F1 (2 px)
+     - 0.8198
+     - 0.2567
+     - 0.5631
+   * - Precision
+     - 0.6459
+     - 0.2749
+     - 0.3710
+   * - Recall
+     - 0.8469
+     - 0.6322
+     - 0.2146
+   * - AJI
+     - 0.5846
+     - 0.0509
+     - 0.5337
+   * - Dice
+     - 0.8098
+     - 0.1119
+     - 0.6979
 
-Evaluation set: ``retrain_20261009_pv_test``; version ``2026-10-09``; 50 scored fields and 3530 annotated objects.
+Evaluation set: ``gt_rescore_20261011``; version ``strict hold-out, pooled``; 481 scored fields and 16213 annotated objects.
 
 * ALTERNATIVE, NOT BETTER: on the 15 test fields round 7 never saw it scores F1 0.536 against toxoplasma_pv_v4's 0.525 -- a tie; prefer toxoplasma_pv_v4
 * 35 of the 50 test fields were in round 7's training or validation set, so the all-field comparison (0.792 against 0.851) favours toxoplasma_pv_v4 and is not a fair test
@@ -248,9 +494,17 @@ Evaluation set: ``retrain_20261009_pv_test``; version ``2026-10-09``; 50 scored 
 
 Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r8 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r8>`_, as ``cpsam_v2_toxo_r8``.
 
-.. image:: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r8/resolve/main/scorecard.png
-   :alt: Published scorecard for Toxoplasma PV v5 (round 8, alternative)
-   :target: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r8/blob/main/scorecard.csv
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r8/resolve/main/cards/page1.png
+   :alt: Published scorecard for Toxoplasma PV v5 (round 8, alternative): cards/page1.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r8/blob/main/cards/page1.png
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r8/resolve/main/cards/page2.png
+   :alt: Published scorecard for Toxoplasma PV v5 (round 8, alternative): cards/page2.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r8/blob/main/cards/page2.png
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r8/resolve/main/cards/page3.png
+   :alt: Published scorecard for Toxoplasma PV v5 (round 8, alternative): cards/page3.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r8/blob/main/cards/page3.png
 
 SHA-256 ``a1d7f1a978cf4925ec60db486a00eea33e87e6fc5a6b0d0f34c6db5f132d5c1c``.
 
@@ -332,7 +586,7 @@ Toxoplasma Plaque v3 (Gel Doc r5, alternative)
 
 **Trained on.** 496 curated plaque fields, including 34 reviewed empty negatives and 71 Gel Doc wells; 100 epochs; fixed physical-plate/source groups
 
-**Measured.** Stock was not evaluated in this run; see the named incumbent comparison on the model card.
+**Measured.** F1 0.732 against stock cpsam's 0.128 on the 232 strict hold-out fields at IoU 0.5; AJI 0.628 against 0.173
 
 .. list-table:: Published scorecard
    :header-rows: 1
@@ -341,36 +595,32 @@ Toxoplasma Plaque v3 (Gel Doc r5, alternative)
      - This model
      - Stock
      - Difference
-   * - f1
-     - 0.6419
-     - not measured
-     - not measured
-   * - precision
-     - 0.6943
-     - not measured
-     - not measured
-   * - recall
-     - 0.5968
-     - not measured
-     - not measured
-   * - ap
-     - 0.4726
-     - not measured
-     - not measured
-   * - true_positives
-     - 302
-     - not measured
-     - not measured
-   * - false_positives
-     - 133
-     - not measured
-     - not measured
-   * - false_negatives
-     - 204
-     - not measured
-     - not measured
+   * - F1
+     - 0.7322
+     - 0.1280
+     - 0.6042
+   * - Boundary F1 (2 px)
+     - 0.6211
+     - 0.2157
+     - 0.4054
+   * - Precision
+     - 0.6763
+     - 0.0827
+     - 0.5936
+   * - Recall
+     - 0.7981
+     - 0.2825
+     - 0.5156
+   * - AJI
+     - 0.6275
+     - 0.1729
+     - 0.4547
+   * - Dice
+     - 0.8105
+     - 0.3337
+     - 0.4768
 
-Evaluation set: ``geldoc_heldout_min_size_0``; version ``20261007T205603``; 18 scored fields and 506 annotated objects.
+Evaluation set: ``gt_rescore_20261011``; version ``strict hold-out, pooled``; 232 scored fields and 8379 annotated objects.
 
 * Alternative since 2026-10-11, when toxoplasma_plaque_v4 (base cpsam_v2) became the default by the maintainer's choice. This model scores higher: on 263 held-out fields F1 0.844 against v4 0.815, and 0.913 against 0.804 on Gel Doc wells, through spacr.plaque.segment_plaque_image. Kept so recorded runs reproduce.
 * Default 2026-10-10 to 2026-10-11: F1 0.844 against toxoplasma_plaque_v2 0.799, and 0.913 against 0.013 on Gel Doc wells (features/data/model_compare_2026-10-10).
@@ -382,9 +632,17 @@ Evaluation set: ``geldoc_heldout_min_size_0``; version ``20261007T205603``; 18 s
 
 Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc>`_, as ``cpsam_plaque_r5_geldoc``.
 
-.. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc/resolve/main/scorecard.png
-   :alt: Published scorecard for Toxoplasma Plaque v3 (Gel Doc r5, alternative)
-   :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc/blob/main/scorecard.csv
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc/resolve/main/cards/page1.png
+   :alt: Published scorecard for Toxoplasma Plaque v3 (Gel Doc r5, alternative): cards/page1.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc/blob/main/cards/page1.png
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc/resolve/main/cards/page2.png
+   :alt: Published scorecard for Toxoplasma Plaque v3 (Gel Doc r5, alternative): cards/page2.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc/blob/main/cards/page2.png
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc/resolve/main/cards/page3.png
+   :alt: Published scorecard for Toxoplasma Plaque v3 (Gel Doc r5, alternative): cards/page3.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc/blob/main/cards/page3.png
 
 SHA-256 ``8f59850dbe09c3a252728b0a7ca38ae5b52a28f2dbaa7a068174b4b7bfac768c``.
 
@@ -395,7 +653,7 @@ Toxoplasma Plaque v4 (round 6, cpsam_v2, default)
 
 **Trained on.** Toxoplasma plaques from published-figure wells, Bio-Rad Gel Doc wells, lab plates and staged literature crops; round 6 splits, best of 190 epochs (epoch 140), base cpsam_v2
 
-**Measured.** F1 0.815 (toxoplasma_plaque_v3 0.844) on the 263 held-out fields at IoU 0.5; stock cpsam_v2 0.373 there with the Cellpose evaluation scorer
+**Measured.** F1 0.765 against stock cpsam_v2's 0.338 on the 329 strict hold-out fields at IoU 0.5; AJI 0.662 against 0.261
 
 .. list-table:: Published scorecard
    :header-rows: 1
@@ -404,20 +662,32 @@ Toxoplasma Plaque v4 (round 6, cpsam_v2, default)
      - This model
      - Stock
      - Difference
-   * - f1
-     - 0.8154
-     - not measured
-     - not measured
-   * - precision
-     - 0.8252
-     - not measured
-     - not measured
-   * - recall
-     - 0.8058
-     - not measured
-     - not measured
+   * - F1
+     - 0.7648
+     - 0.3380
+     - 0.4267
+   * - Boundary F1 (2 px)
+     - 0.6729
+     - 0.3539
+     - 0.3190
+   * - Precision
+     - 0.7344
+     - 0.2911
+     - 0.4433
+   * - Recall
+     - 0.7977
+     - 0.4030
+     - 0.3947
+   * - AJI
+     - 0.6619
+     - 0.2610
+     - 0.4010
+   * - Dice
+     - 0.8388
+     - 0.4291
+     - 0.4097
 
-Evaluation set: ``retrain_20261009_plaque_test``; version ``2026-10-09``; 263 scored fields and 12792 annotated objects.
+Evaluation set: ``gt_rescore_20261011``; version ``strict hold-out, pooled``; 329 scored fields and 13915 annotated objects.
 
 * The default plaque model since 2026-10-11, by the maintainer's rule that spaCR models build on cpsam_v2. It scores below toxoplasma_plaque_v3 on the same 263 held-out fields, through spacr.plaque.segment_plaque_image: F1 0.815 against 0.844, lower on every source (Gel Doc 0.804 against 0.913); v3 stays selectable.
 * Fine-tuned from cpsam_v2 (2026-10-10). It replaces the first round-6 weights, fine-tuned from first-generation cpsam (sha256 00f4a86b...a0c171), which remain in the repository history.
@@ -427,9 +697,17 @@ Evaluation set: ``retrain_20261009_plaque_test``; version ``2026-10-09``; 263 sc
 
 Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6>`_, as ``cpsam_plaque_r6``.
 
-.. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6/resolve/main/scorecard.png
-   :alt: Published scorecard for Toxoplasma Plaque v4 (round 6, cpsam_v2, default)
-   :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6/blob/main/scorecard.csv
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6/resolve/main/cards/page1.png
+   :alt: Published scorecard for Toxoplasma Plaque v4 (round 6, cpsam_v2, default): cards/page1.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6/blob/main/cards/page1.png
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6/resolve/main/cards/page2.png
+   :alt: Published scorecard for Toxoplasma Plaque v4 (round 6, cpsam_v2, default): cards/page2.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6/blob/main/cards/page2.png
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6/resolve/main/cards/page3.png
+   :alt: Published scorecard for Toxoplasma Plaque v4 (round 6, cpsam_v2, default): cards/page3.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6/blob/main/cards/page3.png
 
 SHA-256 ``744aee3f71efa68f6a369a6f91fe5850dc61e35f3dc20d53dda2c04fce17b35f``.
 
@@ -453,15 +731,15 @@ Toxoplasma Well Detector v3 (YOLO11 Gel Doc, default)
      - 0.9940
      - not measured
      - not measured
-   * - mAP50_95
+   * - mAP50-95
      - 0.8842
      - not measured
      - not measured
-   * - precision
+   * - Precision
      - 0.9698
      - not measured
      - not measured
-   * - recall
+   * - Recall
      - 0.9979
      - not measured
      - not measured

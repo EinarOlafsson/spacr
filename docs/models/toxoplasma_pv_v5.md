@@ -40,6 +40,7 @@ F1 0.733 against stock cpsam_v2's 0.383 on the 481 strict hold-out fields at IoU
 | Metric | This model | Stock | Difference |
 | --- | --- | --- | --- |
 | F1 | 0.7329 | 0.3831 | 0.3497 |
+| Boundary F1 (2 px) | 0.8198 | 0.2567 | 0.5631 |
 | Precision | 0.6459 | 0.2749 | 0.3710 |
 | Recall | 0.8469 | 0.6322 | 0.2146 |
 | AJI | 0.5846 | 0.0509 | 0.5337 |
@@ -52,7 +53,7 @@ Evaluation set `gt_rescore_20261011`, version `strict hold-out, pooled`; 481 sco
 | Training set | 202 fields |
 | Training objects | 9,276 |
 | Test set | 481 fields |
-| Test objects | 16,213 |
+| Test objects | 16213 |
 | Cross-validation | no (grouped train/validation/test) |
 | Training loss | see training/epoch_history.json |
 | Validation loss | see training/epoch_history.json |
