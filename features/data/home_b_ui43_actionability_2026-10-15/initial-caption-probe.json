@@ -1,0 +1,162 @@
+{
+  "source_pin": "7756aed3919f5424a5a8fa3bab61687b38e9189e",
+  "scope": "Selected stale item caption debts, not blanket translation acceptance",
+  "captions": [
+    {
+      "text": "Illumination Correction α",
+      "english_source_sha256": "23b32cea3650ffa7936c303c64b9f7f065b66c88051954e96c82d4161f3be6ed"
+    },
+    {
+      "text": "Image Deconvolution α",
+      "english_source_sha256": "acc823836c554408b2bad494752366b604cffcf3337c6e863de1dd16116b6caa"
+    },
+    {
+      "text": "Image Enhancement α",
+      "english_source_sha256": "182e1d103911ddcdf8de29136f6738940e06f696313eec34b9b3b34bd8730f1d"
+    },
+    {
+      "text": "Cloud α",
+      "english_source_sha256": "7ce52e94272bc34fc8fc61711d297961015db1a271c0352647f2e7475e9ede5a"
+    },
+    {
+      "text": "Self-Supervised Denoising α",
+      "english_source_sha256": "a7378861fd1be59dfdf8fbcd0ac00a2f6020906d97f3cde50edc7536d714c9c1"
+    },
+    {
+      "text": "Startup animation",
+      "english_source_sha256": "c6013d4786bb822dcd3c1f02d2d67ec0ace86385ce63c92ab9b8f1115633a84b"
+    },
+    {
+      "text": "Show startup animation",
+      "english_source_sha256": "f01d719079d5eedc948bde480ad6131169e167fffdecaf9ac29f1e423621b560"
+    },
+    {
+      "text": "Borderless window",
+      "english_source_sha256": "139c9e4adb3940a8d44494f7d85d221b463a14d5aff788027e1ede9a1294de68"
+    },
+    {
+      "text": "Maximise, or restore the size before",
+      "english_source_sha256": "5b2bad893bec0ff6171e75d8a8f506b47ca3b3980ab1e42b61aa16cfbf35bfee"
+    },
+    {
+      "text": "Restore unsaved settings",
+      "english_source_sha256": "337b36dc281cdbc4d87e56d3574c08d0e13d97b1a67a050c54c96adb7a80b7e9"
+    },
+    {
+      "text": "Open fresh",
+      "english_source_sha256": "c72c959a7efac4c6e2db13c5288dddcfc60128b42b6a766e054a42d19094ed58"
+    },
+    {
+      "text": "Restore last session",
+      "english_source_sha256": null
+    },
+    {
+      "text": "On: no title bar; spaCR opens filling the screen, and the menu bar moves the window while its marks minimise, maximise and close it. Off: the platform's own framed window. Remembered.",
+      "english_source_sha256": "2c9f8b123a462ffc7de74f8690786d111a55658c4121cf14ab9386ee8d78d3be"
+    },
+    {
+      "text": "Play the spaCR logo and its blow-away again, inside this window, as at startup. A click or a key skips it.",
+      "english_source_sha256": "ef2df77b77337a2c6813cd11a1275df4eed4a9d5cc4a3d8ae59d086479e844e6"
+    },
+    {
+      "text": "Reopen the last module, settings and folder on start",
+      "english_source_sha256": "23b45c63a3f51ac27320a528303b96682ed5f301efdfdb2d66cd87746f4f9393"
+    },
+    {
+      "text": "When spaCR starts, the logo photomosaic blows away tile by tile to reveal the window. Off shows the mosaic without the animation. Reduce motion also turns it off. A click or a key skips it.",
+      "english_source_sha256": "2b6557a4f76db526ab933d744a2f782bdef518a0fad1de80f1e5c531a9a78969"
+    }
+  ],
+  "languages": [
+    {
+      "locale": "de",
+      "checked": 16,
+      "failures": [
+        [
+          "Restore last session",
+          "not in English source inventory"
+        ]
+      ]
+    },
+    {
+      "locale": "es",
+      "checked": 16,
+      "failures": [
+        [
+          "Restore last session",
+          "not in English source inventory"
+        ]
+      ]
+    },
+    {
+      "locale": "fr",
+      "checked": 16,
+      "failures": [
+        [
+          "Restore last session",
+          "not in English source inventory"
+        ]
+      ]
+    },
+    {
+      "locale": "hi",
+      "checked": 16,
+      "failures": [
+        [
+          "Restore last session",
+          "not in English source inventory"
+        ]
+      ]
+    },
+    {
+      "locale": "is",
+      "checked": 16,
+      "failures": [
+        [
+          "Restore last session",
+          "not in English source inventory"
+        ]
+      ]
+    },
+    {
+      "locale": "ko",
+      "checked": 16,
+      "failures": [
+        [
+          "Restore last session",
+          "not in English source inventory"
+        ]
+      ]
+    },
+    {
+      "locale": "pt",
+      "checked": 16,
+      "failures": [
+        [
+          "Restore last session",
+          "not in English source inventory"
+        ]
+      ]
+    },
+    {
+      "locale": "sv",
+      "checked": 16,
+      "failures": [
+        [
+          "Restore last session",
+          "not in English source inventory"
+        ]
+      ]
+    },
+    {
+      "locale": "zh_CN",
+      "checked": 16,
+      "failures": [
+        [
+          "Restore last session",
+          "not in English source inventory"
+        ]
+      ]
+    }
+  ]
+}
