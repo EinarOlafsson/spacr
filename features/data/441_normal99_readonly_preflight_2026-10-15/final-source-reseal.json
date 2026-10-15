@@ -1,0 +1,9 @@
+{
+  "input_head": "3d4422a0af826f8e165fe3914fd394c0dc636dbd",
+  "independent_peer": "72dabf2a48aff640ce4451da5134ad287b2876ad",
+  "source_pin_count": 7155,
+  "generated_separate_count": 11,
+  "materialized_exact_git": [],
+  "changed_since_pending_candidate": [],
+  "write_permission": "receipt/log only; no writer"
+}
