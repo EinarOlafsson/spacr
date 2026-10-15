@@ -2929,7 +2929,11 @@ class OrganizeForMeasureDialog(QDialog):
         """
         if _headless():
             return False
-        return QMessageBox.question(self, title, text) == QMessageBox.Yes
+        box = QMessageBox(QMessageBox.Question, title, text,
+                          QMessageBox.Yes | QMessageBox.No, self)
+        box.button(QMessageBox.Yes).setText(tr("Yes"))
+        box.button(QMessageBox.No).setText(tr("No"))
+        return box.exec() == QMessageBox.Yes
 
     def _plan_summary(self, plan: cs.SortPlan) -> str:
         """Describe the selected output layout and retain every plan diagnostic."""

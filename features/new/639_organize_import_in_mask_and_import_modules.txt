@@ -84,3 +84,17 @@ This source is pending coherent publication with four new nine-language
 captions and the root-owned localized, layout-neutral backend diagnostics.
 The regex-sort report still has a separate English backend summary path;
 tutorial acceptance remains Work-owned. No whole-item completion is claimed.
+
+2026-10-15 — ORGANIZER CONFIRMATION BUTTONS USE BASE TRANSLATIONS
+The ordinary Yes/No confirmation now explicitly labels both standard buttons
+through tr(), using the new nine-language compact Yes row and existing No
+translations. Hindi and Icelandic previously retained English Yes because Qt
+has no bundled catalog for them. Four actual button-caption cases failed
+before; all eight focused cases now pass, including real Yes/No clicks,
+unchanged Enter/Escape/window-close behavior, the same Question icon/standard
+buttons and headless refusal. Existing application dialog hooks still receive
+the normal QMessageBox show events. Initial modal-guard and default-button
+fixture mistakes are retained separately from the actual baseline. Evidence:
+features/data/639_organizer_question_buttons_2026-10-15/.
+This is bounded offscreen confirmation acceptance, not whole-item completion
+or a native-language/other-OS claim. Work retains the tutorial obligation.
