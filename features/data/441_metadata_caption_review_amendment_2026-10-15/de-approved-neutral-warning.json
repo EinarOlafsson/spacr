@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical translation review (Codex); no native-speaker or human signoff",
+  "review": "Neutral provisional convention warning. Does not claim reconstruction from real public files or deny vendor documentation. Asks user to check example and test their folder before running.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "This convention is provisional. Check its example and test your folder before running.",
+      "source": "This convention is provisional. Check its example and test your folder before running.",
+      "source_sha256": "8a5788b36e4014721e161f6fa4804f1c6263cf4d06bad462e23a08162b2a3ea0",
+      "translation": "Diese Konvention ist vorläufig. Prüfen Sie das Beispiel und testen Sie Ihren Ordner vor dem Ausführen."
+    }
+  ]
+}
