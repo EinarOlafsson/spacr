@@ -72154,7 +72154,7 @@
         "dd31301bdc07c284eae8f725e299a96ff0ca5e7c8a0f003c812dc0a133bcb7f1",
         "cae14cefb5743bb6962c0fe8f3d848a71d484930c25046dea3be2090c8d67002",
         "a7948d1062a0abfe9cd288fb5e66d040da9e0560635618531df9f20eee28f443",
-        "48321534ca659883643fb0f2c10fd5f0a779ea53db3813940feeb79caa0db496",
+        "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
         "94633bed6ef19f94ecc8c7f134dd33260a49e4c6a91309a2f0a076fac79e7bad",
         "b21f658726f68547c19a46febcf0fc292b88394cf70ded5e56e53ebd76e1ef7d",
         "aac35525bca9e24d0f64af2c85ac7423674cdb050cc407a19c1e5536e1239039",
@@ -72166,8 +72166,8 @@
         "c41a1b40f8225e36b90fe4d28c077957984b5fa4440ad8cc6a5067d117f9ec68",
         "79a2f8fcf8af66887f74fbff41aa32e912aae726897e1fcfe083a5b9fd590651"
       ],
-      "source_sha256": "fe54c1425a484a18a7b3b97cd94f639b21117829439a358dfd3c791a3683f766",
-      "text": "Lägg till en app i registret. Sömmen en ny modul registrerar sig genom.\n\nRing den vid importtid från modulen som äger appen::\n\n    from spacr.qt.app import register_app, SECTION_EXPLORE, STAGE_ALPHA\n\n    register_app(\"graph_builder\", \"Graph Builder\",\n                 \"Drag columns onto x / y / colour / facet\",\n                 SECTION_EXPLORE, factory=make_screen, stage=STAGE_ALPHA)\n\nDe fyra första argumenten sätter en bricka på Hem och en rad i sidofältet. Nyckelordsargumenten efter ``stage`` är vad som gör att kakeln en fungerande app: de är appens strängar, givet ONCE här, och fläktade ut i tabellerna som brukade behöva en handredigering var – se :data:`APP_META`.\n\n:param key: stabil app-id. Belastningsbärande – ``bridge``, ``cli``, ``validate``, drag-och-släpp-hanterare, ``settings_model`` och sparad användarstat alla nycklar av den, så den väljs en gång och aldrig bytt namn. Måste vara unik över inbyggda och plugins.\n:param name: Visa namn; sidofältets rad, kakel och menyalternativ.\n:param desc: En rad sammanfattning; verktygstips och statustips.\n:param section: en av :data:`SECTION_ORDER`. En sektion utan appar har ingen flik, så att registrera den första appen i en ny sektion är det som gör att den delen visas.\n:param factory: Valfritt nollargument som går att kalla tillbaka appens programvy ``QWidget``. Det kan deklarera ``app_key`` och/eller ``host`` nyckelordsparametrar – ``host`` är :class:`MainWindow`, för en programvy som har signaler att ansluta – och ges vilken som helst av de två som det accepterar. Uteslut den och appen får den allmänna inställningsdrivna ``AppScreen``, som varje arbetsflödesmodul.\n:param stage: valfritt :data:`STAGES` medlem. Utelämnat betyder stabilt, vilket också är vad radering av posten senare innebär.\n:param title: Huvudet som visas högst upp på programmets skärm. Om det utelämnas, använder det ``name``. Ange ett eget huvud när skärmen behöver längre ordalydelse (\"Illumination Correction\" ovanför en bricka som heter \"Illumination\"). Värdet lagras i ``app_screen.APP_TITLES``.\n:param intro: stycket bredvid det huvudet – vad modulen gör, i en mening eller två. Förvalt till ``desc``. Når ``app_screen.APP_INTROS``.\n:param cli_note: för en app med NEJ huvudlös väg: en mening som säger så och vad man ska göra istället. Når ``cli.INTERACTIVE_ONLY``, vilket är vad ``spacr-run <key>`` skriver ut istället för \"unknown module\". Ömsesidigt uteslutande med ``entry`` i anden – en app är den ena eller den andra.\n:param api_module: Prickad eller uppblåst modulsökväg under genererade API dokument (\"qt/layer_viewer\"), för länken ⓘ bredvid inställningarna. Når ``settings_model._APP_API_MODULE``.\n:param entry: ``\"module:function\"`` av den anropbara knappen Kör körs. Löst lazily genom :func:`registered_entry` och konsulteras av :func:`spacr.qt.bridge.resolve_pipeline_entry`; utan det kör knappen svarar \"Not runnable\".\n:param defaults_module: Den modul vars importanrop :func:`spacr.settings.register_defaults` för detta strukturerade datanamn. ``settings_model.resolve_default_settings`` importerar det innan du frågar om det strukturerade datanamnet har registrerade standardvärden – annars har en modul som registrerar sina inställningar vid import ingen inställningspanel förrän något annat händer med att importera det, och appen öppnas på ett tomt formulär. Importeras vid behov, så att registrera en app kostar inte numpy/ pandas/torch vid start.\n:param translations: visningen ``name`` på de nio icke-engelska UI språken, i :data:`spacr.qt.i18n.LANGUAGES` ordning. Når ``i18n._ROWS`` och dess kataloger.\n:returns: raden som var bifogad, så en uppringare kan behålla den.\n:raises ValueError: på en dubblettnyckel, en okänd sektion, ett okänt steg eller en tom namnbeskrivning.\n:raises TypeError: om ``factory`` inte är anropbar.",
+      "source_sha256": "7968939def60679893a349be2b8fe85aead57b0ae3894d8a8d8c7a24e9348448",
+      "text": "Lägg till en app i registret. Sömmen en ny modul registrerar sig genom.\n\nRing den vid importtid från modulen som äger appen::\n\n    from spacr.qt.app import register_app, SECTION_EXPLORE, STAGE_ALPHA\n\n    register_app(\"graph_builder\", \"Graph Builder\",\n                 \"Drag columns onto x / y / colour / facet\",\n                 SECTION_EXPLORE, factory=make_screen, stage=STAGE_ALPHA)\n\nDe fyra första argumenten sätter en bricka på Hem och en rad i sidofältet. Nyckelordsargumenten efter ``stage`` är vad som gör att kakeln en fungerande app: de är appens strängar, givet ONCE här, och fläktade ut i tabellerna som brukade behöva en handredigering var – se :data:`APP_META`.\n\n:param key: stabil app-id. Belastningsbärande – ``bridge``, ``cli``, ``validate``, drag-och-släpp-hanterare, ``settings_model`` och sparad användarstat alla nycklar av den, så den väljs en gång och aldrig bytt namn. Måste vara unik över inbyggda och plugins.\n:param name: Visa namn; sidofältets rad, kakel och menyalternativ.\n:param desc: En rad sammanfattning; verktygstips och statustips.\n:param section: en av :data:`SECTION_ORDER`. En sektion utan appar har ingen flik, så att registrera den första appen i en ny sektion är det som gör att den delen visas.\n:param factory: Valfritt nollargument som går att kalla tillbaka appens programvy ``QWidget``. Det kan deklarera ``app_key`` och/eller ``host`` nyckelordsparametrar – ``host`` är :class:`MainWindow`, för en programvy som har signaler att ansluta – och ges vilken som helst av de två som det accepterar. Uteslut den och appen får den allmänna inställningsdrivna ``AppScreen``, som varje arbetsflödesmodul.\n:param stage: valfri medlem i :data:`STAGES`. Om den utelämnas skrivs ingen uttrycklig faspost. Saknade poster läses som stabila tills :func:`spacr.qt.maturity.apply` tilldelar alpha till appar som inte har bedömts och saknar en deklaration. Appar som redan har bekräftats som stabila förblir stabila. Att utelämna eller ta bort en post är ingen stabilitetsbedömning.\n:param title: Huvudet som visas högst upp på programmets skärm. Om det utelämnas, använder det ``name``. Ange ett eget huvud när skärmen behöver längre ordalydelse (\"Illumination Correction\" ovanför en bricka som heter \"Illumination\"). Värdet lagras i ``app_screen.APP_TITLES``.\n:param intro: stycket bredvid det huvudet – vad modulen gör, i en mening eller två. Förvalt till ``desc``. Når ``app_screen.APP_INTROS``.\n:param cli_note: för en app med NEJ huvudlös väg: en mening som säger så och vad man ska göra istället. Når ``cli.INTERACTIVE_ONLY``, vilket är vad ``spacr-run <key>`` skriver ut istället för \"unknown module\". Ömsesidigt uteslutande med ``entry`` i anden – en app är den ena eller den andra.\n:param api_module: Prickad eller uppblåst modulsökväg under genererade API dokument (\"qt/layer_viewer\"), för länken ⓘ bredvid inställningarna. Når ``settings_model._APP_API_MODULE``.\n:param entry: ``\"module:function\"`` av den anropbara knappen Kör körs. Löst lazily genom :func:`registered_entry` och konsulteras av :func:`spacr.qt.bridge.resolve_pipeline_entry`; utan det kör knappen svarar \"Not runnable\".\n:param defaults_module: Den modul vars importanrop :func:`spacr.settings.register_defaults` för detta strukturerade datanamn. ``settings_model.resolve_default_settings`` importerar det innan du frågar om det strukturerade datanamnet har registrerade standardvärden – annars har en modul som registrerar sina inställningar vid import ingen inställningspanel förrän något annat händer med att importera det, och appen öppnas på ett tomt formulär. Importeras vid behov, så att registrera en app kostar inte numpy/ pandas/torch vid start.\n:param translations: visningen ``name`` på de nio icke-engelska UI språken, i :data:`spacr.qt.i18n.LANGUAGES` ordning. Når ``i18n._ROWS`` och dess kataloger.\n:returns: raden som var bifogad, så en uppringare kan behålla den.\n:raises ValueError: på en dubblettnyckel, en okänd sektion, ett okänt steg eller en tom namnbeskrivning.\n:raises TypeError: om ``factory`` inte är anropbar.",
       "translation_source_blocks_sha256": [
         "9bc38753de7dbb6d67fb69b992412a81f71a211fb305e9574f305fc809208793",
         "71563e1df62a7ff352e266fec507ce257570d9d4d138594deb2d9acbb0a196e3",
@@ -72177,7 +72177,7 @@
         "dd31301bdc07c284eae8f725e299a96ff0ca5e7c8a0f003c812dc0a133bcb7f1",
         "cae14cefb5743bb6962c0fe8f3d848a71d484930c25046dea3be2090c8d67002",
         "5e5601e8f3db2e1bf9d62201c8bd234b3cda1b52a3095351f5909f59f177f32f",
-        "48321534ca659883643fb0f2c10fd5f0a779ea53db3813940feeb79caa0db496",
+        "f573b2a05668bc97d9480824e8cde30335d5819f9581c0086c21b1912d1896af",
         "5db6538eaf248fe63398c1ed7921db1d0c6871cd654bb37547e96d4b6d50a270",
         "b21f658726f68547c19a46febcf0fc292b88394cf70ded5e56e53ebd76e1ef7d",
         "aac35525bca9e24d0f64af2c85ac7423674cdb050cc407a19c1e5536e1239039",
@@ -101396,6 +101396,26 @@
         "0be5de8c5d7c6e5d352f07b3a727c2f9614e68469165a910905ca1af71550d25"
       ]
     },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._done": {
+      "source_blocks_sha256": [
+        "7d72d3559ee4d8015bb1d84be4a8f5a20a2e74c598d2757891402ea467af8d1b"
+      ],
+      "source_sha256": "7d72d3559ee4d8015bb1d84be4a8f5a20a2e74c598d2757891402ea467af8d1b",
+      "text": "Acceptera endast ett slutförande som tillhör den här skärmens aktuella körning.",
+      "translation_source_blocks_sha256": [
+        "a2707621ced41fd6744378383db8ace8cf406a48185d77be1edde476f55d9c6b"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._progress": {
+      "source_blocks_sha256": [
+        "08e3fd5ff565eba53bd5b3772455e95347796f49d6099c3bab3f9a6ddc5fc57b"
+      ],
+      "source_sha256": "08e3fd5ff565eba53bd5b3772455e95347796f49d6099c3bab3f9a6ddc5fc57b",
+      "text": "Vidarebefordra rapporter från bakgrundslogiken utan att röra widgetar på arbetstråden.",
+      "translation_source_blocks_sha256": [
+        "deef65794714a38d61b1f11d512d1b01d1dc9c5234f348880fb7500d2b00498b"
+      ]
+    },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino.work": {
       "source_blocks_sha256": [
         "d3a72f1666f43661844dbe53ad6718a27977337fa5df81afdd8ffe4b7f21f6aa"
@@ -126616,18 +126636,20 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state": {
       "source_blocks_sha256": [
-        "af06d5a8af4b45e3ddf2a443adb0faa443e4ceb48ca8061d693343619d5f9ac6",
-        "37b0d485c5f0563d08e654bb7a815285dbfd34db3a1ef772e8e644845ebad6b6",
-        "d09a2eabf33060e5d34076f3faa2411e1627391fc74987a1fa7c4d3708f65756",
-        "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e"
+        "e2c49602887624f4b227e63df0a64808f2b2f6dafbf64ba1e18d108186eb6e70",
+        "5a3d2cd95827cdaf388e4b40a3fafa80bd1899a341e7489437fc813b1f8bba04",
+        "5962be8627a716e17971c404e6e60aa0231d22f667ef389938f9aee59dcb6534",
+        "85598811221862c5228d488675eb53f14caf767ca43e354c74de6b661385f01e",
+        "ea792b5ddcff29d5827733d07e5645be6acf133c2c7d04b754103acc334cf461"
       ],
-      "source_sha256": "715c194898c02d1a2ee9d47e6be34494ad9bba7ba34437d07b05d25c30092de2",
-      "text": "Sätt tillbaka montagets inställningar.\n\nReturnerar om något har tillämpats.\n\nMontaget är inte ombyggt. Att ladda de extraherade bildområdena är den långsamma halvan -- den första montaget av en processsession läser av bilder från disken i sekunder -- och att starta den på återställning skulle frysa ett fönster som just öppnades. Inställningarna läggs tillbaka och knappen är tillgänglig.\n\n:param state: mappning så som den sparades med arbetsytan; dess poster ``picture_settings``, ``widgets``, ``picture_mode`` och ``coefficient`` tillämpas var och en när de finns, och något som inte är en dict tillämpar ingenting.",
+      "source_sha256": "118542cf10cc39bab896c52eae0a16ee19c992b6b406934c49e438757c7507de",
+      "text": "Återställ montage- och jämförelsekontroller utan att beräkna bilder.\n\nIgenkänt tillstånd avbryter den väntande montageinläsningen och köade koefficientinläsningar. Kontrollernas signaler blockeras medan inställningarna återställs, så ett befintligt montage läses inte om eller ritas om automatiskt. Bildutsnittsvalen tillämpas vid nästa uttryckligen begärda bygge; befintliga brunnsflikar behåller sina egna bildtexter och bilder.\n\nJämförelsekontroller skickas till en befintlig panel utan uppdatering. Om ingen panel finns förblir de vanliga data tills ett uttryckligen begärt montagebygge eller en Jämför-åtgärd skapar den. Återställning skapar aldrig en jämförelsepanel, startar ingen sammanfogning av mätdata och beräknar ingen graf.\n\n:param state: sparad mappning; igenkända poster är ``picture_settings``, ``widgets``, ``picture_mode``, ``coefficient`` och ``comparison``. Ett värde som inte är en ordbok tillämpar ingenting.\n:returns: om igenkänt tillstånd tillämpades eller behölls till senare.",
       "translation_source_blocks_sha256": [
-        "af06d5a8af4b45e3ddf2a443adb0faa443e4ceb48ca8061d693343619d5f9ac6",
-        "37b0d485c5f0563d08e654bb7a815285dbfd34db3a1ef772e8e644845ebad6b6",
-        "49244b6eff32a88ed1b2416caf7c7ce138d3e6e9c39da782aab0342dc09ef557",
-        "0ec435962d676e57022aa935ec1c21ab24a28e549511778294e7c78f03f3527a"
+        "e2c49602887624f4b227e63df0a64808f2b2f6dafbf64ba1e18d108186eb6e70",
+        "a6bb4a08c5db8a5758ce938acc2aba122357525613b8d4d2027fc36f3ce53818",
+        "5962be8627a716e17971c404e6e60aa0231d22f667ef389938f9aee59dcb6534",
+        "65a9115855716795665b0dec811a15cc9d9e178b153a3a8819c8024129b8b18b",
+        "ea792b5ddcff29d5827733d07e5645be6acf133c2c7d04b754103acc334cf461"
       ]
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.build": {
@@ -127084,16 +127106,16 @@
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.workspace_state": {
       "source_blocks_sha256": [
-        "fe997b3b05c6c61c3115e33e595d26cbaad49feb7f7981e1682f96212d144ded",
-        "6ad18ddc1bd8de9c2a6f32c4ad7b9c62fa226b7fd1441e13a2c0ea12476ef997",
-        "4bb274b436dc6d049141d30590c02c2c22da203b326508a285f0f65881ac71bf"
+        "c85573ac432193cb8a47ea4b75825cf75a7f695623ad6f2cc33f6ef0e5c80820",
+        "2aca4f4ef12a8cd5b5b6657b496f820c4f624ae65ddbf265a806e6266d2ccc1c",
+        "a2a71954d4444381e84771e5f345674357cd35085f6c6cd28ed11255a29d9406"
       ],
-      "source_sha256": "58037117eea4f795e35862f031a042e398fb810bf926dc8b890631c1d3fea0e4",
-      "text": "Montaget som sessionen hade öppnat, som data.\n\nInställningarna och valet sparas, inte bildpunkter. En montage är tiotals megabyte extraherade bildregioner som bearbetningssessionens egna bilder regenererar exakt; vad som inte kan regenereras är vilken koefficient som var på applikationsvyn, hur cellerna plockades, och hur de drogs. Det är vad som går in.\n\nDe valda grupperna sparas som en post, inte som en inmatning -- `picked_groups()` är vad plockaren valde med dessa inställningar, och återställer inställningarna reproducerar det. De sparas så att en läsare av en sparad körning kan se vilka celler resultatet vilade på utan att köra om någonting.",
+      "source_sha256": "ad51ffb4d263a5792ac3a356de91ae40d1cf6f516c9abbba28c7bd7bd11fc607",
+      "text": "Returnera montageval och eventuella sparade jämförelsekontroller som data.\n\nInställningar och vald koefficient sparas, inte bildutsnittens pixlar. De valda grupperna dokumenterar vilka celler det aktuella montaget valde; de återspelas inte som indata till väljaren. En ombyggnad använder körningens aktuella filer, inställningar och väljarimplementation.\n\nJämförelsen bidrar med sina kontroller när dess panel redan finns. Annars behålls en jämförelse som återställts innan panelen byggdes som vanliga data. Insamling av tillstånd skapar aldrig panelen och beräknar ingen jämförelse.",
       "translation_source_blocks_sha256": [
-        "fe997b3b05c6c61c3115e33e595d26cbaad49feb7f7981e1682f96212d144ded",
-        "b48004093a287cb4e763d6aef1ef530d750f947326693b2886d13ccf330f4080",
-        "db8968002955679854da04668a6415e1322c1e5ed146aa64f73158eed95ae7dd"
+        "c85573ac432193cb8a47ea4b75825cf75a7f695623ad6f2cc33f6ef0e5c80820",
+        "b5faee2627a6dafa458019f1ef221faac0df8f355ea4d3e734932c4579209c16",
+        "a2a71954d4444381e84771e5f345674357cd35085f6c6cd28ed11255a29d9406"
       ]
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.write_scores_into_the_databases": {
@@ -157880,6 +157902,22 @@
         "9fb8480b0e0d137987fc23bd4d2d561e8621bc869f45c513646870ba840474e3"
       ]
     },
+    "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.apply_workspace_state": {
+      "source_blocks_sha256": [
+        "a99fbe885aeaea1ab91eede456c02a98599f0143b38b5bc9b18a32c1b4fbc7b9",
+        "521174f1ed5670878eed0452e3e502771fca0305327d17325714822d61b6ecfa",
+        "494479fac5a911b567168ca243fb65f8a2b9a607254e9707c6389dd25425207f",
+        "b74eba65ec43c65f1ef0d00dbc4dbe0fbde78f53b7d97e088938b29a39c2623b"
+      ],
+      "source_sha256": "40ff367d2d04f95796c0b0d9cfd1c848e2a483ae15faf043fa295c4b118cb196",
+      "text": "Återställ jämförelsekontroller utan att beräkna eller rita en graf.\n\nIgenkända poster med rätt typ tillämpas oberoende av varandra. Okända fasta val ignoreras; identifierare för mätningar och klasser som ännu inte erbjuds förblir väntande tills en vanlig uppdatering eller datauppdatering sker. Valda guide- och brunnsidentifierare behålls utan att läsa filer. En aktiv sammanfogning som ägs av denna panel avbryts så att dess sena resultat inte kan ersätta det återställda tillståndet. Ingen ny sammanfogning, filläsning eller inferens startas. Den cachade jämförelsen och figuren förblir oförändrade tills nästa uppdatering.\n\n:param state: mappningen som returneras av :meth:`workspace_state`; värden som inte är ordböcker och mappningar utan användbara poster lämnar panelen oförändrad.\n:returns: ``True`` om minst en användbar post tillämpades, även om dess värde redan var valt; annars ``False``.",
+      "translation_source_blocks_sha256": [
+        "a99fbe885aeaea1ab91eede456c02a98599f0143b38b5bc9b18a32c1b4fbc7b9",
+        "b89286a3fc14b7146db4e4270a2ec0be26e101c839c6cbdf49ebfd826c63b3f3",
+        "95be6ed5f1388e6b6a40b98af0e0073dc163e0c03ddb293ee94d9873ca4d07bc",
+        "b74eba65ec43c65f1ef0d00dbc4dbe0fbde78f53b7d97e088938b29a39c2623b"
+      ]
+    },
     "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.cancel_the_join": {
       "source_blocks_sha256": [
         "cf9f10aceb8044cae462c47596405599c2dde1ac3fd27942dbe7c048df82db1a",
@@ -158084,6 +158122,18 @@
         "68440708b0176e3d3063c76675d3ef778f403d7f08413368eda149b6feed8aed",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "4668fd61aa02d91b6f540e72570177108878feb58dea42c66fd4eebf5a7cf2bf"
+      ]
+    },
+    "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.workspace_state": {
+      "source_blocks_sha256": [
+        "bf01571286041445a10c215ec70ccc53f635b5e758e022dd13de8e4ea4ec03ac",
+        "a8e84bc2a792779dc2480f47cf72bffae56ded36b659f5c235d82d5c30cf4ee9"
+      ],
+      "source_sha256": "71e98f4f30d6400b8f087487c02fb00b388ea219959fdee5c8666faf8bea263d",
+      "text": "Returnera JSON-kompatibla jämförelseval utan att samla in data.\n\nKombinationsrutornas värden är stabila identifierare, inte översatta etiketter. Väntande val av mätning och klass förblir sparade tills en senare uppdatering kan erbjuda dem. Brunnsurvalen behåller ``None`` för alla annoterade brunnar respektive brunnar inom det guidehärledda urvalet; en tom lista väljer inga. Datatabeller, figurer, databassökvägar och pågående jobb ingår inte.",
+      "translation_source_blocks_sha256": [
+        "bf01571286041445a10c215ec70ccc53f635b5e758e022dd13de8e4ea4ec03ac",
+        "393ee9ba01f4ce62b031924e55a9211f7a577ab4a807b6c5bdabed626b7b67c4"
       ]
     },
     "spacr.qt.widgets.measurement_scan_panel": {
@@ -171381,19 +171431,19 @@
         "dee68aea6a999302631ad6b8faa7e53095f9af5a8abacc2f052997e2e10e4fea",
         "15984737436809b1e7f3727fe823eddee893b6ee3a593f9c63d0b353c5ba9a97",
         "9ee10ead2494d4e865f0fa02a60b48cb44e69e649c5105f17432d217f95bbfc6",
-        "ae9f0d0b6c52cf8d6913acd7d66d55c5924a0e7e700988e90a21c490b2e668a5",
+        "32de88b350c8269fe17655b563778d3eb4c8a280d793c95453b9fd8aa55c900f",
         "bc79a88ee90789bd2ab00c082be22f2949ed4e48a9c6e99949ba43a8b5df33b0",
         "a717c3b2e871fd5833fac949f21407a007da8463434307d43ad29682ca38b8ba"
       ],
-      "source_sha256": "4980a914264421b7abdf0aa255a417749b71f9bd0d320808564b2eeca5455749",
-      "text": "Kolumn/värdeeditorn för att utesluta rader från indata UMAP.\n\nAllt denna widget erbjuder användaren kommer ut från en mätdatabas, och båda läser som används för att hända på huvud GUI körningssökväg:\n\n* ``discover_columns`` öppnar varje databas som inställningen ``src`` går till och kör ``sqlite_master`` plus en ``PRAGMA table_info`` per tabell. Den körs från ``SettingsWidgets._refresh_contextual_widgets``, så den kör varje gång ``src`` eller ``tables`` är inställd.\n* ``distinct_values`` kör en ``SELECT DISTINCT … LIMIT 501`` för varje par ``(database, table)`` där den valda kolumnen förekommer — och kolumnerna som en användare faktiskt utesluter efter (``plateID``, ``columnID``, ``rowID``) innehåller bara ett fåtal distinkta värden i hela tabellen, så LIMIT nås aldrig och SQLite läser varje rad. Mätt på en measurements.db med 200 000 rader × 8 tabeller och varm sidcache: **196 ms per kolumn**. Kolumnkombinationsrutan är redigerbar, så ``currentTextChanged`` utlöses vid varje tangenttryckning. Åtta snabba redigeringar frös fönstret i **894 ms** i ett obrutet block; ``set_source`` kostade 183 ms och ett enskilt avsiktligt kolumnval 220 ms. Med trådad körning tar samma tre operationer 29 ms, 5 ms och 2 ms.\n\nSå båda går igenom en :class:`~spacr.qt.job_runner.JobRunner` som ägs av redaktören, och värdet läses dessutom bort. Tre regler håller ihop detta:\n\n* ``_value_cache`` och ``_column_sources`` är huvudtillståndet GUI avrättningsbana. Arbetaren returnerar enkla data och kompletteringshanteraren – som Qt utför på huvudsökvägen GUI utförande – är det enda som skriver dem.\n* Schema upptäckt och värde läser får **separat** löpare. :meth:`JobRunner.cancel` fungerar efter generation, så en löpare kan inte ersätta ett värde läsa utan att också släppa schemat läsa att värdet läst beror på.\n* En avstött timer sammanstrålar tangenttryckningar, och :meth:`JobRunner.cancel` släpper vad en tidigare tangenttryckning än startade, så den sista redigeringen vinner snarare än den långsammaste läsningen.",
+      "source_sha256": "12beaaf3559ea4f5022a57a1affcbcec527169a4bedfa6aef986ac5d326c24cd",
+      "text": "Kolumn/värdeeditorn för att utesluta rader från indata UMAP.\n\nAllt denna widget erbjuder användaren kommer ut från en mätdatabas, och båda läser som används för att hända på huvud GUI körningssökväg:\n\n* ``discover_columns`` öppnar varje databas som inställningen ``src`` går till och kör ``sqlite_master`` plus en ``PRAGMA table_info`` per tabell. Den körs från ``SettingsWidgets._refresh_contextual_widgets``, så den kör varje gång ``src`` eller ``tables`` är inställd.\n* ``distinct_values`` kör en ``SELECT DISTINCT … LIMIT 501`` för varje par ``(database, table)`` där den valda kolumnen förekommer — och kolumnerna som en användare faktiskt utesluter efter (``plateID``, ``columnID``, ``rowID``) innehåller bara ett fåtal distinkta värden i hela tabellen, så LIMIT nås aldrig och SQLite läser varje rad. Mätt på en measurements.db med 200 000 rader × 8 tabeller och varm sidcache: **196 ms per kolumn**. Kolumnkombinationsrutan är redigerbar, så ``currentTextChanged`` utlöses vid varje tangenttryckning. Åtta snabba redigeringar frös fönstret i **894 ms** i ett obrutet block; ``set_source`` kostade 183 ms och ett enskilt avsiktligt kolumnval 220 ms. Med trådad körning tar samma tre operationer 29 ms, 5 ms och 2 ms.\n\nSå båda går igenom en :class:`~spacr.qt.job_runner.JobRunner` som ägs av redaktören, och värdet läses dessutom bort. Tre regler håller ihop detta:\n\n* ``_value_cache`` och ``_column_sources`` är tillstånd på GUI-tråden. Arbetstrådar returnerar vanliga data, som slutförandehanterare på GUI-tråden installerar. När källan ändras töms värdecachen innan det nya schemat anländer.\n* Schema upptäckt och värde läser får **separat** löpare. :meth:`JobRunner.cancel` fungerar efter generation, så en löpare kan inte ersätta ett värde läsa utan att också släppa schemat läsa att värdet läst beror på.\n* En avstött timer sammanstrålar tangenttryckningar, och :meth:`JobRunner.cancel` släpper vad en tidigare tangenttryckning än startade, så den sista redigeringen vinner snarare än den långsammaste läsningen.",
       "translation_source_blocks_sha256": [
         "e661151a82e49a520f2fb700b3b930098651856e62e8723951917d32738f9b0b",
         "f20a7e164d54c4fe0872f0e3fd851d866e117c07d9a1883ec8bad71c17cd3400",
         "e4f4a33d45d70556d4054850c1ffebf1e1239cec7c5a4391d84702355556e524",
         "58baf3424081f737a92b95dc8720982b50327eabed01fa70cae86af863e14953",
         "9ee10ead2494d4e865f0fa02a60b48cb44e69e649c5105f17432d217f95bbfc6",
-        "d5c5fcc9e087cdf926fe46a19b46736262140d7bd3c04fd504fe75ccce9b1432",
+        "94887b98ac3a003e152cc0ab859fbdbc4f74d5ed5dc03d45d25a4d89e95f7fa9",
         "bc79a88ee90789bd2ab00c082be22f2949ed4e48a9c6e99949ba43a8b5df33b0",
         "a717c3b2e871fd5833fac949f21407a007da8463434307d43ad29682ca38b8ba"
       ]
@@ -171405,7 +171455,7 @@
         "966013206f025197c12534f268e177f3941ac0ea40ca6aff50e6d018f3db95be",
         "618f640958edba3ccd8eb00ae6407b66cb1e7e5c194a33eb7ccab3b0dba51734",
         "b8b5b817212bae4173cada55ff3745f0643748aea8a3e132b95401ebfb818331",
-        "c1b00e51152ec17dcea4e5269f7c958c9d8d78438e503004fbc53b862d71a3fc",
+        "d6dbe68118403214c557afeba108672806e2a4ceaa9af33f5366c07e33bfdb1c",
         "2eb1274a5e35b66f4392b115ff96d443f4e04cc446dd2f0ff433cce6adb71644",
         "75f3acedc31beab280e741e0f25b0deb7353f70fd110e6fc3749859d33c413d4",
         "15bf17354e1be45b0675e0ba2514b62418fbad02ca975fca0f0e14579f8b2fb9",
@@ -171413,15 +171463,15 @@
         "18cd0699afc14d577b431789ed60bd0bc69fb62e88adc61c17ef29bcfe884d26",
         "570b81780e0fcdf2a8eb49aaebfa81cb75adbc38ca9c60173525ca6ea4b6f529"
       ],
-      "source_sha256": "133cbed42dbdf3da07e43c60179b1c70b5c11a3884647d535aff5012d89b1296",
-      "text": "Lägg till en eller flera UMAP radundantag genom att välja kolumner och värden.\n\nDatabasen läser bakom de två dropdowns kör på bakgrundsutförande enheter; se modulen docstring av den uppmätta anledningen. Ingenting om widgetens offentliga kontrakt ändrades - :meth:`set_source` fortfarande tar en källa och returnerar, det bara inte längre väntar på sqlite innan det gör det.\n\n:param value: Första regler, i alla former :func:`spacr.row_exclusions.normalize_row_exclusions` accepterar.\n:param parent: Qt förälder.\n:param threaded: ``False`` kör båda läsarna inline, i samma ordning, och sänder ut samma signaler – en uppringare som måste ha värdena som omedelbaren :meth:`set_source` returnerar kan fråga efter det. Nyckelordet bara, och standard, eftersom den skickade anropsplatsen (``SettingsWidgets._widget_for``) passerar ``value`` och ``parent`` och ingenting annat.\n:param debounce_ms: hur länge en kolumnredigering väntar innan den läses. ``0`` läser på nästa händelseslinga tur utan sammanslagning.\nBygg raduteslutningseditorn.\n\nTvå löpare, inte en: ``cancel`` överger allt som en löpare har i flykten, och superseding en knapptryckning värde läsa får inte heller överge schemat läsa som säger vilka databaser kolumnen även bor i.\n\n:param value: Undantagen till att börja med.\n:param parent: överordnad widget, eller ``None``.\n:param threaded: Läs på bakgrundsutförandeenheter. Ställ in ``False`` i tester så att en läsning avslutas innan den återvänder.\n:param debounce_ms: hur länge skrivandet startar innan ett värde läses.",
+      "source_sha256": "1551325b7b603a67afa8cb725be736dc56d2dac2594e61a7a282a8e1501e55c9",
+      "text": "Lägg till en eller flera UMAP radundantag genom att välja kolumner och värden.\n\nDatabasen läser bakom de två dropdowns kör på bakgrundsutförande enheter; se modulen docstring av den uppmätta anledningen. Ingenting om widgetens offentliga kontrakt ändrades - :meth:`set_source` fortfarande tar en källa och returnerar, det bara inte längre väntar på sqlite innan det gör det.\n\n:param value: Första regler, i alla former :func:`spacr.row_exclusions.normalize_row_exclusions` accepterar.\n:param parent: Qt förälder.\n:param threaded: ``False`` kör båda läsarna inline, i samma ordning, och sänder ut samma signaler – en uppringare som måste ha värdena som omedelbaren :meth:`set_source` returnerar kan fråga efter det. Nyckelordet bara, och standard, eftersom den skickade anropsplatsen (``SettingsWidgets._widget_for``) passerar ``value`` och ``parent`` och ingenting annat.\n:param debounce_ms: hur länge en kolumnändring väntar innan den läses. ``0`` schemalägger läsningen till en senare omgång i händelseloopen; ändringar innan timern löser ut kan fortfarande slås samman.\nBygg raduteslutningseditorn.\n\nTvå löpare, inte en: ``cancel`` överger allt som en löpare har i flykten, och superseding en knapptryckning värde läsa får inte heller överge schemat läsa som säger vilka databaser kolumnen även bor i.\n\n:param value: Undantagen till att börja med.\n:param parent: överordnad widget, eller ``None``.\n:param threaded: Läs på bakgrundsutförandeenheter. Ställ in ``False`` i tester så att en läsning avslutas innan den återvänder.\n:param debounce_ms: hur länge skrivandet startar innan ett värde läses.",
       "translation_source_blocks_sha256": [
         "d5bfd69cae64697afee305b98d0ce85e11dd454bdd6566f6db248d2b543ed760",
         "cbfe8822e354a2b4ace7e99025c2ed6210110597e145cb27a80c26bc96a36a1f",
         "966013206f025197c12534f268e177f3941ac0ea40ca6aff50e6d018f3db95be",
         "618f640958edba3ccd8eb00ae6407b66cb1e7e5c194a33eb7ccab3b0dba51734",
         "b8b5b817212bae4173cada55ff3745f0643748aea8a3e132b95401ebfb818331",
-        "c1b00e51152ec17dcea4e5269f7c958c9d8d78438e503004fbc53b862d71a3fc",
+        "d6dbe68118403214c557afeba108672806e2a4ceaa9af33f5366c07e33bfdb1c",
         "2eb1274a5e35b66f4392b115ff96d443f4e04cc446dd2f0ff433cce6adb71644",
         "75f3acedc31beab280e741e0f25b0deb7353f70fd110e6fc3749859d33c413d4",
         "15bf17354e1be45b0675e0ba2514b62418fbad02ca975fca0f0e14579f8b2fb9",
@@ -171442,18 +171492,18 @@
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.closeEvent": {
       "source_blocks_sha256": [
-        "fc7297bf79c14ac9f0fa1576df3f7fe6f64e1c346efb7ab8faf9ea53146cbd1f",
+        "786c1fdc31d88d01989592de4761b76a4cbdcce12a679b26c21bd2eca2092cc8",
         "62152c11aa07004be9f8d65639f44b9b1fddb980f3999ed34ce73e2f6e26c25f",
         "9bee93fdc7bcb8998b2677b898ae32e715d5c3b9adcd288e0c4a97aecfdaab95",
-        "2c15de80058dba9c9551d82b14cf764d4ef1b5623fbd0fa58ffe69cdf5651a04"
+        "f0fac7a4d9c1b268a2b2df9ba0f5c12f1deddf6b3fd166959a1a3207cfb1f62b"
       ],
-      "source_sha256": "7d62184d9caf47e150cd529672547c0c3e2afeb7b3a604750e5a20aa4973eed8",
-      "text": "Stänga mellanlägg får inte lämna en tråd bakom sig.\n\nQt avbryter processen när en körning QThread förstörs, och en worker-processer som levererar till en komponent på väg ut är en användning efter frigörning. ``JobRunner.shutdown`` hanterar båda.\n\nInte den enda försvarslinjen, avsiktligt, eftersom den inte alltid nås: denna editor är ett barn i en inställningspanel, och navigerar bort från den panelen förstör den utan någon nära händelse. Vad täcker det fallet är löparen själv – QThreads är oföräldralösa och drar sig tillbaka, och ``JobRunner._relay`` fångar ``RuntimeError`` PySide6 höjer när en worker-processer slår sig ner efter dess löpares C++ halv har gått.\n\n:param event: stängningshändelsen; skickas vidare oförändrad till basklassen efter att arbetarna har stängts av.",
+      "source_sha256": "4156e48885a50bacfcaec9ec3c4cd1e896b5cb262a1e11f86dea008cde33c441",
+      "text": "Avbryt resultatleveransen och avveckla båda jobbkörarna vid stängning under en pågående läsning.\n\nQt avbryter processen när en körning QThread förstörs, och en worker-processer som levererar till en komponent på väg ut är en användning efter frigörning. ``JobRunner.shutdown`` hanterar båda.\n\nInte den enda försvarslinjen, avsiktligt, eftersom den inte alltid nås: denna editor är ett barn i en inställningspanel, och navigerar bort från den panelen förstör den utan någon nära händelse. Vad täcker det fallet är löparen själv – QThreads är oföräldralösa och drar sig tillbaka, och ``JobRunner._relay`` fångar ``RuntimeError`` PySide6 höjer när en worker-processer slår sig ner efter dess löpares C++ halv har gått.\n\n:param event: stängningshändelsen; skickas oförändrad vidare till basklassen efter att båda jobbkörarna har försökt stänga av inom sina begränsade väntetider.",
       "translation_source_blocks_sha256": [
-        "fc7297bf79c14ac9f0fa1576df3f7fe6f64e1c346efb7ab8faf9ea53146cbd1f",
+        "786c1fdc31d88d01989592de4761b76a4cbdcce12a679b26c21bd2eca2092cc8",
         "e11be8a906c9d4f938ebaad21b17c9ea8eaa51139cd25aaf1254d9152d5e698e",
         "9bee93fdc7bcb8998b2677b898ae32e715d5c3b9adcd288e0c4a97aecfdaab95",
-        "2c15de80058dba9c9551d82b14cf764d4ef1b5623fbd0fa58ffe69cdf5651a04"
+        "f0fac7a4d9c1b268a2b2df9ba0f5c12f1deddf6b3fd166959a1a3207cfb1f62b"
       ]
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.get_value": {
@@ -171481,15 +171531,15 @@
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_source": {
       "source_blocks_sha256": [
         "163839b354c2f7bfbe0e224579adb3cf8a0763c394c8fb4926243d37a9bf0048",
-        "b674e94c85b78d48b3657a2ef0c316b982763036e99280cc6c490c14c56fe5b8",
+        "83dbd00398dc87552d446fe6c460a45e0b4ba0631a56f218c5ac8518a970c269",
         "87d80f5603b7c2266e0ff92fcd40f3855c868b26ea33552f3c6694aa292391af",
         "e60b773e8c7d1cbaf0ec2aa60a74fe57aba465a2516e7e85517694a1febff1fa"
       ],
-      "source_sha256": "b65063fcbea16743b3b9a7eabb761809733ef80daa3725d3c1d5ac04f85a3fad",
-      "text": "Populera kolumn/värdeval från en nedfälld mätning DB.\n\nÅtersänder sig så snart schemat läses. De dropdowns hålla vad de visar tills arbetaren levererar — en lista som är en halv sekund gamla slår ett fruset fönster, och på första samtalet de visar ingenting i alla fall.\n\n:param source: vad som helst som :func:`source_paths` accepterar: en körningsmapp, dess ``measurements``-mapp, en ``.db``-fil eller en lista med sådana.\n:param tables: begränsa kolumnerna till dessa tabellnamn; ``None`` läser varje tabell.",
+      "source_sha256": "0eda86201147005dbc8b9efbfa460800369b037a9b0755d01bca0e2bc6fe10d7",
+      "text": "Populera kolumn/värdeval från en nedfälld mätning DB.\n\nI standardläget med arbetstrådar returnerar anropet efter att schemaläsningen har skickats iväg. Befintliga kolumnval och ikryssade värden förblir synliga medan den körs, inklusive regler som återställts innan den första källan angavs. Med ``threaded=False`` körs läsningarna direkt i anropet.\n\n:param source: vad som helst som :func:`source_paths` accepterar: en körningsmapp, dess ``measurements``-mapp, en ``.db``-fil eller en lista med sådana.\n:param tables: begränsa kolumnerna till dessa tabellnamn; ``None`` läser varje tabell.",
       "translation_source_blocks_sha256": [
         "163839b354c2f7bfbe0e224579adb3cf8a0763c394c8fb4926243d37a9bf0048",
-        "b674e94c85b78d48b3657a2ef0c316b982763036e99280cc6c490c14c56fe5b8",
+        "2c2389dc635d24005b894466e5f9b93749a91db69b1877bedd353ba424d9dc39",
         "38cc33db135f23dae1172f244d27fc1d037f242d5d0e1665218db07cfa3554f8",
         "e60b773e8c7d1cbaf0ec2aa60a74fe57aba465a2516e7e85517694a1febff1fa"
       ]
@@ -171508,14 +171558,14 @@
     },
     "spacr.qt.widgets.row_exclusion.RowExclusionEditor.shutdown": {
       "source_blocks_sha256": [
-        "21285b0f07806ec462ce9b57fe75338e0778312fbeb1e85344d312ebfc06b8f7",
-        "01ebdf8f200e32e2f5d672b4957d27c9b784b66887d7674bd9db3995a8a96aa9"
+        "95762b24932f0db659a4ccafdb82b868c26b491a558b4f81d9f168984a577915",
+        "a307f39ad4481a09b804d70a39962dc18d6e8657a437dcc8e39813332134b9c0"
       ],
-      "source_sha256": "366af60fc4c5bda86796e6c2cf9ccf5df7d642578bed0483f88f6b579ef6dbdf",
-      "text": "Sluta läsa och låt ingen worker-processer överleva widgeten.\n\nOffentligt eftersom en värd som äger denna editor inne i en större programvy kan kalla den direkt — Qt levererar en nära händelse till fönstret, inte till varje komponent inuti det, så en programvy som vill att läsningen stoppas när användaren navigerar bort måste säga så. Oförmögen.",
+      "source_sha256": "6be5e6528b02b0cc4f9a9a236698ba6a32bdb9e469d49c5f4dc8987b87021eb4",
+      "text": "Förkasta väntande resultat och avveckla båda jobbkörarna med begränsade väntetider.\n\nPublik så att en värd som äger denna redigerare i en större skärm kan anropa den direkt — Qt skickar en stängningshändelse till fönstret, inte till varje widget i det. En skärm som vill förkasta väntande resultat när användaren navigerar bort måste därför anropa den. Långsamma databasläsningar kan fortsätta i parkerade arbetstrådar utan att leverera resultat till denna redigerare. Idempotent.",
       "translation_source_blocks_sha256": [
-        "21285b0f07806ec462ce9b57fe75338e0778312fbeb1e85344d312ebfc06b8f7",
-        "20f9228f1e42c43f14ce22b52d841cc7c965a1b42969acd637cdcbac1c5aae80"
+        "95762b24932f0db659a4ccafdb82b868c26b491a558b4f81d9f168984a577915",
+        "e45b981b1e3cd2793410106a7878e40c8e91faeb18ca53973899f8ec626e00d2"
       ]
     },
     "spacr.qt.widgets.row_exclusion.discover_columns": {
@@ -171556,14 +171606,14 @@
     },
     "spacr.qt.widgets.row_exclusion.source_paths": {
       "source_blocks_sha256": [
-        "31fce773288e3a9b369a346b0f54ce6082c1bd5746ada000db4ccd4ce5854891",
+        "18409b06b2b55101460d174e48285d90cded7e28db25c837a93a169ec94a41d5",
         "2ed4efbe0590e3c33e8093da33f2d99b04ef6c5c5be3d9a08fb922cccfeaf3c4",
         "cd16c0e1cf402bd4756d0e1ad98af3ef027a69c376c55515da96e8e99c55049f"
       ],
-      "source_sha256": "a8f09b0eebe8d43b292acd8916590683b30a0ce957374ba172caa0155f302a8e",
-      "text": "Återlämnar ``measurements.db``-filerna ``source``, och löser upp dem.\n\nAccepterar en sökväg, en lista med sökvägar, eller repr av en lista (vilket är vad ett inställningstextfält innehåller efter en flermappsdroppe), och tolererar en processsessionskatalog, dess ``measurements`` underkatalog, eller själva databasen. Sökvägar som inte finns släpps snarare än rapporteras: detta matar en dropdown, och en halv-typad ``src`` är inte ett fel.\n\n:param source: en sökväg, en lista eller tuple med sökvägar, eller texten i en sådan lista; tomma poster hoppas över och ``~`` expanderas.",
+      "source_sha256": "b85b5688c6bda7c11df18c5408c7923744ce688a264c8bedeec58a4a06785e32",
+      "text": "Returnera sökvägarna till befintliga databasfiler som ``source`` pekar ut.\n\nAccepterar en sökväg, en lista med sökvägar, eller repr av en lista (vilket är vad ett inställningstextfält innehåller efter en flermappsdroppe), och tolererar en processsessionskatalog, dess ``measurements`` underkatalog, eller själva databasen. Sökvägar som inte finns släpps snarare än rapporteras: detta matar en dropdown, och en halv-typad ``src`` är inte ett fel.\n\n:param source: en sökväg, en lista eller tuple med sökvägar, eller texten i en sådan lista; tomma poster hoppas över och ``~`` expanderas.",
       "translation_source_blocks_sha256": [
-        "31fce773288e3a9b369a346b0f54ce6082c1bd5746ada000db4ccd4ce5854891",
+        "18409b06b2b55101460d174e48285d90cded7e28db25c837a93a169ec94a41d5",
         "e9022cdbe9f85989f5b028361d99a46e68c38bba92aa50e1240e87ebda0c946a",
         "cd16c0e1cf402bd4756d0e1ad98af3ef027a69c376c55515da96e8e99c55049f"
       ]

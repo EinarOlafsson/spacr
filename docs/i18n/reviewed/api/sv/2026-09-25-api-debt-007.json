@@ -3613,7 +3613,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the close event; passed on unchanged to the base class after the workers are shut down.",
       "source_sha256": "2c15de80058dba9c9551d82b14cf764d4ef1b5623fbd0fa58ffe69cdf5651a04",
-      "translation": "stängningshändelsen; skickas vidare oförändrad till basklassen efter att arbetarna har stängts av."
+      "translation": "stängningshändelsen; skickas vidare oförändrad till basklassen efter att arbetarna har stängts av.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Row-exclusion path, restore and lifecycle documentation corrected in ae9fe9df94b. Replacement exact-source review is2026-10-15-row-exclusion-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "context": "anything :func:`source_paths` accepts: a processing-session folder, its ``measurements`` folder, a ``.db`` file, or a list of them.",

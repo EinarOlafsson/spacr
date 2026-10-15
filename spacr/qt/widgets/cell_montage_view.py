@@ -2531,21 +2531,21 @@ class CellMontageView(QWidget):
 
 
     def workspace_state(self) -> dict:
-        """The montage the session had open, as data.
+        """Return montage choices and any saved comparison controls as data.
 
-        The settings and the choice are saved, not the pixels. A montage is
-        tens of megabytes of crops that the run's own images regenerate
-        exactly; what cannot be regenerated is which coefficient was on screen,
-        how the cells were picked, and how they were drawn. Those are what go
-        in.
+        Settings and the selected coefficient are saved, not crop pixels.
+        Picked groups record which cells the current montage selected; they
+        are not replayed as input to the picker. Rebuilding uses the current
+        run files, settings and picker implementation.
 
-        The picked groups are saved as a record, not as an input --
-        `picked_groups()` is what the picker chose given these settings, and
-        restoring the settings reproduces it. They are saved so a reader of a
-        saved run can see which cells the result rested on without re-running
-        anything.
+        The comparison contributes its controls when its panel already
+        exists. Otherwise a comparison restored before the panel was built
+        is retained as plain data. Collecting state never creates the panel
+        or computes a comparison.
         """
-        return {
+        from copy import deepcopy
+
+        state = {
             "coefficient": str(self._key or ""),
             "level": str(self._level or ""),
             "results_path": self._results_path(),
@@ -2556,49 +2556,90 @@ class CellMontageView(QWidget):
                               for gene, values in self.picked_groups().items()},
             "montage_shown": bool(self._plans),
         }
+        panel = self._graph_panel
+        comparison = (panel.workspace_state() if panel is not None else
+                      self.__dict__.get("_comparison_workspace_state"))
+        if isinstance(comparison, dict):
+            state["comparison"] = deepcopy(comparison)
+        return state
 
     def apply_workspace_state(self, state) -> bool:
-        """Put the montage's settings back. Does not rebuild it.
+        """Restore montage and comparison controls without computing images.
 
-        Returns whether anything was applied.
+        Recognized state cancels the pending montage and queued coefficient
+        loads. Control signals are blocked while settings are restored, so
+        an existing montage does not automatically reload or redraw. Crop
+        choices are applied for the next explicit build; its existing well
+        tabs retain their own captions and images.
 
-        The montage is not rebuilt. Loading the crops is the slow half -- the
-        first montage of a run reads images off disk for seconds -- and
-        starting it on restore would freeze a window that was just opened. The
-        settings are put back and the button is available.
+        Comparison controls are passed to an existing panel without a
+        refresh. If no panel exists, they remain plain data until an explicit
+        montage build or Compare action creates it. Restoring never creates
+        a comparison panel, starts a measurement join, or computes a graph.
 
-        :param state: mapping as saved with the workspace; its
-            ``picture_settings``, ``widgets``, ``picture_mode`` and
-            ``coefficient`` entries are each applied when present, and a
-            non-dict applies nothing.
+        :param state: saved mapping; recognized entries are
+            ``picture_settings``, ``widgets``, ``picture_mode``,
+            ``coefficient`` and ``comparison``. A non-dict applies nothing.
+        :returns: whether recognized state was applied or retained for later.
         """
         if not isinstance(state, dict):
             return False
-        applied = False
-        picture = state.get("picture_settings")
-        if isinstance(picture, dict):
-            from ...picture_settings import drop_retired
+        from copy import deepcopy
+        from PySide6.QtCore import QSignalBlocker
 
-            picture, notes = drop_retired(picture)
-            for note in notes:
-                LOG.info("saved picture settings: %s", note)
-            self._picture_settings = dict(picture)
-            self._write_back(self._picture_settings)
-            applied = True
+        picture = state.get("picture_settings")
         widgets = state.get("widgets")
-        if isinstance(widgets, dict):
-            self._write_back(widgets)
-            applied = True
+        comparison = state.get("comparison")
         mode = state.get("picture_mode")
-        if mode:
-            index = self._source.findData(mode)
-            if index >= 0:
-                self._source.setCurrentIndex(index)
-                applied = True
+        mode_index = self._source.findData(mode) if mode else -1
         key = state.get("coefficient")
-        if key:
-            self.set_coefficient(str(key))
-            applied = True
+        crop_state = (isinstance(picture, dict) or isinstance(widgets, dict)
+                      or mode_index >= 0 or bool(key))
+        if not crop_state and not isinstance(comparison, dict):
+            return False
+        self._cancel_loading()
+        self._queue.clear()
+        blockers = [QSignalBlocker(getattr(self, name))
+                    for name in self._MIRRORED.values()]
+        applied = False
+        previous_restore = self.__dict__.get("_restoring_workspace", False)
+        self._restoring_workspace = True
+        try:
+            if crop_state:
+                self._drop_montage()
+                self._unavailable = ""
+            if isinstance(picture, dict):
+                from ...picture_settings import drop_retired
+
+                picture, notes = drop_retired(picture)
+                for note in notes:
+                    LOG.info("saved picture settings: %s", note)
+                self._picture_settings = dict(picture)
+                self._write_back(self._picture_settings)
+                applied = True
+            if isinstance(widgets, dict):
+                self._write_back(widgets)
+                applied = True
+            if mode_index >= 0:
+                self._source.setCurrentIndex(mode_index)
+                applied = True
+            if key:
+                self.set_coefficient(str(key))
+                applied = True
+            if isinstance(comparison, dict):
+                comparison = deepcopy(comparison)
+                if self._graph_panel is None:
+                    self._comparison_workspace_state = comparison
+                    applied = True
+                else:
+                    applied = (self._graph_panel.apply_workspace_state(
+                        comparison) or applied)
+            self._refresh_controls()
+            self._announce()
+        finally:
+            self._restoring_workspace = previous_restore
+            for blocker in blockers:
+                blocker.unblock()
         return applied
 
     def compare_a_measurement(self, *_args):
@@ -2951,7 +2992,8 @@ class CellMontageView(QWidget):
         Built on the first montage rather than at construction: the panel
         needs the object rows and the picker's groups, and a tab that said
         "nothing yet" would be a second way of saying what the Summary tab
-        already says.
+        already says. Saved comparison controls are handed over here, once,
+        before refreshing the graph for this explicit build or Compare action.
         """
         rows = self.rows_to_compare()
         groups = self.picked_groups()
@@ -2972,6 +3014,10 @@ class CellMontageView(QWidget):
         else:
             self._graph_panel.set_data(rows, groups,
                                        settings=self.picture_settings())
+        pending = self.__dict__.pop("_comparison_workspace_state", None)
+        if isinstance(pending, dict):
+            if self._graph_panel.apply_workspace_state(pending):
+                self._graph_panel.refresh()
 
     def annotate_the_cells(self, *_args):
         """Open annotation strategies for the cells in the current montage.
@@ -3132,7 +3178,8 @@ class CellMontageView(QWidget):
             if not self._name:
                 self._set_status(self.NOTHING_SELECTED)
             else:
-                run = self.loaded_run_name()
+                run = ("" if self.__dict__.get("_restoring_workspace", False)
+                       else self.loaded_run_name())
                 selection = self.selected_coefficients()
                 more = (f" {len(selection)} coefficients are selected; this "
                         f"grid is one of them."

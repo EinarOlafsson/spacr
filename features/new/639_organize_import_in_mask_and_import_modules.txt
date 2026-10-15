@@ -40,3 +40,19 @@ are unchanged.
 
 Left: translations of the new tr() captions (catalog pass); tutorial for the
 two new buttons (docs lane, after features).
+
+2026-10-15 — CONVERTED ORIGINALS WITH THE SAME BASENAME ARE PRESERVED
+A native two-folder RGB organizer plan was valid and converted both images,
+but moved both originals to originals/field.tif: both sources disappeared
+and only the second original survived. Converted originals now each occupy
+a unique private directory under originals/, retaining their actual basename
+and bytes. Explicit original-kind manifest rows identify each saved location;
+existing converted-image rows, result.moved counts and original-filename
+lookup semantics remain unchanged. The fixed ASCII directory prefix accepts
+valid long Unicode source basenames. Failure cleanup removes only an empty
+owned directory; a transferred original is retained even if move then raises.
+Nine finite native checks pass, including regular/symlink-name preservation,
+interruption before/after transfer and the actual shutil EXDEV fallback with
+byte/mode preservation. This is not whole-organizer or cross-file transaction
+acceptance; tutorial/catalog work stays with its owners. Receipt and raw
+baseline failure: features/data/639_converted_original_preservation_2026-10-15/.

@@ -8,7 +8,7 @@ standalone window without changing the comparison semantics.
 import logging
 from typing import Any, Dict, Optional
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QSignalBlocker, Qt
 from PySide6.QtWidgets import (QComboBox, QDialog, QDialogButtonBox,
                                QFileDialog, QHBoxLayout, QLabel, QLineEdit,
                                QPlainTextEdit, QPushButton, QVBoxLayout,
@@ -166,6 +166,8 @@ class MeasurementComparePanel(QWidget):
         self._comparison = None
         self._canvas = None
         self._chosen_wells: Optional[set] = None
+        self._workspace_choices: dict = {}
+        self._workspace_selection_restored = False
 
         #: The volcano's guide selection, and the well set derived from it.
         #: `None` for the wells means "not narrowed yet", which is different
@@ -362,6 +364,9 @@ class MeasurementComparePanel(QWidget):
         self.resize(900, 720)
         self._scope_report: Dict[str, Any] = {}
         self._results = results
+        for name in ("measurement", "second", "only"):
+            getattr(self, name).activated.connect(
+                lambda _index, key=name: self._workspace_choices.pop(key, None))
         self._open_on_the_top_hits(results)
         self.refresh()
 
@@ -381,10 +386,14 @@ class MeasurementComparePanel(QWidget):
 
     def _offer_second(self):
         """Fill the second chooser from the same columns as the first."""
+        before = self._workspace_choices.get("second", self.second.currentData())
         self.second.blockSignals(True)
         self.second.clear()
         for name in self._numeric_columns():
             self.second.addItem(str(name), str(name))
+        index = self.second.findData(before)
+        if index >= 0:
+            self.second.setCurrentIndex(index)
         self.second.blockSignals(False)
 
     def _on_operator(self, *_args):
@@ -408,9 +417,10 @@ class MeasurementComparePanel(QWidget):
         self._groups = dict(groups or {})
         if settings is not None:
             self._settings = dict(settings)
-        if not self._selected_guides:
+        if not self._selected_guides and not self._workspace_selection_restored:
             self._open_on_the_top_hits(getattr(self, "_results", None))
-        remembered = self.measurement.currentData()
+        remembered = self._workspace_choices.get(
+            "measurement", self.measurement.currentData())
         self.measurement.blockSignals(True)
         self.measurement.clear()
         for name in self._numeric_columns():
@@ -428,6 +438,111 @@ class MeasurementComparePanel(QWidget):
         :returns: the comparison, or None before one has been run.
         """
         return self._comparison
+
+    def workspace_state(self) -> dict:
+        """Return JSON-compatible comparison choices without collecting data.
+
+        Combo values are stable identifiers, not translated labels. Pending
+        measurement and class choices remain saved until a later refresh can
+        offer them. Well selections preserve ``None`` for all annotated wells
+        or guide-derived scope wells, respectively; an empty list selects none.
+        Frames, figures, database paths and running jobs are not included.
+        """
+        state = {
+            name: self._workspace_choices.get(
+                name, str(getattr(self, name).currentData() or ""))
+            for name in ("measurement", "operator", "second", "level", "kind",
+                         "spread", "scope", "contrast", "only")
+        }
+        state.update(
+            controls=self.controls.text(),
+            chosen_wells=(None if self._chosen_wells is None
+                          else sorted(self._chosen_wells)),
+            selected_guides=list(self._selected_guides),
+            selected_wells=(None if self._selected_wells is None
+                            else list(self._selected_wells)),
+            join_png_list=self.join_png_list.isChecked(),
+            join_dependent=self.join_dependent.isChecked())
+        return state
+
+    def apply_workspace_state(self, state) -> bool:
+        """Restore comparison controls without computing or drawing a graph.
+
+        Recognized, correctly typed entries are applied independently. Unknown
+        fixed choices are ignored; measurement and class identifiers that are
+        not yet offered remain pending until an ordinary refresh or data update.
+        Selected guide and well identifiers are retained without reading files.
+        An active join owned by this panel is cancelled so its late result cannot
+        replace the restored state. No new join, file read or inference starts.
+        The cached comparison and figure remain unchanged until the next refresh.
+
+        :param state: mapping returned by :meth:`workspace_state`; non-dicts and
+            mappings without usable entries leave the panel unchanged.
+        :returns: ``True`` if at least one usable entry was applied, even if its
+            value was already selected; otherwise ``False``.
+        """
+        if not isinstance(state, dict):
+            return False
+        combos = ("measurement", "operator", "second", "level", "kind",
+                  "spread", "scope", "contrast", "only")
+        updates = {}
+        for name in combos:
+            value = state.get(name)
+            if isinstance(value, str) and (
+                    name in ("measurement", "second", "only")
+                    or getattr(self, name).findData(value) >= 0):
+                updates[name] = value
+        if isinstance(state.get("controls"), str):
+            updates["controls"] = state["controls"]
+        for name in ("chosen_wells", "selected_guides", "selected_wells"):
+            if name not in state:
+                continue
+            value = state[name]
+            if ((value is None and name != "selected_guides")
+                    or (isinstance(value, list)
+                        and all(isinstance(v, str) for v in value))):
+                updates[name] = None if value is None else list(value)
+        for name in ("join_png_list", "join_dependent"):
+            if isinstance(state.get(name), bool):
+                updates[name] = state[name]
+        if not updates:
+            return False
+        if self._joining:
+            self.cancel_the_join()
+        blockers = [QSignalBlocker(getattr(self, name)) for name in
+                    (*combos, "controls", "join_png_list", "join_dependent")]
+        try:
+            for name in combos:
+                if name not in updates:
+                    continue
+                value = updates[name]
+                widget = getattr(self, name)
+                index = widget.findData(value)
+                if index >= 0:
+                    widget.setCurrentIndex(index)
+                if name in ("measurement", "second", "only"):
+                    self._workspace_choices[name] = value
+            if "controls" in updates:
+                self.controls.setText(updates["controls"])
+            if "chosen_wells" in updates:
+                value = updates["chosen_wells"]
+                self._chosen_wells = None if value is None else set(value)
+            for name in ("selected_guides", "selected_wells"):
+                if name in updates:
+                    setattr(self, "_" + name, updates[name])
+                    self._workspace_selection_restored = True
+            for name in ("join_png_list", "join_dependent"):
+                if name in updates:
+                    getattr(self, name).setChecked(updates[name])
+            self.second.setEnabled(bool(self.operator.currentData()))
+            self.controls.setEnabled(
+                str(self.contrast.currentData() or "") == "against_controls")
+            self.scope_wells_button.setEnabled(bool(self._selected_guides))
+            self._offer_the_spread()
+        finally:
+            for blocker in blockers:
+                blocker.unblock()
+        return True
 
 
     def _on_contrast(self, *_args):
@@ -841,6 +956,16 @@ class MeasurementComparePanel(QWidget):
 
     def refresh(self, *_args):
         """Rebuild, retest and redraw. Returns the comparison, or ``None``."""
+        for name in ("measurement", "second"):
+            widget = getattr(self, name)
+            if self.sender() is widget:
+                self._workspace_choices.pop(name, None)
+            value = self._workspace_choices.get(name)
+            if value is not None and widget.findData(value) >= 0:
+                blocker = QSignalBlocker(widget)
+                widget.setCurrentIndex(widget.findData(value))
+                blocker.unblock()
+                self._workspace_choices.pop(name, None)
         measurement = str(self.measurement.currentData() or "")
         if not measurement:
             self.report.setPlainText(
@@ -872,6 +997,8 @@ class MeasurementComparePanel(QWidget):
 
     def _draw_and_report(self, *_args):
         """Redraw for a changed VIEW, without rebuilding the comparison."""
+        if self.sender() is self.only:
+            self._workspace_choices.pop("only", None)
         if self._comparison is None:
             return
         self._draw()
@@ -923,7 +1050,8 @@ class MeasurementComparePanel(QWidget):
     def _offer_classes(self) -> None:
         """Refill the "show" box, keeping the choice when it still exists."""
         names = self._classes()
-        before = str(self.only.currentData() or "")
+        before = self._workspace_choices.get(
+            "only", str(self.only.currentData() or ""))
         self.only.blockSignals(True)
         self.only.clear()
         self.only.addItem("every class", "")
@@ -931,6 +1059,8 @@ class MeasurementComparePanel(QWidget):
             self.only.addItem(name, name)
         index = self.only.findData(before)
         self.only.setCurrentIndex(index if index >= 0 else 0)
+        if index >= 0:
+            self._workspace_choices.pop("only", None)
         self.only.blockSignals(False)
         self.only.setEnabled(len(names) > 1)
 

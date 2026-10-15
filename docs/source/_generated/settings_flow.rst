@@ -18697,6 +18697,8 @@ png_channel_mapping
 
 (dict) - Which source channel goes in each colour of the saved PNG, e.g. {'r': 2, 'g': 1, 'b': 0}: channel 2 is red, 1 is green, 0 is blue. Channels not named are absent from the crops (measurements are unaffected); a colour left blank is an empty plane. Naming the same channel for all three writes a greyscale PNG. Default {'r': 2, 'g': 1, 'b': 0}, which for a standard 405/488/555 stack puts the nuclear stain in blue.
 
+| ``_under_todays_names`` **-- reads it**
+|     ``set(...)  [UNRESOLVED]``
 | :py:func:`~spacr.measure.measure_crop`
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
@@ -18705,7 +18707,7 @@ png_channel_mapping
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
 
-Read by ``get_measure_crop_settings``.
+Read by ``_under_todays_names``, ``get_measure_crop_settings``.
 
 .. _setting-flow-png_dims:
 
@@ -18714,6 +18716,8 @@ png_dims
 
 (list of int) - Deprecated in favor of png_channel_mapping and retained for compatibility with older settings files. Under the legacy mapping, entry 0 becomes blue, entry 1 green and entry 2 red, matching the wavelength order 0=405, 1=488 and 2=555. Ignored when png_channel_mapping is set. Default [].
 
+| ``_under_todays_names`` **-- reads it**
+|     ``set(...)  [UNRESOLVED]``
 | :py:func:`~spacr.core.generate_image_umap`
 |     :py:func:`~spacr.io.open_crop_source`
 |         ``_crop_shape_overrides`` **-- reads it**
@@ -18731,9 +18735,16 @@ png_dims
 |             ``_crop_shape_overrides`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
 |             ``len(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
+| ``_plan_gains``
+|     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
+|     ``deepcopy(...)  [UNRESOLVED]``
 | ``_crop_settings`` **-- reads it**
 
-Read by ``_crop_shape_overrides``, ``_write_crop_tar``, ``_crop_settings``.
+Read by ``_under_todays_names``, ``_crop_shape_overrides``, ``_write_crop_tar``, ``_crop_settings``, ``get_measure_crop_settings``.
 
 .. _setting-flow-png_size:
 

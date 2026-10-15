@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "source_files": {
+    "spacr/qt/screens/embeddings.py": "9fda21401f1777bf049b0ccbf11015e38f0e22c19fcb9b972ae46e50040d5785"
+  },
+  "source_commits": [
+    "efe3784e64a6a527a5ca557ccd2dbffc45272052"
+  ],
+  "root_current_source_pin": "bc75604cb33",
+  "review_count": 18,
+  "normal_source_provenance": "Exact two lexical AST definitions; normal HelperDefinition and entries(...modules=[enabled actual module]) canonical body; original module rollout and AutoAPI-ignore eligibility retained. Root independently performed complete active_entries census; no duplicated full census or runtime collector.",
+  "normal_gates": "PASS18source+18context+18actualinline checks; all9 selected reviewed_api_block_translations loaders pass.",
+  "new_symbols": [
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._done",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._progress"
+  ],
+  "unrelated_review_files_preserved": 1514,
+  "limitations": [
+    "Technical review only; independent peer requested, no native-speaker claim.",
+    "Only two source-bound helper entries; no global source-currency claim or helper-policy alteration."
+  ],
+  "scope": "Review inputs; normal generation follows separately."
+}

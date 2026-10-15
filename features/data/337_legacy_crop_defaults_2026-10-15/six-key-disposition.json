@@ -1,0 +1,12 @@
+{
+  "read_only_source_classification": {
+    "png_dims": "Supported legacy compatibility via existing crops.png_dims_to_channel_mapping; actual default-overlay bug reproduced and repaired in this component",
+    "include_uninfected": "Historicalrename to uninfected; do not restore oldkey",
+    "n_job": "Historicaltypo; live n_jobs validator/default/consumers only",
+    "manders_thresholds": "Activation-map/CAM correlation scope in deep_spacr; Measure writes standard Manders coefficients without percentiles",
+    "plot_filtration": "Historicalfold into plot; no oldkey consumer reinstated",
+    "representative_images": "Retired Measure setting; low-level helper existence does not restore settings pathway"
+  },
+  "no_new_aliases": true,
+  "existing_closed_milestones_not_reopened": true
+}

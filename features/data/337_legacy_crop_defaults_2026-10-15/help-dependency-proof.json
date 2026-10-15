@@ -1,0 +1,33 @@
+{
+  "public_baseline": "1d90f7c921b",
+  "files": {
+    "spacr/qt/screens/embeddings.py": {
+      "sha256": "9fda21401f1777bf049b0ccbf11015e38f0e22c19fcb9b972ae46e50040d5785",
+      "byte_identical_public_baseline": true
+    },
+    "docs/source/_static/i18n/api/en.json": {
+      "sha256": "3d62fe890615c52e2dddaf04cbce9835e421dcf8b6f7be3d47617fe370890832",
+      "byte_identical_public_baseline": true
+    },
+    "tools/nested_helper_docs.py": {
+      "sha256": "7f2c3557ba5041ad3f8489b4ce38bce97521a6e5b176361f4982036c02585237",
+      "byte_identical_public_baseline": true
+    },
+    "tools/build_documentation_i18n.py": {
+      "sha256": "6f3a86f5ce51672dcf11b420f6c1a14a7d1e7fec9f5b353676749ac4b5e530ad",
+      "byte_identical_public_baseline": true
+    }
+  },
+  "diagnostic_sha256": "52a9f960651fae0223a73d037e0e22b7743986623d1c154279caedefafcc1303",
+  "missing_keys": [
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._done",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._progress"
+  ],
+  "independent_owner_attestation": "Parent relayed Home-B full active_entries census found these same exact two F561 helper omissions; owner normal English and nine-locale repair active. No redundant public-baseline collector launched.",
+  "required_artifact_status": {
+    "consumer_map": "passed",
+    "settings_flow": "passed",
+    "help_index": "refused_missing_enabled_helpers",
+    "required_tests": "not_run_due_to_prior_help_refusal"
+  }
+}
