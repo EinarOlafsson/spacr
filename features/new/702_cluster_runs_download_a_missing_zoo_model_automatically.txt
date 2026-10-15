@@ -580,3 +580,17 @@ was corrected before product assertions and is retained separately. No model
 I/O/enrichment, provider/network/GPU/inference/fullCI or native other-OS
 acceptance. Parent702 partial. Evidence:
 data/702_gui_csv_pin_preservation_2026-10-15/receipt.json.
+
+2026-10-15 — checkpoint allocation preserves dangling user links:
+The existing versioned-path allocator treats a dangling symlink as occupied,
+then retains its ordinary basename/version/suffix rules and exclusive claim.
+Previously native O_EXCL refused the dangling checkpoint leaf while exists()
+continued to select it. Six native baseline failures include real claim and
+injected offline fetch: two actual refusals then explicit diagnostic stop
+before any third attempt, never an unbounded reproduction. Final15 cases pass
+in0.99seconds (six new plus nine existing version/fetch/install/concurrent/
+reservation/checksum/interruption/cancel controls), background2G/shared lock.
+User symlink/readlink target, original nonexistent target and exact landed
+bytes/hash are preserved. Only one predicate changes; no API prose/caption,
+model loading/provider/network/GPU/live data/fullCI or whole702 acceptance.
+Evidence: data/702_dangling_checkpoint_allocation_2026-10-15/receipt.json.
