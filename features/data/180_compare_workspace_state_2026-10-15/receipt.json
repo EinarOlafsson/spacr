@@ -56,5 +56,10 @@
     "Root/website montage integration",
     "Normal API reviews/catalog/help-index artifacts before publication",
     "No new native/platform acceptance claim"
+  ],
+  "captured_output": [
+    "before-output.txt",
+    "after-output.txt",
+    "owning-output.txt"
   ]
 }
