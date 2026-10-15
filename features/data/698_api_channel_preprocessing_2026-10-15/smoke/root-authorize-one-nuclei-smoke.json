@@ -1,0 +1,8 @@
+{
+  "decision": "AUTHORIZE_ONE_ANONYMOUS_TECHNICAL_SMOKE",
+  "script_sha256": "ea8e91d356d6e0fc194ae06a62fac50283412a38499c1445ea1723b0ba18ddd9",
+  "space_commit": "f457356bbffa1c3166f01ea3e7a40c6ab44fca35",
+  "input_sha256": "e84718d522edef0d3430a15834c6b5cfbcc5ac062e56cb5d29301722a1e98ffb",
+  "api_name": "/segment_nuclei_from_cellmask",
+  "max_submissions": 1
+}

@@ -1,0 +1,67 @@
+{
+  "decision": "Root operator APPROVED one exact public file acquisition/header only",
+  "source_record": {
+    "family": "nuclei_from_cellmask",
+    "repo_id": "einarolafsson/cross-channel-nuclei-from-cellmask",
+    "repo_type": "dataset",
+    "revision": "67c45ebd25000a36dc42120379e06285bdcb4b1d",
+    "filename": "images/CSA_screen__screen_20250124_133156__plate1_A14_11_1.tif",
+    "metadata_proof": {
+      "fields_row": {
+        "name": "CSA_screen__screen_20250124_133156__plate1_A14_11_1",
+        "split": "test",
+        "n_objects": "62"
+      },
+      "well_split_row": {
+        "name": "CSA_screen__screen_20250124_133156__plate1_A14_11_1",
+        "well": "CSA screen|screen_20250124_133156|plate1_A14",
+        "screen": "CSA screen",
+        "experiment": "screen_20250124_133156",
+        "host": "HFF",
+        "split": "test",
+        "datasets": "cell_from_hoechst;nuclei_from_cellmask"
+      }
+    },
+    "status": "CANDIDATE_NOT_OPERATOR_APPROVED",
+    "all17_versions_heldout_verified": false,
+    "head_status": 302,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Content-Length": "1301",
+      "X-Repo-Commit": "67c45ebd25000a36dc42120379e06285bdcb4b1d",
+      "X-Linked-Size": "4132206",
+      "X-Linked-ETag": "\"e84718d522edef0d3430a15834c6b5cfbcc5ac062e56cb5d29301722a1e98ffb\""
+    }
+  },
+  "credit": "Einar Olafsson / spaCR cross-channel nuclei-from-cellmask dataset, CC BY 4.0",
+  "approval_scope": "Actual immutable DATASET record, CC-BY4.0/cell-mask input, both test rows62objects; no inference/upload/transformation/model/service action; no allhistoricalmodel unseen claim",
+  "download_result": "receipt.json",
+  "header_semantics": {
+    "series": 0,
+    "axes": "YX",
+    "dtype": "uint16",
+    "height": 1998,
+    "width": 1998,
+    "time_axis": false,
+    "z_axis": false,
+    "explicit_channel_axis": false,
+    "channel_selection_for_later_review": [
+      0
+    ],
+    "magnification": "20 is source softwaredefault only; acquisition magnification unknown"
+  },
+  "source_metadata": {
+    "fields.csv": {
+      "sha256": "73becb9de0dc2ffed1c549599101aafd469588c0e6d2c846375c0bdc7eb993db",
+      "bytes": 197052
+    },
+    "split_by_well.csv": {
+      "sha256": "be83764798bc660484dfa483a4a5978d2ebb051f761cd8c5d16653ce6dce63ef",
+      "bytes": 830970
+    },
+    "README.md": {
+      "sha256": "a742d521d943faff51635b5264030a4a61c2250ee5712d202c903f78ad0abe45",
+      "bytes": 749
+    }
+  }
+}
