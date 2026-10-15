@@ -3492,7 +3492,7 @@ def _debian_frontend_lock(path="/var/lib/dpkg/lock-frontend"):
         details = os.fstat(descriptor)
         if (not stat.S_ISREG(details.st_mode) or details.st_uid != os.geteuid()
                 or stat.S_IMODE(details.st_mode) & 0o022):
-            raise OSError("unsafe Debian frontend lock")
+            raise OSError(tr("unsafe Debian frontend lock"))
         fcntl.lockf(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
         yield
     finally:
@@ -3514,28 +3514,28 @@ def _debian_prepare_archive(version, stage, *, fetch=None, published_digest=None
     details = os.lstat(stage)
     if (not stat.S_ISDIR(details.st_mode) or os.path.realpath(stage) != stage
             or details.st_uid != os.geteuid() or stat.S_IMODE(details.st_mode) & 0o077):
-        raise ValueError("Debian archives require private trusted staging")
+        raise ValueError(tr("Debian archives require private trusted staging"))
     name = "spacr_" + version + "_amd64.deb"
     url = _RELEASE_DOWNLOAD + "/v" + version + "/" + name
     expected = (published_digest or _published_digest)(url)
     if (not isinstance(expected, str) or len(expected) != 64
             or any(character not in "0123456789abcdef" for character in expected)):
-        raise ValueError("a published SHA256 is required for Debian replacement and rollback")
+        raise ValueError(tr("a published SHA256 is required for Debian replacement and rollback"))
     target = os.path.join(stage, name)
     if os.path.lexists(target):
-        raise ValueError("Debian staging must not reuse an existing archive")
+        raise ValueError(tr("Debian staging must not reuse an existing archive"))
     (fetch or _download)(url, target)
     descriptor = os.open(target, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
     with os.fdopen(descriptor, "rb") as archive:
         actual = os.fstat(archive.fileno())
         if (not stat.S_ISREG(actual.st_mode) or actual.st_uid != os.geteuid()
                 or actual.st_nlink != 1 or stat.S_IMODE(actual.st_mode) & 0o022):
-            raise ValueError("unsafe Debian archive staging identity")
+            raise ValueError(tr("unsafe Debian archive staging identity"))
         digest = hashlib.sha256()
         for chunk in iter(lambda: archive.read(1 << 20), b""):
             digest.update(chunk)
         if not actual.st_size or digest.hexdigest() != expected:
-            raise ValueError("Debian archive does not match its published SHA256")
+            raise ValueError(tr("Debian archive does not match its published SHA256"))
     return {"path": target, "sha256": expected, "version": version}
 
 
@@ -3551,7 +3551,7 @@ def _debian_package_metadata(archive, version, architecture, *, run=None):
     """
     version = _runtime_requested_version(version)
     if architecture != "amd64":
-        raise ValueError("unsupported Debian package architecture")
+        raise ValueError(tr("unsupported Debian package architecture"))
     code, output = (run or _run)([
         "/usr/bin/dpkg-deb", "--field", os.path.abspath(archive),
         "Package", "Version", "Architecture"])
@@ -3559,12 +3559,12 @@ def _debian_package_metadata(archive, version, architecture, *, run=None):
     for line in output.splitlines():
         key, separator, value = line.partition(":")
         if not separator or key in fields:
-            raise ValueError("invalid Debian package metadata")
+            raise ValueError(tr("invalid Debian package metadata"))
         fields[key] = value.strip()
     expected = {"Package": "spacr", "Version": version,
                 "Architecture": architecture}
     if code or fields != expected:
-        raise ValueError("Debian archive does not match the requested spaCR release")
+        raise ValueError(tr("Debian archive does not match the requested spaCR release"))
     return expected
 
 
@@ -3580,7 +3580,7 @@ def _debian_installed_state(*, run=None):
         "--showformat=${Status}\\n${Version}\\n${Architecture}\\n", "spacr"])
     fields = output.splitlines()
     if code or len(fields) != 3 or fields[2] != "amd64":
-        raise ValueError("spaCR Debian package state is ambiguous")
+        raise ValueError(tr("spaCR Debian package state is ambiguous"))
     return {"status": fields[0], "version": _runtime_requested_version(fields[1]),
             "architecture": fields[2]}
 
@@ -3594,12 +3594,12 @@ def _debian_installed_version(*, run=None):
     """
     state = _debian_installed_state(run=run)
     if state["status"] != "install ok installed":
-        raise ValueError("spaCR is not a configured native Debian package")
+        raise ValueError(tr("spaCR is not a configured native Debian package"))
     return state["version"]
 
 
 def _debian_package_transaction(new_archive, rollback_archive, previous_version,
-                                requested_version, *, verify, run=None):
+                                requested_version, *, verify, run=None, journal=None):
     """Install a prepared package and restore its prepared predecessor on failure.
 
     The privileged caller must first authenticate both archives and retain them
@@ -3614,6 +3614,8 @@ def _debian_package_transaction(new_archive, rollback_archive, previous_version,
     :param requested_version: Exact requested replacement version.
     :param verify: Required runtime verification callback taking a version.
     :param run: Optional command runner for an isolated package database.
+    :param journal: Optional durable state recorder; initial recording must
+        succeed before mutation. Later recording failures trigger rollback.
     :returns: Committed state only after package and runtime verification.
     :raises RuntimeError: Replacement failed; reports whether rollback verified.
     """
@@ -3623,30 +3625,44 @@ def _debian_package_transaction(new_archive, rollback_archive, previous_version,
     _debian_package_metadata(new_archive, requested_version, "amd64", run=runner)
     _debian_package_metadata(rollback_archive, previous_version, "amd64", run=runner)
     if _debian_installed_version(run=runner) != previous_version:
-        raise ValueError("the installed Debian package changed during preparation")
+        raise ValueError(tr("the installed Debian package changed during preparation"))
     code, _output = runner(["/usr/bin/dpkg", "--compare-versions",
                             requested_version, "gt", previous_version])
     if code:
-        raise ValueError("the requested Debian release is not newer than the installed version")
+        raise ValueError(tr("the requested Debian release is not newer than the installed version"))
+    if journal is not None:
+        journal("installing")
     try:
         code, output = runner(["/usr/bin/dpkg", "--install", os.path.abspath(new_archive)])
         if code:
-            raise RuntimeError("Debian replacement failed: " + output)
+            raise RuntimeError(tr("Debian replacement failed: {error}", error=output))
         if _debian_installed_version(run=runner) != requested_version or verify(requested_version) is not True:
-            raise RuntimeError("Debian replacement identity could not be verified")
+            raise RuntimeError(tr("Debian replacement identity could not be verified"))
+        if journal is not None:
+            journal("committed")
     except BaseException as failure:
         try:
             state = _debian_installed_state(run=runner)
             if state["version"] not in {previous_version, requested_version}:
-                raise RuntimeError("a different Debian package replaced this transaction")
+                raise RuntimeError(tr("a different Debian package replaced this transaction"))
             code, output = runner(["/usr/bin/dpkg", "--install", os.path.abspath(rollback_archive)])
             if code:
                 raise RuntimeError(output)
             if _debian_installed_version(run=runner) != previous_version or verify(previous_version) is not True:
-                raise RuntimeError("restored Debian identity could not be verified")
+                raise RuntimeError(tr("restored Debian identity could not be verified"))
         except BaseException as rollback_failure:
-            raise RuntimeError("Debian update and rollback failed; both archives are retained for recovery") from rollback_failure
-        raise RuntimeError("Debian update failed; the previous package and runtime were restored") from failure
+            if journal is not None:
+                try:
+                    journal("recovery-required")
+                except Exception:
+                    pass
+            raise RuntimeError(tr("Debian update and rollback failed; both archives are retained for recovery")) from rollback_failure
+        if journal is not None:
+            try:
+                journal("restored")
+            except Exception:
+                pass
+        raise RuntimeError(tr("Debian update failed; the previous package and runtime were restored")) from failure
     return {"state": "committed", "version": requested_version,
             "previous_version": previous_version,
             "rollback_archive": os.path.abspath(rollback_archive)}
@@ -3661,7 +3677,7 @@ def _debian_root_runner(command):
     """
     if os.geteuid() != 0 or command[0] not in {
             "/usr/bin/dpkg", "/usr/bin/dpkg-deb", "/usr/bin/dpkg-query"}:
-        raise ValueError("Debian package commands require the trusted privileged adapter")
+        raise ValueError(tr("Debian package commands require the trusted privileged adapter"))
     environment = {"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "LANG": "C.UTF-8",
                    "LC_ALL": "C.UTF-8", "DEBIAN_FRONTEND": "noninteractive",
                    "DPKG_FRONTEND_LOCKED": "1", "HOME": "/root"}
@@ -3684,18 +3700,18 @@ def _debian_verify_desktop(version, desktop_uid, *, root="/opt/spacr", invoke=No
     import pwd
 
     if isinstance(desktop_uid, bool) or not isinstance(desktop_uid, int) or desktop_uid <= 0:
-        raise ValueError("Debian verification requires the authenticated desktop user")
+        raise ValueError(tr("Debian verification requires the authenticated desktop user"))
     account = pwd.getpwuid(desktop_uid)
     root = os.path.abspath(root)
     executable = os.path.join(root, "spacr")
     if os.path.realpath(root) != root:
-        raise ValueError("the Debian application root must not be redirected")
+        raise ValueError(tr("the Debian application root must not be redirected"))
     for path in (root, executable):
         details = os.lstat(path)
         expected_type = stat.S_ISDIR if path == root else stat.S_ISREG
         if (not expected_type(details.st_mode) or details.st_uid != 0
                 or stat.S_IMODE(details.st_mode) & 0o022):
-            raise ValueError("the Debian application is not a trusted system package")
+            raise ValueError(tr("the Debian application is not a trusted system package"))
     profile = tempfile.mkdtemp(prefix="spacr-debian-verify-")
     try:
         os.chown(profile, desktop_uid, account.pw_gid)
@@ -3734,26 +3750,26 @@ def _debian_update_commands(records, version, machine, *, helper=False):
             or candidates[0].root != "/opt/spacr" or candidates[0].registrations != ("deb:spacr",)
             or (not helper and os.path.realpath(machine.executable) != "/opt/spacr/spacr")
             or not getattr(sys, "frozen", False) or os.getuid() == 0):
-        raise ValueError("this Debian installation has no verified graphical replacement adapter")
+        raise ValueError(tr("this Debian installation has no verified graphical replacement adapter"))
     record = candidates[0]
     if any(_inside(os.path.realpath(path), record.root) for path in _user_data(machine)):
-        raise ValueError("configured user data inside the Debian application must remain untouched")
+        raise ValueError(tr("configured user data inside the Debian application must remain untouched"))
     helper = _debian_check_package_owner(record.version, run=_run)
     marker = "/opt/spacr/update-protocol.json"
     details = os.lstat(marker)
     if (not stat.S_ISREG(details.st_mode) or details.st_uid != 0
             or stat.S_IMODE(details.st_mode) & 0o022 or details.st_size > 1024):
-        raise ValueError("the Debian update protocol marker is not trusted")
+        raise ValueError(tr("the Debian update protocol marker is not trusted"))
     with open(marker, encoding="utf-8") as stream:
         protocol = json.load(stream)
     if protocol != {"schema": 1, "adapter": "linux-deb-v1"}:
-        raise ValueError("the installed Debian updater protocol is unsupported")
+        raise ValueError(tr("the installed Debian updater protocol is unsupported"))
     version = _runtime_requested_version(version)
     code, _output = _run(["/usr/bin/dpkg", "--compare-versions", version, "gt", record.version])
     if code:
-        raise ValueError("the requested Debian release is not newer than the installed version")
+        raise ValueError(tr("the requested Debian release is not newer than the installed version"))
     if not os.path.isfile("/usr/bin/pkexec") or not os.access("/usr/bin/pkexec", os.X_OK):
-        raise ValueError("graphical administrator authorization is unavailable")
+        raise ValueError(tr("graphical administrator authorization is unavailable"))
     return (["/usr/bin/pkexec", helper, "prepare-debian-root", "--version", version,
              "--previous-version", record.version, "--desktop-uid", str(os.getuid())],
             ["/opt/spacr/spacr"])
@@ -3795,7 +3811,7 @@ def _run_debian_update(plan, machine, *, wait=None, run=None, spawn=None, publis
         raise ValueError("the Debian update identity changed after shutdown")
     code, output = (run or (lambda argv: _run(argv, timeout=10800)))(command)
     if code:
-        raise RuntimeError("The Debian update stopped; retained packages and its transaction log can be used for recovery. " + output)
+        raise RuntimeError(tr("The Debian update stopped; retained packages and its transaction log can be used for recovery. {error}", error=output))
     try:
         receipt = json.loads(output.strip().splitlines()[-1])
     except (ValueError, IndexError) as error:
@@ -3818,7 +3834,7 @@ def _debian_authenticated_user(desktop_uid):
     if (os.geteuid() != 0 or isinstance(desktop_uid, bool)
             or not isinstance(desktop_uid, int) or desktop_uid <= 0
             or os.environ.get("PKEXEC_UID") != str(desktop_uid)):
-        raise ValueError("Debian updates require graphical authorization from the desktop user")
+        raise ValueError(tr("Debian updates require graphical authorization from the desktop user"))
     pwd.getpwuid(desktop_uid)
     return desktop_uid
 
@@ -3834,17 +3850,17 @@ def _debian_check_package_owner(previous_version, *, run=None):
     runner = run or _debian_root_runner
     helper = "/opt/spacr/_internal/spacr-update-helper"
     if _debian_installed_version(run=runner) != previous_version:
-        raise ValueError("the installed Debian package changed before authorization")
+        raise ValueError(tr("the installed Debian package changed before authorization"))
     for path in ("/opt", "/opt/spacr", "/opt/spacr/_internal", "/opt/spacr/spacr", helper):
         details = os.lstat(path)
         if (os.path.realpath(path) != path or details.st_uid != 0
                 or stat.S_IMODE(details.st_mode) & 0o022
                 or (not stat.S_ISREG(details.st_mode) and not stat.S_ISDIR(details.st_mode))):
-            raise ValueError("the Debian package layout is not a trusted system installation")
+            raise ValueError(tr("the Debian package layout is not a trusted system installation"))
     for path in ("/opt/spacr/spacr", helper):
         code, output = runner(["/usr/bin/dpkg-query", "--search", path])
         if code or output.strip() != "spacr: " + path:
-            raise ValueError("the Debian executable is not exclusively owned by spaCR")
+            raise ValueError(tr("the Debian executable is not exclusively owned by spaCR"))
     return helper
 
 
@@ -3865,22 +3881,52 @@ def _debian_apply_root_transaction(stage, version, previous_version, desktop_uid
             or not stat.S_ISDIR(details.st_mode) or details.st_uid != 0
             or stat.S_IMODE(details.st_mode) & 0o077
             or os.path.realpath(sys.executable) != os.path.join(stage, "spacr-update-helper")):
-        raise ValueError("Debian replacement must run from its trusted outside-runtime helper")
+        raise ValueError(tr("Debian replacement must run from its trusted outside-runtime helper"))
     parent_details = os.lstat(os.path.dirname(stage))
     helper_details = os.lstat(sys.executable)
     if (not stat.S_ISDIR(parent_details.st_mode) or parent_details.st_uid != 0
             or stat.S_IMODE(parent_details.st_mode) & 0o077
             or not stat.S_ISREG(helper_details.st_mode) or helper_details.st_uid != 0
             or stat.S_IMODE(helper_details.st_mode) & 0o022):
-        raise ValueError("Debian privileged staging identity changed")
+        raise ValueError(tr("Debian privileged staging identity changed"))
+    base = {"schema": 1, "adapter": "linux-deb-v1", "version": version,
+            "previous_version": previous_version, "desktop_uid": desktop_uid}
+    _debian_write_journal(stage, dict(base, state="preparing"))
     new_archive = _debian_prepare_archive(version, stage)
     rollback = _debian_prepare_archive(previous_version, stage)
+    base.update(replacement=new_archive, rollback=rollback)
+    _debian_write_journal(stage, dict(base, state="prepared"))
     with _debian_frontend_lock():
         _debian_check_package_owner(previous_version)
         return _debian_package_transaction(
             new_archive["path"], rollback["path"], previous_version, version,
             verify=lambda expected: _debian_verify_desktop(expected, desktop_uid),
-            run=_debian_root_runner)
+            run=_debian_root_runner,
+            journal=lambda state: _debian_write_journal(stage, dict(base, state=state)))
+
+
+def _debian_write_journal(stage, data):
+    """Atomically retain an fsynced transaction record beside both package archives.
+
+    :param stage: Existing private directory owned by the privileged caller.
+    :param data: Serializable protocol identity and current transition state.
+    :raises OSError: Recording failed; an initial failure must prevent mutation.
+    """
+    descriptor, temporary = tempfile.mkstemp(prefix=".journal-", dir=stage)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            json.dump(data, stream, sort_keys=True)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, os.path.join(stage, "journal.json"))
+        directory = os.open(stage, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
+    finally:
+        if os.path.lexists(temporary):
+            os.unlink(temporary)
 
 
 def _debian_prepare_root_transaction(version, previous_version, desktop_uid):
@@ -3901,11 +3947,11 @@ def _debian_prepare_root_transaction(version, previous_version, desktop_uid):
     details = os.lstat(parent)
     if (os.path.realpath(parent) != parent or not stat.S_ISDIR(details.st_mode)
             or details.st_uid != 0 or stat.S_IMODE(details.st_mode) & 0o077):
-        raise ValueError("Debian updater staging is not a private system directory")
+        raise ValueError(tr("Debian updater staging is not a private system directory"))
     with _debian_frontend_lock():
         source = _debian_check_package_owner(previous_version)
         if os.path.realpath(sys.executable) != source:
-            raise ValueError("only the installed Debian helper may prepare privileged replacement")
+            raise ValueError(tr("only the installed Debian helper may prepare privileged replacement"))
         stage = tempfile.mkdtemp(prefix="transaction-", dir=parent)
         helper = os.path.join(stage, "spacr-update-helper")
         with os.fdopen(os.open(source, os.O_RDONLY | os.O_NOFOLLOW), "rb") as original:
@@ -4048,9 +4094,12 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
         nothing was started.
 
     A frozen macOS bundle in a user-writable location uses its verified DMG
-    replacement adapter and retains its complete prior bundle. Other frozen
-    application families return an error before removing anything; the helper
-    does not enable an online-installer fallback for these applications.
+    replacement adapter and retains its complete prior bundle. A protocol-marked
+    Debian bundle uses graphical administrator authorization and a root-owned
+    helper outside the installation. Both the replacement and rollback package
+    require published checksums; package and unprivileged runtime verification
+    precede relaunch. Unsupported frozen application families return an error
+    before removing anything; no online-installer fallback is enabled for them.
     """
     machine = system or _Machine()
     records = list(records)

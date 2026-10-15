@@ -8,6 +8,8 @@ import subprocess
 import json
 import time
 from dataclasses import asdict
+import io
+import stat
 from types import SimpleNamespace
 
 import pytest
@@ -24,7 +26,9 @@ def _module():
 
 @pytest.fixture
 def ic():
-    return _module()
+    module = _module()
+    module.tr = lambda source, **values: str(source).format(**values)
+    return module
 
 
 class Packages:
@@ -287,6 +291,7 @@ def test_desktop_probe_executes_only_as_nonroot_with_private_profile(ic, tmp_pat
 
 @pytest.mark.parametrize("command", ["prepare-debian-root", "apply-debian-root"])
 def test_root_commands_refuse_unprivileged_execution_without_application_import(ic, command, capsys):
+    ic.tr = ic._cleanup_translate
     assert ic.os.geteuid() != 0
     result = ic._main([command, "--version", "1.5.1.5", "--previous-version", "1.5.1.4",
                        "--desktop-uid", str(ic.os.getuid()), "--stage", "/never-created"])
@@ -296,6 +301,16 @@ def test_root_commands_refuse_unprivileged_execution_without_application_import(
 
 
 def test_root_dispatch_never_imports_application_even_for_invalid_version(ic, monkeypatch, capsys):
+    import builtins
+
+    ic.tr = ic._cleanup_translate
+    original_import = builtins.__import__
+    application_imports = []
+    def guarded_import(name, *args, **kwargs):
+        if name.startswith("spacr"):
+            application_imports.append(name)
+        return original_import(name, *args, **kwargs)
+    monkeypatch.setattr(builtins, "__import__", guarded_import)
     def prepare(version, previous, uid):
         assert ic._PRIVILEGED_DEBIAN_HELPER is True
         ic._runtime_requested_version(version)
@@ -305,6 +320,7 @@ def test_root_dispatch_never_imports_application_even_for_invalid_version(ic, mo
                      "--desktop-uid", "1000"]) == 6
     assert ic._PRIVILEGED_DEBIAN_HELPER is False
     assert "Nothing was changed" in capsys.readouterr().out
+    assert application_imports == []
 
 
 @pytest.mark.parametrize("authenticated", [None, "0", "1001", "01000"])
@@ -368,3 +384,93 @@ def test_debian_handoff_requires_checksums_approval_and_verified_receipt(ic, tmp
         assert "relaunched" not in events
         if failure in {"cancel", "checksum", "tampered"}:
             assert "authorized" not in events
+
+
+def test_initial_journal_failure_prevents_package_mutation(ic):
+    runner = Packages()
+    def journal(state):
+        raise OSError("fixture disk failure")
+    with pytest.raises(OSError, match="fixture disk"):
+        ic._debian_package_transaction("new.deb", "old.deb", "1.5.1.4", "1.5.1.5",
+            verify=lambda version: True, run=runner, journal=journal)
+    assert not any(command[1] == "--install" for command in runner.calls)
+
+
+def test_commit_journal_failure_restores_previous_package(ic):
+    runner = Packages()
+    states = []
+    def journal(state):
+        states.append(state)
+        if state == "committed":
+            raise OSError("fixture commit recording failure")
+    with pytest.raises(RuntimeError, match="previous package and runtime were restored"):
+        ic._debian_package_transaction("new.deb", "old.deb", "1.5.1.4", "1.5.1.5",
+            verify=lambda version: True, run=runner, journal=journal)
+    assert runner.version == "1.5.1.4"
+    assert states == ["installing", "committed", "restored"]
+
+
+def test_rollback_failure_retains_recovery_state(ic):
+    runner = Packages(replacement=1, rollback=1)
+    states = []
+    with pytest.raises(RuntimeError, match="both archives are retained"):
+        ic._debian_package_transaction("new.deb", "old.deb", "1.5.1.4", "1.5.1.5",
+            verify=lambda version: True, run=runner, journal=states.append)
+    assert states == ["installing", "recovery-required"]
+
+
+def test_journal_replacement_is_complete_private_and_retains_archives(ic, tmp_path):
+    archive = tmp_path / "previous.deb"
+    archive.write_bytes(b"retained rollback archive")
+    for state in ("prepared", "installing", "restored"):
+        ic._debian_write_journal(tmp_path, {"state": state, "rollback_archive": str(archive)})
+        journal = tmp_path / "journal.json"
+        assert json.loads(journal.read_text()) == {"state": state, "rollback_archive": str(archive)}
+        assert journal.stat().st_mode & 0o077 == 0
+        assert archive.read_bytes() == b"retained rollback archive"
+    assert not list(tmp_path.glob(".journal-*"))
+
+
+@pytest.mark.parametrize("fault", [None, "marker", "owner", "changed-version", "not-newer", "user-data", "other-copy"])
+def test_marked_debian_planner_binds_package_helper_and_desktop(ic, monkeypatch, fault):
+    monkeypatch.setattr(ic.sys, "frozen", True, raising=False)
+    record = ic.InstallRecord(kind="installer", layout="linux-deb", platform="linux",
+        root="/opt/spacr", version="1.5.1.4", registrations=("deb:spacr",), running=True)
+    machine = SimpleNamespace(platform="linux", executable="/opt/spacr/spacr")
+    calls = []
+    def run(command):
+        calls.append(command)
+        if command[0].endswith("dpkg-query"):
+            if command[1] == "--show":
+                version = "1.5.1.6" if fault == "changed-version" else "1.5.1.4"
+                return 0, f"install ok installed\n{version}\namd64\n"
+            assert command[1] == "--search"
+            return 0, ("other" if fault == "owner" else "spacr") + ": " + command[2] + "\n"
+        assert command[:2] == ["/usr/bin/dpkg", "--compare-versions"]
+        return (1 if fault == "not-newer" else 0), ""
+    monkeypatch.setattr(ic, "_run", run)
+    monkeypatch.setattr(ic, "_user_data", lambda machine: ["/opt/spacr/models"] if fault == "user-data" else [])
+    original_stat = ic.os.lstat
+    def trusted_stat(path, *args, **kwargs):
+        path = str(path)
+        if path == "/opt" or path.startswith("/opt/spacr"):
+            directory = path in {"/opt", "/opt/spacr", "/opt/spacr/_internal"}
+            mode = (stat.S_IFDIR if directory else stat.S_IFREG) | 0o755
+            return ic.os.stat_result((mode, 1, 1, 1, 0, 0, 64, 0, 0, 0))
+        return original_stat(path, *args, **kwargs)
+    monkeypatch.setattr(ic.os, "lstat", trusted_stat)
+    original_isfile, original_access = ic.os.path.isfile, ic.os.access
+    monkeypatch.setattr(ic.os.path, "isfile", lambda path: True if path == "/usr/bin/pkexec" else original_isfile(path))
+    monkeypatch.setattr(ic.os, "access", lambda path, mode: True if path == "/usr/bin/pkexec" else original_access(path, mode))
+    marker = {"schema": 1, "adapter": "unsupported" if fault == "marker" else "linux-deb-v1"}
+    monkeypatch.setattr(ic, "open", lambda *args, **kwargs: io.StringIO(json.dumps(marker)), raising=False)
+    records = [record, record] if fault == "other-copy" else [record]
+    if fault is not None:
+        with pytest.raises(ValueError):
+            ic._debian_update_commands(records, "1.5.1.5", machine)
+    else:
+        command, relaunch = ic._debian_update_commands(records, "1.5.1.5", machine)
+        assert command[:3] == ["/usr/bin/pkexec", "/opt/spacr/_internal/spacr-update-helper", "prepare-debian-root"]
+        assert command[-2:] == ["--desktop-uid", str(ic.os.getuid())]
+        assert relaunch == ["/opt/spacr/spacr"]
+    assert not any(command[1] == "--install" for command in calls)
