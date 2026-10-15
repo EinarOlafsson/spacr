@@ -12757,3 +12757,11 @@ catalog edits/generation; OriginalHome owns source integration and normalwriters
 N6966b7e37b426 andN69916c22ebd138 extractoradditions reviewed compatible/additive.
 This unblocks owner integration without broad module extraction or gate bypass.
 AllHomeB heavychecks serializeviaheavy.lock whileotherHomeuses otherhostslot.
+
+2026-10-15 Home-B — F562/F535 extractor owner dependencies
+Normal extraction adds only measure._phases_by_xgboost and limits embeddings to
+new _mil_frame_from_db plus existing encoder_entry (all three existing literal
+captions preserved). Two failures before/13PASS after; precise function/source
+receipt in features/data/562_535_caption_owners_2026-10-15/. F564 four-owner
+extraction already public4c8a696df01. No backend/source reviews/catalog edits;
+Original Home owns scoped normal generation and feature acceptance.
