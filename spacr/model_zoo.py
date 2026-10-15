@@ -3603,6 +3603,124 @@ def resolve(key_or_path: Any,
 
 
 
+def _bad_model_metadata(field, expected):
+    from .qt.i18n import tr
+
+    raise ModelZooError(tr("Bad settings") + f": {field} ({expected})")
+
+
+def _validate_model_metadata_structure(settings, *, model_kinds=None):
+    """Validate recorded identities against their exact original setting values."""
+    from copy import deepcopy
+
+    if not isinstance(settings, Mapping):
+        _bad_model_metadata("settings", "mapping")
+    if "model_metadata" not in settings:
+        return None
+    metadata = settings["model_metadata"]
+    if not isinstance(metadata, dict) or set(metadata) != {"schema_version", "settings"}:
+        _bad_model_metadata("model_metadata", "schema_version, settings")
+    if type(metadata["schema_version"]) is not int or metadata["schema_version"] != 1:
+        _bad_model_metadata("model_metadata.schema_version", "1")
+    records = metadata["settings"]
+    if not isinstance(records, dict):
+        _bad_model_metadata("model_metadata.settings", "mapping")
+    required = {"requested_value", "key", "version", "version_status", "sha256", "kind", "filename"}
+    for name, record in records.items():
+        field = f"model_metadata.settings[{name!r}]"
+        if not isinstance(name, str) or not name.strip():
+            _bad_model_metadata(field, "setting key")
+        if not isinstance(record, dict) or set(record) != required:
+            _bad_model_metadata(field, ", ".join(sorted(required)))
+        for key in required - {"version"}:
+            if not isinstance(record[key], str) or not record[key].strip():
+                _bad_model_metadata(f"{field}.{key}", "string")
+        if not isinstance(settings.get(name), str) or settings[name] != record["requested_value"]:
+            _bad_model_metadata(f"{field}.requested_value", f"settings[{name!r}]")
+        if not re.fullmatch(r"[0-9a-f]{64}", record["sha256"]):
+            _bad_model_metadata(f"{field}.sha256", "[0-9a-f]{64}")
+        if record["version_status"] == "declared":
+            if not isinstance(record["version"], str) or not record["version"].strip():
+                _bad_model_metadata(f"{field}.version", "string")
+        elif record["version_status"] != "unspecified" or record["version"] is not None:
+            _bad_model_metadata(f"{field}.version_status/version", "declared/string | unspecified/null")
+        filename = record["filename"]
+        if (filename.startswith(("/", "\\")) or re.match(r"^[A-Za-z]:", filename)
+                or "://" in filename or ".." in re.split(r"[/\\]", filename)):
+            _bad_model_metadata(f"{field}.filename", "relative catalogue filename")
+        if record["kind"] not in KINDS:
+            _bad_model_metadata(f"{field}.kind", " | ".join(KINDS))
+        if model_kinds is not None:
+            accepted = model_kinds.get(name, ())
+            if isinstance(accepted, str):
+                accepted = (accepted,)
+            if record["kind"] not in accepted:
+                _bad_model_metadata(f"{field}.kind", f"{name}: {tuple(accepted)}")
+    return deepcopy(metadata)
+
+
+def _validate_model_metadata(settings, *, model_kinds=None):
+    """Check bindings and reject contradictions with the bundled trusted index."""
+    metadata = _validate_model_metadata_structure(settings, model_kinds=model_kinds)
+    if metadata is not None:
+        known = {row.get("key") or row.get("name") for row in BUNDLED_REMOTE_MODELS}
+        for record in metadata["settings"].values():
+            if record["key"] in known:
+                _match_model_reference(record)
+    return metadata
+
+
+def _invalidate_model_metadata(settings, keys):
+    """Remove valid pins for explicit edits without changing the input payload."""
+    from copy import deepcopy
+
+    metadata = _validate_model_metadata(settings)
+    result = deepcopy(settings)
+    if metadata is not None:
+        for key in keys:
+            metadata["settings"].pop(key, None)
+        result["model_metadata"] = metadata
+    return result
+
+
+def _model_reference_from_record(requested, record):
+    """Build a pin from a trusted raw catalogue row without inferring a version."""
+    if not isinstance(record, Mapping):
+        _bad_model_metadata("catalogue", "mapping")
+    declared = record.get("version")
+    if declared is not None and not isinstance(declared, str):
+        _bad_model_metadata("catalogue.version", "string | null")
+    version = declared if declared and declared.strip() else None
+    result = {"requested_value": requested, "key": record.get("key") or record.get("name"),
+              "version": version, "version_status": "declared" if version is not None else "unspecified",
+              "sha256": record.get("sha256"), "kind": record.get("kind", "cellpose"),
+              "filename": record.get("name")}
+    _validate_model_metadata_structure({"model": requested, "model_metadata": {
+        "schema_version": 1, "settings": {"model": result}}})
+    return result
+
+
+def _match_model_reference(record, catalogue_records=None):
+    """Select a conjunction of raw trusted identity fields without first-match fallback."""
+    if not isinstance(record, Mapping):
+        _bad_model_metadata("model_metadata", "mapping")
+    _validate_model_metadata_structure({"model": record.get("requested_value"), "model_metadata": {
+        "schema_version": 1, "settings": {"model": record}}})
+    matches = []
+    rows = BUNDLED_REMOTE_MODELS if catalogue_records is None else catalogue_records
+    for candidate in rows:
+        if candidate.get("key", candidate.get("name")) != record["key"]:
+            continue
+        pin = _model_reference_from_record(record["requested_value"], candidate)
+        if pin == record and pin not in matches:
+            matches.append(pin)
+        elif pin != record:
+            _bad_model_metadata(f"model_metadata[{record['key']!r}]", "catalogue identity")
+    if len(matches) != 1:
+        _bad_model_metadata(f"model_metadata[{record['key']!r}]", "one exact catalogue identity")
+    return matches[0]
+
+
 def _ensure_model_file(requested, *, kinds=(), download=True):
     """Resolve a catalogue checkpoint and fetch missing verified weights.
 
