@@ -98,3 +98,5 @@ fixture mistakes are retained separately from the actual baseline. Evidence:
 features/data/639_organizer_question_buttons_2026-10-15/.
 This is bounded offscreen confirmation acceptance, not whole-item completion
 or a native-language/other-OS claim. Work retains the tutorial obligation.
+
+2026-10-15 Original integrated ready Home-B source/runtime batch14ce without another writer. All189 reviewed diagnostic/summary targets, normal nine-locale audit/fresh canonical/immutable arrival checks and all10,960 foreign rows per locale are retained. Owner actual compiled/report/dialog consumers passed0.85s:189 formatted targets and four Swedish/French Mask/Measure layout summaries. Root inspected the consumer and verified exact source/tool hashes,11 generated outputs and all API/Help bytes after ordinary publication merge; portable source-bound consumer evidence:639_organizer_runtime_consumers_2026-10-15. Whole N639 remains open for the explicit current-layout Work tutorial/clip proof; no media acceptance inferred from old narration plans.
