@@ -1,0 +1,10 @@
+{
+  "unit": "spacr-easy-n468-three-tab-audit-help-20261015",
+  "shell_pid": 2424438,
+  "waiter_pid": 2424443,
+  "confirmed_childless": true,
+  "actual_python_started": false,
+  "actual_audit_log_absent_before_cancel": true,
+  "termination": "systemctl --user stop; journal confirms Stopping/Stopped, exit code not recorded by terminated shell; conventional SIGTERM shell143 is not claimed as observed",
+  "reason": "Root explicit authorization to use free OriginalCI slot while F554CPU job holds other slot; one sourcecollector globally."
+}
