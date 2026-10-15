@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "Exact-source AI technical translation and self-review; independent peer and normal gates required; no native-speaker signoff",
+  "draft_author": "hard_overnight",
+  "technical_reviewer": "hard_overnight",
+  "review": "Own-DINO names the user-trained DINO teacher classifier, not a downloaded foundation model. Incompatible settings/checkpoint/input refuse rather than silently fall back. Cancellation stops supervised classifier training; no scientific or resumable-training claim.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Own-DINO classifier settings, checkpoint or input are incompatible.",
+      "source": "Own-DINO classifier settings, checkpoint or input are incompatible.",
+      "source_sha256": "407f3fc822a4d83c4c1f0d1aac9e2bbb59d6ab816453ae80243483bc7a33257b",
+      "translation": "Own-DINO 분류기의 설정, 체크포인트 또는 입력이 호환되지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Classifier training stopped.",
+      "source": "Classifier training stopped.",
+      "source_sha256": "0a7e05d4ac88ff2057d651ccf0c1c0442e0604f514f9e3494c3f7a0ed09f160e",
+      "translation": "분류기 학습이 중지되었습니다."
+    }
+  ]
+}
