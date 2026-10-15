@@ -1,0 +1,3 @@
+# Additional UI packages for an environment with this spaCR checkout installed.
+gradio==6.30.0
+spaces==0.51.3

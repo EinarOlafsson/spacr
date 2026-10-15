@@ -224,3 +224,28 @@ acceptance inferred. N698 site/service interface request for Home-B is committed
 in features/data/698_site_interface_2026-10-14/coordination.md. Parentpartial;
 actual Gradio/Space runtime, remaining model adapters, website and both GPU paths
 still need implementation/acceptance. Receipt:features/data/698_service_jobs_2026-10-14/.
+
+2026-10-14 — Original Home: actual Gradio/Space service UI source implemented.
+The dedicated tools/web_mask_generator/app.py constructs all eight current
+family/version/provenance tabs; only the implemented plaque adapter executes.
+Consent enables the file picker; real header choices populate ordered channels,
+series/T/Z/PDF controls and explicit effective diameter. Named model/segmentation
+API routes, one-worker/eight-pending queue, pending cancellation, true result ZIP
+and display-only red-boundary preview are wired to the service. Consent/header/
+diameter checks precede the decorated ZeroGPU call. Gradio's upload/download
+cache is configured to reap one-hour-old files every five minutes, while private
+job staging is removed after cache transfer. Retention on actual hosting remains
+an acceptance requirement. Public share/run-history are disabled; upload limit
+and strictCORS are set. SDK file entry and pinned optional UI requirements ship.
+ActualGradio6.30.0+spaces0.51.3 in a NEW privateWDvenv:12PASS,actualexit0,10.32s.
+Actual UI graph, callbacks, real header/PDF choices, package/cache/preview and
+Space decorator construction executed without a server/model/GPU. App128/131
+statements26/30arcs covered. A real dropdown-mode warning was fixed by preserving
+multiselect updates. The Space file entry and explicit launch policy are checked;
+launch was replaced by a recorder, not run. No global environment modified.
+Whole N698 remains partial: no hosted endpoint/account eligibility, real GPU/
+checkpoint/desktop-WebGPU parity, remaining class adapters, approved random HF
+samples, full UI localization/style/accessibility or browser exports accepted.
+Official eligibility/startup guidance and source-only free setup steps are in
+README; no paid resources or account changes. Home-B site interface ack remains
+required. Receipt:features/data/698_gradio_source_2026-10-14/.
