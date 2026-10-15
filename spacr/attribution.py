@@ -3295,9 +3295,14 @@ def _cf_target_index(target: Any, levels: Sequence[str], n_classes: int) -> int:
             raise ValueError(f'target condition {text!r} is not among the '
                              f'training conditions {list(levels)}')
         return list(levels).index(text)
+    from decimal import Decimal, InvalidOperation
+
     try:
-        index = int(float(text))
-    except ValueError:
+        number = Decimal(text)
+        index = (int(number) if number.is_finite()
+                 and number == number.to_integral_value()
+                 and 0 <= number < int(n_classes) else -1)
+    except (ValueError, InvalidOperation):
         index = -1
     if not 0 <= index < int(n_classes):
         raise ValueError(f'target class {text!r} is not a class index from '

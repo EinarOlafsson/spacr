@@ -286,3 +286,18 @@ publication does not claim green global CI/release or waive this owner gap.
 Actual normal caption-arrival refresh also refuses missing explicit
 sv/UI/AI Error report review (exit 1); its raw failure is retained. No
 caption contract, foreign review or source baseline was modified to pass.
+
+2026-10-15 Original Home — exact numeric counterfactual target classes
+The numeric target-class parser now refuses fractional, nonfinite and
+out-of-range values with its existing class-index ValueError. Exact Decimal
+validation prevents tiny fractional saved strings from underflowing to class0;
+valid integral scalar/string/scientific-notation values and named conditions
+(including numeric-looking names) retain their existing meaning. Nine actual
+prepatch cases failed; final24 checks pass. Three actual default-autoencoder
+report cases refuse before either instrumented trainer can run; input crops and
+classifier weights stay unchanged. No diffusion report execution or training
+is claimed. Only the existing parser body changes; signatures/prose/tr calls
+are identical, so there is no new API/runtime target or generated artifact.
+Evidence: data/564_target_identity_2026-10-15/. This closes only this software
+class-index boundary, not biological counterfactual quality/minimal edits,
+whole F564, final global CI or release acceptance.
