@@ -331,8 +331,13 @@ def _rename_recipe(recipe: Recipe, new_name: str) -> str:
     if os.path.exists(target) and not same_file:
         raise ValueError(
             tr("A template called {name} already exists.", name=repr(name)))
+    old_name = recipe.name
     recipe.name = name
-    save_recipe(recipe, directory=root)
+    try:
+        save_recipe(recipe, directory=root)
+    except Exception:
+        recipe.name = old_name
+        raise
     if old and not same_file and os.path.isfile(old):
         os.remove(old)
     return recipe.path

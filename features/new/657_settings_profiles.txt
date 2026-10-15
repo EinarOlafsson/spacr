@@ -87,3 +87,17 @@ the bounded GUI Share durability repair, distinct from backend save repair.
 Temporary offscreen Linux acceptance, no physical other-OS/full-CI claim or
 user-data, provider, network, annotation or GPU operation.
 Evidence: features/data/657_share_export_preservation_2026-10-14/receipt.json.
+2026-10-14 — failed rename retains selected profile identity (Home):
+Rename assigned the requested name to its live Recipe before durable save.
+A serialization or replacement failure therefore left the dialog selection
+claiming a new name although the original JSON still had its saved name.
+The backend now restores the original name when save raises, preserving the
+original path and propagating the actual failure for the existing warning.
+The native cyclic-value baseline failed on the mismatched selected name.
+Two regressions cover repeated serialization failure and correction/retry,
+and a real filesystem replacement refusal into a directory containing a
+sentinel. The existing destination bytes and old profile bytes remain intact
+and temporary files are cleaned. No signatures, captions or docstrings change.
+The finite owning cohort passed 104 tests (60.07 seconds, actual exit 0),
+covering profiles, dialog actions, rename/import and shortcut interactions.
+Evidence: data/657_failed_rename_identity_2026-10-14/receipt.json.
