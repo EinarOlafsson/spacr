@@ -78,7 +78,10 @@ def is_missing(value) -> bool:
     """Return whether ``value`` is empty or a recognized missing sentinel.
 
     This includes ``None``, blank strings, ``NaN``, pandas ``NA``, and
-    ``NaT``. Array-like values are not treated as individual missing cells.
+    ``NaT``. After the ``None`` and string checks, the result of
+    ``pandas.isna`` is converted to ``bool``. A single-element array containing
+    a missing value can therefore return ``True``; ambiguous multi-element
+    results return ``False``.
 
     :param value: a cell value of any type.
     """
