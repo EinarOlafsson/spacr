@@ -1,0 +1,8 @@
+{
+  "status": "ACCEPT",
+  "source_commit": "57b4e08773",
+  "source_sha256": "013aaa423739e14dbcafbdeff85f0312c8bdb8828d29c45660a221f078e76d21",
+  "proof": "Removing only two private declarations/registration/imports restores originalmodule AST, including existingfold/workspace/keypress/focus methods. Ordinary Button/Press adapter derives live expandedstate and reuses originalactivation; no pointer/value interface.",
+  "evidence_reviewed": "Actual Border/noexpansion/noPress baseline2FAIL;29PASS3.34s includes rebuilt-header cache retirement, disabledrefusal, original reachfirst/foldsecond,persistence and tilegeometry. No replay.",
+  "limits": "No nativebridge/speech/otherOS or wholeN655claim. Originalsource/publicdocs/captions preserved."
+}

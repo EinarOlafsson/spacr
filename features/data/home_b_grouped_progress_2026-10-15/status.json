@@ -1,9 +1,18 @@
 {
   "date": "2026-10-15",
   "format": "One row per numbered item; whole-item ticks only; estimated remaining active hours; external waits may be unknown. Historical completed items omitted.",
-  "source": "Original shared77-row tracker plus current Home-B lane updates; broader689-file inventory remains separate.",
+  "source": "Canonical combined85-row tracker, omitting its13 pre-today completions as requested; all72 remaining/today rows retained with current Home-B owner updates.",
   "latest_home_b_public": "9de217e24c",
   "rows": [
+    {
+      "item": "N687",
+      "title": "Website v2 and release synchronization",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home-B",
+      "description": "Complete original eight-clause website-v2 contract: flow/fonts/showcase/papers/copy/release sync, all15 hosted90/95/<1MB samples and prominent ten-language README links accepted.",
+      "completion_basis": "Independent wholeoriginalcontract acceptance2026-10-15, exact site652f833/publicfe6f4f4 and source94bf33; requires this coherent source publication."
+    },
     {
       "item": "N440",
       "title": "model zoo picker groups by source and folds",
@@ -163,7 +172,7 @@
       "percent_done": 85,
       "time_left_hours": "2–4 + external",
       "owner": "Home-B / shared owner",
-      "description": "Freev2 host/site live; operation-specific diagnostics published9de217. One bounded permission probe38753580765 queued. Work exactURL adoption received; main/canonical cutover remains.",
+      "description": "Actual access-only run38754742270 rejects commitPOST HTTP403 after metadata/tree/README. Existing CIsecret writepermission to selectedv2Space needsowner correction; no moreprobes until corrected. Main/canonical cutover remains.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -235,7 +244,7 @@
       "percent_done": 95,
       "time_left_hours": "2–4",
       "owner": "Home-B / shared owner",
-      "description": "Whole-workspace user acceptance still not certified. Review exact contributor coverage against original contract; preserve named deferred skips. No fresh UMAP pipeline/src-root conversion or duplicate Home-B widget edits.",
+      "description": "Actual GUI gap found: session-created FigureQueue PNG/PDF assets lack a carry contributor. Queue/AppScreen repair and real reference-save/close/restore regression active; existing widget accessibility preserved.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -559,7 +568,7 @@
       "percent_done": 90,
       "time_left_hours": "2–6 + platforms",
       "owner": "Home-B / shared owner",
-      "description": "Safe help resize actions, plate-well keyboard focus and shared stronger-focus grip published9de217. Human/native-platform acceptance remains; Clear figures action accessibility repair active.",
+      "description": "Safe help/native actions, plate/grip focus, accessibleClear action and all3 numericEnter repairs published. Sectionfold role/action/state repair29PASS pendingpeer; whole native/human acceptance separate.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -595,16 +604,7 @@
       "percent_done": 90,
       "time_left_hours": "2–6",
       "owner": "Home-B",
-      "description": "Deployed; first hosted audit has15 valid samples, one home performance79 below90. Actual cold WebGL initialization cause under repair; physical60fps acceptance remains.",
-      "completion_basis": "Planning estimate; whole item remains open"
-    },
-    {
-      "item": "N687",
-      "title": "Website v2 and release synchronization",
-      "percent_done": 85,
-      "time_left_hours": "3–8",
-      "owner": "Home-B",
-      "description": "Showcase/release synchronization deployed;15 valid hosted samples expose one home performance failure, with97–100 accessibility and<402KB transfer. Narrow fallback repair active.",
+      "description": "Free site deployed; all15 repaired hosted samples pass90/95/<1MB (min92/97,max397826bytes). Explicit physical60fps acceptance remains; Homepage metadata correction scoped.",
       "completion_basis": "Planning estimate; whole item remains open"
     },
     {
@@ -652,5 +652,25 @@
       "description": "Remaining spatial workflow/data acceptance; prior verification is not new implementation.",
       "completion_basis": "Planning estimate; whole item remains open"
     }
-  ]
+  ],
+  "canonical_reconciliation": {
+    "canonical_rows": 85,
+    "displayed_rows": 72,
+    "omitted_pre_today_completed": [
+      "N03",
+      "N76",
+      "N307",
+      "N337",
+      "N517",
+      "N526",
+      "F537",
+      "N593",
+      "N594",
+      "N633",
+      "N643",
+      "N644",
+      "N693"
+    ],
+    "no_canonical_open_item_omitted": true
+  }
 }

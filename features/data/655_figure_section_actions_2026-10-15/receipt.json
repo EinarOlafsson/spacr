@@ -1,0 +1,113 @@
+{
+  "status": "TARGETED_PASS_PRIVATE_REVIEW_READY",
+  "base_commit": "787d76dec094545d248aeb5434a30dd499f6dc82",
+  "source": {
+    "path": "spacr/qt/widgets/figure_grid_view.py",
+    "source_sha256": "013aaa423739e14dbcafbdeff85f0312c8bdb8828d29c45660a221f078e76d21",
+    "before_sha256": "2dd469ce299779f259119aa12f82bff90557e055c2ad70fb8015e2b4c765c94c",
+    "remove_only_private_adapter_factory_registration_and_imports_restores_entire_original_AST": true,
+    "all_original_docs_comments_handlers_workspace_and_geometry_unchanged": true,
+    "actual_public_symbol_calls": {
+      "spacr.qt.widgets.figure_grid_view._AccessibleSectionHeader": false,
+      "spacr.qt.widgets.figure_grid_view._AccessibleSectionHeader.__init__": false,
+      "spacr.qt.widgets.figure_grid_view._AccessibleSectionHeader.state": false,
+      "spacr.qt.widgets.figure_grid_view._AccessibleSectionHeader.actionNames": false,
+      "spacr.qt.widgets.figure_grid_view._AccessibleSectionHeader.doAction": false,
+      "spacr.qt.widgets.figure_grid_view._section_header_accessible_factory": false
+    },
+    "normal_one_file_helper_inventory_semantics_unchanged": true,
+    "existing_enabled_helpers": 0,
+    "module_in_actual_enabled_set": false,
+    "no_runtime_caption_changes": true
+  },
+  "tests": {
+    "path": "tests/qt/test_655_figure_section_actions.py",
+    "sha256": "d0aae80b5a3300f323bc0fd5400f99dbb71b7373cc7d80a4e773fb925d846408"
+  },
+  "baseline": {
+    "session": 93136,
+    "exit_code": 1,
+    "result": "2 failed, 4 deselected in 1.83s",
+    "observation": "Actual heading reports Border, Set Focus only and no expandable/expanded/collapsed state; no assistive Press fold path."
+  },
+  "final": {
+    "session": 88592,
+    "exit_code": 0,
+    "result": "29 passed in 3.34s",
+    "wall_seconds": 5.07,
+    "peak_rss_kib": 612996,
+    "cohort": "Six new role/action/state/cache cases, five existing heading name/focus cases, eighteen real section fold/mouse/persistence/layout cases.",
+    "resources": "Shared heavy.lock; 2G cap; thread1; offscreen Qt6.12; hidden CUDA; private XDG_CONFIG_HOME."
+  },
+  "implementation": "Ordinary private QAccessibleWidget Button/Press adapter. State reads the existing header expansion flag. Press calls existing _activate, retaining reach-first/fold-second and relayout behavior. New live headers expose current state; tests verify old Qt-owned interface retirement after header deletion. Disabled controls refuse Press. No original method, public docs/caption, numeric Value or pointer-conversion change.",
+  "proof": "Real section cells hide/show; JSON workspace collapse survives set_figures rebuild; title and tile dimensions survive roundtrip; offscreen section first navigates, then folds. Explicit names and en/ko language passes retain run identity. Factory leaves unrelated QFrame semantics unchanged.",
+  "metadata_harness_correction": "Preserved failed first read-only proof which incorrectly declared this module enabled for nested helpers. Corrected script uses actual normal rollout membership (false) and source inventory (zero) plus six actual public_symbol exclusions; no normal policy or source/test assertion changed.",
+  "limits": "In-process Qt6.12/Linux acceptance only. No new external AT-SPI/reader, human, other-OS, full application or whole N655 claim.",
+  "artifacts": [
+    {
+      "file": "before-source.py.gz",
+      "sha256": "cdd7f49554f70e073c544722f8bbf2546de4373caa677c39f545278232d06d79",
+      "raw_sha256": "2dd469ce299779f259119aa12f82bff90557e055c2ad70fb8015e2b4c765c94c"
+    },
+    {
+      "file": "before.sh",
+      "sha256": "acc73bbff5fdc0d2bf8168ff61777b5cf81940f6816845aa2d17f4ec949f7efe",
+      "raw_sha256": "acc73bbff5fdc0d2bf8168ff61777b5cf81940f6816845aa2d17f4ec949f7efe"
+    },
+    {
+      "file": "before.log.gz",
+      "sha256": "db24d75c958eab3d070c8491f0bcbc832b4fca1a1ff434e8dc00b6de7a348418",
+      "raw_sha256": "5a661b5cc30cd1a5b1c1c7e5a339a4531b3b52e47d747a78b18766cf618b12a4"
+    },
+    {
+      "file": "before.time",
+      "sha256": "5b1c021a78e5dd083db5375dff18f5b4fbdb95973afa6a48af2bb9b82541933b",
+      "raw_sha256": "5b1c021a78e5dd083db5375dff18f5b4fbdb95973afa6a48af2bb9b82541933b"
+    },
+    {
+      "file": "before.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "raw_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "file": "final.sh",
+      "sha256": "cc9a5f73187ec39672108c3324090e65b7fd94f8dc7ada12766918894c627036",
+      "raw_sha256": "cc9a5f73187ec39672108c3324090e65b7fd94f8dc7ada12766918894c627036"
+    },
+    {
+      "file": "final.log.gz",
+      "sha256": "3267ce11bdf4c059ce98e8165f95d6c46b031ec34927fe4f50e98aecb1919fa6",
+      "raw_sha256": "8352a2974b6e5ea6accce90e0d44d0aba9680ba9b377cb17fca3be02335f74c6"
+    },
+    {
+      "file": "final.time",
+      "sha256": "1d593abae2294131e287c98bae8b5b2116632eef44eae10e75b3ba87433afd3f",
+      "raw_sha256": "1d593abae2294131e287c98bae8b5b2116632eef44eae10e75b3ba87433afd3f"
+    },
+    {
+      "file": "final.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "file": "scope.py.gz",
+      "sha256": "96359185dac3eba2e5efdaae7e1c7c587c41965ee9a0372768bcba199f137b79",
+      "raw_sha256": "914a7df85a959ab9977bf7a240dc9fdc91e58a0afe0e15960630d575d6f9b18f"
+    },
+    {
+      "file": "scope.json",
+      "sha256": "33903722293e03d7494d0dc5d02add636229872f222e2401de2fddcdcae19b91",
+      "raw_sha256": "33903722293e03d7494d0dc5d02add636229872f222e2401de2fddcdcae19b91"
+    },
+    {
+      "file": "scope-initial.py.gz",
+      "sha256": "47acdb7578d87c1c40f0acdba946fb38b402bcb8763aca7a1b5d929553512004",
+      "raw_sha256": "27c34f1436390786e736615de73fac2869d25ff50437163b66f978f63b3be4d1"
+    },
+    {
+      "file": "scope-initial-failure.json",
+      "sha256": "0a3ab7c74767d72e2857c17e850977dc2ff1824e9f433033cbd220335df43da7",
+      "raw_sha256": "0a3ab7c74767d72e2857c17e850977dc2ff1824e9f433033cbd220335df43da7"
+    }
+  ]
+}
