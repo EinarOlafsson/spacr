@@ -351,3 +351,18 @@ a pytest plugin:
   costs nothing but wall clock.
 
 VERIFIED 2026-10-04: 11 referenced test files pass on nightly (test_all_module_smoke.py, test_cov_qt_app.py, test_cov_r5_fractal_travel.py, ...).
+
+2026-10-15 — Reconcile the Home-stage invariant with explicit registrations.
+The unchanged public invariant failed because it applied the static signoff
+table's absence-of-stable convention to the runtime registry, where Toxoplasma
+intentionally registers STAGE_STABLE. The test now inspects the actual static
+APP_STAGE literal: one declaration, unique string keys, only alpha/beta names.
+Static stable overrides remain forbidden; runtime values and registered keys
+remain checked. An actual declared-stable registration survives maturity.apply,
+while an undeclared app becomes alpha and both decisions remain idempotent.
+Eight focused checks PASS5.38s, including existing Toxo/nonToxo species gates,
+the default-alpha guard and all3Classify public routes. The original public
+1FAIL2.84s baseline remains preserved; no repeat baseline was required. No
+production policy, organism stage, ratchet, API prose or runtime caption changed.
+Evidence: features/data/n03_static_stage_runtime_registration_2026-10-15/.
+This is one CI contract correction, not full CI or whole-item03 acceptance.

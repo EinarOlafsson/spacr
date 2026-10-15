@@ -1,0 +1,8 @@
+{
+  "base": "b98c78afbcccf54fb237b7826cf3ce59f0e59118",
+  "before_test_sha256": "d532b3f7a37aeae6b8103ae4516afb38b2ae2899fcf2b5550b4dcf3120fb88be",
+  "proposed_test_sha256": "75b43cdacbb451602e4afbe0b01981dc1f33f728571231ee07e859ff43f307b5",
+  "production_unchanged": true,
+  "contract": "Static literal must remain one dict of unique string keys with only STAGE_ALPHA/STAGE_BETA names. Runtime stage values still valid and registered; actual explicit stable registration retained by maturity while undeclared defaults alpha. No blanket static-stable allowance or registry policy change.",
+  "baseline": "Parent preserved unchanged-public15938 existing node1FAIL2.84s because intentional Toxoplasma register_app(stage=STAGE_STABLE) makes runtime table contain stable. No repeat baseline required."
+}

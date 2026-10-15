@@ -1,0 +1,8 @@
+{
+  "historical_public": "15938ddbb6f",
+  "current_base": "b98c78afbcccf54fb237b7826cf3ce59f0e59118",
+  "exact_existing_invariant_function_AST_unchanged": true,
+  "register_app_executable_body_unchanged": true,
+  "reused_raw_baseline": "/mnt/wd4tb/scratch/classify-public-stage-20261015/invariant-baseline.log/xml/exit",
+  "result": "1FAIL2.84s unchanged public, existing assertion incorrectly forbids intentional explicit stable Toxoplasma runtime registration. No repeated baseline."
+}
