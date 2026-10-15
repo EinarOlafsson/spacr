@@ -277,3 +277,13 @@ other locales and history are unchanged; no source or Help-input changes.
 Evidence:features/data/678_job_runner_icelandic_signal_catalog_2026-10-15/.
 The existing172 authored targets remain unchanged; broader semantic review stays
 open. Additional separately identified defects are not certified by this scope.
+
+2026-10-15 — Three retained Icelandic lifecycle paragraphs corrected.
+Exact module blocks #1/#4/#5 now preserve completed-job retirement, GUI-thread
+QObject receiver/queued deletion ordering, and strong-reference lifetime.
+Independent source-bound peer1b9dfe0e and normal selected-module writer pass;
+zero canonical collections or model decoding. Other five module targets,13409
+unrelated Icelandic symbols, English/eight other locales, history and reviews
+are byte-exact. Source/English/Help inputs unchanged, so no repeated Help build.
+Evidence:features/data/678_job_runner_icelandic_retained_catalog_2026-10-15/.
+This closes three specific retained errors; the wider semantic sweep stays open.

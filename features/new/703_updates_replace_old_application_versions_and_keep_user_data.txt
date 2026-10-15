@@ -760,3 +760,19 @@ Evidence: features/data/n703_aliased_user_data_preservation_2026-10-15/.
 This uses actual Linux symlinks/processes and modeled other-OS layouts, not
 native Windows/macOS or whole N703/fullCI acceptance. Concurrent external
 retargeting that ignores the lease is not atomically excluded.
+
+2026-10-15 — Preserve directly configured independent backends during app retirement.
+Actual disposable predecessor7FAIL/3PASS0.80s shows SPACR_BACKENDS_DIR was
+omitted from ordinary preservation despite its explicit opt-in purge support.
+Normal retirement erased configured backend interpreters/models; replacement
+also accepted configured backends embedded in the primary runtime. The existing
+user-data guard now includes this root using its consumer's strip/home expansion,
+retaining lexical/resolved path protections. No broader whitelist/purge change.
+Final44PASS/1.83s/exit0:10new absolute/relative/home/padded/alias/staging/control
+cases plus34relevant alias/shared-root/lease/purge cases;9unchanged locale cases
+explicitly deselected. Unconfigured bundled software still retires, external
+backend roots survive, and explicit purge still deletes the selected root.
+Only disposable Linux files and symlinks; no backend executable/install/download
+or real user data touched. Native Windows/macOS, fullCI and wholeN703 remain open.
+Original API prose/signatures/captions are unchanged; no generated artifact work.
+Evidence: features/data/n703_direct_backend_preservation_2026-10-15/.
