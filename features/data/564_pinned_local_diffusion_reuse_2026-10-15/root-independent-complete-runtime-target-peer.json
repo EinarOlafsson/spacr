@@ -1,0 +1,334 @@
+{
+  "decision": "ACCEPT all45 exact targets;36new setting rows independently technically reviewed plus9previouslyaccepted diagnostic rows retained",
+  "reviewer": "Original root independent of Hard author",
+  "review_scope": "All nine label/tooltips read in full; preserve optional local diffusion reuse, exact expected SHA-256/64hex, strict metadata identity compatibility/no fallback replacement training, blank existing training route, hash not biological accuracy or independent validation",
+  "limits": "AI technical review, no human/native-speaker/scientific acceptance",
+  "input_files_sha256": {
+    "sv": "1b5401c378bdcd4eba3d13c8d024747a6614aa91a2d159f1183b8a29f58c4533",
+    "is": "f1790fd498c7d4ff76fb703e9eae25f51ca773ecc52b7d6dd348325fa29e8109",
+    "de": "57e19018885332612704b94e2ede87729f1d9db0564daf8a3145d526b2c836b0",
+    "fr": "a358e7224435a71c2b6d48718bf4f30e1321ac7f19617279dc1e3f225056f8bf",
+    "es": "01b0d59719e1a598f8bed13b0ef5ca23784cc7d4a4d2a513bae361140058262d",
+    "pt": "02b56c14fd7b6267735e81faaac04c7267bcab87237d01dddf706741e6548d49",
+    "zh_CN": "15a88d8d062a9313ee05347ce78aad8afbab6a301ef50016fe41640111480764",
+    "hi": "68e86b8608c5621142691d80c207e601b609e55091451f2bfc7d7791db7669cc",
+    "ko": "aa2633f9ad6123370d671c63237b72c3b923e7e44b7418a50b2d26df2dd43405"
+  },
+  "targets": [
+    {
+      "language": "sv",
+      "table": "setting_labels",
+      "key": "counterfactual_checkpoint",
+      "source_sha256": "768698f24bf3c662e02c1cd6c4b614f38933631f244235237cece45a2352476e",
+      "target_sha256": "77d1642ef7ca3b124608bd5e8548201a0165aada31973d51469c51d8bde86e3a"
+    },
+    {
+      "language": "sv",
+      "table": "setting_tooltips",
+      "key": "counterfactual_checkpoint",
+      "source_sha256": "175f83b4923dfed3cfea90341560ee68d82709f08ce7bad4899c476bd49000df",
+      "target_sha256": "ec628356fdc0d66c1a44437a58d6508e9cb04db2a77b528ef2abc9c2ea7a2fa7"
+    },
+    {
+      "language": "sv",
+      "table": "setting_labels",
+      "key": "counterfactual_checkpoint_sha256",
+      "source_sha256": "e2f7f87de0ec22f7e2230dd81a17138d07337e253acccf4e5384a5b0ce8af7f7",
+      "target_sha256": "6dd08c84b00c7b601a839fe2a930f2609a606db57c7185c4fb9251bcee5acb5c"
+    },
+    {
+      "language": "sv",
+      "table": "setting_tooltips",
+      "key": "counterfactual_checkpoint_sha256",
+      "source_sha256": "66e6c3c9a226b2f632dacce8e8bba767f6e5e2868d0e32bcc5eac6d7fd3a228d",
+      "target_sha256": "54d40b061aafd64f70bd67cdc8a1fab0a4e463fd25def7d6aac5d5af75fed3da"
+    },
+    {
+      "language": "sv",
+      "table": "ui",
+      "key": "The counterfactual checkpoint is missing, unreadable, unsafe, or incompatible with the current inputs.",
+      "source_sha256": "2e71701de484c9828680be4036cff39f5dd15867da4799d9b51026553201e8e0",
+      "target_sha256": "51aa4d7355bc2e960b76ace2653ddde5d794c73b9200e333c2e2d096e601c990"
+    },
+    {
+      "language": "is",
+      "table": "setting_labels",
+      "key": "counterfactual_checkpoint",
+      "source_sha256": "768698f24bf3c662e02c1cd6c4b614f38933631f244235237cece45a2352476e",
+      "target_sha256": "6aeed5dc172eb511cf7ea4fdb85a24538c429ff34fe54b918832c99f981cb9ff"
+    },
+    {
+      "language": "is",
+      "table": "setting_tooltips",
+      "key": "counterfactual_checkpoint",
+      "source_sha256": "175f83b4923dfed3cfea90341560ee68d82709f08ce7bad4899c476bd49000df",
+      "target_sha256": "ff8915c359a843dbb032d63ddedbc8f7f38026a83cd69b22e5255e169b21512e"
+    },
+    {
+      "language": "is",
+      "table": "setting_labels",
+      "key": "counterfactual_checkpoint_sha256",
+      "source_sha256": "e2f7f87de0ec22f7e2230dd81a17138d07337e253acccf4e5384a5b0ce8af7f7",
+      "target_sha256": "0f38e70e377572ab141f5f8b85340cd5d177a924ce6a03c2c79b8b170811ff47"
+    },
+    {
+      "language": "is",
+      "table": "setting_tooltips",
+      "key": "counterfactual_checkpoint_sha256",
+      "source_sha256": "66e6c3c9a226b2f632dacce8e8bba767f6e5e2868d0e32bcc5eac6d7fd3a228d",
+      "target_sha256": "bb760e1cc338b34ca00b8f796e2e62e746220cde98c2331e54404b30ff779301"
+    },
+    {
+      "language": "is",
+      "table": "ui",
+      "key": "The counterfactual checkpoint is missing, unreadable, unsafe, or incompatible with the current inputs.",
+      "source_sha256": "2e71701de484c9828680be4036cff39f5dd15867da4799d9b51026553201e8e0",
+      "target_sha256": "7c776f9e8922ec846ce78ec32ebc86226f6b1295c7306d3b56217f2b67dfa458"
+    },
+    {
+      "language": "de",
+      "table": "setting_labels",
+      "key": "counterfactual_checkpoint",
+      "source_sha256": "768698f24bf3c662e02c1cd6c4b614f38933631f244235237cece45a2352476e",
+      "target_sha256": "3ad471ad6f83e3cc23ed8b203e7a7c41b73aaebdefee2a99f050e6c01cfc4d09"
+    },
+    {
+      "language": "de",
+      "table": "setting_tooltips",
+      "key": "counterfactual_checkpoint",
+      "source_sha256": "175f83b4923dfed3cfea90341560ee68d82709f08ce7bad4899c476bd49000df",
+      "target_sha256": "cabd3f2d454955e4ef9c2b1930bd5edafe869435c640ad684db77dc5e45de8b7"
+    },
+    {
+      "language": "de",
+      "table": "setting_labels",
+      "key": "counterfactual_checkpoint_sha256",
+      "source_sha256": "e2f7f87de0ec22f7e2230dd81a17138d07337e253acccf4e5384a5b0ce8af7f7",
+      "target_sha256": "9eac6dfdffac4191c7b79665ecb9f1d64c78acf6c0fc0dc2d2eb8063878a6cf4"
+    },
+    {
+      "language": "de",
+      "table": "setting_tooltips",
+      "key": "counterfactual_checkpoint_sha256",
+      "source_sha256": "66e6c3c9a226b2f632dacce8e8bba767f6e5e2868d0e32bcc5eac6d7fd3a228d",
+      "target_sha256": "e6811ed4dd1cea386d71fbc18a2e8eb3c573b3e4838c378535958d8d6867160f"
+    },
+    {
+      "language": "de",
+      "table": "ui",
+      "key": "The counterfactual checkpoint is missing, unreadable, unsafe, or incompatible with the current inputs.",
+      "source_sha256": "2e71701de484c9828680be4036cff39f5dd15867da4799d9b51026553201e8e0",
+      "target_sha256": "40b4e4e63f5c30bac3463611e2a592e71c55cb6d5d3234f988d587662d44507f"
+    },
+    {
+      "language": "fr",
+      "table": "setting_labels",
+      "key": "counterfactual_checkpoint",
+      "source_sha256": "768698f24bf3c662e02c1cd6c4b614f38933631f244235237cece45a2352476e",
+      "target_sha256": "fd9ea787d685907277660ca81131317e8f5f3b7470eb1bf2442250b2961e142e"
+    },
+    {
+      "language": "fr",
+      "table": "setting_tooltips",
+      "key": "counterfactual_checkpoint",
+      "source_sha256": "175f83b4923dfed3cfea90341560ee68d82709f08ce7bad4899c476bd49000df",
+      "target_sha256": "ab5e9f9e38193ca3cb53a9de571007accf9abbcfa55bc5d9d3cc8089d3a61c42"
+    },
+    {
+      "language": "fr",
+      "table": "setting_labels",
+      "key": "counterfactual_checkpoint_sha256",
+      "source_sha256": "e2f7f87de0ec22f7e2230dd81a17138d07337e253acccf4e5384a5b0ce8af7f7",
+      "target_sha256": "0198f7903ba09c91920e881299c614a4b85bd09e4973a2f0579947d6dbd92087"
+    },
+    {
+      "language": "fr",
+      "table": "setting_tooltips",
+      "key": "counterfactual_checkpoint_sha256",
+      "source_sha256": "66e6c3c9a226b2f632dacce8e8bba767f6e5e2868d0e32bcc5eac6d7fd3a228d",
+      "target_sha256": "16ad49501259857760bd60406abb53b329762298be0d22067c0c02317ea561f1"
+    },
+    {
+      "language": "fr",
+      "table": "ui",
+      "key": "The counterfactual checkpoint is missing, unreadable, unsafe, or incompatible with the current inputs.",
+      "source_sha256": "2e71701de484c9828680be4036cff39f5dd15867da4799d9b51026553201e8e0",
+      "target_sha256": "b24f06f81735bafb6fdf8a30e71d30033fad3e086b91dba310ee9175cf6ef8d0"
+    },
+    {
+      "language": "es",
+      "table": "setting_labels",
+      "key": "counterfactual_checkpoint",
+      "source_sha256": "768698f24bf3c662e02c1cd6c4b614f38933631f244235237cece45a2352476e",
+      "target_sha256": "7b1db7b7923c700b1c597b6e4b2b169c5a3732a2b1f813f24606074dc29cfa65"
+    },
+    {
+      "language": "es",
+      "table": "setting_tooltips",
+      "key": "counterfactual_checkpoint",
+      "source_sha256": "175f83b4923dfed3cfea90341560ee68d82709f08ce7bad4899c476bd49000df",
+      "target_sha256": "7e0c32da75a502e7296a1df06fb0eda3541799e11174bea552ec911d621658ab"
+    },
+    {
+      "language": "es",
+      "table": "setting_labels",
+      "key": "counterfactual_checkpoint_sha256",
+      "source_sha256": "e2f7f87de0ec22f7e2230dd81a17138d07337e253acccf4e5384a5b0ce8af7f7",
+      "target_sha256": "1f0e0c6e3268840098d7f8f3ae2020a7f4f88d9be53a16e6fc11b4d60ab4f071"
+    },
+    {
+      "language": "es",
+      "table": "setting_tooltips",
+      "key": "counterfactual_checkpoint_sha256",
+      "source_sha256": "66e6c3c9a226b2f632dacce8e8bba767f6e5e2868d0e32bcc5eac6d7fd3a228d",
+      "target_sha256": "cbc606bcb68690c8826b9952900840ba33feee38d03f4cde92132e22e27c6c03"
+    },
+    {
+      "language": "es",
+      "table": "ui",
+      "key": "The counterfactual checkpoint is missing, unreadable, unsafe, or incompatible with the current inputs.",
+      "source_sha256": "2e71701de484c9828680be4036cff39f5dd15867da4799d9b51026553201e8e0",
+      "target_sha256": "fcf7cd806faa915111eeb9f2250b2453ebe1d2bc83d9d8a4861c7951bb111dfa"
+    },
+    {
+      "language": "pt",
+      "table": "setting_labels",
+      "key": "counterfactual_checkpoint",
+      "source_sha256": "768698f24bf3c662e02c1cd6c4b614f38933631f244235237cece45a2352476e",
+      "target_sha256": "8777e46227e8db930027c6bdcee943b60985a6292fb729594a13235e61d3fe0b"
+    },
+    {
+      "language": "pt",
+      "table": "setting_tooltips",
+      "key": "counterfactual_checkpoint",
+      "source_sha256": "175f83b4923dfed3cfea90341560ee68d82709f08ce7bad4899c476bd49000df",
+      "target_sha256": "b1cd9af1f9d55a6880992be3404bc4492cba8e6ee15dfced7c09b55a48640bfd"
+    },
+    {
+      "language": "pt",
+      "table": "setting_labels",
+      "key": "counterfactual_checkpoint_sha256",
+      "source_sha256": "e2f7f87de0ec22f7e2230dd81a17138d07337e253acccf4e5384a5b0ce8af7f7",
+      "target_sha256": "cf6be65cd35f345259f89709a921c2acc257ef535b63ef790804337a14f59fff"
+    },
+    {
+      "language": "pt",
+      "table": "setting_tooltips",
+      "key": "counterfactual_checkpoint_sha256",
+      "source_sha256": "66e6c3c9a226b2f632dacce8e8bba767f6e5e2868d0e32bcc5eac6d7fd3a228d",
+      "target_sha256": "e3707823ed7284b2517a0da6cda709246b8d88b6d447b1a60252b4249a5683ea"
+    },
+    {
+      "language": "pt",
+      "table": "ui",
+      "key": "The counterfactual checkpoint is missing, unreadable, unsafe, or incompatible with the current inputs.",
+      "source_sha256": "2e71701de484c9828680be4036cff39f5dd15867da4799d9b51026553201e8e0",
+      "target_sha256": "511bcdc66dcacbbda6555833d969f487a7d5e48940d55feafdd34064cbbc16fe"
+    },
+    {
+      "language": "zh_CN",
+      "table": "setting_labels",
+      "key": "counterfactual_checkpoint",
+      "source_sha256": "768698f24bf3c662e02c1cd6c4b614f38933631f244235237cece45a2352476e",
+      "target_sha256": "de2d4013ada4c0d3a4dfad10c6d2b5a5f880d8d3389bfc445a4d1b1f65ad5937"
+    },
+    {
+      "language": "zh_CN",
+      "table": "setting_tooltips",
+      "key": "counterfactual_checkpoint",
+      "source_sha256": "175f83b4923dfed3cfea90341560ee68d82709f08ce7bad4899c476bd49000df",
+      "target_sha256": "c5e42965e5d0454e1f9afcc72fe0a74c4144b661b52f9f23467e68fa5348699a"
+    },
+    {
+      "language": "zh_CN",
+      "table": "setting_labels",
+      "key": "counterfactual_checkpoint_sha256",
+      "source_sha256": "e2f7f87de0ec22f7e2230dd81a17138d07337e253acccf4e5384a5b0ce8af7f7",
+      "target_sha256": "4830a0982d8a46343104708ae2c87ff282c3266f1e047b5d6a31dfe1d917866b"
+    },
+    {
+      "language": "zh_CN",
+      "table": "setting_tooltips",
+      "key": "counterfactual_checkpoint_sha256",
+      "source_sha256": "66e6c3c9a226b2f632dacce8e8bba767f6e5e2868d0e32bcc5eac6d7fd3a228d",
+      "target_sha256": "65ab340f95076b7d9bf26554a9f96e40ca3d6bc4087c68c46b0bca1e93a2a3cc"
+    },
+    {
+      "language": "zh_CN",
+      "table": "ui",
+      "key": "The counterfactual checkpoint is missing, unreadable, unsafe, or incompatible with the current inputs.",
+      "source_sha256": "2e71701de484c9828680be4036cff39f5dd15867da4799d9b51026553201e8e0",
+      "target_sha256": "bdbc804ce8bf46b5c601cd032a0f46c2375c71ce49e015c36324b23e82d28e23"
+    },
+    {
+      "language": "hi",
+      "table": "setting_labels",
+      "key": "counterfactual_checkpoint",
+      "source_sha256": "768698f24bf3c662e02c1cd6c4b614f38933631f244235237cece45a2352476e",
+      "target_sha256": "80d3c931b1007ea2bafc2b19d9c0a561ceb0791c02d35fa3681e7a975a067ede"
+    },
+    {
+      "language": "hi",
+      "table": "setting_tooltips",
+      "key": "counterfactual_checkpoint",
+      "source_sha256": "175f83b4923dfed3cfea90341560ee68d82709f08ce7bad4899c476bd49000df",
+      "target_sha256": "4e4f9447d921596f6548e2d0a770c195126561487981abee952fb812547a4067"
+    },
+    {
+      "language": "hi",
+      "table": "setting_labels",
+      "key": "counterfactual_checkpoint_sha256",
+      "source_sha256": "e2f7f87de0ec22f7e2230dd81a17138d07337e253acccf4e5384a5b0ce8af7f7",
+      "target_sha256": "b49d4c58d16825bee0151db7e065b867e44f0895aca0d03b4bcadad38d518d29"
+    },
+    {
+      "language": "hi",
+      "table": "setting_tooltips",
+      "key": "counterfactual_checkpoint_sha256",
+      "source_sha256": "66e6c3c9a226b2f632dacce8e8bba767f6e5e2868d0e32bcc5eac6d7fd3a228d",
+      "target_sha256": "2beeda0f225d12826bdf92fd18a21415bdb0a1ddff1ab84ce8eb41cef65b4aa3"
+    },
+    {
+      "language": "hi",
+      "table": "ui",
+      "key": "The counterfactual checkpoint is missing, unreadable, unsafe, or incompatible with the current inputs.",
+      "source_sha256": "2e71701de484c9828680be4036cff39f5dd15867da4799d9b51026553201e8e0",
+      "target_sha256": "620a19b49ef57e49299d2b0ad66d007288c6fe52e750cbeda9614bd2d898bc69"
+    },
+    {
+      "language": "ko",
+      "table": "setting_labels",
+      "key": "counterfactual_checkpoint",
+      "source_sha256": "768698f24bf3c662e02c1cd6c4b614f38933631f244235237cece45a2352476e",
+      "target_sha256": "534f9e062b098b276ae23b5b86d194360955ef7f7565cf835e97e34658d6377e"
+    },
+    {
+      "language": "ko",
+      "table": "setting_tooltips",
+      "key": "counterfactual_checkpoint",
+      "source_sha256": "175f83b4923dfed3cfea90341560ee68d82709f08ce7bad4899c476bd49000df",
+      "target_sha256": "8262d64018ff20efd49e76218aec4123f3e68c4858a5b98701da6d130d26421b"
+    },
+    {
+      "language": "ko",
+      "table": "setting_labels",
+      "key": "counterfactual_checkpoint_sha256",
+      "source_sha256": "e2f7f87de0ec22f7e2230dd81a17138d07337e253acccf4e5384a5b0ce8af7f7",
+      "target_sha256": "8a8faa5590398b4f9d7c7b6b596d4f97dde2fadd2775beb9d55247cff2638d62"
+    },
+    {
+      "language": "ko",
+      "table": "setting_tooltips",
+      "key": "counterfactual_checkpoint_sha256",
+      "source_sha256": "66e6c3c9a226b2f632dacce8e8bba767f6e5e2868d0e32bcc5eac6d7fd3a228d",
+      "target_sha256": "a0d88a1995d5cb8c454eb7d2d9ed600b70fa20d568ec3b2540c90e8e5d492a2f"
+    },
+    {
+      "language": "ko",
+      "table": "ui",
+      "key": "The counterfactual checkpoint is missing, unreadable, unsafe, or incompatible with the current inputs.",
+      "source_sha256": "2e71701de484c9828680be4036cff39f5dd15867da4799d9b51026553201e8e0",
+      "target_sha256": "3013b7d7aa117ff0494905693234b2fd1645a7e6b8c770f7ed1976d1794fa45d"
+    }
+  ]
+}

@@ -375,3 +375,19 @@ data/564_diffusion_runtime_catalogs_2026-10-15/,
 data/564_generated_setting_links_2026-10-15/,
 data/564_gui_locale_consumers_2026-10-15/ and
 data/564_coordinator_integration_2026-10-15/.
+
+
+2026-10-15 Original Home — pinned local diffusion reuse and complete alpha controls.
+Optional local checkpoint plus expected SHA-256 now select strict safe reuse
+without fallback training. Full architecture/input/preprocessing/classifier/
+condition and declared positive-fit provenance contracts are checked before
+use; the existing default training route remains. Root settings and Home-B
+alpha file controls,45 reviewed runtime targets across nine locales, normal
+full-nine runtime audit/arrival and generated setting consumers/flow/Help are
+coherent. Nine actual Qt widgets/callbacks (offscreen) and nine actual localized
+backend refusals pass. Initial fixture omitted the normal widget translation
+pass; its nine failures and corrected affected-only nine pass are preserved.
+Prior tiny actual CPU one-epoch fit proves serialization/reuse mechanics only.
+No genuine pretrained biological accuracy, larger latent architecture, real
+display/native OS acceptance, whole-feature completion or final CI claimed.
+Evidence: data/564_pinned_local_diffusion_reuse_2026-10-15/.
