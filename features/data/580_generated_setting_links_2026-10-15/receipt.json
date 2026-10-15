@@ -170,5 +170,9 @@
     }
   },
   "scope": "Normal regeneration; all additional semantic consumers belong frozen F580 settings/intensity implementation. Other entries change line locations only; no removed consumers.",
-  "help": "Awaiting single final normal Help generation in owner tree after this map commit."
+  "help": "Awaiting single final normal Help generation in owner tree after this map commit.",
+  "compressed_raw_logs_sha256": {
+    "consumer-map.log.gz": "9afe255c86374232a99f6d0922ae14711e31b136bdb30a16130d2641602724b9",
+    "settings-flow.log.gz": "5449b0cf25936778632dec835ff16c71d962b84c200fc7ae3458ba1569354e8b"
+  }
 }
