@@ -726,10 +726,11 @@ class PairedFileTableWidget(QWidget):
         return None
 
     def _anchor_for_row(self, row: int) -> dict:
-        """The path a row's other cells are resolved against.
+        """Remember a row's plate label and source paths for database pinning.
 
         :param row: the row's position.
-        :returns: the anchor path, or None when the row has none yet.
+        :returns: a dict with ``plate``, ``score`` and ``count`` keys; blank
+            cells have the value ``None``.
         """
         return {key: self._cell(row, column) or None
                 for key, column in (("plate", 0),
@@ -768,11 +769,11 @@ class PairedFileTableWidget(QWidget):
 
         With no row, the database is offered to the token pairing first, so
         ``plate2/measurements/measurements.db`` finds plate 2 wherever that
-        row happens to be. Only when nothing in its path names a plate does
-        it fall back to the first row that has no database -- and the
-        returned sentence, also shown under the table, NAMES that row. A
-        database attached to row 0 in silence is a plate's measurements
-        quietly credited to another plate.
+        row happens to be when its tokens match uniquely. If pairing leaves
+        the database on its own row, it is attached to the first row without
+        a database, if one exists. This fallback also applies when the path
+        contains a plate name that did not produce a unique match. The
+        returned sentence, also shown under the table, names the chosen row.
 
         Returns the sentence, so a caller with a console logs the same words
         the user is reading.
@@ -823,8 +824,9 @@ class PairedFileTableWidget(QWidget):
         target = self._first_row_without_database()
         self._place_database(target, database)
         message = self._describe_row(target, database, "attached to")
-        message += (" It is the first row with no database: nothing in the "
-                    "file's path named a plate.")
+        message += " " + tr(
+            "This row was the first without a database. Filename matching "
+            "did not attach the database to a plate row.")
         self.value_changed.emit()
         self._refresh_status(message)
         return message
@@ -957,10 +959,11 @@ class PairedFileTableWidget(QWidget):
 
     @staticmethod
     def _dropped(event):
-        """Whether a drag carries files this table can take.
+        """Return the local file paths carried by a drag.
 
         :param event: the Qt drag event.
-        :returns: True when droppable.
+        :returns: local paths in URL order, or an empty list when no local
+            file URLs are present. Paths are not checked for existence here.
         """
         mime = event.mimeData()
         if not mime.hasUrls():
@@ -998,10 +1001,10 @@ class PairedFileTableWidget(QWidget):
         A DATABASE is decided by its extension and never by aim: a ``.db``
         dropped on the score column is a mis-aim, not a request to fit the
         regression on a sqlite file, and a CSV dropped on the database column
-        is likewise still a CSV. What aim adds for a database is the ROW --
-        dropping it on a plate's row attaches it to THAT plate, which is the
-        one thing the token pairing cannot know when the file is called
-        ``measurements.db`` like everybody else's.
+        is likewise still a CSV. A database dropped in the database column
+        on an existing row is explicitly attached to that row. A drop over
+        another column or outside an existing row uses automatic attachment,
+        including the fallback described by :meth:`attach_database`.
 
         :param event: the drop event; its local file URLs and drop position
             are read, and it is ignored when it carries no usable paths.
