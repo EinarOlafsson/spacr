@@ -140,3 +140,68 @@ ZeroGPU startup-placement pattern. Replacing a path with different weight bytes
 cannot reuse the old cached model under the new digest. Plaque requests with
 more than three selected channels are refused before loading, preventing
 Cellpose from silently ignoring additional channels.
+
+`app.build_app(...)` constructs a real Gradio interface and named `models` /
+`segment_plaque` API routes without starting a server or loading weights.
+It has all eight model-family/version/provenance tabs; only the implemented
+plaque adapter is executable. Users grant consent before the file picker is
+enabled, choose actual channels/series/T/Z/PDF page, explicitly resolve diameter,
+and receive the result ZIP plus a display-only mask-boundary preview. The queue
+has one model worker and eight pending slots. Cancel addresses pending work;
+it does not claim to interrupt an already-running CUDA kernel immediately.
+
+`delete_cache=(300, 3600)` configures Gradio to reap registered upload/download
+cache files older than an hour on its five-minute cleanup interval. Original
+private job staging is removed immediately after the result is copied into
+that cache. No input is sent to GitHub, training datasets or a model provider
+by these handlers. Hosted processing necessarily transfers uploads to the
+Space; the ZIP intentionally includes those bytes. Browser WebGPU remains a
+separate unimplemented route, explicitly disclosed in this source UI.
+
+Source-only Space launch preparation (no deployment has occurred):
+
+1. Use an eligible **free** personal ZeroGPU Space. Verify the email/account-age
+   requirements in [HF's official ZeroGPU guide](https://huggingface.co/docs/hub/spaces-zerogpu).
+   Do not upgrade to paid hardware, PRO or an organization plan for this setup.
+   If free ZeroGPU is unavailable, stop deployment and retain these sources;
+   that eligibility gap is not solved by selecting paid hardware.
+2. Supply a reviewed spaCR source checkout as the Space repository and install
+   that checkout's project requirements. The additional UI requirements are
+   `tools/web_mask_generator/requirements-space.txt`. They were checked with
+   Gradio 6.30.0 / spaces 0.51.3 in a private local environment; the actual HF
+   build, CUDA/checkpoint compatibility and scientific acceptance remain open.
+3. The Space's root README metadata should use `sdk: gradio`,
+   `sdk_version: 6.30.0`, `python_version: 3.12`, and
+   `app_file: tools/web_mask_generator/space_app.py`. The supplied wrapper adds
+   the source root for imports; ordinary direct execution of the relative-import
+   library file is not the Space entry point.
+4. Provision the approved checkpoint on the service from its actual published
+   repository, respecting repository type. Set the operator-only environment
+   variable `SPACR_WEB_MODELS_JSON` to a JSON mapping of approved keys to trusted
+   local checkpoint paths. No visitor may choose these paths. Runtime verifies
+   bytes against the current bundled catalogue; no default download occurs.
+5. With free ZeroGPU actually selected in the Space settings, set
+   `SPACR_WEB_ZERO_GPU=1`. This requests startup verification/preload, then a
+   `spaces.GPU(duration=120)` call for execution. Basic consent/header/diameter
+   checks happen before entering the decorated function. Startup model placement
+   follows the linked official guidance. Quota/queue/execution availability is
+   not guaranteed and must be tested on the actual account.
+6. Launch only after the source/configuration review. `main()` keeps public
+   Gradio sharing off, hides backend tracebacks, disables run history, retains
+   strict CORS, and limits uploads. No server was launched while implementing
+   or testing this source. The generic spaCR site must wait for an acknowledged
+   Home-B interface and a real configured endpoint, rather than inventing a URL.
+7. Before whole N698 acceptance, implement the remaining class adapters and
+   browser exports/postprocessing, complete localization/style/accessibility,
+   exercise hosted cache cleanup/cancellation, and compare actual model outputs
+   against desktop results under the original IoU/object-count criterion.
+
+`detector.run_well_download` runs the actual desktop `detect_wells` path with
+verified operator weights, retaining the desktop's RGB→BGR handling, confidence,
+reading order and axis-ratio refusal. Choose one grayscale or three RGB input
+channels. It produces a detection ZIP containing input/selected TIFF, actual
+boxes/confidences, canonical CSV, README and manifest. Bounding-box area/centre
+are explicitly rectangle measurements, not segmented well area/centroids;
+physical calibration is not assumed. Masks, vectors and per-pixel cell scores
+are explicitly unavailable and never synthesized. Backend integration into the
+public service/UI remains separate work; no hosted detector is claimed here.

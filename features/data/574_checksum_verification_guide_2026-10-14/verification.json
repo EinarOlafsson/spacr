@@ -1,0 +1,20 @@
+{
+  "results": [
+    {
+      "copy_images": false,
+      "valid_exit": 0,
+      "tampered_exit": 1,
+      "valid_stdout": "Archive checks passed",
+      "tampered_stdout": "checksums: archive_manifest.json does not match"
+    },
+    {
+      "copy_images": true,
+      "valid_exit": 0,
+      "tampered_exit": 1,
+      "valid_stdout": "Archive checks passed",
+      "tampered_stdout": "checksums: archive_manifest.json does not match"
+    }
+  ],
+  "source": "private synthetic fixture only",
+  "network_writes": false
+}

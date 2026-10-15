@@ -1,0 +1,34 @@
+{
+  "item": 702,
+  "state": "bounded-bulk-download-component",
+  "baseline": {
+    "failed": 3,
+    "passed": 1,
+    "seconds": 7.27
+  },
+  "tests": [
+    {
+      "passed": 6,
+      "seconds": 9.64,
+      "scope": "existing retry, timeout, cache and facade contracts"
+    },
+    {
+      "passed": 8,
+      "seconds": 7.81,
+      "scope": "seven new native atomic/preservation contracts and existing dataset single-download proof"
+    }
+  ],
+  "behavior": [
+    "Whole pack staged on destination filesystem before final atomic directory publication.",
+    "Stream or publication failure leaves final empty cache reusable and cleans temporary staging.",
+    "Duplicate flattened basenames refused before fetching.",
+    "Existing private cache and files arriving during download preserved.",
+    "Streaming responses closed and successful file bytes flushed before directory publication.",
+    "Hugging Face repository remains dataset."
+  ],
+  "limitations": [
+    "Existing nonempty legacy cache is preserved and trusted as before; old corruption cannot be identified without a manifest.",
+    "No live network, model, GPU, full CI or native Windows/macOS run.",
+    "Abrupt OS process termination may leave a hidden sibling staging folder, never a published partial pack."
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "commit": "07be0773344efaa00f0aca1727f39f1d3e82a17c",
+  "item": "N689",
+  "tree": "/mnt/wd4tb/spacr-worktrees/codex-home-b-docs-readback-20261014",
+  "validation": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "38",
+    "time": "3.048",
+    "timestamp": "2026-10-14T23:54:31.766306-04:00",
+    "hostname": "olafsson"
+  },
+  "scope": [
+    "tools/publish_docs_channels.py",
+    "tests/test_docs_channels.py"
+  ],
+  "before": {
+    "tests": 3,
+    "failures": 3,
+    "seconds": 1.32
+  },
+  "change": "Matching public receipts are insufficient: require exact index.html bytes before verification succeeds; bounded retries and upload behavior retained.",
+  "readback_scope": "publication.json, channels.json and index.html only; does not verify the entire website or media",
+  "external_requests": 0
+}

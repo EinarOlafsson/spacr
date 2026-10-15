@@ -180,13 +180,13 @@ def test_an_unresolvable_cache_is_refused_before_any_removal(
 
 def test_reapplying_cache_locations_preserves_an_existing_override(monkeypatch):
     monkeypatch.setattr(journal, "_read_cache_locations", lambda: {
-        "CI_CACHE_ONE": "/tmp/one", "CI_CACHE_TWO": "/tmp/two"})
-    monkeypatch.setenv("CI_CACHE_ONE", "/tmp/owned-outside-spacr")
-    monkeypatch.delenv("CI_CACHE_TWO", raising=False)
+        "TORCH_HOME": "/tmp/one", "HF_HOME": "/tmp/two"})
+    monkeypatch.setenv("TORCH_HOME", "/tmp/owned-outside-spacr")
+    monkeypatch.setenv("HF_HOME", "")
 
     assert journal._apply_cache_locations() == 1
-    assert os.environ["CI_CACHE_ONE"] == "/tmp/owned-outside-spacr"
-    assert os.environ["CI_CACHE_TWO"] == "/tmp/two"
+    assert os.environ["TORCH_HOME"] == "/tmp/owned-outside-spacr"
+    assert os.environ["HF_HOME"] == "/tmp/two"
 
 
 def test_unreadable_cache_locations_do_not_stop_journal_import(

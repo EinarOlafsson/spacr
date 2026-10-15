@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "records": [
+    {
+      "label": "spacr.install_cleanup#2",
+      "source": "Supported macOS online installations and dedicated POSIX pip environments use their existing package tool after approved shutdown to stage, verify and atomically activate an updated sibling runtime. Bootstrap files, launchers, unchanged packages and the previous runtime are retained. Shared, Conda and Windows Python environments require their own replacement adapter.",
+      "source_sha256": "f7429e66190134bb8d3b5b0468206f3e3128f87883921c7fbe700c7479929706",
+      "context": "Supported macOS online installations and dedicated POSIX pip environments use their existing package tool after approved shutdown to stage, verify and atomically activate an updated sibling runtime. Bootstrap files, launchers, unchanged packages and the previous runtime are retained. Shared, Conda and Windows Python environments require their own replacement adapter.",
+      "translation": "지원되는 macOS 온라인 설치와 전용 POSIX pip 환경은 승인된 종료 후 기존 패키지 도구로 같은 상위 폴더의 업데이트된 런타임을 준비하고 검증한 뒤 원자적으로 활성화합니다. 부트스트랩 파일, 실행기, 변경되지 않은 패키지와 이전 런타임은 유지됩니다. 공유 환경, Conda 및 Windows Python 환경에는 각각 별도의 교체 어댑터가 필요합니다.",
+      "review_basis": "AI technical review (Codex), exact current English. Preserves approved-shutdown ordering, sibling staging, atomic activation, retained previous runtime and unsupported shared/Conda/Windows scope. No human/native-speaker signoff."
+    },
+    {
+      "label": "spacr.install_cleanup.start_update_helper#1",
+      "source": "Installer-made copies and supported dedicated POSIX pip environments can use this helper. It waits for the running process to exit before changing the installation; the pip adapter also requires authenticated shutdown approval.",
+      "source_sha256": "45e52606fdc21a856ce1be0f8dfe0b59e36ee66e6861c3de9acb519cece16486",
+      "context": "Installer-made copies and supported dedicated POSIX pip environments can use this helper. It waits for the executing process to exit before changing the installation; the pip adapter also requires authenticated shutdown approval.",
+      "translation": "설치 프로그램이 만든 복사본과 지원되는 전용 POSIX pip 환경은 이 도우미를 사용할 수 있습니다. 설치를 변경하기 전에 실행 중인 프로세스가 종료될 때까지 기다립니다. pip 어댑터는 인증된 종료 승인도 요구합니다.",
+      "review_basis": "AI technical review (Codex), exact current English. Preserves approved-shutdown ordering, sibling staging, atomic activation, retained previous runtime and unsupported shared/Conda/Windows scope. No human/native-speaker signoff."
+    }
+  ]
+}

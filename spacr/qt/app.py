@@ -5075,12 +5075,12 @@ class MainWindow(QMainWindow):
                    "finishes shutting down; restart spaCR after it stops."))
 
     def _on_old_installs_found(self, records) -> None:
-        """Show what step 1 found, then run steps 2 and 3 in that order.
+        """Prepare the selected replacement without upgrading a live runtime.
 
-        Installer-made copies are removed; environments the user made are
-        offered with tick boxes. When the running spaCR is itself an
-        installer-made copy it cannot delete itself, so a helper process
-        finishes the update after this window closes.
+        Installer-made copies keep their replacement adapters. A dedicated
+        pip environment uses an authenticated shutdown handoff and preserves
+        other installations; unsupported environments are refused before any
+        package mutation.
 
         :param records: installations from
             :func:`spacr.install_cleanup.find_old_installs`.
@@ -5088,55 +5088,69 @@ class MainWindow(QMainWindow):
         if self._closing:
             LOG.debug("Discarding the old-install list during shutdown")
             return
-        from spacr import install_cleanup, updater
+        from spacr import install_cleanup
 
         records = list(records or ())
         ticked = ()
         online_macos = install_cleanup._macos_online_update_record(records) is not None
-        if not online_macos and any(
+        pip_environment = not any(r.kind == "installer" and r.running for r in records)
+        if not online_macos and not pip_environment and any(
                 r.kind == "installer" or (r.kind == "environment" and not r.running)
                 for r in records):
             ticked = self._confirm_old_installs(records)
             if ticked is None:
                 return
         version = getattr(self, "_update_version", None) or ""
-        if any(r.kind == "installer" and r.running for r in records):
-            plan = install_cleanup.start_update_helper(
-                records, version, ticked=ticked)
-            if not plan.get("command"):
-                QMessageBox.warning(
-                    self, "Updates",
-                    tr("Upgrade unavailable: {error}",
-                       error=self._removal_reason_text(
-                           str(plan.get("error")))))
-                return
-            if plan.get("adapter") in {"macos-frozen-v1", "macos-online-uv-v1"} and plan.get("handshake"):
-                from PySide6.QtCore import QTimer
-
-                self._frozen_update_plan = plan
-                try:
-                    self._frozen_update_handshake = install_cleanup._FrozenUpdateHandshake(plan)
-                except Exception as error:
-                    QMessageBox.warning(
-                        self, "Updates", tr("Upgrade unavailable: {error}", error=str(error)))
-                    return
-                self._frozen_update_timer = QTimer(self)
-                self._frozen_update_timer.timeout.connect(self._poll_frozen_update)
-                self._frozen_update_timer.start(250)
-                self._poll_frozen_update()
-                return
-            QMessageBox.information(
+        plan = install_cleanup.start_update_helper(
+            records, version, ticked=ticked)
+        if not plan.get("command"):
+            QMessageBox.warning(
                 self, "Updates",
-                tr("spaCR will close, remove the older copies, install "
-                   "{version} and start again.", version=version))
-            self.close()
+                tr("Upgrade unavailable: {error}",
+                   error=self._removal_reason_text(
+                       str(plan.get("error")))))
             return
-        self._start_update_worker(
-            "upgrade",
-            lambda: install_cleanup.run_update_sequence(
-                lambda: updater.run_pip_upgrade(target_version=version),
-                records=records, ticked=ticked),
-            self._on_update_sequence_done)
+        if plan.get("adapter") in {"macos-frozen-v1", "macos-online-uv-v1", "pip-private-posix-v1"} and plan.get("handshake"):
+            from PySide6.QtCore import QTimer
+
+            self._frozen_update_plan = plan
+            try:
+                self._frozen_update_handshake = install_cleanup._FrozenUpdateHandshake(plan)
+            except Exception as error:
+                QMessageBox.warning(
+                    self, "Updates", tr("Upgrade unavailable: {error}", error=str(error)))
+                return
+            self._frozen_update_timer = QTimer(self)
+            self._frozen_update_timer.timeout.connect(self._poll_frozen_update)
+            self._frozen_update_timer.start(250)
+            self._poll_frozen_update()
+            return
+        QMessageBox.information(
+            self, "Updates",
+            tr("spaCR will close, remove the older copies, install "
+               "{version} and start again.", version=version))
+        self.close()
+        return
+
+    def _save_pip_update_restart(self):
+        """Preserve current module settings before approving a pip update shutdown."""
+        from spacr import restart_state
+
+        try:
+            screen = self._stack.currentWidget()
+            module = str(getattr(screen, "app_key", "") or "__home__")
+            model = getattr(screen, "_settings_model", None)
+            settings = model.collect() if model is not None else {}
+            saved = restart_state.save(module=module, settings=settings)
+        except Exception:
+            saved = None
+        if saved is None:
+            QMessageBox.warning(
+                self, tr("Updates"),
+                tr("The current settings could not be saved. The update was cancelled and this window will stay open."))
+            return False
+        self._frozen_update_restart_saved = True
+        return True
 
     def _cancel_frozen_update(self):
         """Disarm preparation before an ordinary close, cancellation or refusal."""
@@ -5151,6 +5165,11 @@ class MainWindow(QMainWindow):
                 LOG.exception("Could not publish update cancellation; no shutdown approval was issued")
         self._frozen_update_handshake = None
         self._frozen_update_plan = None
+        if getattr(self, "_frozen_update_restart_saved", False):
+            from spacr import restart_state
+
+            restart_state.discard()
+            self._frozen_update_restart_saved = False
 
     def _poll_frozen_update(self):
         """Keep the GUI alive until verified staging, then approve only accepted closure."""
@@ -5167,7 +5186,7 @@ class MainWindow(QMainWindow):
             if status["state"] == "error":
                 raise RuntimeError(status["error"])
             self._frozen_update_timer.stop()
-            if self._frozen_update_plan.get("adapter") == "macos-online-uv-v1":
+            if self._frozen_update_plan.get("adapter") in {"macos-online-uv-v1", "pip-private-posix-v1"}:
                 message = tr(
                     "This will reinstall spaCR in its current environment. "
                     "spaCR will close before the update starts. "
@@ -5182,6 +5201,10 @@ class MainWindow(QMainWindow):
                 self._cancel_frozen_update()
                 return
             handshake.check()
+            if (self._frozen_update_plan.get("adapter") == "pip-private-posix-v1"
+                    and not self._save_pip_update_restart()):
+                self._cancel_frozen_update()
+                return
             self._frozen_update_closing = True
             try:
                 accepted = self.close()
@@ -5192,6 +5215,7 @@ class MainWindow(QMainWindow):
                 return
             self._frozen_update_handshake = None
             self._frozen_update_plan = None
+            self._frozen_update_restart_saved = False
         except Exception as error:
             self._cancel_frozen_update()
             if self._closing:
@@ -5287,6 +5311,10 @@ class MainWindow(QMainWindow):
             return tr("needs administrator rights; run: {command}",
                       command=why[len(prefix):])
         reasons = {
+            "This environment needs its package manager; spaCR cannot replace it safely. Nothing was changed.":
+                tr("This environment needs its package manager; spaCR cannot replace it safely. Nothing was changed."),
+            "The running spaCR is newer than the requested release. Nothing was changed.":
+                tr("The running spaCR is newer than the requested release. Nothing was changed."),
             "needs administrator rights; delete it as an administrator":
                 tr("needs administrator rights; delete it as an "
                    "administrator"),

@@ -221,3 +221,13 @@ PER-CONDITION TARGET AND QT VIEWER 2026-10-03 (alpha, CPU)
     app scale; a lower-strength mode with a structure-preserving term for
     minimal edits; catalog entries for the new label and tooltip (catalog
     lane).
+
+2026-10-14 Home-B — exact runtime caption extraction owner dependency
+At Original Home request, normal extractor now visits only four top-level
+attribution owners: _cf_preserved_channels, _cf_preserve_reference_channels,
+_counterfactual_sequences and _counterfactual_report. Owner source d78d36ae2ce
+has eight tr calls/six literals. Eight owning tests PASS including each owner
+and unrelated/module/class/nontranslated exclusions. No attribution source,
+review records or generated catalogs changed by this lane. Original Home owns
+normal source integration/generation; no whole-feature/runtime locale closure.
+Evidence: features/data/564_caption_extraction_2026-10-14/.

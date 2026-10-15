@@ -3908,7 +3908,7 @@ def _is_prunable_name(kind: str, entry: Path) -> bool:
     """
     name = entry.name
     if kind == "logs":
-        return (name.startswith("spacr") and ".log" in name
+        return (re.fullmatch(r"spacr.*\.log(?:\.\d+)?", name) is not None
                 and entry.is_file() and not entry.is_symlink())
     if kind == "run_logs":
         return ((name.endswith(".jsonl") or name.endswith(".resources.json"))
@@ -4200,7 +4200,10 @@ def _read_cache_locations() -> Dict[str, str]:
         data = json.loads(_cache_locations_path().read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return {}
-    return {str(k): str(v) for k, v in data.items()} if isinstance(data, dict) else {}
+    if not isinstance(data, dict):
+        return {}
+    return {key: value for key, value in data.items()
+            if isinstance(value, str) and value.strip() and "\x00" not in value}
 
 
 def _apply_cache_locations() -> int:
@@ -4209,8 +4212,9 @@ def _apply_cache_locations() -> int:
     A variable already set in the environment wins over the record.
     """
     applied = 0
+    cache_variables = {variable for _key, _label, variable in _CACHE_ROWS if variable}
     for name, folder in _read_cache_locations().items():
-        if name and folder and not os.environ.get(name):
+        if name in cache_variables and folder and not os.environ.get(name):
             os.environ[name] = folder
             applied += 1
     return applied
@@ -4262,8 +4266,14 @@ def _disk_caches() -> List[Dict[str, Any]]:
 def _cache_refusal(folder: Path) -> Optional[str]:
     """Return why ``folder`` must not be emptied or moved, or ``None``.
 
+    Mutation entry points hold the run-registration lock while calling this.
+
     :param folder: a cache folder.
     """
+    if _ACTIVE_RUN_DIRS or current_run() is not None:
+        from .qt.i18n import tr
+
+        return tr("A run is in progress. Try again when it has finished.")
     try:
         target = folder.resolve()
     except OSError as error:
@@ -4285,23 +4295,24 @@ def _clear_cache(key: str) -> Tuple[int, List[str]]:
     :param key: a key of :data:`_CACHE_ROWS`.
     :returns: ``(entries removed, refusals)``.
     """
-    folder = _cache_folder(key)
-    if not folder.is_dir():
-        return 0, []
-    why = _cache_refusal(folder)
-    if why:
-        return 0, [why]
-    removed, refused = 0, []
-    for child in list(folder.iterdir()):
-        try:
-            if child.is_symlink() or not child.is_dir():
-                child.unlink()
-            else:
-                shutil.rmtree(child)
-            removed += 1
-        except OSError as error:
-            refused.append(f"{child.name}: {error}")
-    return removed, refused
+    with _ACTIVE_RUNS_LOCK:
+        folder = _cache_folder(key)
+        if not folder.is_dir():
+            return 0, []
+        why = _cache_refusal(folder)
+        if why:
+            return 0, [why]
+        removed, refused = 0, []
+        for child in list(folder.iterdir()):
+            try:
+                if child.is_symlink() or not child.is_dir():
+                    child.unlink()
+                else:
+                    shutil.rmtree(child)
+                removed += 1
+            except OSError as error:
+                refused.append(f"{child.name}: {error}")
+        return removed, refused
 
 
 def _relocate_cache(key: str, parent: Any) -> Path:
@@ -4320,50 +4331,75 @@ def _relocate_cache(key: str, parent: Any) -> Path:
     env = dict((k, v) for k, _label, v in _CACHE_ROWS).get(key)
     if not env:
         raise ValueError(f"{key}: this cache has no setting to move it with")
-    recorded = _read_cache_locations()
-    outside = os.environ.get(env, "").strip()
-    if outside and outside != recorded.get(env, ""):
-        raise ValueError(f"{env} is set outside spaCR; change it there")
-    source = _cache_folder(key)
-    target = Path(str(parent)).expanduser().resolve() / f"spacr-{key}"
-    why = _cache_refusal(source) if source.exists() else None
-    if why:
-        raise ValueError(why)
-    if target.exists() and any(target.iterdir()):
-        raise ValueError(f"{target} already holds files")
-    src = source.resolve() if source.exists() else source
-    if src == target or src in target.parents or target in src.parents:
-        raise ValueError(f"{target} overlaps {src}")
-    path = _cache_locations_path()
-    target.parent.mkdir(parents=True, exist_ok=True)
-    had_source = source.is_dir()
-    if had_source:
-        if target.exists():
-            target.rmdir()
-        shutil.move(str(source), str(target))
-    else:
+    with _ACTIVE_RUNS_LOCK:
+        recorded = _read_cache_locations()
+        outside = os.environ.get(env, "").strip()
+        if outside and outside != recorded.get(env, ""):
+            raise ValueError(f"{env} is set outside spaCR; change it there")
+        source = _cache_folder(key)
+        target = Path(str(parent)).expanduser().resolve() / f"spacr-{key}"
+        why = _cache_refusal(source)
+        if why:
+            raise ValueError(why)
+        if target.exists() and any(target.iterdir()):
+            raise ValueError(f"{target} already holds files")
+        src = source.resolve() if source.exists() else source
+        if src == target or src in target.parents or target in src.parents:
+            raise ValueError(f"{target} overlaps {src}")
+        path = _cache_locations_path()
+        target.parent.mkdir(parents=True, exist_ok=True)
+        had_source = source.is_dir()
         had_target = target.exists()
-        target.mkdir(parents=True, exist_ok=True)
-    recorded[env] = str(target)
-    try:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        _atomic_write_text(path, json.dumps(recorded, indent=2, sort_keys=True))
-    except OSError:
+        copied_source = False
         if had_source:
-            try:
-                if source.exists():
-                    raise FileExistsError(str(source))
-                target.rename(source)
-            except OSError:
-                LOG.warning("Cache retained at %s", target, exc_info=True)
-        elif not had_target:
-            try:
+            if had_target:
                 target.rmdir()
-            except OSError:
+            try:
+                try:
+                    os.rename(source, target)
+                except OSError as error:
+                    import errno
+
+                    if error.errno != errno.EXDEV:
+                        raise
+                    with tempfile.TemporaryDirectory(prefix=".spacr-cache-move-", dir=target.parent) as staging:
+                        staged = Path(staging) / "cache"
+                        shutil.copytree(source, staged, symlinks=True, copy_function=shutil.copy2)
+                        os.replace(staged, target)
+                    copied_source = True
+            except BaseException:
+                if had_target and not target.exists():
+                    target.mkdir()
+                raise
+        else:
+            target.mkdir(parents=True, exist_ok=True)
+        recorded[env] = str(target)
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            _atomic_write_text(path, json.dumps(recorded, indent=2, sort_keys=True))
+        except OSError:
+            if copied_source:
                 LOG.warning("Cache retained at %s", target, exc_info=True)
-        raise
-    os.environ[env] = str(target)
-    return target
+            elif had_source:
+                try:
+                    if source.exists():
+                        raise FileExistsError(str(source))
+                    target.rename(source)
+                except OSError:
+                    LOG.warning("Cache retained at %s", target, exc_info=True)
+            elif not had_target:
+                try:
+                    target.rmdir()
+                except OSError:
+                    LOG.warning("Cache retained at %s", target, exc_info=True)
+            raise
+        os.environ[env] = str(target)
+        if copied_source:
+            try:
+                shutil.rmtree(source)
+            except OSError:
+                LOG.warning("Cache retained at %s", source, exc_info=True)
+        return target
 
 
 try:

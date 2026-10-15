@@ -7,11 +7,11 @@ helper verifies the desktop interpreter and imported application before retiring
 other copies or requesting a restart. :func:`run_update_sequence` remains the
 low-level removal procedure used by explicit cleanup commands.
 
-In-app updates use a different procedure for supported macOS installations.
-An online installation upgrades spaCR in its existing Python environment
-using its bundled ``uv`` executable. It keeps the environment, bootstrap
-files, application launcher, and installed packages that need no update.
-It verifies the installed spaCR version before restarting the application.
+Supported macOS online installations and dedicated POSIX pip environments
+use their existing package tool after approved shutdown to stage, verify and
+atomically activate an updated sibling runtime. Bootstrap files, launchers,
+unchanged packages and the previous runtime are retained. Shared, Conda and
+Windows Python environments require their own replacement adapter.
 
 A supported frozen macOS application uses a verified DMG replacement and
 retains its complete previous application bundle. These macOS update paths
@@ -855,6 +855,8 @@ def _uninstall_script_paths(root: str) -> List[str]:
                 line = line.strip()
                 if line.startswith("rm -f "):
                     paths.append(line[len("rm -f "):].strip().strip('"'))
+                elif line.startswith("# SPACR_UNINSTALL_PATH "):
+                    paths.append(line[len("# SPACR_UNINSTALL_PATH "):])
     except OSError:
         pass
     return paths
@@ -2971,6 +2973,109 @@ def _runtime_staging_allowed(prefix, machine):
                         raise ValueError("editable packages require their source checkout")
 
 
+def _runtime_recovery_inventory(prefix):
+    """Bind runtime content and modes while permitting volatile Python cache directories."""
+    return {path: entry for path, entry in _macos_tree(prefix, allow_external_links=True).items()
+            if "__pycache__" not in path.split(os.sep)}
+
+
+def _recover_runtime_update(transaction, pid, *, machine=None, runner=None, wait=None, swap=None):
+    """Restore an unchanged retained POSIX runtime after the desktop has stopped."""
+    machine = machine or _Machine()
+    runner = runner or _run
+    exchange = swap or _runtime_exchange
+    root = os.path.abspath(transaction)
+    details = os.lstat(root)
+    if (os.path.realpath(root) != root or not stat.S_ISDIR(details.st_mode)
+            or details.st_uid != os.geteuid() or stat.S_IMODE(details.st_mode) & 0o077):
+        raise ValueError("recovery requires the original private transaction directory")
+    descriptor = os.open(os.path.join(root, "transaction.json"), os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(descriptor, encoding="utf-8") as stream:
+        details = os.fstat(stream.fileno())
+        if (not stat.S_ISREG(details.st_mode) or details.st_uid != os.geteuid()
+                or stat.S_IMODE(details.st_mode) & 0o077 or details.st_size > 64 * 1024 * 1024):
+            raise ValueError("recovery requires its unchanged owner-only journal")
+        state = json.load(stream)
+    prefix, backup = state["prefix"], state["rollback_runtime"]
+    if (state.get("schema") != 2 or state.get("family") != "posix-runtime"
+            or state.get("state") not in {"committed", "rolling_back", "rolled_back"}
+            or os.path.dirname(prefix) != os.path.dirname(root)
+            or backup != os.path.join(root, "runtime")
+            or any(os.path.realpath(path) != path for path in (prefix, backup))
+            or _inside(os.path.realpath(sys.prefix), prefix)
+            or _inside(os.path.realpath(sys.prefix), backup)):
+        raise ValueError("recovery requires a retained update and an outside interpreter")
+    for directory in (prefix, backup, os.path.dirname(root)):
+        details = os.lstat(directory)
+        if (not stat.S_ISDIR(details.st_mode) or details.st_uid != os.geteuid()
+                or stat.S_IMODE(details.st_mode) & 0o022):
+            raise ValueError("recovery cannot replace shared runtime directories")
+    if isinstance(pid, bool) or not isinstance(pid, int) or pid <= 0 or pid == os.getpid():
+        raise ValueError("recovery requires the previous desktop process identity")
+    lock = os.path.join(os.path.dirname(prefix), "." + os.path.basename(prefix) + ".spacr-update-lock")
+    os.mkdir(lock, 0o700)
+    try:
+        if not (wait or _wait_for_exit)(pid):
+            raise RuntimeError("spaCR did not close; both runtimes remain unchanged")
+        for path in (prefix, backup):
+            _runtime_staging_allowed(path, machine)
+        left, right = os.stat(prefix), os.stat(backup)
+        identities = ([left.st_dev, left.st_ino], [right.st_dev, right.st_ino])
+        new_at_target = identities == (state["new_identity"], state["old_identity"])
+        old_at_target = identities == (state["old_identity"], state["new_identity"])
+        if ((state["state"] == "committed" and not new_at_target)
+                or (state["state"] == "rolled_back" and not old_at_target)
+                or not (old_at_target or new_at_target)):
+            raise ValueError("journaled runtime directories were replaced; preserving both")
+        wanted = (state["new_inventory"], state["old_inventory"]) if new_at_target else (state["old_inventory"], state["new_inventory"])
+        if (_runtime_recovery_inventory(prefix), _runtime_recovery_inventory(backup)) != wanted:
+            raise ValueError("journaled runtime content changed; preserving both")
+        old = backup if new_at_target else prefix
+        probe = _runtime_identity_command(os.path.join(old, "bin", "python"), prefix=old)
+        probe.insert(2, "-B")
+        code, output = runner(probe)
+        previous_identity = json.loads(output) if code == 0 else {}
+        if code or previous_identity.get("verified") is not True:
+            raise RuntimeError("retained runtime could not be verified; preserving both")
+        if new_at_target:
+            state["state"] = "rolling_back"
+            _runtime_recovery_journal(root, state)
+            exchange(prefix, backup)
+            try:
+                probe = _runtime_identity_command(os.path.join(prefix, "bin", "python"), prefix=prefix)
+                probe.insert(2, "-B")
+                code, output = runner(probe)
+                restored = json.loads(output) if code == 0 else {}
+                if (code or restored.get("verified") is not True
+                        or restored.get("version") != previous_identity.get("version")
+                        or restored.get("distribution") != previous_identity.get("distribution")):
+                    raise RuntimeError("restored runtime could not be verified")
+            except BaseException:
+                exchange(prefix, backup)
+                state["state"] = "committed"
+                _runtime_recovery_journal(root, state)
+                raise
+        state["state"] = "rolled_back"
+        _runtime_recovery_journal(root, state)
+        return state
+    finally:
+        os.rmdir(lock)
+
+
+def _runtime_recovery_journal(root, state):
+    """Publish an owner-only complete recovery journal without a partial JSON window."""
+    descriptor, temporary = tempfile.mkstemp(prefix="transaction-", dir=root)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            json.dump(state, stream, indent=2)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, os.path.join(root, "transaction.json"))
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
 def _transactional_runtime_update(record, version, install, *, machine, runner=None, activate=None):
     """Update a private POSIX runtime through a verified atomic exchange.
 
@@ -2991,7 +3096,9 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
         transaction = tempfile.mkdtemp(prefix=".spacr-runtime-update-", dir=parent)
         staged = os.path.join(transaction, "runtime")
         journal = os.path.join(transaction, "transaction.json")
-        state = {"schema": 1, "prefix": prefix, "rollback_runtime": staged,
+        state = {"schema": 2, "family": "posix-runtime", "prefix": prefix, "rollback_runtime": staged,
+                 "old_identity": [os.stat(prefix).st_dev, os.stat(prefix).st_ino],
+                 "old_inventory": _runtime_recovery_inventory(prefix),
                  "requested_version": str(version), "state": "staging"}
 
         def note(phase):
@@ -2999,6 +3106,7 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
             state["state"] = phase
             temporary = journal + ".next"
             with open(temporary, "w", encoding="utf-8") as handle:
+                os.fchmod(handle.fileno(), 0o600)
                 json.dump(state, handle, indent=2)
                 handle.flush()
                 os.fsync(handle.fileno())
@@ -3066,6 +3174,7 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
                 remainder = handle.read()
             with open(script, "wb") as handle:
                 handle.write(header.replace(os.fsencode(staged), os.fsencode(prefix)) + remainder)
+        state["new_identity"] = [os.stat(staged).st_dev, os.stat(staged).st_ino]
         note("ready")
         _runtime_exchange(prefix, staged)
         exchanged = True
@@ -3083,6 +3192,7 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
         if code:
             raise RuntimeError("The activated application import failed: " + final_import)
         state["verified_version"] = identity["version"]
+        state["new_inventory"] = _runtime_recovery_inventory(prefix)
         note("committed")
         if activate is not None:
             activate(identity["version"])
@@ -3127,14 +3237,97 @@ def _run_macos_online_update(plan, machine, *, wait=None, run=None, spawn=None):
         activate=lambda _version: (spawn or _spawn_detached)(relaunch, None, plan["workdir"]))
 
 
+_PRIVATE_PIP_UPDATE_ERROR = "This environment needs its package manager; spaCR cannot replace it safely. Nothing was changed."
+
+
+def _pip_environment_commands(record, version, workdir, machine):
+    """Bind a dedicated owner-only POSIX venv to its isolated pip command."""
+    if (machine.platform not in {"linux", "macos"} or record.kind != "environment"
+            or not record.running or not record.python or record.platform != machine.platform):
+        raise ValueError(_PRIVATE_PIP_UPDATE_ERROR)
+    prefix = os.path.realpath(record.root)
+    python = os.path.abspath(record.python)
+    if (os.path.abspath(record.root) != prefix
+            or os.path.realpath(machine.running_prefix or "") != prefix
+            or os.path.abspath(machine.executable) != python
+            or os.path.dirname(python) != os.path.join(prefix, "bin")
+            or not os.path.isfile(python) or not os.access(python, os.X_OK)
+            or not os.path.isfile(os.path.join(prefix, "pyvenv.cfg"))
+            or os.path.isdir(os.path.join(prefix, "conda-meta"))):
+        raise ValueError(_PRIVATE_PIP_UPDATE_ERROR)
+    for directory in (prefix, os.path.dirname(prefix)):
+        details = os.lstat(directory)
+        if (not stat.S_ISDIR(details.st_mode) or details.st_uid != os.geteuid()
+                or stat.S_IMODE(details.st_mode) & 0o022):
+            raise ValueError(_PRIVATE_PIP_UPDATE_ERROR)
+    if _inside(os.path.realpath(workdir), prefix):
+        raise ValueError("the updater folder must be outside the installed environment")
+    requested = _macos_online_version(version)
+    if record.version and _macos_online_version(record.version) > requested:
+        raise ValueError("The running spaCR is newer than the requested release. Nothing was changed.")
+    command = [python, "-I", "-m", "pip", "install", "--upgrade", "spacr==" + str(version)]
+    return command, [python, "-I", "-m", "spacr.qt"]
+
+
+def _pip_environment_identity(record, runner):
+    """Read the original runtime without bytecode writes or trusting stale metadata."""
+    probe = _runtime_identity_command(record.python, record.version, prefix=record.root)
+    probe.insert(2, "-B")
+    code, output = runner(probe)
+    try:
+        current = json.loads(output)
+        verified = (code == 0 and current.get("verified") is True
+                    and os.path.realpath(current["prefix"]) == os.path.realpath(record.root)
+                    and os.path.realpath(current["python"]) == os.path.realpath(record.python)
+                    and isinstance(current.get("version"), str))
+        if verified and record.version:
+            verified = _macos_online_version(current["version"]) == _macos_online_version(record.version)
+    except (ValueError, TypeError, KeyError, AttributeError):
+        verified = False
+    if not verified:
+        raise RuntimeError("The desktop interpreter could not be identified; no relaunch was requested.")
+    return current
+
+
+def _run_pip_environment_update(plan, machine, *, wait=None, run=None, spawn=None):
+    """Wait for approved shutdown before updating a verified private pip venv."""
+    records = [_record_from_json(data) for data in plan["records"]]
+    candidates = [record for record in records if record.kind == "environment" and record.running]
+    if len(candidates) != 1 or plan.get("frozen_application"):
+        raise ValueError(_PRIVATE_PIP_UPDATE_ERROR)
+    record = candidates[0]
+    install, relaunch = _pip_environment_commands(record, plan["version"], plan["workdir"], machine)
+    if plan.get("fetch") is not None or plan.get("install") != install or plan.get("relaunch") != relaunch:
+        raise ValueError("the package command does not target this private runtime")
+    _runtime_staging_allowed(os.path.realpath(record.root), machine)
+    runner = run or _run
+    current = _pip_environment_identity(record, runner)
+    if _macos_online_version(current["version"]) > _macos_online_version(plan["version"]):
+        raise ValueError("The running spaCR is newer than the requested release. Nothing was changed.")
+    code, output = runner([record.python, "-I", "-B", "-c", "import pip"])
+    if code:
+        raise RuntimeError(output)
+    handshake = _FrozenUpdateHandshake(plan)
+    handshake.ready()
+    handshake.wait_for_shutdown(wait)
+    _pip_environment_commands(record, plan["version"], plan["workdir"], machine)
+    if _pip_environment_identity(record, runner) != current:
+        raise RuntimeError("The desktop interpreter could not be identified; no relaunch was requested.")
+    return _transactional_runtime_update(
+        record, plan["version"], install, machine=machine, runner=runner,
+        activate=lambda _version: (spawn or _spawn_detached)(relaunch, None, plan["workdir"]))
+
+
 def start_update_helper(records: Sequence[InstallRecord], version: str, *,
                         ticked: Iterable[str] = (), pid: Optional[int] = None,
                         workdir: Optional[str] = None, system=None,
                         spawn=None) -> Dict:
     """Run an installation update in a process that outlives spaCR.
 
-    The running spaCR must be an installer-made copy. The helper waits for
-    this process to exit before changing the installation.
+    Installer-made copies and supported dedicated POSIX pip environments can
+    use this helper. It waits for the running process to exit before changing
+    the installation; the pip adapter also requires authenticated shutdown
+    approval.
 
     For a supported macOS online installation, use the existing bundled
     ``uv`` and private Python to upgrade spaCR in the same environment.
@@ -3168,6 +3361,8 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
     machine = system or _Machine()
     records = list(records)
     running = next((r for r in records if r.kind == "installer" and r.running), None)
+    if running is None:
+        running = next((r for r in records if r.kind == "environment" and r.running), None)
     environment = None
     workdir = workdir or tempfile.mkdtemp(prefix="spacr-update-")
     os.makedirs(workdir, mode=0o700, exist_ok=True)
@@ -3188,6 +3383,22 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
     }
     if running is None:
         plan["error"] = "the running spaCR is not an installer-made copy"
+    elif running.kind == "environment":
+        plan["adapter"] = "pip-private-posix-v1"
+        plan["steps"] = ["wait", "upgrade", "verify", "relaunch"]
+        plan["handshake"] = {"schema": 1, "token": os.urandom(32).hex(),
+                             "expires": time.time() + _FROZEN_PREPARATION_SECONDS}
+        try:
+            if plan["frozen_application"] or len([r for r in records if r.kind == "environment" and r.running]) != 1:
+                raise ValueError(_PRIVATE_PIP_UPDATE_ERROR)
+            plan["install"], plan["relaunch"] = _pip_environment_commands(
+                running, str(version), workdir, machine)
+            _FrozenUpdateHandshake(plan)
+            with open(__file__, "rb") as source, open(module, "wb") as copy:
+                copy.write(source.read())
+            plan["command"] = [running.python, "-I", module, "run-plan", plan_path]
+        except (OSError, ValueError) as error:
+            plan["error"] = str(error)
     elif _macos_online_update_record(records, system=machine) is not None:
         plan["adapter"] = "macos-online-uv-v1"
         plan["steps"] = ["wait", "upgrade", "verify", "relaunch"]
@@ -3399,11 +3610,13 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
         return code
 
     planned_records = [_record_from_json(data) for data in plan["records"]]
-    if plan.get("adapter") == "macos-online-uv-v1":
+    if plan.get("adapter") in {"macos-online-uv-v1", "pip-private-posix-v1"}:
         try:
-            observed, output = _run_macos_online_update(plan, machine, wait=wait, run=run, spawn=spawn)
+            operation = (_run_pip_environment_update if plan["adapter"] == "pip-private-posix-v1"
+                         else _run_macos_online_update)
+            observed, output = operation(plan, machine, wait=wait, run=run, spawn=spawn)
         except Exception as error:
-            lines.append(f"macOS environment update stopped: {error}")
+            lines.append(f"macOS environment update stopped: {error}" if plan["adapter"] == "macos-online-uv-v1" else str(error))
             try:
                 _FrozenUpdateHandshake(plan).failed(error)
             except Exception:
@@ -3485,12 +3698,163 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
     return _finish(0)
 
 
+def _prepare_windows_uninstall(root, workdir, *, machine=None, base_prefix=None):
+    """Copy only this installer's private Windows Python outside the root before removal."""
+    machine = machine or _Machine()
+    root, workdir = os.path.abspath(root), os.path.abspath(workdir)
+    base = os.path.realpath(base_prefix if base_prefix is not None else sys.base_prefix)
+    expected = os.path.join(root, "venv", "Scripts", "python.exe")
+    if (machine.platform != "windows" or os.path.realpath(root) != root
+            or _norm(machine.executable) != _norm(expected)
+            or _norm(machine.running_prefix or "") != _norm(os.path.join(root, "venv"))
+            or not _inside(base, os.path.join(root, "python"))
+            or not os.path.isfile(os.path.join(base, "python.exe"))
+            or os.path.realpath(workdir) != workdir or _inside(workdir, root)
+            or not os.path.isdir(workdir) or os.listdir(workdir)):
+        raise ValueError("uninstall preparation requires this installer's private Python and a fresh outside folder")
+    if os.name != "nt":
+        details = os.stat(workdir)
+        if details.st_uid != os.geteuid() or stat.S_IMODE(details.st_mode) & 0o077:
+            raise ValueError("uninstall preparation requires its private owner folder")
+    if any(_exists(path) and _inside(os.path.realpath(path), base) for path in _user_data(machine)):
+        raise ValueError("user data inside the managed Python must remain untouched")
+    junction = getattr(os.path, "isjunction", None)
+    for directory, folders, files in os.walk(base, followlinks=False):
+        for name in folders + files:
+            path = os.path.join(directory, name)
+            if os.path.islink(path) or (junction is not None and junction(path)):
+                raise ValueError("linked managed Python content cannot be copied for uninstall")
+    runtime = os.path.join(workdir, "runtime")
+    shutil.copytree(base, runtime)
+    module = os.path.join(workdir, "install_cleanup.py")
+    shutil.copy2(__file__, module)
+    command = [os.path.join(runtime, "python.exe"), "-I", module, "remove",
+               "--only-root", root, "--require-outside"]
+    return {"schema": 1, "workdir": workdir, "root": root, "command": command}
+
+
+def _installer_metadata_snapshot(folder, paths):
+    """Copy explicit installer sidecars without following links or changing their sources."""
+    root = os.path.abspath(folder)
+    if root != os.path.realpath(root):
+        raise ValueError({"code": "linked_metadata_folder", "path": root})
+    selected = sorted(set(os.path.join(os.path.realpath(os.path.dirname(os.path.abspath(path))),
+                                       os.path.basename(path)) for path in paths))
+    if not 0 < len(selected) <= 32 or any(_inside(path, root) for path in selected):
+        raise ValueError({"code": "invalid_metadata_selection"})
+    os.mkdir(root, 0o700)
+    details = os.stat(root)
+    state = {"schema": 1, "family": "installer-metadata", "folder": root,
+             "identity": [details.st_dev, details.st_ino], "records": []}
+    for index, path in enumerate(selected):
+        record = {"path": path, "parent": os.path.dirname(path), "kind": "absent"}
+        if os.path.lexists(path):
+            details = os.lstat(path)
+            backup = os.path.join(root, str(index))
+            if stat.S_ISLNK(details.st_mode):
+                target = os.readlink(path)
+                os.symlink(target, backup)
+                record.update(kind="link", backup=str(index), target=target)
+            elif stat.S_ISREG(details.st_mode):
+                shutil.copy2(path, backup)
+                record.update(kind="file", backup=str(index), sha256=_macos_digest(backup))
+            else:
+                raise ValueError({"code": "unsupported_metadata_entry", "path": path})
+        state["records"].append(record)
+    descriptor, temporary = tempfile.mkstemp(prefix="metadata-", dir=root)
+    with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+        json.dump(state, stream, indent=2)
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.replace(temporary, os.path.join(root, "metadata.json"))
+    return state
+
+
+def _installer_metadata_restore(folder):
+    """Validate retained sidecars before atomically restoring their original files or absence."""
+    root = os.path.abspath(folder)
+    details = os.lstat(root)
+    if (root != os.path.realpath(root) or not stat.S_ISDIR(details.st_mode)
+            or (os.name != "nt" and (details.st_uid != os.geteuid()
+                                     or stat.S_IMODE(details.st_mode) & 0o077))):
+        raise ValueError({"code": "untrusted_metadata_folder", "path": root})
+    journal_path = os.path.join(root, "metadata.json")
+    if os.path.islink(journal_path):
+        raise ValueError({"code": "linked_metadata_journal"})
+    descriptor = os.open(journal_path, os.O_RDONLY
+                         | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0))
+    with os.fdopen(descriptor, encoding="utf-8") as stream:
+        journal = os.fstat(stream.fileno())
+        if not stat.S_ISREG(journal.st_mode) or journal.st_size > 16 * 1024 * 1024:
+            raise ValueError({"code": "invalid_metadata_journal"})
+        state = json.load(stream)
+    if (state.get("schema") != 1 or state.get("family") != "installer-metadata"
+            or state.get("folder") != root or state.get("identity") != [details.st_dev, details.st_ino]
+            or not isinstance(state.get("records"), list) or not 0 < len(state["records"]) <= 32):
+        raise ValueError({"code": "invalid_metadata_binding"})
+    seen = set()
+    for record in state["records"]:
+        path = record["path"]
+        if (not os.path.isabs(path) or path in seen or _inside(path, root)
+                or os.path.dirname(path) != record["parent"]
+                or os.path.realpath(os.path.dirname(path)) != record["parent"]):
+            raise ValueError({"code": "changed_metadata_parent", "path": path})
+        seen.add(path)
+        kind = record["kind"]
+        if kind == "absent":
+            continue
+        name = record["backup"]
+        if not isinstance(name, str) or not name.isdecimal() or str(int(name)) != name:
+            raise ValueError({"code": "invalid_metadata_backup"})
+        backup = os.path.join(root, name)
+        details = os.lstat(backup)
+        if kind == "file":
+            if not stat.S_ISREG(details.st_mode) or _macos_digest(backup) != record["sha256"]:
+                raise ValueError({"code": "changed_metadata_backup", "path": backup})
+        elif kind == "link":
+            if not stat.S_ISLNK(details.st_mode) or os.readlink(backup) != record["target"]:
+                raise ValueError({"code": "changed_metadata_backup", "path": backup})
+        else:
+            raise ValueError({"code": "invalid_metadata_kind"})
+    for record in state["records"]:
+        path = record["path"]
+        if record["kind"] == "absent":
+            if os.path.lexists(path):
+                os.unlink(path)
+            continue
+        descriptor, temporary = tempfile.mkstemp(prefix=".spacr-metadata-", dir=record["parent"])
+        os.close(descriptor)
+        try:
+            if record["kind"] == "link":
+                os.unlink(temporary)
+                os.symlink(record["target"], temporary)
+            else:
+                shutil.copy2(os.path.join(root, record["backup"]), temporary)
+            os.replace(temporary, path)
+        finally:
+            if os.path.lexists(temporary):
+                os.unlink(temporary)
+    return {"schema": 1, "state": "restored", "folder": root, "paths": sorted(seen)}
+
+
+def _cleanup_translate(source, **values):
+    """Use the application catalog when available while keeping standalone helpers usable."""
+    try:
+        from spacr.qt.i18n import tr as application_tr
+        return application_tr(source, **values)
+    except Exception:
+        return str(source).format(**values)
+
+
+tr = _cleanup_translate
+
+
 def _main(argv: Optional[Sequence[str]] = None) -> int:
     """Command line used by the installers and by the update helper.
 
     :param argv: arguments; :data:`sys.argv` when ``None``.
     :returns: the exit code; ``1`` when an installer-made copy was not removed,
-        or ``6`` when frozen macOS recovery or its launch request fails.
+        or ``6`` when retained-runtime recovery or its launch request fails.
     """
     parser = argparse.ArgumentParser(
         prog="install_cleanup",
@@ -3507,6 +3871,8 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     find.add_argument("--root", default="/", help=argparse.SUPPRESS)
     remove = commands.add_parser("remove", help="remove every installer-made copy")
     remove.add_argument("--keep", action="append", default=[])
+    remove.add_argument("--only-root", help=tr("remove only this recognized installation, preserving its data"))
+    remove.add_argument("--require-outside", action="store_true", help=tr("require an interpreter outside the selected root"))
     remove.add_argument("--sudo", action="store_true")
     remove.add_argument("--root", default="/", help=argparse.SUPPRESS)
     remove.add_argument("--purge", action="store_true",
@@ -3525,7 +3891,42 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     recover.add_argument("--protected", action="store_true")
     recover.add_argument("--version")
     recover.add_argument("--sha256")
+    runtime_recover = commands.add_parser("recover-runtime", help=tr("restore one unchanged retained private POSIX runtime"))
+    runtime_recover.add_argument("transaction")
+    runtime_recover.add_argument("--pid", type=int, required=True, help=tr("previous desktop process that must have exited"))
+    prepare_uninstall = commands.add_parser("prepare-windows-uninstall", help=tr("copy the private managed Python outside this installation"))
+    prepare_uninstall.add_argument("--install-root", required=True)
+    prepare_uninstall.add_argument("--workdir", required=True)
+    metadata = commands.add_parser("installer-metadata", help=tr("preserve or restore installer-owned metadata"))
+    metadata.add_argument("action", choices=("snapshot", "restore"))
+    metadata.add_argument("--folder", required=True)
+    metadata.add_argument("--paths", nargs="*")
     args = parser.parse_args(argv)
+    if args.command == "installer-metadata":
+        try:
+            receipt = (_installer_metadata_snapshot(args.folder, args.paths or [])
+                       if args.action == "snapshot" else _installer_metadata_restore(args.folder))
+        except Exception as error:
+            print(json.dumps({"ok": False, "error": str(error)}))
+            return 1
+        print(json.dumps(receipt, sort_keys=True))
+        return 0
+    if args.command == "prepare-windows-uninstall":
+        try:
+            receipt = _prepare_windows_uninstall(args.install_root, args.workdir)
+        except Exception as error:
+            print(tr("Uninstall preparation stopped: {error}", error=str(error)))
+            return 1
+        print(json.dumps(receipt, sort_keys=True))
+        return 0
+    if args.command == "recover-runtime":
+        try:
+            receipt = _recover_runtime_update(args.transaction, args.pid)
+        except Exception as error:
+            print(tr("Runtime recovery stopped: {error}", error=str(error)))
+            return 6
+        print(json.dumps(receipt, sort_keys=True))
+        return 0
     if args.command == "verify-runtime":
         if args.retiring_prefix:
             retained = [path for path in _user_data(_Machine()) if _exists(path)
@@ -3561,7 +3962,20 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     if args.command == "purge":
         return _purge_command(machine, yes=args.yes, dry_run=args.dry_run)
     machine.running_prefix = None
+    if args.command == "remove" and args.require_outside:
+        if (not args.only_root or any(_inside(os.path.realpath(path), os.path.realpath(args.only_root))
+                                     for path in (sys.prefix, sys.executable, __file__))):
+            print(tr("Uninstall requires a helper and interpreter outside the selected installation."))
+            return 1
     records = find_old_installs(system=machine)
+    if args.command == "remove" and args.only_root:
+        requested = os.path.abspath(args.only_root)
+        selected = [record for record in records if record.kind == "installer"
+                    and os.path.abspath(record.root) == requested]
+        if (args.purge or os.path.realpath(requested) != requested or len(selected) != 1):
+            print(tr("Targeted removal requires one recognized canonical installation and cannot purge user data."))
+            return 1
+        records = selected
     if args.command == "find":
         if args.json:
             print(json.dumps([asdict(r) for r in records], indent=2))
