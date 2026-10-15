@@ -50765,10 +50765,11 @@
         "2de95c850863f69a7e8108dba21b32c33e4ae423668d17b0c2ef15520c596245",
         "81c3515ab578b2e0f9514e4f31726833f5e4c37e979541a333bb840d27c82a7e",
         "f9f1d4802d834c1642e674516be0bd72af17c2dcb532e8312c8826f5f0475465",
-        "f5ec5baba894fe0d212397ff9ceecab0a436392adbdd5c0b39306bef40d81fdb"
+        "f5ec5baba894fe0d212397ff9ceecab0a436392adbdd5c0b39306bef40d81fdb",
+        "f71c97a043d7ae6573bb4634a8d2a494cc64356e277832269a481de4821db8a9"
       ],
-      "source_sha256": "c595a4e194a5267acb2b45b18ae2f4a7e6347522136e4ced8ea2a6a9059e2779",
-      "text": "Aufzeichnung eines Modells: Standort, Checksumme und Herkunft.\n\nUnveränderlich, weil ein Eintrag *eine Datei zu einem bestimmten Zeitpunkt beschreibt*: Hash, Größe und Herkunft beziehen sich auf genau diese Bytes. Eine Änderung eines dieser Werte am vorhandenen Eintrag würde die beiden anderen unbemerkt ungültig machen. :func:`dataclasses.replace` macht den neuen Datensatz ausdrücklich sichtbar.\n\n:param key: stabile, innerhalb einer Liste eindeutige Kennung. Bei einer lokalen Datei wird sie aus dem Dateinamen abgeleitet; bei einem Katalogeintrag wird die dort angegebene Kennung verwendet.\n:param name: der Dateiname oder veröffentlichte Name, den Nutzer lesen.\n:param kind: ``'cellpose'`` oder ``'classifier'``; siehe :data:`KINDS`.\n:param source: ``'bundled'`` (mit spaCR ausgeliefert), ``'local'`` (auf diesem Rechner gefunden) oder ``'remote'`` (im Katalog verzeichnet, noch nicht heruntergeladen).\n:param path: absoluter Pfad auf diesem Rechner oder ``''`` bei einem entfernten Eintrag.\n:param uri: die Download-Adresse eines entfernten Eintrags oder ``''``.\n:param version: die eigene Versionsnummer des Modellkatalogs für einen Dateinamen. ``'1'`` für einen einfachen Namen, ``'2'`` für ``foo_v2.CP_model`` (siehe :func:`versioned_path`) oder die im Katalog angegebene Version.\n:param sha256: hexadezimale Prüfsumme. Bei einem heruntergeladenen Modell gehört sie zu den tatsächlich geschriebenen Bytes; bei einem Katalogeintrag ist sie die veröffentlichte Vergleichsprüfsumme. ``''`` bedeutet \"no checksum known\", also keine bekannte Prüfsumme. :func:`fetch` lehnt dies ab, statt es als bestandene Prüfung zu behandeln.\n:param size_bytes: Dateigröße; ``0``, wenn unbekannt.\n:param trained_on: die zum Training verwendeten Daten als Text oder :data:`UNKNOWN`. Niemals ``''``.\n:param trained_by: die trainierende Person oder Stelle oder :data:`UNKNOWN`. Niemals ``''``.\n:param metrics: die mitgelieferten Kennzahlen; bei einem Klassifikationsmodell die von :func:`spacr.train_compare.load_run` wiedergewonnenen Kennzahlen der besten beziehungsweise letzten Epoche. Vom Gleichheitsvergleich ausgeschlossen: Zwei Datensätze zu denselben Bytes bezeichnen dasselbe Modell, auch wenn nur einer Kennzahlen enthält.\n:param notes: weitere wichtige Angaben, die kein eigenes Feld haben: fehlende Herkunft, ein nicht verifizierter Download oder eine Datei, die nicht wie ein Checkpoint aussieht.\n:param verified: nur dann True, wenn :attr:`sha256` mit einer veröffentlichten Prüfsumme verglichen wurde. Eine heruntergeladene Datei, deren Hash lediglich *aufgezeichnet* wurde, gilt nicht als verifiziert; dies wird angegeben.\n:param settings_path: die Quelle der Herkunftsangaben, die Nutzer selbst nachlesen können.\n:param licence: die vom Herausgeber angegebene Lizenz des Modells oder Pakets, nach Möglichkeit als SPDX-Kennung, oder ``''``, wenn keine Lizenz erfasst wurde.",
+      "source_sha256": "41d818f12120b29303ae51f487dedc7771495589d8cafc8e73267bd22ce6b3a2",
+      "text": "Aufzeichnung eines Modells: Standort, Checksumme und Herkunft.\n\nUnveränderlich, weil ein Eintrag *eine Datei zu einem bestimmten Zeitpunkt beschreibt*: Hash, Größe und Herkunft beziehen sich auf genau diese Bytes. Eine Änderung eines dieser Werte am vorhandenen Eintrag würde die beiden anderen unbemerkt ungültig machen. :func:`dataclasses.replace` macht den neuen Datensatz ausdrücklich sichtbar.\n\n:param key: stabile, innerhalb einer Liste eindeutige Kennung. Bei einer lokalen Datei wird sie aus dem Dateinamen abgeleitet; bei einem Katalogeintrag wird die dort angegebene Kennung verwendet.\n:param name: der Dateiname oder veröffentlichte Name, den Nutzer lesen.\n:param kind: ``'cellpose'`` oder ``'classifier'``; siehe :data:`KINDS`.\n:param source: ``'bundled'`` (mit spaCR ausgeliefert), ``'local'`` (auf diesem Rechner gefunden) oder ``'remote'`` (im Katalog verzeichnet, noch nicht heruntergeladen).\n:param path: absoluter Pfad auf diesem Rechner oder ``''`` bei einem entfernten Eintrag.\n:param uri: die Download-Adresse eines entfernten Eintrags oder ``''``.\n:param version: die eigene Versionsnummer des Modellkatalogs für einen Dateinamen. ``'1'`` für einen einfachen Namen, ``'2'`` für ``foo_v2.CP_model`` (siehe :func:`versioned_path`) oder die im Katalog angegebene Version.\n:param sha256: hexadezimale Prüfsumme. Bei einem heruntergeladenen Modell gehört sie zu den tatsächlich geschriebenen Bytes; bei einem Katalogeintrag ist sie die veröffentlichte Vergleichsprüfsumme. ``''`` bedeutet \"no checksum known\", also keine bekannte Prüfsumme. :func:`fetch` lehnt dies ab, statt es als bestandene Prüfung zu behandeln.\n:param size_bytes: Dateigröße; ``0``, wenn unbekannt.\n:param trained_on: die zum Training verwendeten Daten als Text oder :data:`UNKNOWN`. Niemals ``''``.\n:param trained_by: die trainierende Person oder Stelle oder :data:`UNKNOWN`. Niemals ``''``.\n:param metrics: die mitgelieferten Kennzahlen; bei einem Klassifikationsmodell die von :func:`spacr.train_compare.load_run` wiedergewonnenen Kennzahlen der besten beziehungsweise letzten Epoche. Vom Gleichheitsvergleich ausgeschlossen: Zwei Datensätze zu denselben Bytes bezeichnen dasselbe Modell, auch wenn nur einer Kennzahlen enthält.\n:param notes: weitere wichtige Angaben, die kein eigenes Feld haben: fehlende Herkunft, ein nicht verifizierter Download oder eine Datei, die nicht wie ein Checkpoint aussieht.\n:param verified: nur dann True, wenn :attr:`sha256` mit einer veröffentlichten Prüfsumme verglichen wurde. Eine heruntergeladene Datei, deren Hash lediglich *aufgezeichnet* wurde, gilt nicht als verifiziert; dies wird angegeben.\n:param settings_path: die Quelle der Herkunftsangaben, die Nutzer selbst nachlesen können.\n:param licence: die vom Herausgeber angegebene Lizenz des Modells oder Pakets, nach Möglichkeit als SPDX-Kennung, oder ``''``, wenn keine Lizenz erfasst wurde.\n:param _curated_card: Interne Darstellungsmarkierung, die erst gesetzt wird, wenn die eingebaute Deklaration, der Modellprüfpunkt und die mitgelieferte Modellkarte mit den geprüften Identitäten übereinstimmen. Serialisierte Katalogfelder aktivieren diese Markierung nicht.",
       "translation_source_blocks_sha256": [
         "ad44ea86f72154c401797be36589ae526a39d0c59be70efb1c6e569f141fe5a3",
         "ee3466ed99b0742fd1d5e7d6f75ae656b8ed640fcdb14898742b934c818e9462",
@@ -50787,7 +50788,8 @@
         "2de95c850863f69a7e8108dba21b32c33e4ae423668d17b0c2ef15520c596245",
         "81c3515ab578b2e0f9514e4f31726833f5e4c37e979541a333bb840d27c82a7e",
         "f9f1d4802d834c1642e674516be0bd72af17c2dcb532e8312c8826f5f0475465",
-        "f5ec5baba894fe0d212397ff9ceecab0a436392adbdd5c0b39306bef40d81fdb"
+        "f5ec5baba894fe0d212397ff9ceecab0a436392adbdd5c0b39306bef40d81fdb",
+        "f71c97a043d7ae6573bb4634a8d2a494cc64356e277832269a481de4821db8a9"
       ]
     },
     "spacr.model_zoo.ModelEntry.__post_init__": {
@@ -50818,12 +50820,14 @@
     },
     "spacr.model_zoo.ModelEntry.describe": {
       "source_blocks_sha256": [
-        "b038bbf4cabe4eed824e209ec17af1b96e8fc2ccd6cfd7a99e8667794493b15f"
+        "b038bbf4cabe4eed824e209ec17af1b96e8fc2ccd6cfd7a99e8667794493b15f",
+        "91b666544b71ab9ab9066a18ae42a1b99943913cc09ca7d72564972be7ca7954"
       ],
-      "source_sha256": "b038bbf4cabe4eed824e209ec17af1b96e8fc2ccd6cfd7a99e8667794493b15f",
-      "text": "Die neben einem ausgewählten Modell gezeigte Mehrlinien-Provenienzkarte.",
+      "source_sha256": "e0b1edd24db47e6517623a0046698a5a1bd5b47359cce0d31430d139f6cbc2f3",
+      "text": "Die neben einem ausgewählten Modell gezeigte Mehrlinien-Provenienzkarte.\n\nVertrauenswürdige eingebaute Modellkarten zeigen die sechs freigegebenen Messwerte und die ausdrückliche Identität der Auswertung. Ihre historischen Auswertungen und Quellprüfsummen bleiben in den Daten des Eintrags erhalten, ohne diese Darstellung zu überladen. Andere Einträge behalten ihre ursprüngliche vollständige Metadatenbeschreibung.",
       "translation_source_blocks_sha256": [
-        "b038bbf4cabe4eed824e209ec17af1b96e8fc2ccd6cfd7a99e8667794493b15f"
+        "b038bbf4cabe4eed824e209ec17af1b96e8fc2ccd6cfd7a99e8667794493b15f",
+        "91b666544b71ab9ab9066a18ae42a1b99943913cc09ca7d72564972be7ca7954"
       ]
     },
     "spacr.model_zoo.ModelEntry.exists": {
@@ -50885,13 +50889,13 @@
     "spacr.model_zoo.ModelEntry.scorecard_lines": {
       "source_blocks_sha256": [
         "327404cd50a0a6d00badad4e8704788893893a720b1d8e4c9149f663209762ed",
-        "8fcf252fdaf8aabc9d481d074a1a98977103ba025ab1603ea68aceee113fd9e9"
+        "5f451829e983cce730ebefed3bf28b46beb61595b59cbdbc06af6549654b7b6e"
       ],
-      "source_sha256": "04652c5d684db1c904e98786f945120ad770d48643c253d16a848b9a71f6c042",
-      "text": "Die Scorecard als Anzeigezeilen oder der Satz, der besagt, dass es keine gibt.\n\nDie Zeilen stammen aus :func:`spacr.scorecard.headline`, die auf die fein abgestimmten Werte mit den Vanillewerten als Ausgangswert angewendet werden, gefolgt von dem Hold-Out-Satz, wenn man aufgenommen wird. Ohne Scorecard enthält die Liste die einzelne Zeile :data:`spacr.scorecard.NO_SCORECARD`.",
+      "source_sha256": "646d8c135ddd202def53fb1fd4a438ffc3cb2e18f56f6776dc042f26f2054e7b",
+      "text": "Die Scorecard als Anzeigezeilen oder der Satz, der besagt, dass es keine gibt.\n\nVertrauenswürdige eingebaute Modellkarten zeigen alle sechs freigegebenen, mit dem Basismodell verglichenen Messwerte sowie ihren Datensatz und die Anzahlen; ihr Rand-F1 verwendet eine Toleranz von zwei Pixeln. Andere Einträge wenden weiterhin :func:`spacr.scorecard.headline` auf ihre feinabgestimmten Werte und die Werte des unveränderten Basismodells an, gefolgt vom aufgezeichneten zurückgehaltenen Testsatz. Messungen mit einer Toleranz von einem Pixel behalten ihre ursprüngliche Bedeutung. Ohne Ergebniskarte enthält die Liste :data:`spacr.scorecard.NO_SCORECARD`.",
       "translation_source_blocks_sha256": [
         "327404cd50a0a6d00badad4e8704788893893a720b1d8e4c9149f663209762ed",
-        "8fcf252fdaf8aabc9d481d074a1a98977103ba025ab1603ea68aceee113fd9e9"
+        "5f451829e983cce730ebefed3bf28b46beb61595b59cbdbc06af6549654b7b6e"
       ]
     },
     "spacr.model_zoo.ModelEntry.summary_line": {
@@ -51732,15 +51736,17 @@
       "source_blocks_sha256": [
         "e89c42cf82d5b5fce3de712de335e052fb1f87247a4fe77c7bb2996df414d725",
         "7ed9e1704ab9d1c601abbd42fc29ae03b04af9dc94d277fcc6a79860de2f34f1",
+        "9ae362ddf4951d2a798a9f5ae46ef5c69c86b7d4654e1b187b10212f22d0761f",
         "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
         "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
         "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef"
       ],
-      "source_sha256": "59306e507093cfcf2ae27b6754f1a79e843d025c1c49991be8b8143255f4c2be",
-      "text": "Die Kennzahlenübersicht des Modells als HTML-Tabelle für einen Tooltip.\n\nDie Tabelle ist die gleiche, die die Modellkarte druckt, so dass zwei Modelle Zahlen verglichen werden können, ohne Prosa zu lesen. Wenn ein Eintrag keine Metriken veröffentlicht, gibt dies ``\"\"`` zurück, und der Tooltip des Zoo-Bildschirms zeigt stattdessen die Prosabeschreibung des Eintrags an.\n\nKennzahlen ohne einen der vorgesehenen Schlüssel, etwa ein freier Hinweis oder ein Trainingsverlust unter einem eigenen Namen, bilden ebenfalls keine solche Übersicht und führen zu einer leeren Rückgabe. Elf Tabellenzeilen mit \"not recorded\" würden sonst einen aussagekräftigen zweizeiligen Hinweis verdrängen.\n\n:param entry: ein Katalogeintrag oder ein anderes Objekt mit ``metrics`` und einem Namen.\n:returns: die HTML-Tabelle oder ``\"\"``, wenn keine Kennzahlenübersicht angezeigt werden kann.",
+      "source_sha256": "2ecb03fc23af28e49da4fb9ddfde2c0879b0942497f10d59d9518d54315f1571",
+      "text": "Die Kennzahlenübersicht des Modells als HTML-Tabelle für einen Tooltip.\n\nDie Tabelle ist die gleiche, die die Modellkarte druckt, so dass zwei Modelle Zahlen verglichen werden können, ohne Prosa zu lesen. Wenn ein Eintrag keine Metriken veröffentlicht, gibt dies ``\"\"`` zurück, und der Tooltip des Zoo-Bildschirms zeigt stattdessen die Prosabeschreibung des Eintrags an.\n\nVertrauenswürdige eingebaute Modellkarten enthalten alle sechs freigegebenen Vergleichszeilen zum Basismodell und die Identität ihrer Auswertung; Rand-F1 verwendet eine Toleranz von zwei Pixeln. Andere Einträge behalten ihre veröffentlichten Felder und deren bisherige Interpretation.\n\nKennzahlen ohne einen der vorgesehenen Schlüssel, etwa ein freier Hinweis oder ein Trainingsverlust unter einem eigenen Namen, bilden ebenfalls keine solche Übersicht und führen zu einer leeren Rückgabe. Elf Tabellenzeilen mit \"not recorded\" würden sonst einen aussagekräftigen zweizeiligen Hinweis verdrängen.\n\n:param entry: ein Katalogeintrag oder ein anderes Objekt mit ``metrics`` und einem Namen.\n:returns: die HTML-Tabelle oder ``\"\"``, wenn keine Kennzahlenübersicht angezeigt werden kann.",
       "translation_source_blocks_sha256": [
         "e89c42cf82d5b5fce3de712de335e052fb1f87247a4fe77c7bb2996df414d725",
         "7ed9e1704ab9d1c601abbd42fc29ae03b04af9dc94d277fcc6a79860de2f34f1",
+        "9ae362ddf4951d2a798a9f5ae46ef5c69c86b7d4654e1b187b10212f22d0761f",
         "49e15e3e04723280993a98113e2e957dd03f4b1ab98e82df0f4dd5fa0b11e028",
         "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
         "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef"

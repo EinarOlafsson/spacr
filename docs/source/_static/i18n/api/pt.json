@@ -50765,10 +50765,11 @@
         "2de95c850863f69a7e8108dba21b32c33e4ae423668d17b0c2ef15520c596245",
         "81c3515ab578b2e0f9514e4f31726833f5e4c37e979541a333bb840d27c82a7e",
         "f9f1d4802d834c1642e674516be0bd72af17c2dcb532e8312c8826f5f0475465",
-        "f5ec5baba894fe0d212397ff9ceecab0a436392adbdd5c0b39306bef40d81fdb"
+        "f5ec5baba894fe0d212397ff9ceecab0a436392adbdd5c0b39306bef40d81fdb",
+        "f71c97a043d7ae6573bb4634a8d2a494cc64356e277832269a481de4821db8a9"
       ],
-      "source_sha256": "c595a4e194a5267acb2b45b18ae2f4a7e6347522136e4ced8ea2a6a9059e2779",
-      "text": "Registro de um modelo: sua localização, checksum e proveniência.\n\nCongelado porque uma entrada é um *registro de um arquivo em um momento* o hash, o tamanho e a proveniência descrevem esses bytes. A mudança de um no lugar invalidaria silenciosamente os outros dois; :func:`dataclasses.replace` torna o novo registro explícito.\n\n:param key: id estável, único dentro de uma listagem. Para um arquivo local, isso é derivado do nome do arquivo; para uma entrada de catálogo, é o que o catálogo declarou.\n:param name: o nome do arquivo (ou o nome publicado) – o que um ser humano lê.\n:param kind: ``'cellpose'`` ou ``'classifier'``; veja :data:`KINDS`.\n:param source: ``'bundled'`` (navios com spaCR), ``'local'`` (encontrado nesta máquina) ou ``'remote'`` (declarado em um catálogo, ainda não obtido).\n:param path: caminho absoluto nesta máquina, ou ``''`` para uma entrada remota.\n:param uri: onde uma entrada remota é obtida, ou ``''``.\n:param version: ``'1'`` para um nome simples, ``'2'`` para ``foo_v2.CP_model`` (ver :func:`versioned_path`), ou qualquer catálogo declarado.\n:param sha256: hex digest. Para um modelo baixado, este é o resumo dos bytes que foram realmente escritos; para uma entrada de catálogo, é o sumário publicado para verificar; ``''`` significa \"no checksum known\", que :func:`fetch` trata como uma recusa em vez de uma passagem.\n:param size_bytes: tamanho do arquivo, ``0`` quando desconhecido.\n:param trained_on: quais dados produziram este modelo, em prosa, ou :data:`UNKNOWN`. Nunca ``''``.\n:param trained_by: quem o produziu, ou :data:`UNKNOWN`. Nunca ``''``.\n:param metrics: os números que vieram com ele para um modelo de classificação de aprendizado de máquina, as melhores/últimas métricas da época :func:`spacr.train_compare.load_run` se recuperaram. Excluídos da igualdade: dois registros dos mesmos bytes são o mesmo modelo, independentemente de alguém anexar números a um deles.\n:param notes: tudo o que o leitor precisa saber que não é um campo: falta de proveniência, um download não verificado, um arquivo que não se parece com um ponto de verificação.\n:param verified: True somente quando :attr:`sha256` foi verificado contra um resumo publicado. Um arquivo baixado cujo hash era meramente *gravados* Não é verificado, e diz isso.\n:param settings_path: de onde veio a proveniência, para o leitor que quer ir e olhar para ela.\n:param licence: a licença sob a qual o modelo ou pacote é publicado, conforme declarada por quem o publica (um identificador SPDX, quando existe), ou ``''`` quando nenhuma está registrada.",
+      "source_sha256": "41d818f12120b29303ae51f487dedc7771495589d8cafc8e73267bd22ce6b3a2",
+      "text": "Registro de um modelo: sua localização, checksum e proveniência.\n\nCongelado porque uma entrada é um *registro de um arquivo em um momento* o hash, o tamanho e a proveniência descrevem esses bytes. A mudança de um no lugar invalidaria silenciosamente os outros dois; :func:`dataclasses.replace` torna o novo registro explícito.\n\n:param key: id estável, único dentro de uma listagem. Para um arquivo local, isso é derivado do nome do arquivo; para uma entrada de catálogo, é o que o catálogo declarou.\n:param name: o nome do arquivo (ou o nome publicado) – o que um ser humano lê.\n:param kind: ``'cellpose'`` ou ``'classifier'``; veja :data:`KINDS`.\n:param source: ``'bundled'`` (navios com spaCR), ``'local'`` (encontrado nesta máquina) ou ``'remote'`` (declarado em um catálogo, ainda não obtido).\n:param path: caminho absoluto nesta máquina, ou ``''`` para uma entrada remota.\n:param uri: onde uma entrada remota é obtida, ou ``''``.\n:param version: ``'1'`` para um nome simples, ``'2'`` para ``foo_v2.CP_model`` (ver :func:`versioned_path`), ou qualquer catálogo declarado.\n:param sha256: hex digest. Para um modelo baixado, este é o resumo dos bytes que foram realmente escritos; para uma entrada de catálogo, é o sumário publicado para verificar; ``''`` significa \"no checksum known\", que :func:`fetch` trata como uma recusa em vez de uma passagem.\n:param size_bytes: tamanho do arquivo, ``0`` quando desconhecido.\n:param trained_on: quais dados produziram este modelo, em prosa, ou :data:`UNKNOWN`. Nunca ``''``.\n:param trained_by: quem o produziu, ou :data:`UNKNOWN`. Nunca ``''``.\n:param metrics: os números que vieram com ele para um modelo de classificação de aprendizado de máquina, as melhores/últimas métricas da época :func:`spacr.train_compare.load_run` se recuperaram. Excluídos da igualdade: dois registros dos mesmos bytes são o mesmo modelo, independentemente de alguém anexar números a um deles.\n:param notes: tudo o que o leitor precisa saber que não é um campo: falta de proveniência, um download não verificado, um arquivo que não se parece com um ponto de verificação.\n:param verified: True somente quando :attr:`sha256` foi verificado contra um resumo publicado. Um arquivo baixado cujo hash era meramente *gravados* Não é verificado, e diz isso.\n:param settings_path: de onde veio a proveniência, para o leitor que quer ir e olhar para ela.\n:param licence: a licença sob a qual o modelo ou pacote é publicado, conforme declarada por quem o publica (um identificador SPDX, quando existe), ou ``''`` quando nenhuma está registrada.\n:param _curated_card: Marcador interno de apresentação definido apenas quando a declaração integrada, o ponto de verificação do modelo e a ficha incluída correspondem às identidades revistas. Os campos serializados do catálogo não ativam este marcador.",
       "translation_source_blocks_sha256": [
         "ad44ea86f72154c401797be36589ae526a39d0c59be70efb1c6e569f141fe5a3",
         "ee3466ed99b0742fd1d5e7d6f75ae656b8ed640fcdb14898742b934c818e9462",
@@ -50787,7 +50788,8 @@
         "2de95c850863f69a7e8108dba21b32c33e4ae423668d17b0c2ef15520c596245",
         "81c3515ab578b2e0f9514e4f31726833f5e4c37e979541a333bb840d27c82a7e",
         "f9f1d4802d834c1642e674516be0bd72af17c2dcb532e8312c8826f5f0475465",
-        "f5ec5baba894fe0d212397ff9ceecab0a436392adbdd5c0b39306bef40d81fdb"
+        "f5ec5baba894fe0d212397ff9ceecab0a436392adbdd5c0b39306bef40d81fdb",
+        "f71c97a043d7ae6573bb4634a8d2a494cc64356e277832269a481de4821db8a9"
       ]
     },
     "spacr.model_zoo.ModelEntry.__post_init__": {
@@ -50818,12 +50820,14 @@
     },
     "spacr.model_zoo.ModelEntry.describe": {
       "source_blocks_sha256": [
-        "b038bbf4cabe4eed824e209ec17af1b96e8fc2ccd6cfd7a99e8667794493b15f"
+        "b038bbf4cabe4eed824e209ec17af1b96e8fc2ccd6cfd7a99e8667794493b15f",
+        "91b666544b71ab9ab9066a18ae42a1b99943913cc09ca7d72564972be7ca7954"
       ],
-      "source_sha256": "b038bbf4cabe4eed824e209ec17af1b96e8fc2ccd6cfd7a99e8667794493b15f",
-      "text": "O cartão de proveniência multilinha é mostrado ao lado de um modelo selecionado.",
+      "source_sha256": "e0b1edd24db47e6517623a0046698a5a1bd5b47359cce0d31430d139f6cbc2f3",
+      "text": "O cartão de proveniência multilinha é mostrado ao lado de um modelo selecionado.\n\nAs fichas integradas de confiança mostram as seis medições aceites e a identidade explícita da avaliação. As avaliações históricas e os resumos criptográficos das fontes permanecem nos dados da entrada sem sobrecarregar esta apresentação. As outras entradas mantêm a descrição completa original dos metadados.",
       "translation_source_blocks_sha256": [
-        "b038bbf4cabe4eed824e209ec17af1b96e8fc2ccd6cfd7a99e8667794493b15f"
+        "b038bbf4cabe4eed824e209ec17af1b96e8fc2ccd6cfd7a99e8667794493b15f",
+        "91b666544b71ab9ab9066a18ae42a1b99943913cc09ca7d72564972be7ca7954"
       ]
     },
     "spacr.model_zoo.ModelEntry.exists": {
@@ -50885,13 +50889,13 @@
     "spacr.model_zoo.ModelEntry.scorecard_lines": {
       "source_blocks_sha256": [
         "327404cd50a0a6d00badad4e8704788893893a720b1d8e4c9149f663209762ed",
-        "8fcf252fdaf8aabc9d481d074a1a98977103ba025ab1603ea68aceee113fd9e9"
+        "5f451829e983cce730ebefed3bf28b46beb61595b59cbdbc06af6549654b7b6e"
       ],
-      "source_sha256": "04652c5d684db1c904e98786f945120ad770d48643c253d16a848b9a71f6c042",
-      "text": "O scorecard como linhas de exibição, ou a frase dizendo que não há nenhum.\n\nAs linhas vêm de :func:`spacr.scorecard.headline` aplicadas aos valores ajustados com os valores de baunilha como linha de base, seguido pelo conjunto de espera quando um é gravado. Sem um scorecard a lista detém a única linha  :data:`spacr.scorecard.NO_SCORECARD`.",
+      "source_sha256": "646d8c135ddd202def53fb1fd4a438ffc3cb2e18f56f6776dc042f26f2054e7b",
+      "text": "O scorecard como linhas de exibição, ou a frase dizendo que não há nenhum.\n\nAs fichas integradas de confiança mostram as seis medições aceites comparadas com o modelo base, juntamente com o respetivo conjunto de dados e as contagens; o seu F1 de contorno utiliza uma tolerância de dois píxeis. Para as outras entradas, mantém-se a aplicação de :func:`spacr.scorecard.headline` aos valores do modelo ajustado e do modelo base sem ajuste, seguida do conjunto de avaliação reservado registado. As medições de um píxel mantêm o seu significado original. Sem uma ficha de resultados, a lista contém :data:`spacr.scorecard.NO_SCORECARD`.",
       "translation_source_blocks_sha256": [
         "327404cd50a0a6d00badad4e8704788893893a720b1d8e4c9149f663209762ed",
-        "8fcf252fdaf8aabc9d481d074a1a98977103ba025ab1603ea68aceee113fd9e9"
+        "5f451829e983cce730ebefed3bf28b46beb61595b59cbdbc06af6549654b7b6e"
       ]
     },
     "spacr.model_zoo.ModelEntry.summary_line": {
@@ -51732,15 +51736,17 @@
       "source_blocks_sha256": [
         "e89c42cf82d5b5fce3de712de335e052fb1f87247a4fe77c7bb2996df414d725",
         "7ed9e1704ab9d1c601abbd42fc29ae03b04af9dc94d277fcc6a79860de2f34f1",
+        "9ae362ddf4951d2a798a9f5ae46ef5c69c86b7d4654e1b187b10212f22d0761f",
         "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
         "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
         "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef"
       ],
-      "source_sha256": "59306e507093cfcf2ae27b6754f1a79e843d025c1c49991be8b8143255f4c2be",
-      "text": "O scorecard do modelo como uma tabela HTML, para uma dica de ferramenta.\n\nA tabela é a mesma que o cartão modelo imprime, então os números de dois modelos podem ser comparados sem ler prosa. Quando uma entrada não publica métricas, isso retorna ``\"\"`` e a dica de ferramenta da triagem do Zoo mostra a descrição da prosa da entrada.\n\nMétricas que não contêm nenhuma das chaves do scorecard -- uma nota em formato livre, uma perda de treinamento com nome próprio -- também não são um scorecard, e também não retornam nada: uma tabela de onze linhas \"not recorded\" substituiria uma nota de duas linhas que dizia alguma coisa.\n\n:param entry: uma entrada do catálogo, ou qualquer coisa com ``metrics`` e um nome.\n:returns: a tabela HTML, ou ``\"\"`` quando não há scorecard a mostrar.",
+      "source_sha256": "2ecb03fc23af28e49da4fb9ddfde2c0879b0942497f10d59d9518d54315f1571",
+      "text": "O scorecard do modelo como uma tabela HTML, para uma dica de ferramenta.\n\nA tabela é a mesma que o cartão modelo imprime, então os números de dois modelos podem ser comparados sem ler prosa. Quando uma entrada não publica métricas, isso retorna ``\"\"`` e a dica de ferramenta da triagem do Zoo mostra a descrição da prosa da entrada.\n\nAs fichas integradas de confiança incluem as seis linhas aceites de comparação com o modelo base e a identidade da sua avaliação; o F1 de contorno utiliza uma tolerância de dois píxeis. As outras entradas mantêm os campos publicados e a interpretação existente.\n\nMétricas que não contêm nenhuma das chaves do scorecard -- uma nota em formato livre, uma perda de treinamento com nome próprio -- também não são um scorecard, e também não retornam nada: uma tabela de onze linhas \"not recorded\" substituiria uma nota de duas linhas que dizia alguma coisa.\n\n:param entry: uma entrada do catálogo, ou qualquer coisa com ``metrics`` e um nome.\n:returns: a tabela HTML, ou ``\"\"`` quando não há scorecard a mostrar.",
       "translation_source_blocks_sha256": [
         "e89c42cf82d5b5fce3de712de335e052fb1f87247a4fe77c7bb2996df414d725",
         "7ed9e1704ab9d1c601abbd42fc29ae03b04af9dc94d277fcc6a79860de2f34f1",
+        "9ae362ddf4951d2a798a9f5ae46ef5c69c86b7d4654e1b187b10212f22d0761f",
         "49e15e3e04723280993a98113e2e957dd03f4b1ab98e82df0f4dd5fa0b11e028",
         "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
         "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef"

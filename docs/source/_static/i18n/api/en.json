@@ -31731,10 +31731,11 @@
         "2de95c850863f69a7e8108dba21b32c33e4ae423668d17b0c2ef15520c596245",
         "81c3515ab578b2e0f9514e4f31726833f5e4c37e979541a333bb840d27c82a7e",
         "f9f1d4802d834c1642e674516be0bd72af17c2dcb532e8312c8826f5f0475465",
-        "f5ec5baba894fe0d212397ff9ceecab0a436392adbdd5c0b39306bef40d81fdb"
+        "f5ec5baba894fe0d212397ff9ceecab0a436392adbdd5c0b39306bef40d81fdb",
+        "f71c97a043d7ae6573bb4634a8d2a494cc64356e277832269a481de4821db8a9"
       ],
-      "source_sha256": "c595a4e194a5267acb2b45b18ae2f4a7e6347522136e4ced8ea2a6a9059e2779",
-      "text": "Record of one model: its location, checksum and provenance.\n\nFrozen because an entry is a *record of a file at a moment* — the hash, the\nsize and the provenance describe those bytes. Changing one in place would\nsilently invalidate the other two; :func:`dataclasses.replace` makes the\nnew record explicit.\n\n:param key: stable id, unique within a listing. For a local file this is\n    derived from the filename; for a catalogue entry it is whatever the\n    catalogue declared.\n:param name: the filename (or the published name) — what a human reads.\n:param kind: ``'cellpose'`` or ``'classifier'``; see :data:`KINDS`.\n:param source: ``'bundled'`` (ships with spaCR), ``'local'`` (found on this\n    machine) or ``'remote'`` (declared in a catalogue, not yet fetched).\n:param path: absolute path on this machine, or ``''`` for a remote entry.\n:param uri: where a remote entry is fetched from, or ``''``.\n:param version: the zoo's own version number for a filename. ``'1'`` for a\n    plain name, ``'2'`` for ``foo_v2.CP_model`` (see\n    :func:`versioned_path`), or whatever a catalogue declared.\n:param sha256: hex digest. For a downloaded model this is the digest of the\n    bytes that were actually written; for a catalogue entry it is the\n    published digest to check against; ``''`` means \"no checksum known\",\n    which :func:`fetch` treats as a refusal rather than a pass.\n:param size_bytes: file size, ``0`` when unknown.\n:param trained_on: what data produced this model, in prose, or\n    :data:`UNKNOWN`. Never ``''``.\n:param trained_by: who produced it, or :data:`UNKNOWN`. Never ``''``.\n:param metrics: whatever numbers came with it — for a classifier, the\n    best/last epoch metrics :func:`spacr.train_compare.load_run` recovered.\n    Excluded from equality: two records of the same bytes are the same\n    model whether or not somebody attached numbers to one of them.\n:param notes: everything the reader needs to know that is not a field:\n    missing provenance, an unverified download, a file that does not look\n    like a checkpoint.\n:param verified: True only when :attr:`sha256` was checked against a\n    published digest. A downloaded file whose hash was merely *recorded* is\n    not verified, and says so.\n:param settings_path: where the provenance came from, for the reader who\n    wants to go and look at it.\n:param licence: the licence the model or package is published under, as\n    its publisher states it (an SPDX identifier where there is one), or\n    ``''`` when none is recorded."
+      "source_sha256": "41d818f12120b29303ae51f487dedc7771495589d8cafc8e73267bd22ce6b3a2",
+      "text": "Record of one model: its location, checksum and provenance.\n\nFrozen because an entry is a *record of a file at a moment* — the hash, the\nsize and the provenance describe those bytes. Changing one in place would\nsilently invalidate the other two; :func:`dataclasses.replace` makes the\nnew record explicit.\n\n:param key: stable id, unique within a listing. For a local file this is\n    derived from the filename; for a catalogue entry it is whatever the\n    catalogue declared.\n:param name: the filename (or the published name) — what a human reads.\n:param kind: ``'cellpose'`` or ``'classifier'``; see :data:`KINDS`.\n:param source: ``'bundled'`` (ships with spaCR), ``'local'`` (found on this\n    machine) or ``'remote'`` (declared in a catalogue, not yet fetched).\n:param path: absolute path on this machine, or ``''`` for a remote entry.\n:param uri: where a remote entry is fetched from, or ``''``.\n:param version: the zoo's own version number for a filename. ``'1'`` for a\n    plain name, ``'2'`` for ``foo_v2.CP_model`` (see\n    :func:`versioned_path`), or whatever a catalogue declared.\n:param sha256: hex digest. For a downloaded model this is the digest of the\n    bytes that were actually written; for a catalogue entry it is the\n    published digest to check against; ``''`` means \"no checksum known\",\n    which :func:`fetch` treats as a refusal rather than a pass.\n:param size_bytes: file size, ``0`` when unknown.\n:param trained_on: what data produced this model, in prose, or\n    :data:`UNKNOWN`. Never ``''``.\n:param trained_by: who produced it, or :data:`UNKNOWN`. Never ``''``.\n:param metrics: whatever numbers came with it — for a classifier, the\n    best/last epoch metrics :func:`spacr.train_compare.load_run` recovered.\n    Excluded from equality: two records of the same bytes are the same\n    model whether or not somebody attached numbers to one of them.\n:param notes: everything the reader needs to know that is not a field:\n    missing provenance, an unverified download, a file that does not look\n    like a checkpoint.\n:param verified: True only when :attr:`sha256` was checked against a\n    published digest. A downloaded file whose hash was merely *recorded* is\n    not verified, and says so.\n:param settings_path: where the provenance came from, for the reader who\n    wants to go and look at it.\n:param licence: the licence the model or package is published under, as\n    its publisher states it (an SPDX identifier where there is one), or\n    ``''`` when none is recorded.\n:param _curated_card: Internal presentation marker set only after the\n    builtin declaration, checkpoint and packaged card match reviewed\n    identities. Serialized catalogue fields do not enable this marker."
     },
     "spacr.model_zoo.ModelEntry.__post_init__": {
       "source_blocks_sha256": [
@@ -31755,10 +31756,11 @@
     },
     "spacr.model_zoo.ModelEntry.describe": {
       "source_blocks_sha256": [
-        "b038bbf4cabe4eed824e209ec17af1b96e8fc2ccd6cfd7a99e8667794493b15f"
+        "b038bbf4cabe4eed824e209ec17af1b96e8fc2ccd6cfd7a99e8667794493b15f",
+        "91b666544b71ab9ab9066a18ae42a1b99943913cc09ca7d72564972be7ca7954"
       ],
-      "source_sha256": "b038bbf4cabe4eed824e209ec17af1b96e8fc2ccd6cfd7a99e8667794493b15f",
-      "text": "The multi-line provenance card shown next to a selected model."
+      "source_sha256": "e0b1edd24db47e6517623a0046698a5a1bd5b47359cce0d31430d139f6cbc2f3",
+      "text": "The multi-line provenance card shown next to a selected model.\n\nTrusted builtin cards show the six accepted measurements and explicit\nevaluation identity. Their historical evaluations and source digests\nremain in the entry's data without cluttering this presentation.\nOther entries retain their original complete metadata description."
     },
     "spacr.model_zoo.ModelEntry.exists": {
       "source_blocks_sha256": [
@@ -31801,10 +31803,10 @@
     "spacr.model_zoo.ModelEntry.scorecard_lines": {
       "source_blocks_sha256": [
         "327404cd50a0a6d00badad4e8704788893893a720b1d8e4c9149f663209762ed",
-        "8fcf252fdaf8aabc9d481d074a1a98977103ba025ab1603ea68aceee113fd9e9"
+        "5f451829e983cce730ebefed3bf28b46beb61595b59cbdbc06af6549654b7b6e"
       ],
-      "source_sha256": "04652c5d684db1c904e98786f945120ad770d48643c253d16a848b9a71f6c042",
-      "text": "The scorecard as display lines, or the sentence saying there is none.\n\nThe lines come from :func:`spacr.scorecard.headline` applied to the\nfine-tuned values with the vanilla values as baseline, followed by\nthe hold-out set when one is recorded. Without a scorecard the list\nholds the single line :data:`spacr.scorecard.NO_SCORECARD`."
+      "source_sha256": "646d8c135ddd202def53fb1fd4a438ffc3cb2e18f56f6776dc042f26f2054e7b",
+      "text": "The scorecard as display lines, or the sentence saying there is none.\n\nTrusted builtin cards show all six accepted matched-stock measurements\nand their dataset and counts; their boundary F1 uses a two-pixel\ntolerance. Other entries keep :func:`spacr.scorecard.headline` applied\nto their fine-tuned and vanilla values, followed by the recorded\nhold-out set. One-pixel measurements retain their original meaning.\nWithout a scorecard the list holds :data:`spacr.scorecard.NO_SCORECARD`."
     },
     "spacr.model_zoo.ModelEntry.summary_line": {
       "source_blocks_sha256": [
@@ -32311,12 +32313,13 @@
       "source_blocks_sha256": [
         "e89c42cf82d5b5fce3de712de335e052fb1f87247a4fe77c7bb2996df414d725",
         "7ed9e1704ab9d1c601abbd42fc29ae03b04af9dc94d277fcc6a79860de2f34f1",
+        "9ae362ddf4951d2a798a9f5ae46ef5c69c86b7d4654e1b187b10212f22d0761f",
         "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
         "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
         "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef"
       ],
-      "source_sha256": "59306e507093cfcf2ae27b6754f1a79e843d025c1c49991be8b8143255f4c2be",
-      "text": "The model's scorecard as an HTML table, for a tooltip.\n\nThe table is the same one the model card prints, so two models' numbers\ncan be compared without reading prose. When an entry publishes no\nmetrics this returns ``\"\"``, and the Zoo screen's tooltip shows the\nentry's prose description instead.\n\nMetrics that hold none of the scorecard's keys -- a free-form note, a\ntraining loss under a name of its own -- are not a scorecard either, and\nreturn nothing too: a table of eleven \"not recorded\" rows would replace a\ntwo-line note that said something.\n\n:param entry: a catalogue entry, or anything with ``metrics`` and a name.\n:returns: the HTML table, or ``\"\"`` when there is no scorecard to show."
+      "source_sha256": "2ecb03fc23af28e49da4fb9ddfde2c0879b0942497f10d59d9518d54315f1571",
+      "text": "The model's scorecard as an HTML table, for a tooltip.\n\nThe table is the same one the model card prints, so two models' numbers\ncan be compared without reading prose. When an entry publishes no\nmetrics this returns ``\"\"``, and the Zoo screen's tooltip shows the\nentry's prose description instead.\n\nTrusted builtin cards include all six accepted matched-stock rows and\ntheir evaluation identity; boundary F1 uses a two-pixel tolerance.\nOther entries keep their published fields and existing interpretation.\n\nMetrics that hold none of the scorecard's keys -- a free-form note, a\ntraining loss under a name of its own -- are not a scorecard either, and\nreturn nothing too: a table of eleven \"not recorded\" rows would replace a\ntwo-line note that said something.\n\n:param entry: a catalogue entry, or anything with ``metrics`` and a name.\n:returns: the HTML table, or ``\"\"`` when there is no scorecard to show."
     },
     "spacr.model_zoo.scorecard_html.cell": {
       "source_blocks_sha256": [

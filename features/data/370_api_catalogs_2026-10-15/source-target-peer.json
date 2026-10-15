@@ -1,0 +1,34 @@
+{
+  "scope": "Independent source and target semantics review; not execution, generation, platform or scientific acceptance",
+  "reviewer": "Home-B coordinator",
+  "source_hashes": {
+    "983947450066838d5acf22fc4993e44f649663d5": {
+      "spacr/model_zoo.py": "fe4227e32aaaf2247c0f1a92248d744827d38eb4f636860e964792c8d42b146e"
+    },
+    "7209aca0303e541f971c630232c5cd02a5683b76": {
+      "tools/build_score_cards.py": "feea1c5615d274661a8728ae0f5cb03a42fc5f7c2d7b895d00497c9283bc5fa7",
+      "packaging/generate_readme_visuals.py": "bf04a481156343c2fbdf78d356de0c3581be97ee416cce370c9a1840c2459fbd"
+    },
+    "a3d3cc02545a392823f97bdacc92d850c5fac23f": {
+      "tools/build_model_cards.py": "e0ee90250088731df534da170028b1f13d3e75c211083adfd52b52d144e6fe42"
+    }
+  },
+  "findings": [
+    "Builtin card constructor requires original declaration object identity, remote URI, checkpoint digest and exact packaged card digest before attaching curated values.",
+    "Custom and modified declarations retain original metrics; historical evaluation data retained separately.",
+    "Six explicit current metric keys preserve boundary_f1_2px without remapping to legacy one-pixel semantics.",
+    "Generator binds original declaration before copying, uses copied bound metrics, and references actual three-page card routes.",
+    "Glossary skips only archived history/provenance containers, retaining current metric explanations.",
+    "All72 active runtime target semantics reviewed across nine locales; format fields and two-pixel meaning retained; AJI excluded by existing eligibility.",
+    "All36 changed API target semantics reviewed across nine locales; inline qualified API roles, trust binding, unchanged baseline model meaning and history retained."
+  ],
+  "pending": [
+    "Normal review-loader gates",
+    "Scoped generation and unrelated-record preservation",
+    "Current integrated artifact readback"
+  ],
+  "target_files": {
+    "/mnt/wd4tb/scratch/home-b-f370-scorecard-runtime-20261015/targets.py": "3ce1f70ebcc8f83d8ead122cf81896e0d7ffbc78c293e3202797a6f7d93da757",
+    "/mnt/wd4tb/scratch/home-b-f370-api-reviews-20261015/targets.py": "a52a8179c117bc27e12ad2d5003804df6940ad2b6842c0849a34ed714aeab32e"
+  }
+}
