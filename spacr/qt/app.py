@@ -3060,18 +3060,13 @@ class MainWindow(QMainWindow):
             self._consent_timer.setSingleShot(True)
 
             def _finish_installer_onboarding():
-                """Show the installer consent and the report notice, then the tour.
+                """Show installer consent, optional cache review, report notice and tour.
 
-                The anonymised-report notice is not modal, so the tour waits
-                for it to close rather than opening over it.
+                Background cache inspection finishes before the choices open.
+                The tour waits for the anonymised-report notice to close.
                 """
                 maybe_show_installer_consent(self)
-                notice = maybe_show_anonymous_report_notice(self)
-                if notice is None:
-                    self._tour_timer.start(500)
-                else:
-                    notice.finished.connect(
-                        lambda _result: self._tour_timer.start(500))
+                self._maybe_offer_installation_cache_review()
 
             self._consent_timer.timeout.connect(
                 lambda: self._after_the_startup_sequence(
@@ -5447,6 +5442,69 @@ class MainWindow(QMainWindow):
 
     _UPDATE_WORKER_WAIT_MS = 5000
 
+    def _continue_installer_onboarding(self):
+        """Show the report notice after cache review, then resume the tour timer."""
+        if self._closing:
+            return
+        from .install_consent import maybe_show_anonymous_report_notice
+
+        notice = maybe_show_anonymous_report_notice(self)
+        if notice is None:
+            self._tour_timer.start(500)
+        else:
+            notice.finished.connect(lambda _result: self._tour_timer.start(500))
+
+    def _maybe_offer_installation_cache_review(self):
+        """Offer default-off cache choices once per installed release/profile.
+
+        Frozen packages and installer-profile environments qualify. Source
+        checkouts without an installer profile proceed directly to onboarding.
+        A failed preview is not recorded as reviewed. The Help action remains
+        available after keeping files or reviewing the current release.
+        """
+        from spacr.install_profile import read_profile
+        from .install_consent import _settings
+
+        profile = read_profile()
+        if not getattr(sys, "frozen", False) and not profile:
+            self._continue_installer_onboarding()
+            return
+        version = self._resolve_version()
+        if not version or version == "dev":
+            self._continue_installer_onboarding()
+            return
+        token = version + "|" + str((profile or {}).get("created_utc", ""))
+        store = _settings()
+        if (store.value("installer/cache_reviewed_install", "") == token
+                or getattr(self, "_cache_cleanup_busy", False)):
+            self._continue_installer_onboarding()
+            return
+        self._cache_cleanup_install_token = token
+        self._cache_cleanup_after = self._continue_installer_onboarding
+        self._review_installation_caches()
+
+    def _finish_cache_cleanup_review(self, reviewed=False):
+        """Release review state and continue startup after the dialog closes.
+
+        :param reviewed: Whether the prepared choices were actually displayed.
+        """
+        self._cache_cleanup_busy = False
+        self._cache_cleanup_guard = None
+        token = getattr(self, "_cache_cleanup_install_token", None)
+        self._cache_cleanup_install_token = None
+        after = getattr(self, "_cache_cleanup_after", None)
+        self._cache_cleanup_after = None
+        if self._closing:
+            return
+        if reviewed and token:
+            from .install_consent import _settings
+
+            store = _settings()
+            store.setValue("installer/cache_reviewed_install", token)
+            store.sync()
+        if after is not None:
+            after()
+
     def _review_installation_caches(self):
         """Prepare a fresh manual cache review without inspecting files on the GUI thread."""
         if self._closing:
@@ -5459,6 +5517,12 @@ class MainWindow(QMainWindow):
 
         @contextmanager
         def guard(paths):
+            """Hold the application's run lock and refuse registered active work.
+
+            :param paths: Independently derived candidate cache directories.
+            :yields: ``None`` while application-local cleanup is allowed, or
+                the existing cache refusal. This does not prove other processes idle.
+            """
             from pathlib import Path
             from spacr import run_journal
 
@@ -5472,6 +5536,10 @@ class MainWindow(QMainWindow):
         self._cache_cleanup_busy = True
 
         def prepare():
+            """Inspect the fresh operation's caches inside the background worker.
+
+            :returns: Immutable preview with the live application-local run guard.
+            """
             from spacr import install_cleanup
 
             return install_cleanup.preview_optional_cleanup(operation, guard=guard)
@@ -5522,14 +5590,12 @@ class MainWindow(QMainWindow):
         failed = self._cache_cleanup_error is not None
         self._cache_cleanup_worker = None
         if self._closing:
-            self._cache_cleanup_busy = False
-            self._cache_cleanup_guard = None
+            self._finish_cache_cleanup_review()
             return
         if failed:
-            self._cache_cleanup_busy = False
-            self._cache_cleanup_guard = None
             QMessageBox.warning(self, tr("Optional cache cleanup"), tr(
                 "Cache review could not finish. Check the log for details."))
+            self._finish_cache_cleanup_review()
             return
         if operation == "preview":
             self._on_cache_cleanup_preview_ready(result)
@@ -5546,20 +5612,22 @@ class MainWindow(QMainWindow):
         try:
             choices = _choose_optional_cleanup(preview, self)
         except Exception:
-            self._cache_cleanup_busy = False
-            self._cache_cleanup_guard = None
             LOG.exception("Could not display the optional cache review")
             if not self._closing:
                 QMessageBox.warning(self, tr("Optional cache cleanup"), tr(
                     "Cache review could not finish. Check the log for details."))
+            self._finish_cache_cleanup_review()
             return
         if not choices or self._closing:
-            self._cache_cleanup_busy = False
-            self._cache_cleanup_guard = None
+            self._finish_cache_cleanup_review(reviewed=not self._closing)
             return
         guard = self._cache_cleanup_guard
 
         def apply():
+            """Revalidate and apply only the explicit current-dialog selection.
+
+            :returns: Guarded outcome with removed counts and any retained paths.
+            """
             from spacr import install_cleanup
 
             return install_cleanup.apply_optional_cleanup(preview, choices, guard=guard)
@@ -5571,9 +5639,8 @@ class MainWindow(QMainWindow):
 
         :param outcome: Guarded action result containing counts and retained folders.
         """
-        self._cache_cleanup_busy = False
-        self._cache_cleanup_guard = None
         if self._closing:
+            self._finish_cache_cleanup_review()
             return
         message = tr("Cached files removed: {count}.", count=int(outcome.get("removed", 0)))
         retained = list(dict.fromkeys(row["retained_path"] for row in outcome.get("folders", ())
@@ -5593,6 +5660,7 @@ class MainWindow(QMainWindow):
         notice.setText(message)
         notice.setStandardButtons(QMessageBox.Ok)
         notice.exec()
+        self._finish_cache_cleanup_review(reviewed=True)
 
     def _release_update_workers(self) -> None:
         """Wait for the updater threads, and detach any that will not stop.
