@@ -149,20 +149,6 @@
       "translation": "जब विधि 'value' हो तब उपयोग होने वाली प्रभाव-आकार सीमा; स्वचालित विकल्प कोई प्रभाव-आकार रेखा नहीं खींचता"
     },
     {
-      "key": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
-      "source": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
-      "source_sha256": "8d0d775ecb20bc5c338a5999a5ab009eebbc708d27dd60f6732895ac953a638b",
-      "table": "ui",
-      "translation": "फ़ाइल की हर रेखा: प्लॉट किए गए वक्र, संदर्भ रेखाएँ, अक्ष रेखाएँ और टिक चिह्न। टिक के पास की संख्याएँ पाठ हैं और पाठ के रंग का पालन करती हैं।"
-    },
-    {
-      "key": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
-      "source": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
-      "source_sha256": "8f9108d0acb7994423e04af9b8058bfa92eb76b6d570e3b2e842df3b9160db3d",
-      "table": "ui",
-      "translation": "फ़ाइल का हर पाठ: शीर्षक, अक्ष लेबल, टिक के पास की संख्याएँ और लेजेंड।"
-    },
-    {
       "key": "Figure height (in)",
       "source": "Figure height (in)",
       "source_sha256": "e4c10c7b9116b4d5511a19b579fbd88e384f4e442d3080d27458940cd72501ce",
@@ -592,6 +578,22 @@
       "table": "ui",
       "translation": "वह प्रतिशतक जिसे काले पर मैप किया जाता है। अधिक पृष्ठभूमि दबाने के लिए इसे बढ़ाएँ; 0 सबसे धुंधले पिक्सेल को भी बनाए रखता है।",
       "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "key": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+      "source": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+      "source_sha256": "8d0d775ecb20bc5c338a5999a5ab009eebbc708d27dd60f6732895ac953a638b",
+      "table": "ui",
+      "translation": "फ़ाइल की हर रेखा: प्लॉट किए गए वक्र, संदर्भ रेखाएँ, अक्ष रेखाएँ और टिक चिह्न। टिक के पास की संख्याएँ पाठ हैं और पाठ के रंग का पालन करती हैं।",
+      "retired": "2026-10-15: exact old source is no longer canonical after N678 figure-export factual corrections c1be6383a7c; superseded by 2026-10-15-figure-export-factual.json. Original bytes archived beside this review."
+    },
+    {
+      "key": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+      "source": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+      "source_sha256": "8f9108d0acb7994423e04af9b8058bfa92eb76b6d570e3b2e842df3b9160db3d",
+      "table": "ui",
+      "translation": "फ़ाइल का हर पाठ: शीर्षक, अक्ष लेबल, टिक के पास की संख्याएँ और लेजेंड।",
+      "retired": "2026-10-15: exact old source is no longer canonical after N678 figure-export factual corrections c1be6383a7c; superseded by 2026-10-15-figure-export-factual.json. Original bytes archived beside this review."
     }
   ]
 }

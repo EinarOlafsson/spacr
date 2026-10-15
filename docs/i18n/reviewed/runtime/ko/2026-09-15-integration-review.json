@@ -177,20 +177,6 @@
       "translation": "페이지 끝 — 다음 배치를 불러오려면 Enter 를 누르십시오."
     },
     {
-      "key": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
-      "source": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
-      "source_sha256": "8d0d775ecb20bc5c338a5999a5ab009eebbc708d27dd60f6732895ac953a638b",
-      "table": "ui",
-      "translation": "파일의 모든 선: 그려진 곡선, 기준선, 축선 및 눈금 표시. 눈금 옆의 숫자는 텍스트이므로 텍스트 색상을 따릅니다."
-    },
-    {
-      "key": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
-      "source": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
-      "source_sha256": "8f9108d0acb7994423e04af9b8058bfa92eb76b6d570e3b2e842df3b9160db3d",
-      "table": "ui",
-      "translation": "파일의 모든 텍스트: 제목, 축 레이블, 눈금 옆의 숫자 및 범례."
-    },
-    {
       "key": "Exact resolved settings",
       "source": "Exact resolved settings",
       "source_sha256": "2fc0e5a579e1690fafb3bd4c7d1755cb936787a18030fdec5500349552e4a176",
@@ -725,6 +711,22 @@
       "table": "ui",
       "translation": "검은색에 대응시키는 백분위수입니다. 배경을 더 많이 눌러 없애려면 높이십시오. 0 이면 가장 어두운 픽셀도 유지됩니다.",
       "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "key": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+      "source": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+      "source_sha256": "8d0d775ecb20bc5c338a5999a5ab009eebbc708d27dd60f6732895ac953a638b",
+      "table": "ui",
+      "translation": "파일의 모든 선: 그려진 곡선, 기준선, 축선 및 눈금 표시. 눈금 옆의 숫자는 텍스트이므로 텍스트 색상을 따릅니다.",
+      "retired": "2026-10-15: exact old source is no longer canonical after N678 figure-export factual corrections c1be6383a7c; superseded by 2026-10-15-figure-export-factual.json. Original bytes archived beside this review."
+    },
+    {
+      "key": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+      "source": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+      "source_sha256": "8f9108d0acb7994423e04af9b8058bfa92eb76b6d570e3b2e842df3b9160db3d",
+      "table": "ui",
+      "translation": "파일의 모든 텍스트: 제목, 축 레이블, 눈금 옆의 숫자 및 범례.",
+      "retired": "2026-10-15: exact old source is no longer canonical after N678 figure-export factual corrections c1be6383a7c; superseded by 2026-10-15-figure-export-factual.json. Original bytes archived beside this review."
     }
   ]
 }

@@ -72,20 +72,6 @@
       "translation": "Tracer la ligne de significativité"
     },
     {
-      "key": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
-      "source": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
-      "source_sha256": "8d0d775ecb20bc5c338a5999a5ab009eebbc708d27dd60f6732895ac953a638b",
-      "table": "ui",
-      "translation": "Chaque ligne du fichier : les courbes tracées, les lignes de référence, les bordures des axes et les graduations. Les nombres à côté des graduations sont du texte et suivent la couleur du texte."
-    },
-    {
-      "key": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
-      "source": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
-      "source_sha256": "8f9108d0acb7994423e04af9b8058bfa92eb76b6d570e3b2e842df3b9160db3d",
-      "table": "ui",
-      "translation": "Tout le texte du fichier : le titre, les étiquettes des axes, les nombres à côté des graduations et la légende."
-    },
-    {
       "key": "Figure height (in)",
       "source": "Figure height (in)",
       "source_sha256": "e4c10c7b9116b4d5511a19b579fbd88e384f4e442d3080d27458940cd72501ce",
@@ -347,6 +333,22 @@
       "table": "ui",
       "translation": "Le percentile ramené au noir. Augmentez-le pour écraser davantage le fond ; 0 conserve le pixel le plus sombre.",
       "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "key": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+      "source": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+      "source_sha256": "8d0d775ecb20bc5c338a5999a5ab009eebbc708d27dd60f6732895ac953a638b",
+      "table": "ui",
+      "translation": "Chaque ligne du fichier : les courbes tracées, les lignes de référence, les bordures des axes et les graduations. Les nombres à côté des graduations sont du texte et suivent la couleur du texte.",
+      "retired": "2026-10-15: exact old source is no longer canonical after N678 figure-export factual corrections c1be6383a7c; superseded by 2026-10-15-figure-export-factual.json. Original bytes archived beside this review."
+    },
+    {
+      "key": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+      "source": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+      "source_sha256": "8f9108d0acb7994423e04af9b8058bfa92eb76b6d570e3b2e842df3b9160db3d",
+      "table": "ui",
+      "translation": "Tout le texte du fichier : le titre, les étiquettes des axes, les nombres à côté des graduations et la légende.",
+      "retired": "2026-10-15: exact old source is no longer canonical after N678 figure-export factual corrections c1be6383a7c; superseded by 2026-10-15-figure-export-factual.json. Original bytes archived beside this review."
     }
   ]
 }
