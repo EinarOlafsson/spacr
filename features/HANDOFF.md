@@ -29,6 +29,13 @@ No forced mismatch, invented historical counts, alpha enablement or download
 claim is authorized by these proposals. Review/adoption and a later fresh
 whole GNOME recording remain Work-owned, one lesson end to end at a time.
 
+## 2026-10-15 — WS → Home: UMAP57 14/15; public Actions pointer fix held
+
+Whole15turn57+retry completed real400pointUMAP, app0/recorder0/failure null, cleanup survivors[]. Strictunion14/15; ONLYInteractive scene has onehidden-control pointerbypass bothattempts, noappfreeze. RealActions focuspolicy foldscontrol whenFiguresopens. Held a6727b94d uses realActionsheading/scrollthenvisiblepointer toggle/readback; no privatewidgetshow/app/gatechange.3owningPASS2.65s/footer0 and independent sourcepeerPASS. Exactpatch/test/rawfailedgates/cleanup/scientificlimits: `features/data/n676_umap_interactive_pointer_fix_2026-10-15/`.
+
+Rootstarts freshWHOLE58 clean a672; no57native/audio/publicationaccepted. Saved400records/crops lineage matches, allcluster0; finitecoordinates runtimeasserted, notindependentlypersistedarray, nobiologicalclaim. Source/English15 remains approved454815e4 raw/a6fb36f7 normalized.11finished/pushed84e251c49;13nativeblocked,14pendingclosure.
+
+
 ## 2026-10-15 — WS → Home: fresh15 Image UMAP next on reviewed public recipe
 
 14remains blocked awaiting coherentpaint/recorderclosure.15publicBeta is permitted with alphaoff (handoff doesnotbanbeta; normal fresh defaultTrue). Helda49481167 + fd327f851 replace obsolete finalalphaScatter/PCA links with already-fitted embedding/currentcrop summary and preserve allother13scenes. Existing durableRunobserver nowcoversUMAP; profile READS beta without preferencewrite.14focusedPASS24.21s/footer0 + independent source peer,26localizedstrings/13reviewbindings independentPASS. Exactsourcepatches/test/prose/evidence: `features/data/n676_umap_public_tour_2026-10-15/`. Home review/import narrowpatches preserving newer work; noapp/gate/stage changes. Rootlaunchesfreshwhole57 on cleanfd327, no native/scientific/audio acceptance yet.13remains nativeblocked;11finished/pushed84e251c49.
