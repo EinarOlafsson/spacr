@@ -1,8 +1,7 @@
 SPOTIFLOW SPOT DETECTION IN ITS OWN ENVIRONMENT
 
-Status: DONE (alpha) 2026-10-02 — threshold/hybiss and FISH runs recorded
-        2026-10-03 (exploratory mode). Not yet measured: GPU timing (a GPU
-        turn) and the strict real-field replay.
+Status: DONE (alpha) 2026-10-15 — real installation, field comparisons,
+        paired CPU/GPU MERFISH and strict original OPS replay accepted.
 
 Previous status (superseded 2026-10-04): DONE 2026-10-02 (alpha-gated); threshold/hybiss and FISH runs recorded 2026-10-03 (exploratory mode); only external points left: GPU timing (GPU turn) and the strict real-field replay.
         replay remains unavailable (2026-10-02).
@@ -214,3 +213,30 @@ measurements.db and pool10 library. No synthetic DB or surrogate labels are
 substituted. Shared environments, original acquired data and production
 spaCR source remain unchanged. Receipt, full paired records, source archive
 and output fingerprints: 554_spotiflow_merfish_cpu_gpu_2026-10-05.json.
+
+
+2026-10-15 — EXACT ORIGINAL OPS INPUTS RECOVERED; REAL STRICT CPU REPLAY.
+The three paths previously described as missing exist on this host: the
+original sequencing tile subset, ops_plate_run/measurements.db and pool10
+prefix library. Nearby original launch scripts and plate_summary bind the
+plate/well/sites and20,445 prefixes. No broad NAS scan or surrogate input.
+One normal --strict comparison ran native, SpotNet and Spotiflow general
+with original default thresholds on A1 sites331/332. It returned exit0,
+complete:true/no failures,88 explicit plane selectors and107 streamed
+input/model/source hashes equal before/after. Both isolated workers reported
+CPU; the original DB was forced readonly for all four actual connections.
+Spots22,733/18,555/13,244, assigned3,476/2,523/1,994, library rates and
+2px agreements exactly match the historical reported metrics. Timings are
+observed single-pass CPU results, not general speed guarantees. No downloads,
+installation, GPU, input copies or input/model/source changes.
+The strict historical OPS replay gate is resolved. The old receipt lacked
+hashes, so these new source-bound observations cannot prove retrospective
+byte identity; agreement is not biological accuracy. Prior paired MERFISH
+CPU/GPU, real installation and object-prefix evidence remain independently
+recorded. Evidence: data/554_recovered_strict_ops_2026-10-15/.
+
+2026-10-15 — Original Home whole-contract acceptance. The recovered-input
+strict replay resolves the last explicit gate; prior paired CPU/GPU timing
+and threshold/FISH receipts remain accepted. All required detector routes and
+alpha registration are retained. No biological superiority or retrospective
+identity of the old unhashed run is claimed. Whole original F554 is complete.

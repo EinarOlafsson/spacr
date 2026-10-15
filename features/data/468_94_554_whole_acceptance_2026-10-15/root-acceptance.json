@@ -1,0 +1,11 @@
+{
+  "items": [
+    "N468",
+    "N94",
+    "F554"
+  ],
+  "decision": "Whole original contracts complete; later scientific/release/tutorial obligations remain separately tracked.",
+  "reviewed_base": "d8760e70c66e9d007dab8dd5088849ea39821ecb",
+  "source_and_payload_hash_checks": "PASS: all F554 portable payloads/five current code pins; all N94 owning full-file pins; exact N468 source and Help hashes; old API review array preservation.",
+  "test_policy": "No unchanged successful tests or model runs replayed; new actual F554 strict CPU replay independently inspected."
+}

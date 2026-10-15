@@ -6,6 +6,33 @@
   "historical_scope_ledger": "/mnt/wd4tb/scratch/original-home-today-completion-scopes-20261015.json",
   "rows": [
     {
+      "item": "N468",
+      "title": "plaque assay has plaque and figure modes",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Easy / Home",
+      "description": "Complete: Plaque/Figure workflow, all original captions in nine languages, factual three-tab API prose and offline Help.",
+      "completion_basis": "Whole original contract independently accepted2026-10-15; current source pins and portable acceptance evidence verified"
+    },
+    {
+      "item": "N94",
+      "title": "train test splits must group by well",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Complete: shared strict cell/field/well/plate splitting, default well, refusal and durable group/cell split reports across all callers.",
+      "completion_basis": "Whole original contract independently accepted2026-10-15; current source pins and portable acceptance evidence verified"
+    },
+    {
+      "item": "F554",
+      "title": "spotiflow spot detection",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Complete alpha: isolated Spotiflow installation, real-field/object-prefix comparisons, paired CPU/GPU evidence and strict original OPS replay.",
+      "completion_basis": "Whole original contract independently accepted2026-10-15; current source pins and portable acceptance evidence verified"
+    },
+    {
       "item": "N448",
       "title": "keep or discard a field in make masks",
       "percent_done": "✅",
@@ -231,15 +258,6 @@
       "completion_basis": "Recorded whole-item completion; not a new completion today"
     },
     {
-      "item": "N94",
-      "title": "train test splits must group by well",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
-      "owner": "Home / assigned owner",
-      "description": "Latest source/translation owner acceptance and broader scientific/release acceptance not established by this ledger;27 targeted cases are not a whole-package proof.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
       "item": "N112",
       "title": "Documentation correctness",
       "percent_done": 95,
@@ -402,15 +420,6 @@
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
-      "item": "N468",
-      "title": "plaque assay has plaque and figure modes",
-      "percent_done": 95,
-      "time_left_hours": "1–3",
-      "owner": "Easy / Home",
-      "description": "Plaque/Figure original contract and59-caption debt being reconciled against current source/catalogs.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
       "item": "F470",
       "title": "object crops from the cross channel ground truth to judge every label",
       "percent_done": 80,
@@ -498,15 +507,6 @@
       "time_left_hours": "1–3",
       "owner": "Home / assigned owner",
       "description": "See current owner delivery and remaining acceptance gates.",
-      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
-    },
-    {
-      "item": "F554",
-      "title": "spotiflow spot detection",
-      "percent_done": 95,
-      "time_left_hours": "Unknown",
-      "owner": "Home / assigned owner",
-      "description": "Strict historical OPS replay still needs unavailable original tiles, measurements.db and pool10library. Real Spotiflow install, MERFISH comparison and CPU/GPU timing are recorded complete; no surrogate or invented truth.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {
@@ -780,7 +780,10 @@
     "N691",
     "N511",
     "F556",
-    "N692"
+    "N692",
+    "N468",
+    "N94",
+    "F554"
   ],
   "coordination_reconciliation": "Added seven still-open Home-B items missing from earlier Original subset; authoritative item files and owner receipts retained. Historical pre-today completions need not all be printed."
 }

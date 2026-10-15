@@ -166906,21 +166906,21 @@
     },
     "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog": {
       "source_blocks_sha256": [
-        "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
+        "5495d84ccb8b417598fc38d2110df38f4ff94da39759938754ea8599259af4c9",
         "454b8f46ba6445bbf962000489850fe82a69c0f8cf660e64edc53cc1d76ee247",
-        "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
+        "f38b9e158f223823762ab4a5af51f4b53f2ba833757ae9487d98e0bc060a3e3d",
         "9f63659f35b8820b79ea6ea97cbb2dda6f3c82076bd6ab21c85391c7617bb7d4",
-        "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",
+        "1220abe427e5d62b3ac2901c5c0f545fd85b31d28209a22ad7592b6fdfcd5458",
         "3449b452e415b0d6c94d2ac45fa887d7a56e23b5b885a1d879f6657e1fcac495"
       ],
-      "source_sha256": "7652c44a68f3e04c04f98fb8f6a07bcfdac9dad0608061aeece7c68b39d80c95",
-      "text": "Plaque Assay पूर्वावलोकन की सेटिंग्स: एक Figure टैब और एक Plaque detection टैब।\n\nनियंत्रण पैनल के हैं और यह विंडो खुली रहने तक उसे उधार दिए जाते हैं, इसलिए यहाँ सेट किया गया मान वही मान है जिसका अगला पास उपयोग करता है, और यह विंडो बंद होने के बाद भी बना रहता है -- :meth:`give_back` उन्हें लौटाता है।\n\nPlaque मोड में Figure टैब छिपा रहता है: वहाँ का कुछ भी काटे गए प्लाक छवियों के फ़ोल्डर पर लागू नहीं होता।\n\n:param panel: वह :class:`PlaquePreviewPanel` जिसके नियंत्रण यह दिखाता है।\nपैनल के नियंत्रणों को दो टैब में व्यवस्थित करें।\n\n:param panel: पूर्वावलोकन पैनल; विंडो का पैरेंट भी।",
+      "source_sha256": "1757647e54c36da773fa7d324bd235355a11b607a6407b750f5e4f1a28f6c2d5",
+      "text": "Plaque Assay के पूर्वावलोकन की सेटिंग: चित्र, पाठ पहचान और प्लाक पहचान टैब।\n\nनियंत्रण पैनल के हैं और यह विंडो खुली रहने तक उसे उधार दिए जाते हैं, इसलिए यहाँ सेट किया गया मान वही मान है जिसका अगला पास उपयोग करता है, और यह विंडो बंद होने के बाद भी बना रहता है -- :meth:`give_back` उन्हें लौटाता है।\n\nप्लाक मोड में चित्र और पाठ पहचान टैब छिपे रहते हैं: दोनों में से कोई भी काटी गई प्लाक छवियों वाले फ़ोल्डर पर लागू नहीं होता।\n\n:param panel: वह :class:`PlaquePreviewPanel` जिसके नियंत्रण यह दिखाता है।\nपैनल के नियंत्रणों को तीन टैब में व्यवस्थित करें।\n\n:param panel: पूर्वावलोकन पैनल; विंडो का पैरेंट भी।",
       "translation_source_blocks_sha256": [
-        "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
+        "5495d84ccb8b417598fc38d2110df38f4ff94da39759938754ea8599259af4c9",
         "454b8f46ba6445bbf962000489850fe82a69c0f8cf660e64edc53cc1d76ee247",
-        "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
+        "f38b9e158f223823762ab4a5af51f4b53f2ba833757ae9487d98e0bc060a3e3d",
         "9f63659f35b8820b79ea6ea97cbb2dda6f3c82076bd6ab21c85391c7617bb7d4",
-        "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",
+        "1220abe427e5d62b3ac2901c5c0f545fd85b31d28209a22ad7592b6fdfcd5458",
         "3449b452e415b0d6c94d2ac45fa887d7a56e23b5b885a1d879f6657e1fcac495"
       ]
     },

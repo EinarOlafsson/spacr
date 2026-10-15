@@ -1,0 +1,69 @@
+{
+  "kind": "Exact existing correct acronym targets, technical review drafts only; no target rewrite/source/installedreview/generator",
+  "source_base": "d05aa3058a18abad52e59d15b829e2b45cf28b0d",
+  "source_file": "spacr/qt/widgets/plaque_preview.py",
+  "source_file_sha256": "a41d63c1aa6f467931848261df4243f1af1b580c9ef0b4f301d4caf2f94fa69c",
+  "source_docs_sha256": {
+    "spacr.qt.widgets.plaque_preview.paper_folder_name": "f386fd72d5182e71ca997f487d51aa4a80914173f70372776139d6f2ee114119",
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_paper": "1314a4e16aa868edd4540cdb06c81a6bd84f0884e9080b27c34c3b42c6abb966"
+  },
+  "drafts": {
+    "zh_CN": {
+      "file": "/mnt/wd4tb/scratch/n468-current-contract-audit-20261015/api-review-drafts/zh_CN.json",
+      "sha256": "f7ebe11652af79bae2d1d2e32f547949f3965ecb850cdb95028ff904cfd6b08c",
+      "records": [
+        {
+          "label": "spacr.qt.widgets.plaque_preview.paper_folder_name#1",
+          "source_sha256": "fb2b758e89411122ee6df770532c7d9a228f08e1463f94e31aa64981ed267bbb",
+          "target_sha256": "aef3b6ad1f01ab8a8564bf9cc804306466db3fdad5e091eeca71a1654095f92a"
+        },
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_paper#2",
+          "source_sha256": "fb2b758e89411122ee6df770532c7d9a228f08e1463f94e31aa64981ed267bbb",
+          "target_sha256": "aef3b6ad1f01ab8a8564bf9cc804306466db3fdad5e091eeca71a1654095f92a"
+        }
+      ],
+      "ordinary_source_context_markup_semantic_gates": "PASS",
+      "generic_copied_phrase_refusal": "retained; no change",
+      "current_compiled_target_bytes": "identical"
+    },
+    "hi": {
+      "file": "/mnt/wd4tb/scratch/n468-current-contract-audit-20261015/api-review-drafts/hi.json",
+      "sha256": "47a69e42c3801ab1e22449950582a0a6a321b60284ba76a0f38d25d3d29b0434",
+      "records": [
+        {
+          "label": "spacr.qt.widgets.plaque_preview.paper_folder_name#1",
+          "source_sha256": "fb2b758e89411122ee6df770532c7d9a228f08e1463f94e31aa64981ed267bbb",
+          "target_sha256": "2b008e7ffb32e3027a1c0d1a554482c2641964efb85f427e0213cd19fe8df059"
+        },
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_paper#2",
+          "source_sha256": "fb2b758e89411122ee6df770532c7d9a228f08e1463f94e31aa64981ed267bbb",
+          "target_sha256": "2b008e7ffb32e3027a1c0d1a554482c2641964efb85f427e0213cd19fe8df059"
+        }
+      ],
+      "ordinary_source_context_markup_semantic_gates": "PASS",
+      "generic_copied_phrase_refusal": "retained; no change",
+      "current_compiled_target_bytes": "identical"
+    },
+    "ko": {
+      "file": "/mnt/wd4tb/scratch/n468-current-contract-audit-20261015/api-review-drafts/ko.json",
+      "sha256": "881fb49e592f971f734e154b1c74e586d6595baaffc5fea380d71ef07e6f381e",
+      "records": [
+        {
+          "label": "spacr.qt.widgets.plaque_preview.paper_folder_name#1",
+          "source_sha256": "fb2b758e89411122ee6df770532c7d9a228f08e1463f94e31aa64981ed267bbb",
+          "target_sha256": "eb4eef94813faedf51fada60357798fcd74f657e8f5fbdc9ea90e92551d543c1"
+        },
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_paper#2",
+          "source_sha256": "fb2b758e89411122ee6df770532c7d9a228f08e1463f94e31aa64981ed267bbb",
+          "target_sha256": "eb4eef94813faedf51fada60357798fcd74f657e8f5fbdc9ea90e92551d543c1"
+        }
+      ],
+      "ordinary_source_context_markup_semantic_gates": "PASS",
+      "generic_copied_phrase_refusal": "retained; no change",
+      "current_compiled_target_bytes": "identical"
+    }
+  }
+}

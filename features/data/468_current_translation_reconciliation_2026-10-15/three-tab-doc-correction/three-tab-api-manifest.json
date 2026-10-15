@@ -1,0 +1,652 @@
+{
+  "source_base": "7512aa5cca040dd80720fd5e00163d54c95570f5",
+  "source_file": "spacr/qt/widgets/plaque_preview.py",
+  "source_sha256": "4c24e709b46fec0603b74eec492b59441d34998c7f3c0524a2f9694047f9598c",
+  "source_doc_sha256": "1757647e54c36da773fa7d324bd235355a11b607a6407b750f5e4f1a28f6c2d5",
+  "actual_normal_API_doc": "The Plaque Assay preview's settings: Figure, Text detection and\nPlaque detection tabs.\n\nThe controls belong to the panel and are lent to this window while it is\nopen, so a value set here is the value the next pass uses, and it\nsurvives the window being closed -- :meth:`give_back` returns them.\n\nIn Plaque mode the Figure and Text detection tabs are hidden: neither\napplies to a folder of cropped plaque images.\n\n:param panel: the :class:`PlaquePreviewPanel` whose controls it shows.\nLay the panel's controls out in three tabs.\n\n:param panel: the preview panel; also the window's parent.",
+  "normal_changed_blocks": [
+    0,
+    2,
+    4
+  ],
+  "changed_doc_owners_only": [
+    "PlaqueSettingsDialog",
+    "PlaqueSettingsDialog.__init__"
+  ],
+  "non_doc_AST_unchanged": true,
+  "drafts": {
+    "sv": {
+      "path": "/mnt/wd4tb/scratch/n468-current-contract-audit-20261015/three-tab-api-drafts/sv.json",
+      "sha256": "a3c54c908e982d3092ed9b0fb7350cb1f30ff456277df8926d1f60d04bf350fc",
+      "targets": [
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+          "source_sha256": "5495d84ccb8b417598fc38d2110df38f4ff94da39759938754ea8599259af4c9",
+          "target_sha256": "1a62a4ef140577d4d9d20d812ec7eabf800ff2eb61d5bfa2f1d8c6eff65aa61f"
+        },
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+          "source_sha256": "f38b9e158f223823762ab4a5af51f4b53f2ba833757ae9487d98e0bc060a3e3d",
+          "target_sha256": "02eee411f6e7fad2cdb4b6b341342750a6b9acc484dd9fa2b2c249317224a787"
+        },
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+          "source_sha256": "1220abe427e5d62b3ac2901c5c0f545fd85b31d28209a22ad7592b6fdfcd5458",
+          "target_sha256": "e582edbd9fdc1e3fd7fd8991206f0e470ec03df5e5afb5acd7247f56c0c59e66"
+        }
+      ],
+      "normal_source_context_markup_review_gates": "PASS"
+    },
+    "de": {
+      "path": "/mnt/wd4tb/scratch/n468-current-contract-audit-20261015/three-tab-api-drafts/de.json",
+      "sha256": "2878ca22c2ea8e5a18aba446bdc433272aaf788c37fbfc1fd7e86857e3c3d460",
+      "targets": [
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+          "source_sha256": "5495d84ccb8b417598fc38d2110df38f4ff94da39759938754ea8599259af4c9",
+          "target_sha256": "7d5c025aa3372102dacbf3e56230f67674dc539dc6e9e2d3ec0a431744fa09a4"
+        },
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+          "source_sha256": "f38b9e158f223823762ab4a5af51f4b53f2ba833757ae9487d98e0bc060a3e3d",
+          "target_sha256": "53d3361d8de5fd00df79d67f15a8a0186e44bf1902d8fe64e5985a40295bfd4a"
+        },
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+          "source_sha256": "1220abe427e5d62b3ac2901c5c0f545fd85b31d28209a22ad7592b6fdfcd5458",
+          "target_sha256": "17c40d42d7086ddd78700096ec3f27b76419f113f2a02e2a270ae42ce3a32a89"
+        }
+      ],
+      "normal_source_context_markup_review_gates": "PASS"
+    },
+    "es": {
+      "path": "/mnt/wd4tb/scratch/n468-current-contract-audit-20261015/three-tab-api-drafts/es.json",
+      "sha256": "f6e1b8846aff83f239bd6dfdf8d9a386ff1c0ebf8669d09ca3cb6df3af76006b",
+      "targets": [
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+          "source_sha256": "5495d84ccb8b417598fc38d2110df38f4ff94da39759938754ea8599259af4c9",
+          "target_sha256": "2ab3d5e5b6e5bd64026e8a0f976ca931091d8d4cdbcce101cbf1a26a65518e06"
+        },
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+          "source_sha256": "f38b9e158f223823762ab4a5af51f4b53f2ba833757ae9487d98e0bc060a3e3d",
+          "target_sha256": "5809992f02bbed1a1c1baf8730b528611994c68ebc9ebec03a17bb9d07bf3f27"
+        },
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+          "source_sha256": "1220abe427e5d62b3ac2901c5c0f545fd85b31d28209a22ad7592b6fdfcd5458",
+          "target_sha256": "0a1016e8c6db243bcce1f100f132de3b36ed88ed4f242c76f36404510c12880b"
+        }
+      ],
+      "normal_source_context_markup_review_gates": "PASS"
+    },
+    "zh_CN": {
+      "path": "/mnt/wd4tb/scratch/n468-current-contract-audit-20261015/three-tab-api-drafts/zh_CN.json",
+      "sha256": "a0ec3510ef77827e26d09fe8b90dd9b16acd439c79d680fcf2d38a8661f784aa",
+      "targets": [
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+          "source_sha256": "5495d84ccb8b417598fc38d2110df38f4ff94da39759938754ea8599259af4c9",
+          "target_sha256": "3fa9237c14de2634407bedb41b8672ecaefe4907b6b4e6b00b974d11ac205e75"
+        },
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+          "source_sha256": "f38b9e158f223823762ab4a5af51f4b53f2ba833757ae9487d98e0bc060a3e3d",
+          "target_sha256": "e756dd3eba68447bb5eb3411cfba99b1f19d22b4812671499828c75be54c3700"
+        },
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+          "source_sha256": "1220abe427e5d62b3ac2901c5c0f545fd85b31d28209a22ad7592b6fdfcd5458",
+          "target_sha256": "a6726f82fd04975cd21565e26814e58caef0352e3a4eaaea0536c897fd969013"
+        }
+      ],
+      "normal_source_context_markup_review_gates": "PASS"
+    },
+    "fr": {
+      "path": "/mnt/wd4tb/scratch/n468-current-contract-audit-20261015/three-tab-api-drafts/fr.json",
+      "sha256": "827ad17577eb342a0df60be62fc17dc750bf3cd1d977fe948d392f9a35afe42f",
+      "targets": [
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+          "source_sha256": "5495d84ccb8b417598fc38d2110df38f4ff94da39759938754ea8599259af4c9",
+          "target_sha256": "2efafdc32ea84c16c7eeefb7adf2cc228a8ab9701387815536ec81b8a4f8731f"
+        },
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+          "source_sha256": "f38b9e158f223823762ab4a5af51f4b53f2ba833757ae9487d98e0bc060a3e3d",
+          "target_sha256": "df6cb75d35ebdd97a40377956d21c2219f68162cad492384f40ebcf9a8c41297"
+        },
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+          "source_sha256": "1220abe427e5d62b3ac2901c5c0f545fd85b31d28209a22ad7592b6fdfcd5458",
+          "target_sha256": "472bb1af1261672db522063f68814045af04052c9d3fafbdca1170da53a71fc1"
+        }
+      ],
+      "normal_source_context_markup_review_gates": "PASS"
+    },
+    "pt": {
+      "path": "/mnt/wd4tb/scratch/n468-current-contract-audit-20261015/three-tab-api-drafts/pt.json",
+      "sha256": "63c434e076ffa721d7ea332571acc624dc4d857af9cc01bf2c1ec078d403e99d",
+      "targets": [
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+          "source_sha256": "5495d84ccb8b417598fc38d2110df38f4ff94da39759938754ea8599259af4c9",
+          "target_sha256": "350fbedf175a30113476483ca0f92f5282950d440d52e977190d11c846f47eb5"
+        },
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+          "source_sha256": "f38b9e158f223823762ab4a5af51f4b53f2ba833757ae9487d98e0bc060a3e3d",
+          "target_sha256": "81eab27f6c2dd063439d369d0076a3f42e7890c7a1efd9056f02ac417b87f664"
+        },
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+          "source_sha256": "1220abe427e5d62b3ac2901c5c0f545fd85b31d28209a22ad7592b6fdfcd5458",
+          "target_sha256": "83fb8fd9b6608d39c283b3107a020076c5c00c75d398aa79267695cf545569cd"
+        }
+      ],
+      "normal_source_context_markup_review_gates": "PASS"
+    },
+    "hi": {
+      "path": "/mnt/wd4tb/scratch/n468-current-contract-audit-20261015/three-tab-api-drafts/hi.json",
+      "sha256": "ffe9bb444be921de81f2b68608edadb28c2aabb7c189636e87961ce9095a5219",
+      "targets": [
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+          "source_sha256": "5495d84ccb8b417598fc38d2110df38f4ff94da39759938754ea8599259af4c9",
+          "target_sha256": "f2577bda9678a813cf002913548d5bd51d560a56afb4a0eb54b4cc08e2f2178c"
+        },
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+          "source_sha256": "f38b9e158f223823762ab4a5af51f4b53f2ba833757ae9487d98e0bc060a3e3d",
+          "target_sha256": "cc09bd75749d24dd1b813c555e5e1e38ec4e02262bbf22af1adf8e6d0609a2f8"
+        },
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+          "source_sha256": "1220abe427e5d62b3ac2901c5c0f545fd85b31d28209a22ad7592b6fdfcd5458",
+          "target_sha256": "deab64c14249f4761c5d2fbae4da613df39e616b26ac6ea8ec0c924fae674b54"
+        }
+      ],
+      "normal_source_context_markup_review_gates": "PASS"
+    },
+    "ko": {
+      "path": "/mnt/wd4tb/scratch/n468-current-contract-audit-20261015/three-tab-api-drafts/ko.json",
+      "sha256": "a85b241eedb513e39f73ccb982914040dec4ece4ab479e153b227e6003fffc73",
+      "targets": [
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+          "source_sha256": "5495d84ccb8b417598fc38d2110df38f4ff94da39759938754ea8599259af4c9",
+          "target_sha256": "7f0917e01b42d58ff8824c62ac10cfced0825b891f609908d0c08ef7365dd401"
+        },
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+          "source_sha256": "f38b9e158f223823762ab4a5af51f4b53f2ba833757ae9487d98e0bc060a3e3d",
+          "target_sha256": "e40fa4c810d058e08348bc1b813400e778e2a4f3d8924f03736654b994d1c297"
+        },
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+          "source_sha256": "1220abe427e5d62b3ac2901c5c0f545fd85b31d28209a22ad7592b6fdfcd5458",
+          "target_sha256": "62dda345975324b69ec0cf06eff4f6b237fb18812e609faf6e438d04409300ad"
+        }
+      ],
+      "normal_source_context_markup_review_gates": "PASS"
+    },
+    "is": {
+      "path": "/mnt/wd4tb/scratch/n468-current-contract-audit-20261015/three-tab-api-drafts/is.json",
+      "sha256": "ffeacfff8df9de77e4c868eed47eb590c5c9466c19207df6f3367e5353dec1af",
+      "targets": [
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+          "source_sha256": "5495d84ccb8b417598fc38d2110df38f4ff94da39759938754ea8599259af4c9",
+          "target_sha256": "f425c0517dca7287719f0cb541760c4aacb16b9a0c7f007dfe07d7425b56221a"
+        },
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+          "source_sha256": "f38b9e158f223823762ab4a5af51f4b53f2ba833757ae9487d98e0bc060a3e3d",
+          "target_sha256": "5f00196dd401e9d3904f5d58450898ee9dcdc24e294e0486e39e767746792c20"
+        },
+        {
+          "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+          "source_sha256": "1220abe427e5d62b3ac2901c5c0f545fd85b31d28209a22ad7592b6fdfcd5458",
+          "target_sha256": "ddf492a583c5e4e8d28c8cc77fad8d7474c7ff2f7a0ce2d079aefdd9b4f036dd"
+        }
+      ],
+      "normal_source_context_markup_review_gates": "PASS"
+    }
+  },
+  "retirement_proposals": [
+    {
+      "file": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-006.json",
+      "file_sha256": "e5aea96d7d4763dcb02dfa4471cd214cfbd066c0a38c63a52b1f4efc1a14b0fc",
+      "row_index": 285,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+      "old_source_sha256": "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
+      "old_record_sha256": "fb62976040d5cb2f01deed97b144065dfe3264a0f55c6fc201ec0aed2e2df48f",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+        "source": "The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.",
+        "source_sha256": "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
+        "context": "The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.",
+        "translation": "Inställningarna för förhandsvisningen i Plaque Assay: en flik för figurer och en för plackdetektering.",
+        "review_basis": "written from the English (no current MT draft)"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-006.json",
+      "file_sha256": "e5aea96d7d4763dcb02dfa4471cd214cfbd066c0a38c63a52b1f4efc1a14b0fc",
+      "row_index": 287,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+      "old_source_sha256": "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
+      "old_record_sha256": "0c5a8e931cbf23db8c8288aa814cbc3c3bd06d4107abaebc052a7d14b279a457",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+        "source": "In Plaque mode the Figure tab is hidden: nothing there applies to a folder of cropped plaque images.",
+        "source_sha256": "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
+        "context": "In Plaque mode the Figure tab is hidden: nothing there applies to a folder of cropped plaque images.",
+        "translation": "I plackläget är figurfliken dold: ingenting där gäller för en mapp med beskurna plackbilder.",
+        "review_basis": "written from the English (no current MT draft)"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-006.json",
+      "file_sha256": "e5aea96d7d4763dcb02dfa4471cd214cfbd066c0a38c63a52b1f4efc1a14b0fc",
+      "row_index": 289,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+      "old_source_sha256": "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",
+      "old_record_sha256": "c59bba34c1972872c2d9fed83b3a2a46f0d941c0d7a97eafe4f4ad917e3ac916",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+        "source": "Lay the panel's controls out in two tabs.",
+        "source_sha256": "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",
+        "context": "Lay the panel's controls out in two tabs.",
+        "translation": "Placera ut panelens kontroller på två flikar.",
+        "review_basis": "written from the English (no current MT draft)"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-008.json",
+      "file_sha256": "533117481a92e6f22dd6597bbbf5a5d4357a7ee5b7f1bb95589c9da64df47e10",
+      "row_index": 241,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+      "old_source_sha256": "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
+      "old_record_sha256": "00c741b6dc497d1e5eef777f2dab9faef35dd4bc3bcd76586bea9d1aaa360a32",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+        "source": "The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.",
+        "source_sha256": "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
+        "context": "The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.",
+        "translation": "Die Einstellungen der Vorschau von Plaque Assay: eine Registerkarte Figure und eine Registerkarte Plaque detection.",
+        "review_basis": "MT draft edited in AI review"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-008.json",
+      "file_sha256": "533117481a92e6f22dd6597bbbf5a5d4357a7ee5b7f1bb95589c9da64df47e10",
+      "row_index": 243,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+      "old_source_sha256": "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
+      "old_record_sha256": "47149f983dcb09427892ebc929830ba24775cebcab948dac0f596b00b01c1552",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+        "source": "In Plaque mode the Figure tab is hidden: nothing there applies to a folder of cropped plaque images.",
+        "source_sha256": "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
+        "context": "In Plaque mode the Figure tab is hidden: nothing there applies to a folder of cropped plaque images.",
+        "translation": "Im Plaque-Modus ist die Registerkarte Figure ausgeblendet: Nichts darauf gilt für einen Ordner mit zugeschnittenen Plaque-Bildern.",
+        "review_basis": "MT draft edited in AI review"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-008.json",
+      "file_sha256": "533117481a92e6f22dd6597bbbf5a5d4357a7ee5b7f1bb95589c9da64df47e10",
+      "row_index": 245,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+      "old_source_sha256": "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",
+      "old_record_sha256": "4a77d853344150851e156bab9ee29e093009b9f60263340797342a3e878fdbfc",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+        "source": "Lay the panel's controls out in two tabs.",
+        "source_sha256": "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",
+        "context": "Lay the panel's controls out in two tabs.",
+        "translation": "Ordnet die Steuerelemente des Panels auf zwei Registerkarten an.",
+        "review_basis": "MT draft edited in AI review"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-006.json",
+      "file_sha256": "1517a118c9562770b0da980e03c051dbd148367276c3bcab961efe037eb83576",
+      "row_index": 92,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+      "old_source_sha256": "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
+      "old_record_sha256": "af27638694cc89682da26599eda6a33b276842ab8a224c9593a776bb49001dbd",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+        "source": "The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.",
+        "source_sha256": "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
+        "context": "The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.",
+        "translation": "Los ajustes de la vista previa de Plaque Assay: una pestaña Figure y una pestaña Plaque detection.",
+        "review_basis": "MT draft edited in AI review"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-006.json",
+      "file_sha256": "1517a118c9562770b0da980e03c051dbd148367276c3bcab961efe037eb83576",
+      "row_index": 94,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+      "old_source_sha256": "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
+      "old_record_sha256": "82efd3208ee0e9c98c3099c658889b91e63e563e301944efdbd7699632f332a4",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+        "source": "In Plaque mode the Figure tab is hidden: nothing there applies to a folder of cropped plaque images.",
+        "source_sha256": "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
+        "context": "In Plaque mode the Figure tab is hidden: nothing there applies to a folder of cropped plaque images.",
+        "translation": "En el modo Plaque la pestaña Figure está oculta: nada de ella se aplica a una carpeta de imágenes recortadas de placas.",
+        "review_basis": "MT draft edited in AI review"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-006.json",
+      "file_sha256": "1517a118c9562770b0da980e03c051dbd148367276c3bcab961efe037eb83576",
+      "row_index": 96,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+      "old_source_sha256": "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",
+      "old_record_sha256": "e90b8aa5bf15e8ec158de8fc6bad60af0200797dcbd7087baf57955ab713e576",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+        "source": "Lay the panel's controls out in two tabs.",
+        "source_sha256": "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",
+        "context": "Lay the panel's controls out in two tabs.",
+        "translation": "Dispone los controles del panel en dos pestañas.",
+        "review_basis": "MT draft edited in AI review"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-004.json",
+      "file_sha256": "4ddccf34cc1ec0932e8a9fb866a70b78cf831d6eb5051e01ec646135320d05b7",
+      "row_index": 361,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+      "old_source_sha256": "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
+      "old_record_sha256": "e0444b73f38d41c301bda90b72ce244eccec0b48ea1341b11d8df3b046cbfcb3",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+        "source": "The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.",
+        "source_sha256": "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
+        "context": "The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.",
+        "translation": "Plaque Assay 预览的设置：一个 Figure 选项卡和一个 Plaque detection 选项卡。",
+        "review_basis": "written from the English (no current MT draft)"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-004.json",
+      "file_sha256": "4ddccf34cc1ec0932e8a9fb866a70b78cf831d6eb5051e01ec646135320d05b7",
+      "row_index": 363,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+      "old_source_sha256": "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
+      "old_record_sha256": "1a870ba85d1e07ebdc4798fbecc87608f4d660984a39d1b318fd6ceec7c95ba0",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+        "source": "In Plaque mode the Figure tab is hidden: nothing there applies to a folder of cropped plaque images.",
+        "source_sha256": "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
+        "context": "In Plaque mode the Figure tab is hidden: nothing there applies to a folder of cropped plaque images.",
+        "translation": "在 Plaque 模式下，Figure 选项卡会被隐藏：其中没有任何内容适用于由已裁剪蚀斑图像组成的文件夹。",
+        "review_basis": "written from the English (no current MT draft)"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-004.json",
+      "file_sha256": "4ddccf34cc1ec0932e8a9fb866a70b78cf831d6eb5051e01ec646135320d05b7",
+      "row_index": 365,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+      "old_source_sha256": "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",
+      "old_record_sha256": "fd65e85f3a8908a972c5e6e951d4d9d1f8a13f730e87e77efe0a7fb7056b05cf",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+        "source": "Lay the panel's controls out in two tabs.",
+        "source_sha256": "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",
+        "context": "Lay the panel's controls out in two tabs.",
+        "translation": "将面板的控件布置在两个选项卡中。",
+        "review_basis": "written from the English (no current MT draft)"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-008.json",
+      "file_sha256": "e7fb71c437cb2594d9611c74d5969a8756a8c89c44fccd6f2d588841cee7b067",
+      "row_index": 557,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+      "old_source_sha256": "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
+      "old_record_sha256": "03c45127434594042d9674861d761ae62ba466ec56259221e24014b450c06ca0",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+        "source": "The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.",
+        "source_sha256": "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
+        "context": "The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.",
+        "translation": "Les réglages de l’aperçu Plaque Assay : un onglet Figure et un onglet Plaque detection.",
+        "review_basis": "MT draft edited in AI review"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-008.json",
+      "file_sha256": "e7fb71c437cb2594d9611c74d5969a8756a8c89c44fccd6f2d588841cee7b067",
+      "row_index": 559,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+      "old_source_sha256": "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
+      "old_record_sha256": "84791fcafcc663ea5c72bac238439950d5bdf655025cfccdcee0d2b95f5b1bf8",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+        "source": "In Plaque mode the Figure tab is hidden: nothing there applies to a folder of cropped plaque images.",
+        "source_sha256": "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
+        "context": "In Plaque mode the Figure tab is hidden: nothing there applies to a folder of cropped plaque images.",
+        "translation": "En mode Plaque, l’onglet Figure est masqué : rien de ce qu’il contient ne s’applique à un dossier d’images de plages recadrées.",
+        "review_basis": "MT draft edited in AI review"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-008.json",
+      "file_sha256": "e7fb71c437cb2594d9611c74d5969a8756a8c89c44fccd6f2d588841cee7b067",
+      "row_index": 561,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+      "old_source_sha256": "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",
+      "old_record_sha256": "26b8d93518d8196d95330f11ec76b4e5ab147bb4420dd4aa102ceba47ed34db3",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+        "source": "Lay the panel's controls out in two tabs.",
+        "source_sha256": "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",
+        "context": "Lay the panel's controls out in two tabs.",
+        "translation": "Dispose les contrôles du panneau dans deux onglets.",
+        "review_basis": "MT draft edited in AI review"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-009.json",
+      "file_sha256": "088c7cbb47145374114eb5d4a6412cb860f69d9f10341e0862066a1721cc1aab",
+      "row_index": 147,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+      "old_source_sha256": "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
+      "old_record_sha256": "caac30956366a53b506e0bb3fc6b61db8f535957256ff5894aea1aa2dd0d7f83",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+        "source": "The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.",
+        "source_sha256": "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
+        "context": "The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.",
+        "translation": "As configurações da pré-visualização do Plaque Assay: uma aba Figure e uma aba Plaque detection.",
+        "review_basis": "written from the English (no current MT draft)"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-009.json",
+      "file_sha256": "088c7cbb47145374114eb5d4a6412cb860f69d9f10341e0862066a1721cc1aab",
+      "row_index": 149,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+      "old_source_sha256": "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
+      "old_record_sha256": "0cf2178c809941aed61b6df8413e1fd69882385e8dfb103947885700f5e4b7b7",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+        "source": "In Plaque mode the Figure tab is hidden: nothing there applies to a folder of cropped plaque images.",
+        "source_sha256": "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
+        "context": "In Plaque mode the Figure tab is hidden: nothing there applies to a folder of cropped plaque images.",
+        "translation": "No modo Plaque, a aba Figure fica oculta: nada ali se aplica a uma pasta de imagens recortadas de placas de lise.",
+        "review_basis": "written from the English (no current MT draft)"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-009.json",
+      "file_sha256": "088c7cbb47145374114eb5d4a6412cb860f69d9f10341e0862066a1721cc1aab",
+      "row_index": 151,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+      "old_source_sha256": "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",
+      "old_record_sha256": "b8566ba54c30e66aaca7a4506d4ff0817a2295ee09a695ea295fa90f223ba5e1",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+        "source": "Lay the panel's controls out in two tabs.",
+        "source_sha256": "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",
+        "context": "Lay the panel's controls out in two tabs.",
+        "translation": "Distribui os controles do painel em duas abas.",
+        "review_basis": "written from the English (no current MT draft)"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-010.json",
+      "file_sha256": "2bbd0cd99fe0070ea4bfa204a514ff57553118e104be2e3e15245273e5b4731e",
+      "row_index": 572,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+      "old_source_sha256": "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
+      "old_record_sha256": "57d0655a17363ab4f5a01def4ed95aa58ebb1ce8a0213630b3e6b182b5f66d55",
+      "old_record": {
+        "context": "The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.",
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+        "review_basis": "written from the English (no current MT draft)",
+        "source": "The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.",
+        "source_sha256": "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
+        "translation": "Plaque Assay पूर्वावलोकन की सेटिंग्स: एक Figure टैब और एक Plaque detection टैब।"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-010.json",
+      "file_sha256": "2bbd0cd99fe0070ea4bfa204a514ff57553118e104be2e3e15245273e5b4731e",
+      "row_index": 574,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+      "old_source_sha256": "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
+      "old_record_sha256": "ff6c3a4de8e61a28aeab84e2d836d216fb74bcfd4f855aebc64d1a54157b6bab",
+      "old_record": {
+        "context": "In Plaque mode the Figure tab is hidden: nothing there applies to a folder of cropped plaque images.",
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+        "review_basis": "written from the English (no current MT draft)",
+        "source": "In Plaque mode the Figure tab is hidden: nothing there applies to a folder of cropped plaque images.",
+        "source_sha256": "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
+        "translation": "Plaque मोड में Figure टैब छिपा रहता है: वहाँ का कुछ भी काटे गए प्लाक छवियों के फ़ोल्डर पर लागू नहीं होता।"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-010.json",
+      "file_sha256": "2bbd0cd99fe0070ea4bfa204a514ff57553118e104be2e3e15245273e5b4731e",
+      "row_index": 576,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+      "old_source_sha256": "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",
+      "old_record_sha256": "fb00ea89bdee3a347ac3492abb1cb02298366b15f19a14a9429e07a0f2dc7575",
+      "old_record": {
+        "context": "Lay the panel's controls out in two tabs.",
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+        "review_basis": "written from the English (no current MT draft)",
+        "source": "Lay the panel's controls out in two tabs.",
+        "source_sha256": "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",
+        "translation": "पैनल के नियंत्रणों को दो टैब में व्यवस्थित करें।"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-005.json",
+      "file_sha256": "21dc958920c1c8543ca560d7fc964ad1bbf251ad27745ad4993424b81ccbe2e1",
+      "row_index": 159,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+      "old_source_sha256": "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
+      "old_record_sha256": "c6ab68ed79e77df532ac2f2cd5404a89567c5a9e96df761d16ba9da50f7c4962",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+        "source": "The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.",
+        "source_sha256": "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
+        "context": "The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.",
+        "translation": "Plaque Assay 미리 보기의 설정입니다: Figure 탭과 Plaque detection 탭.",
+        "review_basis": "written from the English (no current MT draft)"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-005.json",
+      "file_sha256": "21dc958920c1c8543ca560d7fc964ad1bbf251ad27745ad4993424b81ccbe2e1",
+      "row_index": 161,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+      "old_source_sha256": "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
+      "old_record_sha256": "c5114c563673da4a3158583784069bae491d2687bca7edaf5325b03c42c796ce",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+        "source": "In Plaque mode the Figure tab is hidden: nothing there applies to a folder of cropped plaque images.",
+        "source_sha256": "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
+        "context": "In Plaque mode the Figure tab is hidden: nothing there applies to a folder of cropped plaque images.",
+        "translation": "Plaque 모드에서는 Figure 탭이 숨겨집니다. 그 탭의 어떤 것도 잘라 낸 플라크 이미지 폴더에는 적용되지 않습니다.",
+        "review_basis": "written from the English (no current MT draft)"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-005.json",
+      "file_sha256": "21dc958920c1c8543ca560d7fc964ad1bbf251ad27745ad4993424b81ccbe2e1",
+      "row_index": 163,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+      "old_source_sha256": "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",
+      "old_record_sha256": "89e0ca92bb8642cf313ff13632348bf5f96bd84eca559cdf98f7979732ec38af",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+        "source": "Lay the panel's controls out in two tabs.",
+        "source_sha256": "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",
+        "context": "Lay the panel's controls out in two tabs.",
+        "translation": "패널의 컨트롤을 두 탭에 배치합니다.",
+        "review_basis": "written from the English (no current MT draft)"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-010.json",
+      "file_sha256": "d533d30c9f53c499188653aeab00f5b309c5d0e4a7d6cc4f1c739dce1825000e",
+      "row_index": 393,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+      "old_source_sha256": "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
+      "old_record_sha256": "0678bbf7db853f9707bfbc89fb662ca1ef58c27628d38d9a6af8b364b1adc55c",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+        "source": "The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.",
+        "source_sha256": "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
+        "context": "The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.",
+        "translation": "Stillingar forsýnar Plaque Assay: Figure-flipi og Plaque detection-flipi.",
+        "review_basis": "written from the English (no current MT draft)"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-010.json",
+      "file_sha256": "d533d30c9f53c499188653aeab00f5b309c5d0e4a7d6cc4f1c739dce1825000e",
+      "row_index": 395,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+      "old_source_sha256": "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
+      "old_record_sha256": "8880b00d48a80e2f41ce9fe04420053d358c05c77b8dcead8f4ed3d53b8f252a",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+        "source": "In Plaque mode the Figure tab is hidden: nothing there applies to a folder of cropped plaque images.",
+        "source_sha256": "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
+        "context": "In Plaque mode the Figure tab is hidden: nothing there applies to a folder of cropped plaque images.",
+        "translation": "Í Plaque-ham er Figure-flipinn falinn: ekkert þar á við um möppu með skornum skellumyndum.",
+        "review_basis": "written from the English (no current MT draft)"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-010.json",
+      "file_sha256": "d533d30c9f53c499188653aeab00f5b309c5d0e4a7d6cc4f1c739dce1825000e",
+      "row_index": 397,
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+      "old_source_sha256": "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",
+      "old_record_sha256": "720943029b1ca65ff45fc3a574544e00b48419b7ebbdef1f09efdb0276eb6809",
+      "old_record": {
+        "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+        "source": "Lay the panel's controls out in two tabs.",
+        "source_sha256": "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",
+        "context": "Lay the panel's controls out in two tabs.",
+        "translation": "Raða stýringum spjaldsins upp á tvo flipa.",
+        "review_basis": "written from the English (no current MT draft)"
+      }
+    }
+  ],
+  "status": "Private27newtechnicaltargets; rootpeerpending; no installednewrecords/writer/retirements for3tabchange."
+}
