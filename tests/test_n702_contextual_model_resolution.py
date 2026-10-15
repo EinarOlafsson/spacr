@@ -314,3 +314,15 @@ def test_initialization_policy_receives_resolved_checkpoint_before_reading(decla
     monkeypatch.setattr(torch, 'load', read)
     with pytest.raises(ReadBoundary):
         initialization_policy(deep._classifier_model_input({'custom_model_path': requested}, 'custom_model_path'))
+
+
+def test_lookup_and_original_backend_request_remain_distinct_in_success_log(declared_model, caplog):
+    raw, source, payload = declared_model
+    original = 'backend-prefix:/laptop/' + source.name + '#target'
+    with caplog.at_level(logging.INFO, logger='spacr.model_zoo'):
+        result = zoo._ensure_model_file(raw['key'], kinds=('cellpose',),
+                                        setting='pathogen_model', original_request=original)
+    lines = [record.getMessage() for record in caplog.records if 'downloaded zoo model' in record.getMessage()]
+    assert len(lines) == 1 and original in lines[0] and 'pathogen_model' in lines[0]
+    assert raw['key'] in lines[0] and raw['sha256'] in lines[0]
+    assert result.read_bytes() == payload and source.read_bytes() == payload

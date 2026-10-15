@@ -4142,7 +4142,7 @@ def _resolution_model_entries(download):
     return selected
 
 
-def _ensure_model_file(requested, *, kinds=(), download=True, setting=None):
+def _ensure_model_file(requested, *, kinds=(), download=True, setting=None, original_request=None):
     """Resolve a catalogue checkpoint and fetch missing verified weights.
 
     Local paths win. Unknown identifiers return None for the caller's
@@ -4150,6 +4150,8 @@ def _ensure_model_file(requested, *, kinds=(), download=True, setting=None):
     return the intended cache path without fetching checkpoint bytes.
     A Qt GUI-thread caller must use the model picker for a missing model.
     Optional ``setting`` names the actual input field in a successful-download log.
+    ``original_request`` preserves a caller's unmodified prefix/target string in
+    that log; None uses the lookup request. It never changes identity selection.
     """
     text = os.fspath(requested).strip() if requested is not None else ""
     if not text:
@@ -4184,7 +4186,8 @@ def _ensure_model_file(requested, *, kinds=(), download=True, setting=None):
             f"{text!r} is a {entry.kind} model; this operation requires "
             f"one of {', '.join(kinds)}")
     return _ensure_catalogue_model_file(
-        entry, download=download, setting=setting, requested=text,
+        entry, download=download, setting=setting,
+        requested=text if original_request is None else original_request,
         publisher_version=next((row.get("version") for row in BUNDLED_REMOTE_MODELS
                                 if row.get("key", row.get("name")) == entry.key
                                 and row.get("name") == entry.name
