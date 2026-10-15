@@ -111,7 +111,6 @@ API lane. This does not complete N678 or claim review of every paragraph in
 these files. Source-bound before/after/retained ledger:
 features/data/678_loading_preferences_theme_2026-10-15/receipt.json.
 
-<<<<<<< HEAD
 2026-10-15 — Bounded shortcuts prose review, separate from N197 captions.
 Read all 1,739 pre-change shortcuts.py lines and actual screen/window callers.
 Of 72 docstrings, 15 had factual scope/default/action corrections and 57 were
@@ -136,7 +135,6 @@ Evidence: features/data/678_picture_shortcut_catalogs_2026-10-15/,
 678_picture_export_api_peer_review_2026-10-15/. These notes supersede pending
 translation statements for these exact scopes only; the broad text review,
 tutorial ownership and other acceptance gates remain open.
-=======
 2026-10-15 — Bounded Image UMAP tier and editor documentation repair.
 The rerun tier contains clustering, view-layout and output options as well as
 embedding parameters. Corrected the existing module/class prose and one visible
@@ -151,4 +149,3 @@ API review/generation batch. One literal-tr caption needs nine locale runtime
 inputs and the normal writer; no obsolete exact runtime review row exists.
 Evidence: features/data/678_umap_figure_settings_prose_2026-10-15/receipt.json.
 This bounded repair does not complete N678 or claim native-platform acceptance.
->>>>>>> c00a087e749 (Describe UMAP figure settings tiers and nullable editors accurately)
