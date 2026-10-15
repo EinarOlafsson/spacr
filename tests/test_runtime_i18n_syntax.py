@@ -111,6 +111,34 @@ def _new_download_sources(language: str, reviewed: dict[str, str]) -> set[str]:
     return sources
 
 
+def _later_cohort_records(path, expected, language, reviewed):
+    """Retain the frozen cohort bytes while proving two removed brush captions."""
+    if path.name != "2026-09-22-lock-levels-parascape-controls.json":
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == expected["sha256"]
+        return json.loads(path.read_text())["records"], set()
+    import gzip
+
+    archive = ROOT / "tests/data/release_contracts/697_retired_runtime_controls_2026-10-15" / (language + ".json.gz")
+    original_bytes = gzip.decompress(archive.read_bytes())
+    assert hashlib.sha256(original_bytes).hexdigest() == expected["sha256"]
+    document = json.loads(original_bytes)
+    hashes = {
+        "778abbd7904eeb2ed756fd39c45c0fb9bb631776ae43f029402d2546ed0a5574",
+        "61ff206138ebad2ee38e9ec13a0b782892f5c2a81ff43c37d5739ef1472c4cf5",
+    }
+    retired = [row for row in document["records"] if row["source_sha256"] in hashes]
+    assert len(retired) == len(hashes) == 2
+    assert {row["source_sha256"] for row in retired} == hashes
+    for row in retired:
+        assert hashlib.sha256(row["source"].encode()).hexdigest() == row["source_sha256"]
+    document["records"] = [row for row in document["records"] if row not in retired]
+    expected_bytes = (json.dumps(document, ensure_ascii=False, indent=2) + "\n").encode()
+    assert path.read_bytes() == expected_bytes
+    sources = {row["source"] for row in retired}
+    assert not sources & reviewed.keys()
+    return document["records"], sources
+
+
 def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[str]:
     """Reconcile later accepted records without changing historical counts."""
     sources: set[str] = set()
@@ -181,15 +209,17 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
     report = json.loads((ROOT / "tests/data/release_contracts/411_runtime_review_cohorts_2026-09-23.json").read_text())["languages"][language]
     folder = ROOT / "docs/i18n/reviewed/runtime" / language
     later_sources: set[str] = set()
+    later_retired: set[str] = set()
     later_names = {row["name"] for row in report["files"]}
     for row in report["files"]:
         path = folder / row["name"]
-        assert hashlib.sha256(path.read_bytes()).hexdigest() == row["sha256"]
-        records = json.loads(path.read_text())["records"]
+        records, retired = _later_cohort_records(path, row, language, reviewed)
         values = {record["source"] for record in records}
-        assert len(records) == row["records"] and len(values) == row["sources"]
+        assert len(records) + len(retired) == row["records"]
+        assert len(values) + len(retired) == row["sources"]
         assert values <= reviewed.keys()
         later_sources.update(values)
+        later_retired.update(retired)
     earlier_sources = {
         record["source"] for path in folder.glob("*.json") if path.name not in later_names
         for record in json.loads(path.read_text())["records"]
@@ -204,8 +234,10 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
     # in place in each of 2026-09-23-pipeline-workflow-phrases.json (8 -> 7)
     # and 2026-09-23-workflow-map-phrases.json (206 -> 205); the receipt's
     # hashes and counts were rebound to those files.
-    assert len(additions) == report["later_distinct_additions"] == 774  # 2026-10-04: -2, 48c4133c8 withdrew the Plasmodium/Candida guide notes
-    assert hashlib.sha256(json.dumps(sorted(additions), ensure_ascii=False).encode()).hexdigest() == report["added_sources_sha256"]
+    historical_additions = additions | later_retired
+    assert not later_retired & earlier_sources
+    assert len(historical_additions) == report["later_distinct_additions"] == 774  # 2026-10-04: -2, 48c4133c8 withdrew the Plasmodium/Candida guide notes
+    assert hashlib.sha256(json.dumps(sorted(historical_additions), ensure_ascii=False).encode()).hexdigest() == report["added_sources_sha256"]
     assert not sources & additions
     for filename, record_count, source_count in (
             # 3 -> 2 records on 2026-09-29: items 591-597 renamed the "Cloud"
@@ -296,6 +328,37 @@ def _requested_detection_retirements(language, filename):
     return values | later_sources
 
 
+def _figure_export_retirements(language, filename):
+    """Verify the two published factual-prose retirements against frozen bytes."""
+    if filename != "2026-09-15-integration-review.json":
+        return set()
+    from build_i18n_catalogs import reviewed_runtime_translations
+
+    folder = ROOT / "docs/i18n/reviewed/runtime" / language
+    archive = folder / "archive/2026-10-15-figure-export-prose" / filename
+    archive_hashes = {'fr': '30e2bd2724ef34c3cb52e533fe6f2b280f926b83599b99e91b95f07d41fbdd08', 'sv': '297c6f8f924c71ec2bf1a2e84b71c3a819bdf61318c18779a509adb15d456526'}
+    assert hashlib.sha256(archive.read_bytes()).hexdigest() == archive_hashes[language]
+    original = json.loads(archive.read_text())["records"]
+    reason = (
+        "2026-10-15: exact old source is no longer canonical after N678 "
+        "figure-export factual corrections c1be6383a7c; superseded by "
+        "2026-10-15-figure-export-factual.json. Original bytes archived beside this review.")
+    retired = [row for row in json.loads((folder / filename).read_text())
+               .get("retired_records", []) if row.get("retired") == reason]
+    expected = {
+        "8d0d775ecb20bc5c338a5999a5ab009eebbc708d27dd60f6732895ac953a638b",
+        "8f9108d0acb7994423e04af9b8058bfa92eb76b6d570e3b2e842df3b9160db3d",
+    }
+    assert len(retired) == len(expected) == 2
+    assert {row["source_sha256"] for row in retired} == expected
+    for row in retired:
+        assert hashlib.sha256(row["source"].encode()).hexdigest() == row["source_sha256"]
+        assert {key: value for key, value in row.items() if key != "retired"} in original
+    sources = {row["source"] for row in retired}
+    assert not sources & reviewed_runtime_translations(language).keys()
+    return sources
+
+
 def _theme_cohort_retirements(language, filename):
     """Prove the exact source retirements without changing historical pins."""
     hashes = {
@@ -329,9 +392,10 @@ def _theme_cohort_retirements(language, filename):
             .get('retired_records', [])
             if str(row.get('retired', '')).startswith(
                 ('2026-10-11', TUTORIAL_RENDERER_RETIRED))}
+    figure_retired = _figure_export_retirements(language, filename)
     assert current == [row for row in original if row not in retired
-                       and row['source'] not in requested | n678]
-    return {row["source"] for row in retired} | requested
+                       and row['source'] not in requested | n678 | figure_retired]
+    return {row["source"] for row in retired} | requested | figure_retired
 
 
 def _with_training_sample_replacements(document, language, filename):
@@ -620,7 +684,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     base_retired = _theme_cohort_retirements("sv", "2026-09-15-integration-review.json")
     refresh_retired = _theme_cohort_retirements("sv", "2026-09-21-runtime-ui-refresh.json")
     cohort_retired = base_retired | refresh_retired
-    assert len(base_retired) == 2 and len(refresh_retired) == 2
+    assert len(base_retired) == 4 and len(refresh_retired) == 2
     assert not cohort_retired & reviewed.keys()
     # +269 distinct UI/category sources, with three OPS descriptions shared
     # between both tables (272 records). The detection-panel consolidation
@@ -877,7 +941,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     refresh_retired = _theme_cohort_retirements("fr", "2026-09-21-runtime-third-slice.json")
     refresh_retired |= _theme_cohort_retirements("fr", "2026-09-21-runtime-fourth-slice.json")
     cohort_retired = base_retired | refresh_retired
-    assert len(base_retired) == 2 and len(refresh_retired) == 2
+    assert len(base_retired) == 4 and len(refresh_retired) == 2
     assert not cohort_retired & all_reviewed.keys()
     refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                           "2026-09-21-runtime-first-slice.json").read_text())
