@@ -40,5 +40,28 @@
   "normal_documentation_generation": {
     "status": "Actual exit1: enabled published Home-B preferences relocation callback lacks docstring; narrow owner fix requested. API/help writer cannot proceed until owner source repaired.",
     "raw_log": "/mnt/wd4tb/scratch/masks-final-integration-20261014/final-generated.log"
-  }
+  },
+  "exact_owner_approved_widgets": {
+    "spacr/qt/widgets/object_settings_grid.py": "9caa0afca39d68d263907fa52367a944d8067c256a17363b4a54c773ba637305",
+    "spacr/qt/widgets/live_preview.py": "bbf261a1f37eba1bb5294b6991591b825546fc5c89c0e63f83420b4a19a8b364",
+    "spacr/qt/widgets/timelapse_preview.py": "799b19aa4acc1b0616781152f8dfdf6f39303979fd12009bf2c311dc9a636537",
+    "spacr/qt/widgets/object_grid_binding.py": "610c0d19ae563f71698ca51c36dbd6b20b12345ab8af1e28e330a4387efe08f1"
+  },
+  "owner_attribute_docstring_patch_sha256": "a4e9b71c16f13624471633932be977f05076a1ff0b2c493fa1bbb2a6806fce20",
+  "instruction_index_check": "actual exit0: index matches instruction files",
+  "final_caption_refresh": {
+    "exit_code": 1,
+    "reason": "caption arrival lacks explicit reviewed record: sv/('UI', 'AI Error report')",
+    "fixture_unchanged_from_published_baseline": true,
+    "fixture_sha256": "605319c830fb4977395b2b6aaa045d62e86936a2a9dd1deb0a9a16f50b9c295b",
+    "log": "/mnt/wd4tb/scratch/masks-final-integration-20261014/with-ssh-arrivals.log"
+  },
+  "final_english_sources_only": {
+    "exit_code": 0,
+    "settings": 1273,
+    "categories": 242,
+    "ui": 7723,
+    "log": "/mnt/wd4tb/scratch/masks-final-integration-20261014/with-ssh-english.log"
+  },
+  "publication": "Coherent tested Masks app source; global caption/docs/native tutorial/full CI/release acceptance remains open."
 }

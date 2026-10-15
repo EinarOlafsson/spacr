@@ -101068,6 +101068,16 @@
         "5abf6222730d5ef2064852e4237f3c3a4df3f6e5be986773e1bbe61dc05d1281"
       ]
     },
+    "spacr.qt.screens.distributed_jobs.ExecutionProfileDialog._test_connection.operation": {
+      "source_blocks_sha256": [
+        "6cebc4368fe1992f42f43f148a47c4fcd476fea6f4c06b5843590a528a38165c"
+      ],
+      "source_sha256": "6cebc4368fe1992f42f43f148a47c4fcd476fea6f4c06b5843590a528a38165c",
+      "text": "Kontrollera fjärrvärdens namn innan Slurm frågas på arbetstråden.",
+      "translation_source_blocks_sha256": [
+        "37f614e6dce3acd3fc1cf1e40e6bf1177a0c111ef875c618dc8200f70f092ea5"
+      ]
+    },
     "spacr.qt.screens.distributed_jobs.ExecutionProfileDialog.profile": {
       "source_blocks_sha256": [
         "9a4a08fa9349aef36a14f5c50f539a26b4a88027da9c8e4201de9a849786cf42"
@@ -181952,10 +181962,12 @@
         "71994b37bde00aa32f9aa1e9d0b831fa1887bf028aa1e64ba9fd0048cc1290a9",
         "1476fe247335c3fc99fedec7e1f4f22c630f09ba5688a2811a24ca02ae0825e1",
         "b03735a071c0e588eeee3286493b26461bbac38ba66b9a4d6f849ef8bdf4716b",
-        "83923a660e878bfc2640b8fb42c9d4d2637b395ea929b1f5f8fa94eaf69e8425"
+        "83923a660e878bfc2640b8fb42c9d4d2637b395ea929b1f5f8fa94eaf69e8425",
+        "e9178114e98720d092d10b94b54e26d98eaebc2b00546ab8f762a7dea09b12cf",
+        "68a0281e925d2ae378e444902faff4a40fcf1458b6cf56207c525ba46fd7b0aa"
       ],
-      "source_sha256": "f5545f77f4952c853239d68997a3d7bc2968cfd865933c87064616550eb55d78",
-      "text": "Inställning av anslutning och schemaläggning för ett mål för körning.\n\n``local_root`` och ``remote_root`` beskriver samma delade eller speglade datauppsättning. Varje absolut sträng som är inbäddad i inställningarna skrivs om när den ligger under ``local_root``. Bilddatauppsättningar kopieras avsiktligt inte: oavsiktlig rekursiv överföring av en multi-terabyteplatta är värre än ett tydligt före flygning.\n\nFör ``command``-profiler är kommandosträngar tokeniserade med :func:`shlex.split` och stöd ``{job_id}``, ``{module}``, ``{settings}`` och ``{external_id}`` platshållare. De är argumentmallar, inte skalskript.\n\n:param name: lättläst profilnamn som används för att välja detta mål.\n:param backend: Verkställighetsmekanism, en av :data:`BACKENDS`.\n:param host: OpenSSH mål för SSH och fjärr Slurm; blank tillåter en Slurm schemaläggare som körs på den lokala värden.\n:param workdir: Absolut körkatalog där ``spacr-jobs`` artefakter skapas.\n:param local_root: lokalt datauppsättningsprefix parat med ``remote_root`` för omskrivning av bonad med absolut sökväg.\n:param remote_root: motsvarande datauppsättningsprefix som är synligt för målvärden.\n:param runner: körbar utan grafiskt gränssnitt som åberopats som ``runner module --settings path`` av SSH och Slurm backends.\n:param scheduler_options: Ytterligare skalfria argument gick till ``sbatch``.\n:param submit_command: Anpassad argumentmall som innehåller ``{settings}`` och skriver ut en jobbidentifierare.\n:param status_command: Anpassad statusmall som innehåller ``{external_id}`` och returnerar ett tillstånd spaCR kan normaliseras.\n:param cancel_command: Anpassad avbokningsmall som innehåller ``{external_id}``.\n:param log_command: valfri anpassad mall för att hämta jobbutmatning.\n:param job_id_pattern: Valfritt reguljärt uttryck som extraherar en namngiven ``id``, första fånga eller fullständig matchning från inlämningsutmatningen.\n:param poll_seconds: rekommenderat valintervall från 2 till 3600 sekunder.",
+      "source_sha256": "5d65a5569a1ae58501f07ee22effe38c1c2a2664f178eceda6a7ca57b31ce6f3",
+      "text": "Inställning av anslutning och schemaläggning för ett mål för körning.\n\n``local_root`` och ``remote_root`` beskriver samma delade eller speglade datauppsättning. Varje absolut sträng som är inbäddad i inställningarna skrivs om när den ligger under ``local_root``. Bilddatauppsättningar kopieras avsiktligt inte: oavsiktlig rekursiv överföring av en multi-terabyteplatta är värre än ett tydligt före flygning.\n\nFör ``command``-profiler är kommandosträngar tokeniserade med :func:`shlex.split` och stöd ``{job_id}``, ``{module}``, ``{settings}`` och ``{external_id}`` platshållare. De är argumentmallar, inte skalskript.\n\n:param name: lättläst profilnamn som används för att välja detta mål.\n:param backend: Verkställighetsmekanism, en av :data:`BACKENDS`.\n:param host: OpenSSH mål för SSH och fjärr Slurm; blank tillåter en Slurm schemaläggare som körs på den lokala värden.\n:param workdir: Absolut körkatalog där ``spacr-jobs`` artefakter skapas.\n:param local_root: lokalt datauppsättningsprefix parat med ``remote_root`` för omskrivning av bonad med absolut sökväg.\n:param remote_root: motsvarande datauppsättningsprefix som är synligt för målvärden.\n:param runner: körbar utan grafiskt gränssnitt som åberopats som ``runner module --settings path`` av SSH och Slurm backends.\n:param scheduler_options: Ytterligare skalfria argument gick till ``sbatch``.\n:param submit_command: Anpassad argumentmall som innehåller ``{settings}`` och skriver ut en jobbidentifierare.\n:param status_command: Anpassad statusmall som innehåller ``{external_id}`` och returnerar ett tillstånd spaCR kan normaliseras.\n:param cancel_command: Anpassad avbokningsmall som innehåller ``{external_id}``.\n:param log_command: valfri anpassad mall för att hämta jobbutmatning.\n:param job_id_pattern: Valfritt reguljärt uttryck som extraherar en namngiven ``id``, första fånga eller fullständig matchning från inlämningsutmatningen.\n:param poll_seconds: rekommenderat valintervall från 2 till 3600 sekunder.\n:param ssh_options: SSH-konfigurationsöverstyrningar utan hemligheter, såsom användare, port, sökväg till identitetsfil och hoppvärd; lösenord och engångskoder (OTP) är förbjudna.\n:param ssh_interactive: använd en verifierad beständig SSH-session med tangentbordsinteraktiva frågor i GUI:t i stället för det externa OpenSSH-kommandot.",
       "translation_source_blocks_sha256": [
         "7e87357ae7d65908808f1150f13667f616c7b568d8f6df8bebf835672068670b",
         "c571f05ef429b38270e7662cdfd67586bc67acee2ad3230c930a19d3d1e1126f",
@@ -181973,7 +181985,9 @@
         "71994b37bde00aa32f9aa1e9d0b831fa1887bf028aa1e64ba9fd0048cc1290a9",
         "1476fe247335c3fc99fedec7e1f4f22c630f09ba5688a2811a24ca02ae0825e1",
         "b03735a071c0e588eeee3286493b26461bbac38ba66b9a4d6f849ef8bdf4716b",
-        "83923a660e878bfc2640b8fb42c9d4d2637b395ea929b1f5f8fa94eaf69e8425"
+        "83923a660e878bfc2640b8fb42c9d4d2637b395ea929b1f5f8fa94eaf69e8425",
+        "e9178114e98720d092d10b94b54e26d98eaebc2b00546ab8f762a7dea09b12cf",
+        "68a0281e925d2ae378e444902faff4a40fcf1458b6cf56207c525ba46fd7b0aa"
       ]
     },
     "spacr.remote_execution.ExecutionProfile.from_dict": {

@@ -1,0 +1,3 @@
+{
+  "spacr.qt.screens.distributed_jobs.ExecutionProfileDialog._test_connection.operation": "Check the remote hostname before querying Slurm on the worker thread."
+}

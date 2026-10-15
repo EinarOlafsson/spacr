@@ -101069,6 +101069,16 @@
         "5abf6222730d5ef2064852e4237f3c3a4df3f6e5be986773e1bbe61dc05d1281"
       ]
     },
+    "spacr.qt.screens.distributed_jobs.ExecutionProfileDialog._test_connection.operation": {
+      "source_blocks_sha256": [
+        "6cebc4368fe1992f42f43f148a47c4fcd476fea6f4c06b5843590a528a38165c"
+      ],
+      "source_sha256": "6cebc4368fe1992f42f43f148a47c4fcd476fea6f4c06b5843590a528a38165c",
+      "text": "在工作线程查询 Slurm 之前，先检查远程主机名。",
+      "translation_source_blocks_sha256": [
+        "37f614e6dce3acd3fc1cf1e40e6bf1177a0c111ef875c618dc8200f70f092ea5"
+      ]
+    },
     "spacr.qt.screens.distributed_jobs.ExecutionProfileDialog.profile": {
       "source_blocks_sha256": [
         "9a4a08fa9349aef36a14f5c50f539a26b4a88027da9c8e4201de9a849786cf42"
@@ -181953,10 +181963,12 @@
         "71994b37bde00aa32f9aa1e9d0b831fa1887bf028aa1e64ba9fd0048cc1290a9",
         "1476fe247335c3fc99fedec7e1f4f22c630f09ba5688a2811a24ca02ae0825e1",
         "b03735a071c0e588eeee3286493b26461bbac38ba66b9a4d6f849ef8bdf4716b",
-        "83923a660e878bfc2640b8fb42c9d4d2637b395ea929b1f5f8fa94eaf69e8425"
+        "83923a660e878bfc2640b8fb42c9d4d2637b395ea929b1f5f8fa94eaf69e8425",
+        "e9178114e98720d092d10b94b54e26d98eaebc2b00546ab8f762a7dea09b12cf",
+        "68a0281e925d2ae378e444902faff4a40fcf1458b6cf56207c525ba46fd7b0aa"
       ],
-      "source_sha256": "f5545f77f4952c853239d68997a3d7bc2968cfd865933c87064616550eb55d78",
-      "text": "连接和一个执行目标的日程设置。\n\n``local_root`` 和 ``remote_root`` 描述相同的共享或镜像数据集. 在设置中,每条绝对的线条在 ``local_root`` 下方时都会重新写作。\n\n对于 ``command`` 个人资料,命令行被标记为 :func:`shlex.split` 并支持 ``{job_id}``、 ``{module}``、``{settings}`` 和 ``{external_id}`` 位置持有者。\n\n:param name: 易于阅读的个人资料名称用于选择这个目标。\n:param backend: 执行机制,其中一个是 :data:`BACKENDS`。\n:param host: OpenSSH 目标为 SSH 和远程 Slurm;白色允许在本地主机上运行 Slurm 时间表。\n:param workdir: 绝对执行目录,在那里创建了 ``spacr-jobs`` 对象。\n:param local_root: 与 ``remote_root`` 相匹配的本地数据集预定,用于无缝的绝对路径重写。\n:param remote_root: 相同的数据集预定可见到目标主机。\n:param runner: 无标题可执行,由 SSH 和 Slurm 背景引用为 ``runner module --settings path``。\n:param scheduler_options: 额外的无封锁论点转换为 ``sbatch``。\n:param submit_command: 定制背景论点模板包含 ``{settings}`` 和打印工作识别器。\n:param status_command: 可定制状态模板包含 ``{external_id}`` 并返回状态 spaCR 可以正常化。\n:param cancel_command: 可自定义取消模板包含 ``{external_id}``。\n:param log_command: 可选自定义模板,以获取工作产量。\n:param job_id_pattern: 可选的常规表达,从提交输出中提取一个名为 ``id``、第一次拍摄或完整的匹配。\n:param poll_seconds: 推荐的客户端查询间隔,从2到3600秒。",
+      "source_sha256": "5d65a5569a1ae58501f07ee22effe38c1c2a2664f178eceda6a7ca57b31ce6f3",
+      "text": "连接和一个执行目标的日程设置。\n\n``local_root`` 和 ``remote_root`` 描述相同的共享或镜像数据集. 在设置中,每条绝对的线条在 ``local_root`` 下方时都会重新写作。\n\n对于 ``command`` 个人资料,命令行被标记为 :func:`shlex.split` 并支持 ``{job_id}``、 ``{module}``、``{settings}`` 和 ``{external_id}`` 位置持有者。\n\n:param name: 易于阅读的个人资料名称用于选择这个目标。\n:param backend: 执行机制,其中一个是 :data:`BACKENDS`。\n:param host: OpenSSH 目标为 SSH 和远程 Slurm;白色允许在本地主机上运行 Slurm 时间表。\n:param workdir: 绝对执行目录,在那里创建了 ``spacr-jobs`` 对象。\n:param local_root: 与 ``remote_root`` 相匹配的本地数据集预定,用于无缝的绝对路径重写。\n:param remote_root: 相同的数据集预定可见到目标主机。\n:param runner: 无标题可执行,由 SSH 和 Slurm 背景引用为 ``runner module --settings path``。\n:param scheduler_options: 额外的无封锁论点转换为 ``sbatch``。\n:param submit_command: 定制背景论点模板包含 ``{settings}`` 和打印工作识别器。\n:param status_command: 可定制状态模板包含 ``{external_id}`` 并返回状态 spaCR 可以正常化。\n:param cancel_command: 可自定义取消模板包含 ``{external_id}``。\n:param log_command: 可选自定义模板,以获取工作产量。\n:param job_id_pattern: 可选的常规表达,从提交输出中提取一个名为 ``id``、第一次拍摄或完整的匹配。\n:param poll_seconds: 推荐的客户端查询间隔,从2到3600秒。\n:param ssh_options: 不含秘密信息的 SSH 配置覆盖值，例如用户、端口、身份文件路径和跳板主机；禁止包含密码或一次性验证码（OTP）。\n:param ssh_interactive: 使用已验证的持久 SSH 会话，通过图形界面（GUI）显示键盘交互提示，而不是调用外部 OpenSSH 命令。",
       "translation_source_blocks_sha256": [
         "7e87357ae7d65908808f1150f13667f616c7b568d8f6df8bebf835672068670b",
         "c571f05ef429b38270e7662cdfd67586bc67acee2ad3230c930a19d3d1e1126f",
@@ -181974,7 +181986,9 @@
         "71994b37bde00aa32f9aa1e9d0b831fa1887bf028aa1e64ba9fd0048cc1290a9",
         "1476fe247335c3fc99fedec7e1f4f22c630f09ba5688a2811a24ca02ae0825e1",
         "b03735a071c0e588eeee3286493b26461bbac38ba66b9a4d6f849ef8bdf4716b",
-        "83923a660e878bfc2640b8fb42c9d4d2637b395ea929b1f5f8fa94eaf69e8425"
+        "83923a660e878bfc2640b8fb42c9d4d2637b395ea929b1f5f8fa94eaf69e8425",
+        "e9178114e98720d092d10b94b54e26d98eaebc2b00546ab8f762a7dea09b12cf",
+        "68a0281e925d2ae378e444902faff4a40fcf1458b6cf56207c525ba46fd7b0aa"
       ]
     },
     "spacr.remote_execution.ExecutionProfile.from_dict": {

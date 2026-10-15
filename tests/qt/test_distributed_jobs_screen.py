@@ -94,7 +94,7 @@ def test_every_profile_setting_has_label_help_and_remote_api_link(
     dialog = ExecutionProfileDialog()
     qtbot.addWidget(dialog)
     labels = dialog.findChildren(QLabel, "SettingsLabel")
-    assert len(labels) == 14
+    assert len(labels) == 19
     assert not dialog.findChildren(InfoLink), (
         "the profile rows grew information dots back")
     for label in labels:

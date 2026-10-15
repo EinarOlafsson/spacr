@@ -4129,6 +4129,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "embeddings.py")
     paths.add(ROOT / "spacr" / "settings.py")
     paths.add(ROOT / "spacr" / "object.py")
+    paths.add(ROOT / "spacr" / "remote_execution.py")
     paths.add(ROOT / "spacr" / "install_cleanup.py")
     paths.add(ROOT / "spacr" / "model_zoo.py")
     paths.add(ROOT / "spacr" / "attribution.py")
@@ -4281,6 +4282,19 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                     for value in _literal_strings(item, constants):
                         if _looks_translatable(value):
                             found.add(value.strip())
+            if (
+                filename == "distributed_jobs.py"
+                and isinstance(node, ast.Tuple)
+                and len(node.elts) == 3
+                and isinstance(node.elts[0], ast.Constant)
+                and isinstance(node.elts[0].value, str)
+                and isinstance(node.elts[2], ast.Constant)
+                and isinstance(node.elts[2].value, str)
+                and node.elts[2].value.startswith("ssh_")
+            ):
+                # SSH profile rows use (caption, widget, API key) tuples;
+                # the eventual translated label receives a loop variable.
+                found.add(node.elts[0].value.strip())
             if not isinstance(node, ast.Call):
                 continue
             name = _call_name(node)

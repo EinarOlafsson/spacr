@@ -101068,6 +101068,16 @@
         "5abf6222730d5ef2064852e4237f3c3a4df3f6e5be986773e1bbe61dc05d1281"
       ]
     },
+    "spacr.qt.screens.distributed_jobs.ExecutionProfileDialog._test_connection.operation": {
+      "source_blocks_sha256": [
+        "6cebc4368fe1992f42f43f148a47c4fcd476fea6f4c06b5843590a528a38165c"
+      ],
+      "source_sha256": "6cebc4368fe1992f42f43f148a47c4fcd476fea6f4c06b5843590a528a38165c",
+      "text": "Comprueba el nombre del host remoto antes de consultar Slurm en el hilo de trabajo.",
+      "translation_source_blocks_sha256": [
+        "37f614e6dce3acd3fc1cf1e40e6bf1177a0c111ef875c618dc8200f70f092ea5"
+      ]
+    },
     "spacr.qt.screens.distributed_jobs.ExecutionProfileDialog.profile": {
       "source_blocks_sha256": [
         "9a4a08fa9349aef36a14f5c50f539a26b4a88027da9c8e4201de9a849786cf42"
@@ -181952,10 +181962,12 @@
         "71994b37bde00aa32f9aa1e9d0b831fa1887bf028aa1e64ba9fd0048cc1290a9",
         "1476fe247335c3fc99fedec7e1f4f22c630f09ba5688a2811a24ca02ae0825e1",
         "b03735a071c0e588eeee3286493b26461bbac38ba66b9a4d6f849ef8bdf4716b",
-        "83923a660e878bfc2640b8fb42c9d4d2637b395ea929b1f5f8fa94eaf69e8425"
+        "83923a660e878bfc2640b8fb42c9d4d2637b395ea929b1f5f8fa94eaf69e8425",
+        "e9178114e98720d092d10b94b54e26d98eaebc2b00546ab8f762a7dea09b12cf",
+        "68a0281e925d2ae378e444902faff4a40fcf1458b6cf56207c525ba46fd7b0aa"
       ],
-      "source_sha256": "f5545f77f4952c853239d68997a3d7bc2968cfd865933c87064616550eb55d78",
-      "text": "Configuración de conexión y programador para un objetivo de ejecución.\n\n``local_root`` y ``remote_root`` describen el mismo conjunto de datos compartido o espejado. Cada cadena absoluta anidada en la configuración se reescriba cuando se encuentra debajo de ``local_root``. Los conjuntos de datos de imágenes no se copian deliberadamente: la transferencia recursiva accidental de una placa multi-terabyte es peor que un error claro previo al vuelo.\n\nPara perfiles ``command``, las cadenas de órdenes se tokenizan con :func:`shlex.split` y soportan ``{job_id}``, ``{module}``, ``{settings}`` y ``{external_id}`` marcadores de posición. Son plantillas de argumentos, no scripts de shell.\n\n:param name: nombre de perfil fácil de leer utilizado para seleccionar este objetivo.\n:param backend: mecanismo de ejecución, uno de :data:`BACKENDS`.\n:param host: OpenSSH target para SSH y remoto Slurm; blank permite un programador Slurm que se ejecuta en el host local.\n:param workdir: directorio de ejecución absoluta donde se crean artefactos ``spacr-jobs``.\n:param local_root: prefijo de conjunto de datos local emparejado con ``remote_root`` para reescritura de ruta absoluta anidada.\n:param remote_root: prefijo de conjunto de datos equivalente visible para el host de destino.\n:param runner: Ejecutable sin interfaz gráfica invocado como ``runner module --settings path`` por los backends SSH y Slurm.\n:param scheduler_options: argumentos adicionales sin shell pasados a ``sbatch``.\n:param submit_command: plantilla de argumento de backend personalizado que contiene ``{settings}`` e imprime un identificador de trabajo.\n:param status_command: La plantilla de estado personalizada que contiene ``{external_id}`` y devuelve un estado spaCR puede normalizarse.\n:param cancel_command: plantilla de cancelación personalizada que contiene ``{external_id}``.\n:param log_command: plantilla personalizada opcional para obtener la salida de trabajo.\n:param job_id_pattern: expresión regular opcional que extrae un nombre ``id``, primera captura, o coincidencia completa de la salida de envío.\n:param poll_seconds: intervalo de votación recomendado para el cliente, de 2 a 3600 segundos.",
+      "source_sha256": "5d65a5569a1ae58501f07ee22effe38c1c2a2664f178eceda6a7ca57b31ce6f3",
+      "text": "Configuración de conexión y programador para un objetivo de ejecución.\n\n``local_root`` y ``remote_root`` describen el mismo conjunto de datos compartido o espejado. Cada cadena absoluta anidada en la configuración se reescriba cuando se encuentra debajo de ``local_root``. Los conjuntos de datos de imágenes no se copian deliberadamente: la transferencia recursiva accidental de una placa multi-terabyte es peor que un error claro previo al vuelo.\n\nPara perfiles ``command``, las cadenas de órdenes se tokenizan con :func:`shlex.split` y soportan ``{job_id}``, ``{module}``, ``{settings}`` y ``{external_id}`` marcadores de posición. Son plantillas de argumentos, no scripts de shell.\n\n:param name: nombre de perfil fácil de leer utilizado para seleccionar este objetivo.\n:param backend: mecanismo de ejecución, uno de :data:`BACKENDS`.\n:param host: OpenSSH target para SSH y remoto Slurm; blank permite un programador Slurm que se ejecuta en el host local.\n:param workdir: directorio de ejecución absoluta donde se crean artefactos ``spacr-jobs``.\n:param local_root: prefijo de conjunto de datos local emparejado con ``remote_root`` para reescritura de ruta absoluta anidada.\n:param remote_root: prefijo de conjunto de datos equivalente visible para el host de destino.\n:param runner: Ejecutable sin interfaz gráfica invocado como ``runner module --settings path`` por los backends SSH y Slurm.\n:param scheduler_options: argumentos adicionales sin shell pasados a ``sbatch``.\n:param submit_command: plantilla de argumento de backend personalizado que contiene ``{settings}`` e imprime un identificador de trabajo.\n:param status_command: La plantilla de estado personalizada que contiene ``{external_id}`` y devuelve un estado spaCR puede normalizarse.\n:param cancel_command: plantilla de cancelación personalizada que contiene ``{external_id}``.\n:param log_command: plantilla personalizada opcional para obtener la salida de trabajo.\n:param job_id_pattern: expresión regular opcional que extrae un nombre ``id``, primera captura, o coincidencia completa de la salida de envío.\n:param poll_seconds: intervalo de votación recomendado para el cliente, de 2 a 3600 segundos.\n:param ssh_options: ajustes de configuración SSH sin secretos, como usuario, puerto, ruta del archivo de identidad y host de salto; se prohíben contraseñas y códigos de un solo uso (OTP).\n:param ssh_interactive: usar una sesión SSH persistente y verificada con solicitudes interactivas por teclado en la interfaz gráfica (GUI) en lugar del comando OpenSSH externo.",
       "translation_source_blocks_sha256": [
         "7e87357ae7d65908808f1150f13667f616c7b568d8f6df8bebf835672068670b",
         "c571f05ef429b38270e7662cdfd67586bc67acee2ad3230c930a19d3d1e1126f",
@@ -181973,7 +181985,9 @@
         "71994b37bde00aa32f9aa1e9d0b831fa1887bf028aa1e64ba9fd0048cc1290a9",
         "1476fe247335c3fc99fedec7e1f4f22c630f09ba5688a2811a24ca02ae0825e1",
         "b03735a071c0e588eeee3286493b26461bbac38ba66b9a4d6f849ef8bdf4716b",
-        "83923a660e878bfc2640b8fb42c9d4d2637b395ea929b1f5f8fa94eaf69e8425"
+        "83923a660e878bfc2640b8fb42c9d4d2637b395ea929b1f5f8fa94eaf69e8425",
+        "e9178114e98720d092d10b94b54e26d98eaebc2b00546ab8f762a7dea09b12cf",
+        "68a0281e925d2ae378e444902faff4a40fcf1458b6cf56207c525ba46fd7b0aa"
       ]
     },
     "spacr.remote_execution.ExecutionProfile.from_dict": {

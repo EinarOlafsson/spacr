@@ -181,6 +181,7 @@ dependencies = [
     'fastremap>=1.14.1',
     'tqdm>=4.65.0',
     'requests>=2.28,<3.0',
+    'paramiko>=3.5,<5',
     'joblib>=1.2,<2.0',
     'cloudpickle>=3.1.2,<4',
     'natsort>=8.0,<9.0',
