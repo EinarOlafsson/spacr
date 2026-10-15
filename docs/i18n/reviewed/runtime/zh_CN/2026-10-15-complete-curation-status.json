@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical translation, independently source/target reviewed; no human/native-speaker signoff",
+  "review": "Complete keep/discard curation status sentences preserve judged/next field identity, nothing-deleted meaning, queue/last/other outcomes and placeholders; no change to stored CSV or navigation.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "{judged} kept  —  now on {now}",
+      "source": "{judged} kept  —  now on {now}",
+      "source_sha256": "c842af69d21c54edc377e65ee8ebf0b7ecb09a1ff58e64e79a0e653276dc34dd",
+      "translation": "{judged} 已保留  —  当前为 {now}"
+    },
+    {
+      "table": "ui",
+      "key": "{judged} discarded — nothing was deleted  —  now on {now}",
+      "source": "{judged} discarded — nothing was deleted  —  now on {now}",
+      "source_sha256": "b665f8beb440b281b2e17044ba1b03af03a657b6c69e95defde52fca16aa45bf",
+      "translation": "{judged} 已排除 — 未删除任何内容  —  当前为 {now}"
+    },
+    {
+      "table": "ui",
+      "key": "{judged} kept  —  no unjudged fields are left in this queue",
+      "source": "{judged} kept  —  no unjudged fields are left in this queue",
+      "source_sha256": "d8227e9c1ff193f92558f468d2d81e730219a7a896323aca451ac84f560f0bdd",
+      "translation": "{judged} 已保留  —  此队列中没有尚未评判的视野"
+    },
+    {
+      "table": "ui",
+      "key": "{judged} discarded — nothing was deleted  —  no unjudged fields are left in this queue",
+      "source": "{judged} discarded — nothing was deleted  —  no unjudged fields are left in this queue",
+      "source_sha256": "b0a307ec0a861ce67c56f8611a86e4aa409026b9f3de23b3161836519c7a8751",
+      "translation": "{judged} 已排除 — 未删除任何内容  —  此队列中没有尚未评判的视野"
+    },
+    {
+      "table": "ui",
+      "key": "{judged} kept  —  that was the last field in this folder",
+      "source": "{judged} kept  —  that was the last field in this folder",
+      "source_sha256": "3ff76b837d4fca0779a9b7f3e0b737f593cc9fd27d3d569281a5e7a65cbb0302",
+      "translation": "{judged} 已保留  —  这是此文件夹中的最后一个视野"
+    },
+    {
+      "table": "ui",
+      "key": "{judged} discarded — nothing was deleted  —  that was the last field in this folder",
+      "source": "{judged} discarded — nothing was deleted  —  that was the last field in this folder",
+      "source_sha256": "153f5a4649d4e44f8dffc2b552a0b62ac2ee269b6473179576c385cf1e324bf3",
+      "translation": "{judged} 已排除 — 未删除任何内容  —  这是此文件夹中的最后一个视野"
+    },
+    {
+      "table": "ui",
+      "key": "{judged} kept",
+      "source": "{judged} kept",
+      "source_sha256": "c43bbc643e075d289b1e628df4243487053a74ff5c3a82c2027ebcf3d733038b",
+      "translation": "{judged} 已保留"
+    },
+    {
+      "table": "ui",
+      "key": "{judged} discarded — nothing was deleted",
+      "source": "{judged} discarded — nothing was deleted",
+      "source_sha256": "d86e3b68a129c9923846bc31725449fe874b3679d1c3368b85f4be0d523d834c",
+      "translation": "{judged} 已排除 — 未删除任何内容"
+    }
+  ]
+}
