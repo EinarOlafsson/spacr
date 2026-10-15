@@ -1,0 +1,95 @@
+{
+  "schema": 1,
+  "prepared_at_utc": "2026-10-15T10:54:43.599421+00:00",
+  "status": "PLAN ONLY; no implementation, service mutation, upload, dispatch or deployment acceptance.",
+  "recommendation": "A fresh free static Space is a reversible way to restore publishing without deleting the existing Space or its history, provided the final deployment window includes explicit URL cutover and legacy routing acceptance. It is not a durable solution to unlimited version-history growth.",
+  "evidence_base": "11835ed44 / features/data/689_current_deployment_readback_2026-10-15/receipt.json; reuse current403/readback proof, no repeat deployment probe.",
+  "cost": {
+    "static_hosting": "Hugging Face explicitly states static Spaces are free for everyone and require no paid plan. Use sdk:static; no hardware upgrade, persistent disk, paid tier or purchased domain.",
+    "official_reference": "https://huggingface.co/docs/hub/spaces-sdks-static",
+    "limit": "The first candidate assembled artifact is459831917bytes versus the existing Space reported1GB limit, so a fresh repository is plausibly sufficient. A successful atomic upload/readback must prove its actual admission; account limits and future history growth are not waived."
+  },
+  "targets": {
+    "old_repo": "einarolafsson/spacr-docs-nightly",
+    "old_url": "https://einarolafsson-spacr-docs-nightly.static.hf.space/",
+    "candidate_repo": "einarolafsson/spacr-docs-nightly-v2",
+    "candidate_url": "https://einarolafsson-spacr-docs-nightly-v2.static.hf.space/",
+    "candidate_status": "Proposed name only, availability not checked or reserved.",
+    "stable_public_entry": "https://einarolafsson.github.io/spacr/nightly/"
+  },
+  "contract": {
+    "compatible": [
+      "Nightly remains a complete public static HF site.",
+      "Main remains on GitHub Pages.",
+      "The main artifact remains main-only under the unchanged900000000byte guard.",
+      "Existing /spacr/nightly/<path> routes must redirect to the selected Space with pathname,query,fragment preserved and directory index.html normalization.",
+      "All tutorial/media revisions remain intact and owned by Work; no recordings, encodes, dataset contents or media receipts change."
+    ],
+    "additional_cutover_requirement": "Direct old *.static.hf.space bookmarks cannot be redirected by changing the GitHub Pages stub. Keep the old Space readable, and either prove an allowed small redirect update on the old Space later or explicitly retain it as a historical address. A link-only cutover must not be called preservation of every old direct HF link.",
+    "inference": "The item names the old repository as an example and requires HF hosting, so a new repository can satisfy its hosting architecture. Complete legacy-link acceptance still needs proof; merely creating a new Space is not completion."
+  },
+  "implementation_changes": [
+    {
+      "file": ".github/workflows/docs.yml",
+      "owner": "Home CI/deployment",
+      "change": "Introduce coherent selected-target repository variables HF_DOCS_SPACE and HF_DOCS_URL (or one checked config); pass --nightly-url to BOTH assemble-main and assemble-nightly, --space to upload-nightly, and --url to verify-nightly. Use selected target in token instructions and summary. Retain existing atomic upload and strict verification. Validate nonempty HTTPS static-HF URL/repo pairing and refuse partial/mismatched configuration before upload."
+    },
+    {
+      "file": "tools/publish_docs_channels.py",
+      "owner": "Home CI/deployment",
+      "change": "Existing --space/--nightly-url/--url already support target migration; uploader/verifier changes are not required. Keep defaults explicit/documented or change them only in the coherent cutover; never point assemble, upload and verify at different Spaces. Preserve .gitattributes handling, pinned-parent atomic commit and current exact homepage verifier."
+    },
+    {
+      "file": "docs/notes/publishing_documentation.md",
+      "owner": "Home-B docs",
+      "change": "Describe selected target variables/new verified URL and real atomic create_commit behavior (current note still says upload_folder). State main redirect publication status accurately. No generated README edit is needed: scoped search found no direct old-HF link in current README sources."
+    },
+    {
+      "file": "tests/test_docs_channels.py",
+      "owner": "Home CI/deployment",
+      "change": "When implementing, exercise explicit custom target through channel receipts/banner and legacy /nightly/ redirects including query/fragment/directory behavior. Existing closed uploader tests are not repeated for this plan. Add only a meaningful mismatch/partial-configuration check if new configuration code is introduced."
+    },
+    {
+      "repository": "EinarOlafsson/site-src",
+      "file": "src/projects/spacr/index.html:453",
+      "owner": "Home-B website",
+      "change": "After new hosted acceptance, change the sole source HF nightly link. Prefer stable Pages /spacr/nightly/ once its redirect is actually published; do not point users at the currently stale combined Pages route before that cutover. Local source checked at /mnt/wd4tb/spacr-worktrees/codex-home-b-site-20261014."
+    },
+    {
+      "file": "tools/tutorials/audit_user_walkthroughs.py:24",
+      "owner": "Work tutorial lane",
+      "change": "Coordinate the endpoint used for lessons_en.json; preserve exact catalog path. Direct static URL may be needed because a read-only HTTP client does not execute client-side Pages redirects. No edit by Home-B while Work owns it."
+    },
+    {
+      "file": "tools/tutorials/build_cellpose_training_images.py:50",
+      "owner": "Work tutorial lane",
+      "change": "Coordinate the walkthrough link; preserve cellpose_training.html path. This does not authorize tutorial recreation, recording or media regeneration."
+    }
+  ],
+  "credentials_and_configuration": {
+    "existing_secret": "HF_DOCS_TOKEN",
+    "required_change": "Grant the existing/new fine-grained token write access to the chosen new Space and update the same secret if necessary. The current old-Space-only scope does not automatically authorize a new repository. Do not output token values.",
+    "proposed_variables": [
+      "HF_DOCS_SPACE=einarolafsson/spacr-docs-nightly-v2",
+      "HF_DOCS_URL=https://einarolafsson-spacr-docs-nightly-v2.static.hf.space/"
+    ]
+  },
+  "ordered_final_publication_steps": [
+    "Prepare and review the coherent configuration/link patch privately first; final publication remains deferred until implementation settles.",
+    "In the authorized publication window create a public sdk:static Space without paid options, and scope the deployment token to it. Preserve the old Space/history unchanged.",
+    "Use one complete pinned nightly artifact. Reassemble its disposable publication envelope with the NEW URL because channels.json and banners contain that URL; reuse compatible existing build/media bytes. Do not simply upload an old assembled site with old self-links. The observed artifact11963807254 expires2026-10-16T10:14:08Z; if final publication is later, use the final normal build rather than treating that expired artifact as available.",
+    "Upload once through existing atomic publisher with explicit --space, then verify both receipts and homepage with explicit --url. Read back representative locale/API/tutorial routes and their retained immutable media references; no whole-feature closure from homepage alone.",
+    "Only after this succeeds publish the selected target into normal nightly deployment and promote/deploy the main-only Pages migration. Verify stable /nightly/ root and deep links, queries,fragments,directory paths and the900MBguard. Then publish the website link and coordinated Work endpoint updates.",
+    "Consider an old-Space redirect notice only as a separate small, source-reviewed mutation: the current quota refusal may reject even a small commit. Replacing index.html alone does not fix deep bookmarks; arbitrary 404 redirect behavior on HF static hosting is unproven. Do not delete or rename the old Space/history to force a migration.",
+    "Record both old/new repository revisions, source SHA, actual storage usage and route acceptance. Keep the rollback path to the unchanged old site/config, acknowledging that its content is older."
+  ],
+  "sustainability_and_stop_conditions": [
+    "A new Space resets per-repository history accumulation but does not prevent recurrence. Do not auto-create endless successor Spaces or treat that as an acceptable way around provider limits.",
+    "Before describing the migration as durable, choose a provider-compliant retention/storage policy; full nightly documentation cannot be silently trimmed. Existing media externalization/dedup remains unchanged.",
+    "If preserving the exact old direct-HF address is mandatory and the old Space refuses all updates, a fresh differently named Space is not a complete solution. Stop at that explicit routing constraint; discuss owner/provider options at the later publication window.",
+    "Do not rename/archive-and-recreate the old repository to reuse its hostname: API redirect semantics are not proof that static-host URLs or immutable history links remain compatible.",
+    "Do not super-squash/delete old history as part of this plan; the documented irreversible operation is a separate owner decision."
+  ],
+  "validation_now": "Source/CLI/link mapping and official free-static policy only. No builds, uploader tests, live readback replay, service creation, upload, paid plan, history mutation or dispatch.",
+  "plan_owner": "Home-B /readme_704; integration/deployment remains Original Home; tutorial endpoint changes remain Work-owned."
+}
