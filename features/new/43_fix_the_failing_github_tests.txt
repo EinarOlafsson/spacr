@@ -3900,3 +3900,14 @@ manual full CI run is next; no successful diagnostic is used to bypass it.
     legitimate reacquisition cases are hash-bound/read only, not duplicated.
     No production/trust changes, network/model/fullCI acceptance claim.
     Evidence:data/43_bioimageio_deleted_fixture_2026-10-15/.
+
+
+2026-10-15 — prefixed diameter and wound diagnostic tests current
+    Prefixed Mask test now distinguishes blank17px default from explicitauto
+    nativeNone, keeping original parameters/array assertions. Wound edge test
+    still requires refusal and now checks the exact translated current index3
+    versus2planes diagnostic instead of the obsolete English regex. Existing
+    absent-well/condition assertions remain. Actual two-node baseline2FAIL6.70s
+    and final2PASS6.45s; current public helper ASTs were equal before edits.
+    No production, algorithm, caption/API, model or fullCI changes/acceptance.
+    Evidence:data/43_imaging_test_contracts_2026-10-15/.

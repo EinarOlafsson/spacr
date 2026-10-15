@@ -380,10 +380,16 @@ def test_prefixed_masks_makes_v1s_call_and_returns_the_probability():
         min_size=5, default_diameter=17, probabilities=True)
     [call] = calls
     assert call["shapes"] == [(20, 24, 1)]
-    assert call["min_size"] == 5 and call["diameter"] is None
+    assert call["min_size"] == 5 and call["diameter"] == 17.0
     assert call["resample"] is True and call["normalize"] is False
     assert probability[0].shape == (20, 24)
     assert float(probability[0].max()) == 0.25
+    O._prefixed_masks(
+        model, [np.zeros((20, 24), np.float32)],
+        dict(settings, nucleus_diameter="auto"), "nucleus",
+        min_size=5, default_diameter=17)
+    assert calls[1]["diameter"] is None
+    assert calls[1]["resample"] is True
 
 
 # ===========================================================================
