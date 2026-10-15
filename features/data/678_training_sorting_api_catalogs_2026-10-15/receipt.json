@@ -1,0 +1,193 @@
+{
+  "schema": 1,
+  "source_head": "e514305fad2e4bf126f3068d456a0f488915ffdb",
+  "source_commits": [
+    "797a62a2ea2",
+    "b1403c9e17cfc96226bccdae5c0655ffa725fc57",
+    "8a81690727bc598bfd935d4f60ab0721d14aef68"
+  ],
+  "published_base": "f260582a63a81e957f22a3bd348baa1e06184a90",
+  "scope": "Normal scoped API generation for three reviewed blocks in three existing symbols across nine locales; exact prior public English plus only owned normal AST-rendered replacements, no global current-source claim.",
+  "owned_source_files": {
+    "spacr/qt/widgets/training_monitor.py": "98ee28eeb368d5e2b3dc196295f87b3243b0fb5544e4c579e2c5d79b8f910f22",
+    "spacr/qt/widgets/sortable_table.py": "cc971e65ef26b65a572376b43020b59047c4937802ceb487430469ccd44f2ec8"
+  },
+  "review_files": {
+    "docs/i18n/reviewed/api/sv/2026-10-15-training-sorting-contracts-home-b.json": "9c4b52bb734054ac575f504028d88c2e2c3ae7a8e7e682fdea8a56f2045d5ce2",
+    "docs/i18n/reviewed/api/de/2026-10-15-training-sorting-contracts-home-b.json": "a6b22763b64668f81c747e3e0ab1d5bfcae834cb6a862df3a6d6c49e129fd855",
+    "docs/i18n/reviewed/api/es/2026-10-15-training-sorting-contracts-home-b.json": "74dbfd153d918621786845a12e6bffffb5424967d922073f93405d12db44426b",
+    "docs/i18n/reviewed/api/zh_CN/2026-10-15-training-sorting-contracts-home-b.json": "1b0db4cd64d47f522b1760bb56efb5975bcaa636c8e436e7b8115accdfeaf5c5",
+    "docs/i18n/reviewed/api/pt/2026-10-15-training-sorting-contracts-home-b.json": "9a813df9346f33226be69c776ae6a74153422dc2d779b33f4d797f73d81bee74",
+    "docs/i18n/reviewed/api/hi/2026-10-15-training-sorting-contracts-home-b.json": "eadb3d1836b31e66cc713438a60bd71f125d7a32daed8a8e6dff2249d5e36013",
+    "docs/i18n/reviewed/api/ko/2026-10-15-training-sorting-contracts-home-b.json": "f1cfa69ce35f6a1dcf678cc94cdaf247b516d585c9edc1efff39fd5ddc71c6fb",
+    "docs/i18n/reviewed/api/is/2026-10-15-training-sorting-contracts-home-b.json": "d8937261f8e2ace9a1d399ed1a8db4514e2401c8337a286ef23b576432520df9",
+    "docs/i18n/reviewed/api/fr/2026-10-15-training-sorting-contracts-home-b.json": "c50a2b2c43afa88e48d809faa61e9e8d104e502f657cfa4265d93c0979f21ed7"
+  },
+  "locales": {
+    "sv": {
+      "changed_symbols": [
+        "spacr.qt.widgets.sortable_table.install_sorting",
+        "spacr.qt.widgets.sortable_table.is_missing",
+        "spacr.qt.widgets.training_monitor.TrainingMonitor"
+      ],
+      "reviewed_blocks_exact": 3,
+      "unchanged_blocks_preserved": 8,
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "0bb5d24725eb9c9821786af8d294a41aec1613235d6cbccea43c0afaa8bd5dc2",
+      "unrelated_after_sha256": "0bb5d24725eb9c9821786af8d294a41aec1613235d6cbccea43c0afaa8bd5dc2",
+      "catalog_sha256": "c01cd5bea2ea60f79ef1bf966cd19b82925c57a30959362efe46944bbc27dd68"
+    },
+    "de": {
+      "changed_symbols": [
+        "spacr.qt.widgets.sortable_table.install_sorting",
+        "spacr.qt.widgets.sortable_table.is_missing",
+        "spacr.qt.widgets.training_monitor.TrainingMonitor"
+      ],
+      "reviewed_blocks_exact": 3,
+      "unchanged_blocks_preserved": 8,
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "853d36ac19f870a57a582b45589d57019c18de859c18157c021cb5167334e01d",
+      "unrelated_after_sha256": "853d36ac19f870a57a582b45589d57019c18de859c18157c021cb5167334e01d",
+      "catalog_sha256": "42a9b5ccc7da536cfc859c773dcad2434ab53147e66d3ea67d4838bb9680ea67"
+    },
+    "es": {
+      "changed_symbols": [
+        "spacr.qt.widgets.sortable_table.install_sorting",
+        "spacr.qt.widgets.sortable_table.is_missing",
+        "spacr.qt.widgets.training_monitor.TrainingMonitor"
+      ],
+      "reviewed_blocks_exact": 3,
+      "unchanged_blocks_preserved": 8,
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "1255b2f03897ceb1f4b443c2f91f898968d5296cb9056fb36c2b605c096516f6",
+      "unrelated_after_sha256": "1255b2f03897ceb1f4b443c2f91f898968d5296cb9056fb36c2b605c096516f6",
+      "catalog_sha256": "2dd4bd0537f56247fc0b5b2f456224b2f1a6bf18cad01348242b25181314bf54"
+    },
+    "zh_CN": {
+      "changed_symbols": [
+        "spacr.qt.widgets.sortable_table.install_sorting",
+        "spacr.qt.widgets.sortable_table.is_missing",
+        "spacr.qt.widgets.training_monitor.TrainingMonitor"
+      ],
+      "reviewed_blocks_exact": 3,
+      "unchanged_blocks_preserved": 8,
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "22349da07260bc51be48bf8537e5bc7d13b0a639efeebd77de73ee4c4cd36e41",
+      "unrelated_after_sha256": "22349da07260bc51be48bf8537e5bc7d13b0a639efeebd77de73ee4c4cd36e41",
+      "catalog_sha256": "571cfd41dbf9b3185fb8b17e412a77aea48a8cb296f6e60388946c95fb6a80f6"
+    },
+    "pt": {
+      "changed_symbols": [
+        "spacr.qt.widgets.sortable_table.install_sorting",
+        "spacr.qt.widgets.sortable_table.is_missing",
+        "spacr.qt.widgets.training_monitor.TrainingMonitor"
+      ],
+      "reviewed_blocks_exact": 3,
+      "unchanged_blocks_preserved": 8,
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "85429efc8b012262b3aaf6a01124617224ef3af203d73895879e7439af25fac5",
+      "unrelated_after_sha256": "85429efc8b012262b3aaf6a01124617224ef3af203d73895879e7439af25fac5",
+      "catalog_sha256": "fd18a72d542dbf879346a32c5faef8c8a8a0f6d509ae5a3309421391f3770f9d"
+    },
+    "hi": {
+      "changed_symbols": [
+        "spacr.qt.widgets.sortable_table.install_sorting",
+        "spacr.qt.widgets.sortable_table.is_missing",
+        "spacr.qt.widgets.training_monitor.TrainingMonitor"
+      ],
+      "reviewed_blocks_exact": 3,
+      "unchanged_blocks_preserved": 8,
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "4ab17847e0886116db404c080e1d924394fdc9736c4cf2e0c2a00b820cacda0e",
+      "unrelated_after_sha256": "4ab17847e0886116db404c080e1d924394fdc9736c4cf2e0c2a00b820cacda0e",
+      "catalog_sha256": "2c4dfa031b5778c2bf245aee7825878244073f55364f3f30307e9dae01d1e4f5"
+    },
+    "ko": {
+      "changed_symbols": [
+        "spacr.qt.widgets.sortable_table.install_sorting",
+        "spacr.qt.widgets.sortable_table.is_missing",
+        "spacr.qt.widgets.training_monitor.TrainingMonitor"
+      ],
+      "reviewed_blocks_exact": 3,
+      "unchanged_blocks_preserved": 8,
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "ebf64085c44a7092b4ae1177c0d3a337b4ea52924aec9c5672a63292a0a96b09",
+      "unrelated_after_sha256": "ebf64085c44a7092b4ae1177c0d3a337b4ea52924aec9c5672a63292a0a96b09",
+      "catalog_sha256": "4e23c1ce92e550c56acb9cb1a5cbe9a4d60c6d85edb074ff69219f2c7d2fd5c0"
+    },
+    "is": {
+      "changed_symbols": [
+        "spacr.qt.widgets.sortable_table.install_sorting",
+        "spacr.qt.widgets.sortable_table.is_missing",
+        "spacr.qt.widgets.training_monitor.TrainingMonitor"
+      ],
+      "reviewed_blocks_exact": 3,
+      "unchanged_blocks_preserved": 8,
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "a2db0b8ed328bade2c5af51dc582c729d1e217ec8573286b111c8d34fc15b989",
+      "unrelated_after_sha256": "a2db0b8ed328bade2c5af51dc582c729d1e217ec8573286b111c8d34fc15b989",
+      "catalog_sha256": "71e619ad9495ee5e6721ccd6235433450cbb75117739c5401b8a5b048bc1e4bb"
+    },
+    "fr": {
+      "changed_symbols": [
+        "spacr.qt.widgets.sortable_table.install_sorting",
+        "spacr.qt.widgets.sortable_table.is_missing",
+        "spacr.qt.widgets.training_monitor.TrainingMonitor"
+      ],
+      "reviewed_blocks_exact": 3,
+      "unchanged_blocks_preserved": 8,
+      "unrelated_records_preserved": 13401,
+      "unrelated_before_sha256": "7603689e40f7a4d3a73119072cd748b954badd57728306aa0e02d675aa69ec06",
+      "unrelated_after_sha256": "7603689e40f7a4d3a73119072cd748b954badd57728306aa0e02d675aa69ec06",
+      "catalog_sha256": "36dd423f4e6e3076203f4a5daaea777d3b86851b9edb2660d8239dc24ebdb02c"
+    }
+  },
+  "english_changed_symbols": [
+    "spacr.qt.widgets.sortable_table.install_sorting",
+    "spacr.qt.widgets.sortable_table.is_missing",
+    "spacr.qt.widgets.training_monitor.TrainingMonitor"
+  ],
+  "unrelated_english_records_preserved": 13475,
+  "normal_functions": [
+    "reviewed_api_block_translations",
+    "_translate_api_documents(reuse_history=True)",
+    "write_language(preserve_other_symbols=True)",
+    "_write_english_api_manifest"
+  ],
+  "runtime_collection_policy": "Light mode refuses before any full canonical collection. Heavy mode lazily freezes one real canonical_sources result only if requested, then re-collects and compares; all normal review/candidate validators unchanged.",
+  "normal_api_collector_run": false,
+  "model_decoder_requests": 0,
+  "stats": {
+    "mode": "light",
+    "runtime_canonical_requests": 0,
+    "actual_runtime_collections": 0,
+    "runtime_collection_seconds": [],
+    "model_decode_requests": 0,
+    "prepared_locales": [
+      "sv",
+      "de",
+      "es",
+      "zh_CN",
+      "pt",
+      "hi",
+      "ko",
+      "is",
+      "fr"
+    ],
+    "written_locales": [
+      "sv",
+      "de",
+      "es",
+      "zh_CN",
+      "pt",
+      "hi",
+      "ko",
+      "is",
+      "fr"
+    ]
+  },
+  "limitations": [
+    "AI technical review; no native-speaker claim.",
+    "No Sphinx, runtime/global arrivals, native-platform or external publication claim."
+  ]
+}

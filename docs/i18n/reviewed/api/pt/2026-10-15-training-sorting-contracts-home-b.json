@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review; independent peer review by website lane requested; no native-speaker signoff",
+  "note": "Three changed existing API blocks from training_monitor797a62a2ea2 and sortable_tableb1403c9e17c+8a81690727b. Prior complete symbol bodies match published English. Normal scoped extraction; no full collector or global source-currency claim. No obsolete active review rows found; unrelated review inputs preserved.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.training_monitor.TrainingMonitor#2",
+      "source": "The plot widgets are created in the constructor; curves are added when their metrics first appear. :meth:`clear` removes curves and stored points for a new run while retaining the plot widgets and both dictionaries. Build the panel that follows a training run's losses and metrics.",
+      "context": "The plot widgets are created in the constructor; curves are added when their metrics first appear. :meth:`clear` removes curves and stored points for a new processing session while retaining the plot widgets and both key-value mappings. Build the panel that follows a training processing session's losses and metrics.",
+      "source_sha256": "4b4b8663f09ddb44515b7cde7fb52f65b1ad4bed4ad824391d30716153be2a73",
+      "translation": "Os widgets de gráfico são criados no construtor; as curvas são adicionadas quando as respetivas métricas aparecem pela primeira vez. :meth:`clear` remove as curvas e os pontos guardados para uma nova execução, mantendo os widgets de gráfico e ambos os dicionários. Constrói o painel que acompanha as perdas e as métricas de uma execução de treino.",
+      "review_basis": "Exact-source technical review of plot construction/lazy curves/clear retention, scalar truth conversion of missing-value results, and preservation of existing sorting proxies/absent models. Original literal names, role references and operation order retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.sortable_table.is_missing#1",
+      "source": "This includes ``None``, blank strings, ``NaN``, pandas ``NA``, and ``NaT``. After the ``None`` and string checks, the result of ``pandas.isna`` is converted to ``bool``. A single-element array containing a missing value can therefore return ``True``; ambiguous multi-element results return ``False``.",
+      "context": "This includes ``None``, blank strings, ``NaN``, pandas ``NA``, and ``NaT``. After the ``None`` and string checks, the result of ``pandas.isna`` is converted to ``bool``. A single-element array containing a missing value can therefore return ``True``; ambiguous multi-element results return ``False``.",
+      "source_sha256": "bb52e60989e40c494cddcea3c8135eb8aba4549eda7d0f87be39d468d8b0a5af",
+      "translation": "Isto inclui ``None``, cadeias em branco, ``NaN``, ``NA`` do pandas e ``NaT``. Após as verificações de ``None`` e das cadeias, o resultado de ``pandas.isna`` é convertido em ``bool``. Assim, um array de um único elemento que contenha um valor em falta pode devolver ``True``; resultados ambíguos com vários elementos devolvem ``False``.",
+      "review_basis": "Exact-source technical review of plot construction/lazy curves/clear retention, scalar truth conversion of missing-value results, and preservation of existing sorting proxies/absent models. Original literal names, role references and operation order retained. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.sortable_table.install_sorting#1",
+      "source": "Accepts a ``QTableWidget``, ``QTreeWidget``, or ``QTableView``. A ``QTableView`` with a non-proxy model is wrapped in :class:`SortableProxyModel`. An existing ``QSortFilterProxyModel`` is preserved with its own comparison behavior; a view without a model is not wrapped. Call this function immediately after ``setModel`` and obtain the view's selection model afterwards.",
+      "context": "Accepts a ``QTableWidget``, ``QTreeWidget``, or ``QTableView``. A ``QTableView`` with a non-proxy model is wrapped in :class:`SortableProxyModel`. An existing ``QSortFilterProxyModel`` is preserved with its own comparison behavior; a view without a model is not wrapped. Call this function immediately after ``setModel`` and obtain the view's selection model afterwards.",
+      "source_sha256": "e41b133bb713bef074803c33b9636cd66e7eeaf44a31fc71ff052df929388726",
+      "translation": "Aceita um ``QTableWidget``, ``QTreeWidget`` ou ``QTableView``. Um ``QTableView`` com um modelo que não seja proxy é envolvido em :class:`SortableProxyModel`. Um ``QSortFilterProxyModel`` existente é preservado com o seu próprio comportamento de comparação; uma vista sem modelo não é envolvida. Chame esta função imediatamente após ``setModel`` e obtenha depois o modelo de seleção da vista.",
+      "review_basis": "Exact-source technical review of plot construction/lazy curves/clear retention, scalar truth conversion of missing-value results, and preservation of existing sorting proxies/absent models. Original literal names, role references and operation order retained. No native-speaker claim."
+    }
+  ]
+}
