@@ -122,3 +122,34 @@ entrypoint coverage, process download coalescing, docs/translations/native
 acceptance remain OPEN. No live weights download, network or GPU operation.
 Public signatures, docstrings and captions are unchanged.
 Evidence: data/702_exact_missing_path_resolver_2026-10-14/receipt.json.
+
+2026-10-14 — local-node process download coalescing component completed:
+Two resolver jobs previously both fetched the same checkpoint after checking
+an empty cache, and retained duplicate versioned copies. A deterministic
+native two-child file:// mirror baseline reproduced both downloads. Missing
+headless checkpoint acquisition now holds a QtCore QLockFile keyed by cache
+filename and expected SHA-256, then rechecks exact cached bytes and versioned
+cache files under that lock before fetch. Different hashes retain separate
+identities and fetch's existing no-overwrite/versioned reservation is intact.
+Preflight and the GUI-thread refusal happen before lock/file creation. Dead
+local owners are reclaimed through Qt's PID/host check; age-based expiration
+is disabled so long downloads do not become stale merely by taking time.
+
+Initial owning99PASS/20.06s, finite native closure4PASS/1.07s, final-source
+owning103PASS/17.80s and final native closure6PASS/1.38s; all actual exit0.
+Cohorts overlap and must not be summed. Native children fetch once and return
+the same checked path both with an empty cache and a preserved different-
+version file. A child exiting inside fetch leaves a real lock which its
+successor reclaims. Failed checksum then corrected retry releases its lock,
+and controlled permission/unknown lock failures preserve prior bytes and
+never fetch. No orphan locks or partial checkpoint files remain after success
+or handled failure. Existing resolver/type/checksum/versioning cases pass.
+
+This is CPU/native local-process and private file-mirror proof, not a real
+HPC/network-share/Windows/macOS acceptance claim. No live weights download,
+network or GPU operation. No new captions/public signatures/docstrings or
+translation-tool changes. Parent N702 remains partial: pinned settings export
+and invalidation, contextual unknown/ambiguous errors and all-model entrypoint
+acceptance remain open; the separate offline component retains its artifact
+hold until owner-generated catalogs and nine actual locale tests pass.
+Evidence: data/702_process_download_coalescing_2026-10-14/receipt.json.

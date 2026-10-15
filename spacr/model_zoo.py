@@ -3651,8 +3651,30 @@ def _ensure_model_file(requested, *, kinds=(), download=True):
         raise ModelUnreadable(
             f"{text!r} is not cached. Download it in Model Zoo, or run "
             f"the operation through spacr-run or Python without a GUI.")
-    LOG.info("Downloading requested model %s into %s", entry.key, destination)
-    return fetch(entry, destination)
+    import errno
+    from PySide6.QtCore import QLockFile
+
+    destination.mkdir(parents=True, exist_ok=True)
+    identity = hashlib.sha256(
+        f"{cached.name}\0{str(entry.sha256 or '').lower()}".encode("utf-8")).hexdigest()
+    lock_path = destination / f".model-{identity}.lock"
+    lock = QLockFile(str(lock_path))
+    lock.setStaleLockTime(0)
+    if not lock.lock():
+        code = errno.EACCES if lock.error() == QLockFile.PermissionError else errno.EBUSY
+        raise OSError(code, os.strerror(code), str(lock_path))
+    try:
+        if cached.is_file() and entry.sha256 and sha256_file(cached) == entry.sha256.lower():
+            return cached
+        if entry.sha256:
+            for version in sorted(destination.glob(
+                    f"{cached.stem}_v*{cached.suffix}")):
+                if version.is_file() and sha256_file(version) == entry.sha256.lower():
+                    return version
+        LOG.info("Downloading requested model %s into %s", entry.key, destination)
+        return fetch(entry, destination)
+    finally:
+        lock.unlock()
 
 
 def versioned_path(dest: Any, filename: str) -> Path:

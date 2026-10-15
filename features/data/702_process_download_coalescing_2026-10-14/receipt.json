@@ -1,0 +1,46 @@
+{
+  "scope": "N702 native local-node checkpoint download coalescing component; parent partial",
+  "baseline": {
+    "failed": 1,
+    "exit": 1,
+    "observation": "Two real subprocesses each fetched the same private mirror checkpoint"
+  },
+  "initial_owning": {
+    "passed": 99,
+    "seconds": 20.06,
+    "exit": 0
+  },
+  "closure": {
+    "passed": 4,
+    "seconds": 1.07,
+    "exit": 0
+  },
+  "final_source_owning": {
+    "passed": 103,
+    "seconds": 17.8,
+    "exit": 0
+  },
+  "final_native_closure": {
+    "passed": 6,
+    "seconds": 1.38,
+    "exit": 0
+  },
+  "cohorts_overlap_not_summed": true,
+  "sha256": {
+    "spacr/model_zoo.py": "dc59073ffe9042fbc00da39be8e7c9c8821809c53120c4ff2e7c60ff1ca29640",
+    "tests/test_n702_concurrent_missing_model_download.py": "2bce3de36f57f4241f1ba06cdd99b0052da80afd649f0cdcaf4aae0ff829fe04",
+    "/mnt/wd4tb/scratch/n702-coalesce-20261014/baseline.log": "699604480e26fb398dcff683722fe4ab1fb48b0ad000740d93bad9ea9a6d2049",
+    "/mnt/wd4tb/scratch/n702-coalesce-20261014/owning.log": "5e2e5c47b8ae538d3037f21777d4419e0492b794bf009783b3cc53c428b46f7c",
+    "/mnt/wd4tb/scratch/n702-coalesce-20261014/closure.log": "d5aff7458ec5754d5dc20320fb2921609086a136e762b4a217ac36707aa28582",
+    "/mnt/wd4tb/scratch/n702-coalesce-20261014/final-owning.log": "7c860965924a02593a72138930663a60e0acc9988396c0b3959a73d7ba957484",
+    "/mnt/wd4tb/scratch/n702-coalesce-20261014/final-owning.xml": "4ef2673a59fc5031877267b70d3243b2aff2d0bef77387d6e5d9dfcdbb4d104d",
+    "/mnt/wd4tb/scratch/n702-coalesce-20261014/final-closure.log": "e1173bcc2a25707ccb24267f5fb0df0ff9ca9c3669169f4078185b11c0706757",
+    "/mnt/wd4tb/scratch/n702-coalesce-20261014/final-closure.xml": "b90fd217ad0b85f013a216ef3086e145833a10a8977135d257c7fc1a59e48908"
+  },
+  "limits": [
+    "Native local processes/private file:// mirrors and controlled lock failures",
+    "No real HPC/network-share/Windows/macOS acceptance",
+    "No live models/network/GPU/full CI",
+    "Parent N702 partial; prior offline component has explicit catalog hold"
+  ]
+}
