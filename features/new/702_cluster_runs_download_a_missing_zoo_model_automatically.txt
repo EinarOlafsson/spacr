@@ -331,3 +331,15 @@ use deterministic CPU models. CAM/CV reuse the resolver but pinned full-CAM/CV
 acceptance is not claimed. No real models/network/GPU/fullCI. Other consumers
 and complete all-model integration remain open; parent702 stays partial.
 Evidence: data/702_classifier_pinned_consumer_paths_2026-10-14/receipt.json.
+
+2026-10-14 — unrelated wrong cache bytes do not block exact pin planning:
+Planning a missing pinned input now chooses an unused versioned storage
+destination when its cache basename already holds unrelated wrong bytes.
+It preserves that file, never reuses it, and does not treat the storage suffix
+as a publisher version. Explicitly supplied wrong local inputs still fail
+hard, including planning. Actual private-file-mirror acquisition proves the
+wrong cached file stays intact and exact pinned bytes use a separate path.
+Three new native cases and finite resolver/planning/coalescing cohort passed
+41tests in2.65seconds, exit0. Settings/pins unchanged; no external network,
+GPU or fullCI claim. Parent702 remains partial.
+Evidence: data/702_wrong_cache_planning_2026-10-14/receipt.json.

@@ -200,3 +200,43 @@ def test_actual_cli_records_verified_path_but_keeps_original_settings(pinned, tm
         assert event[1]['cell_model_name'] == original['cell_model_name']
         assert event[1]['model_metadata'] == original['model_metadata']
     assert settings == original
+
+
+def test_planning_preserves_wrong_cache_bytes_and_plans_an_unused_destination(pinned, monkeypatch):
+    settings, raw, _payload = pinned
+    target = zoo._spacr_home() / 'models' / raw['name']
+    target.parent.mkdir(parents=True)
+    target.write_bytes(b'old unrelated cache bytes')
+    monkeypatch.setattr(zoo, 'fetch', lambda *a, **k: pytest.fail('planning fetched replacement'))
+    planned = zoo._resolve_pinned_model_file(settings, 'cell_model_name', download=False)
+    assert planned.parent == target.parent
+    assert planned != target
+    assert not planned.exists()
+    assert target.read_bytes() == b'old unrelated cache bytes'
+
+
+def test_actual_file_mirror_acquisition_preserves_wrong_cache_bytes(pinned, tmp_path):
+    settings, raw, payload = pinned
+    source = tmp_path / 'private-mirror.CP_model'
+    source.write_bytes(payload)
+    raw['uri'] = source.as_uri()
+    target = zoo._spacr_home() / 'models' / raw['name']
+    target.parent.mkdir(parents=True)
+    target.write_bytes(b'old unrelated cache bytes')
+    original = deepcopy(settings)
+    resolved = zoo._resolve_pinned_model_file(settings, 'cell_model_name')
+    assert resolved != target
+    assert resolved.read_bytes() == payload
+    assert hashlib.sha256(resolved.read_bytes()).hexdigest() == raw['sha256']
+    assert target.read_bytes() == b'old unrelated cache bytes'
+    assert settings == original
+
+
+def test_planning_still_refuses_wrong_explicitly_supplied_local_bytes(pinned):
+    from pathlib import Path
+    settings, _raw, _payload = pinned
+    original = Path(settings['cell_model_name'])
+    original.write_bytes(b'incorrect explicit input')
+    with pytest.raises(zoo.ModelZooError):
+        zoo._resolve_pinned_model_file(settings, 'cell_model_name', download=False)
+    assert original.read_bytes() == b'incorrect explicit input'

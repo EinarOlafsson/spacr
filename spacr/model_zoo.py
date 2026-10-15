@@ -3816,6 +3816,8 @@ def _resolve_pinned_model_file(settings, name, *, kinds=(), download=True):
     if resolved.is_file():
         actual = sha256_file(resolved)
         if actual != record["sha256"]:
+            if not download:
+                return versioned_path(resolved.parent, resolved.name)
             _bad_model_metadata(str(resolved), f"sha256={record['sha256']}; actual={actual}")
     elif download:
         _bad_model_metadata(str(resolved), f"sha256={record['sha256']}")
