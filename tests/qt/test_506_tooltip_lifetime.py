@@ -84,3 +84,25 @@ def test_view_owned_help_is_silenced_when_tooltips_are_disabled(
     assert QToolTip.text() == cell.data(Qt.ToolTipRole)
     preferences.set_tooltips_enabled(False)
     qtbot.waitUntil(lambda: not QToolTip.isVisible(), timeout=1000)
+
+
+def test_table_delegate_help_survives_qts_default_expiry_while_hovered(
+        lifetime_context, qtbot):
+    _, policy = lifetime_context
+    table = QTableWidget(1, 1)
+    cell = QTableWidgetItem("Sample")
+    cell.setData(Qt.ToolTipRole, "Read this table explanation at your own pace.")
+    table.setItem(0, 0, cell)
+    qtbot.addWidget(table)
+    table.show()
+    qtbot.wait(20)
+    local = table.visualItemRect(cell).center()
+    global_pos = table.viewport().mapToGlobal(local)
+    QCursor.setPos(global_pos)
+    QApplication.sendEvent(table.viewport(),
+                          QHelpEvent(QEvent.ToolTip, local, global_pos))
+    policy._show_now()
+    assert QToolTip.isVisible()
+    assert QToolTip.text() == cell.data(Qt.ToolTipRole)
+    qtbot.wait(11000)
+    assert QToolTip.isVisible(), "Qt expired table help while its cell was hovered"
