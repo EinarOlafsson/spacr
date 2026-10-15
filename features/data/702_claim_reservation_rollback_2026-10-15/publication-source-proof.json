@@ -1,0 +1,28 @@
+{
+  "public_base": "d1811bc7934d1f5e430021164375ae95f1b264a5",
+  "source_component": "d8133eb1ee5a455dd6e2f072a1d1e26f379425a8",
+  "source_and_harness_byte_identical": true,
+  "all_incoming_generated_API_runtime_tools_preserved": true,
+  "source_sha256": "cfd1a0426a83b5870ff6f62e06d2bbd093d764d567639084e27da15480b91ade",
+  "changed_paths": [
+    "features/data/702_claim_reservation_rollback_2026-10-15/baseline.exit.gz",
+    "features/data/702_claim_reservation_rollback_2026-10-15/baseline.log.gz",
+    "features/data/702_claim_reservation_rollback_2026-10-15/baseline.sh.gz",
+    "features/data/702_claim_reservation_rollback_2026-10-15/native-baseline.py.gz",
+    "features/data/702_claim_reservation_rollback_2026-10-15/owning.exit.gz",
+    "features/data/702_claim_reservation_rollback_2026-10-15/owning.log.gz",
+    "features/data/702_claim_reservation_rollback_2026-10-15/owning.sh.gz",
+    "features/data/702_claim_reservation_rollback_2026-10-15/owning.xml.gz",
+    "features/data/702_claim_reservation_rollback_2026-10-15/proposed-source.patch.gz",
+    "features/data/702_claim_reservation_rollback_2026-10-15/receipt.json",
+    "features/data/702_claim_reservation_rollback_2026-10-15/regression-baseline.exit.gz",
+    "features/data/702_claim_reservation_rollback_2026-10-15/regression-baseline.log.gz",
+    "features/data/702_claim_reservation_rollback_2026-10-15/regression-baseline.sh.gz",
+    "features/data/702_claim_reservation_rollback_2026-10-15/regression-baseline.xml.gz",
+    "features/data/702_claim_reservation_rollback_2026-10-15/root-source-peer.json",
+    "features/data/702_claim_reservation_rollback_2026-10-15/source-context.json",
+    "features/new/702_cluster_runs_download_a_missing_zoo_model_automatically.txt",
+    "spacr/model_zoo.py",
+    "tests/test_n702_claim_reservation_rollback.py"
+  ]
+}

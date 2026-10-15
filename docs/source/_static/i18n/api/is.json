@@ -88472,7 +88472,7 @@
     },
     "spacr.qt.path_probe": {
       "source_blocks_sha256": [
-        "669a38da76908fd22ccd0b0841f77108116f5ff07b40aaeeeaed58bdcf584fb5",
+        "9960cbcd77fb7e3d068d54a54f62bb99aed3dfca12e4eefd4a86847aad31a75d",
         "ff4b786f254b0a6929401767d7037563708e870fd3cdabd5dfab5f0037333a2b",
         "73ab4389f357f6e1f5b4d23f95aebf7fefdcbf59eec74f4d0783085ad2856206",
         "1cff92c770cdd4f36993e9d6ab0268b55c54ac531880ea5e363fc32ed2344ae2",
@@ -88480,12 +88480,12 @@
         "ed6b161e940114d17ea28669fbb1b26693910e0d64e1186ddf4c71ad0d0ec548",
         "b9e760b41e26dc371462657d9d4a4e95c5f8033ddcd5e8e15414dc305839df76",
         "95aae15a021a0a51368b1de49f71a965d4fb7c22bba748c6db20ecfa86525785",
-        "f11172f9ab35bf45c465e7d4fc46dd1b45be4d9793b9898586dd0113037be225"
+        "f14c2375e1e9be7808544ed8c7744a84ab83f7b735bdc32dc681a8acc78d315a"
       ],
-      "source_sha256": "f06b8c87de7b1feba88655a18b0505e242b1e120f01465b42cd4e6b747e51769",
-      "text": "Skoðaðu hvort leiðir eru til, frá skilyrði, án þess að blokkja GUI höfuðferðin.\n\n`spacr/qt/widgets/file_list.py` spurði `os.path.exists` fyrir hvert minntandi leið, á heiminum GUI útferð, til að litla misnotandi rödd. Það er frjáls fyrir staðbundinn disk og það er ekki frjálst fyrir netinn einn: mætt á einum vinnustaði, ``os.path.exists`` á leiðinni undir ``/nas_mnt`` - ``autofs`` fjall með ``timeout=600`` - hafði ekki komist aftur eftir tíu sekúndur, vegna þess að statinn er það sem hættir bíllinn og hluturinn var svefninn.\n\nA blokkinn GUI höfuðferð virðist ekki eins og langan leiðsögn. Það virðist eins og þetta, og hver af þeim var talað sem sérstakt mistök á 2026-09-04:\n\n  * \"opening map barcodes crashes spacr\" -- þetta er ekki hrun, þetta er frost án nokkurs rakningarstakks, sem er ástæðan fyrir því að ekkert komst í annálana. Kerfisannállinn sýnir `automount request ... triggered by spacr` beint á undan hverri þvinguðu lokun.\n  * \"Það er einhvers flickers ... nokkrar viðburðir gerast á hover og þeir stundum lagast í nokkrar sekúndur\" - hover viðburðar vinnu lista þar sem sjálfstætt útferð er stallur og þá endurspilað í burst.\n  * \"Ég sé millisekundum glimmers hluti af hugbúnaðar sýningar á heima hugbúnaður sýningar\" - endurnýjunum eru skammt, þannig að stack sýnir hvað það hefur ekki verið gefið tíma til að líta yfir.\n  * \"Það virðist gerast ... eftir að ég hef opnað einn eða tvö mótum\" - hvert mótulinn bætir eigin minntuna leið, þannig að það er meira að segja.\n\nKód á heiminum GUI leiðinni ætti því ekki að hafa aðgang að failsysteminu fyrir leið sem notandinn gefur; þetta efni gefur athygli sem hann notar í staðinn.\n\nSvarið kemur frá skugga, strax. leið sem ekki er enn séð er talin sem núverandi og kvóta fyrir bakgrundsreikingu; þegar svarið kemur skuggi er uppfærður og :data:`probes` útgáfur, þannig að widget getur endurskoðað. Skuggað er optimistlegt vegna þess að leið sem smá er skráð eins og saknað og síðan korrigerður er fallegt varning, þar sem leið sem er smá skraðið eins og tiltekinn og síðan merkinn saknað er venjuleg uppfærslu.",
+      "source_sha256": "8f975d046b59926b9611776ffb2d1d75ee46f35c8f86bb12017b523d22ea688b",
+      "text": "Fletta upp skyndiminnissvörum um slóðir, með valfrjálsri afmarkaðri bið fyrir óþekktar slóðir.\n\n`spacr/qt/widgets/file_list.py` spurði `os.path.exists` fyrir hvert minntandi leið, á heiminum GUI útferð, til að litla misnotandi rödd. Það er frjáls fyrir staðbundinn disk og það er ekki frjálst fyrir netinn einn: mætt á einum vinnustaði, ``os.path.exists`` á leiðinni undir ``/nas_mnt`` - ``autofs`` fjall með ``timeout=600`` - hafði ekki komist aftur eftir tíu sekúndur, vegna þess að statinn er það sem hættir bíllinn og hluturinn var svefninn.\n\nA blokkinn GUI höfuðferð virðist ekki eins og langan leiðsögn. Það virðist eins og þetta, og hver af þeim var talað sem sérstakt mistök á 2026-09-04:\n\n  * \"opening map barcodes crashes spacr\" -- þetta er ekki hrun, þetta er frost án nokkurs rakningarstakks, sem er ástæðan fyrir því að ekkert komst í annálana. Kerfisannállinn sýnir `automount request ... triggered by spacr` beint á undan hverri þvinguðu lokun.\n  * \"Það er einhvers flickers ... nokkrar viðburðir gerast á hover og þeir stundum lagast í nokkrar sekúndur\" - hover viðburðar vinnu lista þar sem sjálfstætt útferð er stallur og þá endurspilað í burst.\n  * \"Ég sé millisekundum glimmers hluti af hugbúnaðar sýningar á heima hugbúnaður sýningar\" - endurnýjunum eru skammt, þannig að stack sýnir hvað það hefur ekki verið gefið tíma til að líta yfir.\n  * \"Það virðist gerast ... eftir að ég hef opnað einn eða tvö mótum\" - hvert mótulinn bætir eigin minntuna leið, þannig að það er meira að segja.\n\nKód á heiminum GUI leiðinni ætti því ekki að hafa aðgang að failsysteminu fyrir leið sem notandinn gefur; þetta efni gefur athygli sem hann notar í staðinn.\n\nAthuganir án biðar skila strax svari úr skyndiminni eða ``default`` gildi kallanda og setja óþekkta slóð í biðröð fyrir bakgrunnsathugun. Sjálfgefna gildið er ``True`` fyrir :func:`exists` og ``False`` fyrir :func:`isdir`. Bakgrunnsniðurstaða uppfærir skyndiminnið; :data:`probes` sendir merkið ``answered`` aðeins þegar svarið er frábrugðið því sem er í skyndiminni. Bjartsýna sjálfgefna tilvistargildið kemur í veg fyrir að óþekkt slóð sé sýnd sem vantar meðan athugun hennar er í gangi. Með ``wait=True`` er þess í stað beðið samstillt eftir svari sem er ekki í skyndiminni, eins og lýst er í :func:`exists`.",
       "translation_source_blocks_sha256": [
-        "cdaa7fd5673a2e50fc134b90cf0759c67726674d850db77c21ddc3f230ea1ffd",
+        "9960cbcd77fb7e3d068d54a54f62bb99aed3dfca12e4eefd4a86847aad31a75d",
         "bbd99fbc4277d6ab2c8b142445d89accd1ce7e37b570630fff9e1735fab0294c",
         "8f06e14218276da8bbbca54b2eb565d2562e7f5555968ff2e93612db2f5c670a",
         "1cff92c770cdd4f36993e9d6ab0268b55c54ac531880ea5e363fc32ed2344ae2",
@@ -88493,7 +88493,7 @@
         "a895f995d2c2b48c9dbf343ef708764f7d2accbbebe7ef9c297a27efe7d891c7",
         "b9e760b41e26dc371462657d9d4a4e95c5f8033ddcd5e8e15414dc305839df76",
         "7c55325107d2251fcfde00ef8e7489effc892cb2ba5b066407ab70825e3f7de0",
-        "f11172f9ab35bf45c465e7d4fc46dd1b45be4d9793b9898586dd0113037be225"
+        "51681486d062b43539f572a67c1a1c4958927e89217df5a1211ed387e1c150d7"
       ]
     },
     "spacr.qt.path_probe._stat_with_timeout.run": {
@@ -88510,33 +88510,33 @@
     },
     "spacr.qt.path_probe.exists": {
       "source_blocks_sha256": [
-        "d542f861897018efde76ca679d2d0f5260e9fb4087c394f2a64442493061b442",
+        "12b7a66e24505dd08f7a50a2a987bd23fd2d63cfb0427f505b3225c2e0bfd692",
         "218b65c89fbaee439f26efad3f67f099fb0d5b756a3fce83eb806fc3b8231a48",
-        "aaff461b64a95cf85275894618c79003185a1437098e5b631cf532a345dd1604",
+        "70a75476e2b672a42c35ab5f8bc4ed19abb17ba9bef902483240772df4711ff6",
         "49242dc9f64efa44db156e2e4fb012ea56e68d4d2f88ef2fe1c09c7efa4f9839",
-        "b1fec951a4397d87df73c0399c3d030d138da14b70b4ed07686c1721325adb48",
-        "a5ec38998a80f4b1f7bec7fbaffe3daa8028fbab7f2a6556866d8ff2ebb9169a"
+        "b6b77652c10e1046b68b3e5957854e0adfc232e44c4e18354b40a66f15527421",
+        "2c47a0d2d0d784db8b44ae03e615de0f6b4b6af6516fd8ea1faadfa8fe8faaa7"
       ],
-      "source_sha256": "bf3c45c4be0c0359905ce0f8cfc614cad2f04cc6d550703bf515a985aa8273b9",
-      "text": "Hvort sem ``path`` er til staðar, svarað frá cache og aldrei lokað.\n\n:param path: Allt er fallegt er ``False``.\n:param default: Hvað á að segja meðan svarið er óþekkt. ``True`` í staðsetningu - sjá hugbúnaðinn til að spyrja hvers vegna staðsetningurinn er ánægður.\n:param want_dir: spurðu ``isdir`` í stað þess að ``exists``. Skrifað sérstakt, vegna þess að leið getur verið til og ekki vera skrifstofur.\n:param wait: búnir bíða með :data:`PROBE_TIMEOUT_S` í stað þess að svara ``default`` strax, og skynja það sem kemur aftur. fyrir samtalendur sem heila spurningin er \"is this one missing\" - sjá :func:`isdir` fyrir hvers vegna ástandið er rangt fyrir þá.\n:returns: skammt svarið, eða ``default`` með skammtur.",
+      "source_sha256": "a13153aacb3b08d97a8fc0306f0cad2d129ee2774833a1ac109f04bcfd2095ae",
+      "text": "Skila svari um slóð úr skyndiminni eða athuga óþekkta slóð.\n\n:param path: Allt er fallegt er ``False``.\n:param default: gildið sem á að skila fyrir óþekkta slóð þegar ``wait=False``. Sjálfgefið er ``True``; þetta gildi ræður ekki svarinu þegar tímamörk biðarathugunar renna út.\n:param want_dir: spurðu ``isdir`` í stað þess að ``exists``. Skrifað sérstakt, vegna þess að leið getur verið til og ekki vera skrifstofur.\n:param wait: skila svari úr skyndiminni strax eða bíða samstillt í allt að :data:`PROBE_TIMEOUT_S` eftir stat-athugun sem vantar í skyndiminnið og vista svarið þar. Þegar biðtíminn rennur út er ``True`` skilað og vistað í skyndiminni, jafnvel þótt ``default`` sé ``False``. Stat-þráðurinn er ekki stöðvaður og síðari niðurstaða hans uppfærir ekki þetta skyndiminnissvar eftir útrunninn biðtíma.\n:returns: ``False`` fyrir slóð sem er metin sem ósönn; annars svar úr skyndiminni, ``default`` án biðar með athugun í biðröð eða í gangi, eða svar biðarathugunarinnar (``True`` þegar biðtíminn rennur út).",
       "translation_source_blocks_sha256": [
-        "d542f861897018efde76ca679d2d0f5260e9fb4087c394f2a64442493061b442",
+        "12b7a66e24505dd08f7a50a2a987bd23fd2d63cfb0427f505b3225c2e0bfd692",
         "218b65c89fbaee439f26efad3f67f099fb0d5b756a3fce83eb806fc3b8231a48",
-        "aaff461b64a95cf85275894618c79003185a1437098e5b631cf532a345dd1604",
+        "70a75476e2b672a42c35ab5f8bc4ed19abb17ba9bef902483240772df4711ff6",
         "49242dc9f64efa44db156e2e4fb012ea56e68d4d2f88ef2fe1c09c7efa4f9839",
-        "b1fec951a4397d87df73c0399c3d030d138da14b70b4ed07686c1721325adb48",
-        "a5ec38998a80f4b1f7bec7fbaffe3daa8028fbab7f2a6556866d8ff2ebb9169a"
+        "b6b77652c10e1046b68b3e5957854e0adfc232e44c4e18354b40a66f15527421",
+        "2c47a0d2d0d784db8b44ae03e615de0f6b4b6af6516fd8ea1faadfa8fe8faaa7"
       ]
     },
     "spacr.qt.path_probe.forget": {
       "source_blocks_sha256": [
-        "a6cfc170f46816f8d70d93bc62d08da8d2abb7534aa24a7099dc47bddcf68e14",
+        "7d151b084fd4713f314760981aea8f7846c911fd0b8889f5f039cbbede9c51c0",
         "8e6415c57ae173c126601babc3de4bc035f5c6d0d817d1e084a6183b1b9ab787"
       ],
-      "source_sha256": "a29322b9f3e0fa3dda7fa110774952147dde447783a89c2938c7086518cc9b81",
-      "text": "Hættu það sem er skjald, svo næsta :func:`exists` spyr aftur.\n\n:param path: Ein leið, eða ``None`` fyrir öllu þeirra. kallað þegar notandi hefur bara skapað eða fjarlægð eitthvað og cache myndi annars halda áfram að svara með því sem var satt áður.",
+      "source_sha256": "d8e8147a5e7f48dc1ee2ccc0c3adea6d3ee18ffb33ba10d617397d897a6c0b2d",
+      "text": "Fjarlægja svör úr skyndiminni án þess að hætta við athuganir í biðröð eða í gangi. Síðara kall á :func:`exists` án biðar skilar sjálfgefnu gildi sínu meðan fyrirliggjandi athugun er ólokið; ný athugun er aðeins sett í biðröð ef engin er ólokið. Athugun sem er þegar í gangi getur fyllt skyndiminnið aftur eftir þetta kall.\n\n:param path: Ein leið, eða ``None`` fyrir öllu þeirra. kallað þegar notandi hefur bara skapað eða fjarlægð eitthvað og cache myndi annars halda áfram að svara með því sem var satt áður.",
       "translation_source_blocks_sha256": [
-        "a6cfc170f46816f8d70d93bc62d08da8d2abb7534aa24a7099dc47bddcf68e14",
+        "2c05eef0f9cd3a080044276ca5332d7492ea827fbe62894e5c6cbe599e79914c",
         "8e6415c57ae173c126601babc3de4bc035f5c6d0d817d1e084a6183b1b9ab787"
       ]
     },
@@ -88545,19 +88545,19 @@
         "3627dbe11ff724cbafe4ff20fdc7c4ad2f2e4bec36756d33debd67afc8a1b347",
         "929fa39e5d06a0d6b732cb078071e3d3b54db4663d426f480cf00c7b8bbeadd2",
         "fa84645dffb53088727f0c4f64d5b5797fca8ef904bd483246b1d45bcf75a346",
-        "23bfdab2644901d7b62680b4adc5f66e5c04865b07316f76ae86248c2f9dd550",
+        "03783e8fad32489495a610becc756e837ee6ec2107ce3a7bdfd11d84f01c9c24",
         "f04376a8b21112829887e296dedf8c20007ab126579733f96b162e1fe8a1e58e",
-        "aa177c347b342142d7cc0a4faba2bc03e8734b07aaa193b28a64f77c559424cd"
+        "caa2f28970b56c421012b2567500738e26b583776206f08764ec250badddbe16"
       ],
-      "source_sha256": "bea5e25c01295f90129266f8cba22a2cb761941b402ada350753593360c9127f",
-      "text": "Hvort ``path`` er skrifstofur, svarað frá cache.\n\n``default`` er False hér og True í :func:`exists`, og asymmetri er hugsanlega: kallaðir þessarar eru að velja mappinn til að opna samskipti í, og opna það einhvers staðar sem virðist ekki vera er verra en opna hann á forritinu stað.\n\n:param path: slóðin sem spurt er um; send til :func:`exists` með ``want_dir=True``, svo allt ósatt er ``False``.\n:param wait: búnir bíða með :data:`PROBE_TIMEOUT_S` í stað þess að svara ``default`` strax, og bíða hvað kemur aftur.\n\n``wait`` is off by default. The freeze this module was written for came from statting remembered paths -- a passive pass over everything a settings file mentions, on the GUI thread, to colour the missing ones red. No user action waits on that pass, so answering from cache and checking later costs nothing.\n\nAð breyta mappinn sem notandinn hefur bara hlaupið eða valið er aðstæður. Þeir gerðu aðgerð og bíða eftir niðurstöðum hennar, og ókunnulegt leiðin staðsetningu breytist \"sjá skáld þessa skálds\" í \"sí skálda sem skáldi\" - stutt, og aðeins í fyrsta skipti sem leið er séð. Vona er takmarkaður með :data:`PROBE_TIMEOUT_S` (5 s), þannig að svefnun bílar kostar upp á meirihluti þess en ekki tíu sekúndur.",
+      "source_sha256": "4d2841f16516d5e9b9453442f9ceee9dc4db5c22b791c9128ecb55495736261e",
+      "text": "Hvort ``path`` er skrifstofur, svarað frá cache.\n\n``default`` er False hér og True í :func:`exists`, og asymmetri er hugsanlega: kallaðir þessarar eru að velja mappinn til að opna samskipti í, og opna það einhvers staðar sem virðist ekki vera er verra en opna hann á forritinu stað.\n\n:param path: slóðin sem spurt er um; send til :func:`exists` með ``want_dir=True``, svo allt ósatt er ``False``.\n:param wait: nota samstilltan biðarham :func:`exists` fyrir slóð sem er ekki í skyndiminni. Svarið þegar biðtíminn rennur út er ``True``, jafnvel þótt sjálfgefið gildi þessa falls án biðar sé ``False``.\n\n``wait`` er sjálfgefið óvirkt. Frystingin sem þessi eining átti að leysa kom frá stat-athugunum á vistuðum slóðum — yfirferð á GUI-þræðinum yfir allt sem stillingaskrá nefnir, til að lita slóðir sem vantaði rauðar, án sérstakrar notandaaðgerðar. Engin aðgerð notandans bíður eftir þessari yfirferð, svo að svara úr skyndiminni og athuga síðar veldur engri viðbótarbið.\n\nAð opna fyrir innihald möppu sem notandinn var að sleppa eða velja er andstæða tilvikið. Notandinn hefur framkvæmt aðgerð og bíður eftir niðurstöðu hennar; sjálfgefna gildið fyrir óþekkta slóð breytir „bæta við skrám þessarar möppu“ í „bæta þessari möppu við sem skrá“, án tilkynningar og aðeins í fyrsta sinn sem slóðin sést. Kallandi þráður bíður í allt að :data:`PROBE_TIMEOUT_S` (5 s) eftir stat-athuguninni. Þegar biðtíminn rennur út er ``True`` vistað í skyndiminni án þess að stat-þráðurinn sé stöðvaður; síðara svar hans kemur ekki í stað skyndiminnisniðurstöðunnar eftir útrunninn biðtíma.",
       "translation_source_blocks_sha256": [
         "3627dbe11ff724cbafe4ff20fdc7c4ad2f2e4bec36756d33debd67afc8a1b347",
         "929fa39e5d06a0d6b732cb078071e3d3b54db4663d426f480cf00c7b8bbeadd2",
         "fa84645dffb53088727f0c4f64d5b5797fca8ef904bd483246b1d45bcf75a346",
-        "23bfdab2644901d7b62680b4adc5f66e5c04865b07316f76ae86248c2f9dd550",
+        "03783e8fad32489495a610becc756e837ee6ec2107ce3a7bdfd11d84f01c9c24",
         "ce88ebfd079963734421049c5a406613dc391fec3bdf470849e8412f7fffa707",
-        "aa177c347b342142d7cc0a4faba2bc03e8734b07aaa193b28a64f77c559424cd"
+        "caa2f28970b56c421012b2567500738e26b583776206f08764ec250badddbe16"
       ]
     },
     "spacr.qt.path_probe.known": {
@@ -88574,17 +88574,17 @@
     },
     "spacr.qt.path_probe.prime": {
       "source_blocks_sha256": [
-        "5dafbd914c7dbb5a9635f5b807dd07b4c4f32599884d788637eda57ee4708ab6",
-        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d",
+        "b6b37c2c7fa64b72a4be6e828ed69a63e15461e37732dcf93cd12ba0d7121aea",
+        "d0beabc45a13cf581eb083eb85cf3c197ceefe7d170d39fb6f50396e72854389",
         "f0ee0daf53a476c0fbce0c3a4da19711c656405d8b1e1eb6eaabd903ce0739a7",
         "ce53eb12373c9f2403950168801d0c3a95d8af30a58d2f7aae171f0ddefa23d1",
         "81f079a11f44c6529b375f345ebda574cccb3be3004bf6468fc701372a399b7f"
       ],
-      "source_sha256": "21945eb6ed91c7d9713b1e7701fb72fe6be28761f1873c9cc7dd42bb9524f50a",
-      "text": "Skrifaðu svarið sem einhver hefur þegar, án rannsókna.\n\nHugbúnaður samskipti hefur bara sagt okkur að leiðin er til; að spyrja failsysteminn aftur myndi vera annað stat fyrir staðreynd sem er þegar í hendi.\n\n:param path: Svarið er á leiðinni.\n:param answer: Það sem nú er þekkt að vera satt um það.\n:param want_dir: Það er í staðinn :func:`isdir` en ekki :func:`exists`. Þessir tveir eru skilgreiðir - leið getur verið og ekki skrá - þannig að kallaður sem þekkir bæði þarf að segja það tvö sinnum. Án þess, :func:`isdir` svara með ``False`` staðsetningu þangað til bakgrunnssýni er lokið.",
+      "source_sha256": "e973dd55c7df5f0cbcbec213bc3b26aa08e2134e3a02d177a44dff6ade712cf1",
+      "text": "Vista þekkt svar í skyndiminni án þess að hefja athugun.\n\nSkráavalglugginn hefur rétt í þessu staðfest að slóð sé til; að spyrja skráakerfið aftur væri önnur stat-athugun á þegar þekktri staðreynd. Þetta hreinsar samsvarandi merkingu um ólokna athugun en hættir ekki við athugun í biðröð eða í gangi. Slík athugun getur síðar yfirskrifað svarið sem var sett í skyndiminnið og sent merkið ``answered`` frá :data:`probes` ef niðurstaðan breytir skyndiminnisgildinu. Þetta kall sendir sjálft ekkert merki.\n\n:param path: Svarið er á leiðinni.\n:param answer: Það sem nú er þekkt að vera satt um það.\n:param want_dir: Það er í staðinn :func:`isdir` en ekki :func:`exists`. Þessir tveir eru skilgreiðir - leið getur verið og ekki skrá - þannig að kallaður sem þekkir bæði þarf að segja það tvö sinnum. Án þess, :func:`isdir` svara með ``False`` staðsetningu þangað til bakgrunnssýni er lokið.",
       "translation_source_blocks_sha256": [
-        "5dafbd914c7dbb5a9635f5b807dd07b4c4f32599884d788637eda57ee4708ab6",
-        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d",
+        "b6b37c2c7fa64b72a4be6e828ed69a63e15461e37732dcf93cd12ba0d7121aea",
+        "4441a6f7065469ded88df3cb3bddb231c35f2b35cba1cd34fd8b67d149d9e11d",
         "f0ee0daf53a476c0fbce0c3a4da19711c656405d8b1e1eb6eaabd903ce0739a7",
         "ce53eb12373c9f2403950168801d0c3a95d8af30a58d2f7aae171f0ddefa23d1",
         "81f079a11f44c6529b375f345ebda574cccb3be3004bf6468fc701372a399b7f"

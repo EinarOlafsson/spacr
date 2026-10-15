@@ -4218,11 +4218,23 @@ def _claim(temp: Path, folder: Path, name: str) -> Path:
     while True:
         target = versioned_path(folder, name)
         try:
-            os.close(os.open(str(target),
-                             os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644))
+            descriptor = os.open(str(target),
+                                 os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
         except FileExistsError:
             continue
-        os.replace(str(temp), str(target))
+        try:
+            created = os.fstat(descriptor)
+        finally:
+            os.close(descriptor)
+        try:
+            os.replace(str(temp), str(target))
+        except BaseException:
+            try:
+                if os.path.samestat(target.lstat(), created):
+                    target.unlink()
+            except OSError:
+                pass
+            raise
         return target
 
 

@@ -1,0 +1,33 @@
+{
+  "lesson": "11_classify_ml",
+  "english_sha256": "92e4828684b94f5fecd03ac4fe73b16a0b457fbdddbb462025d73f7df608675e",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Classify: aprender com características medidas",
+  "description": "Carregue medições, defina classes, treine um classificador tabular e inspecione as pontuações dos objetos e os resumos por placa.",
+  "objectives": [
+    "Selecionar a família tabular e um projeto medido.",
+    "Definir classes e escolher os canais de características, o tamanho do modelo e os poços reservados.",
+    "Encontrar as saídas do modelo, as previsões por objeto e as figuras de resumo."
+  ],
+  "prerequisite": "Use Load test data no Classify e escolha Load; depois confirme a pasta da placa baixada com Choose source data. Para o seu próprio projeto, execute o Measure primeiro. O exemplo usa os valores c1 e c2 de columnID como duas classes; com seus próprios dados, use rótulos adequados ao seu experimento.",
+  "scenes": [
+    "Na tela Home, abra Classify e escolha Tabular Machine Learning. Esta família usa as medições de objetos salvas pelo Measure. Ela produz um modelo ajustado e uma pontuação para cada objeto que tenha as medições necessárias.",
+    "Clique em Load test data e escolha Load. Aguarde o download do exemplo medido. Com seus próprios dados, selecione a pasta do projeto criada pelo Measure, incluindo o banco de dados de medições.",
+    "Use Choose source data para confirmar a pasta da placa baixada. Selecione a pasta que contém as medições. Assim o classificador tem acesso às tabelas de objetos e aos metadados usados para definir as classes.",
+    "Escolha os metadados como base das classes e defina duas Classes com os valores c1 e c2 de column I D. Esses rótulos distinguem as duas colunas da placa do exemplo. Para treinar com suas próprias anotações de células, escolha a base de anotação e a coluna de rótulos que você criou no Annotate.",
+    "Defina Channel of interest como um para o exemplo. Isso controla quais características medidas de cada canal entram no modelo. No seu experimento, selecione o canal que contém o sinal relevante para as suas classes.",
+    "Escolha Random Forest, dezesseis estimadores e dois processos de trabalho. Os estimadores definem o número de árvores. Mais árvores aumentam o trabalho de ajuste. Deixe a poda de características e a validação cruzada desativadas nesta primeira passada; você pode comparar essas opções depois de ter uma referência que funcione.",
+    "Defina Test size como um décimo e mantenha o agrupamento por poço. O spaCR reserva poços inteiros, então a fração final de objetos pode ser diferente da solicitada. Leia a divisão resultante no console e confirme que ela serve para o seu experimento.",
+    "Ative Plot, limpe a busca e pressione Run. O console mostra a filtragem de características, a divisão entre treinamento e teste, o ajuste do modelo e os caminhos de saída salvos. Aguarde o fim da execução antes de comparar as pontuações.",
+    "Encontre os resultados em results, random_forest, channel sublinhado um. O banco de dados guarda a classe prevista em predictions e a probabilidade da classe um em ml_pred. Objetos sem as medições necessárias podem ficar sem pontuação; confira os valores ausentes ao exportar um resumo.",
+    "Percorra as figuras de importância das características e o mapa de calor da placa. Com Predictions e o agrupamento pela média, o valor de um poço é a média das classes previstas binárias dele. Use as pontuações salvas por objeto para uma revisão detalhada e compare o desempenho nos poços reservados antes de aplicar o classificador a outro experimento."
+  ]
+}

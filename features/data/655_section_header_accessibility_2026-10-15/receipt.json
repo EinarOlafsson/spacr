@@ -1,0 +1,36 @@
+{
+  "baseline_commit": "d4f9f21e70570e756d5776d96138d6740ef4f947",
+  "source_file": "spacr/qt/widgets/figure_grid_view.py",
+  "before_source_sha256": "60d4b7ed0e90eccfdfa9fc762c1395fa3facf298a97da58e14f86c0db59f7af8",
+  "after_source_sha256": "a85bab36e844a77da141b159f644b7d04a8f946d84993ab8ae15ae6a591f99de",
+  "test_file": "tests/qt/test_655_figure_section_accessibility.py",
+  "test_sha256": "244edccbebd6411ae1e708586ece7ef3893b8926d04727fc8b6aaf00ad0e2355",
+  "scope": "Private _SectionHeader only: existing run label becomes accessible name; native palette two-pixel focus ring and existing cached stronger-focus helper reused, style/palette updates and focus entry/departure repaint.",
+  "before": "4 failed in3.57s: actual QAccessible name empty after normal language pass; focused/unfocused images identical in Dark, Light, High contrast.",
+  "after": "Initial same4 cases passed2.10s. Final5 focused cases plus9 existing figure-grid owning cases:14 passed2.62s; actual wall4.51s,peakRSS583028KiB,zero swap.",
+  "test_evolution": "After reproducing all4 failures, the live-style test was strengthened to require the same already-open header retains focus on both preference transitions; one no-paint-preference-read case was added. No baseline failure assertion or timeout was weakened.",
+  "environment": "Qt6.12 overlay; Python3.12; Linux offscreen; CUDA hidden;2G cgroup cap;one computational thread;private test QSettings.",
+  "command": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMBA_NUM_THREADS=1 PYTHONPATH=/mnt/wd4tb/scratch/codex-home-release-1515-20261013/a744-dark-opaque-p1-20261014/qt612-runtime/site-packages:. tools/run_capped.sh 2G /usr/bin/time -v /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest -q tests/qt/test_655_figure_section_accessibility.py tests/qt/test_cov_wf_qt_widgets_figure_grid_view.py",
+  "preservation": [
+    "All AST outside _SectionHeader identical.",
+    "Existing header mouse/key/fold/owner lookup AST identical.",
+    "No new visible captions; accessible name reuses unchanged run title.",
+    "Four event overrides belong to excluded private _SectionHeader, with no nested helper or public API addition under tools/api_visibility.py public_symbol policy.",
+    "No other controls, workspace-state source, runtime/API catalog, translation or generated Help changes."
+  ],
+  "limits": "Scoped QAccessible and offscreen pixel/control acceptance only. No native speech, human usability, macOS/Windows or tutorial claim; N655 remains PARTIAL.",
+  "logs": {
+    "before": {
+      "sha256": "019115b8f88f0f25d9aed5ef7980961c0cd28d39e3f3b131b3851510b15e3a71",
+      "gzip": "before.log.gz"
+    },
+    "after": {
+      "sha256": "c267520a288bb3107a362f55b938f4d53f9c12702f87cfb833234d97fa6dde49",
+      "gzip": "after.log.gz"
+    },
+    "final": {
+      "sha256": "19f2a2d3a95d1e5b884b2a45f728516231fccbaadce0847e4d5879717ee4c561",
+      "gzip": "final.log.gz"
+    }
+  }
+}

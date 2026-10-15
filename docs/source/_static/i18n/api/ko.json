@@ -88472,7 +88472,7 @@
     },
     "spacr.qt.path_probe": {
       "source_blocks_sha256": [
-        "669a38da76908fd22ccd0b0841f77108116f5ff07b40aaeeeaed58bdcf584fb5",
+        "9960cbcd77fb7e3d068d54a54f62bb99aed3dfca12e4eefd4a86847aad31a75d",
         "ff4b786f254b0a6929401767d7037563708e870fd3cdabd5dfab5f0037333a2b",
         "73ab4389f357f6e1f5b4d23f95aebf7fefdcbf59eec74f4d0783085ad2856206",
         "1cff92c770cdd4f36993e9d6ab0268b55c54ac531880ea5e363fc32ed2344ae2",
@@ -88480,12 +88480,12 @@
         "ed6b161e940114d17ea28669fbb1b26693910e0d64e1186ddf4c71ad0d0ec548",
         "b9e760b41e26dc371462657d9d4a4e95c5f8033ddcd5e8e15414dc305839df76",
         "95aae15a021a0a51368b1de49f71a965d4fb7c22bba748c6db20ecfa86525785",
-        "f11172f9ab35bf45c465e7d4fc46dd1b45be4d9793b9898586dd0113037be225"
+        "f14c2375e1e9be7808544ed8c7744a84ab83f7b735bdc32dc681a8acc78d315a"
       ],
-      "source_sha256": "f06b8c87de7b1feba88655a18b0505e242b1e120f01465b42cd4e6b747e51769",
-      "text": "기본 GUI 실행 경로를 차단하지 않고 캐시에서 경로가 있는지 확인합니다.\n\n`spacr/qt/widgets/file_list.py` 요청 `os.path.exists` 각 기억에 남는 경로, 주요 GUI 실행 경로에서, 잃어버린 사람들을 빨간색으로 색칠합니다.이것은 지역 디스크에 무료이며 네트워크에 무료가 아닙니다 : 한 작업 스테이션에서 측정, ``os.path.exists`` ``/nas_mnt`` 아래의 경로에 - ``autofs`` 산과 ``timeout=600`` - 20 초 후에 돌아 오지 않았습니다, 왜냐하면 상태는 자동차를 자극하고 주식이 잠들었기 때문입니다.\n\n차단 된 주요 GUI 실행 경로는 느린 경로 검사처럼 보이지 않습니다.이것은 이렇게 보이고 각각 2026-09-04에 별도의 결함으로보고되었습니다 :\n\n  * \"지도 열기 바코드 붕괴 spacr\" -- 그것은 사고가 아닙니다, 그것은 트랙베이크가없는 냉장고입니다., 그래서 아무것도 기록에 도달하지 못했습니다. 저널은 `automount request ... triggered by spacr` 즉시 각 강력한 퀴트 전에 표시됩니다.\n  * \"그것은 일종의 플리커 ... 여러 이벤트가 호버에서 일어나고 때로는 몇 초 동안 멈추게됩니다\" - 호버 이벤트 작업 목록 동안 독립적 인 실행 경로가 막혀 다음 폭발에서 재생됩니다.\n  * \"나는 홈 애플리케이션 보기에서 모듈 응용 프로그램 보기의 일부의 밀리초 빛을 볼 수있다\" - 재색상이 제거되므로 스택은 무엇을 그릴 시간이 주어지지 않았는지 보여줍니다.\n  * \"그것은 일어나는 것처럼 보인다 ... 내가 하나 또는 두 개의 모듈을 열었을 때\" - 각 모듈은 자신의 기억에 남는 경로를 추가하므로 더 많은 것을 말할 수 있습니다.\n\n따라서 주요 GUI 실행 경로의 코드는 사용자가 제공하는 경로에 대한 파일 시스템에 액세스 할 수 없습니다; 이 모듈은 대신 사용하는 체크를 제공합니다.\n\n응답은 즉시 캐시에서 온다. 아직 보이지 않은 경로는 현재로 보고되고 배경 검사를 위해 쿼드되며, 응답이 도착하면 캐시가 업데이트되고 :data:`probes`가 발행되므로 위젯이 재구성될 수 있습니다. 기본적으로 낙관적이기 때문에 짧게 잃어버린 경로가 고정되면 잘못된 경보이며, 현재로 간략하게 끌려가는 경로는 일반적인 업데이트입니다.",
+      "source_sha256": "8f975d046b59926b9611776ffb2d1d75ee46f35c8f86bb12017b523d22ea688b",
+      "text": "캐시된 경로 응답을 확인하며, 알 수 없는 경로에는 선택적으로 제한된 시간 동안 기다립니다.\n\n`spacr/qt/widgets/file_list.py` 요청 `os.path.exists` 각 기억에 남는 경로, 주요 GUI 실행 경로에서, 잃어버린 사람들을 빨간색으로 색칠합니다.이것은 지역 디스크에 무료이며 네트워크에 무료가 아닙니다 : 한 작업 스테이션에서 측정, ``os.path.exists`` ``/nas_mnt`` 아래의 경로에 - ``autofs`` 산과 ``timeout=600`` - 20 초 후에 돌아 오지 않았습니다, 왜냐하면 상태는 자동차를 자극하고 주식이 잠들었기 때문입니다.\n\n차단 된 주요 GUI 실행 경로는 느린 경로 검사처럼 보이지 않습니다.이것은 이렇게 보이고 각각 2026-09-04에 별도의 결함으로보고되었습니다 :\n\n  * \"지도 열기 바코드 붕괴 spacr\" -- 그것은 사고가 아닙니다, 그것은 트랙베이크가없는 냉장고입니다., 그래서 아무것도 기록에 도달하지 못했습니다. 저널은 `automount request ... triggered by spacr` 즉시 각 강력한 퀴트 전에 표시됩니다.\n  * \"그것은 일종의 플리커 ... 여러 이벤트가 호버에서 일어나고 때로는 몇 초 동안 멈추게됩니다\" - 호버 이벤트 작업 목록 동안 독립적 인 실행 경로가 막혀 다음 폭발에서 재생됩니다.\n  * \"나는 홈 애플리케이션 보기에서 모듈 응용 프로그램 보기의 일부의 밀리초 빛을 볼 수있다\" - 재색상이 제거되므로 스택은 무엇을 그릴 시간이 주어지지 않았는지 보여줍니다.\n  * \"그것은 일어나는 것처럼 보인다 ... 내가 하나 또는 두 개의 모듈을 열었을 때\" - 각 모듈은 자신의 기억에 남는 경로를 추가하므로 더 많은 것을 말할 수 있습니다.\n\n따라서 주요 GUI 실행 경로의 코드는 사용자가 제공하는 경로에 대한 파일 시스템에 액세스 할 수 없습니다; 이 모듈은 대신 사용하는 체크를 제공합니다.\n\n기다리지 않는 검사는 캐시된 응답이나 호출자의 ``default`` 값을 즉시 반환하고, 알 수 없는 경로를 백그라운드 검사 대기열에 넣습니다. 기본값 ``True`` 는 :func:`exists` 에, ``False`` 는 :func:`isdir` 에 적용됩니다. 백그라운드 결과는 캐시를 갱신하며, :data:`probes` 객체는 응답이 캐시된 값과 다를 때만 ``answered`` 신호를 보냅니다. 존재 여부에 대한 낙관적인 기본값은 검사가 미완료인 동안 알 수 없는 경로를 누락된 것으로 표시하지 않게 합니다. ``wait=True`` 를 전달하면 대신 아직 캐시되지 않은 응답을 동기적으로 기다립니다. 자세한 동작은 :func:`exists` 에 설명되어 있습니다.",
       "translation_source_blocks_sha256": [
-        "cdaa7fd5673a2e50fc134b90cf0759c67726674d850db77c21ddc3f230ea1ffd",
+        "9960cbcd77fb7e3d068d54a54f62bb99aed3dfca12e4eefd4a86847aad31a75d",
         "bbd99fbc4277d6ab2c8b142445d89accd1ce7e37b570630fff9e1735fab0294c",
         "8f06e14218276da8bbbca54b2eb565d2562e7f5555968ff2e93612db2f5c670a",
         "1cff92c770cdd4f36993e9d6ab0268b55c54ac531880ea5e363fc32ed2344ae2",
@@ -88493,7 +88493,7 @@
         "a895f995d2c2b48c9dbf343ef708764f7d2accbbebe7ef9c297a27efe7d891c7",
         "b9e760b41e26dc371462657d9d4a4e95c5f8033ddcd5e8e15414dc305839df76",
         "7c55325107d2251fcfde00ef8e7489effc892cb2ba5b066407ab70825e3f7de0",
-        "f11172f9ab35bf45c465e7d4fc46dd1b45be4d9793b9898586dd0113037be225"
+        "51681486d062b43539f572a67c1a1c4958927e89217df5a1211ed387e1c150d7"
       ]
     },
     "spacr.qt.path_probe._stat_with_timeout.run": {
@@ -88510,33 +88510,33 @@
     },
     "spacr.qt.path_probe.exists": {
       "source_blocks_sha256": [
-        "d542f861897018efde76ca679d2d0f5260e9fb4087c394f2a64442493061b442",
+        "12b7a66e24505dd08f7a50a2a987bd23fd2d63cfb0427f505b3225c2e0bfd692",
         "218b65c89fbaee439f26efad3f67f099fb0d5b756a3fce83eb806fc3b8231a48",
-        "aaff461b64a95cf85275894618c79003185a1437098e5b631cf532a345dd1604",
+        "70a75476e2b672a42c35ab5f8bc4ed19abb17ba9bef902483240772df4711ff6",
         "49242dc9f64efa44db156e2e4fb012ea56e68d4d2f88ef2fe1c09c7efa4f9839",
-        "b1fec951a4397d87df73c0399c3d030d138da14b70b4ed07686c1721325adb48",
-        "a5ec38998a80f4b1f7bec7fbaffe3daa8028fbab7f2a6556866d8ff2ebb9169a"
+        "b6b77652c10e1046b68b3e5957854e0adfc232e44c4e18354b40a66f15527421",
+        "2c47a0d2d0d784db8b44ae03e615de0f6b4b6af6516fd8ea1faadfa8fe8faaa7"
       ],
-      "source_sha256": "bf3c45c4be0c0359905ce0f8cfc614cad2f04cc6d550703bf515a985aa8273b9",
-      "text": "``path``이 있는지 여부는 캐시에서 응답하고 결코 차단하지 않습니다.\n\n:param path: 모든 것이 가짜가 ``False``입니다.\n:param default: 응답이 알려지지 않은 동안 무엇을 말할 것인가. ``True`` 기본적으로 - 기본이 왜 낙관적 인지에 대한 문서 모듈을 참조하십시오.\n:param want_dir: ``isdir`` 대신 ``exists``을 요청하십시오.이 경로가 존재할 수 있기 때문에 별도로 숨겨져 있으며 디렉토리가 아닙니다.\n:param wait: 기다리는 것을 묶어 :data:`PROBE_TIMEOUT_S` 대답하는 대신 ``default`` 즉시, 그리고 무엇이 돌아오는지 숨기기 위해. \"is this one missing\" - 보기 :func:`isdir` 왜 낙관적 인 결함이 그들에게 잘못되었는지.\n:returns: Cached 답변, 또는 ``default`` 체크 쿼드와 함께.",
+      "source_sha256": "a13153aacb3b08d97a8fc0306f0cad2d129ee2774833a1ac109f04bcfd2095ae",
+      "text": "캐시된 경로 응답을 반환하거나 알 수 없는 경로를 검사합니다.\n\n:param path: 모든 것이 가짜가 ``False``입니다.\n:param default: ``wait=False`` 일 때 알 수 없는 경로에 반환할 값입니다. 기본값은 ``True`` 이며, 이 값은 기다리는 검사의 시간 초과 응답을 결정하지 않습니다.\n:param want_dir: ``isdir`` 대신 ``exists``을 요청하십시오.이 경로가 존재할 수 있기 때문에 별도로 숨겨져 있으며 디렉토리가 아닙니다.\n:param wait: 캐시된 응답을 즉시 반환하거나, 아직 캐시되지 않은 stat 검사를 :data:`PROBE_TIMEOUT_S` 만큼의 시간까지 동기적으로 기다린 뒤 응답을 캐시합니다. 시간이 초과되면 ``True`` 값을 반환하고 캐시하며, ``default`` 값이 ``False`` 여도 같습니다. stat 스레드는 취소되지 않으며, 해당 스레드의 나중 결과는 이 캐시된 시간 초과 응답을 갱신하지 않습니다.\n:returns: 거짓으로 평가되는 경로에는 ``False`` 값을 반환합니다. 그 밖에는 캐시된 응답, 검사가 대기열에 있거나 미완료일 때 기다리지 않고 반환하는 ``default`` 값, 또는 기다리는 검사의 응답(시간 초과 시 ``True``)을 반환합니다.",
       "translation_source_blocks_sha256": [
-        "d542f861897018efde76ca679d2d0f5260e9fb4087c394f2a64442493061b442",
+        "12b7a66e24505dd08f7a50a2a987bd23fd2d63cfb0427f505b3225c2e0bfd692",
         "218b65c89fbaee439f26efad3f67f099fb0d5b756a3fce83eb806fc3b8231a48",
-        "aaff461b64a95cf85275894618c79003185a1437098e5b631cf532a345dd1604",
+        "70a75476e2b672a42c35ab5f8bc4ed19abb17ba9bef902483240772df4711ff6",
         "49242dc9f64efa44db156e2e4fb012ea56e68d4d2f88ef2fe1c09c7efa4f9839",
-        "b1fec951a4397d87df73c0399c3d030d138da14b70b4ed07686c1721325adb48",
-        "a5ec38998a80f4b1f7bec7fbaffe3daa8028fbab7f2a6556866d8ff2ebb9169a"
+        "b6b77652c10e1046b68b3e5957854e0adfc232e44c4e18354b40a66f15527421",
+        "2c47a0d2d0d784db8b44ae03e615de0f6b4b6af6516fd8ea1faadfa8fe8faaa7"
       ]
     },
     "spacr.qt.path_probe.forget": {
       "source_blocks_sha256": [
-        "a6cfc170f46816f8d70d93bc62d08da8d2abb7534aa24a7099dc47bddcf68e14",
+        "7d151b084fd4713f314760981aea8f7846c911fd0b8889f5f039cbbede9c51c0",
         "8e6415c57ae173c126601babc3de4bc035f5c6d0d817d1e084a6183b1b9ab787"
       ],
-      "source_sha256": "a29322b9f3e0fa3dda7fa110774952147dde447783a89c2938c7086518cc9b81",
-      "text": "숨겨진 것을 던지면 다음 :func:`exists`이 다시 묻습니다.\n\n:param path: 하나의 경로, 또는 ``None`` 그들 모두를 위해.사용자가 단지 만들거나 삭제 한 후에 전화를 받았고, 케이스는 그렇지 않으면 이전에 진실한 것과 대답을 계속할 것입니다.",
+      "source_sha256": "d8e8147a5e7f48dc1ee2ccc0c3adea6d3ee18ffb33ba10d617397d897a6c0b2d",
+      "text": "대기열에 있거나 실행 중인 검사를 취소하지 않고 캐시된 응답을 삭제합니다. 이후 :func:`exists` 함수를 기다리지 않는 방식으로 호출하면 기존 검사가 미완료인 동안 기본값을 반환합니다. 미완료 검사가 없을 때만 새 검사를 대기열에 넣습니다. 이미 진행 중인 검사는 이 호출 이후 캐시를 다시 채울 수 있습니다.\n\n:param path: 하나의 경로, 또는 ``None`` 그들 모두를 위해.사용자가 단지 만들거나 삭제 한 후에 전화를 받았고, 케이스는 그렇지 않으면 이전에 진실한 것과 대답을 계속할 것입니다.",
       "translation_source_blocks_sha256": [
-        "a6cfc170f46816f8d70d93bc62d08da8d2abb7534aa24a7099dc47bddcf68e14",
+        "2c05eef0f9cd3a080044276ca5332d7492ea827fbe62894e5c6cbe599e79914c",
         "8e6415c57ae173c126601babc3de4bc035f5c6d0d817d1e084a6183b1b9ab787"
       ]
     },
@@ -88545,19 +88545,19 @@
         "3627dbe11ff724cbafe4ff20fdc7c4ad2f2e4bec36756d33debd67afc8a1b347",
         "929fa39e5d06a0d6b732cb078071e3d3b54db4663d426f480cf00c7b8bbeadd2",
         "fa84645dffb53088727f0c4f64d5b5797fca8ef904bd483246b1d45bcf75a346",
-        "23bfdab2644901d7b62680b4adc5f66e5c04865b07316f76ae86248c2f9dd550",
+        "03783e8fad32489495a610becc756e837ee6ec2107ce3a7bdfd11d84f01c9c24",
         "f04376a8b21112829887e296dedf8c20007ab126579733f96b162e1fe8a1e58e",
-        "aa177c347b342142d7cc0a4faba2bc03e8734b07aaa193b28a64f77c559424cd"
+        "caa2f28970b56c421012b2567500738e26b583776206f08764ec250badddbe16"
       ],
-      "source_sha256": "bea5e25c01295f90129266f8cba22a2cb761941b402ada350753593360c9127f",
-      "text": "``path``가 캐시에서 응답되는 디렉토리인지 여부.\n\n``default`` 그것은 False 여기서 그리고 True 안에서 :func:`exists`, 그리고 무관심은 의도적입니다 : 이 사람의 호출자는 대화를 열기 위해 폴더를 선택하고 있으며, 존재하지 않는 것으로 나타나는 어딘가에서 그것을 열는 것은 기본 위치에서 열기보다 더 나쁘다.\n\n:param path: 확인할 경로입니다. :func:`exists` 에 ``want_dir=True`` 와 함께 전달되므로, 거짓으로 평가되는 값은 모두 ``False`` 입니다.\n:param wait: 기다리는 것을 묶어 :data:`PROBE_TIMEOUT_S` 대답하는 대신 ``default`` 즉시, 그리고 무엇이 돌아오는지 숨기십시오.\n\n``wait``은 기본적으로 꺼집니다.이 모듈을 냉동하는 것은 기억에 남는 경로에서 온 것에 대해 작성되었습니다 - 모든 설정 파일 언급, 주요 GUI 실행 경로에, 실종 된 것을 빨간색으로 색칠 수 있습니다.이 경로를 기다리는 사용자 행동은 없으므로 캐시에서 응답하고 나중에 확인하는 것은 아무것도 비용이 없습니다.\n\n사용자가 단순히 떨어졌거나 선택한 폴더를 확장하는 것은 반대 상황입니다. 그들은 행동을 수행하고 그 결과를 기다리고 있으며, 알려지지 않은 경로 기본이 \"이 폴더의 파일을 추가\"로 변환 - 조용히, 그리고 단지 처음으로 경로가 볼 수 있습니다. 기다림은 :data:`PROBE_TIMEOUT_S` (5 s)로 제한되어 있으므로 잠자는 자동차는 20 초가 아닌 대부분의 비용을 지불합니다.",
+      "source_sha256": "4d2841f16516d5e9b9453442f9ceee9dc4db5c22b791c9128ecb55495736261e",
+      "text": "``path``가 캐시에서 응답되는 디렉토리인지 여부.\n\n``default`` 그것은 False 여기서 그리고 True 안에서 :func:`exists`, 그리고 무관심은 의도적입니다 : 이 사람의 호출자는 대화를 열기 위해 폴더를 선택하고 있으며, 존재하지 않는 것으로 나타나는 어딘가에서 그것을 열는 것은 기본 위치에서 열기보다 더 나쁘다.\n\n:param path: 확인할 경로입니다. :func:`exists` 에 ``want_dir=True`` 와 함께 전달되므로, 거짓으로 평가되는 값은 모두 ``False`` 입니다.\n:param wait: 캐시되지 않은 경로에는 :func:`exists` 함수의 동기 대기 모드를 사용합니다. 시간 초과 응답은 ``True`` 이며, 이 함수의 비대기 기본값이 ``False`` 인 경우에도 같습니다.\n\n``wait``은 기본적으로 꺼집니다.이 모듈을 냉동하는 것은 기억에 남는 경로에서 온 것에 대해 작성되었습니다 - 모든 설정 파일 언급, 주요 GUI 실행 경로에, 실종 된 것을 빨간색으로 색칠 수 있습니다.이 경로를 기다리는 사용자 행동은 없으므로 캐시에서 응답하고 나중에 확인하는 것은 아무것도 비용이 없습니다.\n\n사용자가 방금 끌어 놓거나 선택한 폴더를 펼치는 상황은 그 반대입니다. 사용자는 동작을 수행하고 결과를 기다리는데, 알 수 없는 경로의 기본값 때문에 “이 폴더의 파일 추가”가 “이 폴더를 파일로 추가”로 바뀝니다. 이는 알림 없이, 해당 경로를 처음 볼 때만 발생합니다. 호출 스레드는 stat 검사를 최대 :data:`PROBE_TIMEOUT_S` (5 s) 동안 기다립니다. 시간 초과 시 stat 스레드를 취소하지 않고 ``True`` 값을 캐시하며, 그 스레드의 나중 응답은 캐시된 시간 초과 결과를 대체하지 않습니다.",
       "translation_source_blocks_sha256": [
         "3627dbe11ff724cbafe4ff20fdc7c4ad2f2e4bec36756d33debd67afc8a1b347",
         "929fa39e5d06a0d6b732cb078071e3d3b54db4663d426f480cf00c7b8bbeadd2",
         "fa84645dffb53088727f0c4f64d5b5797fca8ef904bd483246b1d45bcf75a346",
-        "23bfdab2644901d7b62680b4adc5f66e5c04865b07316f76ae86248c2f9dd550",
+        "03783e8fad32489495a610becc756e837ee6ec2107ce3a7bdfd11d84f01c9c24",
         "ce88ebfd079963734421049c5a406613dc391fec3bdf470849e8412f7fffa707",
-        "aa177c347b342142d7cc0a4faba2bc03e8734b07aaa193b28a64f77c559424cd"
+        "caa2f28970b56c421012b2567500738e26b583776206f08764ec250badddbe16"
       ]
     },
     "spacr.qt.path_probe.known": {
@@ -88574,17 +88574,17 @@
     },
     "spacr.qt.path_probe.prime": {
       "source_blocks_sha256": [
-        "5dafbd914c7dbb5a9635f5b807dd07b4c4f32599884d788637eda57ee4708ab6",
-        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d",
+        "b6b37c2c7fa64b72a4be6e828ed69a63e15461e37732dcf93cd12ba0d7121aea",
+        "d0beabc45a13cf581eb083eb85cf3c197ceefe7d170d39fb6f50396e72854389",
         "f0ee0daf53a476c0fbce0c3a4da19711c656405d8b1e1eb6eaabd903ce0739a7",
         "ce53eb12373c9f2403950168801d0c3a95d8af30a58d2f7aae171f0ddefa23d1",
         "81f079a11f44c6529b375f345ebda574cccb3be3004bf6468fc701372a399b7f"
       ],
-      "source_sha256": "21945eb6ed91c7d9713b1e7701fb72fe6be28761f1873c9cc7dd42bb9524f50a",
-      "text": "누군가가 이미 가지고있는 대답을 기록하십시오, 탐지없이.\n\n파일 대화는 단지 우리에게 경로가 존재한다고 말했습니다; 다시 파일 시스템을 요청하면 이미 손에있는 사실에 대한 두 번째 상태가 될 것입니다.\n\n:param path: 그 길에 대답이 다가오고 있다.\n:param answer: 그것에 대해 이미 알려진 것이 사실이다.\n:param want_dir: :func:`isdir` 대신 :func:`exists`로 기록합니다.이 두 개는 별도로 캐시됩니다. -- 도로는 존재할 수 있고 디렉토리가 될 수 없다. -- 그러므로 둘 다 알고있는 호출자는 두 번 말해야합니다.이 없으면 :func:`isdir`은 배경 탐색이 완료 될 때까지 ``False`` 기본으로 응답합니다.",
+      "source_sha256": "e973dd55c7df5f0cbcbec213bc3b26aa08e2134e3a02d177a44dff6ade712cf1",
+      "text": "검사를 시작하지 않고 알려진 응답을 캐시합니다.\n\n파일 대화상자가 방금 경로가 존재한다고 알려 주었으므로, 파일 시스템에 다시 묻는 것은 이미 아는 사실에 대해 두 번째 stat 검사를 하는 셈입니다. 이 호출은 해당 미완료 표시를 지우지만 대기열에 있거나 실행 중인 검사를 취소하지는 않습니다. 그런 검사는 나중에 미리 채운 응답을 덮어쓸 수 있으며, 결과가 캐시된 값을 바꾸면 ``answered`` 신호를 :data:`probes` 객체를 통해 보낼 수 있습니다. 이 호출 자체는 신호를 보내지 않습니다.\n\n:param path: 그 길에 대답이 다가오고 있다.\n:param answer: 그것에 대해 이미 알려진 것이 사실이다.\n:param want_dir: :func:`isdir` 대신 :func:`exists`로 기록합니다.이 두 개는 별도로 캐시됩니다. -- 도로는 존재할 수 있고 디렉토리가 될 수 없다. -- 그러므로 둘 다 알고있는 호출자는 두 번 말해야합니다.이 없으면 :func:`isdir`은 배경 탐색이 완료 될 때까지 ``False`` 기본으로 응답합니다.",
       "translation_source_blocks_sha256": [
-        "5dafbd914c7dbb5a9635f5b807dd07b4c4f32599884d788637eda57ee4708ab6",
-        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d",
+        "b6b37c2c7fa64b72a4be6e828ed69a63e15461e37732dcf93cd12ba0d7121aea",
+        "4441a6f7065469ded88df3cb3bddb231c35f2b35cba1cd34fd8b67d149d9e11d",
         "f0ee0daf53a476c0fbce0c3a4da19711c656405d8b1e1eb6eaabd903ce0739a7",
         "ce53eb12373c9f2403950168801d0c3a95d8af30a58d2f7aae171f0ddefa23d1",
         "81f079a11f44c6529b375f345ebda574cccb3be3004bf6468fc701372a399b7f"

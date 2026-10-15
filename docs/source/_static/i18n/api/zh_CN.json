@@ -88473,7 +88473,7 @@
     },
     "spacr.qt.path_probe": {
       "source_blocks_sha256": [
-        "669a38da76908fd22ccd0b0841f77108116f5ff07b40aaeeeaed58bdcf584fb5",
+        "9960cbcd77fb7e3d068d54a54f62bb99aed3dfca12e4eefd4a86847aad31a75d",
         "ff4b786f254b0a6929401767d7037563708e870fd3cdabd5dfab5f0037333a2b",
         "73ab4389f357f6e1f5b4d23f95aebf7fefdcbf59eec74f4d0783085ad2856206",
         "1cff92c770cdd4f36993e9d6ab0268b55c54ac531880ea5e363fc32ed2344ae2",
@@ -88481,12 +88481,12 @@
         "ed6b161e940114d17ea28669fbb1b26693910e0d64e1186ddf4c71ad0d0ec548",
         "b9e760b41e26dc371462657d9d4a4e95c5f8033ddcd5e8e15414dc305839df76",
         "95aae15a021a0a51368b1de49f71a965d4fb7c22bba748c6db20ecfa86525785",
-        "f11172f9ab35bf45c465e7d4fc46dd1b45be4d9793b9898586dd0113037be225"
+        "f14c2375e1e9be7808544ed8c7744a84ab83f7b735bdc32dc681a8acc78d315a"
       ],
-      "source_sha256": "f06b8c87de7b1feba88655a18b0505e242b1e120f01465b42cd4e6b747e51769",
-      "text": "检查是否存在路径,从缓存中,而不阻止主 GUI 执行路径。\n\n`spacr/qt/widgets/file_list.py` 要求 `os.path.exists` 每条记住的路径,在主要的 GUI 执行路径上,颜色失踪的红色. 这是免费的一个地方磁盘,它不是免费的网络一个:测量在一个工作站, ``os.path.exists`` 在一个路径下 ``/nas_mnt`` - 一个 ``autofs`` 山与 ``timeout=600`` - 不回来后二十秒,因为州是发动汽车和股票睡着了。\n\n一个被阻止的主要执行路径 GUI 看起来不像一个缓慢的路径检查. 它看起来像这样,其中每一个都被报告为一个单独的错误在 2026-09-04:\n\n  * “打开地图的条码崩溃 spacr” -- 它不是一场事故,它是一个没有拖拉机的冰箱。, 这就是为什么没有到达日志的原因. 日志显示 `automount request ... triggered by spacr` 立即在每一个强度点击之前。\n  * “某种类型的滑板......几个事件发生在滑板上,他们有时会停留几秒钟” - 滑板事件工作列表,而独立执行路径被关闭,然后在爆炸中重演。\n  * “在主应用程序视图上看到模块应用程序部分的千秒滑板” - 重新绘画被删除,所以粘贴显示了没有时间绘画的内容。\n  * “似乎发生了......我打开了一个或两个模块之后” - 每个模块都添加了自己的记住的路径,所以还有更多要说。\n\n因此,在主 GUI 执行路径上的代码不得访问用户提供的路径的文件系统;该模块提供其所使用的检查。\n\n答案即时从缓存中获取. 尚未看到的路径被报告为现有,并用于背景检查;当答案到达时,缓存被更新并发出 :data:`probes`,所以一个 widget 可以重新播放。",
+      "source_sha256": "8f975d046b59926b9611776ffb2d1d75ee46f35c8f86bb12017b523d22ea688b",
+      "text": "查询缓存的路径结果，可选择对未知路径进行有时间限制的等待。\n\n`spacr/qt/widgets/file_list.py` 要求 `os.path.exists` 每条记住的路径,在主要的 GUI 执行路径上,颜色失踪的红色. 这是免费的一个地方磁盘,它不是免费的网络一个:测量在一个工作站, ``os.path.exists`` 在一个路径下 ``/nas_mnt`` - 一个 ``autofs`` 山与 ``timeout=600`` - 不回来后二十秒,因为州是发动汽车和股票睡着了。\n\n一个被阻止的主要执行路径 GUI 看起来不像一个缓慢的路径检查. 它看起来像这样,其中每一个都被报告为一个单独的错误在 2026-09-04:\n\n  * “打开地图的条码崩溃 spacr” -- 它不是一场事故,它是一个没有拖拉机的冰箱。, 这就是为什么没有到达日志的原因. 日志显示 `automount request ... triggered by spacr` 立即在每一个强度点击之前。\n  * “某种类型的滑板......几个事件发生在滑板上,他们有时会停留几秒钟” - 滑板事件工作列表,而独立执行路径被关闭,然后在爆炸中重演。\n  * “在主应用程序视图上看到模块应用程序部分的千秒滑板” - 重新绘画被删除,所以粘贴显示了没有时间绘画的内容。\n  * “似乎发生了......我打开了一个或两个模块之后” - 每个模块都添加了自己的记住的路径,所以还有更多要说。\n\n因此,在主 GUI 执行路径上的代码不得访问用户提供的路径的文件系统;该模块提供其所使用的检查。\n\n不等待的检查会立即返回缓存结果或调用方的 ``default`` 值，并将未知路径加入后台检查队列。默认值 ``True`` 用于 :func:`exists`，``False`` 用于 :func:`isdir`。后台结果会更新缓存；只有结果与缓存值不同时，:data:`probes` 才会发出其 ``answered`` 信号。乐观的存在性默认值可避免在检查尚未完成时把未知路径显示为缺失。传入 ``wait=True`` 则会同步等待尚未缓存的结果，具体见 :func:`exists`。",
       "translation_source_blocks_sha256": [
-        "cdaa7fd5673a2e50fc134b90cf0759c67726674d850db77c21ddc3f230ea1ffd",
+        "9960cbcd77fb7e3d068d54a54f62bb99aed3dfca12e4eefd4a86847aad31a75d",
         "bbd99fbc4277d6ab2c8b142445d89accd1ce7e37b570630fff9e1735fab0294c",
         "8f06e14218276da8bbbca54b2eb565d2562e7f5555968ff2e93612db2f5c670a",
         "1cff92c770cdd4f36993e9d6ab0268b55c54ac531880ea5e363fc32ed2344ae2",
@@ -88494,7 +88494,7 @@
         "a895f995d2c2b48c9dbf343ef708764f7d2accbbebe7ef9c297a27efe7d891c7",
         "b9e760b41e26dc371462657d9d4a4e95c5f8033ddcd5e8e15414dc305839df76",
         "7c55325107d2251fcfde00ef8e7489effc892cb2ba5b066407ab70825e3f7de0",
-        "f11172f9ab35bf45c465e7d4fc46dd1b45be4d9793b9898586dd0113037be225"
+        "51681486d062b43539f572a67c1a1c4958927e89217df5a1211ed387e1c150d7"
       ]
     },
     "spacr.qt.path_probe._stat_with_timeout.run": {
@@ -88511,33 +88511,33 @@
     },
     "spacr.qt.path_probe.exists": {
       "source_blocks_sha256": [
-        "d542f861897018efde76ca679d2d0f5260e9fb4087c394f2a64442493061b442",
+        "12b7a66e24505dd08f7a50a2a987bd23fd2d63cfb0427f505b3225c2e0bfd692",
         "218b65c89fbaee439f26efad3f67f099fb0d5b756a3fce83eb806fc3b8231a48",
-        "aaff461b64a95cf85275894618c79003185a1437098e5b631cf532a345dd1604",
+        "70a75476e2b672a42c35ab5f8bc4ed19abb17ba9bef902483240772df4711ff6",
         "49242dc9f64efa44db156e2e4fb012ea56e68d4d2f88ef2fe1c09c7efa4f9839",
-        "b1fec951a4397d87df73c0399c3d030d138da14b70b4ed07686c1721325adb48",
-        "a5ec38998a80f4b1f7bec7fbaffe3daa8028fbab7f2a6556866d8ff2ebb9169a"
+        "b6b77652c10e1046b68b3e5957854e0adfc232e44c4e18354b40a66f15527421",
+        "2c47a0d2d0d784db8b44ae03e615de0f6b4b6af6516fd8ea1faadfa8fe8faaa7"
       ],
-      "source_sha256": "bf3c45c4be0c0359905ce0f8cfc614cad2f04cc6d550703bf515a985aa8273b9",
-      "text": "无论 ``path`` 是否存在,从缓存中回复,从未阻止。\n\n:param path: 答案是:一切都是虚假的,都是``False``。\n:param default: 如果答案不明,该怎么说? ``True`` 默认情况下 - 查看模块为何默认是乐观的。\n:param want_dir: 请问 ``isdir`` 而不是 ``exists``. 隐藏单独,因为一个路径可以存在,而不是一个目录。\n:param wait: 将等待限制为 :data:`PROBE_TIMEOUT_S` 而不是立即回复 ``default``,并隐藏什么回来。 对于全问为 \"is this one missing\" 的呼叫者,请参见 :func:`isdir` 为何乐观的默认错误。\n:returns: 查询答案,或 ``default`` 与查询字符。",
+      "source_sha256": "a13153aacb3b08d97a8fc0306f0cad2d129ee2774833a1ac109f04bcfd2095ae",
+      "text": "返回缓存的路径结果，或检查未知路径。\n\n:param path: 答案是:一切都是虚假的,都是``False``。\n:param default: 当 ``wait=False`` 时对未知路径返回的值。默认为 ``True``；此值不决定等待式检查超时后的返回值。\n:param want_dir: 请问 ``isdir`` 而不是 ``exists``. 隐藏单独,因为一个路径可以存在,而不是一个目录。\n:param wait: 立即返回缓存结果，或同步等待尚未缓存的 stat 查询，最长等待 :data:`PROBE_TIMEOUT_S`，然后缓存其结果。超时会返回并缓存 ``True``，即使 ``default`` 为 ``False`` 也是如此。这不会取消 stat 线程，而且该线程之后得到的结果也不会更新这个缓存的超时结果。\n:returns: 对于求值为假的路径返回 ``False``；否则返回缓存结果、不等待时的 ``default`` 值（检查已排队或尚未完成），或等待式检查的结果（超时时为 ``True``）。",
       "translation_source_blocks_sha256": [
-        "d542f861897018efde76ca679d2d0f5260e9fb4087c394f2a64442493061b442",
+        "12b7a66e24505dd08f7a50a2a987bd23fd2d63cfb0427f505b3225c2e0bfd692",
         "218b65c89fbaee439f26efad3f67f099fb0d5b756a3fce83eb806fc3b8231a48",
-        "aaff461b64a95cf85275894618c79003185a1437098e5b631cf532a345dd1604",
+        "70a75476e2b672a42c35ab5f8bc4ed19abb17ba9bef902483240772df4711ff6",
         "49242dc9f64efa44db156e2e4fb012ea56e68d4d2f88ef2fe1c09c7efa4f9839",
-        "b1fec951a4397d87df73c0399c3d030d138da14b70b4ed07686c1721325adb48",
-        "a5ec38998a80f4b1f7bec7fbaffe3daa8028fbab7f2a6556866d8ff2ebb9169a"
+        "b6b77652c10e1046b68b3e5957854e0adfc232e44c4e18354b40a66f15527421",
+        "2c47a0d2d0d784db8b44ae03e615de0f6b4b6af6516fd8ea1faadfa8fe8faaa7"
       ]
     },
     "spacr.qt.path_probe.forget": {
       "source_blocks_sha256": [
-        "a6cfc170f46816f8d70d93bc62d08da8d2abb7534aa24a7099dc47bddcf68e14",
+        "7d151b084fd4713f314760981aea8f7846c911fd0b8889f5f039cbbede9c51c0",
         "8e6415c57ae173c126601babc3de4bc035f5c6d0d817d1e084a6183b1b9ab787"
       ],
-      "source_sha256": "a29322b9f3e0fa3dda7fa110774952147dde447783a89c2938c7086518cc9b81",
-      "text": "把什么是隐藏的,所以下一个 :func:`exists` 再次询问。\n\n:param path: 一条路径,或 ``None`` 所有这些路径. 被召唤,当用户刚刚创建或删除某些东西时,存储器否则会继续用以前的真相来回应。",
+      "source_sha256": "d8e8147a5e7f48dc1ee2ccc0c3adea6d3ee18ffb33ba10d617397d897a6c0b2d",
+      "text": "删除缓存结果，但不取消已排队或正在运行的检查。只要已有检查尚未完成，之后对 :func:`exists` 的不等待调用就会返回其默认值；仅在没有尚未完成的检查时才会将新检查加入队列。已在进行的检查可能在此调用之后重新填充缓存。\n\n:param path: 一条路径,或 ``None`` 所有这些路径. 被召唤,当用户刚刚创建或删除某些东西时,存储器否则会继续用以前的真相来回应。",
       "translation_source_blocks_sha256": [
-        "a6cfc170f46816f8d70d93bc62d08da8d2abb7534aa24a7099dc47bddcf68e14",
+        "2c05eef0f9cd3a080044276ca5332d7492ea827fbe62894e5c6cbe599e79914c",
         "8e6415c57ae173c126601babc3de4bc035f5c6d0d817d1e084a6183b1b9ab787"
       ]
     },
@@ -88546,19 +88546,19 @@
         "3627dbe11ff724cbafe4ff20fdc7c4ad2f2e4bec36756d33debd67afc8a1b347",
         "929fa39e5d06a0d6b732cb078071e3d3b54db4663d426f480cf00c7b8bbeadd2",
         "fa84645dffb53088727f0c4f64d5b5797fca8ef904bd483246b1d45bcf75a346",
-        "23bfdab2644901d7b62680b4adc5f66e5c04865b07316f76ae86248c2f9dd550",
+        "03783e8fad32489495a610becc756e837ee6ec2107ce3a7bdfd11d84f01c9c24",
         "f04376a8b21112829887e296dedf8c20007ab126579733f96b162e1fe8a1e58e",
-        "aa177c347b342142d7cc0a4faba2bc03e8734b07aaa193b28a64f77c559424cd"
+        "caa2f28970b56c421012b2567500738e26b583776206f08764ec250badddbe16"
       ],
-      "source_sha256": "bea5e25c01295f90129266f8cba22a2cb761941b402ada350753593360c9127f",
-      "text": "是否 ``path`` 是一个目录,从缓存中回复。\n\n``default`` 是 False 在这里和 True 在 :func:`exists`,而无形是故意的:这个人的召唤者选择一个文件夹,以打开一个对话,并在某个地方打开它,显然不存在,比在默认位置打开它更糟糕。\n\n:param path: 要查询的路径；传给 :func:`exists`，并带上 ``want_dir=True``，因此任何假值都返回 ``False``。\n:param wait: 将等待链接为 :data:`PROBE_TIMEOUT_S` 而不是立即回复 ``default``,并隐藏什么回来。\n\n``wait`` 按默认方式关闭. 冻结这个模块是写的,因为它来自发生记住的路径 - 一个被动的过渡,在所有一个设置文件的提及,在主要的 GUI 执行路径上,为失踪的颜色红色。\n\n扩展用户刚刚下载或选择的文件夹是相反的情况。 他们执行了一项行动,等待其结果,而未知的路径默认转换为“添加此文件夹的文件”到“将该文件夹作为文件” - 沉默,只有第一次看到路径。 等待是限于:data:`PROBE_TIMEOUT_S`(5秒),所以一个睡眠的车子上涨的成本最多,而不是二十秒。",
+      "source_sha256": "4d2841f16516d5e9b9453442f9ceee9dc4db5c22b791c9128ecb55495736261e",
+      "text": "是否 ``path`` 是一个目录,从缓存中回复。\n\n``default`` 是 False 在这里和 True 在 :func:`exists`,而无形是故意的:这个人的召唤者选择一个文件夹,以打开一个对话,并在某个地方打开它,显然不存在,比在默认位置打开它更糟糕。\n\n:param path: 要查询的路径；传给 :func:`exists`，并带上 ``want_dir=True``，因此任何假值都返回 ``False``。\n:param wait: 对未缓存的路径使用 :func:`exists` 的同步等待模式。其超时结果为 ``True``，尽管此函数不等待时的默认值为 ``False``。\n\n``wait`` 按默认方式关闭. 冻结这个模块是写的,因为它来自发生记住的路径 - 一个被动的过渡,在所有一个设置文件的提及,在主要的 GUI 执行路径上,为失踪的颜色红色。\n\n展开用户刚刚拖放或选择的文件夹则是相反的情况。用户已经执行操作并等待结果，而未知路径的默认值会把“添加此文件夹中的文件”变成“将此文件夹作为文件添加”，悄无声息地发生，且仅发生在首次遇到该路径时。调用线程等待 stat 查询的时间最长为 :data:`PROBE_TIMEOUT_S` （5 s）。超时会缓存 ``True`` 而不取消 stat 线程；该线程之后的结果不会替换缓存的超时结果。",
       "translation_source_blocks_sha256": [
         "3627dbe11ff724cbafe4ff20fdc7c4ad2f2e4bec36756d33debd67afc8a1b347",
         "929fa39e5d06a0d6b732cb078071e3d3b54db4663d426f480cf00c7b8bbeadd2",
         "fa84645dffb53088727f0c4f64d5b5797fca8ef904bd483246b1d45bcf75a346",
-        "23bfdab2644901d7b62680b4adc5f66e5c04865b07316f76ae86248c2f9dd550",
+        "03783e8fad32489495a610becc756e837ee6ec2107ce3a7bdfd11d84f01c9c24",
         "ce88ebfd079963734421049c5a406613dc391fec3bdf470849e8412f7fffa707",
-        "aa177c347b342142d7cc0a4faba2bc03e8734b07aaa193b28a64f77c559424cd"
+        "caa2f28970b56c421012b2567500738e26b583776206f08764ec250badddbe16"
       ]
     },
     "spacr.qt.path_probe.known": {
@@ -88575,17 +88575,17 @@
     },
     "spacr.qt.path_probe.prime": {
       "source_blocks_sha256": [
-        "5dafbd914c7dbb5a9635f5b807dd07b4c4f32599884d788637eda57ee4708ab6",
-        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d",
+        "b6b37c2c7fa64b72a4be6e828ed69a63e15461e37732dcf93cd12ba0d7121aea",
+        "d0beabc45a13cf581eb083eb85cf3c197ceefe7d170d39fb6f50396e72854389",
         "f0ee0daf53a476c0fbce0c3a4da19711c656405d8b1e1eb6eaabd903ce0739a7",
         "ce53eb12373c9f2403950168801d0c3a95d8af30a58d2f7aae171f0ddefa23d1",
         "81f079a11f44c6529b375f345ebda574cccb3be3004bf6468fc701372a399b7f"
       ],
-      "source_sha256": "21945eb6ed91c7d9713b1e7701fb72fe6be28761f1873c9cc7dd42bb9524f50a",
-      "text": "记录一个答案,谁已经有,没有调查。\n\n文件对话只是告诉我们一个路径存在;再次要求文件系统将是一个事实的第二个状态,已经在手中。\n\n:param path: 答案的路程即将到来。\n:param answer: 既已被告知是真实的。\n:param want_dir: 记录它对:func:`isdir`而不是:func:`exists`。 两者分开隐藏 - 一条路可以存在,而不是一个目录 - 所以一个知道两者的人必须这样说两次。 没有它, :func:`isdir` 会以 ``False`` 默认方式响应,直到背景探测完成。",
+      "source_sha256": "e973dd55c7df5f0cbcbec213bc3b26aa08e2134e3a02d177a44dff6ade712cf1",
+      "text": "缓存已知结果，而不启动检查。\n\n文件对话框刚刚告知某路径存在；再次查询文件系统意味着对已知事实进行第二次 stat 查询。这会清除相应的待完成标记，但不会取消已排队或正在运行的检查。这样的检查之后可能覆盖预先写入的结果，并在其结果改变缓存值时发出 ``answered`` 信号（信号源为 :data:`probes` ）。此调用本身不发出信号。\n\n:param path: 答案的路程即将到来。\n:param answer: 既已被告知是真实的。\n:param want_dir: 记录它对:func:`isdir`而不是:func:`exists`。 两者分开隐藏 - 一条路可以存在,而不是一个目录 - 所以一个知道两者的人必须这样说两次。 没有它, :func:`isdir` 会以 ``False`` 默认方式响应,直到背景探测完成。",
       "translation_source_blocks_sha256": [
-        "5dafbd914c7dbb5a9635f5b807dd07b4c4f32599884d788637eda57ee4708ab6",
-        "00b612fb82245073277d4e871004c1a4f2e798c3ad3c8bba8f46f121e79d3e7d",
+        "b6b37c2c7fa64b72a4be6e828ed69a63e15461e37732dcf93cd12ba0d7121aea",
+        "4441a6f7065469ded88df3cb3bddb231c35f2b35cba1cd34fd8b67d149d9e11d",
         "f0ee0daf53a476c0fbce0c3a4da19711c656405d8b1e1eb6eaabd903ce0739a7",
         "ce53eb12373c9f2403950168801d0c3a95d8af30a58d2f7aae171f0ddefa23d1",
         "81f079a11f44c6529b375f345ebda574cccb3be3004bf6468fc701372a399b7f"

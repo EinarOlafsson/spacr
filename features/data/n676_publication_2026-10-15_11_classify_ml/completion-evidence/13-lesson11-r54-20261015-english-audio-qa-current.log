@@ -1,0 +1,28 @@
+Command: ['/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/bin/python', '/media/carruthers/mnt3/claude/n676_stages/work/lesson11-r54/run_tool.py', 'tools/tutorials/verify_staged_audio.py', '--stage', '/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015', '--lesson', '11_classify_ml', '--languages', 'en']
+Source: 88b1b28dac644198e84fdb24f8c219a29dc61d79
+en/af_heart: 0 errors
+en/af_aoede: 0 errors
+en/af_bella: 0 errors
+en/af_jessica: 0 errors
+en/af_river: 0 errors
+en/af_sarah: 0 errors
+en/af_sky: 0 errors
+en/am_adam: 0 errors
+en/am_echo: 0 errors
+en/am_eric: 0 errors
+en/am_fenrir: 0 errors
+en/am_liam: 0 errors
+en/am_michael: 0 errors
+en/am_onyx: 0 errors
+en/am_puck: 0 errors
+en/am_santa: 0 errors
+en/bf_alice: 0 errors
+en/bf_emma: 0 errors
+en/bf_isabella: 0 errors
+en/bf_lily: 0 errors
+en/bm_daniel: 0 errors
+en/bm_fable: 0 errors
+en/bm_george: 0 errors
+en/bm_lewis: 0 errors
+
+Terminal exit status: 0

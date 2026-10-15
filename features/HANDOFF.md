@@ -1,5 +1,43 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+
+## 2026-10-15 — WS → Home: complete native Classify ML tutorial delivery
+
+Lesson 11 is complete through capture, English audio, translations, rendering,
+HF upload/readback, prepared Pages playback verification and publication record.
+All ten native clips pass strict gates without retry or exceptions. The complete
+master and web copy each retain 8,064 frames / 268.8 seconds at normal speed.
+All 50 current-runtime audio tracks pass QA; all 13 unchanged official reviews
+are source-bound. The original stale seed check and owning-renderer recovery are
+preserved; final tracks are not claimed to retain all 27 published seed bytes.
+
+Immutable HF revision: `c34c35b9662839ee4c43eb02c8a2ff89858599a8`;
+branch/tag: `n676-gnome11-r54-20261015` / its `-verified` tag. All 5,274 files
+passed downloaded-hash readback (8,157,290,444 bytes). All 84 prepared Pages
+playback cases pass; this preserves earlier lessons and does not claim 84 new
+GNOME recordings. The other 83 lesson objects and media entries are unchanged.
+Live Space deployment remains unverified.
+
+Independent saved-output arithmetic checks cover 2,153 scored objects and 17
+metrics, with disjoint whole wells and both labels in each split. The labels
+are c1/c2 plate columns, not validated phenotypes; 188 source rows absent from
+saved results are not claimed scored. This is not biological validation.
+
+Complete evidence and coherent generated checkpoint (145 files + 3 bound
+receipts = 148), all 13 reviews, held recorder/public-stage/folder patches and
+exact owning tests are in
+`features/data/n676_publication_2026-10-15_11_classify_ml/`.
+Import that checkpoint as one verified tree; preserve newer Home work and keep
+held source patches separate. Source capture is `88b1b28d`; local publication
+commit `e372ab5d4` and exact native-arrival audit `1b6e378a7` remain held.
+The audit cohort passed 33 tests. Home's public Classify correction is already
+its own source; the packet binds the exact adopted version.
+
+Next baseline: WS candidate `stage-11-r54-20261015/release-candidate-append-ixhypyp9`,
+manifest `3bdc48159477af477fa0167b5acf3e8bd8bf4539f4bd83c23e28e6e21605c824`.
+WS continues one lesson end to end; lesson 13 is next for review. Lessons 12,
+20, 24 and 26 retain their documented blockers. No further lesson 12 ports tonight.
+
 ## 2026-10-15 Home-B — regression workspace and JobRunner correctness delivery
 
 Final regression workspace source preserves full selections, explicit disabled
@@ -25,7 +63,7 @@ Both source-owner dependencies were integrated coherently by Original Home.
 A separate one-paragraph Icelandic semantic repair is preserved privately for
 a later delivery; it does not delay this completed batch.
 
-## 2026-10-15 04:24 EDT — WS → Home: Classify capture accepted; audio in progress
+## 2026-10-15 — WS → Home: Classify capture accepted; audio in progress
 
 Fresh lesson 11 turn 54 completed with app/recorder exit 0. All ten selected
 GNOME clips passed strict native gates (28.60–29.93 fps), with no app freezes
@@ -13267,3 +13305,27 @@ This closes three specific retained errors; the wider semantic sweep stays open.
 Private extractor dependency2b54f51f4 plus independent peerb36004542 is handed
 to Original Home for coherent F537/F540 source/18-target integration. No
 standalone publication or scientific acceptance claimed by that dependency.
+
+## 2026-10-15 Home-B — figure section keyboard focus and accessible names
+The private section fold heading now exposes its existing run title through
+QAccessible and paints ordinary/strong focus, including live preference changes
+on the already-open heading. Four real baseline failures become14 passing
+focused+existing cases. Independent coordinator source/test/log review confirms
+all outside-class AST and existing key/mouse/fold behavior unchanged. Actual
+public_symbol policy excludes all four private-class event overrides, so there
+is no public API/caption arrival to regenerate. Source/log hashes and limits:
+features/data/655_section_header_accessibility_2026-10-15/. This closes these
+heading defects only; native speech/human/platform/tutorial gates stay open.
+
+## 2026-10-15 Home-B — exact path-probe documentation delivery
+The module and exists/isdir/forget/prime descriptions now match bounded waits,
+cache fallbacks and pending-probe completion. Executable AST/comments are
+unchanged. Independently reviewed99 changed targets plus one retained English
+Icelandic paragraph pass normal generation across nine locales. Genuine normal
+context/identity refusals are preserved; successful capped fallback uses one
+canonical snapshot plus fresh equality recheck,669 stable source hashes and
+zero decoding. All unrelated13405 translated records and13479 English entries
+are preserved; source history stays exact. Normal Help regeneration passes.
+Evidence:features/data/678_path_probe_api_catalogs_2026-10-15/ and
+features/data/678_path_probe_coordinator_review_2026-10-15/. This closes only
+these five symbols, not the wider semantic review or final CI/release gates.

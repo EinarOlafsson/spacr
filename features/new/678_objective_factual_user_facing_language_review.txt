@@ -263,3 +263,16 @@ behavior and pass independent technical review plus normal generation. Code and
 comments remain unchanged; no native-speaker or whole-language coverage claim.
 The N112 trailing note and678_job_runner_api_catalogs_2026-10-15 evidence record
 normal refusals, exact historical repairs and final preservation checks.
+
+2026-10-15 — Path-probe wait/cache documentation and derived artifacts
+The module and exists/isdir/forget/prime descriptions now match bounded waits,
+cache fallbacks and pending-probe completion. Executable AST/comments are
+unchanged. Independently reviewed99 changed targets plus one retained English
+Icelandic paragraph pass normal generation across nine locales. Genuine normal
+context/identity refusals are preserved; successful capped fallback uses one
+canonical snapshot plus fresh equality recheck,669 stable source hashes and
+zero decoding. All unrelated13405 translated records and13479 English entries
+are preserved; source history stays exact. Normal Help regeneration passes.
+Evidence:features/data/678_path_probe_api_catalogs_2026-10-15/ and
+features/data/678_path_probe_coordinator_review_2026-10-15/. This closes only
+these five symbols, not the wider semantic review or final CI/release gates.

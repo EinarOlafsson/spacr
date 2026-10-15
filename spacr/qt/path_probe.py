@@ -1,4 +1,4 @@
-"""Check whether paths exist, from a cache, without blocking the GUI thread.
+"""Check cached path answers, with optional bounded waiting for unknown paths.
 
 `spacr/qt/widgets/file_list.py` asked `os.path.exists` for every remembered
 path, on the GUI thread, to colour the missing ones red. That is free for a
@@ -26,12 +26,15 @@ this, and every one of these was reported as a separate defect on 2026-09-04:
 Code on the GUI thread must therefore not access the filesystem for a path
 the user supplied; this module provides the check it uses instead.
 
-Answers come from a cache, immediately. A path not yet seen is reported as
-present and queued for a background check; when the answer arrives the
-cache is updated and :data:`probes` emits, so a widget can redraw. The
-default is optimistic because a path briefly drawn as missing and then
-corrected is a false alarm, whereas a path briefly drawn as present and
-then marked missing is an ordinary update.
+Non-waiting checks return a cached answer or the caller's ``default``
+immediately and queue an unknown path for a background check. The default
+is ``True`` for :func:`exists` and ``False`` for :func:`isdir`. A background
+result updates the cache; :data:`probes` emits its ``answered`` signal only
+when that answer differs from the cached one. The optimistic existence
+default avoids drawing an unknown path as missing while its check is
+pending. Passing ``wait=True``
+instead waits synchronously for an uncached answer, as described by
+:func:`exists`.
 """
 from __future__ import annotations
 
@@ -141,19 +144,22 @@ def _ensure_started() -> None:
 
 def exists(path, *, default: bool = True, want_dir: bool = False,
            wait: bool = False) -> bool:
-    """Whether ``path`` is there, answered from cache and never blocking.
+    """Return a cached path answer, or probe an unknown path.
 
     :param path: the path to ask about. Anything falsy is ``False``.
-    :param default: what to say while the answer is unknown. ``True`` by
-        default -- see the module docstring for why the default is
-        optimistic.
+    :param default: what to return for an unknown path when ``wait=False``.
+        ``True`` by default; this value does not control a waiting probe's
+        timeout answer.
     :param want_dir: ask ``isdir`` rather than ``exists``. Cached
         separately, because a path can exist and not be a directory.
-    :param wait: bound the wait by :data:`PROBE_TIMEOUT_S` instead of
-        answering ``default`` immediately, and cache what comes back. For
-        callers whose whole question is "is this one missing" -- see
-        :func:`isdir` for why the optimistic default is wrong for them.
-    :returns: the cached answer, or ``default`` with a check queued.
+    :param wait: return a cached answer immediately, or synchronously wait
+        up to :data:`PROBE_TIMEOUT_S` for an uncached stat and cache its
+        answer. A timeout returns and caches ``True``, even if ``default``
+        is ``False``. It does not cancel the stat thread, and that thread's
+        later result does not update this cached timeout answer.
+    :returns: ``False`` for a falsy path; otherwise a cached answer, the
+        non-waiting ``default`` with a check queued or pending, or the
+        waiting probe's answer (``True`` on timeout).
     """
     text = str(path or "")
     if not text:
@@ -187,8 +193,9 @@ def isdir(path, *, default: bool = False, wait: bool = False) -> bool:
 
     :param path: the path to ask about; passed to :func:`exists` with
         ``want_dir=True``, so anything falsy is ``False``.
-    :param wait: bound the wait by :data:`PROBE_TIMEOUT_S` instead of
-        answering ``default`` immediately, and cache what comes back.
+    :param wait: use the synchronous waiting mode of :func:`exists` for an
+        uncached path. Its timeout answer is ``True``, even though this
+        function's non-waiting default is ``False``.
 
     ``wait`` is off by default. The freeze this module was written for came
     from statting remembered paths -- a passive pass over everything a
@@ -200,8 +207,9 @@ def isdir(path, *, default: bool = False, wait: bool = False) -> bool:
     situation. They performed an action and are waiting for its result, and
     the unknown-path default turns "add this folder's files" into "add this
     folder as a file" -- silently, and only the first time a path is seen.
-    The wait is bounded by :data:`PROBE_TIMEOUT_S` (5 s), so a sleeping
-    autofs mount costs at most that rather than twenty seconds.
+    The calling thread waits up to :data:`PROBE_TIMEOUT_S` (5 s) for the
+    stat. A timeout caches ``True`` without cancelling the stat thread;
+    that thread's later answer does not replace the cached timeout result.
     """
     return exists(path, default=default, want_dir=True, wait=wait)
 
@@ -217,7 +225,11 @@ def known(path, *, want_dir: bool = False) -> Optional[bool]:
 
 
 def forget(path=None) -> None:
-    """Drop what is cached, so the next :func:`exists` asks again.
+    """Remove cached answers without cancelling queued or running probes.
+    A subsequent non-waiting :func:`exists` returns its default while an
+    existing probe is pending; it queues a new check only when none is
+    pending. A probe already in progress can repopulate the cache after
+    this call.
 
     :param path: one path, or ``None`` for all of them. Called when the
         user has just created or deleted something and the cache would
@@ -233,10 +245,14 @@ def forget(path=None) -> None:
 
 
 def prime(path, answer: bool, *, want_dir: bool = False) -> None:
-    """Record an answer somebody already has, without a probe.
+    """Cache a known answer without starting a probe.
 
     The file dialog has just told us a path exists; asking the filesystem
-    again would be a second stat for a fact already in hand.
+    again would be a second stat for a fact already in hand. This clears
+    the matching pending marker but does not cancel a queued or running
+    probe. Such a probe can later overwrite the primed answer and emit
+    the ``answered`` signal on :data:`probes` if its result changes the
+    cached value. This call itself emits no signal.
 
     :param path: the path the answer is about.
     :param answer: what is already known to be true of it.

@@ -1,0 +1,8 @@
+{
+  "reviewer": "Original Home root",
+  "proposal_sha256": "1aebe8925fb80bd59f77d8fb927478293f3143f6701cae15c7064f50db94ce60",
+  "decision": "approve exact owned-reservation rollback on publication failure",
+  "scope": "Exclusive open loop unchanged; fstat descriptor closed in finally before native replace, retaining Windows behavior. On BaseException remove only same lstat/samestat reservation and re-raise, preserving foreign files/symlinks. No helper/API/caption changes.",
+  "limits": "Publication failure rollback only, not atomic compare-and-swap against all success-path concurrency or lstat/unlink/inode-reuse races. fstat/close failure behavior not expanded.",
+  "required_acceptance": "Six native cases plus owning version/fetch/dangling/concurrent controls once; retain4FAIL2PASS baseline."
+}

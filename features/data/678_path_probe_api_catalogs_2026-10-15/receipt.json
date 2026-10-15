@@ -1,0 +1,233 @@
+{
+  "schema": 1,
+  "source_head": "03f952534c072370dbc7a76ac2fd02a5d4fe1eb0",
+  "source_commits": [
+    "aa7b8b62104752de0d8d1316f05535ae29b6fc54"
+  ],
+  "published_base": "d4f9f21e70570e756d5776d96138d6740ef4f947",
+  "original_source_published_base": "998886e39596c2a353210fe0f7764c7d0cc61e20",
+  "scope": "Normal scoped API generation for five existing path-probe symbols across nine locales; exact prior public English plus only owned normal AST-rendered replacements, no global current-source claim.",
+  "owned_source_files": {
+    "spacr/qt/path_probe.py": "7a617ca9623c977c14f00801a78290d8a9bff0667d8217c2c7772022050178e4"
+  },
+  "review_files": {
+    "docs/i18n/reviewed/api/sv/2026-10-15-path-probe-lifecycle-home-b.json": "febd19de2cd337ff72a295ebd1ac299db5617c8b38d1d16b945582039f9e47ed",
+    "docs/i18n/reviewed/api/de/2026-10-15-path-probe-lifecycle-home-b.json": "b90b169acd6bc459068a60abd04336f6f8114db5dc5573a92d86880cf162a7ca",
+    "docs/i18n/reviewed/api/es/2026-10-15-path-probe-lifecycle-home-b.json": "0cedadacd47259ac03855c05fc681c2c0878bfae1ea36d5680bf428a811c2957",
+    "docs/i18n/reviewed/api/zh_CN/2026-10-15-path-probe-lifecycle-home-b.json": "3569f3b24589db719d2a25c92f08504c87d70e326a679166a86b4aca70cb871a",
+    "docs/i18n/reviewed/api/pt/2026-10-15-path-probe-lifecycle-home-b.json": "6491b0f07edf473416f6c8123991d97856bb71bf4430893db004f2c8cd486333",
+    "docs/i18n/reviewed/api/hi/2026-10-15-path-probe-lifecycle-home-b.json": "19fbb42a7a2de9e0934ef928a2ac271d3b608cff480f3a1fc7a27e0b14e308da",
+    "docs/i18n/reviewed/api/ko/2026-10-15-path-probe-lifecycle-home-b.json": "fff83e556e3b14f2f9af84025db0f16c1386a893561ae1c12174b64be5b72a5e",
+    "docs/i18n/reviewed/api/is/2026-10-15-path-probe-lifecycle-home-b.json": "80b4e1432fdc2c2fda3463b3cb6ef376ad1687ab83c21ad8e36e2a49ce8ad095",
+    "docs/i18n/reviewed/api/fr/2026-10-15-path-probe-lifecycle-home-b.json": "aa4f35fe62a749270692d02415cbef58294541421ce7072d6945d88cc7ae8235",
+    "docs/i18n/reviewed/api/is/2026-10-15-path-probe-icelandic-retained-home-b.json": "3583e0acabe21412b2dee610594f87492c72795440fcf6067409cec0a20ecd2d"
+  },
+  "locales": {
+    "sv": {
+      "changed_symbols": [
+        "spacr.qt.path_probe",
+        "spacr.qt.path_probe.exists",
+        "spacr.qt.path_probe.forget",
+        "spacr.qt.path_probe.isdir",
+        "spacr.qt.path_probe.prime"
+      ],
+      "reviewed_blocks_exact": 11,
+      "unchanged_blocks_preserved": 17,
+      "unrelated_records_preserved": 13405,
+      "unrelated_before_sha256": "195504dec9a1b19d8b385733eb1a51b69ccc31e01020c3100093c6b8f6d848e3",
+      "unrelated_after_sha256": "195504dec9a1b19d8b385733eb1a51b69ccc31e01020c3100093c6b8f6d848e3",
+      "catalog_sha256": "3de4bd2ecc83d099f2a11e33c4d0da3e71700092b7d43ce5cc8b3733a1a915cd"
+    },
+    "de": {
+      "changed_symbols": [
+        "spacr.qt.path_probe",
+        "spacr.qt.path_probe.exists",
+        "spacr.qt.path_probe.forget",
+        "spacr.qt.path_probe.isdir",
+        "spacr.qt.path_probe.prime"
+      ],
+      "reviewed_blocks_exact": 11,
+      "unchanged_blocks_preserved": 17,
+      "unrelated_records_preserved": 13405,
+      "unrelated_before_sha256": "9826e9366f08bc33ebf1d581f4b089275265ba551cdcc128533e469394384232",
+      "unrelated_after_sha256": "9826e9366f08bc33ebf1d581f4b089275265ba551cdcc128533e469394384232",
+      "catalog_sha256": "b82be59f31bb82c673ba90021405a53900bbf15d3ae21a2653c5627692bff2f5"
+    },
+    "es": {
+      "changed_symbols": [
+        "spacr.qt.path_probe",
+        "spacr.qt.path_probe.exists",
+        "spacr.qt.path_probe.forget",
+        "spacr.qt.path_probe.isdir",
+        "spacr.qt.path_probe.prime"
+      ],
+      "reviewed_blocks_exact": 11,
+      "unchanged_blocks_preserved": 17,
+      "unrelated_records_preserved": 13405,
+      "unrelated_before_sha256": "7c4cc8de51f73986afddfdcaa6346df0828039ea266336cce1d957c57f6a9205",
+      "unrelated_after_sha256": "7c4cc8de51f73986afddfdcaa6346df0828039ea266336cce1d957c57f6a9205",
+      "catalog_sha256": "dba9d08011ab0e8b2bed9b7b956a2a6aa0f5c00fe271202e3fdffdbb824802f3"
+    },
+    "zh_CN": {
+      "changed_symbols": [
+        "spacr.qt.path_probe",
+        "spacr.qt.path_probe.exists",
+        "spacr.qt.path_probe.forget",
+        "spacr.qt.path_probe.isdir",
+        "spacr.qt.path_probe.prime"
+      ],
+      "reviewed_blocks_exact": 11,
+      "unchanged_blocks_preserved": 17,
+      "unrelated_records_preserved": 13405,
+      "unrelated_before_sha256": "26827eb8e318ba210cd879ae9c0b999282dc7c57e8605cbfc3cade970b18540d",
+      "unrelated_after_sha256": "26827eb8e318ba210cd879ae9c0b999282dc7c57e8605cbfc3cade970b18540d",
+      "catalog_sha256": "40be175c9032e90c932a8735114bb8611cf8f2713bd97f5bee323d2c645ee872"
+    },
+    "pt": {
+      "changed_symbols": [
+        "spacr.qt.path_probe",
+        "spacr.qt.path_probe.exists",
+        "spacr.qt.path_probe.forget",
+        "spacr.qt.path_probe.isdir",
+        "spacr.qt.path_probe.prime"
+      ],
+      "reviewed_blocks_exact": 11,
+      "unchanged_blocks_preserved": 17,
+      "unrelated_records_preserved": 13405,
+      "unrelated_before_sha256": "e6bb2e65e326242a71ce9bb291084d8656f49c9120a859dcb8b005c3484c0aaa",
+      "unrelated_after_sha256": "e6bb2e65e326242a71ce9bb291084d8656f49c9120a859dcb8b005c3484c0aaa",
+      "catalog_sha256": "1476211802fd83f199e0a90497aa7b0a843678aad23559a46e84906f93ed04c6"
+    },
+    "hi": {
+      "changed_symbols": [
+        "spacr.qt.path_probe",
+        "spacr.qt.path_probe.exists",
+        "spacr.qt.path_probe.forget",
+        "spacr.qt.path_probe.isdir",
+        "spacr.qt.path_probe.prime"
+      ],
+      "reviewed_blocks_exact": 11,
+      "unchanged_blocks_preserved": 17,
+      "unrelated_records_preserved": 13405,
+      "unrelated_before_sha256": "31772e6470564aff58788a787b534710a0efc998ae5a0c2386a322493fbfdab7",
+      "unrelated_after_sha256": "31772e6470564aff58788a787b534710a0efc998ae5a0c2386a322493fbfdab7",
+      "catalog_sha256": "d5450efdc34e71b5cd1188e97a469cfc60e14d5ab675f6d9caecdcaa499ed155"
+    },
+    "ko": {
+      "changed_symbols": [
+        "spacr.qt.path_probe",
+        "spacr.qt.path_probe.exists",
+        "spacr.qt.path_probe.forget",
+        "spacr.qt.path_probe.isdir",
+        "spacr.qt.path_probe.prime"
+      ],
+      "reviewed_blocks_exact": 11,
+      "unchanged_blocks_preserved": 17,
+      "unrelated_records_preserved": 13405,
+      "unrelated_before_sha256": "53a9aa612a4b7585607e1bd333e4b45533f327e41a6f3ecfcd862bfb04fffa16",
+      "unrelated_after_sha256": "53a9aa612a4b7585607e1bd333e4b45533f327e41a6f3ecfcd862bfb04fffa16",
+      "catalog_sha256": "4b40e5098a59256d18457257034d8c4357b3af672d33ad8e2fd398212c0790a8"
+    },
+    "is": {
+      "changed_symbols": [
+        "spacr.qt.path_probe",
+        "spacr.qt.path_probe.exists",
+        "spacr.qt.path_probe.forget",
+        "spacr.qt.path_probe.isdir",
+        "spacr.qt.path_probe.prime"
+      ],
+      "reviewed_blocks_exact": 12,
+      "unchanged_blocks_preserved": 16,
+      "unrelated_records_preserved": 13405,
+      "unrelated_before_sha256": "061f8936d6723d5d693950f51f1bca6bbf4aab7b0ebc3ac18a0a0289f253bb20",
+      "unrelated_after_sha256": "061f8936d6723d5d693950f51f1bca6bbf4aab7b0ebc3ac18a0a0289f253bb20",
+      "catalog_sha256": "fb69d741541bf9f785e799ffa03ab164d4be583703d69536cad5f44380c5d35e"
+    },
+    "fr": {
+      "changed_symbols": [
+        "spacr.qt.path_probe",
+        "spacr.qt.path_probe.exists",
+        "spacr.qt.path_probe.forget",
+        "spacr.qt.path_probe.isdir",
+        "spacr.qt.path_probe.prime"
+      ],
+      "reviewed_blocks_exact": 11,
+      "unchanged_blocks_preserved": 17,
+      "unrelated_records_preserved": 13405,
+      "unrelated_before_sha256": "0d6781253e87e77c9aedb67357c01d1cede630f65fdd62ac11fc899a0a1fd5cd",
+      "unrelated_after_sha256": "0d6781253e87e77c9aedb67357c01d1cede630f65fdd62ac11fc899a0a1fd5cd",
+      "catalog_sha256": "94c091ef3196c5b2bc3e1b6e8433c1bd15d1992940f75957fa8165998f1aa698"
+    }
+  },
+  "english_changed_symbols": [
+    "spacr.qt.path_probe",
+    "spacr.qt.path_probe.exists",
+    "spacr.qt.path_probe.forget",
+    "spacr.qt.path_probe.isdir",
+    "spacr.qt.path_probe.prime"
+  ],
+  "unrelated_english_records_preserved": 13479,
+  "normal_functions": [
+    "reviewed_api_block_translations",
+    "_translate_api_documents(reuse_history=True)",
+    "write_language(preserve_other_symbols=True)",
+    "_write_english_api_manifest"
+  ],
+  "runtime_collection_policy": "Light mode refuses before any full canonical collection. Heavy mode lazily freezes one real canonical_sources result only if requested, then re-collects and compares; all normal review/candidate validators unchanged.",
+  "new_symbols": [],
+  "new_symbol_provenance": "No new public symbol; only five existing path-probe documentation bodies changed.",
+  "exact_retained_target_repair": {
+    "label": "spacr.qt.path_probe.isdir#4",
+    "source_sha256": "f04376a8b21112829887e296dedf8c20007ab126579733f96b162e1fe8a1e58e",
+    "old_target_sha256": "f04376a8b21112829887e296dedf8c20007ab126579733f96b162e1fe8a1e58e",
+    "target_sha256": "40e015de1e15fb0412ac186b8700752a4714688008a3bf16b028e32e83a76d0e"
+  },
+  "normal_api_collector_run": false,
+  "model_decoder_requests": 0,
+  "stats": {
+    "mode": "heavy",
+    "runtime_canonical_requests": 1,
+    "actual_runtime_collections": 2,
+    "runtime_collection_seconds": [
+      7.868700554012321,
+      5.4231556840240955
+    ],
+    "model_decode_requests": 0,
+    "prepared_locales": [
+      "sv",
+      "de",
+      "es",
+      "zh_CN",
+      "pt",
+      "hi",
+      "ko",
+      "is",
+      "fr"
+    ],
+    "written_locales": [
+      "sv",
+      "de",
+      "es",
+      "zh_CN",
+      "pt",
+      "hi",
+      "ko",
+      "is",
+      "fr"
+    ],
+    "runtime_source_files_verified": 669,
+    "status": "pass",
+    "elapsed_seconds": 42.0284878090024
+  },
+  "limitations": [
+    "AI technical review; no native-speaker claim.",
+    "No Sphinx, runtime/global arrivals, native-platform or external publication claim."
+  ],
+  "source_history": {
+    "removed_unreferenced_hashes": [],
+    "all_other_records_exact": true,
+    "checked_all10_catalog_source_references": true,
+    "sha256": "2aab31f50c3ef94d40b7d25ebf594a64e8bbcde22a2fc62f9a221883a5b8b263"
+  },
+  "total_reviewed_targets_exact": 100
+}

@@ -1,0 +1,33 @@
+{
+  "lesson": "11_classify_ml",
+  "english_sha256": "92e4828684b94f5fecd03ac4fe73b16a0b457fbdddbb462025d73f7df608675e",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Classify: aus gemessenen Merkmalen lernen",
+  "description": "Laden Sie Messwerte, definieren Sie Klassen, trainieren Sie einen tabellarischen Klassifikator und prüfen Sie Objektwerte und Plattenübersichten.",
+  "objectives": [
+    "Die tabellarische Familie und ein gemessenes Projekt auswählen.",
+    "Klassen definieren und Merkmalskanäle, Modellgröße und zurückgehaltene Wells wählen.",
+    "Modellausgaben, Objektvorhersagen und Übersichtsabbildungen finden."
+  ],
+  "prerequisite": "Verwenden Sie in Classify Load test data und wählen Sie Load; bestätigen Sie dann den heruntergeladenen Plattenordner mit Choose source data. Für Ihr eigenes Projekt führen Sie zuerst Measure aus. Das Beispiel verwendet die columnID-Werte c1 und c2 als zwei Klassen; verwenden Sie bei eigenen Daten Labels, die zu Ihrem Experiment passen.",
+  "scenes": [
+    "Öffnen Sie von Home aus Classify und wählen Sie Tabular Machine Learning. Diese Familie verwendet die von Measure gespeicherten Objektmesswerte. Sie erzeugt ein angepasstes Modell und einen Wert für jedes Objekt mit den erforderlichen Messwerten.",
+    "Klicken Sie auf Load test data und wählen Sie Load. Warten Sie, bis das gemessene Beispiel heruntergeladen ist. Für eigene Daten wählen Sie den von Measure erstellten Projektordner einschließlich seiner Messdatenbank.",
+    "Bestätigen Sie mit Choose source data den heruntergeladenen Plattenordner. Wählen Sie den Ordner mit den Messwerten. So erhält der Klassifikator Zugriff auf die Objekttabellen und die Metadaten, mit denen die Klassen definiert werden.",
+    "Wählen Sie Metadaten als Klassenbasis und definieren Sie zwei Classes mit den columnID-Werten c1 und c2. Diese Labels unterscheiden die beiden Plattenspalten im Beispiel. Um mit Ihren eigenen Zellannotationen zu trainieren, wählen Sie die Annotationsbasis und die in Annotate erstellte Labelspalte.",
+    "Setzen Sie Channel of interest für das Beispiel auf 1. Damit legen Sie fest, welche kanalspezifischen Messmerkmale in das Modell eingehen. Wählen Sie für Ihr eigenes Experiment den Kanal, der das für Ihre Klassen relevante Signal enthält.",
+    "Wählen Sie Random Forest, 16 Estimatoren und zwei Worker-Jobs. Die Zahl der Estimatoren bestimmt die Anzahl der Bäume. Mehr Bäume bedeuten mehr Rechenaufwand beim Anpassen. Lassen Sie Merkmalsauswahl und Kreuzvalidierung beim ersten Durchgang ausgeschaltet; diese Optionen können Sie vergleichen, sobald eine funktionierende Basis vorliegt.",
+    "Setzen Sie Test size auf 0,1 und behalten Sie die Gruppierung nach Well bei. spaCR hält ganze Wells zurück, daher kann der endgültige Objektanteil vom angeforderten Anteil abweichen. Lesen Sie die ermittelte Aufteilung in der Konsole und prüfen Sie, ob sie zu Ihrem Experiment passt.",
+    "Aktivieren Sie Plot, leeren Sie die Suche und drücken Sie Run. Die Konsole zeigt Merkmalsfilterung, Trainings- und Testaufteilung, Modellanpassung und die gespeicherten Ausgabepfade. Warten Sie das Ende des Laufs ab, bevor Sie seine Werte vergleichen.",
+    "Die Ergebnisse finden Sie unter results/random_forest/channel_1. Die Datenbank speichert die vorhergesagte Klasse in predictions und die Wahrscheinlichkeit für Klasse 1 in ml_pred. Objekte ohne erforderliche Messwerte können ohne Wert bleiben; prüfen Sie fehlende Werte, wenn Sie eine Übersicht exportieren.",
+    "Sehen Sie sich die Abbildungen zur Merkmalswichtigkeit und die Platten-Heatmap an. Mit Predictions und Mittelwertgruppierung ist der Wert eines Wells der Mittelwert seiner binären vorhergesagten Klassen. Nutzen Sie die gespeicherten Objektwerte für die Detailprüfung und vergleichen Sie die Leistung auf den zurückgehaltenen Wells, bevor Sie den Klassifikator auf ein anderes Experiment anwenden."
+  ]
+}
