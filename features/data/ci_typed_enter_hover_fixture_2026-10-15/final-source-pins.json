@@ -1,0 +1,7 @@
+{
+  "fixture_sha256": "901a9e4cf81fafc5cef5684ba858cd75d08ecb60c6cbfba12463feea9cb70cd3",
+  "patch_sha256": "69546e7bb4a5489469fface5fb8aa22e3ca881551c15b4dd825288bc6223f337",
+  "outside_exact_fixture_ast_identical": true,
+  "original_test_files_byte_unchanged": true,
+  "scope": "Actual typed QEnterEvent with local,window,global positions replaces invalid genericQEvent Enter; sendEvent/visibility/zero-delay/waitUntil1000 unchanged. Retains realeventtimer/accessibility/adjacency assertions, no production change."
+}
