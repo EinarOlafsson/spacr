@@ -4057,7 +4057,9 @@
       "source_sha256": "d5e190177a0a5a301396a4da9e9da11f7fd81df9ebebe30ed6707b1e51cbc2dc",
       "context": "Looks where the processing session looks: the path itself, the zoo entry's own path, ``~/.spacr/models`` and the processing session's model cache under ``<src>/plaque_figures/models``.",
       "translation": "在运行时查找的相同位置查找：路径本身、模型库条目自身的路径、``~/.spacr/models``，以及运行在 ``<src>/plaque_figures/models`` 下的模型缓存。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "N644 active shared model cache replaces the fixed ~/.spacr/models path; 2026-10-15 source-bound replacement is recorded separately. Original review and target retained unchanged."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.resolve_detector#2",

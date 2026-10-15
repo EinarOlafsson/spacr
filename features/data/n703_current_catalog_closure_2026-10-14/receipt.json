@@ -21,7 +21,7 @@
   "gui_function_identity_receipt": "gui-function-reuse.json",
   "normal_api_history_change": "Normal writer pruned one archived English source no longer referenced by any locale; all unrelated localized API symbols preserved",
   "remaining": [
-    "Published caption-arrival tool has no refresh callable or CLI; no global fixture regeneration or acceptance is claimed",
+    "Actual published normal caption-arrival refresh refuses the existing N700 sv/UI/AI Error report missing explicit review; no fixture written",
     "Current combined N700 explicit-review hold reported by root remains unclosed",
     "Native Windows PowerShell/NSIS interpreter relocation, replacement and rollback",
     "Native Linux Zenity availability, cancellation boundaries and installed app startup",
@@ -30,5 +30,13 @@
     "Shared/Conda/Windows Python runtime replacement adapters",
     "Full hosted CI and release acceptance"
   ],
-  "no_live_install_package_operation_user_data_or_gpu_touched": true
+  "no_live_install_package_operation_user_data_or_gpu_touched": true,
+  "actual_public_arrival_refresh": {
+    "command": "python tools/i18n_caption_arrivals.py --refresh",
+    "exit": 1,
+    "tool_sha256": "cc58853ad7e1a17944805587dba2e6cd06dcdc08c66faf8501e42f06f4cc1f37",
+    "source_commit": "9421e3866ecb740ac9ed4ae4477a7f2198505152",
+    "refusal": "caption arrival lacks explicit reviewed record: sv/('UI', 'AI Error report')",
+    "fixture_unchanged": true
+  }
 }

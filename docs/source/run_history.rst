@@ -48,6 +48,15 @@ the selected cache after asking, and **Move…** moves it into
 variable (for example ``HF_HOME``) is set outside spaCR is not moved.
 Clearing and moving wait until no run is in progress.
 
+The spaCR model cache uses ``SPACR_MODEL_CACHE``. When it is unset or blank,
+models use the ``models`` folder inside the spaCR home returned by
+``_spacr_home()`` (normally ``~/.spacr/models``). An explicit environment
+override takes precedence. Moving this cache through **Storage → Move…**
+persists its new location in ``cache_locations.json`` and reapplies it on
+startup. Newly opened Model Zoo screens and plaque previews use that location.
+The model picker follows the move when its remembered folder matched the old
+cache; a separately chosen custom model folder is preserved.
+
 **Preferences → Logging → Log files** has **Clear all logs…**. It lists the
 daily logs, run logs, crash logs and verbose logs with the number of files
 and their size in each group, and deletes them only after you confirm. A log

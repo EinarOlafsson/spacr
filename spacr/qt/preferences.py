@@ -6970,8 +6970,21 @@ class _StoragePage:
                       source=row["path"], target=target)
         if not _confirm_storage_action(title, text, self._dialog):
             return
-        self._background(partial(self._move, row["key"], folder),
-                         partial(self._moved, title))
+        cache_key, cache_source = str(row["key"]), str(row["path"])
+
+        def finished(result):
+            moved, detail = result if result else (False, "")
+            if moved and cache_key == "models":
+                from .widgets import model_zoo_picker
+
+                remembered = model_zoo_picker.remembered_model_dir()
+                normalise = lambda path: os.path.normcase(
+                    os.path.abspath(os.path.expanduser(str(path))))
+                if normalise(remembered) == normalise(cache_source):
+                    model_zoo_picker._remember_model_dir(str(detail))
+            self._moved(title, result)
+
+        self._background(partial(self._move, cache_key, folder), finished)
 
     @staticmethod
     def _move(key: str, folder: str):

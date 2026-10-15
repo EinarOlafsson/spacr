@@ -1,0 +1,1070 @@
+{
+  "schema": 1,
+  "created_date": "2026-10-15",
+  "scope": "Only32 documentation_translation_publication records from published Home-B115assignment; no full689inventory",
+  "source_commit": "13ad0be8a025d425113c2f6d76241e7bdd1b3b4d",
+  "origin_nightly": "6e48c92d27988aeb2afa4c06b5f65cff0f6d7bcf",
+  "manifest": {
+    "path": "features/data/home_split_2026-10-14/progress-and-assignments.json",
+    "sha256": "e7c7a3a51a6f86b1161d353da95e37c4a9045cd68f2c75d5bc7f6889b1bc114c"
+  },
+  "method": "Read requests, effective maintainer overrides and dated updates; inspect owning source and selected dated receipts. Source-presence/byte/header checks only; no tests, builds, generation, live service readback, semantic-review certification or item-status edits.",
+  "counts": {
+    "delivered_implementation_present": 18,
+    "editorial_work_remaining_deferred": 2,
+    "external_or_idle_host_acceptance_gate": 3,
+    "final_publication_or_source_refresh_gate": 8,
+    "deferred_final_source_pass": 1
+  },
+  "confirmed_new_software_defects": 0,
+  "priority_order": [
+    "N704: rebuild exact current-source promotion packet at final source freeze, then hosted acceptance; initial packet is stale after N323 context addition.",
+    "N678/N112: real editorial coverage gaps remain, but broad final sweep is deferred until other implementation and owned source changes settle.",
+    "N689: external HF quota and approved main-only deployment; existing implementation repaired and verified in bounded receipts.",
+    "N688: first main coverage upload; N686/N687/N329: idle/native acceptance.",
+    "N400: final integrated-source comment pass only after all editing ends."
+  ],
+  "non_actions": [
+    "Do not reopen N83a/N316/N384 as native-human-review or all-prose-translation blockers.",
+    "Do not create fake progress by rerunning old passing cohorts or counting stale DONE/partial headers as proof.",
+    "Do not edit Work tutorial media or duplicate site/shared-widget/catalog owners."
+  ],
+  "items": [
+    {
+      "id": "N61",
+      "item_path": "features/new/61_tooltip_and_documentation_sweep.txt",
+      "item_sha256": "11ad56f59c6db0e380cc3fc3bfe03b6403c02d8314a6e24b4e8bf7dcce6ca0d7",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "requirement": "Concise user-directed English help/API prose, correct references and nightly integration.",
+      "verified_in_this_audit": "Current provenance/contract guards and generated tooltip link route remain; historical delivery is not undone by old partial inventory.",
+      "remaining": [
+        "Handle new concrete wording defects through N678/source-owner deltas; no repeat historical sweep solely for a tick."
+      ],
+      "source_checks": [
+        "prose_guard",
+        "docstring_contracts",
+        "settings_hover"
+      ],
+      "dated_evidence": [],
+      "followup_owner": "Home-B",
+      "priority": null,
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N83a",
+      "item_path": "features/new/83_finish_multilingual_catalogs_and_push_nightly.txt",
+      "item_sha256": "b5fcd120e431869479595aabc5a3f78852aab319410fe77ad239274be925da21",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "requirement": "Publish source-bound multilingual catalogs without weakened checks.",
+      "verified_in_this_audit": "Current report-only workflow and contract guards exist; dated symbol counts are freezes, not present targets.",
+      "remaining": [
+        "Incremental new source review belongs to active locale owners. Accepted English fallback and qualified AI technical review supersede old all-translated/native-review assumptions."
+      ],
+      "source_checks": [
+        "docs_workflow",
+        "translation_contracts",
+        "report_types"
+      ],
+      "dated_evidence": [],
+      "followup_owner": "Home-B locale owner; Work tutorials",
+      "priority": null,
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N86",
+      "item_path": "features/new/86_the_api_docs_are_not_a_roadmap.txt",
+      "item_sha256": "e9c31c2a0fdf0bf15cdcc1611e674deb306a4316abb39413de69853032508d41",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "requirement": "Remove roadmap from public API navigation; retain implementation insights.",
+      "verified_in_this_audit": "Public index omits module_audit; checkpoint/resume implementations named by final requirement exist.",
+      "remaining": [
+        "No remaining documentation implementation demonstrated; later runtime changes belong to their module owners."
+      ],
+      "source_checks": [
+        "docs_index",
+        "checkpoint",
+        "resume"
+      ],
+      "dated_evidence": [],
+      "followup_owner": "Home-B",
+      "priority": null,
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N112",
+      "item_path": "features/new/112_docstring_and_translation_correctness_sweep.txt",
+      "item_sha256": "4cd7fc407d42cbc32375622a2ebb99400cf78923877505e9862e69d77f0a9fa7",
+      "manifest_status": "P",
+      "disposition": "editorial_work_remaining_deferred",
+      "requirement": "Check docstrings/translation correctness, including sentence meaning.",
+      "verified_in_this_audit": "Parameter/default/provenance/link guards exist and docs workflow enables built-link checks. The dated note explicitly disclaims complete semantic reading.",
+      "remaining": [
+        "Complete remaining factual editorial sampling/coverage under N678 after other work. Do not demand native-speaker signoff waived in N316 or duplicate old mechanical suites."
+      ],
+      "source_checks": [
+        "docstring_contracts",
+        "translation_contracts",
+        "docs_workflow"
+      ],
+      "dated_evidence": [],
+      "followup_owner": "Home-B N678 with Work-owned prose",
+      "priority": "Deferred shared N678 review, not an independent software implementation",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N120",
+      "item_path": "features/new/120_readme_installer_links_are_platform_icons.txt",
+      "item_sha256": "0d32799cb9ec3623068cff776c078ab0820ecdcc79ece354f239dcee5ea8ba56",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "requirement": "Platform installer artwork and archive links, following current maintainer policy.",
+      "verified_in_this_audit": "Normal README generator and current source reconciliation retain three platform buttons; latest note explicitly removes legacy button requirement.",
+      "remaining": [
+        "Actual hosted release links are checked with final publication; do not restore the intentionally removed fourth button."
+      ],
+      "source_checks": [
+        "readme_generation"
+      ],
+      "dated_evidence": [
+        "features/data/120_361_readme_reconciliation_2026-10-14/receipt.json"
+      ],
+      "followup_owner": "Home-B",
+      "priority": null,
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N289",
+      "item_path": "features/new/289_the_setting_name_is_the_hover_target.txt",
+      "item_sha256": "74760233bd37905078ae0ee95604da40d0f2dfb10c0dc21714c2813e68f036e0",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "requirement": "Put help on each setting name, including ControlChartLevels.",
+      "verified_in_this_audit": "Actual control_levels has settingKey/settingsAppKey and shared retarget call; shared route remains.",
+      "remaining": [
+        "No missing hover implementation found. Future concrete control defects belong to UI owner."
+      ],
+      "source_checks": [
+        "control_hover",
+        "settings_hover"
+      ],
+      "dated_evidence": [],
+      "followup_owner": "Home-B",
+      "priority": null,
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N290",
+      "item_path": "features/new/290_tooltips_read_as_paragraphs_and_live_in_the_panel.txt",
+      "item_sha256": "12dc2b79fc553a8223da1ee90307d919bc3bd3e403eca0d022352c9ee1818089",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "requirement": "Justified tooltips and Preferences help strip above buttons.",
+      "verified_in_this_audit": "Actual popup/strip use AlignJustify and Preferences constructs and fills HintBar.",
+      "remaining": [
+        "No remaining implementation named by the current item. Native UI reacceptance belongs to final UI acceptance, not a repeat documentation fix."
+      ],
+      "source_checks": [
+        "tooltip_layout",
+        "hint_layout",
+        "preferences_help"
+      ],
+      "dated_evidence": [],
+      "followup_owner": "Home-B",
+      "priority": null,
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N306",
+      "item_path": "features/new/306_the_api_tooltips_and_translations_are_current_and_correct.txt",
+      "item_sha256": "477be8dc2e6ae6e8ec532137629a76e9d311c46069dea531cb4fe17f561afc3c",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "requirement": "Source-current API/tooltips/translations with honest semantic limits.",
+      "verified_in_this_audit": "Source/hash/report and syntax/placeholder checks remain; later deltas have owning flows.",
+      "remaining": [
+        "New source arrivals need narrow owner review/regeneration; never chase obsolete 2026-09 counts or equate mechanical coverage with semantic/native review."
+      ],
+      "source_checks": [
+        "docs_workflow",
+        "translation_contracts",
+        "report_types"
+      ],
+      "dated_evidence": [],
+      "followup_owner": "Home-B",
+      "priority": null,
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N316",
+      "item_path": "features/new/316_the_translations_are_semantically_wrong_in_places.txt",
+      "item_sha256": "3eeb4ba3fb298b79f6edadb2e1f46d18f1ac62531a5b4fdacdaf98353d500019",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "requirement": "Repair demonstrated wrong translations with source-bound evidence and qualified claims.",
+      "verified_in_this_audit": "Current history/committed precedence and protections retain reviewed text. Item 2026-10-05 explicitly excludes optional native-speaker review from completion.",
+      "remaining": [
+        "Only newly demonstrated mistranslations or new source deltas are actionable; English API fallback accepted under N384. N323 has an explicit optional hardware-prose review queue, not authorization to machine-draft it."
+      ],
+      "source_checks": [
+        "protected_terms",
+        "api_history",
+        "report_types"
+      ],
+      "dated_evidence": [
+        "features/data/316_runtime_alpha_delta_2026-09-28.json"
+      ],
+      "followup_owner": "Home-B",
+      "priority": null,
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N321",
+      "item_path": "features/new/321_the_api_and_readme_still_show_the_old_module_structure.txt",
+      "item_sha256": "0fd1af0d43bd4bf70afd664a4acdf9d92b4bcfc06869113cae7496ba41d4a526",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "requirement": "README Home tiles and API host grouping track current registry.",
+      "verified_in_this_audit": "Generator reads tiled_apps; docs index describes folded hosts and includes generated workflow grid.",
+      "remaining": [
+        "Registry/runtime Home defects belong to Original Home; fresh hosted rendering is a final publication check."
+      ],
+      "source_checks": [
+        "readme_generation",
+        "docs_index"
+      ],
+      "dated_evidence": [
+        "features/data/321_registry_docs_reconciliation_2026-10-14/receipt.json"
+      ],
+      "followup_owner": "Home-B",
+      "priority": null,
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N323",
+      "item_path": "features/new/323_the_readme_needs_a_hardware_capability_table.txt",
+      "item_sha256": "89733d957ac8e542bce3da022620d1a5fec9e301670fdb20b59217bb8382aed1",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "requirement": "Resolver-derived hardware table, named measured example and no unusable-GPU promises.",
+      "verified_in_this_audit": "Current README includes 444.5s/3.2s historical example and readable target; resolver requires usable CUDA; normal table generator present.",
+      "remaining": [
+        "Hardware paragraph/header review queue retains deliberate English fallback under original no-machine-drafts requirement; no physical-speed or fresh locale-review claim."
+      ],
+      "source_checks": [
+        "readme_hardware",
+        "usable_cuda",
+        "readme_generation"
+      ],
+      "dated_evidence": [
+        "features/data/323_hardware_context_2026-10-14/receipt.json",
+        "features/data/323_unusable_cuda_capability_2026-10-14/receipt.json"
+      ],
+      "followup_owner": "Home-B",
+      "priority": null,
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N329",
+      "item_path": "features/new/329_readme_and_chrome_polish_2026_09_01.txt",
+      "item_sha256": "84a54eda7b473757cc918c481166db26f64171447560f711b20ec22fe50b8f3c",
+      "manifest_status": "B",
+      "disposition": "external_or_idle_host_acceptance_gate",
+      "requirement": "README/logo/chrome/setup/backdrop polish, including reported macOS-only faults.",
+      "verified_in_this_audit": "Current README/generator/theme surfaces and historical implementation remain; dated item explicitly leaves two macOS observations unverified.",
+      "remaining": [
+        "Native Mac setup dark-mode text contrast and backdrop behavior while tooltip is visible still need reproduction/readback. Do not call Linux source inspection proof of macOS repair."
+      ],
+      "source_checks": [
+        "readme_generation",
+        "docs_index"
+      ],
+      "dated_evidence": [],
+      "followup_owner": "Original Home native Mac owner with Home-B UI owner",
+      "priority": "Native-host acceptance",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N336",
+      "item_path": "features/new/336_the_api_link_points_at_the_module_not_the_consumer.txt",
+      "item_sha256": "48389dddcc79c2266f704c240ae86abeb94415805edb8b8ec461a22f7377d630",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "requirement": "Settings API links target actual consumer, not generic screen.",
+      "verified_in_this_audit": "Generated consumer targets are consulted by settings_model; shared literal helper inference reaches actual callers.",
+      "remaining": [
+        "No separate implementation remains; consumer-source changes follow N368 generator ownership."
+      ],
+      "source_checks": [
+        "settings_hover",
+        "consumer_helpers",
+        "flow_helpers"
+      ],
+      "dated_evidence": [],
+      "followup_owner": "Home-B",
+      "priority": null,
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N361",
+      "item_path": "features/new/361_the_readme_language_picker_should_be_a_dropdown.txt",
+      "item_sha256": "e6f3e6adecec2af989147064dd60ab766ea21d7fc4a5a010f5999f83bfa23fc6",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "requirement": "Compact README language dropdown within GitHub limitations.",
+      "verified_in_this_audit": "All ten READMEs link to generated Markdown menu; original accepted design intentionally navigates.",
+      "remaining": [
+        "Final main/default-branch readback if promoted; do not reopen impossible in-place GitHub language swapping."
+      ],
+      "source_checks": [
+        "readme_outputs",
+        "readme_generation"
+      ],
+      "dated_evidence": [
+        "features/data/120_361_readme_reconciliation_2026-10-14/receipt.json"
+      ],
+      "followup_owner": "Home-B",
+      "priority": null,
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N365",
+      "item_path": "features/new/365_the_licence_is_not_identifiable_and_main_disagrees_with_nightly.txt",
+      "item_sha256": "ad1aacee3e6f95c4943bb10860a477c6aaafbd7e3999e32b044c5caf7c5bad02",
+      "manifest_status": "P",
+      "disposition": "final_publication_or_source_refresh_gate",
+      "requirement": "Consistent maintainer-chosen BSD-3-Clause across source, metadata and hosted surfaces.",
+      "verified_in_this_audit": "LICENSE, pyproject and Space publisher metadata agree on BSD.",
+      "remaining": [
+        "HF Space metadata becomes current when N689 deployment succeeds. No license decision or source rewrite is needed."
+      ],
+      "source_checks": [
+        "license",
+        "metadata",
+        "docs_publisher"
+      ],
+      "dated_evidence": [
+        "features/data/365_space_license_2026-10-14/receipt.json"
+      ],
+      "followup_owner": "Original Home publication",
+      "priority": null,
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N366",
+      "item_path": "features/new/366_equal_gutters_one_module_section_and_thorough_api_pages.txt",
+      "item_sha256": "a261a2b3d3ffd97cb693f2ada89f36740b025694058dbb80f4de3f44c6ce59b8",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "requirement": "Equal visual gutters, one README module grid, useful API landing pages.",
+      "verified_in_this_audit": "Current generator retains GitHub-supported alignment; actual historical live geometry receipt accepted at both widths, with later normal generator/presentation contracts.",
+      "remaining": [
+        "Current final HTML/publication belongs to N615/N704, not another gutter redesign. Historical receipt is dated and is not a new live claim."
+      ],
+      "source_checks": [
+        "readme_generation",
+        "docs_index"
+      ],
+      "dated_evidence": [
+        "features/data/366_live_gutters_verified_2026-09-27/receipt.json"
+      ],
+      "followup_owner": "Home-B",
+      "priority": null,
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N368",
+      "item_path": "features/new/368_a_settings_flow_tree_and_docstrings_for_every_function.txt",
+      "item_sha256": "f6562d21aae16f2f2e3cd9ba569c14bd255ae1e5a292398189443018bbc3b636",
+      "manifest_status": "P",
+      "disposition": "final_publication_or_source_refresh_gate",
+      "requirement": "Document callables and show settings flow including helper reads.",
+      "verified_in_this_audit": "Both AST consumers share literal-key helper inference; generated settings index is wired into API URLs.",
+      "remaining": [
+        "Regenerate only after actual source drift or final source freeze; fresh Sphinx/hosted settings-flow links remain final acceptance. Do not repeatedly rerun full AST scans after unrelated changes."
+      ],
+      "source_checks": [
+        "flow_helpers",
+        "consumer_helpers",
+        "settings_hover",
+        "docstring_contracts"
+      ],
+      "dated_evidence": [
+        "features/data/368_literal_helper_keys_2026-10-14/receipt.json"
+      ],
+      "followup_owner": "Home-B",
+      "priority": null,
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N383",
+      "item_path": "features/new/383_a_settings_api_link_lands_on_the_setting.txt",
+      "item_sha256": "4268b319c235bfd4490ccc77796378b9391e0ec416e7e82447b1fd6fc12790bc",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "requirement": "Setting links use correct app/consumer anchors with honest fallback.",
+      "verified_in_this_audit": "api_docs_url preserves explicit curated targets, resolves module-local consumers and uses flow section fallback when present.",
+      "remaining": [
+        "Defaults-only/no-consumer behavior belongs to setting necessity item, not invented destinations here. Final built-page check shares N368 acceptance."
+      ],
+      "source_checks": [
+        "settings_hover"
+      ],
+      "dated_evidence": [],
+      "followup_owner": "Home-B",
+      "priority": null,
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N384",
+      "item_path": "features/new/384_the_api_prose_backlog_is_358_blocks_and_needs_a_model_this_machine_lacks.txt",
+      "item_sha256": "5e08399119628a975e7ac1574a7145c5a0330e35c0628e6f407ff335cdaf9fcb",
+      "manifest_status": "?",
+      "disposition": "delivered_implementation_present",
+      "requirement": "Accepted English fallback for API prose; report incompatibility honestly.",
+      "verified_in_this_audit": "Reporter now rejects malformed non-string API text and keeps English-required/report-only contract; actual regression receipt preserved.",
+      "remaining": [
+        "No translation-model hunt, native review gate or fallback policy redesign. Parent has report fix c3402a1dc60 for normal publication."
+      ],
+      "source_checks": [
+        "report_types",
+        "report_regression"
+      ],
+      "dated_evidence": [
+        "features/data/384_api_report_text_types_2026-10-15/receipt.json"
+      ],
+      "followup_owner": "Home-B",
+      "priority": null,
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N400",
+      "item_path": "features/new/400_every_comment_leaves_the_modules.txt",
+      "item_sha256": "731f30e5b270ced5b5ecd4e3bb3c6c8db2366ffd51bb00f37cec595c54b0b238",
+      "manifest_status": "?",
+      "disposition": "deferred_final_source_pass",
+      "requirement": "Move valuable comment notes and remove ordinary comments with AST preservation.",
+      "verified_in_this_audit": "Strip/extraction tooling and package guard exist. Item says final pass runs last when source editing ends.",
+      "remaining": [
+        "Final no-ordinary-comments check/extraction/strip on frozen integrated source; preserve protected #: docs and directives, AST/coverage proofs. Do not apply bulk rewrite during active owners."
+      ],
+      "source_checks": [
+        "comment_guard",
+        "strip_safety"
+      ],
+      "dated_evidence": [],
+      "followup_owner": "Original Home final integration with Home-B tooling",
+      "priority": "Finalization only",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N401",
+      "item_path": "features/new/401_the_gpu_backend_names_are_not_protected.txt",
+      "item_sha256": "a3a309041c48fca0bdbf016f0ba401c5b66b37c568309ad19761e5a7f9764c7b",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "requirement": "Protect all accelerator brand names through translation, including CJK-adjacent terms.",
+      "verified_in_this_audit": "Actual protected-term set contains Metal/MPS/ROCm/DirectML/Apple Silicon with CUDA; regression guards retained.",
+      "remaining": [
+        "No remaining brand-list implementation shown; new specific bad output is a bounded source-review delta."
+      ],
+      "source_checks": [
+        "protected_terms",
+        "translation_contracts"
+      ],
+      "dated_evidence": [],
+      "followup_owner": "Home-B",
+      "priority": null,
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N406",
+      "item_path": "features/new/406_the_translation_cache_regresses_what_a_hand_fix_repairs.txt",
+      "item_sha256": "f48fdc8bdfd84ac129304af113f3117993ae35f583070a45aa0c2e1666c4132d",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "requirement": "Committed current translations/reviewed API text outrank stale cache and survive plain builds.",
+      "verified_in_this_audit": "Runtime overlays cache with committed values; API _proven_api_history and source-proof selection remain wired.",
+      "remaining": [
+        "Do not clear caches or regenerate all locales as an alleged fix; no demonstrated new precedence defect."
+      ],
+      "source_checks": [
+        "protected_terms",
+        "api_history"
+      ],
+      "dated_evidence": [],
+      "followup_owner": "Home-B",
+      "priority": null,
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "F411",
+      "item_path": "features/future/411_api_pages_and_translations_for_nested_helpers.txt",
+      "item_sha256": "ce61bdbe5ba54af580a6a28215f69f21797a11b3d262a9579500c105a2d46120",
+      "manifest_status": "H",
+      "disposition": "final_publication_or_source_refresh_gate",
+      "requirement": "Publish documented nested helpers in all supported API locales within accepted review scope.",
+      "verified_in_this_audit": "Current Sphinx config installs nested renderer and source projection; owning helper machinery exists. Dated build/browser receipt proves its scoped implementation.",
+      "remaining": [
+        "Source-current new helper deltas and final deployed API inventory/readback remain shared N615 publication; native-speaker review explicitly not required. Tutorials remain Work."
+      ],
+      "source_checks": [
+        "nested_rendering",
+        "api_projection"
+      ],
+      "dated_evidence": [
+        "features/data/411_source_projection_build_browser_checkpoint_2026-10-08/receipt.json",
+        "features/data/615_api_completion_2026-10-05.json"
+      ],
+      "followup_owner": "Home-B API owner; Original Home final publication",
+      "priority": null,
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N494",
+      "item_path": "features/new/494_retire_help_demos_in_favor_of_test_data.txt",
+      "item_sha256": "041bece6fb0d4d437aa8a58fb4fbd7ce175a82039707d1d4703ea8ff290b1b4d",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "requirement": "Retire Demos navigation while keeping internal fixtures.",
+      "verified_in_this_audit": "Current compact UI catalog has no retired menu labels; old package tutorial script no longer exists; final item records dead helper/docs cleanup.",
+      "remaining": [
+        "No Demos implementation remains to delete. Historical review archives are provenance, not live captions; Work owns current tutorial media."
+      ],
+      "source_checks": [
+        "no_demos",
+        "tutorial_retirement"
+      ],
+      "dated_evidence": [],
+      "followup_owner": "Home-B",
+      "priority": null,
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N589",
+      "item_path": "features/new/589_the_public_slide_deck_is_flawless_and_high_resolution.txt",
+      "item_sha256": "47defdb65dd804db40219d0143742304e3e891135acfdcc4bd976ec28b626434",
+      "manifest_status": "P",
+      "disposition": "final_publication_or_source_refresh_gate",
+      "requirement": "Readable high-resolution public deck, corrected panels/examples and current navigation.",
+      "verified_in_this_audit": "Actual tracked deck has57 JPEG slides all3200x1800, metadata count57, all ten README Back links57; dated refresh receipt preserves unrelated assets.",
+      "remaining": [
+        "Current hosted deck readback belongs to N615. No full deck rebuild or further panel/inference change is justified by stale old51/55-slide notes."
+      ],
+      "source_checks": [
+        "deck_outputs",
+        "readme_outputs"
+      ],
+      "dated_evidence": [
+        "features/data/615_deck_current_refresh_2026-10-05.json"
+      ],
+      "followup_owner": "Original Home publication; Work presentation/tutor lane",
+      "priority": null,
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N615",
+      "item_path": "features/new/615_requested_batch_api_docs_translations_tutorials_and_acceptance.txt",
+      "item_sha256": "23a18449ab9104439fe4531565693777ad5c2ba7cde6be9adf41471efac966dc",
+      "manifest_status": "H",
+      "disposition": "final_publication_or_source_refresh_gate",
+      "requirement": "Coherent current API/runtime/guide/tutorial publication and acceptance.",
+      "verified_in_this_audit": "Current Sphinx projection and documentation channels exist; dated aggregate receipts retain actual local scopes. Mixed tutorial work remains explicitly Work-owned.",
+      "remaining": [
+        "Integrate exact current source/catalog owner deltas and final required CI/hosted readback once authorized; coordinate Work lesson receipts. Waived N627 native capture and optional native-language review must not reopen."
+      ],
+      "source_checks": [
+        "api_projection",
+        "docs_workflow",
+        "docs_publisher"
+      ],
+      "dated_evidence": [
+        "features/data/615_api_completion_2026-10-05.json"
+      ],
+      "followup_owner": "Original Home integration; Home-B docs deltas; Work tutorials",
+      "priority": null,
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N678",
+      "item_path": "features/new/678_objective_factual_user_facing_language_review.txt",
+      "item_sha256": "7065d3fd98cc4aa275d273cb1ee663c34a9c70aa10e916f980c743db420291a5",
+      "manifest_status": "P",
+      "disposition": "editorial_work_remaining_deferred",
+      "requirement": "Contextual factual-language review with per-surface coverage and regenerated output.",
+      "verified_in_this_audit": "Existing a1-a13 ledgers retain concrete before/after reviews; reported rejected slogan is absent from current app/docs/tools prose except its regression assertion.",
+      "remaining": [
+        "Historical Home note excludes63Qt files and records source-current translation reconciliation; reconcile those exact exclusions/current owner changes, then finish coverage. Work keeps narration/docs authoring. Broad final review remains ordered after implementation; no unreviewed-surface completion claim."
+      ],
+      "source_checks": [
+        "prose_guard",
+        "docstring_contracts"
+      ],
+      "dated_evidence": [],
+      "followup_owner": "Home-B factual source review coordinated with Work",
+      "priority": "Only identified substantive documentation backlog; defer broad sweep per maintainer order",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N686",
+      "item_path": "features/new/686_a_free_project_website_with_rich_effects.txt",
+      "item_sha256": "de8584992bb26c82973e5e28650f01d278d13a4188fa7ccc4f6a1ae93eaa7c41",
+      "manifest_status": "P",
+      "disposition": "external_or_idle_host_acceptance_gate",
+      "requirement": "Free live project site, integration links, reduced motion, byte budget and measured performance.",
+      "verified_in_this_audit": "Current spaCR README/docs/metadata links exist. Exact site publication receipt verifies deployed CSS/locales/installers/protected pages.",
+      "remaining": [
+        "Uncontended mobile Lighthouse>=90 performance and>=95accessibility and physical midrange60fps remain unproven; first-view/build/functional proof already exists. No paid service."
+      ],
+      "source_checks": [
+        "metadata",
+        "docs_index",
+        "readme_outputs"
+      ],
+      "dated_evidence": [
+        "features/data/687_reduced_motion_2026-10-14/publication-receipt.json"
+      ],
+      "followup_owner": "Home-B site owner after idle-host gate",
+      "priority": "Idle/native acceptance",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N687",
+      "item_path": "features/new/687_website_v2_flow_theme_model_showcase_and_release_sync.txt",
+      "item_sha256": "8ead1d7ee691ce6959e72ccf5b010727c4f57aa6f7cd22e0d7ff972a55f14dd3",
+      "manifest_status": "P",
+      "disposition": "external_or_idle_host_acceptance_gate",
+      "requirement": "Flow-themed site/model showcase/release synchronization across supported locales.",
+      "verified_in_this_audit": "Dated source and hosted receipt binds three repairs including same-tag asset sync, startup loading and reduced-motion behavior; public release recorded1.5.1.4.",
+      "remaining": [
+        "Same N686 idle mobile/physical60fps acceptance; future1.5.1.5 sync checked only after real release. Do not duplicate existing site-source implementation or claim release from this audit."
+      ],
+      "source_checks": [
+        "metadata",
+        "docs_index"
+      ],
+      "dated_evidence": [
+        "features/data/687_release_asset_sync_2026-10-14/receipt.json",
+        "features/data/687_reduced_motion_2026-10-14/publication-receipt.json"
+      ],
+      "followup_owner": "Home-B site owner; Original Home release",
+      "priority": "Idle/native acceptance",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N688",
+      "item_path": "features/new/688_codecov_for_spacr_with_a_readme_badge.txt",
+      "item_sha256": "0a171bece06d27a7b940171ba356b725ab1de5b50b7e661af3c90d37ad691779",
+      "manifest_status": "P",
+      "disposition": "final_publication_or_source_refresh_gate",
+      "requirement": "Upload exact combined coverage nonblockingly and show working badges.",
+      "verified_in_this_audit": "Workflow uploads with OIDC/token fallback and nonblocking Codecov status; all ten READMEs have nightly Shields Codecov badge.",
+      "remaining": [
+        "First main upload after approved main promotion and subsequent branch/main badge switch/readback. No new credential/setup implementation evidenced."
+      ],
+      "source_checks": [
+        "coverage_workflow",
+        "coverage_policy",
+        "readme_outputs"
+      ],
+      "dated_evidence": [],
+      "followup_owner": "Original Home CI/release",
+      "priority": "Main publication gate",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N689",
+      "item_path": "features/new/689_nightly_docs_on_a_hugging_face_static_space.txt",
+      "item_sha256": "bf0253455dc5e3c32e393bcd656946dd74d27b2a71f1c3ac65b677437dc4e129",
+      "manifest_status": "P",
+      "disposition": "final_publication_or_source_refresh_gate",
+      "requirement": "Separate HF nightly docs and main-only Pages, exact size accounting, safe publication/readback.",
+      "verified_in_this_audit": "Publisher has900MB main gate, main-only assembly/legacy redirects, atomic pinned-parent HF commit and live-verification code.",
+      "remaining": [
+        "HF free-space quota remains independently unresolved; no history squash/delete/recreation authorized. Main migration/deployment/redirect/live900MB proof waits approved main promotion. No new uploader code defect shown."
+      ],
+      "source_checks": [
+        "docs_publisher",
+        "docs_workflow"
+      ],
+      "dated_evidence": [
+        "features/data/689_homepage_readback_2026-10-14/receipt.json"
+      ],
+      "followup_owner": "Original Home publication with external quota constraint",
+      "priority": "External quota + main publication gate",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    },
+    {
+      "id": "N704",
+      "item_path": "features/new/704_readme_panels_link_to_readable_text.txt",
+      "item_sha256": "2dff0b217b194829d16de35c9e1565030aa0790b67e15323f5c9cc973f61745b",
+      "manifest_status": "P",
+      "disposition": "final_publication_or_source_refresh_gate",
+      "requirement": "Every text panel opens faithful readable content, preserving visuals/direct installer links, then hosted GitHub/PyPI acceptance.",
+      "verified_in_this_audit": "Normal generator owns readable pages; current outputs are66perlocale/660total after N323 context addition. Actual sanitizer receipt proves package long_description links. The new hardware-context panel also has20 generated phone/desktop SVGs.",
+      "remaining": [
+        "Promote current approved README/docs outputs to main and verify real GitHub/PyPI destination/leading-content routes across locales. Old678-file promotion packet predates N323 delta and must be regenerated from final source, not blindly applied. Include the new hardware-context text and SVGs if using a documentation-only promotion; a coherent full source promotion already carries them."
+      ],
+      "source_checks": [
+        "readable_generation",
+        "readme_outputs"
+      ],
+      "dated_evidence": [
+        "features/data/704_readable_panel_implementation_2026-10-14/receipt.json",
+        "features/data/704_pypi_sanitizer_acceptance_2026-10-14/receipt.json"
+      ],
+      "followup_owner": "Original Home publication; Home-B README generator",
+      "priority": "Final current-source promotion packet and hosted acceptance",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is inferred from this disposition."
+    }
+  ],
+  "receipts": {
+    "features/data/120_361_readme_reconciliation_2026-10-14/receipt.json": {
+      "sha256": "22217bc6c8c5b6963daf9e0b1a6e79f2566e43c0671e0e19153e27edcbddf297",
+      "kind": "dated_evidence_only",
+      "top_level_keys": [
+        "schema",
+        "items",
+        "kind",
+        "source_commit",
+        "validation",
+        "findings",
+        "limitations"
+      ]
+    },
+    "features/data/316_runtime_alpha_delta_2026-09-28.json": {
+      "sha256": "78d9d26d8358e4620e445ce841fa783f3ede4dcbe617ae76b93655da9065ecc1",
+      "kind": "dated_evidence_only",
+      "top_level_keys": [
+        "schema",
+        "items",
+        "scope",
+        "review_kind",
+        "added",
+        "removed",
+        "source_counts",
+        "source_key_sha256",
+        "previous_source_key_sha256",
+        "languages",
+        "review_records",
+        "existing_translations_preserved",
+        "model_downloads",
+        "gpu_used"
+      ]
+    },
+    "features/data/321_registry_docs_reconciliation_2026-10-14/receipt.json": {
+      "sha256": "0df8771e01ac980b580f8a206cb0661fdea199927b35b7730fbec34a4867c10b",
+      "kind": "dated_evidence_only",
+      "top_level_keys": [
+        "schema",
+        "item",
+        "kind",
+        "source_commit",
+        "validation",
+        "findings",
+        "limitations"
+      ]
+    },
+    "features/data/323_hardware_context_2026-10-14/receipt.json": {
+      "sha256": "8c39a3091c4bc8708de34d8b995c72d54137cd59e9020e725e1073d80de6cfee",
+      "kind": "dated_evidence_only",
+      "top_level_keys": [
+        "schema",
+        "item",
+        "source_base",
+        "implemented",
+        "tests",
+        "generator",
+        "existing_svg_changes",
+        "translation_review",
+        "limitations"
+      ]
+    },
+    "features/data/323_unusable_cuda_capability_2026-10-14/receipt.json": {
+      "sha256": "28c2d28c4ad455ca26ea2accb45bcb026b8681b249229030a2c004eb3fccdc0b",
+      "kind": "dated_evidence_only",
+      "top_level_keys": [
+        "schema",
+        "item",
+        "source_base",
+        "defect",
+        "fix",
+        "before",
+        "after",
+        "command_prefix",
+        "source_sha256",
+        "limitations"
+      ]
+    },
+    "features/data/365_space_license_2026-10-14/receipt.json": {
+      "sha256": "d7e0eda12fad2b22ff72e9ab2c686925dcc735c4bcc3d22562d5e488500b19ac",
+      "kind": "dated_evidence_only",
+      "top_level_keys": [
+        "schema",
+        "item",
+        "source_base",
+        "defect",
+        "change",
+        "validation",
+        "service_mutations",
+        "limitations"
+      ]
+    },
+    "features/data/366_live_gutters_verified_2026-09-27/receipt.json": {
+      "sha256": "1b72078f6040235f1c9dd89937e3d3f84f6583279f1a7cbfa176be338fcc2cba",
+      "kind": "dated_evidence_only",
+      "top_level_keys": [
+        "item",
+        "url",
+        "started_utc",
+        "readme_sha256",
+        "expected_rows",
+        "accepted",
+        "method",
+        "tolerance_css_px",
+        "viewports",
+        "images",
+        "nightly_commit_before",
+        "nightly_commit_after",
+        "finished_utc"
+      ]
+    },
+    "features/data/368_literal_helper_keys_2026-10-14/receipt.json": {
+      "sha256": "823ebc67cea0ac02f9fde6517bd0010388194ef6981fa5ed6fbac74304b3ef6a",
+      "kind": "dated_evidence_only",
+      "top_level_keys": [
+        "schema",
+        "item",
+        "source_base",
+        "defect",
+        "before",
+        "initial_fixture_after",
+        "helper_keys",
+        "helper_consumer_pairs",
+        "added_sections",
+        "removed_sections",
+        "rendered_sections",
+        "cross_references",
+        "cross_reference_ceiling",
+        "generator",
+        "sha256",
+        "limitations",
+        "intermediate",
+        "paired_fixtures",
+        "final",
+        "generation_and_final_resources"
+      ]
+    },
+    "features/data/384_api_report_text_types_2026-10-15/receipt.json": {
+      "sha256": "97ae5e31b40ebdb05053006d69bdc34477a73c1c73498612c9886a8e2cbe2464",
+      "kind": "dated_evidence_only",
+      "top_level_keys": [
+        "item",
+        "scope",
+        "status",
+        "baseline",
+        "before",
+        "after",
+        "behavior",
+        "preserved",
+        "checks",
+        "resources",
+        "source_sha256"
+      ]
+    },
+    "features/data/411_source_projection_build_browser_checkpoint_2026-10-08/receipt.json": {
+      "sha256": "37e3ea2faf73514bf5d574f5309b58712a5f181eb214d684d4440212428b448a",
+      "kind": "dated_evidence_only",
+      "top_level_keys": [
+        "browser_panels",
+        "canonical_api_symbols",
+        "catalogs",
+        "excluded_proofs",
+        "newly_reached_objects",
+        "panels_per_language",
+        "passed",
+        "payloads",
+        "private_source_sha256",
+        "reached",
+        "review_scope",
+        "schema",
+        "scope",
+        "script_sha256",
+        "translated_blocks_checked"
+      ]
+    },
+    "features/data/615_api_completion_2026-10-05.json": {
+      "sha256": "505761c3cf6068de6e83682aacc82e944b571daae1c7da55303b5efc8ac65bf8",
+      "kind": "dated_evidence_only",
+      "top_level_keys": [
+        "schema",
+        "source_base_commit",
+        "source_worklist_sha256",
+        "scope",
+        "review_kind",
+        "languages",
+        "french_receipt",
+        "generator_outputs",
+        "catalogs_updated_by_normal_generator",
+        "semantic_or_coverage_gates_relaxed",
+        "gpu_compute_started",
+        "deployed",
+        "final_checks",
+        "rendered_sphinx_api_browser",
+        "strict_full_site_build",
+        "integration_test_scope",
+        "readme_guard_repair"
+      ]
+    },
+    "features/data/615_deck_current_refresh_2026-10-05.json": {
+      "sha256": "2d33289ff72f62d83eaaff5e36b32bf71dacef9cdaf73aaac70b56bbca8ddde2",
+      "kind": "dated_evidence_only",
+      "top_level_keys": [
+        "accepted",
+        "scope",
+        "source_refresh",
+        "preservation_checks",
+        "negative_source_probes",
+        "specification_sha256",
+        "generated_tools",
+        "published_files",
+        "deployed_verified"
+      ]
+    },
+    "features/data/687_reduced_motion_2026-10-14/publication-receipt.json": {
+      "sha256": "da482a46451af2c0dfc067b276d90a96d65c11153fdd1dd44aa70e69e1f9b92a",
+      "kind": "dated_evidence_only",
+      "top_level_keys": [
+        "verified_at",
+        "source_repository",
+        "source_commit",
+        "source_run",
+        "source_run_conclusion",
+        "public_repository",
+        "public_commit",
+        "pages_run",
+        "pages_run_conclusion",
+        "manifest",
+        "checks",
+        "records",
+        "remaining_acceptance",
+        "prior_validation"
+      ]
+    },
+    "features/data/687_release_asset_sync_2026-10-14/receipt.json": {
+      "sha256": "cd7178867920adba6b5b5f3ab7cdbcf734fee819d88a1209d19067005bf6f14c",
+      "kind": "dated_evidence_only",
+      "top_level_keys": [
+        "item",
+        "created_at",
+        "repository",
+        "worktree",
+        "source_commit",
+        "parent_commit",
+        "files",
+        "validation",
+        "publication",
+        "remaining_acceptance"
+      ]
+    },
+    "features/data/689_homepage_readback_2026-10-14/receipt.json": {
+      "sha256": "3592365a12caf2bc9b6fe8a219168b5f041419943c71347b5a060bd31475a9b4",
+      "kind": "dated_evidence_only",
+      "top_level_keys": [
+        "commit",
+        "item",
+        "tree",
+        "validation",
+        "scope",
+        "before",
+        "change",
+        "readback_scope",
+        "external_requests"
+      ]
+    },
+    "features/data/704_readable_panel_implementation_2026-10-14/receipt.json": {
+      "sha256": "5722eb252522f8cec57a1e7e1527fa050c5b488fdb9116d8ded289bd1fb24ac5",
+      "kind": "dated_evidence_only",
+      "top_level_keys": [
+        "item",
+        "recorded_at",
+        "scope",
+        "base_commit",
+        "readable_panel_pages",
+        "languages",
+        "panels_per_language",
+        "model_pages",
+        "model_index",
+        "existing_readme_svg_count",
+        "changed_visual_assets",
+        "tests",
+        "initial_tests",
+        "resolved_findings",
+        "generation_commands",
+        "test_command",
+        "remaining",
+        "source_and_output_sha256"
+      ]
+    },
+    "features/data/704_pypi_sanitizer_acceptance_2026-10-14/receipt.json": {
+      "sha256": "641c0bfebd5b66f03280188f1e2ca1b3b4afad9c18794d4246ee11cf8c27a686",
+      "kind": "dated_evidence_only",
+      "top_level_keys": [
+        "item",
+        "scope",
+        "implementation_commit",
+        "tests",
+        "renderer_versions",
+        "panel_image_destination_bindings_verified",
+        "target_prefix",
+        "image_prefix",
+        "source_sha256",
+        "test_command",
+        "promotion",
+        "promotion_files",
+        "promotion_patch",
+        "promotion_manifest",
+        "pending",
+        "minimum_docutils_pair_tests",
+        "required_dev_dependency",
+        "imports_are_mandatory",
+        "minimum_docutils_pair",
+        "minimum_pair_test_command"
+      ]
+    }
+  }
+}

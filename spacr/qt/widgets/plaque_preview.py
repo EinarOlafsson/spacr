@@ -887,7 +887,7 @@ def resolve_detector(key: Any, src: Any = None) -> Tuple[str, str, Any]:
     """The detector checkpoint a key names, found without a download.
 
     Looks where the run looks: the path itself, the zoo entry's own path,
-    ``~/.spacr/models`` and the run's model cache under
+    the active shared model cache and the run's model cache under
     ``<src>/plaque_figures/models``.
 
     :param key: a zoo key or a checkpoint path.
@@ -904,8 +904,10 @@ def resolve_detector(key: Any, src: Any = None) -> Tuple[str, str, Any]:
         return "", tr("{key} is neither a checkpoint file nor a model zoo "
                       "detector.", key=text), None
     name = str(getattr(entry, "name", "") or "")
+    from ...model_zoo import _model_cache_root
+
     candidates = [str(getattr(entry, "path", "") or ""),
-                  os.path.join(str(_spacr_home()), "models", name)]
+                  str(_model_cache_root() / name)]
     if src:
         candidates.append(os.path.join(str(src), "plaque_figures", "models", name))
     for candidate in candidates:
@@ -4609,13 +4611,15 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._download_btn.show()
 
     def _start_download(self) -> None:
-        """Download the missing zoo model into ``~/.spacr/models``."""
+        """Download the missing zoo model into the active shared model cache."""
         entry = self._missing_entry
         if entry is None:
             return
         from ..model_install import CheckpointDownload
 
-        folder = os.path.join(str(_spacr_home()), "models")
+        from ...model_zoo import _model_cache_root
+
+        folder = str(_model_cache_root())
         os.makedirs(folder, exist_ok=True)
         self._download = CheckpointDownload(entry, folder)
         self._download.progressed.connect(self._on_download_progress)

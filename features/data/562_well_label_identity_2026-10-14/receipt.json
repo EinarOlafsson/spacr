@@ -1,0 +1,44 @@
+{
+  "item": "F562",
+  "component": "unambiguous per-well MIL labels and read-only stored-embedding joins",
+  "status": "backend owning contract accepted; normal diagnostic extraction/runtime generation pending",
+  "base": "969713dea6a031ca3ce315fe50410e8e372ac31b",
+  "source_sha256": {
+    "spacr/embeddings.py": "894bff63ba11d5174b1d2862ae7312c410ba9321a28e15cd69a360a604ad1482",
+    "tests/test_multiple_instance_learning.py": "368838e64d4f23f2b9bc77b6c25ab8c2b3987963ebc4806fd3446067fbdd7e8a",
+    "docs/i18n/reviewed/runtime/de/2026-10-14-mil-well-label-identity.json": "c0d6b18a425f60c83c5d5c7b27b6aa6a7fa9f50ba02f804ae06da668d82a74dc",
+    "docs/i18n/reviewed/runtime/es/2026-10-14-mil-well-label-identity.json": "28b7a12c8458fb4e1e6926f62e4a8cec966c1bf55dd440995283b23177dc4626",
+    "docs/i18n/reviewed/runtime/fr/2026-10-14-mil-well-label-identity.json": "fc4f6855170d4f26018ffd0d78553d4d0ca604d94bc6e49f852b0337e08ef3d1",
+    "docs/i18n/reviewed/runtime/hi/2026-10-14-mil-well-label-identity.json": "e4a104b762c68871b70efff50f10bbee0743b3ca60e39fcac9908aafd6b00313",
+    "docs/i18n/reviewed/runtime/is/2026-10-14-mil-well-label-identity.json": "07e557265b39a686fe4f2cf456aee930aa7427a0f3b6be5dd61017c29903f876",
+    "docs/i18n/reviewed/runtime/ko/2026-10-14-mil-well-label-identity.json": "011661b56922b19c1f1994daa275b551fe4e5fc8283dae85767fb3bf062ca7ec",
+    "docs/i18n/reviewed/runtime/pt/2026-10-14-mil-well-label-identity.json": "b07c4e5322a95ba82045f33c751184df9557d9c3653ba6948ee485840ed87954",
+    "docs/i18n/reviewed/runtime/sv/2026-10-14-mil-well-label-identity.json": "97f9f485ff96389dbccc17614b22306db82ae141a9ad5b13676536afbb6185af",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-10-14-mil-well-label-identity.json": "227cba5cf7c37c50eb1bd672fb1dca0931c310ef934c732cca2e2e744e6e1cb0"
+  },
+  "source_boundary": "Only _mil_frame_from_db AST changes; all unrelated top-level AST nodes unchanged",
+  "checks": {
+    "MIL_owning_passed": 15,
+    "actual_exit": 0,
+    "seconds": 5.47,
+    "evidence": "/mnt/wd4tb/scratch/f562-well-label-join-20261014/readonly-closure*",
+    "translations": {
+      "records": 18,
+      "languages": 9,
+      "normal_candidate_gate_problems": [],
+      "actual_exit": 0,
+      "evidence": "/mnt/wd4tb/scratch/f562-well-label-join-20261014/review-check.log"
+    }
+  },
+  "prior_attempts": [
+    "owning.log:9 pass/5 string-path fixture errors",
+    "final.log:9 pass/5 real SQLite migration byte mutations, repaired by explicit read-only table reads"
+  ],
+  "owner_scope_request": "/mnt/wd4tb/scratch/home-b-coordination-20261014/F562_MIL_LABEL_JOIN_CLAIM.txt",
+  "limits": [
+    "Actual SQLite joins and original planted-responder MIL tests, synthetic data only.",
+    "No real-screen/GPU/scientific efficacy acceptance.",
+    "Existing alpha gates retained; no new widget/settings/schema/encoder/UMAP edits.",
+    "Exact-source AI translation reviews authored; independent parent review and Home-B canonical extraction/generation pending."
+  ]
+}

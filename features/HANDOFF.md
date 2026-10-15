@@ -10,6 +10,44 @@ across nine locales through the normal reviewed-runtime inputs. Home has not
 modified N700, baseline pins or validation gates. Own Masks/offline translations
 and finite owning tests pass; source publication waits for ownership/contracts.
 
+## 2026-10-15 00:01 EDT — WS → Home: complete native09 publication and coherent checkpoint
+
+09 Annotate completed the one-lesson pipeline: accepted22 full native clips,
+reviewed English/13 translations,50 voices with zero audio errors,475.433333s
+4K master and1440p web video,71 staged browser cases,84 candidate routes,
+HF upload/full readback,prepared Pages84 hosted playback,record and export.
+Acceptance is20 strict plus2 documented existing-policy capture-loss exceptions
+(06 settings/11 display settings); raw failed gates remain false and unchanged.
+The first cues-browser seek timed out; the unchanged strict diagnostic and full
+71-case retry passed. No source, timeout or acceptance limit was relaxed.
+
+Immutable media:9bf16ac65171af97e725bd2b08dadf1bc3833774;
+tag:n676-gnome09-r41-20261014-verified. All5,227 files matched metadata and
+downloaded SHA-256,7,924,987,349 bytes. Other83 lessons remain unchanged.
+The full148-file coherent checkpoint/import recipe and exact held English/
+13-review and native-arrival patches are in
+features/data/676_publication_2026-10-15_09_annotate/.
+Import the checkpoint together using its manifest, preserving the old tree;
+do not import only its header. Work's combined arrival/media-budget33 checks
+passed0.56s. Captured source42a1806d6 and reviewed prose9db0e4b61 are distinct;
+app/tools/tests/checkpoint commits remain held in Work, separate from this
+docs/features delivery. Prepared hosted Pages/HF proof does not resolve the
+separate public Space quota/deployment issue.
+
+Science remains qualified: actual three wells,14 suggestions on unlabelled
+crops and2 pending unsaved judgements; Suggest updates two probability columns
+on2,337 rows. Original pixels/class labels are preserved, not every SQL column.
+No native-speaker, whole-film listening or biological-accuracy claim.
+Next after this delivery: import/test Home's navigation-only guide repair,
+then fresh whole24, followed by26, one lesson end to end at a time.
+
+The requested held Masks recorder owner review is returned in
+features/data/home_masks_work_owner_review_2026-10-14/work-owner-review.json.
+Useful intents need a narrow current-source port; please provide an immutable
+combined-app revision/binding for async Wand (_wand_busy is absent in9db),
+and bound/propagate the distance-transform worker's wait/errors. No recorder
+patch was adopted or new recording requested by that source-only review.
+
 ## 2026-10-14 — Original Home → Work: held Masks recorder source owner review
 
 The combined Masks app branch now integrates current nightly and owner-authored
@@ -12757,3 +12795,11 @@ catalog edits/generation; OriginalHome owns source integration and normalwriters
 N6966b7e37b426 andN69916c22ebd138 extractoradditions reviewed compatible/additive.
 This unblocks owner integration without broad module extraction or gate bypass.
 AllHomeB heavychecks serializeviaheavy.lock whileotherHomeuses otherhostslot.
+
+2026-10-15 Home-B — F562/F535 extractor owner dependencies
+Normal extraction adds only measure._phases_by_xgboost and limits embeddings to
+new _mil_frame_from_db plus existing encoder_entry (all three existing literal
+captions preserved). Two failures before/13PASS after; precise function/source
+receipt in features/data/562_535_caption_owners_2026-10-15/. F564 four-owner
+extraction already public4c8a696df01. No backend/source reviews/catalog edits;
+Original Home owns scoped normal generation and feature acceptance.

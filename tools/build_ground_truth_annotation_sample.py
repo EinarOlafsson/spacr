@@ -15,12 +15,15 @@ holding a ``png_list`` table whose ``png_path`` points at the crops where they
 already are -- nothing is copied -- plus ``dataset_plate`` (which plate the
 crop came from) and an empty ``real`` column for the annotation. A crop drawn
 twice in a later, larger round keeps its first judgement: rows already in the
-sample are left alone.
+sample are left alone. Newly added rows record the crop bytes before annotation;
+this is sample-creation provenance, not proof of when a later judgement was made.
+Legacy rows are never given a retrospective fingerprint or an inherited label.
 """
 from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import os
 import sqlite3
 import sys
@@ -50,7 +53,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     for kind in TYPES:
         rows = []
         for plate, database in plate_databases(args.root, kind):
-            with sqlite3.connect(database) as source:
+            with sqlite3.connect(database.resolve().as_uri() + "?mode=ro", uri=True) as source:
                 columns = [c[1] for c in source.execute("PRAGMA table_info(png_list)")]
                 for record in source.execute("SELECT * FROM png_list"):
                     rows.append((plate, dict(zip(columns, record))))
@@ -66,18 +69,40 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 "file_name TEXT, plateID TEXT, rowID TEXT, columnID TEXT, "
                 "fieldID TEXT, prcfo TEXT, object_id TEXT, dataset_plate TEXT, "
                 "real INTEGER)")
+            columns = {row[1] for row in target.execute("PRAGMA table_info(png_list)")}
+            for name, dtype in (("sample_png_sha256", "TEXT"), ("sample_png_bytes", "INTEGER")):
+                if name not in columns:
+                    target.execute(f"ALTER TABLE png_list ADD COLUMN {name} {dtype}")
+            existing = {row[0] for row in target.execute("SELECT png_path FROM png_list")}
+            fingerprints = {}
+            for _, record in picked:
+                path = record["png_path"]
+                if path not in existing:
+                    raw = Path(path).read_bytes()
+                    fingerprints[path] = (hashlib.sha256(raw).hexdigest(), len(raw))
             before = target.execute("SELECT COUNT(*) FROM png_list").fetchone()[0]
             id_column = f"{kind}_id"
             target.executemany(
                 "INSERT OR IGNORE INTO png_list (png_path, file_name, plateID, "
-                "rowID, columnID, fieldID, prcfo, object_id, dataset_plate) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "rowID, columnID, fieldID, prcfo, object_id, dataset_plate, "
+                "sample_png_sha256, sample_png_bytes) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 [(r["png_path"], r.get("file_name"), r.get("plateID"),
                   r.get("rowID"), r.get("columnID"), r.get("fieldID"),
-                  r.get("prcfo"), r.get(id_column), plate) for plate, r in picked])
+                  r.get("prcfo"), r.get(id_column), plate,
+                  *fingerprints.get(r["png_path"], (None, None))) for plate, r in picked])
             after = target.execute("SELECT COUNT(*) FROM png_list").fetchone()[0]
+            unverified = target.execute(
+                "SELECT COUNT(*) FROM png_list WHERE real IS NOT NULL "
+                "AND sample_png_sha256 IS NULL").fetchone()[0]
         print(f"{kind}: {len(rows)} crops, {after - before} added, {after} in the "
               f"sample -> {folder.parent}")
+        print(json.dumps({"kind": kind, "legacy_labels_without_pixel_provenance": unverified,
+                          "new_sample_fingerprints": len(fingerprints),
+                          "parent_label_candidates_unverified": sum(
+                              row.get("real") in (1, 2) for _, row in picked),
+                          "legacy_label_transfer_performed": False,
+                          "annotation_time_binding": False}, sort_keys=True))
     return 0
 
 

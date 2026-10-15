@@ -1807,26 +1807,38 @@ def _mil_frame_from_db(db_path: str, labels: Any = None, *,
     :param labels: optional well labels: a table, or a path to one, with a
         ``wellID`` or ``well`` column and ``label_column``. Its wells may be
         named ``<plate>_<row>_<column>``, ``<row>_<column>`` or
-        ``<row><column>``; the spelling that matches most cells is used.
+        ``<row><column>``; each key resolves independently. Short keys
+        must identify exactly one plate/well, and duplicate/alias labels
+        for the same well must agree.
         Cells of an unlabelled well keep an empty label.
     :param label_column: the label column of ``labels``.
     :returns: one row per crop with a stored embedding.
     :raises ValueError: when the database has no stored embeddings, none
-        joins a crop, or ``labels`` has no well or label column.
+        joins a crop, ``labels`` has no well or label column, labels
+        conflict or a short well key is ambiguous across plates.
     """
     import pandas as pd
 
     from . import tabular
-    from .active_learning import _stored_embedding_frame
+    from .active_learning import _EMBEDDING_TABLE
     from .agreement import PNG_TABLE
 
-    stored = _stored_embedding_frame(db_path)
+    stored = None
+    if os.path.exists(str(db_path)):
+        try:
+            stored = tabular.read_database(
+                db_path, _EMBEDDING_TABLE, canonicalise=False, report=None,
+                repair_plate_ids=False, migrate=False, read_only=True)[0]
+        except ValueError as error:
+            if str(error) != f"Table not found in database: {_EMBEDDING_TABLE}":
+                raise
     if stored is None or stored.empty:
         raise ValueError(
             f"{db_path} has no stored crop embeddings (no crop_embedding "
             "table with rows)")
     crops = tabular.read_table(db_path, table=PNG_TABLE, canonicalise=False,
-                               report=None, repair_plate_ids=False)
+                               report=None, repair_plate_ids=False,
+                               migrate=False, read_only=True)
     keep = [c for c in ("prcfo", "png_path", "plateID", "rowID", "columnID",
                         "fieldID") if c in crops.columns]
     if "prcfo" not in keep:
@@ -1839,12 +1851,23 @@ def _mil_frame_from_db(db_path: str, labels: Any = None, *,
                                                  how="inner")
     if frame.empty:
         raise ValueError(f"no stored embedding in {db_path} joins a crop")
-    parts = frame["prcfo"].str.split("_")
-    for column, at in (("plateID", 0), ("rowID", 1), ("columnID", 2),
-                       ("fieldID", 3)):
+    from .schema import parse_prcfo
+    from .qt.i18n import tr
+
+    parsed = {}
+    for column in ("plateID", "rowID", "columnID", "fieldID"):
         if column not in frame.columns:
-            frame[column] = parts.str[at]
-    frame["object"] = parts.str[-1]
+            frame[column] = None
+        missing = frame[column].isna() | frame[column].astype(str).str.strip().eq("")
+        for index in frame.index[missing]:
+            if index not in parsed:
+                key = frame.at[index, "prcfo"]
+                try:
+                    parsed[index] = parse_prcfo(key).field.to_dict()
+                except (TypeError, ValueError) as error:
+                    raise ValueError(tr("Cannot recover acquisition metadata from object key {key}.", key=key)) from error
+            frame.at[index, column] = parsed[index][column]
+    frame["object"] = frame["prcfo"].str.rsplit("_", n=1).str[-1]
     frame.insert(1, _MIL_WELL_COLUMN, frame["plateID"].astype(str) + "_"
                  + frame["rowID"].astype(str) + "_"
                  + frame["columnID"].astype(str))
@@ -1856,11 +1879,32 @@ def _mil_frame_from_db(db_path: str, labels: Any = None, *,
     for column in (well_column, label_column):
         if column not in labels.columns:
             raise ValueError(f"the well-label table has no {column!r} column")
-    named = dict(zip(labels[well_column].astype(str), labels[label_column]))
+    named = {}
+    for key, label in zip(labels[well_column], labels[label_column]):
+        if pd.isna(key) or pd.isna(label):
+            continue
+        key = str(key)
+        if key in named and named[key] != label:
+            raise ValueError(tr("The well-label table assigns conflicting labels to {well}.", well=key))
+        named[key] = label
     row, col = frame["rowID"].astype(str), frame["columnID"].astype(str)
-    spellings = (frame[_MIL_WELL_COLUMN], row + "_" + col, row + col)
-    best = max(spellings, key=lambda keys: int(keys.isin(named).sum()))
-    frame[label_column] = best.map(named)
+    full_wells = set(frame[_MIL_WELL_COLUMN])
+    aliases = {}
+    for full, short, compact in zip(frame[_MIL_WELL_COLUMN], row + "_" + col, row + col):
+        for alias in (short, compact):
+            aliases.setdefault(alias, set()).add(full)
+    resolved = {}
+    for key, label in named.items():
+        matches = {key} if key in full_wells else aliases.get(key, set())
+        if len(matches) > 1:
+            raise ValueError(tr("Well label {well} is ambiguous across plates; use the full plate_row_column identifier.", well=key))
+        if not matches:
+            continue
+        full = next(iter(matches))
+        if full in resolved and resolved[full] != label:
+            raise ValueError(tr("The well-label table assigns conflicting labels to {well}.", well=full))
+        resolved[full] = label
+    frame[label_column] = frame[_MIL_WELL_COLUMN].map(resolved)
     return frame
 
 

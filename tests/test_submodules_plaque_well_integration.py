@@ -60,7 +60,8 @@ def test_a_local_well_detector_checkpoint_wins(tmp_path):
 def test_true_fetches_the_default_well_detector(tmp_path, monkeypatch):
     from spacr import model_zoo
 
-    entry = SimpleNamespace(key="toxoplasma_well_detector_v1")
+    entry = model_zoo.ModelEntry(key="toxoplasma_well_detector_v1", name="well.pt",
+                                kind="detector", uri="file:///stub", sha256="7" * 64)
     fetched = tmp_path / "downloaded.pt"
     calls = []
     monkeypatch.setenv("HOME", str(tmp_path))
@@ -264,7 +265,7 @@ def test_a_missing_bundled_plaque_model_is_named(tmp_path, monkeypatch):
 def test_an_unknown_plaque_model_key_lists_the_known_keys(monkeypatch):
     from spacr import model_zoo
 
-    entry = SimpleNamespace(key="known-plaque")
+    entry = model_zoo.ModelEntry(key="known-plaque", name="known.CP_model")
     monkeypatch.setattr(model_zoo, "catalogue", lambda remote=True: [entry])
 
     with pytest.raises(ValueError, match="known-plaque"):
@@ -274,7 +275,8 @@ def test_an_unknown_plaque_model_key_lists_the_known_keys(monkeypatch):
 def test_a_plaque_model_zoo_key_is_fetched(tmp_path, monkeypatch):
     from spacr import model_zoo
 
-    entry = SimpleNamespace(key="chosen-plaque")
+    entry = model_zoo.ModelEntry(key="chosen-plaque", name="chosen.CP_model",
+                                uri="file:///stub", sha256="7" * 64)
     fetched = tmp_path / "chosen.CP_model"
     calls = []
     monkeypatch.setenv("HOME", str(tmp_path))

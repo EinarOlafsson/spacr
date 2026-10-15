@@ -259,3 +259,86 @@ def test_a_setting_read_only_by_its_defaults_setter_is_dropped(flow, data):
         "every setting still gets a section, so the defaults-only ones "
         "are being drawn empty rather than dropped")
     assert f"{drawn} settings, of {len(data['reads'])} read anywhere." in rst
+
+
+@pytest.fixture(params=['flow', 'consumer'])
+def helper_analyser(request, flow):
+    if request.param == 'flow':
+        return flow
+    spec = importlib.util.spec_from_file_location(
+        'consumer_helpers', ROOT / 'tools' / 'build_setting_consumer_map.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _helper_fixture(flow, tmp_path, monkeypatch, helper, call):
+    """Analyse a real tiny package without importing the helper it contains."""
+    package = tmp_path / "spacr"
+    package.mkdir()
+    source = helper + "\ndef consume(settings, dynamic_key):\n    return " + call + "\n"
+    (package / "fixture.py").write_text(source, encoding="utf-8")
+    if hasattr(flow, 'Reads'):
+        import ast
+
+        visitor = flow.Reads({'custom_model_path'}, 'spacr.fixture')
+        visitor.visit(ast.parse(source))
+        reads = {}
+        for hit in visitor.hits:
+            reads.setdefault(hit['key'], []).append({
+                'function': f"{hit['module']}.{hit['qualname']}",
+            })
+        return {'reads': reads}
+    monkeypatch.setattr(flow, "ROOT", tmp_path)
+    monkeypatch.setattr(flow, "PACKAGE", package)
+    monkeypatch.setattr(flow, "_tooltips", lambda: {
+        "custom_model_path": "Classifier initialization checkpoint.",
+    })
+    return flow.analyse()
+
+
+@pytest.mark.parametrize("expression", ["settings.get(name)", "settings[name]"])
+@pytest.mark.parametrize("call", [
+    "read(settings, 'custom_model_path')",
+    "read(name='custom_model_path', settings=settings)",
+])
+def test_a_literal_key_passed_to_a_settings_helper_retains_its_consumer(
+        helper_analyser, tmp_path, monkeypatch, expression, call):
+    data = _helper_fixture(
+        helper_analyser, tmp_path, monkeypatch,
+        "def read(settings, name):\n    return " + expression + "\n", call)
+    readers = {hit["function"] for hit in data["reads"].get("custom_model_path", [])}
+    assert "spacr.fixture.consume" in readers
+
+
+@pytest.mark.parametrize("helper,call", [
+    ("def read(settings, name):\n    return settings.get(name)\n",
+     "read({}, 'custom_model_path')"),
+    ("def read(settings, name):\n    return settings.get(name)\n",
+     "read(settings, dynamic_key)"),
+    ("def read(settings, name):\n    return {'constant': 1}.get(name)\n",
+     "read(settings, 'custom_model_path')"),
+    ("def read(settings, name):\n    name = 'other'\n    return settings.get(name)\n",
+     "read(settings, 'custom_model_path')"),
+    ("def read(settings, name):\n    settings = {}\n    return settings.get(name)\n",
+     "read(settings, 'custom_model_path')"),
+    ("def read(settings, name):\n    return settings.get(name)\n"
+     "read = lambda settings, name: None\n",
+     "read(settings, 'custom_model_path')"),
+])
+def test_helper_inference_does_not_guess_an_unbound_setting(
+        helper_analyser, tmp_path, monkeypatch, helper, call):
+    data = _helper_fixture(helper_analyser, tmp_path, monkeypatch, helper, call)
+    assert not data["reads"].get("custom_model_path")
+
+
+def test_recorded_classifier_inputs_keep_their_training_and_inference_readers(data):
+    """N702's named-input helper must not erase the model consumer from its tree."""
+    expected = {
+        "custom_model_path": {"_cross_validate_model", "train_test_model"},
+        "resume_checkpoint": {"train_test_model"},
+        "model_path": {"apply_model_to_tar", "generate_activation_map", "deep_spacr"},
+    }
+    for key, functions in expected.items():
+        readers = {hit["function"] for hit in data["reads"][key]}
+        assert {f"spacr.deep_spacr.{name}" for name in functions} <= readers

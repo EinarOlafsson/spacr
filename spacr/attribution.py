@@ -3028,13 +3028,69 @@ def _spearman(a: np.ndarray, b: np.ndarray) -> float:
     return float(np.corrcoef(ra, rb)[0, 1])
 
 
+def _cf_preserved_channels(channels, n_channels):
+    """Validate explicit zero-based reference channels without coercing indices.
+
+    :param channels: explicit index list/tuple, or None for no constraint.
+    :param n_channels: number of source image channels.
+    :returns: a tuple of unique zero-based integer indices.
+    :raises ValueError: for noninteger, duplicate or out-of-range indices.
+    """
+    from numbers import Integral
+    from .qt.i18n import tr
+
+    if channels is None:
+        return ()
+    if not isinstance(channels, (list, tuple)) or any(
+            isinstance(value, (bool, np.bool_)) or not isinstance(value, Integral)
+            or value < 0 or value >= n_channels for value in channels):
+        raise ValueError(tr("Preserved channels must be a list of valid zero-based whole channel indices."))
+    result = tuple(int(value) for value in channels)
+    if len(result) != len(set(result)):
+        raise ValueError(tr("Select each preserved channel only once."))
+    return result
+
+
+def _cf_preserve_reference_channels(edited, original, channels):
+    """Copy reference pixels into a new NCHW edit batch; mutate neither input.
+
+    The original batch may contain one crop or one crop per edit. Dtype,
+    device and spatial/channel dimensions must match exactly. This is an
+    explicit constraint, not a claim that other channels retain cell identity.
+
+    :param edited: floating NCHW generated tensor.
+    :param original: matching source tensor with one or N source crops.
+    :param channels: explicit reference-channel indices.
+    :returns: a fresh tensor with reference pixels copied exactly.
+    :raises ValueError: for incompatible/nonfinite tensors or invalid indices.
+    """
+    from .qt.i18n import tr
+
+    if (not isinstance(edited, torch.Tensor) or not isinstance(original, torch.Tensor)
+            or edited.ndim != 4 or original.ndim != 4
+            or not all(edited.shape) or not all(original.shape)
+            or edited.shape[1:] != original.shape[1:]
+            or original.shape[0] not in (1, edited.shape[0])
+            or edited.dtype != original.dtype or edited.device != original.device
+            or not edited.is_floating_point() or not original.is_floating_point()):
+        raise ValueError(tr("Reference and edited crops must have matching floating NCHW shapes, dtype and device."))
+    if not torch.isfinite(edited).all() or not torch.isfinite(original).all():
+        raise ValueError(tr("Reference and edited crops must contain finite pixels."))
+    channels = _cf_preserved_channels(channels, edited.shape[1])
+    result = edited.clone()
+    if channels:
+        result[:, list(channels)] = original[:, list(channels)]
+    return result
+
+
 def _counterfactual_sequences(model: nn.Module,
                               generator: _CounterfactualGenerator,
                               crops: torch.Tensor, *, targets=None,
                               steps: int = 7, keep: int = 0,
                               monotone_tolerance: float = 0.02,
                               device: Any = 'cpu', labels=None,
-                              target_probs=None, finals: Optional[list] = None):
+                              target_probs=None, finals: Optional[list] = None,
+                              preserve_channels: Optional[Sequence[int]] = None):
     """Morph each crop toward another class and score every step.
 
     The code moves in ``steps`` equal steps from the crop's own code to its
@@ -3056,6 +3112,10 @@ def _counterfactual_sequences(model: nn.Module,
     :param device: torch device.
     :param labels: per-crop condition index, or ``None``.
     :param target_probs: per-condition class probabilities, or ``None``.
+    :param preserve_channels: optional zero-based reference channels copied
+        exactly from the existing float32 working crop into every frame before
+        scoring, realism evaluation and output. Other channels may still
+        redraw structure; this is not a biological identity guarantee.
     :param finals: when a list is given, every crop's last frame is appended
         to it (CPU tensors), which is what the realism score compares.
     :returns: ``(rows, frames)``: a list of one dict per crop (source and
@@ -3071,6 +3131,13 @@ def _counterfactual_sequences(model: nn.Module,
     would, in a single pass, which matters for the diffusion generator, where
     one decode is a whole guided sampling run.
     """
+    if preserve_channels is not None and (not isinstance(crops, torch.Tensor) or crops.ndim != 4):
+        from .qt.i18n import tr
+        raise ValueError(tr("Reference preservation requires NCHW crop tensors."))
+    preserved = _cf_preserved_channels(preserve_channels, crops.shape[1])
+    if preserved and not torch.isfinite(crops.float()).all():
+        from .qt.i18n import tr
+        raise ValueError(tr("Reference crops must contain finite pixels."))
     device = torch.device(device)
     wrapped = ClassScoreModel(model).to(device).eval()
     generator = generator.to(device).eval()
@@ -3093,6 +3160,8 @@ def _counterfactual_sequences(model: nn.Module,
             seq = _cf_edit(generator, x.expand(len(alphas), -1, -1, -1),
                            z.expand(len(alphas), *z.shape[1:]),
                            base.expand(len(alphas), -1, -1, -1), codes)
+            if preserved:
+                seq = _cf_preserve_reference_channels(seq, x, preserved)
             probs = torch.softmax(wrapped(seq), dim=-1)
             want = target_probs[int(tgt[i])]
             score = ((probs @ want) / (want @ want)).cpu().numpy()
@@ -3108,6 +3177,8 @@ def _counterfactual_sequences(model: nn.Module,
                 'edit_l1': float(change.mean()),
                 'changed_fraction': float((change > 0.1).float().mean()),
             })
+            if preserved:
+                rows[-1]['preserved_channels'] = ';'.join(str(value) for value in preserved)
             if finals is not None:
                 finals.append(seq[-1:].cpu())
             if i < int(keep):
@@ -3118,7 +3189,7 @@ def _counterfactual_sequences(model: nn.Module,
 def _class_mean_baseline(model: nn.Module, train: torch.Tensor,
                          test: torch.Tensor, *, device: Any = 'cpu',
                          train_labels=None, test_labels=None,
-                         target_probs=None, targets=None):
+                         target_probs=None, targets=None, preserve_channels=None):
     """Flip rate and edit size of the naive counterfactual, a class-mean shift.
 
     Each test crop gets the difference between the mean training crop of its
@@ -3128,6 +3199,8 @@ def _class_mean_baseline(model: nn.Module, train: torch.Tensor,
     ``target_probs`` the means are per condition and a flip is the
     target condition's most likely class. ``targets`` gives each test
     crop's target code; ``None`` uses the next code after its own.
+    ``preserve_channels`` applies the same reference-channel constraint as
+    the generated counterfactuals before scoring or measuring the shift.
 
     :returns: ``(flip_rate, median_edit_l1)``, NaN when a class has no
         training crops.
@@ -3135,6 +3208,7 @@ def _class_mean_baseline(model: nn.Module, train: torch.Tensor,
     device = torch.device(device)
     wrapped = ClassScoreModel(model).to(device).eval()
     train, test = train.float().to(device), test.float().to(device)
+    preserved = _cf_preserved_channels(preserve_channels, test.shape[1])
     train_labels, target_probs = _cf_codes(wrapped, train, train_labels,
                                            target_probs)
     src, _ = _cf_codes(wrapped, test, test_labels, target_probs)
@@ -3148,6 +3222,9 @@ def _class_mean_baseline(model: nn.Module, train: torch.Tensor,
     tgt = (src + 1) % n if targets is None else torch.as_tensor(targets).long()
     shift = torch.stack([means[int(t)] - means[int(s)] for s, t in zip(src, tgt)])
     moved = test + shift
+    if preserved:
+        moved = _cf_preserve_reference_channels(moved, test, preserved)
+        shift = moved - test
     wanted = target_probs.argmax(dim=1)[tgt].to(device)
     flipped = (_cf_scores(wrapped, moved).argmax(dim=1) == wanted).float().mean()
     span = (test.amax(dim=(1, 2, 3)) - test.amin(dim=(1, 2, 3))).clamp_min(1e-8)
@@ -3236,7 +3313,8 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
                            out_dir: Optional[str] = None,
                            conditions: Optional[Sequence[str]] = None,
                            target: Any = None, generator: str = 'autoencoder',
-                           generator_options: Optional[Dict[str, Any]] = None):
+                           generator_options: Optional[Dict[str, Any]] = None,
+                           preserve_channels: Optional[Sequence[int]] = None):
     """Train a counterfactual generator on crops and score it on held-out ones.
 
     The crops are split, seeded, into a training part and a held-out part.
@@ -3274,6 +3352,10 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
         against the classifier; see :class:`_CounterfactualDiffusion`). With
         ``out_dir`` the diffusion weights are saved there as
         ``counterfactual_diffusion.pt``.
+    :param preserve_channels: optional explicit zero-based reference channels
+        kept at their existing float32 working values in every scored/output
+        edit and the class-mean baseline.
+        No training objective or scientific identity claim is implied.
     :param generator_options: extra keyword arguments for the generator's
         trainer, for example ``width`` or ``strength`` for diffusion.
     :returns: ``(summary, rows, frames)``: a dict of summary metrics, the
@@ -3283,6 +3365,13 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
         or training condition, or no held-out crop outside the target.
     """
     crops = torch.as_tensor(crops).float()
+    if preserve_channels is not None and crops.ndim != 4:
+        from .qt.i18n import tr
+        raise ValueError(tr("Reference preservation requires NCHW crop tensors."))
+    preserved = _cf_preserved_channels(preserve_channels, crops.shape[1])
+    if preserved and not torch.isfinite(crops.float()).all():
+        from .qt.i18n import tr
+        raise ValueError(tr("Reference crops must contain finite pixels."))
     n = crops.shape[0]
     if n < 4:
         raise ValueError(f'counterfactuals need at least 4 crops; got {n}')
@@ -3335,7 +3424,7 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
         model, generator, crops[test_idx], targets=goals, steps=steps,
         keep=show, device=device,
         labels=None if codes['labels'] is None else codes['labels'][test_idx],
-        target_probs=codes['target_probs'], finals=finals)
+        target_probs=codes['target_probs'], finals=finals, preserve_channels=preserved)
     realism, realism_source = _cf_realism(
         model, crops[train_idx], crops[test_idx], finals, rows, device=device,
         train_labels=None if codes['labels'] is None else codes['labels'][train_idx])
@@ -3349,7 +3438,7 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
         model, crops[train_idx], crops[test_idx], device=device,
         train_labels=None if codes['labels'] is None else codes['labels'][train_idx],
         test_labels=None if codes['labels'] is None else codes['labels'][test_idx],
-        target_probs=codes['target_probs'], targets=goals)
+        target_probs=codes['target_probs'], targets=goals, preserve_channels=preserved)
     spear = np.array([r['spearman'] for r in rows], dtype=float)
     summary = {
         'train_crops': int(len(train_idx)), 'heldout_crops': int(len(test_idx)),
@@ -3366,6 +3455,8 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
         'generator': kind,
         'realism_fd': realism, 'realism_fd_unedited': realism_source,
     }
+    if preserved:
+        summary["preserved_channels"] = ";".join(str(value) for value in preserved)
     if out_dir:
         _write_counterfactual_outputs(out_dir, summary, rows, frames)
         if kind == 'diffusion':

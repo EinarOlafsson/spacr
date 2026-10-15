@@ -477,3 +477,73 @@ def test_the_real_plate1_nuclei_fit_a_g1_and_a_g2_peak(tmp_path):
     assert fit.weights[1] > 0.1
     shares = measured["phase_measurements"].value_counts(normalize=True)
     assert shares["G1"] > shares["G2"] > shares.get("M", 0)
+
+
+@pytest.mark.parametrize('level', ['well', 'field', 'plate'])
+def test_tabular_phase_shared_split_keeps_requested_identity_disjoint(monkeypatch, level):
+    import xgboost
+    from spacr.classifier_evaluation import split_group_values
+    real = xgboost.XGBClassifier
+    fits, predictions = [], []
+    class Recorded(real):
+        def fit(self, x, y, **kwargs):
+            fits.append(set(x[:, 1].astype(int)))
+            return super().fit(x, y, **kwargs)
+        def predict(self, x, **kwargs):
+            predictions.append(set(x[:, 1].astype(int)))
+            return super().predict(x, **kwargs)
+    monkeypatch.setattr(xgboost, 'XGBClassifier', Recorded)
+    n = 144
+    index = np.arange(n)
+    metadata = pd.DataFrame({'plateID': ['p' + str(i // 48) for i in index],
+                             'rowID': 'r1', 'columnID': ['c' + str(i // 24) for i in index],
+                             'fieldID': ['f' + str(i // 12) for i in index]})
+    _, groups = split_group_values(frame=metadata, group_by=level)
+    features = pd.DataFrame({'signal': index % 2, 'row_marker': index})
+    labels = pd.Series(np.where(index % 2, 'S', 'G1'))
+    _, _, report, _ = _phases_by_xgboost(features, labels, groups, group_by=level)
+    assert len(fits) == 2 and len(predictions) == 1
+    trained, held = fits[0], predictions[0]
+    assert trained.isdisjoint(held) and trained | held == set(index)
+    assert set(groups[list(trained)]).isdisjoint(groups[list(held)])
+    if level == 'well':
+        well = metadata.plateID + '_' + metadata.rowID + '_' + metadata.columnID
+        assert set(well.iloc[list(trained)]).isdisjoint(well.iloc[list(held)])
+    assert report['split_group_by'] == report['split']['group_by'] == level
+    assert report['split']['test_cells'] == report['held_out']['n'] == len(held)
+    assert fits[-1] == set(index)
+
+
+@pytest.mark.parametrize('design', ['one_group', 'one_group_per_class'])
+def test_tabular_phase_inadequate_holdout_has_no_invented_scores(design):
+    features = pd.DataFrame({'signal': [0, 1] * 12})
+    labels = pd.Series(['G1', 'S'] * 12)
+    groups = np.repeat('only-well', len(labels)) if design == 'one_group' else labels.to_numpy()
+    phases, confidence, report, _ = _phases_by_xgboost(features, labels, groups, group_by='well')
+    assert len(phases) == len(confidence) == len(labels)
+    assert report['split_group_by'] == 'well'
+    assert report['held_out_unavailable']
+    assert 'held_out' not in report and 'split' not in report
+
+
+@pytest.mark.parametrize('requested,expected', [(None, 'well'), ('field', 'field'), ('plate', 'plate'), ('cell', 'cell')])
+def test_tabular_phase_measure_caller_uses_well_default_and_explicit_grouping(tmp_path, monkeypatch, requested, expected):
+    from spacr import tabular
+    table, truth = _nucleus_table(n=600, plates=('plate1', 'plate2'))
+    db = tmp_path / 'measurements.db'
+    tabular.write_database(table, db, 'nucleus', canonicalise=False, if_exists='replace')
+    settings = {'channels': [0], 'nucleus_channel': 0, 'cell_cycle_method': 'xgboost', 'plot': False, 'n_jobs': 1}
+    if requested is not None:
+        settings['cv_group_by'] = requested
+    actual = measure._phases_by_xgboost
+    captured = []
+    def run(features, labels, groups, **kwargs):
+        captured.append((groups.copy(), kwargs['group_by']))
+        return actual(features, labels, groups, **kwargs)
+    monkeypatch.setattr(measure, '_phases_by_xgboost', run)
+    result, report = _classify_cell_cycle(db, settings, plot=False)
+    assert captured[0][1] == report['xgboost']['split_group_by'] == expected
+    assert report['xgboost']['split']['group_by'] == expected
+    if expected == 'well':
+        for _, rows in result.groupby(['plateID', 'rowID', 'columnID']):
+            assert len(set(captured[0][0][rows.index])) == 1

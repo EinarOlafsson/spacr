@@ -475,6 +475,16 @@ Debian outside helper exists but lacks a privileged verified rollback transactio
 its refusal is retained and no real dpkg/root/package operation was run.
 Source-bound receipt: features/data/n703_current_catalog_closure_2026-10-14/.
 
+2026-10-15 00:05 EDT — Actual public caption-arrival refresh, explicit foreign hold
+Fetched and normally merged public helper e7a8e58a698, then executed its real
+--refresh command under the shared capped lock. Actualexit1: caption arrival
+lacks explicit reviewed record: sv/('UI', 'AI Error report'). The fixture is
+unchanged. This supersedes the earlier missing-tool hold with an observed
+N700-owned missing-review refusal. No waiver, manual fixture edit, model sweep
+or N700 source change was made. N703 runtime/API/63 owning PASS scope is
+unchanged; global acceptance remains held. Exact source/tool hashes and raw
+refusal are in features/data/n703_current_catalog_closure_2026-10-14/.
+
 
 2026-10-15 00:08 EDT — Online installer transaction leases and private NSIS staging
 Closed a concrete same-root concurrency defect: independent installer staging
@@ -545,3 +555,15 @@ handoff, interrupted-lease recovery UI, global N700 caption hold, current full
 hosted CI and parentN703 remain OPEN. No live install/account/package operation,
 network, user data or GPU was used. Evidence:
 features/data/n703_retirement_transaction_lease_2026-10-15/.
+
+2026-10-15 00:33 EDT — Current-public merge and normal catalog regeneration
+Merged the current public source normally. Both dated703 note tails were
+preserved. Generated catalog conflicts were resolved by taking all public
+catalogs intact and regenerating them with the normal tool from current
+sources and the four exact N703 review files. All9 locales preserve every
+unrelated public target and13 owned captions match their reviews; source audit
+passes with7,672UI entries. Own tested production and owning test files remain
+byte-identical to the193PASS source. Only Easy's unrelated journal fixture
+changes merged into the purge test file; its owned function is AST-identical.
+Ten actual post-merge locale/purge checks PASS/exit0/1.83s. The complete193-case
+cohort was reused, with no extra full-CI/native acceptance claim.

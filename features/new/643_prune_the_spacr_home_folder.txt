@@ -53,3 +53,36 @@ worker. Separate-process/remote-host live-run detection and native fork/OS
 acceptance are not established by these tests. No real jobs, logs, annotations,
 models, caches, user data, GPU or external provider operation was touched.
 Evidence: data/643_worker_run_prune_protection_2026-10-14/receipt.json.
+
+2026-10-15 — misleading log-like data names are never age-pruned:
+The log candidate check now requires an actual .log ending or .log followed
+by a numeric rotation. Mere .log substrings no longer admit old data such as
+spacr-results.log.csv, spacr.log-notes.txt, spacr.log.backup or spacr.log.1.csv.
+The same exact guard revalidates deletion plans, so a stale/forged candidate
+cannot bypass it. Native baseline4FAIL/1PASS4.00seconds; the focused existing
+storage/pruning/active-worker cohort plus five native cases passes45 in
+6.93seconds under a2G cap. Actual logs and rotations remain deletable. No live
+logs/data/model/network/GPU/fullCI operations or UI/caption changes.
+Evidence: data/643_exact_log_suffix_pruning_2026-10-15/receipt.json.
+
+2026-10-15 — age-pruning requires conservative journal evidence:
+Directories are no longer deemed run journals solely because they are under
+runs_root. Regular non-symlink manifest JSON must contain actual app/start/
+status fields and known schema1–3 or legacy absent schema; renamed genuine
+records remain eligible. Each JSON read is bounded to1MiB. Oversize, unreadable,
+malformed and unknown-schema markers are preserved, never presumed safe.
+Without a manifest, exact native timestamp/UUID/app names allow validated
+settings plus only known bootstrap files/empty outputs, or an actual all-empty
+bootstrap. Unknown populated directories/files remain untouched. Active-run
+protection precedes evidence reads. Planning and deletion revalidation share
+the guard; direct explicitly selected delete_runs behavior is unchanged.
+Corrected isolated native baseline2FAIL/5PASS1.15seconds; final71PASS3.51seconds
+under2G, with27new native cases, genuine serializer/renamed/legacy/partial,
+unknown/oversized/unreadable/symlink and active-protection coverage. Existing
+fake journal fixtures now use actual Run serializers without weaker assertions.
+Exactly one unrelated public-baseline stale installer assertion is explicitly
+excluded, independently reproduced1FAIL1.24seconds and assigned to its owner;
+no installer code/test assertion was altered in this component. Oversized or
+corrupt journals deliberately require manual review. No live data/model/network/
+GPU/fullCI operations. Evidence:
+data/643_journal_evidence_pruning_2026-10-15/receipt.json.

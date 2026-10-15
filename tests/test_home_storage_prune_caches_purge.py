@@ -13,7 +13,7 @@ from spacr import install_cleanup as ic
 from spacr import run_journal as rj
 
 DAY = 86400.0
-CACHE_VARS = ("CELLPOSE_LOCAL_MODELS_PATH", "HF_HOME", "TORCH_HOME",
+CACHE_VARS = ("SPACR_MODEL_CACHE", "CELLPOSE_LOCAL_MODELS_PATH", "HF_HOME", "TORCH_HOME",
               "SPACR_BACKENDS_DIR", "SPACR_NEWS_CACHE", "SPACR_HOME")
 
 
@@ -42,7 +42,12 @@ def _aged(path: Path, days: float, size: int = 1000) -> Path:
     else:
         path.mkdir(exist_ok=True)
         (path / "log.txt").write_bytes(b"x" * size)
-        os.utime(path / "log.txt", (time.time() - days * DAY,) * 2)
+        run = rj.Run(app_key="mask", settings={}, dir=path)
+        run.status = "success"
+        run._write_settings()
+        run._write_manifest()
+        for child in path.iterdir():
+            os.utime(child, (time.time() - days * DAY,) * 2)
     os.utime(path, (time.time() - days * DAY,) * 2)
     return path
 
@@ -114,7 +119,7 @@ def test_the_cache_list_measures_each_cache(home):
                          "backends", "news"}
     assert rows["huggingface"]["size"] >= 4096 and rows["huggingface"]["exists"]
     assert rows["torch"]["exists"] is False and rows["torch"]["size"] == 0
-    assert rows["models"]["relocatable"] is False
+    assert rows["models"]["relocatable"] is True
 
 
 def test_clearing_a_cache_keeps_the_folder_and_link_targets(home, tmp_path):
@@ -157,6 +162,7 @@ def test_relocating_moves_records_and_reapplies(home, tmp_path, monkeypatch):
 
 def test_relocation_is_refused_when_set_outside_spacr(home, tmp_path, monkeypatch):
     monkeypatch.setenv("HF_HOME", str(tmp_path / "theirs"))
+    monkeypatch.setenv("SPACR_MODEL_CACHE", str(tmp_path / "external-models"))
     with pytest.raises(ValueError):
         rj._relocate_cache("huggingface", tmp_path / "bigdisk")
     with pytest.raises(ValueError):

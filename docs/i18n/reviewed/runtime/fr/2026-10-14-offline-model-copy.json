@@ -1,0 +1,14 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "key": "Automatic model downloads are disabled by SPACR_MODEL_DOWNLOAD. Copy verified model {model} (sha256 {sha256}) to {path}.",
+      "source": "Automatic model downloads are disabled by SPACR_MODEL_DOWNLOAD. Copy verified model {model} (sha256 {sha256}) to {path}.",
+      "source_sha256": "2f0cd9fb43e9e80e8a930d85db46477cf87cdb94997967582eaaa980a03fbc89",
+      "table": "ui",
+      "translation": "Les téléchargements automatiques de modèles sont désactivés par SPACR_MODEL_DOWNLOAD. Copiez le modèle vérifié {model} (sha256 {sha256}) vers {path}."
+    }
+  ],
+  "review_scope": "AI technical review: offline no-download semantics, exact environment identifier, model/hash/path placeholders preserved; no native-speaker signoff.",
+  "schema": 1
+}
