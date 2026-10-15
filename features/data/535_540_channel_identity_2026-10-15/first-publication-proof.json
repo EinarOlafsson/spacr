@@ -1,0 +1,36 @@
+{
+  "tested_coherent_closure": "7b37fc21cbe91432e7c1e2e96662b05b87a9bb02",
+  "immutable_incoming_public": "9e78ea290c7601607ba2a73d659f2d9d76d34df3",
+  "public_driver_base": "b460359010b4614f3a8e5261c3d0a804bc4e1f1f",
+  "unrelated_incoming_public_files_exact": 33577,
+  "incoming_changed_python_sources_tr_calls_exact": [
+    "spacr/qt/bridge.py",
+    "spacr/qt/help_api_index.py",
+    "spacr/qt/widgets/activity_spinner.py",
+    "tools/publish_docs_channels.py"
+  ],
+  "incoming_runtime_catalogs_and_owning_generators_unchanged": true,
+  "generated_runtime_catalogs_and_arrivals_exact_tested_closure": true,
+  "actual_source_file_hashes_exact": {
+    "spacr/measure.py": "7dbd0cd39563df943820181b35fbd9b4807b147effee2ed8184098d7835ac5d1",
+    "tools/build_i18n_catalogs.py": "c7b70b1f4e114b883f970cce6c86c47d4f92bf96cd5545166c859c94c255d4f3",
+    "spacr/qt/i18n.py": "f9416268933e1d763279e2755e7317a48fd494630288d87b89a66e1ed080d754",
+    "tests/test_measured_channel_identity.py": "200c4a825c752282dfd70f67202e450c1b184c74884fd4200de94453d2500267",
+    "tools/build_documentation_i18n.py": "6f3a86f5ce51672dcf11b420f6c1a14a7d1e7fec9f5b353676749ac4b5e530ad"
+  },
+  "checks": "47 owning checks and actual normal API visibility inventory; full nine-locale runtime audit and ordinary arrivals; 18 actual classifier locale callbacks, zero skips. Unchanged checks not repeated after unrelated publication/API/tutorial merge.",
+  "limits": "Shared physical-channel source component only. No whole F535/F540, biological calibration, native model training, global CI or release acceptance. Incoming API prose and publication-verifier changes remain their owners separate reviewed artifacts; owning runtime captions and generator inputs did not change.",
+  "validated_tree_ids": {
+    "spacr": "a549232910620726f50090a082136112b149045b",
+    "tools": "0b3f33aa950b7ae803ac0161f5d0868897165eb5",
+    "docs": "bef557294db270373706c2554b0875b69bf57cf2",
+    "tests": "3fb55bf7788338a5fb1a00daf14fb577fa7caa2e"
+  },
+  "artifact_sha256": {
+    "spacr/measure.py": "7dbd0cd39563df943820181b35fbd9b4807b147effee2ed8184098d7835ac5d1",
+    "tools/build_i18n_catalogs.py": "c7b70b1f4e114b883f970cce6c86c47d4f92bf96cd5545166c859c94c255d4f3",
+    "spacr/qt/i18n.py": "f9416268933e1d763279e2755e7317a48fd494630288d87b89a66e1ed080d754",
+    "tests/test_measured_channel_identity.py": "200c4a825c752282dfd70f67202e450c1b184c74884fd4200de94453d2500267",
+    "tools/build_documentation_i18n.py": "6f3a86f5ce51672dcf11b420f6c1a14a7d1e7fec9f5b353676749ac4b5e530ad"
+  }
+}
