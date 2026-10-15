@@ -1,7 +1,7 @@
 tutorial,title,video,audio,captions,required_repair,nightly_push
 01_pypi_github,"Find spaCR on GitHub, PyPI and conda-forge",KEEP,KEEP (technical assessment),KEEP,None identified; existing media retained,216b74017
 02_install_spacr,Install spaCR,REPAIRED — scene 7 command reference only,KEEP — all 50 tracks and timing sidecars retained,KEEP — all 14 catalog objects retained,Completed: 72 playback cases; 84 candidate and 84 prepared Pages routes; full media readback,3e5d4db54
-04_platform_installers,Install spaCR with a desktop installer,REPAIRED — Home scene 9; doctor scene 10; encoded QA passed,KEEP — all 50 tracks and timing sidecars,KEEP — all 14 catalog objects,Fresh capture and full encoded QA passed; static-clock fix passed 225 checks and independent review; actual 73-operation playback matrix active,Pending completed tutorial; progress accompanying commit
+04_platform_installers,Install spaCR with a desktop installer,REPAIRED — Home scene 9; doctor scene 10; encoded QA passed,KEEP — all 50 tracks and timing sidecars,KEEP — all 14 catalog objects,Video encoded and media upload/readback verified; hosted seek fix passed 226 tests and independent peer; fresh 73-operation playback rerun active; final publication pending,Pending completed tutorial; progress accompanying commit
 05_home,Home screen and navigation,Pending review,Pending review,Pending review,Undetermined; no remake assumed,
 06_api,Python API and batch commands,Pending review,Pending review,Pending review,Undetermined; no remake assumed,
 07_mask,Mask: segment images and inspect the results,Pending review,Pending review,Pending review,Undetermined; no remake assumed,
