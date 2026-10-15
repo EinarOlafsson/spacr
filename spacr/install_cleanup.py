@@ -3733,6 +3733,18 @@ def _prepare_windows_uninstall(root, workdir, *, machine=None, base_prefix=None)
     return {"schema": 1, "workdir": workdir, "root": root, "command": command}
 
 
+def _cleanup_translate(source, **values):
+    """Use the application catalog when available while keeping standalone helpers usable."""
+    try:
+        from spacr.qt.i18n import tr as application_tr
+        return application_tr(source, **values)
+    except Exception:
+        return str(source).format(**values)
+
+
+tr = _cleanup_translate
+
+
 def _main(argv: Optional[Sequence[str]] = None) -> int:
     """Command line used by the installers and by the update helper.
 
@@ -3755,8 +3767,8 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     find.add_argument("--root", default="/", help=argparse.SUPPRESS)
     remove = commands.add_parser("remove", help="remove every installer-made copy")
     remove.add_argument("--keep", action="append", default=[])
-    remove.add_argument("--only-root", help="remove only this recognized installation, preserving its data")
-    remove.add_argument("--require-outside", action="store_true", help="require an interpreter outside the selected root")
+    remove.add_argument("--only-root", help=tr("remove only this recognized installation, preserving its data"))
+    remove.add_argument("--require-outside", action="store_true", help=tr("require an interpreter outside the selected root"))
     remove.add_argument("--sudo", action="store_true")
     remove.add_argument("--root", default="/", help=argparse.SUPPRESS)
     remove.add_argument("--purge", action="store_true",
@@ -3775,10 +3787,10 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     recover.add_argument("--protected", action="store_true")
     recover.add_argument("--version")
     recover.add_argument("--sha256")
-    runtime_recover = commands.add_parser("recover-runtime", help="restore one unchanged retained private POSIX runtime")
+    runtime_recover = commands.add_parser("recover-runtime", help=tr("restore one unchanged retained private POSIX runtime"))
     runtime_recover.add_argument("transaction")
-    runtime_recover.add_argument("--pid", type=int, required=True, help="previous desktop process that must have exited")
-    prepare_uninstall = commands.add_parser("prepare-windows-uninstall", help="copy the private managed Python outside this installation")
+    runtime_recover.add_argument("--pid", type=int, required=True, help=tr("previous desktop process that must have exited"))
+    prepare_uninstall = commands.add_parser("prepare-windows-uninstall", help=tr("copy the private managed Python outside this installation"))
     prepare_uninstall.add_argument("--install-root", required=True)
     prepare_uninstall.add_argument("--workdir", required=True)
     args = parser.parse_args(argv)
@@ -3786,7 +3798,7 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
         try:
             receipt = _prepare_windows_uninstall(args.install_root, args.workdir)
         except Exception as error:
-            print(f"Uninstall preparation stopped: {error}")
+            print(tr("Uninstall preparation stopped: {error}", error=str(error)))
             return 1
         print(json.dumps(receipt, sort_keys=True))
         return 0
@@ -3794,7 +3806,7 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
         try:
             receipt = _recover_runtime_update(args.transaction, args.pid)
         except Exception as error:
-            print(f"Runtime recovery stopped: {error}")
+            print(tr("Runtime recovery stopped: {error}", error=str(error)))
             return 6
         print(json.dumps(receipt, sort_keys=True))
         return 0
@@ -3836,7 +3848,7 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     if args.command == "remove" and args.require_outside:
         if (not args.only_root or any(_inside(os.path.realpath(path), os.path.realpath(args.only_root))
                                      for path in (sys.prefix, sys.executable, __file__))):
-            print("Uninstall requires a helper and interpreter outside the selected installation.")
+            print(tr("Uninstall requires a helper and interpreter outside the selected installation."))
             return 1
     records = find_old_installs(system=machine)
     if args.command == "remove" and args.only_root:
@@ -3844,7 +3856,7 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
         selected = [record for record in records if record.kind == "installer"
                     and os.path.abspath(record.root) == requested]
         if (args.purge or os.path.realpath(requested) != requested or len(selected) != 1):
-            print("Targeted removal requires one recognized canonical installation and cannot purge user data.")
+            print(tr("Targeted removal requires one recognized canonical installation and cannot purge user data."))
             return 1
         records = selected
     if args.command == "find":

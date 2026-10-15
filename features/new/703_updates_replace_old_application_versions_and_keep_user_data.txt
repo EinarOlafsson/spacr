@@ -353,3 +353,28 @@ active desktop/file-lock behavior and native uninstall/data retention remain
 PENDING. This is implemented wiring with CPU contracts, not Windows acceptance,
 installer/update success, current hosted full-CI green or parent N703 completion.
 Raw evidence: /mnt/wd4tb/scratch/n703-windows-uninstall-20261014/delivery-receipt.json.
+
+
+2026-10-14 23:22 EDT — Home CLI translation correction; artifact hold
+Review correctly found new unwrapped CLI help/refusal strings in the private
+Linux/Windows uninstall and retained-runtime changes. All9 newly introduced
+argparse/help/refusal/error-template strings now use literal tr calls. The private
+translation adapter uses spaCR's real catalog when importable and a stdlib-only
+formatted English fallback for an extracted helper without spaCR/Qt. It adds no
+public or nested helper. Exact current-source AI technical reviews for all9
+captions in all9 locales are in 2026-10-14-n703-uninstall-cli.json; all81 candidates
+passed the normal translation validity checker. No human/native review is claimed.
+
+Actual18 PASS/exit0 validate the Linux disposable-tree removals, Windows
+preparation/routing/outside guard, standalone formatting fallback and literal
+tr-call source contract. Nine real locale lookup/help tests are prepared but
+PENDING generated catalogs. The normal runtime writer refused preflight: this
+base's extractor does not scan spacr/install_cleanup.py, so none of these9 sources
+are canonical UI arrivals. No generated output was written, no caption was planted
+in an unrelated GUI source, and no unowned extractor or arrival fixture was edited.
+The extractor owner must add this actual source path with its owning contract,
+then normal generation and the9 locale tests must pass before publication. The
+combined N700 review/arrival hold remains separate. Earlier claims of no caption
+arrival apply to neither this correction nor the newly found CLI strings.
+Raw evidence: /mnt/wd4tb/scratch/n703-uninstall-cli-i18n-20261014/runtime-v2.log,
+owning.xml and owning.exit. Normal runtime generation is NOT claimed passed.
