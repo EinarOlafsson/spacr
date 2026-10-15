@@ -253,3 +253,60 @@ reports9833 baseline/1088 added/151 retired/31 changed. Source and review
 hashes remain exact to d25e03edf02; no unchanged42-case/model/training run
 was repeated. Whole F562 scientific/feature acceptance remains separate.
 Combined evidence: features/data/594_existing_table_selection_2026-10-15/.
+
+2026-10-15 — Stored-object join cardinality and acquisition identity (alpha).
+The read-only _mil_frame_from_db boundary refuses contradictory known
+plate/row/column/field metadata for one object key and contradictory stored
+embedding or provenance rows. Exact duplicate stored rows coalesce into one
+cell; legitimate alternative crop views retain the first valid path. Later
+known metadata survives an earlier blank and retains authority over parsed
+key metadata. No DB writes/migration, renaming, training or algorithm changes.
+Actual old-source18-case counterexample16FAIL2PASS1.90s; patched owning
+61PASS4deselected6.93s includes18new real SQLite cases and43existing reader/
+direct-MIL cases, with all4training tests excluded. Every private source DB
+remains byte-exact. Evidence:data/562_db_cardinality_2026-10-15/. Two new
+literal diagnostic targets drafted in9locales; normal review/writer closure
+and18actual localized refusal callbacks remain pending at this source note.
+No biological efficacy, native model training or whole-feature/fullCI claim.
+
+2026-10-15 — Stored-object join coherent runtime closure.
+Parent independently reviewed exact helper source and all18technical targets.
+One normal writer installs2diagnostics in9locales while preserving
+10,770 unrelated source-current rows per locale; actual full9runtimeaudit
+and normal immutable-arrival refresh PASS (9833baseline/1090added/
+151retired/31changed). Only18newactual localized read-only
+SQLite refusals were run after installation:18PASS,zero skips. The unchanged
+61-case helper cohort was not repeated. Original collector and4source/tool/
+test file hashes rechecked across normal closure; no catalog rows hand-edited.
+Raw scripts/logs/source hashes and peer evidence retained in the same folder.
+No training, biological efficacy, wholefeature or fullCI/release acceptance.
+
+2026-10-15 — Known embedding coordinate identity boundary (alpha).
+_mil_bags refuses conflicting known fingerprints or valid64hex checkpoint
+weight identities among retained cells when any selected feature is emb_*.
+Opaque custom fingerprints remain case-sensitive identities; canonical16hex
+fingerprints and valid64hex weights compare without case differences. Only
+missing/blank/documented case-insensitive unknown fingerprints are excluded;
+unverified weight markers are not treated as actual digests. Legacy unknown
+rows remain unverified input. Measurement-only feature selections and dropped
+rows do not acquire new identity requirements. No model/training change.
+Actual22-case old-helper baseline5FAIL17PASS1.16s; patched owning50PASS
+19deselected5.36s includes22new coordinate cases and28existing direct-MIL/
+label cases. Original frames unchanged. Normal actual writer replacement and
+read-only SQLite reader/bags counterexamples are retained separately; numeric
+vectors/checkpoint identifiers are declared synthetic, not real inference.
+Parent independently reviewed exact15lineguard and9technical targets.
+Normal9locale writer/fullaudit/arrivals and9actual localized callbacks remain
+pending at this source note. Evidence:data/562_coordinate_identity_2026-10-15/.
+No verified-identity, scientific efficacy, wholefeature or fullCI claim.
+
+2026-10-15 — Known coordinate identity coherent runtime closure.
+Normal exact-source/review/candidate gates install1diagnostic perlocale,
+preserving10,772 unrelated current targets each. Actual full9runtimeaudit
+PASS and normal immutable arrivals PASS:9833baseline/1091added/
+151retired/31changed. Only9newactual localized refusals run after
+installation:9PASS,zero skips; unchanged50-case helper cohort not repeated.
+Original collector and4source/tool/test hashes remain exact through closure.
+Parent source/technical target peer and all raw receipts retained in the same
+evidence folder. Legacy unknown identities remain unverified; no model
+training, scientific efficacy, wholefeature or fullCI/release acceptance.

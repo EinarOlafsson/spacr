@@ -1516,6 +1516,21 @@ def _mil_bags(frame: Any, *, well_column: str = _MIL_WELL_COLUMN,
         from .qt.i18n import tr
 
         raise ValueError(tr("Multiple-instance feature values must remain finite when converted to float32."))
+    if any(str(column).startswith(EMBEDDING_PREFIX) for column in feature_columns):
+        for column in ("_embedding_fingerprint", "_embedding_weights_sha256"):
+            if column not in kept.columns:
+                continue
+            identities = kept[column].dropna().astype(str).str.strip().drop_duplicates()
+            identities = identities[identities.ne("") & identities.str.casefold().ne("unknown")]
+            if column == "_embedding_weights_sha256":
+                identities = identities[identities.str.fullmatch(r"[0-9a-fA-F]{64}")].str.lower()
+            else:
+                identities = identities.map(
+                    lambda value: value.lower() if re.fullmatch(r"[0-9a-fA-F]{16}", value) else value)
+            if identities.nunique() > 1:
+                from .qt.i18n import tr
+
+                raise ValueError(tr("Selected embedding features have conflicting known encoder fingerprints or weights."))
     acquisition = [column for column in ('plateID', 'rowID', 'columnID')
                    if column in kept.columns]
     for well, group in kept.groupby(well_column, sort=True):
@@ -1862,12 +1877,29 @@ def _mil_frame_from_db(db_path: str, labels: Any = None, *,
     crops["prcfo"] = crops["prcfo"].astype(str)
     stored = stored.copy()
     stored["prcfo"] = stored["prcfo"].astype(str)
+    from .qt.i18n import tr
+
+    stored = stored.drop_duplicates()
+    repeated = stored["prcfo"].duplicated(keep=False)
+    if repeated.any():
+        key = stored.loc[repeated, "prcfo"].iloc[0]
+        raise ValueError(tr("Stored embeddings disagree for object key {key}.", key=key))
+    repeated = crops["prcfo"].duplicated(keep=False)
+    for key, group in crops.loc[repeated].groupby("prcfo", sort=False):
+        for column in ("plateID", "rowID", "columnID", "fieldID", "png_path"):
+            if column not in group.columns:
+                continue
+            values = group[column].dropna()
+            known = values[values.astype(str).str.strip().ne("")]
+            if column != "png_path" and known.astype(str).str.strip().nunique() > 1:
+                raise ValueError(tr("Crop acquisition metadata disagrees for object key {key}.", key=key))
+            if not known.empty:
+                crops.at[group.index[0], column] = known.iloc[0]
     frame = crops.drop_duplicates("prcfo").merge(stored, on="prcfo",
-                                                 how="inner")
+                                                 how="inner", validate="one_to_one")
     if frame.empty:
         raise ValueError(f"no stored embedding in {db_path} joins a crop")
     from .schema import parse_prcfo
-    from .qt.i18n import tr
 
     parsed = {}
     for column in ("plateID", "rowID", "columnID", "fieldID"):

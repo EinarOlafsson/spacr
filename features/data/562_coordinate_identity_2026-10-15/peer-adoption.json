@@ -1,0 +1,56 @@
+[
+  {
+    "path": "docs/i18n/reviewed/runtime/sv/2026-10-15-mil-coordinate-identity.json",
+    "reviewed_draft_sha256": "e4a5aa909c5921118f90627c15959a116cfe11255162712b402c3610b921950a",
+    "final_sha256": "b807e288eeb6e507830494c2d897d235242a63bfdad6ff2e4d6f43b556b82f69",
+    "records_unchanged": true
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/de/2026-10-15-mil-coordinate-identity.json",
+    "reviewed_draft_sha256": "cc638e0596080efb30bf1a80a0da09a84b0466c7be2eca7cc8ffb3a69fe9d3fd",
+    "final_sha256": "1b3bc4d2dc3bbbe9ae2b793055b451ab255c259933197753df4706aa9f4f68f3",
+    "records_unchanged": true
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/es/2026-10-15-mil-coordinate-identity.json",
+    "reviewed_draft_sha256": "f13daa3bde05978392363d760c0332d1a0b856fc61e98425c5138b86ec7b35c1",
+    "final_sha256": "f06bde1e53beaa712cb009c676d91dd36ee1f6b38515a6eeded68f1f7e13ae98",
+    "records_unchanged": true
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-mil-coordinate-identity.json",
+    "reviewed_draft_sha256": "dd51073361969dc9047ed7858de3854be518693fcd1897a424f5cb04aa2988f4",
+    "final_sha256": "6cd071b7160efa5946b5a846076a9e9b868f730391b0f8f9bd56be76c3b96c67",
+    "records_unchanged": true
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/fr/2026-10-15-mil-coordinate-identity.json",
+    "reviewed_draft_sha256": "576411d73facccbf03ad631a5260c6924c2d71cc85ac5ba775ff8e697619854d",
+    "final_sha256": "b25be7f70a41cae20d0a1e0f8f4a8ed2eb6b87ee8e260da73c1fe8f5b8c2dfff",
+    "records_unchanged": true
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/pt/2026-10-15-mil-coordinate-identity.json",
+    "reviewed_draft_sha256": "dfadde6201ea652991a1131697528b0beb24f42ea80e83355ce8cb7760052a15",
+    "final_sha256": "ff9ff1763070e9fbbdd10b6064c7a181d13ff6bca073c90963e8369fc62eaca5",
+    "records_unchanged": true
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/hi/2026-10-15-mil-coordinate-identity.json",
+    "reviewed_draft_sha256": "08e66aadd2fd2f835244bd28ed51ee49e9477c890712a70b4016d4b1634d37c7",
+    "final_sha256": "23379bf821190671ae3645d6a8ffe54703648f42c7433028d0a1419051affd28",
+    "records_unchanged": true
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/ko/2026-10-15-mil-coordinate-identity.json",
+    "reviewed_draft_sha256": "ca0aada602c08a7d19f940986698adf20cb9ccfd6d1ed575c904f926c161da48",
+    "final_sha256": "d73e09fb94e28adf27088288f5c4047557381d07e528546523b79b8773fb35bd",
+    "records_unchanged": true
+  },
+  {
+    "path": "docs/i18n/reviewed/runtime/is/2026-10-15-mil-coordinate-identity.json",
+    "reviewed_draft_sha256": "a31edeec781dfa1f01a07330154dce267fe490088aa29eaef12174549b136a65",
+    "final_sha256": "1d15b0c957030a0bfb9775030fa54383af4859a243a87b81611271d391f13f72",
+    "records_unchanged": true
+  }
+]

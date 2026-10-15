@@ -1,0 +1,11 @@
+{
+  "source_pin": "d25e03edf027cf9133b0e5e4e1603fdea1fba701",
+  "source_file_sha256": {
+    "spacr/embeddings.py": "8516eb77f3a75383b2d26ea410c4b3e0fe9a1b97fbfe98fed074709ca11e0e0e",
+    "spacr/active_learning.py": "15ab8a9b2273088476c5965ea90ee28655541dc408dcb3eaa2d204dc75cd9300",
+    "spacr/tabular.py": "bef3e21199bf49dc54b140103549bbb25bcda6b6ca6909d2f2a9a0af3d82836a"
+  },
+  "observation": "Actual _mil_frame_from_db through normal read-only tabular reader, four private synthetic SQLite databases. No production edit or model training.",
+  "legitimate_crop_views": "Existing tests/test_cov_active_learning_rounds.py documents same prcfo in cell/nucleus views; do not reject by png_path alone.",
+  "writer_guarantees": "_store_crop_embeddings drops duplicate keys in Python before replace; tabular.write_database uses dataframe.to_sql without SQLite UNIQUE index. Legacy tables cannot be assumed unique."
+}
