@@ -678,7 +678,14 @@ class _VolumePathEdit(QLineEdit):
 
 
 class MeasureVolumeDialog(QDialog):
-    """Choose extra channels and image sets for the current edited 3D mask."""
+    """Choose extra channels and image sets for the current edited 3D mask.
+
+    :param source_path: path of the current 3D image, fixed in the first row.
+    :param parent: optional Qt parent widget.
+    :param spacing: optional voxel distances displayed in axis order.
+    :param axes: spatial axis order used to label the displayed spacing.
+    :param unit: unit displayed beside the voxel spacing.
+    """
 
     def __init__(self, source_path, parent=None, *, spacing=None, axes="ZYX", unit="pixel"):
         super().__init__(parent)

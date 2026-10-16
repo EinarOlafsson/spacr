@@ -72,6 +72,41 @@
       "translation": "현재 편집한 3D 마스크의 추가 채널과 이미지 세트를 선택합니다."
     },
     {
+      "context": "path of the current 3D image, fixed in the first row.",
+      "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog#1",
+      "source": "path of the current 3D image, fixed in the first row.",
+      "source_sha256": "f3eb7cfebc2418f8059311ac8c2e1c1a7655cca2d2b371c1f9ef577c43340398",
+      "translation": "첫 번째 행에 고정된 현재 3D 이미지의 경로."
+    },
+    {
+      "context": "optional Qt parent widget.",
+      "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog#2",
+      "source": "optional Qt parent widget.",
+      "source_sha256": "bcc80647aea791f8266cefcfa42ffa341223a8b35caf135b8a8289e51f386689",
+      "translation": "선택적 Qt 부모 위젯."
+    },
+    {
+      "context": "optional voxel distances displayed in axis order.",
+      "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog#3",
+      "source": "optional voxel distances displayed in axis order.",
+      "source_sha256": "14b99d20250f0a391efc0b85b2f482855a133c0f7a99d7300624711c28ec63ea",
+      "translation": "축 순서대로 표시되는 선택적 복셀 간격."
+    },
+    {
+      "context": "spatial axis order used to label the displayed spacing.",
+      "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog#4",
+      "source": "spatial axis order used to label the displayed spacing.",
+      "source_sha256": "82cc530fe7cc899a497ef9314711fb2a3d74e98cb026bff40b673360227e264e",
+      "translation": "표시된 간격의 레이블에 사용되는 공간 축 순서."
+    },
+    {
+      "context": "unit displayed beside the voxel spacing.",
+      "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog#5",
+      "source": "unit displayed beside the voxel spacing.",
+      "source_sha256": "143b4938af954fc05fadcecc98ea92fa2326f98b76244b479ac3cfddab14a2ee",
+      "translation": "복셀 간격 옆에 표시되는 단위."
+    },
+    {
       "context": "Accept only valid image-set requests; display validation errors without closing.",
       "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog.accept#0",
       "source": "Accept only valid image-set requests; display validation errors without closing.",
