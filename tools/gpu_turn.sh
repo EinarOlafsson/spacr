@@ -41,8 +41,16 @@ LABEL="$1"; shift
 say() { echo "$(date -Is) [$LABEL] $*" | tee -a "$LOG" >&2; }
 
 compute_pids() {
-    nvidia-smi --query-compute-apps=pid --format=csv,noheader 2>/dev/null \
-        | tr -d ' ' | grep -v '^$' || true
+    # Ignore Chromium/Electron screen-drawing processes (Chrome, VS Code, Slack...):
+    # they hold a small context for display, never release it, and would keep the
+    # idle gate shut forever. Only real compute jobs count as "busy".
+    local pid
+    for pid in $(nvidia-smi --query-compute-apps=pid --format=csv,noheader 2>/dev/null \
+                 | tr -d ' ' | grep -v '^$'); do
+        tr '\0' ' ' < "/proc/$pid/cmdline" 2>/dev/null | grep -q -- '--type=gpu-process' \
+            && continue
+        echo "$pid"
+    done
 }
 
 exec 9>"$DIR/lock"
