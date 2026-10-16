@@ -494,6 +494,8 @@ def _screen_label(label: str) -> str:
     """Translate scoped action captions from their canonical English source."""
     from .i18n import tr
     captions = {
+        'Decrease selected label': tr('Decrease selected label'),
+        'Increase selected label': tr('Increase selected label'),
         'Move focus up': tr('Move focus up'),
         'Move focus down': tr('Move focus down'),
         'Move focus left': tr('Move focus left'),
