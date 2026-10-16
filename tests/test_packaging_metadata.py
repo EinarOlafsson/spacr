@@ -369,18 +369,33 @@ def test_the_terms_version_is_bumped_whenever_the_agreement_changes():
     automatically and that Diagnostic Data was not published, so 4.1
     profiles are asked again.
 
+    4.3 rewrites Sections 5 and 6 for anonymised reports and spaCR AI
+    through spaCR's relay, with no GitHub account required. A user's own
+    assistant instead uses its vendor's service, so 4.2 profiles are asked
+    again before accepting these changed disclosures.
+
     Pinned rather than asserted-nonempty so a bump is deliberate: whoever
     changes the agreement updates this line in the same commit and says which
     clause moved.
     """
     from spacr.qt import terms
 
-    assert terms.TERMS_VERSION == "4.2"
+    assert terms.TERMS_VERSION == "4.3"
     assert any(clause.startswith("11.4 LANGUAGE.") for clause in terms.TERMS), (
         "4.1 is defined by the governing-language clause; it is missing")
-    assert any(clause.startswith("5.6 AUTOMATIC ERROR REPORTS.")
+    assert any(clause.startswith(
+                   "5.6 ANONYMISED ERROR REPORTS ARE ON BY DEFAULT.")
+               and "You need no GitHub account." in clause
                for clause in terms.TERMS), (
-        "4.2 is defined by the automatic-report clause; it is missing")
+        "4.3 requires the anonymised-report and relay-account disclosure")
+    assert any(clause.startswith("6.1 spaCR AI (free) is ON BY DEFAULT.")
+               and "spaCR's relay" in clause for clause in terms.TERMS), (
+        "4.3 requires the default spaCR AI and relay disclosure")
+    assert any(clause.startswith(
+                   "6.5 You may use Your own Claude, GPT (Codex) or Gemini assistant")
+               and "they do not pass through spaCR's relay." in clause
+               for clause in terms.TERMS), (
+        "4.3 requires the separate user-selected assistant disclosure")
 
 
 # ---------------------------------------------------------------------------
