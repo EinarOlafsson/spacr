@@ -33,6 +33,41 @@ try {
     if (-not (Test-Path (Join-Path $Source "spacr.exe"))) {
         throw "PyInstaller did not produce the onedir executable"
     }
+    $ManifestBuilder = @'
+import hashlib
+import json
+from pathlib import Path
+import sys
+
+root = Path(sys.argv[1]).resolve(strict=True)
+manifest = root / "spacr-payload.json"
+if manifest.exists() or manifest.is_symlink():
+    raise ValueError("The payload ownership record already exists")
+for required in ("spacr.exe", "_internal/spacr-update-helper.exe"):
+    target = root / required
+    if not target.is_file() or target.is_symlink():
+        raise ValueError("The frozen executable and independent helper are required")
+files = {}
+for path in sorted(root.rglob("*")):
+    if path.is_symlink():
+        raise ValueError("A frozen payload cannot contain symbolic links")
+    if path.is_file():
+        digest = hashlib.sha256()
+        with path.open("rb") as stream:
+            for block in iter(lambda: stream.read(1024 * 1024), b""):
+                digest.update(block)
+        files[path.relative_to(root).as_posix()] = digest.hexdigest()
+    elif not path.is_dir():
+        raise ValueError("A frozen payload contains a nonregular entry")
+with manifest.open("x", encoding="utf-8") as stream:
+    json.dump({"schema": 1, "version": sys.argv[2], "files": files},
+              stream, indent=2, ensure_ascii=False)
+    stream.write("\n")
+'@
+    $ManifestScript = Join-Path $Root "build\spacr_payload_manifest.py"
+    [System.IO.File]::WriteAllText($ManifestScript, $ManifestBuilder,
+        [System.Text.UTF8Encoding]::new($false))
+    Invoke-CheckedNative "python" @("-I", $ManifestScript, $Source, $Version)
     Compress-Archive -Path "$Source\*" -DestinationPath "dist\spaCR-$Version-windows.zip" -Force
     $Nsis = Get-Command makensis.exe -ErrorAction SilentlyContinue
     $NsisPath = if ($Nsis) { $Nsis.Source } else { $null }
@@ -57,6 +92,7 @@ try {
     }) -join "`n"
     $Template = @'
 !include "MUI2.nsh"
+!include "LogicLib.nsh"
 Name "spaCR"
 OutFile "@INSTALLER@"
 InstallDir "$PROGRAMFILES64\spaCR"
@@ -66,16 +102,31 @@ Page instfiles
 UninstPage instfiles
 Section
   SetShellVarContext all
-  ; A previous onedir install can contain dependencies removed from this build.
-  ; Replace only its bundled runtime; leave files outside _internal alone.
-  SetOutPath "$TEMP"
-  RMDir /r "$INSTDIR\_internal"
-  IfFileExists "$INSTDIR\_internal" 0 +2
-    Abort "The previous spaCR runtime is still in use. Close spaCR and retry."
-  SetOutPath "$INSTDIR"
+  InitPluginsDir
+  ClearErrors
+  SetOutPath "$PLUGINSDIR\spaCR-payload"
   File /r "@SOURCE@\*"
+  IfErrors frozen_install_failed
+  CopyFiles /SILENT "$PLUGINSDIR\spaCR-payload\_internal\spacr-update-helper.exe" "$PLUGINSDIR\spacr-update-helper.exe"
+  IfErrors frozen_install_failed
+  SetOutPath "$PLUGINSDIR"
+  System::Call 'kernel32::SetEnvironmentVariableW(w "PYINSTALLER_RESET_ENVIRONMENT", w "1") i .r1'
+  ${If} $1 == 0
+    Goto frozen_install_failed
+  ${EndIf}
+  nsExec::ExecToLog '"$PLUGINSDIR\spacr-update-helper.exe" install-frozen-windows --source "$PLUGINSDIR\spaCR-payload" --destination "$INSTDIR" --version "@VERSION@"'
+  Pop $0
+  ${If} $0 != 0
+    Goto frozen_install_failed
+  ${EndIf}
+  SetOutPath "$INSTDIR"
   WriteUninstaller "$INSTDIR\Uninstall.exe"
   CreateShortcut "$SMPROGRAMS\spaCR.lnk" "$INSTDIR\spacr.exe"
+  Goto frozen_install_finished
+frozen_install_failed:
+  SetErrorLevel 1
+  Abort
+frozen_install_finished:
 SectionEnd
 Section "Uninstall"
   SetShellVarContext all
@@ -87,7 +138,7 @@ Section "Uninstall"
 SectionEnd
 '@
     $Script = Join-Path $Root "build\spacr_installer.nsi"
-    $Template.Replace("@INSTALLER@", $Installer.Replace('$', '$$')).Replace("@SOURCE@", $Source.Replace('$', '$$')).Replace("@DELETE_FILES@", $DeleteFiles).Replace("@DELETE_DIRECTORIES@", $DeleteDirectories) |
+    $Template.Replace("@VERSION@", $Version).Replace("@INSTALLER@", $Installer.Replace('$', '$$')).Replace("@SOURCE@", $Source.Replace('$', '$$')).Replace("@DELETE_FILES@", $DeleteFiles).Replace("@DELETE_DIRECTORIES@", $DeleteDirectories) |
         Set-Content -Encoding UTF8 $Script
     Invoke-CheckedNative $NsisPath @($Script)
     if (-not (Test-Path $Installer)) { throw "NSIS returned without an installer" }

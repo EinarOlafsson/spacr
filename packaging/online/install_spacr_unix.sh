@@ -796,12 +796,27 @@ if [[ "$PLATFORM" == "linux" ]]; then
         "from pathlib import Path; import spacr; d=Path(spacr.__file__).parent/'resources/icons'; p=d/'app_icon.png'; print(p if p.is_file() else d/'logo_spacr.png')")"
     desktop_tmp="$INSTALL_ROOT/.spacr-desktop-$$"
     desktop_comment="$(spacr_say desktop_comment)"
+    desktop_exec="$("$VENV_DIR/bin/python" -I - "$VENV_DIR/bin/python" <<'PY'
+import sys
+
+def quote_argument(value):
+    for character in ('\\', '"', '`', '$'):
+        value = value.replace(character, '\\' + character)
+    value = value.replace('%', '%%')
+    value = value.replace('\\', '\\\\')
+    value = value.replace('\t', '\\t').replace('\n', '\\n').replace('\r', '\\r')
+    return '"' + value + '"'
+
+arguments = ('/bin/sh', '-c', 'exec "$@"', 'spacr', sys.argv[1], '-I', '-m', 'spacr.qt')
+print(' '.join(quote_argument(argument) for argument in arguments))
+PY
+)"
     cat > "$desktop_tmp" <<EOF
 [Desktop Entry]
 Type=Application
 Name=spaCR
 Comment=$desktop_comment
-Exec=$LAUNCHER
+Exec=$desktop_exec
 Icon=$icon_path
 StartupWMClass=spaCR
 Terminal=false

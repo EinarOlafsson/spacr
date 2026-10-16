@@ -39,11 +39,19 @@ def test_windows_nsis_template_keeps_runtime_dollars_and_requires_actual_executa
     assert 'if ($LASTEXITCODE -ne 0)' in source
     assert 'Join-Path $Source "spacr.exe"' in source
     assert 'RMDir /r "$INSTDIR"' not in template
-    old_runtime = template.index('RMDir /r "$INSTDIR\\_internal"')
-    refusal = template.index('IfFileExists "$INSTDIR\\_internal" 0 +2')
+    assert 'RMDir /r "$INSTDIR\\_internal"' not in template
+    extract = template.index('SetOutPath "$PLUGINSDIR\\spaCR-payload"')
     copy = template.index('File /r "@SOURCE@\\*"')
-    assert old_runtime < refusal < copy
-    assert 'Abort "The previous spaCR runtime is still in use.' in template
+    helper = template.index('CopyFiles /SILENT "$PLUGINSDIR\\spaCR-payload\\_internal\\spacr-update-helper.exe"')
+    transaction = template.index('install-frozen-windows --source')
+    result = template.index('Pop $0', transaction)
+    shortcut = template.index('CreateShortcut "$SMPROGRAMS\\spaCR.lnk"')
+    assert extract < copy < helper < transaction < result < shortcut
+    assert 'IfErrors frozen_install_failed' in template
+    assert 'PYINSTALLER_RESET_ENVIRONMENT' in template
+    assert '--destination "$INSTDIR" --version "@VERSION@"' in template
+    assert '${If} $0 != 0\n    Goto frozen_install_failed' in template
+    assert 'frozen_install_failed:\n  SetErrorLevel 1\n  Abort' in template
     assert '@DELETE_FILES@' in template and '@DELETE_DIRECTORIES@' in template
 
 

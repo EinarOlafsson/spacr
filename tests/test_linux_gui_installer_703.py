@@ -4,8 +4,10 @@ import os
 from pathlib import Path
 import re
 import shlex
+import shutil
 import subprocess
 import sys
+import time
 
 import pytest
 
@@ -169,3 +171,60 @@ def test_actual_desktop_routing_preserves_explicit_headless_and_child_invocation
     result = subprocess.run(['bash', str(harness)], stdin=subprocess.DEVNULL,
                             capture_output=True, text=True, timeout=5)
     assert result.returncode == 0 and result.stdout == expected, result.stderr
+
+
+@pytest.mark.parametrize("directory", [
+    "runtime directory", 'runtime $cost `literal`', "runtime 100%", "runtime=value",
+    'runtime "quote"', 'runtime \\slash', 'runtime 100% "quote" \\slash',
+])
+@pytest.mark.parametrize("no_command", [0, 1])
+def test_desktop_entry_runs_verified_private_python_without_command_launcher(tmp_path, directory, no_command):
+    gio = shutil.which("gio")
+    if gio is None:
+        pytest.skip("desktop-entry activation needs the GLib gio utility")
+    venv = tmp_path / directory
+    python = venv / "bin" / "python"
+    python.parent.mkdir(parents=True)
+    proof = tmp_path / "launched.json"
+    python.write_text(
+        '#!/bin/sh\n'
+        'if [ "$2" = "-c" ]; then printf "%s\\n" /tmp/fixture-icon.png; exit 0; fi\n'
+        'if [ "$2" = "-" ]; then exec ' + shlex.quote(sys.executable) + ' "$@"; fi\n'
+        'exec ' + shlex.quote(sys.executable) + ' -I -c '
+        + shlex.quote('import json,os,sys; from pathlib import Path; Path(os.environ["SPACR_LAUNCH_PROOF"]).write_text(json.dumps(sys.argv[1:]))')
+        + ' "$@"\n'
+    )
+    python.chmod(0o755)
+    launcher = tmp_path / "command directory" / "spacr"
+    launcher.parent.mkdir()
+    launcher.write_text('#!/bin/sh\nprintf stale > "$SPACR_LAUNCH_PROOF"\n')
+    launcher.chmod(0o755)
+    shadow_python = launcher.parent / "python"
+    shadow_python.write_bytes(launcher.read_bytes())
+    shadow_python.chmod(0o755)
+    desktop_dir = tmp_path / "applications"
+    root = tmp_path / "install"
+    root.mkdir()
+    source = SCRIPT.read_text()
+    start = source.index('if [[ "$PLATFORM" == "linux" ]]; then\n    mkdir -p "$DESKTOP_DIR"')
+    end = source.index('\n    uninstall_path=', start)
+    values = {"PLATFORM": "linux", "VENV_DIR": str(venv), "LAUNCHER": str(launcher),
+              "DESKTOP_DIR": str(desktop_dir), "INSTALL_ROOT": str(root), "NO_COMMAND_LAUNCHER": str(no_command)}
+    harness = tmp_path / "desktop.sh"
+    harness.write_text('set -euo pipefail\nspacr_say() { printf "%s" "$1"; }\n'
+                       + '\n'.join(key + '=' + shlex.quote(value) for key, value in values.items())
+                       + '\n' + source[start:end] + '\nfi\n')
+    environment = dict(os.environ, HOME=str(tmp_path), SPACR_LAUNCH_PROOF=str(proof))
+    generated = subprocess.run(['bash', str(harness)], env=environment, capture_output=True, text=True, timeout=10)
+    assert generated.returncode == 0, generated.stdout + generated.stderr
+    desktop = desktop_dir / "io.github.olafssonlab.spacr.desktop"
+    launched = subprocess.run([gio, 'launch', str(desktop)],
+                              env=dict(environment, PATH=str(launcher.parent)),
+                              capture_output=True, text=True, timeout=10)
+    assert launched.returncode == 0, launched.stdout + launched.stderr
+    deadline = time.monotonic() + 5
+    while not proof.exists() and time.monotonic() < deadline:
+        time.sleep(0.01)
+    assert proof.exists()
+    assert json.loads(proof.read_text()) == ["-I", "-m", "spacr.qt"]
+    assert launcher.read_text() == '#!/bin/sh\nprintf stale > "$SPACR_LAUNCH_PROOF"\n'

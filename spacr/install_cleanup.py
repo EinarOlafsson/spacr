@@ -4571,6 +4571,242 @@ def _run_pip_environment_update(plan, machine, *, wait=None, run=None, spawn=Non
         activate=lambda _version: (spawn or _spawn_detached)(relaunch, None, plan["workdir"]))
 
 
+def _frozen_windows_walk_error(error):
+    """Refuse a partial payload traversal instead of silently omitting files."""
+    raise error
+
+
+def _frozen_windows_payload(root, version, *, retirement=False):
+    """Validate the complete, regular-file Windows onedir payload before use."""
+    from pathlib import Path, PurePosixPath
+
+    root = Path(root)
+    observed = {}
+    directories = set()
+    for directory, folders, files in os.walk(root, followlinks=False, onerror=_frozen_windows_walk_error):
+        if Path(directory) == root:
+            folders[:] = [name for name in folders if name == "_internal"]
+            files = [name for name in files if name in {"spacr.exe", "spacr-payload.json"}]
+        for name in folders + files:
+            path = Path(directory) / name
+            details = path.lstat()
+            if (stat.S_ISLNK(details.st_mode)
+                    or getattr(details, "st_file_attributes", 0) & 0x400
+                    or not (stat.S_ISDIR(details.st_mode) or stat.S_ISREG(details.st_mode))):
+                raise ValueError("frozen_payload_nonregular_path")
+            if stat.S_ISDIR(details.st_mode):
+                directories.add(path.relative_to(root).as_posix())
+        for name in files:
+            path = Path(directory) / name
+            relative = path.relative_to(root).as_posix()
+            if relative != "spacr-payload.json":
+                observed[relative] = _macos_digest(str(path))
+    manifest_path = root / "spacr-payload.json"
+    if manifest_path.stat().st_size > 16 * 1024 * 1024:
+        raise ValueError("frozen_payload_manifest_too_large")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
+    files = manifest.get("files")
+    if (manifest.get("schema") != 1 or manifest.get("version") != version
+            or not isinstance(files, dict) or not files or files != observed):
+        raise ValueError("frozen_payload_manifest_mismatch")
+    for name in files:
+        path = PurePosixPath(name)
+        if (path.is_absolute() or any(part in {"", ".", ".."} for part in path.parts)
+                or "\\" in name or ":" in name
+                or path.parts[0] not in {"spacr.exe", "_internal"}):
+            raise ValueError("frozen_payload_path_outside_application")
+    if "spacr.exe" not in files or not any(name.startswith("_internal/") for name in files):
+        raise ValueError("frozen_payload_incomplete")
+    if retirement:
+        expected_directories = {parent.as_posix() for name in files
+                                for parent in PurePosixPath(name).parents if parent.as_posix() != "."}
+        if directories - expected_directories:
+            raise ValueError("frozen_payload_contains_unknown_directories")
+    return manifest
+
+
+def _frozen_windows_identity(root, version, run=None):
+    """Check the loaded executable, application, import root and GUI imports."""
+    from pathlib import Path
+
+    root = Path(root).resolve()
+    with tempfile.TemporaryDirectory(prefix="spacr-frozen-identity-") as folder:
+        output = Path(folder) / "identity.json"
+        argv = [str(root / "spacr.exe"), "--installer-identity", str(output)]
+        code, _text = (run(argv) if run else _run(argv, timeout=60))
+        if code or not output.exists():
+            raise ValueError("frozen_application_identity_unverified")
+        details = output.lstat()
+        if (not stat.S_ISREG(details.st_mode)
+                or getattr(details, "st_file_attributes", 0) & 0x400):
+            raise ValueError("frozen_application_identity_unverified")
+        descriptor = os.open(output, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0))
+        with os.fdopen(descriptor, "r", encoding="utf-8") as stream:
+            details = os.fstat(stream.fileno())
+            if (not stat.S_ISREG(details.st_mode) or details.st_size > 16384
+                    or getattr(details, "st_file_attributes", 0) & 0x400
+                    or output.is_symlink()):
+                raise ValueError("frozen_application_identity_unverified")
+            identity = json.load(stream)
+    if (identity.get("schema") != 1 or identity.get("frozen") is not True
+            or identity.get("version") != version
+            or Path(identity.get("executable", "")).resolve() != root / "spacr.exe"
+            or Path(identity.get("bundle_root", "")).resolve() != root
+            or Path(identity.get("import_root", "")).resolve() != root / "_internal"
+            or not _inside(str(Path(identity.get("module", "")).resolve()), str(root / "_internal"))):
+        raise ValueError("frozen_application_identity_mismatch")
+    return identity
+
+
+def _frozen_windows_previous_version(root):
+    """Read a legacy bundled distribution without executing its old application."""
+    from email.parser import Parser
+    from pathlib import Path
+
+    root = Path(root)
+    for path in (root / "spacr.exe", root / "_internal"):
+        if path.exists() or path.is_symlink():
+            details = path.lstat()
+            if stat.S_ISLNK(details.st_mode) or getattr(details, "st_file_attributes", 0) & 0x400:
+                raise ValueError("previous_frozen_application_identity_unverified")
+    if not (root / "spacr.exe").exists():
+        if (root / "_internal").exists():
+            raise ValueError("previous_frozen_application_identity_unverified")
+        return None
+    versions = []
+    for path in (root / "_internal").glob("spacr*.dist-info/METADATA"):
+        for candidate in (path.parent, path):
+            details = candidate.lstat()
+            if stat.S_ISLNK(details.st_mode) or getattr(details, "st_file_attributes", 0) & 0x400:
+                raise ValueError("previous_frozen_application_identity_unverified")
+        if not path.is_file() or path.stat().st_size > 1024 * 1024:
+            raise ValueError("previous_frozen_application_identity_unverified")
+        metadata = Parser().parsestr(path.read_text(encoding="utf-8"))
+        if metadata.get("Name", "").lower().replace("_", "-") in {"spacr", "spacr-nightly"}:
+            versions.append(metadata.get("Version", ""))
+    if len(versions) != 1:
+        raise ValueError("previous_frozen_application_identity_unverified")
+    return versions[0]
+
+
+def _frozen_windows_entry_state(path):
+    """Bind a moved payload so rollback never deletes newly supplied user files."""
+    details = os.lstat(path)
+    if stat.S_ISDIR(details.st_mode):
+        contents = _macos_tree(str(path))
+    elif stat.S_ISREG(details.st_mode):
+        contents = _macos_digest(str(path))
+    else:
+        raise ValueError("frozen_payload_nonregular_path")
+    return details.st_dev, details.st_ino, contents
+
+
+def _install_frozen_windows(source, destination, version, *, run=None):
+    """Stage, verify and replace only a Windows bundle's application payload.
+
+    Caches, preferences, unrelated install-root files and the existing uninstaller
+    are never part of the replacement. A displaced legacy payload, or one with
+    unknown or modified files, remains in private recovery storage. A failed
+    activation restores the original payload; an interrupted transaction refuses
+    further changes and leaves its recovery directory intact.
+    """
+    from pathlib import Path
+
+    source, destination = Path(os.path.abspath(source)), Path(os.path.abspath(destination))
+    for path in (source, destination):
+        for parent in (path, *path.parents):
+            if parent.exists() or parent.is_symlink():
+                details = parent.lstat()
+                if stat.S_ISLNK(details.st_mode) or getattr(details, "st_file_attributes", 0) & 0x400:
+                    raise ValueError("frozen_install_reparse_path")
+    if (_inside(str(source), str(destination)) or _inside(str(destination), str(source))
+            or _inside(os.path.abspath(sys.executable), str(destination))):
+        raise ValueError("frozen_install_requires_outside_helper")
+    _macos_online_version(version)
+    _frozen_windows_payload(source, version)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    lock = destination.parent / ("." + destination.name + ".spacr-install-lock")
+    lock.mkdir(mode=0o700)
+    transaction = None
+    moved, activated = [], {}
+    complete = False
+    restored = True
+    try:
+        previous = _frozen_windows_previous_version(destination)
+        if previous is not None and _macos_online_version(previous) > _macos_online_version(version):
+            raise ValueError("frozen_application_downgrade_refused")
+        transaction = Path(tempfile.mkdtemp(prefix=".spacr-frozen-install-", dir=destination.parent))
+        staged, backup = transaction / "new", transaction / "previous"
+        shutil.copytree(source, staged)
+        _frozen_windows_payload(staged, version)
+        _frozen_windows_identity(staged, version, run)
+        _frozen_windows_payload(staged, version)
+        backup.mkdir()
+        destination.mkdir(exist_ok=True)
+        old_manifest = None
+        try:
+            if previous is not None:
+                old_manifest = _frozen_windows_payload(destination, previous, retirement=True)
+        except (OSError, ValueError, TypeError):
+            pass
+        names = ("_internal", "spacr.exe", "spacr-payload.json")
+        with open(transaction / "recovery.json", "x", encoding="utf-8") as stream:
+            json.dump({"schema": 1, "destination": str(destination), "version": version,
+                       "payload": names}, stream)
+            stream.flush()
+            os.fsync(stream.fileno())
+        for name in names:
+            target = destination / name
+            if target.exists() or target.is_symlink():
+                os.replace(target, backup / name)
+                moved.append(name)
+        for name in names:
+            entry_state = _frozen_windows_entry_state(staged / name)
+            os.replace(staged / name, destination / name)
+            activated[name] = entry_state
+        _frozen_windows_payload(destination, version)
+        _frozen_windows_identity(destination, version, run)
+        complete = True
+        retained = str(backup) if moved else None
+        if old_manifest is not None:
+            try:
+                _frozen_windows_payload(backup, previous, retirement=True)
+            except (OSError, ValueError, TypeError):
+                pass
+            else:
+                try:
+                    shutil.rmtree(backup)
+                    retained = None
+                except OSError:
+                    pass
+        return {"ok": True, "version": version, "previous_runtime": retained}
+    except BaseException:
+        for name in reversed(activated):
+            try:
+                if _frozen_windows_entry_state(destination / name) != activated[name]:
+                    restored = False
+                    continue
+                os.replace(destination / name, transaction / "new" / name)
+            except (OSError, ValueError):
+                restored = False
+        for name in reversed(moved):
+            try:
+                if not os.path.lexists(destination / name):
+                    os.replace(transaction / "previous" / name, destination / name)
+                else:
+                    restored = False
+            except OSError:
+                restored = False
+        raise
+    finally:
+        if transaction is not None and restored:
+            backup = transaction / "previous"
+            if not complete or not backup.exists() or not any(backup.iterdir()):
+                shutil.rmtree(transaction, ignore_errors=True)
+        if restored:
+            lock.rmdir()
+
+
 def start_update_helper(records: Sequence[InstallRecord], version: str, *,
                         ticked: Iterable[str] = (), pid: Optional[int] = None,
                         workdir: Optional[str] = None, system=None,
@@ -5217,6 +5453,10 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
         prog="install_cleanup",
         description="Find, and remove, older spaCR installations.")
     commands = parser.add_subparsers(dest="command")
+    frozen_windows = commands.add_parser("install-frozen-windows", help=argparse.SUPPRESS)
+    frozen_windows.add_argument("--source", required=True)
+    frozen_windows.add_argument("--destination", required=True)
+    frozen_windows.add_argument("--version", required=True)
     verify = commands.add_parser("verify-runtime", help="verify a desktop interpreter and imported application")
     verify.add_argument("--python", required=True)
     verify.add_argument("--version")
@@ -5259,6 +5499,14 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     metadata.add_argument("--folder", required=True)
     metadata.add_argument("--paths", nargs="*")
     args = parser.parse_args(argv)
+    if args.command == "install-frozen-windows":
+        try:
+            outcome = _install_frozen_windows(args.source, args.destination, args.version)
+        except Exception as error:
+            print(json.dumps({"ok": False, "error": str(error)}))
+            return 1
+        print(json.dumps(outcome, sort_keys=True))
+        return 0
     if args.command == "installer-metadata":
         try:
             receipt = (_installer_metadata_snapshot(args.folder, args.paths or [])

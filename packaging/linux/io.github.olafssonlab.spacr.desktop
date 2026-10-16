@@ -2,7 +2,7 @@
 Type=Application
 Name=spaCR
 Comment=Spatial phenotype analysis of CRISPR screens
-Exec=spacr
+Exec=/opt/spacr/spacr
 Icon=io.github.olafssonlab.spacr
 StartupWMClass=spaCR
 Terminal=false

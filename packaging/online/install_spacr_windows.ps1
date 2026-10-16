@@ -379,8 +379,10 @@ raise SystemExit(run())
     $RuntimeRestored = $true
     if (-not $Committed -and $OldVenv -and (Test-Path $OldVenv)) {
         try {
-            Remove-Item -Recurse -Force -ErrorAction Stop $VenvDir
-            Move-Item $OldVenv $VenvDir
+            if (Test-Path -LiteralPath $VenvDir) {
+                Remove-Item -LiteralPath $VenvDir -Recurse -Force -ErrorAction Stop
+            }
+            Move-Item -LiteralPath $OldVenv -Destination $VenvDir
         } catch {
             $RuntimeRestored = $false
             $RetainWorkDir = $true
