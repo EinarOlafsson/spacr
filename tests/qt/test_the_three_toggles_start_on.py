@@ -14,8 +14,7 @@ pytest.importorskip("PySide6")
 
 from spacr.qt import preferences as prefs                      # noqa: E402
 
-#: Each toggle as (constant, getter, setter), named the way the setup card
-#: names it so a failure says which row a user would see unticked.
+#: Each preference as (constant, getter, setter), with a readable caption.
 TOGGLES = {
     "Reproducibility hash": (
         "DEFAULT_HASH_INPUTS", prefs.get_hash_inputs, prefs.set_hash_inputs),
@@ -62,18 +61,15 @@ def test_an_explicit_opt_out_is_not_overwritten_by_the_default(caption):
     assert getter() is True
 
 
-def test_the_setup_card_renders_all_three_ticked(qtbot, tmp_path,
-                                                 monkeypatch):
-    """What the user actually sees on the card, not just what a getter says."""
+def test_setup_keeps_the_hash_toggle_and_preserves_the_other_defaults(
+        qtbot, tmp_path, monkeypatch):
+    """AI and reporting stay enabled without being first-run questions."""
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
     from spacr.qt.setup_screen import questions
 
-    wanted = set(TOGGLES)
-    seen = {}
-    for row in questions():
-        key, caption, getter = row[0], row[1], row[2]
-        if caption in wanted:
-            seen[caption] = getter()
-    assert set(seen) == wanted, f"card is missing rows: {wanted - set(seen)}"
-    off = [c for c, on in seen.items() if not on]
-    assert off == [], f"these render unticked on the setup card: {off}"
+    rows = {row[0]: row for row in questions()}
+    assert rows["hash_inputs"][1] == "Reproducibility hash"
+    assert rows["hash_inputs"][2]() is True
+    assert not {"ai_default", "share_logs", "issue_prompt"} & rows.keys()
+    assert prefs.get_ai_on_by_default() is True
+    assert prefs.get_share_diagnostic_logs() is True

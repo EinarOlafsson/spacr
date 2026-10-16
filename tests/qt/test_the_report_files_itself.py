@@ -183,26 +183,22 @@ class TestTheDefault:
 
         assert preferences.get_issue_prompt_mode() == "ask"
 
-    def test_first_run_setup_shows_always_to_a_new_profile(self, fresh,
-                                                           qtbot):
-        """The slide is where the choice is made, so it must show the
-        default the profile will get, and say what it does."""
-        from PySide6.QtWidgets import QComboBox
-
+    def test_first_run_setup_preserves_automatic_reporting_without_a_question(
+            self, fresh, qtbot):
+        """Setup no longer asks about reports or writes over their defaults."""
+        from spacr.qt import setup_screen
         from spacr.qt.widgets.setup_slides import SLIDES, SetupSlides
 
+        preferences, ai_settings = fresh
         slides = SetupSlides()
         qtbot.addWidget(slides)
-        editor = slides._editors["issue_prompt"]
-        assert isinstance(editor, QComboBox)
-        assert editor.currentData() == "always"
-        assert slides.answers()["issue_prompt"] == "always"
-
-        blurb = dict((title, text) for title, text, _k in SLIDES)[
-            "When something breaks"]
-        assert "automatically" in blurb
-        assert "public spaCR GitHub repository" in blurb
-        assert "Nothing is ever sent" not in blurb
+        assert "issue_prompt" not in slides._editors
+        answers = slides.answers()
+        assert "issue_prompt" not in answers
+        assert all("issue_prompt" not in keys for _title, _text, keys in SLIDES)
+        assert setup_screen.apply(answers) == []
+        assert preferences.get_issue_prompt_mode() == "always"
+        assert ai_settings.get_auto_file_issues() is True
 
     def test_a_profile_that_only_ever_dismissed_setup_gets_the_default(
             self, fresh):
