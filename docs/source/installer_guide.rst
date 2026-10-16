@@ -59,8 +59,11 @@ macOS 11 or later
 ~~~~~~~~~~~~~~~~~
 
 Open ``SpaCR-<version>-macOS-Universal-Online.pkg``. The application is placed
-in ``/Applications/spaCR.app``. On first launch, a visible Terminal bootstrap
-creates the private runtime under ``~/Library/Application Support/spaCR``.
+in ``/Applications/spaCR.app``. The spaCR setup window creates its private
+runtime under ``~/Library/Application Support/spaCR`` and displays progress,
+dependency choices and any required consent. Complete those choices in the
+window; setup does not require answers in Terminal. When setup finishes,
+spaCR opens its startup window and then the main application.
 The current beta is not notarized. If Gatekeeper blocks it, open **System
 Settings → Privacy & Security** and choose **Open Anyway** for spaCR. The
 first-launch window has an unchecked **Install without wgpu (use OpenGL/CPU
@@ -96,11 +99,29 @@ line. See :ref:`wgpu-3d-rendering`.
 Updating
 --------
 
-Download and run the installer for the newer version. Installation is staged
-and validated before it replaces the active private environment; a failed
-update leaves the previous working environment in place. Project folders and
-results are not stored in the installation directory and are not removed by
-an update.
+Choose **Help → Check for updates**, review the offered version and choose
+**Update**. Supported macOS installations and dedicated private Python
+installations prepare the replacement in the background. When it is ready,
+choose **Restart** to finish closing the current application and open the
+verified replacement through the spaCR startup window. No manual click on the
+application icon is needed. Frozen Windows and Debian installations use their
+native authorization and replacement workflows.
+
+Older Linux and Windows online layouts without a verified update adapter are
+refused before replacement starts. The application stays open and keeps its
+data. Use the matching release installer for those installations.
+
+Alternatively, download and run the installer for the requested version from
+the `GitHub releases <https://github.com/EinarOlafsson/spacr/releases>`_. This
+is also the way to move an older installer to the current desktop update flow.
+Use the installer for the same platform and installation family as the copy
+being replaced.
+
+Installation is staged and validated before replacement. An unsuccessful
+preparation keeps the previous application; activation failures retain or
+restore the previous runtime and report any recovery needed. Ordinary updates
+keep models, caches, preferences, run history and project outputs. Optional
+update cache cleanup starts unselected and requires a separate confirmation.
 
 Update channel and What's new
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -135,17 +156,26 @@ macOS online installation: update and reopen
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Choose **Help → Check for updates**, accept the available update, and confirm
-that spaCR will be reinstalled in its current environment. spaCR closes, uses
-the installation's bundled ``uv`` to upgrade its existing private environment,
-checks the installed version, and reopens automatically. This path keeps the
-application launcher and environment in place. It does not run the first-use
-installer or ask its terminal questions again.
+the requested version. spaCR prepares a separate private runtime using the
+installation's bundled ``uv`` while the window remains responsive. After
+preparation succeeds, **Restart** activates the verified runtime and opens its
+startup window and main window. The existing launcher is retained. No remove
+prompt, manual icon relaunch or Terminal questionnaire is part of this flow.
 
-The command is the same as the macOS recovery command below, using the actual
-installation directory. An unsuccessful upgrade or version check is recorded
-in ``~/.spacr/logs/update.log`` and does not trigger a successful-update
-relaunch. The update also stops if spaCR cannot finish closing safely. The
-separate frozen application bundle uses its bundle replacement workflow.
+If preparation or verification fails, the application stays on the previous
+version and shows the failure. If an analysis or screen prevents safe closure,
+the replacement is not authorized. Details are retained in
+``~/.spacr/logs/update.log``. A frozen application bundle uses its verified
+bundle replacement workflow instead of updating a Python environment.
+
+Reinstalling the same version
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Download that version's matching desktop installer from GitHub releases and
+run it again. Reinstallation repairs the application code and launcher while
+preserving user data. Do not uninstall first merely to repair an installation.
+Check the version in **Help → About spaCR** after the application reopens; the
+version must match the installer you selected.
 
 Existing installations and full installers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -227,6 +257,40 @@ install from.
 Uninstalling
 ------------
 
+Open **Preferences → Performance → Uninstall**. In the popup, choose either
+**Current version** or **All detected spaCR versions**. The preview identifies
+the installation paths and versions. The all-versions choice also finds spaCR
+in detected Python and Conda environments; it removes the spaCR package from
+those environments and keeps their other packages and files. Editable source
+checkouts are shown as retained.
+
+The popup separately selects **Caches**, **Models**, **Logs**, **Settings**,
+**History**, **Temporary files**, **Downloads** and **Other spaCR data**.
+Every cleanup category starts selected for uninstall. Clear any category to
+keep it, inspect the exact paths listed, and confirm the uninstall. Cancel
+leaves the application and files unchanged. spaCR closes safely before its
+running installation is removed.
+
+If any selected installation or data path requires administrator access that
+the helper cannot obtain, preparation stops before spaCR closes. Nothing is
+removed. Use the platform's native uninstall option below for that protected
+installation.
+
+These categories cover identified spaCR-owned locations. Shared external
+caches, unverified or linked folders and arbitrary project folders are kept;
+the preview marks retained locations. History includes spaCR's run records and
+any output copies stored within those records. Keep History if those copies
+are still needed. Projects, databases and exports outside the listed spaCR
+locations are not removed.
+
+Uninstall cleanup defaults differ from update defaults: an ordinary update
+preserves user data, while the uninstall popup selects the displayed cleanup
+categories until you opt out. The native and command-line alternatives below
+retain their existing explicit purge switches.
+
+Native and command-line alternatives
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 * **Windows:** open **Settings → Apps → Installed apps → spaCR → Uninstall**,
   or run ``%LOCALAPPDATA%\spaCR\Uninstall.exe``.
 * **macOS:** run
@@ -240,12 +304,10 @@ Uninstalling
 * **PyPI:** activate the environment and run
   ``python -m pip uninstall spacr``.
 
-Remove the environment itself if it was created only for spaCR.
-
-Uninstalling does not delete microscopy projects, databases or exported
-results. User preferences, run records and logs under ``~/.spacr`` are also
-left in place so they can be inspected or reused. Remove that directory
-separately only if those records are no longer needed.
+These package-manager commands remove the package from the selected
+environment. They do not remove the whole environment. The native and
+command-line alternatives keep user preferences, run records and logs unless
+their explicit purge option is used.
 
 Clean uninstall (purge)
 ~~~~~~~~~~~~~~~~~~~~~~~

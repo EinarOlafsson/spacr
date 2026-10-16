@@ -11403,6 +11403,25 @@ class PreferencesDialog:
         quit_button.clicked.connect(lambda: _quit_spacr(dlg))
         performance.addRow(tr("Application"), quit_button)
 
+        uninstall_button = QPushButton(tr("Uninstall…"))
+        uninstall_button.setObjectName("UninstallSpacrButton")
+        uninstall_button.setToolTip(tr(
+            "Remove the current spaCR version or all detected versions. Review the exact paths and choose which spaCR data to keep."))
+        style_as_danger(uninstall_button)
+
+        def _open_spacr_uninstall():
+            """Leave Preferences before opening the application uninstall preview."""
+            from PySide6.QtCore import QTimer
+
+            from .install_consent import _open_uninstall
+
+            window = parent.window() if parent is not None else None
+            dlg.reject()
+            QTimer.singleShot(0, lambda: _open_uninstall(window))
+
+        uninstall_button.clicked.connect(_open_spacr_uninstall)
+        performance.addRow(tr("Uninstall"), uninstall_button)
+
         notifications_page = None
         if _is_alpha_visible("widgets", _NOTIFY_ALPHA_WIDGET):
             notifications_page = _NotificationsPage(

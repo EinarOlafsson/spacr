@@ -123,6 +123,30 @@ def test_portable_model_opt_out_survives_parent_cache_cleanup(installation):
     assert model.exists() and not disposable.exists()
 
 
+def test_opted_out_models_nested_inside_removed_installation_are_preserved(installation):
+    box, root, machine = installation
+    data = root / "spacr-data"
+    model = box.write(data / "models" / "weights")
+    cache = box.write(data / "news" / "releases.json")
+    machine.environ["SPACR_HOME"] = str(data)
+    preview, choice = _preview_choice(machine, categories=["caches"])
+    assert ic._apply_uninstall_selection(preview, choice, system=machine, after_shutdown=True)["ok"]
+    assert not (root / "venv" / "bin" / "python").exists()
+    assert model.exists() and not cache.exists()
+
+
+@pytest.mark.parametrize("variable", ["HF_HOME", "TORCH_HOME", "SPACR_MODEL_CACHE"])
+def test_spacr_named_external_folder_is_not_ownership_evidence(installation, variable):
+    box, root, machine = installation
+    project = box.home / "spacr-my-project"
+    data = box.write(project / "valuable-model")
+    machine.environ[variable] = str(project)
+    preview, choice = _preview_choice(machine)
+    assert not next(row for row in preview["cleanup"] if row["path"] == str(project))["selectable"]
+    assert ic._apply_uninstall_selection(preview, choice, system=machine, after_shutdown=True)["ok"]
+    assert data.exists()
+
+
 @pytest.mark.parametrize("ancestor", [False, True])
 def test_linked_data_paths_are_never_followed(installation, ancestor):
     box, root, machine = installation
@@ -288,3 +312,50 @@ def test_saved_plan_cannot_change_cleanup_after_approval(installation, tmp_path)
     with pytest.raises(ValueError, match="binding"):
         ic._run_uninstall_plan(str(path), system=machine, wait=lambda pid: True)
     assert (root / "venv" / "bin" / "python").exists()
+
+
+@pytest.mark.parametrize("blocked", ["application", "data"])
+def test_permission_refusal_happens_before_helper_spawn_or_application_exit(installation, tmp_path, monkeypatch, blocked):
+    box, root, machine = installation
+    data = box.home / ".spacr" / "models"
+    box.write(data / "weights")
+    preview, choice = _preview_choice(machine)
+    blocked_parent = root.parent if blocked == "application" else data.parent
+    real_access = ic.os.access
+    monkeypatch.setattr(ic.os, "access", lambda path, mode: False if str(path) == str(blocked_parent) else real_access(path, mode))
+    before = box.files()
+    spawned = []
+    with pytest.raises(PermissionError, match="spaCR will stay open"):
+        ic._start_uninstall_helper(preview, choice, system=machine,
+            workdir=str(tmp_path / "refused-helper"), spawn=lambda *args: spawned.append(args))
+    assert not spawned and box.files() == before
+    assert not (tmp_path / "refused-helper").exists()
+
+
+def test_shared_environment_package_permissions_are_checked_before_closing(installation, tmp_path, monkeypatch):
+    box, root, machine = installation
+    environment = _conda_env(box, "shared-science")
+    preview, choice = _preview_choice(machine, scope="all", categories=[])
+    shared = next(row for row in preview["installations"] if row["record"]["root"] == str(environment))
+    package = next(path for path in shared["paths"] if path.endswith(".dist-info"))
+    parent = ic.os.path.dirname(package)
+    access = ic.os.access
+    monkeypatch.setattr(ic.os, "access", lambda path, mode: False if str(path) == parent else access(path, mode))
+    before = box.files()
+    with pytest.raises(PermissionError, match="spaCR will stay open"):
+        ic._start_uninstall_helper(preview, choice, system=machine,
+            workdir=str(tmp_path / "refused-helper"), spawn=lambda *args: pytest.fail("no helper may start"))
+    assert box.files() == before and box.commands == []
+
+
+def test_shared_environment_parent_permission_is_not_needed_to_remove_only_spacr(installation, tmp_path, monkeypatch):
+    box, root, machine = installation
+    environment = _conda_env(box, "shared-science")
+    preview, choice = _preview_choice(machine, scope="all", categories=[])
+    access = ic.os.access
+    monkeypatch.setattr(ic.os, "access", lambda path, mode: False if str(path) == str(environment.parent) else access(path, mode))
+    calls = []
+    plan = ic._start_uninstall_helper(preview, choice, system=machine,
+        workdir=str(tmp_path / "allowed-helper"), spawn=lambda *args: calls.append(args))
+    assert len(calls) == 1 and plan["selection"]["scope"] == "all"
+    assert environment.is_dir() and box.commands == []

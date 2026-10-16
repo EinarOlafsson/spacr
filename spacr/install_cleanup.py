@@ -1717,27 +1717,40 @@ def _uninstall_data_candidates(machine):
         "MPLCONFIGDIR": "caches", "HF_HOME": "models", "TORCH_HOME": "models",
         "CELLPOSE_LOCAL_MODELS_PATH": "models",
     }
-    relocated = {_norm(path) for path in _relocated_caches(machine)}
+    relocated = {}
+    try:
+        with open(os.path.join(app_home, _CACHE_LOCATIONS_FILE), encoding="utf-8") as stream:
+            locations = json.load(stream)
+        for variable, key in (("SPACR_MODEL_CACHE", "models"), ("SPACR_BACKENDS_DIR", "backends"),
+                              ("SPACR_NEWS_CACHE", "news")):
+            path = locations.get(variable, "") if isinstance(locations, dict) else ""
+            if isinstance(path, str) and os.path.basename(path) == "spacr-" + key:
+                relocated[_norm(path)] = (variables[variable], os.path.abspath(path))
+    except (OSError, ValueError, RecursionError):
+        pass
     for variable, category in variables.items():
         raw = machine.env(variable)
         if not raw.strip():
             continue
         path = expand(raw)
         owned = (_inside(path, app_home) and _norm(path) != _norm(app_home)
-                 or _norm(path) in relocated
-                 or os.path.basename(path).lower().startswith("spacr-"))
+                 or _norm(path) in relocated and variable not in {"HF_HOME", "TORCH_HOME", "CELLPOSE_LOCAL_MODELS_PATH"})
         candidates.append((category, path, owned))
-    for path in _relocated_caches(machine):
-        category = "models" if any(name in os.path.basename(path).lower()
-                                   for name in ("model", "backend", "huggingface", "torch", "cellpose")) else "caches"
+    for category, path in relocated.values():
         candidates.append((category, path, True))
     shared = {_norm(path) for path in _never_delete(machine)}
+    shared_models = [expand(machine.env(variable))
+                     for variable in ("HF_HOME", "TORCH_HOME", "CELLPOSE_LOCAL_MODELS_PATH")
+                     if machine.env(variable).strip()
+                     and not _inside(expand(machine.env(variable)), app_home)]
     unique = {}
     for category, path, owned in candidates:
         if not _exists(path):
             continue
         path = os.path.abspath(path)
         if _norm(path) in shared or (machine.running_prefix and _inside(machine.running_prefix, path)):
+            owned = False
+        if any(_inside(path, folder) or _inside(folder, path) for folder in shared_models):
             owned = False
         unique[path] = (category, path, owned)
     result = []
@@ -1895,6 +1908,26 @@ def _start_uninstall_helper(preview, selection, *, pid=None, workdir=None, syste
     """Prepare a copied helper outside the removed paths; no removal precedes approved GUI shutdown."""
     machine = system or _Machine()
     records, cleanup = _validate_uninstall_selection(preview, selection, machine, after_shutdown=True)
+    denied = []
+    for record in records:
+        if (record.needs_admin and machine.real
+                and (machine.platform == "windows" and not _windows_process_elevated()
+                     or any(token.startswith("deb:") for token in record.registrations)
+                     and getattr(os, "geteuid", lambda: 1)() != 0)):
+            denied.append(record.root)
+        row = next(row for row in preview["installations"] if row["record"]["root"] == record.root)
+        paths = ([] if record.kind == "environment" else [record.root]) + row["paths"]
+        for path in (path for path in paths if not path.startswith(("deb:", "registry"))):
+            if _exists(path) and not os.access(os.path.dirname(path), os.W_OK | os.X_OK):
+                denied.append(path)
+    for row in cleanup:
+        path = row["path"]
+        if not path.startswith("registry:") and not os.access(os.path.dirname(path), os.W_OK | os.X_OK):
+            denied.append(path)
+    if denied:
+        raise PermissionError(tr(
+            "Administrator access is required for these paths. Nothing was removed and spaCR will stay open: {paths}",
+            paths="\n".join(dict.fromkeys(denied))))
     workdir = os.path.abspath(workdir or tempfile.mkdtemp(prefix="spacr-uninstall-"))
     os.makedirs(workdir, mode=0o700, exist_ok=True)
     paths = [record.root for record in records] + [row["path"] for row in cleanup

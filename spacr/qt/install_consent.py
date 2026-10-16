@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any, Mapping, Optional
 
-from PySide6.QtCore import QSettings, Qt
+from PySide6.QtCore import QObject, QSettings, QThread, QTimer, Qt
 from PySide6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
@@ -484,3 +484,333 @@ def _choose_optional_cleanup(preview, parent=None):
         return None
     choices = dialog.choices()
     return choices if choices["keys"] else None
+
+
+class _UninstallDialog(QDialog):
+    """Confirm the displayed installation scope and independently selected uninstall data categories."""
+
+    def __init__(self, preview, parent=None):
+        """Build an explicit current/all preview with every cleanup category selected."""
+        super().__init__(parent)
+        import copy
+
+        from PySide6.QtWidgets import QComboBox, QTreeWidget
+
+        from .preferences import scaled_px
+        from .widgets.sortable_table import install_sorting, tree_item
+
+        self._preview = preview = copy.deepcopy(preview)
+        self._category_items = {}
+        self.setObjectName("SpacrUninstallDialog")
+        self.setWindowTitle(tr("Uninstall spaCR"))
+        self.setMinimumWidth(scaled_px(700))
+        layout = QVBoxLayout(self)
+        explanation = QLabel(tr(
+            "Choose which detected spaCR installations to remove. Shared Python and Conda environments "
+            "keep their other packages. Source checkouts and unverified paths are kept."))
+        explanation.setWordWrap(True)
+        layout.addWidget(explanation)
+        self._scope = QComboBox()
+        self._scope.setObjectName("SpacrUninstallScope")
+        self._scope.setAccessibleName(tr("Uninstall scope"))
+        self._scope.addItem(tr("Current version"), "current")
+        self._scope.addItem(tr("All detected spaCR versions"), "all")
+        layout.addWidget(self._scope)
+        self._installations = QTreeWidget()
+        self._installations.setObjectName("SpacrUninstallInstallations")
+        self._installations.setHeaderLabels([tr("Installation or path"), tr("Version"), tr("Action")])
+        install_sorting(self._installations)
+        layout.addWidget(self._installations)
+        note = QLabel(tr(
+            "Uninstall cleanup categories start selected. Clear any category to keep its files. "
+            "Review every listed path before confirming. History includes output copies saved in run records. "
+            "Ordinary updates keep user data."))
+        note.setWordWrap(True)
+        layout.addWidget(note)
+        cleanup = QTreeWidget()
+        cleanup.setObjectName("SpacrUninstallCleanup")
+        cleanup.setHeaderLabels([tr("Cleanup category or path"), tr("Action")])
+        install_sorting(cleanup)
+        labels = {"caches": tr("Caches"), "models": tr("Models"), "logs": tr("Logs"),
+                  "settings": tr("Settings"), "history": tr("History"),
+                  "temporary": tr("Temporary files"), "downloads": tr("Downloads"),
+                  "other": tr("Other spaCR data")}
+        for key in preview["categories"]:
+            item = tree_item([labels[key], ""])
+            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+            item.setCheckState(0, Qt.Checked)
+            for row in preview["cleanup"]:
+                if row["category"] == key:
+                    item.addChild(tree_item([row["path"], tr("Delete if selected") if row["selectable"]
+                                             else tr("Kept: ownership or path could not be verified")]))
+            if not item.childCount():
+                item.addChild(tree_item([tr("No files found"), tr("Nothing to delete")]))
+            cleanup.addTopLevelItem(item)
+            item.setExpanded(True)
+            self._category_items[key] = item
+        cleanup.resizeColumnToContents(0)
+        layout.addWidget(cleanup)
+        buttons = QDialogButtonBox()
+        self._remove = buttons.addButton(tr("Confirm uninstall"), QDialogButtonBox.AcceptRole)
+        self._remove.setObjectName("SpacrUninstallConfirm")
+        self._remove.setAutoDefault(False)
+        cancel = buttons.addButton(tr("Cancel"), QDialogButtonBox.RejectRole)
+        cancel.setDefault(True)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+        self._scope.currentIndexChanged.connect(self._show_scope)
+        self._show_scope()
+
+    def _show_scope(self, *_args):
+        """Display all detected records while marking only the chosen scope for removal."""
+        from .widgets.sortable_table import tree_item
+
+        self._installations.clear()
+        selected = False
+        for row in self._preview["installations"]:
+            remove = row["selectable"] and (self._scope.currentData() == "all" or row["current"])
+            selected = selected or remove
+            record = row["record"]
+            action = tr("Remove spaCR package only") if record["kind"] == "environment" else tr("Remove application")
+            item = tree_item([record["root"], record["version"] or tr("Unknown"), action if remove else tr("Kept")])
+            for path in row["paths"]:
+                if path != record["root"]:
+                    item.addChild(tree_item([path, "", action if remove else tr("Kept")]))
+            self._installations.addTopLevelItem(item)
+            item.setExpanded(True)
+        self._installations.resizeColumnToContents(0)
+        self._installations.resizeColumnToContents(1)
+        self._remove.setEnabled(selected)
+
+    def choices(self):
+        """Return the exact confirmed scope and category opt-outs without accepting arbitrary paths."""
+        from spacr.install_cleanup import _uninstall_selection
+
+        categories = [key for key, item in self._category_items.items()
+                      if item.checkState(0) == Qt.Checked]
+        return _uninstall_selection(self._preview, scope=self._scope.currentData(), categories=categories)
+
+
+_UNINSTALL_WORKERS = set()
+
+
+class _UninstallWorker(QThread):
+    """Finish discovery or preparation outside the GUI thread, retaining results until actual thread exit."""
+
+    def __init__(self, operation, function):
+        """Hold one filesystem operation without parenting its thread to a closing window."""
+        super().__init__()
+        self.operation = operation
+        self.function = function
+        self.result = None
+        self.error = None
+
+    def run(self):
+        """Keep an exception as a result for the GUI-thread completion handler."""
+        try:
+            self.result = self.function()
+        except Exception as error:
+            self.error = str(error)
+
+
+class _UninstallCoordinator(QObject):
+    """Keep discovery, confirmation, preparation and approved shutdown in one cancellable GUI operation."""
+
+    def __init__(self, window):
+        """Own the GUI state while background work and the copied helper remain disarmed."""
+        super().__init__(window)
+        import threading
+
+        from PySide6.QtWidgets import QProgressDialog
+
+        self.window = window
+        self.stopped = threading.Event()
+        self.worker = None
+        self.handshake = None
+        self.closing_for_uninstall = False
+        self.close_after_cancel = False
+        self.approved = False
+        self.finished = False
+        self.progress = QProgressDialog(tr("Finding installed spaCR versions…"), tr("Cancel"), 0, 0, window)
+        self.progress.setObjectName("SpacrUninstallProgress")
+        self.progress.setWindowTitle(tr("Uninstall spaCR"))
+        self.progress.setMinimumDuration(0)
+        self.progress.canceled.connect(self.cancel)
+        self.timer = QTimer(self)
+        self.timer.setInterval(250)
+        self.timer.timeout.connect(self._poll)
+        window.destroyed.connect(self.cancel)
+
+    def start(self):
+        """Discover installations and paths in a retained background worker."""
+        import uuid
+
+        from spacr.install_cleanup import _uninstall_preview
+
+        operation = uuid.uuid4().hex
+        self.progress.show()
+        self._work("preview", lambda: _uninstall_preview(operation))
+
+    def _work(self, operation, function):
+        """Start one operation and keep its thread alive even if the window closes."""
+        worker = _UninstallWorker(operation, function)
+        self.worker = worker
+        _UNINSTALL_WORKERS.add(worker)
+        worker.finished.connect(self._finished)
+        worker.destroyed.connect(lambda: _UNINSTALL_WORKERS.discard(worker))
+        worker.finished.connect(worker.deleteLater)
+        worker.start()
+
+    def _finished(self):
+        """Consume only a finished thread, then show the popup or wait for helper readiness."""
+        worker = self.worker
+        self.worker = None
+        if self.stopped.is_set():
+            if worker.operation == "prepare" and worker.result:
+                from spacr import install_cleanup
+
+                plan = worker.result
+                kind = install_cleanup._WindowsPipHandshake if plan["platform"] == "windows" else install_cleanup._FrozenUpdateHandshake
+                try:
+                    kind(plan).cancel()
+                except Exception:
+                    pass
+            self._finish()
+            return
+        if worker.error:
+            self._fail(worker.error)
+            return
+        if worker.operation == "preview":
+            self.progress.hide()
+            dialog = _UninstallDialog(worker.result, self.window)
+            try:
+                if dialog.exec() != QDialog.Accepted or self.stopped.is_set():
+                    self.cancel()
+                    return
+                choice = dialog.choices()
+            finally:
+                dialog.deleteLater()
+            from spacr import install_cleanup
+
+            preview, stopped = worker.result, self.stopped
+
+            def prepare():
+                """Disarm a late helper result when cancellation arrived during preparation."""
+                if stopped.is_set():
+                    return None
+                plan = install_cleanup._start_uninstall_helper(preview, choice)
+                if stopped.is_set():
+                    kind = install_cleanup._WindowsPipHandshake if plan["platform"] == "windows" else install_cleanup._FrozenUpdateHandshake
+                    kind(plan).cancel()
+                return plan
+
+            self.progress.setLabelText(tr("Preparing uninstall. spaCR will stay open until preparation succeeds…"))
+            self.progress.show()
+            self._work("prepare", prepare)
+        else:
+            from spacr import install_cleanup
+
+            plan = worker.result
+            kind = install_cleanup._WindowsPipHandshake if plan["platform"] == "windows" else install_cleanup._FrozenUpdateHandshake
+            self.handshake = kind(plan)
+            self.timer.start()
+            self._poll()
+
+    def _poll(self):
+        """Close only after helper readiness; the main-window hook approves after every shutdown veto."""
+        try:
+            status = self.handshake.status()
+            if status is None:
+                return
+            if status["state"] == "error":
+                raise RuntimeError(status["error"])
+            self.timer.stop()
+            self.handshake.check()
+            self.closing_for_uninstall = True
+            accepted = self.window.close()
+            self.closing_for_uninstall = False
+            if accepted is not True or not self.approved:
+                self.cancel()
+        except Exception as error:
+            self.closing_for_uninstall = False
+            self._fail(str(error))
+
+    def approve_close(self):
+        """Approve only the coordinator's own accepted shutdown; ordinary closing cancels uninstall."""
+        if not self.closing_for_uninstall:
+            waiting = self.worker is not None
+            self.close_after_cancel = waiting
+            self.cancel()
+            return not waiting
+        if self.stopped.is_set() or self.handshake is None:
+            return False
+        self.handshake.approve()
+        self.approved = True
+        return True
+
+    def cancel(self, *_args):
+        """Cancel preparation and any unapproved helper without terminating a running thread."""
+        if self.approved:
+            return
+        self.stopped.set()
+        if self.handshake is not None:
+            try:
+                self.handshake.cancel()
+            except Exception:
+                pass
+        self._finish()
+
+    def _fail(self, error):
+        """Keep the application open and explain a preparation or authorization refusal."""
+        from PySide6.QtWidgets import QMessageBox
+
+        if not getattr(self.window, "_closing", False):
+            QMessageBox.warning(self.window, tr("Uninstall stopped"), str(error))
+        self.cancel()
+
+    def _finish(self):
+        """Release GUI ownership only after its worker has finished."""
+        if self.finished:
+            return
+        try:
+            self.timer.stop()
+            self.progress.hide()
+        except RuntimeError:
+            return
+        if self.worker is not None:
+            return
+        self.finished = True
+        self.window.destroyed.disconnect(self.cancel)
+        self.progress.canceled.disconnect(self.cancel)
+        if getattr(self.window, "_uninstall_coordinator", None) is self:
+            self.window._uninstall_coordinator = None
+            self.window._approve_uninstall_close = None
+        self.progress.deleteLater()
+        if self.close_after_cancel:
+            QTimer.singleShot(0, self.window.close)
+        self.setParent(None)
+        self.deleteLater()
+
+
+def _open_uninstall(window):
+    """Start the single uninstall workflow only while no update or other uninstall is active."""
+    from PySide6.QtWidgets import QMessageBox
+
+    if window is None or getattr(window, "_closing", False):
+        return False
+    if getattr(window, "_uninstall_coordinator", None) is not None:
+        return False
+    worker = getattr(window, "_update_worker", None)
+    try:
+        updating = worker is not None and worker.isRunning()
+    except RuntimeError:
+        updating = False
+    if updating or getattr(window, "_frozen_update_plan", None) is not None or getattr(window, "_frozen_update_handshake", None) is not None:
+        QMessageBox.information(window, tr("Uninstall spaCR"), tr("Finish or cancel the current update before uninstalling spaCR."))
+        return False
+    coordinator = _UninstallCoordinator(window)
+    window._uninstall_coordinator = coordinator
+    window._approve_uninstall_close = coordinator.approve_close
+    coordinator.start()
+    return True
