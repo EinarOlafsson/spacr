@@ -1,0 +1,106 @@
+{
+  "verdict": "ACCEPT",
+  "reviewed_commit": "937742f7916beec9b67fa873ce458af485ab735f",
+  "scope": "Independent source/evidence semantic review only; no imports/tests/network/models.",
+  "proof": [
+    {
+      "file": "tests/test_cov_object_cellpose_masks.py",
+      "named_functions": [
+        "test_a_checkpoint_path_that_is_not_there_stops_the_run"
+      ],
+      "before_sha256": "0bef8207d277f849e3be64f9a0d78e08091d158ac7f6996af0d32cfbcff80a45",
+      "after_sha256": "13804295e26c0fdf008fda9643154d66c4c56b1afb2c4f2feaaba5d05235c985",
+      "outside_named_function_AST_exact": true,
+      "fixture_argument_addition": []
+    },
+    {
+      "file": "tests/test_cellpose_dino_runs_in_its_own_environment.py",
+      "named_functions": [
+        "test_load_backend_refuses_what_it_cannot_run"
+      ],
+      "before_sha256": "a206ea81134d112b6d4fab9b9c120004f8bc5a4f961a100534936970b311638e",
+      "after_sha256": "b479f5fca77e3458b77937d84be86741dd6539bdad4354f0bb088c70f1212aae",
+      "outside_named_function_AST_exact": true,
+      "fixture_argument_addition": [
+        "test_load_backend_refuses_what_it_cannot_run"
+      ]
+    },
+    {
+      "file": "tests/test_item60_deep_spacr_coverage.py",
+      "named_functions": [
+        "test_apply_model_to_tar_reports_crop_format",
+        "test_generate_activation_map_registered_attribution_path",
+        "test_train_model_rejects_missing_initial_checkpoint"
+      ],
+      "before_sha256": "b7ad370149e748f731d454302617f5dbbe1ed01e96ffcce6ac813afca93bede1",
+      "after_sha256": "5704932e3c021cddbb281d13461df234ced52154a6d897b9c5a7c33b419f8ddb",
+      "outside_named_function_AST_exact": true,
+      "fixture_argument_addition": []
+    },
+    {
+      "file": "tests/test_colony_cfu_counting.py",
+      "named_functions": [
+        "test_a_colony_detector_that_is_neither_file_nor_zoo_key_is_refused"
+      ],
+      "before_sha256": "607dd3a480628a1b6ef4349e55eaa1134736479768854dbf8f03c37bb7318047",
+      "after_sha256": "31b2308601ae9ee5f5349f945238ad8c7f343cf84273f252f44c58c260561868",
+      "outside_named_function_AST_exact": true,
+      "fixture_argument_addition": []
+    },
+    {
+      "file": "tests/test_cov_deep_spacr_entry_fusion.py",
+      "named_functions": [
+        "test_deep_spacr_relative_tar_regenerated_and_missing_model_skips"
+      ],
+      "before_sha256": "786bce7927ce210cc60d4ae3eb9d8177bbd3f6078b108baea42822e0ecdf9536",
+      "after_sha256": "9dc85898310a6bb9e229e6523118d14f9da8dc01609bf4fc74ac81fe9ab49497",
+      "outside_named_function_AST_exact": true,
+      "fixture_argument_addition": []
+    },
+    {
+      "file": "tests/test_mask_worker_model_identity.py",
+      "named_functions": [
+        "test_a_missing_custom_checkpoint_is_not_downloaded_as_stock"
+      ],
+      "before_sha256": "93e77ba45c04b52f0d8dd3d50158cecfcad67b9c1708385023bcb3b773764dce",
+      "after_sha256": "f34771dec96befb2beada91f13cae5fc38960b445f42f6b7cf9db3b146621a45",
+      "outside_named_function_AST_exact": true,
+      "fixture_argument_addition": []
+    }
+  ],
+  "production_tools_packaging_changes": [],
+  "asserted_receipt_artifact_hashes_all_exact": true,
+  "actual_XML_summaries": {
+    "baseline.xml.gz": {
+      "tests": "8",
+      "failures": "8",
+      "errors": "0",
+      "skipped": "0"
+    },
+    "final.xml.gz": {
+      "tests": "8",
+      "failures": "1",
+      "errors": "0",
+      "skipped": "0"
+    },
+    "training-final.xml.gz": {
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  },
+  "findings": [
+    "Missing/unknown model fixtures now demand actual ModelZooError with exactrequest/context and nofallback/noacquisition/nooutput, matching strict source resolver. No arbitrary unknown model made valid.",
+    "Two unrelated crop-format/attribution paths use existinglocalmarkerfile prerequisite and assert exactloaderpath while retaining mockedloader; no checkpoint decoding.",
+    "Unknowncolony uses controlledcompatiblecatalogue row only to pin refusedcandidate diagnostic; unknownrequestedname stillrefuses and fetch/constructor are forbidden.",
+    "Training finaltripwires forbid actual artifactload/optimizer-fitting boundaries. Earlier overstrong choose_model tripwire failure retained; code mayallocate an architecture before resolving initialcheckpoint, not deserialize/fitting.",
+    "Sixfiles/eightnamedfunctions scope exact; one test additionallytakes monkeypatchfixture argument. Therefore outsideFUNCTION AST equality is accurate; literal body-only shorthand must not obscure that fixture-signature addition.",
+    "Existing _load_backend/_load_cellpose_dino prose still names FileNotFoundError for missingDINO; actual currentresolver uses ModelZooError. This inherited documentationdebt is not changed or certified by the test repair."
+  ],
+  "evidence": "8FAIL8.32s ->7PASS1FAIL7.39s ->affected1PASS5.43s. Eightdistinctfinalpassed nodes; no all-eightfinalinvocation claimed.",
+  "limits": [
+    "Not a fullCI/native/model/scientific acceptance",
+    "No test/reproduction by independentreviewer"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "verdict": "ACCEPT",
+  "reviewed_commit": "f5d6b93d8e219547d4d7b3b7afbd5cea6b7a2fcb",
+  "test": "tests/qt/test_n441_metadata_actual_locales.py",
+  "source_test_hashes_exact": true,
+  "all18original_assertion_ASTs_retained": true,
+  "new_confirmed_status_assertions": 7,
+  "outside_function_body_AST_exact": true,
+  "findings": [
+    "ActualtablemarksScanRprovisionalandEVOSconfirmed. Switching provisionalfixturetoScanR preserves real9locale provisional text; addedEVOS roundtrip verifies confirmednoSuffix/noWarning/exacttranslatedexample/currentkeys.",
+    "Originalsourcehashes/10reviewrecords/realpersistedlanguage/tr/catalog/widget/status/ranking/nonmutation/inputbytes assertions retained exactly. No production/status-policy/caption/regex/source/API/gate changes."
+  ],
+  "evidence": "Actual9FAIL3.02s ->9PASS3.05s; no skips, no replaybyreviewer.",
+  "limits": [
+    "AI technical source/evidence review; no native/human/scientific signoff",
+    "Originaltranslatedlookup helper retained; no additional fallback waiver"
+  ]
+}
