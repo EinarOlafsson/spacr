@@ -37,8 +37,8 @@ the app asks for torch and timm. This example does not bundle Python packages.
 
 1. Enable Show alpha features, then open Embeddings.
 2. Click Load synthetic demo. This opens these crops and their aligned
-   labels, selects resnet18 with Project channels and a batch size of 8,
-   and runs embeddings on the CPU.
+   labels, selects resnet18 with Project to three (one pass) and a batch
+   size of 8, and selects the CPU for embedding.
 3. Press Embed. The preview should contain 24 rows with finite values.
    The label scorecard reports retrieval performance for the drawn shapes.
 4. To try the classifier workflow, choose Use for, then Classifier, then
@@ -53,7 +53,7 @@ Open the files manually
 ----------------------
 In Embeddings, select the crop-folder source, choose the crops/ directory,
 clear any selection filters, set the crop limit to at least 24 and press
-Load crops. Select resnet18 and Project channels. Open Labels... and select
+Load crops. Select resnet18 and Project to three (one pass). Open Labels… and select
 labels.csv, then press Embed. The built-in demo button explicitly uses CPU;
 manual loading follows the application's normal device selection.
 
