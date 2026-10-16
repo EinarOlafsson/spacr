@@ -5,6 +5,7 @@ import hashlib
 import json
 import shutil
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -261,7 +262,17 @@ def test_native_series_checkpoint_rejects_changed_staging_without_reanalysis(
         shutil.rmtree(field / 'masks/nucleus_mask_stack')
         (field / 'masks/nucleus_mask_stack').symlink_to(field / 'stack',
                                                        target_is_directory=True)
-    result = core._watch_folder_and_analyse(_watch(source))
+    now = [core.time.time()]
+
+    def advance(seconds):
+        now[0] += seconds
+
+    # This checks receipt validation, not scan speed against the 60 ms idle window.
+    # Advance the watcher's clock only when it polls, leaving real I/O unchanged.
+    with monkeypatch.context() as patch:
+        patch.setattr(core, 'time', SimpleNamespace(
+            time=lambda: now[0], sleep=advance))
+        result = core._watch_folder_and_analyse(_watch(source))
     assert len(result['failed']) == 1 and len(seen) == 2
     ledger = json.loads((source / 'spacr_watch/watch_ledger.json').read_text())
     assert 'Collection' in ledger['fields'][result['failed'][0]]['error']
