@@ -16,19 +16,20 @@ def _labels(dtype=np.uint16):
     return labels
 
 
-@pytest.mark.parametrize("target", [1, 255, 256, 65535, np.uint16(900)])
+@pytest.mark.parametrize("target", [1, 255, 256, 65535, 65536, 2**31 + 5,
+                                    2**32 - 1, np.uint32(900)])
 def test_explicit_label_changes_only_the_selected_identity_and_keeps_input(target):
     source = _labels(np.uint8)
     before = source.copy()
     changed, old_id = engine.assign_object_label(source, 3, 4, target)
     assert old_id == 7
-    assert changed.dtype == np.uint16
+    assert changed.dtype == (np.uint32 if target > 65535 else np.uint16)
     np.testing.assert_array_equal(source, before)
     np.testing.assert_array_equal(changed == target, before == 7)
     np.testing.assert_array_equal(changed[before != 7], before[before != 7])
 
 
-@pytest.mark.parametrize("target", [-1, 65536, 2**64, 1.5, "7", True, np.nan])
+@pytest.mark.parametrize("target", [-1, 2**32, 2**64, 1.5, "7", True, np.nan])
 def test_invalid_selected_id_is_rejected_without_mutation(target):
     source = _labels()
     before = source.copy()
@@ -95,13 +96,13 @@ def test_saved_manual_ids_reopen_exactly_without_external_files(tmp_path):
     labels = np.zeros(image.shape, np.uint16)
     labels[2:5, 2:5] = 7
     labels[8:10, 10:13] = 7
-    labelled, _ = engine.assign_object_label(labels, 3, 3, 65535)
+    labelled, _ = engine.assign_object_label(labels, 3, 3, 2**32 - 1)
     target = engine.save_mask(str(tmp_path), "frame.tif", labelled, preserve_ids=True)
     _, reopened = engine.load_image_and_mask(str(tmp_path), "frame.tif")
     np.testing.assert_array_equal(reopened, labelled)
     assert sorted(path.name for path in (tmp_path / "masks").iterdir()) == ["frame.tif"]
     with pytest.raises(ValueError, match="uint16"):
-        engine.save_mask(str(tmp_path), "frame.tif", labelled.astype(np.uint32) + 1,
+        engine.save_mask(str(tmp_path), "frame.tif", labelled.astype(np.uint64) + 1,
                          preserve_ids=True)
     _, after_refused_save = engine.load_image_and_mask(str(tmp_path), "frame.tif")
     np.testing.assert_array_equal(after_refused_save, labelled)
