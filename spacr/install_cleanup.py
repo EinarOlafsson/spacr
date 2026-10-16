@@ -773,11 +773,14 @@ def _find_windows_offline(machine: _Machine) -> List[InstallRecord]:
         if any(_exists(os.path.join(root, m))
                for m in ("spacr.exe", "Uninstall.exe", "_internal"))]
     menu = _windows_start_menu(machine)
+    menus = [menu]
+    if machine.real and os.name == "nt":
+        menus.append(_windows_known_folder(0x17))
     records = []
     for root in roots:
         needles = _spellings(root)
         shortcuts = [link for link in _dedupe(
-            os.path.join(menu, f"{name}.lnk") for name in _NAMES)
+            os.path.join(folder, f"{name}.lnk") for folder in menus for name in _NAMES)
             if _mentions(link, needles)]
         notes = () if _exists(os.path.join(root, "Uninstall.exe")) else (
             "its own uninstaller is missing",)
@@ -1879,6 +1882,14 @@ def _apply_uninstall_selection(preview, selection, *, system=None, after_shutdow
     machine = system or _Machine()
     records, cleanup = _validate_uninstall_selection(preview, selection, machine,
                                                      after_shutdown=after_shutdown)
+    return _apply_uninstall_records(preview, selection, records, cleanup, machine)
+
+
+def _apply_uninstall_records(preview, selection, records, cleanup, machine):
+    """Apply the confirmed user-owned remainder after any native software removal."""
+    for row in cleanup:
+        if not row["path"].startswith("registry:") and _uninstall_path_state(row["path"]) != row["identity"]:
+            raise ValueError(tr("The cleanup paths changed. Review the uninstall paths again."))
     protected = [row["path"] for row in preview["cleanup"] if not row["path"].startswith("registry:")]
     reports = []
     for record in records:
@@ -1904,12 +1915,521 @@ def _uninstall_binding(preview, selection):
                                      separators=(",", ":")).encode()).hexdigest()
 
 
+def _macos_native_uninstall_adapter(preview, records, machine):
+    """Select the installed native helper only for its fixed package-owned macOS paths."""
+    if machine.platform != "macos":
+        return None
+    app = machine.path("/Applications/spaCR.app")
+    support = machine.path("/Library/Application Support/spaCR")
+    eligible = [record for record in records if record.layout == "macos-app"
+                and record.root in {app, support} and any(
+                    _exists(path) and not os.access(os.path.dirname(path), os.W_OK | os.X_OK)
+                    for path in [record.root, *record.registrations, *record.launchers])]
+    if not eligible:
+        return None
+    helper = os.path.join(app, "Contents", "MacOS", "install-spacr-gui")
+    capabilities = os.path.join(app, "Contents", "Resources", "uninstall-capabilities.json")
+    for leaf in (helper, capabilities):
+        current = leaf
+        while _inside(current, app):
+            metadata = os.lstat(current)
+            if (stat.S_ISLNK(metadata.st_mode) or metadata.st_uid != (0 if machine.real else os.getuid())
+                    or stat.S_IMODE(metadata.st_mode) & 0o022
+                    or not (stat.S_ISREG(metadata.st_mode) if current == leaf else stat.S_ISDIR(metadata.st_mode))):
+                raise PermissionError(tr("Uninstall preparation stopped: {error}", error=leaf))
+            current = os.path.dirname(current)
+    descriptor = os.open(capabilities, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(descriptor, encoding="utf-8") as stream:
+        metadata = os.fstat(stream.fileno())
+        if (not stat.S_ISREG(metadata.st_mode) or metadata.st_uid != (0 if machine.real else os.getuid())
+                or stat.S_IMODE(metadata.st_mode) & 0o022 or metadata.st_size > 128
+                or stream.read(129).strip() != '{"native_uninstall_schema":1}'):
+            raise ValueError(tr("Uninstall preparation stopped: {error}", error=capabilities))
+    if os.path.realpath(helper) != helper:
+        raise PermissionError(tr("Uninstall preparation stopped: {error}", error=helper))
+    targets, launchers = set(), set()
+    for record in eligible:
+        targets.update([record.root, *record.registrations])
+        launchers.update(record.launchers)
+    command_link = machine.path("/usr/local/bin/spacr")
+    if (app not in targets or not targets <= {app, support}
+            or not launchers <= {command_link}
+            or any(record.shortcuts or record.menu_entries for record in eligible)):
+        raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+    if launchers and (not os.path.islink(command_link)
+                      or os.readlink(command_link) != os.path.join(app, "Contents", "MacOS", "spaCR")):
+        raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+    return {"adapter": "macos-online-native", "helper": helper,
+            "roots": [record.root for record in eligible],
+            "desktop_executable": machine.executable,
+            "request": {"launcher": bool(launchers), "targets": [
+                {"path": path, "identity": list(_identity(path)),
+                 "keep": [row["path"] for row in preview["cleanup"]
+                          if not row["path"].startswith("registry:") and _inside(row["path"], path)]}
+                for path in sorted(targets)]}}
+
+
+def _macos_native_uninstall_command(adapter, endpoint, pid):
+    """Request graphical authorization for one installed native helper with fixed arguments."""
+    import shlex
+
+    arguments = [adapter["helper"], "--spacr-uninstall-native", endpoint, str(pid),
+                 adapter["desktop_executable"], json.dumps(adapter["request"], separators=(",", ":"))]
+    command = "exec " + shlex.join(arguments)
+    literal = command.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n").replace("\r", "\\r")
+    return ["/usr/bin/osascript", "-e",
+            f'do shell script "{literal}" with administrator privileges without altering line endings']
+
+
+def _native_uninstall_adapter(preview, records, machine):
+    """Bind each supported protected installation to its installed administrator helper."""
+    if machine.platform == "windows" and machine.real and not _windows_process_elevated():
+        return _windows_native_uninstall_adapter(preview, records, machine)
+    if machine.platform == "macos":
+        frozen = _macos_frozen_uninstall_adapter(preview, records, machine)
+        if frozen is not None:
+            return frozen
+    if machine.platform != "linux":
+        return _macos_native_uninstall_adapter(preview, records, machine)
+    selected = [record for record in records if record.layout == "linux-deb" and record.needs_admin]
+    if not selected or not machine.real or os.geteuid() == 0:
+        return None
+    if (len(selected) != 1 or selected[0].root != "/opt/spacr"
+            or selected[0].registrations != ("deb:spacr",)
+            or any(_inside(row["path"], "/opt/spacr") for row in preview["cleanup"]
+                   if not row["path"].startswith("registry:"))):
+        raise ValueError(tr("Uninstall preparation stopped: {error}", error="/opt/spacr"))
+    helper = _debian_check_package_owner(selected[0].version, run=_run)
+    marker = "/opt/spacr/uninstall-protocol.json"
+    details = os.lstat(marker)
+    if (not stat.S_ISREG(details.st_mode) or details.st_uid != 0
+            or stat.S_IMODE(details.st_mode) & 0o022 or details.st_size > 1024):
+        raise ValueError(tr("Uninstall preparation stopped: {error}", error=marker))
+    with open(marker, encoding="utf-8") as stream:
+        if json.load(stream) != {"schema": 1, "adapter": "linux-deb-uninstall-v1"}:
+            raise ValueError(tr("Uninstall preparation stopped: {error}", error=marker))
+    if not os.path.isfile("/usr/bin/pkexec") or not os.access("/usr/bin/pkexec", os.X_OK):
+        raise PermissionError(tr("graphical administrator authorization is unavailable"))
+    return {"adapter": "linux-deb-native", "helper": helper, "roots": [selected[0].root],
+            "desktop_executable": machine.executable, "desktop_uid": os.getuid(),
+            "previous_version": selected[0].version}
+
+
+def _native_uninstall_command(adapter, endpoint, pid):
+    """Build one graphical authorization request without elevating user-owned code."""
+    if adapter["adapter"] == "macos-online-native":
+        return _macos_native_uninstall_command(adapter, endpoint, pid)
+    if adapter["adapter"] == "macos-frozen-native":
+        return _macos_frozen_authorized_command("uninstall-macos-root", [
+            "--phase-channel", endpoint, "--desktop-pid", str(pid),
+            "--desktop-executable", adapter["desktop_executable"],
+            "--previous-version", adapter["previous_version"],
+            "--app-identity", ":".join(str(value) for value in adapter["identity"]),
+            "--keep-json", json.dumps(adapter["keep"], separators=(",", ":"))])
+    if adapter["adapter"] != "linux-deb-native":
+        raise ValueError("unsupported_native_uninstall")
+    return ["/usr/bin/pkexec", adapter["helper"], "uninstall-debian-root", "--phase-channel", endpoint,
+            "--desktop-pid", str(pid), "--desktop-executable", adapter["desktop_executable"],
+            "--desktop-uid", str(adapter["desktop_uid"]), "--previous-version", adapter["previous_version"]]
+
+
+def _uninstall_debian_root(endpoint, desktop_pid, desktop_executable, desktop_uid, previous_version):
+    """Remove only the trusted spaCR Debian package after authorization and the desktop's exit."""
+    _debian_authenticated_user(desktop_uid)
+    if _desktop_process_identity(desktop_pid) != (desktop_uid, os.path.realpath(desktop_executable)):
+        raise ValueError(tr("The running desktop could not be identified."))
+    helper = _debian_check_package_owner(previous_version)
+    if not getattr(sys, "frozen", False) or os.path.realpath(sys.executable) != helper:
+        raise ValueError(tr("Uninstall preparation stopped: {error}", error=helper))
+    with _UpdatePhaseClient(endpoint, desktop_pid, desktop_executable) as channel:
+        with _debian_frontend_lock():
+            code, output = _debian_root_runner(["/usr/bin/dpkg", "--no-act", "--remove", "spacr"])
+        if code:
+            raise RuntimeError(tr("Uninstall preparation stopped: {error}", error=output[-2000:]))
+        channel._send("prepared")
+        decision = channel._receive({"activate", "cancel"}, timeout=_WAIT_SECONDS)
+        if decision["phase"] != "activate":
+            return 3
+        if not _wait_for_exit(desktop_pid, timeout=1):
+            raise RuntimeError(tr("spaCR must close before this installation can be removed."))
+        with _debian_frontend_lock():
+            _debian_check_package_owner(previous_version)
+            code, output = _debian_root_runner(["/usr/bin/dpkg", "--remove", "spacr"])
+        if code:
+            raise RuntimeError(tr("Uninstall preparation stopped: {error}", error=output[-2000:]))
+        channel._send("complete")
+    return 0
+
+
+def _macos_frozen_uninstall_adapter(preview, records, machine):
+    """Select the signed frozen bundle's installed helper without elevating user-owned code."""
+    app = machine.path("/Applications/spaCR.app")
+    selected = [record for record in records if record.layout == "macos-app" and record.root == app
+                and not os.access(os.path.dirname(app), os.W_OK | os.X_OK)]
+    if not selected or not machine.real or not os.path.isfile(os.path.join(app, "Contents", "Frameworks", "spacr-update-helper")):
+        return None
+    if len(selected) != 1 or selected[0].registrations != (app,) or selected[0].launchers:
+        raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+    _macos_frozen_trusted_helper()
+    info = _macos_bundle_identity(app, selected[0].version)
+    return {"adapter": "macos-frozen-native", "roots": [app], "identity": list(_identity(app)),
+            "previous_version": info["SPACRPackageVersion"], "desktop_executable": machine.executable,
+            "keep": [row["path"] for row in preview["cleanup"]
+                     if not row["path"].startswith("registry:") and _inside(row["path"], app)]}
+
+
+def _macos_uninstall_tree(path, identity, keep, *, apply=False, owner=0):
+    """Traverse bound directories by descriptor, preserving selected paths and never following links."""
+    def visit(parent, name, absolute):
+        if any(_inside(absolute, saved) for saved in keep):
+            return False
+        before = os.stat(name, dir_fd=parent, follow_symlinks=False)
+        if stat.S_ISDIR(before.st_mode):
+            if before.st_uid != owner or stat.S_IMODE(before.st_mode) & 0o022:
+                raise PermissionError(tr("Uninstall preparation stopped: {error}", error=absolute))
+            descriptor = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent)
+            try:
+                actual = os.fstat(descriptor)
+                if (actual.st_dev, actual.st_ino) != (before.st_dev, before.st_ino):
+                    raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+                removed = True
+                for child in sorted(os.listdir(descriptor)):
+                    removed = visit(descriptor, child, os.path.join(absolute, child)) and removed
+            finally:
+                os.close(descriptor)
+            if not removed:
+                return False
+        elif not (stat.S_ISREG(before.st_mode) or stat.S_ISLNK(before.st_mode)):
+            raise ValueError(tr("Uninstall preparation stopped: {error}", error=absolute))
+        if apply:
+            actual = os.stat(name, dir_fd=parent, follow_symlinks=False)
+            if (actual.st_dev, actual.st_ino, stat.S_IFMT(actual.st_mode)) != (
+                    before.st_dev, before.st_ino, stat.S_IFMT(before.st_mode)):
+                raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+            (os.rmdir if stat.S_ISDIR(before.st_mode) else os.unlink)(name, dir_fd=parent)
+        return True
+
+    if (not isinstance(keep, list) or len(keep) > 256
+            or any(not isinstance(saved, str) or os.path.abspath(saved) != saved or not _inside(saved, path)
+                   for saved in keep) or tuple(_identity(path)) != tuple(identity)
+            or os.path.realpath(path) != path):
+        raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+    parent = os.open(os.path.dirname(path), os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        actual = os.stat(os.path.basename(path), dir_fd=parent, follow_symlinks=False)
+        if (actual.st_dev, actual.st_ino) != tuple(identity) or not stat.S_ISDIR(actual.st_mode):
+            raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+        visit(parent, os.path.basename(path), path)
+    finally:
+        os.close(parent)
+
+
+def _uninstall_macos_root(endpoint, desktop_pid, desktop_executable, previous_version, identity, keep):
+    """Remove only the fixed signed macOS bundle after native authorization and actual desktop exit."""
+    import re
+
+    target = "/Applications/spaCR.app"
+    executable = os.path.realpath(sys.executable)
+    if (os.geteuid() != 0 or not getattr(sys, "frozen", False)
+            or not re.fullmatch(r"/private/var/root/spacr-helper\.[A-Za-z0-9]{8}/helper", executable)):
+        raise ValueError(tr("Uninstall preparation stopped: {error}", error="trusted_helper"))
+    for path in (os.path.dirname(executable), executable):
+        details = os.lstat(path)
+        if details.st_uid != 0 or stat.S_IMODE(details.st_mode) & 0o077 or os.path.realpath(path) != path:
+            raise ValueError(tr("Uninstall preparation stopped: {error}", error=path))
+    owner, desktop = _desktop_process_identity(desktop_pid)
+    if owner == 0 or desktop != os.path.realpath(desktop_executable):
+        raise ValueError(tr("The running desktop could not be identified."))
+    installed = _macos_frozen_trusted_helper()
+    if _macos_digest(executable) != _macos_digest(installed):
+        raise ValueError(tr("Uninstall preparation stopped: {error}", error="trusted_helper"))
+    _macos_bundle_identity(target, previous_version)
+    if len(keep) > 32768 or not re.fullmatch(r"[0-9]+:[0-9]+", identity):
+        raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+    bound = tuple(int(value) for value in identity.split(":"))
+    saved = json.loads(keep)
+    if not isinstance(saved, list):
+        raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+    saved += [os.path.join(target, name) for name in os.listdir(target) if name != "Contents"]
+    _macos_uninstall_tree(target, bound, saved)
+    with _UpdatePhaseClient(endpoint, desktop_pid, desktop_executable) as channel:
+        channel._send("prepared")
+        if channel._receive({"activate", "cancel"}, timeout=_WAIT_SECONDS)["phase"] != "activate":
+            return 3
+        if not _wait_for_exit(desktop_pid, timeout=1):
+            raise RuntimeError(tr("spaCR must close before this installation can be removed."))
+        _macos_frozen_trusted_helper()
+        _macos_bundle_identity(target, previous_version)
+        _macos_uninstall_tree(target, bound, saved)
+        _macos_uninstall_tree(target, bound, saved, apply=True)
+        channel._send("complete")
+    return 0
+
+
+def _run_native_uninstall(plan, adapter, handshake, wait=None):
+    """Finish native authorization while the desktop remains open, then await its approved exit."""
+    if adapter["adapter"] == "windows-frozen-native":
+        return _run_windows_native_uninstall(plan, adapter, handshake, wait=wait)
+    with _UpdatePhaseServer(plan["workdir"]) as channel:
+        command = _native_uninstall_command(adapter, channel.endpoint, plan["pid"])
+        with open(os.path.join(plan["workdir"], "native-uninstall.log"), "xb") as output:
+            process = subprocess.Popen(command, stdin=subprocess.DEVNULL, stdout=output,
+                                       stderr=subprocess.STDOUT, start_new_session=True)
+            activated = False
+            try:
+                def stopped():
+                    handshake.check()
+                    return process.poll() is not None
+
+                channel._receive({"prepared"}, stopped=stopped)
+                handshake.ready()
+                handshake.wait_for_shutdown(wait=wait)
+                channel._send("activate")
+                activated = True
+                channel._receive({"complete"}, stopped=lambda: process.poll() is not None)
+                if process.wait(timeout=10):
+                    raise RuntimeError(tr("Uninstall preparation stopped: {error}", error=plan["workdir"]))
+            finally:
+                if not activated and channel._connection is not None:
+                    try:
+                        channel._send("cancel")
+                    except OSError:
+                        pass
+                if process.poll() is None and not activated:
+                    process.terminate()
+
+
+def _windows_known_folder(identifier):
+    """Read an operating-system folder without trusting an inherited environment variable."""
+    import ctypes
+
+    shell = _windows_update_library("shell32")
+    function = shell.SHGetFolderPathW
+    function.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p, ctypes.c_uint32, ctypes.c_wchar_p]
+    function.restype = ctypes.c_int32
+    path = ctypes.create_unicode_buffer(32768)
+    if function(None, identifier, None, 0, path) != 0 or not path.value:
+        raise OSError(tr("Uninstall preparation stopped: {error}", error="windows_folder"))
+    return _installer_metadata_folder(path.value, "windows_uninstall_folder", windows=True)
+
+
+def _windows_system_owned(path):
+    """Require native system or administrator ownership without effective foreign write access."""
+    trusted = {"S-1-5-18", "S-1-5-32-544",
+               "S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464"}
+    _installer_metadata_folder(path, "windows_uninstall_path", windows=True)
+    details = os.lstat(path)
+    if not (stat.S_ISREG(details.st_mode) or stat.S_ISDIR(details.st_mode)):
+        raise ValueError(tr("Uninstall preparation stopped: {error}", error=path))
+    evidence = _windows_pip_acl(path)
+    if (evidence.get("owner") not in trusted or evidence.get("has_dacl") is not True
+            or not evidence.get("rules")):
+        raise PermissionError(tr("Uninstall preparation stopped: {error}", error=path))
+    for rule in evidence["rules"]:
+        if (rule.get("type") not in (0, 1) or type(rule.get("rights")) is not int
+                or type(rule.get("propagation")) is not int or rule["propagation"] & ~3
+                or not isinstance(rule.get("sid"), str)
+                or (rule["type"] == 0 and not rule["propagation"] & 2
+                    and rule["rights"] & 0x500D0156 and rule["sid"] not in trusted)):
+            raise PermissionError(tr("Uninstall preparation stopped: {error}", error=path))
+
+
+def _windows_uninstall_targets(request):
+    """Validate all fixed installed roots and manifest-owned files before permitting any removal."""
+    from pathlib import PurePosixPath
+
+    if not isinstance(request, dict) or set(request) != {"targets"} or not 0 < len(request["targets"]) <= 4:
+        raise ValueError("invalid_windows_uninstall_scope")
+    allowed = {os.path.normcase(os.path.join(_windows_known_folder(identifier), name))
+               for identifier in (0x26, 0x2a) for name in _NAMES}
+    common_menu = _windows_known_folder(0x17)
+    results, seen = [], set()
+    for target in request["targets"]:
+        root = _installer_metadata_folder(target["root"], "windows_uninstall_root", windows=True)
+        if os.path.normcase(root) not in allowed or os.path.normcase(root) in seen:
+            raise ValueError("invalid_windows_uninstall_root")
+        seen.add(os.path.normcase(root))
+        if list(_identity(root)) != target["identity"]:
+            raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+        keep = target["keep"]
+        if (not isinstance(keep, list) or len(keep) > 256
+                or any(not isinstance(path, str) or os.path.abspath(path) != path or not _inside(path, root)
+                       for path in keep)):
+            raise ValueError("invalid_windows_uninstall_keep")
+        for path in (os.path.dirname(root), root, os.path.join(root, "_internal")):
+            _windows_system_owned(path)
+        version = _frozen_windows_previous_version(root)
+        manifest = _frozen_windows_payload(root, version)
+        if version != target["version"] or _macos_digest(os.path.join(root, "spacr-payload.json")) != target["manifest"]:
+            raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+        files = [os.path.join(root, *PurePosixPath(name).parts) for name in manifest["files"]]
+        files.extend(os.path.join(root, name) for name in ("Uninstall.exe", "spacr-payload.json") if _exists(os.path.join(root, name)))
+        directories = {root}
+        for path in files:
+            cursor = os.path.dirname(path)
+            while _inside(cursor, root):
+                directories.add(cursor)
+                if cursor == root:
+                    break
+                cursor = os.path.dirname(cursor)
+            _windows_system_owned(path)
+        for path in directories:
+            _windows_system_owned(path)
+        shortcuts = target["shortcuts"]
+        if (not isinstance(shortcuts, list) or any(path not in {
+                os.path.join(common_menu, name + ".lnk") for name in _NAMES} for path in shortcuts)):
+            raise ValueError("invalid_windows_uninstall_shortcut")
+        for path in shortcuts:
+            _windows_system_owned(os.path.dirname(path))
+            _windows_system_owned(path)
+            if not _mentions(path, _spellings(root)):
+                raise ValueError("changed_windows_uninstall_shortcut")
+        results.append({"root": root, "files": files + shortcuts,
+                        "directories": sorted(directories, key=len, reverse=True), "keep": keep})
+    return results
+
+
+def _windows_native_uninstall_adapter(preview, records, machine):
+    """Use the installed native uninstaller only when its declared protocol and payload are intact."""
+    selected = [record for record in records if record.layout == "windows-offline" and record.needs_admin]
+    if not selected:
+        return None
+    common_menu = _windows_known_folder(0x17)
+    targets, remaining = [], []
+    for record in selected:
+        root = record.root
+        marker = os.path.join(root, "_internal", "spacr-uninstall-protocol.json")
+        _windows_system_owned(marker)
+        if os.path.getsize(marker) > 1024:
+            raise ValueError("invalid_windows_uninstall_protocol")
+        with open(marker, encoding="utf-8") as stream:
+            if json.load(stream) != {"schema": 1, "adapter": "windows-frozen-uninstall-v1"}:
+                raise ValueError("invalid_windows_uninstall_protocol")
+        targets.append({"root": root, "identity": list(_identity(root)),
+                        "version": _frozen_windows_previous_version(root),
+                        "manifest": _macos_digest(os.path.join(root, "spacr-payload.json")),
+                        "keep": [row["path"] for row in preview["cleanup"]
+                                 if not row["path"].startswith("registry:") and _inside(row["path"], root)],
+                        "shortcuts": [path for path in record.shortcuts if os.path.dirname(path) == common_menu]})
+        remaining.extend(path for path in record.shortcuts if os.path.dirname(path) != common_menu)
+    request = {"targets": targets}
+    _windows_uninstall_targets(request)
+    _windows_system_owned(os.path.join(selected[0].root, "Uninstall.exe"))
+    return {"adapter": "windows-frozen-native", "roots": [record.root for record in selected],
+            "uninstaller": os.path.join(selected[0].root, "Uninstall.exe"),
+            "desktop_executable": machine.executable, "request": request,
+            "remaining": [{"path": path, "identity": _uninstall_path_state(path)} for path in remaining]}
+
+
+def _run_windows_native_uninstall(plan, adapter, handshake, *, wait=None):
+    """Use authenticated completion across the native uninstaller's standard outside-root copy."""
+    request = os.path.join(plan["workdir"], "native-request.json")
+    descriptor = os.open(request, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+        json.dump(adapter["request"], stream, separators=(",", ":"))
+    _windows_pip_private_access(request, private_read=True)
+    with _UpdatePhaseServer(plan["workdir"]) as channel:
+        values = (channel.endpoint, adapter["desktop_executable"], request)
+        if any(any(character in value for character in '\x00\r\n"') for value in values):
+            raise ValueError("invalid_windows_uninstall_argument")
+        arguments = ('/S /SPACRUNINSTALL="' + channel.endpoint + '" /SPACRPID=' + str(plan["pid"])
+                     + ' /SPACREXE="' + adapter["desktop_executable"] + '" /SPACRREQUEST="' + request + '"')
+        if len(arguments) > 900:
+            raise ValueError("windows_uninstall_scope_too_large")
+        result = {}
+
+        def authorize():
+            try:
+                result["result"] = _windows_authorized_process(adapter["uninstaller"], arguments, visible=False)
+            except BaseException as error:
+                result["error"] = error
+
+        def stopped():
+            handshake.check()
+            if "error" in result:
+                raise result["error"]
+            return "result" in result and result["result"][0] != 0
+
+        activated = False
+        try:
+            with _windows_frozen_installer_pin(adapter["uninstaller"], _macos_digest(adapter["uninstaller"])):
+                worker = threading.Thread(target=authorize, name="spacr-uninstall-authorization", daemon=True)
+                worker.start()
+                channel._receive({"prepared"}, stopped=stopped)
+            handshake.ready()
+            handshake.wait_for_shutdown(wait=wait)
+            channel._send("activate")
+            activated = True
+            channel._receive({"complete"}, stopped=stopped)
+            worker.join(timeout=10)
+            if worker.is_alive() or "error" in result or result.get("result", (1, ""))[0]:
+                raise RuntimeError(tr("Uninstall preparation stopped: {error}", error=plan["workdir"]))
+        finally:
+            if not activated and channel._connection is not None:
+                try:
+                    channel._send("cancel")
+                except OSError:
+                    pass
+
+
+def _uninstall_frozen_windows(request, root, endpoint, desktop_pid, desktop_executable):
+    """Run only the native uninstaller's hardened outside-root helper against manifest-owned files."""
+    if not _windows_process_elevated() or not getattr(sys, "frozen", False):
+        raise ValueError("invalid_windows_native_uninstall")
+    owner, executable = _desktop_process_identity(desktop_pid)
+    if os.path.normcase(executable) != os.path.normcase(os.path.realpath(desktop_executable)):
+        raise ValueError(tr("The running desktop could not be identified."))
+    _installer_metadata_folder(request, "windows_uninstall_request", windows=True)
+    _windows_pip_private_access(request, owner_sid=owner, private_read=True)
+    before = os.lstat(request)
+    if not stat.S_ISREG(before.st_mode) or before.st_size > 65536:
+        raise ValueError("invalid_windows_uninstall_request")
+    with open(request, encoding="utf-8") as stream:
+        actual = os.fstat(stream.fileno())
+        if not stat.S_ISREG(actual.st_mode) or (actual.st_dev, actual.st_ino) != (before.st_dev, before.st_ino):
+            raise ValueError("changed_windows_uninstall_request")
+        request = json.loads(stream.read(65537))
+    targets = _windows_uninstall_targets(request)
+    if root not in {target["root"] for target in targets} or any(_inside(sys.executable, target["root"]) for target in targets):
+        raise ValueError("windows_uninstall_helper_must_be_outside")
+    _windows_system_owned(sys.executable)
+    _windows_system_owned(os.path.dirname(sys.executable))
+    installed = os.path.join(root, "_internal", "spacr-update-helper.exe")
+    if _macos_digest(sys.executable) != _macos_digest(installed):
+        raise ValueError("windows_uninstall_helper_changed")
+    with _UpdatePhaseClient(endpoint, desktop_pid, desktop_executable) as channel:
+        channel._send("prepared")
+        if channel._receive({"activate", "cancel"}, timeout=_WAIT_SECONDS)["phase"] != "activate":
+            return 3
+        if not _wait_for_exit(desktop_pid, timeout=1):
+            raise RuntimeError(tr("spaCR must close before this installation can be removed."))
+        targets = _windows_uninstall_targets(request)
+        for target in targets:
+            for path in target["files"]:
+                if not any(_inside(path, kept) for kept in target["keep"]):
+                    os.unlink(path)
+            for directory in target["directories"]:
+                if any(_inside(directory, kept) for kept in target["keep"]):
+                    continue
+                try:
+                    os.rmdir(directory)
+                except OSError as error:
+                    if error.errno not in (errno.ENOTEMPTY, errno.EEXIST):
+                        raise
+        channel._send("complete")
+    return 0
+
+
 def _start_uninstall_helper(preview, selection, *, pid=None, workdir=None, system=None, spawn=None):
     """Prepare a copied helper outside the removed paths; no removal precedes approved GUI shutdown."""
     machine = system or _Machine()
     records, cleanup = _validate_uninstall_selection(preview, selection, machine, after_shutdown=True)
+    native = _native_uninstall_adapter(preview, records, machine)
+    native_roots = set(native["roots"]) if native else set()
     denied = []
     for record in records:
+        if record.root in native_roots:
+            continue
         if (record.needs_admin and machine.real
                 and (machine.platform == "windows" and not _windows_process_elevated()
                      or any(token.startswith("deb:") for token in record.registrations)
@@ -1940,6 +2460,8 @@ def _start_uninstall_helper(preview, selection, *, pid=None, workdir=None, syste
             "records": [row["record"] for row in preview["installations"]],
             "ticked": list(selection["installations"]), "workdir": workdir,
             "running_prefix": machine.running_prefix, "platform": machine.platform,
+            "desktop_executable": machine.executable,
+            "native": native,
             "handshake": {"schema": 1, "token": os.urandom(32).hex(), "expires": time.time() + _WAIT_SECONDS}}
     handshake_type = _WindowsPipHandshake if machine.platform == "windows" else _FrozenUpdateHandshake
     handshake_type(plan)
@@ -1978,7 +2500,8 @@ def _run_uninstall_plan(plan_path, *, system=None, wait=None):
         if not stat.S_ISREG(details.st_mode) or details.st_size > 16 * 1024 * 1024:
             raise ValueError("invalid_uninstall_plan")
         plan = json.load(handle)
-    machine = system or _Machine(running_prefix=plan.get("running_prefix"))
+    machine = system or _Machine(running_prefix=plan.get("running_prefix"),
+                                 executable=plan.get("desktop_executable"))
     if (plan.get("schema") != 1 or plan.get("adapter") != "uninstall-v1"
             or plan.get("platform") != machine.platform
             or os.path.abspath(plan_path) != os.path.join(plan["workdir"], "plan.json")
@@ -1986,11 +2509,25 @@ def _run_uninstall_plan(plan_path, *, system=None, wait=None):
         raise ValueError("invalid_uninstall_binding")
     handshake = (_WindowsPipHandshake if machine.platform == "windows" else _FrozenUpdateHandshake)(plan)
     try:
-        _validate_uninstall_selection(plan["preview"], plan["selection"], machine, after_shutdown=True)
-        handshake.ready()
-        handshake.wait_for_shutdown(wait=wait)
-        outcome = _apply_uninstall_selection(plan["preview"], plan["selection"],
-                                            system=machine, after_shutdown=True)
+        records, cleanup = _validate_uninstall_selection(plan["preview"], plan["selection"], machine,
+                                                         after_shutdown=True)
+        native = _native_uninstall_adapter(plan["preview"], records, machine)
+        if native != plan.get("native"):
+            raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+        if native:
+            _run_native_uninstall(plan, native, handshake, wait=wait)
+            records = [record for record in records if record.root not in native["roots"]]
+            for row in native.get("remaining", []):
+                if _uninstall_path_state(row["path"]) != row["identity"]:
+                    raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+                report = RemovalReport(record=None)
+                _delete(row["path"], [], report, tr("Permission denied. These files were kept."))
+                if not report.ok:
+                    raise PermissionError(tr("Uninstall preparation stopped: {error}", error=row["path"]))
+        else:
+            handshake.ready()
+            handshake.wait_for_shutdown(wait=wait)
+        outcome = _apply_uninstall_records(plan["preview"], plan["selection"], records, cleanup, machine)
         destination = os.path.join(plan["workdir"], "result.json")
         with open(destination, "x", encoding="utf-8") as handle:
             json.dump(outcome, handle, indent=2)
@@ -7078,8 +7615,26 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
             return 6
         finally:
             _PRIVILEGED_DEBIAN_HELPER = False
+    if arguments and arguments[0] == "uninstall-macos-root":
+        root_parser = argparse.ArgumentParser(prog="spacr-update-helper")
+        root_parser.add_argument("command")
+        root_parser.add_argument("--phase-channel", required=True)
+        root_parser.add_argument("--desktop-pid", type=int, required=True)
+        root_parser.add_argument("--desktop-executable", required=True)
+        root_parser.add_argument("--previous-version", required=True)
+        root_parser.add_argument("--app-identity", required=True)
+        root_parser.add_argument("--keep-json", required=True)
+        root_args = root_parser.parse_args(arguments)
+        _PRIVILEGED_DEBIAN_HELPER = True
+        try:
+            return _uninstall_macos_root(root_args.phase_channel, root_args.desktop_pid,
+                root_args.desktop_executable, root_args.previous_version, root_args.app_identity, root_args.keep_json)
+        except Exception as error:
+            print(json.dumps({"state": "stopped", "error": str(error)}, sort_keys=True))
+            return 6
+        finally:
+            _PRIVILEGED_DEBIAN_HELPER = False
     if arguments and arguments[0] in {"prepare-debian-root", "apply-debian-root"}:
-
         root_parser = argparse.ArgumentParser(prog="spacr-update-helper")
         root_parser.add_argument("command", choices=("prepare-debian-root", "apply-debian-root"))
         root_parser.add_argument("--version", required=True)
@@ -7108,6 +7663,42 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
                    if root_args.phase_channel is not None else {}))
             print(json.dumps(receipt, sort_keys=True))
             return 0
+        except Exception as error:
+            print(json.dumps({"state": "stopped", "error": str(error)}, sort_keys=True))
+            return 6
+        finally:
+            _PRIVILEGED_DEBIAN_HELPER = False
+    if arguments and arguments[0] == "uninstall-frozen-windows":
+        root_parser = argparse.ArgumentParser(prog="spacr-update-helper")
+        root_parser.add_argument("command")
+        root_parser.add_argument("--root", required=True)
+        root_parser.add_argument("--request", required=True)
+        root_parser.add_argument("--desktop-pid", type=int, required=True)
+        root_parser.add_argument("--desktop-executable", required=True)
+        root_parser.add_argument("--phase-channel", required=True)
+        root_args = root_parser.parse_args(arguments)
+        _PRIVILEGED_DEBIAN_HELPER = True
+        try:
+            return _uninstall_frozen_windows(root_args.request, root_args.root,
+                root_args.phase_channel, root_args.desktop_pid, root_args.desktop_executable)
+        except Exception as error:
+            print(json.dumps({"state": "stopped", "error": str(error)}, sort_keys=True))
+            return 6
+        finally:
+            _PRIVILEGED_DEBIAN_HELPER = False
+    if arguments and arguments[0] == "uninstall-debian-root":
+        root_parser = argparse.ArgumentParser(prog="spacr-update-helper")
+        root_parser.add_argument("command")
+        root_parser.add_argument("--previous-version", required=True)
+        root_parser.add_argument("--desktop-uid", type=int, required=True)
+        root_parser.add_argument("--desktop-pid", type=int, required=True)
+        root_parser.add_argument("--desktop-executable", required=True)
+        root_parser.add_argument("--phase-channel", required=True)
+        root_args = root_parser.parse_args(arguments)
+        _PRIVILEGED_DEBIAN_HELPER = True
+        try:
+            return _uninstall_debian_root(root_args.phase_channel, root_args.desktop_pid,
+                root_args.desktop_executable, root_args.desktop_uid, root_args.previous_version)
         except Exception as error:
             print(json.dumps({"state": "stopped", "error": str(error)}, sort_keys=True))
             return 6

@@ -359,3 +359,525 @@ def test_shared_environment_parent_permission_is_not_needed_to_remove_only_spacr
         workdir=str(tmp_path / "allowed-helper"), spawn=lambda *args: calls.append(args))
     assert len(calls) == 1 and plan["selection"]["scope"] == "all"
     assert environment.is_dir() and box.commands == []
+
+
+@pytest.fixture
+def native_removal(tmp_path):
+    import ctypes
+    import shutil
+    import subprocess
+    from pathlib import Path
+
+    compiler = shutil.which("cc")
+    if not compiler:
+        pytest.skip("C compiler unavailable")
+    source = Path(__file__).resolve().parents[1] / "packaging/online/macos_gui_process.c"
+    library = tmp_path / "native-removal.so"
+    subprocess.run([compiler, "-Wall", "-Wextra", "-Werror", "-shared", "-fPIC",
+                    str(source), "-o", str(library)], check=True)
+    native = ctypes.CDLL(str(library)).spacr_uninstall_tree
+    native.argtypes = [ctypes.c_char_p, ctypes.c_ulong, ctypes.c_ulong, ctypes.c_uint,
+                       ctypes.POINTER(ctypes.c_char_p), ctypes.c_size_t, ctypes.c_int]
+    native.restype = ctypes.c_int
+
+    def remove(path, keep=(), apply=False, identity=None):
+        import os
+
+        details = path.lstat()
+        identities = identity or (details.st_dev, details.st_ino)
+        kept = (ctypes.c_char_p * len(keep))(*(os.fsencode(item) for item in keep))
+        return native(os.fsencode(path), *identities, os.getuid(), kept, len(keep), apply)
+
+    return remove
+
+
+def test_native_removal_preserves_nested_opt_out_and_never_follows_links(tmp_path, native_removal):
+    root = tmp_path / "Application.app"
+    contents = root / "Contents"
+    contents.mkdir(parents=True)
+    root.chmod(0o755)
+    contents.chmod(0o755)
+    (contents / "application").write_text("software")
+    models = contents / "spacr-data" / "models"
+    models.mkdir(parents=True)
+    models.parent.chmod(0o755)
+    models.chmod(0o755)
+    model = models / "weights"
+    model.write_text("preserved")
+    outside = tmp_path / "project"
+    outside.mkdir()
+    valuable = outside / "measurements.csv"
+    valuable.write_text("preserved")
+    link = contents / "linked-project"
+    link.symlink_to(outside, target_is_directory=True)
+    assert native_removal(root, [models]) == 0
+    assert (contents / "application").exists() and link.is_symlink()
+    assert native_removal(root, [models], apply=True) == 0
+    assert model.read_text() == valuable.read_text() == "preserved"
+    assert not link.exists() and not (contents / "application").exists()
+
+
+def test_native_preflight_refuses_writable_subtree_before_any_removal(tmp_path, native_removal):
+    import errno
+
+    root = tmp_path / "Application.app"
+    child = root / "Contents"
+    child.mkdir(parents=True)
+    root.chmod(0o755)
+    software = child / "application"
+    software.write_text("software")
+    child.chmod(0o777)
+    assert native_removal(root) == errno.EPERM
+    assert software.exists()
+
+
+def test_native_removal_refuses_replaced_root_and_keeps_similar_sibling(tmp_path, native_removal):
+    import errno
+
+    root = tmp_path / "Application.app"
+    root.mkdir()
+    root.chmod(0o755)
+    identity = (root.stat().st_dev, root.stat().st_ino)
+    root.rename(tmp_path / "previous")
+    root.mkdir()
+    root.chmod(0o755)
+    payload = root / "application"
+    payload.write_text("new")
+    assert native_removal(root, apply=True, identity=identity) == errno.ESTALE
+    assert payload.exists()
+    assert native_removal(root, [tmp_path / "Application.app-other"], apply=True) == 0
+    assert not root.exists()
+
+
+@pytest.fixture
+def protected_macos(tmp_path, monkeypatch):
+    box = Box(tmp_path)
+    support = macos_package(box, "1.5.0.7")
+    app = box.system("/Applications/spaCR.app")
+    helper = box.write(app / "Contents/MacOS/install-spacr-gui")
+    box.write(app / "Contents/Resources/uninstall-capabilities.json", '{"native_uninstall_schema":1}\n')
+    for folder in (app, helper.parent.parent, helper.parent, helper.parent.parent / "Resources"):
+        folder.chmod(0o755)
+    helper.chmod(0o755)
+    (helper.parent.parent / "Resources/uninstall-capabilities.json").chmod(0o644)
+    launcher = box.system("/usr/local/bin/spacr")
+    launcher.unlink()
+    launcher.symlink_to(app / "Contents/MacOS/spaCR")
+    runtime = box.home / "Library/Application Support/spaCR"
+    machine = box.machine("macos", running_prefix=str(runtime / "venv"))
+    preview, choice = _preview_choice(machine, categories=[])
+    actual_access = ic.os.access
+    denied = {str(app.parent), str(support.parent), str(launcher.parent)}
+    monkeypatch.setattr(ic.os, "access", lambda path, mode: str(path) not in denied and actual_access(path, mode))
+    records, _ = ic._validate_uninstall_selection(preview, choice, machine, after_shutdown=True)
+    return box, machine, preview, choice, records, helper
+
+
+def test_native_macos_preparation_authorizes_only_the_fixed_installed_helper(protected_macos, tmp_path):
+    box, machine, preview, choice, records, helper = protected_macos
+    adapter = ic._macos_native_uninstall_adapter(preview, records, machine)
+    assert adapter["helper"] == str(helper)
+    assert {target["path"] for target in adapter["request"]["targets"]} == {
+        str(box.system("/Applications/spaCR.app")), str(box.system("/Library/Application Support/spaCR"))}
+    before = box.files()
+    plan = ic._start_uninstall_helper(preview, choice, system=machine,
+        workdir=str(tmp_path / "outside"), spawn=lambda *args: None)
+    assert plan["native"] == adapter
+    assert box.files() == before | {str(tmp_path / "outside/install_cleanup.py"), str(tmp_path / "outside/plan.json")}
+    command = ic._macos_native_uninstall_command(adapter, str(tmp_path / "phase"), 12345)
+    assert command[:2] == ["/usr/bin/osascript", "-e"]
+    assert "with administrator privileges" in command[2] and "--spacr-uninstall-native" in command[2]
+    assert "install_cleanup.py" not in command[2]
+
+
+@pytest.mark.parametrize("invalid", ["old_binary", "writable_binary", "linked_binary"])
+def test_native_macos_preparation_refuses_untrusted_or_older_installed_helper(protected_macos, invalid):
+    box, machine, preview, choice, records, helper = protected_macos
+    if invalid == "old_binary":
+        (helper.parent.parent / "Resources/uninstall-capabilities.json").unlink()
+    elif invalid == "writable_binary":
+        helper.chmod(0o777)
+    else:
+        helper.unlink()
+        helper.symlink_to(box.write(box.home / "arbitrary-code"))
+    with pytest.raises((OSError, ValueError)):
+        ic._macos_native_uninstall_adapter(preview, records, machine)
+
+
+@pytest.mark.parametrize("cancelled", [False, True])
+def test_native_authorization_precedes_readiness_and_deletion_waits_for_exit(installation, tmp_path, monkeypatch, cancelled):
+    box, root, machine, plan, calls = _prepared_helper(installation, tmp_path)
+    handshake = ic._FrozenUpdateHandshake(plan)
+    events = []
+
+    class Channel:
+        _connection = object()
+        endpoint = str(tmp_path / "private-descriptor")
+
+        def __init__(self, workdir):
+            assert workdir == plan["workdir"]
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return None
+
+        def _receive(self, phases, **kwargs):
+            phase = next(iter(phases))
+            events.append(phase)
+            if phase == "prepared":
+                assert handshake.status() is None
+            return {"phase": phase, "details": {}}
+
+        def _send(self, phase):
+            events.append(phase)
+            if phase == "activate":
+                assert events.index("exited") < events.index("activate")
+
+    class Process:
+        def __init__(self, *args, **kwargs):
+            events.append("authorization")
+
+        def poll(self):
+            return None if "complete" not in events else 0
+
+        def wait(self, timeout):
+            return 0
+
+        def terminate(self):
+            events.append("terminated")
+
+    def ready():
+        events.append("ready")
+        ic._FrozenUpdateHandshake.ready(handshake)
+        if cancelled:
+            handshake.cancel()
+        else:
+            handshake.approve()
+
+    def exited(pid):
+        events.append("exited")
+        return True
+
+    monkeypatch.setattr(ic, "_UpdatePhaseServer", Channel, raising=False)
+    monkeypatch.setattr(ic.subprocess, "Popen", Process)
+    monkeypatch.setattr(handshake, "ready", ready)
+    monkeypatch.setattr(ic, "_native_uninstall_command", lambda *args: ["native-authorization"])
+    if cancelled:
+        with pytest.raises(RuntimeError, match="cancelled"):
+            ic._run_native_uninstall(plan, {"adapter": "macos-online-native"}, handshake, wait=exited)
+        assert "activate" not in events and events[-2:] == ["cancel", "terminated"]
+    else:
+        ic._run_native_uninstall(plan, {"adapter": "macos-online-native"}, handshake, wait=exited)
+        assert events == ["authorization", "prepared", "ready", "exited", "activate", "complete"]
+    assert (root / "venv/bin/python").exists()
+
+
+@pytest.mark.parametrize("decision,exited", [("activate", True), ("cancel", True), ("activate", False)])
+def test_native_debian_removes_only_spacr_after_authorization_and_actual_exit(monkeypatch, decision, exited):
+    from contextlib import nullcontext
+
+    events = []
+    helper = "/opt/spacr/_internal/spacr-update-helper"
+    desktop = "/opt/spacr/spacr"
+    monkeypatch.setattr(ic, "_debian_authenticated_user", lambda uid: events.append(("authorized", uid)))
+    monkeypatch.setattr(ic, "_desktop_process_identity", lambda pid: (1000, desktop), raising=False)
+    monkeypatch.setattr(ic, "_debian_check_package_owner", lambda version: helper)
+    monkeypatch.setattr(ic.sys, "frozen", True, raising=False)
+    monkeypatch.setattr(ic.sys, "executable", helper)
+    monkeypatch.setattr(ic, "_debian_frontend_lock", nullcontext)
+    monkeypatch.setattr(ic, "_wait_for_exit", lambda pid, timeout: events.append(("exited", exited)) or exited)
+    monkeypatch.setattr(ic, "_debian_root_runner", lambda command: (events.append(command) or 0, ""))
+
+    class Channel:
+        def __init__(self, endpoint, pid, executable):
+            assert (endpoint, pid, executable) == ("private-descriptor", 12345, desktop)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return None
+
+        def _send(self, phase):
+            events.append(phase)
+
+        def _receive(self, phases, **kwargs):
+            assert phases == {"activate", "cancel"}
+            return {"phase": decision}
+
+    monkeypatch.setattr(ic, "_UpdatePhaseClient", Channel, raising=False)
+    if decision == "activate" and not exited:
+        with pytest.raises(RuntimeError, match="must close"):
+            ic._uninstall_debian_root("private-descriptor", 12345, desktop, 1000, "1.5.0.7")
+    else:
+        assert ic._uninstall_debian_root("private-descriptor", 12345, desktop, 1000, "1.5.0.7") == (0 if decision == "activate" else 3)
+    assert ["/usr/bin/dpkg", "--no-act", "--remove", "spacr"] in events
+    removal = ["/usr/bin/dpkg", "--remove", "spacr"]
+    assert (removal in events) == (decision == "activate" and exited)
+    if removal in events:
+        assert events.index("prepared") < events.index(("exited", True)) < events.index(removal) < events.index("complete")
+
+
+def test_native_debian_refuses_different_desktop_owner_before_package_commands(monkeypatch):
+    monkeypatch.setattr(ic, "_debian_authenticated_user", lambda uid: uid)
+    monkeypatch.setattr(ic, "_desktop_process_identity", lambda pid: (2000, "/opt/spacr/spacr"), raising=False)
+    monkeypatch.setattr(ic, "_debian_check_package_owner", lambda version: pytest.fail("package inspection preceded owner binding"))
+    with pytest.raises(ValueError, match="could not be identified"):
+        ic._uninstall_debian_root("private-descriptor", 12345, "/opt/spacr/spacr", 1000, "1.5.0.7")
+
+
+def test_copied_uninstall_helper_binds_original_desktop_executable(installation, tmp_path, monkeypatch):
+    box, root, machine, plan, calls = _prepared_helper(installation, tmp_path)
+    assert plan["desktop_executable"] == machine.executable
+    observed = []
+
+    def described(**values):
+        observed.append(values)
+        return machine
+
+    handshake = ic._FrozenUpdateHandshake(plan)
+    handshake.ready()
+    handshake.approve()
+    monkeypatch.setattr(ic, "_Machine", described)
+    assert ic._run_uninstall_plan(str(tmp_path / "outside-helper/plan.json"), wait=lambda pid: True) == 0
+    assert observed == [{"running_prefix": machine.running_prefix, "executable": machine.executable}]
+
+
+@pytest.mark.parametrize("invalid", ["linked_marker", "writable_marker", "writable_resources", "oversized_marker"])
+def test_native_macos_requires_trusted_bounded_capability_marker(protected_macos, invalid):
+    box, machine, preview, choice, records, helper = protected_macos
+    marker = helper.parent.parent / "Resources/uninstall-capabilities.json"
+    if invalid == "linked_marker":
+        marker.unlink()
+        marker.symlink_to(box.write(box.home / "marker", '{"native_uninstall_schema":1}'))
+    elif invalid == "writable_marker":
+        marker.chmod(0o666)
+    elif invalid == "writable_resources":
+        marker.parent.chmod(0o777)
+    else:
+        marker.write_text('{"native_uninstall_schema":1}' + " " * 128 + "unexpected")
+    with pytest.raises((OSError, ValueError)):
+        ic._macos_native_uninstall_adapter(preview, records, machine)
+
+
+@pytest.fixture
+def protected_windows(tmp_path, monkeypatch):
+    import hashlib
+
+    root = tmp_path / "Program Files" / "spaCR"
+    menu = tmp_path / "Common Programs"
+    menu.mkdir()
+    files = {"spacr.exe": b"desktop", "_internal/spacr-update-helper.exe": b"helper",
+             "_internal/spacr-1.5.0.7.dist-info/METADATA": b"Name: spacr\nVersion: 1.5.0.7\n",
+             "_internal/spacr-uninstall-protocol.json": b'{"schema":1,"adapter":"windows-frozen-uninstall-v1"}'}
+    for name, content in files.items():
+        path = root / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(content)
+    manifest = root / "spacr-payload.json"
+    manifest.write_text(json.dumps({"schema": 1, "version": "1.5.0.7",
+        "files": {name: hashlib.sha256(content).hexdigest() for name, content in files.items()}}))
+    (root / "Uninstall.exe").write_bytes(b"native uninstaller")
+    shortcut = menu / "spaCR.lnk"
+    shortcut.write_text(str(root))
+    project = root / "my-project" / "measurements.csv"
+    project.parent.mkdir()
+    project.write_text("unrelated")
+    empty_kept = root / "_internal" / "empty-cache"
+    empty_kept.mkdir()
+    monkeypatch.setattr(ic, "_windows_known_folder", lambda identifier: str(menu if identifier == 0x17 else root.parent))
+    monkeypatch.setattr(ic, "_windows_system_owned", lambda path: None)
+    request = {"targets": [{"root": str(root), "identity": list(ic._identity(root)),
+        "version": "1.5.0.7", "manifest": ic._macos_digest(str(manifest)),
+        "keep": [str(empty_kept)], "shortcuts": [str(shortcut)]}]}
+    return root, request, project, empty_kept, shortcut
+
+
+@pytest.mark.parametrize("invalid", ["outside_root", "changed_manifest", "foreign_shortcut", "outside_keep"])
+def test_windows_native_scope_refuses_changed_or_unowned_paths(protected_windows, tmp_path, invalid):
+    root, request, project, kept, shortcut = protected_windows
+    target = request["targets"][0]
+    if invalid == "outside_root":
+        target["root"] = str(root.parent / "other-application")
+    elif invalid == "changed_manifest":
+        (root / "spacr.exe").write_text("changed")
+    elif invalid == "foreign_shortcut":
+        shortcut.write_text("unrelated application")
+    else:
+        target["keep"] = [str(tmp_path / "unrelated")]
+    with pytest.raises(ValueError):
+        ic._windows_uninstall_targets(request)
+    assert project.read_text() == "unrelated" and (root / "spacr.exe").exists()
+
+
+@pytest.mark.parametrize("decision,exited", [("activate", True), ("cancel", True), ("activate", False)])
+def test_windows_native_removal_keeps_projects_and_empty_optouts_until_actual_exit(
+        protected_windows, tmp_path, monkeypatch, decision, exited):
+    root, request, project, kept, shortcut = protected_windows
+    staged = tmp_path / "native-private" / "spacr-update-helper.exe"
+    staged.parent.mkdir()
+    staged.write_bytes((root / "_internal/spacr-update-helper.exe").read_bytes())
+    request_path = tmp_path / "private-request.json"
+    request_path.write_text(json.dumps(request))
+    desktop = str(root / "spacr.exe")
+    events = []
+    monkeypatch.setattr(ic, "_windows_process_elevated", lambda: True)
+    monkeypatch.setattr(ic.sys, "frozen", True, raising=False)
+    monkeypatch.setattr(ic.sys, "executable", str(staged))
+    monkeypatch.setattr(ic, "_desktop_process_identity", lambda pid: ("desktop-sid", desktop), raising=False)
+    monkeypatch.setattr(ic, "_windows_pip_private_access", lambda path, **kwargs: events.append(("request-owner", kwargs)))
+    monkeypatch.setattr(ic, "_wait_for_exit", lambda pid, timeout: events.append("exited") or exited)
+
+    class Channel:
+        def __init__(self, endpoint, pid, executable):
+            assert (endpoint, pid, executable) == ("private-descriptor", 12345, desktop)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return None
+
+        def _send(self, phase):
+            events.append(phase)
+            if phase == "prepared":
+                assert (root / "spacr.exe").exists() and shortcut.exists()
+
+        def _receive(self, phases, **kwargs):
+            assert phases == {"activate", "cancel"}
+            return {"phase": decision}
+
+    monkeypatch.setattr(ic, "_UpdatePhaseClient", Channel, raising=False)
+    call = lambda: ic._uninstall_frozen_windows(str(request_path), str(root), "private-descriptor", 12345, desktop)
+    if decision == "activate" and not exited:
+        with pytest.raises(RuntimeError, match="must close"):
+            call()
+    else:
+        assert call() == (0 if decision == "activate" else 3)
+    removed = decision == "activate" and exited
+    assert (root / "spacr.exe").exists() is not removed
+    assert shortcut.exists() is not removed
+    assert project.read_text() == "unrelated" and kept.is_dir() and staged.exists()
+    assert events[0] == ("request-owner", {"owner_sid": "desktop-sid", "private_read": True})
+    if removed:
+        assert events.index("prepared") < events.index("exited") < events.index("complete")
+
+
+@pytest.mark.parametrize("owner,foreign_write,accepted", [
+    ("S-1-5-32-544", False, True), ("desktop-sid", False, False), ("S-1-5-18", True, False)])
+def test_windows_native_helper_requires_system_ownership_and_no_foreign_write(tmp_path, monkeypatch, owner, foreign_write, accepted):
+    helper = tmp_path / "helper.exe"
+    helper.write_bytes(b"helper")
+    evidence = {"owner": owner, "has_dacl": True, "rules": [
+        {"type": 0, "rights": 0x1F01FF, "propagation": 0, "sid": "S-1-5-32-544"}]}
+    if foreign_write:
+        evidence["rules"].append({"type": 0, "rights": 2, "propagation": 0, "sid": "desktop-sid"})
+    monkeypatch.setattr(ic, "_windows_pip_acl", lambda path: evidence)
+    if accepted:
+        ic._windows_system_owned(str(helper))
+    else:
+        with pytest.raises(PermissionError):
+            ic._windows_system_owned(str(helper))
+
+
+def test_frozen_macos_descriptor_removal_preserves_optouts_and_external_link_targets(tmp_path):
+    root = tmp_path / "spaCR.app"
+    executable = root / "Contents/MacOS/spacr"
+    executable.parent.mkdir(parents=True)
+    executable.write_text("desktop")
+    kept = root / "Contents/Resources/models"
+    kept.mkdir(parents=True)
+    (kept / "weights").write_text("keep")
+    empty = root / "Contents/Resources/logs"
+    empty.mkdir()
+    project = tmp_path / "unrelated-project"
+    project.mkdir()
+    (project / "analysis.csv").write_text("keep outside")
+    (root / "Contents/Resources/linked").symlink_to(project, target_is_directory=True)
+    for path in [root, *[path for path in root.rglob("*") if path.is_dir() and not path.is_symlink()]]:
+        path.chmod(0o755)
+    identity = ic._identity(str(root))
+    ic._macos_uninstall_tree(str(root), identity, [str(kept), str(empty)], owner=ic.os.getuid())
+    assert executable.exists()
+    ic._macos_uninstall_tree(str(root), identity, [str(kept), str(empty)], apply=True, owner=ic.os.getuid())
+    assert not executable.exists() and (kept / "weights").read_text() == "keep" and empty.is_dir()
+    assert (project / "analysis.csv").read_text() == "keep outside"
+
+
+@pytest.mark.parametrize("invalid", ["writable_subtree", "changed_root", "outside_keep"])
+def test_frozen_macos_descriptor_preflight_refuses_before_mutation(tmp_path, invalid):
+    root = tmp_path / "spaCR.app"
+    child = root / "Contents"
+    child.mkdir(parents=True)
+    payload = child / "payload"
+    payload.write_text("old application")
+    root.chmod(0o755)
+    child.chmod(0o755)
+    identity = ic._identity(str(root))
+    keep = []
+    if invalid == "writable_subtree":
+        child.chmod(0o777)
+    elif invalid == "changed_root":
+        identity = (identity[0], identity[1] + 1)
+    else:
+        keep = [str(tmp_path / "unrelated")]
+    with pytest.raises((ValueError, PermissionError)):
+        ic._macos_uninstall_tree(str(root), identity, keep, owner=ic.os.getuid())
+    assert payload.read_text() == "old application"
+
+
+@pytest.mark.parametrize("decision,exited", [("activate", True), ("cancel", True), ("activate", False)])
+def test_frozen_macos_authorized_helper_requires_activation_and_actual_exit(monkeypatch, decision, exited):
+    from types import SimpleNamespace
+
+    stage = "/private/var/root/spacr-helper.ABC12345/helper"
+    target = "/Applications/spaCR.app"
+    desktop = "/Users/scientist/spacr/venv/bin/python"
+    events = []
+    actual_lstat = ic.os.lstat
+    actual_listdir = ic.os.listdir
+    monkeypatch.setattr(ic.os, "geteuid", lambda: 0)
+    monkeypatch.setattr(ic.sys, "frozen", True, raising=False)
+    monkeypatch.setattr(ic.sys, "executable", stage)
+    monkeypatch.setattr(ic.os, "lstat", lambda path, **kwargs: SimpleNamespace(st_uid=0, st_mode=0o700)
+        if str(path) in {stage, ic.os.path.dirname(stage)} else actual_lstat(path, **kwargs))
+    monkeypatch.setattr(ic.os, "listdir", lambda path: ["Contents", "my-project"]
+        if path == target else actual_listdir(path))
+    monkeypatch.setattr(ic, "_desktop_process_identity", lambda pid: (1000, desktop), raising=False)
+    monkeypatch.setattr(ic, "_macos_frozen_trusted_helper", lambda: target + "/Contents/Frameworks/spacr-update-helper", raising=False)
+    monkeypatch.setattr(ic, "_macos_digest", lambda path: "a" * 64)
+    monkeypatch.setattr(ic, "_macos_bundle_identity", lambda *args: events.append("identity"))
+    monkeypatch.setattr(ic, "_wait_for_exit", lambda pid, timeout: events.append("exited") or exited)
+    monkeypatch.setattr(ic, "_macos_uninstall_tree", lambda path, identity, keep, **kwargs:
+        events.append(("remove" if kwargs.get("apply") else "preflight", path, identity, keep)))
+
+    class Channel:
+        def __init__(self, endpoint, pid, executable):
+            assert (endpoint, pid, executable) == ("descriptor", 12345, desktop)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return None
+
+        def _send(self, phase):
+            events.append(phase)
+
+        def _receive(self, phases, **kwargs):
+            assert phases == {"activate", "cancel"}
+            return {"phase": decision}
+
+    monkeypatch.setattr(ic, "_UpdatePhaseClient", Channel, raising=False)
+    if decision == "activate" and not exited:
+        with pytest.raises(RuntimeError, match="must close"):
+            ic._uninstall_macos_root("descriptor", 12345, desktop, "1.5.0.7", "3:9", "[]")
+    else:
+        assert ic._uninstall_macos_root("descriptor", 12345, desktop, "1.5.0.7", "3:9", "[]") == (0 if decision == "activate" else 3)
+    removals = [event for event in events if isinstance(event, tuple) and event[0] == "remove"]
+    assert bool(removals) == (decision == "activate" and exited)
+    if removals:
+        assert removals == [("remove", target, (3, 9), [target + "/my-project"])]
+        assert events.index("prepared") < events.index("exited") < events.index(removals[0]) < events.index("complete")

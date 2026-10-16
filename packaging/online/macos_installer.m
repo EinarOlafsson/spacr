@@ -4,6 +4,212 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <CommonCrypto/CommonHMAC.h>
+#include <CommonCrypto/CommonDigest.h>
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <libproc.h>
+#include <limits.h>
+#include <signal.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+
+static BOOL uninstallInside(NSString *path, NSString *parent) {
+    return [path isEqualToString:parent] || [path hasPrefix:[parent stringByAppendingString:@"/"]];
+}
+
+static NSString *uninstallMAC(NSData *secret, NSDictionary *payload) {
+    NSData *data = [NSJSONSerialization dataWithJSONObject:payload
+        options:NSJSONWritingSortedKeys | NSJSONWritingWithoutEscapingSlashes error:NULL];
+    if (!data) return nil;
+    unsigned char digest[CC_SHA256_DIGEST_LENGTH];
+    CCHmac(kCCHmacAlgSHA256, secret.bytes, secret.length, data.bytes, data.length, digest);
+    NSMutableString *text = [NSMutableString string];
+    for (NSUInteger index = 0; index < sizeof(digest); ++index) [text appendFormat:@"%02x", digest[index]];
+    return text;
+}
+
+static BOOL uninstallSend(int channel, NSData *secret, NSString *phase, int sequence) {
+    NSDictionary *payload = @{@"details": @{}, @"direction": @"installer", @"phase": phase, @"sequence": @(sequence)};
+    NSString *mac = uninstallMAC(secret, payload);
+    if (!mac) return NO;
+    NSMutableData *data = [[NSJSONSerialization dataWithJSONObject:@{@"payload": payload, @"mac": mac}
+        options:0 error:NULL] mutableCopy];
+    [data appendBytes:"\n" length:1];
+    size_t written = 0;
+    while (written < data.length) {
+        ssize_t count = send(channel, (const char *)data.bytes + written, data.length - written, 0);
+        if (count <= 0) { if (errno == EINTR) continue; return NO; }
+        written += (size_t)count;
+    }
+    return YES;
+}
+
+static BOOL uninstallApproved(int channel, NSData *secret) {
+    NSMutableData *data = [NSMutableData data];
+    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:600];
+    while (deadline.timeIntervalSinceNow > 0 && data.length < 8192) {
+        char byte;
+        ssize_t count = recv(channel, &byte, 1, 0);
+        if (count < 0 && (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK)) continue;
+        if (count != 1) return NO;
+        if (byte != '\n') { [data appendBytes:&byte length:1]; continue; }
+        id message = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
+        if (![message isKindOfClass:NSDictionary.class]) return NO;
+        id payload = message[@"payload"];
+        if (![payload isKindOfClass:NSDictionary.class] || [payload count] != 4
+                || ![payload[@"details"] isEqual:@{}] || ![payload[@"direction"] isEqual:@"desktop"]
+                || ![payload[@"sequence"] isEqual:@1] || ![payload[@"phase"] isEqual:@"activate"]) return NO;
+        NSString *expected = uninstallMAC(secret, payload);
+        id actual = message[@"mac"];
+        if (![actual isKindOfClass:NSString.class] || [actual length] != expected.length) return NO;
+        unsigned difference = 0;
+        for (NSUInteger index = 0; index < expected.length; ++index)
+            difference |= [actual characterAtIndex:index] ^ [expected characterAtIndex:index];
+        return difference == 0;
+    }
+    return NO;
+}
+
+static int uninstallChannel(const char *descriptorPath, pid_t pid, const char *desktop, NSData **secret) {
+    struct proc_bsdinfo process;
+    char observed[PROC_PIDPATHINFO_MAXSIZE], expected[PATH_MAX];
+    if (pid <= 1 || proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &process, sizeof(process)) != (int)sizeof(process)
+            || proc_pidpath(pid, observed, sizeof(observed)) <= 0 || !realpath(desktop, expected)
+            || strcmp(observed, expected)) return -1;
+    int descriptor = open(descriptorPath, O_RDONLY | O_NOFOLLOW | O_NONBLOCK);
+    if (descriptor < 0) return -1;
+    struct stat details;
+    char text[130] = {0};
+    ssize_t count = -1;
+    if (!fstat(descriptor, &details) && S_ISREG(details.st_mode) && details.st_uid == process.pbi_uid
+            && !(details.st_mode & 0077) && details.st_size <= 128) count = read(descriptor, text, 129);
+    close(descriptor);
+    if (count < 67 || count > 70) return -1;
+    char *separator = strchr(text, ':');
+    if (!separator || strlen(separator + 1) != 64) return -1;
+    *separator = '\0';
+    char *end;
+    long port = strtol(text, &end, 10);
+    if (*end || port <= 0 || port > 65535) return -1;
+    unsigned char bytes[32];
+    for (size_t index = 0; index < 32; ++index) {
+        char pair[3] = {separator[1 + index * 2], separator[2 + index * 2], 0};
+        if (strspn(pair, "0123456789abcdef") != 2) return -1;
+        bytes[index] = (unsigned char)strtoul(pair, NULL, 16);
+    }
+    *secret = [NSData dataWithBytes:bytes length:sizeof(bytes)];
+    int channel = socket(AF_INET, SOCK_STREAM, 0);
+    if (channel < 0) return -1;
+    struct timeval timeout = {.tv_sec = 1};
+    int noSignal = 1;
+    setsockopt(channel, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+    setsockopt(channel, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
+    setsockopt(channel, SOL_SOCKET, SO_NOSIGPIPE, &noSignal, sizeof(noSignal));
+    struct sockaddr_in address = {.sin_family = AF_INET, .sin_port = htons((uint16_t)port)};
+    address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    if (connect(channel, (struct sockaddr *)&address, sizeof(address))) { close(channel); return -1; }
+    return channel;
+}
+
+static int uninstallTarget(NSDictionary *target, BOOL apply) {
+    NSString *path = target[@"path"];
+    NSArray *identity = target[@"identity"], *kept = target[@"keep"];
+    const char **paths = calloc(kept.count + 1, sizeof(char *));
+    if (!paths) return ENOMEM;
+    for (NSUInteger index = 0; index < kept.count; ++index) paths[index] = [kept[index] fileSystemRepresentation];
+    int result = spacr_uninstall_tree(path.fileSystemRepresentation, [identity[0] unsignedLongLongValue],
+        [identity[1] unsignedLongLongValue], 0, paths, kept.count, apply);
+    free(paths);
+    return result;
+}
+
+static int uninstallNative(int argc, const char *argv[]) {
+    if (argc != 6 || geteuid() != 0 || strlen(argv[5]) > 65536) return EINVAL;
+    char *end;
+    long parsedPID = strtol(argv[3], &end, 10);
+    if (*end || parsedPID <= 1 || parsedPID > INT_MAX) return EINVAL;
+    NSData *data = [[NSString stringWithUTF8String:argv[5]] dataUsingEncoding:NSUTF8StringEncoding];
+    id request = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
+    if (![request isKindOfClass:NSDictionary.class]) return EINVAL;
+    id targets = request[@"targets"];
+    if (![targets isKindOfClass:NSArray.class] || [targets count] < 1 || [targets count] > 2) return EINVAL;
+    NSString *app = @"/Applications/spaCR.app";
+    NSString *support = @"/Library/Application Support/spaCR";
+    char selfExecutable[PROC_PIDPATHINFO_MAXSIZE];
+    if (proc_pidpath(getpid(), selfExecutable, sizeof(selfExecutable)) <= 0) return EPERM;
+    NSString *selfPath = [[NSString stringWithUTF8String:selfExecutable] stringByResolvingSymlinksInPath];
+    if (![selfPath isEqualToString:[app stringByAppendingPathComponent:@"Contents/MacOS/install-spacr-gui"]]) return EPERM;
+    NSData *infoData = [NSData dataWithContentsOfFile:[app stringByAppendingPathComponent:@"Contents/Info.plist"]];
+    id info = infoData ? [NSPropertyListSerialization propertyListWithData:infoData options:NSPropertyListImmutable
+        format:NULL error:NULL] : nil;
+    if (![info isKindOfClass:NSDictionary.class]) return EINVAL;
+    if (![info[@"CFBundleIdentifier"] isEqualToString:@"com.einarolafsson.spacr"]
+            || ![info[@"CFBundleExecutable"] isEqualToString:@"spaCR"]) return EINVAL;
+    NSMutableSet *seen = [NSMutableSet set];
+    NSMutableArray *validated = [NSMutableArray array];
+    NSSet *supportFiles = [NSSet setWithArray:@[@"install-online.sh", @"install-for-user.sh", @"installer_messages.sh",
+        @"uninstall-spacr.sh", @"verify_runtime.py"]];
+    for (id target in targets) {
+        if (![target isKindOfClass:NSDictionary.class]) return EINVAL;
+        id path = target[@"path"], identity = target[@"identity"], keep = target[@"keep"];
+        if (!([path isEqual:app] || [path isEqual:support]) || [seen containsObject:path]
+                || ![identity isKindOfClass:NSArray.class] || [identity count] != 2
+                || ![identity[0] isKindOfClass:NSNumber.class] || ![identity[1] isKindOfClass:NSNumber.class]
+                || ![keep isKindOfClass:NSArray.class] || [keep count] > 256) return EINVAL;
+        [seen addObject:path];
+        NSMutableArray *preserved = [keep mutableCopy];
+        for (id item in keep)
+            if (![item isKindOfClass:NSString.class] || ![item isEqual:[item stringByStandardizingPath]]
+                    || !uninstallInside(item, path)) return EINVAL;
+        NSError *error;
+        NSArray *children = [NSFileManager.defaultManager contentsOfDirectoryAtPath:path error:&error];
+        if (!children) return EIO;
+        for (NSString *child in children)
+            if (([path isEqual:app] && ![child isEqualToString:@"Contents"])
+                    || ([path isEqual:support] && ![supportFiles containsObject:child]))
+                [preserved addObject:[path stringByAppendingPathComponent:child]];
+        NSDictionary *bounded = @{@"path": path, @"identity": identity, @"keep": preserved};
+        int failure = uninstallTarget(bounded, NO);
+        if (failure) return failure;
+        [validated addObject:bounded];
+    }
+    if (![seen containsObject:app]) return EINVAL;
+    NSString *launcher = @"/usr/local/bin/spacr";
+    id removeLauncher = request[@"launcher"];
+    if (![removeLauncher isKindOfClass:NSNumber.class]) return EINVAL;
+    struct stat launcherIdentity;
+    NSString *expectedLink = [app stringByAppendingPathComponent:@"Contents/MacOS/spaCR"];
+    if ([removeLauncher boolValue] && (lstat(launcher.fileSystemRepresentation, &launcherIdentity)
+            || !S_ISLNK(launcherIdentity.st_mode)
+            || ![[NSFileManager.defaultManager destinationOfSymbolicLinkAtPath:launcher error:NULL] isEqual:expectedLink])) return ESTALE;
+    NSData *secret;
+    int channel = uninstallChannel(argv[2], (pid_t)parsedPID, argv[4], &secret);
+    if (channel < 0) return EPERM;
+    int result = ECANCELED;
+    if (!uninstallSend(channel, secret, @"prepared", 1) || !uninstallApproved(channel, secret)) goto done;
+    if (kill((pid_t)parsedPID, 0) == 0 || errno != ESRCH) { result = EBUSY; goto done; }
+    for (NSDictionary *target in validated) {
+        result = uninstallTarget(target, NO);
+        if (result) goto done;
+    }
+    if ([removeLauncher boolValue]) {
+        struct stat current;
+        if (lstat(launcher.fileSystemRepresentation, &current) || current.st_dev != launcherIdentity.st_dev
+                || current.st_ino != launcherIdentity.st_ino || !S_ISLNK(current.st_mode)
+                || ![[NSFileManager.defaultManager destinationOfSymbolicLinkAtPath:launcher error:NULL] isEqual:expectedLink]
+                || unlink(launcher.fileSystemRepresentation)) { result = ESTALE; goto done; }
+    }
+    for (NSDictionary *target in validated) {
+        result = uninstallTarget(target, YES);
+        if (result) goto done;
+    }
+    result = uninstallSend(channel, secret, @"complete", 2) ? 0 : EPIPE;
+done:
+    close(channel);
+    return result;
+}
 
 static NSDictionary *messages;
 static NSString *language;
@@ -192,6 +398,7 @@ static NSString *tr(NSString *key) { return messages[key] ?: key; }
 
 int main(int argc, const char *argv[]) {
     @autoreleasepool {
+        if (argc > 1 && !strcmp(argv[1], "--spacr-uninstall-native")) return uninstallNative(argc, argv);
         NSString *locale = NSProcessInfo.processInfo.environment[@"SPACR_INSTALL_LANGUAGE"];
         if (!locale.length) locale = NSLocale.preferredLanguages.firstObject ?: @"en";
         language = [[locale stringByReplacingOccurrencesOfString:@"_" withString:@"-"] componentsSeparatedByString:@"-"].firstObject.lowercaseString;

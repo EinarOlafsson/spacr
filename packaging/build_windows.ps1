@@ -40,6 +40,8 @@ from pathlib import Path
 import sys
 
 root = Path(sys.argv[1]).resolve(strict=True)
+with (root / "_internal" / "spacr-uninstall-protocol.json").open("x", encoding="utf-8") as stream:
+    json.dump({"schema": 1, "adapter": "windows-frozen-uninstall-v1"}, stream)
 manifest = root / "spacr-payload.json"
 if manifest.exists() or manifest.is_symlink():
     raise ValueError("The payload ownership record already exists")
@@ -163,11 +165,60 @@ frozen_install_finished:
 SectionEnd
 Section "Uninstall"
   SetShellVarContext all
+  ${GetParameters} $0
+  ClearErrors
+  ${GetOptions} $0 "/SPACRUNINSTALL=" $1
+  ${IfNot} ${Errors}
+    ${GetOptions} $0 "/SPACRPID=" $2
+    ${If} ${Errors}
+      SetErrorLevel 6
+      Abort
+    ${EndIf}
+    ${GetOptions} $0 "/SPACREXE=" $3
+    ${If} ${Errors}
+      SetErrorLevel 6
+      Abort
+    ${EndIf}
+    ${GetOptions} $0 "/SPACRREQUEST=" $4
+    ${If} ${Errors}
+      SetErrorLevel 6
+      Abort
+    ${EndIf}
+    InitPluginsDir
+    System::Call 'advapi32::ConvertStringSecurityDescriptorToSecurityDescriptorW(w "O:BAG:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)", i 1, *p .r5, p 0) i .r6'
+    ${If} $6 == 0
+      SetErrorLevel 6
+      Abort
+    ${EndIf}
+    System::Call 'advapi32::SetFileSecurityW(w "$PLUGINSDIR", i 0x80000005, p r5) i .r6'
+    System::Call 'kernel32::LocalFree(p r5)'
+    ${If} $6 == 0
+      SetErrorLevel 6
+      Abort
+    ${EndIf}
+    ClearErrors
+    CopyFiles /SILENT "$INSTDIR\_internal\spacr-update-helper.exe" "$PLUGINSDIR\spacr-update-helper.exe"
+    ${If} ${Errors}
+      SetErrorLevel 6
+      Abort
+    ${EndIf}
+    SetOutPath "$PLUGINSDIR"
+    System::Call 'kernel32::SetEnvironmentVariableW(w "PYINSTALLER_RESET_ENVIRONMENT", w "1") i .r5'
+    ${If} $5 == 0
+      SetErrorLevel 6
+      Abort
+    ${EndIf}
+    nsExec::ExecToLog '"$PLUGINSDIR\spacr-update-helper.exe" uninstall-frozen-windows --root "$INSTDIR" --phase-channel "$1" --desktop-pid "$2" --desktop-executable "$3" --request "$4"'
+    Pop $0
+    SetErrorLevel $0
+    Goto native_uninstall_finished
+  ${EndIf}
   Delete "$SMPROGRAMS\spaCR.lnk"
 @DELETE_FILES@
 @DELETE_DIRECTORIES@
   Delete "$INSTDIR\Uninstall.exe"
   RMDir "$INSTDIR"
+native_uninstall_finished:
 SectionEnd
 '@
     $Script = Join-Path $Root "build\spacr_installer.nsi"
