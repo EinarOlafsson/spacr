@@ -414,3 +414,8 @@ Record the dataset/labels, checkpoint and resulting scores; these CPU software c
 Keep the feature behind Show alpha features with ALPHA_FEATURES registration and literal object names; supply a small reproducible generic example crop/label bundle and clear GUI loading/testing instructions.
 Validate the user-visible example workflow with available permitted backbones on CPU; distinguish synthetic functional examples from scientific comparison results and preserve official restricted-model access/terms requirements.
 Official Cell-DINO access must not block delivery of a usable alpha example for supported available models; no Home GPU work or invented biological/scientific acceptance.
+
+2026-10-16 — Added alpha Load synthetic demo with24 bundled geometric crops, aligned labels, CPU ResNet-18 defaults and GUI/optional-dependency instructions (source1871a66a37c).
+Actual threaded GUI load, cached pretrained ResNet-18 CPU inference (24×512 finite vectors), retrieval scorecard and five-fold classifier passed;36 owning software checks remain green.
+Normal runtime generation/audit passes all9 locales;9 installed-locale GUI checks pass, including action captions and persistent synthetic-only caveat.
+Requested functional alpha example is delivered; original F560 scientific acceptance remains OPEN for official Cell-DINO access/terms and labelled foundation-model comparisons.
