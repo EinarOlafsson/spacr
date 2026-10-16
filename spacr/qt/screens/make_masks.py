@@ -203,6 +203,7 @@ from shiboken6 import isValid
 
 from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.flow import FlowLayout
+from ..widgets.eliding import ElidingLabel
 from ..widgets.fold_strip import FoldStrip
 from ..widgets.section import Section
 from ..widgets.toggle import Toggle
@@ -941,6 +942,22 @@ class _ImageContainer(CollapsibleSplitter):
             self.rebalance(refit=True)
 
 
+class _ImageViewTabBar(QTabBar):
+    """Reserve the full height of the separate controls beside the tabs."""
+
+    def __init__(self, controls: QWidget):
+        """Size the header from the controls' current font and style."""
+        super().__init__()
+        self._controls = controls
+
+    def tabSizeHint(self, index: int) -> QSize:
+        """Keep the image below every button, including the pane border."""
+        size = super().tabSizeHint(index)
+        size.setHeight(max(size.height(),
+                           self._controls.sizeHint().height() + 1))
+        return size
+
+
 class _SplitMenuButton(QPushButton):
     """A push button that also opens a menu from an arrow on its right.
 
@@ -1020,7 +1037,7 @@ class _SplitMenuButton(QPushButton):
         painter.end()
 
 
-class _StatusLabel(QLabel):
+class _StatusLabel(ElidingLabel):
     """The corner readout: one short line here, every line in the console.
 
     Item 507. About a hundred places in this screen set the corner's text,
@@ -1039,9 +1056,10 @@ class _StatusLabel(QLabel):
 
     def __init__(self, text: str = "", parent=None):
         """Start with ``text``, which is not reported."""
-        super().__init__(parent)
         self._full = ""
         self._quiet = False
+        self._summary = ""
+        super().__init__(parent=parent)
         self._show(text)
 
     def text(self) -> str:
@@ -1068,17 +1086,32 @@ class _StatusLabel(QLabel):
         finally:
             self._quiet = False
 
+    def set_summary(self, text: str) -> None:
+        """Report the loaded field identity without repeating the footer."""
+        owner_ref = getattr(self, "_blind_owner", None)
+        owner = owner_ref() if owner_ref is not None else None
+        self._summary = owner._blind_text(text) if owner is not None else text
+        self.setText(text)
+
+    def resizeEvent(self, event) -> None:
+        """Keep the complete blind-safe message available after elision."""
+        super().resizeEvent(event)
+        self.setToolTip(self._full if QLabel.text(self) != self._full else "")
+
     def _show(self, text: str) -> None:
         """Put the first line, shortened, on screen; the rest in the tooltip."""
         self._full = text
-        lines = text.strip().splitlines()
+        visible = (text[len(self._summary):] if self._summary
+                   and text.startswith(self._summary) else text)
+        lines = visible.strip().splitlines()
         line = lines[0] if lines else ""
         if len(line) > self.LIMIT:
             line = line[:self.LIMIT - 1].rstrip() + "…"
         elif len(lines) > 1:
             line = line.rstrip() + " …"
         super().setText(line)
-        self.setToolTip(text if line != text else "")
+        self.setVisible(bool(line))
+        self.setToolTip(text if QLabel.text(self) != text else "")
 
 
 class _MasksConsole(QWidget):
@@ -1556,9 +1589,6 @@ class _MaskCanvas(QLabel):
         self._box_drag = None
         self._box_preview = None
         self.brush_radius: int = DEFAULT_BRUSH_RADIUS
-        #: The field's place in the queue and its name, painted on the
-        #: image (``"12 / 240 · name.tif"``); "" paints nothing.
-        self.field_label: str = ""
         self.norm_lo: float = 1.0
         self.norm_hi: float = 99.9
         #: Draw the photographic complement of the image. A VIEW
@@ -2473,7 +2503,6 @@ class _MaskCanvas(QLabel):
         self._paint_drag()
         self._paint_crosshair()
         self._paint_readout()
-        self._paint_field_label()
         if self.ruler.start is not None:
             painter = QPainter(self)
             self.ruler.paint(painter, lambda x, y: self._image_to_canvas(x + 0.5, y + 0.5))
@@ -2909,65 +2938,6 @@ class _MaskCanvas(QLabel):
         return QRect(left + margin, top + margin,
                      bounds.width() + 2 * SPACING["sm"],
                      bounds.height() + 2 * SPACING["xs"])
-
-    def set_field_label(self, text: str) -> None:
-        """Show ``text`` on the image as the field's index and name.
-
-        :param text: ``"index / total · name"``, or "" for nothing.
-        """
-        text = str(text or "")
-        if text != self.field_label:
-            self.field_label = text
-            self.update()
-
-    def field_label_rect(self) -> Optional[QRect]:
-        """Where the field label is painted: the image's bottom-left corner.
-
-        The readout has the top-left corner, so the two never overlap.
-
-        :returns: the box in widget coordinates, or ``None`` when there is
-            nothing to show.
-        """
-        text = self.field_label
-        rendered = self.pixmap()
-        if not text or rendered is None or rendered.isNull():
-            return None
-        shown = logical_size(rendered)
-        left = max(0, (self.width() - shown.width()) // 2)
-        top = max(0, (self.height() - shown.height()) // 2)
-        bottom = min(self.height(), top + shown.height())
-        margin = SPACING["xs"]
-        metrics = self.fontMetrics()
-        bounds = metrics.boundingRect(QRect(0, 0, 10_000, 10_000),
-                                      int(Qt.AlignLeft | Qt.AlignTop), text)
-        height = bounds.height() + 2 * SPACING["xs"]
-        return QRect(left + margin, bottom - margin - height,
-                     bounds.width() + 2 * SPACING["sm"], height)
-
-    def _paint_field_label(self) -> None:
-        """Paint the field's index and name on the image, over everything.
-
-        On the same translucent plate as the readout, so it reads over a
-        bright field and a dark one alike.
-        """
-        rect = self.field_label_rect()
-        if rect is None:
-            return
-        palette = active_palette()
-        plate = QColor(palette["bg"])
-        plate.setAlpha(215)
-        painter = QPainter(self)
-        try:
-            painter.setRenderHint(QPainter.Antialiasing, True)
-            painter.setPen(Qt.NoPen)
-            painter.setBrush(plate)
-            painter.drawRoundedRect(QRectF(rect), 4, 4)
-            painter.setPen(QPen(QColor(palette["fg"])))
-            painter.drawText(
-                rect.adjusted(SPACING["sm"], SPACING["xs"], 0, 0),
-                int(Qt.AlignLeft | Qt.AlignTop), self.field_label)
-        finally:
-            painter.end()
 
     def _paint_readout(self) -> None:
         """Paint the readout in the image's top-left corner, over everything.
@@ -12506,9 +12476,9 @@ class MakeMasksScreen(QWidget):
         around the views, and the title with its row of folded modules is an
         EDGE pane above the editor, so each one hides behind the same
         collapse arrow that hides the settings and stays hidden across
-        restarts. The status line under the image never widens the pane,
-        since a long status would otherwise push the splitter and resize the
-        canvas mid-edit.
+        restarts. The image footer keeps the editable index and filename
+        outside the pixels; transient notices sit beside them and are
+        copied in full to the console.
         """
         from .. import screens as _screens_package
         from ..i18n import tr
@@ -12665,14 +12635,15 @@ class MakeMasksScreen(QWidget):
         self._chrome_splitter.add_pane(editor, "Editor", stretch=1)
         outer.addWidget(self._chrome_splitter, 1)
 
-        self._status_label = _StatusLabel("Ready.")
+        self._status_label = _StatusLabel("Ready.", self)
         self._status_label._blind_owner = weakref.ref(self)
         self._status_label.setObjectName("SubtitleSmall")
         self._status_label.said.connect(self._report_status)
         self._status_label.setSizePolicy(QSizePolicy.Ignored,
                                          QSizePolicy.Preferred)
         self._status_label.setMinimumWidth(0)
-        self._image_nav_row.addWidget(self._status_label, 1)
+        self._tally_layout.addWidget(self._status_label, 1)
+        self._status_label.hide()
 
     @staticmethod
     def _titled_group(title: str, object_name: str, wrap: bool = False,
@@ -14609,7 +14580,7 @@ class MakeMasksScreen(QWidget):
         :func:`tool_row_entries`, so a tool added to :data:`TOOL_MODES` -- or
         a ``MODE_*`` constant added with no table entry at all -- appears here
         without its author editing this method. Ruler sits with Reset zoom
-        beside the image counter instead (:meth:`_build_queue_tally`).
+        beside the view tabs instead (:meth:`_build_view_tabs`).
         Actions that are not modes come in through :meth:`add_toolbar_action`
         and land at the end of TOOLS. The tools wrap onto a second line when
         the image is narrower than they are; ANNOTATION keeps its place.
@@ -14695,13 +14666,13 @@ class MakeMasksScreen(QWidget):
         self._btn_recrop.setToolTip(RECROP_TOOLTIP)
         self._btn_ruler = self._mode_buttons[MODE_RULER]
         self._btn_ruler.setObjectName("MakeMasksRulerTool")
-        self._btn_ruler.setMinimumHeight(0)
         self._btn_ruler.setToolTip(tr(
             "Drag a line to measure its length in image pixels. "
             "Right-click with Ruler selected to clear it. Zoom and pan preserve the measurement."))
 
         self._btn_reset_zoom = QPushButton(tr("Reset zoom"))
         self._btn_reset_zoom.setObjectName("MakeMasksResetZoom")
+        self._btn_reset_zoom.setMinimumHeight(32)
         self._btn_reset_zoom.setIcon(iconset.icon("zoom_reset"))
         self._btn_reset_zoom.setCursor(Qt.PointingHandCursor)
         self._btn_reset_zoom.setEnabled(False)
@@ -16735,6 +16706,14 @@ class MakeMasksScreen(QWidget):
         """
         tabs = QTabWidget()
         tabs.setObjectName("MakeMasksViewTabs")
+        controls = QWidget()
+        controls.setObjectName("MakeMasksViewControls")
+        controls_row = QHBoxLayout(controls)
+        controls_row.setContentsMargins(SPACING["sm"], 0, 0, 0)
+        controls_row.setSpacing(SPACING["xs"])
+        controls_row.addWidget(self._btn_reset_zoom, 0, Qt.AlignTop)
+        controls_row.addWidget(self._btn_ruler, 0, Qt.AlignTop)
+        tabs.setTabBar(_ImageViewTabBar(controls))
         self._mask_stage = _VolumeStage(self._canvas, self)
         tabs.addTab(self._mask_stage, "Mask")
         tabs.setCornerWidget(self._mask_stage.view_picker, Qt.TopLeftCorner)
@@ -16742,19 +16721,21 @@ class MakeMasksScreen(QWidget):
         self._flow_pane = _FlowPane()
         self._tab_prob = tabs.addTab(self._prob_pane, "Cell probability")
         self._tab_flow = tabs.addTab(self._flow_pane, "Flows")
-        tabs.tabBar().setTabButton(self._tab_flow, QTabBar.RightSide,
-                                   self._build_queue_tally())
+        tabs.setCornerWidget(controls, Qt.TopRightCorner)
+        tabs.setStyleSheet(
+            "QTabWidget#MakeMasksViewTabs::right-corner {"
+            " subcontrol-position: top right; }")
+        self._view_controls = controls
         self._view_tabs = tabs
         return tabs
 
     def _build_queue_tally(self) -> QWidget:
-        """The editable ``index / total`` beside the Flows tab (item 685).
+        """The editable ``index / total`` and filename below the image.
 
         Typing a 1-based position and pressing Enter opens that image. A
         number outside the queue, or text that is not a number, puts the
         current position back and leaves the image on screen as it was.
-        Reset zoom and the Ruler sit directly right of it, at the top left
-        of the image.
+        The footer stays outside the pixels and above the IO buttons.
         """
         from ..i18n import tr
 
@@ -16776,8 +16757,11 @@ class MakeMasksScreen(QWidget):
         row.addWidget(self._tally_index)
         row.addWidget(self._tally_total)
         row.addSpacing(SPACING["sm"])
-        row.addWidget(self._btn_reset_zoom)
-        row.addWidget(self._btn_ruler)
+        self._tally_filename = ElidingLabel()
+        self._tally_filename.setObjectName("MakeMasksQueueFilename")
+        self._tally_filename.setSizePolicy(QSizePolicy.Ignored,
+                                           QSizePolicy.Preferred)
+        row.addWidget(self._tally_filename, 1)
         self._tally_layout = row
         return tally
 
@@ -16872,28 +16856,17 @@ class MakeMasksScreen(QWidget):
         index_edit.setText(str(current))
         index_edit.setEnabled(total > 0)
         self._tally_total.setText(f"/{total}")
-        self._canvas.set_field_label(self._field_overlay_text(current, total))
+        files = self._image_files or []
+        name = ""
+        if files:
+            index = min(max(self._current_index, 0), len(files) - 1)
+            folder = (self._field_folders[index] if self._field_folders
+                      else self._folder or "")
+            name = self._blind_label(os.path.join(folder, files[index]))
+        self._tally_filename.setText(name)
         first = getattr(self, "_btn_first_unreviewed", None)
         if first is not None:
             first.setEnabled(total > 0 and not getattr(self, "_loading", False))
-
-    def _field_overlay_text(self, current: int, total: int) -> str:
-        """The text painted on the image: index first, then the name.
-
-        ``"12 / 240 · name.tif"``; a blinded session shows the field's code
-        instead of its name.
-
-        :param current: the 1-based position shown in the counter, 0 for none.
-        :param total: the queue's length as the counter shows it.
-        :returns: the text, or "" when no field is open.
-        """
-        files = self._image_files or []
-        if not files or not total:
-            return ""
-        index = min(max(self._current_index, 0), len(files) - 1)
-        name = self._blind_label(os.path.join(self._folder or "",
-                                              files[index]))
-        return f"{current} / {total} · {name}"
 
     def _on_tally_entered(self) -> bool:
         """Open the image whose 1-based position was typed in the tally.
@@ -17156,7 +17129,15 @@ class MakeMasksScreen(QWidget):
                        fold_key=MAKE_MASKS_TOP_BAR_FOLD_KEY,
                        hint="Hides the tools and the Keep, Skip and "
                             "Discard buttons above the image.")
-        image.add_pane(self._body_stack, "Image", stretch=1, extent=600)
+        image_body = QWidget()
+        image_body.setObjectName("MakeMasksImageBody")
+        image_layout = QVBoxLayout(image_body)
+        image_layout.setContentsMargins(0, 0, 0, 0)
+        image_layout.setSpacing(SPACING["xs"])
+        image_layout.addWidget(self._body_stack, 1)
+        self._image_footer = self._build_queue_tally()
+        image_layout.addWidget(self._image_footer)
+        image.add_pane(image_body, "Image", stretch=1, extent=600)
         image.add_pane(self._bottom_bar, "Bottom bar", mode=EDGE, stretch=0,
                        fold_key=MAKE_MASKS_BOTTOM_BAR_FOLD_KEY,
                        hint="Hides the IO and navigation buttons below the "
@@ -17169,10 +17150,6 @@ class MakeMasksScreen(QWidget):
         views_col.setContentsMargins(0, 0, 0, 0)
         views_col.setSpacing(SPACING["sm"])
         views_col.addWidget(image, 1)
-        self._image_nav_row = QHBoxLayout()
-        self._image_nav_row.setContentsMargins(0, 0, 0, 0)
-        self._image_nav_row.setSpacing(SPACING["sm"])
-        views_col.addLayout(self._image_nav_row)
         pane.add_pane(views, "Views", stretch=1, extent=900)
         pane.add_pane(column, "Shortcuts", mode=EDGE, stretch=0,
                       extent=SHORTCUTS_WIDTH, minimum=SHORTCUTS_WIDTH,
@@ -21461,7 +21438,7 @@ class MakeMasksScreen(QWidget):
                                           engine.mask_save_path(self._folder, filename, **self._layout_kwargs()))
         if record:
             self._primary_selector.restore_source(record)
-        self._status_label.setText(
+        self._status_label.set_summary(
             f"{self._blind_label(os.path.join(self._folder or '', filename))}  "
             f"({self._current_index + 1}/{len(self._image_files)})"
         )

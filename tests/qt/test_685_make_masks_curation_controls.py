@@ -4,7 +4,7 @@
   undo and save/reopen keep working;
 * with the magnifier on, a right click deletes the object under it, in
   every scope and in Divide / Merge, while a right drag still merges;
-* the editable ``index / total`` tally beside the Flows tab jumps, refuses
+* the editable ``index / total`` tally below the image jumps, refuses
   bad input and follows navigation;
 * "First unreviewed" opens the first field without Keep or Discard, read
   from the persisted CSV after reopening;
@@ -213,11 +213,12 @@ def test_auto_accept_does_not_put_a_deleted_object_back(screen):
     assert emitted == []
 
 
-def test_the_queue_tally_sits_on_the_flows_tab_and_jumps(screen):
+def test_the_queue_tally_sits_in_the_image_footer_and_jumps(screen):
     bar = screen._view_tabs.tabBar()
     assert bar.tabText(screen._tab_flow) == "Flows"
-    assert bar.tabButton(screen._tab_flow, QTabBar.RightSide).objectName() \
-        == "MakeMasksQueueTally"
+    assert bar.tabButton(screen._tab_flow, QTabBar.RightSide) is None
+    assert screen._image_footer.objectName() == "MakeMasksQueueTally"
+    assert screen._image_footer.isAncestorOf(screen._tally_index)
     assert screen._tally_index.text() == "1"
     assert screen._tally_total.text() == "/4"
     for wanted in (4, 2, 1, 3):

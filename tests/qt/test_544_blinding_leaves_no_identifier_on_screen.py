@@ -248,6 +248,16 @@ def test_blinded_make_masks_holds_no_identifier_and_locks_the_roi_menu(
     screen._on_next()
     qtbot.wait(50)
     assert screen._console_section.isHidden()
+    assert not screen._status_label.isVisible()
+    shown_name = screen._tally_filename.full_text()
+    path = folder / screen._image_files[screen._current_index]
+    screen._status_label.setText(
+        f"Could not save {path}. " + "Check the destination. " * 20)
+    assert screen._status_label.isVisible()
+    assert screen._image_footer.isAncestorOf(screen._status_label)
+    assert screen._tally_filename.full_text() == shown_name
+    assert screen._status_label.is_elided()
+    assert screen._status_label.toolTip() == screen._status_label.text()
     assert _leaks(screen, pattern, skip=(screen._console_section,)) == []
     assert not screen._btn_rois.isEnabled()
 
