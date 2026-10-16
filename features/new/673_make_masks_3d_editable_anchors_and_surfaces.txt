@@ -122,3 +122,86 @@ VolumeMaskSession and load_volume_image_and_mask docstrings updated in the
 Left for the maintainer, on a real display: turn/zoom/pan feel on a real
 volume (FIB-SEM test data), whether the default mask opacity (60%) and
 MIP default suit, and Paint/Erase in 3D on a tilted view. Not alpha.
+
+2026-10-16 — Maintainer review: "much better, now speed". Turning, zooming
+and panning must feel instant, like napari (30-60 fps while dragging); the
+view "still looks 2-dimensional". Built (Claude, spacr-d7 worktree):
+- GPU volume renderer. Stack: VisPy gloo (OpenGL), already a core spaCR
+  dependency and already run under PySide6 by the fractal backdrop; pygfx/
+  wgpu and moderngl are not installed in the shipped environment (moderngl
+  is only the optional flow-gpu extra), so no new dependency. The renderer
+  (spacr.layers.GLVolumeRenderer) ray-marches every channel layer in a
+  fragment shader (MIP, Attenuated MIP, Translucent, Average, MinIP; colour,
+  opacity, contrast) and lays the masks over it (Surface or Translucent),
+  then writes the object ID nearest the viewer per pixel for picking. It
+  takes the SAME VolumeRays as the CPU renderer, so the camera, anchors,
+  slice plane, Paint/Erase and Pick are unchanged and aligned. It draws
+  into an offscreen Qt OpenGL context (_GLVolumeContext) on the GUI thread
+  and the frame is shown under the matplotlib axes as before. Offscreen
+  (EGL, RTX 3090): a 900x800 frame with 400 samples per ray in 8-10 ms;
+  the True 3D drag loop (camera change, GPU frame, both matplotlib draws)
+  at 16.7 ms per frame, 60 fps, against about 0.06-0.8 s per CPU frame.
+  GPU and CPU frames agree within 2/255 per channel on every rendering,
+  finish and magnifier setting, and pick the same objects.
+- Render backend list: Auto, OpenGL, CPU (software). Vulkan, Metal and
+  Direct3D need wgpu, which spaCR does not ship, so they are not offered.
+  Auto uses OpenGL when a desktop GL context can be made and a test frame
+  draws, and refuses software rasterisers (llvmpipe etc.); otherwise, or
+  when a GPU frame fails, it draws on the CPU and logs one line ("GPU
+  rendering is unavailable (...); drawing on the CPU."), also shown under
+  the view. The choice is saved (preferences.get/set_volume_view).
+- "Render at full resolution" is replaced by a Render scale slider, 1-100 %
+  of full resolution along each axis (spacr.layers.render_scale: 50 % =
+  every 2nd voxel along X, Y and Z into half-size pixels). While the view
+  moves it draws coarser (CPU: at most 262,144 voxels and 4-px pixels; GPU:
+  same voxels, 2-px pixels) and sharpens to the slider 250 ms after it
+  stops. Defaults: 100 % on the GPU, 50 % on the CPU; the slider is saved.
+- Surface finish list on the Masks layer row: Matte, Satin, Glossy,
+  Metallic (Blinn-Phong: ambient/diffuse/specular/shininess, metal tints
+  the highlight with the object colour). Normals come from the mask itself
+  (central differences of the occupancy), so the CPU draws the same light
+  (its surfaces hit at voxel samples, so edges are blockier). Saved.
+- 3D magnifier: the Magnifier button in True 3D, or M (the Live magnifier
+  key) while True 3D is shown, shows a cube (accent outline) that follows
+  the pointer on the slice plane (or through the middle of the volume when
+  the plane is edge-on). Inside it the volume is drawn magnified about its
+  centre; outside it everything is dimmed to 35 %. Shift+wheel resizes the
+  cube and Ctrl+wheel zooms inside it, as Shift/Ctrl do for the 2-D
+  magnifier; the plain wheel still zooms the view. The 2-D magnifier is
+  untouched.
+Tests: tests/qt/test_673_true3d_gpu.py (16: render-scale mapping and the
+slider, backend list and saved choice, Auto fallback with one log line, a
+GPU frame failing mid-render, software GL refused by Auto, finish numbers
+and lighting, finish list, lens cube geometry/warp/dimming mask, M key and
+Shift/Ctrl wheel on the cube, cube following the pointer, CPU frame budget
+at 10 %, GPU vs CPU frames/picks for every mode, GPU view uses the CPU
+camera exactly, GPU drag frame budget); GPU tests skip without an offscreen
+GL context. test_673_napari_true3d.py: two dated updates (slider instead
+of the full-resolution button; the worker-thread test runs on the CPU).
+Captions: 18 new strings with AI-reviewed translations in nine languages
+(Claude; no native-speaker signoff), docs/i18n/reviewed/runtime/*/
+2026-10-16-n673-true3d-gpu.json; 5 retired captions removed from the
+2026-10-15 review files; OpenGL is identity text. API: 23 public symbols in
+tests/data/release_contracts/673_true3d_gpu_api_arrivals_2026-10-16.json;
+render_volume's pin in the 2026-10-15 contract carries its new docstring.
+FOR THE MAINTAINER, ON A REAL DISPLAY (offscreen cannot judge feel):
+1. FPS while dragging: open the FIB-SEM test volume, True 3D, Render
+   backend Auto. The line under the layers should say "Drawn on the GPU
+   (OpenGL, <your card>)". Orbit, Shift+drag pan and wheel zoom should keep
+   up with the mouse (aim: 30-60 fps); the picture should stay sharp at
+   100 % and only soften briefly while moving.
+2. Each backend: switch to CPU (software): slower and coarser while
+   moving, sharp 250 ms after stopping; back to OpenGL; then Auto. Restart
+   spaCR and check the choice and the Render scale are kept. On a Wayland
+   session spaCR asks for XWayland; if only OpenGL ES is offered the line
+   says so and the CPU draws.
+3. Render scale: drag the slider from 100 % to 10 %: the picture should
+   coarsen and redraw quickly; the line says the scale and the stride.
+4. Finishes: Masks row, Surface finish Matte / Satin / Glossy / Metallic
+   on a few objects: the highlight should grow sharper from Satin to
+   Glossy, and be coloured on Metallic. Turning the view should move the
+   highlights (the light is a head light).
+5. Magnifier cube: press M (or Magnifier). The cube should follow the
+   pointer over the slice plane, magnify what is inside it and dim the
+   rest; Shift+wheel resizes it, Ctrl+wheel zooms inside it, the plain
+   wheel still zooms the view; M again turns it off.

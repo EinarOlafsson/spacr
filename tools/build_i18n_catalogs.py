@@ -303,6 +303,8 @@ _IDENTITY_TEXT = {
     "True 3D", "ER 2",
     # 2026-10-15: N673 True 3D rendering name, napari's minimum-intensity projection.
     "MinIP",
+    # 2026-10-16: N673 True 3D Render backend name (the graphics API), a product name.
+    "OpenGL",
     "ER", "ER (Y)", "DNA (B)", "IMC", "CC BY 4.0",
     "3D", "API", "CPU", "CUDA", "CV", "DNA", "EC50", "Eps", "FOV", "GPU",
     "CSV", "Cellpose-SAM", "DINOCell", "FlowView", "JSON", "MIP", "ML",

@@ -310,21 +310,27 @@ def test_volume_steps_and_downsampling_keep_exact_voxels():
     assert same is labels and ones == (1, 1, 1)
 
 
-def test_interactive_renders_are_downsampled_and_full_renders_are_not(view, monkeypatch, qtbot):
+def test_interactive_renders_are_downsampled_and_full_scale_renders_are_not(view, qtbot):
+    """2026-10-16: "Render at full resolution" became the Render scale slider
+    (item 673 speed follow-up); 100 % draws every voxel."""
     stage = view
-    monkeypatch.setitem(mm.VOLUME_RENDER_VOXELS, "interactive", 500)
-    quick = stage._render_request("interactive")
-    full = stage._render_request("full")
-    assert max(quick.steps) > 1 and full.steps == (1, 1, 1)
-    assert quick.rays.shape[0] < full.rays.shape[0]
-    stage._full_button.click()
+    stage._backend_box.setCurrentIndex(stage._backend_box.findData("cpu"))
+    stage._scale_slider.setValue(100)
     _wait_render(stage, qtbot)
-    assert stage._render_state.quality == "full" and stage._render_state.steps == (1, 1, 1)
-    assert "full resolution" in stage._detail.text()
+    quick = stage._render_request("interactive")
+    full = stage._render_request("preview")
+    assert full.steps == (1, 1, 1) and quick.scale.pixel > full.scale.pixel
+    assert quick.rays.shape[0] < full.rays.shape[0]
+    assert stage._render_state.quality == "preview" and stage._render_state.steps == (1, 1, 1)
+    assert "every voxel" in stage._detail.text()
 
 
 def test_the_render_runs_off_the_gui_thread_and_stale_results_are_dropped(view, monkeypatch, qtbot):
+    """2026-10-16: on the CPU backend; the GPU draws on the GUI thread, which
+    owns its GL context (tests/qt/test_673_true3d_gpu.py)."""
     stage = view
+    stage._backend_box.setCurrentIndex(stage._backend_box.findData("cpu"))
+    _wait_render(stage, qtbot)
     threads = []
     import spacr.layers as layers
 

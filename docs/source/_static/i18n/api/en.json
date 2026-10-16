@@ -26066,6 +26066,45 @@
       "source_sha256": "8aeaa33840efac26e90a789b6909c6e7a0a6c929253a60f69fd7784fbea893a8",
       "text": ":class:`pandas.Index` of object keys for ``labels``, in order.\n\n:param labels: Iterable of integer-like object labels to encode."
     },
+    "spacr.layers.GLVolumeRenderer": {
+      "source_blocks_sha256": [
+        "dca9ddce27a15bd876bd405156ab19ef020691f98a1800888ac63f664b751ccb",
+        "728d7bdda9f952892329fa00ebfd9a9ef538c50c11786c322c5ea45dd10a5a9b",
+        "77ef4aac7fc210f6da499eee934aed45ce437caf2adf66d8152edc10f36dc8b7"
+      ],
+      "source_sha256": "0c870b761bdf9d42ee640d1bb6ced6522656666a7bb42cf19d550f7ddbb8835d",
+      "text": ":func:`render_volume`, ray-marched on the GPU through OpenGL (VisPy gloo).\n\nThe same rays (:class:`VolumeRays`), the same layer model, renderings,\nfinishes and lens, so a frame drawn here matches the CPU's to within\n8-bit rounding and picks the same objects. Each fragment walks one ray;\nimage layers add up, labels layers are laid over them, and a last pass\nwrites the object nearest the viewer under each pixel for picking.\n\nThe caller owns the OpenGL context and makes it current around every\ncall; this class creates nothing until the first :meth:`render`. A\nvolume is uploaded once and kept, keyed by its memory, for as long as\nevery frame draws it; a frame frees the textures it did not use. A mask\nedited in place must therefore be handed over as a new array.\nHold no GPU object until the first frame."
+    },
+    "spacr.layers.GLVolumeRenderer.close": {
+      "source_blocks_sha256": [
+        "26552a50117d5633cb6f2a10e33656d56c899ddfb0c79cb060b4a2fc57e5f01f"
+      ],
+      "source_sha256": "26552a50117d5633cb6f2a10e33656d56c899ddfb0c79cb060b4a2fc57e5f01f",
+      "text": "Free every texture, framebuffer and program (context current)."
+    },
+    "spacr.layers.GLVolumeRenderer.limits": {
+      "source_blocks_sha256": [
+        "e6d47b66e3d6ae1a9dad42a3ed90f8b0454d5fdd12b1673a1ca48ade7f92f14e",
+        "317111ea214fd3ec43536730455371422da88afd0357c8ec5d915e390c82ffcb"
+      ],
+      "source_sha256": "81ed91e1ae13b89f7aa0182498862caa0614db90e38be007289c3fb3e60e6a6d",
+      "text": "The context's renderer name and its largest 3-D texture side.\n\n:returns: ``{\"renderer\": str, \"version\": str, \"max_3d\": int}``."
+    },
+    "spacr.layers.GLVolumeRenderer.render": {
+      "source_blocks_sha256": [
+        "70a2013676a8d386c2fdd2947a30979964b58a9a1663add195dfeef9f2418f88",
+        "14cb64571c5f80f106dbba545ce05fe2341052ff03086782b1bb3a1df904e7c7",
+        "5a68833be9d4e9d2cd5d6c448c3ac28a6124b42e1041ac4402f14e303110631f",
+        "f966b4c17af8888f15b83a7d7d9f82d6a7b9a30237f2fe40217ec200744caaba",
+        "f330bc9cf061ec48d1f709b73377e5e76ee98b96cf0eb933369b3552b89de5b1",
+        "2743d26a84c1777382ed737de8712c4367cebfc01a4d335e6070bc1c55dd3e02",
+        "0a9043e1d517e66b1cb0f97bc382fcc563fd7cf463bd8702c3e07d04e9e1b8af",
+        "b6f4c0bcba01c984cead4919d8021998e3a2b7b8c0e77a5ee1ad73d1cdf5cd8a",
+        "53fc2ef62d71b7189866df92bed6c7b46dd57b13fffdf8bffc5482a5e6b7c0a7"
+      ],
+      "source_sha256": "61ca378a91ab274f9afb7d69148528b808b379aa780ae56a4858bfd94a7f7686",
+      "text": "Draw one frame; the same picture as :func:`render_volume`.\n\n:param layers: the layers, bottom first.\n:param rays: where to sample, in the layers' array indices.\n:param highlight: an object drawn lighter.\n:param voxel_size: physical voxel length along each array axis.\n:param lens: a magnifier cube, or ``None``.\n:param size: ``(rows, columns)`` of the picture returned, scaled up\n    from the rays' grid on the GPU; ``None`` keeps the rays' grid.\n:returns: ``(rgb, picked)``: ``uint8`` colour of ``size`` and the\n    object nearest the viewer under each ray (``int64``, the rays'\n    grid).\n:raises LayerError: as :func:`render_volume`."
+    },
     "spacr.layers.ImageLayer": {
       "source_blocks_sha256": [
         "93f377fc4c43118461dd38b69e030a8596392d1750b68638f4875c7f368fab6c",
@@ -27075,6 +27114,17 @@
       "source_sha256": "9c510ef7aa529c4d70e956cb2e8f3ecab44a59b4c567f6fad601bbe258315315",
       "text": "The world box these points occupy, INCLUDING their drawn size.\n\nHalf a point's size is added on each side, because a point centred\non the edge of the data is still drawn past it -- and a viewer that\nframed the centres would clip every point on the boundary.\n\nAn empty layer reports a zero box rather than an infinite one.\n\n:returns: ``{axis: (low, high)}``."
     },
+    "spacr.layers.RenderScale": {
+      "source_blocks_sha256": [
+        "ea7d208955f462dd38df296646dae222cc89a2a1bbecae0bb6084ad616ae28ae",
+        "00d27b6ff03f8da720e6719bb23de2f2a7cec776505a06765b188214afbc6625",
+        "fac6f3bf6c9865c2fbc94f317724f6795611b4885513383294ca9be4f6ce7397",
+        "0863df2932f944978709212352d88d469cba19e177e01a1e713f46738ac70749",
+        "d86b2af4e7336dbb7b024a7afe4d9323254b86f68490433a5e8f3193a0fd1d98"
+      ],
+      "source_sha256": "33b04919e04f03a721792566ed296d814d682c53fba9c0e9251d599ecc98aca0",
+      "text": "How finely one 3-D frame is drawn.\n\n:param percent: the share of full resolution, 1 to 100, along each axis.\n:param max_voxels: the most voxels the frame is drawn from (see\n    :func:`volume_steps`), or ``None`` for every voxel.\n:param pixel: display pixels per rendered pixel along each side.\n:param sample: voxels between two samples along a line of sight."
+    },
     "spacr.layers.Shape": {
       "source_blocks_sha256": [
         "7825be69ae777338cb8a8d3bf6e4f65452415f492a2d95561c84c9b9292344ee",
@@ -27345,6 +27395,103 @@
       "source_sha256": "164d00d51fade3099128753c069567e116fb8c9e4d89dac2d146b49b0acfeae6",
       "text": ":meth:`to_world` keyed by axis name.\n\n:param index: Fractional data coordinate in :attr:`axes` order."
     },
+    "spacr.layers.SurfaceFinish": {
+      "source_blocks_sha256": [
+        "41806d5517967acb247a673f0189ed70c7f6fd9217102298d26ea6c09778f39e",
+        "dfe9f9e9e8b012c7603a440ce20a06259dfe301fbfa0941c70b5cd2252abdd62",
+        "672ed91b7c624942714df9713391eeeabe3df400a057e280f2fd78282e044305",
+        "af6b75f81725b5d4a81c4c8104c4e8b060dc132b5160cae16ca228973ac26fee",
+        "a1e668ded3d13b9e5994f1bc637c3fa20915119212753b969ebab0ead7c8ead4",
+        "f9462d6ec19429f16569fd4c0698beb0c747b694139abc8653eb7408420f5dac",
+        "cab56db5729bdd586bd1e80accd9c59b3c87a929b96a9ff8bd221dca25b8e95d",
+        "e11de6a0f836853f86fa386ab5da4246ee64b420bb8516637bd29102be8f4393"
+      ],
+      "source_sha256": "4d00ab44ffe1d1262f404fbe6c12d9924b85ab66ae913e30bf2e93c1c033118f",
+      "text": "How a mask surface reflects light in a 3-D view (Blinn-Phong).\n\nA surface point of base colour ``c`` with unit normal ``n`` is drawn as\n``c * (ambient + diffuse * max(n.l, 0)) + specular * max(n.h, 0) **\nshininess * mix(white, c, tint)``, where ``l`` points at the light and\n``h`` halfway between the light and the viewer. The GPU and the CPU\nrenderers use the same numbers.\n\n:param name: the finish's key in :data:`SURFACE_FINISHES`.\n:param ambient: light every point gets, facing the light or not.\n:param diffuse: weight of the light falling on the surface.\n:param specular: weight of the highlight; 0 has none.\n:param shininess: how small and sharp the highlight is.\n:param tint: 0 for a white highlight (plastic), 1 for a highlight in the\n    object's own colour (metal)."
+    },
+    "spacr.layers.SurfaceLight": {
+      "source_blocks_sha256": [
+        "64c637a6ac9e37af969a2620f2a920860b9c6b2291e3714d64be874c1900fa2f",
+        "33d9726ec97f21bac9f2feee622b54eb568fff5ef7e9e93ace66b50f13b18ab0",
+        "1b2804562c7378574ff08502cbef9f7140ea42d392e90ea28d6cafe2bf685e5a",
+        "1b51fd3a8294b13de340bbc830180fa54919835d08d87901c58201f24e0afae2",
+        "2b85569ba45b2bed1a3a4ae7a8d86e023dd39c108f8a13f200240ef0a4f43caa",
+        "dbdf58f5024a8727f710422c3d9b46ccf5072cbc1621bdd8f652ceecfee69e46"
+      ],
+      "source_sha256": "4abce247d875a8d4d7e14a7bf86f6ff8a27b77990ac4cc6a3a2943f7a6774b45",
+      "text": "Where the light and the viewer are, for shading surfaces along rays.\n\nEvery vector is a unit vector in physical units, one component per array\naxis of the volume (its storage order). The light is a head light a\nlittle above and left of the viewer, so it turns with the camera.\n\n:param view: towards the viewer.\n:param light: towards the light.\n:param half: halfway between :attr:`light` and :attr:`view`.\n:param size: the physical length of one voxel along each array axis."
+    },
+    "spacr.layers.SurfaceLight.for_rays": {
+      "source_blocks_sha256": [
+        "b5c2cc3120b2e5d499c9a8198439a7f0a3c1d5029d9719b97464bb6f89490c60",
+        "376f8575e65bcc59016c6ae5c5cd086b641ca7576572d13d63ffbb558a88c0ed",
+        "12142767bb953cf8e6192030a6188ec712c80ef9b94bd174e915b89ccc3fe4c6",
+        "6fe37e02e1b70b4c52f8ad3f5e7c3633de3e0927bbcd965e8e804384fdd06083"
+      ],
+      "source_sha256": "fb8b6b7923d015bd759cf61b8bdfde2acb31293123bba810c7afb450d0ecf4a2",
+      "text": "The light for one camera.\n\n:param rays: the camera's rays, in array indices.\n:param voxel_size: physical length of one voxel along each array\n    axis; ``None`` for cubic voxels of length 1.\n:returns: the :class:`SurfaceLight`."
+    },
+    "spacr.layers.SurfaceLight.for_rays.unit": {
+      "source_blocks_sha256": [
+        "87607260b5cabc90b00d4c8520653be23e352d54f2a04f6eeb99a442325183e9"
+      ],
+      "source_sha256": "87607260b5cabc90b00d4c8520653be23e352d54f2a04f6eeb99a442325183e9",
+      "text": "``vector`` scaled to length 1 (a zero vector is left alone)."
+    },
+    "spacr.layers.VolumeLens": {
+      "source_blocks_sha256": [
+        "d985e2383909d89b593ed62d4e86ff2768f2cd22c2208d8edf9f13bfdffe0342",
+        "9f4befed15e1baa51ebfa9c81d5e2619a86704082a95fa53cc8a0c92b7db022f",
+        "ac135ff234fca12bfc72e8cb86a208dae3186ee7ac2b9b8f8a631ff398446041",
+        "b13b3da1eb4fc485e206d116c826f5367843e4a2c5a242347b51664d3336efd3",
+        "e3e63e16e6b84bbb7bb7762cff17486c6e2ef17eb6fbeddc9e7950b03ffa07e7",
+        "05d4dd579b6749447b0ac436c2a236a080feaf869a4c8353d0d42314e63e7f0c"
+      ],
+      "source_sha256": "6e2ab968b4d46b5871e6146711d31626149a00715b6d728268eb0703024e5be9",
+      "text": "A magnifying cube in a volume, for a 3-D view's magnifier.\n\nInside the cube the volume is drawn ``zoom`` times larger about the\ncube's centre; outside it, everything is dimmed to ``dim`` of its\nbrightness. Positions are array indices, as for :class:`VolumeRays`.\n\n:param centre: the cube's centre.\n:param half: half the cube's side along each array axis.\n:param zoom: how many times larger the inside is drawn (at least 1).\n:param dim: brightness kept outside the cube, 0 to 1."
+    },
+    "spacr.layers.VolumeLens.__post_init__": {
+      "source_blocks_sha256": [
+        "4f5cd369dde8f12a6e35869aa09d57576f0442cc36130e9c64a74d8e68b10e61"
+      ],
+      "source_sha256": "4f5cd369dde8f12a6e35869aa09d57576f0442cc36130e9c64a74d8e68b10e61",
+      "text": "Refuse a cube with no size or a zoom that shrinks."
+    },
+    "spacr.layers.VolumeLens.contains": {
+      "source_blocks_sha256": [
+        "35917f5252e931c10dc2c19dd4b1c332f9f4e80b8c1eeaffc94791966c774728",
+        "bd1bf535f07f7f38f3cd48241df07785e165a48b82490ef39fe1564c5e7ea398",
+        "53699c42de1dd45e361b4ec87cf67346e3a0d7b941bf0dcf6b40e34b26221d1e"
+      ],
+      "source_sha256": "30eb30fd2169d217bc0a1a9db048bd80dc64ef72317862874870765f3e39e725",
+      "text": "Whether points lie inside the cube.\n\n:param points: ``(axes, ...)`` array indices.\n:returns: a boolean array of the points' shape without the axes."
+    },
+    "spacr.layers.VolumeLens.corners": {
+      "source_blocks_sha256": [
+        "784240ca1ada24bc4cab8b8e61f791a396df108f70cc9d81ede5646faa811d3b",
+        "829bbf274cd8e83406a945150560fa6c9064c54d6a4ae3dfc2388a91f0c5386b"
+      ],
+      "source_sha256": "a2cff1e05fc4549140e95b8ebc77b53608a3ec634f727fb4daef1e6948e041f0",
+      "text": "The cube's eight corners.\n\n:returns: ``(8, axes)`` array indices."
+    },
+    "spacr.layers.VolumeLens.covers": {
+      "source_blocks_sha256": [
+        "45bafcec9f8678403367d471b5cd95bc45aef4d3e9d519f65ed09b04717e7eff",
+        "a273e5f83169e7c1f1856471d37ff2f5027aa76b8611ec2315bcfdad5a8d7bab",
+        "db8dc695ddbea680aa02f46d65e02c7ba6f3d8f60ca102446b39e65540dd7e21"
+      ],
+      "source_sha256": "c68e949cf3fadac4caf29f014c57c1e81bdf0be86780ad63a743c8e3681e240d",
+      "text": "Which rays pass through the cube between their first and last sample.\n\n:param rays: the camera's rays.\n:returns: ``(rows, columns)`` booleans; ``False`` pixels are dimmed\n    all the way along."
+    },
+    "spacr.layers.VolumeLens.warp": {
+      "source_blocks_sha256": [
+        "1801b2baa30371e6802f453a3588b85eba160bc0d5d627e6450b1c1a71971ee4",
+        "bd1bf535f07f7f38f3cd48241df07785e165a48b82490ef39fe1564c5e7ea398",
+        "d8f77f936aeca093388e5dd25d97d01159685860598a60cd44df06f2aee241d6"
+      ],
+      "source_sha256": "7d0c3db4f90d1e1f4a74e598097bc3aed69e45a6a41f1d0e5197a55a350afeee",
+      "text": "Where each point samples the volume, and how bright it is drawn.\n\n:param points: ``(axes, ...)`` array indices.\n:returns: ``(where, weight)``: inside the cube a point samples\n    ``centre + (point - centre) / zoom`` at weight 1; outside it\n    samples itself at weight :attr:`dim`."
+    },
     "spacr.layers.VolumeRays": {
       "source_blocks_sha256": [
         "a44283130a25168318414e7c9f3bdaa6d1d12718564530cd2a243137d123320c",
@@ -27367,6 +27514,17 @@
       ],
       "source_sha256": "bfc2db4161d24b779f953a803c17e6c949a1c8ef056301ed5e0c03447d17eb33",
       "text": "Every sample of the rays through output rows ``first`` to ``last``.\n\n:param first: the first row.\n:param last: one past the last row.\n:returns: an ``(axes, rays, samples)`` array of indices."
+    },
+    "spacr.layers.VolumeRays.ray": {
+      "source_blocks_sha256": [
+        "6edd609128b83300b49fe77f57b7e572b3827c0c5ad6b66d2936ed5cb432fdbe",
+        "e3543589fe7951c1b584e79b8135176b2b3d414c2e4a161b2745d527a4108ef4",
+        "8ac4533d7d279a865a1581d3d4f0ce68b4dc884b493040a602c383199a660a5e",
+        "df0fa8e8e2da13c645c219dc0adc5db314d8d8dc9d2a0728832bb59e9775882f",
+        "ed9c9e86f494f55d5d2edd9fe2171e08d8e7bc30606efca5d20457e4ab9e236c"
+      ],
+      "source_sha256": "1c4d1a6a1fdcb64ae993fa409a6c5b24df92d2c5283f606cd5473c41c92e45f0",
+      "text": "The single ray through one output pixel, as its own 1 x 1 grid.\n\nRendering it draws (and picks) exactly what that pixel of the full\ngrid shows, so a click can be answered without drawing the frame.\n\n:param row: the output row (may be fractional).\n:param column: the output column (may be fractional).\n:returns: a :class:`VolumeRays` of shape ``(1, 1, samples)``."
     },
     "spacr.layers.VolumeRays.sample_length": {
       "source_blocks_sha256": [
@@ -27417,21 +27575,71 @@
       "source_sha256": "345f05b2443a82e184d8e346ce91da928bce02bdc04091dd46a271a50d3f2dfa",
       "text": ":func:`label_color` over an array, returning ``(..., 3)`` float32.\n\nBuilt by looking up the unique labels once rather than per pixel: a\n2048×2048 mask holds a few hundred objects and tens of millions of pixels.\n\n:param labels: Array-like integer labels; the output preserves their shape\n    and appends one RGB axis."
     },
+    "spacr.layers.render_scale": {
+      "source_blocks_sha256": [
+        "602d60053fbbd64e346ba92e380d6aeec440c48154df45b76b94c81fd618162b",
+        "dbfbc82da9a9567124b609ff61b20fdeff2ef174546a887ac9616cb7e937f21e",
+        "ea714fbebbfada564c7c662cd83bfecf8abd0902b7004d46ed3fbbffa9e56148",
+        "f5bf56da52a8b23670ab21b7c1f3c38ae2a8b7d5f6794a4d8737c72ee7eb23fc",
+        "43b07dc6145d8e396d646f8cf83076f1e9a1811645b7758711ef64b33497c293",
+        "bea1ff971aefc818801fa853e7bad8e7a0bd90bb122a0ecdf6003ca6640efb7d",
+        "39b772aa934410be7e361ca5bc6409d6fb4345bc9a0da29a2ff16875b80dc67b",
+        "b07030ac3402713cc29820479d96510f10b46f7533499abe9cfbc1526d0d407d"
+      ],
+      "source_sha256": "5b954d47898cee5794bcb6adb6ec5580df0200bed093fa12b2de6d32e291a706",
+      "text": "Turn the Render scale slider into what one frame is drawn from.\n\n``percent`` is the share of full resolution along each axis: at 50 %\nevery second voxel along X, Y and Z (an eighth of the voxels) is drawn,\ninto a picture of half the display's width and height. While the view\nis dragged the frame is drawn coarser still and then again at the\nslider's scale once it stops: the CPU draws from at most\n:data:`RENDER_DRAG_VOXELS` voxels into pixels of at least 4 display\npixels; the GPU keeps its voxels (so nothing is uploaded again) and\ndraws pixels of at least 2.\n\n:param percent: the slider, 1 to 100 (clipped).\n:param voxels: how many voxels the full volume holds.\n:param dragging: whether the view is moving.\n:param gpu: whether the GPU draws the frame.\n:param gpu_max_voxels: the most voxels one GPU texture may hold.\n:returns: the :class:`RenderScale`."
+    },
     "spacr.layers.render_volume": {
       "source_blocks_sha256": [
         "bcc9598a66ed23fa8b4f7e75ebaf0d7ebe2500bcebfbe842941ef22fee1cb835",
-        "a51cc1d8dbb18e368430ccb150b9b603c373254f1e95c3706a0cfe5256a0ac75",
+        "80cb8ab05b970eddde86ba4c43dc3ab59f86eccb27f0d4d887265578fab461ba",
         "e207f00eba063286729d2d6e8137c3e5b125dc8d75ba51e552fc419c559cb418",
         "14cb64571c5f80f106dbba545ce05fe2341052ff03086782b1bb3a1df904e7c7",
         "5a68833be9d4e9d2cd5d6c448c3ac28a6124b42e1041ac4402f14e303110631f",
         "8143012bde54f68ed1502851792f718a00a585c4d1da9a76def94ade0f0f8bd3",
         "51a432b1eb665a88925845eb4705301f9ce5d3e26f229ff7f9562146412967db",
         "5f58eb0160b9c99c46f3e7f69fbadc2a6c23a03927188982b0cd3d39db449204",
+        "c1db10479bfa7d6619445802b60bfd5ac98c541b61e0260ac8a7315e519b86e0",
+        "f52d9c0e111ff09d1ee0af368e7a5cdaf7a386619a27f73e832a9ee38224372c",
         "48162ef345d09e6a8c2f28d02fa74d47d371a0c4748f26b1c03ea748cb5cf1b8",
-        "bc8cb8b30a8d83205cd52ec9805d24b7c722f2ca810679015e3f8242ace26028"
+        "e13093eb7574c4cd7018c89551ee24a412fe50c59f2023b5ca8ba373ed0d875c"
       ],
-      "source_sha256": "0b584cda67175d803d3a63d9f37845825071b8ff844cbf1ad93228af9620ae0f",
-      "text": "Draw 3-D image and labels layers along parallel rays, as napari does.\n\nImage layers are added together, each through its colormap, between its\ncontrast limits, times its opacity; each is drawn by the\n:data:`VOLUME_RENDERINGS` mode in ``layer.metadata[\"rendering\"]``\n(``mip`` when absent). Labels layers are then laid over them in stack\norder, each object in its :func:`label_color`, by the\n:data:`LABEL_RENDERINGS` mode (``surface`` when absent) and the layer's\nopacity. Hidden layers draw nothing. Every layer must have the volume's\nshape; image layers draw their first channel.\n\nThe rays are walked a few rows at a time, so a caller on a worker thread\ncan stop a render that is no longer wanted.\n\n:param layers: the layers, bottom first.\n:param rays: where to sample, in the layers' array indices.\n:param highlight: an object drawn lighter, as a chosen object is.\n:param cancelled: asked between chunks; returning ``True`` abandons the\n    render.\n:param chunk: about how many samples one step holds.\n:returns: ``(rgb, picked)``: ``rows x columns x 3`` float32 colour\n    between 0 and 1, and the object nearest the viewer under each pixel\n    (0 for none), or ``None`` when cancelled.\n:raises LayerError: for a rendering no layer of that kind has, or a layer\n    whose shape differs from the others'."
+      "source_sha256": "092bfb7a8eea66f703ac5c4800ad00433827c8dab644e322bd97972ee1499252",
+      "text": "Draw 3-D image and labels layers along parallel rays, as napari does.\n\nImage layers are added together, each through its colormap, between its\ncontrast limits, times its opacity; each is drawn by the\n:data:`VOLUME_RENDERINGS` mode in ``layer.metadata[\"rendering\"]``\n(``mip`` when absent). Labels layers are then laid over them in stack\norder, each object in its :func:`label_color`, by the\n:data:`LABEL_RENDERINGS` mode (``surface`` when absent) and the layer's\nopacity. A surface is lit by the :data:`SURFACE_FINISHES` entry in\n``layer.metadata[\"finish\"]`` (``matte`` when absent), with normals from\nthe mask itself (:func:`surface_normals`). Hidden layers draw nothing.\nEvery layer must have the volume's shape; image layers draw their first\nchannel. :class:`GLVolumeRenderer` draws the same picture on the GPU.\n\nThe rays are walked a few rows at a time, so a caller on a worker thread\ncan stop a render that is no longer wanted.\n\n:param layers: the layers, bottom first.\n:param rays: where to sample, in the layers' array indices.\n:param highlight: an object drawn lighter, as a chosen object is.\n:param cancelled: asked between chunks; returning ``True`` abandons the\n    render.\n:param chunk: about how many samples one step holds.\n:param voxel_size: physical length of one voxel along each array axis,\n    for lighting; ``None`` for cubic voxels.\n:param lens: a magnifier cube (:class:`VolumeLens`), or ``None``.\n:returns: ``(rgb, picked)``: ``rows x columns x 3`` float32 colour\n    between 0 and 1, and the object nearest the viewer under each pixel\n    (0 for none), or ``None`` when cancelled.\n:raises LayerError: for a rendering or finish no layer of that kind has,\n    or a layer whose shape differs from the others'."
+    },
+    "spacr.layers.shade_surface": {
+      "source_blocks_sha256": [
+        "5dccedf3ff77ea3d13818f6a64c9f8c748b7b187c8e16945c9f940d87b40db64",
+        "fef3a7d89ed2a161a66b1fb9faba27a5a1c1c513e5d26767373ad33c24be7cef",
+        "bad181e47392e016de9446a85ab498e99133024961581435a9e47fa2665d1589",
+        "2787903f7c7bd0456dc11971e51b9f3903a725bc870272de5c8af98d86896906",
+        "11617beb06aeb8c733060311605e2484256e2b7017a46ee1aa9c19d615c3261a",
+        "16156a73b7584ace8c7f8a2e0fc1c1be567a45b98cecd4d92a84f929b4bfc05d"
+      ],
+      "source_sha256": "483c89c24978ff28322cc04c2f4f5c78d70c88b5c5f744e4b367dfdd3984ce7d",
+      "text": "Light surface points of known colour and normal by one finish.\n\n:param colour: ``(..., 3)`` base colours, 0 to 1.\n:param normal: ``(..., axes)`` unit normals facing the viewer.\n:param light: the camera's :class:`SurfaceLight`.\n:param finish: the :class:`SurfaceFinish`.\n:returns: ``(..., 3)`` lit colour (not clipped)."
+    },
+    "spacr.layers.surface_finish": {
+      "source_blocks_sha256": [
+        "fe888c40e89e3a79c4c5cb51b8310773075a9149b3f71472d303da63d66f43a1",
+        "d03b66d52745b200e124f1792519f5df92410e1556aa853c5932e3482486dff3",
+        "11617beb06aeb8c733060311605e2484256e2b7017a46ee1aa9c19d615c3261a",
+        "250f79c30b1bab8f152c4800d77e89c62b77ab71e18e07db73796044bfde5b5b"
+      ],
+      "source_sha256": "30391fe8b3cc070e8945413309a21e1d70486e2048855054696279d588a4830b",
+      "text": "The lighting numbers of one finish.\n\n:param name: a key of :data:`SURFACE_FINISHES`; ``None`` is ``matte``.\n:returns: the :class:`SurfaceFinish`.\n:raises LayerError: for a name that is not a finish."
+    },
+    "spacr.layers.surface_normals": {
+      "source_blocks_sha256": [
+        "3ce2e83b6d7bb96ae995770757fa2218008169269cd2354e6cdbe0e8bff16bf5",
+        "5afd8d52e84f1204dc0d29b9e53788e2a6fb31920bcbdcf79828a166d5ee3dfd",
+        "e28f5a333bd4bcd68c1b22891e4e8fe605f53f679b04e5060491e6c6bb13343a",
+        "681b684954dda1cb6eb6112392a306af8d381639e7e35388601e7d98df2aca4f",
+        "2787903f7c7bd0456dc11971e51b9f3903a725bc870272de5c8af98d86896906",
+        "850d8f4a094beedd3f4f9ab9c988936451e4915e636fe991e234bba91ea7d2ed"
+      ],
+      "source_sha256": "0ba3c20bfcfad91cb1716cb562c34d403ee83d9b8b38822bfedede6476d14660",
+      "text": "Outward unit normals of a mask's surface at points on it.\n\nCentral differences, one voxel each way, of the trilinearly sampled\noccupancy (1 inside an object, 0 outside), scaled to physical units and\nturned to face the viewer. Where the occupancy is flat the normal is the\ndirection to the viewer.\n\n:param occupancy: ``float32`` occupancy volume.\n:param points: ``(axes, n)`` array indices.\n:param light: the camera's :class:`SurfaceLight`.\n:returns: ``(n, axes)`` normals."
     },
     "spacr.layers.to_rgba": {
       "source_blocks_sha256": [
@@ -57715,6 +57923,14 @@
       "source_sha256": "ff74fea8d968b70ed692939acd21db09712b2d0f94a38dc318d9c2fa64bb5348",
       "text": "Return True when the user has opted into the verbose diagnostic\nlogger. Toggled via the Preferences dialog; consulted at startup by\n:func:`apply_preferences_to_app`.\n\nThe wording of that first paragraph is deliberate: a reviewed Korean\ntranslation of it is held in `docs/i18n/reviewed/api`, and the\nlocalisation audit refuses a source block that no longer matches what\nwas reviewed. Changing it discards a human translation, so it is left\nexactly as it was and anything new goes below.\n\nDefaults to :data:`DEFAULT_VERBOSE_LOGGING`, which is on. Opening every\nmodule took the same time with it on as with it off, measured."
     },
+    "spacr.qt.preferences.get_volume_view": {
+      "source_blocks_sha256": [
+        "35eda4f39171e5b77adec7cdf68dbe4e58ab3317ad2389380cfad7c15d1d5cba",
+        "d797c78a6a38b5d517d75965f9c3a5172ac0cdbada558f14dc731fa097b86c99"
+      ],
+      "source_sha256": "ebd6c785c47ceabf8f89cf7d060879c299355e6fc4718eb88fc839fda09ff082",
+      "text": "The Make Masks True 3D view's saved render settings.\n\n:returns: a dict that may hold ``backend`` (``auto``, ``opengl`` or\n    ``cpu``), ``scale`` (the Render scale, 1 to 100) and ``finish`` (the\n    mask surfaces' finish); a key never chosen is absent. The caller\n    checks the values, so a store written by a later version still\n    opens."
+    },
     "spacr.qt.preferences.get_workspace_copy_limit_mb": {
       "source_blocks_sha256": [
         "f20911006422171905b3d163c939e87c049ec24c245fbb5e18f439c68de10dbe"
@@ -58584,6 +58800,15 @@
       ],
       "source_sha256": "18149322e097811dc2b4c083bfd73c3ec6157d959b22fb22a4145a60e9cc334f",
       "text": "Persist whether package-wide diagnostic tracing is enabled.\n\n:param on: true to turn it on, false to turn it off; stored as a ``bool``."
+    },
+    "spacr.qt.preferences.set_volume_view": {
+      "source_blocks_sha256": [
+        "9fe3af121dfbefd0f80558dd0a5462474f59eac51fbef753f966fb938acd04f5",
+        "8d0825b4f4151bbe4b97a35e84af4f6b301d4c97550ec46acde731840d05046d",
+        "73ce8f3cfa385e0a8fca88aacaf9e0f0ccb929e9a20c3b11a611ffbe2dd5cb5d"
+      ],
+      "source_sha256": "b0ec39c872a6461838a6a97e1b5218e3cbefa1e063e654e03a117e5287e48858",
+      "text": "Remember some of the True 3D view's render settings.\n\n:param values: any of ``backend``, ``scale`` and ``finish``; the others\n    keep their saved values.\n:raises ValueError: for any other name."
     },
     "spacr.qt.preferences.set_workspace_copy_limit_mb": {
       "source_blocks_sha256": [
@@ -68016,6 +68241,15 @@
       "source_sha256": "79ff4ae0b7e570ec64780e0d328b2b6137a3669530e7791f546c9cd208eaa700",
       "text": "Every canvas tool the toolbar row should hold.\n\n:data:`TOOL_MODES` first, in its own order, then any other ``MODE_*``\nconstant in this module the table does not mention — labelled from\nits own value and drawn with whatever :func:`spacr.qt.iconset.icon`\nhas for that name, which is a fallback glyph when it has nothing.\nAlphabetical among themselves, so the row is the same on every run.\n\n``MODE_WAND_ERASE`` is the legacy canvas action, now selected with Ctrl\non the single Wand tool rather than a separate toolbar button.\n``MODE_NONE`` is excluded because it is not a tool: it is the canvas\nwith no tool held, which is what the row shows when nothing is\nchecked."
     },
+    "spacr.qt.screens.make_masks.volume_render_backends": {
+      "source_blocks_sha256": [
+        "1bf5797496468fe6d8d4cbcbfd881c0cd24a4b8099a2a1a5cf629f19d6fc2a55",
+        "37842962ca3d38398a40abd7db9f3d01bc4dce4616279af3692d29e34930b013",
+        "f70c959dc1666601c5538be78474bb5841b8d568e28debbdb346ca069b95d628"
+      ],
+      "source_sha256": "58e71d23b51c03c8b727c69a5e71e8b7d77bd18c2a97b4ed50a127ef564c814e",
+      "text": "The Render backends this machine can offer the True 3D view.\n\n``auto`` and ``cpu`` always; ``opengl`` when VisPy (a spaCR dependency)\nis importable. Whether a GL context really works is only known when the\nfirst frame is drawn; :class:`_GLVolumeContext` finds out, and Auto\nfalls back to the CPU with a one-line note if it does not.\n\n:returns: backend keys from :data:`VOLUME_BACKENDS`, in list order."
+    },
     "spacr.qt.screens.map_barcodes": {
       "source_blocks_sha256": [
         "3328cf9bdc7fd553de8f096921ed5cd623d36e05810db1c28f998fef73ada105",
@@ -76966,10 +77200,11 @@
         "ec25bcbed6f66858fd06705f514db41d6147cebb158e0818cfd3eafb90649c70",
         "628390e04dbd222a9d8c257e74d2c47cd4582051f8765c1e628cf8abcf74f37e",
         "346ab27046565245601a22aacdbd30e1f32559dbc6c0e8b88e543bca49228cbb",
-        "f066a0dbf34dd6939b32f2654c7dbbd458c38ebe253d5663c5b2a39883034414"
+        "f066a0dbf34dd6939b32f2654c7dbbd458c38ebe253d5663c5b2a39883034414",
+        "1feb885c354ef3f0ddccd81dc50bb3f9d13f7e0f87e30cc186b69007595c70ae"
       ],
-      "source_sha256": "cd98ef9114624858997f99b6361b0c585aaef55de41aef3d87fa3f8182c78a52",
-      "text": "Why this start is illegal, or \"\" when it is fine.\n\nMakes the same test Qt makes: is the object's own thread the calling\nthread? Qt refuses whenever they differ, which happens both ways\nround -- a worker touching a GUI object, and the GUI thread touching a\nworker-affine object; the second is easier to write by accident\nbecause the code reads as ordinary GUI-thread code.\n\nThe threads are compared with `==`, not `is`. `QThread.currentThread()`\nreturns a new Python wrapper around the same underlying QThread on each\ncall, so an identity test would report every ordinary start, such as a\nplain GUI-thread `timer.start()`, as illegal and bury the real reports.\n\nThere is deliberately no \"is the caller the GUI thread\" fallback. It\nadded nothing the affinity test does not already cover, and it was the\nhalf that misfired."
+      "source_sha256": "cd948d24afaf54bac3e159c99d246f892fb9687c131c9a96e9716b466b620715",
+      "text": "Why this start is illegal, or \"\" when it is fine.\n\nMakes the same test Qt makes: is the object's own thread the calling\nthread? Qt refuses whenever they differ, which happens both ways\nround -- a worker touching a GUI object, and the GUI thread touching a\nworker-affine object; the second is easier to write by accident\nbecause the code reads as ordinary GUI-thread code.\n\nThe threads are compared with `==`, not `is`. `QThread.currentThread()`\nreturns a new Python wrapper around the same underlying QThread on each\ncall, so an identity test would report every ordinary start, such as a\nplain GUI-thread `timer.start()`, as illegal and bury the real reports.\n\nThere is deliberately no \"is the caller the GUI thread\" fallback. It\nadded nothing the affinity test does not already cover, and it was the\nhalf that misfired.\n\nPySide6 can attach the returned QThread wrapper to the queried object.\nRestore the application's adopted thread to its application after the\nread, so collecting a temporary timer cannot delete the GUI thread."
     },
     "spacr.qt.thread_guard.install.guarded_object_init": {
       "source_blocks_sha256": [
