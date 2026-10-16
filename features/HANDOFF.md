@@ -11,6 +11,25 @@
 
 
 
+## 2026-10-15 Original Home — provider generation and Integration repair accepted
+
+Normal nine-language generation is complete for26 provider API symbols and
+711 independently reviewed new/changed targets, preserving72 retained values.
+Genuine old English records were restored through the normal history writer;
+all unrelated catalog/source pins remained exact. The unchanged full audit
+now refuses stale glass#2 review source, so global API currency is NOT claimed.
+A separate guarded53-symbol audit stopped when real runtime canonical context
+was requested; no translation failure/pass or synthetic context is claimed.
+Evidence:data/n700_provider_normal26_actual_run_2026-10-15/.
+
+Existing Integration job116724362321 failed one obsolete unknown-well-model
+exception assertion. Test-only repair now checks ModelZooError with exact
+request/candidate provenance and no download/model construction;3 targeted
+checks pass, production unchanged. Evidence:data/ci_unknown_well_detector_contract_2026-10-15/.
+No final CI dispatch or release. Other Home takeover preserves private files,
+branches and evidence; three workers continue rescue/glass diagnosis, current
+API gap inputs and the genuine-context audit plan. No whole item newly closes.
+
 ## 2026-10-15 Maintainer — other Home session closed; Original Home takeover
 
 The maintainer explicitly assigns the other Home session's unfinished tasks
@@ -24,8 +43,8 @@ software deliveries and maintainer access/platform gates are preserved.
 Takeover inventory is read-only: preserve coordinator and worker branches,
 private packets and any progress-file edits. Do not reset, clean, replace old
 files or replay previously published changes. Current provider API closure
-continues:711 new/changed targets independently reviewed; final normal writer
-is still pending. No finalCI/release dispatch. Grouped progress ownership is
+continues:711 new/changed targets independently reviewed and normally generated.
+Global API audit dependencies remain as stated above. No finalCI/release dispatch. Grouped progress ownership is
 updated in data/home_grouped_progress_2026-10-15/.
 
 ## 2026-10-15 Original Home — existing CI has assigned running jobs
