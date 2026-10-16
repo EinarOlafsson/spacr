@@ -1,0 +1,14 @@
+{
+  "owner": "Work / spacr-d7",
+  "run": 38816815119,
+  "job": 116724362099,
+  "failed_node": "tests/qt/test_make_masks_yolo_reload_after_navigation_20261013.py::test_the_driver_waits_for_the_field_a_navigation_asked_for",
+  "diagnosis": "record_yolo_boxes.ready has no expected-field argument; Next/Prev calls do not supply target identity. Existing strict navigation synchronization test fails. No equivalent target-identity waiter found in owner source.",
+  "requested_owner_action": "Restore actual expected-field synchronization after Next/Prev while preserving capture sampler/smoothness/privacy gates; do not merely weaken the test or rerun a failed clip. Reconcile exact current owner source before edit.",
+  "source_sha256": {
+    "tools/tutorials/capture_make_masks.py": "7edaf5ee376d232cbc0773bae906723da9790a7e2d845a1a8b4eae8c6bdbcd4b",
+    "tests/qt/test_make_masks_yolo_reload_after_navigation_20261013.py": "2033f6d464e0733178e050364720ce799a92a0478ae7737806a4a6c15ed7a9b3"
+  },
+  "source_mutations": [],
+  "receipt_status": "Request published through HANDOFF; no Work acknowledgment yet."
+}

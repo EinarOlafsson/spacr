@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "status": "tested_source_only_pending_root_review",
+  "base_commit": "8ab0b4f421baf9e6318c9f9f0d08ccd73241113b",
+  "source_paths": [
+    "tools/tutorials/capture_make_masks.py",
+    "tests/qt/test_make_masks_yolo_reload_after_navigation_20261013.py",
+    "tools/tutorials/tests/test_capture_yolo_expected_field.py"
+  ],
+  "files": [
+    {
+      "path": "README.txt",
+      "bytes": 1433,
+      "sha256": "64ce853076dd570ab25a61bf98d08aa071d5bd1c7d787a9a373f9e42caa8fc5e"
+    },
+    {
+      "path": "focused-tests-r1.log",
+      "bytes": 977,
+      "sha256": "597912cee18b19828e4b3cde6bc905583732b39bfb79799bb4306d99127455b2"
+    },
+    {
+      "path": "focused-tests-r1.xml",
+      "bytes": 1684,
+      "sha256": "29aadb51081cfd43bd4c71e92daafbf11bcd418020c97c1ce9e0c1dadeae69f4"
+    },
+    {
+      "path": "owning-tests.json",
+      "bytes": 5710,
+      "sha256": "2098e065eff2a7182a74c902db117413ce429804d824073d3b8549104ddc8421"
+    },
+    {
+      "path": "receipt.json",
+      "bytes": 1107,
+      "sha256": "d6a0aaa5eb356748176c60b53110591e63972ad618723b9a77ba23c08d9b4ccc"
+    },
+    {
+      "path": "source/tests/qt/test_make_masks_yolo_reload_after_navigation_20261013.py",
+      "bytes": 4406,
+      "sha256": "2033f6d464e0733178e050364720ce799a92a0478ae7737806a4a6c15ed7a9b3"
+    },
+    {
+      "path": "source/tools/tutorials/capture_make_masks.py",
+      "bytes": 41191,
+      "sha256": "333ec1efb25c7b218977332c371d49fdf6303a59939f97b696d19b05fa07439f"
+    },
+    {
+      "path": "source/tools/tutorials/tests/test_capture_yolo_expected_field.py",
+      "bytes": 2507,
+      "sha256": "55db9a65102603eae2dd6a003b5404ed8bb64d161eb5dc4a42c3d4313135b3a2"
+    },
+    {
+      "path": "source.patch",
+      "bytes": 9759,
+      "sha256": "793db7f7fb228cd94803ed503288db1940c940f3556154831af69ecae5304d4f"
+    }
+  ],
+  "owning_tests": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson14-nav-contract-20261015/owning-tests.json",
+    "bytes": 5710,
+    "sha256": "2098e065eff2a7182a74c902db117413ce429804d824073d3b8549104ddc8421"
+  },
+  "passed": 8,
+  "terminal_status": 0,
+  "patch_reverse_check_passed": true,
+  "lesson14_complete": false
+}

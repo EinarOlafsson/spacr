@@ -1,0 +1,209 @@
+diff --git a/tools/tutorials/capture_make_masks.py b/tools/tutorials/capture_make_masks.py
+index 9ff7214d8..dd3e8b74f 100644
+--- a/tools/tutorials/capture_make_masks.py
++++ b/tools/tutorials/capture_make_masks.py
+@@ -155,9 +155,12 @@ def record_yolo_boxes(app, window, screen, stage, captures, capture, settle,
+             raise RuntimeError('; '.join(errors) or 'The picker was cancelled')
+         settle()
+ 
+-    def ready():
++    def ready(expected=None):
+         deadline = time.monotonic() + timeout
+-        while screen._loading or screen._canvas.image is None:
++        while (screen._loading or screen._canvas.image is None or
++               (expected is not None and
++                (not 0 <= screen._current_index < len(screen._image_files) or
++                 screen._image_files[screen._current_index] != expected))):
+             if time.monotonic() >= deadline:
+                 raise TimeoutError('The actual YOLO source image did not load')
+             settle(.1)
+@@ -303,8 +306,9 @@ def record_yolo_boxes(app, window, screen, stage, captures, capture, settle,
+     # The clip of the negative export holds the move to the second field and
+     # the export of its empty label file, which is what the scene shows.
+     rec = drv.scene(capture, settle, 'yolo_17_negative_exported')
++    next_filename = screen._image_files[screen._current_index + 1]
+     capture_ui.navigate_image(capture, screen, +1)
+-    ready()
++    ready(next_filename)
+     if canvas.boxes:
+         raise RuntimeError('The untouched second field is not a negative example')
+     negative_name = screen._image_files[screen._current_index]
+@@ -316,7 +320,7 @@ def record_yolo_boxes(app, window, screen, stage, captures, capture, settle,
+     rec.stop()
+     rec = drv.scene(capture, settle, 'yolo_18_reloaded_boxes')
+     capture_ui.navigate_image(capture, screen, -1)
+-    ready()
++    ready(filename)
+     if screen._image_files[screen._current_index] != filename or [list(box) for box in canvas.boxes] != saved_boxes:
+         raise RuntimeError('Navigation did not reload the exact saved annotations')
+     rec.stop()
+diff --git a/tests/qt/test_make_masks_yolo_reload_after_navigation_20261013.py b/tests/qt/test_make_masks_yolo_reload_after_navigation_20261013.py
+new file mode 100644
+index 000000000..eb809b492
+--- /dev/null
++++ b/tests/qt/test_make_masks_yolo_reload_after_navigation_20261013.py
+@@ -0,0 +1,101 @@
++"""Saved boxes come back exactly after Next, a negative export and Prev (lesson 14 YOLO tour).
++
++The capture host stopped the YOLO tour with "Navigation did not reload the
++exact saved annotations". Offscreen, with the real driver and both load
++paths (a field decoded in the click and one decoded on the loader thread),
++the tour passes: Make Masks neither loses nor reorders saved boxes. The
++host clicks with real input, which can return before the click is handled,
++and the driver read the field before Prev had landed. These pin the editor
++side, and the driver now waits for the field it asked for.
++"""
++from __future__ import annotations
++
++import ast
++from pathlib import Path
++
++import imageio.v2 as imageio
++import numpy as np
++import pytest
++
++from spacr.qt import mask_engine as engine
++from spacr.qt.screens.make_masks import MODE_BOX, MakeMasksScreen
++
++pytestmark = pytest.mark.qt
++
++DRIVER = Path(__file__).resolve().parents[2] / "tools" / "tutorials" / "capture_make_masks.py"
++
++
++@pytest.fixture(params=["in_the_click", "on_the_loader"])
++def opened(request, qtbot, qt_theme_applied, tmp_path, monkeypatch):
++    folder = tmp_path / "fields"
++    (folder / "masks").mkdir(parents=True)
++    rng = np.random.default_rng(1)
++    for index in range(2):
++        image = rng.integers(0, 60000, (96, 128), dtype=np.uint16)
++        labels = np.zeros((96, 128), np.uint16)
++        labels[20:40, 30:60] = 1
++        imageio.imwrite(folder / f"field_{index}.tif", image)
++        imageio.imwrite(folder / "masks" / f"field_{index}.tif", labels)
++    if request.param == "on_the_loader":
++        monkeypatch.setattr(MakeMasksScreen, "_should_background_load",
++                            staticmethod(lambda _path: True))
++    widget = MakeMasksScreen()
++    qtbot.addWidget(widget)
++    widget.warnings = []
++    widget._warn = lambda title, text: widget.warnings.append((title, text))
++    assert widget._open_folder(str(folder))
++    qtbot.waitUntil(lambda: not widget._loading and widget._canvas.image is not None,
++                    timeout=20000)
++    yield widget, folder
++    widget._magnifier.close()
++    widget.close_folded()
++
++
++def _landed(qtbot, widget, name):
++    qtbot.waitUntil(lambda: not widget._loading
++                    and widget._image_files[widget._current_index] == name,
++                    timeout=20000)
++
++
++def test_prev_after_a_negative_export_reloads_the_exact_saved_boxes(qtbot, opened, tmp_path):
++    widget, folder = opened
++    first, second = widget._image_files
++    widget._set_mode(MODE_BOX)
++    assert widget._on_add_box_class("demonstration") == 1
++    widget._canvas.boxes = [(1, 40, 30, 90, 70)]
++    widget._canvas.boxes_changed.emit()
++    widget._canvas.boxes.append((1, 50, 40, 70, 60))
++    widget._canvas.boxes_changed.emit()
++    widget._canvas.boxes = [(1, 40, 30, 90, 70)]
++    widget._canvas.boxes_changed.emit()
++    widget._on_undo()
++    saved = [list(box) for box in widget._canvas.boxes]
++    assert saved == [[1, 40, 30, 90, 70], [1, 50, 40, 70, 60]]
++    assert widget._on_save_boxes() is not None
++    assert widget._on_export_yolo_boxes(str(folder / "field_0.txt"))
++    widget._btn_next.click()
++    _landed(qtbot, widget, second)
++    assert widget._canvas.boxes == []
++    negative = folder / "field_1.txt"
++    assert widget._on_export_yolo_boxes(str(negative))
++    assert negative.read_bytes() == b""
++    widget._btn_prev.click()
++    _landed(qtbot, widget, first)
++    assert [list(box) for box in widget._canvas.boxes] == saved
++    assert widget._box_classes == ["object", "demonstration"]
++    assert not widget._boxes_dirty and widget.warnings == []
++    stored = engine.load_yolo_boxes(folder, first, widget._canvas.image.shape)
++    assert [list(box) for box in stored["boxes"]] == saved
++
++
++def test_the_driver_waits_for_the_field_a_navigation_asked_for():
++    """``ready`` takes the expected field, and both navigations pass one."""
++    tree = ast.parse(DRIVER.read_text())
++    tour = next(node for node in tree.body
++                if isinstance(node, ast.FunctionDef) and node.name == "record_yolo_boxes")
++    ready = next(node for node in ast.walk(tour)
++                 if isinstance(node, ast.FunctionDef) and node.name == "ready")
++    assert [arg.arg for arg in ready.args.args] == ["expected"]
++    calls = [node for node in ast.walk(tour)
++             if isinstance(node, ast.Call) and getattr(node.func, "id", None) == "ready"]
++    assert sum(1 for call in calls if call.args) == 2
+diff --git a/tools/tutorials/tests/test_capture_yolo_expected_field.py b/tools/tutorials/tests/test_capture_yolo_expected_field.py
+new file mode 100644
+index 000000000..ca3fc23ee
+--- /dev/null
++++ b/tools/tutorials/tests/test_capture_yolo_expected_field.py
+@@ -0,0 +1,57 @@
++"""The live driver's waiter rejects stale identities despite an idle canvas."""
++import ast
++from pathlib import Path
++from types import SimpleNamespace
++import time
++
++import pytest
++from PySide6.QtCore import QTimer
++
++DRIVER = Path(__file__).resolve().parents[1] / 'capture_make_masks.py'
++
++
++def actual_waiter(screen, settle, clock=time, timeout=1.0):
++    tree = ast.parse(DRIVER.read_text())
++    tour = next(node for node in tree.body
++                if isinstance(node, ast.FunctionDef) and node.name == 'record_yolo_boxes')
++    ready = next(node for node in tour.body
++                 if isinstance(node, ast.FunctionDef) and node.name == 'ready')
++    namespace = dict(screen=screen, settle=settle, time=clock, timeout=timeout)
++    exec(compile(ast.Module(body=[ready], type_ignores=[]), str(DRIVER), 'exec'), namespace)
++    return namespace['ready']
++
++
++@pytest.mark.parametrize('stale_state', ['previous_index', 'filename_after_index'])
++def test_expected_field_waits_for_queued_identity_even_when_canvas_is_idle(qtbot, stale_state):
++    screen = SimpleNamespace(_loading=False, _canvas=SimpleNamespace(image=object()),
++                             _image_files=['first.tif', 'second.tif'], _current_index=0)
++    if stale_state == 'filename_after_index':
++        screen._current_index = 1
++        screen._image_files[1] = 'first.tif'
++    delivered = []
++
++    def deliver():
++        screen._current_index = 1
++        screen._image_files[1] = 'second.tif'
++        delivered.append(True)
++
++    QTimer.singleShot(30, deliver)
++    actual_waiter(screen, lambda seconds=0: qtbot.wait(max(1, round(seconds * 1000))))('second.tif')
++    assert delivered == [True]
++    assert screen._image_files[screen._current_index] == 'second.tif'
++
++
++@pytest.mark.parametrize('not_ready', ['wrong_filename', 'loading', 'missing_image'])
++def test_identity_wait_preserves_loading_image_and_timeout_guards(not_ready):
++    screen = SimpleNamespace(_loading=not_ready == 'loading',
++                             _canvas=SimpleNamespace(image=None if not_ready == 'missing_image' else object()),
++                             _image_files=['wrong.tif' if not_ready == 'wrong_filename' else 'second.tif'],
++                             _current_index=0)
++    now = [0.0]
++
++    def settle(seconds=0):
++        now[0] += max(seconds, 0.01)
++
++    waiter = actual_waiter(screen, settle, SimpleNamespace(monotonic=lambda: now[0]), timeout=0.2)
++    with pytest.raises(TimeoutError, match='actual YOLO source image did not load'):
++        waiter('second.tif')

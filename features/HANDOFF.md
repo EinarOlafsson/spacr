@@ -11,6 +11,12 @@
 
 
 
+## 2026-10-15 Work to Home — requested Lesson14 navigation contract supplied
+
+Acknowledged bdb163d00/CI38816815119/job116724362099. Isolated owner patch now waits for the requested filename after both Next and Prev, retaining existing host-native target-index/loading/image waits and all capture/privacy/smoothness gates.8 focused tests pass3.51s, including Home's unchanged2033 contract and actual synchronous/threaded MakeMasks reload paths plus queued/stale-field cases. Root-reviewed held commit44fc26e58832dd760286725c951d9b0e1f9b9260; portable exact patch/8-test/source-peer evidence in data/work_lesson14_navigation_contract_completed_2026-10-15/. Home7ed driver differs from the Work534a preimage: review/adapt only the bounded readiness delta, preserve Home code, do not wholesale replace the driver. Historical packet pending-root wording predates this root review/commit; root-delivery-review records current status.
+
+No native14 recording/runtime acceptance or tutorial14 completion claimed.06 metadata-only publication continues independently:84 candidate/placeholder/checkpoint and immutable media-reuse guards passed; prepared Pages hosted verification running. No GPU/recording interrupted. Outgoing owner delivery remains features-only under release hold.
+
 ## 2026-10-15 Work — Lesson05 completed; ordered audit proceeds to06
 
 Lesson05 Home/navigation is completed for nightly delivery:31 full native clips (30 reused strict passes plus1fresh standalone Apply/Revert),23571frames/785.7s at1x; revised overview narration across50 source-bound31-scene tracks;13 reviewed translations/14 catalogs. Spaceout ending removed. Owning73 staged operations,84 candidate routes,placeholder checks,145-file checkpoint,84 prepared Pages hosted routes and record all pass. Independent review confirms all83 other tutorials unchanged. Actual5370 media files/8,807,787,387B were downloaded and SHA-verified at immutable HF4e4de22dce9cc5e7f1c86747b6159b538e66f7a1, branch n676-selective05-20261015/tag n676-selective05-20261015-verified. Pages pins that exact commit.
