@@ -15671,10 +15671,12 @@
         "a4121c3303be5c3ede4d404b88c57d3b4d7f66859551d926ffec4a2624473c53",
         "34bf351789296cbbba94e38a10c9dfc9e40681a41010f4619f6eb06d9c5bc4a9",
         "a6724ffb4ecb91a395ea0821b3a86e8d17e557581896ee311264413d8ebbc18a",
+        "b975a3af4169f667981fd1218129af1381e2e9b989e6ddfe974d8498625fcf74",
+        "d443617b1a2d25f891335f181494f72577e78927c4d2a99569a40ed18245d924",
         "8d59829c1e15afe1a7fae93e8e5e32d8511bec5fd598a09f4fea6033b31e8a66"
       ],
-      "source_sha256": "90277a8e7db959e73b3530028830ea10245cb95a962620f4d937fb17710fe215",
-      "text": "创建一个可粘贴的诊断包,使用 ``spacr-crashreport``。\n\n这个模块产生一个 ``.zip`` 与日志,设置,版本和诊断一个错误报告需要,附加到一个 GitHub 问题,它是从spaCR 已经保留的零件,而不是收集第二次:\n\n* :mod:`spacr.doctor` 运行 17 个安装检查 - 执行检查,复制安装, GPU, Cellpose 版本,项目数据库,设置 - 并且每个非 ``PASS`` 行都已经进行修复。\n* :mod:`spacr.runctx` 写一个按运行 JSONL 记录,按运行 ID 键,所以“显示我从运行中产生这一切”有一个答案。\n* :mod:`spacr.errors` 标记每个处理会议的状态到它写的论文,所以报告可以说是否最后的运行 *完成* - 这是一个不同的问题,从它是否刚刚崩溃,更有用的是当一个用户报告数字而不是跟踪。\n\n设计规则:\n\n**收集器不会扔** 每个收集者通过 :func:`_collect` 执行,这将失败转化为一个显而易见的输入,命名什么不能收集和为什么。 捕捉 ``Exception`` 是可接受的,因为失败记录在输出中:显然是包的一部分,因此一个失踪的部分是可见的报告接收者而不是沉默的缺席。\n\n**限制尺寸** ``spacr.log``旋转,但单行仍然可以写成数百兆比特。 包装拿到了它的*tail*,被:data:`MAX_LOG_BYTES`抓住,并记录了多少被扔掉。\n\n**没有秘密** 环境变量被列入,因为 ``SPACR_*``, ``CUDA_*`` 和 ``PATH`` 解释了一个大部分的“工作在这里,而不是在那里” - 但一个值的 *名称* 看起来像一个认证被替换为 ``\"<redacted>\"`` 并列出名称在示文中,所以你可以看到什么被推迟和报告接收者可以看到,这是什么。\n\n**定义配置.** 文件名和订单保持稳定,因此重复的报告可以快速检查。\n\n使用\n-----\n.. code-block:: bash\n\n    python -m spacr.crashreport                     # last run, current folder\n    python -m spacr.crashreport --run-id 3f9c1a2b   # one particular run\n    python -m spacr.crashreport --db plate1/measurements/measurements.db \\\n        --settings measure.csv --app measure -o ~/spacr-bug.zip\n\n.. code-block:: python\n\n    from spacr.crashreport import report_exception, install_excepthook\n\n    install_excepthook()          # any unhandled crash writes a bundle\n    try:\n        measure_crop(settings)\n    except Exception as exc:      # noqa: BLE001 - reporting, then re-raising\n        print(report_exception(exc, settings=settings))\n        raise",
+      "source_sha256": "e84b3bdc78d9ce63c1083f867b50b0b166105ea8352b996a80c6fa1b71e69aca",
+      "text": "创建一个可粘贴的诊断包,使用 ``spacr-crashreport``。\n\n这个模块产生一个 ``.zip`` 与日志,设置,版本和诊断一个错误报告需要,附加到一个 GitHub 问题,它是从spaCR 已经保留的零件,而不是收集第二次:\n\n* :mod:`spacr.doctor` 运行 17 个安装检查 - 执行检查,复制安装, GPU, Cellpose 版本,项目数据库,设置 - 并且每个非 ``PASS`` 行都已经进行修复。\n* :mod:`spacr.runctx` 写一个按运行 JSONL 记录,按运行 ID 键,所以“显示我从运行中产生这一切”有一个答案。\n* :mod:`spacr.errors` 标记每个处理会议的状态到它写的论文,所以报告可以说是否最后的运行 *完成* - 这是一个不同的问题,从它是否刚刚崩溃,更有用的是当一个用户报告数字而不是跟踪。\n\n设计规则:\n\n**收集器不会扔** 每个收集者通过 :func:`_collect` 执行,这将失败转化为一个显而易见的输入,命名什么不能收集和为什么。 捕捉 ``Exception`` 是可接受的,因为失败记录在输出中:显然是包的一部分,因此一个失踪的部分是可见的报告接收者而不是沉默的缺席。\n\n**限制尺寸** ``spacr.log``旋转,但单行仍然可以写成数百兆比特。 包装拿到了它的*tail*,被:data:`MAX_LOG_BYTES`抓住,并记录了多少被扔掉。\n\n**没有秘密** 环境变量被列入,因为 ``SPACR_*``, ``CUDA_*`` 和 ``PATH`` 解释了一个大部分的“工作在这里,而不是在那里” - 但一个值的 *名称* 看起来像一个认证被替换为 ``\"<redacted>\"`` 并列出名称在示文中,所以你可以看到什么被推迟和报告接收者可以看到,这是什么。\n\n**定义配置.** 文件名和订单保持稳定,因此重复的报告可以快速检查。\n\n匿名报告\n-----------------\n上述诊断包保留在本计算机上。可能离开计算机的是另一份小得多的资料：:func:`public_summary`，这份记录只包含明确允许的版本、操作系统系列、GPU 类别、模块、异常类型、已清理敏感信息的单行消息，以及用文件基本名、函数名和行号表示的调用栈。其中不含日志、设置、环境变量或路径。:func:`submit_public_summary` 将其发送到 spaCR 的中继服务（:data:`REPORT_RELAY_URL`），由中继服务在 EinarOlafsson/spacr 上登记为公开议题，因此用户无需 GitHub 账户。开关是 :func:`anonymous_reports_enabled`，除非用户关闭，否则默认开启；关闭该开关或设置 :data:`NO_NETWORK_ENV` 时，不发送任何内容。无法发送的报告会在小型队列中等待（:data:`QUEUE_LIMIT` 份报告，:data:`QUEUE_RETENTION_S` 秒），稍后重试。:func:`diagnose_remotely` 将同一摘要发送给中继服务托管的模型以获取建议。\n\n使用\n-----\n.. code-block:: bash\n\n    python -m spacr.crashreport                     # last run, current folder\n    python -m spacr.crashreport --run-id 3f9c1a2b   # one particular run\n    python -m spacr.crashreport --db plate1/measurements/measurements.db \\\n        --settings measure.csv --app measure -o ~/spacr-bug.zip\n\n.. code-block:: python\n\n    from spacr.crashreport import report_exception, install_excepthook\n\n    install_excepthook()          # any unhandled crash writes a bundle\n    try:\n        measure_crop(settings)\n    except Exception as exc:      # noqa: BLE001 - reporting, then re-raising\n        print(report_exception(exc, settings=settings))\n        raise",
       "translation_source_blocks_sha256": [
         "025200194bff3c48a95cc2d2bd6e1286209408a45cb00bf77b58d028165665f3",
         "6743b0b7700f4229c029feda93d465edf7a60d4dee587f68740b435071e787b6",
@@ -15686,6 +15688,8 @@
         "a4121c3303be5c3ede4d404b88c57d3b4d7f66859551d926ffec4a2624473c53",
         "34bf351789296cbbba94e38a10c9dfc9e40681a41010f4619f6eb06d9c5bc4a9",
         "a6724ffb4ecb91a395ea0821b3a86e8d17e557581896ee311264413d8ebbc18a",
+        "b975a3af4169f667981fd1218129af1381e2e9b989e6ddfe974d8498625fcf74",
+        "d443617b1a2d25f891335f181494f72577e78927c4d2a99569a40ed18245d924",
         "8d59829c1e15afe1a7fae93e8e5e32d8511bec5fd598a09f4fea6033b31e8a66"
       ]
     },
@@ -15749,6 +15753,26 @@
         "f68a17a462770f1df99ea2ac7ce9654177812ee4c76287a8db8a6035a90ced06",
         "b4d67a28465fd15108b05348ace1fc01f229eb4bb14b24474016bf97d856fd1e",
         "377b9d5a835a4da92969ef713d31aa8d6a755b690aa3207539f5d05484e65c13"
+      ]
+    },
+    "spacr.crashreport.RelayRefused": {
+      "source_blocks_sha256": [
+        "9cbe93097c41c2cdf46159d3ccec5b5054af9c44fc6e8586a90da7f9ef23250e",
+        "3410477624da5a2ac5744a1ba8c838cb1b2adfcfc805c7dbad8c8cae53966e4d",
+        "1746153085edf10219c78dc9c3501a9ec01631efae994a3d61768dc5d1d57368",
+        "8057a712c7f1bea98750e847730241bd3850c2dc4960c0ae9e995bd7307a3f34",
+        "75f2e9b001ac4fe524cbeb82be447809e8d4c26a97ecb0cf64603b430e619ec9",
+        "fec86ec938f40d8cf3508a9433a875d222fb4090785c6c39913fa41c3048dc12"
+      ],
+      "source_sha256": "0179cafbf4d8e9a02e4af871c5b3587deb4f86bc357ed260a39336e4ed80af75",
+      "text": "中继未响应托管诊断请求。\n\n:param reason: 免费每日限额用尽时为 ``\"quota\"``，无法连接中继或禁止使用网络时为 ``\"network\"``，其他拒绝情况为 ``\"error\"``。\n:param detail: 中继或网络返回的消息，用于日志记录。\n:param scope: 因配额而拒绝时，说明是哪一方的限额：``\"install\"``（此安装的提问限额）、``\"global\"``（spaCR 共享的免费容量）或 ``\"ip\"``。\n:param resets_at: 限额重置的时间，以带时区信息的 UTC 日期时间表示；默认为下一个 00:00 UTC。\n\n这些值保存在异常的 ``reason``、``scope`` 和 ``resets_at`` 属性中。 保留原因、范围和重置时间，并将详细信息用作消息。",
+      "translation_source_blocks_sha256": [
+        "9cbe93097c41c2cdf46159d3ccec5b5054af9c44fc6e8586a90da7f9ef23250e",
+        "3410477624da5a2ac5744a1ba8c838cb1b2adfcfc805c7dbad8c8cae53966e4d",
+        "1746153085edf10219c78dc9c3501a9ec01631efae994a3d61768dc5d1d57368",
+        "8057a712c7f1bea98750e847730241bd3850c2dc4960c0ae9e995bd7307a3f34",
+        "75f2e9b001ac4fe524cbeb82be447809e8d4c26a97ecb0cf64603b430e619ec9",
+        "fec86ec938f40d8cf3508a9433a875d222fb4090785c6c39913fa41c3048dc12"
       ]
     },
     "spacr.crashreport._doctor_sections.gather_json": {
@@ -15821,6 +15845,46 @@
         "3723a3d308b1ff2cbe41bcb76bbc7189f321dd330d79e2afa39a68b2ebaca970"
       ]
     },
+    "spacr.crashreport.ai_summary_prompt": {
+      "source_blocks_sha256": [
+        "638e0f80f7125247b37b52208412ca5e6983977ae3b0a02e84b8141f3edc1757",
+        "3cb8272945e084c45e0ad61c6d8a884416723fe25ab19fbfa46061e7ed172e72",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "679e1e3e644bbe192140ec68762966dacce0dc54475f2ca079730984886a921b"
+      ],
+      "source_sha256": "b4d1fc41e1fc41ac675bf79a0e9cca0166b945126446ce9f311a4ee2f927a374",
+      "text": "请求用户自己的 AI 总结报告的固定提示词。\n\nAI 只看到匿名化摘要，绝不会看到回溯、日志或设置；其生成的文本在发送前还会再次移除敏感信息。\n\n:param summary: 来自 :func:`public_summary` 的摘要。\n:returns: 提示词。",
+      "translation_source_blocks_sha256": [
+        "638e0f80f7125247b37b52208412ca5e6983977ae3b0a02e84b8141f3edc1757",
+        "3cb8272945e084c45e0ad61c6d8a884416723fe25ab19fbfa46061e7ed172e72",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "679e1e3e644bbe192140ec68762966dacce0dc54475f2ca079730984886a921b"
+      ]
+    },
+    "spacr.crashreport.anonymous_report_notice_due": {
+      "source_blocks_sha256": [
+        "dd7102c011ca8714a21f48e81605b2608d7f74c403c00a6a89c445be65c36d98",
+        "642900d41cce7b32471f974256fd2ec0737e15b8aec3659c8445609aab49fd31"
+      ],
+      "source_sha256": "f44f97ee84fdb0f2d0f93b0c4536cfec5d4c86a9fd1c5135eeef12bc6a492663",
+      "text": "是否仍需显示有关匿名化报告的一次性通知。\n\n:returns: ``True`` 持续到调用 :func:`mark_anonymous_report_notice_shown` 为止。",
+      "translation_source_blocks_sha256": [
+        "dd7102c011ca8714a21f48e81605b2608d7f74c403c00a6a89c445be65c36d98",
+        "642900d41cce7b32471f974256fd2ec0737e15b8aec3659c8445609aab49fd31"
+      ]
+    },
+    "spacr.crashreport.anonymous_reports_enabled": {
+      "source_blocks_sha256": [
+        "0b4ed1ade4482107fe88c56c186d855b1ea059e6405099143a3282b3d342fcb3",
+        "40995663a063e7eb179badd0b4d11ad79f612f0b91b290083d4e750bf78dab71"
+      ],
+      "source_sha256": "7ef7463a6276e9fb8ee5c88ffe18a3e3ab7f6bd560bbddec970d2a8882c9875b",
+      "text": "是否将任何失败作为匿名化报告发送。\n\n:returns: 不发送任何内容的选项对应的值为 ``False``。",
+      "translation_source_blocks_sha256": [
+        "0b4ed1ade4482107fe88c56c186d855b1ea059e6405099143a3282b3d342fcb3",
+        "40995663a063e7eb179badd0b4d11ad79f612f0b91b290083d4e750bf78dab71"
+      ]
+    },
     "spacr.crashreport.build_parser": {
       "source_blocks_sha256": [
         "361572caac77d4eb2b156897b2bd68bc5f5ed5f0237a1989b4a718af86b3e95e",
@@ -15831,6 +15895,24 @@
       "translation_source_blocks_sha256": [
         "361572caac77d4eb2b156897b2bd68bc5f5ed5f0237a1989b4a718af86b3e95e",
         "508e809681b4695280c2958e6aa531a276a03c298fa1df40c574e64960c0c317"
+      ]
+    },
+    "spacr.crashreport.classify_failure": {
+      "source_blocks_sha256": [
+        "2d58fd042487c7a7aa508d19821bec4df9e7e9722899078931ce3b4b7a9238f9",
+        "f371f2b2fb8576efeedce179f2e3c7a1d95f560787269bd83aa3141af3130073",
+        "755de7f9d8d35807469274a445883f88761f9b3f91c8ea2e98f12a6b8b2abc56",
+        "bc0f7c1520da84a0c12d506a2366c76d2ce1a11d0da768189f822745eadb423c",
+        "13dcc916d28f018361196f06ac90ba66e58b552560bbca5b180794203cca413b"
+      ],
+      "source_sha256": "2a648f589ae7cbaad695a8b78a423c22c79c9fa59ca14fd1456ae91a800f3d1e",
+      "text": "返回失败属于程序故障还是用户错误。\n\n:class:`spacr.errors.ConfigurationError` 或其任意子类属于用户错误，即用户可以修正的设置、验证问题或缺失输入。其他情况均属于程序故障。\n\n:param exception: 可用时传入的异常。\n:param traceback_text: 否则为已格式化的回溯。\n:returns: :data:`KIND_USER_ERROR` 或 :data:`KIND_FAULT`。",
+      "translation_source_blocks_sha256": [
+        "2d58fd042487c7a7aa508d19821bec4df9e7e9722899078931ce3b4b7a9238f9",
+        "f371f2b2fb8576efeedce179f2e3c7a1d95f560787269bd83aa3141af3130073",
+        "755de7f9d8d35807469274a445883f88761f9b3f91c8ea2e98f12a6b8b2abc56",
+        "bc0f7c1520da84a0c12d506a2366c76d2ce1a11d0da768189f822745eadb423c",
+        "13dcc916d28f018361196f06ac90ba66e58b552560bbca5b180794203cca413b"
       ]
     },
     "spacr.crashreport.collect": {
@@ -15875,6 +15957,110 @@
         "70f3e313df0a893be895249e92469990e15698192066ed92eeaeec2718fe852b"
       ]
     },
+    "spacr.crashreport.diagnose_remotely": {
+      "source_blocks_sha256": [
+        "6208bddae143b55b08f16f9b2f4c538ea8d4de8d1c52459fea8066e495f250ac",
+        "0c08fd76ea2777f1ade8f2cd1ab141a5989aee9f7af0f8a35100dba49a0c5b25",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "db3dfd5b107e44ab172b1f4c5db4149d77cee1568974bbe5d32a70f7123c7fb1",
+        "68694ddb4d07fd3a8b1bb5f8c5c794035f34bd3228690afc39c2cde384c58446",
+        "7a53d8a95affae81d8f3ec742c9c242bf983144b65f0d0d8c481bcf909a1edfc",
+        "168c7498c9b4e16800ff71cb08bc5bff9b600d6fe3f7e3b988aee78bffd23abf"
+      ],
+      "source_sha256": "82fb0e7132840a9f75447a5ab1b7e82f6105790d60c93ba5996028dcdfe478d2",
+      "text": "无需账户，向中继的托管模型询问错误相关问题。\n\n将匿名化摘要和移除了敏感信息且截短至 :data:`MAX_QUESTION_CHARS` 的问题发送到 ``/diagnose``。回答是生成的建议，并非经过验证的修复方案。这是阻塞调用，应在 GUI 线程之外调用。\n\n:param summary: 来自 :func:`public_summary` 的摘要。\n:param question: 用户提出的问题；可以为空。\n:param timeout: 模型最多可用的秒数。\n:returns: ``{\"advice\": text, \"model\": model name}``.\n:raises RelayRefused: 免费每日限额用尽时 ``reason`` 为 ``\"quota\"``，无法连接中继或禁止使用网络时为 ``\"network\"``，否则为 ``\"error\"``。",
+      "translation_source_blocks_sha256": [
+        "6208bddae143b55b08f16f9b2f4c538ea8d4de8d1c52459fea8066e495f250ac",
+        "e47efa21827a57e2f9cf1c786746ee738247e5eaebc700244c40127eb77ba95c",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "db3dfd5b107e44ab172b1f4c5db4149d77cee1568974bbe5d32a70f7123c7fb1",
+        "68694ddb4d07fd3a8b1bb5f8c5c794035f34bd3228690afc39c2cde384c58446",
+        "7a53d8a95affae81d8f3ec742c9c242bf983144b65f0d0d8c481bcf909a1edfc",
+        "168c7498c9b4e16800ff71cb08bc5bff9b600d6fe3f7e3b988aee78bffd23abf"
+      ]
+    },
+    "spacr.crashreport.error_report_mode": {
+      "source_blocks_sha256": [
+        "dc1c0868a1672c230a8785f61a287631d66b2d6aba603b90d9bd2cbbba7ccd66",
+        "6f7924389235216f4760de19f034a3711d2e4b51f776efb9f1bb3ac49a6462c3",
+        "67f7531354bd3063659fed6c0564b696a5c2375bde3b583837c935462dda6272"
+      ],
+      "source_sha256": "35bf036e89a7b78d5cde1c46f99a1b652716db8a011fcd1a4dc708cc9dcb2a88",
+      "text": "返回 \"AI Error report\" 选项，即 :data:`ERROR_REPORT_MODES` 中的一个键。\n\n如果某个配置仅关闭过旧的开关，则将其读取为 ``\"off\"``。\n\n:returns: 已保存的键，或 :data:`DEFAULT_ERROR_REPORT_MODE`。",
+      "translation_source_blocks_sha256": [
+        "dc1c0868a1672c230a8785f61a287631d66b2d6aba603b90d9bd2cbbba7ccd66",
+        "6f7924389235216f4760de19f034a3711d2e4b51f776efb9f1bb3ac49a6462c3",
+        "67f7531354bd3063659fed6c0564b696a5c2375bde3b583837c935462dda6272"
+      ]
+    },
+    "spacr.crashreport.example_public_summary": {
+      "source_blocks_sha256": [
+        "4805be251c30321173fa9183621d8b60ef1af8c4840872a019bf80c29ce5d4d2",
+        "197a8f2e7aade953cd04cc2fff153bee71702f7243fd56d02b14812a1b95a497",
+        "5e951d9bfd1dcaca8b96feb21136106e343de9e27d4d49805cd9b79b1e45c9e9"
+      ],
+      "source_sha256": "690e9175dc789677a4bf0a4dde0501bdf7d0cce8106e086e8d0786d9e1775ddb",
+      "text": "根据虚构的错误构建摘要，以展示报告包含的内容。\n\n错误消息提到主文件夹下的一个板文件、一个电子邮件地址和一个令牌，因此该示例展示了这些信息被逐项移除的效果。\n\n:returns: 构建方式与真实摘要完全相同的摘要。",
+      "translation_source_blocks_sha256": [
+        "4805be251c30321173fa9183621d8b60ef1af8c4840872a019bf80c29ce5d4d2",
+        "197a8f2e7aade953cd04cc2fff153bee71702f7243fd56d02b14812a1b95a497",
+        "5e951d9bfd1dcaca8b96feb21136106e343de9e27d4d49805cd9b79b1e45c9e9"
+      ]
+    },
+    "spacr.crashreport.explanation_key": {
+      "source_blocks_sha256": [
+        "d7b997eac06ef98fcc8ecb7c0dc98ebd33001525c6e0741e7e452d7c19e2f5c2",
+        "889e7967653c02b1699373999ff527ff8fd2bc365c579043717162a20efebac2",
+        "dc8cb59e5c9708e43ee74caaa4b7f99876fae29cfef145f0f80c11935ce7fd82",
+        "3615aeaee3d3841a1a507ab9a0178a6a7efb4b5e90a32cd5629f01548417b890",
+        "a41a344522ef8229c99bed0e499c867629e183343c9a2f98cabe87e986d0b844",
+        "0219f84e0332ab7e9244f3e5037cc9a5737af1af4c778b3c1bd4fd978bd1f1aa",
+        "90da6c87f0aa65e3a37cc73e07d54c10263e24f0f45a33b2565451c890d3ef86"
+      ],
+      "source_sha256": "1435f13a96089178a50619680d7064b709ffe9603c4033e9e7e2564cbe08a12a",
+      "text": "不包含环境信息的失败的 :func:`explanation_signature`。\n\n仅读取回溯，因此开销足够小，可用于 GUI 线程；结果与针对同一次失败的完整 :func:`public_summary` 相同。\n\n:param traceback_text: 已格式化的回溯。\n:param module: spaCR 模块键。\n:param kind: :data:`KIND_FAULT` 或 :data:`KIND_USER_ERROR`。\n:param message: 用于替代异常自身消息发送的消息。\n:returns: 签名。",
+      "translation_source_blocks_sha256": [
+        "d7b997eac06ef98fcc8ecb7c0dc98ebd33001525c6e0741e7e452d7c19e2f5c2",
+        "57ac0763fa1f5aa2deee94180703209004156368786b51f9fc759141aba85c6e",
+        "dc8cb59e5c9708e43ee74caaa4b7f99876fae29cfef145f0f80c11935ce7fd82",
+        "3615aeaee3d3841a1a507ab9a0178a6a7efb4b5e90a32cd5629f01548417b890",
+        "a41a344522ef8229c99bed0e499c867629e183343c9a2f98cabe87e986d0b844",
+        "0219f84e0332ab7e9244f3e5037cc9a5737af1af4c778b3c1bd4fd978bd1f1aa",
+        "90da6c87f0aa65e3a37cc73e07d54c10263e24f0f45a33b2565451c890d3ef86"
+      ]
+    },
+    "spacr.crashreport.explanation_signature": {
+      "source_blocks_sha256": [
+        "e77c0942192bca11642409a37d23cbd55dc6aa5a330f43213be4e2724fb00202",
+        "e93b6337f1364cf2f8978526bcd1868353bc83220a5c8f8accd8cc4134111810",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "6ef069a36cd77a199879712398c5025591b3c8a80b0e3cf78d82418a962e5bae"
+      ],
+      "source_sha256": "c17aeffb83edb179ea73b1c5a48c63521b0be987c2683fb04fd64f2e16ce7750",
+      "text": "错误签名，计算方式与中继一致。\n\n使用异常类型、模块和最内层的五个栈帧（``file:function``）；用户错误还会添加其规范化的问题列表。中继将同一个值用作已保存解释和问题单的键。\n\n:param summary: 来自 :func:`public_summary` 的摘要。\n:returns: SHA-256 十六进制摘要。",
+      "translation_source_blocks_sha256": [
+        "e77c0942192bca11642409a37d23cbd55dc6aa5a330f43213be4e2724fb00202",
+        "032bcc83b7fa54cd455abb9ee75f7e1d8fd4e299bd71d22d647e06b725d98083",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "6ef069a36cd77a199879712398c5025591b3c8a80b0e3cf78d82418a962e5bae"
+      ]
+    },
+    "spacr.crashreport.fetch_allowance": {
+      "source_blocks_sha256": [
+        "f18f7b76adf0af2064784d665bea0d48cc7315467432de6aa769be6f54fcee99",
+        "9bf42f368604e18e22d800d3ba0bf8741eac420ef07f4c210b155b59ce0c4728",
+        "146c8f1cb8f58dd260146c514bd434219e9680cfa5231f0d7090eeec34b77d87",
+        "d84393837b5caab162028c1f5197757bc32bea67cf47226b2af87065ddbc0181"
+      ],
+      "source_sha256": "25f125c34546472ffdeddf8c2246da48d1276847c9274a3fd40ec34ee4177367",
+      "text": "询问中继此安装今天的免费配额还剩多少。\n\n对 ``/allowance?install_id=...`` 发起 GET；不消耗任何配额。这是阻塞调用，应在 GUI 线程之外调用。\n\n:param timeout: 请求最多可用的秒数。\n:returns: ``{\"ai\": {\"best_left\", \"light_left\"}, \"reports_left\", \"pool\", \"resets_at\"}``，其中 ``pool`` 为 ``best``、``light`` 或 ``exhausted``，``resets_at`` 为 ISO-8601 UTC 时间；禁止使用网络或中继未作答时为 ``None``。",
+      "translation_source_blocks_sha256": [
+        "f18f7b76adf0af2064784d665bea0d48cc7315467432de6aa769be6f54fcee99",
+        "d30635e1d429453d33f80f1319a7cd8f4a844e5a34bee6112d4e7bce1de9280a",
+        "146c8f1cb8f58dd260146c514bd434219e9680cfa5231f0d7090eeec34b77d87",
+        "d84393837b5caab162028c1f5197757bc32bea67cf47226b2af87065ddbc0181"
+      ]
+    },
     "spacr.crashreport.find_last_run_id": {
       "source_blocks_sha256": [
         "687f5e050f35a6d9e2b1f35deef01405f216961f79e90a861a307daf00bb0dc2",
@@ -15891,19 +16077,35 @@
         "cc9b839590494cef3f857d53c5cf8994d0da0233849f6a9b76a3eb2bbaf1fbed"
       ]
     },
+    "spacr.crashreport.flush_report_queue": {
+      "source_blocks_sha256": [
+        "1cee955ca3d322518807e52405d40be6f537e6a1843456d58d31ba439652f0d9",
+        "f22928dee2a7a00ade5d46cfb4afedc7ae49ed51d7cbb646b56a4e047e3d65d2",
+        "3b65274ef4d6d3b7fd30871ba5b62538e8d99820314f532894944cbc75677285",
+        "fb27fbfe899426a9964e655a06831cc0aa5e96d76ded4576d5cb97717bb8c0ff"
+      ],
+      "source_sha256": "1dc67555e116f49a2b2c3754eb2eb5ae7b36d46e8fd62310a37ed22195d79c7c",
+      "text": "尝试发送所有待发送报告，从最早的一份开始。\n\n遇到第一份需要继续等待的报告就停止，例如没有网络、服务器错误或中继配额限制，因此离线计算机只尝试一次，而不是二十次。已有其他发送操作运行时不执行任何操作。\n\n:param timeout: 每次 POST 最多可用的秒数。\n:returns: ``{\"sent\": n, \"dropped\": n, \"kept\": n}``.",
+      "translation_source_blocks_sha256": [
+        "1cee955ca3d322518807e52405d40be6f537e6a1843456d58d31ba439652f0d9",
+        "f22928dee2a7a00ade5d46cfb4afedc7ae49ed51d7cbb646b56a4e047e3d65d2",
+        "3b65274ef4d6d3b7fd30871ba5b62538e8d99820314f532894944cbc75677285",
+        "fb27fbfe899426a9964e655a06831cc0aa5e96d76ded4576d5cb97717bb8c0ff"
+      ]
+    },
     "spacr.crashreport.install_excepthook": {
       "source_blocks_sha256": [
         "49bf5b5e049e03c34d1ea1594317c72c2d0bebf96f00ffb075fa9fd27dbf2740",
-        "dfa27694dae26de542e375ae534fa60bdb943819d439c4741310663271a43ffe",
+        "6e4475333500fb58da97eb3935c895fd4d1e0b5cd44a10e5e9924c12c73d262f",
         "7e71dcd0c53d3a23021f464d859d3eae5865a6a8e8fce7d716a1408a15e599b8",
         "81b3e0584a0bedba56cb4a9f54589d712dd996f8479933ad5fcb754893d8e2e1",
         "21759c923f9ebfc9b1b1045d2522bd281332de99a8d2e3692ced19dfc70b50f8"
       ],
-      "source_sha256": "eef02f55a5953b26e7226e351612756bfdb90993489be3ff976203f86af1227e",
-      "text": "写下任何未经处理的例外事故报告,然后按照以前的方式行事。\n\n链接而不是替代:前 ``sys.excepthook`` 仍然运行,所以用户使用的跟踪回归仍然出现,一行后说包装在哪里。\n\n:param destination: as :func:`write_crash_report`.\n:param kwargs: 转到 :func:`collect`。\n:returns: 安装的尾巴,这样一个呼叫器可以恢复 ``sys.excepthook`` 到它是什么。",
+      "source_sha256": "046d712db264844b07fc976f04efbbf4feb3d60224de2a83f406805254d410e4",
+      "text": "写下任何未经处理的例外事故报告,然后按照以前的方式行事。\n\n采用串联而非替换：原有的 ``sys.excepthook`` 仍会运行，因此用户熟悉的回溯信息仍会显示，后面再加一行说明诊断包的位置。启用匿名报告（:func:`anonymous_reports_enabled`）时，崩溃的 :func:`public_summary` 也会入队并由后台线程发送；诊断包本身绝不会发送。\n\n:param destination: as :func:`write_crash_report`.\n:param kwargs: 转到 :func:`collect`。\n:returns: 安装的尾巴,这样一个呼叫器可以恢复 ``sys.excepthook`` 到它是什么。",
       "translation_source_blocks_sha256": [
         "49bf5b5e049e03c34d1ea1594317c72c2d0bebf96f00ffb075fa9fd27dbf2740",
-        "dfa27694dae26de542e375ae534fa60bdb943819d439c4741310663271a43ffe",
+        "b7c095f7a2f808dd4a571df08a332b7ca5ebf7908b5e1e14614feb8e9f2ae6b4",
         "7e71dcd0c53d3a23021f464d859d3eae5865a6a8e8fce7d716a1408a15e599b8",
         "81b3e0584a0bedba56cb4a9f54589d712dd996f8479933ad5fcb754893d8e2e1",
         "21759c923f9ebfc9b1b1045d2522bd281332de99a8d2e3692ced19dfc70b50f8"
@@ -15919,6 +16121,20 @@
         "a262dbd7a4976be9ef04e4bd6955fba38116c0efad04145e6de05829dc82905f"
       ]
     },
+    "spacr.crashreport.install_id": {
+      "source_blocks_sha256": [
+        "30666fd47e78b99f8e8dc943e4b72ac2ab122ab8df05a1163887198864da3ea0",
+        "c744604924530733ab67171deaa6011eab8aca3cbddc26f21a84c44687189c2e",
+        "16217f2a7a0133b8ad3305420abd005d480dea88af4fe442aa9848777f0909a1"
+      ],
+      "source_sha256": "766b00f539a50c92ac672676be1fbf4aaaf1afc001bfdbfea8ab6c67c75d057d",
+      "text": "返回此配置的随机安装 ID，并在首次使用时创建。\n\n该 ID 是随机 UUID，并非由计算机、用户或网络信息派生。中继仅使用它公平分配免费配额。\n\n:returns: 字符串形式的 ID。",
+      "translation_source_blocks_sha256": [
+        "30666fd47e78b99f8e8dc943e4b72ac2ab122ab8df05a1163887198864da3ea0",
+        "c744604924530733ab67171deaa6011eab8aca3cbddc26f21a84c44687189c2e",
+        "16217f2a7a0133b8ad3305420abd005d480dea88af4fe442aa9848777f0909a1"
+      ]
+    },
     "spacr.crashreport.main": {
       "source_blocks_sha256": [
         "bf9d0a2a7a49f9180e31b474d0568ff6e95a0ca31c3cdc2d28f8088b22bb2812",
@@ -15931,6 +16147,290 @@
         "bf9d0a2a7a49f9180e31b474d0568ff6e95a0ca31c3cdc2d28f8088b22bb2812",
         "5ecb99de4ee6e3e6ccd4c7346f1f9338c4c95b245772e00d95cb6ef90af8fa4a",
         "de9811e9662cb26693185d5294f35c2c83f805de7ef74764fd787bf386e6dc9e"
+      ]
+    },
+    "spacr.crashreport.mark_anonymous_report_notice_shown": {
+      "source_blocks_sha256": [
+        "96479e8762615af5a01b6b9506808e7b862a73145f038ae448ea71233f9f55ad"
+      ],
+      "source_sha256": "96479e8762615af5a01b6b9506808e7b862a73145f038ae448ea71233f9f55ad",
+      "text": "记录已显示有关匿名化报告的通知。",
+      "translation_source_blocks_sha256": [
+        "96479e8762615af5a01b6b9506808e7b862a73145f038ae448ea71233f9f55ad"
+      ]
+    },
+    "spacr.crashreport.mode_code_context": {
+      "source_blocks_sha256": [
+        "9ca3b706e7530e8701f2eaaee41b41ce82db19cd53e1eaedc8b67fc745dc5a94",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "4e3c3f76dc95217d6a0a5c21b1a1db3b06ff01b2258d07d150d263e2c8fc12ee"
+      ],
+      "source_sha256": "f51c17fbd4961b03df65dcf8653b866aeed2192f284480a3c8a063e2895f2485",
+      "text": "某个选项是否将每个 spaCR 栈帧的源代码行添加到报告中。\n\n:param mode: :data:`ERROR_REPORT_MODES` 中的一个键；默认为已保存的键。\n:returns: ``True`` 仅用于 ``\"all_code\"``。",
+      "translation_source_blocks_sha256": [
+        "9ca3b706e7530e8701f2eaaee41b41ce82db19cd53e1eaedc8b67fc745dc5a94",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "4e3c3f76dc95217d6a0a5c21b1a1db3b06ff01b2258d07d150d263e2c8fc12ee"
+      ]
+    },
+    "spacr.crashreport.mode_explains": {
+      "source_blocks_sha256": [
+        "7a70d59f7beffcfcbc6d61fc78a2dd298a5fc73379684db74808b2ea807a3380",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "efdeca3a15b913d6b3dda548fab251cb81bd0eefcf0fca8b89bd36eb8addcab3"
+      ],
+      "source_sha256": "8ef9b3a636ec21ab6b1d9f1801960e5d95dcc776f857af9db75e462b49f787c0",
+      "text": "某个选项是否让 AI 在控制台中解释每一次失败。\n\n:param mode: :data:`ERROR_REPORT_MODES` 中的一个键；默认为已保存的键。\n:returns: 四个 \"Summarize\" 选项对应的值为 ``True``。",
+      "translation_source_blocks_sha256": [
+        "7a70d59f7beffcfcbc6d61fc78a2dd298a5fc73379684db74808b2ea807a3380",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "efdeca3a15b913d6b3dda548fab251cb81bd0eefcf0fca8b89bd36eb8addcab3"
+      ]
+    },
+    "spacr.crashreport.mode_sends": {
+      "source_blocks_sha256": [
+        "54d2d90d2b1244559bd97a549d1ea211f2ade88d83f2de27ec2fa78d08f71de8",
+        "a41a344522ef8229c99bed0e499c867629e183343c9a2f98cabe87e986d0b844",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "8c06fb9a4e75243616cc2e3c0d6f34936cf693ba11a3e2948f3f4afa535f63e7"
+      ],
+      "source_sha256": "4bedb3bfe06a1e2a45775df22d01bcb84e042554bae6b3205d3c8ac1c45b8da6",
+      "text": "某个选项是否将 ``kind`` 类型的失败登记为问题单。\n\n:param kind: :data:`KIND_FAULT` 或 :data:`KIND_USER_ERROR`。\n:param mode: :data:`ERROR_REPORT_MODES` 中的一个键；默认为已保存的键。\n:returns: 是否发送。",
+      "translation_source_blocks_sha256": [
+        "54d2d90d2b1244559bd97a549d1ea211f2ade88d83f2de27ec2fa78d08f71de8",
+        "a41a344522ef8229c99bed0e499c867629e183343c9a2f98cabe87e986d0b844",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "8c06fb9a4e75243616cc2e3c0d6f34936cf693ba11a3e2948f3f4afa535f63e7"
+      ]
+    },
+    "spacr.crashreport.network_allowed": {
+      "source_blocks_sha256": [
+        "c764c191a908b6fa48994dcb18f3fdf88ef1b8c3b34d6fba5f1846374db3edce",
+        "16c5eec3cc8b02d19e4acd44f2e70fc13b2ec2966f7d3f5a82b5808aeba9b601"
+      ],
+      "source_sha256": "d95b02bbcc7b788ea8100f10b7b243d3011494ef3a6335f9bd3b02660f4abc97",
+      "text": "报告或托管诊断是否可以使用网络。\n\n:returns: ``False`` 表示已设置 :data:`NO_NETWORK_ENV` 或 spaCR 以安全模式运行，否则为 ``True``。",
+      "translation_source_blocks_sha256": [
+        "c764c191a908b6fa48994dcb18f3fdf88ef1b8c3b34d6fba5f1846374db3edce",
+        "16c5eec3cc8b02d19e4acd44f2e70fc13b2ec2966f7d3f5a82b5808aeba9b601"
+      ]
+    },
+    "spacr.crashreport.next_reset_utc": {
+      "source_blocks_sha256": [
+        "60057eb896241eceb07f50f5ca0d8bb74d759109d76d43673d105ae7845538c3",
+        "4e961b7c2b862b6eb5e047dedde2709537edf8afb90053ca2c4e1966b767008d",
+        "b048ad88d42dbdcc0e5afd455afb8f66e528c89cddab24aeca234cf4b9e63d91"
+      ],
+      "source_sha256": "5899757a4ffad4f37f24eae8e2120b2c48edccadda8c0c6d81859436c64fa63a",
+      "text": "返回下一个 00:00 UTC，即中继每日配额重置的时间。\n\n:param now: 计算的起始时刻；默认为当前时间。\n:returns: 带时区信息的 UTC 日期时间。",
+      "translation_source_blocks_sha256": [
+        "60057eb896241eceb07f50f5ca0d8bb74d759109d76d43673d105ae7845538c3",
+        "4e961b7c2b862b6eb5e047dedde2709537edf8afb90053ca2c4e1966b767008d",
+        "b048ad88d42dbdcc0e5afd455afb8f66e528c89cddab24aeca234cf4b9e63d91"
+      ]
+    },
+    "spacr.crashreport.normalise_cause": {
+      "source_blocks_sha256": [
+        "ed5c29abdb17663720f38d605f7506f2d712650dd03c8be31288cd998efe9548",
+        "63496212f49051e5bab015b597d8f01bf07f307601412e73bd7b53bee512dc57",
+        "cc2d28e237283855df656426d6855b9bd55794b66bc1f798916ffac3116e771c"
+      ],
+      "source_sha256": "443c7d99e0f454518028bbf0b6a993a54cf30de94b071895aa503dd7ea5289e9",
+      "text": "按中继保存格式表示的可能原因键：kebab-case，5 个词，40 个字符。\n\n:param raw: AI 写出的原始键。\n:returns: 短标识符，或 ``\"\"``。",
+      "translation_source_blocks_sha256": [
+        "ed5c29abdb17663720f38d605f7506f2d712650dd03c8be31288cd998efe9548",
+        "63496212f49051e5bab015b597d8f01bf07f307601412e73bd7b53bee512dc57",
+        "cc2d28e237283855df656426d6855b9bd55794b66bc1f798916ffac3116e771c"
+      ]
+    },
+    "spacr.crashreport.normalise_question": {
+      "source_blocks_sha256": [
+        "0f0cae22dd277f52ca201b96733e8dcf3029ecbccd93581c20eb0f5c9546b8a7",
+        "492769b21b09c87878023ebb1112a1fd4c77ed259f2eb6e17b02c2c2a23be74d",
+        "c049dd8f2cfeaa634d9db7c9c555fdc86a7c2d76205463a3c1f6ffb672373705",
+        "0ceb5213e85b3ea40168b85b1b739141142ec1d476838518098c26eb2418cb01"
+      ],
+      "source_sha256": "b3c1cbdcd69c16d48490cc1b07f7c452a668a90836895c0123c59a024a2425db",
+      "text": "两个缓存进行比较时所用的问题形式。\n\n转换为小写，去除 ``<PATH>`` 等占位符，并将连续空白或标点合并为一个空格，与中继的 ``normaliseQuestion`` 一致。\n\n:param text: 问题。\n:returns: 规范化的问题。",
+      "translation_source_blocks_sha256": [
+        "0f0cae22dd277f52ca201b96733e8dcf3029ecbccd93581c20eb0f5c9546b8a7",
+        "492769b21b09c87878023ebb1112a1fd4c77ed259f2eb6e17b02c2c2a23be74d",
+        "c049dd8f2cfeaa634d9db7c9c555fdc86a7c2d76205463a3c1f6ffb672373705",
+        "0ceb5213e85b3ea40168b85b1b739141142ec1d476838518098c26eb2418cb01"
+      ]
+    },
+    "spacr.crashreport.public_environment": {
+      "source_blocks_sha256": [
+        "143cbf82508ad7d35f938c80c999116c856f8476d060195dec21d69ba4a7e482",
+        "18df698a2ebe90392af36b917af48c3fbe52abd868620e90762adfa8c1784929",
+        "d1bdabe97177a2c46f2bbc056f1c432ac114a6d69cc386f8df0bbe82d0b8a0fc"
+      ],
+      "source_sha256": "0b6900533ead0aa35712936951802f92ca0acfcea2086926ce95ba3be18f7d70",
+      "text": "生成报告时的计算机和库信息，不含任何名称。\n\nOS 版本、CPU 架构和核心数、取整到 GB 的内存、torch 已知的 GPU 型号和显存、CUDA 或 MPS、spaCR 主要库的版本以及 spaCR 的安装方式。\n\n:returns: 能够读取的信息。",
+      "translation_source_blocks_sha256": [
+        "143cbf82508ad7d35f938c80c999116c856f8476d060195dec21d69ba4a7e482",
+        "18df698a2ebe90392af36b917af48c3fbe52abd868620e90762adfa8c1784929",
+        "d1bdabe97177a2c46f2bbc056f1c432ac114a6d69cc386f8df0bbe82d0b8a0fc"
+      ]
+    },
+    "spacr.crashreport.public_input_facts": {
+      "source_blocks_sha256": [
+        "986a0c95208b374ac3ccc585d3789f048ceb98464a78941b7b7586f50887c9a4",
+        "4e38c3ca51f64ad8de1aa6826a84c001a5750c218aff2f4d2857d09d23db7186",
+        "47556d964a95f3093bf8718305cef4eddb19b1796af90a7dc7c2c240312a49c2",
+        "8b1d0678f203d982a1b6c1c354631c33bc7201afc8bd9e483829df9cef396e83",
+        "208123e84fdf833418eab4a88a0197014add4bd0d7ea41f0b1da802d93b0f755"
+      ],
+      "source_sha256": "287551a254e77f1f6a93afa2d5199d5a7a945f3f67baeeebc408aab34516f588",
+      "text": "本次处理的源文件夹内容，不包含名称。\n\n统计文件夹直属的图像文件（最多查看 ``limit`` 个条目）、出现的扩展名，以及从首张图像文件头读取的形状、dtype 和可能的图像通道数。\n\n:param settings: 本次处理的设置。\n:param limit: 最多查看的文件夹条目数。\n:returns: ``{\"images\", \"extensions\", \"shape\", \"dtype\", \"channels\"}``，仅包含能够确定的键；没有可读文件夹时为 ``{}``。",
+      "translation_source_blocks_sha256": [
+        "b6b0b460ca4919cfebb00b60e16f967dc418f2eb81411dec561fb9671ac320b3",
+        "ff273b1d006bed98372d7b12c953c9f4af0b2ee3698ad5ba67a9ad80bea77bd3",
+        "8cbfeb030f1184e19608a592846fcd11e669c7f28593d7c17303b3a52a66604d",
+        "8b1d0678f203d982a1b6c1c354631c33bc7201afc8bd9e483829df9cef396e83",
+        "208123e84fdf833418eab4a88a0197014add4bd0d7ea41f0b1da802d93b0f755"
+      ]
+    },
+    "spacr.crashreport.public_log_tail": {
+      "source_blocks_sha256": [
+        "8d91911ebf8c718a211495f2539f64503018be20ddf551daf804dd034d95b8f6",
+        "34e9d50a201b2222e430d77acf4e9661d49f04a897f97452982965307c0e7fc8",
+        "b963ea1bb8ca7170b5aba9688123fe680dcd157069c67c3dcec738c13e1d5c4d",
+        "f6dec1a4dbc936c496b836e3762740643bf24ce898cc7c502926d0f994b36b99",
+        "ba586c5534c232a5db9d1a95c98215a0cb8137449ccce7bf6c42335649650bfa"
+      ],
+      "source_sha256": "442d5b9ff98fead36e2a4787c6e5e6eeaf5372f4e621d9a2d9df05e9ac2ef696",
+      "text": "故障发生前的最后几行控制台文本，经脱敏和截短。\n\n:param text: 控制台文本。\n:param lines: 从末尾保留的最大行数。\n:param limit: 从末尾保留的最大字符数。\n:returns: 脱敏后的摘录。",
+      "translation_source_blocks_sha256": [
+        "8d91911ebf8c718a211495f2539f64503018be20ddf551daf804dd034d95b8f6",
+        "34e9d50a201b2222e430d77acf4e9661d49f04a897f97452982965307c0e7fc8",
+        "b963ea1bb8ca7170b5aba9688123fe680dcd157069c67c3dcec738c13e1d5c4d",
+        "f6dec1a4dbc936c496b836e3762740643bf24ce898cc7c502926d0f994b36b99",
+        "ba586c5534c232a5db9d1a95c98215a0cb8137449ccce7bf6c42335649650bfa"
+      ]
+    },
+    "spacr.crashreport.public_problem_lines": {
+      "source_blocks_sha256": [
+        "f33f611684db36ff26fe84c795732cd7c4cd23ab1cfcaf3ba1a3204d6662923d",
+        "8589f473cc0aaa5c63406e177c2791c9d0e66b9e760f82b1969af0c60956447c",
+        "b7b5fc741ae265a1cb0bb3334d2e5fd91e771cba76304099b9cdf61db58f2151",
+        "cc95cecde657def27f1b55201193938840c7c59a9cd7a1c4eed12c46e95b94ce",
+        "b4ae9684325b53d0dc33a0158c3d79fb2a387194463b1fe0e6cb40fdd6416bc2"
+      ],
+      "source_sha256": "7d60796cd03087fe224d38640cfd204367435cf1d776b86685338ec14e5b81d2",
+      "text": "将设置问题脱敏为可公开的简短文本行。\n\n路径和文件名会被移除而不是替换，因此 \"src does not exist: /data/plate1\" 会以 \"src does not exist\" 发送。\n\n:param problems: :class:`spacr.validate.Problem` 对象或文本。\n:param limit: 每行的最大字符数。\n:returns: 每个问题一行；问题指明某项设置时使用 ``\"setting: message\"``；去除重复行和空行。",
+      "translation_source_blocks_sha256": [
+        "f33f611684db36ff26fe84c795732cd7c4cd23ab1cfcaf3ba1a3204d6662923d",
+        "8589f473cc0aaa5c63406e177c2791c9d0e66b9e760f82b1969af0c60956447c",
+        "b7b5fc741ae265a1cb0bb3334d2e5fd91e771cba76304099b9cdf61db58f2151",
+        "cc95cecde657def27f1b55201193938840c7c59a9cd7a1c4eed12c46e95b94ce",
+        "b4ae9684325b53d0dc33a0158c3d79fb2a387194463b1fe0e6cb40fdd6416bc2"
+      ]
+    },
+    "spacr.crashreport.public_settings": {
+      "source_blocks_sha256": [
+        "c34105192fc3c673ec09a16c0589c3ab498c920697acc3401b9f1b2e478d5193",
+        "c2609f0c61dbfd640dc74eac4a0b4f1ac3cc29da90d1743cb7b59d54c9cc676b",
+        "47556d964a95f3093bf8718305cef4eddb19b1796af90a7dc7c2c240312a49c2",
+        "c25d4209c8659dfaf15de261c10316befee090b8885e2b244ee41d7a5667b792"
+      ],
+      "source_sha256": "90527e1e023312ec4e1e157eb3bf4ce99e4a413565f7e47f4e8c6c012a0200e5",
+      "text": "本次处理使用的设置，不保留个人信息。\n\n设置名称保持原样；值经过 :func:`_public_setting_value` 处理，所以文件夹不存在时 ``src`` 显示为 ``<path: exists=no>``，而不包含文件夹名称。最多保留 :data:`MAX_SETTINGS` 项，按名称排序。\n\n:param settings: 本次处理的设置。\n:returns: ``{name: value}``.",
+      "translation_source_blocks_sha256": [
+        "f6499777e18795002c1f228608b661dc42ddf84570cbfb9d96c63e7092eab03e",
+        "c2609f0c61dbfd640dc74eac4a0b4f1ac3cc29da90d1743cb7b59d54c9cc676b",
+        "8cbfeb030f1184e19608a592846fcd11e669c7f28593d7c17303b3a52a66604d",
+        "c25d4209c8659dfaf15de261c10316befee090b8885e2b244ee41d7a5667b792"
+      ]
+    },
+    "spacr.crashreport.public_summary": {
+      "source_blocks_sha256": [
+        "552617af2b167678afbb951fd4ac2f2c7320d101154e8dedaed86b872ebdf076",
+        "c3b7eb8820126de0b319bcc04c1d421425d97cc6122ee4756d56397e44be4326",
+        "7b2a9096c72b5305a2d3ce1966b62885d376f5b393a2b63ecc58802c84a0ddb7",
+        "0bc8a12f04c86ce745abf2ae3bfaea4242fbc5ede43b65a5e270d29ce93f4109",
+        "a7ac770cdac6cb39dd33f45d923b488ce85f5687d6c64122801e3320643a6643",
+        "b9446029dff846f1cf09f9601d63cd086e726da8976b5cdc0e1795c356960f16",
+        "73218bc6b24dc0d5d3c6039a100e31af256c8cb76db00e1102eb6024646c1c4b",
+        "9c14e5904446bde5cd0a8897edccf8ebf9025dd0674726871575984c29ca661c",
+        "9e1051e5033f4155433b7ab10fd44dfc6fe22ed04d050769aca2b2a9e57dec70",
+        "558bb46dae77b3bdf1b5924eaac436cc52a3182a382d3df16fb29f6e1a0ef059",
+        "ba1077179bedb029d7a2ca098716e1b44f4e9d2350e9024f62fc4f68f8a644c8",
+        "33b592719332b1e0608f2172fe8715caacc14beb67bde2d80f755f90272be6ca",
+        "ca1f09810e6eddac5afe5b26732da35429a00d5f51c36a7afa9611ff89eeb244",
+        "a9377aabfeed8d672d3197583e9c2a0e5d5de04bad7d15176fb0e8a760e1f1c0",
+        "97f5adcf4fe6581fd4ea8471715b00997dd39eff5b13aaf2b14636c440a72204",
+        "865a509d4d5a53b0189e5cb0f2f7fcee4a61625ad6e1d6d6eab9e1a9291f99e1",
+        "fcdaad60554b1a24419b64f901370c942b794d32d2c472885deb64beee091182"
+      ],
+      "source_sha256": "9dee6cbe285403aa8ffe3d3e6914851e3b428124ce150b2614f6b377f2d27537",
+      "text": "构建可公开的错误匿名摘要。\n\n仅包含 :data:`PUBLIC_SUMMARY_KEYS` 中的键。消息经过 :func:`scrub_public_text` 处理并截短到 :data:`MAX_MESSAGE_CHARS`；调用栈帧最多为 :data:`MAX_FRAMES` 条 ``{file, function, line}`` 记录，其文件字段为基本文件名，spaCR、Python 及其库以外的文件则为 ``<user-code>``。不会为此读取日志、设置、环境变量或路径。\n\n:param exception: 异常及其回溯。\n:param traceback_text: 没有可用异常对象时使用的格式化回溯（处理流程运行失败时可能以文本报告回溯）。\n:param module: 发生错误的 spaCR 模块键，例如 ``mask`` 或 ``measure``。\n:param user_note: 用户添加的内容，经脱敏并截短到 :data:`MAX_NOTE_CHARS`；为空时省略。\n:param dry_run: 要求中继只校验而不创建问题记录；为假时省略。\n:param kind: :data:`KIND_FAULT` 或 :data:`KIND_USER_ERROR`；为空时由 :func:`classify_failure` 确定。\n:param code_context: 将每个 spaCR 调用栈帧的源代码行添加为 ``code``。其他文件的栈帧绝不包含代码。\n:param screen: 用户看到的视图标题，例如 ``Mask``；最多 :data:`MAX_SCREEN_CHARS` 个字符。\n:param error_text: 控制台显示的错误，经脱敏且保留换行，并截短到 :data:`MAX_ERROR_TEXT_CHARS`。\n:param message: 替代异常自身消息发送的内容，例如被拒绝运行所发现的全部问题；用户错误保留换行，长度可达 :data:`MAX_USER_ERROR_MESSAGE_CHARS` 个字符。\n:param settings: 本次处理的设置；添加其名称和公开值（:func:`public_settings`）以及源文件夹的输入信息（:func:`public_input_facts`）。\n:param log_text: 故障前的控制台文本；添加经脱敏的末尾几行（:func:`public_log_tail`）。\n:param run: 失败处理的 ``{\"stage\", \"elapsed_s\", \"dry_run\"}``。\n:param diagnostics: 添加环境信息块（:func:`public_environment`）和异常链。\n:returns: 可供 :func:`submit_public_summary` 使用的摘要。",
+      "translation_source_blocks_sha256": [
+        "552617af2b167678afbb951fd4ac2f2c7320d101154e8dedaed86b872ebdf076",
+        "d8b6d9809e3518a178adf267e6c329c6f248555314c6d093467bd1a3d7145a9f",
+        "7b2a9096c72b5305a2d3ce1966b62885d376f5b393a2b63ecc58802c84a0ddb7",
+        "dc24cdd0a8caf73b36a67bba0e00ade5ea7d9bbcde6891cef1896c82f8952684",
+        "a7ac770cdac6cb39dd33f45d923b488ce85f5687d6c64122801e3320643a6643",
+        "b9446029dff846f1cf09f9601d63cd086e726da8976b5cdc0e1795c356960f16",
+        "73218bc6b24dc0d5d3c6039a100e31af256c8cb76db00e1102eb6024646c1c4b",
+        "9c14e5904446bde5cd0a8897edccf8ebf9025dd0674726871575984c29ca661c",
+        "9e1051e5033f4155433b7ab10fd44dfc6fe22ed04d050769aca2b2a9e57dec70",
+        "558bb46dae77b3bdf1b5924eaac436cc52a3182a382d3df16fb29f6e1a0ef059",
+        "ba1077179bedb029d7a2ca098716e1b44f4e9d2350e9024f62fc4f68f8a644c8",
+        "33b592719332b1e0608f2172fe8715caacc14beb67bde2d80f755f90272be6ca",
+        "22400d6ef00b15497ccf2cc081aa6fb0b01d6b5b8009c10a93fb95a230c62ca9",
+        "a9377aabfeed8d672d3197583e9c2a0e5d5de04bad7d15176fb0e8a760e1f1c0",
+        "2e6dddc7c10801ce9e4f20e84f6184cd89a44f15edbaf6f0211e2744de61e222",
+        "865a509d4d5a53b0189e5cb0f2f7fcee4a61625ad6e1d6d6eab9e1a9291f99e1",
+        "fcdaad60554b1a24419b64f901370c942b794d32d2c472885deb64beee091182"
+      ]
+    },
+    "spacr.crashreport.question_key": {
+      "source_blocks_sha256": [
+        "05fed47f6d1de504bfe09d0bf7651c09dd5a1aafbed254ca41bed1715d356a14",
+        "9ea846a8c806fae26730dac71ac0808afada88d86894dd298c043596416e21c2",
+        "84d186ddcdde56653cd4aeb0e692a25d797bda21469a190bebdcff3377aaf8f8",
+        "d02fb2680a955047b4370421b7c80f2c509fd8062686e6abcf7ed5667ea964e4",
+        "0387530ec68234cb3df513587597db84b4008919da25c9d3904a8eb533b873b7",
+        "1f0dc14b914d2ddcbbad0d1a3027f8067b5a49f5c483fd6e2dd53069ed211a86"
+      ],
+      "source_sha256": "45bcfbe21202e8b0dd3f46d708cce163f714a466f901d8881a067d4043faa3a3",
+      "text": "用于保存问题答案的键，或 ``\"\"``。\n\n经脱敏和规范化的问题、提问位置（应用视图或模块）以及 spaCR 的 ``major.minor`` 的 SHA-256，带 ``q:`` 前缀。问题与粘贴上下文合计超过 :data:`QUESTION_CACHE_CONTEXT_MAX` 个字符时，绝不保存。\n\n:param question: 用户提出的问题。\n:param place: 提问所在的视图或模块。\n:param context_chars: 随问题粘贴的控制台上下文、代码或回溯的字符数。\n:returns: 键；不允许保存答案时为 ``\"\"``。",
+      "translation_source_blocks_sha256": [
+        "05fed47f6d1de504bfe09d0bf7651c09dd5a1aafbed254ca41bed1715d356a14",
+        "aeadbd86541c7af4b9fc3219532385ea5866b6f98dcec7d12ec404e34447aecc",
+        "84d186ddcdde56653cd4aeb0e692a25d797bda21469a190bebdcff3377aaf8f8",
+        "d02fb2680a955047b4370421b7c80f2c509fd8062686e6abcf7ed5667ea964e4",
+        "0387530ec68234cb3df513587597db84b4008919da25c9d3904a8eb533b873b7",
+        "1f0dc14b914d2ddcbbad0d1a3027f8067b5a49f5c483fd6e2dd53069ed211a86"
+      ]
+    },
+    "spacr.crashreport.queued_summaries": {
+      "source_blocks_sha256": [
+        "b056272264320ce5219beb1da9712a5967c6924853f0f78ec22f73219a9f5b1b",
+        "bacc48839eab27b77f601a8d37432a109de81830de8d5b956156d1c427974d8a",
+        "1cab404dcb1da244b822e30546c57e2f68804a00c7c6f7d528cda6b7b83b6135"
+      ],
+      "source_sha256": "b1229b6d3f587a65cf1499208964e2ee29834241e99220ac42f71bdf11fb92f2",
+      "text": "返回待发送的报告，最早的在前。\n\n先删除过期和超出数量限制的报告。\n\n:returns: 摘要。",
+      "translation_source_blocks_sha256": [
+        "b056272264320ce5219beb1da9712a5967c6924853f0f78ec22f73219a9f5b1b",
+        "bacc48839eab27b77f601a8d37432a109de81830de8d5b956156d1c427974d8a",
+        "1cab404dcb1da244b822e30546c57e2f68804a00c7c6f7d528cda6b7b83b6135"
+      ]
+    },
+    "spacr.crashreport.relay_url": {
+      "source_blocks_sha256": [
+        "2643cf59ddd0a37fa3191993bcc713054dc7f5d9a00d21bd95797709f5f7b61b",
+        "6f839863e220adff39a290f740c1f73b242be563403fbc36fd61ddb8def6e87c",
+        "9cc379f36f3768e8b53cb6e76a8e861f5f2bd8bb2dbaeb759fefec4efeda1ae1"
+      ],
+      "source_sha256": "e376098bcff2f96d488cfd56564de1885a5db30e7a4ba203e60f0134ca027c71",
+      "text": "返回报告提交到的中继地址，不含末尾斜杠。\n\n:data:`REPORT_RELAY_ENV` 覆盖 :data:`REPORT_RELAY_URL`，前提是前者包含 ``https://`` 地址或本机的 ``http://`` 地址。\n\n:returns: 基础地址。",
+      "translation_source_blocks_sha256": [
+        "2643cf59ddd0a37fa3191993bcc713054dc7f5d9a00d21bd95797709f5f7b61b",
+        "6f839863e220adff39a290f740c1f73b242be563403fbc36fd61ddb8def6e87c",
+        "9cc379f36f3768e8b53cb6e76a8e861f5f2bd8bb2dbaeb759fefec4efeda1ae1"
       ]
     },
     "spacr.crashreport.report_exception": {
@@ -15951,6 +16451,188 @@
         "7e71dcd0c53d3a23021f464d859d3eae5865a6a8e8fce7d716a1408a15e599b8",
         "81b3e0584a0bedba56cb4a9f54589d712dd996f8479933ad5fcb754893d8e2e1",
         "f03cf812437fd58e4d2bf1ee89c5da75a8862b75bdf2e4ac794f3aeac558fd7e"
+      ]
+    },
+    "spacr.crashreport.save_explanation": {
+      "source_blocks_sha256": [
+        "28af111d7f1e7625d8491505cb1f361219dde8ab663dac5f7c05ae056d42113a",
+        "5cee2ec77eb14a9170d8df3b5e021c573142ec50c19e258d7d7f2fde494d2151",
+        "40de8b97923d2ee09926fe063c4581621449d520d52cc191f3b8c0cf1a8f4330",
+        "3cd67d36dbdb5c54f555816574478caa8693d95a94cbf617de5117c4dd1adf11",
+        "73d3ef4042444ab329f10847cfff66ae72139d8c664b4a185ee004e90abe1283",
+        "d687ba373e4443cce4b6faa8c09ab6ea775b2d37bb8dbbea5569c8a661f8047a",
+        "4658ef7ae85b97fe9246a25c1180601e52754502237b23bebb3761627f3ab50f",
+        "578c9fff753df34a1750f53d74bcbf0f3308c09bd9864d93a8c4a7459a7a4910"
+      ],
+      "source_sha256": "bc4544d16e629eb1d4960bd3d4a0a458dc2faaee990090a5524178723d30089d",
+      "text": "在此计算机保存解释，供下一次相同错误使用。\n\n最多保留 :data:`MAX_SAVED_EXPLANATIONS` 条，先删除最早的，并在每次写入时删除过期条目。写入失败会被忽略。\n\n:param signature: 来自 :func:`explanation_signature`。\n:param text: 脱敏后的解释。\n:param tier: ``\"best\"``、``\"light\"`` 或 ``\"\"``。\n:param model: 生成解释的模型（若已知）。\n:param now: 自纪元起的秒数；默认为当前时间。\n:param cause: AI 提供的可能原因键（若有）。",
+      "translation_source_blocks_sha256": [
+        "28af111d7f1e7625d8491505cb1f361219dde8ab663dac5f7c05ae056d42113a",
+        "5cee2ec77eb14a9170d8df3b5e021c573142ec50c19e258d7d7f2fde494d2151",
+        "40de8b97923d2ee09926fe063c4581621449d520d52cc191f3b8c0cf1a8f4330",
+        "3cd67d36dbdb5c54f555816574478caa8693d95a94cbf617de5117c4dd1adf11",
+        "73d3ef4042444ab329f10847cfff66ae72139d8c664b4a185ee004e90abe1283",
+        "d687ba373e4443cce4b6faa8c09ab6ea775b2d37bb8dbbea5569c8a661f8047a",
+        "4658ef7ae85b97fe9246a25c1180601e52754502237b23bebb3761627f3ab50f",
+        "578c9fff753df34a1750f53d74bcbf0f3308c09bd9864d93a8c4a7459a7a4910"
+      ]
+    },
+    "spacr.crashreport.saved_explanation": {
+      "source_blocks_sha256": [
+        "65f26e02cd937dc8a78205f66e6d39e018916ac3dee8ff1e245ad8d807702e4e",
+        "daed287218203e4c13f41fea45f0d9a107de749d2bd3d5bb751446f2306c4456",
+        "40de8b97923d2ee09926fe063c4581621449d520d52cc191f3b8c0cf1a8f4330",
+        "4658ef7ae85b97fe9246a25c1180601e52754502237b23bebb3761627f3ab50f",
+        "2cbd351de9e1a53ce8ee85c86c3b979b278a3e6a025082fcc0baf254a5735e8b"
+      ],
+      "source_sha256": "1adeffa640bd39842a4345d2ee2713dbdd48fc17c0353927902aaa45e7c44d3c",
+      "text": "本机为某错误保存的解释（若仍有效）。\n\n有效指为此 spaCR 的 ``major.minor`` 版本生成，且距今不足 :data:`SAVED_EXPLANATION_DAYS` 天。\n\n:param signature: 来自 :func:`explanation_signature`。\n:param now: 自纪元起的秒数；默认为当前时间。\n:returns: ``{\"text\", \"tier\", \"model\"}`` 或 ``None``。",
+      "translation_source_blocks_sha256": [
+        "65f26e02cd937dc8a78205f66e6d39e018916ac3dee8ff1e245ad8d807702e4e",
+        "daed287218203e4c13f41fea45f0d9a107de749d2bd3d5bb751446f2306c4456",
+        "40de8b97923d2ee09926fe063c4581621449d520d52cc191f3b8c0cf1a8f4330",
+        "4658ef7ae85b97fe9246a25c1180601e52754502237b23bebb3761627f3ab50f",
+        "2cbd351de9e1a53ce8ee85c86c3b979b278a3e6a025082fcc0baf254a5735e8b"
+      ]
+    },
+    "spacr.crashreport.scrub_public_lines": {
+      "source_blocks_sha256": [
+        "044c2c542b75d6d3c72ccfc686475662df8fc6c8c4c15dac48455c00a9ee8dc9",
+        "572a872e35413edbd0762136e17009c113d835f577b1112fafc6c89c0a7eda56",
+        "abfe850b32d6d2a06dd4ccf1d0e6bb0c3cf51391b0c7f856714a8e6fcccfc5c5",
+        "c86f36468710a89d756e9b3144993fc419d724b98a141cbd56f2858db067841a",
+        "789d20d0dc60fece4bd441d129d1b20113b05ea3deaf7cb16907e8a285bcbf09",
+        "630081496e8b30d4ca7f2da4a78439e0bb77638e2b3978f802f966c3dd76905f"
+      ],
+      "source_sha256": "b2b97f15b653dcd38bd95aa31d3811c2dc1652ec453d180a363b542357787d24",
+      "text": "按 :func:`scrub_public_text` 的方式脱敏文本，同时保留换行。\n\n逐行脱敏，使 Markdown 答案的标题和编号步骤各自保留在独立行；连续空行合并为一行。\n\n:param text: 文本；其他值先转换为文本。\n:param limit: 结果的最大字符数；更长的结果会被截短，并以 ``…`` 结尾。\n:param keep_docs_urls: 与 :func:`scrub_public_text` 相同。\n:returns: 脱敏后的文本，各行用 ``\\n`` 连接。",
+      "translation_source_blocks_sha256": [
+        "044c2c542b75d6d3c72ccfc686475662df8fc6c8c4c15dac48455c00a9ee8dc9",
+        "572a872e35413edbd0762136e17009c113d835f577b1112fafc6c89c0a7eda56",
+        "abfe850b32d6d2a06dd4ccf1d0e6bb0c3cf51391b0c7f856714a8e6fcccfc5c5",
+        "c86f36468710a89d756e9b3144993fc419d724b98a141cbd56f2858db067841a",
+        "789d20d0dc60fece4bd441d129d1b20113b05ea3deaf7cb16907e8a285bcbf09",
+        "630081496e8b30d4ca7f2da4a78439e0bb77638e2b3978f802f966c3dd76905f"
+      ]
+    },
+    "spacr.crashreport.scrub_public_text": {
+      "source_blocks_sha256": [
+        "9a20c78f64aa38bee2a204a30b26a482e1707ab252885c1ec7d5c88e293c0d7b",
+        "242aca94a2143e2e756248352bc9124e64680fd1b505ffb6f52333adf54a120f",
+        "abfe850b32d6d2a06dd4ccf1d0e6bb0c3cf51391b0c7f856714a8e6fcccfc5c5",
+        "c86f36468710a89d756e9b3144993fc419d724b98a141cbd56f2858db067841a",
+        "973a7237076f8172f936b4f03bd23d6190af0e03cbb131bd9210d64abd89851f",
+        "e195a696122793adb3b9e56035581cefa5265864a5dd595fbd4906954a1dcb7b"
+      ],
+      "source_sha256": "60938f5faca29a98d1d190efd71d99db50ad4a0266c584a1341e8ee0009a6556",
+      "text": "从将要公开的短文本中移除个人信息。\n\n绝对路径（POSIX、Windows 和网络共享）替换为 ``<PATH>``，带数据或代码扩展名的文件名替换为 ``<FILE>``，电子邮件地址为 ``<EMAIL>``，网址为 ``<URL>``，IP 地址为 ``<IP>``，主机名为 ``<HOST>``，本机登录名为 ``<USER>``，类似密钥、令牌或长十六进制或 base64 字符串的内容为 ``<TOKEN>``。先运行 :mod:`spacr.qt.ai.issue_report` 的脱敏辅助函数，再应用这些更严格的规则。\n\n:param text: 文本；其他值先转换为文本。\n:param limit: 结果的最大字符数；更长的结果会被截短，并以 ``…`` 结尾。\n:param keep_docs_urls: 为带文档链接的 AI 答案保留 :data:`PUBLIC_DOCS_URLS` 中的 spaCR 公开地址；所有其他地址仍替换为 ``<URL>``。\n:returns: 单行脱敏文本。",
+      "translation_source_blocks_sha256": [
+        "9a20c78f64aa38bee2a204a30b26a482e1707ab252885c1ec7d5c88e293c0d7b",
+        "242aca94a2143e2e756248352bc9124e64680fd1b505ffb6f52333adf54a120f",
+        "abfe850b32d6d2a06dd4ccf1d0e6bb0c3cf51391b0c7f856714a8e6fcccfc5c5",
+        "c86f36468710a89d756e9b3144993fc419d724b98a141cbd56f2858db067841a",
+        "973a7237076f8172f936b4f03bd23d6190af0e03cbb131bd9210d64abd89851f",
+        "e195a696122793adb3b9e56035581cefa5265864a5dd595fbd4906954a1dcb7b"
+      ]
+    },
+    "spacr.crashreport.scrub_public_text._hold": {
+      "source_blocks_sha256": [
+        "d763eca478e72701158eb7a75ffcacd94fa6e7e0f0184644fe976d0ca8f3f643"
+      ],
+      "source_sha256": "d763eca478e72701158eb7a75ffcacd94fa6e7e0f0184644fe976d0ca8f3f643",
+      "text": "暂存 spaCR 公开地址；其他地址替换为 <URL>。",
+      "translation_source_blocks_sha256": [
+        "d763eca478e72701158eb7a75ffcacd94fa6e7e0f0184644fe976d0ca8f3f643"
+      ]
+    },
+    "spacr.crashreport.set_anonymous_reports_enabled": {
+      "source_blocks_sha256": [
+        "95d2c3ef6e990ecca25ec967247e73eb4864bb2854839d4a971765cf7a93d9cf",
+        "ecf85b592f7e7cde56182557c97755b5596dc130a517a9335f19386e115c001d",
+        "786370d266e12ef723275f1b6cfc161ed58f8c76fdbc3329f7ef9ed6c9338342"
+      ],
+      "source_sha256": "c1733374423ede60015b9adde6dab9c2b15931d19d44685e7595fddbdd09cf31",
+      "text": "如同首次运行提示中的开关一样，开启或关闭报告。\n\n当前选择不发送任何内容时，开启会恢复默认选择；关闭为 ``\"off\"``。\n\n:param enabled: 是否允许发送报告。",
+      "translation_source_blocks_sha256": [
+        "95d2c3ef6e990ecca25ec967247e73eb4864bb2854839d4a971765cf7a93d9cf",
+        "ecf85b592f7e7cde56182557c97755b5596dc130a517a9335f19386e115c001d",
+        "786370d266e12ef723275f1b6cfc161ed58f8c76fdbc3329f7ef9ed6c9338342"
+      ]
+    },
+    "spacr.crashreport.set_error_report_mode": {
+      "source_blocks_sha256": [
+        "d6b15c793c173b843de9a4a73d89e8a79f5b90c28ae1811a71aa80c7955001bd",
+        "1f35a978f781b0cc430311c9a296897cdcfeea0740e6ebc268ce6cdc4841d5d4",
+        "be6a6d280a6b058be3544def3e4210f5d2cb25662713b1870faaccf6d008b3a3",
+        "a7d32480e0d70e60b85e0944abdf7d31b7930e4c8e72c6108881ab41ce3cf9d4"
+      ],
+      "source_sha256": "a9df70e5bc023d295da9b5e05b8c7e2606bd48dc5b79493b313dfe0dd62eee81",
+      "text": "保存 \"AI Error report\" 选项。\n\n不发送任何内容的选项还会删除所有待发送报告，确保更改前排队的内容不会在更改后发送。\n\n:param mode: :data:`ERROR_REPORT_MODES` 中的键。\n:raises ValueError: 任何其他值均触发。",
+      "translation_source_blocks_sha256": [
+        "d6b15c793c173b843de9a4a73d89e8a79f5b90c28ae1811a71aa80c7955001bd",
+        "1f35a978f781b0cc430311c9a296897cdcfeea0740e6ebc268ce6cdc4841d5d4",
+        "be6a6d280a6b058be3544def3e4210f5d2cb25662713b1870faaccf6d008b3a3",
+        "a7d32480e0d70e60b85e0944abdf7d31b7930e4c8e72c6108881ab41ce3cf9d4"
+      ]
+    },
+    "spacr.crashreport.split_cause": {
+      "source_blocks_sha256": [
+        "a2af4a441bd10c00605a30dc46a6e968e14b696fb3e79e50879289c70682f6e1",
+        "c25598ce29eb49f0eb16db61102477ce0725079b4035506ba3c89f44d01470ab",
+        "dccc0ce46d3d6e6d24f6290cd306a77e51df8ffd58a31ad9835c3ee7d04649a2"
+      ],
+      "source_sha256": "17cbac26346bd39d2d85203072a9f30ea585860ee6233cc7aed19dac53526809",
+      "text": "从 AI 答案中移除 ``CAUSE: <slug>`` 行。\n\n:param text: 答案。\n:returns: ``(answer without the line, slug or \"\")``.",
+      "translation_source_blocks_sha256": [
+        "a2af4a441bd10c00605a30dc46a6e968e14b696fb3e79e50879289c70682f6e1",
+        "c25598ce29eb49f0eb16db61102477ce0725079b4035506ba3c89f44d01470ab",
+        "dccc0ce46d3d6e6d24f6290cd306a77e51df8ffd58a31ad9835c3ee7d04649a2"
+      ]
+    },
+    "spacr.crashreport.submit_public_summary": {
+      "source_blocks_sha256": [
+        "382e7b5f1e8c6056b58bdbfc06309644cc1ff9acd0dbc9c17244bc221310c430",
+        "57ebc2ab058cc17613889817a361e7c87e8851bf74448d32ed8d9be852a753ae",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "389173d0defedcb66feb4928b42cb19e79b7ad87bb97b0cc657d640549252f0a",
+        "87a2f759eb6a0daa0e6f0f9ea1802a911c1994fa6914be92fad0f165329b74c7"
+      ],
+      "source_sha256": "0a8f97213024263941413ffc0ff78c595ad2961b96eac11b5c36b4408bb621f3",
+      "text": "将匿名摘要发送给中继，或排队待以后发送。\n\n最多阻塞 ``timeout`` 秒，因此应在 GUI 线程外调用，或使用 :func:`submit_public_summary_in_background`。报告关闭或禁止网络时，不发送也不存储任何内容。\n\n:param summary: 来自 :func:`public_summary` 的摘要。\n:param timeout: 提交允许耗费的秒数。\n:returns: ``{\"status\": ...}`` 包含 :data:`REPORT_SENT`（以及 ``issue_number``、``issue_url``、``deduplicated``）、:data:`REPORT_QUEUED`（保留以重试）、:data:`REPORT_DROPPED`（拒绝，不重试）或 :data:`REPORT_DISABLED`。",
+      "translation_source_blocks_sha256": [
+        "73b32601f94ea6107ab521daf7b6314432901d566f4af3a25e3cf9ac3d6047b5",
+        "88319a64b46a428f0eb5a795a1cbe1bdc011c8ac88e36e16bd858fc676b4d364",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "389173d0defedcb66feb4928b42cb19e79b7ad87bb97b0cc657d640549252f0a",
+        "87a2f759eb6a0daa0e6f0f9ea1802a911c1994fa6914be92fad0f165329b74c7"
+      ]
+    },
+    "spacr.crashreport.submit_public_summary_in_background": {
+      "source_blocks_sha256": [
+        "fb1a33d40b8fdd3d215d1ca9fb04ce19c060f866a688544fe338b5de73f4b130",
+        "29057a83dbc25266a4744ca6f7dceab48395d2d30d362e1b56f0cae3d281dd43",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "59fa48e3625e88f44f061d79ab200d8f87ad674d1b3fc8d2a383fd0fd13e2770",
+        "ccaf8e68db46d0314aa7aa7b49ca7d605921f48766523aba0a54d7269aa23617"
+      ],
+      "source_sha256": "278609c44d278c1df1707cedf7f7a5e8673d06d7ae8bd3fc4fa99f8480eb9ae8",
+      "text": "立即将摘要排队，并在守护线程发送。\n\n返回前摘要已写入磁盘，因此即使进程立即结束，下次 spaCR 启动时仍会发送。\n\n:param summary: 来自 :func:`public_summary` 的摘要。\n:param on_done: 在发送线程上调用，参数为 :func:`submit_public_summary` 所描述的结果。\n:returns: 线程；若报告关闭且未排队任何内容，则为 ``None``。",
+      "translation_source_blocks_sha256": [
+        "afa05cf0a464330bf279539423117d48b6c2dcad4cfb2e295b517e18b6a60bf4",
+        "29057a83dbc25266a4744ca6f7dceab48395d2d30d362e1b56f0cae3d281dd43",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "59fa48e3625e88f44f061d79ab200d8f87ad674d1b3fc8d2a383fd0fd13e2770",
+        "ccaf8e68db46d0314aa7aa7b49ca7d605921f48766523aba0a54d7269aa23617"
+      ]
+    },
+    "spacr.crashreport.submit_public_summary_in_background._run": {
+      "source_blocks_sha256": [
+        "605bdaccd80f6f5c2cda0f9893616bee655836a4ae9691bd521805764c32d9f3"
+      ],
+      "source_sha256": "605bdaccd80f6f5c2cda0f9893616bee655836a4ae9691bd521805764c32d9f3",
+      "text": "发送排队的摘要，并将结果交给 ``on_done``。",
+      "translation_source_blocks_sha256": [
+        "605bdaccd80f6f5c2cda0f9893616bee655836a4ae9691bd521805764c32d9f3"
       ]
     },
     "spacr.crashreport.write_crash_report": {
@@ -69883,7 +70565,7 @@
         "d20401cbc04912fdc3ae5dd5ab13f63f954eb0d87e4add83625ca92fc47267df"
       ],
       "source_sha256": "84e3ec32134c41e18e88245597fa134ee01ef05a987df96cf27d3971a8f02060",
-      "text": "从已清理的报告中删除文件/文件夹名称。\n\n普通的清理器会缩写主目录，使回溯仍然有用。公开报告默认采用更严格的形式：回溯中的文件字段、带引号的路径值以及剩余的类似绝对路径的标记都会变为 ``<PATH>``。预览允许用户在发送前恢复有用的名称；当议题报告设置为 'always' 时没有预览，因此这里留下的内容就是会被公开发布的内容。\n\nA path can contain a space, and a rule that stops a path at the first whitespace publishes the rest of it. ``/Volumes/Lab Drive/Patient 042`` came out as ``<PATH> Drive/Patient 042``, and ``C:\\Users\\anna\\OneDrive\n- Karolinska Institutet\\Screens`` 则保留了机构名称以及\n筛选名——这是两种自带文件夹名称中含有空格的操作系统。UNC 路径根本没有被当作路径：这里没有任何规则从 ``\\\\`` 开始匹配。未加引号的路径的最后一个组件之后没有分隔符，无法证明空格是在路径内部而不是路径之后，因此只会继续匹配形如名称的单词——数字、首字母大写的单词、文件名——于是 ``\\\\LAB-NAS\\screens\\plate 1`` 被整体替换，而 ``opening /mnt/data/x.tif failed`` 保留其 ``failed``。以小写单词结尾的此类组件仍会留下该单词；加引号的路径会被整体处理，而标题和每个经 ``repr`` 格式化的设置值都带有引号。\n\n紧跟在 ``<`` 之后的斜杠表示结束标签的开始，而不是路径。报告中的可折叠部分以 ``</summary>`` 和 ``</details>`` 结束，而议题 #121 在提交时这两者都被变成了 ``<<PATH>``，导致第一个部分之后的每个部分都保持展开状态。\n\n:param text: 报告标题或正文，已经过 :func:`sanitize_path` 处理。\n:returns: 同样的文本，其中类似路径的标记被替换为 ``<PATH>``。",
+      "text": "从已清理的报告中删除文件/文件夹名称。\n\n普通的清理器会缩写主目录，使回溯仍然有用。公开报告默认采用更严格的形式：回溯中的文件字段、带引号的路径值以及剩余的类似绝对路径的标记都会变为 ``<PATH>``。预览允许用户在发送前恢复有用的名称；当议题报告设置为 'always' 时没有预览，因此这里留下的内容就是会被公开发布的内容。\n\n路径可以包含空格，而在第一个空白字符处截断路径的规则会将其余部分公开。``/Volumes/Lab Drive/Patient 042`` 变成了 ``<PATH> Drive/Patient 042``，而 ``C:\\Users\\anna\\OneDrive\n- Karolinska Institutet\\Screens`` 则保留了机构名称以及\n筛选名——这是两种自带文件夹名称中含有空格的操作系统。UNC 路径根本没有被当作路径：这里没有任何规则从 ``\\\\`` 开始匹配。未加引号的路径的最后一个组件之后没有分隔符，无法证明空格是在路径内部而不是路径之后，因此只会继续匹配形如名称的单词——数字、首字母大写的单词、文件名——于是 ``\\\\LAB-NAS\\screens\\plate 1`` 被整体替换，而 ``opening /mnt/data/x.tif failed`` 保留其 ``failed``。以小写单词结尾的此类组件仍会留下该单词；加引号的路径会被整体处理，而标题和每个经 ``repr`` 格式化的设置值都带有引号。\n\n紧跟在 ``<`` 之后的斜杠表示结束标签的开始，而不是路径。报告中的可折叠部分以 ``</summary>`` 和 ``</details>`` 结束，而议题 #121 在提交时这两者都被变成了 ``<<PATH>``，导致第一个部分之后的每个部分都保持展开状态。\n\n:param text: 报告标题或正文，已经过 :func:`sanitize_path` 处理。\n:returns: 同样的文本，其中类似路径的标记被替换为 ``<PATH>``。",
       "translation_source_blocks_sha256": [
         "7bb7a71776599d2fc07322d00f44e144efe8c435f5bff402f052247bb30f2ed5",
         "9c3746f7247d82842e4bd12f396401d043b32757a2cca19f74889936b88fb16c",
@@ -71357,14 +72039,16 @@
       "source_blocks_sha256": [
         "57e2bc2ea2960cb5f7c70521814464d26171e871ee3c3493923f7de90945451a",
         "4ee71fd9cb9902652ab0fe7a99dbe981a064ed8aba32df50e1c820e4d717f2f9",
-        "3160512b0f19c634feac7f83a5bd96efbbb6b4fb9df33a2d7efc6bffb5225199"
+        "3160512b0f19c634feac7f83a5bd96efbbb6b4fb9df33a2d7efc6bffb5225199",
+        "91799ef47c3ae4f96e2fa6003107de296008027725ab751456f2727402884093"
       ],
-      "source_sha256": "2dbceb9b0c3f2e108238d6bdcac79b0c4a3d491faf37973799548c9eea4f3e1f",
-      "text": "消耗供应商流,发出阶段/点击/完成信号。\n\n只有当数据流自行结束且提供方没有报告失败时，``finished`` 才携带 ``(True, the whole reply)``。其他任何情况都给出 ``(False, <what to tell the user>)``，而提供方在失败前打印的任何内容都不是答案。已取消的数据流会给出 ``(False, \"Cancelled.\")``，即使结束子进程导致提供方抛出异常也是如此，因为停止是用户要求的。\n\n例外的班级名称已预定到其消息,除非有 :class:`~spacr.qt.ai.providers.ProviderFailed` 与非虚假消息。 控制台在“[AI 错误]”之后写下此文,并在那里阅读一个 ProviderFailed 消息,包括登录命令进行执行。 对于任何其他例外,课堂名称都被保留,因为它常常命名错误:一个 ``[Errno 2] No such file or directory`` 并不意味着它是 FileNotFoundError。",
+      "source_sha256": "7b2189afeee30042fdff6226115e24c36df4d5e3f85707f26cd28cecf0838ddb",
+      "text": "消耗供应商流,发出阶段/点击/完成信号。\n\n只有当数据流自行结束且提供方没有报告失败时，``finished`` 才携带 ``(True, the whole reply)``。其他任何情况都给出 ``(False, <what to tell the user>)``，而提供方在失败前打印的任何内容都不是答案。已取消的数据流会给出 ``(False, \"Cancelled.\")``，即使结束子进程导致提供方抛出异常也是如此，因为停止是用户要求的。\n\n例外的班级名称已预定到其消息,除非有 :class:`~spacr.qt.ai.providers.ProviderFailed` 与非虚假消息。 控制台在“[AI 错误]”之后写下此文,并在那里阅读一个 ProviderFailed 消息,包括登录命令进行执行。 对于任何其他例外,课堂名称都被保留,因为它常常命名错误:一个 ``[Errno 2] No such file or directory`` 并不意味着它是 FileNotFoundError。\n\n以前问过且仍然有效的简短问题（:func:`~spacr.qt.ai.providers.question_cache_key`）会使用本计算机保存的答案作答，不调用提供方，此时 :attr:`saved` 为 ``True``；此类问题的新完整答案无论来自哪个提供方，都会保存。",
       "translation_source_blocks_sha256": [
         "57e2bc2ea2960cb5f7c70521814464d26171e871ee3c3493923f7de90945451a",
         "4ee71fd9cb9902652ab0fe7a99dbe981a064ed8aba32df50e1c820e4d717f2f9",
-        "37cadd1353537ad22b03389ebcb12ee3c44555c1d1b5f47bfd7d11f7bbacfd61"
+        "37cadd1353537ad22b03389ebcb12ee3c44555c1d1b5f47bfd7d11f7bbacfd61",
+        "91799ef47c3ae4f96e2fa6003107de296008027725ab751456f2727402884093"
       ]
     },
     "spacr.qt.ai.worker.make_stream_thread": {
@@ -152295,13 +152979,15 @@
       "source_blocks_sha256": [
         "1993a27719aca3586520e6a847808a68af06b79cf158182625d5f8669db3046d",
         "a7bd4e6952b64e2f51735f2cdd906e35b046db2fe655b8caec5b13197c1d08bf",
+        "39a8bd5a67a629f63e1f2598f77ea632c1c34173abd7792c3ca3e0ea21e8cb86",
         "32ad184b5d895760a58585e6b97140a9ce6a1c9c468e6f3a054396b3342cd65e"
       ],
-      "source_sha256": "08045e7872c4e753dad77ca9b23447cd3ddfd27c530c1deb41916ae6ebe8b5df",
-      "text": "给一个对话的卡和里姆. True 如果它被应用。\n\nIdempotent:已持有 :data:`GLASSED` 的对话单独留下,因此显示、关闭和再次显示的对话不会积累卡。\n\n:param dialog: 要装饰的对话框；除非 :func:`wants_glass` 接受它，否则保持不变。",
+      "source_sha256": "911d51ee59d650bccb5d2923b55d3ada0ff7b21e8f7e9e3068f6c7593cfc6c35",
+      "text": "给一个对话的卡和里姆. True 如果它被应用。\n\nIdempotent:已持有 :data:`GLASSED` 的对话单独留下,因此显示、关闭和再次显示的对话不会积累卡。\n\n样式表在最后只应用一次。下面的每个步骤都会重新设置已带有窗口样式表的对话框：对话框自己的规则又是一份样式表，无边框标志使 Qt 重新润饰已设置样式的窗口中的每个控件，每个透明容器也会再次润饰。在偏好设置中（967 个控件），一次 ``Polish`` 就耗时 425-484 ms，即第 05 课调整大小片段中 0.36 s 的卡顿。在 :func:`spacr.qt.theme._one_sheet_for` 的作用下，各步骤在未设置样式的对话框上执行，最后只应用一次相同的样式表文本。\n\n:param dialog: 要装饰的对话框；除非 :func:`wants_glass` 接受它，否则保持不变。",
       "translation_source_blocks_sha256": [
         "1993a27719aca3586520e6a847808a68af06b79cf158182625d5f8669db3046d",
         "a7bd4e6952b64e2f51735f2cdd906e35b046db2fe655b8caec5b13197c1d08bf",
+        "7a3a4a2e96eb641628588f93f4cd45ef38795691d3ed25daa9f2378e03ed2cd2",
         "32ad184b5d895760a58585e6b97140a9ce6a1c9c468e6f3a054396b3342cd65e"
       ]
     },
@@ -183972,15 +184658,15 @@
     "spacr.restart_state.command": {
       "source_blocks_sha256": [
         "451ee26faaebbe68453c5fc28d92214cc4f617ee90238cf760fc09e0e9fa6ef0",
-        "ad5e4a220f6fde4ae10f44a4afdd847a2b4e0cb4b9657c6160d78c94901cc18e",
+        "a6d6d6d5b88ef533b8eebe3428ee783adbec9c778dd06373ee6d9851c9992b24",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "2569002df96948709a63745fb3dda3a6b851fdc67af20f4cfbf23569a503fdb6"
       ],
-      "source_sha256": "2fc677d9e825416cb90552fd4819f78a0ce6b358ad2af834957c1af2b4cd2caf",
-      "text": "返回使用重新启动 PySide6 应用程序的命令。\n\n命令使用活跃的 Python 翻译器和明确的 :mod:`spacr.qt` 输入点,因此强制重新启动返回同一个 GUI 而不取决于通过 ``PATH`` 找到的可执行。\n\n返回\n-------\n适用于 :class:`subprocess.Popen` 的 str 命令论点列表。",
+      "source_sha256": "4527f9bd4df21fa487028b6c81f71ac26d0d375f5e1a7e2044618d0013f2d69a",
+      "text": "返回使用重新启动 PySide6 应用程序的命令。\n\n冻结打包的应用直接重新启动其捆绑的可执行文件，不传递 Python 解释器参数。未冻结打包的安装使用当前 Python 解释器和明确的 :mod:`spacr.qt` 入口。两种方式都会返回同一 GUI，而不依赖通过 ``PATH`` 找到的可执行文件。\n\n返回\n-------\n适用于 :class:`subprocess.Popen` 的 str 命令论点列表。",
       "translation_source_blocks_sha256": [
         "451ee26faaebbe68453c5fc28d92214cc4f617ee90238cf760fc09e0e9fa6ef0",
-        "ad5e4a220f6fde4ae10f44a4afdd847a2b4e0cb4b9657c6160d78c94901cc18e",
+        "a6d6d6d5b88ef533b8eebe3428ee783adbec9c778dd06373ee6d9851c9992b24",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "2569002df96948709a63745fb3dda3a6b851fdc67af20f4cfbf23569a503fdb6"
       ]
@@ -187007,10 +187693,11 @@
         "a5d7ec449ef4a602a61a8b52723791cfc41cf14f765e0ff9e181edaf66fb18f8",
         "882b025608cfd488e23a584b446ed392b1687ebc25a7fd9d842b8d1ee4baf9e4",
         "8dd0e2a8113506874bc11e2fc2fc9c3f48a62736e07a25a74bd3c94a52ef8885",
-        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b"
+        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b",
+        "73a1ffe75988b2b3cf4a04261a07be7d7cdee6aeabd20ee69f5f533310d74ad4"
       ],
-      "source_sha256": "8f340495d1c595d60230eb54dc6e4a5181aa999d47ddcb317dd9dd713295f09b",
-      "text": "一个工作流处理会议:其ID、其种子、错误政策、LEDGER。\n\n由 :func:`run_context` 创建; 以 :func:`current_run_context` 阅读到任何地方. 此对象的 ID 是每个日志行中的 ID,处理会议发行(:func:`read_run_log`),每个 :class:`~spacr.errors.RunLedger` 它输出,每个 :class:`spacr.artifacts.Artifact` 记录 - 这就是允许一个日志线和一个输出被添加。\n\n:param run_id: 是ID。\n:param module: 生成模块键 — ``\"mask\"``, ``\"measure\"``,使用相同的键 :mod:`spacr.ports`。\n:param seed: 种子应用,或 None 当跑步不种子时。\n:param policy: 以“:class:`ErrorPolicy`”为准。\n:param ledger: 运行的 :class:`~spacr.errors.RunLedger`,其 ``run_id``已设置为此运行。\n:param settings: 处理会议的设置开始了。\n:param seed_report: 什么是:func:`seed_everything`成功种子。\n:param started_utc: 当跑步开启时。\n:param log_path: 运行的 JSONL 登录,或 ``\"\"`` 当登录关闭时。\n:param resource_log_path: 路径到处理会议的过程树资源 JSON 文档,或 ``\"\"`` 当资源会计关闭或不可用时。\n:param resource_artifact_id: 在成功的资源文档登记后,或 ``\"\"`` 当没有创建记录时,会分配的文档记录标识符。",
+      "source_sha256": "b17236a3334e68ec484a01688c8da915414c51d140fe249949ad1dc8b5dde16d",
+      "text": "一个工作流处理会议:其ID、其种子、错误政策、LEDGER。\n\n由 :func:`run_context` 创建; 以 :func:`current_run_context` 阅读到任何地方. 此对象的 ID 是每个日志行中的 ID,处理会议发行(:func:`read_run_log`),每个 :class:`~spacr.errors.RunLedger` 它输出,每个 :class:`spacr.artifacts.Artifact` 记录 - 这就是允许一个日志线和一个输出被添加。\n\n:param run_id: 是ID。\n:param module: 生成模块键 — ``\"mask\"``, ``\"measure\"``,使用相同的键 :mod:`spacr.ports`。\n:param seed: 种子应用,或 None 当跑步不种子时。\n:param policy: 以“:class:`ErrorPolicy`”为准。\n:param ledger: 运行的 :class:`~spacr.errors.RunLedger`,其 ``run_id``已设置为此运行。\n:param settings: 处理会议的设置开始了。\n:param seed_report: 什么是:func:`seed_everything`成功种子。\n:param started_utc: 当跑步开启时。\n:param log_path: 运行的 JSONL 登录,或 ``\"\"`` 当登录关闭时。\n:param resource_log_path: 路径到处理会议的过程树资源 JSON 文档,或 ``\"\"`` 当资源会计关闭或不可用时。\n:param resource_artifact_id: 在成功的资源文档登记后,或 ``\"\"`` 当没有创建记录时,会分配的文档记录标识符。\n:param _resource_sampler: 内部进程树资源采样器；在资源统计开始前或不可用时为 ``None``。",
       "translation_source_blocks_sha256": [
         "5182280c6a8c9d3beeb11fd5d8146fb99dfe657e4176813b67dc999249ca0860",
         "8ebc90c80c227b9def3c1bf4239226d4e1305bd40bf6b88dd21f839c05d44eca",
@@ -187024,7 +187711,8 @@
         "a5d7ec449ef4a602a61a8b52723791cfc41cf14f765e0ff9e181edaf66fb18f8",
         "882b025608cfd488e23a584b446ed392b1687ebc25a7fd9d842b8d1ee4baf9e4",
         "08b25e6a845ac4070efa6d49416713b5de7c4e53f35e5831544ee92efe51428a",
-        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b"
+        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b",
+        "73a1ffe75988b2b3cf4a04261a07be7d7cdee6aeabd20ee69f5f533310d74ad4"
       ]
     },
     "spacr.runctx.RunContext.__str__": {

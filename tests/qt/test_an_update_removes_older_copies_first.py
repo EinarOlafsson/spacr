@@ -86,7 +86,7 @@ class _Window:
         self.closed = True
 
 
-@pytest.fixture(params=["macos-frozen-v1", "macos-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1"])
+@pytest.fixture(params=["macos-frozen-v1", "macos-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1", "windows-frozen-nsis-v1"])
 def frozen_window(qtbot, monkeypatch, tmp_path, request):
     from types import SimpleNamespace
     from PySide6.QtWidgets import QMainWindow
@@ -117,7 +117,8 @@ def frozen_window(qtbot, monkeypatch, tmp_path, request):
     work = tmp_path / "helper"
     work.mkdir(mode=0o700)
     pip = request.param in {"pip-private-posix-v1", "pip-private-windows-v1"}
-    windows = request.param == "pip-private-windows-v1"
+    windows = request.param in {"pip-private-windows-v1", "windows-frozen-nsis-v1"}
+    frozen_windows = request.param == "windows-frozen-nsis-v1"
     if windows:
         monkeypatch.setattr(install_cleanup, "_windows_pip_acl", lambda path: {
             "owner": "S-1-5-21-1001", "user": "S-1-5-21-1001", "has_dacl": True,
@@ -125,8 +126,8 @@ def frozen_window(qtbot, monkeypatch, tmp_path, request):
     online = request.param == "macos-online-uv-v1"
     debian = request.param == "linux-deb-v1"
     record = install_cleanup.InstallRecord(
-        "environment" if pip else "installer", "venv" if pip else "linux-deb" if debian else "macos-runtime" if online else "macos-app",
-        "windows" if windows else "linux" if pip or debian else "macos", str(tmp_path / ("venv" if pip else "deb-runtime" if debian else "Application Support" if online else "spaCR.app")), running=True,
+        "environment" if pip else "installer", "venv" if pip else "windows-offline" if frozen_windows else "linux-deb" if debian else "macos-runtime" if online else "macos-app",
+        "windows" if windows else "linux" if pip or debian else "macos", str(tmp_path / ("venv" if pip else "spaCR" if frozen_windows else "deb-runtime" if debian else "Application Support" if online else "spaCR.app")), running=True,
         registrations=("deb:spacr",) if debian else ())
     monkeypatch.setattr(install_cleanup, "_macos_online_update_record",
                         lambda records: record if online else None)
@@ -172,6 +173,22 @@ def test_frozen_preparation_failure_keeps_the_window_alive(frozen_window, monkey
     assert state.events == []
     assert not (state.work / "approved.json").exists()
     assert (state.work / "cancelled.json").exists()
+
+
+def test_unknown_authenticated_readiness_keeps_the_window_alive(frozen_window):
+    state = frozen_window
+    state.handshake._write("readiness.json", "unexpected")
+    state.window._poll_frozen_update()
+    assert state.window.isVisible() and not state.window._closing
+    assert state.messages.warnings
+    assert not state.messages.informations
+    assert state.events == []
+    assert not (state.work / "approved.json").exists()
+    assert (state.work / "cancelled.json").exists()
+    assert not getattr(state.window, "_restart_after_update", False)
+    with pytest.raises(RuntimeError, match="cancelled"):
+        state.handshake.wait_for_shutdown(
+            lambda pid: pytest.fail("unknown readiness authorized shutdown"))
 
 
 def test_frozen_readiness_cancel_rejects_a_late_ready_message(frozen_window, monkeypatch):
@@ -237,6 +254,13 @@ def test_frozen_accepted_close_approves_after_vetoes_before_teardown(frozen_wind
             assert "reinstall spaCR in its current environment" in message
             assert "reopen automatically" in message
             assert "remove" not in message
+        elif state.plan["adapter"] == "windows-frozen-nsis-v1":
+            assert "updating its Windows application" in message
+            assert "administrator authorization window may open" in message
+            assert "previous application will be retained for rollback" in message
+            assert "data and caches will be kept" in message
+            assert "reopen after the update succeeds" in message
+            assert "remove the older copies" not in message
         elif state.plan["adapter"] == "linux-deb-v1":
             assert "graphical administrator authorization" in message
             assert "previous package will be retained for rollback" in message
@@ -257,6 +281,7 @@ def test_frozen_accepted_close_approves_after_vetoes_before_teardown(frozen_wind
     state.window._poll_frozen_update()
     assert state.events == ["veto checks", "approved", "teardown", "quit"]
     assert not state.window.isVisible() and state.window._closing
+    assert not getattr(state.window, "_restart_after_update", False)
     assert not (state.work / "cancelled.json").exists()
     state.handshake.wait_for_shutdown(lambda pid: True)
 
@@ -554,7 +579,7 @@ def test_the_update_messages_translate_spacr_reasons_and_leave_others_as_they_ca
         (_title, _marked(DIALOG_CAPTIONS[4].format(version="9.9.9")))]
 
 
-@pytest.mark.parametrize("frozen_window", ["pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1"], indirect=True)
+@pytest.mark.parametrize("frozen_window", ["pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1", "windows-frozen-nsis-v1"], indirect=True)
 def test_pip_handoff_preserves_current_settings_before_approved_close(frozen_window, monkeypatch):
     from spacr import restart_state
     state = frozen_window
@@ -567,7 +592,7 @@ def test_pip_handoff_preserves_current_settings_before_approved_close(frozen_win
     restart_state.discard()
 
 
-@pytest.mark.parametrize("frozen_window", ["pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1"], indirect=True)
+@pytest.mark.parametrize("frozen_window", ["pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1", "windows-frozen-nsis-v1"], indirect=True)
 def test_pip_handoff_refuses_unsaved_state_without_closing_or_approval(frozen_window, monkeypatch):
     from spacr import restart_state
     state = frozen_window
@@ -607,7 +632,7 @@ def test_private_pip_refusal_and_settings_failure_use_reviewed_locale(
     assert all(value != source for source, value in expected.items())
 
 
-@pytest.mark.parametrize('frozen_window', ['pip-private-windows-v1'], indirect=True)
+@pytest.mark.parametrize('frozen_window', ['pip-private-windows-v1', 'windows-frozen-nsis-v1'], indirect=True)
 @pytest.mark.parametrize('closing', [False, True])
 def test_windows_preparation_runs_off_gui_and_disarms_late_results(frozen_window, monkeypatch, qtbot, closing):
     import threading
@@ -656,3 +681,17 @@ def test_windows_preparation_runs_off_gui_and_disarms_late_results(frozen_window
         from shiboken6 import isValid
         qtbot.waitUntil(lambda: not isValid(worker) or not worker.isRunning())
         state.window._closing = False
+
+
+@pytest.mark.parametrize('frozen_window', ['windows-frozen-nsis-v1'], indirect=True)
+def test_windows_frozen_plan_without_authenticated_lease_never_closes(frozen_window):
+    state = frozen_window
+    state.window._cancel_frozen_update()
+    plan = dict(state.plan)
+    del plan['handshake']
+    state.window._on_update_plan_prepared(plan)
+    assert state.window.isVisible() and not state.window._closing
+    assert state.window._frozen_update_handshake is None
+    assert state.messages.warnings
+    assert not (state.work / 'approved.json').exists()
+    assert not getattr(state.window, '_restart_after_update', False)

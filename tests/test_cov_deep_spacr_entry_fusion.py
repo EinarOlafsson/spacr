@@ -751,3 +751,30 @@ def test_annotate_filter_vision_remove_train_outside_datasets_folder(tmp_path):
     }
     with pytest.raises(ValueError, match="datasets"):
         annotate_filter_vision(settings)
+
+
+@pytest.mark.parametrize('requested', [None, '', '   '])
+def test_apply_without_a_selected_model_preserves_existing_project_files(
+        tmp_path, ds_stubs, capsys, requested):
+    """An omitted optional model cannot reach inference, export or database writes."""
+    from spacr.deep_spacr import deep_spacr
+
+    tar = tmp_path / 'existing.tar'
+    tar.write_bytes(b'existing reusable inference dataset')
+    database = tmp_path / 'measurements' / 'measurements.db'
+    database.parent.mkdir()
+    database.write_bytes(b'existing measurement database; never opened by this skipped run')
+    before = {path: path.read_bytes() for path in (tar, database)}
+    settings = {
+        'src': str(tmp_path), 'train': False, 'test': False,
+        'generate_training_dataset': False, 'generate_full_dataset': False,
+        'apply_model_to_dataset': True, 'tar_path': str(tar), 'model_path': requested,
+    }
+    assert deep_spacr(settings) is None
+    assert len(ds_stubs.save_settings) == 1
+    assert ds_stubs.gen_train == ds_stubs.train == ds_stubs.gen_ds == []
+    assert ds_stubs.apply_tar == ds_stubs.top == ds_stubs.merge == []
+    assert settings['model_path'] == requested and settings['tar_path'] == str(tar)
+    assert settings['src'] == str(tmp_path)
+    assert {path: path.read_bytes() for path in before} == before
+    assert f'Model path {requested} not found; skipping model application.' in capsys.readouterr().out

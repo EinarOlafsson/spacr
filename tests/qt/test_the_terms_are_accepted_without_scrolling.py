@@ -132,10 +132,17 @@ class TestTheTermsSayWhatTheMaintainerAsked:
 
     def test_the_permission_names_the_report_control_it_covers(
             self, terms_module):
-        """"if the user dosnt unclick include logs in report, i can use those
-        logs" -- a permission nobody was told about is not a permission, so
-        the setting is named where the permission is granted."""
-        assert "Include recent logs in a report" in terms_module.terms_text()
+        """A permission nobody was told about is not a permission, so the
+        controls that stop the reports are named where the reports are
+        described.
+
+        Terms 4.3 (item 700): the "Include recent logs in a report" setting
+        left with the setup slide that asked it; the anonymised reports are
+        governed by Preferences → AI → "AI Error report" and by the
+        first-start notice's "Send anonymised error reports" switch."""
+        said = terms_module.terms_text()
+        assert "AI Error report" in said
+        assert "Send anonymised error reports" in said
 
     def test_they_say_the_log_is_never_published(self, terms_module):
         """The issue can be public; the log never is. The terms grant use of
@@ -145,11 +152,13 @@ class TestTheTermsSayWhatTheMaintainerAsked:
         It asserted "diagnostic data is not published" until 2026-09-19.
         That sentence was false: the traceback and the run's settings are
         Diagnostic Data under 1.6, and every report publishes them. Terms
-        4.2 say what is published and that the log is not."""
+        4.3 say what is published and that the log is not: the log stays a
+        file on the user's equipment and the anonymised error report never
+        carries one."""
         said = terms_module.terms_text().lower()
 
         assert "the log is never published" in said
-        assert "records the path rather than the contents" in said
+        assert "sending that file is a separate act you take" in said
         assert "diagnostic data is not published" not in said
 
     def test_they_read_as_an_agreement_rather_than_an_essay(self,
@@ -182,6 +191,15 @@ class TestRewrittenTermsAskAgain:
     def test_a_profile_that_accepted_the_old_wording_is_asked_again(
             self, terms_module):
         terms_module.record_agreement("1.0")
+
+        assert terms_module.needs_agreement() is True
+
+    def test_the_relay_and_ai_rewrite_is_asked_again(self, terms_module):
+        """4.3 rewrote Sections 5 and 6 (anonymised error reports through
+        spaCR's relay, spaCR AI on by default), so acceptance of 4.2 is not
+        carried forward."""
+        assert terms_module.TERMS_VERSION == "4.3"
+        terms_module.record_agreement("4.2")
 
         assert terms_module.needs_agreement() is True
 

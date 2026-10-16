@@ -426,3 +426,30 @@ def test_the_pin_never_covers_prev_and_next_image(
         assert not where(button).intersects(pin), (
             f"{button.text()} lies under the pin at {size}")
         assert button.visibleRegion().boundingRect() == button.rect()
+
+
+def test_a_fixed_side_pane_uses_its_extent_instead_of_its_wrapping_size_hint(qtbot):
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QLabel
+
+    from spacr.qt.widgets.collapsible_splitter import CollapsibleSplitter, EDGE
+
+    side = QLabel("The shortcut list and console can wrap their text. " * 8)
+    side.setWordWrap(True)
+    minimum = side.minimumSizeHint().width()
+    natural = side.sizeHint().width()
+    extent = (minimum + natural) // 2
+    assert minimum < extent < natural
+    split = CollapsibleSplitter(Qt.Horizontal)
+    qtbot.addWidget(split)
+    split.add_pane(QLabel("Canvas"), "Canvas", stretch=1)
+    pane = split.add_pane(side, "Shortcuts", mode=EDGE, stretch=0,
+                          extent=extent, minimum=minimum)
+    split.resize(natural * 3, 300)
+    split.show()
+    qtbot.waitExposed(split)
+    QApplication.processEvents()
+    assert side.width() == pane.extent == extent
+    split.resize(natural * 4, 300)
+    QApplication.processEvents()
+    assert side.width() == extent

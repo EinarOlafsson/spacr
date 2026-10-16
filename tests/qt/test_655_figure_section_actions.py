@@ -133,3 +133,23 @@ def test_unrelated_frames_keep_native_accessibility(qtbot):
     assert interface.role() != QAccessible.Button
     assert not interface.state().expandable
     assert QAccessibleActionInterface.pressAction() not in interface.actionInterface().actionNames()
+
+
+def test_assistive_focus_reaches_header_without_folding_figures(grid, qtbot):
+    from PySide6.QtCore import Qt
+
+    header = _header(grid)
+    grid.activateWindow()
+    grid.setFocus(Qt.OtherFocusReason)
+    qtbot.waitUntil(grid.hasFocus)
+    action = QAccessible.queryAccessibleInterface(header).actionInterface()
+    focus = QAccessibleActionInterface.setFocusAction()
+    assert focus in action.actionNames()
+    before = grid.workspace_state()
+    action.doAction(focus)
+    qtbot.waitUntil(header.hasFocus)
+    action.doAction(focus)
+    assert grid.workspace_state() == before
+    assert all(cell.isVisible() for cell in grid._cells)
+    qtbot.keyClick(header, Qt.Key_Tab)
+    assert not header.hasFocus()

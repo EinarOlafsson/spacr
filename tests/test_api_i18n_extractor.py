@@ -1427,7 +1427,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # AmbientWidget.set_click_ripples and the nested Preferences helper
     # _build_the_dialog._density_follows_theme; all nine API catalogs were
     # regenerated with tools/build_documentation_i18n.py first.
-    expected = 13_218
+    # 2026-10-15 item 700: +0/-28, the first-run setup drops its AI-assistant
+    # and GitHub sign-in pages. Retired: the cli_setup_panel module with
+    # CliSetupPanel and its nine members (cancel, copy_command, done, install,
+    # is_busy, shutdown, sign_in, sign_in_failed, tool_label); the
+    # provider_marks module with ProviderMark and its six members (event,
+    # is_chosen, mousePressEvent, paintEvent, set_chosen, sizeHint), claude_path, gemini_path, github_path, gpt_path, mark_for
+    # and the nested _parse_svg_path.num, _svg_arc.ang and _svg_arc.pt; and
+    # SetupSlides.provider_status. Nothing added.
+    expected = 13_190
     import json
     worker_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts/664_665_worker_api_arrivals_2026-10-08.json").read_text())
@@ -1591,6 +1599,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in s700_arrivals} == s700_arrivals
     assert not s700_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **s700_arrivals}
+    # 2026-10-15: Item 673: napari-like True 3D view (3-D volume rendering in spacr.layers and its ray helper); one named contract.
+    n673_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
+        / "673_napari_true3d_api_arrivals_2026-10-15.json").read_text())
+    assert len(n673_arrivals) == 8
+    assert {key: docs[key] for key in n673_arrivals} == n673_arrivals
+    assert not n673_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **n673_arrivals}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
         / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text())
@@ -1713,7 +1728,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,929 -> 11,942 with `expected` above, for item 600's 13.
     # Item 662: +4 public mask_engine YOLO helpers, no removals.
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
-    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_218
+    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_190
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

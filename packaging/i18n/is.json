@@ -68,7 +68,6 @@
   "gui_public_reports": "Villuskýrslur eru opinberar og ekki er hægt að tryggja að birting þeirra sé afturkölluð. Viðkvæmar upplýsingar eru fjarlægðar og skýrslan forskoðuð fyrir hverja sendingu. Valin eru valfrjáls og má breyta síðar í stillingum.",
   "gui_share_diagnostics": "Hafa greiningarannála án viðkvæmra upplýsinga með í forskoðun skýrslna",
   "gui_report_issues": "Virkja opinbera villutilkynningu á GitHub",
-  "gui_account_setup": "Opna uppsetningu reikninga við fyrstu ræsingu",
   "gui_preserve": "Núverandi gögn, líkön, skyndiminni og stillingar eru varðveitt. Engin valfrjáls hreinsun er valin.",
   "gui_close": "Loka",
   "gui_install": "Setja upp",

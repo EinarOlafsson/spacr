@@ -2,8 +2,8 @@
 STARTUP LOGO ON A FULL-SCREEN BORDERLESS WINDOW, A 2 + 4 S TIMELINE, AND A HELP REPLAY
 ================================================================================
 
-Status:    built 2026-10-12 (Home); translations of the new strings and the
-           WS capture (SPACR_NO_SPLASH unset) pending
+Status:    built 2026-10-12 (Home); nine-language translations current;
+           WS capture (SPACR_NO_SPLASH unset) remains owner work
 Requested: maintainer, 2026-10-12 (clarified the same day: "the spacr window
            and the logo blow away window are the same window not seperate the
            spacr log mosaic on a black background is the first thing loaded
@@ -201,3 +201,6 @@ launch path reads no consent choice before it is applied. Update notices
 (Help > Check for updates) are user-started only and not scheduled at launch;
 no tip-of-the-day or crash-recovery prompt exists beyond the drafts question.
 Tests: tests/qt/test_695_startup_dialogs_deferred.py.
+
+2026-10-15 — Normal runtime pipeline and all-nine audit pass on current source; caption-arrival tests13PASS.
+No new tutorial/native acceptance or release claim; those remain with their existing owners.

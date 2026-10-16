@@ -159,8 +159,10 @@ def test_apply_model_says_it_fell_back_before_it_scores_anything(
 def test_apply_model_to_tar_says_it_fell_back_before_it_scores_anything(
         tmp_path, capsys, fell_back_to_cpu, stop_after_the_notice):
     """The tar entry point picks a device of its own and owes the same notice."""
+    checkpoint = tmp_path / "model.pth"
+    checkpoint.write_bytes(b"local-device-notice-fixture")
     settings = {"tar_path": str(tmp_path / "ds.tar"),
-                "model_path": str(tmp_path / "model.pth"),
+                "model_path": str(checkpoint),
                 "normalize": True, "image_size": 32, "batch_size": 2,
                 "channels": [1, 2, 3], "n_jobs": 0, "verbose": False,
                 "score_threshold": 0.5}
@@ -169,6 +171,7 @@ def test_apply_model_to_tar_says_it_fell_back_before_it_scores_anything(
         deep_spacr.apply_model_to_tar(settings)
 
     assert _NOTE in capsys.readouterr().out
+    assert checkpoint.read_bytes() == b"local-device-notice-fixture"
 
 
 def test_evaluating_a_stage_says_where_it_is_running(capsys, fell_back_to_cpu):

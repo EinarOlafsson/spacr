@@ -1360,6 +1360,8 @@ class RunContext:
     :param resource_artifact_id: artifact-registry identifier assigned after
         successful resource-document registration, or ``""`` when no record
         was created.
+    :param _resource_sampler: the internal process-tree resource sampler, or
+        ``None`` before resource accounting starts or when it is unavailable.
     """
 
     run_id: str

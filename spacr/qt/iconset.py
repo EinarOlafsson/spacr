@@ -869,6 +869,8 @@ def app_icon(key: str, override: Optional[str] = None,
 
 
 _NAME_TO_GLYPH = {
+    "eye":             "fa5s.eye",
+    "eye_off":         "fa5s.eye-slash",
     "open":            "fa5s.folder-open",
     "folder":          "fa5s.folder",
     "file":            "fa5s.file",

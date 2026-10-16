@@ -11,6 +11,7 @@
 # gnome-shell, browsers) always holds graphics contexts and keeps the
 # utilisation counter at 20-50 %, so utilisation is useless as a signal;
 # compute processes are what another session's work looks like.
+# Chrome never blocks the queue, even when nvidia-smi lists it as compute.
 #
 #   tools/gpu_turn.sh <label> <command...>
 #   tools/gpu_turn.sh 507-cellpose3-timing python tools/some_probe.py
@@ -41,13 +42,16 @@ LABEL="$1"; shift
 say() { echo "$(date -Is) [$LABEL] $*" | tee -a "$LOG" >&2; }
 
 compute_pids() {
-    # Ignore Chromium/Electron screen-drawing processes (Chrome, VS Code, Slack...):
-    # they hold a small context for display, never release it, and would keep the
-    # idle gate shut forever. Only real compute jobs count as "busy".
-    local pid
+    local pid executable
     for pid in $(nvidia-smi --query-compute-apps=pid --format=csv,noheader 2>/dev/null \
                  | tr -d ' ' | grep -v '^$'); do
-        tr '\0' ' ' < "/proc/$pid/cmdline" 2>/dev/null | grep -q -- '--type=gpu-process' \
+        executable=$(readlink "/proc/$pid/exe" 2>/dev/null || true)
+        executable=${executable% (deleted)}
+        case "${executable##*/}" in
+            chrome|chromium|chromium-browser|google-chrome|google-chrome-stable)
+                continue ;;
+        esac
+        tr '\0' '\n' < "/proc/$pid/cmdline" 2>/dev/null | grep -Fxq -- '--type=gpu-process' \
             && continue
         echo "$pid"
     done

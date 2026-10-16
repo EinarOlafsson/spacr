@@ -19,8 +19,9 @@ def test_fresh_dialog_starts_with_every_choice_off(qtbot):
     assert dialog.choices() == {
         "share_diagnostics": False,
         "report_issues": False,
-        "sign_in_now": False,
     }
+    texts = " ".join(w.text() for w in dialog.findChildren(type(dialog.share_diagnostics)))
+    assert "Claude" not in texts and "Gemini" not in texts
 
 
 def test_collected_installer_choices_reach_runtime_preferences(
@@ -39,7 +40,6 @@ def test_collected_installer_choices_reach_runtime_preferences(
         lambda: _profile(
             share_diagnostics=True,
             report_issues=True,
-            sign_in_now=False,
         ),
     )
 
@@ -76,7 +76,11 @@ def test_declining_uncollected_page_keeps_everything_off(qtbot, monkeypatch):
     assert preferences.get_issue_prompt_mode() == preferences.ISSUE_PROMPT_NEVER
 
 
-def test_sign_in_choice_opens_existing_provider_setup(qtbot, monkeypatch):
+def test_a_legacy_sign_in_choice_opens_nothing(qtbot, monkeypatch):
+    """A profile from an older installer may still ask for account setup.
+
+    Setup no longer offers GitHub or AI sign-in, so the old key is ignored.
+    """
     from PySide6.QtWidgets import QWidget
     from spacr.qt import install_consent
 
@@ -88,9 +92,5 @@ def test_sign_in_choice_opens_existing_provider_setup(qtbot, monkeypatch):
         "read_profile",
         lambda: _profile(sign_in_now=True),
     )
-    opened = []
-    monkeypatch.setattr(
-        install_consent, "_open_account_setup", lambda owner: opened.append(owner)
-    )
-    install_consent.maybe_show_installer_consent(parent)
-    assert opened == [parent]
+    assert not hasattr(install_consent, "_open_account_setup")
+    assert install_consent.maybe_show_installer_consent(parent) is True

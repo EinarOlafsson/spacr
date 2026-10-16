@@ -462,11 +462,16 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     # lessons, and the still-frame renderer it used,
     # spacr/qt/tutorial/engine.py and spacr/qt/tutorial/scripts.py, left the
     # package (their baseline entries retired with --retire-module).
+    # 664 -> 662 on 2026-10-15, +0/-2: the first-run setup no longer
+    # offers AI providers or GitHub sign-in, so the provider marks and the
+    # install-and-sign-in panel it drew them with left the package.
     retired_since_608 = {'spacr/qt/tutorial/engine.py',
-                         'spacr/qt/tutorial/scripts.py'}
+                         'spacr/qt/tutorial/scripts.py',
+                         'spacr/qt/widgets/cli_setup_panel.py',
+                         'spacr/qt/widgets/provider_marks.py'}
     assert not retired_since_608 & shipped
     assert (len(shipped) == 608 + len(added_since_608)
-            - len(retired_since_608) == 664)
+            - len(retired_since_608) == 662)
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -872,7 +877,9 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     # 652 -> 664 on 2026-10-02 (item 43): the twelve modules named in the
     # denominator test, the same +12 as `shipped`; the gate's own inventory
     # returns 664. Moved with the workflow in one commit.
-    assert "--expected-file-count 664" in combine_script
+    # 664 -> 662 on 2026-10-15: the setup screen's provider marks and
+    # install-and-sign-in panel left the package, the same -2 as `shipped`.
+    assert "--expected-file-count 662" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script

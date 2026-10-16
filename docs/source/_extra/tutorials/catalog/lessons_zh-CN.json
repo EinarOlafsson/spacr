@@ -971,13 +971,12 @@
             650
           ],
           "narration": "激活安装了spaCR的Python环境。使用显示的命令导入spacr并打印其版本。把版本号与分析笔记一起保存，以便以后重现同样的运行。",
-          "related_lessons": [
-            "02_conda_install",
-            "03_pip_install",
-            "04_platform_installers"
-          ],
           "hold_after": 0.7,
-          "speech_text": "激活安装了斯佩克尔的Python环境。使用显示的命令导入斯佩克尔并打印其版本。把版本号与分析笔记一起保存，以便以后重现同样的运行。"
+          "speech_text": "激活安装了斯佩克尔的Python环境。使用显示的命令导入斯佩克尔并打印其版本。把版本号与分析笔记一起保存，以便以后重现同样的运行。",
+          "related_lessons": [
+            "02_install_spacr",
+            "04_platform_installers"
+          ]
         },
         {
           "visual": "02_list",
@@ -1000,12 +999,12 @@
             900
           ],
           "narration": "运行spacr-run加上横杠横杠describe，后面跟regression。阅读必需的输入、默认值和函数名称。这里，批处理命令调用的是spacr.ml中的perform_regression。在API参考中打开该函数，阅读它的参数和返回结果。",
+          "hold_after": 0.7,
+          "speech_text": "运行斯佩克尔-run加上横杠横杠describe，后面跟regression。阅读必需的输入、默认值和函数名称。这里，批处理命令调用的是斯佩克尔.ml中的perform_regression。在API参考中打开该函数，阅读它的参数和返回结果。",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "运行斯佩克尔-run加上横杠横杠describe，后面跟regression。阅读必需的输入、默认值和函数名称。这里，批处理命令调用的是斯佩克尔.ml中的perform_regression。在API参考中打开该函数，阅读它的参数和返回结果。"
+          ]
         },
         {
           "visual": "05_report_api",
@@ -1040,12 +1039,12 @@
             900
           ],
           "narration": "要执行分析，请去掉横杠横杠dry-run再运行同一条命令。在控制台中跟踪直到命令完成，然后检查该模块教程和API页面中描述的输出。把设置文件、输入表、软件包版本和控制台日志与结果一起保存。",
+          "hold_after": 0.7,
+          "speech_text": "要执行分析，请去掉横杠横杠dry-run再运行同一条命令。在控制台中跟踪直到命令完成，然后检查该模块教程和API页面中描述的输出。把设置文件、输入表、软件包版本和控制台日志与结果一起保存。",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "要执行分析，请去掉横杠横杠dry-run再运行同一条命令。在控制台中跟踪直到命令完成，然后检查该模块教程和API页面中描述的输出。把设置文件、输入表、软件包版本和控制台日志与结果一起保存。"
+          ]
         }
       ],
       "narration_voices": {

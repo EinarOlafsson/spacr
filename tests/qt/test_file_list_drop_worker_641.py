@@ -157,3 +157,59 @@ def test_scanner_refusal_unblocks_later_drop_without_gui_filesystem_work(listing
     monkeypatch.setattr(dnd_handlers, '_scanner_for', original_scanner)
     assert _drop(listing, [folder])
     qtbot.waitUntil(lambda: listing.paths() == [str(folder / 'a.csv'), str(folder / 'b.csv')])
+
+
+def test_unreadable_folder_keeps_resolved_files_and_does_not_block_next_drop(
+        listing, tmp_path, qtbot, monkeypatch):
+    first = tmp_path / 'first.csv'
+    last = tmp_path / 'last.csv'
+    for path in (first, last):
+        path.write_bytes(b'value\n1\n')
+    unreadable = _folder(tmp_path, 'unreadable')
+    original = os.listdir
+    main = threading.get_ident()
+    failed_threads = []
+
+    def listdir(path):
+        if os.fspath(path) == str(unreadable):
+            failed_threads.append(threading.get_ident())
+            raise PermissionError('folder access revoked')
+        return original(path)
+
+    monkeypatch.setattr(files.os, 'listdir', listdir)
+    values, contents = [], []
+    listing.value_changed.connect(lambda: values.append((threading.get_ident(), listing.paths())))
+    listing.contents_changed.connect(lambda: contents.append((threading.get_ident(), listing.paths())))
+    assert _drop(listing, [first, unreadable])
+    qtbot.waitUntil(lambda: listing.paths() == [str(first)])
+    assert failed_threads and all(thread != main for thread in failed_threads)
+    assert values == contents == [(main, [str(first)])]
+    assert _drop(listing, [last])
+    qtbot.waitUntil(lambda: listing.paths() == [str(first), str(last)])
+    assert values == contents == [(main, [str(first)]), (main, [str(first), str(last)])]
+    assert first.read_bytes() == last.read_bytes() == b'value\n1\n'
+
+
+def test_single_file_drop_replaces_once_without_starting_a_folder_worker(
+        qtbot, tmp_path, monkeypatch):
+    from spacr.qt import dnd_handlers
+
+    paths = [tmp_path / name for name in ('previous.csv', 'first.csv', 'chosen.csv')]
+    for path in paths:
+        path.write_bytes(b'value\n2\n')
+    widget = files.FilePathListWidget(value=str(paths[0]), kind='table', single=True)
+    qtbot.addWidget(widget)
+    widget.show()
+    monkeypatch.setattr(dnd_handlers, '_scanner_for',
+                        lambda owner: pytest.fail('single-file choice started folder enumeration'))
+    values, contents = [], []
+    widget.value_changed.connect(lambda: values.append(widget.get_value()))
+    widget.contents_changed.connect(lambda: contents.append(widget.get_value()))
+    assert _drop(widget, paths[1:])
+    assert widget.get_value() == str(paths[-1])
+    assert widget.paths() == [str(paths[-1])]
+    assert widget._single_line.text() == str(paths[-1])
+    assert values == contents == [str(paths[-1])]
+    assert _drop(widget, [paths[-1]])
+    assert values == contents == [str(paths[-1])]
+    assert all(path.read_bytes() == b'value\n2\n' for path in paths)

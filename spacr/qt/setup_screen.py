@@ -122,8 +122,9 @@ def take_the_setup_flags(argv):
 def questions() -> List[Tuple[str, str, Callable, Callable, Any]]:
     """Build the question list against the live preference module.
 
-    No question picks an AI provider (item 700): a new user starts with the
-    AI on and spaCR AI (free), and changes provider in Preferences → AI.
+    Setup asks nothing about AI providers, GitHub or error reports: spaCR
+    AI (free) and anonymised error reports are on by default, the terms of
+    use describe both, and Preferences → AI changes them.
     """
     from . import preferences as prefs
 
@@ -145,14 +146,6 @@ def questions() -> List[Tuple[str, str, Callable, Callable, Any]]:
           for level in prefs.PERFORMANCE_LEVELS]),
         ("hash_inputs", "Reproducibility hash", prefs.get_hash_inputs,
          prefs.set_hash_inputs, None),
-        ("issue_prompt", "One-click issue filing",
-         prefs.get_issue_prompt_mode, prefs.set_issue_prompt_mode,
-         choices_of(prefs.ISSUE_PROMPT_MODES)),
-        ("ai_default", "AI assistant on at launch",
-         prefs.get_ai_on_by_default, prefs.set_ai_on_by_default, None),
-        ("share_logs", "Include recent logs in a report",
-         prefs.get_share_diagnostic_logs, prefs.set_share_diagnostic_logs,
-         None),
     ]
     return [q for q in out if q[4] is None or q[4]]
 
@@ -169,24 +162,6 @@ def _language_choices():
         return [(one.code, one.native_name) for one in LANGUAGES]
     except Exception:                                        # noqa: BLE001
         return [("en", "English")]
-
-
-def _provider_choices():
-    """The installed providers, or ``[]``.
-
-    AN EMPTY LIST REMOVES THE QUESTION, which `questions()` does at the
-    bottom. Asking somebody to choose between providers none of which are
-    installed is asking them to answer a question with no true answers --
-    and this screen's rule is that every question has a working default.
-    """
-    try:
-        from .ai.providers import list_providers
-
-        names = [str(getattr(p, "name", "") or "") for p in list_providers()]
-    except Exception:                                        # noqa: BLE001
-        return []
-    found = [(n, n.replace("_", " ")) for n in names if n]
-    return [("", "whatever is available")] + found if found else []
 
 
 def apply(answers: Dict[str, Any]) -> List[str]:

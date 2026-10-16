@@ -272,6 +272,9 @@ TOOLS = ROOT / "tools"
 # AmbientWidget.set_click_ripples and the nested Preferences helper
 # _build_the_dialog._density_follows_theme, as test_api_i18n_extractor
 # already counts; all 13,215 prior symbols unchanged.
+# 2026-10-15 item 700: +0/-28, the cli_setup_panel and provider_marks
+# modules and SetupSlides.provider_status leave with the first-run AI and
+# GitHub pages. The named inverse below retains the prior historical floor.
 DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_218
 SOURCE_REVIEWED_SYMBOLS_2026_10_07 = frozenset({
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_background",
@@ -3445,6 +3448,13 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     assert {key: docs[key] for key in s700_arrivals} == s700_arrivals
     assert not s700_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **s700_arrivals}
+    # 2026-10-15: Item 673: napari-like True 3D view (3-D volume rendering in spacr.layers and its ray helper); one named contract.
+    n673_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "673_napari_true3d_api_arrivals_2026-10-15.json").read_text())
+    assert len(n673_arrivals) == 8
+    assert {key: docs[key] for key in n673_arrivals} == n673_arrivals
+    assert not n673_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **n673_arrivals}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text())
@@ -3481,8 +3491,35 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     assert {key: docs[key] for key in launcher_arrivals} == launcher_arrivals
     assert not launcher_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **launcher_arrivals}
-    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
-               - volume_arrivals.keys() - zoo_arrivals.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
+    # Reuse the exact named arrivals already bound by the extractor contract.
+    for filename, count in (
+        ("699_ssh_connection_worker_api_arrival_2026-10-14.json", 1),
+        ("reviewed_api_surface_arrivals_2026-10-15.json", 20),
+        ("561_classifier_api_arrivals_2026-10-15.json", 19),
+        ("180_session_figure_api_arrivals_2026-10-15.json", 2),
+    ):
+        arrivals = json.loads((ROOT / "tests/data/release_contracts"
+                              / filename).read_text())
+        assert len(arrivals) == count
+        assert {key: docs[key] for key in arrivals} == arrivals
+        assert not arrivals.keys() & (
+            zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+            | home_ui_arrivals.keys() | volume_arrivals.keys()
+        )
+        zoo_arrivals = {**zoo_arrivals, **arrivals}
+    retirement = json.loads((ROOT / "tests/data/release_contracts"
+        / "700_retired_setup_api_inverse_2026-10-15.json").read_text())
+    assert retirement["source_commit"] == "0881044e8b310515e2434b1046fe94a02d769b47"
+    assert retirement["source_blob"] == "f86aef1b5123a1eae9c978011e0a54f9ff4dfd63"
+    assert retirement["source_path"] == "docs/source/_static/i18n/api/en.json"
+    retired_setup = retirement["retired"]
+    assert len(retired_setup) == 28
+    assert hashlib.sha256(json.dumps(
+        retired_setup, sort_keys=True, ensure_ascii=False,
+    ).encode()).hexdigest() == "5df7d5da3b7cce98b3a0231d968642b2868d09e92d9e797157a4cb728aaec731"
+    assert not retired_setup.keys() & (docs.keys() | zoo_arrivals.keys())
+    assert len((docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
+                - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_setup.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
         "The public documentation inventory changed. Regenerate every API "
         "catalog, review the diff, and update "
         "DOCUMENTATION_API_SYMBOL_COUNT_RATCHET in the same change."

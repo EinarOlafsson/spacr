@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical authorship by Codex; no human or native-speaker signoff",
+  "note": "One actual source/context-bound restart command paragraph; independent AI technical peer accepted, with no human or native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.restart_state.command#1",
+      "source": "A frozen application restarts its bundled executable directly, without Python interpreter flags. An unfrozen installation uses the active Python interpreter and the explicit :mod:`spacr.qt` entry point. Both routes return to the same GUI without depending on an executable found through ``PATH``.",
+      "source_sha256": "a6d6d6d5b88ef533b8eebe3428ee783adbec9c778dd06373ee6d9851c9992b24",
+      "context": "A frozen application restarts its bundled executable directly, without Python interpreter flags. An unfrozen installation uses the active Python interpreter and the explicit :mod:`spacr.qt` entry point. Both routes return to the same GUI without depending on an executable found through ``PATH``.",
+      "translation": "फ्रोज़न अनुप्रयोग अपने बंडल में शामिल निष्पादन योग्य प्रोग्राम को Python इंटरप्रेटर के फ़्लैग के बिना सीधे पुनः शुरू करता है। गैर-फ्रोज़न इंस्टॉलेशन सक्रिय Python इंटरप्रेटर और स्पष्ट प्रवेश बिंदु :mod:`spacr.qt` का उपयोग करता है। दोनों मार्ग ``PATH`` से मिले किसी निष्पादन योग्य प्रोग्राम पर निर्भर हुए बिना उसी GUI पर लौटते हैं।"
+    }
+  ]
+}

@@ -5461,7 +5461,7 @@ def _ready_packed_scatter():
                 _PACKED_SCATTER_STARTED = True
                 try:
                     threading.Thread(target=_warm_packed_scatter,
-                                     name='spacr-grain-compile', daemon=True).start()
+                                     name='spacr-grain-compile', daemon=False).start()
                 except Exception:
                     _PACKED_SCATTER_FAILED = True
         finally:
@@ -5608,7 +5608,7 @@ class _SatinCompiler:
                 self.started = True
                 try:
                     threading.Thread(target=self._warm, name="spacr-satin-compile",
-                                     daemon=True).start()
+                                     daemon=False).start()
                 except Exception:
                     self.failed = True
         finally:

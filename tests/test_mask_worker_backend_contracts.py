@@ -75,10 +75,21 @@ def test_checkpoint_files_are_signed_for_every_backend(tmp_path, root, value, ba
     assert again == signature
 
 
-def test_missing_checkpoints_and_cellpose_sam_are_refused(tmp_path, root):
-    with pytest.raises(ValueError, match='Cellpose-DINO'):
-        _resolved_backend_model({'cell_model_name': 'cellpose_dino:/no/such'},
+def test_missing_checkpoints_and_cellpose_sam_are_refused(tmp_path, root, monkeypatch):
+    from spacr import model_zoo
+
+    def forbidden(*args, **kwargs):
+        pytest.fail('A missing checkpoint must not be acquired or constructed')
+
+    monkeypatch.setattr(model_zoo, 'fetch', forbidden)
+    monkeypatch.setattr(sb, '_load_backend', forbidden)
+    requested = 'cellpose_dino:/no/such'
+    with pytest.raises(model_zoo.ModelZooError) as refused:
+        _resolved_backend_model({'cell_model_name': requested},
                                 'cell', root=root)
+    assert 'cell_model_name' in str(refused.value)
+    assert repr(requested) in str(refused.value)
+    assert 'Available compatible zoo identities: [].' in str(refused.value)
     with pytest.raises(ValueError, match='_prepare_mask_model'):
         _resolved_backend_model({'cell_model_name': 'cpsam'}, 'cell', root=root)
     with pytest.raises(ValueError, match='Unsupported'):

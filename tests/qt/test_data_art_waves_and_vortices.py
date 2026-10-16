@@ -133,7 +133,7 @@ def test_wave_compile_failure_falls_back_once_without_retry(monkeypatch, failure
 
     class DeferredThread:
         def __init__(self, target, name, daemon):
-            assert name == 'spacr-satin-compile' and daemon
+            assert name == 'spacr-satin-compile' and daemon is False
             self.target = target
 
         def start(self):

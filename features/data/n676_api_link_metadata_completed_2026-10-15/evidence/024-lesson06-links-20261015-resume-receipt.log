@@ -1,0 +1,5 @@
+Command: ['/home/carruthers/anaconda3/envs/spacr/bin/python', '/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/run_tool.py', 'tools/tutorials/publish_release_candidate.py', 'resume-receipt', '/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_', '--branch', 'n676-selective05-20261015', '--tag', 'n676-selective05-20261015-verified', '--readback-json', '/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/baseline-media-readback.json']
+Source: 5430c0ceabbd9cf99a4f40ea3030eefa89c2bd87
+RECEIPT /media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/publication-receipt.json https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/4e4de22dce9cc5e7f1c86747b6159b538e66f7a1
+
+Terminal exit status: 0

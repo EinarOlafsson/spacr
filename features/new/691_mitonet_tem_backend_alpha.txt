@@ -2,7 +2,7 @@
 MITONET AS AN ALPHA MAKE MASKS BACKEND FOR TEM
 ================================================================================
 
-Status:    built 2026-10-11 (alpha); translations of the new strings pending (WS)
+Status:    complete original alpha scope; nine-language translations current
 Requested: 2026-10-11 — approved by the maintainer as the follow-up N690
            recommended: "MitoNet as an alpha Make Masks backend for TEM".
 Owner:     Home (build); WS (translations)
@@ -137,3 +137,6 @@ N690 tutorial work is separate and was not an original N691 completion gate.
 Evidence: features/data/691_current_whole_item_reconciliation_2026-10-15/.
 
 Original Home independent review: COMPLETE original alpha item. Exact current SourceStrip N440 localization additions reviewed separately; no MitoNet gate behavior changed. No full CI or new model evaluation is implied.
+
+2026-10-15 — Normal runtime pipeline and all-nine audit pass on current source; caption-arrival tests13PASS.
+No new tutorial/native acceptance or release claim; those remain with their existing owners.

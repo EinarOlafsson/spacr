@@ -14,8 +14,11 @@ def test_installed_own_dino_classifier_refusals(checkpoint, monkeypatch, tmp_pat
                                                language, boundary):
     import numpy as np
 
+    review_file = ('2026-10-15-f561-classifier-backend-home-b.json'
+                   if boundary == 'invalid'
+                   else '2026-10-15-f561-classifier-ui-runtime-home-b.json')
     review_path = (Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime'
-                   / language / '2026-10-15-own-dino-classifier.json')
+                   / language / review_file)
     reviews = json.loads(review_path.read_text())['records']
     source = ('Own-DINO classifier settings, checkpoint or input are incompatible.'
               if boundary == 'invalid' else 'Classifier training stopped.')

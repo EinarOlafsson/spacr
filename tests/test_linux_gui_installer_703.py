@@ -4,8 +4,10 @@ import os
 from pathlib import Path
 import re
 import shlex
+import shutil
 import subprocess
 import sys
+import time
 
 import pytest
 
@@ -66,7 +68,7 @@ NO_LAUNCH=1
 if [[ "$GUI_CASE" == missing ]]; then
     command() { if [[ "${2:-}" == zenity ]]; then return 1; fi; builtin command "$@"; }
 fi
-spacr_linux_gui_install ''' + shlex.quote(str(backend)) + ''' --package-spec 'fake wheel.whl' --gui --share-diagnostics --report-issues --sign-in-now
+spacr_linux_gui_install ''' + shlex.quote(str(backend)) + ''' --package-spec 'fake wheel.whl' --gui --share-diagnostics --report-issues
 ''')
     environment = dict(os.environ, PATH=str(bindir) + os.pathsep + os.environ['PATH'],
                        XDG_CACHE_HOME=str(tmp_path / 'cache'), DIALOG_RECORD=str(tmp_path / 'dialogs.jsonl'),
@@ -74,7 +76,7 @@ spacr_linux_gui_install ''' + shlex.quote(str(backend)) + ''' --package-spec 'fa
     return tmp_path, harness, environment
 
 
-@pytest.mark.parametrize('choices', ['', 'diagnostics|accounts'])
+@pytest.mark.parametrize('choices', ['', 'diagnostics'])
 def test_gui_choices_default_off_and_only_current_selection_reaches_headless_child(gui, choices):
     tmp, harness, environment = gui
     result = subprocess.run(['bash', str(harness)], env=dict(environment, GUI_CASE='success', GUI_CHOICES=choices),
@@ -86,10 +88,10 @@ def test_gui_choices_default_off_and_only_current_selection_reaches_headless_chi
     assert '--consent-collected' in arguments and '--skip-system-deps' in arguments and '--no-launch' in arguments
     assert ('--share-diagnostics' in arguments) == ('diagnostics' in choices)
     assert '--report-issues' not in arguments
-    assert ('--sign-in-now' in arguments) == ('accounts' in choices)
+    assert '--sign-in-now' not in arguments
     dialogs = [json.loads(line) for line in (tmp / 'dialogs.jsonl').read_text().splitlines()]
     checklist, = [args for args in dialogs if '--checklist' in args]
-    assert checklist.count('FALSE') == 3
+    assert checklist.count('FALSE') == 2
     assert any('--text-info' in args for args in dialogs)
     logs = list((tmp / 'cache/spacr/installer').glob('gui.*/install.log'))
     assert len(logs) == 1 and 'backend complete' in logs[0].read_text()
@@ -169,3 +171,60 @@ def test_actual_desktop_routing_preserves_explicit_headless_and_child_invocation
     result = subprocess.run(['bash', str(harness)], stdin=subprocess.DEVNULL,
                             capture_output=True, text=True, timeout=5)
     assert result.returncode == 0 and result.stdout == expected, result.stderr
+
+
+@pytest.mark.parametrize("directory", [
+    "runtime directory", 'runtime $cost `literal`', "runtime 100%", "runtime=value",
+    'runtime "quote"', 'runtime \\slash', 'runtime 100% "quote" \\slash',
+])
+@pytest.mark.parametrize("no_command", [0, 1])
+def test_desktop_entry_runs_verified_private_python_without_command_launcher(tmp_path, directory, no_command):
+    gio = shutil.which("gio")
+    if gio is None:
+        pytest.skip("desktop-entry activation needs the GLib gio utility")
+    venv = tmp_path / directory
+    python = venv / "bin" / "python"
+    python.parent.mkdir(parents=True)
+    proof = tmp_path / "launched.json"
+    python.write_text(
+        '#!/bin/sh\n'
+        'if [ "$2" = "-c" ]; then printf "%s\\n" /tmp/fixture-icon.png; exit 0; fi\n'
+        'if [ "$2" = "-" ]; then exec ' + shlex.quote(sys.executable) + ' "$@"; fi\n'
+        'exec ' + shlex.quote(sys.executable) + ' -I -c '
+        + shlex.quote('import json,os,sys; from pathlib import Path; Path(os.environ["SPACR_LAUNCH_PROOF"]).write_text(json.dumps(sys.argv[1:]))')
+        + ' "$@"\n'
+    )
+    python.chmod(0o755)
+    launcher = tmp_path / "command directory" / "spacr"
+    launcher.parent.mkdir()
+    launcher.write_text('#!/bin/sh\nprintf stale > "$SPACR_LAUNCH_PROOF"\n')
+    launcher.chmod(0o755)
+    shadow_python = launcher.parent / "python"
+    shadow_python.write_bytes(launcher.read_bytes())
+    shadow_python.chmod(0o755)
+    desktop_dir = tmp_path / "applications"
+    root = tmp_path / "install"
+    root.mkdir()
+    source = SCRIPT.read_text()
+    start = source.index('if [[ "$PLATFORM" == "linux" ]]; then\n    mkdir -p "$DESKTOP_DIR"')
+    end = source.index('\n    uninstall_path=', start)
+    values = {"PLATFORM": "linux", "VENV_DIR": str(venv), "LAUNCHER": str(launcher),
+              "DESKTOP_DIR": str(desktop_dir), "INSTALL_ROOT": str(root), "NO_COMMAND_LAUNCHER": str(no_command)}
+    harness = tmp_path / "desktop.sh"
+    harness.write_text('set -euo pipefail\nspacr_say() { printf "%s" "$1"; }\n'
+                       + '\n'.join(key + '=' + shlex.quote(value) for key, value in values.items())
+                       + '\n' + source[start:end] + '\nfi\n')
+    environment = dict(os.environ, HOME=str(tmp_path), SPACR_LAUNCH_PROOF=str(proof))
+    generated = subprocess.run(['bash', str(harness)], env=environment, capture_output=True, text=True, timeout=10)
+    assert generated.returncode == 0, generated.stdout + generated.stderr
+    desktop = desktop_dir / "io.github.olafssonlab.spacr.desktop"
+    launched = subprocess.run([gio, 'launch', str(desktop)],
+                              env=dict(environment, PATH=str(launcher.parent)),
+                              capture_output=True, text=True, timeout=10)
+    assert launched.returncode == 0, launched.stdout + launched.stderr
+    deadline = time.monotonic() + 5
+    while not proof.exists() and time.monotonic() < deadline:
+        time.sleep(0.01)
+    assert proof.exists()
+    assert json.loads(proof.read_text()) == ["-I", "-m", "spacr.qt"]
+    assert launcher.read_text() == '#!/bin/sh\nprintf stale > "$SPACR_LAUNCH_PROOF"\n'

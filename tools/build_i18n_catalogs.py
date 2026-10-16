@@ -301,6 +301,8 @@ _IDENTITY_TEXT = {
     "Page Up / Page Down", "Shift+E / Shift+S / Shift+D", "Shift+X / Shift+Y / Shift+Z",
     # N673 View mode name, kept in English like the other protected 3D terms.
     "True 3D", "ER 2",
+    # 2026-10-15: N673 True 3D rendering name, napari's minimum-intensity projection.
+    "MinIP",
     "ER", "ER (Y)", "DNA (B)", "IMC", "CC BY 4.0",
     "3D", "API", "CPU", "CUDA", "CV", "DNA", "EC50", "Eps", "FOV", "GPU",
     "CSV", "Cellpose-SAM", "DINOCell", "FlowView", "JSON", "MIP", "ML",
@@ -3644,10 +3646,6 @@ _HELPER_CAPTION_RULES: dict[
     # A QPlainTextEdit, whose contents the language pass does not translate.
     ("widgets/annotation_umap_tab.py", "say"):
         ("widgets/annotation_umap_tab.py", ((0, "text"),)),
-    # A module-level helper, not a method: it translates the caption it is
-    # given and fills its {label}, {minutes} and {error} fields.
-    ("widgets/cli_setup_panel.py", "_say"):
-        ("widgets/cli_setup_panel.py", ((0, "text"),)),
     ("widgets/fast_plots.py", "_gated"):
         ("widgets/fast_plots.py", ((1, "label"), (3, "reason"))),
     # The plot's style note, stored and shown later.

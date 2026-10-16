@@ -38,11 +38,13 @@ def _answer_real_question(host, action, monkeypatch):
 
     def answer():
         box = QApplication.activeModalWidget()
-        captured["box"] = box
-        if not isinstance(box, QMessageBox):
-            if box is not None:
-                box.close()
+        if (not isinstance(box, QMessageBox) or not box.isVisible()
+                or box.parentWidget() is not host
+                or box.windowTitle() != "Question title"):
+            timer.start(10)
             return
+        captured["box"] = box
+        box.finished.connect(deadline.stop)
         captured.update(
             title=box.windowTitle(), text=box.text(), icon=box.icon(),
             standard=box.standardButtons(),
@@ -119,3 +121,20 @@ def test_headless_question_still_refuses_without_creating_a_message_box(
     before = set(QApplication.topLevelWidgets())
     assert ofm.OrganizeForMeasureDialog._ask(question_host, "Title", "Body") is False
     assert set(QApplication.topLevelWidgets()) == before
+
+
+def test_question_click_waits_for_modal_after_nested_construction_events(
+        question_host, monkeypatch):
+    original_init = QMessageBox.__init__
+    construction_events = []
+
+    def initialize_with_events(box, *args, **kwargs):
+        original_init(box, *args, **kwargs)
+        QApplication.processEvents()
+        construction_events.append(box.isVisible())
+
+    monkeypatch.setattr(QMessageBox, "__init__", initialize_with_events)
+    result, captured = _answer_real_question(question_host, "yes", monkeypatch)
+    assert construction_events == [False]
+    assert result is True
+    assert captured["box"].parentWidget() is question_host

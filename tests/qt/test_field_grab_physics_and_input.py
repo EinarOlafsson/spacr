@@ -199,8 +199,12 @@ def test_actual_background_press_drag_release_drives_field_without_hover_gravity
     assert backdrop.engine._field_grab_held
     assert math.hypot(*backdrop.engine._field_grab_offset) > .01
     before = backdrop.engine._field_grab_offset
+    clock = backdrop.time()
     qtbot.mouseRelease(host, Qt.LeftButton, pos=QPoint(210, 120))
     assert backdrop._field_grab is None
+    assert backdrop._art_input._grab_snapshot[1] is None
+    backdrop.advance_frame(0)
+    assert backdrop.time() == clock
     assert not backdrop.engine._field_grab_held
     assert backdrop.engine._field_grab_offset == before
     backdrop.advance_frame(4)
@@ -273,6 +277,12 @@ def test_scroll_viewports_dialogs_and_right_clicks_do_not_begin_grabbing(field, 
 def test_grab_offers_do_not_block_a_busy_worker_and_hide_discards_stale_handle(
         field, qtbot):
     host, backdrop = field
+    qtbot.mousePress(host, Qt.LeftButton, pos=QPoint(160, 100))
+    _move_held(host, QPoint(200, 110))
+    backdrop.advance_frame(.3)
+    assert backdrop.engine._field_grab_held
+    before = backdrop.engine._field_grab_offset
+    clock = backdrop.time()
     acquired, release = threading.Event(), threading.Event()
 
     def hold():
@@ -292,9 +302,19 @@ def test_grab_offers_do_not_block_a_busy_worker_and_hide_discards_stale_handle(
         assert snapshot[1] == backdrop._field_grab
         qtbot.mouseRelease(host, Qt.LeftButton, pos=QPoint(200, 110))
         assert backdrop._art_input._grab_snapshot[1] is None
+        assert backdrop._field_grab is None
+        assert backdrop.engine._field_grab_held
     finally:
         release.set()
         thread.join(1)
+    assert not thread.is_alive()
+    backdrop.advance_frame(0)
+    assert not backdrop.engine._field_grab_held
+    assert backdrop.time() == clock
+    assert backdrop.engine._field_grab_offset == before
+    backdrop.advance_frame(0)
+    assert not backdrop.engine._field_grab_held
+    assert backdrop.engine._field_grab_offset == before
     qtbot.mousePress(host, Qt.LeftButton, pos=QPoint(160, 100))
     _move_held(host, QPoint(200, 110))
     backdrop.advance_frame(.3)

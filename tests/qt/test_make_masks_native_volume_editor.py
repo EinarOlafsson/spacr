@@ -79,7 +79,8 @@ def test_actual_native_view_draw_save_reopen_matches_independent_voxels(editor, 
 def test_the_preview_notice_stays_and_the_graph_notice_stays_hidden(editor, screen):
     notice = editor.findChild(type(editor._count), 'VolumeMaskPreviewNotice')
     assert notice.isVisible()
-    assert 'Sampled' in notice.text() and 'full image' in notice.text()
+    # 2026-10-15: the notice now describes the downsampled volume rendering.
+    assert 'downsampled' in notice.text() and 'full image' in notice.text()
     assert editor._panel.canvas._notice.isHidden()
     editor._panel.canvas.render_now()
     QApplication.processEvents()

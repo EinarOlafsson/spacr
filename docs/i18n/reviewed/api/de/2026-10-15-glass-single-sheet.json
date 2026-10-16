@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical authoring; no human/native-speaker signoff",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.glass.glass#2",
+      "source": "THE SHEET GOES ON ONCE, LAST. Every step below restyles a dialog that already wears the window sheet: its own rule is one more sheet, the frameless flags make Qt repolish every widget of a styled window, and each transparent container is polished again. On Preferences (967 widgets) that was 425-484 ms in one ``Polish``, the 0.36 s freeze of lesson 05's resize clip. Held by :func:`spacr.qt.theme._one_sheet_for`, the steps run on an unstyled dialog and the same sheet text goes on once at the end.",
+      "source_sha256": "39a8bd5a67a629f63e1f2598f77ea632c1c34173abd7792c3ca3e0ea21e8cb86",
+      "context": "The sheet goes on once, LAST. Every step below restyles a dialog that already wears the window sheet: its own rule is one more sheet, the frameless flags make Qt repolish every widget of a styled window, and each transparent container is polished again. On Preferences (967 widgets) that was 425-484 ms in one ``Polish``, the 0.36 s freeze of lesson 05's resize clip. Held by :func:`spacr.qt.theme._one_sheet_for`, the steps run on an unstyled dialog and the same sheet text goes on once at the end.",
+      "translation": "Das Stylesheet wird genau einmal angebracht, und zwar zuletzt. Jeder nachfolgende Schritt gestaltet einen Dialog neu, der bereits das Fenster-Stylesheet trägt: Seine eigene Regel ist ein weiteres Stylesheet, die rahmenlosen Fensterflags veranlassen Qt, jedes Widget eines gestalteten Fensters erneut zu polieren, und jeder transparente Container wird erneut poliert. Bei den Einstellungen (967 Widgets) dauerte das in einem einzigen ``Polish`` 425-484 ms: der Stillstand von 0.36 s im Größenänderungsclip aus Lektion 05. Unter :func:`spacr.qt.theme._one_sheet_for` laufen die Schritte auf einem Dialog ohne Stylesheet, und derselbe Stylesheet-Text wird am Ende einmal angebracht.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent semantic review recorded separately."
+    }
+  ]
+}

@@ -24153,11 +24153,12 @@
       "source_blocks_sha256": [
         "6fd19d28651705c0e87abb7978a10ab872abffd7aa28e018495b905ec7bf7524",
         "e30ae7961f7f51253ee0f3d5e95a97d91b428c89521c088fe4ae0094e77876a3",
-        "1e46d1e5aa4226864832f1b5550794be0447dfd980f99501b7b058bbec1ae3a5",
+        "32d69ac029f2c9743527768660fa12d70ccf7f9ccb66346b22808fcdbfdfeb6a",
+        "23a3ba6b7adc1458811d8169886844b53d67792966d6e399b1e5ce2091326a54",
         "d96c62cd6c052846a90626bd934c403b5a0ebd3035071ba9d36c844c386b5fd1"
       ],
-      "source_sha256": "2e32cf0a648d1ce1823acf187362e963f868be326201cc0fad38aa230f6d98bc",
-      "text": "Return the argument parser for the command line the installers use.\n\nSeparate from :func:`main` so the installer scripts and the tests can\ninspect the accepted options without running an install -- an argument\nthat silently stopped being accepted would otherwise only show up as a\nfailed install on somebody's machine.\n\nThe four consent flags take ``\"0\"`` / ``\"1\"`` rather than being\nstore_true switches: the installer passes a value for every one of them\non every run, so an unchecked box is recorded as a deliberate no rather\nthan as an absent answer.\n\n:returns: the parser, with ``--path``, ``--requested``, ``--detected``\n    and the consent flags."
+      "source_sha256": "42806c297dd378ed3cb09208170f618aa4aac47f48aefc091d6e5ea7b4342d81",
+      "text": "Return the argument parser for the command line the installers use.\n\nSeparate from :func:`main` so the installer scripts and the tests can\ninspect the accepted options without running an install -- an argument\nthat silently stopped being accepted would otherwise only show up as a\nfailed install on somebody's machine.\n\nThe three consent flags take ``\"0\"`` / ``\"1\"`` rather than being\nstore_true switches: the installer passes a value for every one of them\non every run, so an unchecked box is recorded as a deliberate no rather\nthan as an absent answer.\n\n``--sign-in-now`` is still accepted and ignored: installers released\nbefore setup stopped offering GitHub and AI sign-in pass it, and an\ninstall must not fail on an option that no longer does anything.\n\n:returns: the parser, with ``--path``, ``--requested``, ``--detected``\n    and the consent flags."
     },
     "spacr.install_profile.build_profile": {
       "source_blocks_sha256": [
@@ -27344,6 +27345,37 @@
       "source_sha256": "164d00d51fade3099128753c069567e116fb8c9e4d89dac2d146b49b0acfeae6",
       "text": ":meth:`to_world` keyed by axis name.\n\n:param index: Fractional data coordinate in :attr:`axes` order."
     },
+    "spacr.layers.VolumeRays": {
+      "source_blocks_sha256": [
+        "a44283130a25168318414e7c9f3bdaa6d1d12718564530cd2a243137d123320c",
+        "592e14bba309821be9714e5ac7b0b59af5aacce2623dcd6a3ad06f2d9a62dc09",
+        "d65090c44463aba5abdbd5ca3de9e88fd9800b5011c33875fd37665acddc952d",
+        "633f84a4da4292b9a3cc3c42d09dcb2d48c7399cc29921ab5fde8e234fb57a08",
+        "791fa249a5ab3f3eacbdff860658bb680bdae7c2f1ccda088dabc5429907570c",
+        "af7932e1cd7a5db5dd89c2ab74786cd354ac5ff87cc1c7b4367f8f29d88e34be",
+        "80662206b6705eb1573f4817531979e22929b53f9dc524f8defce182968e5f94"
+      ],
+      "source_sha256": "9c625f4937ffbe185a722c239a80790129b38b9f8e78e50654a0b319528bf368",
+      "text": "Parallel rays through a volume, one per output pixel.\n\nPositions are continuous array indices of the volume being drawn (voxel\n``i`` is centred on index ``i``). The sample ``k`` of the ray through\noutput row ``r`` and column ``c`` lies at\n``origin + c * across + r * down + k * depth``; sample 0 is nearest the\nviewer.\n\n:param origin: the first sample of the top-left ray.\n:param across: the step from one output column to the next.\n:param down: the step from one output row to the next.\n:param depth: the step between samples, away from the viewer.\n:param shape: ``(rows, columns, samples)``."
+    },
+    "spacr.layers.VolumeRays.positions": {
+      "source_blocks_sha256": [
+        "d15f3b86c91c1d09af3b8fc7d8033bbbc35e482369137b50cb7db40481c27d02",
+        "cfe88670b8542dfe845f8e12c88cd34a4ab5fd0184cc0ec9e3d1e209d540593e",
+        "d495d366bfb1b91297a0c3ded6ca21811b9316bdf8f1398f9a9b942029365040",
+        "032a64f2ef20fce40667d66f35c0c8f4ad283a60e970f0d2445733e90c7c5551"
+      ],
+      "source_sha256": "bfc2db4161d24b779f953a803c17e6c949a1c8ef056301ed5e0c03447d17eb33",
+      "text": "Every sample of the rays through output rows ``first`` to ``last``.\n\n:param first: the first row.\n:param last: one past the last row.\n:returns: an ``(axes, rays, samples)`` array of indices."
+    },
+    "spacr.layers.VolumeRays.sample_length": {
+      "source_blocks_sha256": [
+        "b423c66335df9372d94a3cb6f75068ce329765afbc95989c7d2c078c9252553d",
+        "40c6d2cb10378047482845a0546c676d2bb94688907c124833820983c005055a"
+      ],
+      "source_sha256": "34f83c9cb382da2ca5f94683c33a67492da35496f6ef64996fa6c5e0e9fa46eb",
+      "text": "The distance between two samples of a ray, in voxels.\n\n:returns: the length of :attr:`depth`."
+    },
     "spacr.layers.colormap": {
       "source_blocks_sha256": [
         "b70adc58d1a296d246861e565861caab06b2eb82b026532fffaf42da88b02398",
@@ -27354,6 +27386,17 @@
       ],
       "source_sha256": "5a31aa1ad57e938922c8dca2c49fc960286efb9ec7eee7321f20d2e1f4dabb7a",
       "text": "Resolve ``spec`` to a :class:`Colormap`.\n\nTakes a :class:`Colormap` (returned unchanged), a name in\n:data:`COLORMAPS`, a colour (any :func:`to_rgba` form) which becomes a\nblack→colour ramp, or — as a last resort — a matplotlib colormap name.\n\nMatplotlib is tried last and lazily. This module must stay importable\nwhere matplotlib is not installed and cheap to import in a worker, so it\nis never a hard dependency; but if a user types ``\"viridis\"`` and\nmatplotlib is there, refusing would be pedantry.\n\n:param spec: Existing :class:`Colormap`, built-in or matplotlib colormap\n    name, or a colour specification from which to build a black-to-colour\n    ramp.\n:raises LayerError: if ``spec`` names nothing."
+    },
+    "spacr.layers.downsample_volume": {
+      "source_blocks_sha256": [
+        "6ba68dbefab8aed1ca050d9f2d2320e3dabf14137506f0873e5383c59b29e222",
+        "063383da51b4a54f25f022b8148c4706e6c6bfe626884d576bfd14e355c828e4",
+        "a98d8283d628e610dce9ffd6e70b59b8704be0d89519821eef94e6e601b70fae",
+        "761ab2fd9ccb9f003ded3d7882c132bb83d435707f78c05b41199031a7163387",
+        "d0f0d63110bec5d62c10ea29bf37211e9dc708b146583111718f0a7204c6d912"
+      ],
+      "source_sha256": "61a2006f59162131542c474f21c7bd6924a7a8788fa611187e63782300d17c21",
+      "text": "A volume small enough to turn interactively, and how it was reduced.\n\nEvery ``step``-th voxel is kept along each axis (see\n:func:`volume_steps`), so voxel ``j`` of the result is voxel\n``j * step`` of the input. Labels keep their exact IDs and an image its\nexact values; nothing is averaged or interpolated.\n\n:param array: the volume.\n:param max_voxels: the most voxels the result may hold, or ``None`` to\n    keep every voxel.\n:returns: ``(volume, steps)``; the input itself when nothing is removed."
     },
     "spacr.layers.label_color": {
       "source_blocks_sha256": [
@@ -27374,6 +27417,22 @@
       "source_sha256": "345f05b2443a82e184d8e346ce91da928bce02bdc04091dd46a271a50d3f2dfa",
       "text": ":func:`label_color` over an array, returning ``(..., 3)`` float32.\n\nBuilt by looking up the unique labels once rather than per pixel: a\n2048×2048 mask holds a few hundred objects and tens of millions of pixels.\n\n:param labels: Array-like integer labels; the output preserves their shape\n    and appends one RGB axis."
     },
+    "spacr.layers.render_volume": {
+      "source_blocks_sha256": [
+        "bcc9598a66ed23fa8b4f7e75ebaf0d7ebe2500bcebfbe842941ef22fee1cb835",
+        "a51cc1d8dbb18e368430ccb150b9b603c373254f1e95c3706a0cfe5256a0ac75",
+        "e207f00eba063286729d2d6e8137c3e5b125dc8d75ba51e552fc419c559cb418",
+        "14cb64571c5f80f106dbba545ce05fe2341052ff03086782b1bb3a1df904e7c7",
+        "5a68833be9d4e9d2cd5d6c448c3ac28a6124b42e1041ac4402f14e303110631f",
+        "8143012bde54f68ed1502851792f718a00a585c4d1da9a76def94ade0f0f8bd3",
+        "51a432b1eb665a88925845eb4705301f9ce5d3e26f229ff7f9562146412967db",
+        "5f58eb0160b9c99c46f3e7f69fbadc2a6c23a03927188982b0cd3d39db449204",
+        "48162ef345d09e6a8c2f28d02fa74d47d371a0c4748f26b1c03ea748cb5cf1b8",
+        "bc8cb8b30a8d83205cd52ec9805d24b7c722f2ca810679015e3f8242ace26028"
+      ],
+      "source_sha256": "0b584cda67175d803d3a63d9f37845825071b8ff844cbf1ad93228af9620ae0f",
+      "text": "Draw 3-D image and labels layers along parallel rays, as napari does.\n\nImage layers are added together, each through its colormap, between its\ncontrast limits, times its opacity; each is drawn by the\n:data:`VOLUME_RENDERINGS` mode in ``layer.metadata[\"rendering\"]``\n(``mip`` when absent). Labels layers are then laid over them in stack\norder, each object in its :func:`label_color`, by the\n:data:`LABEL_RENDERINGS` mode (``surface`` when absent) and the layer's\nopacity. Hidden layers draw nothing. Every layer must have the volume's\nshape; image layers draw their first channel.\n\nThe rays are walked a few rows at a time, so a caller on a worker thread\ncan stop a render that is no longer wanted.\n\n:param layers: the layers, bottom first.\n:param rays: where to sample, in the layers' array indices.\n:param highlight: an object drawn lighter, as a chosen object is.\n:param cancelled: asked between chunks; returning ``True`` abandons the\n    render.\n:param chunk: about how many samples one step holds.\n:returns: ``(rgb, picked)``: ``rows x columns x 3`` float32 colour\n    between 0 and 1, and the object nearest the viewer under each pixel\n    (0 for none), or ``None`` when cancelled.\n:raises LayerError: for a rendering no layer of that kind has, or a layer\n    whose shape differs from the others'."
+    },
     "spacr.layers.to_rgba": {
       "source_blocks_sha256": [
         "a4c734d80f67d3c7f3384df69ee5e721968cd19227b371711e8bf964175b87c1",
@@ -27384,6 +27443,24 @@
       ],
       "source_sha256": "52f069683b3dcbd4843a3d1ee4f3cbd6aefed411e1efc604ec94812778f20627",
       "text": "Coerce anything that names a colour into ``(r, g, b, a)`` in 0–1.\n\nAccepts a name from :data:`_NAMED_COLORS`, ``#rgb`` / ``#rrggbb`` /\n``#rrggbbaa``, a 3- or 4-tuple in 0–1, or a 3- or 4-tuple in 0–255 (any\ncomponent above 1 switches the whole tuple to the 0–255 reading, which is\nthe only unambiguous rule — ``(1, 1, 1)`` is white either way).\n\n:param colour: named, hexadecimal or three-/four-component colour value\n    to normalise; numeric components may use either the 0–1 or 0–255\n    scale.\n:param alpha: overrides whatever the colour carried.\n:raises LayerError: on anything else."
+    },
+    "spacr.layers.volume_steps": {
+      "source_blocks_sha256": [
+        "9f0339d8718b30ea7df478f26ee5a4154d6e83d9275bf6dee5fb1a2c4b25b2f4",
+        "d08468004eebf00c942d2034e4f66b6e7e85226593e1a2e9b18a850a3c74182c",
+        "d5bfb8b5e602dc0fa0d6c2335ebc6aa8cc8629014891e8c51f30fe401c04ddcd",
+        "6ea37d055bc657e7f7cd117a1f701627dbc59c4e46e5e91e742becbb1d07ff0c",
+        "6e394f235a87df8e9d775f26775ed62809586990552b89a5434c2ee92dc83e1a"
+      ],
+      "source_sha256": "f2a02a64f403587275e43fca23061c6231d9f3fdfe4e380d4c243e38ee96c7ca",
+      "text": "The integer stride along each axis that fits a volume in a budget.\n\nThe longest strided axis is halved in resolution first, so a thin stack\n(40 sections of 1,000 x 1,000) keeps its depth while its width is\nreduced.\n\n:param shape: the volume's shape.\n:param max_voxels: the most voxels the strided volume may hold, or\n    ``None`` for no limit.\n:returns: one stride per axis, each at least 1."
+    },
+    "spacr.layers.volume_steps.strided": {
+      "source_blocks_sha256": [
+        "5021aa5ae3a8f2d4717bf3613cfa5507065510668bf8462e58160e732d30dc82"
+      ],
+      "source_sha256": "5021aa5ae3a8f2d4717bf3613cfa5507065510668bf8462e58160e732d30dc82",
+      "text": "Length of one axis at its current stride."
     },
     "spacr.lineage": {
       "source_blocks_sha256": [
@@ -51803,11 +51880,11 @@
     },
     "spacr.qt.install_consent": {
       "source_blocks_sha256": [
-        "8f552f881eca8b3f78514d13bcee2a74575f7ccfb3542b5a27a5b6837f098ffb",
+        "65b410fcd63b9d7c65e386aede36b5a98afc88cb3a4b51cc4f311986dea48ecc",
         "7a6c03ff56f1375004006752704d5671ad44632d7ebe2e63d5c80c97985e3afd"
       ],
-      "source_sha256": "d501c1d1cf422a940d8a5d88783bd1c3b8befb450c3e84819f5c88de22af7c65",
-      "text": "Apply privacy and account choices collected by desktop installation.\n\nAlso the one-time notice that anonymised error reports are on by default\n(:func:`maybe_show_anonymous_report_notice`) and the example of what such a\nreport holds (:class:`AnonymousReportExampleDialog`)."
+      "source_sha256": "e66f36e5138970ab09ad9377c15ac8ba86fe389aafe04bb44124d04c1f6c843e",
+      "text": "Apply privacy choices collected by desktop installation.\n\nAlso the one-time notice that anonymised error reports are on by default\n(:func:`maybe_show_anonymous_report_notice`) and the example of what such a\nreport holds (:class:`AnonymousReportExampleDialog`)."
     },
     "spacr.qt.install_consent.AnonymousReportExampleDialog": {
       "source_blocks_sha256": [
@@ -51833,29 +51910,29 @@
     },
     "spacr.qt.install_consent.InstallerConsentDialog": {
       "source_blocks_sha256": [
-        "f490da2da5ddfb44408b254d377e3c132df3eb5e1f6b5d10bd96a39162f8637c",
+        "7d5f886ae9d10a3e61ac7d47f4d9210afb96cdbd35c2ebda04bf317c8623330c",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
-        "1c8dfb66a227b8d50ad483bdc591fb55107f46b3b3db83774d2fa4e5afcd4d8c",
+        "16b9264fc1e3aa3edf6fd737c31a8c22daf914e850ab32e02c9e1c64507391a0",
         "10ed1efcdfde5d4e6bce31fadffb9c6807d8f71a3baa1e3be1ce8a1f37e69871",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
-      "source_sha256": "323d0808ac12b16312949c67858eb9037470e9a495e7dbaeadadaeab6d338402",
-      "text": "One first-launch page whose three optional choices start off.\n\n:param parent: parent widget.\nBuild the privacy and optional-account dialog.\n\nSized in scaled pixels rather than raw ones: a size set from Python does\nnot grow with the stylesheet's font size, and at the 200% scale the\nprose inside wrapped to more height than the window had.\n\n:param parent: parent widget, or ``None``."
+      "source_sha256": "8cc5ff2d6d487949393823436743a611666cafa020911ee40467531addd4b614",
+      "text": "One first-launch page whose two optional choices start off.\n\n:param parent: parent widget.\nBuild the privacy choices dialog.\n\nSized in scaled pixels rather than raw ones: a size set from Python does\nnot grow with the stylesheet's font size, and at the 200% scale the\nprose inside wrapped to more height than the window had.\n\n:param parent: parent widget, or ``None``."
     },
     "spacr.qt.install_consent.InstallerConsentDialog.choices": {
       "source_blocks_sha256": [
-        "c6945c69c75b6ce2503d1b190068f689c57e4d162e928879ccd4212df545ee35"
+        "fb8ddba6a98b288de9ec95002f882fab80d58dded5e5a9b3458fc1799fb94d12"
       ],
-      "source_sha256": "c6945c69c75b6ce2503d1b190068f689c57e4d162e928879ccd4212df545ee35",
-      "text": "Return the three explicit checkbox states."
+      "source_sha256": "fb8ddba6a98b288de9ec95002f882fab80d58dded5e5a9b3458fc1799fb94d12",
+      "text": "Return the two explicit checkbox states."
     },
     "spacr.qt.install_consent.apply_choices": {
       "source_blocks_sha256": [
-        "cf1443de19bf1b442510297590c8808fee26e9a353f8451867d6cbeba7fff8d4",
-        "82abef8f86c95d2674f76fb2ce6ae43eeee5ec6dc13afbaea427e4127878ed19"
+        "494e21bfbfa103ac33a789d36a887f3a397081d39483ca3de6a2205c90f22bfa",
+        "f5c5c393f6b7a2014b090c2be7968ceb85eb4cbb7c34c56122cc21d846c4dbf0"
       ],
-      "source_sha256": "33dc88d71488e293ea93fde6a0e1a8a9e6ed5ed5aa6227bfe1f725235507bcfe",
-      "text": "Persist choices and return whether account setup was requested.\n\n:param choices: the consent answers, read by the keys\n    ``share_diagnostics``, ``report_issues`` and ``sign_in_now``; a\n    missing or unrecognised value counts as no."
+      "source_sha256": "49636491a0de4ebda3c7c3ee0a5dbd8f65962ccb5ad3bd76eb311da3ac0d9549",
+      "text": "Persist the installer's privacy choices.\n\n:param choices: the consent answers, read by the keys\n    ``share_diagnostics`` and ``report_issues``; a missing or\n    unrecognised value counts as no, and any other key is ignored."
     },
     "spacr.qt.install_consent.maybe_show_anonymous_report_notice": {
       "source_blocks_sha256": [
@@ -51870,11 +51947,11 @@
     "spacr.qt.install_consent.maybe_show_installer_consent": {
       "source_blocks_sha256": [
         "272be964bd2f0c11d835313a8396f2830619319e97b2a014b4251c702525c97b",
-        "42e71bc786fd1e162aa0c4fab39550375f7644ad1f2a7f2bdb5326846e1903da",
+        "bd6f1bce7c0a6fab0e0a625727fd674289e2f85797edfa41e903b7923b44e5e6",
         "75834f8796969e1b52416bb16af6b5114182717796afa6fc31710546e8f45f87"
       ],
-      "source_sha256": "5e634c3ecf44705e3ccea212bba75c6d5c7e104ca68029a1df8d873a23b5c787",
-      "text": "Apply installer choices once, asking in-app if no page was shown.\n\n:param parent: the widget that parents the in-app consent dialog and, if\n    sign-in was chosen, the account setup dialog.\n:returns: ``True`` when an installer profile was handled this call."
+      "source_sha256": "1a835f867564f95ddc4dc3a59a84a42f2dea635cd838b23af50ca16d8d84e773",
+      "text": "Apply installer choices once, asking in-app if no page was shown.\n\n:param parent: the widget that parents the in-app consent dialog.\n:returns: ``True`` when an installer profile was handled this call."
     },
     "spacr.qt.job_runner": {
       "source_blocks_sha256": [
@@ -53547,15 +53624,17 @@
         "d3e6b1677cc803199a85986aa71863e9d84e75fa69ae3912c3bde5f8cc9cfb36",
         "aaa130c107588dccaee1e47d995d7840fe0a8aa78ab08f454890d907f907ce31",
         "582ac5c292b3acd18f28dc3dc21347437ff5e0643d6143bf08a3f0f69ccb1614",
+        "9d006ecb05f1fb3026cda1a41f50726e1326217a85c2f16e4ce91011232bedd4",
         "6a00c04dd619f24beda91fb0f5cb640ea45009c16b9d9ecffafa7d46b91d55f5",
         "0b4037594367d1d8f2a05353be9bf8f44f1181bd8ee083880193299f6bd134e5",
         "40b190d760c03568cb680953c9875e7c995c6a671be2663a957318475df38cba",
         "26759ba634e6f78afd40e4e217075ee2599ba3e440b6a6158f0d77ee82c0710e",
         "f059cb94a71f1a899e0b4151a5ad84c86cece6fb7786731e8798fa367525a3d0",
-        "1430e9b40ff1bbd07fcfc63de38089726693aea59b952a9cc2699759a966550b"
+        "1430e9b40ff1bbd07fcfc63de38089726693aea59b952a9cc2699759a966550b",
+        "fbea4a14dcf28b102f6f82eebde82499790b20b37d794568bb279e35bdeeb43c"
       ],
-      "source_sha256": "a2891fbdf0da347f05c6afda5c6561dfbc6c396b65fda3c6a1aa3fb2b40bdeaa",
-      "text": "Edit native spatial labels using the same boundary as the 3-D gate view.\n\nCoordinates are physical X/Y/Z distances from the image's outer origin;\nvoxel centres lie at ``(index + 0.5) * spacing``. Arrays retain their\ndeclared spatial axis order, source dtype and existing object identities.\nAt most 16,777,216 voxels and 256 MiB of source intensities are accepted;\nlarger fields are refused explicitly. Sparse undo deltas have a combined\n64 MiB budget rather than retaining a volume for every edit.\n\n:param image: finite real numeric three-dimensional source intensities.\n:param mask: nonnegative integer labels of exactly the source shape.\n:param axes: a permutation of the three spatial axes ``XYZ``.\n:param spacing: positive finite distances in that same array axis order.\n:param unit: the physical distance unit, or ``pixel`` when unspecified.\nValidate one spatial image and own its mutable label array.\n\n:param image: finite real numeric source intensities.\n:param mask: nonnegative integer object labels matching the image.\n:param axes: spatial storage-axis order, a permutation of XYZ.\n:param spacing: three positive finite distances in storage order.\n:param unit: the common distance unit."
+      "source_sha256": "bf7476123deeba65442f5aaee0967c0886b5bc12d2702f2d9ea6a15f3bd49bbf",
+      "text": "Edit native spatial labels using the same boundary as the 3-D gate view.\n\nCoordinates are physical X/Y/Z distances from the image's outer origin;\nvoxel centres lie at ``(index + 0.5) * spacing``. Arrays retain their\ndeclared spatial axis order, source dtype and existing object identities.\nAt most 16,777,216 voxels and 256 MiB of source intensities are accepted;\nlarger fields are refused explicitly. Sparse undo deltas have a combined\n64 MiB budget rather than retaining a volume for every edit.\n\n:param image: finite real numeric three-dimensional source intensities.\n:param mask: nonnegative integer labels of exactly the source shape.\n:param axes: a permutation of the three spatial axes ``XYZ``.\n:param spacing: positive finite distances in that same array axis order.\n:param unit: the physical distance unit, or ``pixel`` when unspecified.\n:param channels: every channel of a multichannel volume, each shaped\n    like ``image`` (which the slice views show); the 3-D view draws each\n    as its own layer. Together they share the 256 MiB budget.\nValidate one spatial image and own its mutable label array.\n\n:param image: finite real numeric source intensities.\n:param mask: nonnegative integer object labels matching the image.\n:param axes: spatial storage-axis order, a permutation of XYZ.\n:param spacing: three positive finite distances in storage order.\n:param unit: the common distance unit.\n:param channels: every channel of a multichannel volume, each shaped\n    like ``image``; ``None`` means ``image`` is the only channel."
     },
     "spacr.qt.mask_engine.VolumeMaskSession.apply_geometry": {
       "source_blocks_sha256": [
@@ -54093,15 +54172,15 @@
     },
     "spacr.qt.mask_engine.load_volume_image_and_mask": {
       "source_blocks_sha256": [
-        "b2a5f5453a4281fdf11dceff4dda389cc6a8fde9f91cd7a0a3075ece77c591c6",
-        "a741945fb4cd3cf36c8cc61ed77b6687562892aa230f344726f719f473c6b28a",
+        "f5737aa4b8008209201ff090394eb7367245bebe60741cd318ee13da056d26cc",
+        "3fadac73bfca2bb9ad2e0edeacdf234386853325cf5b5c0c6ec9a1386eae7d94",
         "d6bd70cde704f639f66ecb67b8ddecfd38b38dbfea5b2e896a774d9936fbec7a",
         "ae90fa7807b412ee2ef0174e830caf07f00e7fd56a3b4a0451be4391debacdf9",
         "063d5c8df85e3073873f87a00d46689202ac0110d8a607423d07d6333068568c",
         "4b3a91c94033d97ab8bee5337efd9d5d470c3a26a884d5c6ddb77a2f17d68b39"
       ],
-      "source_sha256": "c9247172793d4ae12e10edd0d15adc430764f8d3d75bdeba192af38629048c69",
-      "text": "Open a grayscale spatial volume for native 3-D editing.\n\nTIFF volumes need exactly three spatial axes, in any order. A plain\nthree-dimensional page stack (tifffile's ``Q`` or ``I`` page axis over\n``YX``) is read as Z sections, as z-stacks and FIB-SEM series are saved;\ntime, channel and colour axes are refused. ``voxel_spacing`` metadata is\nread in storage-axis order. OME physical sizes are converted to micrometres;\nImageJ spacing and XY resolution are retained. MRC volumes (``.mrc``,\n``.rec``, ``.map``) are read as ZYX with their voxel size in nanometres;\nthey need the optional ``mrcfile`` package. Absent physical metadata\nmeans pixel coordinates.\nLabels retain dtype and identity. A saved geometry sidecar is bound to\nthe exact source file and mask pixels and is refused when stale.\n\n:param folder: source image directory.\n:param filename: spatial TIFF or MRC volume filename.\n:param masks_dir: optional existing sibling mask directory.\n:returns: a ``VolumeMaskSession`` owning the labels and source metadata."
+      "source_sha256": "fad8d2002ffc7cb5d40726d31a3dd56f1e981826e8b6ff14fa5b5b019bad5a2e",
+      "text": "Open a spatial volume, one channel or several, for native 3-D editing.\n\nTIFF volumes need exactly three spatial axes, in any order. A plain\nthree-dimensional page stack (tifffile's ``Q`` or ``I`` page axis over\n``YX``) is read as Z sections, as z-stacks and FIB-SEM series are saved.\nOne channel axis (``CZYX``, ``ZCYX``, at most 16 channels) is kept as\n:attr:`VolumeMaskSession.channels`; the slice views show the first\nchannel. Time and colour axes are refused. ``voxel_spacing`` metadata is\nread in storage-axis order. OME physical sizes are converted to micrometres;\nImageJ spacing and XY resolution are retained. MRC volumes (``.mrc``,\n``.rec``, ``.map``) are read as ZYX with their voxel size in nanometres;\nthey need the optional ``mrcfile`` package. Absent physical metadata\nmeans pixel coordinates.\nLabels retain dtype and identity. A saved geometry sidecar is bound to\nthe exact source file and mask pixels and is refused when stale.\n\n:param folder: source image directory.\n:param filename: spatial TIFF or MRC volume filename.\n:param masks_dir: optional existing sibling mask directory.\n:returns: a ``VolumeMaskSession`` owning the labels and source metadata."
     },
     "spacr.qt.mask_engine.load_yolo_boxes": {
       "source_blocks_sha256": [
@@ -67798,6 +67877,13 @@
       "source_sha256": "6720a095875b86deb6a549073e274ee83c7130a07f4357dea8366972eff50bc0",
       "text": "Propagate the seeds off the GUI thread and report the labels."
     },
+    "spacr.qt.screens.make_masks._VolumeStage._render_request.index": {
+      "source_blocks_sha256": [
+        "70993c57174a9a89447e7952a6e1a7717a56c8363cf102df051b7b8185e88746"
+      ],
+      "source_sha256": "70993c57174a9a89447e7952a6e1a7717a56c8363cf102df051b7b8185e88746",
+      "text": "Physical screen point (or step) to strided array indices in storage order."
+    },
     "spacr.qt.screens.make_masks._counting_tiles.before_a_tile": {
       "source_blocks_sha256": [
         "38160c094a0dc233ac212447f1ceee9e104dc5c365f2edd991f03075ea4fcbca"
@@ -74329,10 +74415,10 @@
     "spacr.qt.setup_screen.questions": {
       "source_blocks_sha256": [
         "eff20f72f34bfea12652d749ae84c870e74abd1fdb265f7e3b9f0434ead05893",
-        "da5e7c31441b469b1c6744d69c7c9984531091189acd41d39f316dd32c207005"
+        "3cce70a20b721df98836f72527e3fa69e30878cb74fd5d9f877ec7e837119043"
       ],
-      "source_sha256": "396d525d428a2eba3296dcc29dd58c2eacc1f76078bbdee0612a92a8ef308cdc",
-      "text": "Build the question list against the live preference module.\n\nNo question picks an AI provider (item 700): a new user starts with the\nAI on and spaCR AI (free), and changes provider in Preferences → AI."
+      "source_sha256": "0eafa6fcaa2cac1c42304b2dc136147fa2cbd84e89ed2b46a0e8ab4998b7a51e",
+      "text": "Build the question list against the live preference module.\n\nSetup asks nothing about AI providers, GitHub or error reports: spaCR\nAI (free) and anonymised error reports are on by default, the terms of\nuse describe both, and Preferences → AI changes them."
     },
     "spacr.qt.setup_screen.questions.choices_of": {
       "source_blocks_sha256": [
@@ -75757,10 +75843,11 @@
     "spacr.qt.terms": {
       "source_blocks_sha256": [
         "dd1fd15e6c182c7b68675ac617969ae8d6f3d84a36898091e34322ead4e46f13",
-        "e641628a202e1ab3b00d6fe951db8da01de7567b1affb79d07b372ce768a39a9"
+        "e641628a202e1ab3b00d6fe951db8da01de7567b1affb79d07b372ce768a39a9",
+        "78b66840749509de00ccfbfa48946b4a9cc71fadb250aba2f09678c811de1d8c"
       ],
-      "source_sha256": "91c63cae57b2f4ea45cc07bd41ba92de7d26d0a5342168a59faf4d3c3bee11f7",
-      "text": "Terms-of-use acceptance and version records for a spaCR profile.\n\nspaCR presents its terms during setup and records the accepted\n:data:`TERMS_VERSION` with a UTC timestamp. A profile must accept a revised\nversion explicitly; acceptance of an earlier version is not carried forward.\nThe record is stored with the other setup values under the ``onboarding/``\nprefix."
+      "source_sha256": "266965094a4544be75fcbae9120ac180e86a0ebb029c6167f17fe96e0b79eb5f",
+      "text": "Terms-of-use acceptance and version records for a spaCR profile.\n\nspaCR presents its terms during setup and records the accepted\n:data:`TERMS_VERSION` with a UTC timestamp. A profile must accept a revised\nversion explicitly; acceptance of an earlier version is not carried forward.\nThe record is stored with the other setup values under the ``onboarding/``\nprefix.\n\nVersion 4.3 rewrites Sections 5 and 6 for item 700: anonymised error reports\nare on by default and filed by spaCR's relay with no GitHub account, spaCR AI\n(free) answers through that relay, and a user's own Claude, GPT or Gemini is\nchosen in Preferences, so a profile that accepted 4.2 is asked again."
     },
     "spacr.qt.terms.agreed_at": {
       "source_blocks_sha256": [
@@ -81426,106 +81513,6 @@
       ],
       "source_sha256": "78386cbccdeacef2737d8defa82bb7a4b210c2c389cc40888436f35f38ffac93",
       "text": "The class rules, keyed by name.\n\n:returns: one dict per rule."
-    },
-    "spacr.qt.widgets.cli_setup_panel": {
-      "source_blocks_sha256": [
-        "e1c34a4b115b9fe5e9f7d265bf10b3f2bc89ddba74dc265f8d50bc377b4c6d8a",
-        "804238cd2c160742b339b5642008dc54ad9c2c7ed0e3879a76dab5d16a0e040b",
-        "95f959e9509f4e918e9a211cc5a1103342868265e1dcf7198af3b004f5847c62",
-        "ae1b1619582a66ca8ae9b49d0e2a8e82616bf572eadc6fb668e2b45026bda789"
-      ],
-      "source_sha256": "3572ed8f49f780ef29e037a5bcef8653b875132a75f1ccf8b3db4ded111b111b",
-      "text": "Install a vendor command-line tool, then sign in to it, from a screen row.\n\nThe setup screen shows one of these under its AI provider marks and one under\nits GitHub mark. Pressing Install there runs the tool's own installer --\n:func:`spacr.qt.ai.cli_install.run_install`, on a\n:class:`spacr.qt.job_runner.JobRunner` worker thread, never on the GUI thread\n-- and this panel shows what is happening: the command that is running, the\ninstaller's latest line of output, a Cancel button, and at the end either the\nnext step or a sentence the user can act on.\n\nAfter a successful install the owner's ``after_install`` starts the tool's\nsign-in, and :meth:`CliSetupPanel.sign_in` watches for it to finish by asking\nthe tool's own status command every few seconds, again off the GUI thread.\n\nThe command is on screen from the first moment to the last, with a Copy\nbutton beside it, for the user who would rather run it themselves."
-    },
-    "spacr.qt.widgets.cli_setup_panel.CliSetupPanel": {
-      "source_blocks_sha256": [
-        "c255117fb22e1f5daabf5d481612c6f91be018704de0dc87704ed2e8c6db02a6",
-        "94422e94f2fd7a9b47b2a970555cd74816199555f54d3b548b11288a84c36080",
-        "4a78791f6f89fa3047bfe83e35ec6e9f903e9b5e606efeb04bceabcb8e35af5b",
-        "8651c4a9a9887051f0fb36aba3bdd8b5d7423d3b0327c29af64b40e6773088ff",
-        "8e26d0b209d61932d35c0b7741bdaf51e5512eb2ea05161bb4e7c626e0194e4e",
-        "d7fe0b3995c7aa14f6e74c7820499aed011972262666369e3b8dccef0fe1d96e",
-        "94422e94f2fd7a9b47b2a970555cd74816199555f54d3b548b11288a84c36080",
-        "42c9eee9ff9f5da8f6bb3044c81107cc1b058ff5220a775abd4862c35de6a6dd",
-        "88ff52f255ddc6a2f879a493531f5f04a0b81e4bbf77f7dd2a3c400917d19d3e"
-      ],
-      "source_sha256": "76c6fca5ca7737b3ed9ceee4472049d0c5e92bf8f767b391edf3bf7ed386de3b",
-      "text": "Install one command-line tool and see its sign-in through.\n\n:param parent: the owning widget.\n:param threaded: ``False`` runs the installer and the sign-in checks\n    inline, for a test that drives the panel synchronously.\n:param open_page: opens an install page; the default browser by default.\n:ivar state: what the panel is doing, one of this module's states.\nBuild the panel, hidden until there is something to show.\n\n:param parent: the owning widget.\n:param threaded: run jobs on a worker thread.\n:param open_page: opens an install page."
-    },
-    "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.cancel": {
-      "source_blocks_sha256": [
-        "aead1d5c65fa9c4215c214e05537cf15efd89447e31d3292d1db60225fa32027"
-      ],
-      "source_sha256": "aead1d5c65fa9c4215c214e05537cf15efd89447e31d3292d1db60225fa32027",
-      "text": "Stop the installer, or stop waiting for the sign-in."
-    },
-    "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.copy_command": {
-      "source_blocks_sha256": [
-        "d3b36bba715f751c401f1f8985f409066457edff41ab1c2bef9c1f63e2539dba",
-        "9f72a83511eb53e365cf8f945a966ab7f4764e3558939da184471144b5cd9405"
-      ],
-      "source_sha256": "cbdf42f8a6dedb8eec6bbfd065535a8a09a9bd9ce87b0085975c6eda50c2e63f",
-      "text": "Put the command on the clipboard.\n\n:returns: the command copied, which stays on screen either way."
-    },
-    "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.done": {
-      "source_blocks_sha256": [
-        "87115cac8847f1de9fac6e725974d9c477d52488d9fe673ce1e454290a84898a"
-      ],
-      "source_sha256": "87115cac8847f1de9fac6e725974d9c477d52488d9fe673ce1e454290a84898a",
-      "text": "Close the panel and have the owner look at the tool again."
-    },
-    "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.install": {
-      "source_blocks_sha256": [
-        "3418d878d629e2aaad031a4d8c8ee80a4411a79314f855d01d9ba11c1fc0b1e5",
-        "a8491fe73e562580e7a5583b06e9c1e02491475a3b44ed078b3b22597062d5f8",
-        "24f0f807338f647880eac70440c89056689aa4c94c74c838385bfd0990b67691",
-        "5f47937809f82dcddb1abf0088e8dc539063c8047000e1becdfc7379b7910a94",
-        "e9ff692d1754cb12037743bdccb076b3099610b2080682d25faf25159e600208",
-        "baa145c9a7c7ae68b4e2848506b4fa56da12ba786c166ba2a2ad45feb10e201a"
-      ],
-      "source_sha256": "81e77b2c448bf81eff5ad2ccbcd9b12e9a51048b50fd7116b0c5014eb7e83329",
-      "text": "Run ``tool``'s installer off the GUI thread.\n\nShows the command before anything runs and keeps it on screen. When\nnone of the tool's install methods can run on this computer, says\nwhich program is missing instead and offers the command and the\ninstall page.\n\n:param tool: a :class:`spacr.qt.ai.providers.CommandLineTool`.\n:param after_install: called on the GUI thread once the tool is\n    installed, to start its sign-in.\n:param page: the tool's install page, offered when an install fails.\n:returns: ``True`` when an installer was started."
-    },
-    "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.is_busy": {
-      "source_blocks_sha256": [
-        "3cc8194bae8dbba65f383d85226ca26c7c31a020af62566b0dffba29b23fda8b"
-      ],
-      "source_sha256": "3cc8194bae8dbba65f383d85226ca26c7c31a020af62566b0dffba29b23fda8b",
-      "text": "Whether an installer is running."
-    },
-    "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.shutdown": {
-      "source_blocks_sha256": [
-        "6e84b02c3315655555ec5ffac6a5934239a4c9d031afa8388a4e09b426b3aa45",
-        "acc52eabc78f6766ee5fc1bf80b1a20b6bd6b54378716a42c233fb6354bf4c8a"
-      ],
-      "source_sha256": "c34ec0c623f56fa7825c5d34e97c06273fc573afbc544a68546390f1f820e40f",
-      "text": "Stop the installer and the sign-in watch, and retire the thread.\n\nCalled when the screen closes: an installer left running with no\nCancel button on screen is one the user can no longer stop. The\nworker's own answer is dropped once the thread is retired, so an\ninstall that was running is shown as cancelled here, and the panel\nno longer counts as busy."
-    },
-    "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.sign_in": {
-      "source_blocks_sha256": [
-        "0f88e90165ddb26c624e4ecac91297acf660409395d3714469e9ad50edcd3c1f",
-        "24f0f807338f647880eac70440c89056689aa4c94c74c838385bfd0990b67691",
-        "94ca04d3102ddb92a780ac6010c4d200ef4dd3507aa101cafbad6bdf598edb47",
-        "7ac3a00cb0d55d71a2fb59f4e757e4d7fdb311a86ca17dede0724a757e1620d3"
-      ],
-      "source_sha256": "7c4ab3af6a81ef0856511d472d7661fea2116a4e377f9815ce1793a6713562ed",
-      "text": "Start ``tool``'s sign-in and watch for it to finish.\n\n:param tool: a :class:`spacr.qt.ai.providers.CommandLineTool`.\n:param start: starts the sign-in -- in a terminal for an AI CLI, in\n    spaCR itself for the GitHub CLI -- and says whether it started.\n:returns: whether the sign-in started."
-    },
-    "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.sign_in_failed": {
-      "source_blocks_sha256": [
-        "080e25eef76809a4ed9af7d2c5952603a93f7e2b30918961e60de9658c6b7987",
-        "f20ec4322b2fd5bd93b664f18751d531c97e8114c76928293a53094f5b25e346"
-      ],
-      "source_sha256": "b60b28a83426984e8dfcea8706f60ece64eea0c51cc978c9b6d49eae61d03ba3",
-      "text": "Say that a sign-in the owner was running has ended unfinished.\n\n:param message: what happened and what to do, already translated."
-    },
-    "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.tool_label": {
-      "source_blocks_sha256": [
-        "376f4535b1ace3f791b84598e8213aa138d255887d948446fc4365b1a35f6bea",
-        "af1d852ed4f2b25685308101ef4fc5e1d2c43761cee43d32d83c357343125b86"
-      ],
-      "source_sha256": "5b14b333422439d491786ffd2381993ea6f515bc843179b6c91e2f544fa5cbce",
-      "text": "The name of the tool this panel is installing or signing in to.\n\n:returns: its label, such as ``\"Claude\"``, or ``\"\"`` before the\n    panel has been given a tool."
     },
     "spacr.qt.widgets.collapse_arrow": {
       "source_blocks_sha256": [
@@ -108107,148 +108094,6 @@
       "source_sha256": "924ae1a626b258efd545996ce5b6f868514c595bcd8718ae615597ef9e8cb4d8",
       "text": "Drain the active source worker before the owning screen is destroyed."
     },
-    "spacr.qt.widgets.provider_marks": {
-      "source_blocks_sha256": [
-        "be7e1d10e830413025704ee622f05aa91caf6051d2e5d14eccfd8a0bba8c78cf",
-        "ea96c287bfe9aa37cf660d072c27d238dbddb71779ada1a9f27388d58f27b79e",
-        "92ebd9933f867e8d05cde2b82378ae708127c7d1449007453f25d4fd2b47a9b3",
-        "b96ca5234fae452afd9b3cff6d002671fd8f087b505f35918afd6c0864558ad7",
-        "67a9fcb18ffe06faaa28d0a8cded28537bb904e2b5fb2260561d069bfa772ed3"
-      ],
-      "source_sha256": "b26ed04c6f9cb687f270e466f6754b0571f3d590c412c1286737eb159212039d",
-      "text": "Draw the assistant providers as their marks rather than as their names.\n\nThe setup screen shows each provider as its logo mark rather than as a text\nbutton, because a mark is recognised before it is read, and on this question\nthe user already knows the answer and only has to point at it.\n\nEach mark is drawn as a `QPainterPath` built here rather than shipped as a\nbitmap: a bitmap would be a vendor asset in the repository with its own\nlicence, its own resolution and its own two versions for light and dark. A\npath scales to any button size, takes the brand colour when the provider is\navailable and the theme's muted ink when it is not, and adds nothing to the\nwheel.\n\nThe three assistant shapes are the recognisable geometry of each mark, not\na facsimile: Claude's radiating burst, OpenAI's six-fold knot, Gemini's\nfour-pointed spark. They identify whose command-line tool spaCR would\ndrive, which is what the question is asking.\n\nGitHub is the exception: GitHub publishes the Octocat's path data for use\nas a link mark, so that one is the actual mark rather than an approximation\n-- still a path, still recoloured per theme, still nothing added to the\nwheel."
-    },
-    "spacr.qt.widgets.provider_marks.ProviderMark": {
-      "source_blocks_sha256": [
-        "56f4830f0d65ad12834afeccdec66cb5fda88ab553b5316be41ad162cae0426f",
-        "a3d7657a04a20085053b45d52440834918e43ce0ce24ecb8b3b32b83aaa1111c",
-        "4a31da4a7e890d2100329a249a272b2bfac9ca9cda66ef9167703fc532a25d47",
-        "43bd22008da83f7fcdc8f40245727100490110d101da877cc7f361610da630a5",
-        "998838739736ecd6645bceed9fa0f763d4bf66d69557ae3d832c0ae31ddd570c",
-        "9a8606cb6d236b5d88671bb952fcfbd5150e448fa5b9faf74de313ad82c27067",
-        "1a1bc673c6729e5d1b79e26adabd8de8463a9880240a74ea5553d4ec397421c5",
-        "15a1efce965f52b4674a7d34447a456a4822cd1bfab3b964a88c2079d9bdffb1",
-        "2e6a997ade852e91af458e34a6497de4e28e0775dfe46d0d1aba114187e00f2f",
-        "c59a6ef4e7cbd9bb04f00289be1dd4503562d26a180de82fac33e2c33ccd013c",
-        "3284e9014456e88b7060c38f2a99ddb7a6ad0a2dfba88a3035d69acd7b292e06",
-        "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
-        "ca1bb1c5eeb1e9c11d55c1043ff5e658889ebd99c51576c27b764eefe1572373"
-      ],
-      "source_sha256": "bd87343f15cc5ac820258b47efba989247763410c1d0799c33c1530d20fa3076",
-      "text": "One provider, drawn as its mark with its name beneath.\n\nSelectable rather than clickable-once: three of these are a radio group,\nand :meth:`set_chosen` is how the group tells this one it lost.\n\n:param code: provider key -- ``claude``, ``gpt`` or ``gemini``.\n:param label: the name under the mark.\n:param available: whether the vendor CLI is on PATH. This is shown, not\n    enforced: an unavailable provider is drawn in the muted ink and says\n    what would install it, and is still choosable. The setup screen\n    writes a preference and launches nothing, so choosing a provider\n    before installing its CLI is an ordinary thing to want, and the\n    console says so at the point it would actually be used.\n:param parent: parent widget; ownership only.\n:param status: ``READY``, ``SIGNED_OUT`` or ``NOT_INSTALLED``. Empty\n    derives one from ``available``, which is what every caller written\n    before the third state did; that derivation can only ever produce\n    ready-or-not-installed, so a caller that knows the CLI is present\n    but signed out has to say so here.\nBuild one provider's status mark.\n\n:param code: the provider's short code, drawn in the mark.\n:param label: its display name.\n:param available: whether its CLI is installed.\n:param parent: parent widget, or ``None``.\n:param status: a longer status line, shown on hover."
-    },
-    "spacr.qt.widgets.provider_marks.ProviderMark.event": {
-      "source_blocks_sha256": [
-        "795b00891a4e51a0c22fba31c46b0a4267456bc2ccaf587899034a4865022307",
-        "9de8fba45099a31fc3ad6f1ee8c946bf694479946fffe533bc3b2c1a8b123886",
-        "6f910ac372a5abdb3188e03049e89c1121d7cd1e409b0edc91e64a889b2c8590"
-      ],
-      "source_sha256": "bc21cc00be78c58e67c00013263ab3ea65bdaa872c4e4a2e46aff454d3a33c0f",
-      "text": "Handle the events Qt does not give a named handler for.\n\n:param event: the Qt event.\n:returns: True when handled here."
-    },
-    "spacr.qt.widgets.provider_marks.ProviderMark.is_chosen": {
-      "source_blocks_sha256": [
-        "401e84a34d001ae886abc4402f57fc743fe06af63d553fbb71d728944d0570f5"
-      ],
-      "source_sha256": "401e84a34d001ae886abc4402f57fc743fe06af63d553fbb71d728944d0570f5",
-      "text": "Whether this provider is the selected one."
-    },
-    "spacr.qt.widgets.provider_marks.ProviderMark.mousePressEvent": {
-      "source_blocks_sha256": [
-        "fbcca45e40a87c941f4bfcceca3a18501977b73b9786a814510464f888b692ba",
-        "8759e2fb89737be7c8520d31a68c072db682281123b04cec0e10d3e727a9179f"
-      ],
-      "source_sha256": "d7f2f0dbf55603427d496ecb5dad667ed3f719440a547a48cb2d16b67c551b76",
-      "text": "Open the provider's page.\n\n:param event: the Qt mouse event."
-    },
-    "spacr.qt.widgets.provider_marks.ProviderMark.paintEvent": {
-      "source_blocks_sha256": [
-        "a67979484e45af1bfc69813fffd6d95850c58a1adacae3c053dd35a532b34f72",
-        "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
-      ],
-      "source_sha256": "5c20bd17d4878fa0b73cabf82b9516fc2858c5b88ac51d66b78ec190fab1e975",
-      "text": "Draw the provider's mark.\n\n:param event: the Qt paint event."
-    },
-    "spacr.qt.widgets.provider_marks.ProviderMark.set_chosen": {
-      "source_blocks_sha256": [
-        "891e2007842dbc1450c3908cc39baef7ec0681b1a559c0bbd53584558f91ebd4",
-        "45d18119290fdadb989698b7d3587f0d67da4f0a2a7005633713f1cec8919cfb"
-      ],
-      "source_sha256": "468ee81b14550d3d0b7542d973ef88f9b95d0cae85e9877ca0331f6356a7377f",
-      "text": "Select or deselect, and repaint.\n\n:param chosen: truthy to select; the widget repaints only when the\n    state changes."
-    },
-    "spacr.qt.widgets.provider_marks.ProviderMark.sizeHint": {
-      "source_blocks_sha256": [
-        "36370b9266e459ccf44df643480d0044658f46d526adc322bd7cd147bfee9a8e",
-        "150f61cd277994af9d47c5d3e95c1a7e4d1f32b02cb2684dd667a1f310e04bac"
-      ],
-      "source_sha256": "9917156f893498a09e0af2348dda97e63462a176f76920b3a6bc5fd267b580bf",
-      "text": "The mark's natural size, from the artwork it draws.\n\n:returns: the preferred size."
-    },
-    "spacr.qt.widgets.provider_marks._parse_svg_path.num": {
-      "source_blocks_sha256": [
-        "696964b15b45648a03f5baf76eca4aa8f2c8c43ff6108c711906e530d0383563"
-      ],
-      "source_sha256": "696964b15b45648a03f5baf76eca4aa8f2c8c43ff6108c711906e530d0383563",
-      "text": "Read the next number from the path string, advancing the cursor."
-    },
-    "spacr.qt.widgets.provider_marks._svg_arc.ang": {
-      "source_blocks_sha256": [
-        "ee076a6c3930d0f64b8376ce55a2c1fffe6add44dc4ca4305ad2f390e30ae4a6"
-      ],
-      "source_sha256": "ee076a6c3930d0f64b8376ce55a2c1fffe6add44dc4ca4305ad2f390e30ae4a6",
-      "text": "The signed angle between two vectors, as SVG's arc maths defines it."
-    },
-    "spacr.qt.widgets.provider_marks._svg_arc.pt": {
-      "source_blocks_sha256": [
-        "aafd9e12180925afa89e859a84050092cc9344a0bbf1bc7c17e4461995fb85ac"
-      ],
-      "source_sha256": "aafd9e12180925afa89e859a84050092cc9344a0bbf1bc7c17e4461995fb85ac",
-      "text": "One point on the arc, from its cosine and sine."
-    },
-    "spacr.qt.widgets.provider_marks.claude_path": {
-      "source_blocks_sha256": [
-        "9994c95b29a227d72172880bb8111377c37d7e706b472c8ceb52035227dd3e68",
-        "ac550f4d0f9cede6fa9cabb61e3c19a91f2b5b811777750487c299e9e7d675b5",
-        "e8bad0d1abd705e096ebb50f8a85b2d660aa6860bb80a68ccb4b36b43f5486af"
-      ],
-      "source_sha256": "39a7e69c0fd4eef9cc965d7eaa3a396983e4c51d2175ee90b041122a9a294a3b",
-      "text": "A radiating burst: petals narrow at the hub and wide at the tip.\n\nThe petals are wide at the outside, which matches the mark and gives it\nenough ink. Drawn as tapered points -- narrow at the tip, all the\narea at the centre -- it measured a third of the ink of the knot beside\nit, and the lightest of three logos in a row reads as the disabled one.\n\n:param box: the rectangle to draw in; the mark is centred in it and sized\n    to its shorter side."
-    },
-    "spacr.qt.widgets.provider_marks.gemini_path": {
-      "source_blocks_sha256": [
-        "a9f38012496757c525e138c4b2e71b026489053ae182aabdcf53736d626684af",
-        "e8bad0d1abd705e096ebb50f8a85b2d660aa6860bb80a68ccb4b36b43f5486af"
-      ],
-      "source_sha256": "f208e364a5013340531c5c5e22be9e8265bc156fbf7d8d69e25deb3c542a0378",
-      "text": "A four-pointed spark: a diamond with concave sides.\n\n:param box: the rectangle to draw in; the mark is centred in it and sized\n    to its shorter side."
-    },
-    "spacr.qt.widgets.provider_marks.github_path": {
-      "source_blocks_sha256": [
-        "be1ec6e4b12cf23a2d865a1532312a0f92ba8cf27617b65187dbda48aec0b678",
-        "f00d94191aeda126bf735241a96b53b9f19eb4178db0743e11665cfd3e419837",
-        "0cb4dfaed3b2d04d98962785ea92749a7717e7e85601005d21bcec582ecbd622"
-      ],
-      "source_sha256": "46062ba8c7180521af9067cda3cd8d54c4e5876807fdbcca76d23e3eaff6ced5",
-      "text": "GitHub's Octocat mark, scaled to fill ``box``.\n\nUniform scale on the smaller of the two ratios and centred, so the cat\nkeeps its proportions in a box of any shape.\n\n:param box: the rectangle to fit the mark into; an empty box returns the\n    mark unscaled."
-    },
-    "spacr.qt.widgets.provider_marks.gpt_path": {
-      "source_blocks_sha256": [
-        "9de5889252b76ebad6e138c022c351da9d30ddb447f78abd03dcc1d210bccb62",
-        "e8bad0d1abd705e096ebb50f8a85b2d660aa6860bb80a68ccb4b36b43f5486af"
-      ],
-      "source_sha256": "c4e5b39c98cb2133e461183bb98ca1ec654684aed9fb0a18e23a0d48d8894dc1",
-      "text": "A six-fold knot: six lobes on a common ring, drawn as one outline.\n\n:param box: the rectangle to draw in; the mark is centred in it and sized\n    to its shorter side."
-    },
-    "spacr.qt.widgets.provider_marks.mark_for": {
-      "source_blocks_sha256": [
-        "0a740e13308275efc0b04efba25caf9b18fce89690873ca2e3c3d0c48ad8fb33",
-        "6af94864998ca73ef70321f00e20d5e4aa112cf1d5643979d41b8ba9c67fb535",
-        "d024420a41220e62127dc4c5714fae42a9ef02e0d145d67c84af8522e7994a23"
-      ],
-      "source_sha256": "30aaaa9545f6fbeb5ccc3e41c33668b79c7cb0bb8777fbc3a408494f26d11aa4",
-      "text": "The path for ``code`` inside ``box``, or None for an unknown one.\n\n:param code: provider code: ``\"claude\"``, ``\"gpt\"``, ``\"gemini\"`` or\n    ``\"github\"``.\n:param box: the rectangle the mark is drawn in."
-    },
     "spacr.qt.widgets.psf_controls": {
       "source_blocks_sha256": [
         "ae47fcbfa48daa5a577f1d3567f28f2d519f0c495480976bc6a90ed4dbe1a343",
@@ -110519,10 +110364,10 @@
     "spacr.qt.widgets.setup_slides.SetupSlides.accept": {
       "source_blocks_sha256": [
         "836d3388a53598e50416b6ab8726ffa11c40708abe6a68ebe08eef6fd58de3a6",
-        "e52373fc91b6cb7cbe315ff10aab10271f16f9b3743dcc7a3adf4498bf8437da"
+        "98a562e612c05a41fe90b8f0b8f0d70fbec42d4b57976839ec1c152ce5fea018"
       ],
-      "source_sha256": "d8988d916a2600df12bf5412f72a6814bd6def8c5f741c864003485ec78b0abe",
-      "text": "Close the slides and record that they have been seen.\n\nRecorded, so first-run guidance does not greet a returning user as a\nnew one. While an installer is running the user is asked first\n(:meth:`_may_close`): keeping it running leaves the screen open, and\nstopping it closes the screen as before."
+      "source_sha256": "f2ee22143907231e92ab252b5c1898bc13d7463c8fa9c9872669badfee9e941b",
+      "text": "Close the slides and record that they have been seen.\n\nRecorded, so first-run guidance does not greet a returning user as a\nnew one."
     },
     "spacr.qt.widgets.setup_slides.SetupSlides.agreed_to_terms": {
       "source_blocks_sha256": [
@@ -110571,25 +110416,14 @@
       "source_sha256": "4341eae7536695f4448fbff77e7d1bd5f1a272121e3eabee83ccec0df1da1b4d",
       "text": "Back one slide, and one anticlockwise circuit.\n\nThe direction shows the user which way they went."
     },
-    "spacr.qt.widgets.setup_slides.SetupSlides.provider_status": {
-      "source_blocks_sha256": [
-        "2e403808e506a11813f14ac0bc4305348cc9f5a02f91cc8c68403e0886f8699c",
-        "cef9d343413ed83af11a2c3264d173d039e24dcd49b022e76dbd30e4fa99619c",
-        "d1c5447b72bee697d14f62584d202922cf012036f08b4723c320a007678b9e18",
-        "9e5b946c5e015545a305e9b095dd6945a00f8898e5be5f25806866ff25afa56e"
-      ],
-      "source_sha256": "25dbc0d21a548fda86baa8e4a00c64db96e95ff5279a18f0f7fb88f0f2f5421b",
-      "text": "``ready`` / ``signed out`` / ``not installed`` for one provider.\n\nThree states, because each needs a different action from the user: a\nmissing CLI and an installed but signed-out CLI are reported\nseparately.\n\n:param code: provider code as in :data:`PROVIDERS`, e.g. ``\"claude\"``\n    or ``\"gpt\"``; looked up in the AI provider registry.\n:param command: the provider's CLI name, e.g. ``\"codex\"``; tried in\n    the registry after ``code``, and checked on ``PATH`` when neither\n    resolves."
-    },
     "spacr.qt.widgets.setup_slides.SetupSlides.reject": {
       "source_blocks_sha256": [
         "412c8d724eebb2d4517158754cccce3b0303cc905b08a0cc05edc6af5f391a94",
         "f32c7741a33dd5bbb3a7d5571813f0b2a2e8a5777971c58f9135940048c0470c",
-        "91f3a9ccdada0bd1c5449f23bd99d9cee5afcab3d0bf15ea621c18c84a6598d3",
-        "1eda2cf0c28e073f1515d8d31e44e8486932be66e55d31fe698222c0ba7f4b18"
+        "91f3a9ccdada0bd1c5449f23bd99d9cee5afcab3d0bf15ea621c18c84a6598d3"
       ],
-      "source_sha256": "54a607bde5b61c9f66bde5b990658d0706bb3e653005a2b341979e3ad9f11ffc",
-      "text": "Dismissed at any slide. Still marked answered.\n\nEvery question has a working default, so a user who closes this has\nchosen them -- and reopening on every launch until it is filled in\nwould make dismissing it impossible.\n\nThe terms are the exception, and they are not marked. A dismissal is a\nchoice of defaults; it is not an acceptance of a licence, so nothing is\nrecorded and `open_setup_if_needed` asks again.\n\nWhile an installer is running the user is asked first, as\n:meth:`accept` asks; keeping it running leaves the screen open."
+      "source_sha256": "8010aba652a2f7eb1cc30fdafeeecf0cbdff5392aa5930f6165397ba7fd0ed04",
+      "text": "Dismissed at any slide. Still marked answered.\n\nEvery question has a working default, so a user who closes this has\nchosen them -- and reopening on every launch until it is filled in\nwould make dismissing it impossible.\n\nThe terms are the exception, and they are not marked. A dismissal is a\nchoice of defaults; it is not an acceptance of a licence, so nothing is\nrecorded and `open_setup_if_needed` asks again."
     },
     "spacr.qt.widgets.setup_slides.SetupSlides.resizeEvent": {
       "source_blocks_sha256": [
@@ -116695,12 +116529,12 @@
     "spacr.restart_state.command": {
       "source_blocks_sha256": [
         "451ee26faaebbe68453c5fc28d92214cc4f617ee90238cf760fc09e0e9fa6ef0",
-        "ad5e4a220f6fde4ae10f44a4afdd847a2b4e0cb4b9657c6160d78c94901cc18e",
+        "a6d6d6d5b88ef533b8eebe3428ee783adbec9c778dd06373ee6d9851c9992b24",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "2569002df96948709a63745fb3dda3a6b851fdc67af20f4cfbf23569a503fdb6"
       ],
-      "source_sha256": "2fc677d9e825416cb90552fd4819f78a0ce6b358ad2af834957c1af2b4cd2caf",
-      "text": "Return the command used to restart the PySide6 application.\n\nThe command uses the active Python interpreter and the explicit\n:mod:`spacr.qt` entry point, so a forced restart returns to the same GUI\nwithout depending on an executable found through ``PATH``.\n\nReturns\n-------\nlist of str\n    Command arguments suitable for :class:`subprocess.Popen`."
+      "source_sha256": "4527f9bd4df21fa487028b6c81f71ac26d0d375f5e1a7e2044618d0013f2d69a",
+      "text": "Return the command used to restart the PySide6 application.\n\nA frozen application restarts its bundled executable directly, without\nPython interpreter flags. An unfrozen installation uses the active Python\ninterpreter and the explicit :mod:`spacr.qt` entry point. Both routes return\nto the same GUI without depending on an executable found through ``PATH``.\n\nReturns\n-------\nlist of str\n    Command arguments suitable for :class:`subprocess.Popen`."
     },
     "spacr.restart_state.describe_running": {
       "source_blocks_sha256": [
@@ -118588,10 +118422,11 @@
         "a5d7ec449ef4a602a61a8b52723791cfc41cf14f765e0ff9e181edaf66fb18f8",
         "882b025608cfd488e23a584b446ed392b1687ebc25a7fd9d842b8d1ee4baf9e4",
         "8dd0e2a8113506874bc11e2fc2fc9c3f48a62736e07a25a74bd3c94a52ef8885",
-        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b"
+        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b",
+        "73a1ffe75988b2b3cf4a04261a07be7d7cdee6aeabd20ee69f5f533310d74ad4"
       ],
-      "source_sha256": "8f340495d1c595d60230eb54dc6e4a5181aa999d47ddcb317dd9dd713295f09b",
-      "text": "One pipeline run: its id, its seed, its error policy, its ledger.\n\nCreated by :func:`run_context`; read anywhere by\n:func:`current_run_context`. The id on this object is the id on every\nlog line the run emits (:func:`read_run_log`), on every\n:class:`~spacr.errors.RunLedger` it hands out, and on every\n:class:`spacr.artifacts.Artifact` it registers — which is what lets a\nlog line and an output be joined.\n\n:param run_id: the id.\n:param module: the producing module key — ``\"mask\"``, ``\"measure\"``,\n    the same keys :mod:`spacr.ports` uses.\n:param seed: the seed applied, or None when the run is unseeded.\n:param policy: the :class:`ErrorPolicy` in force.\n:param ledger: the run's :class:`~spacr.errors.RunLedger`, whose\n    ``run_id`` has been set to this run's.\n:param settings: the settings the run was started with.\n:param seed_report: what :func:`seed_everything` managed to seed.\n:param started_utc: when the run opened.\n:param log_path: the run's JSONL log, or ``\"\"`` when logging is off.\n:param resource_log_path: path to the run's process-tree resource JSON\n    document, or ``\"\"`` when resource accounting is off or unavailable.\n    Set when sampling starts and used to register the document.\n:param resource_artifact_id: artifact-registry identifier assigned after\n    successful resource-document registration, or ``\"\"`` when no record\n    was created."
+      "source_sha256": "b17236a3334e68ec484a01688c8da915414c51d140fe249949ad1dc8b5dde16d",
+      "text": "One pipeline run: its id, its seed, its error policy, its ledger.\n\nCreated by :func:`run_context`; read anywhere by\n:func:`current_run_context`. The id on this object is the id on every\nlog line the run emits (:func:`read_run_log`), on every\n:class:`~spacr.errors.RunLedger` it hands out, and on every\n:class:`spacr.artifacts.Artifact` it registers — which is what lets a\nlog line and an output be joined.\n\n:param run_id: the id.\n:param module: the producing module key — ``\"mask\"``, ``\"measure\"``,\n    the same keys :mod:`spacr.ports` uses.\n:param seed: the seed applied, or None when the run is unseeded.\n:param policy: the :class:`ErrorPolicy` in force.\n:param ledger: the run's :class:`~spacr.errors.RunLedger`, whose\n    ``run_id`` has been set to this run's.\n:param settings: the settings the run was started with.\n:param seed_report: what :func:`seed_everything` managed to seed.\n:param started_utc: when the run opened.\n:param log_path: the run's JSONL log, or ``\"\"`` when logging is off.\n:param resource_log_path: path to the run's process-tree resource JSON\n    document, or ``\"\"`` when resource accounting is off or unavailable.\n    Set when sampling starts and used to register the document.\n:param resource_artifact_id: artifact-registry identifier assigned after\n    successful resource-document registration, or ``\"\"`` when no record\n    was created.\n:param _resource_sampler: the internal process-tree resource sampler, or\n    ``None`` before resource accounting starts or when it is unavailable."
     },
     "spacr.runctx.RunContext.__str__": {
       "source_blocks_sha256": [

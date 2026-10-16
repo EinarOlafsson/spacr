@@ -68,7 +68,6 @@
   "gui_public_reports": "问题报告是公开的，且无法保证撤回。每次发送前都会对报告进行脱敏并显示预览。这些选项均为可选项，之后可在“偏好设置”中更改。",
   "gui_share_diagnostics": "在报告预览中包含脱敏的诊断日志",
   "gui_report_issues": "启用公开 GitHub 问题报告操作",
-  "gui_account_setup": "首次启动时打开账户设置",
   "gui_preserve": "保留现有数据、模型、缓存和偏好设置。未选择任何可选清理。",
   "gui_close": "关闭",
   "gui_install": "安装",

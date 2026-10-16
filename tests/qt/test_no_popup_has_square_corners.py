@@ -68,39 +68,6 @@ def test_setup_window_uses_the_same_alpha_corners(qtbot, qt_theme_applied):
     assert slides.grab().toImage().pixelColor(0, 0).alpha() == 0
 
 
-def test_the_github_mark_is_the_octicons_path(qapp):
-    """The real Octocat, not a circle with ears.
-
-    Asserted against the SHAPE rather than against the string: a path
-    that parsed to something lopsided would still match a string compare.
-    A 16-unit box, the head wider than it is tall at the top, and the two
-    legs leaving a gap between them at the bottom.
-    """
-    from PySide6.QtCore import QRectF
-
-    from spacr.qt.widgets.provider_marks import GITHUB_MARK, github_path
-
-    assert GITHUB_MARK.startswith("M8 0C")
-    assert GITHUB_MARK.rstrip().endswith("Z")
-
-    path = github_path(QRectF(0, 0, 64, 64))
-    bounds = path.boundingRect()
-    assert 60 <= bounds.width() <= 64
-    assert bounds.height() <= bounds.width()
-
-    # The gap between the cat's legs: a point low and centred is outside
-    # the silhouette, while the same height to either side is inside.
-    assert not path.contains(bounds.center() + _below(bounds, 0.0, 0.46))
-    assert path.contains(bounds.center() + _below(bounds, -0.22, 0.40))
-    assert path.contains(bounds.center() + _below(bounds, 0.22, 0.40))
-
-
-def _below(bounds, across, down):
-    from PySide6.QtCore import QPointF
-
-    return QPointF(bounds.width() * across, bounds.height() * down)
-
-
 def test_the_corner_arc_shows_no_more_of_the_backdrop_than_the_middle(qapp,
                                                                       monkeypatch):
     """No blue crescent on the rounded parts.

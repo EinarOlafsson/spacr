@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import hashlib
 import json
 import os
 import re
@@ -98,7 +99,7 @@ def test_release_audit_parsers_pin_the_current_inventory():
     }
     refreshed_scenes = {
         "01_pypi_github": 8, "02_install_spacr": 17,
-        "04_platform_installers": 14, "05_home": 32,
+        "04_platform_installers": 14, "05_home": 31,
         "80_image_analysis_pathways": 12, "82_toxoplasma": 7,
     }
     assert {lesson["id"]: len(lesson["scenes"]) for lesson in catalog["lessons"]
@@ -123,12 +124,16 @@ def test_release_audit_parsers_pin_the_current_inventory():
     assert {"07b_wand_add", "07c_wand_ctrl_remove", "08b_merge_demo"} <= {
         scene["visual"] for scene in make_masks["scenes"]
     }
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"] if lesson["id"] != "14_make_masks") == 1159
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1220
+    # The accepted Home revision removes its hidden Spaceout ending.
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"] if lesson["id"] != "14_make_masks") == 1158
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1219
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))
-    assert live.EXPECTED_CACHE_KEY in (
+    checkpoint = ROOT / "features/data/n676_api_link_metadata_completed_2026-10-15/checkpoint"
+    receipt = json.loads((checkpoint / "publication-receipt.json").read_text())
+    cache_key = live._catalog_cache_key(receipt)
+    assert f'src="lesson_catalog.js?v={cache_key}"' in (
         tutorial_root / "index.html"
     ).read_text(encoding="utf-8")
 
@@ -497,8 +502,17 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
     assert not failures, f"PyPI speech is not the reviewed 'pype' form: {failures}"
 
     published = _tutorial_catalog()
-    manifest = json.loads((ROOT / "tools/tutorials/release_candidate"
-                           / "release-manifest.json").read_text())
+    checkpoint = ROOT / "features/data/n676_api_link_metadata_completed_2026-10-15/checkpoint"
+    receipt = json.loads((checkpoint / "publication-receipt.json").read_text())
+    manifest_bytes = (checkpoint / "release-manifest.json").read_bytes()
+    assert hashlib.sha256(manifest_bytes).hexdigest() == receipt["manifest_sha256"]
+    readback = receipt["readback"]
+    assert readback["passed"] is True
+    assert readback["commit"] == receipt["commit"]
+    assert readback["downloaded_sha256_matched"] == readback["files_expected"] == receipt["media_files"]
+    index = (catalog_dir.parent / "index.html").read_text()
+    assert f'data-web-root="{receipt["media_root"]}"' in index
+    manifest = json.loads(manifest_bytes)
     media_records = {row["path"]: row for row in manifest["files"]}
     visual_references = {}
     for lesson in published["lessons"]:
@@ -518,7 +532,7 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
     # 438464849 (07 r26b) and 52d5d99bf (08 r26), with dated publication
     # receipts under features/data/676_publication_2026-10-13_{07_mask,08_measure}.
     native_ids = {"02_install_spacr", "04_platform_installers", "05_home",
-                  "07_mask", "08_measure", "09_annotate", "11_classify_ml", "14_make_masks", "15_image_umap",
+                  "07_mask", "08_measure", "09_annotate", "11_classify_ml", "14_make_masks", "15_image_umap", "23_agreement",
                   "43_illumination", "80_image_analysis_pathways", "82_toxoplasma"}
     original_ids = {"18_motility", "19_train_cellpose", "20_cellpose_masks", "24_plaque",
                     "74_import_images", "85_host_pathogen", "87_alpha_features"}

@@ -216,7 +216,6 @@ ENABLED_MODULES: frozenset[str] = frozenset({
     "spacr.qt.widgets.picture_export",
     "spacr.qt.widgets.plaque_preview",
     "spacr.qt.widgets.plate_map_picker",
-    "spacr.qt.widgets.provider_marks",
     "spacr.qt.widgets.psf_controls",
     "spacr.qt.widgets.regression_results",
     "spacr.qt.widgets.restoration_controls",

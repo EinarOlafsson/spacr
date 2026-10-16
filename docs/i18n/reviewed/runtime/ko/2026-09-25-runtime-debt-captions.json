@@ -797,13 +797,6 @@
     },
     {
       "table": "ui",
-      "key": "Installing {label}…",
-      "source": "Installing {label}…",
-      "source_sha256": "a7a453fe3013e5f0d4d61aec261226d80aeac78e0ed6124f6514f51e65c1c3d4",
-      "translation": "{label} 설치 중…"
-    },
-    {
-      "table": "ui",
       "key": "Installing {name}…",
       "source": "Installing {name}…",
       "source_sha256": "9a6d101877ed12a83ba2a41c1c8dd51c53651e601396f20911ea3d0a93f20472",
@@ -2113,13 +2106,6 @@
     },
     {
       "table": "ui",
-      "key": "Stopping the installer…",
-      "source": "Stopping the installer…",
-      "source_sha256": "42958a5514188bdb1e8613d56d63acba59a710857f2735e7cb28781d5fac0906",
-      "translation": "설치 프로그램을 중지하는 중…"
-    },
-    {
-      "table": "ui",
       "key": "Stored PNG order",
       "source": "Stored PNG order",
       "source_sha256": "dcfad4368086424a35dd18fda2b7c373b47f00ff3e456775a04e6b7d5eb1c800",
@@ -2348,13 +2334,6 @@
       "source": "That module did not open",
       "source_sha256": "4dba239a91bb9d2ecfe5be50095fa483a55027f36f7103a0624a999a1459d00c",
       "translation": "모듈을 열지 못했습니다"
-    },
-    {
-      "table": "ui",
-      "key": "The installer could not be run: {error}",
-      "source": "The installer could not be run: {error}",
-      "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b",
-      "translation": "설치 프로그램을 실행할 수 없습니다: {error}"
     },
     {
       "table": "ui",
@@ -3065,20 +3044,6 @@
     },
     {
       "table": "ui",
-      "key": "{label} is installed.",
-      "source": "{label} is installed.",
-      "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e",
-      "translation": "{label}이(가) 설치되었습니다."
-    },
-    {
-      "table": "ui",
-      "key": "{label} is signed in and ready.",
-      "source": "{label} is signed in and ready.",
-      "source_sha256": "bb5fc33dbf7cd3f9ab2ba87cf48e7575a1a6c18bae01c505d0eac9a54028cfce",
-      "translation": "{label}에 로그인되어 사용할 준비가 되었습니다."
-    },
-    {
-      "table": "ui",
       "key": "{model} is not on this machine: {reason}",
       "source": "{model} is not on this machine: {reason}",
       "source_sha256": "c9e481fa074648930c5d1ce628d2fd7b5a660d345dd0c7b79e22ef35fcd39403",
@@ -3146,6 +3111,58 @@
       "source": "{value:g} px/µm",
       "source_sha256": "658a6bdc48239a9930c31cd1b55363fab8c8e82fa835f23f11ab1895f6ffe500",
       "translation": "{value:g} 픽셀/µm"
+    }
+  ],
+  "retired_records": [
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Installing {label}…",
+        "source": "Installing {label}…",
+        "source_sha256": "a7a453fe3013e5f0d4d61aec261226d80aeac78e0ed6124f6514f51e65c1c3d4",
+        "translation": "{label} 설치 중…"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Stopping the installer…",
+        "source": "Stopping the installer…",
+        "source_sha256": "42958a5514188bdb1e8613d56d63acba59a710857f2735e7cb28781d5fac0906",
+        "translation": "설치 프로그램을 중지하는 중…"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "The installer could not be run: {error}",
+        "source": "The installer could not be run: {error}",
+        "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b",
+        "translation": "설치 프로그램을 실행할 수 없습니다: {error}"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "{label} is installed.",
+        "source": "{label} is installed.",
+        "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e",
+        "translation": "{label}이(가) 설치되었습니다."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "{label} is signed in and ready.",
+        "source": "{label} is signed in and ready.",
+        "source_sha256": "bb5fc33dbf7cd3f9ab2ba87cf48e7575a1a6c18bae01c505d0eac9a54028cfce",
+        "translation": "{label}에 로그인되어 사용할 준비가 되었습니다."
+      }
     }
   ]
 }

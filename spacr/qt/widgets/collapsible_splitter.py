@@ -457,6 +457,8 @@ class _PaneHandle(QSplitterHandle):
     def edge_pane(self) -> Optional[Pane]:
         """The EDGE pane this handle is the strip of, if any."""
         splitter = self.splitter()
+        if getattr(splitter, "_panes", None) is None:
+            return None
         finder = getattr(splitter, "_edge_pane_beside", None)
         return finder(self) if callable(finder) else None
 
@@ -1131,7 +1133,7 @@ class CollapsibleSplitter(QSplitter):
             elif stretch <= 0 and wraps and (refit or fresh or small):
                 rigid[i] = max(wraps, self._along(widget.minimumSizeHint()))
             elif stretch <= 0:
-                rigid[i] = max(want, natural if fresh else 0)
+                rigid[i] = want
             else:
                 elastic[i] = max(1, want)
         if total <= 0:
@@ -1202,7 +1204,8 @@ class CollapsibleSplitter(QSplitter):
         Called when a handle is let go and when the splitter is hidden, so a
         window closed in the middle of a drag keeps the sizes.
         """
-        if self._extents_timer.isActive():
+        timer = getattr(self, "_extents_timer", None)
+        if _alive(timer) and timer.isActive():
             self._save_extents()
 
     def _save_extents(self) -> None:

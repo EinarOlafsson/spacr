@@ -124,6 +124,7 @@ import time
 import weakref
 from collections import deque
 from functools import partial
+from types import SimpleNamespace
 from importlib.util import find_spec
 from typing import Any, List, NamedTuple, Optional
 
@@ -144,6 +145,7 @@ from PySide6.QtGui import (
     QBrush,
     QColor,
     QCursor,
+    QIcon,
     QImage,
     QPainter,
     QPen,
@@ -158,6 +160,7 @@ from PySide6.QtWidgets import (
     QDoubleSpinBox,
     QFileDialog,
     QFormLayout,
+    QFrame,
     QGridLayout,
     QGroupBox,
     QHBoxLayout,
@@ -177,6 +180,7 @@ from PySide6.QtWidgets import (
     QStackedWidget,
     QTabBar,
     QTabWidget,
+    QToolButton,
     QVBoxLayout,
     QWidget,
 )
@@ -9498,9 +9502,96 @@ class _VolumeSliceHistory:
 #: rather than the drawing plane, in seconds.
 SPIN_CHORD_SECONDS = 1.5
 
-#: Most points the True 3D view draws for the image and for the objects.
-VOLUME_IMAGE_POINTS = 2000
-VOLUME_LABEL_POINTS = 6000
+#: Most voxels the True 3D view draws from, by quality: ``interactive``
+#: while the view is turning, ``preview`` once it stops, ``full`` on demand
+#: (``None``: every voxel).
+VOLUME_RENDER_VOXELS = {'interactive': 262_144, 'preview': 4_194_304, 'full': None}
+
+#: Display pixels per rendered pixel, by quality.
+VOLUME_RENDER_PIXEL = {'interactive': 4.0, 'preview': 2.0, 'full': 1.0}
+
+#: Voxels between two samples along a line of sight, by quality.
+VOLUME_RENDER_SAMPLE = {'interactive': 1.5, 'preview': 1.0, 'full': 1.0}
+
+#: Most rendered pixels along either side, and most samples along a ray.
+VOLUME_RENDER_MAX_SIDE = 1600
+VOLUME_RENDER_MAX_SAMPLES = 768
+
+#: How long the view must be still before it is drawn sharply, in ms.
+VOLUME_SETTLE_MS = 250
+
+#: The True 3D view's background, dark as napari's canvas.
+VOLUME_VIEW_BACKGROUND = '#0b0f14'
+
+#: The volume box's size in the view at zoom 1.
+VOLUME_BOX_ZOOM = 1.8
+
+#: Width of the layer list beside the True 3D view, in pixels.
+VOLUME_DOCK_WIDTH = 270
+
+#: Below this share of a line of sight along Z the slice plane counts as seen
+#: edge-on, and Paint and Erase refuse to guess where on it they are.
+VOLUME_EDGE_ON = 0.05
+
+
+class _RenderRequest(NamedTuple):
+    """One True 3D view to draw off the GUI thread, read on the GUI thread."""
+
+    serial: int
+    quality: str
+    layers: tuple
+    steps: tuple
+    rays: Any
+    rect: tuple
+    version: int
+    highlight: int
+    cache: dict
+    cancelled: Any
+    session: Any
+
+
+def _render_volume_view(request):
+    """Downsample the layers (once per volume and edit) and draw one view.
+
+    Runs on the render worker; touches no Qt object.
+
+    :returns: ``(rgb, picked)``: display-sized ``uint8`` colour and the
+        object under each rendered pixel, or None when cancelled.
+    """
+    from scipy import ndimage
+    from ...layers import ImageLayer, LabelsLayer, render_volume
+    from ..gil_priority import responsive_gui
+
+    layers = []
+    cache = request.cache
+    with responsive_gui():
+        for name, image, data, visible, opacity, colormap, limits, rendering in request.layers:
+            if not visible:
+                continue
+            key = (name, id(data), 0 if image else request.version, request.steps)
+            if key not in cache:
+                for stale in [old for old in cache if old[0] == name and old[3] == request.steps]:
+                    del cache[stale]
+                cache[key] = np.ascontiguousarray(
+                    np.asarray(data)[tuple(slice(None, None, step) for step in request.steps)])
+            if image:
+                layers.append(ImageLayer(cache[key], name=name, colormaps=[colormap],
+                                         contrast_limits=[limits], opacity=opacity,
+                                         metadata={'rendering': rendering}))
+            else:
+                layers.append(LabelsLayer(cache[key], name=name, opacity=opacity,
+                                          metadata={'rendering': rendering}))
+        drawn = render_volume(layers, request.rays, highlight=request.highlight,
+                              cancelled=request.cancelled)
+        if drawn is None:
+            return None
+        rgb, picked = drawn
+        x0, x1, y0, y1 = request.rect
+        size = (max(1, int(round(y1 - y0))), max(1, int(round(x1 - x0))))
+        if rgb.shape[:2] != size:
+            rgb = ndimage.zoom(rgb, (size[0] / rgb.shape[0], size[1] / rgb.shape[1], 1), order=1,
+                               grid_mode=True, mode='nearest')
+        return (np.clip(rgb, 0.0, 1.0) * 255).round().astype(np.uint8), picked
 
 
 class _VolumeStage(QWidget):
@@ -9518,6 +9609,7 @@ class _VolumeStage(QWidget):
 
     _delivered = Signal(object)
     _meshed = Signal(object)
+    _rendered = Signal(object)
 
     def __init__(self, canvas, screen):
         """Lay out the canvas with the volume controls, hidden until a volume opens."""
@@ -9534,7 +9626,17 @@ class _VolumeStage(QWidget):
         self._cursor = [0, 0, 0]
         self._levels = (0.0, 1.0)
         self._selected = self._next = self._objects = 0
-        self._panel = self._cloud = None
+        self._panel = None
+        self._layers = self._render_state = self._render_artist = self._slice_artist = None
+        self._layer_rows = {}
+        self._render_cache = {}
+        self._render_serial = 0
+        self._view_signature = None
+        self._settle_timer = None
+        self._show_grid = False
+        self._pan = (0.0, 0.0)
+        self._fitted_axes = self._base_position = None
+        self._tool3d = self._stroke = self._pan_from = None
         self._counts = np.zeros(2, dtype=np.int64)
         self._meshes = {}
         self._version = 0
@@ -9551,6 +9653,11 @@ class _VolumeStage(QWidget):
             _volume_mesh,
             lambda request, result, error: self._meshed.emit((request, result, error)),
             name='spacr-volume-mask-mesh')
+        self._rendered.connect(self._take_render)
+        self._renderer = _NewestRequestWorker(
+            _render_volume_view,
+            lambda request, result, error: self._rendered.emit((request, result, error)),
+            name='spacr-volume-render')
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(SPACING["xs"])
@@ -9670,6 +9777,9 @@ class _VolumeStage(QWidget):
         self._cursor = [session.section_count(axis) // 2 for axis in 'XYZ']
         self._levels = (float(session.image.min()), float(session.image.max()))
         self._frame_stale = True
+        self._render_cache = {}
+        self._pan = (0.0, 0.0)
+        self._layers = self._volume_layers(session)
         blocked = self._slider.blockSignals(True)
         self._slider.setRange(0, session.section_count('Z') - 1)
         self._slider.blockSignals(blocked)
@@ -9690,6 +9800,15 @@ class _VolumeStage(QWidget):
         self.dirty = False
         self._shown = {}
         self._selected = 0
+        self._render_serial += 1
+        self._renderer.drop_waiting()
+        if self._layers is not None:
+            self._layers.unsubscribe(self._on_layer_event)
+        self._layers = self._render_state = None
+        self._render_cache = {}
+        self._stroke = self._pan_from = None
+        if self._settle_timer is not None:
+            self._settle_timer.stop()
         for widget in (self._strip, self._rail, self.view_picker, self._xz, self._yz):
             widget.hide()
         self._grid.setColumnStretch(1, 0)
@@ -9705,6 +9824,7 @@ class _VolumeStage(QWidget):
         self.leave()
         self._worker.close(timeout=0)
         self._mesher.close(timeout=0)
+        self._renderer.close(timeout=0)
 
     def draw_label(self):
         """The object a stroke draws: the chosen ID, or the first unused one."""
@@ -9757,9 +9877,10 @@ class _VolumeStage(QWidget):
         finally:
             self._restoring = False
         self._show_count()
-        self._cloud = None
         self._meshes = {}
         self._version += 1
+        if self._layers is not None:
+            list(self._layers)[-1].data = session.mask
         self.show_slices(reset)
         if self.view == 'true3d':
             self._show_true3d()
@@ -9804,6 +9925,8 @@ class _VolumeStage(QWidget):
             return False
         self._cursor[2] = index
         self.show_slices()
+        if self.view == 'true3d':
+            self._place_slice_plane()
         return True
 
     def step_slice(self, step):
@@ -9848,6 +9971,12 @@ class _VolumeStage(QWidget):
     def eventFilter(self, watched, event):
         """Aim the crosshair with the middle button, and arm the side views' brush."""
         kind = event.type()
+        if self._panel is not None and watched is self._panel.canvas._canvas:
+            if (self.session is not None and kind in (QEvent.MouseButtonPress, QEvent.MouseMove,
+                                                      QEvent.MouseButtonRelease)
+                    and self._view_event(event)):
+                return True
+            return super().eventFilter(watched, event)
         if self.session is not None and kind in (QEvent.MouseButtonPress, QEvent.MouseMove,
                                                  QEvent.MouseButtonRelease):
             if event.button() == Qt.MiddleButton or event.buttons() & Qt.MiddleButton:
@@ -9959,6 +10088,7 @@ class _VolumeStage(QWidget):
         self._show_count()
         if self.view == 'true3d':
             self._select_label()
+            self._view_changed()
 
     def _interpolate(self):
         """Fill the chosen object between its drawn XY sections."""
@@ -10022,14 +10152,21 @@ class _VolumeStage(QWidget):
             widget.setEnabled(not busy)
 
     def _build_true3d(self):
-        """Build the 3-D anchor view the first time True 3D is chosen."""
+        """Build the 3-D view the first time True 3D is chosen.
+
+        The volume is drawn as napari draws it: every channel and the masks
+        are layers, listed beside the view with an eye, a colour, an opacity
+        and a rendering each. The anchor editor of the gate view is drawn on
+        top of the picture, so the objects are reshaped where they are seen.
+        """
         from ..i18n import tr
         from ..linked_selection import LinkedSelection
         from ..widgets.gate_editor import GateEditorPanel
 
         page = self._true3d
-        notice = QLabel(tr('Physical X/Y/Z coordinates. Sampled point-cloud preview; '
-                           'mask edits and voxel counts use the full image.'), page)
+        notice = QLabel(tr('Drag to turn the view, Shift+drag to move it, wheel to zoom. '
+                           'The image is drawn from a downsampled copy; mask edits and '
+                           'voxel counts use the full image.'), page)
         notice.setObjectName('VolumeMaskPreviewNotice')
         notice.setWordWrap(True)
         page.layout().addWidget(notice)
@@ -10043,6 +10180,20 @@ class _VolumeStage(QWidget):
         self._anchors = Toggle(parent=page)
         self._anchors.setObjectName('VolumeMaskAnchorVisibility')
         controls.addWidget(self._anchors)
+        self._tool_buttons = {}
+        for key, text, tip in (
+                ('pick', tr('Pick'), tr('Click an object in the 3D view to choose it.')),
+                ('paint', tr('Paint'), tr('Paint the chosen object on the slice plane, '
+                                          'where the blue frame shows it.')),
+                ('erase', tr('Erase'), tr('Erase every object on the slice plane under the brush.'))):
+            button = QPushButton(text, page)
+            button.setObjectName(f'VolumeMask3D{key.capitalize()}')
+            button.setCheckable(True)
+            button.setToolTip(tip)
+            button.setAccessibleDescription(tip)
+            button.clicked.connect(partial(self._choose_tool, key))
+            controls.addWidget(button)
+            self._tool_buttons[key] = button
         controls.addStretch(1)
         page.layout().addLayout(controls)
         for control, text in (
@@ -10051,6 +10202,10 @@ class _VolumeStage(QWidget):
                 (self._anchors, tr('Show or hide editing anchors without changing the mask.'))):
             control.setToolTip(text)
             control.setAccessibleDescription(text)
+        body = QHBoxLayout()
+        body.setContentsMargins(0, 0, 0, 0)
+        body.setSpacing(SPACING["xs"])
+        page.layout().addLayout(body, 1)
         panel = GateEditorPanel(page, link=LinkedSelection(), source='make_masks_volume')
         panel.setObjectName('VolumeMaskPanel')
         panel._gate_undo_replaying = True
@@ -10062,15 +10217,276 @@ class _VolumeStage(QWidget):
         panel.set_namer(lambda: str(self.draw_label()))
         for shortcut in panel.findChildren(QShortcut):
             shortcut.setEnabled(False)
-        panel.spin_axis_changed.connect(panel.canvas.set_spin_axis)
-        panel.canvas.depth_requested.connect(self._say)
-        panel.canvas._render_volume = self._with_labels(panel.canvas._render_volume)
+        canvas = panel.canvas
+        panel.spin_axis_changed.connect(canvas.set_spin_axis)
+        canvas.depth_requested.connect(self._say)
+        canvas.POINT_ALPHA = 0.0
+        canvas._render_volume = self._with_layers(canvas._render_volume)
+        canvas._apply_volume_zoom = self._fit_box
+        canvas.reset_view = partial(self._reset_view, canvas.reset_view)
+        canvas._canvas.mpl_connect('draw_event', self._view_drawn)
+        canvas._canvas.installEventFilter(self)
+        for button in panel._drag_buttons.values():
+            button.clicked.connect(lambda _checked=False: self._choose_tool(None))
         panel.gates_changed.connect(self._geometry_changed)
         panel.setMinimumSize(480, 360)
-        page.layout().addWidget(panel, 1)
+        body.addWidget(panel, 1)
+        body.addWidget(self._build_layer_dock(page))
         self._density.valueChanged.connect(self._anchor_settings)
         self._anchors.toggled.connect(self._anchor_settings)
+        self._settle_timer = QTimer(self)
+        self._settle_timer.setSingleShot(True)
+        self._settle_timer.setInterval(VOLUME_SETTLE_MS)
+        self._settle_timer.timeout.connect(lambda: self._submit_render('preview'))
         self._panel = panel
+
+    def _build_layer_dock(self, page):
+        """The layer list beside the 3-D view, napari style.
+
+        :param page: the True 3D page.
+        :returns: the dock widget.
+        """
+        from ..i18n import tr
+
+        dock = QWidget(page)
+        dock.setObjectName('VolumeLayerDock')
+        dock.setFixedWidth(VOLUME_DOCK_WIDTH)
+        column = QVBoxLayout(dock)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(SPACING["xs"])
+        heading = QLabel(tr('Layers'), dock)
+        heading.setObjectName('VolumeLayerHeading')
+        column.addWidget(heading)
+        scroll = QScrollArea(dock)
+        scroll.setObjectName('VolumeLayerScroll')
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._layer_list = QWidget(scroll)
+        self._layer_list.setObjectName('VolumeLayerList')
+        QVBoxLayout(self._layer_list).setContentsMargins(0, 0, 0, 0)
+        scroll.setWidget(self._layer_list)
+        column.addWidget(scroll, 1)
+        row = QHBoxLayout()
+        row.addWidget(QLabel(tr('Show axes and grid'), dock))
+        self._grid_toggle = Toggle(parent=dock)
+        self._grid_toggle.setObjectName('VolumeShowAxesGrid')
+        self._grid_toggle.setChecked(False)
+        row.addWidget(self._grid_toggle)
+        row.addStretch(1)
+        column.addLayout(row)
+        self._full_button = QPushButton(tr('Render at full resolution'), dock)
+        self._full_button.setObjectName('VolumeRenderFull')
+        column.addWidget(self._full_button)
+        self._detail = QLabel(dock)
+        self._detail.setObjectName('VolumeRenderDetail')
+        self._detail.setWordWrap(True)
+        column.addWidget(self._detail)
+        for control, text in (
+                (self._grid_toggle, tr('Draw the axes, ticks and grid around the volume. '
+                                       'They zoom and move with the data.')),
+                (self._full_button, tr('Draw this view from every voxel. Turning or '
+                                       'zooming draws from the downsampled copy again.'))):
+            control.setToolTip(text)
+            control.setAccessibleDescription(text)
+        self._grid_toggle.toggled.connect(self._grid_toggled)
+        self._full_button.clicked.connect(lambda: self._submit_render('full'))
+        return dock
+
+    def _fill_layer_list(self):
+        """One row per layer, top layer first: eye, name, colour, opacity,
+        contrast and rendering."""
+        from ..i18n import tr
+        from ...layers import ImageLayer
+
+        holder = self._layer_list.layout()
+        while holder.count():
+            item = holder.takeAt(0)
+            if item.widget() is not None:
+                item.widget().deleteLater()
+        self._layer_rows = {}
+        if self._layers is None:
+            return
+        for layer in reversed(list(self._layers)):
+            image = isinstance(layer, ImageLayer)
+            row = QFrame(self._layer_list)
+            row.setObjectName('VolumeLayerRow')
+            row.setFrameShape(QFrame.StyledPanel)
+            lines = QVBoxLayout(row)
+            lines.setContentsMargins(SPACING["xs"], SPACING["xs"], SPACING["xs"], SPACING["xs"])
+            lines.setSpacing(2)
+            top = QHBoxLayout()
+            eye = QToolButton(row)
+            eye.setObjectName('VolumeLayerEye')
+            eye.setCheckable(True)
+            eye.setChecked(layer.visible)
+            eye.setAutoRaise(True)
+            self._paint_eye(eye)
+            top.addWidget(eye)
+            name = QLabel(layer.name, row)
+            name.setObjectName('VolumeLayerName')
+            top.addWidget(name, 1)
+            colour = None
+            if image:
+                colour = QComboBox(row)
+                colour.setObjectName('VolumeLayerColour')
+                for key, text in self._colour_names().items():
+                    colour.addItem(self._swatch(key), text, key)
+                colour.setCurrentIndex(max(0, colour.findData(layer.colormap.name)))
+                top.addWidget(colour)
+            lines.addLayout(top)
+            opacity_line = QHBoxLayout()
+            opacity_line.addWidget(QLabel(tr('Opacity'), row))
+            opacity = QSlider(Qt.Horizontal, row)
+            opacity.setObjectName('VolumeLayerOpacity')
+            opacity.setRange(0, 100)
+            opacity.setValue(int(round(layer.opacity * 100)))
+            opacity_line.addWidget(opacity, 1)
+            lines.addLayout(opacity_line)
+            low = high = None
+            if image:
+                contrast = QHBoxLayout()
+                contrast.addWidget(QLabel(tr('Contrast'), row))
+                bottom, top_value = layer.metadata['range']
+                decimals = 0 if layer.channel_data(0).dtype.kind in 'ui' else 3
+                low, high = QDoubleSpinBox(row), QDoubleSpinBox(row)
+                for box, value, key in ((low, layer.contrast_limits(0)[0], 'Low'),
+                                        (high, layer.contrast_limits(0)[1], 'High')):
+                    box.setObjectName(f'VolumeLayerContrast{key}')
+                    box.setDecimals(decimals)
+                    box.setRange(bottom, top_value)
+                    box.setValue(value)
+                    contrast.addWidget(box, 1)
+                lines.addLayout(contrast)
+            rendering_line = QHBoxLayout()
+            rendering_line.addWidget(QLabel(tr('Rendering'), row))
+            rendering = QComboBox(row)
+            rendering.setObjectName('VolumeLayerRendering')
+            for key, text in self._rendering_names(image).items():
+                rendering.addItem(text, key)
+            rendering.setCurrentIndex(max(0, rendering.findData(layer.metadata['rendering'])))
+            rendering_line.addWidget(rendering, 1)
+            lines.addLayout(rendering_line)
+            for control, text in (
+                    (eye, tr('Show or hide this layer.')),
+                    (colour, tr('The colour this channel is drawn in.')),
+                    (opacity, tr('How opaque this layer is drawn.')),
+                    (low, tr('Intensities at or below this are drawn black.')),
+                    (high, tr('Intensities at or above this are drawn at full colour.')),
+                    (rendering, tr('MIP draws the brightest voxel along each line of sight; '
+                                   'Attenuated MIP dims what lies behind bright voxels; '
+                                   'Translucent draws the volume as a glowing fog. Masks are '
+                                   'drawn as shaded surfaces or as coloured glass.'))):
+                if control is not None:
+                    control.setToolTip(text)
+                    control.setAccessibleDescription(text)
+            eye.toggled.connect(partial(self._layer_visible, layer.name, eye))
+            opacity.valueChanged.connect(partial(self._layer_opacity, layer.name))
+            rendering.currentIndexChanged.connect(partial(self._layer_rendering, layer.name, rendering))
+            if image:
+                colour.currentIndexChanged.connect(partial(self._layer_colour, layer.name, colour))
+                low.valueChanged.connect(partial(self._layer_contrast, layer.name, low, high))
+                high.valueChanged.connect(partial(self._layer_contrast, layer.name, low, high))
+            holder.addWidget(row)
+            self._layer_rows[layer.name] = SimpleNamespace(
+                eye=eye, colour=colour, opacity=opacity, low=low, high=high, rendering=rendering)
+        holder.addStretch(1)
+
+    @staticmethod
+    def _colour_names():
+        """The colours a channel can be drawn in, by colormap name."""
+        from ..i18n import tr
+
+        return {'gray': tr('Grey'), 'green': tr('Green'), 'magenta': tr('Magenta'),
+                'cyan': tr('Cyan'), 'red': tr('Red'), 'blue': tr('Blue'), 'yellow': tr('Yellow')}
+
+    @staticmethod
+    def _rendering_names(image):
+        """The renderings a layer can use, napari's names first."""
+        from ..i18n import tr
+
+        if image:
+            return {'mip': tr('MIP'), 'attenuated_mip': tr('Attenuated MIP'),
+                    'translucent': tr('Translucent'), 'average': tr('Average'), 'minip': tr('MinIP')}
+        return {'surface': tr('Surface'), 'translucent': tr('Translucent')}
+
+    @staticmethod
+    def _swatch(key):
+        """A small square of one channel colour, for the colour list."""
+        from ...layers import colormap
+
+        red, green, blue = (int(round(value * 255)) for value in colormap(key).map(1.0))
+        pixmap = QPixmap(12, 12)
+        pixmap.fill(QColor(red, green, blue))
+        return QIcon(pixmap)
+
+    @staticmethod
+    def _paint_eye(eye):
+        """Show an open eye on a visible layer and a struck one on a hidden one."""
+        eye.setIcon(iconset.icon('eye' if eye.isChecked() else 'eye_off'))
+
+    def _layer_visible(self, name, eye, visible):
+        """Show or hide one layer."""
+        self._paint_eye(eye)
+        self._layers[name].visible = bool(visible)
+
+    def _layer_opacity(self, name, value):
+        """Set one layer's opacity from its slider."""
+        self._layers[name].opacity = value / 100.0
+
+    def _layer_colour(self, name, box, _index):
+        """Draw one channel in another colour."""
+        self._layers[name].set_colormap(box.currentData())
+
+    def _layer_contrast(self, name, low, high, _value):
+        """Set one channel's contrast limits; an empty range is left alone."""
+        if high.value() > low.value():
+            self._layers[name].set_contrast_limits(low.value(), high.value())
+
+    def _layer_rendering(self, name, box, _index):
+        """Draw one layer by another rendering."""
+        self._layers[name].metadata['rendering'] = box.currentData()
+        self._view_changed()
+
+    def _on_layer_event(self, event):
+        """Redraw the 3-D view when a layer's picture changes."""
+        from ...layers import LayerEvent
+
+        if event.kind in LayerEvent.REPAINT:
+            self._view_changed()
+
+    def _volume_layers(self, session):
+        """The layers of one volume: a layer per channel, then the masks.
+
+        Contrast limits start at the 0.5th and 99.8th percentiles of each
+        channel, read from a sample of at most 200,000 voxels.
+
+        :param session: the open volume.
+        :returns: a :class:`~spacr.layers.LayerStack`.
+        """
+        from ..i18n import tr
+        from ...layers import DEFAULT_CHANNEL_COLORMAPS, ImageLayer, LabelsLayer, LayerStack
+
+        layers = []
+        planes = session.channels
+        for index, plane in enumerate(planes):
+            flat = plane.ravel()
+            probe = flat[::max(1, flat.size // 200_000)].astype(np.float64)
+            bottom, top = float(probe.min()), float(probe.max())
+            low, high = (float(value) for value in np.percentile(probe, (0.5, 99.8)))
+            if high <= low:
+                low, high = bottom, max(top, bottom + 1.0)
+            name = tr('Channel {n}', n=index + 1) if len(planes) > 1 else tr('Image')
+            layers.append(ImageLayer(
+                plane, name=name, contrast_limits=[(low, high)],
+                colormaps=['gray' if len(planes) == 1 else
+                           DEFAULT_CHANNEL_COLORMAPS[index % 4]],
+                blending='additive',
+                metadata={'rendering': 'mip', 'range': (bottom, max(top, bottom + 1.0))}))
+        layers.append(LabelsLayer(session.mask, name=tr('Masks'), opacity=0.6,
+                                  metadata={'rendering': 'surface'}))
+        stack = LayerStack(layers)
+        stack.subscribe(self._on_layer_event)
+        return stack
 
     def _show_true3d(self):
         """Draw the volume, its objects and the chosen object's anchors in 3D."""
@@ -10083,22 +10499,12 @@ class _VolumeStage(QWidget):
             self._build_true3d()
         session, panel = self.session, self._panel
         if self._frame_stale:
-            image = session.image
-            flat = image.ravel()
-            probe = flat[::max(1, flat.size // 200_000)].astype(np.float64)
-            centre = float(np.median(probe))
-            cut = float(np.percentile(np.abs(probe - centre), 90))
-            candidates = np.flatnonzero(np.abs(flat.astype(np.float64) - centre) >= cut)
-            sample = np.random.default_rng(0).choice(
-                candidates, min(VOLUME_IMAGE_POINTS, candidates.size), replace=False)
-            coordinates = np.asarray(np.unravel_index(sample, image.shape))
-            frame = pd.DataFrame({axis: (coordinates[session.axes.index(axis)] + .5) * session.xyz_spacing[index]
-                                  for index, axis in enumerate('XYZ')})
-            frame['Intensity'] = flat[sample]
             corners = pd.DataFrame([(x, y, z, 0.) for x in session.limits[0]
                                     for y in session.limits[1] for z in session.limits[2]],
                                    columns=['X', 'Y', 'Z', 'Intensity'])
-            panel.set_frame(pd.concat([frame, corners], ignore_index=True))
+            self._render_state = None
+            self._fill_layer_list()
+            panel.set_frame(corners)
             panel.set_spec(GraphSpec(x='X', y='Y', colour='Intensity'))
             panel.canvas.set_mode('3D', z_column='Z')
             panel.canvas._notice.hide()
@@ -10111,51 +10517,454 @@ class _VolumeStage(QWidget):
         finally:
             self._restoring = False
         panel.apply_settings(replace(GateEditorSettings(), **controls))
-        if self._cloud is None:
-            self._cloud = self._label_cloud()
         self._select_label()
+        self._view_changed()
 
-    def _label_cloud(self):
-        """Surface voxels of every object, coloured as on the slices.
+    def _with_layers(self, render):
+        """Wrap the 3-D view's own drawing so the volume is drawn under it."""
+        return partial(self._draw_with_layers, render)
 
-        :returns: ``(points, colours)`` in physical X/Y/Z, at most
-            :data:`VOLUME_LABEL_POINTS` of them.
-        """
-        session = self.session
-        mask = session.mask
-        found = np.flatnonzero(mask)
-        where = np.unravel_index(found, mask.shape)
-        values = mask.ravel()[found]
-        surface = np.zeros(found.size, dtype=bool)
-        for axis in range(3):
-            for step in (-1, 1):
-                moved = list(where)
-                moved[axis] = where[axis] + step
-                outside = (moved[axis] < 0) | (moved[axis] >= mask.shape[axis])
-                moved[axis] = np.clip(moved[axis], 0, mask.shape[axis] - 1)
-                surface |= outside | (mask[tuple(moved)] != values)
-        chosen = np.flatnonzero(surface)
-        if chosen.size > VOLUME_LABEL_POINTS:
-            chosen = np.sort(np.random.default_rng(0).choice(chosen, VOLUME_LABEL_POINTS, replace=False))
-        points = np.stack([where[session.axes.index(axis)][chosen] for axis in 'XYZ'], axis=1)
-        labels = values[chosen].astype(np.int64)
-        table = np.random.default_rng(0).integers(30, 255, size=(int(labels.max(initial=0)) + 1, 3), dtype=np.uint8) / 255.0
-        return (points + .5) * np.asarray(session.xyz_spacing), table[labels]
-
-    def _with_labels(self, render):
-        """Wrap the 3-D view's own drawing so the objects are drawn into it too."""
-        return partial(self._draw_with_labels, render)
-
-    def _draw_with_labels(self, render):
-        """Draw the volume with ``render``, then every object's surface voxels."""
+    def _draw_with_layers(self, render):
+        """Draw the anchor view with ``render``, then dress it as a volume view."""
         done = render()
-        if done and self._cloud is not None and len(self._cloud[0]):
-            points, colours = self._cloud
-            axes = self._panel.canvas._axes[(0, 0)]
-            axes.scatter(points[:, 0], points[:, 1], points[:, 2], s=4, c=colours,
-                         depthshade=False, linewidths=0.0)
-            self._panel.canvas._canvas.draw_idle()
+        if done and self.session is not None:
+            self._dress_view()
         return done
+
+    def _view_axes(self):
+        """The 3-D axes of the True 3D view, or None before it is drawn."""
+        if self._panel is None:
+            return None
+        ax = self._panel.canvas.axes_at(0, 0)
+        return ax if ax is not None and hasattr(ax, 'get_zlim') else None
+
+    def _fit_box(self, ax):
+        """Frame the volume: its own bounds, its physical shape, the zoom and the pan.
+
+        The zoom scales the whole box, so the axes and grid grow with the
+        objects instead of staying put while the data is enlarged.
+        """
+        from matplotlib.transforms import Bbox
+
+        if self.session is None:
+            return
+        limits = self.session.limits
+        for setter, (low, high) in zip((ax.set_xlim3d, ax.set_ylim3d, ax.set_zlim3d), limits):
+            setter(low, high)
+        ax.set_box_aspect([high - low for low, high in limits],
+                          zoom=VOLUME_BOX_ZOOM * float(self._panel.canvas._volume_zoom))
+        if self._fitted_axes is not ax:
+            self._fitted_axes = ax
+            self._base_position = ax.get_position(original=True).frozen()
+        base = self._base_position
+        ax.set_position(Bbox.from_bounds(base.x0 + self._pan[0], base.y0 + self._pan[1],
+                                         base.width, base.height))
+
+    def _dress_view(self):
+        """Orthographic camera, the axes and grid only when asked for, the
+        slice plane, and the rendered volume under everything."""
+        ax = self._view_axes()
+        if ax is None:
+            return
+        palette = active_palette()
+        figure = self._panel.canvas._figure
+        ax.set_proj_type('ortho')
+        self._fit_box(ax)
+        if self._show_grid:
+            ax.set_axis_on()
+            ax.grid(True)
+            for axis in (ax.xaxis, ax.yaxis, ax.zaxis):
+                axis._axinfo['grid']['color'] = palette['fg_muted']
+        else:
+            ax.set_axis_off()
+        figure.patch.set_facecolor(VOLUME_VIEW_BACKGROUND)
+        figure.patch.set_alpha(1.0)
+        self._slice_artist = None
+        self._place_slice_plane(draw=False)
+        self._render_artist = None
+        self._show_render(draw=False)
+
+    def _place_slice_plane(self, draw=True):
+        """Outline the slice the 2-D tools and Paint draw on, as napari's plane."""
+        from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+
+        ax = self._view_axes()
+        if ax is None or self.session is None:
+            return
+        (x0, x1), (y0, y1), _z = self.session.limits
+        z = (self._cursor[2] + 0.5) * self.session.xyz_spacing[2]
+        corners = [[(x0, y0, z), (x1, y0, z), (x1, y1, z), (x0, y1, z)]]
+        artist = self._slice_artist
+        if artist is None or artist.axes is not ax:
+            accent = active_palette()['accent']
+            artist = Poly3DCollection(corners, facecolor=accent, alpha=0.10,
+                                      edgecolor=accent, linewidths=1.4)
+            artist.set_gid('VolumeSlicePlane')
+            ax.add_collection3d(artist)
+            self._slice_artist = artist
+        else:
+            artist.set_verts(corners)
+        if draw:
+            self._panel.canvas._canvas.draw_idle()
+
+    def _grid_toggled(self, on):
+        """Show or hide the axes, ticks and grid around the volume."""
+        self._show_grid = bool(on)
+        if self._panel is not None and self.view == 'true3d':
+            self._panel.canvas.render_now()
+
+    def _reset_view(self, original):
+        """Reset view also takes the pan back to the middle."""
+        self._pan = (0.0, 0.0)
+        original()
+
+    def _projection(self, ax):
+        """How the current camera maps physical X/Y/Z to the screen.
+
+        :returns: ``(origin, matrix, screen_origin)``: a point on the screen
+            with depth is ``screen_origin + matrix @ (point - origin)``, in
+            matplotlib display pixels and its projection depth (smaller is
+            nearer), or None when the camera cannot be inverted.
+        """
+        from mpl_toolkits.mplot3d import proj3d
+
+        if getattr(ax, 'M', None) is None:
+            self._panel.canvas._canvas.draw()
+        if getattr(ax, 'M', None) is None:
+            return None
+        limits = np.asarray(self.session.limits, dtype=np.float64)
+        origin = limits[:, 0]
+        lengths = np.maximum(limits[:, 1] - limits[:, 0], 1e-12)
+        points = np.vstack([origin, origin + np.diag(lengths)])
+        xs, ys, zs = proj3d.proj_transform(points[:, 0], points[:, 1], points[:, 2], ax.M)
+        screen = np.column_stack([ax.transData.transform(np.column_stack([xs, ys])), zs])
+        matrix = ((screen[1:] - screen[0]) / lengths[:, None]).T
+        if not np.all(np.isfinite(matrix)) or abs(np.linalg.det(matrix)) < 1e-18:
+            return None
+        return origin, matrix, screen[0]
+
+    def _render_request(self, quality):
+        """Everything the worker needs to draw the current view, read now.
+
+        :param quality: ``interactive``, ``preview`` or ``full``.
+        :returns: a :class:`_RenderRequest`, or None when nothing can be drawn.
+        """
+        from ...layers import ImageLayer, VolumeRays, volume_steps
+
+        ax = self._view_axes()
+        if ax is None or self.session is None or self._layers is None:
+            return None
+        projected = self._projection(ax)
+        if projected is None:
+            return None
+        origin, matrix, screen0 = projected
+        session = self.session
+        limits = np.asarray(session.limits, dtype=np.float64)
+        corners = np.array([(x, y, z) for x in limits[0] for y in limits[1] for z in limits[2]])
+        screen = screen0 + (corners - origin) @ matrix.T
+        figure = self._panel.canvas._figure
+        width, height = float(figure.bbox.width), float(figure.bbox.height)
+        x0, x1 = max(0.0, np.floor(screen[:, 0].min())), min(width, np.ceil(screen[:, 0].max()))
+        y0, y1 = max(0.0, np.floor(screen[:, 1].min())), min(height, np.ceil(screen[:, 1].max()))
+        if x1 - x0 < 2 or y1 - y0 < 2:
+            return None
+        near, far = float(screen[:, 2].min()), float(screen[:, 2].max())
+        steps = volume_steps(session.image.shape, VOLUME_RENDER_VOXELS[quality])
+        pixel = VOLUME_RENDER_PIXEL[quality]
+        columns = int(min(VOLUME_RENDER_MAX_SIDE, max(2, np.ceil((x1 - x0) / pixel))))
+        rows = int(min(VOLUME_RENDER_MAX_SIDE, max(2, np.ceil((y1 - y0) / pixel))))
+        inverse = np.linalg.inv(matrix)
+        spacing = np.asarray(session.xyz_spacing, dtype=np.float64)
+        stride = np.asarray([steps[session.axes.index(axis)] for axis in 'XYZ'], dtype=np.float64)
+        per_depth = np.linalg.norm(inverse[:, 2] / (spacing * stride))
+        samples = int(min(VOLUME_RENDER_MAX_SAMPLES,
+                          max(2, np.ceil((far - near) * per_depth / VOLUME_RENDER_SAMPLE[quality]))))
+
+        def index(point, offset=True):
+            """Physical screen point (or step) to strided array indices in storage order."""
+            physical = inverse @ (np.asarray(point, dtype=np.float64) - (screen0 if offset else 0.0))
+            if offset:
+                physical = physical + origin
+            xyz = (physical / spacing - (0.5 if offset else 0.0)) / stride
+            return tuple(float(xyz['XYZ'.index(axis)]) for axis in session.axes)
+
+        across, down, depth = (x1 - x0) / columns, (y1 - y0) / rows, (far - near) / samples
+        rays = VolumeRays(origin=index((x0 + across / 2, y1 - down / 2, near + depth / 2)),
+                          across=index((across, 0.0, 0.0), offset=False),
+                          down=index((0.0, -down, 0.0), offset=False),
+                          depth=index((0.0, 0.0, depth), offset=False),
+                          shape=(rows, columns, samples))
+        snapshot = tuple(
+            (layer.name, isinstance(layer, ImageLayer),
+             layer.channel_data(0) if isinstance(layer, ImageLayer) else layer.data,
+             layer.visible, layer.opacity,
+             layer.colormap if isinstance(layer, ImageLayer) else None,
+             layer.contrast_limits(0) if isinstance(layer, ImageLayer) else None,
+             layer.metadata.get('rendering'))
+            for layer in self._layers)
+        self._render_serial += 1
+        serial = self._render_serial
+        return _RenderRequest(serial=serial, quality=quality, layers=snapshot, steps=steps,
+                              rays=rays, rect=(x0, x1, y0, y1), version=self._version,
+                              highlight=int(self._selected), cache=self._render_cache,
+                              cancelled=lambda: self._render_serial != serial,
+                              session=session)
+
+    def _submit_render(self, quality):
+        """Ask the render worker for the current view at one quality.
+
+        :returns: whether a render was asked for.
+        """
+        from ..i18n import tr
+
+        if self.view != 'true3d' or self._panel is None:
+            return False
+        request = self._render_request(quality)
+        if request is None:
+            return False
+        if quality == 'full':
+            self._detail.setText(tr('Rendering the full-resolution volume…'))
+        self._renderer.submit(request)
+        return True
+
+    def _view_changed(self):
+        """Draw the view quickly now, and sharply once it stops changing."""
+        if self.view != 'true3d' or self._panel is None or self.session is None:
+            return
+        self._submit_render('interactive')
+        self._settle_timer.start()
+
+    def _view_drawn(self, _event):
+        """After every draw: render again when the camera or the canvas moved."""
+        ax = self._view_axes()
+        if ax is None or self.view != 'true3d' or getattr(ax, 'M', None) is None:
+            return
+        figure = self._panel.canvas._figure
+        signature = (np.round(np.asarray(ax.M), 9).tobytes(), tuple(figure.bbox.bounds))
+        if signature != self._view_signature:
+            self._view_signature = signature
+            self._view_changed()
+
+    def render_idle(self):
+        """Whether the 3-D view has no render running or waiting."""
+        return self._renderer.idle() and not (self._settle_timer is not None
+                                              and self._settle_timer.isActive())
+
+    def _take_render(self, payload):
+        """Show a finished render, unless a newer one was asked for since."""
+        from ..i18n import tr
+
+        request, result, error = payload
+        if request.session is not self.session:
+            return
+        if error is not None:
+            self._say(str(error))
+            return
+        if result is None:
+            return
+        if request.serial != self._render_serial and request.quality != 'full':
+            return
+        rgb, picked = result
+        self._render_state = SimpleNamespace(rgb=rgb, picked=picked, rect=request.rect,
+                                             quality=request.quality, steps=request.steps)
+        reduction = max(request.steps)
+        self._detail.setText(tr('Shown at full resolution.') if reduction == 1 else tr(
+            'Shown at 1/{n} resolution; Render at full resolution shows every voxel.', n=reduction))
+        self._show_render()
+
+    def _show_render(self, draw=True):
+        """Put the newest render under the 3-D axes."""
+        state = self._render_state
+        if state is None or self._panel is None:
+            return
+        figure = self._panel.canvas._figure
+        x0, _x1, y0, _y1 = state.rect
+        artist = self._render_artist
+        if artist is None or artist not in figure.images:
+            artist = figure.figimage(state.rgb, xo=int(x0), yo=int(y0), origin='upper',
+                                     zorder=-1, resize=False)
+            artist.set_gid('VolumeRender')
+            self._render_artist = artist
+        else:
+            artist.set_data(state.rgb)
+            artist.ox, artist.oy = int(x0), int(y0)
+        if draw:
+            self._panel.canvas._canvas.draw_idle()
+
+    def _choose_tool(self, key, _checked=False):
+        """Pick, Paint or Erase in the 3-D view, or None for the anchor tools."""
+        self._tool3d = key if key is None or self._tool_buttons[key].isChecked() else None
+        for name, button in self._tool_buttons.items():
+            button.setChecked(name == self._tool3d)
+
+    def _display_point(self, event):
+        """A mouse event on the 3-D canvas as matplotlib display pixels."""
+        x, y = self._panel.canvas._canvas.mouseEventCoords(event.position())
+        return float(x), float(y)
+
+    def _view_event(self, event):
+        """Pan, pick and paint on the 3-D canvas before the anchor tools see it.
+
+        :returns: whether the event was used here.
+        """
+        kind = event.type()
+        if kind == QEvent.MouseButtonPress:
+            point = self._display_point(event)
+            shifted = bool(event.modifiers() & Qt.ShiftModifier)
+            if event.button() == Qt.MiddleButton or (event.button() == Qt.LeftButton and shifted):
+                self._pan_from = point
+                return True
+            if event.button() != Qt.LeftButton or self._tool3d is None:
+                return False
+            if self._tool3d == 'pick':
+                self.pick_at(*point)
+            else:
+                self._stroke = None
+                self._stroke_to(*point)
+            return True
+        if kind == QEvent.MouseMove:
+            if self._pan_from is not None:
+                point = self._display_point(event)
+                self._pan_by(point[0] - self._pan_from[0], point[1] - self._pan_from[1])
+                self._pan_from = point
+                return True
+            if self._stroke is not None:
+                self._stroke_to(*self._display_point(event))
+                return True
+            return False
+        if kind == QEvent.MouseButtonRelease:
+            if self._pan_from is not None:
+                self._pan_from = None
+                return True
+            if self._stroke is not None:
+                self._finish_stroke()
+                return True
+        return False
+
+    def _pan_by(self, dx, dy):
+        """Move the whole view, box and grid included, by display pixels."""
+        figure = self._panel.canvas._figure
+        self._pan = (self._pan[0] + dx / max(figure.bbox.width, 1.0),
+                     self._pan[1] + dy / max(figure.bbox.height, 1.0))
+        ax = self._view_axes()
+        if ax is not None:
+            self._fit_box(ax)
+            self._panel.canvas._canvas.draw_idle()
+
+    def pick_at(self, x, y):
+        """Choose the object nearest the viewer under a display point.
+
+        :param x: matplotlib display x, in pixels.
+        :param y: matplotlib display y, in pixels from the bottom.
+        :returns: the object ID chosen, or 0 when there is none.
+        """
+        from ..i18n import tr
+
+        state = self._render_state
+        label = 0
+        if state is not None:
+            x0, x1, y0, y1 = state.rect
+            rows, columns = state.picked.shape
+            column = int((x - x0) / max(x1 - x0, 1e-9) * columns)
+            row = int((y1 - y) / max(y1 - y0, 1e-9) * rows)
+            if 0 <= row < rows and 0 <= column < columns:
+                label = int(state.picked[row, column])
+        if not label:
+            self._say(tr('No object under the pointer.'))
+            return 0
+        index = self._labels.findData(label)
+        if index >= 0:
+            self._labels.setCurrentIndex(index)
+        return label
+
+    def _plane_point(self, x, y):
+        """Where a display point meets the slice plane, as a section pixel.
+
+        :returns: ``(row, column)`` of the XY section, or None off the
+            section or with the plane seen edge-on.
+        """
+        from ..i18n import tr
+
+        ax = self._view_axes()
+        projected = None if ax is None else self._projection(ax)
+        if projected is None:
+            return None
+        origin, matrix, screen0 = projected
+        inverse = np.linalg.inv(matrix)
+        base = origin + inverse @ (np.array([x, y, 0.0]) - screen0)
+        slope = inverse[:, 2]
+        if abs(slope[2]) < VOLUME_EDGE_ON * np.linalg.norm(slope):
+            self._say(tr('Turn the view so the slice plane faces you to paint on it.'))
+            return None
+        spacing = self.session.xyz_spacing
+        z = (self._cursor[2] + 0.5) * spacing[2]
+        point = base + (z - base[2]) / slope[2] * slope
+        column, row = int(np.floor(point[0] / spacing[0])), int(np.floor(point[1] / spacing[1]))
+        if not (0 <= row < self.session.section_count('Y') and 0 <= column < self.session.section_count('X')):
+            return None
+        return row, column
+
+    def _stroke_to(self, x, y):
+        """Extend the Paint or Erase stroke to a display point, on the slice plane."""
+        hit = self._plane_point(x, y)
+        if self._stroke is None:
+            shape = (self.session.section_count('Y'), self.session.section_count('X'))
+            self._stroke = SimpleNamespace(pixels=np.zeros(shape, dtype=bool), last=None, path=[])
+        if hit is None:
+            self._stroke.last = None
+            return
+        stroke = self._stroke
+        radius = max(1, int(round(getattr(self.canvas, 'brush_radius', 4) or 4)))
+        last = stroke.last or hit
+        count = max(abs(hit[0] - last[0]), abs(hit[1] - last[1]), 1)
+        height, width = stroke.pixels.shape
+        top, left = max(0, min(last[0], hit[0]) - radius), max(0, min(last[1], hit[1]) - radius)
+        bottom = min(height, max(last[0], hit[0]) + radius + 1)
+        right = min(width, max(last[1], hit[1]) + radius + 1)
+        rows, columns = np.ogrid[top:bottom, left:right]
+        window = stroke.pixels[top:bottom, left:right]
+        for step in range(count + 1):
+            row = last[0] + (hit[0] - last[0]) * step / count
+            column = last[1] + (hit[1] - last[1]) * step / count
+            window |= (rows - row) ** 2 + (columns - column) ** 2 <= radius * radius
+        stroke.last = hit
+        spacing = self.session.xyz_spacing
+        stroke.path.append(((hit[1] + 0.5) * spacing[0], (hit[0] + 0.5) * spacing[1]))
+        ax = self._view_axes()
+        if ax is not None and len(stroke.path) > 1:
+            z = (self._cursor[2] + 0.5) * spacing[2]
+            xs, ys = zip(*stroke.path[-2:])
+            ax.plot(xs, ys, [z, z], color=active_palette()['accent'], linewidth=2.0)
+            self._panel.canvas._canvas.draw_idle()
+
+    def _finish_stroke(self):
+        """Write a Paint or Erase stroke into the slice as one undo step.
+
+        :returns: number of changed voxels.
+        """
+        from ..i18n import tr
+
+        stroke, self._stroke = self._stroke, None
+        if stroke is None or not stroke.pixels.any() or self.busy:
+            if self._panel is not None:
+                self._panel.canvas.render_now()
+            return 0
+        label = self.draw_label()
+        paint = self._tool3d == 'paint'
+        try:
+            count = self.session.paint_plane('Z', self._cursor[2], label,
+                                             paint=stroke.pixels if paint else None,
+                                             erase=None if paint else stroke.pixels)
+        except ValueError as exc:
+            self._say(str(exc))
+            return 0
+        if count:
+            self.dirty = True
+            if paint:
+                self._selected = label
+        self._say(tr('Updated {n} voxels in the volume.', n=count))
+        self.refresh()
+        return count
 
     def _select_label(self):
         """Give the chosen object editable anchors in True 3D.

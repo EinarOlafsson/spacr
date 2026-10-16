@@ -1,0 +1,592 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical review by Codex; no human or native-speaker signoff",
+  "note": "Exact current English AST and normal API block/context helpers for the assigned twenty crash-report relay symbols only. Manually authored AI translations; independent technical peer pending. No generated catalog, product source or prior review changed.",
+  "records": [
+    {
+      "label": "spacr.crashreport.RelayRefused#0",
+      "source": "The relay did not answer a hosted diagnosis.",
+      "source_sha256": "9cbe93097c41c2cdf46159d3ccec5b5054af9c44fc6e8586a90da7f9ef23250e",
+      "context": "The relay did not answer a hosted diagnosis.",
+      "translation": "Reläet svarade inte på en värdbaserad diagnos.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.RelayRefused#1",
+      "source": "``\"quota\"`` when a free daily limit is used up, ``\"network\"`` when the relay could not be reached or the network is forbidden, and ``\"error\"`` for any other refusal.",
+      "source_sha256": "3410477624da5a2ac5744a1ba8c838cb1b2adfcfc805c7dbad8c8cae53966e4d",
+      "context": "``\"quota\"`` when a free daily limit is used up, ``\"network\"`` when the relay could not be reached or the network is forbidden, and ``\"error\"`` for any other refusal.",
+      "translation": "``\"quota\"`` när en kostnadsfri daglig gräns är förbrukad, ``\"network\"`` när reläet inte kunde nås eller nätverksåtkomst är förbjuden, och ``\"error\"`` vid andra avvisningar.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.RelayRefused#2",
+      "source": "what the relay or the network said, for the log.",
+      "source_sha256": "1746153085edf10219c78dc9c3501a9ec01631efae994a3d61768dc5d1d57368",
+      "context": "what the relay or the network said, for the log.",
+      "translation": "vad reläet eller nätverket meddelade, för loggen.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.RelayRefused#3",
+      "source": "for a quota refusal, whose limit it was: ``\"install\"`` (this install's questions), ``\"global\"`` (spaCR's shared free capacity) or ``\"ip\"``.",
+      "source_sha256": "8057a712c7f1bea98750e847730241bd3850c2dc4960c0ae9e995bd7307a3f34",
+      "context": "for a quota refusal, whose limit it was: ``\"install\"`` (this install's questions), ``\"global\"`` (spaCR's shared free capacity) or ``\"ip\"``.",
+      "translation": "vid en kvotavvisning, vems gräns det var: ``\"install\"`` (denna installations frågor), ``\"global\"`` (spaCR:s gemensamma kostnadsfria kapacitet) eller ``\"ip\"``.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.RelayRefused#4",
+      "source": "when the limit resets, as an aware UTC datetime; defaults to the next 00:00 UTC.",
+      "source_sha256": "75f2e9b001ac4fe524cbeb82be447809e8d4c26a97ecb0cf64603b430e619ec9",
+      "context": "when the limit resets, as an aware UTC datetime; defaults to the next 00:00 UTC.",
+      "translation": "när gränsen återställs, som ett tidszonsmedvetet UTC-datum och klockslag; standard är nästa 00:00 UTC.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.RelayRefused#5",
+      "source": "The values are kept on the exception as ``reason``, ``scope`` and ``resets_at``. Keep the reason, scope and reset time, and the detail as the message.",
+      "source_sha256": "fec86ec938f40d8cf3508a9433a875d222fb4090785c6c39913fa41c3048dc12",
+      "context": "The values are kept on the exception as ``reason``, ``scope`` and ``resets_at``. Keep the reason, scope and reset time, and the detail as the message.",
+      "translation": "Värdena sparas på undantaget som ``reason``, ``scope`` och ``resets_at``. Behåll orsaken, omfattningen och återställningstiden samt detaljen som meddelande.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.next_reset_utc#0",
+      "source": "Return the next 00:00 UTC, when the relay's daily allowances reset.",
+      "source_sha256": "60057eb896241eceb07f50f5ca0d8bb74d759109d76d43673d105ae7845538c3",
+      "context": "Return the next 00:00 UTC, when the relay's daily allowances reset.",
+      "translation": "Returnera nästa 00:00 UTC, när reläets dagliga kvoter återställs.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.next_reset_utc#1",
+      "source": "the moment to count from; defaults to now.",
+      "source_sha256": "4e961b7c2b862b6eb5e047dedde2709537edf8afb90053ca2c4e1966b767008d",
+      "context": "the moment to count from; defaults to now.",
+      "translation": "tidpunkten att räkna från; standard är nu.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.next_reset_utc#2",
+      "source": "an aware UTC datetime.",
+      "source_sha256": "b048ad88d42dbdcc0e5afd455afb8f66e528c89cddab24aeca234cf4b9e63d91",
+      "context": "an aware UTC datetime.",
+      "translation": "ett tidszonsmedvetet UTC-datum och klockslag.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.network_allowed#0",
+      "source": "Whether a report or a hosted diagnosis may use the network at all.",
+      "source_sha256": "c764c191a908b6fa48994dcb18f3fdf88ef1b8c3b34d6fba5f1846374db3edce",
+      "context": "Whether a report or a hosted diagnosis may use the network at all.",
+      "translation": "Om en rapport eller en värdbaserad diagnos över huvud taget får använda nätverket.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.network_allowed#1",
+      "source": "``False`` when :data:`NO_NETWORK_ENV` is set or spaCR runs in safe mode, ``True`` otherwise.",
+      "source_sha256": "16c5eec3cc8b02d19e4acd44f2e70fc13b2ec2966f7d3f5a82b5808aeba9b601",
+      "context": "``False`` when :data:`NO_NETWORK_ENV` is set or spaCR runs in safe mode, ``True`` otherwise.",
+      "translation": "``False`` när :data:`NO_NETWORK_ENV` är satt eller spaCR körs i säkert läge, annars ``True``.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.error_report_mode#0",
+      "source": "Return the \"AI Error report\" choice, a key of :data:`ERROR_REPORT_MODES`.",
+      "source_sha256": "dc1c0868a1672c230a8785f61a287631d66b2d6aba603b90d9bd2cbbba7ccd66",
+      "context": "Return the \"AI Error report\" choice, a key of :data:`ERROR_REPORT_MODES`.",
+      "translation": "Returnera valet \"AI Error report\", en nyckel i :data:`ERROR_REPORT_MODES`.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.error_report_mode#1",
+      "source": "A profile that only ever turned the older on/off switch off reads as ``\"off\"``.",
+      "source_sha256": "6f7924389235216f4760de19f034a3711d2e4b51f776efb9f1bb3ac49a6462c3",
+      "context": "A profile that only ever turned the older on/off switch off reads as ``\"off\"``.",
+      "translation": "En profil som bara har stängt av den äldre på/av-knappen läses som ``\"off\"``.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.error_report_mode#2",
+      "source": "the saved key, or :data:`DEFAULT_ERROR_REPORT_MODE`.",
+      "source_sha256": "67f7531354bd3063659fed6c0564b696a5c2375bde3b583837c935462dda6272",
+      "context": "the saved key, or :data:`DEFAULT_ERROR_REPORT_MODE`.",
+      "translation": "den sparade nyckeln, eller :data:`DEFAULT_ERROR_REPORT_MODE`.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.mode_explains#0",
+      "source": "Whether a choice has the AI explain every failure in the console.",
+      "source_sha256": "7a70d59f7beffcfcbc6d61fc78a2dd298a5fc73379684db74808b2ea807a3380",
+      "context": "Whether a choice has the AI explain every failure in the console.",
+      "translation": "Om ett val låter AI förklara varje fel i konsolen.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.mode_explains#1",
+      "source": "a key of :data:`ERROR_REPORT_MODES`; defaults to the saved one.",
+      "source_sha256": "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+      "context": "a key of :data:`ERROR_REPORT_MODES`; defaults to the saved one.",
+      "translation": "en nyckel i :data:`ERROR_REPORT_MODES`; standard är den sparade.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.mode_explains#2",
+      "source": "``True`` for the four \"Summarize\" choices.",
+      "source_sha256": "efdeca3a15b913d6b3dda548fab251cb81bd0eefcf0fca8b89bd36eb8addcab3",
+      "context": "``True`` for the four \"Summarize\" choices.",
+      "translation": "``True`` för de fyra \"Summarize\"-valen.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.mode_sends#0",
+      "source": "Whether a choice files a failure of ``kind`` as an issue.",
+      "source_sha256": "54d2d90d2b1244559bd97a549d1ea211f2ade88d83f2de27ec2fa78d08f71de8",
+      "context": "Whether a choice files a failure of ``kind`` as an issue.",
+      "translation": "Om ett val registrerar ett fel av typen ``kind`` som ett ärende.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.mode_sends#1",
+      "source": ":data:`KIND_FAULT` or :data:`KIND_USER_ERROR`.",
+      "source_sha256": "a41a344522ef8229c99bed0e499c867629e183343c9a2f98cabe87e986d0b844",
+      "context": ":data:`KIND_FAULT` or :data:`KIND_USER_ERROR`.",
+      "translation": ":data:`KIND_FAULT` eller :data:`KIND_USER_ERROR`.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.mode_sends#2",
+      "source": "a key of :data:`ERROR_REPORT_MODES`; defaults to the saved one.",
+      "source_sha256": "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+      "context": "a key of :data:`ERROR_REPORT_MODES`; defaults to the saved one.",
+      "translation": "en nyckel i :data:`ERROR_REPORT_MODES`; standard är den sparade.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.mode_sends#3",
+      "source": "whether it is sent.",
+      "source_sha256": "8c06fb9a4e75243616cc2e3c0d6f34936cf693ba11a3e2948f3f4afa535f63e7",
+      "context": "whether it is sent.",
+      "translation": "om det skickas.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.mode_code_context#0",
+      "source": "Whether a choice adds each spaCR frame's source line to a report.",
+      "source_sha256": "9ca3b706e7530e8701f2eaaee41b41ce82db19cd53e1eaedc8b67fc745dc5a94",
+      "context": "Whether a choice adds each spaCR frame's source line to a report.",
+      "translation": "Om ett val lägger till källkodsraden från varje spaCR-stackram i en rapport.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.mode_code_context#1",
+      "source": "a key of :data:`ERROR_REPORT_MODES`; defaults to the saved one.",
+      "source_sha256": "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+      "context": "a key of :data:`ERROR_REPORT_MODES`; defaults to the saved one.",
+      "translation": "en nyckel i :data:`ERROR_REPORT_MODES`; standard är den sparade.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.mode_code_context#2",
+      "source": "``True`` only for ``\"all_code\"``.",
+      "source_sha256": "4e3c3f76dc95217d6a0a5c21b1a1db3b06ff01b2258d07d150d263e2c8fc12ee",
+      "context": "``True`` only for ``\"all_code\"``.",
+      "translation": "``True`` endast för ``\"all_code\"``.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.anonymous_reports_enabled#0",
+      "source": "Whether any failure is sent as an anonymised report.",
+      "source_sha256": "0b4ed1ade4482107fe88c56c186d855b1ea059e6405099143a3282b3d342fcb3",
+      "context": "Whether any failure is sent as an anonymised report.",
+      "translation": "Om något fel skickas som en anonymiserad rapport.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.anonymous_reports_enabled#1",
+      "source": "``False`` for the choices that send nothing.",
+      "source_sha256": "40995663a063e7eb179badd0b4d11ad79f612f0b91b290083d4e750bf78dab71",
+      "context": "``False`` for the choices that send nothing.",
+      "translation": "``False`` för de val som inte skickar något.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.classify_failure#0",
+      "source": "Return whether a failure is a fault or a user error.",
+      "source_sha256": "2d58fd042487c7a7aa508d19821bec4df9e7e9722899078931ce3b4b7a9238f9",
+      "context": "Return whether a failure is a fault or a user error.",
+      "translation": "Returnera om ett fel är ett programfel eller ett användarfel.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.classify_failure#1",
+      "source": "A :class:`spacr.errors.ConfigurationError`, or any of its subclasses, is a user error: a setting, a validation or a missing input the user can fix. Anything else is a fault.",
+      "source_sha256": "f371f2b2fb8576efeedce179f2e3c7a1d95f560787269bd83aa3141af3130073",
+      "context": "A :class:`spacr.errors.ConfigurationError`, or any of its subclasses, is a user error: a setting, a validation or a missing input the user can fix. Anything else is a fault.",
+      "translation": "En :class:`spacr.errors.ConfigurationError`, eller någon av dess underklasser, är ett användarfel: en inställning, en validering eller saknade indata som användaren kan åtgärda. Allt annat är ett programfel.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.classify_failure#2",
+      "source": "the exception, when at hand.",
+      "source_sha256": "755de7f9d8d35807469274a445883f88761f9b3f91c8ea2e98f12a6b8b2abc56",
+      "context": "the exception, when at hand.",
+      "translation": "undantaget, när det finns till hands.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.classify_failure#3",
+      "source": "a formatted traceback otherwise.",
+      "source_sha256": "bc0f7c1520da84a0c12d506a2366c76d2ce1a11d0da768189f822745eadb423c",
+      "context": "a formatted traceback otherwise.",
+      "translation": "annars en formaterad stackspårning.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.classify_failure#4",
+      "source": ":data:`KIND_USER_ERROR` or :data:`KIND_FAULT`.",
+      "source_sha256": "13dcc916d28f018361196f06ac90ba66e58b552560bbca5b180794203cca413b",
+      "context": ":data:`KIND_USER_ERROR` or :data:`KIND_FAULT`.",
+      "translation": ":data:`KIND_USER_ERROR` eller :data:`KIND_FAULT`.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.anonymous_report_notice_due#0",
+      "source": "Whether the one-time notice about anonymised reports is still to show.",
+      "source_sha256": "dd7102c011ca8714a21f48e81605b2608d7f74c403c00a6a89c445be65c36d98",
+      "context": "Whether the one-time notice about anonymised reports is still to show.",
+      "translation": "Om engångsmeddelandet om anonymiserade rapporter fortfarande ska visas.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.anonymous_report_notice_due#1",
+      "source": "``True`` until :func:`mark_anonymous_report_notice_shown`.",
+      "source_sha256": "642900d41cce7b32471f974256fd2ec0737e15b8aec3659c8445609aab49fd31",
+      "context": "``True`` until :func:`mark_anonymous_report_notice_shown`.",
+      "translation": "``True`` fram till :func:`mark_anonymous_report_notice_shown`.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.mark_anonymous_report_notice_shown#0",
+      "source": "Record that the notice about anonymised reports has been shown.",
+      "source_sha256": "96479e8762615af5a01b6b9506808e7b862a73145f038ae448ea71233f9f55ad",
+      "context": "Record that the notice about anonymised reports has been shown.",
+      "translation": "Registrera att meddelandet om anonymiserade rapporter har visats.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.install_id#0",
+      "source": "Return this profile's random install id, creating it on first use.",
+      "source_sha256": "30666fd47e78b99f8e8dc943e4b72ac2ab122ab8df05a1163887198864da3ea0",
+      "context": "Return this profile's random install id, creating it on first use.",
+      "translation": "Returnera profilens slumpmässiga installations-id och skapa det vid första användningen.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.install_id#1",
+      "source": "The id is a random UUID, not derived from the computer, the user or the network. The relay uses it only to share its free allowance fairly.",
+      "source_sha256": "c744604924530733ab67171deaa6011eab8aca3cbddc26f21a84c44687189c2e",
+      "context": "The id is a random UUID, not derived from the computer, the user or the network. The relay uses it only to share its free allowance fairly.",
+      "translation": "Id:t är ett slumpmässigt UUID och härleds inte från datorn, användaren eller nätverket. Reläet använder det endast för att fördela den kostnadsfria kvoten rättvist.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.install_id#2",
+      "source": "the id as a string.",
+      "source_sha256": "16217f2a7a0133b8ad3305420abd005d480dea88af4fe442aa9848777f0909a1",
+      "context": "the id as a string.",
+      "translation": "id:t som en sträng.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.ai_summary_prompt#0",
+      "source": "The fixed prompt that asks the user's own AI to summarise a report.",
+      "source_sha256": "638e0f80f7125247b37b52208412ca5e6983977ae3b0a02e84b8141f3edc1757",
+      "context": "The fixed prompt that asks the user's own AI to summarise a report.",
+      "translation": "Den fasta instruktionen som ber användarens egen AI att sammanfatta en rapport.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.ai_summary_prompt#1",
+      "source": "The AI sees only the anonymised summary, never the traceback, log or settings, and what it writes is scrubbed again before it is sent.",
+      "source_sha256": "3cb8272945e084c45e0ad61c6d8a884416723fe25ab19fbfa46061e7ed172e72",
+      "context": "The AI sees only the anonymised summary, never the traceback, log or settings, and what it writes is scrubbed again before it is sent.",
+      "translation": "AI ser bara den anonymiserade sammanfattningen, aldrig stackspårningen, loggen eller inställningarna, och dess text rensas igen innan den skickas.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.ai_summary_prompt#2",
+      "source": "a summary from :func:`public_summary`.",
+      "source_sha256": "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+      "context": "a summary from :func:`public_summary`.",
+      "translation": "en sammanfattning från :func:`public_summary`.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.ai_summary_prompt#3",
+      "source": "the prompt.",
+      "source_sha256": "679e1e3e644bbe192140ec68762966dacce0dc54475f2ca079730984886a921b",
+      "context": "the prompt.",
+      "translation": "instruktionen.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.example_public_summary#0",
+      "source": "Build a summary from a made-up error, to show what a report holds.",
+      "source_sha256": "4805be251c30321173fa9183621d8b60ef1af8c4840872a019bf80c29ce5d4d2",
+      "context": "Build a summary from a made-up error, to show what a report holds.",
+      "translation": "Bygg en sammanfattning från ett påhittat fel för att visa vad en rapport innehåller.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.example_public_summary#1",
+      "source": "The error's message names a plate file under the home folder, an e-mail address and a token, so the example shows each one removed.",
+      "source_sha256": "197a8f2e7aade953cd04cc2fff153bee71702f7243fd56d02b14812a1b95a497",
+      "context": "The error's message names a plate file under the home folder, an e-mail address and a token, so the example shows each one removed.",
+      "translation": "Felmeddelandet nämner en fil för en provplatta i hemkatalogen, en e-postadress och en token, så exemplet visar att var och en tas bort.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.example_public_summary#2",
+      "source": "a summary built exactly as a real one is.",
+      "source_sha256": "5e951d9bfd1dcaca8b96feb21136106e343de9e27d4d49805cd9b79b1e45c9e9",
+      "context": "a summary built exactly as a real one is.",
+      "translation": "en sammanfattning som byggs exakt som en verklig.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.flush_report_queue#0",
+      "source": "Try to send every waiting report, oldest first.",
+      "source_sha256": "1cee955ca3d322518807e52405d40be6f537e6a1843456d58d31ba439652f0d9",
+      "context": "Try to send every waiting report, oldest first.",
+      "translation": "Försök skicka alla väntande rapporter, med den äldsta först.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.flush_report_queue#1",
+      "source": "Stops at the first report that has to wait again (no network, a server error or the relay's quota), so an offline computer makes one attempt, not twenty. Does nothing while another send is running.",
+      "source_sha256": "f22928dee2a7a00ade5d46cfb4afedc7ae49ed51d7cbb646b56a4e047e3d65d2",
+      "context": "Stops at the first report that has to wait again (no network, a server error or the relay's quota), so an offline computer makes one attempt, not twenty. Does nothing while another send is running.",
+      "translation": "Stoppar vid den första rapport som måste vänta igen (inget nätverk, ett serverfel eller reläets kvot), så en dator utan nätverk gör ett försök, inte tjugo. Gör inget medan en annan sändning pågår.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.flush_report_queue#2",
+      "source": "seconds each post may take.",
+      "source_sha256": "3b65274ef4d6d3b7fd30871ba5b62538e8d99820314f532894944cbc75677285",
+      "context": "seconds each post may take.",
+      "translation": "antal sekunder varje postning får ta.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.flush_report_queue#3",
+      "source": "``{\"sent\": n, \"dropped\": n, \"kept\": n}``.",
+      "source_sha256": "fb27fbfe899426a9964e655a06831cc0aa5e96d76ded4576d5cb97717bb8c0ff",
+      "context": "``{\"sent\": n, \"dropped\": n, \"kept\": n}``.",
+      "translation": "``{\"sent\": n, \"dropped\": n, \"kept\": n}``.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.diagnose_remotely#0",
+      "source": "Ask the relay's hosted model about an error, with no account.",
+      "source_sha256": "6208bddae143b55b08f16f9b2f4c538ea8d4de8d1c52459fea8066e495f250ac",
+      "context": "Ask the relay's hosted model about an error, with no account.",
+      "translation": "Fråga reläets värdbaserade modell om ett fel, utan konto.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.diagnose_remotely#1",
+      "source": "Sends the anonymised summary and the scrubbed question, cut to :data:`MAX_QUESTION_CHARS`, to ``/diagnose``. The answer is generated advice, not a checked fix. Blocks, so call it off the GUI thread.",
+      "source_sha256": "0c08fd76ea2777f1ade8f2cd1ab141a5989aee9f7af0f8a35100dba49a0c5b25",
+      "context": "Sends the anonymised summary and the scrubbed question, cut to :data:`MAX_QUESTION_CHARS`, to ``/diagnose``. The answer is generated advice, not a checked fix. Blocks, so call it off the main GUI execution path.",
+      "translation": "Skickar den anonymiserade sammanfattningen och den rensade frågan, avkortad till :data:`MAX_QUESTION_CHARS`, till ``/diagnose``. Svaret är genererade råd, inte en kontrollerad åtgärd. Anropet blockerar, så kör det utanför GUI-tråden.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.diagnose_remotely#2",
+      "source": "a summary from :func:`public_summary`.",
+      "source_sha256": "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+      "context": "a summary from :func:`public_summary`.",
+      "translation": "en sammanfattning från :func:`public_summary`.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.diagnose_remotely#3",
+      "source": "what the user asks; may be empty.",
+      "source_sha256": "db3dfd5b107e44ab172b1f4c5db4149d77cee1568974bbe5d32a70f7123c7fb1",
+      "context": "what the user asks; may be empty.",
+      "translation": "vad användaren frågar; kan vara tomt.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.diagnose_remotely#4",
+      "source": "seconds the model may take.",
+      "source_sha256": "68694ddb4d07fd3a8b1bb5f8c5c794035f34bd3228690afc39c2cde384c58446",
+      "context": "seconds the model may take.",
+      "translation": "antal sekunder modellen får ta.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.diagnose_remotely#5",
+      "source": "``{\"advice\": text, \"model\": model name}``.",
+      "source_sha256": "7a53d8a95affae81d8f3ec742c9c242bf983144b65f0d0d8c481bcf909a1edfc",
+      "context": "``{\"advice\": text, \"model\": model name}``.",
+      "translation": "``{\"advice\": text, \"model\": model name}``.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.diagnose_remotely#6",
+      "source": "with ``reason`` ``\"quota\"`` when the free daily limit is used up, ``\"network\"`` when the relay cannot be reached or the network is forbidden, and ``\"error\"`` otherwise.",
+      "source_sha256": "168c7498c9b4e16800ff71cb08bc5bff9b600d6fe3f7e3b988aee78bffd23abf",
+      "context": "with ``reason`` ``\"quota\"`` when the free daily limit is used up, ``\"network\"`` when the relay cannot be reached or the network is forbidden, and ``\"error\"`` otherwise.",
+      "translation": "med ``reason`` ``\"quota\"`` när den kostnadsfria dagliga gränsen är förbrukad, ``\"network\"`` när reläet inte kan nås eller nätverksåtkomst är förbjuden, och annars ``\"error\"``.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.normalise_cause#0",
+      "source": "A likely-cause key as the relay keeps it: kebab-case, 5 words, 40 chars.",
+      "source_sha256": "ed5c29abdb17663720f38d605f7506f2d712650dd03c8be31288cd998efe9548",
+      "context": "A likely-cause key as the relay keeps it: kebab-case, 5 words, 40 chars.",
+      "translation": "En nyckel för trolig orsak som reläet sparar den: kebab-case, 5 ord, 40 tecken.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.normalise_cause#1",
+      "source": "the key as the AI wrote it.",
+      "source_sha256": "63496212f49051e5bab015b597d8f01bf07f307601412e73bd7b53bee512dc57",
+      "context": "the key as the AI wrote it.",
+      "translation": "nyckeln som AI skrev den.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.normalise_cause#2",
+      "source": "the slug, or ``\"\"``.",
+      "source_sha256": "cc2d28e237283855df656426d6855b9bd55794b66bc1f798916ffac3116e771c",
+      "context": "the slug, or ``\"\"``.",
+      "translation": "sluggen, eller ``\"\"``.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.explanation_signature#0",
+      "source": "The error's signature, computed as the relay computes it.",
+      "source_sha256": "e77c0942192bca11642409a37d23cbd55dc6aa5a330f43213be4e2724fb00202",
+      "context": "The error's signature, computed as the relay computes it.",
+      "translation": "Felets signatur, beräknad på samma sätt som reläet gör.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.explanation_signature#1",
+      "source": "The exception type, the module and the innermost five frames (``file:function``); a user error adds its normalised problem list. The relay keys its saved explanations, and its issues, by the same value.",
+      "source_sha256": "e93b6337f1364cf2f8978526bcd1868353bc83220a5c8f8accd8cc4134111810",
+      "context": "The exception type, the module and the innermost five frames (``file:function``); a user error adds its normalised problem list. The relay structured-data names its saved explanations, and its issues, by the same value.",
+      "translation": "Undantagstypen, modulen och de fem innersta stackramarna (``file:function``); ett användarfel lägger till sin normaliserade problemlista. Reläet använder samma värde som nyckel för sina sparade förklaringar och ärenden.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.explanation_signature#2",
+      "source": "a summary from :func:`public_summary`.",
+      "source_sha256": "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+      "context": "a summary from :func:`public_summary`.",
+      "translation": "en sammanfattning från :func:`public_summary`.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.explanation_signature#3",
+      "source": "the SHA-256 hex digest.",
+      "source_sha256": "6ef069a36cd77a199879712398c5025591b3c8a80b0e3cf78d82418a962e5bae",
+      "context": "the SHA-256 hex digest.",
+      "translation": "SHA-256-hashvärdet i hexadecimal form.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.explanation_key#0",
+      "source": ":func:`explanation_signature` of a failure, without the environment.",
+      "source_sha256": "d7b997eac06ef98fcc8ecb7c0dc98ebd33001525c6e0741e7e452d7c19e2f5c2",
+      "context": ":func:`explanation_signature` of a failure, without the environment.",
+      "translation": ":func:`explanation_signature` för ett fel, utan miljön.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.explanation_key#1",
+      "source": "Reads only the traceback, so it is cheap enough for the GUI thread and gives what the full :func:`public_summary` of the same failure gives.",
+      "source_sha256": "889e7967653c02b1699373999ff527ff8fd2bc365c579043717162a20efebac2",
+      "context": "Reads only the traceback, so it is cheap enough for the main GUI execution path and gives what the full :func:`public_summary` of the same failure gives.",
+      "translation": "Läser bara stackspårningen och är därför tillräckligt lätt för GUI-tråden; ger samma resultat som hela :func:`public_summary` för samma fel.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.explanation_key#2",
+      "source": "the formatted traceback.",
+      "source_sha256": "dc8cb59e5c9708e43ee74caaa4b7f99876fae29cfef145f0f80c11935ce7fd82",
+      "context": "the formatted traceback.",
+      "translation": "den formaterade stackspårningen.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.explanation_key#3",
+      "source": "the spaCR module key.",
+      "source_sha256": "3615aeaee3d3841a1a507ab9a0178a6a7efb4b5e90a32cd5629f01548417b890",
+      "context": "the spaCR module key.",
+      "translation": "nyckeln för spaCR-modulen.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.explanation_key#4",
+      "source": ":data:`KIND_FAULT` or :data:`KIND_USER_ERROR`.",
+      "source_sha256": "a41a344522ef8229c99bed0e499c867629e183343c9a2f98cabe87e986d0b844",
+      "context": ":data:`KIND_FAULT` or :data:`KIND_USER_ERROR`.",
+      "translation": ":data:`KIND_FAULT` eller :data:`KIND_USER_ERROR`.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.explanation_key#5",
+      "source": "the message sent in place of the exception's own.",
+      "source_sha256": "0219f84e0332ab7e9244f3e5037cc9a5737af1af4c778b3c1bd4fd978bd1f1aa",
+      "context": "the message sent in place of the exception's own.",
+      "translation": "meddelandet som skickas i stället för undantagets eget.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.explanation_key#6",
+      "source": "the signature.",
+      "source_sha256": "90da6c87f0aa65e3a37cc73e07d54c10263e24f0f45a33b2565451c890d3ef86",
+      "context": "the signature.",
+      "translation": "signaturen.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.fetch_allowance#0",
+      "source": "Ask the relay how much of today's free allowance this install has left.",
+      "source_sha256": "f18f7b76adf0af2064784d665bea0d48cc7315467432de6aa769be6f54fcee99",
+      "context": "Ask the relay how much of today's free allowance this install has left.",
+      "translation": "Fråga reläet hur mycket av dagens kostnadsfria kvot denna installation har kvar.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.fetch_allowance#1",
+      "source": "A GET of ``/allowance?install_id=...``; it uses up nothing. Blocks, so call it off the GUI thread.",
+      "source_sha256": "9bf42f368604e18e22d800d3ba0bf8741eac420ef07f4c210b155b59ce0c4728",
+      "context": "A GET of ``/allowance?install_id=...``; it uses up nothing. Blocks, so call it off the main GUI execution path.",
+      "translation": "Ett GET-anrop till ``/allowance?install_id=...``; det förbrukar ingenting. Anropet blockerar, så kör det utanför GUI-tråden.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.fetch_allowance#2",
+      "source": "seconds the request may take.",
+      "source_sha256": "146c8f1cb8f58dd260146c514bd434219e9680cfa5231f0d7090eeec34b77d87",
+      "context": "seconds the request may take.",
+      "translation": "antal sekunder begäran får ta.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.fetch_allowance#3",
+      "source": "``{\"ai\": {\"best_left\", \"light_left\"}, \"reports_left\", \"pool\", \"resets_at\"}`` with ``pool`` one of ``best``, ``light`` or ``exhausted`` and ``resets_at`` an ISO-8601 UTC time; ``None`` when the network is forbidden or the relay gives no answer.",
+      "source_sha256": "d84393837b5caab162028c1f5197757bc32bea67cf47226b2af87065ddbc0181",
+      "context": "``{\"ai\": {\"best_left\", \"light_left\"}, \"reports_left\", \"pool\", \"resets_at\"}`` with ``pool`` one of ``best``, ``light`` or ``exhausted`` and ``resets_at`` an ISO-8601 UTC time; ``None`` when the network is forbidden or the relay gives no answer.",
+      "translation": "``{\"ai\": {\"best_left\", \"light_left\"}, \"reports_left\", \"pool\", \"resets_at\"}`` med ``pool`` som ett av ``best``, ``light`` eller ``exhausted`` och ``resets_at`` som en ISO-8601-tid i UTC; ``None`` när nätverksåtkomst är förbjuden eller reläet inte svarar.",
+      "review_basis": "AI technical authorship and source/context validation by Codex; independent peer pending; no human or native-speaker signoff"
+    }
+  ]
+}

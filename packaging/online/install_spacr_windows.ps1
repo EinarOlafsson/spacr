@@ -13,7 +13,6 @@ param(
     [ValidateSet(0, 1)][int]$ConsentCollected = 0,
     [ValidateSet(0, 1)][int]$ShareDiagnostics = 0,
     [ValidateSet(0, 1)][int]$ReportIssues = 0,
-    [ValidateSet(0, 1)][int]$SignInNow = 0,
     [string]$OfflineBundle = $env:SPACR_OFFLINE_BUNDLE,
     [switch]$CheckMask,
     [switch]$DryRun
@@ -280,9 +279,7 @@ try {
         "--share-diagnostics",
         [string]$ShareDiagnostics,
         "--report-issues",
-        [string]$ReportIssues,
-        "--sign-in-now",
-        [string]$SignInNow
+        [string]$ReportIssues
     )
 
     $IdentityArgs = @("-I", $CleanupModule, "verify-runtime", "--python", $StagePython, "--retiring-prefix", $VenvDir)
@@ -379,8 +376,10 @@ raise SystemExit(run())
     $RuntimeRestored = $true
     if (-not $Committed -and $OldVenv -and (Test-Path $OldVenv)) {
         try {
-            Remove-Item -Recurse -Force -ErrorAction Stop $VenvDir
-            Move-Item $OldVenv $VenvDir
+            if (Test-Path -LiteralPath $VenvDir) {
+                Remove-Item -LiteralPath $VenvDir -Recurse -Force -ErrorAction Stop
+            }
+            Move-Item -LiteralPath $OldVenv -Destination $VenvDir
         } catch {
             $RuntimeRestored = $false
             $RetainWorkDir = $true

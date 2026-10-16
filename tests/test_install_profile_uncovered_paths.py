@@ -45,7 +45,6 @@ def test_running_the_module_as_a_script_writes_the_profile_and_exits_zero(
         "collected": True,
         "share_diagnostics": False,
         "report_issues": True,
-        "sign_in_now": False,
     }
     # The installer logs what was recorded by reading stdout, so the echoed
     # JSON has to be the profile that reached the disk, not a summary of it.

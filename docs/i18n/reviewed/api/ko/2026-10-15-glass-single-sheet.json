@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical authoring; no human/native-speaker signoff",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.glass.glass#2",
+      "source": "THE SHEET GOES ON ONCE, LAST. Every step below restyles a dialog that already wears the window sheet: its own rule is one more sheet, the frameless flags make Qt repolish every widget of a styled window, and each transparent container is polished again. On Preferences (967 widgets) that was 425-484 ms in one ``Polish``, the 0.36 s freeze of lesson 05's resize clip. Held by :func:`spacr.qt.theme._one_sheet_for`, the steps run on an unstyled dialog and the same sheet text goes on once at the end.",
+      "source_sha256": "39a8bd5a67a629f63e1f2598f77ea632c1c34173abd7792c3ca3e0ea21e8cb86",
+      "context": "The sheet goes on once, LAST. Every step below restyles a dialog that already wears the window sheet: its own rule is one more sheet, the frameless flags make Qt repolish every widget of a styled window, and each transparent container is polished again. On Preferences (967 widgets) that was 425-484 ms in one ``Polish``, the 0.36 s freeze of lesson 05's resize clip. Held by :func:`spacr.qt.theme._one_sheet_for`, the steps run on an unstyled dialog and the same sheet text goes on once at the end.",
+      "translation": "스타일시트는 마지막에 한 번만 적용합니다. 아래의 각 단계는 이미 창의 스타일시트를 적용한 대화상자의 스타일을 다시 지정합니다. 자체 규칙이 또 하나의 스타일시트가 되고, 프레임 없는 창 플래그로 인해 Qt가 스타일이 지정된 창의 모든 위젯을 다시 폴리시하며, 투명 컨테이너도 각각 다시 폴리시됩니다. 환경설정(위젯 967개)에서는 한 번의 ``Polish`` 에 425-484 ms가 걸렸으며, 이것이 강의 05의 크기 조절 클립에서 나타난 0.36 s 멈춤이었습니다. :func:`spacr.qt.theme._one_sheet_for` 안에서는 스타일이 지정되지 않은 대화상자에서 단계를 실행하고, 마지막에 동일한 스타일시트 텍스트를 한 번 적용합니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent semantic review recorded separately."
+    }
+  ]
+}

@@ -695,13 +695,6 @@
       "translation": "Datenbank oder Zuschnittordner suchen"
     },
     {
-      "key": "Finish signing in to {label} in the window that opened, then press Done.",
-      "source": "Finish signing in to {label} in the window that opened, then press Done.",
-      "source_sha256": "eecb98b2dd4576250672cbceba3e1622303d8f87555486c985a3df474e8349fe",
-      "table": "ui",
-      "translation": "Schließen Sie die Anmeldung bei {label} im geöffneten Fenster ab und klicken Sie dann auf Fertig."
-    },
-    {
       "key": "Five-parameter logistic (asymmetric)",
       "source": "Five-parameter logistic (asymmetric)",
       "source_sha256": "15e33d5ee0e9a910ce568e333c3abbecc9db89cb2b39b847e027c54b0ccac736",
@@ -819,13 +812,6 @@
       "source_sha256": "4344f77671756f5afbcaad8b9059c69b18baab56372d3355ea4c24a495d9060e",
       "table": "ui",
       "translation": "{name} installieren?"
-    },
-    {
-      "key": "Installing {label}…",
-      "source": "Installing {label}…",
-      "source_sha256": "a7a453fe3013e5f0d4d61aec261226d80aeac78e0ed6124f6514f51e65c1c3d4",
-      "table": "ui",
-      "translation": "{label} wird installiert..."
     },
     {
       "key": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
@@ -1038,13 +1024,6 @@
       "translation": "Standardmäßig ausgeschaltet. Solange die Option aus ist, lädt spaCR keine Audiobibliothek und spielt nichts ab. Bei aktivierter Option gibt spaCR die unten eingeschalteten Klänge über die Standard-Audioausgabe Ihres Rechners wieder."
     },
     {
-      "key": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
-      "source": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
-      "source_sha256": "dd935b5d7fe48a39493b59e044ff62e36a0ca816576d970d263c3b7ea601d776",
-      "table": "ui",
-      "translation": "Bietet die Installation der GitHub CLI an und meldet Sie anschließend an. Auch ohne sie lassen sich Issues erstellen -- sie öffnen sich im Browser, in dem Sie bereits angemeldet sind."
-    },
-    {
       "key": "On by default. When on, an error report saves recent log lines, with paths and credentials redacted, to a file on this computer and names that file in the report. The log itself is never posted to GitHub.",
       "source": "On by default. When on, an error report saves recent log lines, with paths and credentials redacted, to a file on this computer and names that file in the report. The log itself is never posted to GitHub.",
       "source_sha256": "9b74032817cc3d8694c522542143e5ecff9dfdf100e6dba15c5b3ed2e83cedda",
@@ -1099,13 +1078,6 @@
       "source_sha256": "4b3b966cb45c6b0e7e73f3f68a0ccb9ba62c05de684832e86095d30bba5c2c5f",
       "table": "ui",
       "translation": "{name} wird geöffnet"
-    },
-    {
-      "key": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
-      "source": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
-      "source_sha256": "6f5e747dba4dc3d4cc0a05b17936533f61b4bd23cedd56267396af17fe22d9f8",
-      "table": "ui",
-      "translation": "Öffnet die Registrierungsseite von GitHub im Browser. Kehren Sie anschließend hierher zurück, um die GitHub CLI zu installieren und sich anzumelden."
     },
     {
       "key": "Otsu",
@@ -1304,27 +1276,6 @@
       "translation": "Verkleinern"
     },
     {
-      "key": "Sign in",
-      "source": "Sign in",
-      "source_sha256": "bfd402b2f6f3812529b55596136d3a11c51616317e3b1cd999928e2d4eae7d3f",
-      "table": "ui",
-      "translation": "Anmelden"
-    },
-    {
-      "key": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
-      "source": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
-      "source_sha256": "ef897d0ef358f9b184a513da4ab465debe812d22ce608282b06b5bfe3e6d609f",
-      "table": "ui",
-      "translation": "Melden Sie sich bei {label} im geöffneten Fenster an. spaCR bemerkt, wenn Sie fertig sind."
-    },
-    {
-      "key": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
-      "source": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
-      "source_sha256": "deec05063963965c40890d0b21b74cace845bb7fa0e561af9e3d1ebc65589d7f",
-      "table": "ui",
-      "translation": "Die Anmeldung bei {label} wurde nicht innerhalb von {minutes} Minuten abgeschlossen. Klicken Sie auf Anmelden, um es erneut zu versuchen."
-    },
-    {
       "key": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
       "source": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
       "source_sha256": "149849acca7368282ad4b79559b42336aba111022b4df5d83808c2f85905bdf4",
@@ -1360,13 +1311,6 @@
       "translation": "Wird gestartet…"
     },
     {
-      "key": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
-      "source": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
-      "source_sha256": "f7441f3a2c785aa2262308bdb4f92fa2c9106ceba32fb21639f2ccc895747bc0",
-      "table": "ui",
-      "translation": "Das Warten auf die Anmeldung wurde beendet. Klicken Sie auf Anmelden, um erneut zu beginnen, oder nach erfolgter Anmeldung auf Fertig."
-    },
-    {
       "key": "Stopping after this page…",
       "source": "Stopping after this page…",
       "source_sha256": "6ac19a1be499d0e73f3ee89b45c2f84300ce884b76f4e53691272fa54b94f438",
@@ -1374,25 +1318,11 @@
       "translation": "Wird nach dieser Seite gestoppt…"
     },
     {
-      "key": "Stopping the installer…",
-      "source": "Stopping the installer…",
-      "source_sha256": "42958a5514188bdb1e8613d56d63acba59a710857f2735e7cb28781d5fac0906",
-      "table": "ui",
-      "translation": "Installationsprogramm wird gestoppt…"
-    },
-    {
       "key": "Test on my folder",
       "source": "Test on my folder",
       "source_sha256": "db188c0321042df271b0156ba35b7ee5f1d76cb7b69b904710e36cdcb76f8592",
       "table": "ui",
       "translation": "An meinem Ordner testen"
-    },
-    {
-      "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
-      "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
-      "source_sha256": "4bbf3ad8e30bbbc39c55d1b49ad3ebbd59692284ee35fd06abeecb76e4f7bcc3",
-      "table": "ui",
-      "translation": "Der von spaCR ausgeführte Befehl. Kopieren Sie ihn, um ihn stattdessen selbst in einem Terminal auszuführen."
     },
     {
       "key": "The file table decides this. Change the table's channels or mask columns and this follows.",
@@ -1407,13 +1337,6 @@
       "source_sha256": "ad110d7e4a316c0571044afa95d2aaac8bc30fb4555ad5a5a7926999778d5479",
       "table": "ui",
       "translation": "Die Dateien"
-    },
-    {
-      "key": "The installer could not be run: {error}",
-      "source": "The installer could not be run: {error}",
-      "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b",
-      "table": "ui",
-      "translation": "Der Installer konnte nicht ausgeführt werden: {error}"
     },
     {
       "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
@@ -1442,13 +1365,6 @@
       "source_sha256": "28486dcd296765e6c94d34aefaea9f44e8ba7cb3ee33cff56d3ed3b40c3610f3",
       "table": "ui",
       "translation": "Der Bericht wurde gesendet: {url}"
-    },
-    {
-      "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
-      "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
-      "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4",
-      "table": "ui",
-      "translation": "Das Anmelden konnte von hier aus nicht gestartet werden. Führen Sie den Befehl unten in einem Terminal aus und drücken Sie dann Fertig."
     },
     {
       "key": "The square the local level is measured in, centred on each pixel. Make it comfortably bigger than one object and smaller than the illumination's own scale: too small and the inside of a large object becomes its own background, so it comes back hollow; too large and it is the whole-field threshold again. Even numbers are rounded up, so the square has a centre.",
@@ -1773,13 +1689,6 @@
       "translation": "jede Platte"
     },
     {
-      "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
-      "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
-      "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2",
-      "table": "ui",
-      "translation": "npm durfte nicht in seinen globalen Ordner schreiben. Führen Sie einmal `npm config set prefix ~/.local` in einem Terminal aus, damit npm in einen Ordner in Ihrem Besitz installiert. Klicken Sie dann auf Erneut versuchen."
-    },
-    {
       "key": "path to a folder of crop PNGs",
       "source": "path to a folder of crop PNGs",
       "source_sha256": "a45722613ad34bf3e323512783a11c859e726853d78b33c34b870ad0de109438",
@@ -1834,20 +1743,6 @@
       "source_sha256": "92bac7852c5d93147ce7805e0e9c68df652f59d7d7f06552657b1bc13d5ee47e",
       "table": "ui",
       "translation": "{key} ist im Formular dieses Moduls nicht vorhanden."
-    },
-    {
-      "key": "{label} is installed.",
-      "source": "{label} is installed.",
-      "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e",
-      "table": "ui",
-      "translation": "{label} ist installiert."
-    },
-    {
-      "key": "{label} is signed in and ready.",
-      "source": "{label} is signed in and ready.",
-      "source_sha256": "bb5fc33dbf7cd3f9ab2ba87cf48e7575a1a6c18bae01c505d0eac9a54028cfce",
-      "table": "ui",
-      "translation": "{label} ist angemeldet und bereit."
     },
     {
       "key": "{name} in {where}",
@@ -2097,27 +1992,177 @@
     },
     {
       "key": "ops_library",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json",
       "source": "A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly -- the one number that says whether the decode worked at all. Empty still calls barcodes and simply cannot score them. Default None.",
       "source_sha256": "461bde1a24fa4937d0d73107d4a6d4dbc90cbef0abce249c4a3c8fbae5021eb9",
       "table": "setting_tooltips",
-      "translation": "CSV mit Guide-Barcodes in einer Spalte namens prefix, barcode oder sequence. Wenn angegeben, wird der bestimmte Barcode jedes Kerns zusätzlich mit dem ähnlichsten Guide abgeglichen. Der Lauf meldet, wie viele Spots exakt zur Bibliothek passen -- die zentrale Kennzahl dafür, ob die Dekodierung überhaupt funktioniert hat. Ohne Datei werden weiterhin Barcodes bestimmt, aber nicht bewertet. Standard None.",
-      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+      "translation": "CSV mit Guide-Barcodes in einer Spalte namens prefix, barcode oder sequence. Wenn angegeben, wird der bestimmte Barcode jedes Kerns zusätzlich mit dem ähnlichsten Guide abgeglichen. Der Lauf meldet, wie viele Spots exakt zur Bibliothek passen -- die zentrale Kennzahl dafür, ob die Dekodierung überhaupt funktioniert hat. Ohne Datei werden weiterhin Barcodes bestimmt, aber nicht bewertet. Standard None."
     },
     {
       "key": "ops_store_reads",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json",
       "source": "Write every read behind the barcodes into the ops_reads table: one row per read per cycle, with the base called, its margin and the four intensities it was called from. This is how a suspect barcode is traced back to its pixels. It is OFF by default because it is large -- a full well of the reference plate is about thirty million rows -- so turn it on for a well or two rather than for a plate. Default False.",
       "source_sha256": "c3b25dddcf457a9476d361fd03d10570d5bf1fd3a738e5e54e55e40e8196d07a",
       "table": "setting_tooltips",
-      "translation": "Schreibt alle Reads hinter den Barcodes in die Tabelle ops_reads: eine Zeile je Read und Zyklus mit der bestimmten Base, ihrem Abstand zur nächstbesten Entscheidung und den vier zugrunde liegenden Intensitäten. So lässt sich ein fraglicher Barcode bis zu seinen Pixeln zurückverfolgen. Standardmäßig OFF, weil die Tabelle groß ist -- ein vollständiges Well der Referenzplatte umfasst etwa dreißig Millionen Zeilen. Daher für ein oder zwei Wells statt für eine ganze Platte aktivieren. Standard False.",
-      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+      "translation": "Schreibt alle Reads hinter den Barcodes in die Tabelle ops_reads: eine Zeile je Read und Zyklus mit der bestimmten Base, ihrem Abstand zur nächstbesten Entscheidung und den vier zugrunde liegenden Intensitäten. So lässt sich ein fraglicher Barcode bis zu seinen Pixeln zurückverfolgen. Standardmäßig OFF, weil die Tabelle groß ist -- ein vollständiges Well der Referenzplatte umfasst etwa dreißig Millionen Zeilen. Daher für ein oder zwei Wells statt für eine ganze Platte aktivieren. Standard False."
     },
     {
       "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json",
       "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
       "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
       "table": "ui",
-      "translation": "Ein 4PL-Modell ist um seinen Mittelpunkt symmetrisch. Reale Asymmetrie wird beim 4PL durch einen verschobenen EC50 aufgefangen. Das 5PL-Modell passt sie mit einem zusätzlichen Parameter an, benötigt eine weitere Konzentration und zeigt, ob dieser Parameter gerechtfertigt ist.",
-      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+      "translation": "Ein 4PL-Modell ist um seinen Mittelpunkt symmetrisch. Reale Asymmetrie wird beim 4PL durch einen verschobenen EC50 aufgefangen. Das 5PL-Modell passt sie mit einem zusätzlichen Parameter an, benötigt eine weitere Konzentration und zeigt, ob dieser Parameter gerechtfertigt ist."
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Finish signing in to {label} in the window that opened, then press Done.",
+        "source": "Finish signing in to {label} in the window that opened, then press Done.",
+        "source_sha256": "eecb98b2dd4576250672cbceba3e1622303d8f87555486c985a3df474e8349fe",
+        "table": "ui",
+        "translation": "Schließen Sie die Anmeldung bei {label} im geöffneten Fenster ab und klicken Sie dann auf Fertig."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Installing {label}…",
+        "source": "Installing {label}…",
+        "source_sha256": "a7a453fe3013e5f0d4d61aec261226d80aeac78e0ed6124f6514f51e65c1c3d4",
+        "table": "ui",
+        "translation": "{label} wird installiert..."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+        "source": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+        "source_sha256": "dd935b5d7fe48a39493b59e044ff62e36a0ca816576d970d263c3b7ea601d776",
+        "table": "ui",
+        "translation": "Bietet die Installation der GitHub CLI an und meldet Sie anschließend an. Auch ohne sie lassen sich Issues erstellen -- sie öffnen sich im Browser, in dem Sie bereits angemeldet sind."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+        "source": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+        "source_sha256": "6f5e747dba4dc3d4cc0a05b17936533f61b4bd23cedd56267396af17fe22d9f8",
+        "table": "ui",
+        "translation": "Öffnet die Registrierungsseite von GitHub im Browser. Kehren Sie anschließend hierher zurück, um die GitHub CLI zu installieren und sich anzumelden."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Sign in",
+        "source": "Sign in",
+        "source_sha256": "bfd402b2f6f3812529b55596136d3a11c51616317e3b1cd999928e2d4eae7d3f",
+        "table": "ui",
+        "translation": "Anmelden"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+        "source": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+        "source_sha256": "ef897d0ef358f9b184a513da4ab465debe812d22ce608282b06b5bfe3e6d609f",
+        "table": "ui",
+        "translation": "Melden Sie sich bei {label} im geöffneten Fenster an. spaCR bemerkt, wenn Sie fertig sind."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+        "source": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+        "source_sha256": "deec05063963965c40890d0b21b74cace845bb7fa0e561af9e3d1ebc65589d7f",
+        "table": "ui",
+        "translation": "Die Anmeldung bei {label} wurde nicht innerhalb von {minutes} Minuten abgeschlossen. Klicken Sie auf Anmelden, um es erneut zu versuchen."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+        "source": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+        "source_sha256": "f7441f3a2c785aa2262308bdb4f92fa2c9106ceba32fb21639f2ccc895747bc0",
+        "table": "ui",
+        "translation": "Das Warten auf die Anmeldung wurde beendet. Klicken Sie auf Anmelden, um erneut zu beginnen, oder nach erfolgter Anmeldung auf Fertig."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Stopping the installer…",
+        "source": "Stopping the installer…",
+        "source_sha256": "42958a5514188bdb1e8613d56d63acba59a710857f2735e7cb28781d5fac0906",
+        "table": "ui",
+        "translation": "Installationsprogramm wird gestoppt…"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+        "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+        "source_sha256": "4bbf3ad8e30bbbc39c55d1b49ad3ebbd59692284ee35fd06abeecb76e4f7bcc3",
+        "table": "ui",
+        "translation": "Der von spaCR ausgeführte Befehl. Kopieren Sie ihn, um ihn stattdessen selbst in einem Terminal auszuführen."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "The installer could not be run: {error}",
+        "source": "The installer could not be run: {error}",
+        "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b",
+        "table": "ui",
+        "translation": "Der Installer konnte nicht ausgeführt werden: {error}"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+        "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+        "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4",
+        "table": "ui",
+        "translation": "Das Anmelden konnte von hier aus nicht gestartet werden. Führen Sie den Befehl unten in einem Terminal aus und drücken Sie dann Fertig."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+        "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+        "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2",
+        "table": "ui",
+        "translation": "npm durfte nicht in seinen globalen Ordner schreiben. Führen Sie einmal `npm config set prefix ~/.local` in einem Terminal aus, damit npm in einen Ordner in Ihrem Besitz installiert. Klicken Sie dann auf Erneut versuchen."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "{label} is installed.",
+        "source": "{label} is installed.",
+        "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e",
+        "table": "ui",
+        "translation": "{label} ist installiert."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "{label} is signed in and ready.",
+        "source": "{label} is signed in and ready.",
+        "source_sha256": "bb5fc33dbf7cd3f9ab2ba87cf48e7575a1a6c18bae01c505d0eac9a54028cfce",
+        "table": "ui",
+        "translation": "{label} ist angemeldet und bereit."
+      }
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",

@@ -3890,9 +3890,13 @@ Read by ``build_panel``, ``_set_analyze_invasion_defaults``, ``_set_analyze_repl
 config
 ------
 
+| ``_forget_password``
+|     ``_keychain_account``
+|         ``_ssh_resolve`` **-- reads it**
 | ``_connect`` **-- reads it**
+|     ``_ssh_resolve`` **-- reads it**
 
-Read by ``_connect``.
+Read by ``_connect``, ``_ssh_resolve``.
 
 .. _setting-flow-confirm_annotations:
 

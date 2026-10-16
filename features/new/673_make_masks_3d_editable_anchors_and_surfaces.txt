@@ -68,3 +68,57 @@ delete_label in tests/data/release_contracts/673_volume_in_container_api_
 arrivals_2026-10-12.json; open_volume's pin carries its new docstring.
 Tests: tests/qt/test_673_make_masks_3d_in_container.py; the window tests in
 test_make_masks_native_volume_editor.py now drive True 3D.
+
+2026-10-15 — Maintainer review of True 3D, and a napari-like rebuild.
+Feedback: "The True 3D looks like a 3D UMAP. I want to be able to see the
+objects and modify the masks, but also see the image, with a clear opacity
+setting for the image, for the masks, and for each channel in the image."
+"This view keeps the backbone grid of the graph at the same scale but zooms
+the objects. That feels strange... Let the user toggle its visibility."
+"Take inspiration from napari for this 3D functionality."
+Built: True 3D now renders the image volume itself, as layers. A layer list
+docked right of the view (Layers) has one row per channel (eye, colour,
+opacity, contrast low/high, rendering MIP / Attenuated MIP / Translucent /
+Average / MinIP) and a Masks row (eye, opacity, rendering Surface = shaded
+nearest surface, or Translucent = coloured glass). The model is the existing
+spacr.layers LayerStack (ImageLayer per channel, LabelsLayer for the mask);
+the renderer is new pure NumPy/SciPy code in spacr.layers (VolumeRays,
+render_volume, volume_steps, downsample_volume), orthographic rays matched
+to the matplotlib camera of the anchor editor, so the gate anchors/surfaces
+are drawn on top of the picture they edit. No new dependency, no GL (the
+offscreen Qt platform cannot host a GL widget; vispy stays unused here).
+Multichannel TIFFs (CZYX / ZCYX, at most 16 channels) now open as volumes
+(VolumeMaskSession.channels; slice views show channel 1). Camera: drag
+orbits (existing spin), Shift+drag or middle-drag pans, wheel zooms; zoom
+scales the whole box, so axes, ticks and grid zoom and move with the data.
+"Show axes and grid" is off by default. A blue frame outlines the current
+slice plane (napari-style plane indicator) and follows the slider/Page keys.
+Pick (click an object to choose it; the chosen object is drawn lighter),
+Paint and Erase (brush on the slice plane, one undo step through
+VolumeMaskSession.paint_plane) work in the 3D view; anchor Edit/Draw/Spin
+are unchanged. Rendering runs on a newest-wins worker thread
+(spacr-volume-render, responsive GIL interval, cancellable between row
+chunks): a 262k-voxel interactive render while turning, a 4.2M-voxel render
+250 ms after the view settles, and "Render at full resolution" on demand;
+the dock says at what fraction the view is drawn.
+Tests: tests/qt/test_673_napari_true3d.py (15: layer model per channel and
+masks, visibility/opacity/colour/contrast/rendering, image and objects in
+the render, grid default off and toggle, grid zooms with data (limits and
+ticks fixed, on-screen size x2), pan and reset, slice plane follows the
+slice, Paint/Erase change only the slice and undo/redo exactly, edge-on
+refusal, Pick, downsampling exact strides, interactive vs full quality,
+render off the GUI thread and stale results dropped, renderer modes);
+updated with dated notes: test_673_make_masks_3d_in_container.py (cloud ->
+render), test_make_masks_native_volume_editor.py (notice wording).
+Screenshots: /mnt/wd4tb/scratch/673-napari/ (before_true3d.png;
+after_true3d.png, after_true3d_grid.png, after_true3d_hidden.png,
+after_true3d_pick_edit.png). Captions: 33 new strings with AI-reviewed
+translations in nine languages (Claude; no native-speaker signoff),
+docs/i18n/reviewed/runtime/*/2026-10-15-n673-napari-true3d.json; "MinIP"
+kept as identity text like "MIP". API: 8 new public symbols in
+tests/data/release_contracts/673_napari_true3d_api_arrivals_2026-10-15.json;
+VolumeMaskSession and load_volume_image_and_mask docstrings updated in the
+672/673 contract (locale API blocks for those two are now stale for WS).
+Left for the maintainer, on a real display: turn/zoom/pan feel on a real
+volume (FIB-SEM test data), whether the default mask opacity (60%) and
+MIP default suit, and Paint/Erase in 3D on a tilted view. Not alpha.

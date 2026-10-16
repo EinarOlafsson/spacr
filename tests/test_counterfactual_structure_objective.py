@@ -129,3 +129,29 @@ def test_application_leaves_invalid_value_refusal_to_translated_validators(key, 
     assert result is None
     assert 'Counterfactuals skipped:' in capsys.readouterr().out
     assert not list(tmp_path.iterdir())
+
+
+def test_smallest_supported_crop_has_finite_layout_loss_without_empty_scales():
+    reference = torch.zeros(1, 1, 2, 2, requires_grad=True)
+    edited = torch.tensor([[[[0., 0.], [0., 1.]]]], requires_grad=True)
+    before_reference = reference.detach().clone()
+    before_edited = edited.detach().clone()
+    loss = attribution._cf_structure_loss(edited, reference)
+    assert loss.item() == pytest.approx(.5)
+    loss.backward()
+    assert edited.grad is not None and torch.isfinite(edited.grad).all()
+    assert reference.grad is None
+    assert torch.equal(reference.detach(), before_reference)
+    assert torch.equal(edited.detach(), before_edited)
+
+
+def test_explicit_empty_reference_selection_keeps_edits_and_owns_its_result():
+    edited = torch.arange(8, dtype=torch.float32).reshape(1, 2, 2, 2) + 1
+    reference = torch.zeros_like(edited)
+    original = edited.clone()
+    result = attribution._cf_preserve_reference_channels(edited, reference, [])
+    assert torch.equal(result, original)
+    assert result.data_ptr() != edited.data_ptr()
+    result.zero_()
+    assert torch.equal(edited, original)
+    assert torch.equal(reference, torch.zeros_like(reference))

@@ -169,3 +169,58 @@ def test_teacher_and_unsafe_module_are_not_classifier_artifacts(checkpoint, tmp_
     torch.save(module, unsafe)
     with pytest.raises(Exception, match='Weights only load failed'):
         emb._dino_classifier_apply(raw, unsafe)
+
+
+@pytest.mark.parametrize('kind', ['directory', 'fifo'])
+def test_nonregular_classifier_is_refused_before_deserialization(tmp_path, monkeypatch, kind):
+    import os
+
+    path = tmp_path / 'not-a-checkpoint'
+    if kind == 'fifo':
+        if not hasattr(os, 'mkfifo'):
+            pytest.skip('requires the POSIX named-pipe fixture')
+        os.mkfifo(path)
+    else:
+        path.mkdir()
+    monkeypatch.setattr(artifacts, 'load_model_artifact', lambda *args, **kwargs:
+                        pytest.fail('nonregular file must never be deserialized'))
+    before = path.lstat()
+    with pytest.raises(emb.EmbeddingError):
+        emb._dino_classifier_apply(np.ones((1, 2, 2, 4)), path)
+    after = path.lstat()
+    assert (before.st_dev, before.st_ino, before.st_mode) == (after.st_dev, after.st_ino, after.st_mode)
+
+
+def test_missing_classifier_has_a_domain_error_without_a_loader_retry(tmp_path, monkeypatch):
+    path = tmp_path / 'absent.pt'
+    monkeypatch.setattr(artifacts, 'load_model_artifact', lambda *args, **kwargs:
+                        pytest.fail('missing file must never reach the loader'))
+    with pytest.raises(emb.EmbeddingError) as caught:
+        emb._dino_classifier_apply(np.ones((1, 2, 2, 4)), path)
+    assert isinstance(caught.value.__cause__, FileNotFoundError)
+    assert not path.exists()
+
+
+@pytest.mark.parametrize('overflow', ['features', 'logits'])
+def test_finite_weights_that_overflow_inference_refuse_without_predictions(checkpoint, tmp_path, overflow):
+    path, model, payload = saved_classifier(checkpoint, tmp_path)
+    largest = torch.finfo(torch.float32).max
+    with torch.no_grad():
+        model.encoder.conv.weight.fill_(largest if overflow == 'features' else 1)
+        model.encoder.conv.bias.zero_()
+        model.encoder.norm.running_mean.zero_()
+        model.encoder.norm.running_var.fill_(1)
+        model.encoder.norm.weight.fill_(1)
+        model.encoder.norm.bias.zero_()
+        model.head.weight.fill_(largest)
+        model.head.bias.fill_(largest)
+    assert all(torch.isfinite(value).all() for value in model.state_dict().values())
+    artifacts.atomic_torch_save(artifacts.make_model_artifact(
+        model, include_rng=False, classes=['negative', 'positive'], channels=['3', '0']), path)
+    before_artifact = path.read_bytes()
+    raw = np.full((1, 2, 2, 4), 20, dtype=np.uint16)
+    before_raw = raw.copy()
+    with pytest.raises(emb.EmbeddingError):
+        emb._dino_classifier_apply(raw, path)
+    np.testing.assert_array_equal(raw, before_raw)
+    assert path.read_bytes() == before_artifact

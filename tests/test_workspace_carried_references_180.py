@@ -166,3 +166,61 @@ def test_unresolvable_tilde_literal_remains_unchanged(tmp_path):
     report = workspace.restore({'table': reader}, document, run_dir=run)
     assert report['restored'] == ['table']
     assert reader.received['note'] == '~spacr_no_such_account_180/file'
+
+
+def test_copy_without_obtainable_digest_never_replaces_live_input(tmp_path, monkeypatch):
+    original = tmp_path / 'original.csv'
+    original.write_bytes(b'original rows')
+    document = workspace.collect({'table': Reader({'input': {'files': [str(original)]}})},
+                                 hash_files=False)
+    before = copy.deepcopy(document)
+    monkeypatch.setattr(workspace, 'hash_file', lambda path: None)
+    run = tmp_path / 'run'
+    workspace.save(run, document, mode='copy')
+    assert document == before
+    assert original.read_bytes() == b'original rows'
+    original.unlink()
+    saved = workspace.load(run)
+    saved_before = copy.deepcopy(saved)
+    reader = Reader({})
+    reader.content = b'previous live rows'
+    report = workspace.restore({'table': reader}, saved, run_dir=run)
+    assert report['restored'] == []
+    assert report['skipped'][0]['section'] == 'table'
+    assert reader.content == b'previous live rows'
+    assert reader.received['input']['files'] == [str(original)]
+    assert report['files'][0]['state'] == 'missing'
+    assert report['files'][0]['skipped'] == 'copied_digest_unverified'
+    assert saved == saved_before
+
+
+def test_relocated_legacy_tuple_paths_keep_shape_and_document(tmp_path):
+    original, run, document = _saved(tmp_path)
+    original.unlink()
+    document['sections']['table']['selection'] = (str(original), 'gene-name')
+    before = copy.deepcopy(document)
+    reader = Reader({})
+    report = workspace.restore({'table': reader}, document, run_dir=run)
+    assert report['restored'] == ['table']
+    assert reader.received['selection'] == (reader.received['input']['files'][0], 'gene-name')
+    assert isinstance(reader.received['selection'], tuple)
+    assert document == before
+
+
+def test_deep_saved_state_remains_bounded_and_keeps_literal_references(tmp_path):
+    original, run, document = _saved(tmp_path)
+    original.unlink()
+    nested = {'literal': str(original), 'stable_id': 'user-defined'}
+    for _ in range(20):
+        nested = {'child': nested}
+    document['sections']['table']['deep_state'] = nested
+    before = copy.deepcopy(document)
+    reader = Reader({})
+    report = workspace.restore({'table': reader}, document, run_dir=run)
+    assert report['restored'] == ['table']
+    restored = reader.received['deep_state']
+    for _ in range(20):
+        restored = restored['child']
+    assert restored == {'literal': str(original), 'stable_id': 'user-defined'}
+    assert reader.content == b'exact original rows\n'
+    assert document == before

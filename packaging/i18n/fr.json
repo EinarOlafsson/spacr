@@ -68,7 +68,6 @@
   "gui_public_reports": "Les rapports de problèmes sont publics et leur retrait ne peut pas être garanti. Les informations sensibles sont masquées et un aperçu est présenté avant chaque envoi. Ces choix sont facultatifs et peuvent être modifiés ensuite dans les Préférences.",
   "gui_share_diagnostics": "Inclure les journaux de diagnostic expurgés dans les aperçus des rapports",
   "gui_report_issues": "Activer le signalement public de problèmes sur GitHub",
-  "gui_account_setup": "Ouvrir la configuration des comptes au premier lancement",
   "gui_preserve": "Vos données, modèles, caches et préférences existants sont conservés. Aucun nettoyage facultatif n’est sélectionné.",
   "gui_close": "Fermer",
   "gui_install": "Installer",

@@ -1,5 +1,6 @@
 """Retained visual intervals stay intact without asserting full raw-clip coverage."""
 import json
+import pytest
 
 from test_player_complete_native_clips import complete_fixture, open_player
 from test_player_holds_narration import served
@@ -102,15 +103,17 @@ def test_preserved_static_chapter_seek_and_caption_cues_use_elapsed_speech(serve
             browser.close()
 
 
-def test_cold_paused_sentence_seeks_never_rewind_the_requested_audio_offset(served, tmp_path):
+@pytest.mark.parametrize('visual_mode', ['preserved', 'complete_native'])
+def test_cold_paused_sentence_seeks_never_rewind_the_requested_audio_offset(served, tmp_path, visual_mode):
     from playwright.sync_api import sync_playwright
     url = complete_fixture(served, tmp_path)
     visual_path = tmp_path / 'complete-native-visual.json'
     visual = json.loads(visual_path.read_text())
-    del visual['complete_native_clips']
-    visual['preserve_visual_intervals'] = True
-    visual['scenes'][0]['native_live_video'] = False
-    visual['scenes'][-1]['native_live_video'] = False
+    if visual_mode == 'preserved':
+        del visual['complete_native_clips']
+        visual['preserve_visual_intervals'] = True
+        visual['scenes'][0]['native_live_video'] = False
+        visual['scenes'][-1]['native_live_video'] = False
     visual_path.write_text(json.dumps(visual))
     catalog_path = tmp_path / 'complete-native-catalog.js'
     script = catalog_path.read_text()

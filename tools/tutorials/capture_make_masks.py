@@ -140,9 +140,12 @@ def record_yolo_boxes(app, window, screen, stage, captures, capture, settle,
             raise RuntimeError('; '.join(errors) or 'The picker was cancelled')
         settle()
 
-    def ready():
+    def ready(expected=None):
         deadline = time.monotonic() + timeout
-        while screen._loading or screen._canvas.image is None:
+        while (screen._loading or screen._canvas.image is None or
+               (expected is not None and
+                (not 0 <= screen._current_index < len(screen._image_files) or
+                 screen._image_files[screen._current_index] != expected))):
             if time.monotonic() >= deadline:
                 raise TimeoutError('The actual YOLO source image did not load')
             settle(.1)
@@ -271,8 +274,9 @@ def record_yolo_boxes(app, window, screen, stage, captures, capture, settle,
     if 'demonstration' not in json.dumps(json.loads(classes.read_text())):
         raise RuntimeError('YOLO export omitted the stable class-name companion')
     capture('yolo_15_exported')
+    next_filename = screen._image_files[screen._current_index + 1]
     QTest.mouseClick(screen._btn_next, Qt.LeftButton)
-    ready()
+    ready(next_filename)
     if canvas.boxes:
         raise RuntimeError('The untouched second field is not a negative example')
     negative_name = screen._image_files[screen._current_index]
@@ -282,7 +286,7 @@ def record_yolo_boxes(app, window, screen, stage, captures, capture, settle,
         raise RuntimeError('The negative image did not export an empty label file')
     capture('yolo_17_negative_exported')
     QTest.mouseClick(screen._btn_prev, Qt.LeftButton)
-    ready()
+    ready(filename)
     if screen._image_files[screen._current_index] != filename or [list(box) for box in canvas.boxes] != saved_boxes:
         raise RuntimeError('Navigation did not reload the exact saved annotations')
     capture('yolo_18_reloaded_boxes')

@@ -15670,10 +15670,12 @@
         "a4121c3303be5c3ede4d404b88c57d3b4d7f66859551d926ffec4a2624473c53",
         "34bf351789296cbbba94e38a10c9dfc9e40681a41010f4619f6eb06d9c5bc4a9",
         "a6724ffb4ecb91a395ea0821b3a86e8d17e557581896ee311264413d8ebbc18a",
+        "b975a3af4169f667981fd1218129af1381e2e9b989e6ddfe974d8498625fcf74",
+        "d443617b1a2d25f891335f181494f72577e78927c4d2a99569a40ed18245d924",
         "8d59829c1e15afe1a7fae93e8e5e32d8511bec5fd598a09f4fea6033b31e8a66"
       ],
-      "source_sha256": "90277a8e7db959e73b3530028830ea10245cb95a962620f4d937fb17710fe215",
-      "text": "``spacr-crashreport`` के साथ एक संलग्न निदान पैकेज बनाएं।\n\nयह मॉड्यूल एक ``.zip`` का उत्पादन करता है जिसमें लॉग, सेटिंग्स, संस्करण और निदान एक त्रुटि रिपोर्ट की आवश्यकता होती है, जो GitHub मुद्दे को जोड़ने के लिए है, और यह पहले से ही रखे गए spaCR टुकड़ों से इकट्ठा किया जाता है, दूसरी बार एकत्र किए जाने के बजाय:\n\n* :mod:`spacr.doctor` स्थापित करने के लिए 17 चेक चलाता है - निष्पादन चेक, डुप्लिकेट इंस्टॉल, GPU, Cellpose संस्करण, परियोजना डेटाबेस, सेटिंग्स - और हर गैर-``PASS`` पंक्ति पहले से ही ठीक करता है।\n* :mod:`spacr.runctx` चलने के लिए एक JSONL लॉग लिखता है जो चलने आईडी द्वारा कुंजी दी जाती है, इसलिए \"मुझे यह सब दिखाएं जो चल रहा है\" का एक जवाब है. पैकेज चलने वाले लॉग के शब्दकोश को ले जाता है, इसका एक फ़िल्टर किए गए सारांश नहीं।\n* :mod:`spacr.errors` प्रत्येक प्रसंस्करण सत्र की स्थिति को उस आर्टिफैक्ट पर चिह्नित करता है जिसे वह लिखता है, इसलिए रिपोर्ट यह कह सकती है कि क्या अंतिम संस्करण *समाप्त किया गया है* - जो कि यह अभी टूट गया है या नहीं से एक अलग सवाल है, और अधिक उपयोगी एक जब एक उपयोगकर्ता एक ट्रैकबैक के बजाय संख्याओं की रिपोर्ट करता है।\n\nडिजाइन नियम :\n\n**संग्रहक नहीं फेंकते हैं.** प्रत्येक संग्रहणकर्ता :func:`_collect` के माध्यम से निष्पादित करता है, जो एक विफलता को एक स्पष्ट इनपुट में बदल देता है जिसमें कहा जाता है कि क्या इकट्ठा नहीं किया जा सकता है और क्यों. ``Exception`` पकड़ना यहां स्वीकार्य है क्योंकि असफलता आउटपुट पर रिकॉर्ड की जाती है: मैन्युअल पैकेज का हिस्सा है, इसलिए रिपोर्ट प्राप्तकर्ता के लिए एक गायब अनुभाग दिखाई देता है, चुपचाप अनुपस्थिति के बजाय।\n\n**सीमित आकार.** ``spacr.log`` घूमता है लेकिन एक एकल रन अभी भी सैकड़ों मेगाबाइट्स लिख सकता है. पैकेज इसके *टैल* लेता है, :data:`MAX_LOG_BYTES` द्वारा कवर किया जाता है, और स्पष्ट रिकॉर्ड कितना गिरा दिया गया था।\n\n**कोई रहस्य नहीं.** पर्यावरण परिवर्तकों को शामिल किया जाता है क्योंकि ``SPACR_*``, ``CUDA_*`` और ``PATH`` \"यहां काम करते हैं, वहां नहीं\" का एक बड़ा हिस्सा समझाता है - लेकिन एक मूल्य जिसका *नाम* एक क्रेडिट के रूप में दिखता है ``\"<redacted>\"`` के साथ बदल दिया जाता है और मैन्युअल में नाम से सूचीबद्ध होता है, इसलिए आप देख सकते हैं कि क्या रद्द किया गया था और रिपोर्ट प्राप्तकर्ता यह देख सकता है कि कुछ था।\n\n**निर्धारित लेआउट.** फ़ाइल नाम और ऑर्डर स्थिर रहता है ताकि दोहराए गए रिपोर्टों की जांच जल्दी हो सके।\n\nउपयोग\n-----\n.. code-block:: bash\n\n    python -m spacr.crashreport                     # last run, current folder\n    python -m spacr.crashreport --run-id 3f9c1a2b   # one particular run\n    python -m spacr.crashreport --db plate1/measurements/measurements.db \\\n        --settings measure.csv --app measure -o ~/spacr-bug.zip\n\n.. code-block:: python\n\n    from spacr.crashreport import report_exception, install_excepthook\n\n    install_excepthook()          # any unhandled crash writes a bundle\n    try:\n        measure_crop(settings)\n    except Exception as exc:      # noqa: BLE001 - reporting, then re-raising\n        print(report_exception(exc, settings=settings))\n        raise",
+      "source_sha256": "e84b3bdc78d9ce63c1083f867b50b0b166105ea8352b996a80c6fa1b71e69aca",
+      "text": "``spacr-crashreport`` के साथ एक संलग्न निदान पैकेज बनाएं।\n\nयह मॉड्यूल एक ``.zip`` का उत्पादन करता है जिसमें लॉग, सेटिंग्स, संस्करण और निदान एक त्रुटि रिपोर्ट की आवश्यकता होती है, जो GitHub मुद्दे को जोड़ने के लिए है, और यह पहले से ही रखे गए spaCR टुकड़ों से इकट्ठा किया जाता है, दूसरी बार एकत्र किए जाने के बजाय:\n\n* :mod:`spacr.doctor` स्थापित करने के लिए 17 चेक चलाता है - निष्पादन चेक, डुप्लिकेट इंस्टॉल, GPU, Cellpose संस्करण, परियोजना डेटाबेस, सेटिंग्स - और हर गैर-``PASS`` पंक्ति पहले से ही ठीक करता है।\n* :mod:`spacr.runctx` चलने के लिए एक JSONL लॉग लिखता है जो चलने आईडी द्वारा कुंजी दी जाती है, इसलिए \"मुझे यह सब दिखाएं जो चल रहा है\" का एक जवाब है. पैकेज चलने वाले लॉग के शब्दकोश को ले जाता है, इसका एक फ़िल्टर किए गए सारांश नहीं।\n* :mod:`spacr.errors` प्रत्येक प्रसंस्करण सत्र की स्थिति को उस आर्टिफैक्ट पर चिह्नित करता है जिसे वह लिखता है, इसलिए रिपोर्ट यह कह सकती है कि क्या अंतिम संस्करण *समाप्त किया गया है* - जो कि यह अभी टूट गया है या नहीं से एक अलग सवाल है, और अधिक उपयोगी एक जब एक उपयोगकर्ता एक ट्रैकबैक के बजाय संख्याओं की रिपोर्ट करता है।\n\nडिजाइन नियम :\n\n**संग्रहक नहीं फेंकते हैं.** प्रत्येक संग्रहणकर्ता :func:`_collect` के माध्यम से निष्पादित करता है, जो एक विफलता को एक स्पष्ट इनपुट में बदल देता है जिसमें कहा जाता है कि क्या इकट्ठा नहीं किया जा सकता है और क्यों. ``Exception`` पकड़ना यहां स्वीकार्य है क्योंकि असफलता आउटपुट पर रिकॉर्ड की जाती है: मैन्युअल पैकेज का हिस्सा है, इसलिए रिपोर्ट प्राप्तकर्ता के लिए एक गायब अनुभाग दिखाई देता है, चुपचाप अनुपस्थिति के बजाय।\n\n**सीमित आकार.** ``spacr.log`` घूमता है लेकिन एक एकल रन अभी भी सैकड़ों मेगाबाइट्स लिख सकता है. पैकेज इसके *टैल* लेता है, :data:`MAX_LOG_BYTES` द्वारा कवर किया जाता है, और स्पष्ट रिकॉर्ड कितना गिरा दिया गया था।\n\n**कोई रहस्य नहीं.** पर्यावरण परिवर्तकों को शामिल किया जाता है क्योंकि ``SPACR_*``, ``CUDA_*`` और ``PATH`` \"यहां काम करते हैं, वहां नहीं\" का एक बड़ा हिस्सा समझाता है - लेकिन एक मूल्य जिसका *नाम* एक क्रेडिट के रूप में दिखता है ``\"<redacted>\"`` के साथ बदल दिया जाता है और मैन्युअल में नाम से सूचीबद्ध होता है, इसलिए आप देख सकते हैं कि क्या रद्द किया गया था और रिपोर्ट प्राप्तकर्ता यह देख सकता है कि कुछ था।\n\n**निर्धारित लेआउट.** फ़ाइल नाम और ऑर्डर स्थिर रहता है ताकि दोहराए गए रिपोर्टों की जांच जल्दी हो सके।\n\nअनाम रिपोर्ट\n-----------------\nऊपर दिया गया बंडल इसी कंप्यूटर पर रहता है। इससे बाहर जाने वाली चीज़ अलग और बहुत छोटी होती है: :func:`public_summary`, जिसमें केवल स्पष्ट रूप से अनुमत जानकारी होती है—संस्करण, ऑपरेटिंग सिस्टम का परिवार, GPU की श्रेणी, मॉड्यूल, अपवाद का प्रकार, संवेदनशील जानकारी हटाया हुआ एक-पंक्ति संदेश और कॉल स्टैक के फ़ाइल बेसनाम, फ़ंक्शन नाम तथा पंक्ति संख्याएँ। इसमें कोई लॉग, सेटिंग, एनवायरनमेंट वैरिएबल या पथ नहीं होता। :func:`submit_public_summary` इसे spaCR के रिले (:data:`REPORT_RELAY_URL`) को भेजता है, जो इसे EinarOlafsson/spacr पर सार्वजनिक इश्यू के रूप में दर्ज करता है, इसलिए उपयोगकर्ता को GitHub खाते की आवश्यकता नहीं होती। इसका स्विच :func:`anonymous_reports_enabled` है, जो उपयोगकर्ता के बंद करने तक चालू रहता है; इसके बंद होने पर या :data:`NO_NETWORK_ENV` सेट होने पर कुछ नहीं भेजा जाता। जो रिपोर्ट भेजी नहीं जा सकती, वह छोटी कतार में प्रतीक्षा करती है (:data:`QUEUE_LIMIT` रिपोर्ट, :data:`QUEUE_RETENTION_S` सेकंड), और बाद में फिर प्रयास किया जाता है। :func:`diagnose_remotely` सलाह के लिए वही सारांश रिले के होस्ट किए गए मॉडल को भेजता है।\n\nउपयोग\n-----\n.. code-block:: bash\n\n    python -m spacr.crashreport                     # last run, current folder\n    python -m spacr.crashreport --run-id 3f9c1a2b   # one particular run\n    python -m spacr.crashreport --db plate1/measurements/measurements.db \\\n        --settings measure.csv --app measure -o ~/spacr-bug.zip\n\n.. code-block:: python\n\n    from spacr.crashreport import report_exception, install_excepthook\n\n    install_excepthook()          # any unhandled crash writes a bundle\n    try:\n        measure_crop(settings)\n    except Exception as exc:      # noqa: BLE001 - reporting, then re-raising\n        print(report_exception(exc, settings=settings))\n        raise",
       "translation_source_blocks_sha256": [
         "025200194bff3c48a95cc2d2bd6e1286209408a45cb00bf77b58d028165665f3",
         "6743b0b7700f4229c029feda93d465edf7a60d4dee587f68740b435071e787b6",
@@ -15685,6 +15687,8 @@
         "a4121c3303be5c3ede4d404b88c57d3b4d7f66859551d926ffec4a2624473c53",
         "34bf351789296cbbba94e38a10c9dfc9e40681a41010f4619f6eb06d9c5bc4a9",
         "a6724ffb4ecb91a395ea0821b3a86e8d17e557581896ee311264413d8ebbc18a",
+        "b975a3af4169f667981fd1218129af1381e2e9b989e6ddfe974d8498625fcf74",
+        "d443617b1a2d25f891335f181494f72577e78927c4d2a99569a40ed18245d924",
         "8d59829c1e15afe1a7fae93e8e5e32d8511bec5fd598a09f4fea6033b31e8a66"
       ]
     },
@@ -15748,6 +15752,26 @@
         "f68a17a462770f1df99ea2ac7ce9654177812ee4c76287a8db8a6035a90ced06",
         "b4d67a28465fd15108b05348ace1fc01f229eb4bb14b24474016bf97d856fd1e",
         "377b9d5a835a4da92969ef713d31aa8d6a755b690aa3207539f5d05484e65c13"
+      ]
+    },
+    "spacr.crashreport.RelayRefused": {
+      "source_blocks_sha256": [
+        "9cbe93097c41c2cdf46159d3ccec5b5054af9c44fc6e8586a90da7f9ef23250e",
+        "3410477624da5a2ac5744a1ba8c838cb1b2adfcfc805c7dbad8c8cae53966e4d",
+        "1746153085edf10219c78dc9c3501a9ec01631efae994a3d61768dc5d1d57368",
+        "8057a712c7f1bea98750e847730241bd3850c2dc4960c0ae9e995bd7307a3f34",
+        "75f2e9b001ac4fe524cbeb82be447809e8d4c26a97ecb0cf64603b430e619ec9",
+        "fec86ec938f40d8cf3508a9433a875d222fb4090785c6c39913fa41c3048dc12"
+      ],
+      "source_sha256": "0179cafbf4d8e9a02e4af871c5b3587deb4f86bc357ed260a39336e4ed80af75",
+      "text": "रिले ने होस्ट किए गए निदान का उत्तर नहीं दिया।\n\n:param reason: मुफ़्त दैनिक सीमा समाप्त होने पर ``\"quota\"``, रिले तक पहुँच न होने या नेटवर्क निषिद्ध होने पर ``\"network\"``, और किसी अन्य अस्वीकृति के लिए ``\"error\"``।\n:param detail: लॉग के लिए रिले या नेटवर्क का संदेश।\n:param scope: कोटा के कारण अस्वीकृति होने पर, किसकी सीमा थी: ``\"install\"`` (इस स्थापना के प्रश्न), ``\"global\"`` (spaCR की साझा मुफ़्त क्षमता) या ``\"ip\"``।\n:param resets_at: समय क्षेत्र की जानकारी वाली UTC दिनांक और समय के रूप में सीमा रीसेट होने का समय; डिफ़ॉल्ट अगला 00:00 UTC है।\n\nमान अपवाद पर ``reason``, ``scope`` और ``resets_at`` के रूप में रखे जाते हैं। कारण, दायरा और रीसेट का समय बनाए रखें, और विवरण को संदेश के रूप में रखें।",
+      "translation_source_blocks_sha256": [
+        "9cbe93097c41c2cdf46159d3ccec5b5054af9c44fc6e8586a90da7f9ef23250e",
+        "3410477624da5a2ac5744a1ba8c838cb1b2adfcfc805c7dbad8c8cae53966e4d",
+        "1746153085edf10219c78dc9c3501a9ec01631efae994a3d61768dc5d1d57368",
+        "8057a712c7f1bea98750e847730241bd3850c2dc4960c0ae9e995bd7307a3f34",
+        "75f2e9b001ac4fe524cbeb82be447809e8d4c26a97ecb0cf64603b430e619ec9",
+        "fec86ec938f40d8cf3508a9433a875d222fb4090785c6c39913fa41c3048dc12"
       ]
     },
     "spacr.crashreport._doctor_sections.gather_json": {
@@ -15820,6 +15844,46 @@
         "3723a3d308b1ff2cbe41bcb76bbc7189f321dd330d79e2afa39a68b2ebaca970"
       ]
     },
+    "spacr.crashreport.ai_summary_prompt": {
+      "source_blocks_sha256": [
+        "638e0f80f7125247b37b52208412ca5e6983977ae3b0a02e84b8141f3edc1757",
+        "3cb8272945e084c45e0ad61c6d8a884416723fe25ab19fbfa46061e7ed172e72",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "679e1e3e644bbe192140ec68762966dacce0dc54475f2ca079730984886a921b"
+      ],
+      "source_sha256": "b4d1fc41e1fc41ac675bf79a0e9cca0166b945126446ce9f311a4ee2f927a374",
+      "text": "वह निश्चित प्रॉम्प्ट जो उपयोगकर्ता की अपनी AI से रिपोर्ट का सारांश माँगता है।\n\nAI केवल अनाम सारांश देखती है, कभी ट्रेसबैक, लॉग या सेटिंग नहीं; भेजने से पहले उसके लिखे हुए पाठ से संवेदनशील जानकारी फिर हटाई जाती है।\n\n:param summary: :func:`public_summary` से मिला सारांश।\n:returns: प्रॉम्प्ट।",
+      "translation_source_blocks_sha256": [
+        "638e0f80f7125247b37b52208412ca5e6983977ae3b0a02e84b8141f3edc1757",
+        "3cb8272945e084c45e0ad61c6d8a884416723fe25ab19fbfa46061e7ed172e72",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "679e1e3e644bbe192140ec68762966dacce0dc54475f2ca079730984886a921b"
+      ]
+    },
+    "spacr.crashreport.anonymous_report_notice_due": {
+      "source_blocks_sha256": [
+        "dd7102c011ca8714a21f48e81605b2608d7f74c403c00a6a89c445be65c36d98",
+        "642900d41cce7b32471f974256fd2ec0737e15b8aec3659c8445609aab49fd31"
+      ],
+      "source_sha256": "f44f97ee84fdb0f2d0f93b0c4536cfec5d4c86a9fd1c5135eeef12bc6a492663",
+      "text": "क्या अनाम रिपोर्टों के बारे में एक बार दिखाई जाने वाली सूचना अभी दिखानी बाकी है।\n\n:returns: ``True`` तब तक, जब तक :func:`mark_anonymous_report_notice_shown` कॉल न हो।",
+      "translation_source_blocks_sha256": [
+        "dd7102c011ca8714a21f48e81605b2608d7f74c403c00a6a89c445be65c36d98",
+        "642900d41cce7b32471f974256fd2ec0737e15b8aec3659c8445609aab49fd31"
+      ]
+    },
+    "spacr.crashreport.anonymous_reports_enabled": {
+      "source_blocks_sha256": [
+        "0b4ed1ade4482107fe88c56c186d855b1ea059e6405099143a3282b3d342fcb3",
+        "40995663a063e7eb179badd0b4d11ad79f612f0b91b290083d4e750bf78dab71"
+      ],
+      "source_sha256": "7ef7463a6276e9fb8ee5c88ffe18a3e3ab7f6bd560bbddec970d2a8882c9875b",
+      "text": "क्या किसी विफलता को अनाम रिपोर्ट के रूप में भेजा जाता है।\n\n:returns: कुछ भी न भेजने वाले विकल्पों के लिए ``False``।",
+      "translation_source_blocks_sha256": [
+        "0b4ed1ade4482107fe88c56c186d855b1ea059e6405099143a3282b3d342fcb3",
+        "40995663a063e7eb179badd0b4d11ad79f612f0b91b290083d4e750bf78dab71"
+      ]
+    },
     "spacr.crashreport.build_parser": {
       "source_blocks_sha256": [
         "361572caac77d4eb2b156897b2bd68bc5f5ed5f0237a1989b4a718af86b3e95e",
@@ -15830,6 +15894,24 @@
       "translation_source_blocks_sha256": [
         "361572caac77d4eb2b156897b2bd68bc5f5ed5f0237a1989b4a718af86b3e95e",
         "508e809681b4695280c2958e6aa531a276a03c298fa1df40c574e64960c0c317"
+      ]
+    },
+    "spacr.crashreport.classify_failure": {
+      "source_blocks_sha256": [
+        "2d58fd042487c7a7aa508d19821bec4df9e7e9722899078931ce3b4b7a9238f9",
+        "f371f2b2fb8576efeedce179f2e3c7a1d95f560787269bd83aa3141af3130073",
+        "755de7f9d8d35807469274a445883f88761f9b3f91c8ea2e98f12a6b8b2abc56",
+        "bc0f7c1520da84a0c12d506a2366c76d2ce1a11d0da768189f822745eadb423c",
+        "13dcc916d28f018361196f06ac90ba66e58b552560bbca5b180794203cca413b"
+      ],
+      "source_sha256": "2a648f589ae7cbaad695a8b78a423c22c79c9fa59ca14fd1456ae91a800f3d1e",
+      "text": "लौटाएँ कि विफलता प्रोग्राम की खराबी है या उपयोगकर्ता की त्रुटि।\n\n:class:`spacr.errors.ConfigurationError` या उसका कोई उपवर्ग उपयोगकर्ता की त्रुटि है: कोई सेटिंग, सत्यापन या अनुपलब्ध इनपुट जिसे उपयोगकर्ता ठीक कर सकता है। अन्य सभी स्थितियाँ प्रोग्राम की खराबी हैं।\n\n:param exception: उपलब्ध होने पर अपवाद।\n:param traceback_text: अन्यथा स्वरूपित ट्रेसबैक।\n:returns: :data:`KIND_USER_ERROR` या :data:`KIND_FAULT`।",
+      "translation_source_blocks_sha256": [
+        "2d58fd042487c7a7aa508d19821bec4df9e7e9722899078931ce3b4b7a9238f9",
+        "f371f2b2fb8576efeedce179f2e3c7a1d95f560787269bd83aa3141af3130073",
+        "755de7f9d8d35807469274a445883f88761f9b3f91c8ea2e98f12a6b8b2abc56",
+        "bc0f7c1520da84a0c12d506a2366c76d2ce1a11d0da768189f822745eadb423c",
+        "13dcc916d28f018361196f06ac90ba66e58b552560bbca5b180794203cca413b"
       ]
     },
     "spacr.crashreport.collect": {
@@ -15874,6 +15956,110 @@
         "70f3e313df0a893be895249e92469990e15698192066ed92eeaeec2718fe852b"
       ]
     },
+    "spacr.crashreport.diagnose_remotely": {
+      "source_blocks_sha256": [
+        "6208bddae143b55b08f16f9b2f4c538ea8d4de8d1c52459fea8066e495f250ac",
+        "0c08fd76ea2777f1ade8f2cd1ab141a5989aee9f7af0f8a35100dba49a0c5b25",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "db3dfd5b107e44ab172b1f4c5db4149d77cee1568974bbe5d32a70f7123c7fb1",
+        "68694ddb4d07fd3a8b1bb5f8c5c794035f34bd3228690afc39c2cde384c58446",
+        "7a53d8a95affae81d8f3ec742c9c242bf983144b65f0d0d8c481bcf909a1edfc",
+        "168c7498c9b4e16800ff71cb08bc5bff9b600d6fe3f7e3b988aee78bffd23abf"
+      ],
+      "source_sha256": "82fb0e7132840a9f75447a5ab1b7e82f6105790d60c93ba5996028dcdfe478d2",
+      "text": "बिना खाते के रिले के होस्ट किए गए मॉडल से त्रुटि के बारे में पूछें।\n\nअनाम सारांश और संवेदनशील जानकारी हटाकर :data:`MAX_QUESTION_CHARS` तक काटा गया प्रश्न ``/diagnose`` पर भेजता है। उत्तर उत्पन्न की गई सलाह है, जाँचा हुआ समाधान नहीं। कॉल ब्लॉक करती है, इसलिए इसे GUI थ्रेड से बाहर कॉल करें।\n\n:param summary: :func:`public_summary` से मिला सारांश।\n:param question: उपयोगकर्ता का प्रश्न; खाली हो सकता है।\n:param timeout: मॉडल के लिए अनुमत सेकंड।\n:returns: ``{\"advice\": text, \"model\": model name}``.\n:raises RelayRefused: मुफ़्त दैनिक सीमा समाप्त होने पर ``reason`` का मान ``\"quota\"``, रिले तक पहुँच न होने या नेटवर्क निषिद्ध होने पर ``\"network\"``, और अन्यथा ``\"error\"`` होता है।",
+      "translation_source_blocks_sha256": [
+        "6208bddae143b55b08f16f9b2f4c538ea8d4de8d1c52459fea8066e495f250ac",
+        "e47efa21827a57e2f9cf1c786746ee738247e5eaebc700244c40127eb77ba95c",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "db3dfd5b107e44ab172b1f4c5db4149d77cee1568974bbe5d32a70f7123c7fb1",
+        "68694ddb4d07fd3a8b1bb5f8c5c794035f34bd3228690afc39c2cde384c58446",
+        "7a53d8a95affae81d8f3ec742c9c242bf983144b65f0d0d8c481bcf909a1edfc",
+        "168c7498c9b4e16800ff71cb08bc5bff9b600d6fe3f7e3b988aee78bffd23abf"
+      ]
+    },
+    "spacr.crashreport.error_report_mode": {
+      "source_blocks_sha256": [
+        "dc1c0868a1672c230a8785f61a287631d66b2d6aba603b90d9bd2cbbba7ccd66",
+        "6f7924389235216f4760de19f034a3711d2e4b51f776efb9f1bb3ac49a6462c3",
+        "67f7531354bd3063659fed6c0564b696a5c2375bde3b583837c935462dda6272"
+      ],
+      "source_sha256": "35bf036e89a7b78d5cde1c46f99a1b652716db8a011fcd1a4dc708cc9dcb2a88",
+      "text": "\"AI Error report\" विकल्प लौटाएँ, जो :data:`ERROR_REPORT_MODES` की एक कुंजी है।\n\nजिस प्रोफ़ाइल ने केवल पुराना चालू/बंद स्विच बंद किया था, उसे ``\"off\"`` के रूप में पढ़ा जाता है।\n\n:returns: सहेजी गई कुंजी, या :data:`DEFAULT_ERROR_REPORT_MODE`।",
+      "translation_source_blocks_sha256": [
+        "dc1c0868a1672c230a8785f61a287631d66b2d6aba603b90d9bd2cbbba7ccd66",
+        "6f7924389235216f4760de19f034a3711d2e4b51f776efb9f1bb3ac49a6462c3",
+        "67f7531354bd3063659fed6c0564b696a5c2375bde3b583837c935462dda6272"
+      ]
+    },
+    "spacr.crashreport.example_public_summary": {
+      "source_blocks_sha256": [
+        "4805be251c30321173fa9183621d8b60ef1af8c4840872a019bf80c29ce5d4d2",
+        "197a8f2e7aade953cd04cc2fff153bee71702f7243fd56d02b14812a1b95a497",
+        "5e951d9bfd1dcaca8b96feb21136106e343de9e27d4d49805cd9b79b1e45c9e9"
+      ],
+      "source_sha256": "690e9175dc789677a4bf0a4dde0501bdf7d0cce8106e086e8d0786d9e1775ddb",
+      "text": "रिपोर्ट में क्या होता है यह दिखाने के लिए एक काल्पनिक त्रुटि से सारांश बनाएँ।\n\nत्रुटि के संदेश में होम फ़ोल्डर के अंतर्गत एक प्लेट फ़ाइल, ईमेल पता और टोकन का उल्लेख है, इसलिए उदाहरण में हर एक को हटाया हुआ दिखाया जाता है।\n\n:returns: बिल्कुल वास्तविक सारांश की तरह बनाया गया सारांश।",
+      "translation_source_blocks_sha256": [
+        "4805be251c30321173fa9183621d8b60ef1af8c4840872a019bf80c29ce5d4d2",
+        "197a8f2e7aade953cd04cc2fff153bee71702f7243fd56d02b14812a1b95a497",
+        "5e951d9bfd1dcaca8b96feb21136106e343de9e27d4d49805cd9b79b1e45c9e9"
+      ]
+    },
+    "spacr.crashreport.explanation_key": {
+      "source_blocks_sha256": [
+        "d7b997eac06ef98fcc8ecb7c0dc98ebd33001525c6e0741e7e452d7c19e2f5c2",
+        "889e7967653c02b1699373999ff527ff8fd2bc365c579043717162a20efebac2",
+        "dc8cb59e5c9708e43ee74caaa4b7f99876fae29cfef145f0f80c11935ce7fd82",
+        "3615aeaee3d3841a1a507ab9a0178a6a7efb4b5e90a32cd5629f01548417b890",
+        "a41a344522ef8229c99bed0e499c867629e183343c9a2f98cabe87e986d0b844",
+        "0219f84e0332ab7e9244f3e5037cc9a5737af1af4c778b3c1bd4fd978bd1f1aa",
+        "90da6c87f0aa65e3a37cc73e07d54c10263e24f0f45a33b2565451c890d3ef86"
+      ],
+      "source_sha256": "1435f13a96089178a50619680d7064b709ffe9603c4033e9e7e2564cbe08a12a",
+      "text": "परिवेश के बिना विफलता का :func:`explanation_signature`।\n\nकेवल ट्रेसबैक पढ़ता है, इसलिए GUI थ्रेड के लिए पर्याप्त हल्का है और उसी विफलता के पूर्ण :func:`public_summary` जैसा परिणाम देता है।\n\n:param traceback_text: स्वरूपित ट्रेसबैक।\n:param module: spaCR मॉड्यूल की कुंजी।\n:param kind: :data:`KIND_FAULT` या :data:`KIND_USER_ERROR`।\n:param message: अपवाद के अपने संदेश के स्थान पर भेजा गया संदेश।\n:returns: हस्ताक्षर।",
+      "translation_source_blocks_sha256": [
+        "d7b997eac06ef98fcc8ecb7c0dc98ebd33001525c6e0741e7e452d7c19e2f5c2",
+        "57ac0763fa1f5aa2deee94180703209004156368786b51f9fc759141aba85c6e",
+        "dc8cb59e5c9708e43ee74caaa4b7f99876fae29cfef145f0f80c11935ce7fd82",
+        "3615aeaee3d3841a1a507ab9a0178a6a7efb4b5e90a32cd5629f01548417b890",
+        "a41a344522ef8229c99bed0e499c867629e183343c9a2f98cabe87e986d0b844",
+        "0219f84e0332ab7e9244f3e5037cc9a5737af1af4c778b3c1bd4fd978bd1f1aa",
+        "90da6c87f0aa65e3a37cc73e07d54c10263e24f0f45a33b2565451c890d3ef86"
+      ]
+    },
+    "spacr.crashreport.explanation_signature": {
+      "source_blocks_sha256": [
+        "e77c0942192bca11642409a37d23cbd55dc6aa5a330f43213be4e2724fb00202",
+        "e93b6337f1364cf2f8978526bcd1868353bc83220a5c8f8accd8cc4134111810",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "6ef069a36cd77a199879712398c5025591b3c8a80b0e3cf78d82418a962e5bae"
+      ],
+      "source_sha256": "c17aeffb83edb179ea73b1c5a48c63521b0be987c2683fb04fd64f2e16ce7750",
+      "text": "त्रुटि का हस्ताक्षर, जिसकी गणना रिले के समान तरीके से की जाती है।\n\nअपवाद का प्रकार, मॉड्यूल और सबसे अंदर के पाँच स्टैक फ़्रेम (``file:function``); उपयोगकर्ता की त्रुटि होने पर उसकी सामान्यीकृत समस्या सूची भी जोड़ी जाती है। रिले सहेजी गई व्याख्याओं और इश्यू के लिए इसी मान को कुंजी बनाता है।\n\n:param summary: :func:`public_summary` से मिला सारांश।\n:returns: SHA-256 हेक्साडेसिमल डाइजेस्ट।",
+      "translation_source_blocks_sha256": [
+        "e77c0942192bca11642409a37d23cbd55dc6aa5a330f43213be4e2724fb00202",
+        "032bcc83b7fa54cd455abb9ee75f7e1d8fd4e299bd71d22d647e06b725d98083",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "6ef069a36cd77a199879712398c5025591b3c8a80b0e3cf78d82418a962e5bae"
+      ]
+    },
+    "spacr.crashreport.fetch_allowance": {
+      "source_blocks_sha256": [
+        "f18f7b76adf0af2064784d665bea0d48cc7315467432de6aa769be6f54fcee99",
+        "9bf42f368604e18e22d800d3ba0bf8741eac420ef07f4c210b155b59ce0c4728",
+        "146c8f1cb8f58dd260146c514bd434219e9680cfa5231f0d7090eeec34b77d87",
+        "d84393837b5caab162028c1f5197757bc32bea67cf47226b2af87065ddbc0181"
+      ],
+      "source_sha256": "25f125c34546472ffdeddf8c2246da48d1276847c9274a3fd40ec34ee4177367",
+      "text": "रिले से पूछें कि इस स्थापना के लिए आज का कितना मुफ़्त कोटा बचा है।\n\n``/allowance?install_id=...`` पर GET; यह कोई कोटा खर्च नहीं करता। कॉल ब्लॉक करती है, इसलिए इसे GUI थ्रेड से बाहर कॉल करें।\n\n:param timeout: अनुरोध के लिए अनुमत सेकंड।\n:returns: ``{\"ai\": {\"best_left\", \"light_left\"}, \"reports_left\", \"pool\", \"resets_at\"}``, जहाँ ``pool`` का मान ``best``, ``light`` या ``exhausted`` में से एक और ``resets_at`` एक ISO-8601 UTC समय है; नेटवर्क निषिद्ध होने या रिले से उत्तर न मिलने पर ``None``।",
+      "translation_source_blocks_sha256": [
+        "f18f7b76adf0af2064784d665bea0d48cc7315467432de6aa769be6f54fcee99",
+        "d30635e1d429453d33f80f1319a7cd8f4a844e5a34bee6112d4e7bce1de9280a",
+        "146c8f1cb8f58dd260146c514bd434219e9680cfa5231f0d7090eeec34b77d87",
+        "d84393837b5caab162028c1f5197757bc32bea67cf47226b2af87065ddbc0181"
+      ]
+    },
     "spacr.crashreport.find_last_run_id": {
       "source_blocks_sha256": [
         "687f5e050f35a6d9e2b1f35deef01405f216961f79e90a861a307daf00bb0dc2",
@@ -15890,19 +16076,35 @@
         "cc9b839590494cef3f857d53c5cf8994d0da0233849f6a9b76a3eb2bbaf1fbed"
       ]
     },
+    "spacr.crashreport.flush_report_queue": {
+      "source_blocks_sha256": [
+        "1cee955ca3d322518807e52405d40be6f537e6a1843456d58d31ba439652f0d9",
+        "f22928dee2a7a00ade5d46cfb4afedc7ae49ed51d7cbb646b56a4e047e3d65d2",
+        "3b65274ef4d6d3b7fd30871ba5b62538e8d99820314f532894944cbc75677285",
+        "fb27fbfe899426a9964e655a06831cc0aa5e96d76ded4576d5cb97717bb8c0ff"
+      ],
+      "source_sha256": "1dc67555e116f49a2b2c3754eb2eb5ae7b36d46e8fd62310a37ed22195d79c7c",
+      "text": "प्रतीक्षा कर रही सभी रिपोर्टों को सबसे पुरानी से शुरू करके भेजने का प्रयास करें।\n\nपहली ऐसी रिपोर्ट पर रुकता है जिसे फिर प्रतीक्षा करनी पड़ेगी (नेटवर्क न होना, सर्वर त्रुटि या रिले का कोटा), इसलिए ऑफ़लाइन कंप्यूटर बीस नहीं, एक प्रयास करता है। अन्य प्रेषण चल रहा हो तो कुछ नहीं करता।\n\n:param timeout: प्रत्येक POST के लिए अनुमत सेकंड।\n:returns: ``{\"sent\": n, \"dropped\": n, \"kept\": n}``.",
+      "translation_source_blocks_sha256": [
+        "1cee955ca3d322518807e52405d40be6f537e6a1843456d58d31ba439652f0d9",
+        "f22928dee2a7a00ade5d46cfb4afedc7ae49ed51d7cbb646b56a4e047e3d65d2",
+        "3b65274ef4d6d3b7fd30871ba5b62538e8d99820314f532894944cbc75677285",
+        "fb27fbfe899426a9964e655a06831cc0aa5e96d76ded4576d5cb97717bb8c0ff"
+      ]
+    },
     "spacr.crashreport.install_excepthook": {
       "source_blocks_sha256": [
         "49bf5b5e049e03c34d1ea1594317c72c2d0bebf96f00ffb075fa9fd27dbf2740",
-        "dfa27694dae26de542e375ae534fa60bdb943819d439c4741310663271a43ffe",
+        "6e4475333500fb58da97eb3935c895fd4d1e0b5cd44a10e5e9924c12c73d262f",
         "7e71dcd0c53d3a23021f464d859d3eae5865a6a8e8fce7d716a1408a15e599b8",
         "81b3e0584a0bedba56cb4a9f54589d712dd996f8479933ad5fcb754893d8e2e1",
         "21759c923f9ebfc9b1b1045d2522bd281332de99a8d2e3692ced19dfc70b50f8"
       ],
-      "source_sha256": "eef02f55a5953b26e7226e351612756bfdb90993489be3ff976203f86af1227e",
-      "text": "किसी भी अप्रत्याशित अपवाद पर एक दुर्घटना रिपोर्ट लिखें, फिर पहले की तरह व्यवहार करें।\n\nश्रृंखलाओं के बजाय प्रतिस्थापन: पिछले ``sys.excepthook`` अभी भी चल रहा है, इसलिए ट्रैकबैक उपयोगकर्ता को देखने के लिए उपयोग किया जाता है अभी भी दिखाई देता है, एक पंक्ति के बाद यह कहता है कि पैकेज कहां है।\n\n:param destination: as :func:`write_crash_report`.\n:param kwargs: यह :func:`collect` के लिए स्थानांतरित किया गया है।\n:returns: यह है कि हॉक स्थापित किया गया था, इसलिए एक कॉलर ``sys.excepthook`` को वापस कर सकता है जो वह था।",
+      "source_sha256": "046d712db264844b07fc976f04efbbf4feb3d60224de2a83f406805254d410e4",
+      "text": "किसी भी अप्रत्याशित अपवाद पर एक दुर्घटना रिपोर्ट लिखें, फिर पहले की तरह व्यवहार करें।\n\nबदलने के बजाय श्रृंखला में जोड़ता है: पिछला ``sys.excepthook`` फिर भी चलता है, इसलिए उपयोगकर्ता को दिखाई देने वाला सामान्य ट्रेसबैक बना रहता है और उसके बाद एक पंक्ति बंडल का स्थान बताती है। अनाम रिपोर्ट चालू होने पर (:func:`anonymous_reports_enabled`), क्रैश का :func:`public_summary` भी प्रतीक्षा सूची में रखा जाता है और बैकग्राउंड थ्रेड में भेजा जाता है; बंडल कभी नहीं भेजा जाता।\n\n:param destination: as :func:`write_crash_report`.\n:param kwargs: यह :func:`collect` के लिए स्थानांतरित किया गया है।\n:returns: यह है कि हॉक स्थापित किया गया था, इसलिए एक कॉलर ``sys.excepthook`` को वापस कर सकता है जो वह था।",
       "translation_source_blocks_sha256": [
         "49bf5b5e049e03c34d1ea1594317c72c2d0bebf96f00ffb075fa9fd27dbf2740",
-        "dfa27694dae26de542e375ae534fa60bdb943819d439c4741310663271a43ffe",
+        "b7c095f7a2f808dd4a571df08a332b7ca5ebf7908b5e1e14614feb8e9f2ae6b4",
         "7e71dcd0c53d3a23021f464d859d3eae5865a6a8e8fce7d716a1408a15e599b8",
         "81b3e0584a0bedba56cb4a9f54589d712dd996f8479933ad5fcb754893d8e2e1",
         "21759c923f9ebfc9b1b1045d2522bd281332de99a8d2e3692ced19dfc70b50f8"
@@ -15918,6 +16120,20 @@
         "a262dbd7a4976be9ef04e4bd6955fba38116c0efad04145e6de05829dc82905f"
       ]
     },
+    "spacr.crashreport.install_id": {
+      "source_blocks_sha256": [
+        "30666fd47e78b99f8e8dc943e4b72ac2ab122ab8df05a1163887198864da3ea0",
+        "c744604924530733ab67171deaa6011eab8aca3cbddc26f21a84c44687189c2e",
+        "16217f2a7a0133b8ad3305420abd005d480dea88af4fe442aa9848777f0909a1"
+      ],
+      "source_sha256": "766b00f539a50c92ac672676be1fbf4aaaf1afc001bfdbfea8ab6c67c75d057d",
+      "text": "इस प्रोफ़ाइल का यादृच्छिक स्थापना ID लौटाएँ और पहले उपयोग पर उसे बनाएँ।\n\nID एक यादृच्छिक UUID है; यह कंप्यूटर, उपयोगकर्ता या नेटवर्क से नहीं बनाया जाता। रिले इसका उपयोग केवल अपने मुफ़्त कोटे को निष्पक्ष रूप से बाँटने के लिए करता है।\n\n:returns: स्ट्रिंग के रूप में ID।",
+      "translation_source_blocks_sha256": [
+        "30666fd47e78b99f8e8dc943e4b72ac2ab122ab8df05a1163887198864da3ea0",
+        "c744604924530733ab67171deaa6011eab8aca3cbddc26f21a84c44687189c2e",
+        "16217f2a7a0133b8ad3305420abd005d480dea88af4fe442aa9848777f0909a1"
+      ]
+    },
     "spacr.crashreport.main": {
       "source_blocks_sha256": [
         "bf9d0a2a7a49f9180e31b474d0568ff6e95a0ca31c3cdc2d28f8088b22bb2812",
@@ -15930,6 +16146,290 @@
         "bf9d0a2a7a49f9180e31b474d0568ff6e95a0ca31c3cdc2d28f8088b22bb2812",
         "5ecb99de4ee6e3e6ccd4c7346f1f9338c4c95b245772e00d95cb6ef90af8fa4a",
         "de9811e9662cb26693185d5294f35c2c83f805de7ef74764fd787bf386e6dc9e"
+      ]
+    },
+    "spacr.crashreport.mark_anonymous_report_notice_shown": {
+      "source_blocks_sha256": [
+        "96479e8762615af5a01b6b9506808e7b862a73145f038ae448ea71233f9f55ad"
+      ],
+      "source_sha256": "96479e8762615af5a01b6b9506808e7b862a73145f038ae448ea71233f9f55ad",
+      "text": "दर्ज करें कि अनाम रिपोर्टों के बारे में सूचना दिखाई जा चुकी है।",
+      "translation_source_blocks_sha256": [
+        "96479e8762615af5a01b6b9506808e7b862a73145f038ae448ea71233f9f55ad"
+      ]
+    },
+    "spacr.crashreport.mode_code_context": {
+      "source_blocks_sha256": [
+        "9ca3b706e7530e8701f2eaaee41b41ce82db19cd53e1eaedc8b67fc745dc5a94",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "4e3c3f76dc95217d6a0a5c21b1a1db3b06ff01b2258d07d150d263e2c8fc12ee"
+      ],
+      "source_sha256": "f51c17fbd4961b03df65dcf8653b866aeed2192f284480a3c8a063e2895f2485",
+      "text": "क्या कोई विकल्प प्रत्येक spaCR स्टैक फ़्रेम की स्रोत पंक्ति को रिपोर्ट में जोड़ता है।\n\n:param mode: :data:`ERROR_REPORT_MODES` की एक कुंजी; डिफ़ॉल्ट सहेजी गई कुंजी है।\n:returns: ``True`` केवल ``\"all_code\"`` के लिए।",
+      "translation_source_blocks_sha256": [
+        "9ca3b706e7530e8701f2eaaee41b41ce82db19cd53e1eaedc8b67fc745dc5a94",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "4e3c3f76dc95217d6a0a5c21b1a1db3b06ff01b2258d07d150d263e2c8fc12ee"
+      ]
+    },
+    "spacr.crashreport.mode_explains": {
+      "source_blocks_sha256": [
+        "7a70d59f7beffcfcbc6d61fc78a2dd298a5fc73379684db74808b2ea807a3380",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "efdeca3a15b913d6b3dda548fab251cb81bd0eefcf0fca8b89bd36eb8addcab3"
+      ],
+      "source_sha256": "8ef9b3a636ec21ab6b1d9f1801960e5d95dcc776f857af9db75e462b49f787c0",
+      "text": "क्या कोई विकल्प AI से कंसोल में हर विफलता की व्याख्या करवाता है।\n\n:param mode: :data:`ERROR_REPORT_MODES` की एक कुंजी; डिफ़ॉल्ट सहेजी गई कुंजी है।\n:returns: चार \"Summarize\" विकल्पों के लिए ``True``।",
+      "translation_source_blocks_sha256": [
+        "7a70d59f7beffcfcbc6d61fc78a2dd298a5fc73379684db74808b2ea807a3380",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "efdeca3a15b913d6b3dda548fab251cb81bd0eefcf0fca8b89bd36eb8addcab3"
+      ]
+    },
+    "spacr.crashreport.mode_sends": {
+      "source_blocks_sha256": [
+        "54d2d90d2b1244559bd97a549d1ea211f2ade88d83f2de27ec2fa78d08f71de8",
+        "a41a344522ef8229c99bed0e499c867629e183343c9a2f98cabe87e986d0b844",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "8c06fb9a4e75243616cc2e3c0d6f34936cf693ba11a3e2948f3f4afa535f63e7"
+      ],
+      "source_sha256": "4bedb3bfe06a1e2a45775df22d01bcb84e042554bae6b3205d3c8ac1c45b8da6",
+      "text": "क्या कोई विकल्प ``kind`` प्रकार की विफलता को एक इश्यू के रूप में दर्ज करता है।\n\n:param kind: :data:`KIND_FAULT` या :data:`KIND_USER_ERROR`।\n:param mode: :data:`ERROR_REPORT_MODES` की एक कुंजी; डिफ़ॉल्ट सहेजी गई कुंजी है।\n:returns: क्या इसे भेजा जाता है।",
+      "translation_source_blocks_sha256": [
+        "54d2d90d2b1244559bd97a549d1ea211f2ade88d83f2de27ec2fa78d08f71de8",
+        "a41a344522ef8229c99bed0e499c867629e183343c9a2f98cabe87e986d0b844",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "8c06fb9a4e75243616cc2e3c0d6f34936cf693ba11a3e2948f3f4afa535f63e7"
+      ]
+    },
+    "spacr.crashreport.network_allowed": {
+      "source_blocks_sha256": [
+        "c764c191a908b6fa48994dcb18f3fdf88ef1b8c3b34d6fba5f1846374db3edce",
+        "16c5eec3cc8b02d19e4acd44f2e70fc13b2ec2966f7d3f5a82b5808aeba9b601"
+      ],
+      "source_sha256": "d95b02bbcc7b788ea8100f10b7b243d3011494ef3a6335f9bd3b02660f4abc97",
+      "text": "क्या रिपोर्ट या होस्ट किया गया निदान नेटवर्क का उपयोग कर सकता है।\n\n:returns: ``False`` तब मिलता है जब :data:`NO_NETWORK_ENV` सेट हो या spaCR सुरक्षित मोड में चल रहा हो; अन्यथा ``True``।",
+      "translation_source_blocks_sha256": [
+        "c764c191a908b6fa48994dcb18f3fdf88ef1b8c3b34d6fba5f1846374db3edce",
+        "16c5eec3cc8b02d19e4acd44f2e70fc13b2ec2966f7d3f5a82b5808aeba9b601"
+      ]
+    },
+    "spacr.crashreport.next_reset_utc": {
+      "source_blocks_sha256": [
+        "60057eb896241eceb07f50f5ca0d8bb74d759109d76d43673d105ae7845538c3",
+        "4e961b7c2b862b6eb5e047dedde2709537edf8afb90053ca2c4e1966b767008d",
+        "b048ad88d42dbdcc0e5afd455afb8f66e528c89cddab24aeca234cf4b9e63d91"
+      ],
+      "source_sha256": "5899757a4ffad4f37f24eae8e2120b2c48edccadda8c0c6d81859436c64fa63a",
+      "text": "अगला 00:00 UTC लौटाएँ, जब रिले के दैनिक कोटे रीसेट होते हैं।\n\n:param now: गणना शुरू करने का क्षण; डिफ़ॉल्ट वर्तमान समय है।\n:returns: समय क्षेत्र की जानकारी वाली UTC दिनांक और समय।",
+      "translation_source_blocks_sha256": [
+        "60057eb896241eceb07f50f5ca0d8bb74d759109d76d43673d105ae7845538c3",
+        "4e961b7c2b862b6eb5e047dedde2709537edf8afb90053ca2c4e1966b767008d",
+        "b048ad88d42dbdcc0e5afd455afb8f66e528c89cddab24aeca234cf4b9e63d91"
+      ]
+    },
+    "spacr.crashreport.normalise_cause": {
+      "source_blocks_sha256": [
+        "ed5c29abdb17663720f38d605f7506f2d712650dd03c8be31288cd998efe9548",
+        "63496212f49051e5bab015b597d8f01bf07f307601412e73bd7b53bee512dc57",
+        "cc2d28e237283855df656426d6855b9bd55794b66bc1f798916ffac3116e771c"
+      ],
+      "source_sha256": "443c7d99e0f454518028bbf0b6a993a54cf30de94b071895aa503dd7ea5289e9",
+      "text": "रिले में रखे जाने वाले रूप में संभावित कारण की कुंजी: kebab-case, 5 शब्द, 40 अक्षर।\n\n:param raw: AI द्वारा लिखी गई कुंजी।\n:returns: स्लग, या ``\"\"``।",
+      "translation_source_blocks_sha256": [
+        "ed5c29abdb17663720f38d605f7506f2d712650dd03c8be31288cd998efe9548",
+        "63496212f49051e5bab015b597d8f01bf07f307601412e73bd7b53bee512dc57",
+        "cc2d28e237283855df656426d6855b9bd55794b66bc1f798916ffac3116e771c"
+      ]
+    },
+    "spacr.crashreport.normalise_question": {
+      "source_blocks_sha256": [
+        "0f0cae22dd277f52ca201b96733e8dcf3029ecbccd93581c20eb0f5c9546b8a7",
+        "492769b21b09c87878023ebb1112a1fd4c77ed259f2eb6e17b02c2c2a23be74d",
+        "c049dd8f2cfeaa634d9db7c9c555fdc86a7c2d76205463a3c1f6ffb672373705",
+        "0ceb5213e85b3ea40168b85b1b739141142ec1d476838518098c26eb2418cb01"
+      ],
+      "source_sha256": "b3c1cbdcd69c16d48490cc1b07f7c452a668a90836895c0123c59a024a2425db",
+      "text": "दोनों कैश द्वारा तुलना के लिए उपयोग किया जाने वाला प्रश्न का रूप।\n\nछोटे अक्षरों में, ``<PATH>`` जैसे प्लेसहोल्डर हटाकर, और रिक्त स्थान या विराम चिह्नों की हर शृंखला को एक स्पेस में समेटकर, जैसा रिले का ``normaliseQuestion`` करता है।\n\n:param text: प्रश्न।\n:returns: सामान्यीकृत प्रश्न।",
+      "translation_source_blocks_sha256": [
+        "0f0cae22dd277f52ca201b96733e8dcf3029ecbccd93581c20eb0f5c9546b8a7",
+        "492769b21b09c87878023ebb1112a1fd4c77ed259f2eb6e17b02c2c2a23be74d",
+        "c049dd8f2cfeaa634d9db7c9c555fdc86a7c2d76205463a3c1f6ffb672373705",
+        "0ceb5213e85b3ea40168b85b1b739141142ec1d476838518098c26eb2418cb01"
+      ]
+    },
+    "spacr.crashreport.public_environment": {
+      "source_blocks_sha256": [
+        "143cbf82508ad7d35f938c80c999116c856f8476d060195dec21d69ba4a7e482",
+        "18df698a2ebe90392af36b917af48c3fbe52abd868620e90762adfa8c1784929",
+        "d1bdabe97177a2c46f2bbc056f1c432ac114a6d69cc386f8df0bbe82d0b8a0fc"
+      ],
+      "source_sha256": "0b6900533ead0aa35712936951802f92ca0acfcea2086926ce95ba3be18f7d70",
+      "text": "वह कंप्यूटर और लाइब्रेरी जिन पर रिपोर्ट बनी, बिना किसी नाम के।\n\nOS संस्करण, CPU आर्किटेक्चर और कोर, पूरे GB में गोल की गई मेमोरी, torch को पहले से ज्ञात GPU मॉडल और मेमोरी, CUDA या MPS, spaCR की प्रमुख लाइब्रेरी के संस्करण और spaCR की स्थापना का तरीका।\n\n:returns: वे तथ्य जिन्हें पढ़ा जा सका।",
+      "translation_source_blocks_sha256": [
+        "143cbf82508ad7d35f938c80c999116c856f8476d060195dec21d69ba4a7e482",
+        "18df698a2ebe90392af36b917af48c3fbe52abd868620e90762adfa8c1784929",
+        "d1bdabe97177a2c46f2bbc056f1c432ac114a6d69cc386f8df0bbe82d0b8a0fc"
+      ]
+    },
+    "spacr.crashreport.public_input_facts": {
+      "source_blocks_sha256": [
+        "986a0c95208b374ac3ccc585d3789f048ceb98464a78941b7b7586f50887c9a4",
+        "4e38c3ca51f64ad8de1aa6826a84c001a5750c218aff2f4d2857d09d23db7186",
+        "47556d964a95f3093bf8718305cef4eddb19b1796af90a7dc7c2c240312a49c2",
+        "8b1d0678f203d982a1b6c1c354631c33bc7201afc8bd9e483829df9cef396e83",
+        "208123e84fdf833418eab4a88a0197014add4bd0d7ea41f0b1da802d93b0f755"
+      ],
+      "source_sha256": "287551a254e77f1f6a93afa2d5199d5a7a945f3f67baeeebc408aab34516f588",
+      "text": "प्रोसेसिंग रन के स्रोत फ़ोल्डर की सामग्री, बिना किसी नाम के।\n\nफ़ोल्डर में सीधे मौजूद इमेज फ़ाइलें गिनता है (अधिकतम ``limit`` प्रविष्टियाँ देखी जाती हैं), मिले हुए एक्सटेंशन और पहली इमेज के हेडर से उसका आकार, dtype तथा संभावित इमेज चैनल संख्या पढ़ता है।\n\n:param settings: प्रोसेसिंग रन की सेटिंग्स।\n:param limit: देखी जाने वाली फ़ोल्डर प्रविष्टियों की अधिकतम संख्या।\n:returns: ``{\"images\", \"extensions\", \"shape\", \"dtype\", \"channels\"}``, केवल मिली हुई कुंजियाँ; पढ़ने योग्य फ़ोल्डर न होने पर ``{}``।",
+      "translation_source_blocks_sha256": [
+        "b6b0b460ca4919cfebb00b60e16f967dc418f2eb81411dec561fb9671ac320b3",
+        "ff273b1d006bed98372d7b12c953c9f4af0b2ee3698ad5ba67a9ad80bea77bd3",
+        "8cbfeb030f1184e19608a592846fcd11e669c7f28593d7c17303b3a52a66604d",
+        "8b1d0678f203d982a1b6c1c354631c33bc7201afc8bd9e483829df9cef396e83",
+        "208123e84fdf833418eab4a88a0197014add4bd0d7ea41f0b1da802d93b0f755"
+      ]
+    },
+    "spacr.crashreport.public_log_tail": {
+      "source_blocks_sha256": [
+        "8d91911ebf8c718a211495f2539f64503018be20ddf551daf804dd034d95b8f6",
+        "34e9d50a201b2222e430d77acf4e9661d49f04a897f97452982965307c0e7fc8",
+        "b963ea1bb8ca7170b5aba9688123fe680dcd157069c67c3dcec738c13e1d5c4d",
+        "f6dec1a4dbc936c496b836e3762740643bf24ce898cc7c502926d0f994b36b99",
+        "ba586c5534c232a5db9d1a95c98215a0cb8137449ccce7bf6c42335649650bfa"
+      ],
+      "source_sha256": "442d5b9ff98fead36e2a4787c6e5e6eeaf5372f4e621d9a2d9df05e9ac2ef696",
+      "text": "विफलता से पहले कंसोल की अंतिम पंक्तियाँ, संवेदनशील जानकारी हटाकर और काटकर।\n\n:param text: कंसोल का पाठ।\n:param lines: अंत से रखी जाने वाली पंक्तियों की अधिकतम संख्या।\n:param limit: अंत से रखे जाने वाले वर्णों की अधिकतम संख्या।\n:returns: संवेदनशील जानकारी हटाया गया अंश।",
+      "translation_source_blocks_sha256": [
+        "8d91911ebf8c718a211495f2539f64503018be20ddf551daf804dd034d95b8f6",
+        "34e9d50a201b2222e430d77acf4e9661d49f04a897f97452982965307c0e7fc8",
+        "b963ea1bb8ca7170b5aba9688123fe680dcd157069c67c3dcec738c13e1d5c4d",
+        "f6dec1a4dbc936c496b836e3762740643bf24ce898cc7c502926d0f994b36b99",
+        "ba586c5534c232a5db9d1a95c98215a0cb8137449ccce7bf6c42335649650bfa"
+      ]
+    },
+    "spacr.crashreport.public_problem_lines": {
+      "source_blocks_sha256": [
+        "f33f611684db36ff26fe84c795732cd7c4cd23ab1cfcaf3ba1a3204d6662923d",
+        "8589f473cc0aaa5c63406e177c2791c9d0e66b9e760f82b1969af0c60956447c",
+        "b7b5fc741ae265a1cb0bb3334d2e5fd91e771cba76304099b9cdf61db58f2151",
+        "cc95cecde657def27f1b55201193938840c7c59a9cd7a1c4eed12c46e95b94ce",
+        "b4ae9684325b53d0dc33a0158c3d79fb2a387194463b1fe0e6cb40fdd6416bc2"
+      ],
+      "source_sha256": "7d60796cd03087fe224d38640cfd204367435cf1d776b86685338ec14e5b81d2",
+      "text": "सेटिंग्स की समस्याओं से संवेदनशील जानकारी हटाकर प्रकाशित करने योग्य छोटी पंक्तियाँ बनाना।\n\nपथ और फ़ाइल नाम बदले नहीं बल्कि हटाए जाते हैं, इसलिए \"src does not exist: /data/plate1\" को \"src does not exist\" के रूप में भेजा जाता है।\n\n:param problems: :class:`spacr.validate.Problem` ऑब्जेक्ट या पाठ।\n:param limit: पंक्ति की अधिकतम लंबाई, वर्णों में।\n:returns: प्रति समस्या एक पंक्ति, समस्या में सेटिंग का नाम होने पर ``\"setting: message\"``; दोहराव और खाली पंक्तियाँ हटा दी जाती हैं।",
+      "translation_source_blocks_sha256": [
+        "f33f611684db36ff26fe84c795732cd7c4cd23ab1cfcaf3ba1a3204d6662923d",
+        "8589f473cc0aaa5c63406e177c2791c9d0e66b9e760f82b1969af0c60956447c",
+        "b7b5fc741ae265a1cb0bb3334d2e5fd91e771cba76304099b9cdf61db58f2151",
+        "cc95cecde657def27f1b55201193938840c7c59a9cd7a1c4eed12c46e95b94ce",
+        "b4ae9684325b53d0dc33a0158c3d79fb2a387194463b1fe0e6cb40fdd6416bc2"
+      ]
+    },
+    "spacr.crashreport.public_settings": {
+      "source_blocks_sha256": [
+        "c34105192fc3c673ec09a16c0589c3ab498c920697acc3401b9f1b2e478d5193",
+        "c2609f0c61dbfd640dc74eac4a0b4f1ac3cc29da90d1743cb7b59d54c9cc676b",
+        "47556d964a95f3093bf8718305cef4eddb19b1796af90a7dc7c2c240312a49c2",
+        "c25d4209c8659dfaf15de261c10316befee090b8885e2b244ee41d7a5667b792"
+      ],
+      "source_sha256": "90527e1e023312ec4e1e157eb3bf4ce99e4a413565f7e47f4e8c6c012a0200e5",
+      "text": "प्रोसेसिंग रन में उपयोग की गई सेटिंग्स, जिनमें कोई व्यक्तिगत जानकारी शेष नहीं रहती।\n\nसेटिंग्स के नाम ज्यों के त्यों रखे जाते हैं; मान :func:`_public_setting_value` से गुज़रते हैं, इसलिए फ़ोल्डर न होने पर ``src`` उसके नाम के बिना ``<path: exists=no>`` दिखाता है। नाम के क्रम में अधिकतम :data:`MAX_SETTINGS` सेटिंग्स।\n\n:param settings: प्रोसेसिंग रन की सेटिंग्स।\n:returns: ``{name: value}``.",
+      "translation_source_blocks_sha256": [
+        "f6499777e18795002c1f228608b661dc42ddf84570cbfb9d96c63e7092eab03e",
+        "c2609f0c61dbfd640dc74eac4a0b4f1ac3cc29da90d1743cb7b59d54c9cc676b",
+        "8cbfeb030f1184e19608a592846fcd11e669c7f28593d7c17303b3a52a66604d",
+        "c25d4209c8659dfaf15de261c10316befee090b8885e2b244ee41d7a5667b792"
+      ]
+    },
+    "spacr.crashreport.public_summary": {
+      "source_blocks_sha256": [
+        "552617af2b167678afbb951fd4ac2f2c7320d101154e8dedaed86b872ebdf076",
+        "c3b7eb8820126de0b319bcc04c1d421425d97cc6122ee4756d56397e44be4326",
+        "7b2a9096c72b5305a2d3ce1966b62885d376f5b393a2b63ecc58802c84a0ddb7",
+        "0bc8a12f04c86ce745abf2ae3bfaea4242fbc5ede43b65a5e270d29ce93f4109",
+        "a7ac770cdac6cb39dd33f45d923b488ce85f5687d6c64122801e3320643a6643",
+        "b9446029dff846f1cf09f9601d63cd086e726da8976b5cdc0e1795c356960f16",
+        "73218bc6b24dc0d5d3c6039a100e31af256c8cb76db00e1102eb6024646c1c4b",
+        "9c14e5904446bde5cd0a8897edccf8ebf9025dd0674726871575984c29ca661c",
+        "9e1051e5033f4155433b7ab10fd44dfc6fe22ed04d050769aca2b2a9e57dec70",
+        "558bb46dae77b3bdf1b5924eaac436cc52a3182a382d3df16fb29f6e1a0ef059",
+        "ba1077179bedb029d7a2ca098716e1b44f4e9d2350e9024f62fc4f68f8a644c8",
+        "33b592719332b1e0608f2172fe8715caacc14beb67bde2d80f755f90272be6ca",
+        "ca1f09810e6eddac5afe5b26732da35429a00d5f51c36a7afa9611ff89eeb244",
+        "a9377aabfeed8d672d3197583e9c2a0e5d5de04bad7d15176fb0e8a760e1f1c0",
+        "97f5adcf4fe6581fd4ea8471715b00997dd39eff5b13aaf2b14636c440a72204",
+        "865a509d4d5a53b0189e5cb0f2f7fcee4a61625ad6e1d6d6eab9e1a9291f99e1",
+        "fcdaad60554b1a24419b64f901370c942b794d32d2c472885deb64beee091182"
+      ],
+      "source_sha256": "9dee6cbe285403aa8ffe3d3e6914851e3b428124ce150b2614f6b377f2d27537",
+      "text": "प्रकाशित की जा सकने वाली त्रुटि का अनाम सारांश बनाना।\n\nकेवल :data:`PUBLIC_SUMMARY_KEYS` की कुंजियाँ मौजूद होती हैं। संदेश :func:`scrub_public_text` से गुज़रकर :data:`MAX_MESSAGE_CHARS` तक काटा जाता है; कॉल स्टैक फ़्रेम अधिकतम :data:`MAX_FRAMES` ``{file, function, line}`` रिकॉर्ड होते हैं, जिनमें फ़ाइल का मूल नाम होता है, या spaCR, Python और उसकी लाइब्रेरी से बाहर की फ़ाइल के लिए ``<user-code>`` होता है। इसमें कोई लॉग, सेटिंग, पर्यावरण चर या पथ पढ़कर नहीं डाला जाता।\n\n:param exception: अपवाद और उसका ट्रेसबैक।\n:param traceback_text: अपवाद ऑब्जेक्ट उपलब्ध न होने पर उपयोग किया जाने वाला स्वरूपित ट्रेसबैक (विफल पाइपलाइन रन इसे पाठ के रूप में रिपोर्ट करता है)।\n:param module: वह spaCR मॉड्यूल कुंजी जिसमें त्रुटि हुई, जैसे ``mask`` या ``measure``।\n:param user_note: उपयोगकर्ता द्वारा जोड़ी गई सामग्री, संवेदनशील जानकारी हटाकर :data:`MAX_NOTE_CHARS` तक काटी गई; खाली होने पर छोड़ी जाती है।\n:param dry_run: रिपोर्ट दर्ज किए बिना सत्यापन करने के लिए रिले से कहना; असत्य होने पर छोड़ा जाता है।\n:param kind: :data:`KIND_FAULT` या :data:`KIND_USER_ERROR`; खाली होने पर :func:`classify_failure` से निर्धारित।\n:param code_context: हर spaCR कॉल फ़्रेम की स्रोत पंक्ति को ``code`` के रूप में जोड़ना। किसी अन्य फ़ाइल के फ़्रेम में कभी कोड नहीं जोड़ा जाता।\n:param screen: उपयोगकर्ता को दिखाई देने वाला स्क्रीन शीर्षक, जैसे ``Mask``; अधिकतम :data:`MAX_SCREEN_CHARS` वर्ण।\n:param error_text: कंसोल में दिखाई गई त्रुटि, संवेदनशील जानकारी हटाकर और पंक्ति विराम रखते हुए :data:`MAX_ERROR_TEXT_CHARS` तक काटी गई।\n:param message: अपवाद के अपने संदेश की जगह भेजा जाने वाला संदेश, जैसे किसी अस्वीकृत रन में मिली सभी समस्याएँ; उपयोगकर्ता त्रुटि अपने पंक्ति विराम रखती है और :data:`MAX_USER_ERROR_MESSAGE_CHARS` वर्ण लंबी हो सकती है।\n:param settings: प्रोसेसिंग रन की सेटिंग्स; उनके नाम और सार्वजनिक मान (:func:`public_settings`) तथा स्रोत फ़ोल्डर के इनपुट तथ्य (:func:`public_input_facts`) जोड़े जाते हैं।\n:param log_text: विफलता से पहले का कंसोल पाठ; उसकी अंतिम पंक्तियाँ संवेदनशील जानकारी हटाकर जोड़ी जाती हैं (:func:`public_log_tail`)।\n:param run: विफल प्रोसेसिंग रन का ``{\"stage\", \"elapsed_s\", \"dry_run\"}``।\n:param diagnostics: पर्यावरण ब्लॉक (:func:`public_environment`) और अपवाद शृंखला जोड़ना।\n:returns: :func:`submit_public_summary` के लिए तैयार सारांश।",
+      "translation_source_blocks_sha256": [
+        "552617af2b167678afbb951fd4ac2f2c7320d101154e8dedaed86b872ebdf076",
+        "d8b6d9809e3518a178adf267e6c329c6f248555314c6d093467bd1a3d7145a9f",
+        "7b2a9096c72b5305a2d3ce1966b62885d376f5b393a2b63ecc58802c84a0ddb7",
+        "dc24cdd0a8caf73b36a67bba0e00ade5ea7d9bbcde6891cef1896c82f8952684",
+        "a7ac770cdac6cb39dd33f45d923b488ce85f5687d6c64122801e3320643a6643",
+        "b9446029dff846f1cf09f9601d63cd086e726da8976b5cdc0e1795c356960f16",
+        "73218bc6b24dc0d5d3c6039a100e31af256c8cb76db00e1102eb6024646c1c4b",
+        "9c14e5904446bde5cd0a8897edccf8ebf9025dd0674726871575984c29ca661c",
+        "9e1051e5033f4155433b7ab10fd44dfc6fe22ed04d050769aca2b2a9e57dec70",
+        "558bb46dae77b3bdf1b5924eaac436cc52a3182a382d3df16fb29f6e1a0ef059",
+        "ba1077179bedb029d7a2ca098716e1b44f4e9d2350e9024f62fc4f68f8a644c8",
+        "33b592719332b1e0608f2172fe8715caacc14beb67bde2d80f755f90272be6ca",
+        "22400d6ef00b15497ccf2cc081aa6fb0b01d6b5b8009c10a93fb95a230c62ca9",
+        "a9377aabfeed8d672d3197583e9c2a0e5d5de04bad7d15176fb0e8a760e1f1c0",
+        "2e6dddc7c10801ce9e4f20e84f6184cd89a44f15edbaf6f0211e2744de61e222",
+        "865a509d4d5a53b0189e5cb0f2f7fcee4a61625ad6e1d6d6eab9e1a9291f99e1",
+        "fcdaad60554b1a24419b64f901370c942b794d32d2c472885deb64beee091182"
+      ]
+    },
+    "spacr.crashreport.question_key": {
+      "source_blocks_sha256": [
+        "05fed47f6d1de504bfe09d0bf7651c09dd5a1aafbed254ca41bed1715d356a14",
+        "9ea846a8c806fae26730dac71ac0808afada88d86894dd298c043596416e21c2",
+        "84d186ddcdde56653cd4aeb0e692a25d797bda21469a190bebdcff3377aaf8f8",
+        "d02fb2680a955047b4370421b7c80f2c509fd8062686e6abcf7ed5667ea964e4",
+        "0387530ec68234cb3df513587597db84b4008919da25c9d3904a8eb533b873b7",
+        "1f0dc14b914d2ddcbbad0d1a3027f8067b5a49f5c483fd6e2dd53069ed211a86"
+      ],
+      "source_sha256": "45bcfbe21202e8b0dd3f46d708cce163f714a466f901d8881a067d4043faa3a3",
+      "text": "वह कुंजी जिसके अंतर्गत प्रश्न का सहेजा हुआ उत्तर रखा जाता है, या ``\"\"``।\n\nसंवेदनशील जानकारी हटाए और सामान्यीकृत प्रश्न, पूछे जाने के स्थान (ऐप स्क्रीन या मॉड्यूल) और spaCR के ``major.minor`` का SHA-256, ``q:`` उपसर्ग सहित। प्रश्न और चिपकाए गए संदर्भ में कुल :data:`QUESTION_CACHE_CONTEXT_MAX` से अधिक वर्ण होने पर प्रश्न कभी सहेजा नहीं जाता।\n\n:param question: उपयोगकर्ता ने क्या पूछा।\n:param place: वह स्क्रीन या मॉड्यूल जहाँ प्रश्न पूछा गया।\n:param context_chars: साथ में चिपकाए गए कंसोल संदर्भ, कोड या ट्रेसबैक के वर्णों की संख्या।\n:returns: कुंजी, या उत्तर सहेजने की अनुमति न होने पर ``\"\"``।",
+      "translation_source_blocks_sha256": [
+        "05fed47f6d1de504bfe09d0bf7651c09dd5a1aafbed254ca41bed1715d356a14",
+        "aeadbd86541c7af4b9fc3219532385ea5866b6f98dcec7d12ec404e34447aecc",
+        "84d186ddcdde56653cd4aeb0e692a25d797bda21469a190bebdcff3377aaf8f8",
+        "d02fb2680a955047b4370421b7c80f2c509fd8062686e6abcf7ed5667ea964e4",
+        "0387530ec68234cb3df513587597db84b4008919da25c9d3904a8eb533b873b7",
+        "1f0dc14b914d2ddcbbad0d1a3027f8067b5a49f5c483fd6e2dd53069ed211a86"
+      ]
+    },
+    "spacr.crashreport.queued_summaries": {
+      "source_blocks_sha256": [
+        "b056272264320ce5219beb1da9712a5967c6924853f0f78ec22f73219a9f5b1b",
+        "bacc48839eab27b77f601a8d37432a109de81830de8d5b956156d1c427974d8a",
+        "1cab404dcb1da244b822e30546c57e2f68804a00c7c6f7d528cda6b7b83b6135"
+      ],
+      "source_sha256": "b1229b6d3f587a65cf1499208964e2ee29834241e99220ac42f71bdf11fb92f2",
+      "text": "भेजे जाने की प्रतीक्षा कर रही रिपोर्टें लौटाना, सबसे पुरानी पहले।\n\nसमयसीमा पार और अतिरिक्त रिपोर्टें पहले हटा दी जाती हैं।\n\n:returns: सारांश।",
+      "translation_source_blocks_sha256": [
+        "b056272264320ce5219beb1da9712a5967c6924853f0f78ec22f73219a9f5b1b",
+        "bacc48839eab27b77f601a8d37432a109de81830de8d5b956156d1c427974d8a",
+        "1cab404dcb1da244b822e30546c57e2f68804a00c7c6f7d528cda6b7b83b6135"
+      ]
+    },
+    "spacr.crashreport.relay_url": {
+      "source_blocks_sha256": [
+        "2643cf59ddd0a37fa3191993bcc713054dc7f5d9a00d21bd95797709f5f7b61b",
+        "6f839863e220adff39a290f740c1f73b242be563403fbc36fd61ddb8def6e87c",
+        "9cc379f36f3768e8b53cb6e76a8e861f5f2bd8bb2dbaeb759fefec4efeda1ae1"
+      ],
+      "source_sha256": "e376098bcff2f96d488cfd56564de1885a5db30e7a4ba203e60f0134ca027c71",
+      "text": "रिपोर्ट भेजे जाने वाला रिले पता लौटाना, अंतिम स्लैश के बिना।\n\n:data:`REPORT_RELAY_ENV` से :data:`REPORT_RELAY_URL` अधिलेखित होता है, यदि पहले में ``https://`` पता या इस कंप्यूटर का ``http://`` पता हो।\n\n:returns: आधार पता।",
+      "translation_source_blocks_sha256": [
+        "2643cf59ddd0a37fa3191993bcc713054dc7f5d9a00d21bd95797709f5f7b61b",
+        "6f839863e220adff39a290f740c1f73b242be563403fbc36fd61ddb8def6e87c",
+        "9cc379f36f3768e8b53cb6e76a8e861f5f2bd8bb2dbaeb759fefec4efeda1ae1"
       ]
     },
     "spacr.crashreport.report_exception": {
@@ -15950,6 +16450,188 @@
         "7e71dcd0c53d3a23021f464d859d3eae5865a6a8e8fce7d716a1408a15e599b8",
         "81b3e0584a0bedba56cb4a9f54589d712dd996f8479933ad5fcb754893d8e2e1",
         "f03cf812437fd58e4d2bf1ee89c5da75a8862b75bdf2e4ac794f3aeac558fd7e"
+      ]
+    },
+    "spacr.crashreport.save_explanation": {
+      "source_blocks_sha256": [
+        "28af111d7f1e7625d8491505cb1f361219dde8ab663dac5f7c05ae056d42113a",
+        "5cee2ec77eb14a9170d8df3b5e021c573142ec50c19e258d7d7f2fde494d2151",
+        "40de8b97923d2ee09926fe063c4581621449d520d52cc191f3b8c0cf1a8f4330",
+        "3cd67d36dbdb5c54f555816574478caa8693d95a94cbf617de5117c4dd1adf11",
+        "73d3ef4042444ab329f10847cfff66ae72139d8c664b4a185ee004e90abe1283",
+        "d687ba373e4443cce4b6faa8c09ab6ea775b2d37bb8dbbea5569c8a661f8047a",
+        "4658ef7ae85b97fe9246a25c1180601e52754502237b23bebb3761627f3ab50f",
+        "578c9fff753df34a1750f53d74bcbf0f3308c09bd9864d93a8c4a7459a7a4910"
+      ],
+      "source_sha256": "bc4544d16e629eb1d4960bd3d4a0a458dc2faaee990090a5524178723d30089d",
+      "text": "अगली समान त्रुटि के लिए इस कंप्यूटर पर एक व्याख्या रखना।\n\nअधिकतम :data:`MAX_SAVED_EXPLANATIONS` रखी जाती हैं, सबसे पुरानी पहले हटती हैं और हर लेखन पर समयसीमा पार प्रविष्टियाँ हटती हैं। लिखने की विफलता अनदेखी की जाती है।\n\n:param signature: :func:`explanation_signature` से।\n:param text: संवेदनशील जानकारी हटाई गई व्याख्या।\n:param tier: ``\"best\"``, ``\"light\"`` या ``\"\"``।\n:param model: उसे लिखने वाला मॉडल, यदि ज्ञात हो।\n:param now: एपॉक से बीते सेकंडों में समय; डिफ़ॉल्ट अभी का समय।\n:param cause: AI द्वारा दी गई संभावित कारण कुंजी, यदि हो।",
+      "translation_source_blocks_sha256": [
+        "28af111d7f1e7625d8491505cb1f361219dde8ab663dac5f7c05ae056d42113a",
+        "5cee2ec77eb14a9170d8df3b5e021c573142ec50c19e258d7d7f2fde494d2151",
+        "40de8b97923d2ee09926fe063c4581621449d520d52cc191f3b8c0cf1a8f4330",
+        "3cd67d36dbdb5c54f555816574478caa8693d95a94cbf617de5117c4dd1adf11",
+        "73d3ef4042444ab329f10847cfff66ae72139d8c664b4a185ee004e90abe1283",
+        "d687ba373e4443cce4b6faa8c09ab6ea775b2d37bb8dbbea5569c8a661f8047a",
+        "4658ef7ae85b97fe9246a25c1180601e52754502237b23bebb3761627f3ab50f",
+        "578c9fff753df34a1750f53d74bcbf0f3308c09bd9864d93a8c4a7459a7a4910"
+      ]
+    },
+    "spacr.crashreport.saved_explanation": {
+      "source_blocks_sha256": [
+        "65f26e02cd937dc8a78205f66e6d39e018916ac3dee8ff1e245ad8d807702e4e",
+        "daed287218203e4c13f41fea45f0d9a107de749d2bd3d5bb751446f2306c4456",
+        "40de8b97923d2ee09926fe063c4581621449d520d52cc191f3b8c0cf1a8f4330",
+        "4658ef7ae85b97fe9246a25c1180601e52754502237b23bebb3761627f3ab50f",
+        "2cbd351de9e1a53ce8ee85c86c3b979b278a3e6a025082fcc0baf254a5735e8b"
+      ],
+      "source_sha256": "1adeffa640bd39842a4345d2ee2713dbdd48fc17c0353927902aaa45e7c44d3c",
+      "text": "इस कंप्यूटर पर त्रुटि के लिए सहेजी गई व्याख्या, यदि अब भी मान्य हो।\n\nमान्य का अर्थ है कि यह spaCR के इसी ``major.minor`` के लिए :data:`SAVED_EXPLANATION_DAYS` से कम दिन पहले लिखी गई हो।\n\n:param signature: :func:`explanation_signature` से।\n:param now: एपॉक से बीते सेकंडों में समय; डिफ़ॉल्ट अभी का समय।\n:returns: ``{\"text\", \"tier\", \"model\"}``, या ``None``।",
+      "translation_source_blocks_sha256": [
+        "65f26e02cd937dc8a78205f66e6d39e018916ac3dee8ff1e245ad8d807702e4e",
+        "daed287218203e4c13f41fea45f0d9a107de749d2bd3d5bb751446f2306c4456",
+        "40de8b97923d2ee09926fe063c4581621449d520d52cc191f3b8c0cf1a8f4330",
+        "4658ef7ae85b97fe9246a25c1180601e52754502237b23bebb3761627f3ab50f",
+        "2cbd351de9e1a53ce8ee85c86c3b979b278a3e6a025082fcc0baf254a5735e8b"
+      ]
+    },
+    "spacr.crashreport.scrub_public_lines": {
+      "source_blocks_sha256": [
+        "044c2c542b75d6d3c72ccfc686475662df8fc6c8c4c15dac48455c00a9ee8dc9",
+        "572a872e35413edbd0762136e17009c113d835f577b1112fafc6c89c0a7eda56",
+        "abfe850b32d6d2a06dd4ccf1d0e6bb0c3cf51391b0c7f856714a8e6fcccfc5c5",
+        "c86f36468710a89d756e9b3144993fc419d724b98a141cbd56f2858db067841a",
+        "789d20d0dc60fece4bd441d129d1b20113b05ea3deaf7cb16907e8a285bcbf09",
+        "630081496e8b30d4ca7f2da4a78439e0bb77638e2b3978f802f966c3dd76905f"
+      ],
+      "source_sha256": "b2b97f15b653dcd38bd95aa31d3811c2dc1652ec453d180a363b542357787d24",
+      "text": ":func:`scrub_public_text` की तरह पाठ से संवेदनशील जानकारी हटाना, पर पंक्ति विराम बनाए रखना।\n\nहर पंक्ति अलग साफ़ की जाती है, जिससे Markdown उत्तर के शीर्षक और क्रमांकित चरण अलग पंक्तियों में रहते हैं; लगातार खाली पंक्तियाँ एक हो जाती हैं।\n\n:param text: पाठ; किसी अन्य मान को पहले पाठ में बदला जाता है।\n:param limit: परिणाम की अधिकतम लंबाई, वर्णों में; लंबे परिणाम को काटकर ``…`` से समाप्त किया जाता है।\n:param keep_docs_urls: जैसा :func:`scrub_public_text` में है।\n:returns: संवेदनशील जानकारी हटाया गया पाठ, जिसकी पंक्तियाँ ``\\n`` से जुड़ी हैं।",
+      "translation_source_blocks_sha256": [
+        "044c2c542b75d6d3c72ccfc686475662df8fc6c8c4c15dac48455c00a9ee8dc9",
+        "572a872e35413edbd0762136e17009c113d835f577b1112fafc6c89c0a7eda56",
+        "abfe850b32d6d2a06dd4ccf1d0e6bb0c3cf51391b0c7f856714a8e6fcccfc5c5",
+        "c86f36468710a89d756e9b3144993fc419d724b98a141cbd56f2858db067841a",
+        "789d20d0dc60fece4bd441d129d1b20113b05ea3deaf7cb16907e8a285bcbf09",
+        "630081496e8b30d4ca7f2da4a78439e0bb77638e2b3978f802f966c3dd76905f"
+      ]
+    },
+    "spacr.crashreport.scrub_public_text": {
+      "source_blocks_sha256": [
+        "9a20c78f64aa38bee2a204a30b26a482e1707ab252885c1ec7d5c88e293c0d7b",
+        "242aca94a2143e2e756248352bc9124e64680fd1b505ffb6f52333adf54a120f",
+        "abfe850b32d6d2a06dd4ccf1d0e6bb0c3cf51391b0c7f856714a8e6fcccfc5c5",
+        "c86f36468710a89d756e9b3144993fc419d724b98a141cbd56f2858db067841a",
+        "973a7237076f8172f936b4f03bd23d6190af0e03cbb131bd9210d64abd89851f",
+        "e195a696122793adb3b9e56035581cefa5265864a5dd595fbd4906954a1dcb7b"
+      ],
+      "source_sha256": "60938f5faca29a98d1d190efd71d99db50ad4a0266c584a1341e8ee0009a6556",
+      "text": "प्रकाशित होने वाले छोटे पाठ से व्यक्तिगत जानकारी हटाना।\n\nनिरपेक्ष पथ (POSIX, Windows और नेटवर्क शेयर) ``<PATH>`` बनते हैं, डेटा या कोड एक्सटेंशन वाले फ़ाइल नाम ``<FILE>``, ईमेल पते ``<EMAIL>``, वेब पते ``<URL>``, IP पते ``<IP>``, होस्ट नाम ``<HOST>``, इस कंप्यूटर का लॉगिन नाम ``<USER>`` और कुंजी, टोकन या लंबी हेक्साडेसिमल या base64 स्ट्रिंग जैसी कोई भी चीज़ ``<TOKEN>`` बनती है। :mod:`spacr.qt.ai.issue_report` के संवेदनशील जानकारी हटाने वाले सहायक पहले चलते हैं, और ये सख़्त नियम बाद में।\n\n:param text: पाठ; किसी अन्य मान को पहले पाठ में बदला जाता है।\n:param limit: परिणाम की अधिकतम लंबाई, वर्णों में; लंबे परिणाम को काटकर ``…`` से समाप्त किया जाता है।\n:param keep_docs_urls: दस्तावेज़ के लिंक वाले AI उत्तर के लिए :data:`PUBLIC_DOCS_URLS` में दिए गए सार्वजनिक spaCR पते रखना; अन्य हर पता फिर भी ``<URL>`` बनता है।\n:returns: एक पंक्ति में संवेदनशील जानकारी हटाया गया पाठ।",
+      "translation_source_blocks_sha256": [
+        "9a20c78f64aa38bee2a204a30b26a482e1707ab252885c1ec7d5c88e293c0d7b",
+        "242aca94a2143e2e756248352bc9124e64680fd1b505ffb6f52333adf54a120f",
+        "abfe850b32d6d2a06dd4ccf1d0e6bb0c3cf51391b0c7f856714a8e6fcccfc5c5",
+        "c86f36468710a89d756e9b3144993fc419d724b98a141cbd56f2858db067841a",
+        "973a7237076f8172f936b4f03bd23d6190af0e03cbb131bd9210d64abd89851f",
+        "e195a696122793adb3b9e56035581cefa5265864a5dd595fbd4906954a1dcb7b"
+      ]
+    },
+    "spacr.crashreport.scrub_public_text._hold": {
+      "source_blocks_sha256": [
+        "d763eca478e72701158eb7a75ffcacd94fa6e7e0f0184644fe976d0ca8f3f643"
+      ],
+      "source_sha256": "d763eca478e72701158eb7a75ffcacd94fa6e7e0f0184644fe976d0ca8f3f643",
+      "text": "सार्वजनिक spaCR पता अलग रखना; अन्य हर पता <URL> बनता है।",
+      "translation_source_blocks_sha256": [
+        "d763eca478e72701158eb7a75ffcacd94fa6e7e0f0184644fe976d0ca8f3f643"
+      ]
+    },
+    "spacr.crashreport.set_anonymous_reports_enabled": {
+      "source_blocks_sha256": [
+        "95d2c3ef6e990ecca25ec967247e73eb4864bb2854839d4a971765cf7a93d9cf",
+        "ecf85b592f7e7cde56182557c97755b5596dc130a517a9335f19386e115c001d",
+        "786370d266e12ef723275f1b6cfc161ed58f8c76fdbc3329f7ef9ed6c9338342"
+      ],
+      "source_sha256": "c1733374423ede60015b9adde6dab9c2b15931d19d44685e7595fddbdd09cf31",
+      "text": "पहली बार चलने की सूचना के स्विच की तरह रिपोर्टें चालू या बंद करना।\n\nमौजूदा चयन कुछ नहीं भेजता हो तो चालू करना डिफ़ॉल्ट चयन बहाल करता है; बंद ``\"off\"`` है।\n\n:param enabled: क्या रिपोर्टें भेजी जा सकती हैं।",
+      "translation_source_blocks_sha256": [
+        "95d2c3ef6e990ecca25ec967247e73eb4864bb2854839d4a971765cf7a93d9cf",
+        "ecf85b592f7e7cde56182557c97755b5596dc130a517a9335f19386e115c001d",
+        "786370d266e12ef723275f1b6cfc161ed58f8c76fdbc3329f7ef9ed6c9338342"
+      ]
+    },
+    "spacr.crashreport.set_error_report_mode": {
+      "source_blocks_sha256": [
+        "d6b15c793c173b843de9a4a73d89e8a79f5b90c28ae1811a71aa80c7955001bd",
+        "1f35a978f781b0cc430311c9a296897cdcfeea0740e6ebc268ce6cdc4841d5d4",
+        "be6a6d280a6b058be3544def3e4210f5d2cb25662713b1870faaccf6d008b3a3",
+        "a7d32480e0d70e60b85e0944abdf7d31b7930e4c8e72c6108881ab41ce3cf9d4"
+      ],
+      "source_sha256": "a9df70e5bc023d295da9b5e05b8c7e2606bd48dc5b79493b313dfe0dd62eee81",
+      "text": "\"AI Error report\" चयन सहेजना।\n\nकुछ न भेजने वाला चयन सभी प्रतीक्षारत रिपोर्टें भी हटा देता है, ताकि बदलाव से पहले कतार में डाली गई कोई चीज़ उसके बाद न भेजी जाए।\n\n:param mode: :data:`ERROR_REPORT_MODES` की कोई कुंजी।\n:raises ValueError: किसी अन्य मान के लिए।",
+      "translation_source_blocks_sha256": [
+        "d6b15c793c173b843de9a4a73d89e8a79f5b90c28ae1811a71aa80c7955001bd",
+        "1f35a978f781b0cc430311c9a296897cdcfeea0740e6ebc268ce6cdc4841d5d4",
+        "be6a6d280a6b058be3544def3e4210f5d2cb25662713b1870faaccf6d008b3a3",
+        "a7d32480e0d70e60b85e0944abdf7d31b7930e4c8e72c6108881ab41ce3cf9d4"
+      ]
+    },
+    "spacr.crashreport.split_cause": {
+      "source_blocks_sha256": [
+        "a2af4a441bd10c00605a30dc46a6e968e14b696fb3e79e50879289c70682f6e1",
+        "c25598ce29eb49f0eb16db61102477ce0725079b4035506ba3c89f44d01470ab",
+        "dccc0ce46d3d6e6d24f6290cd306a77e51df8ffd58a31ad9835c3ee7d04649a2"
+      ],
+      "source_sha256": "17cbac26346bd39d2d85203072a9f30ea585860ee6233cc7aed19dac53526809",
+      "text": "AI उत्तर से ``CAUSE: <slug>`` पंक्ति हटाना।\n\n:param text: उत्तर।\n:returns: ``(answer without the line, slug or \"\")``.",
+      "translation_source_blocks_sha256": [
+        "a2af4a441bd10c00605a30dc46a6e968e14b696fb3e79e50879289c70682f6e1",
+        "c25598ce29eb49f0eb16db61102477ce0725079b4035506ba3c89f44d01470ab",
+        "dccc0ce46d3d6e6d24f6290cd306a77e51df8ffd58a31ad9835c3ee7d04649a2"
+      ]
+    },
+    "spacr.crashreport.submit_public_summary": {
+      "source_blocks_sha256": [
+        "382e7b5f1e8c6056b58bdbfc06309644cc1ff9acd0dbc9c17244bc221310c430",
+        "57ebc2ab058cc17613889817a361e7c87e8851bf74448d32ed8d9be852a753ae",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "389173d0defedcb66feb4928b42cb19e79b7ad87bb97b0cc657d640549252f0a",
+        "87a2f759eb6a0daa0e6f0f9ea1802a911c1994fa6914be92fad0f165329b74c7"
+      ],
+      "source_sha256": "0a8f97213024263941413ffc0ff78c595ad2961b96eac11b5c36b4408bb621f3",
+      "text": "अनाम सारांश रिले को भेजना या बाद के लिए कतार में रखना।\n\nअधिकतम ``timeout`` सेकंड तक अवरुद्ध करता है, इसलिए इसे GUI थ्रेड से बाहर बुलाएँ या :func:`submit_public_summary_in_background` उपयोग करें। रिपोर्टें बंद या नेटवर्क निषिद्ध होने पर न कुछ भेजा जाता है, न सहेजा जाता है।\n\n:param summary: :func:`public_summary` से मिला सारांश।\n:param timeout: पोस्ट अनुरोध में लग सकने वाले सेकंड।\n:returns: ``{\"status\": ...}`` में :data:`REPORT_SENT` (और ``issue_number``, ``issue_url``, ``deduplicated``), :data:`REPORT_QUEUED` (पुनः प्रयास के लिए रखा गया), :data:`REPORT_DROPPED` (अस्वीकृत, दोबारा प्रयास नहीं) या :data:`REPORT_DISABLED`।",
+      "translation_source_blocks_sha256": [
+        "73b32601f94ea6107ab521daf7b6314432901d566f4af3a25e3cf9ac3d6047b5",
+        "88319a64b46a428f0eb5a795a1cbe1bdc011c8ac88e36e16bd858fc676b4d364",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "389173d0defedcb66feb4928b42cb19e79b7ad87bb97b0cc657d640549252f0a",
+        "87a2f759eb6a0daa0e6f0f9ea1802a911c1994fa6914be92fad0f165329b74c7"
+      ]
+    },
+    "spacr.crashreport.submit_public_summary_in_background": {
+      "source_blocks_sha256": [
+        "fb1a33d40b8fdd3d215d1ca9fb04ce19c060f866a688544fe338b5de73f4b130",
+        "29057a83dbc25266a4744ca6f7dceab48395d2d30d362e1b56f0cae3d281dd43",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "59fa48e3625e88f44f061d79ab200d8f87ad674d1b3fc8d2a383fd0fd13e2770",
+        "ccaf8e68db46d0314aa7aa7b49ca7d605921f48766523aba0a54d7269aa23617"
+      ],
+      "source_sha256": "278609c44d278c1df1707cedf7f7a5e8673d06d7ae8bd3fc4fa99f8480eb9ae8",
+      "text": "सारांश अभी प्रतीक्षा-सूची में रखना और डेमन थ्रेड पर भेजना।\n\nलौटने से पहले सारांश डिस्क पर होता है, इसलिए प्रक्रिया तुरंत समाप्त हो जाए तो भी spaCR के अगले आरंभ पर इसे भेजा जाता है।\n\n:param summary: :func:`public_summary` से मिला सारांश।\n:param on_done: भेजने वाले थ्रेड पर :func:`submit_public_summary` में वर्णित परिणाम के साथ बुलाया जाता है।\n:returns: थ्रेड, या रिपोर्टें बंद हों और कुछ कतार में न हो तो ``None``।",
+      "translation_source_blocks_sha256": [
+        "afa05cf0a464330bf279539423117d48b6c2dcad4cfb2e295b517e18b6a60bf4",
+        "29057a83dbc25266a4744ca6f7dceab48395d2d30d362e1b56f0cae3d281dd43",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "59fa48e3625e88f44f061d79ab200d8f87ad674d1b3fc8d2a383fd0fd13e2770",
+        "ccaf8e68db46d0314aa7aa7b49ca7d605921f48766523aba0a54d7269aa23617"
+      ]
+    },
+    "spacr.crashreport.submit_public_summary_in_background._run": {
+      "source_blocks_sha256": [
+        "605bdaccd80f6f5c2cda0f9893616bee655836a4ae9691bd521805764c32d9f3"
+      ],
+      "source_sha256": "605bdaccd80f6f5c2cda0f9893616bee655836a4ae9691bd521805764c32d9f3",
+      "text": "कतार वाला सारांश भेजना और परिणाम ``on_done`` को देना।",
+      "translation_source_blocks_sha256": [
+        "605bdaccd80f6f5c2cda0f9893616bee655836a4ae9691bd521805764c32d9f3"
       ]
     },
     "spacr.crashreport.write_crash_report": {
@@ -69882,7 +70564,7 @@
         "d20401cbc04912fdc3ae5dd5ab13f63f954eb0d87e4add83625ca92fc47267df"
       ],
       "source_sha256": "84e3ec32134c41e18e88245597fa134ee01ef05a987df96cf27d3971a8f02060",
-      "text": "फ़ाइल / फ़ोल्डर नामों को एक पहले से ही स्वच्छ रिपोर्ट से हटा दें।\n\nसामान्य सैनिटाइज़र होम निर्देशिका को संक्षिप्त करता है ताकि traceback उपयोगी बना रहे। सार्वजनिक रिपोर्ट डिफ़ॉल्ट रूप से अधिक सख़्त रूप का उपयोग करती हैं: traceback के फ़ाइल फ़ील्ड, उद्धृत पथ मान और शेष निरपेक्ष पथ-जैसे टोकन ``<PATH>`` बन जाते हैं। पूर्वावलोकन उपयोगकर्ता को भेजने से पहले उपयोगी नाम बहाल करने देता है; issue रिपोर्टिंग 'always' पर सेट होने पर कोई पूर्वावलोकन नहीं होता, इसलिए यह जो छोड़ता है वही प्रकाशित होता है।\n\nA path can contain a space, and a rule that stops a path at the first whitespace publishes the rest of it. ``/Volumes/Lab Drive/Patient 042`` came out as ``<PATH> Drive/Patient 042``, and ``C:\\Users\\anna\\OneDrive\n- Karolinska Institutet\\Screens`` ने संस्थान और\nस्क्रीन का नाम बना रहता है — वे दो ऑपरेटिंग सिस्टम जिनके अपने फ़ोल्डरों के नामों में रिक्त स्थान होते हैं। UNC पथ पथ ही नहीं था: यहाँ कुछ भी ``\\\\`` से शुरू नहीं होता था। बिना उद्धरण वाले पथ के अंतिम घटक के बाद कोई विभाजक नहीं होता जो सिद्ध करे कि रिक्त स्थान पथ के भीतर है, उसके बाद नहीं, इसलिए यह केवल नाम जैसे दिखने वाले शब्दों पर आगे बढ़ता है -- कोई संख्या, बड़े अक्षर से शुरू होने वाला शब्द, कोई फ़ाइल नाम -- और ``\\\\LAB-NAS\\screens\\plate 1`` पूरा बदल दिया जाता है जबकि ``opening /mnt/data/x.tif failed`` अपना ``failed`` रखता है। ऐसे घटक को समाप्त करने वाला छोटे अक्षरों का शब्द फिर भी बचा रहता है; उद्धृत पथ पूरा लिया जाता है, और शीर्षक तथा ``repr`` किया गया हर सेटिंग मान उद्धृत होता है।\n\n``<`` के ठीक बाद आया स्लैश पथ नहीं, बल्कि बंद करने वाला टैग शुरू करता है। रिपोर्ट के संकुचित होने वाले खंड ``</summary>`` और ``</details>`` पर समाप्त होते हैं, और issue #121 दोनों को ``<<PATH>`` में बदलकर दर्ज हुआ था, इसलिए पहले के बाद का हर खंड खुला रह गया।\n\n:param text: रिपोर्ट का शीर्षक या मुख्य भाग, जो पहले ही :func:`sanitize_path` से गुज़र चुका है।\n:returns: वही पाठ जिसमें पथ-जैसे टोकन ``<PATH>`` से बदले गए हैं।",
+      "text": "फ़ाइल / फ़ोल्डर नामों को एक पहले से ही स्वच्छ रिपोर्ट से हटा दें।\n\nसामान्य सैनिटाइज़र होम निर्देशिका को संक्षिप्त करता है ताकि traceback उपयोगी बना रहे। सार्वजनिक रिपोर्ट डिफ़ॉल्ट रूप से अधिक सख़्त रूप का उपयोग करती हैं: traceback के फ़ाइल फ़ील्ड, उद्धृत पथ मान और शेष निरपेक्ष पथ-जैसे टोकन ``<PATH>`` बन जाते हैं। पूर्वावलोकन उपयोगकर्ता को भेजने से पहले उपयोगी नाम बहाल करने देता है; issue रिपोर्टिंग 'always' पर सेट होने पर कोई पूर्वावलोकन नहीं होता, इसलिए यह जो छोड़ता है वही प्रकाशित होता है।\n\nपथ में रिक्त स्थान हो सकता है, और पथ को पहले रिक्त स्थान पर रोक देने वाला नियम उसके शेष भाग को प्रकाशित कर देता है। ``/Volumes/Lab Drive/Patient 042`` का परिणाम ``<PATH> Drive/Patient 042`` था, और ``C:\\Users\\anna\\OneDrive\n- Karolinska Institutet\\Screens`` ने संस्थान और\nस्क्रीन का नाम बना रहता है — वे दो ऑपरेटिंग सिस्टम जिनके अपने फ़ोल्डरों के नामों में रिक्त स्थान होते हैं। UNC पथ पथ ही नहीं था: यहाँ कुछ भी ``\\\\`` से शुरू नहीं होता था। बिना उद्धरण वाले पथ के अंतिम घटक के बाद कोई विभाजक नहीं होता जो सिद्ध करे कि रिक्त स्थान पथ के भीतर है, उसके बाद नहीं, इसलिए यह केवल नाम जैसे दिखने वाले शब्दों पर आगे बढ़ता है -- कोई संख्या, बड़े अक्षर से शुरू होने वाला शब्द, कोई फ़ाइल नाम -- और ``\\\\LAB-NAS\\screens\\plate 1`` पूरा बदल दिया जाता है जबकि ``opening /mnt/data/x.tif failed`` अपना ``failed`` रखता है। ऐसे घटक को समाप्त करने वाला छोटे अक्षरों का शब्द फिर भी बचा रहता है; उद्धृत पथ पूरा लिया जाता है, और शीर्षक तथा ``repr`` किया गया हर सेटिंग मान उद्धृत होता है।\n\n``<`` के ठीक बाद आया स्लैश पथ नहीं, बल्कि बंद करने वाला टैग शुरू करता है। रिपोर्ट के संकुचित होने वाले खंड ``</summary>`` और ``</details>`` पर समाप्त होते हैं, और issue #121 दोनों को ``<<PATH>`` में बदलकर दर्ज हुआ था, इसलिए पहले के बाद का हर खंड खुला रह गया।\n\n:param text: रिपोर्ट का शीर्षक या मुख्य भाग, जो पहले ही :func:`sanitize_path` से गुज़र चुका है।\n:returns: वही पाठ जिसमें पथ-जैसे टोकन ``<PATH>`` से बदले गए हैं।",
       "translation_source_blocks_sha256": [
         "7bb7a71776599d2fc07322d00f44e144efe8c435f5bff402f052247bb30f2ed5",
         "9c3746f7247d82842e4bd12f396401d043b32757a2cca19f74889936b88fb16c",
@@ -71356,14 +72038,16 @@
       "source_blocks_sha256": [
         "57e2bc2ea2960cb5f7c70521814464d26171e871ee3c3493923f7de90945451a",
         "4ee71fd9cb9902652ab0fe7a99dbe981a064ed8aba32df50e1c820e4d717f2f9",
-        "3160512b0f19c634feac7f83a5bd96efbbb6b4fb9df33a2d7efc6bffb5225199"
+        "3160512b0f19c634feac7f83a5bd96efbbb6b4fb9df33a2d7efc6bffb5225199",
+        "91799ef47c3ae4f96e2fa6003107de296008027725ab751456f2727402884093"
       ],
-      "source_sha256": "2dbceb9b0c3f2e108238d6bdcac79b0c4a3d491faf37973799548c9eea4f3e1f",
-      "text": "प्रदाता प्रवाह का उपभोग करें, चरण / चंक / समाप्त संकेत जारी करें।\n\n``finished`` में ``(True, the whole reply)`` केवल तब होता है जब स्ट्रीम अपने आप समाप्त हुई और प्रदाता ने कोई विफलता रिपोर्ट नहीं की। बाकी सब ``(False, <what to tell the user>)`` देता है, और प्रदाता ने विफल होने से पहले जो कुछ छापा वह उत्तर नहीं है। रद्द की गई स्ट्रीम ``(False, \"Cancelled.\")`` देती है, तब भी जब चाइल्ड प्रक्रिया को समाप्त करने से प्रदाता ने अपवाद उठाया हो, क्योंकि रोकने का अनुरोध उपयोगकर्ता ने किया था।\n\nअसाधारण के वर्ग का नाम उसके संदेश के लिए पूर्व निर्धारित किया जाता है, एक :class:`~spacr.qt.ai.providers.ProviderFailed` के साथ एक गैर-मुक्त संदेश को छोड़कर। कंसोल \"[AI त्रुटि]\" के बाद इस पाठ को लिखता है, और वहां पढ़ने के लिए एक ProviderFailed संदेश लिखा जाता है, जिसमें निष्पादित करने के लिए साइन-इन कमांड भी शामिल है। किसी भी अन्य अपवाद के लिए, क्लास नाम बनाए रखा जाता है क्योंकि यह अक्सर त्रुटि का नाम देता है: ``[Errno 2] No such file or directory`` का मतलब यह नहीं है कि यह FileNotFoundError है।",
+      "source_sha256": "7b2189afeee30042fdff6226115e24c36df4d5e3f85707f26cd28cecf0838ddb",
+      "text": "प्रदाता प्रवाह का उपभोग करें, चरण / चंक / समाप्त संकेत जारी करें।\n\n``finished`` में ``(True, the whole reply)`` केवल तब होता है जब स्ट्रीम अपने आप समाप्त हुई और प्रदाता ने कोई विफलता रिपोर्ट नहीं की। बाकी सब ``(False, <what to tell the user>)`` देता है, और प्रदाता ने विफल होने से पहले जो कुछ छापा वह उत्तर नहीं है। रद्द की गई स्ट्रीम ``(False, \"Cancelled.\")`` देती है, तब भी जब चाइल्ड प्रक्रिया को समाप्त करने से प्रदाता ने अपवाद उठाया हो, क्योंकि रोकने का अनुरोध उपयोगकर्ता ने किया था।\n\nअसाधारण के वर्ग का नाम उसके संदेश के लिए पूर्व निर्धारित किया जाता है, एक :class:`~spacr.qt.ai.providers.ProviderFailed` के साथ एक गैर-मुक्त संदेश को छोड़कर। कंसोल \"[AI त्रुटि]\" के बाद इस पाठ को लिखता है, और वहां पढ़ने के लिए एक ProviderFailed संदेश लिखा जाता है, जिसमें निष्पादित करने के लिए साइन-इन कमांड भी शामिल है। किसी भी अन्य अपवाद के लिए, क्लास नाम बनाए रखा जाता है क्योंकि यह अक्सर त्रुटि का नाम देता है: ``[Errno 2] No such file or directory`` का मतलब यह नहीं है कि यह FileNotFoundError है।\n\nपहले पूछा गया ऐसा छोटा प्रश्न जिसका उत्तर अभी भी ताज़ा है (:func:`~spacr.qt.ai.providers.question_cache_key`), किसी प्रदाता को कॉल किए बिना इस कंप्यूटर पर सहेजे गए उत्तरों से हल किया जाता है और तब :attr:`saved` का मान ``True`` होता है; ऐसे प्रश्न का नया पूरा उत्तर प्रदाता चाहे जो भी हो, सहेज लिया जाता है।",
       "translation_source_blocks_sha256": [
         "57e2bc2ea2960cb5f7c70521814464d26171e871ee3c3493923f7de90945451a",
         "4ee71fd9cb9902652ab0fe7a99dbe981a064ed8aba32df50e1c820e4d717f2f9",
-        "37cadd1353537ad22b03389ebcb12ee3c44555c1d1b5f47bfd7d11f7bbacfd61"
+        "37cadd1353537ad22b03389ebcb12ee3c44555c1d1b5f47bfd7d11f7bbacfd61",
+        "91799ef47c3ae4f96e2fa6003107de296008027725ab751456f2727402884093"
       ]
     },
     "spacr.qt.ai.worker.make_stream_thread": {
@@ -152294,13 +152978,15 @@
       "source_blocks_sha256": [
         "1993a27719aca3586520e6a847808a68af06b79cf158182625d5f8669db3046d",
         "a7bd4e6952b64e2f51735f2cdd906e35b046db2fe655b8caec5b13197c1d08bf",
+        "39a8bd5a67a629f63e1f2598f77ea632c1c34173abd7792c3ca3e0ea21e8cb86",
         "32ad184b5d895760a58585e6b97140a9ce6a1c9c468e6f3a054396b3342cd65e"
       ],
-      "source_sha256": "08045e7872c4e753dad77ca9b23447cd3ddfd27c530c1deb41916ae6ebe8b5df",
-      "text": "कार्ड और रिम को एक संवाद दें. True यदि यह लागू किया गया है.\n\nIdempotent: एक वार्तालाप जो पहले से ही :data:`GLASSED` लेता है, अकेला छोड़ दिया जाता है, इसलिए दिखाए गए, बंद किए गए और फिर से प्रदर्शित किए गए वार्तालेप कार्डों को जमा नहीं करते हैं।\n\n:param dialog: सजाया जाने वाला डायलॉग; इसे तब तक अकेला छोड़ा जाता है जब तक :func:`wants_glass` इसे स्वीकार न करे।",
+      "source_sha256": "911d51ee59d650bccb5d2923b55d3ada0ff7b21e8f7e9e3068f6c7593cfc6c35",
+      "text": "कार्ड और रिम को एक संवाद दें. True यदि यह लागू किया गया है.\n\nIdempotent: एक वार्तालाप जो पहले से ही :data:`GLASSED` लेता है, अकेला छोड़ दिया जाता है, इसलिए दिखाए गए, बंद किए गए और फिर से प्रदर्शित किए गए वार्तालेप कार्डों को जमा नहीं करते हैं।\n\nस्टाइलशीट अंत में केवल एक बार लागू होती है। नीचे का हर चरण उस संवाद का स्टाइल फिर बदलता है जिस पर विंडो की स्टाइलशीट पहले से लगी है: उसका अपना नियम एक और स्टाइलशीट बनता है, बिना फ़्रेम वाली विंडो के फ़्लैग Qt से स्टाइल वाली विंडो के हर विजेट को फिर पॉलिश करवाते हैं, और हर पारदर्शी कंटेनर भी फिर पॉलिश होता है। वरीयताओं में (967 विजेट), एक ``Polish`` में इसमें 425-484 ms लगते थे; यही पाठ 05 के आकार बदलने वाले क्लिप में 0.36 s का ठहराव था। :func:`spacr.qt.theme._one_sheet_for` के अंतर्गत चरण बिना स्टाइल वाले संवाद पर चलते हैं और अंत में वही स्टाइलशीट पाठ एक बार लगाया जाता है।\n\n:param dialog: सजाया जाने वाला डायलॉग; इसे तब तक अकेला छोड़ा जाता है जब तक :func:`wants_glass` इसे स्वीकार न करे।",
       "translation_source_blocks_sha256": [
         "1993a27719aca3586520e6a847808a68af06b79cf158182625d5f8669db3046d",
         "a7bd4e6952b64e2f51735f2cdd906e35b046db2fe655b8caec5b13197c1d08bf",
+        "7a3a4a2e96eb641628588f93f4cd45ef38795691d3ed25daa9f2378e03ed2cd2",
         "32ad184b5d895760a58585e6b97140a9ce6a1c9c468e6f3a054396b3342cd65e"
       ]
     },
@@ -183971,15 +184657,15 @@
     "spacr.restart_state.command": {
       "source_blocks_sha256": [
         "451ee26faaebbe68453c5fc28d92214cc4f617ee90238cf760fc09e0e9fa6ef0",
-        "ad5e4a220f6fde4ae10f44a4afdd847a2b4e0cb4b9657c6160d78c94901cc18e",
+        "a6d6d6d5b88ef533b8eebe3428ee783adbec9c778dd06373ee6d9851c9992b24",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "2569002df96948709a63745fb3dda3a6b851fdc67af20f4cfbf23569a503fdb6"
       ],
-      "source_sha256": "2fc677d9e825416cb90552fd4819f78a0ce6b358ad2af834957c1af2b4cd2caf",
-      "text": "PySide6 अनुप्रयोग को पुनरारंभ करने के लिए उपयोग किए गए कमांड को वापस करें।\n\nकमांड में सक्रिय Python अनुवादक और स्पष्ट :mod:`spacr.qt` प्रवेश बिंदु का उपयोग किया जाता है, इसलिए एक मजबूर पुनरारंभ एक ही GUI पर वापस आता है, ``PATH`` के माध्यम से पाए जाने वाले निष्पादक पर निर्भर किए बिना।\n\nरिटर्न\n-------\nstr कमांड तर्कों की सूची :class:`subprocess.Popen` के लिए उपयुक्त है।",
+      "source_sha256": "4527f9bd4df21fa487028b6c81f71ac26d0d375f5e1a7e2044618d0013f2d69a",
+      "text": "PySide6 अनुप्रयोग को पुनरारंभ करने के लिए उपयोग किए गए कमांड को वापस करें।\n\nफ्रोज़न अनुप्रयोग अपने बंडल में शामिल निष्पादन योग्य प्रोग्राम को Python इंटरप्रेटर के फ़्लैग के बिना सीधे पुनः शुरू करता है। गैर-फ्रोज़न इंस्टॉलेशन सक्रिय Python इंटरप्रेटर और स्पष्ट प्रवेश बिंदु :mod:`spacr.qt` का उपयोग करता है। दोनों मार्ग ``PATH`` से मिले किसी निष्पादन योग्य प्रोग्राम पर निर्भर हुए बिना उसी GUI पर लौटते हैं।\n\nरिटर्न\n-------\nstr कमांड तर्कों की सूची :class:`subprocess.Popen` के लिए उपयुक्त है।",
       "translation_source_blocks_sha256": [
         "451ee26faaebbe68453c5fc28d92214cc4f617ee90238cf760fc09e0e9fa6ef0",
-        "ad5e4a220f6fde4ae10f44a4afdd847a2b4e0cb4b9657c6160d78c94901cc18e",
+        "a6d6d6d5b88ef533b8eebe3428ee783adbec9c778dd06373ee6d9851c9992b24",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "2569002df96948709a63745fb3dda3a6b851fdc67af20f4cfbf23569a503fdb6"
       ]
@@ -187006,10 +187692,11 @@
         "a5d7ec449ef4a602a61a8b52723791cfc41cf14f765e0ff9e181edaf66fb18f8",
         "882b025608cfd488e23a584b446ed392b1687ebc25a7fd9d842b8d1ee4baf9e4",
         "8dd0e2a8113506874bc11e2fc2fc9c3f48a62736e07a25a74bd3c94a52ef8885",
-        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b"
+        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b",
+        "73a1ffe75988b2b3cf4a04261a07be7d7cdee6aeabd20ee69f5f533310d74ad4"
       ],
-      "source_sha256": "8f340495d1c595d60230eb54dc6e4a5181aa999d47ddcb317dd9dd713295f09b",
-      "text": "एक कार्यप्रवाह प्रसंस्करण सत्र: इसकी आईडी, इसकी बीज, इसकी त्रुटि नीति, इसकी लीडर।\n\n:func:`run_context` द्वारा बनाया गया; :func:`current_run_context` द्वारा कहीं भी पढ़ा जाता है. इस वस्तु पर आईडी प्रत्येक लॉग लाइन पर प्रसंस्करण सत्र (:func:`read_run_log`) जारी करता है, प्रत्येक :class:`~spacr.errors.RunLedger` पर यह बाहर निकलता है, और हर :class:`spacr.artifacts.Artifact` में यह रिकॉर्ड करता है - जो एक लॉग रेखा और एक आउटपुट को जोड़ने की अनुमति देता है।\n\n:param run_id: आईडी के लिए।\n:param module: उत्पादन मॉड्यूल कुंजी - ``\"mask\"``, ``\"measure\"``, एक ही कुंजा :mod:`spacr.ports` का उपयोग करता है।\n:param seed: बीज लागू किया जाता है, या None जब दौड़ अनाज हो जाता है।\n:param policy: ':class:`ErrorPolicy`' के लिए आवेदन किया गया है।\n:param ledger: इस दौरे के लिए :class:`~spacr.errors.RunLedger`, जिसके ``run_id`` सेट किया गया है।\n:param settings: सेटिंग्स जिससे प्रसंस्करण सत्र शुरू हुआ था।\n:param seed_report: क्या :func:`seed_everything` साज करने में कामयाब रहा।\n:param started_utc: जब खुल गया तो चलना शुरू हो गया।\n:param log_path: लॉगिंग बंद होने पर चलने का JSONL लॉग, या ``\"\"`` है।\n:param resource_log_path: प्रसंस्करण सत्र की प्रक्रिया-ट्री स्रोत JSON दस्तावेज़, या ``\"\"`` जब संसाधन लेखा बंद है या उपलब्ध नहीं है।\n:param resource_artifact_id: आर्टिफैक्ट रिकॉर्ड पहचानकर्ता सफलतापूर्वक संसाधन-डॉक रजिस्ट्रेशन के बाद आवंटित किया गया है, या ``\"\"`` जब कोई रजिस्टर नहीं बनाया गया है।",
+      "source_sha256": "b17236a3334e68ec484a01688c8da915414c51d140fe249949ad1dc8b5dde16d",
+      "text": "एक कार्यप्रवाह प्रसंस्करण सत्र: इसकी आईडी, इसकी बीज, इसकी त्रुटि नीति, इसकी लीडर।\n\n:func:`run_context` द्वारा बनाया गया; :func:`current_run_context` द्वारा कहीं भी पढ़ा जाता है. इस वस्तु पर आईडी प्रत्येक लॉग लाइन पर प्रसंस्करण सत्र (:func:`read_run_log`) जारी करता है, प्रत्येक :class:`~spacr.errors.RunLedger` पर यह बाहर निकलता है, और हर :class:`spacr.artifacts.Artifact` में यह रिकॉर्ड करता है - जो एक लॉग रेखा और एक आउटपुट को जोड़ने की अनुमति देता है।\n\n:param run_id: आईडी के लिए।\n:param module: उत्पादन मॉड्यूल कुंजी - ``\"mask\"``, ``\"measure\"``, एक ही कुंजा :mod:`spacr.ports` का उपयोग करता है।\n:param seed: बीज लागू किया जाता है, या None जब दौड़ अनाज हो जाता है।\n:param policy: ':class:`ErrorPolicy`' के लिए आवेदन किया गया है।\n:param ledger: इस दौरे के लिए :class:`~spacr.errors.RunLedger`, जिसके ``run_id`` सेट किया गया है।\n:param settings: सेटिंग्स जिससे प्रसंस्करण सत्र शुरू हुआ था।\n:param seed_report: क्या :func:`seed_everything` साज करने में कामयाब रहा।\n:param started_utc: जब खुल गया तो चलना शुरू हो गया।\n:param log_path: लॉगिंग बंद होने पर चलने का JSONL लॉग, या ``\"\"`` है।\n:param resource_log_path: प्रसंस्करण सत्र की प्रक्रिया-ट्री स्रोत JSON दस्तावेज़, या ``\"\"`` जब संसाधन लेखा बंद है या उपलब्ध नहीं है।\n:param resource_artifact_id: आर्टिफैक्ट रिकॉर्ड पहचानकर्ता सफलतापूर्वक संसाधन-डॉक रजिस्ट्रेशन के बाद आवंटित किया गया है, या ``\"\"`` जब कोई रजिस्टर नहीं बनाया गया है।\n:param _resource_sampler: आंतरिक प्रक्रिया-वृक्ष संसाधन सैंपलर, या संसाधन लेखांकन शुरू होने से पहले अथवा उसके अनुपलब्ध होने पर ``None``।",
       "translation_source_blocks_sha256": [
         "5182280c6a8c9d3beeb11fd5d8146fb99dfe657e4176813b67dc999249ca0860",
         "8ebc90c80c227b9def3c1bf4239226d4e1305bd40bf6b88dd21f839c05d44eca",
@@ -187023,7 +187710,8 @@
         "a5d7ec449ef4a602a61a8b52723791cfc41cf14f765e0ff9e181edaf66fb18f8",
         "882b025608cfd488e23a584b446ed392b1687ebc25a7fd9d842b8d1ee4baf9e4",
         "08b25e6a845ac4070efa6d49416713b5de7c4e53f35e5831544ee92efe51428a",
-        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b"
+        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b",
+        "73a1ffe75988b2b3cf4a04261a07be7d7cdee6aeabd20ee69f5f533310d74ad4"
       ]
     },
     "spacr.runctx.RunContext.__str__": {

@@ -25,35 +25,7 @@ import pytest
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QPointF, QRectF, Qt                    # noqa: E402
-from PySide6.QtWidgets import (QApplication, QPushButton,     # noqa: E402
-                               QWidget)
-
-@pytest.fixture(autouse=True)
-def _the_provider_step_is_offered_back(monkeypatch):
-    """Offer the AI-provider question again, so its slide is still tested.
-
-    Item 700 (2026-10-14) took the question out of first-run setup: a new
-    user starts on spaCR AI (free) and changes provider in Preferences.
-    The slide that draws the question is kept for a question list that
-    offers it, and these tests drive it through exactly that.
-    """
-    from spacr.qt import preferences as prefs
-    from spacr.qt import setup_screen
-
-    shipped = setup_screen.questions
-
-    def with_the_provider_question():
-        rows = list(shipped())
-        choices = setup_screen._provider_choices()
-        if choices:
-            rows.append(("ai_provider", "AI provider",
-                         prefs.get_preferred_provider,
-                         prefs.set_preferred_provider, choices))
-        return rows
-
-    monkeypatch.setattr(setup_screen, "questions",
-                        with_the_provider_question)
-
+from PySide6.QtWidgets import QApplication  # noqa: E402
 
 
 @pytest.fixture(scope="module")
@@ -135,13 +107,6 @@ def test_every_page_is_see_through(slides):
         assert _pure_black_fraction(slides, page) < 0.02, index
 
 
-def test_the_provider_strip_is_see_through(slides):
-    strip = [w for w in slides.findChildren(QWidget)
-             if w.property("spacrProviderStrip")]
-    assert strip, "the provider strip is not tagged, so nothing clears it"
-    assert _pure_black_fraction(slides, strip[0]) < 0.05
-
-
 def test_the_controls_are_still_opaque(slides):
     """THE CONTAINERS ONLY. A control you can see through is a control you
     cannot read, so the combos keep their own surface."""
@@ -190,122 +155,6 @@ def test_the_wait_is_long_enough_to_read(slides):
 
     assert GREETING_MS >= 500, "shorter than this and it is a stutter"
     assert GREETING_MS <= 2000, "longer and it reads as the app hanging"
-
-
-# ---------------------------------------------------------------------------
-# 3. The providers are marks
-# ---------------------------------------------------------------------------
-
-def test_no_provider_is_a_plain_button(slides):
-    holder = slides._editors["ai_provider"]
-    for mark in holder._buttons.values():
-        assert not isinstance(mark, QPushButton), (
-            "three words in three boxes is a list wearing buttons")
-
-
-def test_each_provider_draws_its_own_mark():
-    """Three marks that came out the same shape would be three of nothing."""
-    from spacr.qt.widgets.provider_marks import MARKS, mark_for
-
-    box = QRectF(0, 0, 40, 40)
-    shapes = {}
-    for code in MARKS:
-        path = mark_for(code, box)
-        assert path is not None and not path.isEmpty(), code
-        shapes[code] = round(path.length(), 3)
-    assert len(set(shapes.values())) == len(shapes), shapes
-
-
-def test_the_three_marks_carry_a_comparable_weight(qapp):
-    """The lightest of three logos in a row reads as the disabled one.
-
-    Measured as INK, not eyeballed: the burst was first drawn as tapered
-    points -- narrow at the tip, all the area at the hub -- and came out at
-    a third of the knot's coverage beside it, which on screen looked like a
-    provider that was not available.
-    """
-    from PySide6.QtCore import Qt
-    from PySide6.QtGui import QColor, QImage, QPainter
-
-    from spacr.qt.widgets.provider_marks import MARKS, mark_for
-
-    inks = {}
-    for code in MARKS:
-        image = QImage(64, 64, QImage.Format_ARGB32)
-        image.fill(Qt.transparent)
-        painter = QPainter(image)
-        painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setPen(Qt.NoPen)
-        painter.setBrush(QColor("#ffffff"))
-        painter.drawPath(mark_for(code, QRectF(0, 0, 64, 64)))
-        painter.end()
-        inks[code] = sum(1 for y in range(64) for x in range(64)
-                         if image.pixelColor(x, y).alpha() > 120) / 4096.0
-    assert min(inks.values()) > 0.20, inks
-    assert max(inks.values()) / min(inks.values()) < 2.0, inks
-
-
-def test_an_unknown_provider_draws_nothing_rather_than_guessing():
-    from spacr.qt.widgets.provider_marks import mark_for
-
-    assert mark_for("copilot", QRectF(0, 0, 40, 40)) is None
-
-
-def test_the_mark_is_inside_the_box_it_was_given():
-    """A path that overflows its box paints over the label beneath it."""
-    from spacr.qt.widgets.provider_marks import MARKS, mark_for
-
-    box = QRectF(10, 10, 40, 40)
-    for code in MARKS:
-        bounds = mark_for(code, box).boundingRect()
-        assert box.adjusted(-1, -1, 1, 1).contains(bounds), (code, bounds)
-
-
-def test_an_unavailable_provider_is_shown_and_still_chooseable(app):
-    """Reported 2026-08-22: "for the ai assistant i can only click claude".
-
-    Availability is INFORMATION, not a gate. The setup screen writes a
-    preference and launches nothing, so choosing a provider whose CLI is
-    not installed yet is an ordinary thing to want; the console says so at
-    the point it would actually be used.
-    """
-    from spacr.qt.widgets.provider_marks import ProviderMark
-
-    mark = ProviderMark("claude", "Claude", available=False)
-    picked = []
-    mark.chosen.connect(picked.append)
-    mark.mousePressEvent(_left_click())
-    assert picked == ["claude"]
-
-
-def test_an_available_provider_emits_its_code(app):
-    from spacr.qt.widgets.provider_marks import ProviderMark
-
-    mark = ProviderMark("gemini", "Gemini", available=True)
-    picked = []
-    mark.chosen.connect(picked.append)
-    mark.mousePressEvent(_left_click())
-    assert picked == ["gemini"]
-
-
-def _left_click():
-    from PySide6.QtCore import QEvent, QPoint, Qt
-    from PySide6.QtGui import QMouseEvent
-
-    return QMouseEvent(QEvent.Type.MouseButtonPress, QPointF(4, 4),
-                       Qt.LeftButton, Qt.LeftButton, Qt.NoModifier)
-
-
-def test_a_brand_colour_is_only_used_when_the_cli_is_here(app):
-    """Colour is the fastest answer to "which of these can I use", so an
-    absent provider is drawn in the theme's muted ink instead of a greyed
-    version of its own colour."""
-    from spacr.qt.widgets.provider_marks import BRAND, ProviderMark
-
-    here = ProviderMark("claude", "Claude", available=True)
-    gone = ProviderMark("claude", "Claude", available=False)
-    assert here._colours()[0].name().lower() == BRAND["claude"].lower()
-    assert gone._colours()[0].name().lower() != BRAND["claude"].lower()
 
 
 # ---------------------------------------------------------------------------
@@ -648,7 +497,7 @@ def test_an_arrived_rim_stops_repainting(app, qtbot):
 
 
 # ---------------------------------------------------------------------------
-# 7. The closing slide, the sign-in, and the face
+# 7. The closing slide and the face
 # ---------------------------------------------------------------------------
 
 def test_the_last_slide_says_done_in_the_middle(slides):
@@ -718,58 +567,12 @@ def test_the_light_face_is_really_there(app):
         QFontDatabase.styles(SLIDE_FONT)
 
 
-def test_the_issues_slide_offers_a_github_sign_in(slides):
-    """Asked for 2026-08-22. Filing an issue works without it, through the
-    browser, which is why it is a row on the slide and not a gate."""
-    # The control is the GitHub LOGO, the way the three AI marks are --
-    # the text push button beside it went away on 2026-08-23.
-    assert slides._gh_mark is not None
-    assert slides._gh_mark.code == "github"
-    assert slides._gh_status.text(), "the row says nothing about its state"
-
-
-def test_the_sign_in_says_which_way_it_is_signed_in(slides, monkeypatch):
-    """'signed in' is not enough: a token from GITHUB_TOKEN and one from
-    the CLI are revoked in different places."""
-    from spacr.qt.ai import github_auth
-
-    monkeypatch.setattr(github_auth, "auth_source", lambda: "gh")
-    slides._refresh_github()
-    assert "CLI" in slides._gh_status.text()
-    monkeypatch.setattr(github_auth, "auth_source", lambda: "env")
-    slides._refresh_github()
-    assert "GITHUB_TOKEN" in slides._gh_status.text()
-
-
-def test_a_missing_cli_is_named_rather_than_called_a_failure(slides,
-                                                             monkeypatch):
-    """The CLI being absent and the CLI being logged out need different
-    things from the user."""
-    import shutil
-
-    from spacr.qt.ai import github_auth
-    from spacr.qt.widgets import setup_slides as module
-
-    monkeypatch.setattr(github_auth, "auth_source", lambda: None)
-    monkeypatch.setattr(shutil, "which", lambda _name: None)
-    slides._refresh_github()
-    assert "not installed" in slides._gh_status.text()
-    # AND THE LOGO OFFERS THE INSTALL. It used to be greyed out, which
-    # told the user what was wrong and gave them nothing to do about it --
-    # and reads from the outside exactly like a button that is broken.
-    assert slides._gh_mark.isEnabled()
-    assert slides._gh_action == "install"
-    assert "install" in slides._gh_mark.toolTip().lower()
-
-
 def test_spacr_never_asks_for_the_token_itself(slides):
-    """The GitHub CLI owns the credential: it goes in the platform
-    credential manager, which is the one place a user can revoke it from
-    and the one place that is not a second copy of a secret."""
+    """The setup screen asks for no secret: no password-style field, and so
+    no second copy of a credential spaCR would have to keep."""
     import inspect
 
     from spacr.qt.widgets import setup_slides as module
 
     source = inspect.getsource(module)
     assert "setEchoMode" not in source
-    assert "gh" in source and "auth" in source

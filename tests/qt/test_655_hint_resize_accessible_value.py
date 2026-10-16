@@ -112,3 +112,53 @@ def test_ordinary_frame_accessibility_is_unchanged(qtbot):
     interface = QAccessible.queryAccessibleInterface(frame)
     assert interface.role() == QAccessible.Border
     assert interface.valueInterface() is None
+
+
+def test_assistive_focus_does_not_resize_or_commit_and_tab_can_leave(help_window, qtbot):
+    _, before, bar, _ = help_window
+    handle = bar._resize_handle
+    assert before.hasFocus()
+    action = QAccessible.queryAccessibleInterface(handle).actionInterface()
+    focus = QAccessibleActionInterface.setFocusAction()
+    assert focus in action.actionNames()
+    assert action.keyBindingsForAction(focus) == []
+    height = bar.height()
+    commits = []
+    bar.helpHeightCommitted.connect(commits.append)
+    action.doAction(focus)
+    qtbot.waitUntil(handle.hasFocus)
+    action.doAction(focus)
+    assert bar.height() == height and commits == []
+    qtbot.keyClick(handle, Qt.Key_Tab)
+    assert bar._view.hasFocus()
+
+
+def test_retained_resize_callback_cannot_commit_after_bar_is_disabled(help_window):
+    from pathlib import Path
+    from spacr.qt import preferences
+
+    _, _, bar, _ = help_window
+    resize = bar._resize_handle._resize_to
+    height = bar.height()
+    requested = height + bar.fontMetrics().lineSpacing()
+    assert requested <= bar._maximum_help_height()
+    stored = preferences._settings()
+    key = preferences._KEY_PREFERENCES_HELP_HEIGHT
+    stored.setValue(key, height)
+    stored.sync()
+    settings_path = Path(stored.fileName())
+    before = settings_path.read_bytes()
+    commits = []
+    bar.helpHeightCommitted.connect(commits.append)
+    bar.helpHeightCommitted.connect(lambda value: stored.setValue(key, value))
+    bar.setEnabled(False)
+    resize(requested)
+    stored.sync()
+    assert bar.height() == height and commits == []
+    assert int(stored.value(key)) == height
+    assert settings_path.read_bytes() == before
+    bar.setEnabled(True)
+    resize(requested)
+    stored.sync()
+    assert bar.height() == requested and commits == [requested]
+    assert int(stored.value(key)) == requested

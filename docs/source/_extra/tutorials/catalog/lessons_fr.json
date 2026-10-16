@@ -971,13 +971,12 @@
             650
           ],
           "narration": "Activez l’environnement Python dans lequel vous avez installé spaCR. Importez spacr et affichez sa version avec la commande indiquée. Conservez la version avec vos notes d’analyse afin de pouvoir reproduire plus tard la même exécution.",
-          "related_lessons": [
-            "02_conda_install",
-            "03_pip_install",
-            "04_platform_installers"
-          ],
           "hold_after": 0.7,
-          "speech_text": "Activez l’environnement Python dans lequel vous avez installé spakeur. Importez spakeur et affichez sa version avec la commande indiquée. Conservez la version avec vos notes d’analyse afin de pouvoir reproduire plus tard la même exécution."
+          "speech_text": "Activez l’environnement Python dans lequel vous avez installé spakeur. Importez spakeur et affichez sa version avec la commande indiquée. Conservez la version avec vos notes d’analyse afin de pouvoir reproduire plus tard la même exécution.",
+          "related_lessons": [
+            "02_install_spacr",
+            "04_platform_installers"
+          ]
         },
         {
           "visual": "02_list",
@@ -1000,12 +999,12 @@
             900
           ],
           "narration": "Lancez spacr-run avec tiret tiret describe suivi de regression. Lisez les entrées requises, les valeurs par défaut et le nom de la fonction. Ici, la commande par lots appelle perform_regression dans spacr.ml. Ouvrez cette fonction dans la référence d’API pour lire ses paramètres et les résultats renvoyés.",
+          "hold_after": 0.7,
+          "speech_text": "Lancez spakeur-run avec tiret tiret describe suivi de regression. Lisez les entrées requises, les valeurs par défaut et le nom de la fonction. Ici, la commande par lots appelle perform_regression dans spakeur.ml. Ouvrez cette fonction dans la référence d’API pour lire ses paramètres et les résultats renvoyés.",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Lancez spakeur-run avec tiret tiret describe suivi de regression. Lisez les entrées requises, les valeurs par défaut et le nom de la fonction. Ici, la commande par lots appelle perform_regression dans spakeur.ml. Ouvrez cette fonction dans la référence d’API pour lire ses paramètres et les résultats renvoyés."
+          ]
         },
         {
           "visual": "05_report_api",
@@ -1040,12 +1039,12 @@
             900
           ],
           "narration": "Pour exécuter l’analyse, lancez la même commande sans tiret tiret dry-run. Suivez la console jusqu’à la fin de la commande, puis inspectez les sorties décrites dans le tutoriel et la page d’API de ce module. Conservez avec les résultats le fichier de paramètres, les tables d’entrée, la version du paquet et le journal de la console.",
+          "hold_after": 0.7,
+          "speech_text": "Pour exécuter l’analyse, lancez la même commande sans tiret tiret dry-run. Suivez la console jusqu’à la fin de la commande, puis inspectez les sorties décrites dans le tutoriel et la page d’API de ce module. Conservez avec les résultats le fichier de paramètres, les tables d’entrée, la version du paquet et le journal de la console.",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Pour exécuter l’analyse, lancez la même commande sans tiret tiret dry-run. Suivez la console jusqu’à la fin de la commande, puis inspectez les sorties décrites dans le tutoriel et la page d’API de ce module. Conservez avec les résultats le fichier de paramètres, les tables d’entrée, la version du paquet et le journal de la console."
+          ]
         }
       ],
       "narration_voices": {

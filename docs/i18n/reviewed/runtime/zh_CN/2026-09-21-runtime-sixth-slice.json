@@ -46,27 +46,6 @@
     },
     {
       "table": "ui",
-      "key": "Sign in",
-      "source": "Sign in",
-      "translation": "登录",
-      "source_sha256": "bfd402b2f6f3812529b55596136d3a11c51616317e3b1cd999928e2d4eae7d3f"
-    },
-    {
-      "table": "ui",
-      "key": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
-      "source": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
-      "translation": "请在打开的窗口中登录 {label}。完成后，spaCR 会自动检测到。",
-      "source_sha256": "ef897d0ef358f9b184a513da4ab465debe812d22ce608282b06b5bfe3e6d609f"
-    },
-    {
-      "table": "ui",
-      "key": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
-      "source": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
-      "translation": "登录 {label} 未在 {minutes} 分钟内完成。请按“登录”重试。",
-      "source_sha256": "deec05063963965c40890d0b21b74cace845bb7fa0e561af9e3d1ebc65589d7f"
-    },
-    {
-      "table": "ui",
       "key": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
       "source": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
       "translation": "要保留的对象的最小面积，以像素计。“移除小对象”会移除所有小于此值的对象，Otsu 检测和对象检测也不会生成小于此值的对象。因此，只需在这一处设置碎屑的判定标准。",
@@ -102,13 +81,6 @@
     },
     {
       "table": "ui",
-      "key": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
-      "source": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
-      "translation": "已停止等待登录。按“登录”可重新开始；如果已登录，请按“完成”。",
-      "source_sha256": "f7441f3a2c785aa2262308bdb4f92fa2c9106ceba32fb21639f2ccc895747bc0"
-    },
-    {
-      "table": "ui",
       "key": "Stopping after this page…",
       "source": "Stopping after this page…",
       "translation": "处理完本页后停止…",
@@ -116,24 +88,10 @@
     },
     {
       "table": "ui",
-      "key": "Stopping the installer…",
-      "source": "Stopping the installer…",
-      "translation": "正在停止安装程序…",
-      "source_sha256": "42958a5514188bdb1e8613d56d63acba59a710857f2735e7cb28781d5fac0906"
-    },
-    {
-      "table": "ui",
       "key": "Test on my folder",
       "source": "Test on my folder",
       "translation": "在我的文件夹中测试",
       "source_sha256": "db188c0321042df271b0156ba35b7ee5f1d76cb7b69b904710e36cdcb76f8592"
-    },
-    {
-      "table": "ui",
-      "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
-      "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
-      "translation": "spaCR 执行的命令。也可复制该命令，自行在终端中运行。",
-      "source_sha256": "4bbf3ad8e30bbbc39c55d1b49ad3ebbd59692284ee35fd06abeecb76e4f7bcc3"
     },
     {
       "table": "ui",
@@ -148,13 +106,6 @@
       "source": "The files",
       "translation": "文件",
       "source_sha256": "ad110d7e4a316c0571044afa95d2aaac8bc30fb4555ad5a5a7926999778d5479"
-    },
-    {
-      "table": "ui",
-      "key": "The installer could not be run: {error}",
-      "source": "The installer could not be run: {error}",
-      "translation": "无法运行安装程序：{error}",
-      "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b"
     },
     {
       "table": "ui",
@@ -183,13 +134,6 @@
       "source": "The report was sent: {url}",
       "translation": "报告已发送：{url}",
       "source_sha256": "28486dcd296765e6c94d34aefaea9f44e8ba7cb3ee33cff56d3ed3b40c3610f3"
-    },
-    {
-      "table": "ui",
-      "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
-      "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
-      "translation": "无法在此启动登录。请在终端中运行下方命令，然后按“完成”。",
-      "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4"
     },
     {
       "table": "ui",
@@ -291,6 +235,86 @@
       "source": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
       "translation": "已发布模型的训练数据集中的十个视野，以及训练时使用的掩膜。它们以可编辑方式打开，因此您看到的就是模型训练时看到的内容。",
       "source_sha256": "61fb84ed081b8c8413729fdc89c1b447cd521bcb0e21ade11b035450df3efaa3"
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Sign in",
+        "source": "Sign in",
+        "translation": "登录",
+        "source_sha256": "bfd402b2f6f3812529b55596136d3a11c51616317e3b1cd999928e2d4eae7d3f"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+        "source": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+        "translation": "请在打开的窗口中登录 {label}。完成后，spaCR 会自动检测到。",
+        "source_sha256": "ef897d0ef358f9b184a513da4ab465debe812d22ce608282b06b5bfe3e6d609f"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+        "source": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+        "translation": "登录 {label} 未在 {minutes} 分钟内完成。请按“登录”重试。",
+        "source_sha256": "deec05063963965c40890d0b21b74cace845bb7fa0e561af9e3d1ebc65589d7f"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+        "source": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+        "translation": "已停止等待登录。按“登录”可重新开始；如果已登录，请按“完成”。",
+        "source_sha256": "f7441f3a2c785aa2262308bdb4f92fa2c9106ceba32fb21639f2ccc895747bc0"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Stopping the installer…",
+        "source": "Stopping the installer…",
+        "translation": "正在停止安装程序…",
+        "source_sha256": "42958a5514188bdb1e8613d56d63acba59a710857f2735e7cb28781d5fac0906"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+        "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+        "translation": "spaCR 执行的命令。也可复制该命令，自行在终端中运行。",
+        "source_sha256": "4bbf3ad8e30bbbc39c55d1b49ad3ebbd59692284ee35fd06abeecb76e4f7bcc3"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "The installer could not be run: {error}",
+        "source": "The installer could not be run: {error}",
+        "translation": "无法运行安装程序：{error}",
+        "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+        "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+        "translation": "无法在此启动登录。请在终端中运行下方命令，然后按“完成”。",
+        "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4"
+      }
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27."

@@ -360,3 +360,192 @@ def test_selected_reuse_shape_refuses_before_legacy_channel_indexing(sample, sha
                                   checkpoint=path, checkpoint_sha256=pinned(path),
                                   input_contract=description)
     assert model.training
+
+
+@pytest.mark.parametrize('change', ['blank_pipeline', 'blank_policy', 'normalization_list'])
+def test_unusable_preprocessing_refuses_before_reading_classifier_or_checkpoint(sample, monkeypatch, change):
+    model, crops, description, generator, payload, path = sample
+    if change == 'blank_pipeline':
+        description['preprocessing']['pipeline'] = '  '
+    elif change == 'blank_policy':
+        description['preprocessing']['crop_loading_policy'] = ''
+    else:
+        description['preprocessing']['normalization'] = [0., 1.]
+    original_description = copy.deepcopy(description)
+    original_crops = crops.clone()
+    original_checkpoint = path.read_bytes()
+
+    def forbidden(*args, **kwargs):
+        pytest.fail('invalid preprocessing reached classifier state, checkpoint loading or training')
+
+    monkeypatch.setattr(model, 'state_dict', forbidden)
+    monkeypatch.setattr(model, 'forward', forbidden)
+    monkeypatch.setattr(cf, '_cf_load_checkpoint', forbidden)
+    monkeypatch.setattr(cf, '_train_counterfactual_diffusion', forbidden)
+    with pytest.raises(ValueError, match='counterfactual checkpoint'):
+        cf._counterfactual_report(model, crops, generator='diffusion', checkpoint=path,
+                                  checkpoint_sha256=pinned(path), input_contract=description)
+    assert description == original_description
+    assert torch.equal(crops, original_crops)
+    assert path.read_bytes() == original_checkpoint
+    assert model.training
+
+
+def test_nonfinite_classifier_weights_cannot_certify_a_reuse_contract(sample, monkeypatch):
+    model, crops, description, generator, payload, path = sample
+    with torch.no_grad():
+        model.scale.fill_(float('nan'))
+    original = path.read_bytes()
+    original_crops = crops.clone()
+    monkeypatch.setattr(cf, '_cf_load_checkpoint',
+                        lambda *args: pytest.fail('nonfinite classifier reached checkpoint load'))
+    monkeypatch.setattr(model, 'forward', lambda *args: pytest.fail('nonfinite classifier scored crops'))
+    with pytest.raises(ValueError, match='counterfactual checkpoint'):
+        cf._counterfactual_report(model, crops, generator='diffusion', checkpoint=path,
+                                  checkpoint_sha256=pinned(path), input_contract=description)
+    assert model.training and torch.isnan(model.scale)
+    assert path.read_bytes() == original
+    assert torch.equal(crops, original_crops)
+
+
+@pytest.mark.parametrize('change', ['unknown_config_key', 'wrong_channels', 'wrong_code_levels',
+                                    'nonfinite_strength', 'excessive_guidance', 'missing_state_key',
+                                    'missing_config_field', 'unaligned_side'])
+def test_pinned_but_incompatible_state_never_allocates_or_applies_untrusted_weights(sample, monkeypatch, change):
+    model, crops, description, generator, payload, path = sample
+    if change == 'unknown_config_key':
+        payload['config']['device'] = 'cuda'
+    elif change == 'wrong_channels':
+        payload['config']['channels'] = 2
+    elif change == 'wrong_code_levels':
+        payload['levels'] = ['condition', 'control']
+    elif change == 'nonfinite_strength':
+        payload['config']['strength'] = float('nan')
+    elif change == 'excessive_guidance':
+        payload['config']['guidance_scale'] = 101.
+    elif change == 'missing_config_field':
+        del payload['config']['timesteps']
+    elif change == 'unaligned_side':
+        payload['config']['side'] = 6
+    else:
+        del payload['state_dict']['inp.weight']
+    torch.save(payload, path)
+    original = path.read_bytes()
+    original_crops = crops.clone()
+    original_classifier = {key: value.clone() for key, value in model.state_dict().items()}
+    rng = torch.random.get_rng_state().clone()
+
+    def forbidden(*args, **kwargs):
+        pytest.fail('incompatible artifact reached reconstruction, weight application or training')
+
+    if change == 'missing_state_key':
+        monkeypatch.setattr(cf._CounterfactualDiffusion, 'load_state_dict', forbidden)
+    else:
+        monkeypatch.setattr(cf, '_CounterfactualDiffusion', forbidden)
+    monkeypatch.setattr(cf, '_train_counterfactual_diffusion', forbidden)
+    monkeypatch.setattr(model, 'forward', forbidden)
+    with pytest.raises(ValueError, match='counterfactual checkpoint'):
+        cf._counterfactual_report(model, crops, generator='diffusion', checkpoint=path,
+                                  checkpoint_sha256=pinned(path), input_contract=description)
+    assert path.read_bytes() == original
+    assert torch.equal(crops, original_crops)
+    assert torch.equal(torch.random.get_rng_state(), rng)
+    assert model.training
+    assert all(torch.equal(value, original_classifier[key]) for key, value in model.state_dict().items())
+
+
+@pytest.mark.parametrize('route', ['report', 'sequences'])
+def test_reference_preservation_refuses_non_nchw_before_any_model_work(monkeypatch, route):
+    model = Classifier()
+    crops = torch.zeros(4, 8, 8)
+    original = crops.clone()
+
+    def forbidden(*args, **kwargs):
+        pytest.fail('invalid preservation input reached classifier or trainer')
+
+    monkeypatch.setattr(model, 'forward', forbidden)
+    monkeypatch.setattr(cf, '_train_counterfactual_diffusion', forbidden)
+    monkeypatch.setattr(cf, '_train_counterfactual_generator', forbidden)
+    with pytest.raises(ValueError, match='Reference preservation requires NCHW crop tensors'):
+        if route == 'report':
+            cf._counterfactual_report(model, crops, generator='diffusion', preserve_channels=[0])
+        else:
+            cf._counterfactual_sequences(model, object(), crops, preserve_channels=[0])
+    assert model.training and torch.equal(crops, original)
+
+
+def test_explicit_normalization_roundtrips_and_changed_values_refuse(sample, monkeypatch):
+    model, crops, description, generator, payload, path = sample
+    normalization = {'mean': [.25], 'std': [.5]}
+    description['preprocessing']['normalization'] = copy.deepcopy(normalization)
+    contract = cf._cf_input_contract(model, crops, description, [])
+    assert contract['preprocessing']['normalization'] == normalization
+    payload['input_contract'] = contract
+    torch.save(payload, path)
+    original = path.read_bytes()
+    restored, actual_sha = cf._cf_load_checkpoint(path, pinned(path), contract)
+    assert actual_sha == pinned(path)
+    assert all(torch.equal(value, generator.state_dict()[key])
+               for key, value in restored.state_dict().items())
+    description['preprocessing']['normalization']['mean'][0] = .75
+    changed = cf._cf_input_contract(model, crops, description, [])
+    monkeypatch.setattr(cf, '_CounterfactualDiffusion',
+                        lambda *args, **kwargs: pytest.fail('changed normalization reached reconstruction'))
+    with pytest.raises(ValueError, match='counterfactual checkpoint'):
+        cf._cf_load_checkpoint(path, pinned(path), changed)
+    assert path.read_bytes() == original
+    assert contract['preprocessing']['normalization'] == normalization
+    assert model.training
+
+
+def test_existing_unrelated_output_files_do_not_block_verified_reuse(sample, monkeypatch, tmp_path):
+    model, crops, description, generator, payload, path = sample
+    model.eval()
+    output = tmp_path / 'reports'
+    output.mkdir()
+    sentinel = output / 'my-notes.txt'
+    sentinel.write_bytes(b'unrelated user notes')
+    original = path.read_bytes()
+    monkeypatch.setattr(cf, '_train_counterfactual_diffusion',
+                        lambda *args, **kwargs: pytest.fail('selected reuse reached training'))
+    monkeypatch.setattr(cf, '_write_counterfactual_outputs', lambda *args: None)
+    summary, rows, frames = cf._counterfactual_report(
+        model, crops, generator='diffusion', checkpoint=path,
+        checkpoint_sha256=pinned(path), input_contract=description,
+        out_dir=str(output), steps=2, show=0)
+    assert summary['checkpoint_sha256'] == pinned(path)
+    assert summary['fitted_crops'] == 0
+    assert len(rows) == summary['heldout_crops']
+    assert set(output.iterdir()) == {sentinel}
+    assert sentinel.read_bytes() == b'unrelated user notes'
+    assert path.read_bytes() == original
+    assert not model.training
+
+
+def test_first_reuse_hands_new_output_directory_to_writer_without_touching_input(sample, monkeypatch, tmp_path):
+    model, crops, description, generator, payload, path = sample
+    model.eval()
+    output = tmp_path / 'new report directory'
+    assert not output.exists()
+    original = path.read_bytes()
+    handed = []
+
+    def write(directory, summary, rows, frames):
+        assert directory == str(output)
+        assert not output.exists()
+        assert summary['fitted_crops'] == 0
+        assert summary['checkpoint_sha256'] == pinned(path)
+        output.mkdir()
+        (output / 'writer-result.txt').write_bytes(b'owned output handoff')
+        handed.append((len(rows), frames.shape))
+
+    monkeypatch.setattr(cf, '_write_counterfactual_outputs', write)
+    monkeypatch.setattr(cf, '_train_counterfactual_diffusion',
+                        lambda *args, **kwargs: pytest.fail('first reuse must not train'))
+    summary, rows, frames = cf._counterfactual_report(
+        model, crops, generator='diffusion', checkpoint=path,
+        checkpoint_sha256=pinned(path), input_contract=description,
+        out_dir=str(output), steps=2, show=0)
+    assert handed == [(len(rows), frames.shape)]
+    assert (output / 'writer-result.txt').read_bytes() == b'owned output handoff'
+    assert path.read_bytes() == original

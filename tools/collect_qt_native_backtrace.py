@@ -122,6 +122,21 @@ except Exception as error:
 """
 
 
+def _gdb_environment() -> tuple[dict[str, str], list[str]]:
+    """Isolate embedded Python while retaining the inferior's library search path."""
+    environment = os.environ.copy()
+    library_path = environment.pop("LD_LIBRARY_PATH", "")
+    environment.pop("PYTHONHOME", None)
+    environment.pop("PYTHONPATH", None)
+    commands = []
+    if library_path:
+        if "\n" in library_path or "\r" in library_path:
+            raise ValueError("GDB library search path contains a line break")
+        commands = ["-iex", "python import gdb; gdb.set_parameter(" +
+                    "'solib-search-path', " + repr(library_path) + ")"]
+    return environment, commands
+
+
 def _sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as source:
@@ -565,30 +580,35 @@ def main(argv: list[str] | None = None) -> int:
     report.write_text("\n".join(lines) + "\n", encoding="utf-8")
     if cores and source_sha == expected_sha and shutil.which("gdb"):
         core = max(cores, key=lambda candidate: candidate[0].stat().st_mtime_ns)[0]
-        command = [
-            "gdb", "-q", "-nx", "-nh", "-batch",
-            "-iex", "set auto-load safe-path /dev/null",
-            "-iex", "set debuginfod enabled off",
-            "-ex", "set pagination off",
-            "-ex", "info proc",
-        ]
-        if options.ordinary:
-            command.extend(["-ex", "python exec(" + repr(_ORDINARY_FAULT_SCRIPT) + ")"])
-        command.extend([
-            "-ex", "info threads",
-            "-ex", "thread apply all bt 24",
-            str(executable), str(core),
-        ])
         with report.open("ab") as output:
-            output.write(f"\ncommand={' '.join(command)}\n".encode())
-            output.flush()
             try:
+                debugger_environment, library_commands = _gdb_environment()
+                command = [
+                    "gdb", "-q", "-nx", "-nh", "-batch",
+                    "-iex", "set auto-load safe-path /dev/null",
+                    "-iex", "set debuginfod enabled off",
+                    *library_commands,
+                    "-ex", "set pagination off",
+                    "-ex", "info proc",
+                ]
+                if options.ordinary:
+                    command.extend(["-ex", "python exec(" + repr(_ORDINARY_FAULT_SCRIPT) + ")"])
+                command.extend([
+                    "-ex", "info threads",
+                    "-ex", "thread apply all bt 24",
+                    str(executable), str(core),
+                ])
+                output.write(f"\ncommand={' '.join(command)}\n".encode())
+                output.flush()
                 result = subprocess.run(
                     command, stdout=output, stderr=subprocess.STDOUT,
                     timeout=GDB_TIMEOUT_SECONDS, check=False,
                     preexec_fn=_cap_backtrace_file,
+                    env=debugger_environment,
                 )
                 status = f"gdb_exit={result.returncode}"
+            except ValueError as error:
+                status = f"gdb_environment_refused={error}"
             except subprocess.TimeoutExpired:
                 status = f"gdb_timeout={GDB_TIMEOUT_SECONDS}s"
             finally:

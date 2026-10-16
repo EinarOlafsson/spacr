@@ -336,8 +336,10 @@ def _pip_lock_text(packages: Dict[str, str]) -> str:
     distributions' metadata when pip cannot be run, so a lockfile is always
     written.
     """
-    frozen = _run_quiet([sys.executable, "-m", "pip", "freeze",
-                         "--all", "--disable-pip-version-check"])
+    frozen = None
+    if not getattr(sys, "frozen", False):
+        frozen = _run_quiet([sys.executable, "-m", "pip", "freeze",
+                             "--all", "--disable-pip-version-check"])
     if frozen:
         return frozen if frozen.endswith("\n") else frozen + "\n"
     lines = ["# pip freeze was unavailable; read from package metadata."]
@@ -4418,6 +4420,9 @@ def _relocate_cache(key: str, parent: Any) -> Path:
         copied_source = False
         if had_source:
             if had_target:
+                import stat
+
+                target_mode = stat.S_IMODE(target.stat().st_mode)
                 target.rmdir()
             try:
                 try:
@@ -4434,7 +4439,7 @@ def _relocate_cache(key: str, parent: Any) -> Path:
                     copied_source = True
             except BaseException:
                 if had_target and not target.exists():
-                    target.mkdir()
+                    target.mkdir(mode=target_mode)
                 raise
         else:
             target.mkdir(parents=True, exist_ok=True)
@@ -4450,6 +4455,8 @@ def _relocate_cache(key: str, parent: Any) -> Path:
                     if source.exists():
                         raise FileExistsError(str(source))
                     target.rename(source)
+                    if had_target and not target.exists():
+                        target.mkdir(mode=target_mode)
                 except OSError:
                     LOG.warning("Cache retained at %s", target, exc_info=True)
             elif not had_target:

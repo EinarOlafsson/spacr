@@ -1,6 +1,11 @@
 """The legacy installer jobs must validate installed artifacts on fresh runners."""
 from pathlib import Path
+import hashlib
+import importlib.util
 import re
+import shutil
+import subprocess
+import sys
 
 import pytest
 
@@ -13,6 +18,7 @@ def test_native_smoke_jobs_cannot_borrow_the_build_checkout():
     events = workflow.get('on', workflow.get(True))
     assert 'push' in events and events['push']['branches'] == ['nightly']
     assert 'workflow_dispatch' in events
+    assert 'spacr/run_journal.py' in events['push']['paths']
     assert workflow['permissions'] == {'contents': 'read'}
     for key in ('smoke-frozen', 'smoke-debian'):
         steps = workflow['jobs'][key]['steps']
@@ -39,11 +45,19 @@ def test_windows_nsis_template_keeps_runtime_dollars_and_requires_actual_executa
     assert 'if ($LASTEXITCODE -ne 0)' in source
     assert 'Join-Path $Source "spacr.exe"' in source
     assert 'RMDir /r "$INSTDIR"' not in template
-    old_runtime = template.index('RMDir /r "$INSTDIR\\_internal"')
-    refusal = template.index('IfFileExists "$INSTDIR\\_internal" 0 +2')
+    assert 'RMDir /r "$INSTDIR\\_internal"' not in template
+    extract = template.index('SetOutPath "$PLUGINSDIR\\spaCR-payload"')
     copy = template.index('File /r "@SOURCE@\\*"')
-    assert old_runtime < refusal < copy
-    assert 'Abort "The previous spaCR runtime is still in use.' in template
+    helper = template.index('CopyFiles /SILENT "$PLUGINSDIR\\spaCR-payload\\_internal\\spacr-update-helper.exe"')
+    transaction = template.index('install-frozen-windows --source')
+    result = template.index('Pop $0', transaction)
+    shortcut = template.index('CreateShortcut "$SMPROGRAMS\\spaCR.lnk"')
+    assert extract < copy < helper < transaction < result < shortcut
+    assert 'IfErrors frozen_install_failed' in template
+    assert 'PYINSTALLER_RESET_ENVIRONMENT' in template
+    assert '--destination "$INSTDIR" --version "@VERSION@"' in template
+    assert '${If} $0 != 0\n    Goto frozen_install_failed' in template
+    assert 'frozen_install_failed:\n  SetErrorLevel 1\n  Abort' in template
     assert '@DELETE_FILES@' in template and '@DELETE_DIRECTORIES@' in template
 
 
@@ -55,3 +69,160 @@ def test_debian_xcb_shape_dependency_exists_on_builder_and_fresh_host():
     runtime = {value.strip().split()[0] for value in depends.split(',')}
     assert 'libxcb-shape0' in builder
     assert 'libxcb-shape0' in runtime
+
+
+def _release_helper():
+    spec = importlib.util.spec_from_file_location("native_release_helper", ROOT / "packaging/release.py")
+    helper = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(helper)
+    return helper
+
+
+def _native_builds(tmp_path):
+    source = tmp_path / "builds"
+    version, commit = "1.5.1.5", "a" * 40
+    names = {"windows": f"spaCR-{version}-setup.exe", "macos": f"spaCR-{version}.dmg",
+             "debian": f"spacr_{version}_amd64.deb"}
+    for platform, name in names.items():
+        root = source / f"legacy-build-{platform}"
+        (root / "acceptance").mkdir(parents=True)
+        (root / "dist").mkdir()
+        payload = (platform + " disposable test bytes").encode()
+        (root / "dist" / name).write_bytes(payload)
+        (root / "acceptance/source-commit.txt").write_text(commit + "\n")
+        (root / "acceptance/version.txt").write_text(version + "\n")
+        recorded = "dist/" + name if platform == "debian" else name
+        (root / "acceptance/SHA256SUMS").write_text(hashlib.sha256(payload).hexdigest() + "  " + recorded + "\n")
+        (root / "acceptance/build.log").write_text("CI-only build output")
+    return source, version, commit, names
+
+
+def test_frozen_release_collection_copies_only_verified_updater_payloads(tmp_path):
+    source, version, commit, names = _native_builds(tmp_path)
+    windows = source / "legacy-build-windows/dist"
+    (windows / f"spaCR-{version}-windows.zip").write_bytes(b"portable archive, not the installer")
+    (windows / "spacr-update-helper.exe").write_bytes(b"standalone helper, not the installer")
+    destination = tmp_path / "public"
+    destination.mkdir()
+    (destination / "online.run").write_bytes(b"existing online asset")
+    result = subprocess.run([sys.executable, str(ROOT / "packaging/release.py"), "collect-frozen",
+                             "--source", str(source), "--destination", str(destination),
+                             "--version", version, "--source-commit", commit],
+                            capture_output=True, text=True, timeout=15)
+    assert result.returncode == 0, result.stderr
+    assert {path.name for path in destination.iterdir()} == {*names.values(), "online.run"}
+    for platform, name in names.items():
+        assert (destination / name).read_bytes() == (source / f"legacy-build-{platform}/dist" / name).read_bytes()
+    assert (destination / "online.run").read_bytes() == b"existing online asset"
+
+
+@pytest.mark.parametrize("platform", ["windows", "macos", "debian"])
+@pytest.mark.parametrize("fault", ["source", "version", "checksum", "missing", "extra", "duplicate-checksum"])
+def test_frozen_release_collection_refuses_wrong_or_incomplete_builds_before_copy(tmp_path, platform, fault):
+    source, version, commit, names = _native_builds(tmp_path)
+    root = source / f"legacy-build-{platform}"
+    payload = root / "dist" / names[platform]
+    manifest = root / "acceptance/SHA256SUMS"
+    if fault == "source":
+        (root / "acceptance/source-commit.txt").write_text("b" * 40)
+    elif fault == "version":
+        (root / "acceptance/version.txt").write_text("1.5.1.4")
+    elif fault == "checksum":
+        payload.write_bytes(b"changed payload")
+    elif fault == "missing":
+        payload.unlink()
+    elif fault == "extra":
+        (root / "dist" / names[platform].replace(version, "1.5.1.4")).write_bytes(b"wrong version")
+    else:
+        manifest.write_text(manifest.read_text() * 2)
+    destination = tmp_path / "public"
+    with pytest.raises((ValueError, FileNotFoundError)):
+        _release_helper().collect_frozen_installers(source, destination, version, commit)
+    assert not destination.exists()
+
+
+def test_frozen_release_collection_never_clobbers_existing_asset(tmp_path):
+    source, version, commit, names = _native_builds(tmp_path)
+    destination = tmp_path / "public"
+    destination.mkdir()
+    previous = destination / names["debian"]
+    previous.write_bytes(b"previous published bytes")
+    with pytest.raises(ValueError, match="already exists"):
+        _release_helper().collect_frozen_installers(source, destination, version, commit)
+    assert list(destination.iterdir()) == [previous]
+    assert previous.read_bytes() == b"previous published bytes"
+
+
+def test_release_waits_for_exact_source_native_acceptance_before_tagging_or_upload():
+    yaml = pytest.importorskip("yaml")
+    release = yaml.safe_load((ROOT / ".github/workflows/release.yml").read_text())
+    jobs = release["jobs"]
+    native = jobs["frozen-installers"]
+    assert native["uses"] == "./.github/workflows/frozen-installers.yml"
+    assert native["needs"] == ["bump", "installers"]
+    assert native["with"] == {"source_ref": "${{ needs.installers.outputs.release_commit }}",
+                              "release_version": "${{ needs.bump.outputs.version }}"}
+    publish = jobs["github-release"]
+    assert "frozen-installers" in publish["needs"]
+    assert "needs.frozen-installers.result == 'success'" in publish["if"]
+    steps = publish["steps"]
+    download = next(step for step in steps if step.get("with", {}).get("pattern") == "legacy-build-*")
+    assert download["with"] == {"pattern": "legacy-build-*", "path": "frozen-assets"}
+    verify = next(step for step in steps if step.get("name") == "Verify and select exact native release payloads")
+    assert verify["env"] == {"RELEASE_SHA": "${{ needs.installers.outputs.release_commit }}",
+                             "VERSION": "${{ needs.bump.outputs.version }}"}
+    assert 'collect-frozen --source frozen-assets --destination release-assets' in verify["run"]
+    assert '--source-commit "$RELEASE_SHA" --version "$VERSION"' in verify["run"]
+    names = [step.get("name") for step in steps]
+    assert names.index(verify["name"]) < names.index("Create checksums") < names.index("Tag exact release commit")
+    assert names.index("Create checksums") < names.index("Publish release notes and downloadable installers")
+
+
+def test_reusable_native_build_and_verifiers_use_selected_commit_not_caller_sha():
+    yaml = pytest.importorskip("yaml")
+    workflow = yaml.safe_load((ROOT / ".github/workflows/frozen-installers.yml").read_text())
+    events = workflow.get("on", workflow.get(True))
+    assert events["workflow_call"]["inputs"] == {
+        "source_ref": {"required": True, "type": "string"},
+        "release_version": {"required": True, "type": "string"}}
+    assert workflow["env"]["SPACR_ACCEPTANCE_REF"] == "${{ inputs.source_ref || github.sha }}"
+    for job in workflow["jobs"].values():
+        for step in job["steps"]:
+            if step.get("uses", "").startswith("actions/checkout@"):
+                assert step["with"]["ref"] == "${{ inputs.source_ref || github.sha }}"
+    for name in ("build-frozen", "build-debian"):
+        commands = "\n".join(step.get("run", "") for step in workflow["jobs"][name]["steps"])
+        assert 'test "$(git rev-parse HEAD)" = "$SPACR_ACCEPTANCE_REF"' in commands
+        assert 'test "$version" = "$SPACR_RELEASE_VERSION"' in commands
+        assert '"$version" > acceptance/version.txt' in commands
+    source = (ROOT / ".github/workflows/frozen-installers.yml").read_text()
+    assert "$env:GITHUB_SHA" not in source and '"$GITHUB_SHA"' not in source
+    assert "-SourceCommit $env:SPACR_ACCEPTANCE_REF" in source
+    assert '-e ACCEPTANCE_COMMIT="$SPACR_ACCEPTANCE_REF"' in source
+    assert '"$SPACR_ACCEPTANCE_REF" macos-hosted' in source
+
+
+def test_windows_native_verifier_keeps_default_and_explicit_commit_refusal(tmp_path):
+    source = (ROOT / "packaging/verify_claude_native_install.ps1").read_text()
+    assert "[string]$SourceCommit = $env:GITHUB_SHA" in source
+    assert "$Proof.source_commit -ne $SourceCommit" in source
+    powershell = shutil.which("pwsh")
+    if powershell is None:
+        pytest.skip("PowerShell is required to execute the native receipt guard")
+    prefix = source.split("$Hint =", 1)[0]
+    guard = tmp_path / "guard.ps1"
+    guard.write_text(prefix)
+    receipt = tmp_path / "smoke.json"
+    receipt.write_text('{"status":"passed","frozen":true,"qt_platform":"windows","source_commit":"selected"}')
+    common = [powershell, "-NoProfile", "-NonInteractive", "-File", str(guard),
+              "-NativeReceipt", str(receipt), "-Shell", "cmd", "-Output", str(tmp_path / "out")]
+    import os
+    env = dict(os.environ, GITHUB_SHA="selected")
+    default = subprocess.run(common, env=env, capture_output=True, text=True, timeout=10)
+    assert default.returncode == 0, default.stderr
+    explicit = subprocess.run(common + ["-SourceCommit", "selected"],
+                              env=dict(env, GITHUB_SHA="caller"), capture_output=True, text=True, timeout=10)
+    assert explicit.returncode == 0, explicit.stderr
+    wrong = subprocess.run(common + ["-SourceCommit", "caller"], env=env,
+                           capture_output=True, text=True, timeout=10)
+    assert wrong.returncode != 0 and "another commit" in wrong.stderr

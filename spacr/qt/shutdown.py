@@ -130,8 +130,12 @@ def restart_spacr(module: str, settings=None, *, running=(), run_folders=(),
         if launcher is None:
             import subprocess
 
-            subprocess.Popen(started, start_new_session=True,
-                             close_fds=True)
+            launch_options = {"start_new_session": True, "close_fds": True}
+            if getattr(sys, "frozen", False):
+                environment = dict(os.environ)
+                environment["PYINSTALLER_RESET_ENVIRONMENT"] = "1"
+                launch_options["env"] = environment
+            subprocess.Popen(started, **launch_options)
         else:
             launcher(started)
     except Exception as exc:                          # noqa: BLE001

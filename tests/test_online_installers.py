@@ -202,10 +202,10 @@ def test_installer_consent_is_optional_off_by_default_and_persisted():
     for source in (unix, windows):
         assert "ShareDiagnostics" in source or "SHARE_DIAGNOSTICS=0" in source
         assert "ReportIssues" in source or "REPORT_ISSUES=0" in source
-        assert "SignInNow" in source or "SIGN_IN_NOW=0" in source
+        assert "SignInNow" not in source and "SIGN_IN_NOW" not in source and "sign-in-now" not in source
         assert "spacr.install_profile" in source
     assert "Page custom ConsentPage ConsentPageLeave" in nsis
-    assert nsis.count("off by default") >= 3
+    assert nsis.count("off by default") >= 2
     assert "PUBLIC spaCR GitHub repository" in nsis
     assert "cannot be reliably unpublished" in nsis
     assert "-ConsentCollected $ConsentCollectedValue" in nsis
@@ -706,6 +706,11 @@ def test_one_click_release_orders_version_pypi_installers_and_github():
     assert "VERSION remains $version" in workflow
     assert "python packaging/release.py verify" in workflow
     assert "git add setup.py CITATION.cff spacr/_version.py" in workflow
+    commit_step = workflow.split("- name: Commit version increment", 1)[1].split(
+        "\n      - name:", 1)[0]
+    staged_paths = next(line.strip().split()[2:] for line in commit_step.splitlines()
+                        if line.strip().startswith("git add "))
+    assert "packaging/readme_source.yaml" in staged_paths
     assert "release_required: ${{ steps.version.outputs.release_required }}" in workflow
     assert "if: needs.bump.outputs.release_required == 'true'" in workflow
     assert "needs.verify-pypi.result == 'success'" in workflow
@@ -733,7 +738,7 @@ def test_one_click_release_orders_version_pypi_installers_and_github():
     assert "needs: [bump, package, publish-pypi]" in workflow
     assert "needs: [bump, verify-pypi]" in workflow
     assert (
-        "needs: [bump, package, publish-pypi, verify-pypi, installers]"
+        "needs: [bump, package, publish-pypi, verify-pypi, installers, frozen-installers]"
         in workflow
     )
     # The installer stage cannot start until PyPI has returned HTTP 200.

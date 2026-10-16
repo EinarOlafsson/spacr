@@ -100,13 +100,6 @@
       "translation": "默认关闭。关闭时，spaCR 不加载任何音频库，也不播放任何声音。开启后，spaCR 会通过计算机的默认音频输出播放下方已启用的声音。"
     },
     {
-      "key": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
-      "source": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
-      "source_sha256": "dd935b5d7fe48a39493b59e044ff62e36a0ca816576d970d263c3b7ea601d776",
-      "table": "ui",
-      "translation": "提供 GitHub CLI 安装选项，然后帮助您登录。即使未安装，仍可提交问题：系统会在您已登录的浏览器中打开提交页面。"
-    },
-    {
       "key": "On by default. When on, an error report saves recent log lines, with paths and credentials redacted, to a file on this computer and names that file in the report. The log itself is never posted to GitHub.",
       "source": "On by default. When on, an error report saves recent log lines, with paths and credentials redacted, to a file on this computer and names that file in the report. The log itself is never posted to GitHub.",
       "source_sha256": "9b74032817cc3d8694c522542143e5ecff9dfdf100e6dba15c5b3ed2e83cedda",
@@ -161,13 +154,6 @@
       "source_sha256": "4b3b966cb45c6b0e7e73f3f68a0ccb9ba62c05de684832e86095d30bba5c2c5f",
       "table": "ui",
       "translation": "正在打开 {name}"
-    },
-    {
-      "key": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
-      "source": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
-      "source_sha256": "6f5e747dba4dc3d4cc0a05b17936533f61b4bd23cedd56267396af17fe22d9f8",
-      "table": "ui",
-      "translation": "在浏览器中打开 GitHub 注册页面。注册后请返回这里，安装 GitHub CLI 并登录。"
     },
     {
       "key": "Otsu",
@@ -336,6 +322,26 @@
         "source_sha256": "be41b2e9e9d6eb7c1fde89f68e220ae37fb74aaf44ec832a4d95ae1c8b50a029",
         "table": "ui",
         "translation": "设置 GitHub CLI"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+        "source": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+        "source_sha256": "dd935b5d7fe48a39493b59e044ff62e36a0ca816576d970d263c3b7ea601d776",
+        "table": "ui",
+        "translation": "提供 GitHub CLI 安装选项，然后帮助您登录。即使未安装，仍可提交问题：系统会在您已登录的浏览器中打开提交页面。"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+        "source": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+        "source_sha256": "6f5e747dba4dc3d4cc0a05b17936533f61b4bd23cedd56267396af17fe22d9f8",
+        "table": "ui",
+        "translation": "在浏览器中打开 GitHub 注册页面。注册后请返回这里，安装 GitHub CLI 并登录。"
       }
     }
   ],

@@ -4020,3 +4020,36 @@ data/reviewed_folder_ellipsis_normal_closure_2026-10-15/ and
 data/ci_reviewed_folder_ellipsis_consumers_2026-10-15/.
 
 2026-10-15 Original Home — dated README checkout size factual CI repair. Immutable public81ffd9 regular tracked blobs measure4656.950838MiB, rounded4657 under existing MB label. Only size/date tokens changed in ten YAML paragraphs; nine new source-bound technical reviews retain all historical reviews and measurements. Normal ten-language README writer/check and original11 size/review/structure cases PASS1.42s, zero skips/network. Only40 intended generated panel/text/README paths changed; foreign panels/links/source/review pins exact. First shaping-dependency failure stopped before writes; unchanged writer retried using an existing fully equipped interpreter, tests retained spaCR. No package/tool/tolerance change or full-CI claim. WholeN43 remains open on actual hosted/current-source verdict and remaining explicit gates. Evidence: data/ci_readme_tracked_size_inputs_2026-10-15/ and normal closure receipt.
+
+2026-10-16 — Release publication now requires accepted Windows NSIS, macOS DMG and Debian DEB payloads from the exact tagged commit, with version/source/checksum validation before upload.
+Related checks pass: native-release files125 (2 native-only skips), actual dialog completion9, frozen restart/settings-flow3, translation inverses2, splitter teardown6 and Python3.9 stdlib inventory4; live pending pane sizes still persist once.
+Protected full run38852206708 remains active; the next code candidate contains these fixes. No whole-green, native installer acceptance or release claim.
+BLOCKED ON MAINTAINER: have Claude resolve N700 retired setup tests/terms/markup, N370 alpha registration, N698 obsolete source fixtures and N673 Matplotlib private-attribute use; preserve behavior and existing gates.
+The hosted big-folder DND test passed this run without changing its700ms limit; finish remaining owned CI repairs and require full green before publishing1.5.1.5.
+
+2026-10-16 — 621bf7433fb passes native Windows NSIS, Debian12 and Ubuntu22.04 install/app/uninstall/helper checks, including retained user data.
+Mac failure identified the actual first-install cache dialog; smoke now completes default-off Keep review before Preferences/Quit, retaining unknown-modal and deadline refusal.
+Related controller checks pass, including real asynchronous review, retained files and no late button clicks; the unchanged1.35 paint test also passes with coverage onQt6.11.2.
+Full tests38861369146 still fail reserved N700/F370/N673/N698 checks; owner repairs remain required before release.
+New native/full CI verdicts remain pending;1.5.1.5 is not released.
+
+2026-10-16 — 4180045b922 makes finite grain/satin CPU compilers survive interpreter teardown; rendering stays asynchronous and the copy queue remains a daemon.
+Both subprocess regressions fail before the fix; all52 related checks pass afterward, including unchanged Classify import isolation. No old LLVM-crash causality claim.
+Native installer workflow38873736048 is green on72e07; protected full CI38877579907 continues. Reserved-feature failures and full-green release gate remain open.
+
+2026-10-16 — a37d0f10357 repairs the smoke-test fake by binding the real cleanup helper; worker and failed-database assertions are unchanged.
+Original node fails before the fixture repair; all17 owning tests pass afterward. Hosted72 coverage also passes the original1.35 Make Masks paint-rate check.
+Full CI still requires the reserved N700/N673 owner repairs and remaining job results; no release or whole-item completion claimed.
+
+2026-10-16 — 1a4f74fdac3 aligns FlowView packaging assertions with the core Qt6.12.0 exclusion and checks the unchanged lower/upper bounds and core-binding reuse.
+The original assertion fails before this test repair; the owning file passes afterward. Future-version admission states policy, not an upstream bug-fix claim.
+Remaining CI jobs and reserved-feature owner repairs still gate1.5.1.5; no whole-green or release claim.
+
+2026-10-16 — 19143604c79 closes every cached QWidget screen before main-window destruction, flushing pending Annotate labels and draining its writer/page worker; close vetoes and deduplication remain intact.
+Two real shutdown regressions fail before the fix; all14 related checks pass, with the two test-helper follow-ups also passing. Original Undo/Redo assertions are unchanged; hosted crash causality remains unproven.
+7c37664cb309/42f1c953abb isolate GDB embedded Python from inherited runtime libraries while retaining inferior search paths and bounded core cleanup; all95 related cases and five focused follow-ups pass.
+Full CI and reserved-feature repairs still gate1.5.1.5; no whole-item completion or release claim.
+
+2026-10-16 — 23580ea8701 makes the field-drag test consume its queued release through the existing zero-time frame API; nonblocking input and all original spring assertions remain unchanged.
+A held-render-lock baseline reproduces the stale engine assertion; all17 owning tests pass, including unchanged150ms responsiveness and strengthened queued-release continuity/no-replay checks.
+HostedQt6.11.2 passes all four strict opaque/classic paint modes. Full-green CI, reserved-feature repairs and1.5.1.5 publication remain open.

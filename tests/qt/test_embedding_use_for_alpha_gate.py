@@ -105,3 +105,45 @@ def test_the_image_umap_fills_the_preview(screen):
     assert list(screen._umap.columns) == ["umap_1", "umap_2"]
     assert len(screen._umap) == 20
     assert screen._table.columnCount() == 2
+
+
+@pytest.mark.parametrize("kind", ["empty-csv", "malformed-csv", "missing", "directory", "no-columns"])
+def test_an_unreadable_label_table_preserves_the_previous_labels_and_embedding(
+        screen, tmp_path, monkeypatch, kind):
+    from spacr.qt.i18n import tr
+
+    valid = _labels(tmp_path)
+    assert screen._choose_labels(valid) == valid
+    previous_labels = dict(screen._labels)
+    previous_result = screen._result
+    previous_frame = screen._frame.copy(deep=True)
+    previous_entry = screen._entry
+    path = tmp_path / ("unreadable.xlsx" if kind == "no-columns" else "unreadable.csv")
+    if kind == "empty-csv":
+        path.write_bytes(b"")
+    elif kind == "malformed-csv":
+        path.write_bytes(b'label\n"unterminated\n')
+    elif kind == "directory":
+        path.mkdir()
+    elif kind == "no-columns":
+        pd.DataFrame().to_excel(path, index=False, engine="openpyxl")
+    before = path.read_bytes() if path.is_file() else None
+    valid_bytes = (tmp_path / "labels.csv").read_bytes()
+    monkeypatch.setattr(em.QFileDialog, "getOpenFileName",
+                        staticmethod(lambda *args: (str(path), "")))
+    screen._labels_button.click()
+    assert screen._labels == previous_labels
+    assert screen._result is previous_result
+    pd.testing.assert_frame_equal(screen._frame, previous_frame)
+    assert screen._entry is previous_entry
+    prefix = tr("Could not read the label table: {error}", error="")
+    assert screen._status.text().startswith(prefix)
+    assert len(screen._status.text()) > len(prefix)
+    assert "{error}" not in screen._status.text()
+    assert (tmp_path / "labels.csv").read_bytes() == valid_bytes
+    if before is not None:
+        assert path.read_bytes() == before
+    elif kind == "directory":
+        assert path.is_dir()
+    else:
+        assert not path.exists()

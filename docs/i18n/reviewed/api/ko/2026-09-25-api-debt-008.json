@@ -3447,7 +3447,7 @@
     },
     {
       "context": "the dialog to decorate; it is left alone unless :func:`wants_glass` accepts it.",
-      "label": "spacr.qt.widgets.glass.glass#2",
+      "label": "spacr.qt.widgets.glass.glass#3",
       "review_basis": "written from the English (no current MT draft)",
       "source": "the dialog to decorate; it is left alone unless :func:`wants_glass` accepts it.",
       "source_sha256": "32ad184b5d895760a58585e6b97140a9ce6a1c9c468e6f3a054396b3342cd65e",
