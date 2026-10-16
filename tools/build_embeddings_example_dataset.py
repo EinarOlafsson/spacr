@@ -31,6 +31,10 @@ scores are not a scientific benchmark or evidence of biological accuracy.
 
 Try it in spaCR
 --------------
+The embedding dependencies must be installed. For a Python installation,
+run `python -m pip install "spacr[embeddings]"` in the spaCR environment if
+the app asks for torch and timm. This example does not bundle Python packages.
+
 1. Enable Show alpha features, then open Embeddings.
 2. Click Load synthetic demo. This opens these crops and their aligned
    labels, selects resnet18 with Project channels and a batch size of 8,
