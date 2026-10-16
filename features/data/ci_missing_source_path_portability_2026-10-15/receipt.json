@@ -1,0 +1,34 @@
+{
+  "status": "PASS_TARGETED_THREE_PORTABILITY_CONSUMERS_WITHIN_SIX_NODE_INVOCATION",
+  "test": "tests/test_n702_cluster_download_http.py",
+  "before_sha256": "bb5ffbacf92afb2e767c2535f16e1737b13c961660b349ceb9f6fc1f0307ee17",
+  "after_sha256": "5ad424edbc94385385dc98b083b12b17c5a79dca18135a054bb06cf166422333",
+  "outside_two_named_functions_AST_exact": true,
+  "named_functions": [
+    "test_missing_laptop_path_downloads_verified_bytes_and_logs_one_line",
+    "test_pinned_version_downloads_exactly_the_recorded_identity"
+  ],
+  "source": "Both syntheticmissinglaptoprequests nowuseactualprivate tmp_path descendants, proveabsence and retainbasename/pinnedidentity/bytes/cache/onerequest/exactexpectedlog/sourceinputpreservation assertions. Onefixtureargumenttmp_path added; logrequestinterpolation updatedtoactualrequest.",
+  "gates_unchanged": "Generictest_no_user_home_paths_in_the_suite unchanged; no homepathratchet/exception/source/modelresolver modifications.",
+  "actual_invocation": "spacr-ci-docsource-hygiene-six-20261015/e988377bbbfa43519c114f5c74cf6ee6",
+  "actual_result": "6PASS61.68s,2retainedwarnings. Hygiene1+twoactualownedloopbackHTTPnodes PASS; companionRunContext1+inline2 passedagainstseparatelyprivate docstring-only source.",
+  "source_prose_companion_pins": {
+    "spacr/runctx.py": {
+      "before_sha256": "3f9ce4990bb7d50d9b2e480ef38c55cc46999ec7062bb4fcf63f76cd0fe90623",
+      "after_sha256": "2de51c7a61052d8c985fcf8109afe592d3f0e3749f97c800832cf17afd980f97"
+    },
+    "spacr/crashreport.py": {
+      "before_sha256": "5919e1dfb331c7279c7e2e10dd83786e9e88eb989bf74f59341ea3a3b076314f",
+      "after_sha256": "9bfb5074a71226418b096a550a0e635a35523654d1b19d891287fac7dc582a0e"
+    }
+  },
+  "isolation": "2G/noSwap/CPU1/threads1/Originalheavylock/offscreen/blankCUDA; socketguardpermitsONLYownednumericloopbackHTTPfixtures and refusesotherDNS/connect.",
+  "warnings": [
+    "Existinginvalidescape SyntaxWarning in unrelatedtestsource",
+    "AnotherprocesschangedrealQSettingsfiles; thisprocesssandboxcorrect, no sharedsettingsmutation made byagent"
+  ],
+  "limits": [
+    "No privateprosesource includedinthiscommit; threehygiene consumers independentof companiondocstrings",
+    "No fullCI/native/model/release acceptance or externalnetwork/service action"
+  ]
+}

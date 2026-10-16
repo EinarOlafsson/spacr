@@ -86,12 +86,14 @@ def _lock_path(shared, entry):
     return shared / f'.model-{identity}.lock'
 
 
-def test_missing_laptop_path_downloads_verified_bytes_and_logs_one_line(node, monkeypatch, caplog):
+def test_missing_laptop_path_downloads_verified_bytes_and_logs_one_line(node, tmp_path, monkeypatch, caplog):
+    request = str(tmp_path / 'laptop' / '.spacr' / 'models' / 'cells_r7.CP_model')
+    assert not Path(request).exists()
     with _Server({'/cells_r7.CP_model': PAYLOAD}) as server:
         entry = _entry(server)
         monkeypatch.setattr(zoo, 'catalogue', lambda **kwargs: [entry])
         with caplog.at_level(logging.INFO, logger='spacr.model_zoo'):
-            result = zoo._ensure_model_file('/Users/laptop/.spacr/models/cells_r7.CP_model',
+            result = zoo._ensure_model_file(request,
                                             setting='cell_model_name')
     assert result == node / 'cells_r7.CP_model'
     assert result.read_bytes() == PAYLOAD
@@ -99,7 +101,7 @@ def test_missing_laptop_path_downloads_verified_bytes_and_logs_one_line(node, mo
     assert sorted(p.name for p in node.iterdir()) == ['cells_r7.CP_model']
     lines = [r.getMessage() for r in caplog.records if 'downloaded zoo model' in r.getMessage()]
     assert lines == [
-        f"cell_model_name: /Users/laptop/.spacr/models/cells_r7.CP_model was not found here; "
+        f"cell_model_name: {request} was not found here; "
         f"downloaded zoo model cells_r7 ModelEntry.version='7' (sha256 {entry.sha256}) to {result}."]
 
 
@@ -159,7 +161,8 @@ def test_pinned_version_downloads_exactly_the_recorded_identity(node, tmp_path, 
                  'sha256': hashlib.sha256(NEWER).hexdigest()}]
         monkeypatch.setattr(zoo, 'BUNDLED_REMOTE_MODELS', rows)
         monkeypatch.setattr(zoo, 'catalogue', lambda **k: pytest.fail('pin used provider discovery'))
-        request = '/Users/laptop/models/cells_r8.CP_model'
+        request = str(tmp_path / 'laptop' / 'models' / 'cells_r8.CP_model')
+        assert not Path(request).exists()
         record = zoo._model_reference_from_record(request, rows[0])
         settings = {'cell_model_name': request, 'model_metadata': {
             'schema_version': 1, 'settings': {'cell_model_name': record}}}
