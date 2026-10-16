@@ -1,9 +1,9 @@
 """The Windows builder binds the exact payload consumed by its transaction."""
 import hashlib
 import json
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 
 import pytest
 

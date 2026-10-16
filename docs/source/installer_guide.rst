@@ -168,6 +168,23 @@ the replacement is not authorized. Details are retained in
 ``~/.spacr/logs/update.log``. A frozen application bundle uses its verified
 bundle replacement workflow instead of updating a Python environment.
 
+Supported frozen macOS, Windows and Debian installations prepare their
+replacement while the current application remains open. Protected installations
+request the operating system's graphical administrator authorization before
+offering **Restart**. Cancellation keeps the current application open. Activation
+waits for safe closure and actual process exit; the new application must confirm
+its version, executable and main window before recovery files are retired.
+
+Windows automatic updates require the release's checksummed
+``spaCR-VERSION-update.exe``. The ordinary ``spaCR-VERSION-setup.exe`` remains
+the interactive installation download and is never substituted by the updater.
+Protected macOS updates require an installed helper that advertises the current
+native phase protocol. Older helpers, missing update assets and unsupported
+legacy Linux or Windows online layouts report the limitation while keeping the
+application open. Use the matching ordinary installer from GitHub releases to
+bring such an installation forward; shared and Conda environments use their
+package manager.
+
 Reinstalling the same version
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -271,10 +288,17 @@ keep it, inspect the exact paths listed, and confirm the uninstall. Cancel
 leaves the application and files unchanged. spaCR closes safely before its
 running installation is removed.
 
-If any selected installation or data path requires administrator access that
-the helper cannot obtain, preparation stops before spaCR closes. Nothing is
-removed. Use the platform's native uninstall option below for that protected
-installation.
+Supported protected macOS applications, Windows frozen installations and Debian
+packages request graphical administrator authorization during preparation,
+while spaCR remains open. The helper must be installed, verified and advertise
+the required uninstall protocol. Declining authorization or cancelling the
+popup leaves the application and files intact. Removal waits for confirmed safe
+closure and actual process exit.
+
+If a selected installation has an older unsupported helper, or a selected data
+path cannot be removed with the available permissions, preparation stops before
+spaCR closes and nothing is removed. The preview still identifies the affected
+paths. The native alternatives below remain available for those installations.
 
 These categories cover identified spaCR-owned locations. Shared external
 caches, unverified or linked folders and arbitrary project folders are kept;

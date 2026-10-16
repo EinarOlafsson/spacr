@@ -9,9 +9,11 @@ from spacr import install_cleanup as ic
 from tests.test_install_cleanup import (
     Box,
     _conda_env,
-    _nothing_here_reaches_this_computer as _nothing_here_reaches_this_computer,
     linux_online,
     macos_package,
+)
+from tests.test_install_cleanup import (
+    _nothing_here_reaches_this_computer as _nothing_here_reaches_this_computer,
 )
 
 
@@ -680,6 +682,8 @@ def protected_windows(tmp_path, monkeypatch):
     manifest.write_text(json.dumps({"schema": 1, "version": "1.5.0.7",
         "files": {name: hashlib.sha256(content).hexdigest() for name, content in files.items()}}))
     (root / "Uninstall.exe").write_bytes(b"native uninstaller")
+    (root / "spacr-uninstaller.json").write_text(json.dumps({"schema": 1,
+        "adapter": "windows-frozen-uninstall-v1", "sha256": ic._macos_digest(str(root / "Uninstall.exe"))}))
     shortcut = menu / "spaCR.lnk"
     shortcut.write_text(str(root))
     project = root / "my-project" / "measurements.csv"
@@ -750,7 +754,8 @@ def test_windows_native_removal_keeps_projects_and_empty_optouts_until_actual_ex
             return {"phase": decision}
 
     monkeypatch.setattr(ic, "_UpdatePhaseClient", Channel, raising=False)
-    call = lambda: ic._uninstall_frozen_windows(str(request_path), str(root), "private-descriptor", 12345, desktop)
+    def call():
+        return ic._uninstall_frozen_windows(str(request_path), str(root), "private-descriptor", 12345, desktop)
     if decision == "activate" and not exited:
         with pytest.raises(RuntimeError, match="must close"):
             call()
@@ -881,3 +886,101 @@ def test_frozen_macos_authorized_helper_requires_activation_and_actual_exit(monk
     if removals:
         assert removals == [("remove", target, (3, 9), [target + "/my-project"])]
         assert events.index("prepared") < events.index("exited") < events.index(removals[0]) < events.index("complete")
+
+
+@pytest.mark.parametrize("cancelled", [False, True])
+def test_windows_uninstall_bootstrap_exit_is_not_authenticated_completion(installation, tmp_path, monkeypatch, cancelled):
+    from contextlib import contextmanager
+    from threading import Event
+
+    box, root, machine, plan, calls = _prepared_helper(installation, tmp_path)
+    handshake = ic._FrozenUpdateHandshake(plan)
+    uninstaller = tmp_path / "Uninstall.exe"
+    uninstaller.write_bytes(b"native fixture")
+    completed_bootstrap = Event()
+    events = []
+    pinned = []
+    adapter = {"uninstaller": str(uninstaller), "request": {"targets": []},
+               "uninstaller_sha256": ic._macos_digest(str(uninstaller)),
+               "desktop_executable": machine.executable}
+
+    @contextmanager
+    def pin(path, digest):
+        assert path == str(uninstaller)
+        assert digest == adapter["uninstaller_sha256"]
+        pinned.append(True)
+        try:
+            yield
+        finally:
+            pinned.clear()
+
+    def authorize(path, arguments, **kwargs):
+        assert path == str(uninstaller) and kwargs == {"visible": False}
+        assert "/SPACRUNINSTALL=" in arguments and "/SPACRREQUEST=" in arguments
+        events.append("bootstrap-exit")
+        completed_bootstrap.set()
+        return 0, ""
+
+    class Channel:
+        _connection = object()
+        endpoint = str(tmp_path / "private-descriptor")
+
+        def __init__(self, workdir):
+            assert workdir == plan["workdir"]
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return None
+
+        def _receive(self, phases, **kwargs):
+            assert completed_bootstrap.wait(timeout=2)
+            assert kwargs["stopped"]() is False
+            phase = next(iter(phases))
+            if phase == "prepared":
+                assert pinned and handshake.status() is None
+            else:
+                assert not pinned and events[-1] == "activate"
+            events.append(phase)
+            return {"phase": phase}
+
+        def _send(self, phase):
+            events.append(phase)
+
+    def ready():
+        events.append("ready")
+        ic._FrozenUpdateHandshake.ready(handshake)
+        handshake.cancel() if cancelled else handshake.approve()
+
+    monkeypatch.setattr(ic, "_windows_pip_private_access", lambda *args, **kwargs: None)
+    monkeypatch.setattr(ic, "_windows_frozen_installer_pin", pin)
+    monkeypatch.setattr(ic, "_windows_authorized_process", authorize)
+    monkeypatch.setattr(ic, "_UpdatePhaseServer", Channel)
+    monkeypatch.setattr(handshake, "ready", ready)
+    def wait(pid):
+        events.append("exited")
+        return True
+    if cancelled:
+        with pytest.raises(RuntimeError, match="cancelled"):
+            ic._run_windows_native_uninstall(plan, adapter, handshake, wait=wait)
+        assert "activate" not in events and events[-1] == "cancel"
+    else:
+        ic._run_windows_native_uninstall(plan, adapter, handshake, wait=wait)
+        assert events == ["bootstrap-exit", "prepared", "ready", "exited", "activate", "complete"]
+
+
+@pytest.mark.parametrize("invalid", ["missing_receipt", "old_uninstaller", "oversized_receipt"])
+def test_windows_new_payload_marker_does_not_authorize_an_old_uninstaller(protected_windows, invalid):
+    root, request, project, kept, shortcut = protected_windows
+    receipt = root / "spacr-uninstaller.json"
+    if invalid == "missing_receipt":
+        receipt.unlink()
+    elif invalid == "old_uninstaller":
+        (root / "Uninstall.exe").write_bytes(b"legacy uninstaller without the protocol")
+    else:
+        receipt.write_text(receipt.read_text() + " " * 1024)
+    with pytest.raises((OSError, ValueError)):
+        ic._windows_uninstall_targets(request)
+    assert (root / "_internal/spacr-uninstall-protocol.json").exists()
+    assert project.read_text() == "unrelated" and (root / "spacr.exe").exists()

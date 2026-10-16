@@ -7,24 +7,25 @@ helper verifies the desktop interpreter and imported application before retiring
 other copies or requesting a restart. :func:`run_update_sequence` remains the
 low-level removal procedure used by explicit cleanup commands.
 
-Supported macOS online installations and dedicated POSIX pip environments
-use their existing package tool to stage and verify an updated sibling runtime
-before requesting Restart. Activation requires approved shutdown. Bootstrap files, launchers,
-unchanged packages and the previous runtime are retained. Shared, Conda and
-Windows Python environments require their own replacement adapter.
+Supported macOS online installations and dedicated POSIX or Windows pip
+environments use their existing package tool to stage and verify an updated
+sibling runtime before requesting Restart. Activation requires approved
+shutdown. Bootstrap files, launchers, unchanged packages and the previous
+runtime are retained. Shared and Conda environments require their own
+replacement adapter.
 
-A supported frozen macOS application uses a verified DMG replacement and
-retains its complete previous application bundle. These macOS update paths
-do not run the standard deletion procedure. Other frozen application
-families require a supported replacement adapter before an update can start.
+A supported frozen macOS, Windows or Debian installation stages its verified
+replacement while the desktop remains open. Protected installations obtain
+graphical administrator authorization before requesting Restart. Activation
+requires approved shutdown and actual process exit; recovery data remains
+until the updated desktop confirms its identity and main window.
 
-Removal never runs an old version's own uninstaller, so a copy whose
-``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed
-all the same. Preferences and user data are kept: ``~/.spacr``,
-``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``,
-``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt``
-settings (``~/.config/spacr``, the macOS preferences file, and the
-``Software\\spacr`` registry key on Windows).
+Ordinary removal preserves preferences and user data. The confirmed GUI
+uninstall instead previews current or all detected installations and separate
+cleanup categories, selected by default with individual opt-outs. Protected
+removal uses only a validated installed helper with the required protocol;
+authorization, preparation and approved desktop exit precede deletion.
+Unrelated projects, unverified data and shared environments are preserved.
 
 A pip or conda environment the user made is listed but never deleted; the
 spaCR package is uninstalled from it only when the caller says it was ticked.
@@ -57,8 +58,8 @@ import stat
 import subprocess
 import sys
 import tempfile
-import time
 import threading
+import time
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass, field, replace
 from typing import Callable, Dict, Iterable, List, Optional, Sequence, Tuple
@@ -83,7 +84,7 @@ _WAIT_SECONDS = 600.0
 _FROZEN_PREPARATION_SECONDS = 3600.0
 _RMTREE_TAKES_ONEXC = sys.version_info >= (3, 12)
 _PRIVILEGED_DEBIAN_HELPER = False
-_MACOS_FROZEN_PHASE_COMMANDS = ("apply-macos-root",)
+_MACOS_FROZEN_PHASE_COMMANDS = ("apply-macos-root", "uninstall-macos-root")
 
 
 @dataclass(frozen=True)
@@ -2081,6 +2082,7 @@ def _macos_frozen_uninstall_adapter(preview, records, machine):
 def _macos_uninstall_tree(path, identity, keep, *, apply=False, owner=0):
     """Traverse bound directories by descriptor, preserving selected paths and never following links."""
     def visit(parent, name, absolute):
+        """Remove one verified child through its parent descriptor while preserving selected paths."""
         if any(_inside(absolute, saved) for saved in keep):
             return False
         before = os.stat(name, dir_fd=parent, follow_symlinks=False)
@@ -2178,6 +2180,7 @@ def _run_native_uninstall(plan, adapter, handshake, wait=None):
             activated = False
             try:
                 def stopped():
+                    """Check desktop cancellation before observing the authorized helper's completion."""
                     handshake.check()
                     return process.poll() is not None
 
@@ -2258,12 +2261,14 @@ def _windows_uninstall_targets(request):
             raise ValueError("invalid_windows_uninstall_keep")
         for path in (os.path.dirname(root), root, os.path.join(root, "_internal")):
             _windows_system_owned(path)
+        _windows_uninstall_protocol(root)
         version = _frozen_windows_previous_version(root)
         manifest = _frozen_windows_payload(root, version)
         if version != target["version"] or _macos_digest(os.path.join(root, "spacr-payload.json")) != target["manifest"]:
             raise ValueError(tr("The installation changed. Review the uninstall paths again."))
         files = [os.path.join(root, *PurePosixPath(name).parts) for name in manifest["files"]]
-        files.extend(os.path.join(root, name) for name in ("Uninstall.exe", "spacr-payload.json") if _exists(os.path.join(root, name)))
+        files.extend(os.path.join(root, name) for name in (
+            "Uninstall.exe", "spacr-uninstaller.json", "spacr-payload.json") if _exists(os.path.join(root, name)))
         directories = {root}
         for path in files:
             cursor = os.path.dirname(path)
@@ -2289,6 +2294,23 @@ def _windows_uninstall_targets(request):
     return results
 
 
+def _windows_uninstall_protocol(root):
+    """Bind the advertised native protocol to the actual installed uninstaller before launching it."""
+    receipt = os.path.join(root, "spacr-uninstaller.json")
+    uninstaller = os.path.join(root, "Uninstall.exe")
+    for path in (receipt, uninstaller):
+        _windows_system_owned(path)
+    details = os.lstat(receipt)
+    if not stat.S_ISREG(details.st_mode) or details.st_size > 1024:
+        raise ValueError("invalid_windows_uninstaller_receipt")
+    with open(receipt, encoding="utf-8") as stream:
+        bound = json.loads(stream.read(1025))
+    expected = {"schema": 1, "adapter": "windows-frozen-uninstall-v1", "sha256": _macos_digest(uninstaller)}
+    if bound != expected:
+        raise ValueError("changed_windows_uninstaller_receipt")
+    return expected["sha256"]
+
+
 def _windows_native_uninstall_adapter(preview, records, machine):
     """Use the installed native uninstaller only when its declared protocol and payload are intact."""
     selected = [record for record in records if record.layout == "windows-offline" and record.needs_admin]
@@ -2298,6 +2320,7 @@ def _windows_native_uninstall_adapter(preview, records, machine):
     targets, remaining = [], []
     for record in selected:
         root = record.root
+        _windows_uninstall_protocol(root)
         marker = os.path.join(root, "_internal", "spacr-uninstall-protocol.json")
         _windows_system_owned(marker)
         if os.path.getsize(marker) > 1024:
@@ -2317,6 +2340,7 @@ def _windows_native_uninstall_adapter(preview, records, machine):
     _windows_system_owned(os.path.join(selected[0].root, "Uninstall.exe"))
     return {"adapter": "windows-frozen-native", "roots": [record.root for record in selected],
             "uninstaller": os.path.join(selected[0].root, "Uninstall.exe"),
+            "uninstaller_sha256": _windows_uninstall_protocol(selected[0].root),
             "desktop_executable": machine.executable, "request": request,
             "remaining": [{"path": path, "identity": _uninstall_path_state(path)} for path in remaining]}
 
@@ -2339,12 +2363,14 @@ def _run_windows_native_uninstall(plan, adapter, handshake, *, wait=None):
         result = {}
 
         def authorize():
+            """Retain the native uninstaller's bootstrap result until authenticated completion."""
             try:
                 result["result"] = _windows_authorized_process(adapter["uninstaller"], arguments, visible=False)
             except BaseException as error:
                 result["error"] = error
 
         def stopped():
+            """Treat failed native startup as stopped without confusing bootstrap exit with completion."""
             handshake.check()
             if "error" in result:
                 raise result["error"]
@@ -2352,7 +2378,7 @@ def _run_windows_native_uninstall(plan, adapter, handshake, *, wait=None):
 
         activated = False
         try:
-            with _windows_frozen_installer_pin(adapter["uninstaller"], _macos_digest(adapter["uninstaller"])):
+            with _windows_frozen_installer_pin(adapter["uninstaller"], adapter["uninstaller_sha256"]):
                 worker = threading.Thread(target=authorize, name="spacr-uninstall-authorization", daemon=True)
                 worker.start()
                 channel._receive({"prepared"}, stopped=stopped)
@@ -3174,7 +3200,6 @@ def _macos_request_protected_update(version, digest, *, image=None, transaction=
     :param run: optional native-command runner compatible with _macos_native.
     :returns: verified transaction receipt, including retained backup and journal paths.
     """
-    import re
 
     original_uid = os.geteuid()
     if original_uid == 0:
@@ -4125,9 +4150,10 @@ def _begin_update_launch():
         if handshake._read("launch-result.json") is not None:
             raise ValueError(tr("update launch request already consumed"))
         expected = message["details"]
+        from packaging.version import Version
+
         import spacr
         from spacr._version import __version__ as shipped
-        from packaging.version import Version
 
         actual = {"version": str(Version(str(spacr.__version__))),
                   "executable": os.path.abspath(sys.executable),
@@ -4468,7 +4494,7 @@ def _coordinate_native_update(plan, handshake, operation, *, check, launch, wait
                 channel._listener.close()
                 completed.wait()
             if not prepared_received and result and isinstance(result[0], BaseException):
-                raise result[0]
+                raise result[0] from None
             raise
 
 
@@ -4700,6 +4726,7 @@ def _macos_online_commands(record, version, workdir):
     """The install, probe and relaunch commands for a macOS online update."""
     import re
     from pathlib import Path
+
     from spacr.install_profile import read_profile
 
     version = _runtime_requested_version(version)
@@ -4898,6 +4925,7 @@ def _only_saved_wgpu_omission(code, output):
     Callers must separately require the explicit saved installation choice.
     """
     import re
+
     from packaging.requirements import InvalidRequirement, Requirement
 
     if code != 1:
@@ -6984,13 +7012,14 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
         helper's command, or ``None`` with ``plan["error"]`` saying why
         nothing was started.
 
-    A frozen macOS bundle in a user-writable location uses its verified DMG
-    replacement adapter and retains its complete prior bundle. A protocol-marked
-    Debian bundle uses graphical administrator authorization and a root-owned
-    helper outside the installation. Both the replacement and rollback package
-    require published checksums; package and unprivileged runtime verification
-    precede relaunch. Unsupported frozen application families return an error
-    before removing anything; no online-installer fallback is enabled for them.
+    Frozen macOS, Windows and protocol-marked Debian installations use their
+    verified native replacement adapters. Protected macOS requires an installed
+    helper with the current native phase protocol. Windows requires a separately
+    published, checksummed update executable. Administrator authorization and
+    staging precede Restart; activation follows approved desktop exit. The new
+    desktop must confirm its identity and main window before recovery files are
+    retired. Unsupported layouts or missing capabilities leave the running
+    application unchanged; no ordinary-installer fallback is enabled.
     """
     machine = system or _Machine()
     records = list(records)
