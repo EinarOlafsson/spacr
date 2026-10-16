@@ -277,7 +277,8 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
     "train_cellpose": {"model_type", "from_scratch", "Signal_to_noise", "background",
                        "remove_background", "diameter", "resize", "width_height",
                        "target_size", "augment", "verbose"},
-    "mask": {"pathogen_model"},
+    "mask": {"pathogen_model", "export_vvvv"},
+    "measure": {"export_vvvv"},
     "timelapse": {"timelapse", "mask_parallel", "mask_gpu_indices",
                   "watch_folder", "watch_pipeline", "watch_normalization_pool",
                   "watch_measure_settings",
@@ -1249,7 +1250,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Volumetric Processing (Beta)", ("@3D Settings (Beta)",)),
         ("Time Axes & Tracking (Beta)", ("@4D Settings (Beta)",)),
         ("Visualization & Diagnostics", (
-            "plot", "cmap", "figuresize", "examples_to_plot", "export_vvvv",
+            "plot", "cmap", "figuresize", "examples_to_plot",
         )),
     ),
     "measure": (
@@ -1320,7 +1321,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "save_png", "save_arrays", "crop_mode", "png_size",
             "png_channel_mapping",
             "dialate_pngs", "dialate_png_ratios", "use_bounding_box",
-            "normalize", "normalize_by", "export_vvvv",
+            "normalize", "normalize_by",
         )),
         ("3D Calibration (Beta)", (
             "anisotropy", "voxel_size_z_um", "voxel_size_xy_um",

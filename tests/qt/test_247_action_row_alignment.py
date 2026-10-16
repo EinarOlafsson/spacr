@@ -1,4 +1,4 @@
-"""Make Masks save/navigation remain aligned with editor actions."""
+"""Make Masks Save mask, Previous and Next share the NAVIGATION group."""
 import numpy as np
 import pytest
 import tifffile
@@ -16,11 +16,10 @@ def test_save_navigation_share_action_row(qtbot, qt_theme_applied, tmp_path, wid
     screen.show()
     qtbot.waitExposed(screen)
     buttons = (screen._btn_save, screen._btn_prev, screen._btn_next)
-    center = screen._btn_undo.mapTo(screen, screen._btn_undo.rect().center()).y()
+    qtbot.waitUntil(lambda: screen._btn_save.isVisible())
+    center = screen._btn_save.mapTo(screen, screen._btn_save.rect().center()).y()
     for button in buttons:
-        assert screen._tool_row_layout.indexOf(button) >= 0
-        screen._tool_scroll.ensureWidgetVisible(button)
-        qtbot.wait(20)
+        assert button.parentWidget() is screen._navigation_group
         assert abs(button.mapTo(screen, button.rect().center()).y() - center) <= 1
         assert button.visibleRegion().boundingRect() == button.rect()
     screen._canvas.mask[1:3, 1:3] = 37

@@ -317,13 +317,6 @@
       "translation": "Atalhos"
     },
     {
-      "key": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
-      "source": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
-      "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4",
-      "table": "ui",
-      "translation": "Mostrar ou ocultar as configurações de pincel, varinha, exibição, filtro automático, operações de objetos, Otsu, detecção de objetos e lupa ao vivo, como um único grupo. A área da imagem ocupa a largura que elas liberam."
-    },
-    {
       "key": "Showing the image as it was loaded.",
       "source": "Showing the image as it was loaded.",
       "source_sha256": "01641220d68a74f77c817c175cd3447d019f1473c0de372d77e289b01fd4ddfb",
@@ -528,6 +521,14 @@
         "table": "ui",
         "translation": "O comando que spaCR executa. Copie-o se preferir executá-lo em um terminal."
       }
+    },
+    {
+      "key": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "source": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4",
+      "table": "ui",
+      "translation": "Mostrar ou ocultar as configurações de pincel, varinha, exibição, filtro automático, operações de objetos, Otsu, detecção de objetos e lupa ao vivo, como um único grupo. A área da imagem ocupa a largura que elas liberam.",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",

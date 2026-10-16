@@ -67669,13 +67669,12 @@
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.add_toolbar_action": {
       "source_blocks_sha256": [
-        "129f8a00ddf4073ef2b31b4bddf2c1f8eac39d2086df441a6fb688518d1a4c96",
-        "0e071f2a19694cb5607a794eccf08a076cc61a1ec3dc7796a9a724cbf32429b0",
+        "f475513b8254934f8bbdcefa6de8437816e3c9f79b844e09cb82e4beaf117e25",
         "53f7f4a13addb8d803ffe36f491a6168d4d26e12505fd375b1b544d748f9be4f",
         "d597a2272f5bef3b31ae97c2b079b67add9f0f2cf7a0ac999bc2d5812436b777"
       ],
-      "source_sha256": "cb0e1fa9ce95fa819a96aa739116b8e4fa08802071f9af11067d343f547224ae",
-      "text": "Insert a non-mode action into the editor toolbar.\n\nThe button is placed after the other actions in the part of the row\nthat scrolls. The Magnifier and the settings toggle are pinned\noutside it, so nothing added here can come between them or push\nthem out of sight.\n\n:param button: Action button to insert.\n:returns: The same button."
+      "source_sha256": "c5c09f3cea6813127033e741e61dcefcf385e841dded311683fddb8665a785be",
+      "text": "Insert a non-mode action at the end of the TOOLS group.\n\n:param button: Action button to insert.\n:returns: The same button."
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.apply_object_filter": {
       "source_blocks_sha256": [
@@ -81758,17 +81757,17 @@
     },
     "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow": {
       "source_blocks_sha256": [
-        "26103d5586292e4ede82b4b8153296a52efa9ffbce89e105873a5114949ac6bd",
+        "b3c9d27ae9f1177b3bb4bf62137b38505c28969dedcbfaf02d7b5588c1c03b8d",
         "a918a1278f9992588a4f9f61de457588b5c28b8a052ef9a7c959eb40c6a2c3d7",
         "a335302e7c5b874906658e748af0ab1d20e802560fc6a937026b70de1bc58765",
         "a70bf2d842e6d1c3a37ee4f6934abb85dcc2649d852d162111223205c40e1e11",
         "ec6df8d27b64749e9f6c99fdcf13122066024cf973b503c44ed93fdedde86699",
         "c89e105e3b16eb3fc4b3538a4326c44736837843f61b265da262a181e43b9a9d",
         "9f811bfef96389a123fcf3d93f951922a0085c0d4ebfd0520c9ee9e0d77b1adb",
-        "fb29afca7dbfe4aedbc5d227255463cf7c97ec1b3697d178f402db6319adff7c"
+        "9e87ebdfeac8016ccb76900d687532a099720432850d402d0c0cff4af79b17e5"
       ],
-      "source_sha256": "7000ce94d42cdb0b9f090c6abec541a76aa1c100556eb3ef9133e5d67e621464",
-      "text": "Draw the existing tab with its arrow at 75 percent of baseline.\n\n:param painter: active painter on the handle.\n:param rect: unchanged clickable handle rectangle.\n:param orientation: splitter orientation (horizontal means a vertical bar).\n:param towards_start: point left/up when true, right/down otherwise.\n:param palette: active theme colors.\n:param hovered: whether to accent the glyph and tab border.\n\nOnly the baseline glyph is scaled; the painted tab and the hit target stay\nput."
+      "source_sha256": "742b7299b9b8e4a8889b0860b198175302e1c508b0cfc038cd0daf8ec398b2d8",
+      "text": "Draw the collapse tab and its chevron, centred on the handle.\n\n:param painter: active painter on the handle.\n:param rect: unchanged clickable handle rectangle.\n:param orientation: splitter orientation (horizontal means a vertical bar).\n:param towards_start: point left/up when true, right/down otherwise.\n:param palette: active theme colors.\n:param hovered: whether to accent the glyph and tab border.\n\nThe tab and the chevron are drawn at :data:`HANDLE_SCALE` of the\n2026-10-01 baseline, the chevron at a further :data:`ARROW_SCALE` of its\ntab, both centred on the handle (:func:`_collapse_arrow_geometry`). The\nhit target, the whole handle, stays put."
     },
     "spacr.qt.widgets.collapsible_section": {
       "source_blocks_sha256": [

@@ -239,17 +239,17 @@ def record_yolo_boxes(app, window, screen, stage, captures, capture, settle,
     if len(canvas.boxes) != 1:
         raise RuntimeError('Right-click did not delete the box under the cursor')
     capture('yolo_10_deleted_box')
-    QTest.mouseClick(screen._btn_undo, Qt.LeftButton)
+    screen._act_undo.trigger()
     settle()
     if [list(box) for box in canvas.boxes] != saved_boxes:
         raise RuntimeError('Box Undo did not restore both exact annotations')
     capture('yolo_11_undo_boxes')
-    QTest.mouseClick(screen._btn_redo, Qt.LeftButton)
+    screen._act_redo.trigger()
     settle()
     if len(canvas.boxes) != 1:
         raise RuntimeError('Box Redo did not restore the demonstrated deletion')
     capture('yolo_12_redo_boxes')
-    QTest.mouseClick(screen._btn_undo, Qt.LeftButton)
+    screen._act_undo.trigger()
     settle()
     expose(screen._btn_save_boxes)
     QTest.mouseClick(screen._btn_save_boxes, Qt.LeftButton)
@@ -423,7 +423,7 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     steps = []
 
     def undo():
-        QTest.mouseClick(screen._btn_undo, Qt.LeftButton)
+        screen._act_undo.trigger()
         settle()
         if not np.array_equal(canvas.mask, original):
             raise RuntimeError('Undo did not restore every original label pixel')
@@ -479,7 +479,7 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
                   'after': int(np.count_nonzero(np.unique(canvas.mask)))})
     undo()
     capture('05_undo_exactly')
-    QTest.mouseClick(screen._btn_redo, Qt.LeftButton)
+    screen._act_redo.trigger()
     settle()
     if not np.array_equal(canvas.mask, expected):
         raise RuntimeError('Redo did not restore the demonstrated deletion')
@@ -532,15 +532,15 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
                   'foreground_pixels_unchanged': True, 'acquired_image_unchanged': True,
                   'before': divided_count,
                   'after': int(np.count_nonzero(np.unique(canvas.mask)))})
-    QTest.mouseClick(screen._btn_undo, Qt.LeftButton)
+    screen._act_undo.trigger()
     settle()
     if not np.array_equal(canvas.mask, divided) or canvas.manual_ids:
         raise RuntimeError('Undo did not restore the pre-merge labels and identity policy')
     undo()
 
     def expose(widget):
-        if not screen._btn_settings.isChecked():
-            QTest.mouseClick(screen._btn_settings, Qt.LeftButton)
+        if not screen.settings_shown():
+            screen._set_settings_shown(True)
         for scroll in screen.findChildren(QScrollArea):
             if scroll.isAncestorOf(widget):
                 scroll.ensureWidgetVisible(widget)
@@ -570,8 +570,8 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     old_wand_pct, old_wand_max = screen._wand_pct.value(), screen._wand_max.value()
     number(screen._wand_pct, 0.5)
     number(screen._wand_max, 256)
-    if screen._btn_settings.isChecked():
-        QTest.mouseClick(screen._btn_settings, Qt.LeftButton)
+    if screen.settings_shown():
+        screen._set_settings_shown(False)
         settle()
     gesture([(int(x), int(y))])
     added = canvas.mask.copy()
@@ -590,7 +590,7 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
                   'demonstration_only': True, 'added_pixels': int(changed.sum()),
                   'exact_original_labels_restored': True, 'acquired_image_unchanged': True,
                   'tolerance_percent': 0.5, 'max_pixels': 256, 'single_toolbar_button': True})
-    QTest.mouseClick(screen._btn_undo, Qt.LeftButton)
+    screen._act_undo.trigger()
     settle()
     if not np.array_equal(canvas.mask, added):
         raise RuntimeError('Undo did not restore the Wand addition')
@@ -740,7 +740,7 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
                      'diameter': screen._cp_diameter.value(),
                      'normalize': screen._cp_normalize.isChecked(),
                      'mode': screen._combine_mode.currentData()}
-        QTest.mouseClick(screen._btn_undo, Qt.LeftButton)
+        screen._act_undo.trigger()
         settle()
         if not np.array_equal(canvas.mask, initial_child_mask):
             raise RuntimeError('Undo did not restore the pre-inference child labels')

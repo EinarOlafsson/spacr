@@ -40,8 +40,7 @@ WIDGET_LABELS = {
     # button, so the hit-test button lists none.
     "ALPHA_FEATURES576": ("Add score store folder…", "Add count store folder…"),
     "MeasurementMigrationAction": ("Migrate measurement store…",),
-    "MakeMasksVvvvExport": ("Export for vvvv…",),
-    "MakeMasksVvvvExportOnSave": ("Export on save",),
+    "PreferencesExportVvvv": ("Export to vvvv",),
     "InvestigateHitTestDataButton": (),
     # 2026-10-10: Annotate similar-crop plates, Cell-DINO/SubCell embedding
     # options and timelapse event annotation. Distinctive text only;

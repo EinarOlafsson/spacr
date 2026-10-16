@@ -40,34 +40,27 @@ def test_the_setting_is_registered_under_item_685():
     assert tooltips[KEY].endswith("Default False.")
 
 
-@pytest.mark.parametrize("app_key,heading", [
-    ("mask", "Visualization & Diagnostics"),
-    ("measure", "Crop Output"),
-])
-def test_the_row_follows_the_alpha_switch(qtbot, prefs, app_key, heading):
+@pytest.mark.parametrize("app_key", ["mask", "measure", "timelapse"])
+def test_no_module_form_shows_the_row(qtbot, prefs, app_key):
+    """The maintainer, 2026-10-16: the switch is Preferences -> Plugins.
+
+    The key stays in the run's settings, hidden, at its default; a run
+    started from the app takes its value from the preference.
+    """
     from spacr.qt.screens.app_screen import AppScreen
-    from spacr.qt.screens.settings_model import _APP_CATEGORY_SPECS
+    from spacr.qt.screens.settings_model import (_APP_CATEGORY_SPECS,
+                                                 _APP_HIDDEN_KEYS)
     from spacr.qt.widget_cleanup import retire_pyqtgraph_menus
 
-    spec = dict(_APP_CATEGORY_SPECS[app_key])
-    assert KEY in spec[heading]
+    assert KEY in _APP_HIDDEN_KEYS[app_key]
+    for _heading, keys in dict(_APP_CATEGORY_SPECS.get(app_key, ())).items():
+        assert KEY not in keys
     screen = AppScreen(app_key)
     try:
-        screen._open_the_heading_of(KEY)
+        prefs._set_show_alpha_features(True)
         screen._refresh_alpha_visibility()
         assert not screen.setting_row_is_visible(KEY)
         assert screen._settings_model.collect()[KEY] is False
-        assert screen._settings_model.set_value_for_key(KEY, True)
-        assert screen._settings_model.collect()[KEY] is True
-
-        prefs._set_show_alpha_features(True)
-        screen._refresh_alpha_visibility()
-        assert screen.setting_row_is_visible(KEY)
-
-        prefs._set_show_alpha_features(False)
-        screen._refresh_alpha_visibility()
-        assert not screen.setting_row_is_visible(KEY)
-        assert screen._settings_model.collect()[KEY] is True
     finally:
         retire_pyqtgraph_menus(screen)
         screen.close()

@@ -70,7 +70,7 @@ def test_a_stroke_that_changes_no_pixel_makes_no_undo_step(slices, screen):
     screen._canvas.stroke_finished.emit()
     _settle(2)
     assert not slices.session._undo and not slices.dirty
-    assert not screen._btn_undo.isEnabled()
+    assert not screen._act_undo.isEnabled()
 
 
 def test_open_volume_asks_for_a_file_and_a_cancelled_picker_opens_nothing(screen, tmp_path, monkeypatch):

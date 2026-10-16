@@ -8930,6 +8930,10 @@ class AppScreen(QWidget):
                              {"result": "cancelled_at_ram_guard"})
             return
 
+        if "export_vvvv" in settings:
+            from ..preferences import _vvvv_export_enabled
+            settings["export_vvvv"] = _vvvv_export_enabled()
+
         if self.app_key == "umap":
             from ..theme import active_palette
             palette = active_palette()

@@ -313,7 +313,7 @@ def test_make_masks_no_longer_has_a_features_button(qtbot):
     qtbot.addWidget(screen)
     assert not hasattr(screen, "_btn_features")
     assert not hasattr(screen, "_on_open_features")
-    assert screen._btn_organize.text().startswith("Organize for Measure")
+    assert screen._btn_organize.text() == "Measure…"
 
 
 @pytest.fixture

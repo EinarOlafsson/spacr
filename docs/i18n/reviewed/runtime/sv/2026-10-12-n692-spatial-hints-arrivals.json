@@ -159,13 +159,6 @@
     },
     {
       "table": "ui",
-      "key": "Open a z-stack or volume (TIFF, OME-TIFF or MRC) and draw 3D masks slice by slice, interpolate between slices and save a 3D label TIFF. The current 2D image and mask stay unchanged.",
-      "source": "Open a z-stack or volume (TIFF, OME-TIFF or MRC) and draw 3D masks slice by slice, interpolate between slices and save a 3D label TIFF. The current 2D image and mask stay unchanged.",
-      "source_sha256": "7a53e1db1f0b41a64c0d555c52a4b1df0a30238779dc1eb303607c4f0ef4361f",
-      "translation": "Öppna en Z-stapel eller volym (TIFF, OME-TIFF eller MRC) och rita 3D-masker snitt för snitt, interpolera mellan snitt och spara en 3D-etikett-TIFF. Den aktuella 2D-bilden och masken förblir oförändrade."
-    },
-    {
-      "table": "ui",
       "key": "Open the FIB-SEM volume in the 3D mask editor with its mitochondria masks loaded for correction. Corrections are saved in corrected_masks; the published masks stay unchanged.",
       "source": "Open the FIB-SEM volume in the 3D mask editor with its mitochondria masks loaded for correction. Corrections are saved in corrected_masks; the published masks stay unchanged.",
       "source_sha256": "0d567954161f1b57405ac463b2e4ec9fc1221ceb2e6b15838c1f76f6bb543df0",
@@ -348,6 +341,14 @@
       "source_sha256": "a2eabdeb19290bf8a0e8a3c2a17c1209c55e40e17e9999ec0b56ec6717daf3a9",
       "translation": "av {n}",
       "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "Open a z-stack or volume (TIFF, OME-TIFF or MRC) and draw 3D masks slice by slice, interpolate between slices and save a 3D label TIFF. The current 2D image and mask stay unchanged.",
+      "source": "Open a z-stack or volume (TIFF, OME-TIFF or MRC) and draw 3D masks slice by slice, interpolate between slices and save a 3D label TIFF. The current 2D image and mask stay unchanged.",
+      "source_sha256": "7a53e1db1f0b41a64c0d555c52a4b1df0a30238779dc1eb303607c4f0ef4361f",
+      "translation": "Öppna en Z-stapel eller volym (TIFF, OME-TIFF eller MRC) och rita 3D-masker snitt för snitt, interpolera mellan snitt och spara en 3D-etikett-TIFF. Den aktuella 2D-bilden och masken förblir oförändrade.",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
     }
   ]
 }

@@ -18,13 +18,6 @@
     },
     {
       "table": "ui",
-      "key": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
-      "source": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
-      "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4",
-      "translation": "Sýndu eða feldu allar stillingarnar sem einn hóp: pensil, töfrasprota, birtingu, sjálfvirka síun, aðgerðir á hlutum, Otsu, hlutagreiningu og lifandi stækkunargler. Teikniflöturinn nýtir breiddina sem losnar."
-    },
-    {
-      "table": "ui",
       "key": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
       "source": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
       "source_sha256": "ed765dd4155a043c1c41c950c183818902c0ed756293b746528907c66bbdd612",
@@ -223,6 +216,14 @@
         "source_sha256": "682cf7017c6296385171eb74b984b4cb438a3f5ad8bcb470e4ad3f3898bd11eb",
         "translation": "Hvað nýr hlutur gerir þar sem maskinn inniheldur þegar hlut. Klipping heldur aðeins ómerktum myndpunktum hans, svo enginn eldri hlutur tapar myndpunkti. Slepping útilokar alla nýja hluti sem snerta eldri hlut. Útskipting leyfir nýja hlutnum að taka alla myndpunkta sem hann þekur. Í forskoðun svæðisins undir bendlinum sýnir reiturinn hvað reglan skilur eftir: það sem smellur myndi bæta við er sýnt með heilum lit og það sem hann myndi fjarlægja er sýnt dauflega."
       }
+    },
+    {
+      "table": "ui",
+      "key": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "source": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4",
+      "translation": "Sýndu eða feldu allar stillingarnar sem einn hóp: pensil, töfrasprota, birtingu, sjálfvirka síun, aðgerðir á hlutum, Otsu, hlutagreiningu og lifandi stækkunargler. Teikniflöturinn nýtir breiddina sem losnar.",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
     }
   ]
 }

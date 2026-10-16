@@ -304,11 +304,10 @@ def test_the_settings_are_cellposes_own_defaults(screen):
     assert screen._cp_model.currentData() in names
 
 
-def test_the_detect_button_is_in_the_one_tool_row(screen):
-    """The action rides in the toolbar, so hiding the settings keeps it."""
-    assert screen._tool_row_layout.indexOf(screen._btn_cellpose) >= 0
-    screen._btn_settings.setChecked(False)
-    assert not screen._settings_scroll.isVisible()
+def test_the_detect_button_is_in_object_operations(screen):
+    """Object detection opens the Object operations settings (2026-10-16)."""
+    assert screen._object_ops_layout.indexOf(screen._btn_cellpose) == 0
+    assert screen._settings_scroll.isAncestorOf(screen._btn_cellpose)
     assert screen._btn_cellpose.isEnabled()
 
 
@@ -338,7 +337,7 @@ def test_a_run_replaces_the_mask_and_fills_both_panes(screen):
     assert edit.detail["flow_threshold"] == pytest.approx(0.7)
     assert edit.detail["n_objects"] == 2
     # And it is one undo step.
-    assert screen._btn_undo.isEnabled()
+    assert screen._act_undo.isEnabled()
 
 
 def test_merge_keeps_what_was_curated_by_hand(screen):

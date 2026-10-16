@@ -78,11 +78,11 @@ def _walk(screen) -> list:
 
 
 def test_the_switch_sits_beside_first_unreviewed(screen):
-    row = screen._btn_clear.parentWidget().layout()
+    actions = screen._btn_keep.split_menu().actions()
     assert screen._btn_hide_judged.isCheckable()
     assert not screen._btn_hide_judged.isChecked()
-    assert abs(row.indexOf(screen._btn_hide_judged)
-               - row.indexOf(screen._btn_first_unreviewed)) == 1
+    assert abs(actions.index(screen._btn_hide_judged)
+               - actions.index(screen._btn_first_unreviewed)) == 1
     assert "csv/keep_discard.csv" in screen._btn_hide_judged.toolTip()
 
 

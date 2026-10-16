@@ -7257,6 +7257,39 @@ def _set_plugin_catalogue(source: str) -> None:
     settings.sync()
 
 
+_KEY_EXPORT_VVVV = "plugins/export_vvvv"
+_EXPORT_VVVV_ALPHA_WIDGET = "PreferencesExportVvvv"
+
+
+def _get_export_vvvv() -> bool:
+    """The stored Preferences -> Plugins "Export to vvvv" choice; default off."""
+    return _as_bool(_settings().value(_KEY_EXPORT_VVVV, False), False)
+
+
+def _set_export_vvvv(enabled: bool) -> None:
+    """Store the Preferences -> Plugins "Export to vvvv" choice.
+
+    :param enabled: whether Make Masks, Mask generation and Measure write
+        their vvvv export.
+    """
+    settings = _settings()
+    settings.setValue(_KEY_EXPORT_VVVV, bool(enabled))
+    settings.sync()
+
+
+def _vvvv_export_enabled() -> bool:
+    """Whether the app writes vvvv exports (item 685, alpha).
+
+    The one switch for every module: Make Masks exports each saved mask,
+    and Mask generation and Measure runs started from the app get their
+    ``export_vvvv`` setting from it. On only while the choice is stored on
+    AND the alpha gate shows it, so turning Show alpha features off also
+    stops an export nobody can see the switch for.
+    """
+    return (_get_export_vvvv()
+            and _is_alpha_visible("widgets", _EXPORT_VVVV_ALPHA_WIDGET))
+
+
 class _PluginCatalogueJob(threading.Thread):
     """Finish catalogue reads or mutations independently of Preferences.
 
@@ -11375,9 +11408,30 @@ class PreferencesDialog:
             notifications_page = _NotificationsPage(
                 _page("Notifications", "PreferencesTabNotifications"), dlg)
 
-        if _is_alpha_visible("widgets", _PLUGIN_CATALOGUE_ALPHA_WIDGET):
-            dlg._plugin_catalogue_page = _PluginCataloguePage(
-                _page("Plugins", "PreferencesTabPlugins"), dlg)
+        export_vvvv_check = None
+        show_catalogue = _is_alpha_visible(
+            "widgets", _PLUGIN_CATALOGUE_ALPHA_WIDGET)
+        show_vvvv = _is_alpha_visible("widgets", _EXPORT_VVVV_ALPHA_WIDGET)
+        if show_catalogue or show_vvvv:
+            plugins_form = _page("Plugins", "PreferencesTabPlugins")
+            if show_vvvv:
+                export_vvvv_check = QCheckBox(tr("Export to vvvv"))
+                export_vvvv_check.setObjectName(_EXPORT_VVVV_ALPHA_WIDGET)
+                export_vvvv_check.setChecked(_get_export_vvvv())
+                export_vvvv_check.setToolTip(tr(
+                    "Also write every saved mask in Make Masks, and every "
+                    "field Mask generation and Measure process, for a vvvv "
+                    "gamma patch: labels, outlines, the image, one row per "
+                    "object and a .vl project, one folder per field. Make "
+                    "Masks writes beside the images in vvvv/make_masks, "
+                    "Mask generation in vvvv/mask and Measure in "
+                    "vvvv/measure. Images and masks are only read. Default "
+                    "off."))
+                plugins_form.addRow(export_vvvv_check)
+            if show_catalogue:
+                dlg._plugin_catalogue_page = _PluginCataloguePage(
+                    plugins_form, dlg)
+        dlg._export_vvvv_check = export_vvvv_check
 
         sound_page = None
         if sound_is_offered():
@@ -11792,6 +11846,8 @@ class PreferencesDialog:
                     and _motion_shown() == motion_given_back[0]):
                 _write_motion_values(motion_before[0])
             set_strong_focus(focus_check.isChecked())
+            if export_vvvv_check is not None:
+                _set_export_vvvv(export_vvvv_check.isChecked())
             direction_choice = ambient_dir_combo.currentData()
             if direction_choice is not None:
                 set_ambient_drift_direction(direction_choice)

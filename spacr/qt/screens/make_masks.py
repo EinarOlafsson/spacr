@@ -136,6 +136,7 @@ from PySide6.QtCore import (
     QPointF,
     QRect,
     QRectF,
+    QSize,
     QThread,
     QTimer,
     Qt,
@@ -198,6 +199,10 @@ from ..theme import (SPACING, active_palette, block_surface,
                      ensure_widget_qss_applied, mark_surface,
                      register_widget_qss, set_a_sheeted_widgets_own_rule)
 from ..widgets import Card, Divider, EmptyState
+from shiboken6 import isValid
+
+from ..widgets.collapsible_splitter import CollapsibleSplitter
+from ..widgets.flow import FlowLayout
 from ..widgets.fold_strip import FoldStrip
 from ..widgets.section import Section
 from ..widgets.toggle import Toggle
@@ -433,6 +438,23 @@ SETTINGS_GAP = 12
 #: and no line of prose breaks after one word, which is what a narrower
 #: column was doing when this was measured on a rendered screen.
 SHORTCUTS_WIDTH = 230
+
+#: Where the folded title (the Make Masks heading and its row of folded
+#: modules) is remembered, through the same store as the settings' fold.
+MAKE_MASKS_TITLE_FOLD_KEY = "make_masks/Title"
+
+#: Where the folded bar above the image (TOOLS and ANNOTATION) is remembered.
+MAKE_MASKS_TOP_BAR_FOLD_KEY = "make_masks/TopBar"
+
+#: Where the folded bar below the image (IO and NAVIGATION) is remembered.
+MAKE_MASKS_BOTTOM_BAR_FOLD_KEY = "make_masks/BottomBar"
+
+#: Where the folded shortcut list is remembered; it folds by its title, as
+#: the console and System fold by theirs.
+MAKE_MASKS_SHORTCUTS_FOLD_KEY = "make_masks/Shortcut list"
+
+#: The brush radius a new Make Masks screen starts with, in screen pixels.
+DEFAULT_BRUSH_RADIUS = 1
 
 RESTORATION_SETTLE_MS = 400
 
@@ -715,6 +737,210 @@ class _FolderJobWorker(QThread):
             LOG.exception("Make Masks folder job failed")
 
 
+class _GroupFlow(FlowLayout):
+    """A wrapping row of buttons that asks for its one-line width.
+
+    :class:`~spacr.qt.widgets.flow.FlowLayout` reports its narrowest size as
+    its preferred one, which a box layout then honours, so every button would
+    sit on a line of its own. This one prefers the whole row on one line and
+    only wraps when it is given less, so a group keeps its buttons side by
+    side on a wide screen and never forces a narrow window wider.
+    """
+
+    def sizeHint(self) -> QSize:                    # noqa: N802 (Qt override)
+        """Every visible button on one line, plus margins."""
+        width = height = 0
+        shown = [item for item in self._items if not item.isEmpty()]
+        for item in shown:
+            hint = item.sizeHint()
+            width += hint.width()
+            height = max(height, hint.height())
+        width += self._space * max(0, len(shown) - 1)
+        margins = self.contentsMargins()
+        return QSize(width + margins.left() + margins.right(),
+                     height + margins.top() + margins.bottom())
+
+
+class _SystemCard(Card):
+    """The System panel every module screen has, under Make Masks' console.
+
+    The same card the module screens build in
+    :class:`~spacr.qt.screens.app_screen.AppScreen`: RAM, GPU, VRAM and CPU
+    :class:`~spacr.qt.widgets.UsageBar` rows, a Per-core switch, a fold on
+    its title remembered under ``make_masks/System``, and the same
+    off-thread sample (:func:`spacr.qt.screens.app_screen._sample_usage`)
+    every 2 s while it is on screen.
+    """
+
+    SAMPLE_MS = 2000
+
+    def __init__(self, parent=None):
+        """Build the bars; sampling starts when the card is first shown."""
+        super().__init__(title="System", parent=parent, foldable=True,
+                         fold_key="make_masks/System")
+        from ..i18n import tr
+        from ..job_runner import JobRunner
+        from ..widgets import UsageBar
+
+        self.setProperty("makeMasksSystem", True)
+        self.ram, self.gpu, self.vram = (UsageBar("RAM"), UsageBar("GPU"),
+                                         UsageBar("VRAM"))
+        for bar in (self.ram, self.gpu, self.vram):
+            self.body_layout.addWidget(bar)
+        cpu_row = QHBoxLayout()
+        cpu_row.setContentsMargins(0, 0, 0, 0)
+        cpu_row.setSpacing(SPACING["sm"])
+        self.cpu = UsageBar("CPU")
+        cpu_row.addWidget(self.cpu, 1)
+        self.per_core_toggle = QPushButton(tr("Per-core"))
+        self.per_core_toggle.setCheckable(True)
+        self.per_core_toggle.setCursor(Qt.PointingHandCursor)
+        self.per_core_toggle.setToolTip(tr(
+            "Toggle per-core CPU utilisation bars."))
+        self.per_core_toggle.toggled.connect(self._on_toggle_per_core)
+        cpu_row.addWidget(self.per_core_toggle)
+        cpu_wrap = QWidget()
+        cpu_wrap.setStyleSheet("background: transparent;")
+        cpu_wrap.setLayout(cpu_row)
+        self.body_layout.addWidget(cpu_wrap)
+        self._per_core_wrap = QWidget()
+        self._per_core_wrap.setStyleSheet("background: transparent;")
+        self._per_core_layout = QVBoxLayout(self._per_core_wrap)
+        self._per_core_layout.setContentsMargins(0, 0, 0, 0)
+        self._per_core_layout.setSpacing(2)
+        self._per_core_bars = []
+        self._per_core_wrap.hide()
+        self.body_layout.addWidget(self._per_core_wrap)
+        self._jobs = JobRunner(self, app_key="make masks usage",
+                               user_visible=False)
+        self._generation = 0
+        self._timer = QTimer(self)
+        self._timer.setInterval(self.SAMPLE_MS)
+        self._timer.timeout.connect(self.refresh)
+        for bar in (self.ram, self.gpu, self.vram, self.cpu):
+            self._fit_the_column(bar)
+
+    @staticmethod
+    def _fit_the_column(bar) -> None:
+        """Let a bar narrow to the shortcut column's width.
+
+        A bar asks for the width of a module's runtime column; beside the
+        image it would push the column, and so the image, wider than the
+        user left them.
+        """
+        bar.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        bar.setMinimumWidth(0)
+
+    def _on_toggle_per_core(self, checked: bool) -> None:
+        """Show or hide one bar per logical core, made on first use."""
+        from ..widgets import UsageBar
+
+        if checked and not self._per_core_bars:
+            try:
+                import psutil
+                count = int(psutil.cpu_count(logical=True) or 0)
+            except Exception:                                # noqa: BLE001
+                count = 0
+            for index in range(count):
+                bar = UsageBar(f"C{index:02d}")
+                self._fit_the_column(bar)
+                self._per_core_bars.append(bar)
+                self._per_core_layout.addWidget(bar)
+        self._per_core_wrap.setVisible(checked)
+
+    def refresh(self) -> None:
+        """Take one usage sample off the GUI thread; skip while one runs."""
+        from .app_screen import _sample_usage
+
+        if self._jobs.is_busy():
+            return
+        per_core = bool(self.per_core_toggle.isChecked()
+                        and self._per_core_bars)
+        generation = self._generation
+        self._jobs.submit(
+            lambda: _sample_usage(per_core),
+            lambda sample, generation=generation: self.apply(
+                sample, generation))
+
+    def apply(self, sample: dict, generation: Optional[int] = None) -> None:
+        """Paint one sample on the bars. GUI thread only."""
+        if generation is not None and generation != self._generation:
+            return
+        if not sample:
+            return
+        for key, bar in (("ram", self.ram), ("cpu", self.cpu),
+                         ("gpu", self.gpu), ("vram", self.vram)):
+            value = sample.get(key)
+            if value is not None:
+                bar.set_value(value)
+        for bar, value in zip(self._per_core_bars,
+                              sample.get("per_core") or ()):
+            bar.set_value(value)
+
+    def showEvent(self, event) -> None:                      # noqa: N802
+        """Sample while the card is on screen."""
+        super().showEvent(event)
+        if not self._timer.isActive():
+            self._timer.start()
+            self.refresh()
+
+    def hideEvent(self, event) -> None:                      # noqa: N802
+        """Stop sampling while nobody can see the bars."""
+        self._generation += 1
+        self._timer.stop()
+        super().hideEvent(event)
+
+
+class _PageStack(QStackedWidget):
+    """A stack whose minimum is the page on show, not the largest page.
+
+    The empty state is taller at its minimum than the views, and a plain
+    stack would hold the image that much taller even after a folder opened,
+    taking the room a wrapped button bar needs on a laptop screen.
+    """
+
+    def minimumSizeHint(self):                               # noqa: N802
+        """The current page's minimum."""
+        page = self.currentWidget()
+        return (page.minimumSizeHint() if page is not None
+                else super().minimumSizeHint())
+
+
+class _ImageContainer(CollapsibleSplitter):
+    """The image between its two button bars, which re-fit as they wrap.
+
+    The bars are EDGE panes of fixed height, and a bar's buttons wrap onto
+    another line when the image is narrow. The base splitter re-reads that
+    height only when its own width changes after it was first laid out; a
+    first layout taken at a provisional width, or a bar whose buttons were
+    shown later, would keep the one-line height and clip the second line.
+    So every resize, and every :meth:`queue_refit`, re-fits the bars on the
+    next turn of the event loop.
+    """
+
+    def __init__(self, *args, **kwargs):
+        """Build the splitter; see :class:`CollapsibleSplitter`."""
+        super().__init__(*args, **kwargs)
+        self._refit_pending = False
+
+    def resizeEvent(self, event) -> None:                    # noqa: N802
+        """Re-fit the bars after any resize."""
+        super().resizeEvent(event)
+        self.queue_refit()
+
+    def queue_refit(self) -> None:
+        """Size each bar to the height its wrapped buttons need, soon."""
+        if not self._refit_pending:
+            self._refit_pending = True
+            QTimer.singleShot(0, self._refit_bars)
+
+    def _refit_bars(self) -> None:
+        """The queued re-fit."""
+        self._refit_pending = False
+        if isValid(self) and self._laid_out:
+            self.rebalance(refit=True)
+
+
 class _SplitMenuButton(QPushButton):
     """A push button that also opens a menu from an arrow on its right.
 
@@ -903,8 +1129,9 @@ class _MasksConsole(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(SPACING["xs"])
-        self.console = ConsolePanel(active_app_label="",
-                                    follow_log=False, chat=False)
+        self.console = ConsolePanel(active_app_label=HEADER_TITLE,
+                                    follow_log=False, chat=True,
+                                    persist_key=APP_KEY)
         layout.addWidget(self.console, 1)
         self.progress = ProgressLine(self, detail=True, count_below=True)
         self.progress.setVisible(False)
@@ -1328,7 +1555,10 @@ class _MaskCanvas(QLabel):
         self.boxes_editable = True
         self._box_drag = None
         self._box_preview = None
-        self.brush_radius: int = 10
+        self.brush_radius: int = DEFAULT_BRUSH_RADIUS
+        #: The field's place in the queue and its name, painted on the
+        #: image (``"12 / 240 · name.tif"``); "" paints nothing.
+        self.field_label: str = ""
         self.norm_lo: float = 1.0
         self.norm_hi: float = 99.9
         #: Draw the photographic complement of the image. A VIEW
@@ -1471,7 +1701,7 @@ class _MaskCanvas(QLabel):
         self.setAlignment(Qt.AlignCenter)
         self.setStyleSheet(f"background: {active_palette()['bg']};")
         self.setMouseTracking(True)
-        self.setMinimumSize(600, 400)
+        self.setMinimumSize(600, 200)
         self._last_pt: Optional[QPoint] = None
         self._stroke_in_progress = False
 
@@ -2243,6 +2473,7 @@ class _MaskCanvas(QLabel):
         self._paint_drag()
         self._paint_crosshair()
         self._paint_readout()
+        self._paint_field_label()
         if self.ruler.start is not None:
             painter = QPainter(self)
             self.ruler.paint(painter, lambda x, y: self._image_to_canvas(x + 0.5, y + 0.5))
@@ -2678,6 +2909,65 @@ class _MaskCanvas(QLabel):
         return QRect(left + margin, top + margin,
                      bounds.width() + 2 * SPACING["sm"],
                      bounds.height() + 2 * SPACING["xs"])
+
+    def set_field_label(self, text: str) -> None:
+        """Show ``text`` on the image as the field's index and name.
+
+        :param text: ``"index / total · name"``, or "" for nothing.
+        """
+        text = str(text or "")
+        if text != self.field_label:
+            self.field_label = text
+            self.update()
+
+    def field_label_rect(self) -> Optional[QRect]:
+        """Where the field label is painted: the image's bottom-left corner.
+
+        The readout has the top-left corner, so the two never overlap.
+
+        :returns: the box in widget coordinates, or ``None`` when there is
+            nothing to show.
+        """
+        text = self.field_label
+        rendered = self.pixmap()
+        if not text or rendered is None or rendered.isNull():
+            return None
+        shown = logical_size(rendered)
+        left = max(0, (self.width() - shown.width()) // 2)
+        top = max(0, (self.height() - shown.height()) // 2)
+        bottom = min(self.height(), top + shown.height())
+        margin = SPACING["xs"]
+        metrics = self.fontMetrics()
+        bounds = metrics.boundingRect(QRect(0, 0, 10_000, 10_000),
+                                      int(Qt.AlignLeft | Qt.AlignTop), text)
+        height = bounds.height() + 2 * SPACING["xs"]
+        return QRect(left + margin, bottom - margin - height,
+                     bounds.width() + 2 * SPACING["sm"], height)
+
+    def _paint_field_label(self) -> None:
+        """Paint the field's index and name on the image, over everything.
+
+        On the same translucent plate as the readout, so it reads over a
+        bright field and a dark one alike.
+        """
+        rect = self.field_label_rect()
+        if rect is None:
+            return
+        palette = active_palette()
+        plate = QColor(palette["bg"])
+        plate.setAlpha(215)
+        painter = QPainter(self)
+        try:
+            painter.setRenderHint(QPainter.Antialiasing, True)
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(plate)
+            painter.drawRoundedRect(QRectF(rect), 4, 4)
+            painter.setPen(QPen(QColor(palette["fg"])))
+            painter.drawText(
+                rect.adjusted(SPACING["sm"], SPACING["xs"], 0, 0),
+                int(Qt.AlignLeft | Qt.AlignTop), self.field_label)
+        finally:
+            painter.end()
 
     def _paint_readout(self) -> None:
         """Paint the readout in the image's top-left corner, over everything.
@@ -8176,7 +8466,7 @@ class _FlowPane(QLabel):
         """Build an empty flow pane, centred and with a floor on its size."""
         super().__init__(parent)
         self.setAlignment(Qt.AlignCenter)
-        self.setMinimumSize(400, 300)
+        self.setMinimumSize(400, 200)
         self.setStyleSheet(f"background: {active_palette()['bg']};")
         self.setWordWrap(True)
         self._pixmap: Optional[QPixmap] = None
@@ -11845,7 +12135,7 @@ class MakeMasksScreen(QWidget):
         if self._canvas.mode in (MODE_NONE, MODE_BOX, MODE_RECROP):
             self._set_mode(MODE_BRUSH)
         self._view_tabs.setCurrentIndex(0)
-        self._body_stack.setCurrentWidget(self._body_splitter)
+        self._body_stack.setCurrentWidget(self._image_page)
         self._sync_button_states()
         self._refresh_history_buttons()
         self._status_label.setText(tr(
@@ -12023,17 +12313,25 @@ class MakeMasksScreen(QWidget):
                         stem, exc_info=True)
 
     def _build_ui(self):
-        """Lay out the canvas, the tool panel and the navigation row.
+        """Lay out the title, the editor and the four button groups.
 
-        The bottom row holds the toolbar on the left (Open folder, Organize for
-        Measure, Load test data, Uncertainty) and the curation buttons on the
-        right, under the console (Discard, Keep, Skip, Blind, ROIs, Upload
-        data). Save mask, Prev and Next share the scrolling editor action
-        toolbar above with detection, undo and redo. The status line under the
-        image never widens the pane, since a long status would otherwise push
-        the splitter and resize the canvas mid-edit.
+        THE BUTTONS SIT IN FOUR TITLED GROUPS AROUND THE IMAGE (the
+        maintainer's layout, 2026-10-16): TOOLS at its top left and
+        ANNOTATION (Keep, Skip, Discard) at its top right, IO (Open File /
+        Folder, Measure, Load test data, ROIs) at its bottom left and
+        NAVIGATION (Save mask, Previous, Next) at its bottom right. The top
+        and bottom bars are EDGE panes of one vertical
+        :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
+        around the views, and the title with its row of folded modules is an
+        EDGE pane above the editor, so each one hides behind the same
+        collapse arrow that hides the settings and stays hidden across
+        restarts. The status line under the image never widens the pane,
+        since a long status would otherwise push the splitter and resize the
+        canvas mid-edit.
         """
         from .. import screens as _screens_package
+        from ..i18n import tr
+        from ..widgets.collapsible_splitter import CollapsibleSplitter, EDGE
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
@@ -12045,7 +12343,8 @@ class MakeMasksScreen(QWidget):
             instruction=HEADER_INSTRUCTION,
             app_key=APP_KEY,
         )
-        self._src_label = QLabel("No folder selected — click Open folder…")
+        self._src_label = QLabel(tr(
+            "No folder selected — click Open File / Folder…"))
         self._src_label.setObjectName("SubtitleSmall")
         self._src_label.setSizePolicy(QSizePolicy.Maximum,
                                       QSizePolicy.Preferred)
@@ -12054,37 +12353,40 @@ class MakeMasksScreen(QWidget):
         self._folds = self._build_fold_strip()
         _screens_package._breathe_while_a_window_opens()
         self._header.add_trailing(self._folds)
-        outer.addWidget(self._header)
-        outer.addWidget(Divider())
+        self._title_bar = QWidget()
+        self._title_bar.setObjectName("MakeMasksTitleBar")
+        title_col = QVBoxLayout(self._title_bar)
+        title_col.setContentsMargins(0, 0, 0, 0)
+        title_col.setSpacing(SPACING["md"])
+        title_col.addWidget(self._header)
+        title_col.addWidget(Divider())
+        self._title_bar.setSizePolicy(QSizePolicy.Preferred,
+                                      QSizePolicy.Maximum)
 
         self._tool_row = self._build_tool_row()
         _screens_package._breathe_while_a_window_opens()
-        outer.addWidget(self._tool_row)
 
-        from ..i18n import tr
         self._invert_warning = QLabel(tr(INVERT_WARNING_TEXT))
         self._invert_warning.setObjectName(INVERT_WARNING_NAME)
         self._invert_warning.setWordWrap(True)
         self._invert_warning.hide()
-        outer.addWidget(self._invert_warning)
 
-        self._body_stack = QStackedWidget()
+        self._body_stack = _PageStack()
+        self._body_stack.setObjectName("MakeMasksImageStack")
 
         self._empty_state = EmptyState(
             title="Open a folder of images to edit masks",
             subtitle=(
                 "Pick a folder that contains microscopy images "
-                "(.tif / .png / .jpg). Any existing masks in a `masks/` "
-                "subfolder are loaded; new masks save back there as "
-                "labeled uint16 TIFFs."
+                "(.tif / .png / .jpg), or one 2D or 3D image. Any existing "
+                "masks in a `masks/` subfolder are loaded; new masks save "
+                "back there as labeled uint16 TIFFs."
             ),
             icon=iconset.accent_icon("brush"),
-            cta_label="Open folder…",
+            cta_label="Open File / Folder…",
             on_action=self._on_pick_folder,
         )
         self._body_stack.addWidget(self._empty_state)
-
-        from ..widgets.collapsible_splitter import CollapsibleSplitter, EDGE
 
         self._body_splitter = CollapsibleSplitter(
             Qt.Horizontal, persist_key="make_masks::body")
@@ -12127,6 +12429,8 @@ class MakeMasksScreen(QWidget):
         self._prompter.said.connect(self._on_prompt_said)
         self._prompter.accept_requested.connect(self._accept_prompt)
         self._view_tabs = self._build_view_tabs()
+        self._image_page = self._view_tabs
+        self._body_stack.addWidget(self._image_page)
         _screens_package._breathe_while_a_window_opens()
 
         self._settings_scroll = QScrollArea()
@@ -12152,109 +12456,157 @@ class MakeMasksScreen(QWidget):
             self._settings_scroll, "Settings", mode=EDGE, stretch=1,
             extent=SETTINGS_WIDTH, fold_key="make_masks/Settings",
             hint="or drag to make the settings wider or narrower")
-        from .. import screens as _screens_package
 
         _screens_package._breathe_while_a_window_opens()
+        self._build_navigation_bar()
+        self._fill_object_operations()
         self._body_splitter.add_pane(self._build_view_pane(), "Masks",
                                      stretch=3, extent=900)
-        self._body_stack.addWidget(self._body_splitter)
         self._body_stack.setCurrentWidget(self._empty_state)
         self._body_stack.currentChanged.connect(self._sync_tool_row_visibility)
         self._sync_tool_row_visibility()
 
-        outer.addWidget(self._body_stack, 1)
+        editor = QWidget()
+        editor.setObjectName("MakeMasksEditor")
+        editor_col = QVBoxLayout(editor)
+        editor_col.setContentsMargins(0, 0, 0, 0)
+        editor_col.setSpacing(SPACING["sm"])
+        editor_col.addWidget(self._invert_warning)
+        editor_col.addWidget(self._body_splitter, 1)
+
+        self._chrome_splitter = CollapsibleSplitter(
+            Qt.Vertical, persist_key="make_masks::chrome")
+        self._chrome_splitter.setObjectName("MakeMasksChrome")
+        self._chrome_splitter.add_pane(
+            self._title_bar, "Title", mode=EDGE, stretch=0,
+            fold_key=MAKE_MASKS_TITLE_FOLD_KEY,
+            hint="Hides the Make Masks title and the row of folded modules.")
+        self._chrome_splitter.add_pane(editor, "Editor", stretch=1)
+        outer.addWidget(self._chrome_splitter, 1)
+
+        self._status_label = _StatusLabel("Ready.")
+        self._status_label._blind_owner = weakref.ref(self)
+        self._status_label.setObjectName("SubtitleSmall")
+        self._status_label.said.connect(self._report_status)
+        self._status_label.setSizePolicy(QSizePolicy.Ignored,
+                                         QSizePolicy.Preferred)
+        self._status_label.setMinimumWidth(0)
+        self._image_nav_row.addWidget(self._status_label, 1)
+
+    @staticmethod
+    def _titled_group(title: str, object_name: str, wrap: bool = False,
+                      keep_one_line: bool = False):
+        """A titled container for one group of buttons around the image.
+
+        The title is the group's name in capitals, in the container's top
+        left corner; the buttons go in one row below it.
+
+        :param title: the title, already translated.
+        :param object_name: the container's object name.
+        :param wrap: let the group take every width it is offered (TOOLS);
+            otherwise it asks for its one-line width. Either way the buttons
+            wrap onto another line rather than scroll or force the window
+            wider (:class:`_GroupFlow`).
+        :param keep_one_line: never narrower than its one-line width, so
+            its neighbour wraps first (ANNOTATION and NAVIGATION).
+        :returns: ``(container, row)``; add the buttons to ``row``.
+        """
+        group = QFrame()
+        group.setObjectName(object_name)
+        group.setProperty("makeMasksGroup", True)
+        group.setFrameShape(QFrame.StyledPanel)
+        column = QVBoxLayout(group)
+        column.setContentsMargins(SPACING["sm"], SPACING["xs"],
+                                  SPACING["sm"], SPACING["xs"])
+        column.setSpacing(2)
+        label = QLabel(title, group)
+        label.setObjectName("MakeMasksGroupTitle")
+        label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        column.addWidget(label, 0, Qt.AlignLeft | Qt.AlignTop)
+        row = _GroupFlow(spacing=SPACING["sm"])
+        policy = QSizePolicy(
+            QSizePolicy.Expanding if wrap else QSizePolicy.Preferred,
+            QSizePolicy.Preferred)
+        if keep_one_line:
+            policy.setHorizontalPolicy(QSizePolicy.Minimum)
+        policy.setHeightForWidth(True)
+        group.setSizePolicy(policy)
+        column.addLayout(row)
+        group.title_label = label
+        return group, row
+
+    def _build_navigation_bar(self) -> None:
+        """Build the ANNOTATION, IO and NAVIGATION groups.
+
+        ANNOTATION joins TOOLS on the bar above the image, IO and NAVIGATION
+        make the bar below it. Keep carries a menu with Hide judged fields,
+        First unreviewed and Blind; Save mask one with Save on navigation and
+        Upload data, the way Load test data carries its datasets.
+        """
+        from PySide6.QtGui import QAction
 
         from ..i18n import tr
-
-        _screens_package._breathe_while_a_window_opens()
-        nav = QWidget()
-        outer_row = QHBoxLayout(nav)
-        outer_row.setContentsMargins(0, 0, 0, 0)
-        outer_row.setSpacing(SPACING["sm"])
-        from .app_screen import _WrappingButtonStrip
-
-        nav_row = _WrappingButtonStrip(SPACING["sm"])
-        outer_row.addLayout(nav_row, 1)
-        self._btn_open = QPushButton(tr("Open folder…"))
-        self._btn_open.setObjectName("PrimaryButton")
-        self._btn_open.setIcon(iconset.contrast_icon("open"))
-        self._btn_open.setCursor(Qt.PointingHandCursor)
-        self._btn_open.clicked.connect(self._on_pick_folder)
-        nav_row.addWidget(self._btn_open)
-        self._btn_volume = QPushButton(tr("Open 3D image…"), self)
-        self._btn_volume.setObjectName("OpenVolumeMask")
-        self._btn_volume.setProperty('_spacr_i18n_tooltip',
-            'Open a z-stack or volume (TIFF, OME-TIFF or MRC) and draw 3D masks slice by slice, interpolate between slices and save a 3D label TIFF. The current 2D image and mask stay unchanged.')
-        self._btn_volume.setToolTip(tr(
-            'Open a z-stack or volume (TIFF, OME-TIFF or MRC) and draw 3D masks slice by slice, interpolate between slices and save a 3D label TIFF. The current 2D image and mask stay unchanged.'))
-        self._btn_volume.setAccessibleDescription(self._btn_volume.toolTip())
-        self._btn_volume.clicked.connect(lambda: self.open_volume())
-        nav_row.addWidget(self._btn_volume)
-        nav_row.addWidget(self._build_organize_button())
-        nav_row.addWidget(self._build_test_data_button())
-        nav_row.addWidget(self._build_uncertainty_button())
-
-        self._nav_curate_group, curate_row = self._nav_button_group()
-        self._btn_prev = QPushButton(tr("Prev image"))
-        self._btn_prev.setIcon(iconset.icon("prev"))
-        self._btn_prev.setCursor(Qt.PointingHandCursor)
-        self._btn_prev.clicked.connect(self._on_prev)
-
-        self._btn_next = QPushButton(tr("Next image"))
-        self._btn_next.setIcon(iconset.icon("next"))
-        self._btn_next.setLayoutDirection(Qt.RightToLeft)
-        self._btn_next.setCursor(Qt.PointingHandCursor)
-        self._btn_next.clicked.connect(self._on_next)
-
+        from ..preferences import _apply_alpha_widgets
         from ..prefs import _s
 
-        self._btn_save_on_navigation = QPushButton(tr("Save on navigation"))
-        self._btn_save_on_navigation.setObjectName("MakeMasksSaveOnNavigate")
-        self._btn_save_on_navigation.setCheckable(True)
-        self._btn_save_on_navigation.setCursor(Qt.PointingHandCursor)
-        self._btn_save_on_navigation.setToolTip(tr(
-            "Save an edited mask before Keep, Discard, Next or Previous. "
-            "If saving fails, stay on this image without recording a verdict. "
-            "Off by default; Skip still writes no mask."))
-        self._btn_save_on_navigation.setChecked(bool(_s().value(
-            "make_masks/save_on_navigation", False, type=bool)))
-        self._btn_save_on_navigation.toggled.connect(
-            lambda enabled: _s().setValue(
-                "make_masks/save_on_navigation", bool(enabled)))
+        annotation, curate_row = self._titled_group(
+            tr("ANNOTATION"), "MakeMasksAnnotationGroup", keep_one_line=True)
+        self._annotation_group = annotation
+        self._nav_curate_group = annotation
 
-        self._btn_clear = QPushButton(tr("Clear all objects"))
-        self._btn_clear.setObjectName("DangerButton")
-        self._btn_clear.setCursor(Qt.PointingHandCursor)
-        self._btn_clear.setProperty("_spacrActivitySpinnerChecked", True)
-        self._btn_clear.setToolTip(tr(
-            "Remove every object from this field. It asks first, and it is "
-            "one undo step, so a press by accident costs one Ctrl+Z."))
-        self._btn_clear.clicked.connect(self._on_clear_mask)
-        curate_row.addWidget(self._btn_clear)
-        self._btn_first_unreviewed = QPushButton(tr("First unreviewed"))
-        self._btn_first_unreviewed.setObjectName("MakeMasksFirstUnreviewed")
-        self._btn_first_unreviewed.setCursor(Qt.PointingHandCursor)
-        self._btn_first_unreviewed.setToolTip(tr(
-            "Open the first image in the queue that has neither Keep nor "
-            "Discard. Verdicts saved in earlier sessions count. Unsaved "
-            "edits are handled as when moving to any other image."))
-        self._btn_first_unreviewed.clicked.connect(self._on_first_unreviewed)
-        curate_row.insertWidget(curate_row.indexOf(self._btn_clear),
-                                self._btn_first_unreviewed)
+        self._btn_keep = _SplitMenuButton(tr("Keep"), self)
+        self._btn_keep.setObjectName("MakeMasksKeepButton")
+        self._btn_keep.setIcon(iconset.icon("check"))
+        self._btn_keep.setCheckable(True)
+        self._btn_keep.setCursor(Qt.PointingHandCursor)
+        self._btn_keep.setToolTip(tr(
+            "Mark this field as one to keep and move to the next. The "
+            "verdict is written to csv/keep_discard.csv beside the images, "
+            "with the image, its mask and the number of objects the mask "
+            "holds right now.") + " " + tr(
+            "The arrow offers Hide judged fields, First unreviewed and "
+            "Blind."))
+        self._btn_keep.clicked.connect(lambda: self._on_curate(True))
+        keep_menu = QMenu(self._btn_keep)
+        keep_menu.setObjectName("MakeMasksKeepMenu")
+        keep_menu.setToolTipsVisible(True)
 
-        self._btn_hide_judged = QPushButton(tr("Hide judged fields"))
+        self._btn_hide_judged = QAction(tr("Hide judged fields"), keep_menu)
         self._btn_hide_judged.setObjectName("MakeMasksHideJudged")
         self._btn_hide_judged.setCheckable(True)
-        self._btn_hide_judged.setCursor(Qt.PointingHandCursor)
         self._btn_hide_judged.setToolTip(tr(
             "Skip fields already marked Keep or Discard when moving with "
             "Previous and Next. Their verdicts stay in csv/keep_discard.csv."))
         self._btn_hide_judged.toggled.connect(self._on_hide_judged_toggled)
-        curate_row.insertWidget(
-            curate_row.indexOf(self._btn_first_unreviewed),
-            self._btn_hide_judged)
+        keep_menu.addAction(self._btn_hide_judged)
+
+        self._btn_first_unreviewed = QAction(tr("First unreviewed"), keep_menu)
+        self._btn_first_unreviewed.setObjectName("MakeMasksFirstUnreviewed")
+        self._btn_first_unreviewed.setToolTip(tr(
+            "Open the first image in the queue that has neither Keep nor "
+            "Discard. Verdicts saved in earlier sessions count. Unsaved "
+            "edits are handled as when moving to any other image."))
+        self._btn_first_unreviewed.triggered.connect(
+            lambda _checked=False: self._on_first_unreviewed())
+        keep_menu.addAction(self._btn_first_unreviewed)
+        keep_menu.addAction(self._build_blind_toggle(keep_menu))
+        self._btn_keep.set_split_menu(keep_menu)
+        self._keep_menu = keep_menu
+        curate_row.addWidget(self._btn_keep)
+
+        self._btn_skip = QPushButton(tr("Skip"))
+        self._btn_skip.setObjectName("MakeMasksSkipButton")
+        self._btn_skip.setIcon(iconset.icon("next"))
+        self._btn_skip.setCursor(Qt.PointingHandCursor)
+        self._btn_skip.setToolTip(tr(
+            "Record this field as one that cannot be curated and move to the "
+            "next. It is written to the session's curate_status.csv as skip, "
+            "so the next session does not offer it again. No mask is written."))
+        self._btn_skip.clicked.connect(self._on_skip)
+        curate_row.addWidget(self._btn_skip)
 
         self._btn_discard = QPushButton(tr("Discard"))
+        self._btn_discard.setObjectName("MakeMasksDiscardButton")
         self._btn_discard.setIcon(iconset.icon("trash"))
         self._btn_discard.setCheckable(True)
         self._btn_discard.setCursor(Qt.PointingHandCursor)
@@ -12265,65 +12617,138 @@ class MakeMasksScreen(QWidget):
             "stay as they are."))
         self._btn_discard.clicked.connect(lambda: self._on_curate(False))
         curate_row.addWidget(self._btn_discard)
+        self._top_bar_layout.addWidget(annotation, 0, Qt.AlignTop)
 
-        self._btn_keep = QPushButton(tr("Keep"))
-        self._btn_keep.setIcon(iconset.icon("check"))
-        self._btn_keep.setCheckable(True)
-        self._btn_keep.setCursor(Qt.PointingHandCursor)
-        self._btn_keep.setToolTip(tr(
-            "Mark this field as one to keep and move to the next. The "
-            "verdict is written to csv/keep_discard.csv beside the images, "
-            "with the image, its mask and the number of objects the mask "
-            "holds right now."))
-        self._btn_keep.clicked.connect(lambda: self._on_curate(True))
-        curate_row.addWidget(self._btn_keep)
+        io_group, io_row = self._titled_group(tr("IO"), "MakeMasksIoGroup")
+        self._io_group = io_group
+        self._btn_open = _SplitMenuButton(tr("Open File / Folder…"), self)
+        self._btn_open.setObjectName("PrimaryButton")
+        self._btn_open.setIcon(iconset.contrast_icon("open"))
+        self._btn_open.setCursor(Qt.PointingHandCursor)
+        self._btn_open.setToolTip(tr(
+            "Open a folder of images to curate. The arrow also opens one "
+            "image file: a 2D image opens with the other images of its "
+            "folder, a z-stack or volume (TIFF, OME-TIFF or MRC) opens in the "
+            "Mask view to draw 3D masks slice by slice, interpolate between "
+            "slices and save a 3D label TIFF."))
+        self._btn_open.clicked.connect(
+            lambda _checked=False: self._on_pick_folder())
+        open_menu = QMenu(self._btn_open)
+        open_menu.setObjectName("MakeMasksOpenMenu")
+        open_menu.setToolTipsVisible(True)
+        action = open_menu.addAction(tr("Open folder…"))
+        action.setObjectName("MakeMasksOpenFolder")
+        action.triggered.connect(lambda _checked=False: self._on_pick_folder())
+        action = open_menu.addAction(tr("Open file (2D or 3D)…"))
+        action.setObjectName("MakeMasksOpenFile")
+        action.setToolTip(tr(
+            "Open one image. A 2D image opens with the other images of its "
+            "folder; a z-stack or volume (TIFF, OME-TIFF or MRC) opens in "
+            "the Mask view as a 3D image."))
+        action.triggered.connect(lambda _checked=False: self._on_pick_file())
+        self._btn_open.set_split_menu(open_menu)
+        io_row.addWidget(self._btn_open)
+        io_row.addWidget(self._build_organize_button())
+        io_row.addWidget(self._build_test_data_button())
+        io_row.addWidget(self._build_roi_button())
 
-        self._btn_save = QPushButton(tr("Save mask"))
+        nav_group, nav_row = self._titled_group(
+            tr("NAVIGATION"), "MakeMasksNavigationGroup", keep_one_line=True)
+        self._navigation_group = nav_group
+        self._btn_save = _SplitMenuButton(tr("Save mask"), self)
         self._btn_save.setObjectName("PrimaryButton")
         self._btn_save.setIcon(iconset.contrast_icon("save"))
         self._btn_save.setCursor(Qt.PointingHandCursor)
+        self._btn_save.setToolTip(tr(
+            "Save the mask of this field as a labelled uint16 TIFF in its "
+            "masks folder.") + " " + tr(
+            "The arrow offers Save on navigation and Upload data."))
         self._btn_save.clicked.connect(self._on_save)
-        for place, button in enumerate((
-                self._btn_save, self._btn_prev, self._btn_next,
-                self._btn_save_on_navigation)):
-            button.setMinimumHeight(32)
-            self._tool_row_layout.insertWidget(place, button)
+        save_menu = QMenu(self._btn_save)
+        save_menu.setObjectName("MakeMasksSaveMenu")
+        save_menu.setToolTipsVisible(True)
+        self._btn_save_on_navigation = QAction(tr("Save on navigation"),
+                                               save_menu)
+        self._btn_save_on_navigation.setObjectName("MakeMasksSaveOnNavigate")
+        self._btn_save_on_navigation.setCheckable(True)
+        self._btn_save_on_navigation.setToolTip(tr(
+            "Save an edited mask before Keep, Discard, Next or Previous. "
+            "If saving fails, stay on this image without recording a verdict. "
+            "Off by default; Skip still writes no mask."))
+        self._btn_save_on_navigation.setChecked(bool(_s().value(
+            "make_masks/save_on_navigation", False, type=bool)))
+        self._btn_save_on_navigation.toggled.connect(
+            lambda enabled: _s().setValue(
+                "make_masks/save_on_navigation", bool(enabled)))
+        save_menu.addAction(self._btn_save_on_navigation)
+        save_menu.addSeparator()
+        save_menu.addAction(self._build_contribute_button(save_menu))
+        self._btn_save.set_split_menu(save_menu)
+        self._save_menu = save_menu
+        nav_row.addWidget(self._btn_save)
 
-        self._btn_skip = QPushButton(tr("Skip"))
-        self._btn_skip.setIcon(iconset.icon("next"))
-        self._btn_skip.setCursor(Qt.PointingHandCursor)
-        self._btn_skip.setToolTip(tr(
-            "Record this field as one that cannot be curated and move to the "
-            "next. It is written to the session's curate_status.csv as skip, "
-            "so the next session does not offer it again. No mask is written."))
-        self._btn_skip.clicked.connect(self._on_skip)
-        curate_row.addWidget(self._btn_skip)
-        curate_row.addWidget(self._build_blind_toggle())
-        curate_row.addWidget(self._build_roi_button())
-        curate_row.addWidget(self._build_sam2_button())
+        self._btn_prev = QPushButton(tr("Previous"))
+        self._btn_prev.setObjectName("MakeMasksPreviousButton")
+        self._btn_prev.setIcon(iconset.icon("prev"))
+        self._btn_prev.setCursor(Qt.PointingHandCursor)
+        self._btn_prev.setToolTip(tr("Open the previous image in the queue."))
+        self._btn_prev.clicked.connect(self._on_prev)
+        nav_row.addWidget(self._btn_prev)
+
+        self._btn_next = QPushButton(tr("Next"))
+        self._btn_next.setObjectName("MakeMasksNextButton")
+        self._btn_next.setIcon(iconset.icon("next"))
+        self._btn_next.setLayoutDirection(Qt.RightToLeft)
+        self._btn_next.setCursor(Qt.PointingHandCursor)
+        self._btn_next.setToolTip(tr("Open the next image in the queue."))
+        self._btn_next.clicked.connect(self._on_next)
+        nav_row.addWidget(self._btn_next)
+        for button in (self._btn_save, self._btn_prev, self._btn_next):
+            button.setMinimumHeight(32)
+
+        bottom = QWidget()
+        bottom.setObjectName("MakeMasksBottomBar")
+        bottom_row = QHBoxLayout(bottom)
+        bottom_row.setContentsMargins(0, 0, 0, 0)
+        bottom_row.setSpacing(SPACING["md"])
+        bottom_row.addWidget(io_group, 0, Qt.AlignBottom)
+        bottom_row.addStretch(1)
+        bottom_row.addWidget(nav_group, 0, Qt.AlignBottom)
+        policy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        policy.setHeightForWidth(True)
+        bottom.setSizePolicy(policy)
+        self._bottom_bar = bottom
+        _apply_alpha_widgets(annotation)
+        _apply_alpha_widgets(bottom)
+
+    def _fill_object_operations(self) -> None:
+        """Put the field-wide actions in the Object operations settings.
+
+        Object detection, Clear all objects and, behind the alpha gate, the
+        uncertainty ranking, SAM2 tracking and Apply virtual stain sit with
+        Fill holes, Relabel and the other operations on every object.
+        """
+        from ..i18n import tr
         from ..preferences import _apply_alpha_widgets
         from .train_cellpose import _VirtualStainApply
 
+        ops = self._object_ops_layout
+        ops.insertWidget(0, self._btn_cellpose)
+        self._btn_clear = QPushButton(tr("Clear all objects"))
+        self._btn_clear.setObjectName("DangerButton")
+        self._btn_clear.setCursor(Qt.PointingHandCursor)
+        self._btn_clear.setProperty("_spacrActivitySpinnerChecked", True)
+        self._btn_clear.setToolTip(tr(
+            "Remove every object from this field. It asks first, and it is "
+            "one undo step, so a press by accident costs one Ctrl+Z."))
+        self._btn_clear.clicked.connect(self._on_clear_mask)
+        ops.addWidget(self._btn_clear)
+        ops.addWidget(self._build_uncertainty_button())
+        ops.addWidget(self._build_sam2_button())
         self._virtual_stain = _VirtualStainApply(lambda: self._folder, self)
         self._virtual_stain.button.setObjectName("MakeMasksVirtualStainApply")
-        _apply_alpha_widgets(self._virtual_stain.button)
-        curate_row.addWidget(self._virtual_stain)
-        for button in self._build_vvvv_export_buttons():
-            curate_row.addWidget(button)
-            _apply_alpha_widgets(button)
-        curate_row.addWidget(self._build_contribute_button())
-
-        outer_row.addWidget(self._nav_curate_group, 0, Qt.AlignBottom)
-
-        self._status_label = _StatusLabel("Ready.")
-        self._status_label._blind_owner = weakref.ref(self)
-        self._status_label.setObjectName("SubtitleSmall")
-        self._status_label.said.connect(self._report_status)
-        self._status_label.setSizePolicy(QSizePolicy.Ignored,
-                                         QSizePolicy.Preferred)
-        self._status_label.setMinimumWidth(0)
-        self._image_nav_row.addWidget(self._status_label, 1)
-        outer.addWidget(nav)
+        ops.addWidget(self._virtual_stain)
+        _apply_alpha_widgets(self._settings_scroll.widget())
 
     def _nav_button_group(self, separated: bool = False):
         """A widget holding a row of navigation buttons that never wraps apart.
@@ -12720,23 +13145,26 @@ class MakeMasksScreen(QWidget):
         self._btn_training_datasets = button
         return button
 
-    def _build_contribute_button(self) -> QPushButton:
-        """The "Upload data…" button: send images and masks to a community set.
+    def _build_contribute_button(self, menu=None):
+        """"Upload data…" in Save mask's menu: send images and masks to a community set.
 
-        It was "Contribute images and masks…"; the object name and the
-        dialog it opens are unchanged.
+        It was "Contribute images and masks…" and then a button of its own;
+        the object name and the dialog it opens are unchanged.
+
+        :param menu: the menu that owns the entry; the screen when None.
+        :returns: the action.
         """
+        from PySide6.QtGui import QAction
+
         from ..i18n import tr
         from ..widgets.model_share_dialog import contribute_masks_tooltip
 
-        button = QPushButton(tr("Upload data…"), self)
+        button = QAction(tr("Upload data…"), menu if menu is not None else self)
         button.setObjectName("MakeMasksUploadDataButton")
-        button.setAccessibleName(tr("Upload data"))
-        button.setCursor(Qt.PointingHandCursor)
         button.setToolTip(tr(
             "Upload data: send images and their masks to a community "
             "training dataset.") + "\n\n" + contribute_masks_tooltip())
-        button.clicked.connect(
+        button.triggered.connect(
             lambda _checked=False: self.contribute_images_and_masks())
         self._btn_contribute = button
         return button
@@ -12910,7 +13338,7 @@ class MakeMasksScreen(QWidget):
                                  source_path=path)
         dialog.exec()
 
-    def _build_blind_toggle(self) -> QPushButton:
+    def _build_blind_toggle(self, menu=None):
         """The Blind switch: curate fields without knowing where they are from.
 
         On, the open fields are shuffled under a blinding key
@@ -12920,16 +13348,19 @@ class MakeMasksScreen(QWidget):
         which records who did it and when, and puts the fields back in
         their own order. An alpha feature, registered as
         ``MakeMasksBlindToggle`` in :data:`spacr.settings.ALPHA_FEATURES`.
+        It is a checkable entry of Keep's menu.
 
-        :returns: the checkable button.
+        :param menu: the menu that owns the entry; the screen when None.
+        :returns: the checkable action.
         """
+        from PySide6.QtGui import QAction
+
         from ..i18n import tr
         from ..preferences import _apply_alpha_widgets
 
-        button = QPushButton(tr("Blind"), self)
+        button = QAction(tr("Blind"), menu if menu is not None else self)
         button.setObjectName("MakeMasksBlindToggle")
         button.setCheckable(True)
-        button.setCursor(Qt.PointingHandCursor)
         button.setToolTip(tr(
             "Curate blind: name every field by a code instead of its file "
             "name and folder, and show the fields in a shuffled order. The "
@@ -13989,81 +14420,38 @@ class MakeMasksScreen(QWidget):
             self._btn_cellpose.setEnabled(True)
 
     def _build_tool_row(self) -> QWidget:
-        """The one row that holds every tool, along the top of the screen.
+        """The bar above the image: TOOLS on the left, ANNOTATION on the right.
 
-        THE WHOLE SET IS VISIBLE AT ONCE. The tools used to be a 2x3 grid
-        inside a card in the side panel, where finding a tool meant
-        reading a block; in one row they are read left to right and the
-        one you want is where you last saw it.
+        TOOLS holds every canvas tool, read left to right: Brush, Erase,
+        Erase object, Wand, Draw, Box, Divide / Merge, Zoom, Recrop and,
+        added by the magnifier settings, Magnifier. The row is built from
+        :func:`tool_row_entries`, so a tool added to :data:`TOOL_MODES` -- or
+        a ``MODE_*`` constant added with no table entry at all -- appears here
+        without its author editing this method. Ruler sits with Reset zoom
+        beside the image counter instead (:meth:`_build_queue_tally`).
+        Actions that are not modes come in through :meth:`add_toolbar_action`
+        and land at the end of TOOLS. The tools wrap onto a second line when
+        the image is narrower than they are; ANNOTATION keeps its place.
 
-        The row is built from :func:`tool_row_entries`, so a tool added to
-        :data:`TOOL_MODES` — or a ``MODE_*`` constant added with no table
-        entry at all — appears here without its author editing this
-        method. Actions that are not modes come in through
-        :meth:`add_toolbar_action` and land in the same row.
+        Undo and Redo have no buttons: they are in the Edit menu and on
+        Ctrl+Z and Ctrl+Y. There is no Settings button either: the collapse
+        arrow on the settings' edge hides them.
 
-        The Magnifier and, directly right of it, the settings toggle are
-        PINNED at the right end, outside the part that scrolls. The
-        toggle is checkable because it reports a state rather than firing
-        an action: it stays lit for as long as the settings are on
-        screen. The tools wider than the window scroll; the pair does
-        not, so the way back to the settings is never scrolled out of
-        sight. A
-        stretch after the last tool keeps the tools against the left
-        edge, above the settings they sit over.
-
-        :returns: The strip that holds the scrolling tools and the pinned
-            pair, kept as ``self._tool_row``.
+        :returns: the bar, kept as ``self._tool_row``; :meth:`_build_ui`
+            adds ANNOTATION to it.
         """
-        bar = QWidget()
-        bar.setObjectName("MakeMasksToolTools")
-        row = QHBoxLayout(bar)
-        row.setContentsMargins(0, 0, 0, 0)
-        row.setSpacing(SPACING["sm"])
-        #: The row itself, kept so a tool added after this screen was built
-        #: has somewhere to go.
+        from PySide6.QtGui import QAction
+
+        from ..i18n import tr
+
+        group, row = self._titled_group(tr("TOOLS"), "MakeMasksToolsGroup",
+                                        wrap=True)
+        self._tools_group = group
+        #: The TOOLS row itself, kept so a tool added after this screen was
+        #: built has somewhere to go.
         self._tool_row_layout = row
         #: Width the settings pane goes back to when it is shown again.
         self._settings_width = SETTINGS_WIDTH
-
-        self._mode_buttons: dict[str, QPushButton] = {}
-        for mode, label, icon_key in tool_row_entries():
-            from ..i18n import tr
-
-            btn = QPushButton(tr(label))
-            if mode == MODE_BRUSH:
-                btn.setToolTip(tr(
-                    "Each separate stroke paints a new object; a stroke that "
-                    "starts on or touches an object extends it. Hold Shift "
-                    "to keep painting the last object across a gap."))
-            if mode == MODE_WAND_ADD:
-                btn.setToolTip(tr("Click to add an intensity region. Hold Ctrl and click to remove it."))
-            if mode == MODE_DIVIDE:
-                btn.setToolTip(tr("Left-drag to divide an object. Right-drag across objects to merge them."))
-            btn.setIcon(iconset.icon(icon_key))
-            if mode == MODE_BOX:
-                btn.setObjectName("MakeMasksBoxTool")
-                btn.setToolTip(tr("Draw YOLO bounding boxes (X). Drag inside to move, "
-                                  "drag a corner to resize, or right-click to delete. "
-                                  "Ctrl-drag draws an overlapping box."))
-            btn.setCheckable(True)
-            btn.setMinimumHeight(32)
-            btn.setCursor(Qt.PointingHandCursor)
-            btn.clicked.connect(lambda _c=False, key=mode: self._set_mode(key))
-            row.addWidget(btn)
-            self._mode_buttons[mode] = btn
-        self._btn_brush = self._mode_buttons[MODE_BRUSH]
-        self._btn_erase = self._mode_buttons[MODE_ERASE]
-        self._btn_del_obj = self._mode_buttons[MODE_ERASE_OBJECT]
-        self._btn_wand_add = self._mode_buttons[MODE_WAND_ADD]
-        self._btn_wand = self._btn_wand_add
-        self._btn_wand_erase = self._btn_wand
-        self._btn_zoom = self._mode_buttons[MODE_ZOOM]
-        self._btn_recrop = self._mode_buttons[MODE_RECROP]
-        self._btn_recrop.setToolTip(RECROP_TOOLTIP)
-        self._mode_buttons[MODE_RULER].setToolTip(tr(
-            "Drag a line to measure its length in image pixels. "
-            "Right-click with Ruler selected to clear it. Zoom and pan preserve the measurement."))
 
         self._box_controls = QWidget()
         box_row = QHBoxLayout(self._box_controls)
@@ -14087,72 +14475,75 @@ class MakeMasksScreen(QWidget):
         self._btn_export_yolo.clicked.connect(lambda: self._on_export_yolo_boxes())
         box_row.addWidget(self._btn_export_yolo)
         self._box_controls.hide()
-        row.insertWidget(tuple(self._mode_buttons).index(MODE_BOX) + 1, self._box_controls)
 
-        row.addWidget(Divider(Qt.Vertical))
-        self._btn_reset_zoom = QPushButton("Reset zoom")
+        self._mode_buttons: dict[str, QPushButton] = {}
+        for mode, label, icon_key in tool_row_entries():
+            btn = QPushButton(tr(label))
+            if mode == MODE_BRUSH:
+                btn.setToolTip(tr(
+                    "Each separate stroke paints a new object; a stroke that "
+                    "starts on or touches an object extends it. Hold Shift "
+                    "to keep painting the last object across a gap."))
+            if mode == MODE_WAND_ADD:
+                btn.setToolTip(tr("Click to add an intensity region. Hold Ctrl and click to remove it."))
+            if mode == MODE_DIVIDE:
+                btn.setToolTip(tr("Left-drag to divide an object. Right-drag across objects to merge them."))
+            btn.setIcon(iconset.icon(icon_key))
+            if mode == MODE_BOX:
+                btn.setObjectName("MakeMasksBoxTool")
+                btn.setToolTip(tr("Draw YOLO bounding boxes (X). Drag inside to move, "
+                                  "drag a corner to resize, or right-click to delete. "
+                                  "Ctrl-drag draws an overlapping box."))
+            btn.setCheckable(True)
+            btn.setMinimumHeight(32)
+            btn.setCursor(Qt.PointingHandCursor)
+            btn.clicked.connect(lambda _c=False, key=mode: self._set_mode(key))
+            if mode != MODE_RULER:
+                row.addWidget(btn)
+            if mode == MODE_BOX:
+                row.addWidget(self._box_controls)
+            self._mode_buttons[mode] = btn
+        self._btn_brush = self._mode_buttons[MODE_BRUSH]
+        self._btn_erase = self._mode_buttons[MODE_ERASE]
+        self._btn_del_obj = self._mode_buttons[MODE_ERASE_OBJECT]
+        self._btn_wand_add = self._mode_buttons[MODE_WAND_ADD]
+        self._btn_wand = self._btn_wand_add
+        self._btn_wand_erase = self._btn_wand
+        self._btn_zoom = self._mode_buttons[MODE_ZOOM]
+        self._btn_recrop = self._mode_buttons[MODE_RECROP]
+        self._btn_recrop.setToolTip(RECROP_TOOLTIP)
+        self._btn_ruler = self._mode_buttons[MODE_RULER]
+        self._btn_ruler.setObjectName("MakeMasksRulerTool")
+        self._btn_ruler.setMinimumHeight(0)
+        self._btn_ruler.setToolTip(tr(
+            "Drag a line to measure its length in image pixels. "
+            "Right-click with Ruler selected to clear it. Zoom and pan preserve the measurement."))
+
+        self._btn_reset_zoom = QPushButton(tr("Reset zoom"))
+        self._btn_reset_zoom.setObjectName("MakeMasksResetZoom")
         self._btn_reset_zoom.setIcon(iconset.icon("zoom_reset"))
         self._btn_reset_zoom.setCursor(Qt.PointingHandCursor)
         self._btn_reset_zoom.setEnabled(False)
         self._btn_reset_zoom.clicked.connect(self._on_reset_zoom)
-        row.addWidget(self._btn_reset_zoom)
-        self._btn_undo = QPushButton("Undo")
-        self._btn_undo.setIcon(iconset.icon("undo"))
-        self._btn_undo.setCursor(Qt.PointingHandCursor)
-        self._btn_undo.setEnabled(False)
-        self._btn_undo.clicked.connect(self._on_undo)
-        row.addWidget(self._btn_undo)
-        self._btn_redo = QPushButton("Redo")
-        self._btn_redo.setIcon(iconset.icon("redo"))
-        self._btn_redo.setCursor(Qt.PointingHandCursor)
-        self._btn_redo.setEnabled(False)
-        self._btn_redo.clicked.connect(self._on_redo)
-        row.addWidget(self._btn_redo)
-
-        self._btn_settings = QPushButton("Settings")
-        self._btn_settings.setIcon(iconset.icon("settings"))
-        self._btn_settings.setCheckable(True)
-        self._btn_settings.setMinimumHeight(32)
-        self._btn_settings.setCursor(Qt.PointingHandCursor)
-        self._btn_settings.setToolTip(
-            "Show or hide the settings — brush, wand, display, auto-filter, "
-            "object operations, Otsu, object detection and the live "
-            "magnifier, as one group. The canvas takes the width they give "
-            "up.")
-        self._btn_settings.setChecked(True)
-        self._btn_settings.toggled.connect(self._on_toggle_settings)
-        row.addStretch(1)
-
-        pinned = QWidget()
-        pinned.setObjectName("MakeMasksToolPin")
-        pin = QHBoxLayout(pinned)
-        pin.setContentsMargins(SPACING["sm"], 0, 0, 0)
-        pin.setSpacing(SPACING["sm"])
-        pin.addWidget(self._btn_settings)
-        self._tool_pin_layout = pin
-        self._tool_pin = pinned
-
-        scroller = QScrollArea()
-        scroller.setObjectName("MakeMasksToolScroll")
-        scroller.setWidgetResizable(True)
-        scroller.setFrameShape(QScrollArea.NoFrame)
-        scroller.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        scroller.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        scroller.setWidget(bar)
-        scroller.setFixedHeight(
-            bar.sizeHint().height()
-            + scroller.horizontalScrollBar().sizeHint().height())
-        scroller.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        self._tool_scroll = scroller
+        self._act_undo = QAction(tr("Undo"), self)
+        self._act_undo.setObjectName("MakeMasksUndo")
+        self._act_undo.setEnabled(False)
+        self._act_undo.triggered.connect(lambda _checked=False: self._on_undo())
+        self._act_redo = QAction(tr("Redo"), self)
+        self._act_redo.setObjectName("MakeMasksRedo")
+        self._act_redo.setEnabled(False)
+        self._act_redo.triggered.connect(lambda _checked=False: self._on_redo())
 
         strip = QWidget()
         strip.setObjectName("MakeMasksToolRow")
         line = QHBoxLayout(strip)
         line.setContentsMargins(0, 0, 0, 0)
-        line.setSpacing(0)
-        line.addWidget(scroller, 1)
-        line.addWidget(pinned, 0, Qt.AlignTop)
-        strip.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        line.setSpacing(SPACING["md"])
+        line.addWidget(group, 1, Qt.AlignTop)
+        policy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        policy.setHeightForWidth(True)
+        strip.setSizePolicy(policy)
+        self._top_bar_layout = line
         return strip
 
     def _curation_paths(self):
@@ -14293,55 +14684,45 @@ class MakeMasksScreen(QWidget):
             self._show_curation_verdict(None)
 
     def add_toolbar_action(self, button: QPushButton) -> QPushButton:
-        """Insert a non-mode action into the editor toolbar.
-
-        The button is placed after the other actions in the part of the row
-        that scrolls. The Magnifier and the settings toggle are pinned
-        outside it, so nothing added here can come between them or push
-        them out of sight.
+        """Insert a non-mode action at the end of the TOOLS group.
 
         :param button: Action button to insert.
         :returns: The same button.
         """
-        row = self._tool_row_layout
-        row.insertWidget(row.count() - 1, button)
+        self._tool_row_layout.addWidget(button)
         return button
 
     def _sync_tool_row_visibility(self, *_args) -> None:
-        """Show the tool row only while the editor is the body.
+        """Show the bar above the image only while an image is open.
 
-        There is nothing to brush, undo or configure until a folder is
-        open, and a row of dead buttons over the empty state reads as a
-        broken screen rather than an empty one.
+        There is nothing to brush or judge before a folder is open, and a
+        row of dead buttons over the empty state reads as a broken screen
+        rather than an empty one. The bar below stays: it holds Open File /
+        Folder and Load test data, the two ways in.
         """
         self._tool_row.setVisible(
-            self._body_stack.currentWidget() is self._body_splitter)
+            self._body_stack.currentWidget() is self._image_page)
+        self._body_stack.updateGeometry()
+        container = getattr(self, "_image_container", None)
+        if container is not None:
+            container.queue_refit()
 
     def settings_shown(self) -> bool:
         """Whether the settings group is on screen."""
-        return self._btn_settings.isChecked()
+        return not self._body_splitter.is_collapsed("Settings")
 
-    def _on_toggle_settings(self, shown: bool) -> None:
-        """Hide or show the settings as one group.
+    def _set_settings_shown(self, shown: bool) -> bool:
+        """Show or hide the settings as their collapse arrow does.
 
-        THE CANVAS KEEPS THE SPACE. Hiding a splitter child gives its
-        width to the sibling, so the image grows into the panel's place
-        rather than leaving a gap where the panel was. The width the
-        panel had is remembered while it is away, so a second press puts
-        it back where the user last dragged it instead of at the default.
-        The settings are the splitter's first pane, left of the image.
+        THE CANVAS KEEPS THE SPACE: the settings are an EDGE pane of the
+        body splitter, so folding them gives their width to the image and
+        showing them again puts them back at the width last dragged.
+
+        :param shown: True to show them.
+        :returns: whether they are now in the state asked for.
         """
-        splitter = self._body_splitter
-        if not shown:
-            sizes = splitter.sizes()
-            if len(sizes) > 1 and sizes[0] > 0:
-                self._settings_width = sizes[0]
-        self._settings_scroll.setVisible(shown)
-        if shown:
-            sizes = splitter.sizes()
-            total = sum(sizes) or (900 + SETTINGS_WIDTH)
-            side = max(min(self._settings_width, total - 1), 1)
-            splitter.setSizes([side, total - side])
+        return self._body_splitter.set_collapsed("Settings", not shown,
+                                                 by_user=True)
 
     def _build_tools_panel(self) -> QWidget:
         """Build the tool column: mode, brush, wand and mask operations.
@@ -14370,7 +14751,7 @@ class MakeMasksScreen(QWidget):
         brush_form = QFormLayout()
         self._brush_slider = QSlider(Qt.Horizontal)
         self._brush_slider.setRange(1, 100)
-        self._brush_slider.setValue(10)
+        self._brush_slider.setValue(DEFAULT_BRUSH_RADIUS)
         self._brush_slider.setToolTip(
             "Radius of the brush and the eraser, in pixels on screen. It is "
             "scaled into image pixels at the current zoom, so the disk under "
@@ -14378,7 +14759,7 @@ class MakeMasksScreen(QWidget):
             "stroke on the data."
         )
         self._brush_slider.valueChanged.connect(self._on_brush_size_changed)
-        self._brush_size_label = QLabel("10 px")
+        self._brush_size_label = QLabel(f"{DEFAULT_BRUSH_RADIUS} px")
         self._brush_size_label.setObjectName("Muted")
         brush_row = QHBoxLayout()
         brush_row.addWidget(self._brush_slider, 1)
@@ -14729,6 +15110,7 @@ class MakeMasksScreen(QWidget):
         obj_card = self._settings_category("Object operations")
         _screens_package._breathe_while_a_window_opens()
         ops_col = QVBoxLayout()
+        self._object_ops_layout = ops_col
         ops_col.setSpacing(SPACING["xs"])
         for label, cb, hint in (
             ("Fill holes", self._on_fill_holes,
@@ -15350,8 +15732,8 @@ class MakeMasksScreen(QWidget):
     def _refresh_history_buttons(self):
         """Enable undo and redo from what the history actually holds."""
         history = self._box_history if self._canvas.mode == MODE_BOX else self._history
-        self._btn_undo.setEnabled(history.can_undo())
-        self._btn_redo.setEnabled(history.can_redo())
+        self._act_undo.setEnabled(history.can_undo())
+        self._act_redo.setEnabled(history.can_redo())
 
     def _on_boxes_changed(self):
         """Snapshot one box edit without changing segmentation history."""
@@ -16190,6 +16572,8 @@ class MakeMasksScreen(QWidget):
         Typing a 1-based position and pressing Enter opens that image. A
         number outside the queue, or text that is not a number, puts the
         current position back and leaves the image on screen as it was.
+        Reset zoom and the Ruler sit directly right of it, at the top left
+        of the image.
         """
         from ..i18n import tr
 
@@ -16210,76 +16594,34 @@ class MakeMasksScreen(QWidget):
         self._tally_total.setObjectName("MakeMasksQueueTotal")
         row.addWidget(self._tally_index)
         row.addWidget(self._tally_total)
+        row.addSpacing(SPACING["sm"])
+        row.addWidget(self._btn_reset_zoom)
+        row.addWidget(self._btn_ruler)
+        self._tally_layout = row
         return tally
 
-    def _build_vvvv_export_buttons(self) -> tuple:
-        """The alpha vvvv export: Export for vvvv and Export on save (685).
+    def _vvvv_export_root(self) -> str:
+        """The folder the vvvv export is written to, or "" with no folder open.
 
-        Both are registered in ``spacr.settings.ALPHA_FEATURES`` and hidden
-        unless Show alpha features is on. The export folder and the
-        on-save choice are remembered between sessions.
+        A folder remembered under ``make_masks/vvvv_export_dir`` wins; else
+        ``vvvv/make_masks`` beside the images, the way Mask generation writes
+        ``vvvv/mask`` and Measure ``vvvv/measure``.
         """
-        from ..i18n import tr
         from ..prefs import _s
 
-        self._btn_vvvv_export = QPushButton(tr("Export for vvvv…"))
-        self._btn_vvvv_export.setObjectName("MakeMasksVvvvExport")
-        self._btn_vvvv_export.setCursor(Qt.PointingHandCursor)
-        self._btn_vvvv_export.setToolTip(tr(
-            "Write this image's labels (16-bit PNG), outlines (RGBA PNG), "
-            "one row per object (CSV) and a manifest into a folder named "
-            "after the image, for a vvvv patch to read. Files are replaced "
-            "whole, so a watching patch never reads half a file."))
-        self._btn_vvvv_export.clicked.connect(lambda: self._on_export_vvvv())
-        self._btn_vvvv_on_save = QPushButton(tr("Export on save"))
-        self._btn_vvvv_on_save.setObjectName("MakeMasksVvvvExportOnSave")
-        self._btn_vvvv_on_save.setCheckable(True)
-        self._btn_vvvv_on_save.setCursor(Qt.PointingHandCursor)
-        self._btn_vvvv_on_save.setToolTip(tr(
-            "Export for vvvv again every time a mask is saved, so a patch "
-            "watching the export folder updates live."))
-        self._btn_vvvv_on_save.setChecked(bool(
-            _s().value("make_masks/vvvv_export_on_save", False, type=bool)
-            and self._vvvv_export_root()))
-        self._btn_vvvv_on_save.toggled.connect(self._on_vvvv_on_save_toggled)
-        return self._btn_vvvv_export, self._btn_vvvv_on_save
-
-    @staticmethod
-    def _vvvv_export_root() -> str:
-        """The remembered vvvv export folder, or ""."""
-        from ..prefs import _s
-
-        return str(_s().value("make_masks/vvvv_export_dir", "", type=str) or "")
-
-    def _ask_vvvv_export_root(self) -> str:
-        """Ask for the vvvv export folder and remember it; "" when cancelled."""
-        from ..i18n import tr
-        from ..prefs import _s
-
-        chosen = QFileDialog.getExistingDirectory(
-            self, tr("Choose the vvvv export folder"),
-            self._vvvv_export_root() or (self._folder or ""))
-        if chosen:
-            _s().setValue("make_masks/vvvv_export_dir", chosen)
-        return chosen or ""
-
-    def _on_vvvv_on_save_toggled(self, enabled: bool) -> None:
-        """Remember Export on save; choose a folder first when there is none."""
-        from ..prefs import _s
-
-        if enabled and not self._vvvv_export_root() \
-                and not self._ask_vvvv_export_root():
-            blocked = self._btn_vvvv_on_save.blockSignals(True)
-            self._btn_vvvv_on_save.setChecked(False)
-            self._btn_vvvv_on_save.blockSignals(blocked)
-            enabled = False
-        _s().setValue("make_masks/vvvv_export_on_save", bool(enabled))
+        remembered = str(_s().value("make_masks/vvvv_export_dir", "",
+                                    type=str) or "")
+        if remembered:
+            return remembered
+        if not self._folder:
+            return ""
+        return os.path.join(self._folder, "vvvv", "make_masks")
 
     def _on_export_vvvv(self, root: Optional[str] = None, *, labels=None,
                         quiet: bool = False) -> Optional[str]:
         """Export the field on screen for vvvv.
 
-        :param root: the export folder; asked for when None.
+        :param root: the export folder; :meth:`_vvvv_export_root` when None.
         :param labels: the labels to write; the canvas mask when None.
         :param quiet: leave the status line alone, as a save just set it.
         :returns: the field's export folder, or None when nothing was written.
@@ -16294,7 +16636,7 @@ class MakeMasksScreen(QWidget):
                           "named after source images."))
             return None
         if root is None:
-            root = self._ask_vvvv_export_root()
+            root = self._vvvv_export_root()
             if not root:
                 return None
         filename = self._image_files[self._current_index]
@@ -16316,17 +16658,19 @@ class MakeMasksScreen(QWidget):
         return written
 
     def _export_vvvv_on_save(self) -> Optional[str]:
-        """Export the labels just saved for vvvv, when Export on save is on.
+        """Export the labels just saved for vvvv, when Export to vvvv is on.
 
-        Blinded sessions and a closed alpha gate export nothing.
+        The one switch is Preferences -> Plugins -> Export to vvvv
+        (:func:`spacr.qt.preferences._vvvv_export_enabled`), which is off by
+        default and behind the alpha gate. Blinded sessions export nothing.
         """
-        from ..preferences import _is_alpha_visible
+        from ..preferences import _vvvv_export_enabled
 
-        button = getattr(self, "_btn_vvvv_on_save", None)
+        if (not _vvvv_export_enabled() or self._blind is not None
+                or self._canvas.mask is None):
+            return None
         root = self._vvvv_export_root()
-        if (button is None or not button.isChecked() or not root
-                or self._blind is not None or self._canvas.mask is None
-                or not _is_alpha_visible()):
+        if not root:
             return None
         labels = engine.canonical_labels(
             self._canvas.mask, preserve_ids=self._canvas.retain_label_ids())
@@ -16347,9 +16691,28 @@ class MakeMasksScreen(QWidget):
         index_edit.setText(str(current))
         index_edit.setEnabled(total > 0)
         self._tally_total.setText(f"/{total}")
+        self._canvas.set_field_label(self._field_overlay_text(current, total))
         first = getattr(self, "_btn_first_unreviewed", None)
         if first is not None:
             first.setEnabled(total > 0 and not getattr(self, "_loading", False))
+
+    def _field_overlay_text(self, current: int, total: int) -> str:
+        """The text painted on the image: index first, then the name.
+
+        ``"12 / 240 · name.tif"``; a blinded session shows the field's code
+        instead of its name.
+
+        :param current: the 1-based position shown in the counter, 0 for none.
+        :param total: the queue's length as the counter shows it.
+        :returns: the text, or "" when no field is open.
+        """
+        files = self._image_files or []
+        if not files or not total:
+            return ""
+        index = min(max(self._current_index, 0), len(files) - 1)
+        name = self._blind_label(os.path.join(self._folder or "",
+                                              files[index]))
+        return f"{current} / {total} · {name}"
 
     def _on_tally_entered(self) -> bool:
         """Open the image whose 1-based position was typed in the tally.
@@ -16547,20 +16910,25 @@ class MakeMasksScreen(QWidget):
         return self._go_to_index(index)
 
     def _build_view_pane(self) -> QWidget:
-        """The views, with the shortcut list down their right side.
+        """The views between their two bars, with the shortcuts on the right.
 
-        The shortcuts sit to the right of the Mask, Cell probability and
-        Flows views -- the three view tabs -- so the pane the
-        splitter holds is the tabs and the list side by side, and the list
-        travels with the views when the settings are hidden and the image
-        takes their width.
+        THE IMAGE CONTAINER is a vertical
+        :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`:
+        the top bar (TOOLS and ANNOTATION), the views -- the Mask, Cell
+        probability and Flows tabs, or the empty state before anything is
+        open -- and the bottom bar (IO and NAVIGATION). Both bars are EDGE
+        panes, so the arrow on their edge hides them the way the settings
+        hide, and the choice is remembered.
 
-        THE LIST IS NOT SETTINGS, so the Settings toggle does not take it
+        The shortcuts sit to the right of the views, so the list travels with
+        them when the settings are hidden and the image takes their width.
+
+        THE LIST IS NOT SETTINGS, so hiding the settings does not take it
         away: a shortcut list that disappears the moment the screen is
         cleared for work is a list you can only read when you do not need
-        it. It hides independently as an EDGE pane of its own splitter. Its handle
-        folds it to the right edge and drags it wider, and the image takes
-        the room it leaves.
+        it. It hides independently as an EDGE pane of its own splitter. Its
+        handle folds it to the right edge and drags it wider, and the image
+        takes the room it leaves.
 
         THE CONSOLE IS UNDER THE LIST (item 507), in the same right-hand
         column, where it was asked for: "to the right of the image and
@@ -16568,8 +16936,16 @@ class MakeMasksScreen(QWidget):
         list and the console's :class:`FoldSection`, so the console folds to
         its heading at the bottom of the column and drags taller, and the
         whole column still folds away as the one "Shortcuts" pane.
+
+        THE COLUMN READS AS EVERY MODULE'S DOES (2026-10-16): the shortcut
+        list, folding by its title like the console; the console with the
+        AI chat box and its usage row under it, the same
+        :class:`~spacr.qt.widgets.console_panel.ConsolePanel` chat the other
+        modules carry; and System (:class:`_SystemCard`). Every fold is
+        remembered.
         """
-        from ..widgets.collapsible_splitter import CollapsibleSplitter, EDGE
+        from ..widgets.collapsible_splitter import (CollapsibleSplitter, EDGE,
+                                                    fold_card)
 
         pane = CollapsibleSplitter(Qt.Horizontal,
                                    persist_key="make_masks::views")
@@ -16578,17 +16954,40 @@ class MakeMasksScreen(QWidget):
         column = CollapsibleSplitter(Qt.Vertical,
                                      persist_key="make_masks::side")
         column.setObjectName("MakeMasksSideColumn")
-        column.add_pane(self._shortcut_card, "Shortcut list", stretch=1)
+        shortcut_fold = fold_card(self._shortcut_card, "Shortcut list",
+                                  persist_key=MAKE_MASKS_SHORTCUTS_FOLD_KEY)
+        if shortcut_fold is not None:
+            self._shortcut_card.follow_fold(shortcut_fold)
+        column.add_pane(self._shortcut_card, "Shortcut list",
+                        folder=shortcut_fold, stretch=1)
         self._console_section = column.add_section(
             self._masks_console, "Console", persist_key="make_masks/Console",
-            stretch=1, extent=240, minimum=120)
+            stretch=1, extent=360, minimum=120)
+        self._system_card = _SystemCard()
+        column.add_pane(self._system_card, "System",
+                        folder=self._system_card.folder, stretch=0)
         self._shortcut_panel = column
+
+        image = _ImageContainer(Qt.Vertical,
+                                persist_key="make_masks::image")
+        image.setObjectName("MakeMasksImageContainer")
+        image.add_pane(self._tool_row, "Top bar", mode=EDGE, stretch=0,
+                       fold_key=MAKE_MASKS_TOP_BAR_FOLD_KEY,
+                       hint="Hides the tools and the Keep, Skip and "
+                            "Discard buttons above the image.")
+        image.add_pane(self._body_stack, "Image", stretch=1, extent=600)
+        image.add_pane(self._bottom_bar, "Bottom bar", mode=EDGE, stretch=0,
+                       fold_key=MAKE_MASKS_BOTTOM_BAR_FOLD_KEY,
+                       hint="Hides the IO and navigation buttons below the "
+                            "image.")
+        self._image_container = image
+
         views = QWidget()
         views.setObjectName("MakeMasksViewsColumn")
         views_col = QVBoxLayout(views)
         views_col.setContentsMargins(0, 0, 0, 0)
         views_col.setSpacing(SPACING["sm"])
-        views_col.addWidget(self._view_tabs, 1)
+        views_col.addWidget(image, 1)
         self._image_nav_row = QHBoxLayout()
         self._image_nav_row.setContentsMargins(0, 0, 0, 0)
         self._image_nav_row.setSpacing(SPACING["sm"])
@@ -16839,7 +17238,6 @@ class MakeMasksScreen(QWidget):
             "in as the replace/merge setting says. Fills the Cell "
             "probability and Flows tabs with what the run was thinking.")
         self._btn_cellpose.clicked.connect(self._on_detect_cellpose)
-        self.add_toolbar_action(self._btn_cellpose)
         return card
 
     def _build_otsu_card(self) -> _MethodGroup:
@@ -19065,8 +19463,7 @@ class MakeMasksScreen(QWidget):
             "clicked — one undo step per click. While it is on, the mouse "
             "wheel changes the box's zoom rather than the view's.")
         self._btn_magnifier.toggled.connect(self._on_toggle_magnifier)
-        pin = self._tool_pin_layout
-        pin.insertWidget(pin.indexOf(self._btn_settings), self._btn_magnifier)
+        self._tool_row_layout.addWidget(self._btn_magnifier)
         return card
 
     def _build_magnifier_save_mode(self, form: QFormLayout) -> None:
@@ -20020,10 +20417,17 @@ class MakeMasksScreen(QWidget):
 
 
     def _build_organize_button(self) -> QPushButton:
-        """The "Organize for Measure…" button beside "Open folder…"."""
+        """The "Measure…" button in IO (it was "Organize for Measure…").
+
+        A split button: pressing it opens the 2D section, the "Organize for
+        Measure" popup that puts images and masks into the layout Measure
+        reads. Its arrow opens :attr:`_measure_menu`, one entry per section.
+        :meth:`_add_measure_section` is the extension point a further section
+        (a 3D one) is added through.
+        """
         from ..i18n import tr
 
-        button = QPushButton(tr("Organize for Measure…"), self)
+        button = _SplitMenuButton(tr("Measure…"), self)
         button.setObjectName("MakeMasksOrganizeButton")
         button.setCursor(Qt.PointingHandCursor)
         button.setToolTip(tr(
@@ -20033,8 +20437,70 @@ class MakeMasksScreen(QWidget):
             "dropped files and folders. Apply moves them into Yokogawa-named "
             "channel folders and merges them into merged/."))
         button.clicked.connect(lambda _checked=False: self._on_organize())
+        menu = QMenu(button)
+        menu.setObjectName("MakeMasksMeasureMenu")
+        menu.setToolTipsVisible(True)
+        button.set_split_menu(menu)
+        self._measure_menu = menu
         self._btn_organize = button
+        self._add_measure_section(
+            tr("Organize images and masks for Measure (2D)…"),
+            lambda: self._on_organize(), object_name="MakeMasksMeasure2D",
+            tooltip=button.toolTip())
         return button
+
+    def _add_measure_section(self, label: str, callback, *, tooltip: str = "",
+                            object_name: str = ""):
+        """Add a section to the Measure button's menu.
+
+        The extension point of IO's Measure button: the 2D section (Organize
+        for Measure) is the first entry, and a 3D section is added the same
+        way, without editing the button.
+
+        :param label: the entry's text, already translated.
+        :param callback: called with no arguments when the entry is chosen.
+        :param tooltip: the entry's tooltip, already translated.
+        :param object_name: the entry's object name, for tests and the alpha
+            registry.
+        :returns: the menu action.
+        """
+        action = self._measure_menu.addAction(label)
+        if object_name:
+            action.setObjectName(object_name)
+        if tooltip:
+            action.setToolTip(tooltip)
+        action.triggered.connect(lambda _checked=False: callback())
+        return action
+
+    def _on_pick_file(self, path: Optional[str] = None):
+        """Open one image file: a 2D field with its folder, or a 3D volume.
+
+        A z-stack or volume opens through :meth:`open_volume`. A 2D image
+        opens its folder, as Open folder does, at that image.
+
+        :param path: the file; asked for when None.
+        :returns: the volume stage for a volume, True for a 2D image that
+            opened, else None.
+        """
+        from ..i18n import tr
+
+        if path is None:
+            start = (os.path.expanduser("~") if self._blind is not None
+                     else self._folder or os.getcwd())
+            path, _ = QFileDialog.getOpenFileName(
+                self, tr("Open a 2D or 3D image"), start,
+                tr("Images (*.tif *.tiff *.png *.jpg *.jpeg *.npy *.mrc *.rec *.map)"))
+        if not path:
+            return None
+        if engine._is_volume_file(path):
+            return self.open_volume(path)
+        folder, name = os.path.split(os.path.abspath(path))
+        if not self._open_folder(folder):
+            return None
+        files = list(self._image_files or [])
+        if name in files and files.index(name) != self._current_index:
+            self._go_to_index(files.index(name))
+        return True
 
     def _finish_folder_job(self, worker, report) -> None:
         """Report a finished folder job, then retire its thread safely.
@@ -20435,7 +20901,7 @@ class MakeMasksScreen(QWidget):
         self._load_current()
         self._sync_button_states()
         prefs.push_recent_source("make_masks", folder)
-        self._body_stack.setCurrentWidget(self._body_splitter)
+        self._body_stack.setCurrentWidget(self._image_page)
         _warm_the_save_path()
         return True
 

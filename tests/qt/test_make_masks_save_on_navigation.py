@@ -41,13 +41,12 @@ def _saved_mask(folder, index):
     return engine.mask_save_path(str(folder), f"field_{index}.tif")
 
 
-def test_toggle_is_right_of_next_and_default_off_without_changing_manual_navigation(
+def test_toggle_is_in_save_masks_menu_and_default_off_without_changing_manual_navigation(
         opened):
     screen, folder, _settings_path = opened
     toggle = screen._btn_save_on_navigation
-    row = screen._tool_row_layout
     assert toggle.objectName() == "MakeMasksSaveOnNavigate"
-    assert row.indexOf(toggle) == row.indexOf(screen._btn_next) + 1
+    assert screen._btn_save.split_menu().actions()[0] is toggle
     assert not toggle.isChecked()
     _edit_mask(screen)
 
@@ -59,7 +58,7 @@ def test_toggle_is_right_of_next_and_default_off_without_changing_manual_navigat
 
 def test_enabled_next_saves_only_an_edited_mask(opened):
     screen, folder, _settings_path = opened
-    screen._btn_save_on_navigation.click()
+    screen._btn_save_on_navigation.trigger()
 
     screen._btn_next.click()
     assert screen._current_index == 1
@@ -76,7 +75,7 @@ def test_enabled_next_saves_only_an_edited_mask(opened):
 def test_curating_saves_the_edited_mask_before_its_verdict(
         opened, monkeypatch, keep):
     screen, folder, _settings_path = opened
-    screen._btn_save_on_navigation.click()
+    screen._btn_save_on_navigation.trigger()
     _edit_mask(screen)
     record = engine.record_curation
     saved_before_verdict = []
@@ -107,7 +106,7 @@ def test_failed_mask_save_keeps_the_field_and_verdict_unchanged(
     image = screen._canvas.image.copy()
     _edit_mask(screen)
     mask = screen._canvas.mask.copy()
-    screen._btn_save_on_navigation.click()
+    screen._btn_save_on_navigation.trigger()
     recorded = []
     warnings = []
     def fail(*_args, **_kwargs):
@@ -138,7 +137,7 @@ def test_box_tool_still_saves_unsaved_mask_pixels_before_next(opened):
     screen, folder, _settings_path = opened
     _edit_mask(screen)
     screen._set_mode(MODE_BOX)
-    screen._btn_save_on_navigation.click()
+    screen._btn_save_on_navigation.trigger()
 
     screen._btn_next.click()
 
@@ -150,7 +149,7 @@ def test_manual_save_makes_later_navigation_clean(opened, monkeypatch):
     screen, folder, _settings_path = opened
     _edit_mask(screen)
     assert screen._on_save() == _saved_mask(folder, 0)
-    screen._btn_save_on_navigation.click()
+    screen._btn_save_on_navigation.trigger()
 
     def fail(*_args, **_kw):
         raise AssertionError("already saved mask was written twice")
@@ -164,7 +163,7 @@ def test_manual_save_makes_later_navigation_clean(opened, monkeypatch):
 def test_skip_keeps_its_no_mask_contract_with_toggle_on(opened):
     screen, folder, _settings_path = opened
     screen._queue = SimpleNamespace(folder=str(folder))
-    screen._btn_save_on_navigation.click()
+    screen._btn_save_on_navigation.trigger()
     _edit_mask(screen)
 
     screen._on_skip()
@@ -175,13 +174,13 @@ def test_skip_keeps_its_no_mask_contract_with_toggle_on(opened):
 
 def test_toggle_persists_for_the_next_editor(opened, qtbot):
     screen, _folder, settings_path = opened
-    screen._btn_save_on_navigation.click()
+    screen._btn_save_on_navigation.trigger()
     assert QSettings(str(settings_path), QSettings.IniFormat).value(
         "make_masks/save_on_navigation", type=bool) is True
 
     next_editor = MakeMasksScreen()
     qtbot.addWidget(next_editor)
     assert next_editor._btn_save_on_navigation.isChecked()
-    next_editor._btn_save_on_navigation.click()
+    next_editor._btn_save_on_navigation.trigger()
     assert QSettings(str(settings_path), QSettings.IniFormat).value(
         "make_masks/save_on_navigation", type=bool) is False

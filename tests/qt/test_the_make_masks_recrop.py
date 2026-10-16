@@ -427,7 +427,7 @@ def test_recrop_is_one_of_the_tools_in_the_one_row(qtbot, qt_theme_applied, fold
     button.click()
     assert screen._canvas.mode == MODE_RECROP
     ruler = screen._mode_buttons[MODE_RULER]
-    assert screen._tool_row_layout.indexOf(ruler) > screen._tool_row_layout.indexOf(button)
+    assert screen._tally_layout.indexOf(ruler) >= 0
     ruler.click()
     assert screen._canvas.mode == MODE_RULER
 

@@ -63,7 +63,7 @@ def test_the_console_keeps_lines_and_rewrites_one_progress_line(qtbot):
 
 def test_the_console_sits_right_of_the_image_under_the_shortcuts(screen, qtbot):
     screen.resize(1500, 900)
-    screen._body_stack.setCurrentWidget(screen._body_splitter)
+    screen._body_stack.setCurrentWidget(screen._image_page)
     screen.show()
     qtbot.waitExposed(screen)
     for _ in range(6):

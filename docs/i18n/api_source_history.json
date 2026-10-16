@@ -247,6 +247,20 @@
       "source_sha256": "6e1d32dcb81a471128b10915489f27bd29493686a6a7d6dd18d3200f0a5d9715",
       "text": "Start animating, and follow the window this widget belongs to.\n\n:param event: the Qt show event."
     },
+    "7000ce94d42cdb0b9f090c6abec541a76aa1c100556eb3ef9133e5d67e621464": {
+      "source_blocks_sha256": [
+        "26103d5586292e4ede82b4b8153296a52efa9ffbce89e105873a5114949ac6bd",
+        "a918a1278f9992588a4f9f61de457588b5c28b8a052ef9a7c959eb40c6a2c3d7",
+        "a335302e7c5b874906658e748af0ab1d20e802560fc6a937026b70de1bc58765",
+        "a70bf2d842e6d1c3a37ee4f6934abb85dcc2649d852d162111223205c40e1e11",
+        "ec6df8d27b64749e9f6c99fdcf13122066024cf973b503c44ed93fdedde86699",
+        "c89e105e3b16eb3fc4b3538a4326c44736837843f61b265da262a181e43b9a9d",
+        "9f811bfef96389a123fcf3d93f951922a0085c0d4ebfd0520c9ee9e0d77b1adb",
+        "fb29afca7dbfe4aedbc5d227255463cf7c97ec1b3697d178f402db6319adff7c"
+      ],
+      "source_sha256": "7000ce94d42cdb0b9f090c6abec541a76aa1c100556eb3ef9133e5d67e621464",
+      "text": "Draw the existing tab with its arrow at 75 percent of baseline.\n\n:param painter: active painter on the handle.\n:param rect: unchanged clickable handle rectangle.\n:param orientation: splitter orientation (horizontal means a vertical bar).\n:param towards_start: point left/up when true, right/down otherwise.\n:param palette: active theme colors.\n:param hovered: whether to accent the glyph and tab border.\n\nOnly the baseline glyph is scaled; the painted tab and the hit target stay\nput."
+    },
     "76c6fca5ca7737b3ed9ceee4472049d0c5e92bf8f767b391edf3bf7ed386de3b": {
       "source_blocks_sha256": [
         "c255117fb22e1f5daabf5d481612c6f91be018704de0dc87704ed2e8c6db02a6",
@@ -463,6 +477,16 @@
       ],
       "source_sha256": "c9247172793d4ae12e10edd0d15adc430764f8d3d75bdeba192af38629048c69",
       "text": "Open a grayscale spatial volume for native 3-D editing.\n\nTIFF volumes need exactly three spatial axes, in any order. A plain\nthree-dimensional page stack (tifffile's ``Q`` or ``I`` page axis over\n``YX``) is read as Z sections, as z-stacks and FIB-SEM series are saved;\ntime, channel and colour axes are refused. ``voxel_spacing`` metadata is\nread in storage-axis order. OME physical sizes are converted to micrometres;\nImageJ spacing and XY resolution are retained. MRC volumes (``.mrc``,\n``.rec``, ``.map``) are read as ZYX with their voxel size in nanometres;\nthey need the optional ``mrcfile`` package. Absent physical metadata\nmeans pixel coordinates.\nLabels retain dtype and identity. A saved geometry sidecar is bound to\nthe exact source file and mask pixels and is refused when stale.\n\n:param folder: source image directory.\n:param filename: spatial TIFF or MRC volume filename.\n:param masks_dir: optional existing sibling mask directory.\n:returns: a ``VolumeMaskSession`` owning the labels and source metadata."
+    },
+    "cb0e1fa9ce95fa819a96aa739116b8e4fa08802071f9af11067d343f547224ae": {
+      "source_blocks_sha256": [
+        "129f8a00ddf4073ef2b31b4bddf2c1f8eac39d2086df441a6fb688518d1a4c96",
+        "0e071f2a19694cb5607a794eccf08a076cc61a1ec3dc7796a9a724cbf32429b0",
+        "53f7f4a13addb8d803ffe36f491a6168d4d26e12505fd375b1b544d748f9be4f",
+        "d597a2272f5bef3b31ae97c2b079b67add9f0f2cf7a0ac999bc2d5812436b777"
+      ],
+      "source_sha256": "cb0e1fa9ce95fa819a96aa739116b8e4fa08802071f9af11067d343f547224ae",
+      "text": "Insert a non-mode action into the editor toolbar.\n\nThe button is placed after the other actions in the part of the row\nthat scrolls. The Magnifier and the settings toggle are pinned\noutside it, so nothing added here can come between them or push\nthem out of sight.\n\n:param button: Action button to insert.\n:returns: The same button."
     },
     "cbdf42f8a6dedb8eec6bbfd065535a8a09a9bd9ce87b0085975c6eda50c2e63f": {
       "source_blocks_sha256": [

@@ -18,13 +18,6 @@
     },
     {
       "table": "ui",
-      "key": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
-      "source": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
-      "translation": "将设置作为一组显示或隐藏，包括画笔、魔棒、显示、自动筛选、对象操作、Otsu、对象检测和实时放大镜。隐藏后，画布会占用这些设置腾出的宽度。",
-      "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4"
-    },
-    {
-      "table": "ui",
       "key": "Showing the image as it was loaded.",
       "source": "Showing the image as it was loaded.",
       "translation": "按加载时的原样显示图像。",
@@ -315,6 +308,14 @@
         "translation": "无法在此启动登录。请在终端中运行下方命令，然后按“完成”。",
         "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4"
       }
+    },
+    {
+      "table": "ui",
+      "key": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "source": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "translation": "将设置作为一组显示或隐藏，包括画笔、魔棒、显示、自动筛选、对象操作、Otsu、对象检测和实时放大镜。隐藏后，画布会占用这些设置腾出的宽度。",
+      "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27."

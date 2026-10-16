@@ -7561,7 +7561,7 @@ ALPHA_FEATURES = {
     },
     685: {
         'settings': ('export_vvvv',),
-        'widgets': ('MakeMasksVvvvExport', 'MakeMasksVvvvExportOnSave'),
+        'widgets': ('PreferencesExportVvvv',),
     },
     570: {
         'widgets': ('ControlChartHitPanel', 'ControlChartHitsSection',

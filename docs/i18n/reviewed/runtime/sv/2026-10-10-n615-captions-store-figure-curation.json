@@ -124,13 +124,6 @@
     },
     {
       "table": "ui",
-      "key": "Choose the vvvv export folder",
-      "source": "Choose the vvvv export folder",
-      "source_sha256": "ce85ced1805a3a10b40c597f40f009b56002456ae990a68d9d38f686d8d46e76",
-      "translation": "Välj exportmapp för vvvv"
-    },
-    {
-      "table": "ui",
       "key": "Click ripples",
       "source": "Click ripples",
       "source_sha256": "d15f0e6a1dcf8093eac31ed5bcb3499b70dc16d43b8c780b78171742cc28ebb1",
@@ -240,27 +233,6 @@
       "source": "Existing .db, .duckdb, .parquetdb, or PostgreSQL URL",
       "source_sha256": "c4ba2125608536b61c0895925372ab0a04411b91057bf597aabc97fcf795538d",
       "translation": "Befintlig .db, .duckdb, .parquetdb eller PostgreSQL-URL"
-    },
-    {
-      "table": "ui",
-      "key": "Export for vvvv again every time a mask is saved, so a patch watching the export folder updates live.",
-      "source": "Export for vvvv again every time a mask is saved, so a patch watching the export folder updates live.",
-      "source_sha256": "34605d49608db193fc1720df64d8f24abbc93ad6ab8dc95a6b6da5e48237ebdd",
-      "translation": "Exportera för vvvv igen varje gång en mask sparas, så att en patch som bevakar exportmappen uppdateras direkt."
-    },
-    {
-      "table": "ui",
-      "key": "Export for vvvv…",
-      "source": "Export for vvvv…",
-      "source_sha256": "ca2ddf0de427fcd43768d1e8bfe5633f84d9315421eac82f318787c8471d24fc",
-      "translation": "Exportera för vvvv..."
-    },
-    {
-      "table": "ui",
-      "key": "Export on save",
-      "source": "Export on save",
-      "source_sha256": "f92285a0d62006fed9ed718bc9c64978c538afbb5635a957082076a68c2692e7",
-      "translation": "Exportera vid sparande"
     },
     {
       "table": "ui",
@@ -614,13 +586,6 @@
     },
     {
       "table": "ui",
-      "key": "Write this image's labels (16-bit PNG), outlines (RGBA PNG), one row per object (CSV) and a manifest into a folder named after the image, for a vvvv patch to read. Files are replaced whole, so a watching patch never reads half a file.",
-      "source": "Write this image's labels (16-bit PNG), outlines (RGBA PNG), one row per object (CSV) and a manifest into a folder named after the image, for a vvvv patch to read. Files are replaced whole, so a watching patch never reads half a file.",
-      "source_sha256": "6347a688735eda0a24506ee8fe503ae0e6dfa9c812b032fb626e83d2a5bd03f7",
-      "translation": "Skriv bildens etiketter (16-bit PNG), konturer (RGBA PNG), en rad per objekt (CSV) och ett manifest till en mapp uppkallad efter bilden, så att en vvvv-patch kan läsa dem. Filerna ersätts i sin helhet, så en patch som bevakar mappen läser aldrig en halv fil."
-    },
-    {
-      "table": "ui",
       "key": "vvvv export failed",
       "source": "vvvv export failed",
       "source_sha256": "99c8a97db1342f2f3cd11bcc83ff33ffb0faaf051cc8f34a75ce9b3995469544",
@@ -657,6 +622,46 @@
       "source_sha256": "256a3da363e13c789bd2d75627b90461ce000635655c63c04293d08fb9fe07cd",
       "translation": "Cellpose-kontrollpunkt för segmentering av plack: en modellnyckel i modellbiblioteket hämtar vid första användningen en kontrollpunkt vars kontrollsumma verifieras. 'toxoplasma_plaque_v3' är cpsam_plaque_r5_geldoc, som även segmenterar Gel Doc-brunnar; 'toxoplasma_plaque_v2' är den tidigare standardmodellen. En sökväg väljer en egen kontrollpunkt. 'bundled' är den äldre paketerade modellen, en Cellpose 3-kontrollpunkt som kräver Cellpose 3. Ett byte kan ändra varje plackantal, så dokumenterade körningar bör behålla det valda värdet. Standard 'toxoplasma_plaque_v3'.",
       "retired": "2026-10-11: English source changed when toxoplasma_plaque_v4 became the default plaque model; superseded by 2026-10-11-plaque-v4-default.json"
+    },
+    {
+      "table": "ui",
+      "key": "Choose the vvvv export folder",
+      "source": "Choose the vvvv export folder",
+      "source_sha256": "ce85ced1805a3a10b40c597f40f009b56002456ae990a68d9d38f686d8d46e76",
+      "translation": "Välj exportmapp för vvvv",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
+    },
+    {
+      "table": "ui",
+      "key": "Export for vvvv again every time a mask is saved, so a patch watching the export folder updates live.",
+      "source": "Export for vvvv again every time a mask is saved, so a patch watching the export folder updates live.",
+      "source_sha256": "34605d49608db193fc1720df64d8f24abbc93ad6ab8dc95a6b6da5e48237ebdd",
+      "translation": "Exportera för vvvv igen varje gång en mask sparas, så att en patch som bevakar exportmappen uppdateras direkt.",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
+    },
+    {
+      "table": "ui",
+      "key": "Export for vvvv…",
+      "source": "Export for vvvv…",
+      "source_sha256": "ca2ddf0de427fcd43768d1e8bfe5633f84d9315421eac82f318787c8471d24fc",
+      "translation": "Exportera för vvvv...",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
+    },
+    {
+      "table": "ui",
+      "key": "Export on save",
+      "source": "Export on save",
+      "source_sha256": "f92285a0d62006fed9ed718bc9c64978c538afbb5635a957082076a68c2692e7",
+      "translation": "Exportera vid sparande",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
+    },
+    {
+      "table": "ui",
+      "key": "Write this image's labels (16-bit PNG), outlines (RGBA PNG), one row per object (CSV) and a manifest into a folder named after the image, for a vvvv patch to read. Files are replaced whole, so a watching patch never reads half a file.",
+      "source": "Write this image's labels (16-bit PNG), outlines (RGBA PNG), one row per object (CSV) and a manifest into a folder named after the image, for a vvvv patch to read. Files are replaced whole, so a watching patch never reads half a file.",
+      "source_sha256": "6347a688735eda0a24506ee8fe503ae0e6dfa9c812b032fb626e83d2a5bd03f7",
+      "translation": "Skriv bildens etiketter (16-bit PNG), konturer (RGBA PNG), en rad per objekt (CSV) och ett manifest till en mapp uppkallad efter bilden, så att en vvvv-patch kan läsa dem. Filerna ersätts i sin helhet, så en patch som bevakar mappen läser aldrig en halv fil.",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
     }
   ]
 }

@@ -115,9 +115,9 @@ def test_rotated_anchor_drag_edits_real_physical_axis_and_mask_history(editor, q
     assert difference[int(role.split(':')[1]), 'xyz'.index(axis)] == pytest.approx(.8)
     new = editor.session.mask.copy()
     assert not np.array_equal(old, new)
-    editor._screen._btn_undo.click()
+    editor._screen._act_undo.trigger()
     assert np.array_equal(editor.session.mask, old) and editor.session.geometries[1] == gate
-    editor._screen._btn_redo.click()
+    editor._screen._act_redo.trigger()
     assert np.array_equal(editor.session.mask, new) and editor.session.geometries[1] == edited
 
 
@@ -188,10 +188,9 @@ def test_make_masks_opens_a_volume_in_its_own_view_and_back_to_2d(qtbot, tmp_pat
     stage = screen.open_volume(str(tmp_path / 'volume.tif'))
     assert stage is screen._mask_stage and stage.session.image.shape == (3, 4, 5)
     assert screen._canvas.image.shape == (4, 5)
-    assert screen._btn_volume.objectName() == 'OpenVolumeMask'
-    assert 'draw 3D masks slice by slice' in screen._btn_volume.property('apiTooltipDescriptionSource')
-    assert 'draw 3D masks slice by slice' in screen._btn_volume.property('_spacr_i18n_tooltip')
-    assert screen._btn_volume.accessibleDescription()
+    assert not hasattr(screen, '_btn_volume')
+    assert 'draw 3D masks slice by slice' in screen._btn_open.toolTip()
+    assert screen._on_pick_file(str(tmp_path / 'volume.tif')) is screen._mask_stage
     folder = tmp_path / 'fields'
     folder.mkdir()
     write_tiff(folder / 'field.tif', np.arange(25, dtype=np.uint16).reshape(5, 5))
@@ -206,7 +205,7 @@ def test_volume_open_help_uses_footer_when_inside_an_action_scope(qtbot):
     host = AppScreen('mask')
     qtbot.addWidget(host)
     screen = MakeMasksScreen(host)
-    command = screen._btn_volume
+    command = screen._btn_open
     host._install_action_hints()
     assert command in host._action_hints
     assert command.property(OPT_OUT_PROPERTY)

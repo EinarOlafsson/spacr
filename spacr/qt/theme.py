@@ -5157,6 +5157,21 @@ QLabel#CardSubtitle {{
     font-size: {F["small"]}px;
     background: transparent;
 }}
+/* Make Masks' four titled button groups around the image: TOOLS,
+   ANNOTATION, IO and NAVIGATION, each a card with its title top left. */
+QFrame[makeMasksGroup="true"] {{
+    background-color: {P["surface_alt"]};
+    border: 1px solid {P["border_soft"]};
+    border-radius: {R["md"]}px;
+}}
+QLabel#MakeMasksGroupTitle {{
+    color: {P["fg_muted"]};
+    font-size: {F["small"]}px;
+    font-weight: 600;
+    border: none;
+    padding: 0px;
+    background: transparent;
+}}
 QFrame#Divider {{
     background: {P["border"]};
     max-height: 1px;

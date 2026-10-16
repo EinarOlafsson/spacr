@@ -124,13 +124,6 @@
     },
     {
       "table": "ui",
-      "key": "Choose the vvvv export folder",
-      "source": "Choose the vvvv export folder",
-      "source_sha256": "ce85ced1805a3a10b40c597f40f009b56002456ae990a68d9d38f686d8d46e76",
-      "translation": "选择 vvvv 导出文件夹"
-    },
-    {
-      "table": "ui",
       "key": "Click ripples",
       "source": "Click ripples",
       "source_sha256": "d15f0e6a1dcf8093eac31ed5bcb3499b70dc16d43b8c780b78171742cc28ebb1",
@@ -240,27 +233,6 @@
       "source": "Existing .db, .duckdb, .parquetdb, or PostgreSQL URL",
       "source_sha256": "c4ba2125608536b61c0895925372ab0a04411b91057bf597aabc97fcf795538d",
       "translation": "已有的 .db、.duckdb、.parquetdb 文件或 PostgreSQL URL"
-    },
-    {
-      "table": "ui",
-      "key": "Export for vvvv again every time a mask is saved, so a patch watching the export folder updates live.",
-      "source": "Export for vvvv again every time a mask is saved, so a patch watching the export folder updates live.",
-      "source_sha256": "34605d49608db193fc1720df64d8f24abbc93ad6ab8dc95a6b6da5e48237ebdd",
-      "translation": "每次保存掩膜时都重新导出到 vvvv，使监视导出文件夹的 vvvv patch 实时更新。"
-    },
-    {
-      "table": "ui",
-      "key": "Export for vvvv…",
-      "source": "Export for vvvv…",
-      "source_sha256": "ca2ddf0de427fcd43768d1e8bfe5633f84d9315421eac82f318787c8471d24fc",
-      "translation": "为 vvvv 导出…"
-    },
-    {
-      "table": "ui",
-      "key": "Export on save",
-      "source": "Export on save",
-      "source_sha256": "f92285a0d62006fed9ed718bc9c64978c538afbb5635a957082076a68c2692e7",
-      "translation": "保存时导出"
     },
     {
       "table": "ui",
@@ -614,13 +586,6 @@
     },
     {
       "table": "ui",
-      "key": "Write this image's labels (16-bit PNG), outlines (RGBA PNG), one row per object (CSV) and a manifest into a folder named after the image, for a vvvv patch to read. Files are replaced whole, so a watching patch never reads half a file.",
-      "source": "Write this image's labels (16-bit PNG), outlines (RGBA PNG), one row per object (CSV) and a manifest into a folder named after the image, for a vvvv patch to read. Files are replaced whole, so a watching patch never reads half a file.",
-      "source_sha256": "6347a688735eda0a24506ee8fe503ae0e6dfa9c812b032fb626e83d2a5bd03f7",
-      "translation": "将此图像的标签（16-bit PNG）、轮廓（RGBA PNG）、每个对象一行的表格（CSV）以及清单文件写入以该图像命名的文件夹，供 vvvv patch 读取。文件会整体替换，因此正在监视的 patch 绝不会读到不完整的文件。"
-    },
-    {
-      "table": "ui",
       "key": "vvvv export failed",
       "source": "vvvv export failed",
       "source_sha256": "99c8a97db1342f2f3cd11bcc83ff33ffb0faaf051cc8f34a75ce9b3995469544",
@@ -657,6 +622,46 @@
       "source_sha256": "256a3da363e13c789bd2d75627b90461ce000635655c63c04293d08fb9fe07cd",
       "translation": "用于分割空斑的 Cellpose 检查点：模型库键会在首次使用时下载经校验和验证的检查点（'toxoplasma_plaque_v3' 即 cpsam_plaque_r5_geldoc，也可分割 Gel Doc 孔；'toxoplasma_plaque_v2' 为先前的默认值）；文件系统路径用于选择自定义检查点；'bundled' 是随包提供的历史模型，它是 Cellpose 3 检查点，需要 Cellpose 3。更改此项可能改变每一个空斑计数，因此已记录的运行应保留所选值。默认值为 'toxoplasma_plaque_v3'。",
       "retired": "2026-10-11: English source changed when toxoplasma_plaque_v4 became the default plaque model; superseded by 2026-10-11-plaque-v4-default.json"
+    },
+    {
+      "table": "ui",
+      "key": "Choose the vvvv export folder",
+      "source": "Choose the vvvv export folder",
+      "source_sha256": "ce85ced1805a3a10b40c597f40f009b56002456ae990a68d9d38f686d8d46e76",
+      "translation": "选择 vvvv 导出文件夹",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
+    },
+    {
+      "table": "ui",
+      "key": "Export for vvvv again every time a mask is saved, so a patch watching the export folder updates live.",
+      "source": "Export for vvvv again every time a mask is saved, so a patch watching the export folder updates live.",
+      "source_sha256": "34605d49608db193fc1720df64d8f24abbc93ad6ab8dc95a6b6da5e48237ebdd",
+      "translation": "每次保存掩膜时都重新导出到 vvvv，使监视导出文件夹的 vvvv patch 实时更新。",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
+    },
+    {
+      "table": "ui",
+      "key": "Export for vvvv…",
+      "source": "Export for vvvv…",
+      "source_sha256": "ca2ddf0de427fcd43768d1e8bfe5633f84d9315421eac82f318787c8471d24fc",
+      "translation": "为 vvvv 导出…",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
+    },
+    {
+      "table": "ui",
+      "key": "Export on save",
+      "source": "Export on save",
+      "source_sha256": "f92285a0d62006fed9ed718bc9c64978c538afbb5635a957082076a68c2692e7",
+      "translation": "保存时导出",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
+    },
+    {
+      "table": "ui",
+      "key": "Write this image's labels (16-bit PNG), outlines (RGBA PNG), one row per object (CSV) and a manifest into a folder named after the image, for a vvvv patch to read. Files are replaced whole, so a watching patch never reads half a file.",
+      "source": "Write this image's labels (16-bit PNG), outlines (RGBA PNG), one row per object (CSV) and a manifest into a folder named after the image, for a vvvv patch to read. Files are replaced whole, so a watching patch never reads half a file.",
+      "source_sha256": "6347a688735eda0a24506ee8fe503ae0e6dfa9c812b032fb626e83d2a5bd03f7",
+      "translation": "将此图像的标签（16-bit PNG）、轮廓（RGBA PNG）、每个对象一行的表格（CSV）以及清单文件写入以该图像命名的文件夹，供 vvvv patch 读取。文件会整体替换，因此正在监视的 patch 绝不会读到不完整的文件。",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
     }
   ]
 }

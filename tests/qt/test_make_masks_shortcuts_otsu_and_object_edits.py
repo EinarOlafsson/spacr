@@ -168,7 +168,7 @@ def test_every_hint_is_on_the_screen_with_its_keys_and_its_sentence(
     QApplication.processEvents()
     shown = {label.text() for label in
              screen._shortcut_panel.findChildren(QLabel)}
-    assert "Shortcuts" in shown
+    assert any("Shortcut" in text for text in shown)  # the fold arrow leads the title (707)
     for keys, does in mm.SHORTCUT_HINTS:
         assert keys in shown, f"no row for {keys!r}"
         assert does in shown, f"{keys!r} has no sentence"
@@ -185,9 +185,9 @@ def test_the_settings_toggle_does_not_take_the_shortcuts_away(screen, qtbot):
     screen.show()
     qtbot.waitExposed(screen)
     QApplication.processEvents()
-    screen._btn_settings.setChecked(False)
+    screen._set_settings_shown(False)
     QApplication.processEvents()
-    assert not screen._settings_scroll.isVisibleTo(screen._body_splitter)
+    assert not screen.settings_shown()
     assert screen._shortcut_panel.isVisibleTo(screen._body_splitter)
 
 
@@ -563,7 +563,7 @@ def test_dilate_and_shrink_are_one_undo_step_each(screen):
     kinds = [entry.kind for entry in screen._log.edits]
     assert kinds[-2:] == ["dilate", "shrink"]
     assert screen._log.edits[-1].detail["step"] == 1
-    assert screen._btn_undo.isEnabled()
+    assert screen._act_undo.isEnabled()
     screen._on_undo()
     screen._on_undo()
     np.testing.assert_array_equal(screen._canvas.mask, before)
