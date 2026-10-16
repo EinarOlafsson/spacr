@@ -3046,6 +3046,205 @@ class _UpdateLaunchStillRunning(RuntimeError):
         super().__init__(tr("The updated desktop could not be stopped; both runtimes were retained."))
 
 
+def _desktop_process_identity(pid):
+    """Read a live desktop's native owner and executable without running its code."""
+    if isinstance(pid, bool) or not isinstance(pid, int) or not 1 < pid <= 0xFFFFFFFF:
+        raise ValueError(tr("The running desktop could not be identified."))
+    if os.name == "nt":
+        import ctypes
+
+        kernel = _windows_update_library("kernel32")
+        security = _windows_update_library("advapi32")
+        pointer, dword = ctypes.c_void_p, ctypes.c_uint32
+        kernel.OpenProcess.argtypes = [dword, ctypes.c_int32, dword]
+        kernel.OpenProcess.restype = pointer
+        kernel.CloseHandle.argtypes = [pointer]
+        security.OpenProcessToken.argtypes = [pointer, dword, ctypes.POINTER(pointer)]
+        security.GetTokenInformation.argtypes = [pointer, dword, pointer, dword, ctypes.POINTER(dword)]
+        security.ConvertSidToStringSidW.argtypes = [pointer, ctypes.POINTER(ctypes.c_wchar_p)]
+        kernel.QueryFullProcessImageNameW.argtypes = [pointer, dword, ctypes.c_wchar_p, ctypes.POINTER(dword)]
+        kernel.LocalFree.argtypes = [pointer]
+        process = kernel.OpenProcess(0x1000, False, pid)
+        if not process:
+            raise OSError(tr("The running desktop could not be identified."))
+        token, text = pointer(), ctypes.c_wchar_p()
+        try:
+            size = dword(32768)
+            path = ctypes.create_unicode_buffer(size.value)
+            if not kernel.QueryFullProcessImageNameW(process, 0, path, ctypes.byref(size)):
+                raise OSError(tr("The running desktop could not be identified."))
+            if not security.OpenProcessToken(process, 8, ctypes.byref(token)):
+                raise OSError(tr("The running desktop could not be identified."))
+            needed = dword()
+            security.GetTokenInformation(token, 1, None, 0, ctypes.byref(needed))
+            if not ctypes.sizeof(pointer) <= needed.value <= 1 << 20:
+                raise ValueError(tr("The running desktop could not be identified."))
+            buffer = ctypes.create_string_buffer(needed.value)
+            if not security.GetTokenInformation(token, 1, buffer, needed, ctypes.byref(needed)):
+                raise OSError(tr("The running desktop could not be identified."))
+            sid = ctypes.cast(buffer, ctypes.POINTER(pointer)).contents
+            if not security.ConvertSidToStringSidW(sid, ctypes.byref(text)):
+                raise OSError(tr("The running desktop could not be identified."))
+            return text.value, os.path.realpath(path.value)
+        finally:
+            if text:
+                kernel.LocalFree(ctypes.cast(text, pointer))
+            if token:
+                kernel.CloseHandle(token)
+            kernel.CloseHandle(process)
+    if sys.platform == "darwin":
+        import ctypes
+
+        library = ctypes.CDLL("/usr/lib/libproc.dylib", use_errno=True)
+        library.proc_pidpath.argtypes = [ctypes.c_int, ctypes.c_void_p, ctypes.c_uint32]
+        library.proc_pidpath.restype = ctypes.c_int
+        path = ctypes.create_string_buffer(4096)
+        if library.proc_pidpath(pid, path, len(path)) <= 0:
+            raise OSError(tr("The running desktop could not be identified."))
+        code, owner = _run(["/bin/ps", "-p", str(pid), "-o", "uid="], timeout=10)
+        if code or not owner.strip().isdigit():
+            raise ValueError(tr("The running desktop could not be identified."))
+        return int(owner.strip()), os.path.realpath(os.fsdecode(path.value))
+    proc = "/proc/" + str(pid)
+    return os.stat(proc).st_uid, os.path.realpath(os.readlink(proc + "/exe"))
+
+
+class _UpdatePhaseChannel:
+    """Bounded authenticated local messages; privileged peers accept only fixed phases."""
+
+    def _send(self, phase, **details):
+        import hmac
+
+        self._sent += 1
+        payload = {"sequence": self._sent, "direction": self._direction,
+                   "phase": phase, "details": details}
+        encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+        message = json.dumps({"payload": payload, "mac": hmac.new(
+            self._secret, encoded, hashlib.sha256).hexdigest()}, separators=(",", ":")).encode() + b"\n"
+        if len(message) > 8192:
+            raise ValueError(tr("The authorized helper returned an invalid operation message."))
+        self._connection.sendall(message)
+
+    def _receive(self, expected, *, timeout=_FROZEN_PREPARATION_SECONDS, stopped=None):
+        import hmac
+        import socket
+
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            try:
+                if self._connection is None:
+                    self._connection, address = self._listener.accept()
+                    self._connection.settimeout(0.2)
+                    if address[0] != "127.0.0.1":
+                        raise ValueError(tr("The authorized helper returned an invalid operation message."))
+                if b"\n" not in self._buffer:
+                    chunk = self._connection.recv(8193 - len(self._buffer))
+                    if not chunk:
+                        raise RuntimeError(tr("The authorized helper disconnected before the operation finished."))
+                    self._buffer += chunk
+                if len(self._buffer) > 8192:
+                    raise ValueError(tr("The authorized helper returned an invalid operation message."))
+                if b"\n" in self._buffer:
+                    line, self._buffer = self._buffer.split(b"\n", 1)
+                    message = json.loads(line)
+                    payload = message["payload"]
+                    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+                    digest = hmac.new(self._secret, encoded, hashlib.sha256).hexdigest()
+                    if (not hmac.compare_digest(message["mac"], digest)
+                            or payload.get("sequence") != self._received + 1
+                            or payload.get("direction") == self._direction
+                            or payload.get("direction") not in {"desktop", "installer"}
+                            or payload.get("phase") not in expected or not isinstance(payload.get("details"), dict)):
+                        raise ValueError(tr("The authorized helper returned an invalid operation message."))
+                    self._received += 1
+                    return payload
+            except socket.timeout:
+                pass
+            if stopped is not None and stopped():
+                raise RuntimeError(tr("The authorized helper stopped before confirming its preparation."))
+        raise TimeoutError(tr("The authorized helper did not confirm its preparation before the deadline."))
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_args):
+        if self._connection is not None:
+            self._connection.close()
+
+
+class _UpdatePhaseServer(_UpdatePhaseChannel):
+    """Keep authorization secrets in a private descriptor, never in process arguments."""
+
+    def __init__(self, workdir):
+        import socket
+
+        self._connection, self._buffer = None, b""
+        self._sent = self._received = 0
+        self._direction, self._secret = "desktop", os.urandom(32)
+        self._listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._listener.bind(("127.0.0.1", 0))
+        self._listener.listen(1)
+        self._listener.settimeout(0.2)
+        self.endpoint = None
+        try:
+            descriptor, self.endpoint = tempfile.mkstemp(prefix="phase-", dir=workdir)
+            with os.fdopen(descriptor, "w", encoding="ascii") as stream:
+                if os.name == "nt":
+                    _windows_pip_private_access(self.endpoint, private_read=True)
+                stream.write(str(self._listener.getsockname()[1]) + ":" + self._secret.hex())
+                stream.flush()
+                os.fsync(stream.fileno())
+        except BaseException:
+            self._listener.close()
+            if self.endpoint is not None:
+                os.unlink(self.endpoint)
+            raise
+
+    def __exit__(self, *args):
+        super().__exit__(*args)
+        self._listener.close()
+        os.unlink(self.endpoint)
+
+
+class _UpdatePhaseClient(_UpdatePhaseChannel):
+    """Read only the bound desktop user's regular private descriptor before staging."""
+
+    def __init__(self, endpoint, desktop_pid, desktop_executable):
+        import re
+        import socket
+
+        owner, executable = _desktop_process_identity(desktop_pid)
+        if os.path.normcase(executable) != os.path.normcase(os.path.realpath(desktop_executable)):
+            raise ValueError(tr("The running desktop could not be identified."))
+        before = os.lstat(endpoint)
+        if (not stat.S_ISREG(before.st_mode) or before.st_size > 128
+                or getattr(before, "st_file_attributes", 0) & 0x400):
+            raise ValueError(tr("The operation authorization descriptor is not private."))
+        if os.name == "nt":
+            _windows_pip_private_access(endpoint, owner_sid=owner, private_read=True)
+        elif before.st_uid != owner or stat.S_IMODE(before.st_mode) & 0o077:
+            raise ValueError(tr("The operation authorization descriptor is not private."))
+        descriptor = os.open(endpoint, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0))
+        with os.fdopen(descriptor, "r", encoding="ascii") as stream:
+            actual = os.fstat(stream.fileno())
+            if (not stat.S_ISREG(actual.st_mode) or actual.st_size > 128
+                    or (actual.st_dev, actual.st_ino) != (before.st_dev, before.st_ino)
+                    or os.name != "nt" and (actual.st_uid != owner or stat.S_IMODE(actual.st_mode) & 0o077)):
+                raise ValueError(tr("The operation authorization descriptor is not private."))
+            if os.name == "nt":
+                _windows_pip_private_access(endpoint, owner_sid=owner, private_read=True)
+            endpoint_text = stream.read(129)
+        match = re.fullmatch(r"([1-9][0-9]{0,4}):([a-f0-9]{64})", endpoint_text)
+        if match is None or int(match[1]) > 65535:
+            raise ValueError(tr("The operation authorization descriptor is not private."))
+        self._secret = bytes.fromhex(match[2])
+        self._connection = socket.create_connection(("127.0.0.1", int(match[1])), timeout=10)
+        self._connection.settimeout(0.2)
+        self._buffer = b""
+        self._sent = self._received = 0
+        self._direction = "installer"
+
+
 def _launch_updated_desktop(plan, argv, version, root, *, frozen=False, spawn=None):
     """Launch the exact updated executable and wait for its verified main window.
 
@@ -4339,10 +4538,10 @@ def _windows_pip_private_directory(path):
     return root
 
 
-def _windows_pip_private_access(path, *, system_owner=False):
+def _windows_pip_private_access(path, *, system_owner=False, owner_sid=None, private_read=False):
     """Require a non-null trusted-owner ACL without foreign file or descendant write grants."""
     evidence = _windows_pip_acl(path)
-    user = evidence.get("user")
+    user = evidence.get("user") if owner_sid is None else owner_sid
     rules = evidence.get("rules")
     if (not isinstance(user, str) or not user.startswith("S-1-")
             or evidence.get("owner") not in ({user, "S-1-5-18", "S-1-5-32-544"} if system_owner else {user})
@@ -4350,7 +4549,7 @@ def _windows_pip_private_access(path, *, system_owner=False):
             or not isinstance(rules, list) or not rules):
         raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
     permitted = {user, "S-1-5-18", "S-1-5-32-544"}
-    write_mask = 0x500D0156
+    write_mask = 0xF01F01FF if private_read else 0x500D0156
     for rule in rules:
         if (not isinstance(rule, dict) or rule.get("type") not in (0, 1)
                 or not isinstance(rule.get("sid"), str)
