@@ -1204,7 +1204,8 @@ class CollapsibleSplitter(QSplitter):
         Called when a handle is let go and when the splitter is hidden, so a
         window closed in the middle of a drag keeps the sizes.
         """
-        if self._extents_timer.isActive():
+        timer = getattr(self, "_extents_timer", None)
+        if _alive(timer) and timer.isActive():
             self._save_extents()
 
     def _save_extents(self) -> None:

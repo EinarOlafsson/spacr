@@ -162,6 +162,8 @@ def test_hiding_the_splitter_writes_a_size_that_is_still_waiting(
     assert writes == []
     split.hide()
     assert writes == [("smooth::hide", split.extents())]
+    assert cs.get_pane_extents("smooth::hide") == split.extents()
+    assert not split._extents_timer.isActive()
     split.show()
     _pump()
     split.hide()
