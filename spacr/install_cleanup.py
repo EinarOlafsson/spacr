@@ -3273,6 +3273,8 @@ print(json.dumps({'verified': True, 'version': version, 'prefix': sys.prefix,
 def _macos_online_commands(record, version, workdir):
     """The install, probe and relaunch commands for a macOS online update."""
     import re
+    from pathlib import Path
+    from spacr.install_profile import read_profile
 
     version = _runtime_requested_version(version)
     python = os.path.join(record.root, "venv", "bin", "python")
@@ -3286,7 +3288,23 @@ def _macos_online_commands(record, version, workdir):
         raise ValueError("the updater folder must be outside the installed environment")
     explicit = re.search(r"(?:a|b|rc)[0-9]+|\.dev[0-9]+", version.partition("+")[0])
     package = "spacr==" + version if explicit or "+" in version else "spacr"
-    install = [uv, "pip", "install", "--upgrade", "--python", python, package]
+    install = [uv, "pip", "install", "--upgrade", "--python", python]
+    profile_path = Path(record.root) / "install-profile.json"
+    profile = read_profile(profile_path)
+    if profile_path.exists() and (profile is None or not isinstance(profile.get("without_wgpu", False), bool)):
+        raise ValueError(tr("The saved installation choices could not be read. Nothing was changed."))
+    if profile:
+        install.extend(["--torch-backend", profile["requested_backend"]])
+        if profile.get("without_wgpu") is True:
+            try:
+                from spacr.install_profile import no_wgpu_override
+            except ImportError as error:
+                raise ValueError(tr("The saved choice to install without wgpu could not be preserved.")) from error
+            override = no_wgpu_override(profile, Path(workdir) / "no-wgpu-override.txt")
+            if override is None:
+                raise ValueError(tr("The saved choice to install without wgpu could not be preserved."))
+            install.extend(["--override", str(override)])
+    install.append(package)
     probe = _runtime_identity_command(python, version, minimum=package == "spacr")
     relaunch = [python, "-I", "-m", "spacr.qt"]
     return install, probe, relaunch
@@ -3447,8 +3465,36 @@ def _runtime_recovery_journal(root, state):
             os.unlink(temporary)
 
 
+def _only_saved_wgpu_omission(code, output):
+    """Recognize only uv's sole missing spaCR-to-wgpu dependency diagnostic.
+
+    Unknown output, extra diagnostics and checker failures remain failures.
+    Callers must separately require the explicit saved installation choice.
+    """
+    import re
+    from packaging.requirements import InvalidRequirement, Requirement
+
+    if code != 1:
+        return False
+    lines = [line.strip() for line in output.splitlines() if line.strip()]
+    if lines and re.fullmatch(r"Using Python [0-9][^\r\n]* environment at: .+", lines[0]):
+        lines.pop(0)
+    if len(lines) != 3 or not re.fullmatch(r"Checked [0-9]+ packages? in [0-9.]+(?:µs|μs|us|ms|s|m)", lines[0]):
+        return False
+    if lines[1] != "Found 1 incompatibility":
+        return False
+    missing = re.fullmatch(r"The package `spacr` requires `([^`]+)`, but it's not installed", lines[2])
+    if missing is None:
+        return False
+    try:
+        requirement = Requirement(missing.group(1))
+    except InvalidRequirement:
+        return False
+    return requirement.name.lower() == "wgpu" and not requirement.url and not requirement.extras
+
+
 def _transactional_runtime_update(record, version, install, *, machine, runner=None,
-                                  activate=None, before_activate=None):
+                                  activate=None, before_activate=None, without_wgpu=False):
     """Update a private POSIX runtime through a verified atomic exchange.
 
     The previous runtime is retained as a rollback copy. All package operations
@@ -3517,11 +3563,13 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
                 raise ValueError("the package command does not target this private runtime")
             command[position] = staged_python
             check_command = [command[0], "pip", "check", "--python", staged_python]
+            if without_wgpu:
+                check_command.extend(["--color", "never"])
         code, output = runner(command)
         if code:
             raise RuntimeError(f"The staged package upgrade failed with exit code {code}: {output}")
         code, checked = runner(check_command)
-        if code:
+        if code and not (without_wgpu and not pip_command and _only_saved_wgpu_omission(code, checked)):
             raise RuntimeError(f"Staged package dependencies failed verification: {checked}")
         for directory, _folders, files in os.walk(staged, followlinks=False):
             for name in files:
@@ -3649,11 +3697,12 @@ def _run_macos_online_update(plan, machine, *, wait=None, run=None, spawn=None):
         """Offer Restart only after the replacement passes its staged checks."""
         handshake.ready()
         handshake.wait_for_shutdown(wait)
-        _macos_online_commands(record, plan["version"], plan["workdir"])
+        if _macos_online_commands(record, plan["version"], plan["workdir"]) != (install, probe, relaunch):
+            raise ValueError(tr("The saved installation choices changed while preparing the update. Nothing was changed."))
 
     return _transactional_runtime_update(
         record, plan["version"], install, machine=machine, runner=run,
-        before_activate=prepared,
+        before_activate=prepared, without_wgpu="--override" in install,
         activate=lambda observed: _launch_updated_desktop(
             plan, relaunch, observed, os.path.dirname(os.path.dirname(record.python)), spawn=spawn))
 
