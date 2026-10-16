@@ -37,8 +37,6 @@ whole-plate and multi-well Toxoplasma plaque-assay images; yolo11n base, 150 epo
 
 mAP50 0.993 on its own held-out split; on the test set shared with v2 it scores mAP50 0.8838, against v2's 0.9457.
 
-Scorecard state: **recorded at publication**. These numbers were recorded with the model when it was published; a reviewed held-out comparison against the stock model is not yet available.
-
 | Recorded | Value |
 | --- | --- |
 | Training set | 562 images |
@@ -70,4 +68,4 @@ Scorecard state: **recorded at publication**. These numbers were recorded with t
 
 Models are hosted on each author's own Hugging Face account. spaCR downloads this one from there the first time it is needed and checks it against the SHA-256 above. `spacr.model_zoo.publish_model` uploads a model and returns the catalogue row to add.
 
-[All model cards](README.md) · [All scorecards as CSV](scorecards.csv)
+[All model cards](README.md)

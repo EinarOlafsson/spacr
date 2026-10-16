@@ -33,8 +33,6 @@ cross-channel: given the host cell image, predicts where the Toxoplasma parasito
 
 F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5.
 
-Scorecard state: **recorded at publication**. These numbers were recorded with the model when it was published; a reviewed held-out comparison against the stock model is not yet available.
-
 | Recorded | Value |
 | --- | --- |
 | Training set | 2567 |
@@ -77,4 +75,4 @@ Scorecard state: **recorded at publication**. These numbers were recorded with t
 
 Models are hosted on each author's own Hugging Face account. spaCR downloads this one from there the first time it is needed and checks it against the SHA-256 above. `spacr.model_zoo.publish_model` uploads a model and returns the catalogue row to add.
 
-[All model cards](README.md) · [All scorecards as CSV](scorecards.csv)
+[All model cards](README.md)

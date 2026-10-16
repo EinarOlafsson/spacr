@@ -123,10 +123,6 @@
 
    <div><a href="../../readme_text/ko/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/generated-hardware-1.desktop.svg"><img src="../../readme_images/ko/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. 지원 (안정) 구현됨 (베타) CPU만 지원."></picture></a></div>
 
-.. raw:: html
-
-   <div><a href="../../readme_text/ko/generated-hardware-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/generated-hardware-2.desktop.svg"><img src="../../readme_images/ko/generated-hardware-2.svg" alt="Linux (x86-64, ARM64): True 3D, 순서대로 시도 Vulkan (wgpu), OpenGL, CPU. Windows (x64, ARM64): True 3D, 순서대로 시도 Vulkan / Direct3D 12 (wgpu), OpenGL, CPU. macOS (Intel, Apple silicon): True 3D, 순서대로 시도 Metal (wgpu), OpenGL, CPU. wgpu 없음: True 3D, 순서대로 시도 OpenGL, CPU (Python 3.9, 기타 프로세서, glibc 2.28 미만 Linux 또는 wgpu 없이 설치)."></picture></a></div>
-
 .. spacr-hardware-end
 
 .. raw:: html
@@ -275,7 +271,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/install-from-source-light-2.desktop.svg"><img src="../../readme_images/ko/install-from-source-light-2.svg" alt="nightly 전체 클론은 9.25 GiB를 다운로드했습니다. 얕은 클론에 --filter=blob:none을 추가해도 체크아웃 크기는 줄어들지 않습니다. Git 객체 저장소는 여전히 2032 MB입니다. Git은 필요할 때 나중에 가져오는 객체를 보고하지 않으므로 전체 다운로드 총량은 측정하지 않았습니다. nightly의 버전 관리 파일을 체크아웃하면 Git 이력을 제외하고 4657 MB를 차지합니다(2026-10-15 측정). 다운로드 크기와 시간은 브랜치에 따라 달라집니다."></picture></a></div>
+   <div><a href="../../readme_text/ko/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/install-from-source-light-2.desktop.svg"><img src="../../readme_images/ko/install-from-source-light-2.svg" alt="nightly 전체 클론은 9.25 GiB를 다운로드했습니다. 얕은 클론에 --filter=blob:none을 추가해도 체크아웃 크기는 줄어들지 않습니다. Git 객체 저장소는 여전히 2032 MB입니다. Git은 필요할 때 나중에 가져오는 객체를 보고하지 않으므로 전체 다운로드 총량은 측정하지 않았습니다. nightly의 버전 관리 파일을 체크아웃하면 Git 이력을 제외하고 3416 MB를 차지합니다(2026-10-08 측정). 다운로드 크기와 시간은 브랜치에 따라 달라집니다."></picture></a></div>
 
 .. raw:: html
 

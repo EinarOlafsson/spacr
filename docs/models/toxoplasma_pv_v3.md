@@ -37,8 +37,6 @@ Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma
 
 F1 0.750 against stock cpsam_v2's 0.390 on the 269 strict hold-out fields at IoU 0.5; AJI 0.528 against 0.055.
 
-Scorecard state: **reviewed hold-out scorecard**.
-
 | Metric | This model | Stock | Difference |
 | --- | --- | --- | --- |
 | F1 | 0.7504 | 0.3899 | 0.3606 |
@@ -88,4 +86,4 @@ Evaluation set `gt_rescore_20261011`, version `strict hold-out, pooled`; 269 sco
 
 Models are hosted on each author's own Hugging Face account. spaCR downloads this one from there the first time it is needed and checks it against the SHA-256 above. `spacr.model_zoo.publish_model` uploads a model and returns the catalogue row to add.
 
-[All model cards](README.md) · [All scorecards as CSV](scorecards.csv)
+[All model cards](README.md)

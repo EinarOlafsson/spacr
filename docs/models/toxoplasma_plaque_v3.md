@@ -37,8 +37,6 @@ Other versions: [toxoplasma_plaque_v4](toxoplasma_plaque_v4.md), [toxoplasma_pla
 
 F1 0.732 against stock cpsam's 0.128 on the 232 strict hold-out fields at IoU 0.5; AJI 0.628 against 0.173.
 
-Scorecard state: **reviewed hold-out scorecard**.
-
 | Metric | This model | Stock | Difference |
 | --- | --- | --- | --- |
 | F1 | 0.7322 | 0.1280 | 0.6042 |
@@ -90,4 +88,4 @@ Evaluation set `gt_rescore_20261011`, version `strict hold-out, pooled`; 232 sco
 
 Models are hosted on each author's own Hugging Face account. spaCR downloads this one from there the first time it is needed and checks it against the SHA-256 above. `spacr.model_zoo.publish_model` uploads a model and returns the catalogue row to add.
 
-[All model cards](README.md) · [All scorecards as CSV](scorecards.csv)
+[All model cards](README.md)

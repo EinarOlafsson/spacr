@@ -37,8 +37,6 @@ Toxoplasma gondii plaque assays; round 3, evaluated in-domain (NAS) and against 
 
 F1 0.707 against stock cpsam's 0.258 on the 498 strict hold-out fields at IoU 0.5; AJI 0.657 against 0.265.
 
-Scorecard state: **reviewed hold-out scorecard**.
-
 | Metric | This model | Stock | Difference |
 | --- | --- | --- | --- |
 | F1 | 0.7074 | 0.2581 | 0.4493 |
@@ -84,4 +82,4 @@ Evaluation set `gt_rescore_20261011`, version `strict hold-out, pooled`; 498 sco
 
 Models are hosted on each author's own Hugging Face account. spaCR downloads this one from there the first time it is needed and checks it against the SHA-256 above. `spacr.model_zoo.publish_model` uploads a model and returns the catalogue row to add.
 
-[All model cards](README.md) · [All scorecards as CSV](scorecards.csv)
+[All model cards](README.md)

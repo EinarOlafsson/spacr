@@ -35,8 +35,6 @@ Toxoplasma plaques from published-figure wells, Bio-Rad Gel Doc wells, lab plate
 
 F1 0.765 against stock cpsam_v2's 0.338 on the 329 strict hold-out fields at IoU 0.5; AJI 0.662 against 0.261.
 
-Scorecard state: **reviewed hold-out scorecard**.
-
 | Metric | This model | Stock | Difference |
 | --- | --- | --- | --- |
 | F1 | 0.7648 | 0.3380 | 0.4267 |
@@ -86,4 +84,4 @@ Evaluation set `gt_rescore_20261011`, version `strict hold-out, pooled`; 329 sco
 
 Models are hosted on each author's own Hugging Face account. spaCR downloads this one from there the first time it is needed and checks it against the SHA-256 above. `spacr.model_zoo.publish_model` uploads a model and returns the catalogue row to add.
 
-[All model cards](README.md) · [All scorecards as CSV](scorecards.csv)
+[All model cards](README.md)

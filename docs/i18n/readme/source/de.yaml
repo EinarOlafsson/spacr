@@ -244,7 +244,7 @@ blocks:
     nicht: Sein Git-Objektspeicher umfasst weiterhin 2032 MB. Git meldet bei Bedarf
     nachgeladene Objekte nicht, daher wurde keine Gesamtgröße des Downloads gemessen.
     Die versionierten Dateien von nightly belegen im ausgecheckten Arbeitsverzeichnis
-    4657 MB (gemessen am 2026-10-15), ohne Git-Historie. Downloadgröße und Dauer
+    3416 MB (gemessen am 2026-10-08), ohne Git-Historie. Downloadgröße und Dauer
     hängen vom Branch ab.'
 - h2: Befehle für die Kommandozeile
 - code: |-

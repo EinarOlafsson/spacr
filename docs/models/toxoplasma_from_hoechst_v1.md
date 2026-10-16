@@ -33,20 +33,6 @@ cross-channel: given the Hoechst/nuclear image, predicts where the Toxoplasma pa
 
 F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5.
 
-Scorecard state: **recorded at publication**. These numbers were recorded with the model when it was published; a reviewed held-out comparison against the stock model is not yet available.
-
-| Recorded | Value |
-| --- | --- |
-| Training set | 2567 |
-| Test set | 463 |
-| Cross-validation | no |
-| F1 | 0.569 |
-| AJI | 0.421 |
-| Dice | 0.546 |
-| Stock F1 | 0.002 |
-| Stock AJI | 0.006 |
-| Stock Dice | 0.016 |
-
 ## Notes
 
 - F1 0.569, AJI 0.421, Dice 0.546 at IoU 0.5 against stock cpsam_v2's 0.002/0.006/0.016.
@@ -73,4 +59,4 @@ Scorecard state: **recorded at publication**. These numbers were recorded with t
 
 Models are hosted on each author's own Hugging Face account. spaCR downloads this one from there the first time it is needed and checks it against the SHA-256 above. `spacr.model_zoo.publish_model` uploads a model and returns the catalogue row to add.
 
-[All model cards](README.md) · [All scorecards as CSV](scorecards.csv)
+[All model cards](README.md)

@@ -33,8 +33,6 @@ Unstained cells in phase contrast, brightfield and DIC: LIVECell, DeepSea, YeaZ,
 
 On the datasets stock cpsam_v2 never trained on, F1 0.960 against 0.885 at IoU 0.5; over all 2,199 test fields, 0.694 against 0.738, because stock trained on LIVECell and YeaZ and wins on LIVECell.
 
-Scorecard state: **recorded at publication**. These numbers were recorded with the model when it was published; a reviewed held-out comparison against the stock model is not yet available.
-
 | Recorded | Value |
 | --- | --- |
 | Training set | 6,778 fields, 14 datasets |
@@ -68,4 +66,4 @@ Scorecard state: **recorded at publication**. These numbers were recorded with t
 
 Models are hosted on each author's own Hugging Face account. spaCR downloads this one from there the first time it is needed and checks it against the SHA-256 above. `spacr.model_zoo.publish_model` uploads a model and returns the catalogue row to add.
 
-[All model cards](README.md) · [All scorecards as CSV](scorecards.csv)
+[All model cards](README.md)
