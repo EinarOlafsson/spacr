@@ -1,5 +1,10 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+> 2026-10-16 CLAUDE HOME OUT OF TOKENS. Claude agents still finishing and pushing: Make Masks layout reorg, wgpu backend + default install, 698 Browser+Colab route, installer consent text. HANDED TO CODEX (not started), do AFTER the Make Masks layout commit lands:
+> (C) Make Masks "Measure" 3D section: one button measures the current 3D image (regionprops, channel correlation, object distances etc.), prompts to fill extra channel slots (drag/drop or paste paths), lets the user add rows for new image sets, writes/appends a database in the image folder with spaCR measure's structure.
+> (D) Object detection: a "3D" boolean that puts 3D-capable models and Otsu/other 3D-capable thresholds in 3D mode.
+
+
 > 2026-10-15 OWNERSHIP NOTICE FOR CODEX (maintainer request, posted by Claude Home / spacr-44):
 > Claude Home is taking over items 699, 698, 702, 704, 689 and 370 ONE AT A TIME, in that order.
 > DONE BY CLAUDE: 699 (d7237413a2), 698 (b314ce01ee; site 378a04f), 702 (3a7aa97449), 704 (8508e99220; main f0efcc75c6). 689 BUILT, blocked on maintainer token/variable steps (see its item file); Claude still owns 689. 370 (737b865fc6). ALL SIX DONE as far as possible without the maintainer; remaining steps are in each item file (WS GPU re-scoring for 370, maintainer HF token/variables for 689, HF uploads for 698). Nothing is claimed by Claude now; Codex may continue other work.
