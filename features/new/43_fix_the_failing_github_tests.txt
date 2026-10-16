@@ -4064,3 +4064,8 @@ Shutdown fixtures use real owned/deleted widgets (2PASS); opaque/classic capture
 The font-scale benchmark warms both modes and alternates order without changing its strict comparison (3PASS; changed benchmark also passes without instrumentation). The separate hosted preview-cache ratio failure remains unreproduced locally and unchanged.
 Coverage7's four-writer database test still has an unexplained hosted timeout: its original singleton and ten-test prefix pass locally under coverage/xdist; no timeout, selection or concurrency assertion was weakened.
 Excluded N700/N702/N698/F370/N673 owner repairs and green final-source CI still gate release1.5.1.5; the protected run and its observer remain active, and no whole-item completion is claimed.
+
+2026-10-16 — Distributed thread-timeout reports now retain uncaptured stderr, so a forked child holding the worker transport cannot hide the original stack and captured output.
+Two real fork/xdist regressions pass for ordinary and function-only timers; two focused lifecycle checks preserve normal cancellation and debugger-return restoration.
+The existing timeout callback, durations, failure exit and database concurrency behavior are unchanged; this fixes missing diagnostics, not the unexplained hosted four-writer hang.
+Final green CI, excluded-owner repairs and native acceptance still gate release1.5.1.5; no whole-item completion is claimed.
