@@ -33,6 +33,7 @@
 
 ### Fixed
 
+- Closing the main window saves pending Annotate labels and drains its page loader and database writer.
 - Corrected the restart command and launch environment for frozen desktop applications, while preserving saved workspace state.
 - Prevented environment capture from relaunching frozen desktop applications.
 - Installations avoid PySide6 6.12.0, which can crash rendering on Python 3.10.

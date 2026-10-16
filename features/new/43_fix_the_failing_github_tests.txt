@@ -4049,3 +4049,7 @@ Remaining CI jobs and reserved-feature owner repairs still gate1.5.1.5; no whole
 Two real shutdown regressions fail before the fix; all14 related checks pass, with the two test-helper follow-ups also passing. Original Undo/Redo assertions are unchanged; hosted crash causality remains unproven.
 7c37664cb309/42f1c953abb isolate GDB embedded Python from inherited runtime libraries while retaining inferior search paths and bounded core cleanup; all95 related cases and five focused follow-ups pass.
 Full CI and reserved-feature repairs still gate1.5.1.5; no whole-item completion or release claim.
+
+2026-10-16 — 23580ea8701 makes the field-drag test consume its queued release through the existing zero-time frame API; nonblocking input and all original spring assertions remain unchanged.
+A held-render-lock baseline reproduces the stale engine assertion; all17 owning tests pass, including unchanged150ms responsiveness and strengthened queued-release continuity/no-replay checks.
+HostedQt6.11.2 passes all four strict opaque/classic paint modes. Full-green CI, reserved-feature repairs and1.5.1.5 publication remain open.
