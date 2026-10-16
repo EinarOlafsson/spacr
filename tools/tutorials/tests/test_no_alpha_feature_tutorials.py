@@ -176,6 +176,7 @@ WIDGET_LABELS = {
     "AnnotateFindSimilar": (),
     "EmbeddingsFoundationLabel": ("Foundation model",),
     "EmbeddingsFoundationPicker": ("None (use the backbone)",),
+    "EmbeddingsDemoButton": ("Load synthetic demo",),
     "EmbeddingsWellMilButton": ("Learn from well labels",),
     "EmbeddingsDinoPretrainButton": ("Pretrain on these crops",),
     "CellposeWorkbenchVirtualStain": ("Virtual staining",),
