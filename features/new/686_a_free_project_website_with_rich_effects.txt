@@ -181,3 +181,7 @@ BLOCKED ON MAINTAINER: create a fine-grained token restricted to EinarOlafsson/s
 GitHub permission reference: https://docs.github.com/en/rest/repos/repos#create-a-repository-dispatch-event ; never commit or paste the token.
 After main promotion/release, confirm refresh-project-site and site production/Pages success; check published version, three installer links and DOI.
 On an idle physical mid-range laptop, verify normal unpaused hardware-rendered pointer/scroll interaction at60fps and current mobile Lighthouse≥90/95,<1MB; retain hardware/browser results. Home GPU was not used.
+
+2026-10-16 — Same two website agents own completion: website_release + website_acceptance; incorporate Claude's published site changes and retain valid prior checks rather than repeating them.
+Current spaCR mobile check passed97 performance/100 accessibility/775,267bytes; finish actionable integration/publication work, identifying credential or physical-device gates precisely.
+Coordinate any shared docs/site3D column with the still-running wgpu owner; do not replace unpublished owner work or treat a blocker report as item completion.

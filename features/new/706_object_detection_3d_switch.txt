@@ -4,3 +4,6 @@ Status:    new 2026-10-16 (handed to Codex; start after the Make Masks layout re
 Requested: maintainer, 2026-10-16.
 
 Add a boolean "3D" option to object detection (Make Masks > Object operations). When on, models that support 3D run in 3D mode, and Otsu and the other threshold methods that support 3D run in 3D too.
+
+2026-10-16 — Accepted Claude handover; wait for the Make Masks layout commit and completion of705, then reuse the same agents.
+Add a3D boolean under Make Masks > Object operations that routes capable models and Otsu/other capable thresholds through their actual3D implementation; preserve existing2D behavior and explicitly handle unsupported choices.

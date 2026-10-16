@@ -156,3 +156,7 @@ external publication/normal checks/review; dependency feedstock publication
 and clean spaCR installation from the actual forge channel remain OPEN.
 No external PR comment/account/fork/package mutation or wholeN675 acceptance.
 Current receipt: data/675_forge_current_state_2026-10-15/receipt.json.
+
+2026-10-16 — Maintainer broadens scope to every released spaCR version supported for conda-forge publication; use one existing agent, conda_recipe (the final staffing instruction supersedes the earlier request for two).
+Do all executable recipe/dependency/fork/PR work on our side, including the existing pyfixest reviewer correction; reuse prepared changes and passed checks, preserve dependency/import assertions and real release hashes.
+Build a concrete supported publication path for released versions, including current1.5.1.4 and1.5.1.5 only after it exists; external feedstock review/channel publication remains a stated prerequisite, not a reason to stop other executable work.

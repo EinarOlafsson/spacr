@@ -104,3 +104,7 @@ workflow retains nonblocking upload, branch flags and token/OIDC authentication;
 the per-module ratchet remains unchanged. No new implementation was needed for
 these already-landed parts. First main upload and any subsequent branch/main
 badge switch remain tied to original Home's approved main promotion/release.
+
+2026-10-16 — Maintainer requests prompt end-to-end closure by the existing codecov_integration + codecov_acceptance pair.
+Finish genuine main coverage upload and the normally generated README badge switch; use only coverage bound to its actual source/branch and verify a numerical badge and the existing percentage agreement.
+Retain nightly upload/all-ten-README work and informational Codecov status; determine an executable normal upload/publication path instead of repeatedly reporting the old release dependency.
