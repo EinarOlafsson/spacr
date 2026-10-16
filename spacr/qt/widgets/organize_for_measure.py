@@ -776,6 +776,7 @@ class MeasureVolumeDialog(QDialog):
             self._set_path_cell(row, column)
 
     def remove_row(self):
+        """Remove the selected extra image set, preserving the current image row."""
         row = self.table.currentRow()
         if row > 0:
             self.table.removeRow(row)
@@ -804,6 +805,7 @@ class MeasureVolumeDialog(QDialog):
         return rows
 
     def accept(self):
+        """Accept only valid image-set requests; display validation errors without closing."""
         try:
             self.requests()
         except ValueError as exc:

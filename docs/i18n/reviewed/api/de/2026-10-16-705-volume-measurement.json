@@ -72,6 +72,13 @@
       "translation": "Zusätzliche Kanäle und Bildsätze für die aktuelle bearbeitete 3D-Maske auswählen."
     },
     {
+      "context": "Accept only valid image-set requests; display validation errors without closing.",
+      "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog.accept#0",
+      "source": "Accept only valid image-set requests; display validation errors without closing.",
+      "source_sha256": "ca3c8239b63aa998f427bd7b5b6ca9694c7c1c40ab9d5d83ff8e2be8f20a3074",
+      "translation": "Nur gültige Bildsatzanforderungen annehmen; Validierungsfehler anzeigen, ohne den Dialog zu schließen."
+    },
+    {
       "context": "Add an optional image data channel slot to every image set.",
       "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog.add_channel#0",
       "source": "Add an optional channel slot to every image set.",
@@ -84,6 +91,13 @@
       "source": "Append an independently measured image set.",
       "source_sha256": "d91adf3c3ccbbb47b09359fa2539cc2af50090005ba2ab0c89e3163ce1999c6e",
       "translation": "Einen unabhängig gemessenen Bildsatz anhängen."
+    },
+    {
+      "context": "Remove the selected extra image set, preserving the current image row.",
+      "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog.remove_row#0",
+      "source": "Remove the selected extra image set, preserving the current image row.",
+      "source_sha256": "cce69342abf901fadf4499bd5f21586b773036c148553223c020f03f2c82fa57",
+      "translation": "Den ausgewählten zusätzlichen Bildsatz entfernen und dabei die Zeile des aktuellen Bildes beibehalten."
     },
     {
       "context": "Validate local paths and preserve each row's channel ordering.",

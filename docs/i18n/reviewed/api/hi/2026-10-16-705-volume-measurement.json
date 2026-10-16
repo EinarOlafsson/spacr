@@ -72,6 +72,13 @@
       "translation": "वर्तमान संपादित 3D मास्क के लिए अतिरिक्त चैनल और छवि समूह चुनता है।"
     },
     {
+      "context": "Accept only valid image-set requests; display validation errors without closing.",
+      "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog.accept#0",
+      "source": "Accept only valid image-set requests; display validation errors without closing.",
+      "source_sha256": "ca3c8239b63aa998f427bd7b5b6ca9694c7c1c40ab9d5d83ff8e2be8f20a3074",
+      "translation": "केवल मान्य छवि-समूह अनुरोध स्वीकार करें; संवाद बंद किए बिना सत्यापन त्रुटियाँ दिखाएँ।"
+    },
+    {
       "context": "Add an optional image data channel slot to every image set.",
       "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog.add_channel#0",
       "source": "Add an optional channel slot to every image set.",
@@ -84,6 +91,13 @@
       "source": "Append an independently measured image set.",
       "source_sha256": "d91adf3c3ccbbb47b09359fa2539cc2af50090005ba2ab0c89e3163ce1999c6e",
       "translation": "स्वतंत्र रूप से मापा जाने वाला एक छवि समूह जोड़ता है।"
+    },
+    {
+      "context": "Remove the selected extra image set, preserving the current image row.",
+      "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog.remove_row#0",
+      "source": "Remove the selected extra image set, preserving the current image row.",
+      "source_sha256": "cce69342abf901fadf4499bd5f21586b773036c148553223c020f03f2c82fa57",
+      "translation": "चुने गए अतिरिक्त छवि समूह को हटाएँ और वर्तमान छवि की पंक्ति को बनाए रखें।"
     },
     {
       "context": "Validate local paths and preserve each row's channel ordering.",
