@@ -4199,6 +4199,125 @@ print(json.dumps({'python':sys.executable,'prefix':sys.prefix,'base_prefix':sys.
     return [python, "-I", "-B", module, "run-plan", plan_path], environment
 
 
+def _windows_update_library(name):
+    """Load a native updater dependency only on the actual Windows host."""
+    import ctypes
+
+    if os.name != "nt":
+        raise OSError(tr("a native Windows updater is required"))
+    return ctypes.WinDLL(name, use_last_error=True)
+
+
+def _windows_process_elevated():
+    """Read the current process token without requesting administrator access."""
+    import ctypes
+
+    kernel = _windows_update_library("kernel32")
+    security = _windows_update_library("advapi32")
+    pointer, dword = ctypes.c_void_p, ctypes.c_uint32
+    current = kernel.GetCurrentProcess
+    current.argtypes, current.restype = [], pointer
+    opened = security.OpenProcessToken
+    opened.argtypes = [pointer, dword, ctypes.POINTER(pointer)]
+    opened.restype = ctypes.c_int32
+    information = security.GetTokenInformation
+    information.argtypes = [pointer, dword, pointer, dword, ctypes.POINTER(dword)]
+    information.restype = ctypes.c_int32
+    close = kernel.CloseHandle
+    close.argtypes, close.restype = [pointer], ctypes.c_int32
+    token = pointer()
+    if not opened(current(), 0x0008, ctypes.byref(token)):
+        raise OSError(ctypes.get_last_error(), tr("Windows process token could not be opened"))
+    try:
+        elevation, size = dword(), dword()
+        if not information(token, 20, ctypes.byref(elevation), ctypes.sizeof(elevation), ctypes.byref(size)):
+            raise OSError(ctypes.get_last_error(), tr("Windows process elevation could not be read"))
+        if size.value != ctypes.sizeof(elevation):
+            raise OSError(tr("Windows returned an invalid process elevation"))
+        return bool(elevation.value)
+    finally:
+        close(token)
+
+
+def _windows_frozen_install(installer, destination, *, timeout=1800):
+    """Elevate only the pinned NSIS image and retain an unelevated coordinator.
+
+    The caller must keep a checksum-verified installer handle denying writes
+    and deletion open throughout this call. A timeout leaves the installer
+    running; its caller must retain its pending journal and must not attempt
+    another installation, rollback, cleanup or application relaunch.
+    """
+    import ctypes
+    import math
+    import ntpath
+
+    if (not isinstance(timeout, (int, float)) or isinstance(timeout, bool)
+            or not math.isfinite(timeout) or timeout <= 0 or timeout * 1000 >= 0xFFFFFFFF):
+        raise ValueError(tr("invalid Windows installer timeout"))
+    if _windows_process_elevated():
+        raise ValueError(tr("the update coordinator must run without administrator privileges"))
+    installer, destination = os.fspath(installer), os.fspath(destination)
+    if any(character in value for value in (installer, destination) for character in '\x00\r\n"'):
+        raise ValueError(tr("invalid Windows installer path"))
+    if any(not ntpath.isabs(path) or len(ntpath.splitdrive(path)[0]) != 2
+           or not ntpath.splitdrive(path)[0][0].isalpha()
+           or ntpath.splitdrive(path)[0][1] != ":" for path in (installer, destination)):
+        raise ValueError(tr("Windows installer paths must be absolute"))
+    kernel = _windows_update_library("kernel32")
+    shell = _windows_update_library("shell32")
+    pointer, dword = ctypes.c_void_p, ctypes.c_uint32
+
+    class _ShellExecuteInfo(ctypes.Structure):
+        """Use the native pointer-width SHELLEXECUTEINFOW process layout."""
+        _fields_ = [("cbSize", dword), ("fMask", dword), ("hwnd", pointer),
+                    ("lpVerb", ctypes.c_wchar_p), ("lpFile", ctypes.c_wchar_p),
+                    ("lpParameters", ctypes.c_wchar_p), ("lpDirectory", ctypes.c_wchar_p),
+                    ("nShow", ctypes.c_int32), ("hInstApp", pointer), ("lpIDList", pointer),
+                    ("lpClass", ctypes.c_wchar_p), ("hkeyClass", pointer),
+                    ("dwHotKey", dword), ("hIcon", pointer), ("hProcess", pointer)]
+
+    execute = shell.ShellExecuteExW
+    execute.argtypes, execute.restype = [ctypes.POINTER(_ShellExecuteInfo)], ctypes.c_int32
+    wait = kernel.WaitForSingleObject
+    wait.argtypes, wait.restype = [pointer, dword], dword
+    result = kernel.GetExitCodeProcess
+    result.argtypes, result.restype = [pointer, ctypes.POINTER(dword)], ctypes.c_int32
+    process_id = kernel.GetProcessId
+    process_id.argtypes, process_id.restype = [pointer], dword
+    close = kernel.CloseHandle
+    close.argtypes, close.restype = [pointer], ctypes.c_int32
+    request = _ShellExecuteInfo()
+    request.cbSize = ctypes.sizeof(request)
+    request.fMask = 0x00000040 | 0x00000100 | 0x00000400
+    request.lpVerb = "runas"
+    request.lpFile = installer
+    request.lpParameters = "/S /D=" + destination
+    request.lpDirectory = ntpath.dirname(installer)
+    request.nShow = 1
+    if not execute(ctypes.byref(request)):
+        raise OSError(ctypes.get_last_error(), tr("Windows installer authorization did not complete"))
+    if not request.hProcess:
+        raise TimeoutError(tr("Windows installer did not return a process handle"))
+    try:
+        status = wait(request.hProcess, max(1, int(timeout * 1000)))
+        if status == 258:
+            error = TimeoutError(tr("Windows installer is still running; its pending update must be retained"))
+            error.pid = int(process_id(request.hProcess))
+            raise error
+        if status != 0:
+            error = TimeoutError(tr("Windows installer completion is unknown"))
+            error.pid = int(process_id(request.hProcess))
+            raise error
+        code = dword()
+        if not result(request.hProcess, ctypes.byref(code)) or code.value == 259:
+            error = TimeoutError(tr("Windows installer exit status is unavailable"))
+            error.pid = int(process_id(request.hProcess))
+            raise error
+        return int(code.value), ""
+    finally:
+        close(request.hProcess)
+
+
 class _WindowsPipHandshake(_FrozenUpdateHandshake):
     """Retain the authenticated shutdown protocol with native Windows ACL and file-identity guards."""
 
@@ -4807,6 +4926,217 @@ def _install_frozen_windows(source, destination, version, *, run=None):
             lock.rmdir()
 
 
+def _windows_frozen_root_state(root):
+    """Bind the actual install directory and regular payload without following reparse points."""
+    root = _installer_metadata_folder(root, "windows_frozen_root", windows=True)
+    state = []
+    for path, directory in ((os.path.dirname(root), True), (root, True),
+                            (os.path.join(root, "_internal"), True),
+                            (os.path.join(root, "spacr.exe"), False)):
+        details = os.lstat(path)
+        if (getattr(details, "st_file_attributes", 0) & 0x400
+                or stat.S_ISLNK(details.st_mode)
+                or not (stat.S_ISDIR(details.st_mode) if directory else stat.S_ISREG(details.st_mode))):
+            raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_root"))
+        state.append((details.st_dev, details.st_ino) if directory else
+                     (details.st_dev, details.st_ino, details.st_size,
+                      details.st_mtime_ns, details.st_ctime_ns))
+    return root, state
+
+
+def _windows_frozen_update_record(records, version, workdir, machine):
+    """Select one real frozen Windows installation and refuse an unverified version or downgrade."""
+    candidates = [record for record in records if record.running]
+    if (machine.platform != "windows" or len(candidates) != 1
+            or candidates[0].kind != "installer" or candidates[0].platform != "windows"
+            or candidates[0].layout != "windows-offline"):
+        raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_layout"))
+    record = candidates[0]
+    root, _state = _windows_frozen_root_state(record.root)
+    if _inside(os.path.realpath(workdir), root) or _inside(root, os.path.realpath(workdir)):
+        raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_helper_location"))
+    payload = [os.path.join(root, name) for name in ("_internal", "spacr.exe", "spacr-payload.json")]
+    if any(_inside(os.path.realpath(path), owned) or _inside(owned, os.path.realpath(path))
+           for path in _user_data(machine) for owned in payload):
+        raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_user_data_overlap"))
+    previous = _frozen_windows_previous_version(root)
+    if (previous is None or record.version is not None and previous != record.version
+            or _macos_online_version(previous) > _macos_online_version(version)):
+        raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_version"))
+    return record, previous
+
+
+@contextmanager
+def _windows_frozen_installer_pin(path, expected):
+    """Hash one held regular installer while native Windows sharing denies writes and replacement."""
+    import re
+
+    if not isinstance(expected, str) or re.fullmatch(r"[0-9a-f]{64}", expected) is None:
+        raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_published_checksum"))
+    path = _installer_metadata_folder(path, "windows_frozen_installer", windows=True)
+    before = os.lstat(path)
+    if (not stat.S_ISREG(before.st_mode) or getattr(before, "st_file_attributes", 0) & 0x400
+            or not 0 < before.st_size <= 8 * 1024 ** 3):
+        raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_installer"))
+    _windows_pip_private_access(path)
+    if os.name == "nt":
+        import ctypes
+        import msvcrt
+
+        kernel = _windows_update_library("kernel32")
+        create = kernel.CreateFileW
+        create.argtypes = [ctypes.c_wchar_p, ctypes.c_uint32, ctypes.c_uint32,
+                           ctypes.c_void_p, ctypes.c_uint32, ctypes.c_uint32, ctypes.c_void_p]
+        create.restype = ctypes.c_void_p
+        close = kernel.CloseHandle
+        close.argtypes = [ctypes.c_void_p]
+        close.restype = ctypes.c_int32
+        handle = create(path, 0x80000000, 1, None, 3, 0x08200000, None)
+        if handle is None or handle == ctypes.c_void_p(-1).value:
+            raise ctypes.WinError(ctypes.get_last_error())
+        try:
+            descriptor = msvcrt.open_osfhandle(handle, os.O_RDONLY | os.O_BINARY)
+        except BaseException:
+            close(handle)
+            raise
+    else:
+        descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(descriptor, "rb") as stream:
+        details = os.fstat(stream.fileno())
+        if (not stat.S_ISREG(details.st_mode)
+                or getattr(details, "st_file_attributes", 0) & 0x400
+                or (details.st_dev, details.st_ino) != (before.st_dev, before.st_ino)):
+            raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_installer_identity"))
+        digest = hashlib.sha256()
+        total = 0
+        while True:
+            block = stream.read(min(1024 * 1024, 8 * 1024 ** 3 - total + 1))
+            if not block:
+                break
+            total += len(block)
+            if total > 8 * 1024 ** 3:
+                raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_installer_size"))
+            digest.update(block)
+        after = os.fstat(stream.fileno())
+        current = os.lstat(path)
+        identity = (details.st_dev, details.st_ino, details.st_size, details.st_mtime_ns, details.st_ctime_ns)
+        if (identity != (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns)
+                or (current.st_dev, current.st_ino) != identity[:2]
+                or digest.hexdigest() != expected):
+            raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_installer_checksum"))
+        yield stream
+
+
+def _windows_frozen_update_journal(directory, plan, state, **details):
+    """Publish only this coordinator's private transaction state, retaining uncertain native outcomes."""
+    _windows_pip_private_directory(directory)
+    descriptor, temporary = tempfile.mkstemp(prefix=".journal-", dir=directory)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            json.dump(dict(schema=1, state=state, version=plan["version"],
+                           workdir=plan["workdir"], **details), stream, sort_keys=True)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, os.path.join(directory, "journal.json"))
+    finally:
+        if os.path.lexists(temporary):
+            os.unlink(temporary)
+
+
+def _run_windows_frozen_update(plan, machine, *, download=None, install=None, run=None, wait=None, spawn=None):
+    """Stage a checksummed official NSIS setup, require approved exit, and relaunch only verified bytes unelevated."""
+    if (not plan.get("frozen_application") or plan.get("adapter") != "windows-frozen-nsis-v1"
+            or _windows_process_elevated()):
+        raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_coordinator"))
+    handshake = _WindowsPipHandshake(plan)
+    records = [_record_from_json(data) for data in plan["records"]]
+    record, previous = _windows_frozen_update_record(records, plan["version"], plan["workdir"], machine)
+    root, initial = _windows_frozen_root_state(record.root)
+    if _inside(os.path.realpath(sys.executable), root):
+        raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_outside_helper"))
+    name = "spaCR-" + str(plan["version"]) + "-setup.exe"
+    installer = os.path.join(handshake.root, name)
+    url = _RELEASE_DOWNLOAD + "/v" + str(plan["version"]) + "/" + name
+    relaunch = [os.path.join(root, "spacr.exe")]
+    if (plan.get("fetch") != {"url": url, "path": installer}
+            or plan.get("install") != [installer, "/S", "/D=" + root]
+            or plan.get("relaunch") != relaunch):
+        raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_plan"))
+    lock_parent = os.path.join(machine.home, ".spacr", "update-locks")
+    _installer_metadata_folder(lock_parent, "windows_frozen_lock", windows=True)
+    os.makedirs(lock_parent, mode=0o700, exist_ok=True)
+    _windows_pip_private_directory(lock_parent)
+    lock = os.path.join(lock_parent, hashlib.sha256(os.path.normcase(root).encode()).hexdigest())
+    os.mkdir(lock, 0o700)
+    retained = False
+    try:
+        _windows_pip_private_directory(lock)
+        handshake.check()
+        expected = _published_digest(url)
+        if os.path.lexists(installer):
+            raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_existing_stage"))
+        if not isinstance(expected, str) or len(expected) != 64 or any(c not in "0123456789abcdef" for c in expected):
+            raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_published_checksum"))
+        (download or _download)(url, installer)
+        with _windows_frozen_installer_pin(installer, expected):
+            _windows_frozen_update_record(records, plan["version"], plan["workdir"], machine)
+            if _windows_frozen_root_state(root) != (root, initial):
+                raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_changed_destination"))
+            _windows_frozen_update_journal(lock, plan, "prepared", root=root, previous=previous, installer=installer, sha256=expected)
+            handshake.ready()
+            handshake.wait_for_shutdown(wait)
+            if (_windows_process_elevated() or _windows_frozen_root_state(root) != (root, initial)
+                    or _windows_frozen_update_record(records, plan["version"], plan["workdir"], machine)[1] != previous):
+                raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_changed_destination"))
+            with _windows_frozen_installer_pin(installer, expected):
+                _windows_frozen_update_journal(lock, plan, "installing", root=root, previous=previous, installer=installer, sha256=expected)
+                handshake.check()
+                retained = True
+                code, output = (install or _windows_frozen_install)(installer, root)
+            if code:
+                _windows_frozen_update_journal(lock, plan, "installer-failed", root=root, exit_code=code)
+                raise RuntimeError(tr("Upgrade unavailable: {error}", error="windows_frozen_installer_exit_" + str(code)))
+            observed_root, observed_state = _windows_frozen_root_state(root)
+            if observed_root != root or observed_state[:2] != initial[:2]:
+                raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_changed_destination"))
+            _frozen_windows_payload(root, plan["version"])
+            identity = _frozen_windows_identity(root, plan["version"], run)
+            if _windows_process_elevated():
+                raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_elevated_relaunch"))
+            _windows_frozen_update_journal(lock, plan, "verified", root=root, identity=identity)
+            (spawn or _spawn_detached)(relaunch, None, plan["workdir"])
+            _windows_frozen_update_journal(lock, plan, "relaunch-requested", root=root, identity=identity)
+            retained = False
+            return identity["version"], output
+    except TimeoutError as error:
+        if retained:
+            try:
+                _windows_frozen_update_journal(lock, plan, "installer-uncertain", root=root,
+                                               pid=getattr(error, "pid", None), error=str(error))
+            except OSError:
+                pass
+        raise
+    except OSError as error:
+        if getattr(error, "winerror", error.errno) == 1223:
+            retained = False
+            _windows_frozen_update_journal(lock, plan, "authorization-cancelled", root=root)
+        raise
+    finally:
+        if not retained:
+            try:
+                journal = os.path.join(lock, "journal.json")
+                if os.path.isfile(journal) and not os.path.islink(journal):
+                    result_path = os.path.join(handshake.root, "windows-update-result-" + handshake.binding + ".json")
+                    with open(journal, "rb") as source, open(result_path, "xb") as result:
+                        shutil.copyfileobj(source, result)
+                        result.flush()
+                        os.fsync(result.fileno())
+                    os.unlink(journal)
+                os.rmdir(lock)
+            except OSError:
+                pass
+
+
 def start_update_helper(records: Sequence[InstallRecord], version: str, *,
                         ticked: Iterable[str] = (), pid: Optional[int] = None,
                         workdir: Optional[str] = None, system=None,
@@ -4918,6 +5248,27 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
         try:
             plan["install"], plan["relaunch"] = _debian_update_commands(records, str(version), machine)
             _FrozenUpdateHandshake(plan)
+            argv, environment, error = _standalone_helper_command(records, workdir, plan_path, machine)
+            plan["command"], plan["error"] = argv, error
+        except (OSError, ValueError) as error:
+            plan["error"] = str(error)
+    elif (plan["frozen_application"] and running.layout == "windows-offline"
+          and machine.platform == "windows"):
+        plan["adapter"] = "windows-frozen-nsis-v1"
+        plan["steps"] = ["prepare", "wait", "authorize", "install", "verify", "relaunch"]
+        plan["handshake"] = {"schema": 1, "token": os.urandom(32).hex(),
+                             "expires": time.time() + _FROZEN_PREPARATION_SECONDS}
+        try:
+            running, _previous = _windows_frozen_update_record(records, str(version), workdir, machine)
+            if (_windows_process_elevated()
+                    or os.path.normcase(os.path.realpath(machine.executable)) != os.path.normcase(os.path.join(os.path.realpath(running.root), "spacr.exe"))):
+                raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_coordinator"))
+            _WindowsPipHandshake(plan)
+            name = "spaCR-" + str(version) + "-setup.exe"
+            target = os.path.join(os.path.realpath(workdir), name)
+            plan["fetch"] = {"url": _RELEASE_DOWNLOAD + "/v" + str(version) + "/" + name, "path": target}
+            plan["install"] = [target, "/S", "/D=" + os.path.realpath(running.root)]
+            plan["relaunch"] = [os.path.join(os.path.realpath(running.root), "spacr.exe")]
             argv, environment, error = _standalone_helper_command(records, workdir, plan_path, machine)
             plan["command"], plan["error"] = argv, error
         except (OSError, ValueError) as error:
@@ -5145,6 +5496,19 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
             return _finish(6)
         lines.extend([output, f"Verified spaCR {observed} in the existing environment; relaunch requested."])
         return _finish(0)
+    if plan.get("adapter") == "windows-frozen-nsis-v1":
+        try:
+            observed, output = _run_windows_frozen_update(
+                plan, machine, wait=wait, download=fetch, run=run, spawn=spawn)
+            lines.extend([output, json.dumps({"version": observed, "relaunch": "requested"})])
+            return _finish(0)
+        except Exception as error:
+            lines.append(str(error))
+            try:
+                _WindowsPipHandshake(plan).failed(error)
+            except Exception:
+                pass
+            return _finish(6)
     if plan.get("adapter") == "linux-deb-v1":
         try:
             observed, output = _run_debian_update(plan, machine, wait=wait, run=run, spawn=spawn)

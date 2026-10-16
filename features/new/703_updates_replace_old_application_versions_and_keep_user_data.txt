@@ -899,8 +899,8 @@ existing actual cleanup-dialog cases pass; independent source/evidence peer
 accepted. Published c91e613ad1 within e63990cd27. This bounded repair does not
 claim final hosted CI or native installer/whole release acceptance.
 
-2026-10-15 — Windows staged replacement/rollback and Linux pinned desktop launchers repaired; related tests pass.
-BLOCKED ON MAINTAINER: supply disposable Windows/macOS/Linux desktop hosts and run online/frozen old-to-new, same-version reinstall and in-app updates.
-Verify actual restarted executable/module/version, no downgrade, kept models/cache/preferences, default-off cleanup and macOS GUI-only prompts.
-Inject cancellation, permissions/disk/import failures and interruption; verify rollback/recovery before release. Legacy/unknown Windows payloads remain in recovery storage.
-Frozen Windows in-app replacement is still fail-closed; validate the native installer/elevation route on Windows before enabling that adapter.
+2026-10-16 — Frozen Windows in-app updates now use checksum-pinned NSIS/UAC, authenticated shutdown, protected user-data paths, verified unelevated relaunch and retained recovery on uncertain completion (replaces the fail-closed path in 441abf1d9ab).
+Related native/coordinator/GUI checks pass; normal nine-language generation, audit, 126 compiled consumers and fresh-source check pass; existing translations are preserved.
+BLOCKED ON MAINTAINER: on disposable Windows, install the matching new desktop candidate first, then test its frozen in-app upgrade with published-checksum assets, UAC accept/cancel and actual restarted executable/module/version.
+Repeat native online/frozen old-to-new and same-version installs on Windows/macOS/Linux; verify models/cache/preferences, default-off cleanup and macOS GUI-only prompts; inject permission/disk/import failures and interrupted recovery.
+Native acceptance and full green hosted CI remain required before release; the installer wait timeout starts after UAC returns, not while the consent window is pending.

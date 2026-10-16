@@ -5098,15 +5098,18 @@ class MainWindow(QMainWindow):
         debian = any(r.kind == "installer" and r.running and r.layout == "linux-deb"
                      and r.platform == "linux" and r.registrations == ("deb:spacr",)
                      for r in records)
+        windows_frozen = any(r.kind == "installer" and r.running
+                             and r.layout == "windows-offline" and r.platform == "windows"
+                             for r in records)
         pip_environment = not any(r.kind == "installer" and r.running for r in records)
-        if not online_macos and not debian and not pip_environment and any(
+        if not online_macos and not debian and not windows_frozen and not pip_environment and any(
                 r.kind == "installer" or (r.kind == "environment" and not r.running)
                 for r in records):
             ticked = self._confirm_old_installs(records)
             if ticked is None:
                 return
         version = getattr(self, "_update_version", None) or ""
-        if any(record.kind == "environment" and record.running
+        if windows_frozen or any(record.kind == "environment" and record.running
                and record.platform == "windows" for record in records):
             self._start_update_worker(
                 "prepare", lambda: install_cleanup.start_update_helper(
@@ -5126,7 +5129,7 @@ class MainWindow(QMainWindow):
             if plan.get("handshake"):
                 try:
                     handshake_type = (install_cleanup._WindowsPipHandshake
-                                      if plan.get("adapter") == "pip-private-windows-v1"
+                                      if plan.get("adapter") in {"pip-private-windows-v1", "windows-frozen-nsis-v1"}
                                       else install_cleanup._FrozenUpdateHandshake)
                     handshake_type(plan).cancel()
                 except Exception:
@@ -5140,13 +5143,13 @@ class MainWindow(QMainWindow):
                    error=self._removal_reason_text(
                        str(plan.get("error")))))
             return
-        if plan.get("adapter") in {"macos-frozen-v1", "macos-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1"} and plan.get("handshake"):
+        if plan.get("adapter") in {"macos-frozen-v1", "macos-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1", "windows-frozen-nsis-v1"} and (plan.get("handshake") or plan.get("adapter") == "windows-frozen-nsis-v1"):
             from PySide6.QtCore import QTimer
 
             self._frozen_update_plan = plan
             try:
                 handshake_type = (install_cleanup._WindowsPipHandshake
-                                  if plan.get("adapter") == "pip-private-windows-v1"
+                                  if plan.get("adapter") in {"pip-private-windows-v1", "windows-frozen-nsis-v1"}
                                   else install_cleanup._FrozenUpdateHandshake)
                 self._frozen_update_handshake = handshake_type(plan)
             except Exception as error:
@@ -5219,7 +5222,14 @@ class MainWindow(QMainWindow):
             if status["state"] == "error":
                 raise RuntimeError(status["error"])
             self._frozen_update_timer.stop()
-            if self._frozen_update_plan.get("adapter") == "linux-deb-v1":
+            if self._frozen_update_plan.get("adapter") == "windows-frozen-nsis-v1":
+                message = tr(
+                    "spaCR will close before updating its Windows application. "
+                    "An administrator authorization window may open. "
+                    "The previous application will be retained for rollback. "
+                    "Your data and caches will be kept. "
+                    "spaCR will reopen after the update succeeds.")
+            elif self._frozen_update_plan.get("adapter") == "linux-deb-v1":
                 message = tr(
                     "spaCR will close before updating its Debian package. "
                     "A graphical administrator authorization window will open. "
@@ -5240,7 +5250,7 @@ class MainWindow(QMainWindow):
                 self._cancel_frozen_update()
                 return
             handshake.check()
-            if (self._frozen_update_plan.get("adapter") in {"pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1"}
+            if (self._frozen_update_plan.get("adapter") in {"pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1", "windows-frozen-nsis-v1"}
                     and not self._save_pip_update_restart()):
                 self._cancel_frozen_update()
                 return
