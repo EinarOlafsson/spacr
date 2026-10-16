@@ -1,0 +1,19 @@
+MAKE MASKS: EDIT LABELS AND CURATE TIMELAPSE IDENTITIES / DIVISIONS
+
+Status:    in progress 2026-10-16; existing-control check first, lineage storage choice pending maintainer.
+Requested: maintainer, 2026-10-16.
+
+WHAT TO BUILD
+Add Edit Label in Make Masks: show each object's numerical label while active; clicking an object edits its uint16 label. Values are0–65535, with0 representing background/removal rather than a track identity; preserve existing draw/segmentation tools, undo and saved labels.
+Add Edit Label / Time with an editable numeric field to the left of its Label caption in its button menu, selected label default1, minus/plus controls on the button and conflict-free documented increment/decrement shortcuts.
+While time-label mode is active, mouse wheel moves to the previous/next frame instead of zooming. Assign the selected identity to the object under the pointer as frames are traversed in either direction; include the first/last visited frames and keep segmentation correction available.
+The menu supports adding/selecting rows for cells and daughter cells via plus and a shortcut. Record division at the chosen frame, keep parent/child identities and let the user trace each branch forward or backward by hovering and scrolling.
+Avoid external sidecar dependencies. Proposed masks-only uint16 encoding uses low8bits for family1–255 and high8bits for binary-tree node minus1: root1 -> daughters257/513; root2 ->258/514, up to7 complete division generations. Arbitrary IDs with unrestricted lineage instead require embedded mask-TIFF metadata; awaiting maintainer preference before committing the storage contract.
+
+IMPLEMENTATION / ACCEPTANCE
+Reuse existing mask editing, overlays, frame navigation, integer dtype checks, transaction/undo and save paths; existing Relabel only packs IDs consecutively and SAM2 export currently relies on a tracks CSV, so neither alone supplies this manual workflow.
+Do not silently merge distinct objects when an ID collides, overflow/truncate labels, renumber preserved track IDs during segmentation, skip unlabelled intermediate frames, or apply a queued event to the wrong asynchronously loaded frame. Errors/cancellation preserve edits and the prior valid mask.
+Use generic synthetic timelapse examples with division for CPU/offscreen tests: bidirectional hover labelling, first/last frames, background and collisions, delayed loads, edits/undo/save/reopen and lineage reconstruction from the agreed mask-only representation. UI strings through tr(); normal generated artifacts and one integrated publication.
+Coordinate make_masks.py ownership with705/706 Measure/detection and673 volume renderer; no new module under spacr, no Home GPU use. This manual workflow does not rerun or alter F537's scientific lineage inference.
+
+2026-10-16 — Registered the complete maintainer request before implementation; storage proposal explained, choice pending. Existing CI,673,703,705/706 and other authorized work continues.

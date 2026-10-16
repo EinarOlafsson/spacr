@@ -502,3 +502,5 @@ generated catalog edit is introduced. Evidence: data/537_native_parent_identity_
 This is synthetic metadata/application-boundary acceptance, not native tracker
 inference, biological lineage accuracy, arbitrary-size ID support, whole F537,
 final global CI or release acceptance.
+
+2026-10-16 — Related new request is tracked in N708: manual Make Masks hover/scroll cell identities and division annotation, preferably recoverable from mask labels alone. Preserve this completed alpha inference item; N708 owns new manual editing/storage and generic functional tests.
