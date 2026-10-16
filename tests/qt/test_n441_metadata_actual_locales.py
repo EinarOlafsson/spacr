@@ -31,7 +31,8 @@ def test_actual_metadata_widgets_use_all_ten_installed_translations(
     source = tmp_path / 'raw-field-original.tif'
     pixels = b'private opaque pixels; no decoder is used by these UI callbacks'
     source.write_bytes(pixels)
-    field = model._MetadataTypeField(default='evos', source_folder=lambda: str(tmp_path))
+    assert _metadata_convention('scanr')['status'] == 'provisional'
+    field = model._MetadataTypeField(default='scanr', source_folder=lambda: str(tmp_path))
     field.set_threaded(False)
     key = field.get_value()
     keys = [field.combo.itemData(index) for index in range(field.combo.count())]
@@ -42,9 +43,18 @@ def test_actual_metadata_widgets_use_all_ten_installed_translations(
     try:
         i18n.retranslate_widget_tree(field, language)
         assert field.combo.currentText().endswith(translated(model.PROVISIONAL_SUFFIX))
-        example = _metadata_convention_example('evos')
+        example = _metadata_convention_example('scanr')
         assert field.example.text() == (translated(model.LOOKS_LIKE, example=example)
                                         + '  ' + translated(model.RECONSTRUCTED_NOT_DOCUMENTED))
+        assert _metadata_convention('evos')['status'] == 'confirmed'
+        field.set_value('evos')
+        assert field.get_value() == 'evos'
+        assert not field.combo.currentText().endswith(translated(model.PROVISIONAL_SUFFIX))
+        assert field.example.text() == translated(
+            model.LOOKS_LIKE, example=_metadata_convention_example('evos'))
+        assert translated(model.RECONSTRUCTED_NOT_DOCUMENTED) not in field.example.text()
+        field.set_value(key)
+        assert field.get_value() == key
         field._say(model.READING_THE_FOLDER)
         assert field.report.text() == translated(model.READING_THE_FOLDER)
         field._on_failed('')
