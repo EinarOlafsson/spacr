@@ -4021,8 +4021,8 @@ data/ci_reviewed_folder_ellipsis_consumers_2026-10-15/.
 
 2026-10-15 Original Home — dated README checkout size factual CI repair. Immutable public81ffd9 regular tracked blobs measure4656.950838MiB, rounded4657 under existing MB label. Only size/date tokens changed in ten YAML paragraphs; nine new source-bound technical reviews retain all historical reviews and measurements. Normal ten-language README writer/check and original11 size/review/structure cases PASS1.42s, zero skips/network. Only40 intended generated panel/text/README paths changed; foreign panels/links/source/review pins exact. First shaping-dependency failure stopped before writes; unchanged writer retried using an existing fully equipped interpreter, tests retained spaCR. No package/tool/tolerance change or full-CI claim. WholeN43 remains open on actual hosted/current-source verdict and remaining explicit gates. Evidence: data/ci_readme_tracked_size_inputs_2026-10-15/ and normal closure receipt.
 
-2026-10-15 — CI fixtures repaired (3c979efb3bb/8966f00e6b9/e38449192df): model contracts, metadata evidence, README/API inverse and historical-name classification.
-Related checks pass: three files150, documentation2, naming16, tutorial13 then corrected affected2; no product safety fallback or raised historical floor.
-BLOCKED ON MAINTAINER: Claude must fix700 _normalized_problems inline markup,370 alpha registration and689 HTTPError response handling on Python3.9.
-Claude also owns698 synthetic-source/build dependency failures and702 preflight fixture signatures; resolve those in their owner lane.
-Let the remaining jobs finish; fix any further owned failures, then dispatch tests.yml on nightly and require the full run green before1.5.1.5.
+2026-10-15 — CI fixtures repaired (cf8a6ee725d); dynamic metadata fixture follows 98811fc2cd9 with 12 related checks passing, including confirmed EVOS and provisional ScanR.
+All completed Fast0/Qt2 failures are already repaired; Qt0 and coverage aggregation remain pending on run 38834180971. No full-green or release claim.
+BLOCKED ON MAINTAINER: have Claude resolve 700 markup, 370 alpha registration, 689 Python3.9 HTTPError handling, 698 build/source fixtures and 702 preflight/Qt teardown failures.
+The hosted DND 747 ms stall remains unresolved: unchanged 154-case file and two diagnostic single-node runs pass locally; no threshold was weakened.
+After remaining jobs finish and owner fixes land, dispatch tests.yml on nightly and require the entire run green before 1.5.1.5.

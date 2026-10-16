@@ -30,7 +30,7 @@ def metadata_field(qapp, monkeypatch, tmp_path):
         return original(source, language)
     monkeypatch.setattr(i18n, '_exact_translation', reviewed_fixture_lookup)
     monkeypatch.setattr(i18n, 'current_language', lambda: 'fr')
-    field = model._MetadataTypeField(default='evos', source_folder=lambda: str(tmp_path))
+    field = model._MetadataTypeField(default='scanr', source_folder=lambda: str(tmp_path))
     field.set_threaded(False)
     yield field, model, targets, seen
     field.close()
@@ -39,9 +39,9 @@ def metadata_field(qapp, monkeypatch, tmp_path):
 
 def test_provisional_menu_translates_marker_and_keeps_raw_keys(metadata_field):
     field, model, targets, seen = metadata_field
-    index = field.combo.findData('evos')
+    index = field.combo.findData('scanr')
     assert field.combo.itemText(index).endswith(targets[model.PROVISIONAL_SUFFIX])
-    assert field.get_value() == 'evos'
+    assert field.get_value() == 'scanr'
     assert model.PROVISIONAL_SUFFIX in seen
 
 
@@ -49,9 +49,24 @@ def test_provisional_example_translates_both_pieces_without_changing_filename(me
     from spacr.regex_infer import _metadata_convention_example
 
     field, model, targets, seen = metadata_field
-    filename = _metadata_convention_example('evos')
+    filename = _metadata_convention_example('scanr')
     assert field.example.text() == targets[model.LOOKS_LIKE].format(example=filename) + '  ' + targets[model.RECONSTRUCTED_NOT_DOCUMENTED]
+    assert field.get_value() == 'scanr'
+
+
+def test_confirmed_evos_keeps_translated_example_without_a_provisional_warning(
+        metadata_field):
+    from spacr.regex_infer import _metadata_convention, _metadata_convention_example
+
+    field, model, targets, seen = metadata_field
+    assert _metadata_convention('scanr')['status'] == 'provisional'
+    field.set_value('evos')
+    assert _metadata_convention('evos')['status'] == 'confirmed'
     assert field.get_value() == 'evos'
+    assert not field.combo.currentText().endswith(targets[model.PROVISIONAL_SUFFIX])
+    assert field.example.text() == targets[model.LOOKS_LIKE].format(
+        example=_metadata_convention_example('evos'))
+    assert targets[model.RECONSTRUCTED_NOT_DOCUMENTED] not in field.example.text()
 
 
 @pytest.mark.parametrize('matched,total,first,source', [
@@ -123,7 +138,7 @@ def test_actual_tree_language_changes_preserve_field_owned_provisional_items(met
         assert field.get_value() == selected
 
 
-@pytest.mark.parametrize('key', ['evos', 'zeiss_zen_split_tiles'])
+@pytest.mark.parametrize('key', ['scanr', 'zeiss_zen_split_tiles'])
 def test_provisional_warning_is_truthful_for_manual_and_constructed_examples(
         qapp, monkeypatch, key):
     from spacr.qt import i18n
