@@ -199,7 +199,12 @@ def _next_lineage_revision(state: dict) -> int:
 def assign_lineage_label(state: dict, frame: str, label: int,
                          cell_uuid: Optional[str] = None,
                          old_label: Optional[int] = None) -> dict:
-    """Map an observed frame label to a persistent segment, or remove a mapping."""
+    """Map an observed frame label to a persistent segment, or remove a mapping.
+
+    :param state: The lineage graph to copy and update.
+    :param frame: The source image path for this frame.
+    :param label: The local uint32 pixel ID, or zero to remove ``old_label``.
+    """
     from .i18n import tr
 
     result = validate_lineage(state)
@@ -229,7 +234,13 @@ def assign_lineage_label(state: dict, frame: str, label: int,
 
 def new_lineage_cell(state: Optional[dict], name: str, label: int,
                      frame: str) -> Tuple[dict, str]:
-    """Create an unplaced founder without claiming any existing mask pixels."""
+    """Create an unplaced founder without claiming any existing mask pixels.
+
+    :param state: The lineage graph to extend, or ``None`` for an empty graph.
+    :param name: The nonempty display name for the new founder.
+    :param label: The preferred nonzero uint32 pixel ID, without assigning pixels.
+    :param frame: The source image path where the founder is introduced.
+    """
     from uuid import uuid4
     from .i18n import tr
 
@@ -249,7 +260,15 @@ def new_lineage_cell(state: Optional[dict], name: str, label: int,
 def assign_tracked_object(mask: np.ndarray, x: int, y: int, state: dict,
                           frame: str, cell_uuid: str,
                           preferred_label: Optional[int] = None):
-    """Track a hovered object using a free local ID without stealing another track."""
+    """Track a hovered object using a free local ID without stealing another track.
+
+    :param mask: The current two-dimensional integer label mask.
+    :param x: The hovered pixel column.
+    :param y: The hovered pixel row.
+    :param state: The lineage graph to copy and update.
+    :param frame: The source image path for this frame.
+    :param cell_uuid: The persistent UUID of the segment to assign.
+    """
     from .i18n import tr
 
     result = validate_lineage(state)
@@ -287,7 +306,12 @@ def assign_tracked_object(mask: np.ndarray, x: int, y: int, state: dict,
 
 
 def rename_lineage_cell(state: dict, cell_uuid: str, name: str) -> dict:
-    """Rename a segment while retaining its identity and parent links."""
+    """Rename a segment while retaining its identity and parent links.
+
+    :param state: The lineage graph to copy and update.
+    :param cell_uuid: The persistent UUID of the segment to rename.
+    :param name: The new nonempty display name.
+    """
     from .i18n import tr
 
     result = validate_lineage(state)
@@ -300,7 +324,14 @@ def rename_lineage_cell(state: dict, cell_uuid: str, name: str) -> dict:
 
 def divide_lineage_cell(state: dict, parent_uuid: str, frame: str,
                         daughter_names, labels) -> Tuple[dict, Tuple[str, str]]:
-    """End a segment and create two distinct daughter segments at one frame."""
+    """End a segment and create two distinct daughter segments at one frame.
+
+    :param state: The lineage graph to copy and update.
+    :param parent_uuid: The persistent UUID of the undivided parent segment.
+    :param frame: The source image path where the division is recorded.
+    :param daughter_names: Two nonempty display names in daughter order.
+    :param labels: Two distinct nonzero uint32 preferred pixel IDs in daughter order.
+    """
     from uuid import uuid4
     from .i18n import tr
 
@@ -332,7 +363,11 @@ def divide_lineage_cell(state: dict, parent_uuid: str, frame: str,
 
 def merge_lineage_states(active: Optional[dict], incoming: Optional[dict],
                           frame: Optional[str] = None) -> dict:
-    """Merge embedded snapshots, preserving newer edits and immutable ancestry."""
+    """Merge embedded snapshots, preserving newer edits and immutable ancestry.
+
+    :param active: The active lineage graph, or ``None`` for an empty graph.
+    :param incoming: The incoming snapshot, or ``None`` for an empty graph.
+    """
     from .i18n import tr
 
     result, source = validate_lineage(active), validate_lineage(incoming)
@@ -382,7 +417,11 @@ def merge_lineage_states(active: Optional[dict], incoming: Optional[dict],
 
 
 def restore_lineage_state(restored: Optional[dict], current: Optional[dict]) -> dict:
-    """Make undo or redo an explicit newer edit that survives older TIFF snapshots."""
+    """Make undo or redo an explicit newer edit that survives older TIFF snapshots.
+
+    :param restored: The undo or redo snapshot to restore, or ``None`` for an empty graph.
+    :param current: The current graph, or ``None``, used to preserve revision ordering.
+    """
     result, previous = validate_lineage(restored), validate_lineage(current)
     stamp = max(_next_lineage_revision(result), _next_lineage_revision(previous))
     result["frame_ids"].update(previous["frame_ids"])
@@ -402,7 +441,12 @@ def restore_lineage_state(restored: Optional[dict], current: Optional[dict]) -> 
 
 
 def prune_lineage_frame(state: dict, frame: str, mask: np.ndarray) -> dict:
-    """Remove absent pixel mappings as a revisioned edit, retaining cell ancestry."""
+    """Remove absent pixel mappings as a revisioned edit, retaining cell ancestry.
+
+    :param state: The lineage graph to copy and update.
+    :param frame: The source image path for this frame.
+    :param mask: The current label mask used to identify surviving pixel IDs.
+    """
     result = validate_lineage(state)
     frame = os.path.abspath(frame)
     present = set(map(str, np.unique(np.asarray(mask)[np.asarray(mask) > 0])))
@@ -460,7 +504,11 @@ def _relocate_lineage_frame(state: dict, original: str, current: str) -> dict:
 
 def load_mask_metadata(folder: str, filename: str,
                         masks_dir: Optional[str] = None) -> dict:
-    """Read identity semantics and lineage from the mask itself, without a sidecar."""
+    """Read identity semantics and lineage from the mask itself, without a sidecar.
+
+    :param folder: The source image folder used to locate the matching mask.
+    :param filename: The source image filename whose mask metadata is read.
+    """
     import tifffile
     from .i18n import tr
 
@@ -501,7 +549,11 @@ def load_mask_metadata(folder: str, filename: str,
 
 def load_mask_lineage(folder: str, filename: str,
                        masks_dir: Optional[str] = None) -> dict:
-    """Read an independent lineage graph from a TIFF mask or return an empty graph."""
+    """Read an independent lineage graph from a TIFF mask or return an empty graph.
+
+    :param folder: The source image folder used to locate the matching mask.
+    :param filename: The source image filename whose mask lineage is read.
+    """
     return validate_lineage(load_mask_metadata(folder, filename, masks_dir).get("lineage"))
 
 
@@ -3293,6 +3345,8 @@ def next_label(mask: np.ndarray) -> int:
     Persistent lineage uses independent UUIDs, so a free local pixel ID can
     be reused without merging cell identities. Allocation visits observed
     labels only and never constructs a table of every possible uint32 ID.
+
+    :param mask: The integer label mask whose observed IDs are already in use.
     """
     largest = int(mask.max()) if mask.size else 0
     return largest + 1 if largest < MAX_MASK_LABEL else next(_available_labels(mask))
