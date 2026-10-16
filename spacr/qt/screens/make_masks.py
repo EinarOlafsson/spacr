@@ -16118,6 +16118,7 @@ class MakeMasksScreen(QWidget):
             return changed, previous, assigned, None
 
         def commit():
+            """Install validated lineage and refresh cell controls after the mask update."""
             self._lineage, self._selected_cell = state, selected
             self._lineage_dirty = True
             self._label_time_edited = True
