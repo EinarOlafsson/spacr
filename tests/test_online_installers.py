@@ -738,7 +738,7 @@ def test_one_click_release_orders_version_pypi_installers_and_github():
     assert "needs: [bump, package, publish-pypi]" in workflow
     assert "needs: [bump, verify-pypi]" in workflow
     assert (
-        "needs: [bump, package, publish-pypi, verify-pypi, installers]"
+        "needs: [bump, package, publish-pypi, verify-pypi, installers, frozen-installers]"
         in workflow
     )
     # The installer stage cannot start until PyPI has returned HTTP 200.

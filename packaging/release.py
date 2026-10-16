@@ -84,6 +84,77 @@ def read_version(setup_path: Path) -> str:
     return match.group(3)
 
 
+def collect_frozen_installers(
+    source: Path, destination: Path, version: str, source_commit: str,
+) -> list[Path]:
+    """Select checksummed native payloads built from the exact release commit.
+
+    Native smoke jobs gate this command in the release workflow. Build logs,
+    portable archives and standalone helper executables remain CI artifacts;
+    only the three updater payloads are copied into the public asset folder.
+    """
+    if not PROJECT_RELEASE_PATTERN.fullmatch(version):
+        raise ValueError("A numeric release version is required")
+    if not re.fullmatch(r"[0-9a-f]{40}", source_commit):
+        raise ValueError("An immutable release source commit is required")
+    expected = {
+        "windows": f"spaCR-{version}-setup.exe",
+        "macos": f"spaCR-{version}.dmg",
+        "debian": f"spacr_{version}_amd64.deb",
+    }
+    selected = []
+    for platform, filename in expected.items():
+        root = source / f"legacy-build-{platform}"
+        metadata = root / "acceptance"
+        for name, value in (("source-commit.txt", source_commit), ("version.txt", version)):
+            path = metadata / name
+            if path.is_symlink() or not path.is_file() or path.read_text().strip() != value:
+                raise ValueError(f"Native {platform} {name} does not match the release")
+        allowed = {filename}
+        if platform == "windows":
+            allowed.update({f"spaCR-{version}-windows.zip", "spacr-update-helper.exe"})
+        elif platform == "macos":
+            allowed.add("spacr-update-helper")
+        dist = root / "dist"
+        if root.is_symlink() or metadata.is_symlink() or dist.is_symlink():
+            raise ValueError("Native build directories must not be symbolic links")
+        if {path.name for path in dist.iterdir()} - allowed:
+            raise ValueError(f"Unexpected native {platform} payload or version")
+        payload = dist / filename
+        if payload.is_symlink() or not payload.is_file() or payload.stat().st_size == 0:
+            raise ValueError(f"Missing regular native {platform} installer")
+        manifest = metadata / "SHA256SUMS"
+        if manifest.is_symlink() or not manifest.is_file():
+            raise ValueError(f"Missing native {platform} checksums")
+        checksums = {}
+        for line in manifest.read_text().splitlines():
+            match = re.fullmatch(r"([0-9a-f]{64})  (.+)", line)
+            if match is None or match[2] in checksums:
+                raise ValueError(f"Invalid native {platform} checksum manifest")
+            checksums[match[2]] = match[1]
+        key = f"dist/{filename}" if platform == "debian" else filename
+        digest = hashlib.sha256()
+        with payload.open("rb") as stream:
+            for block in iter(lambda: stream.read(1024 * 1024), b""):
+                digest.update(block)
+        if checksums.get(key) != digest.hexdigest():
+            raise ValueError(f"Native {platform} installer checksum mismatch")
+        target = destination / filename
+        if target.exists() or target.is_symlink():
+            raise ValueError(f"Native release destination already exists: {filename}")
+        selected.append((payload, target, digest.hexdigest()))
+    destination.mkdir(parents=True, exist_ok=True)
+    for payload, target, expected_digest in selected:
+        digest = hashlib.sha256()
+        with payload.open("rb") as incoming, target.open("xb") as outgoing:
+            for block in iter(lambda: incoming.read(1024 * 1024), b""):
+                outgoing.write(block)
+                digest.update(block)
+        if digest.hexdigest() != expected_digest:
+            raise ValueError(f"Native installer changed during collection: {payload.name}")
+    return [target for _payload, target, _digest in selected]
+
+
 def read_package_version(package_version_path: Path) -> str:
     """Return the lightweight version literal used by ``import spacr``."""
     match = PACKAGE_VERSION_PATTERN.search(
@@ -1332,6 +1403,12 @@ def main() -> int:
     collect_parser.add_argument("--setup", type=Path, default=Path("setup.py"))
     collect_parser.add_argument("--branch", default="main")
 
+    frozen_parser = subparsers.add_parser("collect-frozen")
+    frozen_parser.add_argument("--source", type=Path, required=True)
+    frozen_parser.add_argument("--destination", type=Path, required=True)
+    frozen_parser.add_argument("--version", dest="release_version", required=True)
+    frozen_parser.add_argument("--source-commit", required=True)
+
     index_parser = subparsers.add_parser(
         "index", help="regenerate the installer archive page from GitHub")
     index_parser.add_argument(
@@ -1378,6 +1455,10 @@ def main() -> int:
     args = parser.parse_args()
     if args.command == "version":
         print(read_version(args.setup))
+    elif args.command == "collect-frozen":
+        for path in collect_frozen_installers(
+                args.source, args.destination, args.release_version, args.source_commit):
+            print(path)
     elif args.command == "bump":
         print(bump_release(
             args.setup,

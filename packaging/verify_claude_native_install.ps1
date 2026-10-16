@@ -1,7 +1,8 @@
 param(
     [Parameter(Mandatory=$true)][string]$NativeReceipt,
     [Parameter(Mandatory=$true)][ValidateSet('cmd','powershell51')][string]$Shell,
-    [Parameter(Mandatory=$true)][string]$Output
+    [Parameter(Mandatory=$true)][string]$Output,
+    [string]$SourceCommit = $env:GITHUB_SHA
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -11,7 +12,7 @@ $Proof = Get-Content $NativeReceipt -Raw | ConvertFrom-Json
 if ($Proof.status -ne 'passed' -or -not $Proof.frozen -or $Proof.qt_platform -ne 'windows') {
     throw 'A passed real Windows artifact receipt is required'
 }
-if ($Proof.source_commit -ne $env:GITHUB_SHA) { throw 'Artifact receipt belongs to another commit' }
+if ($Proof.source_commit -ne $SourceCommit) { throw 'Artifact receipt belongs to another commit' }
 $Hint = [string]$Proof.claude_install_hint
 $PathSetup = @'
 try{if(-not([IO.File]::Exists([IO.Path]::Combine([Environment]::GetFolderPath('UserProfile'),'.local\bin\claude.exe')))){throw('Claude_native_executable_missing')}if(-not([Environment]::ExpandEnvironmentVariables([string][Environment]::GetEnvironmentVariable('Path','User')).ToLowerInvariant().Split(';').Contains([Environment]::GetFolderPath('UserProfile').ToLowerInvariant()+'\.local\bin'))){[Environment]::SetEnvironmentVariable('Path',([string][Environment]::GetEnvironmentVariable('Path','User'))+';'+[Environment]::GetFolderPath('UserProfile')+'\.local\bin','User')}}catch{[Console]::Error.WriteLine('Claude_PATH_registration_failed');exit(1)}

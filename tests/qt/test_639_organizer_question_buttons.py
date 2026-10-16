@@ -44,6 +44,7 @@ def _answer_real_question(host, action, monkeypatch):
             timer.start(10)
             return
         captured["box"] = box
+        box.finished.connect(deadline.stop)
         captured.update(
             title=box.windowTitle(), text=box.text(), icon=box.icon(),
             standard=box.standardButtons(),

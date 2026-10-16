@@ -27,7 +27,8 @@ def test_command_checks_require_real_smoke_receipts_and_both_windows_shells():
     assert download['with']['name'] == 'legacy-smoke-windows'
     script = (ROOT / 'packaging/verify_claude_native_install.ps1').read_text()
     assert '$Hint = [string]$Proof.claude_install_hint' in script
-    assert '$Proof.source_commit -ne $env:GITHUB_SHA' in script
+    assert '[string]$SourceCommit = $env:GITHUB_SHA' in script
+    assert '$Proof.source_commit -ne $SourceCommit' in script
     assert '$Proof.status -ne \'passed\'' in script
     assert "'5.1.*'" in script
     assert 'Get-Command node,npm,claude' in script

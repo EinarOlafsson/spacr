@@ -283,6 +283,19 @@ jobs:
       publish_to_repository: true
     secrets: inherit
 
+  frozen-installers:
+    name: Build and accept frozen release installers
+    if: >-
+      always() &&
+      needs.bump.result == 'success' &&
+      needs.installers.result == 'success' &&
+      needs.bump.outputs.release_required == 'true'
+    needs: [bump, installers]
+    uses: ./.github/workflows/frozen-installers.yml
+    with:
+      source_ref: ${{ needs.installers.outputs.release_commit }}
+      release_version: ${{ needs.bump.outputs.version }}
+
   container-images:
     name: Build and publish container images
     # THIS CALL IS THE ONLY THING THAT PUBLISHES AN IMAGE ON A RELEASE.
@@ -343,8 +356,9 @@ jobs:
       (needs.publish-pypi.result == 'success' ||
        needs.publish-pypi.result == 'skipped') &&
       needs.verify-pypi.result == 'success' &&
-      needs.installers.result == 'success'
-    needs: [bump, package, publish-pypi, verify-pypi, installers]
+      needs.installers.result == 'success' &&
+      needs.frozen-installers.result == 'success'
+    needs: [bump, package, publish-pypi, verify-pypi, installers, frozen-installers]
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -362,6 +376,23 @@ jobs:
         with:
           name: pypi-distributions
           path: release-assets
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install release verification dependency
+        run: python -m pip install packaging
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: legacy-build-*
+          path: frozen-assets
+      - name: Verify and select exact native release payloads
+        env:
+          RELEASE_SHA: ${{ needs.installers.outputs.release_commit }}
+          VERSION: ${{ needs.bump.outputs.version }}
+        run: >-
+          python packaging/release.py collect-frozen
+          --source frozen-assets --destination release-assets
+          --source-commit "$RELEASE_SHA" --version "$VERSION"
       - name: Create checksums
         run: |
           cd release-assets
