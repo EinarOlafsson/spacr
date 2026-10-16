@@ -3,7 +3,7 @@
 Read `features/HANDOFF.md`, section "CURRENT HANDOFF FOR CODEX AND OTHER AGENTS", first.
 
 1. Origin has only `main` and `nightly`. Work from `nightly`; push only with `git push origin HEAD:nightly`.
-2. Branch work only in a worktree under `/mnt/firecuda2/Claude/spacr-worktrees/`; scratch in `/mnt/wd4tb/scratch/`.
+2. Create new branch worktrees under `/mnt/wd4tb/spacr-worktrees/`; scratch in `/mnt/wd4tb/scratch/`. Preserve existing transferred worktrees while their assigned work finishes.
 3. Never `git stash`. Never reset, check out or clean a shared checkout. Update the shared checkout only with `git merge --ff-only origin/nightly`; never create commits or merge commits there, and never push its local preservation commits.
 4. Commits carry no `Co-Authored-By` or AI trailer; the hook refuses them.
 5. Items from `features/future/` ship alpha: register in `ALPHA_FEATURES` with a literal `setObjectName`.
