@@ -267,7 +267,8 @@ def test_the_button_is_in_make_masks_with_the_maintainers_tooltip(screen):
     button = screen._btn_contribute
     # Renamed "Upload data…" at the maintainer's request (2026-09-30).
     assert button.text() == "Upload data…"
-    assert button.accessibleName() == "Upload data"
+    # Moved into Save mask's menu at the maintainer's request (2026-10-16).
+    assert button in screen._btn_save.split_menu().actions()
     assert button.isEnabled()
     from html import unescape
 

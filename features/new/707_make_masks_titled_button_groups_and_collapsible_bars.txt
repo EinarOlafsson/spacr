@@ -1,0 +1,157 @@
+================================================================================
+MAKE MASKS BUTTONS IN TITLED GROUPS AROUND THE IMAGE, WITH COLLAPSIBLE BARS
+================================================================================
+
+Status:    DONE 2026-10-16 (code, tests). Tutorials showing Make Masks need
+           re-recording by the tutorial lane (WS); see the last section.
+Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
+           spacr/qt/preferences.py (Plugins tab), spacr/qt/screens/
+           settings_model.py and app_screen.py (vvvv), spacr/qt/theme.py
+           (group card style).
+
+--------------------------------------------------------------------------------
+2026-10-16 — the maintainer's request
+--------------------------------------------------------------------------------
+
+A. vvvv: remove the vvvv options from Make Masks ("Export for vvvv", "Export
+   on save"), Mask generation, Measure and every other module. Add one
+   boolean "Export to vvvv" in Preferences -> Plugins (create the section if
+   needed), default off. The existing export runs when it is on; the export
+   code stays.
+
+B. Make Masks buttons in titled containers (title top left) around the image:
+   - top left TOOLS: Brush, Erase, Erase Object, Wand, Draw, Box,
+     Divide/Merge, Zoom, Recrop, Magnifier;
+   - top right ANNOTATION: Keep, Skip, Discard; Keep gets a menu with
+     "Hide judged fields", "First unreviewed" and "Blind";
+   - bottom left IO: "Open File / Folder" (renamed from Open folder, merges
+     "Open 3D image": opens a 2D or 3D file, or a folder), "Measure" (renamed
+     from "Organize for measure"; another agent will add a 3D section, so a
+     clear extension point), "Load Test Data", "ROIs";
+   - bottom right NAVIGATION: "Save mask", "Previous", "Next"; Save mask gets
+     a menu with a checkable "Save on navigation" and "Upload data";
+   - Object operations gains "Object detection", "Clear all objects" and
+     "Apply virtual stain" (alpha);
+   - Undo/Redo buttons go (Edit menu and shortcuts stay); the Settings button
+     goes (the collapse arrow hides the settings);
+   - Reset zoom and Ruler move to the top left of the image, right of the
+     image counter;
+   - brush starts at 1 px;
+   - image index and name painted on the canvas, index first
+     ("12 / 240 · name.tif").
+
+C. The top bar and bottom bar of the image, and the "Make Masks" title with
+   its row of folded modules, hide/show with the same collapse arrow as the
+   settings; the states persist.
+
+D. All modules: the collapse arrow (handle that hides panels) at 75% of its
+   current size, exactly centred on its handle; fixed once in the shared
+   widget.
+
+E. Tests for all of the above; existing tests updated.
+
+--------------------------------------------------------------------------------
+2026-10-16 — what was done (Claude, worktree mm-layout)
+--------------------------------------------------------------------------------
+
+A. Preferences -> Plugins now exists whenever the plugin catalogue OR the
+   new "Export to vvvv" checkbox (object name PreferencesExportVvvv) is
+   shown. The checkbox is registered under item 685 in ALPHA_FEATURES in
+   place of the two retired Make Masks buttons, so it shows only with "Show
+   alpha features" on; default off (key plugins/export_vvvv).
+   preferences._vvvv_export_enabled() is the one switch: Make Masks exports
+   every saved mask to the remembered make_masks/vvvv_export_dir or else
+   <folder>/vvvv/make_masks; AppScreen._on_run overwrites a run's
+   export_vvvv with it, so Mask generation and Measure write vvvv/mask and
+   vvvv/measure as before. export_vvvv is in _APP_HIDDEN_KEYS for mask,
+   measure (and timelapse, already) and out of their category layouts, so
+   no module form shows it; the key stays in the settings dict, so headless
+   and CLI runs keep their own value.
+
+B. _build_ui/_build_tool_row/_build_navigation_bar build four QFrames
+   (makeMasksGroup property, title label MakeMasksGroupTitle; theme.py
+   styles them as cards): MakeMasksToolsGroup (a FlowLayout, so tools wrap
+   rather than scroll), MakeMasksAnnotationGroup, MakeMasksIoGroup,
+   MakeMasksNavigationGroup. Keep and Save mask are _SplitMenuButtons (as
+   Load test data); Hide judged fields, First unreviewed, Blind, Save on
+   navigation and Upload data are QActions under the old attribute and
+   object names. Open File / Folder: click = folder; arrow menu = Open
+   folder… / Open file (2D or 3D)… (_on_pick_file: volumes through
+   open_volume, 2D files open their folder at that image). Measure…: click
+   = Organize for Measure (2D); _add_measure_section(label, callback)
+   adds further sections (the 3D one) to its menu. Undo/Redo became
+   QActions _act_undo/_act_redo that the Edit menu reads (app.py). The body
+   stack (empty state / view tabs) now lives in the image container, so IO
+   stays usable before anything is open. Uncertainty and SAM2 tracking
+   (both alpha, not named in the request) moved to Object operations too.
+   DEFAULT_BRUSH_RADIUS = 1. _MaskCanvas.field_label paints
+   "index / total · name" bottom left of the image (blinded: the code).
+
+C. The image container is a vertical CollapsibleSplitter (Top bar / Image /
+   Bottom bar as EDGE panes, fold keys make_masks/TopBar and
+   make_masks/BottomBar); the title bar is an EDGE pane of
+   MakeMasksChrome (make_masks/Title). All persist via set_folded_panel.
+
+D. collapse_arrow.HANDLE_SCALE = 0.75 scales tab and chevron;
+   _collapse_arrow_geometry() computes both in floating point around
+   QRectF(rect).center(), so they are centred to the sub-pixel on every
+   splitter handle and the dock edge.
+
+E. tests/qt/test_707_make_masks_titled_groups_and_collapse.py (placement and
+   titles, one button per group, renamed/removed labels, Keep and Save
+   menus, Measure extension point, open file, brush 1 px, overlay format,
+   persisted collapse states, arrow geometry, vvvv preference); existing
+   tests moved to the new names.
+
+Screenshot: /mnt/wd4tb/scratch/mm-layout/make_masks_layout_dark.png (1920x1080
+offscreen).
+
+--------------------------------------------------------------------------------
+2026-10-16 — added to the same request (coordinator, for the maintainer)
+--------------------------------------------------------------------------------
+
+Asked: an AI chatbox under the Make Masks console, the same chat the other
+modules use (active provider, spaCR AI free by default, with the usage bar
+row); under it the "System" panel as the other modules have it; and the
+Shortcuts container hideable like the console, persisted. Order and fold
+behaviour as in the other modules (console -> AI chat -> System).
+
+Done: _MasksConsole's ConsolePanel now has chat=True (the module screens'
+chat box and its AiUsageRow, under the scrollback, persist_key make_masks).
+_SystemCard is the module screens' System card (RAM, GPU, VRAM, CPU
+UsageBars, Per-core, the off-thread app_screen._sample_usage every 2 s while
+shown), folding by its title under make_masks/System. The shortcut list folds
+by its title (fold_card, make_masks/Shortcut list). The side column is
+Shortcut list / Console (+ AI chat) / System; each fold persists.
+Tests: test_side_column_reads_shortcuts_console_chat_system and
+test_each_side_panel_folds_and_the_fold_is_remembered in the 707 test file.
+
+Also for the layout: the image canvas's minimum height went from 400 to 200
+px (Cell probability/Flows panes 300 -> 200) and the image stack's minimum is
+the page on show, so wrapped button bars fit on a 1366x768 laptop.
+
+Known, not from this item: tests/test_web_caption_extraction_n698.py::
+test_web_sources_join_production_inventory_before_compact_filtering fails on
+nightly (the tool reads spacr/channel_sorting.py, which the test's fake tree
+lacks); tools/build_documentation_i18n.py (full, not --sources-only) stops
+on nightly at a stale reviewed record for
+spacr.qt.install_consent.apply_choices#1 (sv), so the localized API catalogs
+were not rebuilt; the reviewed API records for this item are in
+docs/i18n/reviewed/api/*/2026-10-16-707-api-make-masks-layout-and-collapse-arrow.json.
+
+--------------------------------------------------------------------------------
+FOR THE TUTORIAL LANE (WS)
+--------------------------------------------------------------------------------
+
+These lessons show or narrate the old Make Masks layout and need re-recording
+(current layout only): 14_make_masks, 42_curate, 46_napari_bridge,
+79_module_inputs_outputs; check 19/20/21/22/54/57/80 and 05_home for Make
+Masks clips too. Old names to drop from narration: "Open folder", "Open 3D
+image", "Organize for Measure", "Prev image", "Next image", the Settings and
+Undo/Redo buttons, Save on navigation / Hide judged fields / First unreviewed
+as buttons (now menu entries). Lesson 87 (alpha) may mention Preferences ->
+Plugins -> Export to vvvv instead of the two retired Make Masks buttons.
+
+2026-10-16 — Follow-ups accepted:705/706 pair updates capture_make_masks_experiment.py to use current Edit actions instead of removed _btn_undo/_btn_redo and makes TOOLS/IO extractable through the normal caption pipeline.
+Tutorial owner retains fresh re-recording14/42/46/79 and checks05/19–22/54/57/80; no Home recording. Maintainer checks layout at1366×768 and1920×1080.
+CI pair handles the real N698 fake-tree and alpha tutorial contract failures; stale Swedish install_consent.apply_choices#1 is refreshed against final N703 source before normal API generation, preserving assertions and reviewed translations.

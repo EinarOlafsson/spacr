@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "Claude AI technical review; no human or native-speaker signoff",
+  "records": [
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.add_toolbar_action#0",
+      "source": "Insert a non-mode action at the end of the TOOLS group.",
+      "source_sha256": "f475513b8254934f8bbdcefa6de8437816e3c9f79b844e09cb82e4beaf117e25",
+      "context": "Insert a non-mode action at the end of the TOOLS group.",
+      "translation": "Inserta una acción que no es un modo al final del grupo TOOLS.",
+      "review_basis": "Drafted directly from the current English by Claude (AI) and technically reviewed for UI names, RST roles and code literals; no human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.thread_guard.install._wrong_thread#4",
+      "source": "PySide6 can attach the returned QThread wrapper to the queried object. Restore the application's adopted thread to its application after the read, so collecting a temporary timer cannot delete the GUI thread.",
+      "source_sha256": "1feb885c354ef3f0ddccd81dc50bb3f9d13f7e0f87e30cc186b69007595c70ae",
+      "context": "PySide6 can attach the returned QThread wrapper to the queried object. Restore the application's adopted independent execution path to its application after the read, so collecting a temporary timer cannot delete the main GUI execution path.",
+      "translation": "PySide6 puede asociar el contenedor QThread devuelto al objeto consultado. Tras la lectura, devuelve el hilo adoptado de la aplicación a su aplicación, para que recolectar un temporizador temporal no pueda eliminar el hilo de la GUI.",
+      "review_basis": "Drafted directly from the current English by Claude (AI) and technically reviewed for UI names, RST roles and code literals; no human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow#0",
+      "source": "Draw the collapse tab and its chevron, centred on the handle.",
+      "source_sha256": "b3c9d27ae9f1177b3bb4bf62137b38505c28969dedcbfaf02d7b5588c1c03b8d",
+      "context": "Draw the collapse tab and its chevron, centred on the handle.",
+      "translation": "Dibuja la pestaña de plegado y su flecha, centradas en el asa.",
+      "review_basis": "Drafted directly from the current English by Claude (AI) and technically reviewed for UI names, RST roles and code literals; no human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow#7",
+      "source": "The tab and the chevron are drawn at :data:`HANDLE_SCALE` of the 2026-10-01 baseline, the chevron at a further :data:`ARROW_SCALE` of its tab, both centred on the handle (:func:`_collapse_arrow_geometry`). The hit target, the whole handle, stays put.",
+      "source_sha256": "9e87ebdfeac8016ccb76900d687532a099720432850d402d0c0cff4af79b17e5",
+      "context": "The tab and the chevron are drawn at :data:`HANDLE_SCALE` of the 2026-10-01 baseline, the chevron at a further :data:`ARROW_SCALE` of its tab, both centred on the handle (:func:`_collapse_arrow_geometry`). The hit target, the whole handle, stays put.",
+      "translation": "La pestaña y la flecha se dibujan a :data:`HANDLE_SCALE` del tamaño de referencia del 2026-10-01, la flecha además a :data:`ARROW_SCALE` de su pestaña, ambas centradas en el asa (:func:`_collapse_arrow_geometry`). La zona de clic, el asa entera, no cambia.",
+      "review_basis": "Drafted directly from the current English by Claude (AI) and technically reviewed for UI names, RST roles and code literals; no human or native-speaker signoff."
+    }
+  ]
+}

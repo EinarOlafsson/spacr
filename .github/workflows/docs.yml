@@ -6,11 +6,15 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: Publish docs, or verify only the existing Space write token
+        description: Publish docs, verify Space access, or restore a main coverage upload
         required: true
         default: publish
         type: choice
-        options: [publish, verify-host-access]
+        options: [publish, verify-host-access, upload-coverage]
+      coverage_run_id:
+        description: Completed main tests run whose retained coverage should be uploaded
+        required: false
+        type: string
       access_space:
         description: Existing static Space for the content-preserving access check
         required: true
@@ -26,10 +30,23 @@ permissions:
 # selected Hugging Face static Space. Runs of one
 # branch queue so an older build cannot replace a newer published snapshot.
 concurrency:
-  group: docs-${{ github.ref }}${{ inputs.mode == 'verify-host-access' && '-access' || '' }}
+  group: docs-${{ github.ref }}${{ inputs.mode == 'verify-host-access' && '-access' || inputs.mode == 'upload-coverage' && '-coverage' || '' }}
   cancel-in-progress: false
 
 jobs:
+  upload-coverage:
+    name: Restore the README's main coverage report
+    if: github.event_name == 'workflow_dispatch' && inputs.mode == 'upload-coverage'
+    uses: ./.github/workflows/coverage-reupload.yml
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+    with:
+      source_run_id: ${{ inputs.coverage_run_id }}
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
   verify-host-access:
     name: Verify the existing documentation Space write token
     if: github.event_name == 'workflow_dispatch' && inputs.mode == 'verify-host-access'
@@ -71,7 +88,7 @@ jobs:
 
   resolve:
     name: Pin the documentation branch
-    if: github.event_name != 'workflow_dispatch' || inputs.mode != 'verify-host-access'
+    if: github.event_name != 'workflow_dispatch' || inputs.mode == 'publish'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     outputs:

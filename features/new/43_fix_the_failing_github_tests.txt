@@ -4069,3 +4069,8 @@ Excluded N700/N702/N698/F370/N673 owner repairs and green final-source CI still 
 Two real fork/xdist regressions pass for ordinary and function-only timers; two focused lifecycle checks preserve normal cancellation and debugger-return restoration.
 The existing timeout callback, durations, failure exit and database concurrency behavior are unchanged; this fixes missing diagnostics, not the unexplained hosted four-writer hang.
 Final green CI, excluded-owner repairs and native acceptance still gate release1.5.1.5; no whole-item completion is claimed.
+
+2026-10-16 — Maintainer priority: keep the same two CI agents assigned until GitHub tests are green and release1.5.1.5 is delivered; reported starting count90,276/91,449 is not a completion claim.
+Run the normal hosted CI and fix every actual failure, including completed Claude-owned areas now handed over; retain assertions, coverage ratchets and legitimate test semantics.
+Reuse active runs and passing results; no duplicate dispatch or repeated scope inventory. Do not edit the still-running wgpu/installers or Make Masks layout files until their owner commits land.
+Owner pair: ci_gdb_contract + release_path; root integrates and publishes. F288 broader issue/coverage completion is deferred until after1.5.1.5, without disabling existing CI checks.

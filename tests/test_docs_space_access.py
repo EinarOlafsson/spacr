@@ -158,7 +158,7 @@ def test_actual_workflow_isolates_access_check_from_all_build_and_deploy_jobs():
     jobs = workflow['jobs']
     probe = jobs['verify-host-access']
     assert probe['if'] == "github.event_name == 'workflow_dispatch' && inputs.mode == 'verify-host-access'"
-    assert jobs['resolve']['if'] == "github.event_name != 'workflow_dispatch' || inputs.mode != 'verify-host-access'"
+    assert jobs['resolve']['if'] == "github.event_name != 'workflow_dispatch' || inputs.mode == 'publish'"
     assert jobs['build']['needs'] == 'resolve'
     for name in ['deploy-pages', 'deploy-space']:
         assert {'resolve', 'build'} <= set(jobs[name]['needs'])

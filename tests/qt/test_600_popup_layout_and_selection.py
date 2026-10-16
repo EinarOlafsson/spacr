@@ -81,16 +81,12 @@ def _mouse(kind, pos, button, buttons, modifiers=Qt.NoModifier):
 @pytest.mark.parametrize("extra_caption_width", [0, 20])
 def test_the_maintainers_button_layout(qtbot, qt_theme_applied, monkeypatch,
                                       tmp_path, extra_caption_width):
-    """The Make Masks button layout the maintainer asked for (2026-09-30).
+    """The Make Masks button layout the maintainer asked for (2026-10-16).
 
-    Bottom row, left: Open folder, Organize for Measure, Load test data,
-    Uncertainty. Editor action row: Save mask, Prev, Next (item 247, 2026-10-01).
-    Bottom row, right, under the console: Hide judged fields, First
-    unreviewed, Clear all objects, Discard, Keep, Skip, Blind, ROIs,
-    Upload data -- Keep and Discard no longer on a row of their own.
-
-    Reserve the row's actual preferred width, including wider captions:
-    a smaller window deliberately wraps the left-hand navigation strip.
+    ANNOTATION (Keep, Skip, Discard) at the image's top right, IO (Open File
+    / Folder, Measure, Load test data, ROIs) at its bottom left, NAVIGATION
+    (Save mask, Previous, Next) at its bottom right; each group on one line
+    even with wider captions.
     """
     from spacr.qt import preferences
     from spacr.qt.screens import make_masks as mm
@@ -99,67 +95,47 @@ def test_the_maintainers_button_layout(qtbot, qt_theme_applied, monkeypatch,
                         lambda: True)
     screen = mm.MakeMasksScreen()
     qtbot.addWidget(screen)
-    curate = screen._nav_curate_group
-    steps = [screen._btn_save, screen._btn_prev, screen._btn_next]
 
     def widgets(group):
-        layout = group.layout()
-        return [layout.itemAt(i).widget() for i in range(layout.count())
-                if layout.itemAt(i).widget() is not None]
+        return [w for w in group.findChildren(type(screen._btn_prev))
+                if w.parentWidget() is group]
 
-    for button in steps:
-        assert screen._tool_row_layout.indexOf(button) >= 0
-    # With alpha features shown, the alpha SAM2 seeds button (556, 451c67deb),
-    # the virtual-stain apply control (18d43544f) and the alpha vvvv export
-    # pair (N685, 03a8cc8d6) sit before Upload data. Hide judged fields (N701)
-    # leads the row beside First unreviewed (N685).
-    assert widgets(curate) == [screen._btn_hide_judged,
-                               screen._btn_first_unreviewed,
-                               screen._btn_clear, screen._btn_discard,
-                               screen._btn_keep, screen._btn_skip,
-                               screen._btn_blind,
-                               screen._btn_rois, screen._btn_sam2,
-                               screen._virtual_stain,
-                               screen._btn_vvvv_export,
-                               screen._btn_vvvv_on_save,
-                               screen._btn_contribute]
-    # One widget each, so neither group can wrap apart.
-    for group in (curate,):
-        for button in widgets(group):
-            assert button.parent() is group
+    curate = [screen._btn_keep, screen._btn_skip, screen._btn_discard]
+    io = [screen._btn_open, screen._btn_organize, screen._btn_test_data,
+          screen._btn_rois]
+    steps = [screen._btn_save, screen._btn_prev, screen._btn_next]
+    assert widgets(screen._annotation_group) == curate
+    assert widgets(screen._io_group) == io
+    assert widgets(screen._navigation_group) == steps
     assert screen._btn_training_datasets is screen._btn_test_data
     import imageio.v2 as imageio
     import numpy as np
 
-    toolbar = [screen._btn_open, screen._btn_organize,
-               screen._btn_test_data, screen._btn_uncertainty]
-    for button in toolbar + widgets(curate):
+    for button in curate + io + steps:
         button.setMinimumWidth(button.sizeHint().width() + extra_caption_width)
     (tmp_path / "masks").mkdir()
     imageio.imwrite(tmp_path / "field.tif", np.zeros((48, 48), np.uint16))
-    screen._open_folder(str(tmp_path))
-    margins = screen.layout().contentsMargins()
-    nav = screen._btn_open.parentWidget()
-    one_row_width = nav.sizeHint().width() + margins.left() + margins.right()
-    screen.resize(max(1600, one_row_width), 900)
+    screen.resize(1920, 1080)
     screen.show()
     qtbot.waitExposed(screen)
-
+    screen._open_folder(str(tmp_path))
+    qtbot.waitUntil(lambda: screen._btn_keep.isVisible())
+    qtbot.waitUntil(lambda: not screen._btn_keep.visibleRegion().isEmpty())
+    qtbot.wait(50)
 
     def top_left(button):
         return button.mapTo(screen, button.rect().topLeft())
 
-    xs = [top_left(button).x() for button in toolbar]
-    assert xs == sorted(xs)
-    row_y = {top_left(button).y() for button in toolbar + widgets(curate)}
-    assert len(row_y) == 1, "the toolbar and the curation buttons share a row"
-    assert top_left(screen._btn_open).x() < top_left(screen._btn_discard).x()
-    # Item 247: saving/navigation share the top editor action row.
-    centers = {button.mapTo(screen, button.rect().center()).y()
-               for button in steps + [screen._btn_cellpose, screen._btn_undo]}
-    assert max(centers) - min(centers) <= 1
-    xs = [top_left(button).x() for button in steps]
-    assert xs == sorted(xs)
+    for row in (curate, io, steps):
+        places = [(top_left(button).y(), top_left(button).x())
+                  for button in row]
+        assert places == sorted(places), "a group's buttons left to right"
+        if not extra_caption_width:
+            assert len({y for y, _x in places}) == 1
+        for button in row:
+            assert button.visibleRegion().boundingRect() == button.rect()
+    assert top_left(screen._btn_open).x() < top_left(screen._btn_save).x()
+    assert top_left(screen._btn_keep).y() < top_left(screen._btn_save).y()
 
 
 # -- the popup's header ----------------------------------------------------

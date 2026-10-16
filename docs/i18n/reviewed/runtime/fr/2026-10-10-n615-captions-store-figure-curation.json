@@ -124,13 +124,6 @@
     },
     {
       "table": "ui",
-      "key": "Choose the vvvv export folder",
-      "source": "Choose the vvvv export folder",
-      "source_sha256": "ce85ced1805a3a10b40c597f40f009b56002456ae990a68d9d38f686d8d46e76",
-      "translation": "Choisissez le dossier d'exportation vvvv"
-    },
-    {
-      "table": "ui",
       "key": "Click ripples",
       "source": "Click ripples",
       "source_sha256": "d15f0e6a1dcf8093eac31ed5bcb3499b70dc16d43b8c780b78171742cc28ebb1",
@@ -240,27 +233,6 @@
       "source": "Existing .db, .duckdb, .parquetdb, or PostgreSQL URL",
       "source_sha256": "c4ba2125608536b61c0895925372ab0a04411b91057bf597aabc97fcf795538d",
       "translation": "Fichier .db ou .duckdb, dossier .parquetdb ou URL PostgreSQL existant"
-    },
-    {
-      "table": "ui",
-      "key": "Export for vvvv again every time a mask is saved, so a patch watching the export folder updates live.",
-      "source": "Export for vvvv again every time a mask is saved, so a patch watching the export folder updates live.",
-      "source_sha256": "34605d49608db193fc1720df64d8f24abbc93ad6ab8dc95a6b6da5e48237ebdd",
-      "translation": "Exporter à nouveau pour vvvv à chaque enregistrement d’un masque, afin qu’un patch qui surveille le dossier d’exportation se mette à jour en direct."
-    },
-    {
-      "table": "ui",
-      "key": "Export for vvvv…",
-      "source": "Export for vvvv…",
-      "source_sha256": "ca2ddf0de427fcd43768d1e8bfe5633f84d9315421eac82f318787c8471d24fc",
-      "translation": "Exporter pour vvvv…"
-    },
-    {
-      "table": "ui",
-      "key": "Export on save",
-      "source": "Export on save",
-      "source_sha256": "f92285a0d62006fed9ed718bc9c64978c538afbb5635a957082076a68c2692e7",
-      "translation": "Exporter à l’enregistrement"
     },
     {
       "table": "ui",
@@ -614,13 +586,6 @@
     },
     {
       "table": "ui",
-      "key": "Write this image's labels (16-bit PNG), outlines (RGBA PNG), one row per object (CSV) and a manifest into a folder named after the image, for a vvvv patch to read. Files are replaced whole, so a watching patch never reads half a file.",
-      "source": "Write this image's labels (16-bit PNG), outlines (RGBA PNG), one row per object (CSV) and a manifest into a folder named after the image, for a vvvv patch to read. Files are replaced whole, so a watching patch never reads half a file.",
-      "source_sha256": "6347a688735eda0a24506ee8fe503ae0e6dfa9c812b032fb626e83d2a5bd03f7",
-      "translation": "Écrit les étiquettes de cette image (PNG 16-bit), les contours (PNG RGBA), une ligne par objet (CSV) et un manifeste dans un dossier nommé d’après l’image, pour qu’un patch vvvv les lise. Les fichiers sont remplacés en bloc, si bien qu’un patch qui surveille le dossier ne lit jamais un fichier à moitié écrit."
-    },
-    {
-      "table": "ui",
       "key": "vvvv export failed",
       "source": "vvvv export failed",
       "source_sha256": "99c8a97db1342f2f3cd11bcc83ff33ffb0faaf051cc8f34a75ce9b3995469544",
@@ -657,6 +622,46 @@
       "source_sha256": "256a3da363e13c789bd2d75627b90461ce000635655c63c04293d08fb9fe07cd",
       "translation": "Point de contrôle Cellpose utilisé pour segmenter les plages : une clé du catalogue de modèles télécharge, à la première utilisation, un point de contrôle dont la somme de contrôle est vérifiée. 'toxoplasma_plaque_v3' correspond à cpsam_plaque_r5_geldoc, qui segmente aussi les puits Gel Doc ; 'toxoplasma_plaque_v2' est l’ancienne valeur par défaut. Un chemin de fichier sélectionne un point de contrôle personnalisé. 'bundled' désigne l’ancien modèle fourni avec le paquet : un point de contrôle Cellpose 3 qui nécessite Cellpose 3. Le changer peut modifier tous les comptages de plages ; les exécutions enregistrées doivent donc conserver la valeur choisie. Valeur par défaut 'toxoplasma_plaque_v3'.",
       "retired": "2026-10-11: English source changed when toxoplasma_plaque_v4 became the default plaque model; superseded by 2026-10-11-plaque-v4-default.json"
+    },
+    {
+      "table": "ui",
+      "key": "Choose the vvvv export folder",
+      "source": "Choose the vvvv export folder",
+      "source_sha256": "ce85ced1805a3a10b40c597f40f009b56002456ae990a68d9d38f686d8d46e76",
+      "translation": "Choisissez le dossier d'exportation vvvv",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
+    },
+    {
+      "table": "ui",
+      "key": "Export for vvvv again every time a mask is saved, so a patch watching the export folder updates live.",
+      "source": "Export for vvvv again every time a mask is saved, so a patch watching the export folder updates live.",
+      "source_sha256": "34605d49608db193fc1720df64d8f24abbc93ad6ab8dc95a6b6da5e48237ebdd",
+      "translation": "Exporter à nouveau pour vvvv à chaque enregistrement d’un masque, afin qu’un patch qui surveille le dossier d’exportation se mette à jour en direct.",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
+    },
+    {
+      "table": "ui",
+      "key": "Export for vvvv…",
+      "source": "Export for vvvv…",
+      "source_sha256": "ca2ddf0de427fcd43768d1e8bfe5633f84d9315421eac82f318787c8471d24fc",
+      "translation": "Exporter pour vvvv…",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
+    },
+    {
+      "table": "ui",
+      "key": "Export on save",
+      "source": "Export on save",
+      "source_sha256": "f92285a0d62006fed9ed718bc9c64978c538afbb5635a957082076a68c2692e7",
+      "translation": "Exporter à l’enregistrement",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
+    },
+    {
+      "table": "ui",
+      "key": "Write this image's labels (16-bit PNG), outlines (RGBA PNG), one row per object (CSV) and a manifest into a folder named after the image, for a vvvv patch to read. Files are replaced whole, so a watching patch never reads half a file.",
+      "source": "Write this image's labels (16-bit PNG), outlines (RGBA PNG), one row per object (CSV) and a manifest into a folder named after the image, for a vvvv patch to read. Files are replaced whole, so a watching patch never reads half a file.",
+      "source_sha256": "6347a688735eda0a24506ee8fe503ae0e6dfa9c812b032fb626e83d2a5bd03f7",
+      "translation": "Écrit les étiquettes de cette image (PNG 16-bit), les contours (PNG RGBA), une ligne par objet (CSV) et un manifeste dans un dossier nommé d’après l’image, pour qu’un patch vvvv les lise. Les fichiers sont remplacés en bloc, si bien qu’un patch qui surveille le dossier ne lit jamais un fichier à moitié écrit.",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
     }
   ]
 }

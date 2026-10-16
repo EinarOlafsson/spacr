@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical translation and independent AI technical peer review; normal runtime gates required; no native-speaker signoff",
+  "review": "The bundled 24 geometric images demonstrate a CPU workflow only. Preserve ResNet-18 and all placeholders; action placeholders use the existing translated control captions. These are not microscopy data or biological validation results.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Load synthetic demo",
+      "source": "Load synthetic demo",
+      "source_sha256": "4f66010271a0c5381e208fc4bb8c433e554c8064705420e38cecad55997b736d",
+      "translation": "합성 예제 불러오기"
+    },
+    {
+      "table": "ui",
+      "key": "Load 24 generated shapes with labels. ResNet-18 runs on the CPU; pretrained weights download only if not cached.",
+      "source": "Load 24 generated shapes with labels. ResNet-18 runs on the CPU; pretrained weights download only if not cached.",
+      "source_sha256": "0b165afb412c9e4840986e14a0b7e4d334d15bbda0c094de10dafb344b518979",
+      "translation": "레이블이 있는 생성된 도형 24개를 불러옵니다. ResNet-18은 CPU에서 실행되며, 사전 학습 가중치가 캐시에 없을 때만 다운로드합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Loading synthetic demo crops…",
+      "source": "Loading synthetic demo crops…",
+      "source_sha256": "5d6b1c5b4558c7a846817b81df2c5a2d1b7e39ecbce762f3d078452b29669580",
+      "translation": "합성 예제 크롭을 불러오는 중…"
+    },
+    {
+      "table": "ui",
+      "key": "Loading synthetic demo crops was stopped.",
+      "source": "Loading synthetic demo crops was stopped.",
+      "source_sha256": "949482ca3dcd21bbdae8b7ac34bf9ccb3da790b4241fcac22f1ca25bb827592c",
+      "translation": "합성 예제 크롭 불러오기가 중지되었습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Synthetic shapes demonstrate the workflow only. Their labels and scores are not biological validation.",
+      "source": "Synthetic shapes demonstrate the workflow only. Their labels and scores are not biological validation.",
+      "source_sha256": "aa9872aa2bb079c4f8f6099cf0869adfb52da07627d59c9069ec84825a06f63c",
+      "translation": "합성 도형은 작업 흐름을 보여 주기 위한 것입니다. 해당 레이블과 점수는 생물학적 검증이 아닙니다."
+    },
+    {
+      "table": "ui",
+      "key": "Loaded 24 synthetic crops and labels. Press {embed}, then choose {classifier} and {run}. Example files: {folder}",
+      "source": "Loaded 24 synthetic crops and labels. Press {embed}, then choose {classifier} and {run}. Example files: {folder}",
+      "source_sha256": "d1269fd205de0a244a827eaf68aa303b4d78c4f7a18ae0e7ff01af38f86fc327",
+      "translation": "합성 크롭 24개와 레이블을 불러왔습니다. {embed}을(를) 누른 다음 {classifier}와(과) {run}을(를) 선택하세요. 예제 파일: {folder}"
+    }
+  ]
+}

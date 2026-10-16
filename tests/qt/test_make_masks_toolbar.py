@@ -1,4 +1,4 @@
-"""The Make Masks toolbar: one row of tools, and a settings toggle.
+"""The Make Masks TOOLS group, and the settings behind their collapse arrow.
 
 Every assertion here reads the built layout back rather than trusting the
 code that built it — "in one row" is a fact about a QHBoxLayout, and "the
@@ -13,7 +13,9 @@ import imageio.v2 as imageio
 import numpy as np
 import pytest
 from PySide6.QtCore import QPoint
-from PySide6.QtWidgets import QApplication, QHBoxLayout, QPushButton
+from PySide6.QtWidgets import QApplication, QPushButton
+
+from spacr.qt.widgets.flow import FlowLayout
 
 import spacr.qt.screens.make_masks as mm
 from spacr.qt.screens.make_masks import (
@@ -51,9 +53,12 @@ def test_every_tool_is_in_one_horizontal_row(qtbot, qt_theme_applied):
     qtbot.addWidget(screen)
 
     row = screen._tool_row_layout
-    assert isinstance(row, QHBoxLayout)
+    assert isinstance(row, FlowLayout)
     assert screen._mode_buttons, "the screen built no tools at all"
     for mode, button in screen._mode_buttons.items():
+        if mode == mm.MODE_RULER:
+            assert screen._tally_layout.indexOf(button) >= 0
+            continue
         assert row.indexOf(button) >= 0, f"{mode} is not in the tool row"
     # ...and one row means one: no tool has a second home in the settings.
     for mode, button in screen._mode_buttons.items():
@@ -67,10 +72,9 @@ def test_the_tools_come_out_in_the_table_order(qtbot, qt_theme_applied):
     qtbot.addWidget(screen)
     row = screen._tool_row_layout
     positions = [row.indexOf(screen._mode_buttons[m])
-                 for m, _label, _icon in mm.TOOL_MODES]
+                 for m, _label, _icon in mm.TOOL_MODES if m != mm.MODE_RULER]
     assert positions == sorted(positions)
-    assert positions[0] == row.indexOf(screen._btn_save_on_navigation) + 1, (
-        "the first tool does not follow the Save and image navigation buttons")
+    assert positions[0] == 0, "the first tool does not open the TOOLS group"
 
 
 def test_a_new_mode_constant_reaches_the_row_by_existing(
@@ -131,105 +135,25 @@ def test_a_new_tool_is_enabled_with_the_rest_when_a_folder_opens(
 
 
 def test_an_action_button_joins_the_same_row(qtbot, qt_theme_applied):
-    """A non-mode button lands in the scrolling row, never in the pinned pair.
-
-    Item 419 put the toggle directly right of the Magnifier, and the
-    maintainer's answer of 2026-09-25 pinned that pair outside the scroller
-    at the right end, so an action added later scrolls with the tools and
-    the stretch that holds them left stays last.
-    """
+    """A non-mode button lands at the end of TOOLS."""
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     button = QPushButton("Cellpose-SAM detect")
     assert screen.add_toolbar_action(button) is button
 
     row = screen._tool_row_layout
-    where = row.indexOf(button)
-    assert where >= 0, "the action did not land in the tool row"
-    assert screen._tool_scroll.isAncestorOf(button)
-    assert screen._tool_pin_layout.indexOf(button) < 0, (
-        "the action came into the pinned Magnifier + Settings pair")
-    assert row.itemAt(row.count() - 1).spacerItem() is not None
-    pin = screen._tool_pin_layout
-    assert pin.count() == 2
-    assert pin.indexOf(screen._btn_magnifier) == 0
-    assert pin.indexOf(screen._btn_settings) == 1
-
-
-def test_the_magnifier_and_settings_are_pinned_outside_the_scroller(
-        qtbot, qt_theme_applied):
-    """The maintainer, 2026-09-25: pin the pair at the right end; only the
-    other tools scroll."""
-    screen = MakeMasksScreen()
-    qtbot.addWidget(screen)
-    for button in (screen._btn_magnifier, screen._btn_settings):
-        assert not screen._tool_scroll.isAncestorOf(button), (
-            f"{button.text()} scrolls with the tools")
-        assert screen._tool_row.isAncestorOf(button)
-    line = screen._tool_row.layout()
-    assert line.indexOf(screen._tool_scroll) == 0
-    assert line.indexOf(screen._tool_pin) == line.count() - 1, (
-        "the pinned pair is not at the right end of the row")
-    for mode, button in screen._mode_buttons.items():
-        assert screen._tool_scroll.isAncestorOf(button), (
-            f"{mode} is pinned; only the pair is")
-
-
-@pytest.mark.parametrize("width", [1280, 1600, 1920])
-def test_the_pinned_pair_is_whole_on_screen_at_common_widths(
-        qtbot, qt_theme_applied, folder_2: Path, width: int):
-    """Measured off a shown screen: both buttons lie wholly inside it.
-
-    Before the pin the row needed about 1750 px, so at 1280 px the pair
-    was off the right end and at 1600 px the Magnifier was cut in two.
-    """
-    screen = MakeMasksScreen()
-    qtbot.addWidget(screen)
-    screen.resize(width, 800)
-    screen.show()
-    qtbot.waitExposed(screen)
-    screen._open_folder(str(folder_2))
-    qtbot.waitUntil(lambda: screen._tool_row.isVisible())
-    screen.layout().activate()
-    QApplication.processEvents()
-
-    bar = screen._tool_scroll.widget()
-    if width < 1600:
-        assert bar.sizeHint().width() > screen._tool_scroll.viewport().width(), (
-            "the tools fit without scrolling, so this width proves nothing")
-    for button in (screen._btn_magnifier, screen._btn_settings):
-        assert button.isVisible()
-        left = button.mapTo(screen, QPoint(0, 0)).x()
-        right = left + button.width()
-        assert left >= 0 and right <= screen.width(), (
-            f"{button.text()} spans {left}..{right} in a {width} px screen")
-        assert button.visibleRegion().boundingRect() == button.rect(), (
-            f"{button.text()} is clipped at {width} px")
-    gap = (screen._btn_settings.mapTo(screen, QPoint(0, 0)).x()
-           - screen._btn_magnifier.mapTo(screen, QPoint(0, 0)).x()
-           - screen._btn_magnifier.width())
-    assert gap == screen._tool_pin_layout.spacing()
+    assert row.indexOf(button) == row.count() - 1
+    assert screen._tools_group.isAncestorOf(button)
 
 
 def test_the_row_cannot_force_the_window_wide(qtbot, qt_theme_applied):
-    """One row of everything must not become a window that will not narrow.
-
-    Measured: with the tools, undo/redo and the detect button in it the
-    row wants well over 1300px. If that were the screen's layout minimum,
-    the window could not be made narrower than the row and the canvas
-    would sit off the right edge of a 1366px laptop. The row scrolls
-    instead, so it keeps its natural width without imposing it; the
-    pinned pair adds only its own width to the minimum.
-    """
+    """The TOOLS group wraps, so its minimum is one button, not the row."""
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     screen.layout().activate()
 
-    bar = screen._tool_scroll.widget()
-    natural = bar.sizeHint().width()
+    natural = sum(b.sizeHint().width() for b in screen._mode_buttons.values())
     assert natural > 600, "no real row of tools here to measure"
-    assert screen._tool_scroll.minimumSizeHint().width() < natural, (
-        "the row imposes its own width on everything above it")
     assert screen._tool_row.minimumSizeHint().width() < natural
     assert screen.layout().minimumSize().width() < natural, (
         f"the screen cannot be narrowed below {natural}px because of the row")
@@ -244,7 +168,7 @@ def test_the_row_is_hidden_until_there_is_something_to_edit(
     assert not screen._tool_row.isVisibleTo(screen)
 
     screen._open_folder(str(folder_2))
-    assert screen._body_stack.currentWidget() is screen._body_splitter
+    assert screen._body_stack.currentWidget() is screen._image_page
     assert screen._tool_row.isVisibleTo(screen)
 
 
@@ -252,12 +176,11 @@ def test_the_row_is_hidden_until_there_is_something_to_edit(
 # The settings toggle
 # ===========================================================================
 
-def test_the_settings_button_is_a_state_and_starts_lit(qtbot, qt_theme_applied):
-    """"the toggle is a STATE" — checkable, and lit while the settings show."""
+def test_the_settings_start_shown_and_have_no_button(qtbot, qt_theme_applied):
+    """The collapse arrow hides the settings; there is no Settings button."""
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
-    assert screen._btn_settings.isCheckable()
-    assert screen._btn_settings.isChecked()
+    assert not hasattr(screen, "_btn_settings")
     assert screen.settings_shown()
     assert screen._settings_scroll.isVisibleTo(screen._body_splitter)
 
@@ -275,13 +198,10 @@ def test_the_toggle_hides_and_shows_the_settings_as_one_group(
     for w in settings_widgets:
         assert screen._settings_scroll.isAncestorOf(w)
 
-    screen._btn_settings.setChecked(False)
+    screen._set_settings_shown(False)
     assert not screen.settings_shown()
-    assert not screen._settings_scroll.isVisibleTo(screen._body_splitter)
-    for w in settings_widgets:
-        assert not w.isVisibleTo(screen._body_splitter)
 
-    screen._btn_settings.setChecked(True)
+    screen._set_settings_shown(True)
     assert screen.settings_shown()
     assert screen._settings_scroll.isVisibleTo(screen._body_splitter)
     for w in settings_widgets:
@@ -314,7 +234,7 @@ def test_the_canvas_takes_the_space_the_settings_give_up(
     assert wide_open[0] > 0, "the settings are the left pane (item 419)"
     before = screen._canvas.width()
 
-    screen._btn_settings.setChecked(False)
+    screen._set_settings_shown(False)
     qtbot.waitUntil(lambda: screen._canvas.width() > before)
     assert screen._body_splitter.sizes()[0] == 0
     # MOST of it, not all: the shortcut list became a pane of its own on
@@ -326,13 +246,17 @@ def test_the_canvas_takes_the_space_the_settings_give_up(
     # from 245 px to 194 px; the overhead stayed at 52). The shortcut list
     # itself must not grow -- the room is the canvas's.
     shortcuts = screen._view_pane.pane("Shortcuts")
+    # Measured once the splitters settle: the side column (with its AI chat
+    # box and System, 707) is laid out a turn after the canvas grows.
+    qtbot.waitUntil(lambda: screen._shortcut_panel.width() <= shortcuts.extent,
+                    timeout=3000)
     assert screen._canvas.width() >= (
         before + wide_open[0] - _SPLITTER_OVERHEAD), (
         "the canvas did not grow into the space the settings vacated")
     assert screen._shortcut_panel.width() <= shortcuts.extent, (
         "the shortcut list took the room instead of the canvas")
 
-    screen._btn_settings.setChecked(True)
+    screen._set_settings_shown(True)
     qtbot.waitUntil(lambda: screen._body_splitter.sizes()[0] > 0)
     # back to the width it had, not to some default
     assert abs(screen._body_splitter.sizes()[0] - wide_open[0]) <= 8
@@ -353,9 +277,9 @@ def test_a_dragged_settings_width_survives_a_hide(
     screen._body_splitter.setSizes([250, total - 250])
     qtbot.waitUntil(lambda: abs(screen._body_splitter.sizes()[0] - 250) <= 8)
 
-    screen._btn_settings.setChecked(False)
+    screen._set_settings_shown(False)
     qtbot.waitUntil(lambda: screen._body_splitter.sizes()[0] == 0)
-    screen._btn_settings.setChecked(True)
+    screen._set_settings_shown(True)
     qtbot.waitUntil(lambda: screen._body_splitter.sizes()[0] > 0)
     assert abs(screen._body_splitter.sizes()[0] - 250) <= 8, (
         f"came back at {screen._body_splitter.sizes()[0]}px, "
@@ -364,23 +288,20 @@ def test_a_dragged_settings_width_survives_a_hide(
 
 def test_hiding_the_settings_leaves_every_tool_reachable(
         qtbot, qt_theme_applied, folder_2: Path):
-    """The tools, undo/redo and the toggle itself outlive the hide.
+    """The tools and Reset zoom outlive the hide.
 
-    The settings button has to stay visible when the settings are away or
-    there is no way back, and the tools are in the row precisely so that
-    putting the panel away does not put them away too.
+    The tools are in the row precisely so that putting the panel away does
+    not put them away too.
     """
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     screen._open_folder(str(folder_2))
-    screen._btn_settings.setChecked(False)
+    screen._set_settings_shown(False)
 
     for mode, button in screen._mode_buttons.items():
         assert button.isVisibleTo(screen), f"{mode} went away with the settings"
         assert button.isEnabled()
-    for button in (screen._btn_undo, screen._btn_redo,
-                   screen._btn_reset_zoom, screen._btn_settings):
-        assert button.isVisibleTo(screen)
+    assert screen._btn_reset_zoom.isVisibleTo(screen)
 
 
 def test_the_tools_still_drive_the_canvas_from_the_row(
@@ -399,9 +320,9 @@ def test_the_tools_still_drive_the_canvas_from_the_row(
 
 
 @pytest.mark.parametrize("size", [(2560, 1440), (1920, 1080), (1366, 768)])
-def test_the_pin_never_covers_prev_and_next_image(
+def test_every_group_is_whole_on_screen(
         qtbot, qt_theme_applied, folder_2: Path, size):
-    """Prev and Next lead the scrolling row, so the pin cannot overlap them."""
+    """No group overlaps another, and every button is drawn whole."""
     from PySide6.QtCore import QRect
 
     screen = MakeMasksScreen()
@@ -417,15 +338,16 @@ def test_the_pin_never_covers_prev_and_next_image(
     def where(widget):
         return QRect(widget.mapTo(screen, QPoint(0, 0)), widget.size())
 
-    pin = where(screen._tool_pin)
-    assert not where(screen._tool_scroll).intersects(pin)
-    row = screen._tool_row_layout
-    assert row.indexOf(screen._btn_prev) < row.indexOf(screen._btn_next) < 4
-    for button in (screen._btn_prev, screen._btn_next):
+    groups = (screen._tools_group, screen._annotation_group,
+              screen._io_group, screen._navigation_group)
+    for i, group in enumerate(groups):
+        for other in groups[i + 1:]:
+            assert not where(group).intersects(where(other))
+    for button in (screen._btn_prev, screen._btn_next, screen._btn_keep,
+                   screen._btn_magnifier):
         assert button.isVisible()
-        assert not where(button).intersects(pin), (
-            f"{button.text()} lies under the pin at {size}")
-        assert button.visibleRegion().boundingRect() == button.rect()
+        assert button.visibleRegion().boundingRect() == button.rect(), (
+            f"{button.text()} is clipped at {size}")
 
 
 def test_a_fixed_side_pane_uses_its_extent_instead_of_its_wrapping_size_hint(qtbot):

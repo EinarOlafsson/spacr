@@ -34,14 +34,27 @@ PUBLISHED_CATALOG = REPO / "docs" / "source" / "_extra" / "tutorials" / "catalog
 #: Every registered widget must appear here: a new alpha widget fails
 #: ``test_every_alpha_widget_has_its_visible_text_listed`` until it is added.
 WIDGET_LABELS = {
+    "MakeMasksMitoNetSettings": ("MitoNet v1 mini",),
+    # "Third-party" also describes ordinary imported measurement tables;
+    # the widget name and the registered MitoNet model still identify this heading.
+    "ModelZooSourceThirdParty": (),
+    "EmbeddingsDinoControls": ("Use own DINO checkpoint…", "Pretraining progress"),
+    "IntensityCalibrationBeads": ("Intensity calibration beads",),
+    "IntensityCalibrationReferencePlate": ("Intensity calibration reference plate",),
+    "IntensityCalibrationReferenceSession": ("Intensity calibration reference session",),
+    "IntensityCalibrationSessionColumn": ("Intensity calibration session column",),
+    "IntensityCalibrationSessions": ("Intensity calibration sessions",),
+    # The shared "Spatial" caption is ordinary measurement/plot narration;
+    # these object names and the registered spatial modules remain guarded.
+    "MapBarcodesSpatialMapSwitch": (),
+    "MaskSpatialSwitch": (),
     # 2026-10-10 (later): score/count store folders, measurement-store
     # migration, the vvvv export pair and Investigate hit test data.
     # "Load test data…" is the shared label of every module's example
     # button, so the hit-test button lists none.
     "ALPHA_FEATURES576": ("Add score store folder…", "Add count store folder…"),
     "MeasurementMigrationAction": ("Migrate measurement store…",),
-    "MakeMasksVvvvExport": ("Export for vvvv…",),
-    "MakeMasksVvvvExportOnSave": ("Export on save",),
+    "PreferencesExportVvvv": ("Export to vvvv",),
     "InvestigateHitTestDataButton": (),
     # 2026-10-10: Annotate similar-crop plates, Cell-DINO/SubCell embedding
     # options and timelapse event annotation. Distinctive text only;
@@ -163,6 +176,7 @@ WIDGET_LABELS = {
     "AnnotateFindSimilar": (),
     "EmbeddingsFoundationLabel": ("Foundation model",),
     "EmbeddingsFoundationPicker": ("None (use the backbone)",),
+    "EmbeddingsDemoButton": ("Load synthetic demo",),
     "EmbeddingsWellMilButton": ("Learn from well labels",),
     "EmbeddingsDinoPretrainButton": ("Pretrain on these crops",),
     "CellposeWorkbenchVirtualStain": ("Virtual staining",),

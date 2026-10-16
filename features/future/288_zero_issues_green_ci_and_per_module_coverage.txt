@@ -5860,3 +5860,6 @@ Remaining actual owner dependencies include N700 test hygiene, F561 reviewed
 input fixture path, README source contracts and current tutorial publication
 selectors. HF cell-mask E2E emptiness remains under source-only diagnosis.
 Whole N43/F288 and release acceptance remain OPEN.
+
+2026-10-16 — DEFERRED by maintainer until after release1.5.1.5; do not start separate F288 completion work now.
+N43 continues all fixes required for green release CI, retaining the existing coverage gates and ratchets; this deferral does not waive checks or mark F288 complete.

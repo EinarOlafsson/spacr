@@ -205,3 +205,9 @@ FOR THE MAINTAINER, ON A REAL DISPLAY (offscreen cannot judge feel):
    pointer over the slice plane, magnify what is inside it and dim the
    rest; Shift+wheel resizes it, Ctrl+wheel zooms inside it, the plain
    wheel still zooms the view; M again turns it off.
+
+2026-10-16 — Codex takeover: reuse two agents for unpushed9770fcc09db; rebase onto nightly including707/59ce785b443, preserving both implementations; root integrates and pushes once after related CPU/offscreen673, marker and API/i18n checks (GPU render tests skip at Home).
+README requirements, all10 languages: only a “3D” column in the existing hardware table; move backend order/exclusions and Intel iMac CPU detail to its clicked readable-text page; remove the Load test data/spacr-download paragraph; edit sources and regenerate normally.
+Publish nightly, then copy only README.rst, docs/i18n/readme, docs/readme_images, docs/readme_assets, docs/models and docs/readme_text outputs to main as explicitly requested; preserve main history and its separate-table revert.
+Website: existing GPU table gets only a3D column across9 languages; no separate table; check_i18n.mjs and node --test tools/ must pass. Coordinate N688 badge generation and N703 Preferences/installer ownership.
+Real-display acceptance remains with the maintainer: each available backend and dragging FPS; no Home GPU execution or offscreen claim of visual acceptance.

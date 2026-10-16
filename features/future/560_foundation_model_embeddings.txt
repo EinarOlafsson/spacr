@@ -1,7 +1,6 @@
 FOUNDATION-MODEL EMBEDDINGS: SubCell, OpenPhenom, ChAda-ViT, Cell-DINO
 
-Status: BLOCKED ON MAINTAINER (alpha) — official Cell-DINO checkpoint access
-and labelled comparison; loader, alpha GUI and scoring software checks pass.
+Status: OPEN (alpha) — 2026-10-16 usable example data/workflow requested; official Cell-DINO access and scientific comparisons remain separate acceptance gates.
 2026-10-11: official Cell-DINO weights still only via Meta's gated request
 form (maintainer must submit it); see the 2026-10-11 note.
 Previous status: DONE (alpha) 2026-09-27 (evidence d8f7deeda)
@@ -410,3 +409,13 @@ BLOCKED ON MAINTAINER: request official Cell-DINO access at https://ai.meta.com/
 Download the approved checkpoint; provide its path, SHA256, official factory and correctly ordered biological channels using the existing instructions above.
 Enable Show alpha features → Embeddings; embed the same labelled crops for each backbone, load Labels… with one row per crop in crop order and a label column, then compare kNN/mAP/chance and classifier results.
 Record the dataset/labels, checkpoint and resulting scores; these CPU software checks neither recertify historical scientific results nor establish official-weight acceptance.
+
+2026-10-16 — Maintainer requests an available alpha Embeddings feature with usable test data; embedding_implementation + embedding_acceptance own completion.
+Keep the feature behind Show alpha features with ALPHA_FEATURES registration and literal object names; supply a small reproducible generic example crop/label bundle and clear GUI loading/testing instructions.
+Validate the user-visible example workflow with available permitted backbones on CPU; distinguish synthetic functional examples from scientific comparison results and preserve official restricted-model access/terms requirements.
+Official Cell-DINO access must not block delivery of a usable alpha example for supported available models; no Home GPU work or invented biological/scientific acceptance.
+
+2026-10-16 — Added alpha Load synthetic demo with24 bundled geometric crops, aligned labels, CPU ResNet-18 defaults and GUI/optional-dependency instructions (source1871a66a37c).
+Actual threaded GUI load, cached pretrained ResNet-18 CPU inference (24×512 finite vectors), retrieval scorecard and five-fold classifier passed;36 owning software checks remain green.
+Normal runtime generation/audit passes all9 locales;9 installed-locale GUI checks pass, including action captions and persistent synthetic-only caveat.
+Requested functional alpha example is delivered; original F560 scientific acceptance remains OPEN for official Cell-DINO access/terms and labelled foundation-model comparisons.

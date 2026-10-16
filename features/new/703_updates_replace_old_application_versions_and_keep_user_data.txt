@@ -2,7 +2,7 @@
 UPDATES REPLACE OLD APPLICATION VERSIONS AND KEEP USER DATA
 ================================================================================
 
-Status:    BLOCKED ON MAINTAINER: native cross-platform acceptance; Windows frozen in-app adapter open
+Status:    OPEN — 2026-10-16 updater UX, uninstall scope and documentation requirements; native acceptance remains required
 Requested: maintainer, 2026-10-13: desktop installers and in-app updates can
            reopen an old version. Replace obsolete application installations,
            preserve cache and temporary/user files unless cleanup is required
@@ -909,3 +909,9 @@ Native acceptance and full green hosted CI remain required before release; the i
 Excluded only PySide6 6.12.0 after a Python3.10 painter reproduced fatal None reference loss; the same 10,000-frame control passes with6.11.2. Nine dependency checks pass.
 Native macOS rejection now records the blocking modal without extending its deadline or bypassing Quit safety; eight related checks pass.
 Native installer CI also triggers on environment-capture changes; its targeted workflow check passes. New native acceptance and full green CI remain required; wholeN703 is open.
+
+2026-10-16 — REOPENED for implementation; updater pair owns end-to-end delivery and GitHub-facing install/update/reinstall/uninstall instructions. Maintainer reproduced macOS Update→remove prompt→quit→manual icon launch→Terminal questions→same old version.
+Required desktop Install/Update flow: one action performs installation/update in the background, then offers Restart; Restart launches the verified requested new version through the spaCR startup window and then the main window, without manual relaunch or Terminal questions.
+Preferences > Performance must offer Uninstall and one popup selecting current version or all detected spaCR versions across environments, plus independently selectable cleanup categories for caches, models, logs, settings, history, temporary/downloaded artifacts and other identified spaCR-owned data.
+Uninstall cleanup categories default to deletion and permit opt-out; preview exact scope/paths before confirmation, preserve unrelated environments/data, and retain ordinary update data preservation. Validate actual installed/restarted executable, module and version plus cancellation/failure/recovery.
+Owners: release_path/preview_cache + updater_acceptance; installer/packaging and Preferences/layout edits wait for Claude's currently running owner commits, then integrate rather than overwrite their work.

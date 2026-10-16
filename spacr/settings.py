@@ -7527,6 +7527,7 @@ ALPHA_FEATURES = {
     },
     560: {
         'widgets': ('EmbeddingsFoundationLabel', 'EmbeddingsFoundationPicker',
+                    'EmbeddingsDemoButton',
                     'EmbeddingsSubCellChannelsButton',
                     'EmbeddingsSubCellChannelsDialog',
                     'EmbeddingsSubCellMicrotubulesChannel',
@@ -7561,7 +7562,7 @@ ALPHA_FEATURES = {
     },
     685: {
         'settings': ('export_vvvv',),
-        'widgets': ('MakeMasksVvvvExport', 'MakeMasksVvvvExportOnSave'),
+        'widgets': ('PreferencesExportVvvv',),
     },
     570: {
         'widgets': ('ControlChartHitPanel', 'ControlChartHitsSection',

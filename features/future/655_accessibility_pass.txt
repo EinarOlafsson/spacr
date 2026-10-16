@@ -2,9 +2,9 @@
 ACCESSIBILITY PASS
 ================================================================================
 
-Status:    PARTIAL — controls/keyboard repairs and Linux AT-SPI/Orca output
-           verified; caption/API debt reconciled. Native usability, macOS/Windows
-           and the Appearance tutorial refresh remain open. Not alpha.
+Status:    DEFERRED — 2026-10-16 maintainer: future work after the updater.
+           Existing shipped accessibility behavior remains available; no new
+           implementation or acceptance work now. Not alpha.
 Requested: 2026-10-04, by the maintainer, who approved this program-level
            feature in the step-4 review ("is the program itself missing
            something?"), from the gap audit of the same day.
@@ -691,3 +691,6 @@ BLOCKED ON MAINTAINER: run current spaCR with Orca on Linux, NVDA on Windows and
 Use Tab/Shift+Tab through module screens and Preferences; confirm spoken names, roles, values/states and single Space/Enter activation.
 Check High contrast, text size, Reduce motion and Stronger focus, language changes and Apply/Cancel/reopen; report OS/control/keys/spoken output for failures.
 Work owns the Appearance tutorial refresh; offscreen checks do not establish audible or human screen-reader usability.
+
+2026-10-16 — DEFERRED by maintainer: move this item to features/future and do no accessibility implementation or acceptance work now; resume after the updater work.
+Existing shipped behavior and verified results remain valid; relocation is scheduling only, not completion or a request to hide/remove existing accessibility controls.

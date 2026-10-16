@@ -404,12 +404,15 @@ def test_every_new_control_is_hidden_until_alpha_features_are_shown(
             qtbot.addWidget(widget)
         buttons = (annotate._btn_blind, masks._btn_blind,
                    app._btn_analysis_lock)
-        assert [b.isHidden() for b in buttons] == [not shown] * 3
+        def hidden(b):
+            return b.isHidden() if hasattr(b, "isHidden") else not b.isVisible()
+
+        assert [hidden(b) for b in buttons] == [not shown] * 3
         monkeypatch.setattr(preferences, "_get_show_alpha_features",
                             lambda s=shown: not s)
         for widget in (annotate, masks, app):
             preferences._apply_alpha_widgets(widget)
-        assert [b.isHidden() for b in buttons] == [shown] * 3
+        assert [hidden(b) for b in buttons] == [shown] * 3
         app.close()
 
 

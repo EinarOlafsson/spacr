@@ -265,11 +265,11 @@ def test_an_empty_queue_shows_zero(screen):
     assert screen._on_first_unreviewed() is False
 
 
-def test_first_unreviewed_sits_left_of_clear_all_objects(screen):
-    row = screen._btn_clear.parentWidget().layout()
+def test_first_unreviewed_is_in_keeps_menu(screen):
+    actions = screen._btn_keep.split_menu().actions()
     assert screen._btn_first_unreviewed.objectName() == "MakeMasksFirstUnreviewed"
-    assert row.indexOf(screen._btn_first_unreviewed) + 1 == row.indexOf(
-        screen._btn_clear)
+    assert actions.index(screen._btn_first_unreviewed) == actions.index(
+        screen._btn_hide_judged) + 1
 
 
 def test_first_unreviewed_reads_persisted_verdicts_after_reopening(
@@ -431,35 +431,33 @@ def alpha(monkeypatch):
     return state
 
 
-def test_vvvv_buttons_follow_the_alpha_switch(qtbot, qt_theme_applied, alpha):
+def test_vvvv_switch_follows_the_alpha_switch(qtbot, qt_theme_applied, alpha):
     from PySide6.QtWidgets import QPushButton
 
-    from spacr.qt.preferences import _apply_alpha_widgets
     from spacr.settings import ALPHA_FEATURES
 
-    assert set(ALPHA_FEATURES[685]["widgets"]) == {
-        "MakeMasksVvvvExport", "MakeMasksVvvvExportOnSave"}
+    assert set(ALPHA_FEATURES[685]["widgets"]) == {"PreferencesExportVvvv"}
     widget = MakeMasksScreen()
     qtbot.addWidget(widget)
-    buttons = [widget.findChild(QPushButton, name)
-               for name in ALPHA_FEATURES[685]["widgets"]]
-    assert all(button is not None and button.isHidden() for button in buttons)
-    alpha["on"] = True
-    _apply_alpha_widgets(widget)
-    assert not any(button.isHidden() for button in buttons)
-    alpha["on"] = False
-    _apply_alpha_widgets(widget)
-    assert all(button.isHidden() for button in buttons)
+    for name in ("MakeMasksVvvvExport", "MakeMasksVvvvExportOnSave"):
+        assert widget.findChild(QPushButton, name) is None
 
 
 def test_export_on_save_follows_every_save(screen, alpha, tmp_path, monkeypatch):
+    from spacr.qt import preferences
+
     out = tmp_path / "vvvv"
     monkeypatch.setattr(type(screen), "_vvvv_export_root",
-                        staticmethod(lambda: str(out)))
+                        lambda self: str(out))
+    stored = {"on": False}
+    monkeypatch.setattr(preferences, "_get_export_vvvv",
+                        lambda: stored["on"])
     screen._on_save()
     assert not out.exists()
     alpha["on"] = True
-    screen._btn_vvvv_on_save.setChecked(True)
+    screen._on_save()
+    assert not out.exists()
+    stored["on"] = True
     screen._on_save()
     labels = out / "img_00" / "img_00_labels.png"
     assert labels.is_file()
@@ -472,7 +470,6 @@ def test_export_on_save_follows_every_save(screen, alpha, tmp_path, monkeypatch)
     screen._blind = {"codes": {}}
     assert screen._export_vvvv_on_save() is None
     screen._blind = None
-    screen._btn_vvvv_on_save.setChecked(False)
 
 
 def test_a_jump_saves_pending_edits_with_save_on_navigation(screen, folder):

@@ -237,6 +237,7 @@ class EmbeddingsScreen(QWidget):
         self._stop = threading.Event()
         self._loading = False
         self._read_path = ""
+        self._demo_active = False
         self._subcell_channels: Optional[tuple[int, int, int, int]] = None
         self._cell_dino_factory = ""
         self._cell_dino_channels: Optional[tuple[int, ...]] = None
@@ -322,6 +323,16 @@ class EmbeddingsScreen(QWidget):
             self, picker, lambda _folder, db: self._use_example_database(db),
             say=lambda text: self._status.setText(text))
         example.setObjectName("EmbeddingsTestDataButton")
+        self._demo_button = QPushButton(tr("Load synthetic demo"), self)
+        self._demo_button.setObjectName("EmbeddingsDemoButton")
+        self._demo_button.setToolTip(tr(
+            "Load 24 generated shapes with labels. ResNet-18 runs on the "
+            "CPU; pretrained weights download only if not cached."))
+        self._demo_button.clicked.connect(self._load_demo_crops)
+        picker.addWidget(self._demo_button)
+        from ..preferences import _apply_alpha_widgets
+
+        _apply_alpha_widgets(self._demo_button)
         outer.addLayout(picker)
 
         selection = QHBoxLayout()
@@ -1999,6 +2010,49 @@ class EmbeddingsScreen(QWidget):
         self._path.setText(str(database))
         self._on_path_changed()
 
+    def _load_demo_crops(self) -> None:
+        """Load the bundled generic shapes through the ordinary crop reader."""
+        if self._loading or self._dino_closed:
+            return
+        self._stop.clear()
+        self._set_loading(True)
+        self._status.setText(tr("Loading synthetic demo crops…"))
+        stop = self._stop
+
+        def work():
+            """Unpack and read the small local example off the GUI thread."""
+            from ...crop_loader import (CROP_SOURCE_FOLDER, CropQuery,
+                                        load_crops, plan_crops)
+            from ...example_archives import _prepare_embeddings_example
+
+            example = _prepare_embeddings_example()
+            plan = plan_crops(CropQuery(
+                source=CROP_SOURCE_FOLDER, path=str(example["crops"])))
+            record = {}
+            crops = load_crops(plan, cancelled=stop.is_set, record=record)
+            return example, plan, crops, record
+
+        def finished(answer):
+            """Select the CPU example and attach its row-aligned labels."""
+            if self._dino_closed:
+                return
+            if stop.is_set():
+                self._stopped(tr("Loading synthetic demo crops was stopped."))
+                return
+            example, plan, crops, record = answer
+            self._where.setCurrentIndex(self._where.findData(plan.query.source))
+            self._path.setText(str(example["crops"]))
+            self._filter.clear()
+            self._limit.setValue(DEFAULT_CROP_LIMIT)
+            self._foundation.setCurrentIndex(0)
+            self._backbone.setCurrentText("resnet18")
+            self._policy.setCurrentIndex(self._policy.findData("project"))
+            self._batch.setValue(8)
+            self._plan = plan
+            self._on_crops_read((crops, record), demo=example)
+
+        self._jobs.submit(work, finished)
+
     def crop_source(self) -> str:
         """Which kind of place the crops come from."""
         return str(self._where.currentData() or CROP_SOURCE_DATABASE)
@@ -2172,7 +2226,8 @@ class EmbeddingsScreen(QWidget):
         self._load.setEnabled(True if loading else bool(
             str(self._path.text()).strip()))
         for widget in (self._where, self._path, self._browse, self._object,
-                       self._plate, self._filter, self._limit):
+                       self._plate, self._filter, self._limit,
+                       self._demo_button, self._test_data_button):
             widget.setEnabled(not loading)
         self._run.setEnabled(
             False if loading else getattr(self, "_crops", None) is not None)
@@ -2227,7 +2282,7 @@ class EmbeddingsScreen(QWidget):
         """One page in. Runs on the GUI thread, however it was emitted."""
         self._status.setText(f"Loaded {done:,} of {total:,} crops…")
 
-    def _on_crops_read(self, answer) -> None:
+    def _on_crops_read(self, answer, *, demo=None) -> None:
         """Hand the stack to the screen and say what it cost."""
         crops, record = answer
         self._crop_record = dict(record)
@@ -2245,6 +2300,17 @@ class EmbeddingsScreen(QWidget):
                     os.path.abspath(os.path.expanduser(plan.query.path)),
                     tuple(str(key) for key in keys))
         self._status.setText(self._loaded_sentence(record))
+        if demo is not None:
+            self._demo_active = True
+            self._caveat.setText(DIMENSION_CAVEAT + " " + tr(
+                "Synthetic shapes demonstrate the workflow only. Their "
+                "labels and scores are not biological validation."))
+            if self._choose_labels(str(demo["labels"])):
+                self._status.setText(tr(
+                    "Loaded 24 synthetic crops and labels. Press {embed}, then "
+                    "choose {classifier} and {run}. Example files: {folder}").format(
+                        embed=tr("Embed"), classifier=tr("Classifier"),
+                        run=tr("Run"), folder=demo["folder"]))
         self.crops_loaded.emit(int(crops.shape[0]))
 
     def _loaded_label(self, record) -> str:
@@ -2343,10 +2409,15 @@ class EmbeddingsScreen(QWidget):
         self._classifier_application_result = None
         self._classifier_results.setEnabled(False)
         self._crops = crops
+        if self._demo_active:
+            self._labels = {}
+        self._demo_active = False
+        self._caveat.setText(DIMENSION_CAVEAT)
         self._crop_generation += 1
         self._crop_identity = None
         self._result_identity = None
         self._result = None
+        self._frame = None
         self._result_encoder = None
         self._save_similar.setEnabled(False)
         self._scale_record = {}
@@ -2381,6 +2452,7 @@ class EmbeddingsScreen(QWidget):
         from ...embeddings import CHANNEL_PROJECT, EmbeddingError, EmbeddingSpec
 
         foundation = str(self._foundation.currentData() or "")
+        device = "cpu" if self._demo_active else None
         if foundation == "subcell_rybg":
             if self._subcell_channels is None:
                 raise EmbeddingError(tr(
@@ -2391,6 +2463,7 @@ class EmbeddingsScreen(QWidget):
                 channel_policy=CHANNEL_PROJECT,
                 channels=self._subcell_channels,
                 batch_size=int(self._batch.value()),
+                device=device,
                 normalize=False,
             )
         if foundation == "cell_dino":
@@ -2406,6 +2479,7 @@ class EmbeddingsScreen(QWidget):
                 channel_policy=CHANNEL_PROJECT,
                 channels=self._cell_dino_channels,
                 batch_size=int(self._batch.value()),
+                device=device,
                 cell_dino_factory=self._cell_dino_factory,
                 checkpoint_path=self._cell_dino_checkpoint,
                 checkpoint_sha256=self._cell_dino_digest,
@@ -2414,6 +2488,7 @@ class EmbeddingsScreen(QWidget):
             backbone=foundation or str(self._backbone.currentText()).strip(),
             channel_policy=str(self._policy.currentData()),
             batch_size=int(self._batch.value()),
+            device=device,
         )
 
     def embed(self) -> None:

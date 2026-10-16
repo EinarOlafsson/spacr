@@ -4061,8 +4061,8 @@ class MainWindow(QMainWindow):
         if (getattr(screen, "_history", None) is not None
                 and getattr(screen, "_box_history", None) is not None
                 and hasattr(screen, "_on_undo") and hasattr(screen, "_on_redo")):
-            undo = getattr(screen, "_btn_undo", None)
-            redo = getattr(screen, "_btn_redo", None)
+            undo = getattr(screen, "_act_undo", None)
+            redo = getattr(screen, "_act_redo", None)
             if undo is not None and redo is not None:
                 return (screen._on_undo, screen._on_redo,
                         undo.isEnabled, redo.isEnabled)

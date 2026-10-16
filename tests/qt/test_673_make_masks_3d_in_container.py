@@ -128,7 +128,7 @@ def test_a_volume_opens_in_the_mask_tab_and_never_in_a_window(screen, tmp_path):
                 if isinstance(widget, QDialog) and widget.isVisible()]
     assert screen._view_tabs.widget(0) is stage and stage.isAncestorOf(screen._canvas)
     assert screen._view_tabs.currentIndex() == 0
-    assert screen._body_stack.currentWidget() is screen._body_splitter
+    assert screen._body_stack.currentWidget() is screen._image_page
     assert stage.view_picker.isVisible() and stage._rail.isVisible() and stage._strip.isVisible()
     assert screen._canvas.image.shape == (24, 32) and stage._cursor == [16, 12, 5]
     assert stage._slider.value() == 5 and stage._slice_label.text() == "6 / 10"
@@ -218,7 +218,7 @@ def test_brush_strokes_on_a_slice_draw_one_object_and_undo_through_the_volume(st
     assert session.mask[5].any() and not session.mask[:5].any() and not session.mask[6:].any()
     assert set(np.unique(session.mask)) == {0, 1}
     assert stage._selected == 1 and stage._labels.currentData() == 1 and stage.dirty
-    assert screen._btn_undo.isEnabled() and screen._objects_now() == 1
+    assert screen._act_undo.isEnabled() and screen._objects_now() == 1
     assert stage._count.text().startswith("Object 1:")
     stage.set_slice(7)
     qtbot.mousePress(canvas, Qt.LeftButton, Qt.ShiftModifier, centre - QPoint(30, 0))
@@ -237,9 +237,9 @@ def test_brush_strokes_on_a_slice_draw_one_object_and_undo_through_the_volume(st
     _stroke(canvas, qtbot, centre - QPoint(80, 0), centre + QPoint(80, 0))
     assert np.count_nonzero(session.mask[7] == 1) < ones
     after_erase = session.mask.copy()
-    screen._btn_undo.click()
+    screen._act_undo.trigger()
     assert not np.array_equal(session.mask, after_erase)
-    screen._btn_redo.click()
+    screen._act_redo.trigger()
     assert np.array_equal(session.mask, after_erase)
     assert np.array_equal(canvas.mask, session.plane("Z", 7)[1])
 
@@ -455,9 +455,9 @@ def test_save_keeps_shape_axes_and_voxel_size_and_ctrl_s_saves_the_volume(screen
     _stroke(canvas, qtbot, centre - QPoint(40, 0), centre + QPoint(40, 0))
     drawn = stage.session.mask.copy()
     assert drawn.any()
-    screen._btn_undo.click()
+    screen._act_undo.trigger()
     assert not stage.session.mask.any()
-    screen._btn_redo.click()
+    screen._act_redo.trigger()
     assert np.array_equal(stage.session.mask, drawn)
     screen._btn_save.click()
     assert not stage.dirty and "Saved 3D mask" in screen._status_label.text()
@@ -548,9 +548,9 @@ def test_true_3d_draws_reshapes_and_deletes_objects_into_voxels(true3d, screen, 
     assert np.all(stage.session.mask == 1)
     stage._delete_button.click()
     assert not stage.session.mask.any() and stage._selected == 0
-    screen._btn_undo.click()
+    screen._act_undo.trigger()
     assert np.all(stage.session.mask == 1)
-    screen._btn_undo.click()
+    screen._act_undo.trigger()
     assert np.array_equal(stage.session.mask, expected)
 
 

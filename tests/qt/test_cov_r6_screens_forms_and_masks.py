@@ -158,55 +158,22 @@ def test_a_drag_too_small_to_move_the_view_keeps_its_anchor(canvas):
 # make_masks — the screen and the segmenter
 # ---------------------------------------------------------------------------
 
-def test_a_settings_fold_never_remembers_a_zero_width(qtbot, qt_theme_applied):
-    """The remembered panel width is only ever taken from a real layout.
-
-    ``_on_toggle_settings`` remembers the width the user dragged so the next
-    press puts the panel back there. A splitter that has not been laid out
-    reports zero for every pane, and remembering that zero is what gave the
-    second press a pane the user could not see -- so the width is only taken
-    when there is a second pane and it has a size.
-    """
+def test_the_settings_fold_behind_their_arrow_and_come_back(qtbot, qt_theme_applied):
+    """The settings are an EDGE pane; folding gives their width to the image."""
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     try:
         screen.resize(900, 600)
-        screen._body_stack.setCurrentWidget(screen._body_splitter)
         screen.show()
         qtbot.waitUntil(lambda: screen._body_splitter.sizes()[0] > 0)
         laid_out = screen._body_splitter.sizes()
         assert len(laid_out) > 1 and laid_out[0] > 0
-
-        screen._on_toggle_settings(False)
-        remembered = screen._settings_width
-        assert remembered == laid_out[0], "the settings are the left pane"
-        assert screen._settings_scroll.isHidden() is True
-
-        screen._on_toggle_settings(True)
-        assert screen._settings_scroll.isHidden() is False
-
-        # A SPLITTER THAT HAS NEVER BEEN LAID OUT reports zero for
-        # everything -- the state this screen's own comment names. Offscreen
-        # nothing is ever mapped, so Qt keeps handing back the size hints
-        # and the state cannot be produced through the real splitter;
-        # standing one in that answers as an unlaid-out splitter does is the
-        # only way to drive the arm. The width already remembered has to
-        # survive it.
-        class _NeverLaidOut:
-            def __init__(self):
-                self.given = None
-
-            def sizes(self):
-                return [0, 0]
-
-            def setSizes(self, sizes):
-                self.given = list(sizes)
-
-        screen._body_splitter = _NeverLaidOut()
-        screen._on_toggle_settings(False)
-        assert screen._settings_width == remembered, (
-            "a zero-width pane was remembered as the panel's width")
-        assert screen._settings_scroll.isHidden() is True
+        assert screen._set_settings_shown(False)
+        assert not screen.settings_shown()
+        qtbot.waitUntil(lambda: screen._body_splitter.sizes()[0] == 0)
+        assert screen._set_settings_shown(True)
+        qtbot.waitUntil(lambda: screen._body_splitter.sizes()[0] > 0)
+        assert abs(screen._body_splitter.sizes()[0] - laid_out[0]) <= 8
     finally:
         retire_pyqtgraph_menus(screen)
         screen.close()

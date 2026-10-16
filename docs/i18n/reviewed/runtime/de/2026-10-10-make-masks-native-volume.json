@@ -58,13 +58,6 @@
       "translation": "Objekt-ID"
     },
     {
-      "key": "Open 3D image…",
-      "source": "Open 3D image…",
-      "source_sha256": "6ea6e40ff44e2de686180d13647a5f5ba7b46f092cfb00d81f93101834a967b8",
-      "table": "ui",
-      "translation": "3D-Bild öffnen…"
-    },
-    {
       "key": "Open 3D spatial image",
       "source": "Open 3D spatial image",
       "source_sha256": "42c22a30eb64464500f33fbfbc59ad83b9b2ba41dd36e2e13c715d8684d5a2d0",
@@ -358,6 +351,14 @@
       "table": "ui",
       "translation": "Die letzte Volumenbearbeitung rückgängig machen, einschließlich ihrer exakten Labels und Begrenzung.",
       "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "key": "Open 3D image…",
+      "source": "Open 3D image…",
+      "source_sha256": "6ea6e40ff44e2de686180d13647a5f5ba7b46f092cfb00d81f93101834a967b8",
+      "table": "ui",
+      "translation": "3D-Bild öffnen…",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
     }
   ]
 }

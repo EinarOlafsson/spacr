@@ -101,40 +101,24 @@ def _dialog(monkeypatch, answer):
 # vvvv export
 
 
-def test_choosing_an_export_folder_remembers_it(screen, monkeypatch, tmp_path):
-    chosen = str(tmp_path / "patch")
-    asked = _dialog(monkeypatch, chosen)
-    assert screen._vvvv_export_root() == ""
-    assert screen._ask_vvvv_export_root() == chosen
-    assert asked == [screen._folder]
-    assert screen._vvvv_export_root() == chosen
-    asked = _dialog(monkeypatch, "")
-    assert screen._ask_vvvv_export_root() == ""
-    assert asked == [chosen]
-    assert screen._vvvv_export_root() == chosen
-
-
-def test_export_on_save_without_a_folder_switches_itself_off(
-        screen, monkeypatch, tmp_path):
+def test_the_export_folder_defaults_beside_the_images(screen, tmp_path):
     from spacr.qt.prefs import _s
 
-    _dialog(monkeypatch, "")
-    screen._btn_vvvv_on_save.setChecked(True)
-    assert not screen._btn_vvvv_on_save.isChecked()
-    assert _s().value("make_masks/vvvv_export_on_save", True,
-                      type=bool) is False
-    _dialog(monkeypatch, str(tmp_path / "out"))
-    screen._btn_vvvv_on_save.setChecked(True)
-    assert screen._btn_vvvv_on_save.isChecked()
-    assert _s().value("make_masks/vvvv_export_on_save", False,
-                      type=bool) is True
-    assert screen._vvvv_export_root() == str(tmp_path / "out")
+    assert screen._vvvv_export_root() == os.path.join(
+        screen._folder, "vvvv", "make_masks")
+    _s().setValue("make_masks/vvvv_export_dir", str(tmp_path / "patch"))
+    try:
+        assert screen._vvvv_export_root() == str(tmp_path / "patch")
+    finally:
+        _s().remove("make_masks/vvvv_export_dir")
+    screen._folder = None
+    assert screen._vvvv_export_root() == ""
 
 
-def test_export_asks_for_a_folder_and_says_where_it_wrote(
-        screen, monkeypatch, tmp_path):
+def test_export_writes_and_says_where_it_wrote(screen, monkeypatch, tmp_path):
     out = tmp_path / "vvvv"
-    _dialog(monkeypatch, str(out))
+    monkeypatch.setattr(type(screen), "_vvvv_export_root",
+                        lambda self: str(out))
     written = screen._on_export_vvvv()
     assert written == str(out / "img_00")
     np.testing.assert_array_equal(
@@ -143,9 +127,8 @@ def test_export_asks_for_a_folder_and_says_where_it_wrote(
     assert str(out / "img_00") in screen._status_label.text()
 
 
-def test_export_cancelled_at_the_folder_writes_nothing(
-        screen, monkeypatch, tmp_path):
-    _dialog(monkeypatch, "")
+def test_export_without_a_folder_writes_nothing(screen, monkeypatch, tmp_path):
+    monkeypatch.setattr(type(screen), "_vvvv_export_root", lambda self: "")
     screen._status_label.setText("before")
     assert screen._on_export_vvvv() is None
     assert screen._status_label.text() == "before"
@@ -179,14 +162,15 @@ def test_a_failing_export_warns_with_the_reason(screen, warnings, tmp_path):
 
 def test_export_on_save_while_blinded_exports_nothing(
         screen, alpha, monkeypatch, tmp_path):
+    from spacr.qt import preferences
+
     out = tmp_path / "vvvv"
     monkeypatch.setattr(type(screen), "_vvvv_export_root",
-                        staticmethod(lambda: str(out)))
-    screen._btn_vvvv_on_save.setChecked(True)
+                        lambda self: str(out))
+    monkeypatch.setattr(preferences, "_get_export_vvvv", lambda: True)
     assert screen._export_vvvv_on_save() == str(out / "img_00")
     alpha["on"] = False
     assert screen._export_vvvv_on_save() is None
-    screen._btn_vvvv_on_save.setChecked(False)
 
 
 # queue tally, Go to and First unreviewed

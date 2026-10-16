@@ -222,3 +222,5 @@ owner reply, and the older complete-native planner packet remains separate.
 Evidence:data/n676_selective04_source_adoption_2026-10-15/,
 data/n676_selective04_independent_source_peer_2026-10-15/ and
 data/ci_current_publication_selector04_2026-10-15/.
+
+2026-10-16 — Landed707/59ce785b443 requires Work/tutorial lane to re-record14/42/46/79 and check05/19–22/54/57/80 for old Make Masks clips; use current layout and fresh capture under existing lane ownership.

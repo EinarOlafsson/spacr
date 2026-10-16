@@ -2107,7 +2107,12 @@ class ModelZooPicker(QDialog):
                       "version", "path"))
 
     def _start_reference_check(self, entry, path, requested):
-        """Keep the dialog responsive while verifying the exact selected file."""
+        """Verify asynchronously, retaining the worker through native teardown.
+
+        The result can reach the GUI before the thread finishes deleting its
+        worker. Keeping the wrapper on the thread prevents its last Python
+        reference from disappearing while that native destructor takes the GIL.
+        """
         self._stop_reference_check()
         self._chosen_reference = None
         self._chosen_path = None
@@ -2128,6 +2133,7 @@ class ModelZooPicker(QDialog):
             control.setEnabled(False)
         thread = QThread(self)
         worker = _ModelReferenceWorker(generation, entry, path, requested)
+        thread._reference_worker = worker
         self._reference_thread = thread
         self._reference_worker = worker
         worker.moveToThread(thread)
