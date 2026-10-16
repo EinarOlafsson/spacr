@@ -1,0 +1,78 @@
+{
+  "status": "captured_selected_scene",
+  "error": "none",
+  "phase": "physical_apply_dispatch",
+  "pre_apply_public_state": {
+    "schema": 1,
+    "phase": "clean_standalone_after_opacity_edit_before_physical_apply",
+    "recording_context": "clean_standalone_no_prior_tour_equivalence",
+    "historical_prefix_sha256": "8316d8ba61d0518e7e7cadcbec28bd6d316fc49dc554bde75ade1750c84c280d",
+    "historical_prefix_executed": false,
+    "tab": {
+      "index": 1,
+      "label": "Appearance"
+    },
+    "folds": {
+      "theme_expanded": true,
+      "animation_expanded": false
+    },
+    "scroll": {
+      "value": 0,
+      "minimum": 0,
+      "maximum": 234,
+      "viewport_size": [
+        640,
+        435
+      ]
+    },
+    "geometry": {
+      "main_window": [
+        0,
+        0,
+        2560,
+        1440
+      ],
+      "preferences_dialog": [
+        50,
+        50,
+        694,
+        654
+      ],
+      "pane_opacity_slider": [
+        189,
+        413,
+        497,
+        16
+      ]
+    },
+    "pending_modal": {
+      "active_present": true,
+      "active_is_preferences": true,
+      "active_is_other": false,
+      "apply_confirmation_present": false
+    },
+    "known_preferences": {
+      "initial_opacity_pct": 60,
+      "persisted_opacity_pct": 60,
+      "draft_slider_pct": 55,
+      "initial_font_scale": 1.0,
+      "font_scale": 1.0,
+      "font_scale_unchanged": true
+    }
+  },
+  "privacy_prepared_root_mode": "owned_empty_neutral_directory_no_data_inputs",
+  "human_startup_elapsed_ns": 84217344,
+  "initial_window_dispatch_elapsed_ns": 2345580433,
+  "excluded_release_history_panels": 1,
+  "post_revert_readback": {
+    "persisted_opacity_pct": 60,
+    "draft_slider_pct": 55,
+    "preferences_still_visible": true
+  },
+  "revert_verified": true,
+  "original_opacity_pct": 60,
+  "preview_opacity_pct": 55,
+  "recording_context": "clean_standalone_no_prior_tour_equivalence",
+  "historical_prefix_executed": false,
+  "full_native_no_trim": true
+}
