@@ -805,7 +805,7 @@ def _running_desktop(box, platform="linux"):
     return root, machine, ic.find_old_installs(system=machine)
 
 
-def test_the_helper_plan_waits_fetches_deletes_installs_and_relaunches(tmp_path):
+def test_legacy_desktop_update_refuses_before_starting_an_interactive_installer(tmp_path):
     box = Box(tmp_path / "box")
     root, machine, records = _running_desktop(box)
     workdir = tmp_path / "helper"
@@ -818,22 +818,13 @@ def test_the_helper_plan_waits_fetches_deletes_installs_and_relaunches(tmp_path)
     assert plan["steps"] == ["wait", "fetch", "install", "verify", "retire", "relaunch"]
     assert plan["pid"] == 4242
     assert json.loads((workdir / "plan.json").read_text()) == json.loads(json.dumps(plan))
-    assert (workdir / "install_cleanup.py").read_bytes() == Path(ic.__file__).read_bytes()
-    assert plan["fetch"]["url"] == (
-        "https://github.com/EinarOlafsson/spacr/releases/download/v9.9.9/"
-        "spaCR-9.9.9-Linux-x86_64-Online.run")
-    assert plan["install"][:2] == ["bash", plan["fetch"]["path"]]
-    assert plan["install"][plan["install"].index("--install-root") + 1] == str(root)
-    [(argv, env, cwd)] = spawned
-    assert argv == plan["command"] and argv[-2:] == ["run-plan", str(workdir / "plan.json")]
-    # The copy being removed is the one running, so neither the helper's
-    # interpreter nor its working folder may live inside it.
-    assert not ic._inside(argv[0], str(root)) and not ic._inside(cwd, str(root))
-    assert argv[0] == str(workdir / "uv")
-    assert env["UV_PYTHON_INSTALL_DIR"].startswith(str(workdir))
+    assert plan["command"] is None and not spawned
+    assert plan["fetch"] is None and plan["install"] is None
+    assert "cannot stage a verified update" in plan["error"]
+    assert root.is_dir()
 
 
-def test_the_helper_uses_the_current_python_when_it_is_not_being_removed(tmp_path):
+def test_available_python_does_not_enable_an_unverified_desktop_replacement(tmp_path):
     box = Box(tmp_path / "box")
     root, machine, records = _running_desktop(box)
     machine.executable = str(tmp_path / "conda" / "bin" / "python")
@@ -843,8 +834,9 @@ def test_the_helper_uses_the_current_python_when_it_is_not_being_removed(tmp_pat
                                   system=machine,
                                   spawn=lambda argv, env, cwd: spawned.append(argv))
 
-    assert plan["command"][0] == machine.executable
-    assert spawned == [plan["command"]]
+    assert plan["command"] is None and not spawned
+    assert "cannot stage a verified update" in plan["error"]
+    assert root.is_dir()
 
 
 def test_no_helper_starts_without_a_python_that_survives_the_removal(tmp_path):
@@ -857,30 +849,36 @@ def test_no_helper_starts_without_a_python_that_survives_the_removal(tmp_path):
                                   system=machine,
                                   spawn=lambda *args: spawned.append(args))
 
-    assert plan["command"] is None and "run the new installer" in plan["error"]
+    assert plan["command"] is None and "cannot stage a verified update" in plan["error"]
     assert spawned == []
 
 
-def test_a_windows_helper_runs_the_setup_silently_into_the_same_folder(tmp_path):
+def test_legacy_windows_runtime_does_not_enter_unverified_native_setup(tmp_path):
     box = Box(tmp_path / "box")
     root, machine, records = _running_desktop(box, "windows")
 
     plan = ic.start_update_helper(records, "9.9.9", workdir=str(tmp_path / "h"),
                                   system=machine, spawn=lambda *args: None)
 
-    assert plan["fetch"]["url"].endswith("/v9.9.9/spaCR-9.9.9-Windows-Online-Setup.exe")
-    assert plan["install"] == [plan["fetch"]["path"], "/S", f"/D={root}"]
-    assert plan["relaunch"][0].endswith("pythonw.exe")
-    assert Path(plan["command"][0]).name == "uv.exe"
+    assert plan["command"] is None and plan["fetch"] is None
+    assert plan["install"] is None and plan["relaunch"] is None
+    assert "cannot stage a verified update" in plan["error"]
+    assert root.is_dir()
 
 
-def _helper_plan(tmp_path):
-    box = Box(tmp_path / "box")
+def _helper_plan(tmp_path, box=None):
+    """Retain explicit historical plan coverage without making the GUI produce one."""
+    box = box or Box(tmp_path / "box")
     box.add_user_data()
     root, machine, records = _running_desktop(box)
-    ic.start_update_helper(records, "9.9.9", pid=4242,
+    plan = ic.start_update_helper(records, "9.9.9", pid=4242,
                            workdir=str(tmp_path / "helper"), system=machine,
                            spawn=lambda *args: None)
+    running, = [record for record in records if record.running]
+    plan["fetch"], plan["install"], plan["relaunch"] = ic._reinstall_steps(
+        running, "9.9.9", plan["workdir"], machine)
+    plan["error"] = None
+    (tmp_path / "helper" / "plan.json").write_text(json.dumps(plan))
     return box, root, machine, str(tmp_path / "helper" / "plan.json")
 
 
@@ -2205,7 +2203,7 @@ def test_a_mac_helper_upgrades_the_discovered_existing_runtime_without_removal(t
 
 
 @pytest.mark.parametrize("where", ["outside", "inside"])
-def test_on_a_real_computer_the_helper_may_borrow_a_uv_from_path(tmp_path, where):
+def test_path_uv_does_not_enable_an_unverified_desktop_replacement(tmp_path, where):
     box = Box(tmp_path / "box")
     root, machine, records = _running_desktop(box)
     (root / "bootstrap" / "uv").unlink()
@@ -2217,12 +2215,8 @@ def test_on_a_real_computer_the_helper_may_borrow_a_uv_from_path(tmp_path, where
     plan = ic.start_update_helper(records, "9.9.9", workdir=str(tmp_path / "h"),
                                   system=machine, spawn=lambda *args: None)
 
-    if where == "outside":
-        assert plan["error"] is None
-        assert plan["command"][0] == str(tmp_path / "h" / "uv")
-        assert (tmp_path / "h" / "uv").read_text() == "#!/bin/sh\n"
-    else:
-        assert plan["command"] is None and "run the new installer" in plan["error"]
+    assert plan["command"] is None and "cannot stage a verified update" in plan["error"]
+    assert root.exists()
 
 
 def _edit_plan(path, **changes):
@@ -2290,9 +2284,7 @@ def test_a_plan_pointing_at_another_download_deletes_nothing(tmp_path):
 def test_the_helper_log_lists_your_environment_without_reporting_on_it(tmp_path):
     box = Box(tmp_path / "box")
     prefix = _conda_env(box, "analysis")
-    root, machine, records = _running_desktop(box)
-    ic.start_update_helper(records, "9.9.9", pid=1, workdir=str(tmp_path / "helper"),
-                           system=machine, spawn=lambda *args: None)
+    box, root, machine, _plan = _helper_plan(tmp_path, box)
 
     code = ic._run_plan(str(tmp_path / "helper" / "plan.json"),
                         wait=lambda pid: True, fetch=lambda url, path: None,

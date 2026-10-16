@@ -4765,6 +4765,9 @@ class MainWindow(QMainWindow):
         Both the network call and an accepted ``pip`` upgrade run on
         :class:`_UpdateWorker`; only dialogs and status updates run here.
         """
+        if getattr(self, "_uninstall_coordinator", None) is not None:
+            self.statusBar().showMessage(tr("An uninstall operation is already running."), 4000)
+            return
         if getattr(self, "_frozen_update_handshake", None) is not None:
             self.statusBar().showMessage(tr("An update operation is already running."), 4000)
             return
@@ -5093,30 +5096,10 @@ class MainWindow(QMainWindow):
         from spacr import install_cleanup
 
         records = list(records or ())
-        ticked = ()
-        online_macos = install_cleanup._macos_online_update_record(records) is not None
-        debian = any(r.kind == "installer" and r.running and r.layout == "linux-deb"
-                     and r.platform == "linux" and r.registrations == ("deb:spacr",)
-                     for r in records)
-        windows_frozen = any(r.kind == "installer" and r.running
-                             and r.layout == "windows-offline" and r.platform == "windows"
-                             for r in records)
-        pip_environment = not any(r.kind == "installer" and r.running for r in records)
-        if not online_macos and not debian and not windows_frozen and not pip_environment and any(
-                r.kind == "installer" or (r.kind == "environment" and not r.running)
-                for r in records):
-            ticked = self._confirm_old_installs(records)
-            if ticked is None:
-                return
         version = getattr(self, "_update_version", None) or ""
-        if windows_frozen or any(record.kind == "environment" and record.running
-               and record.platform == "windows" for record in records):
-            self._start_update_worker(
-                "prepare", lambda: install_cleanup.start_update_helper(
-                    records, version, ticked=ticked), self._on_update_plan_prepared)
-            return
-        self._on_update_plan_prepared(install_cleanup.start_update_helper(
-            records, version, ticked=ticked))
+        self._start_update_worker(
+            "prepare", lambda: install_cleanup.start_update_helper(
+                records, version, ticked=()), self._on_update_plan_prepared)
 
     def _on_update_plan_prepared(self, plan):
         """Handle a prepared update plan on the GUI thread.
@@ -5145,6 +5128,7 @@ class MainWindow(QMainWindow):
             return
         if plan.get("adapter") in {"macos-frozen-v1", "macos-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1", "windows-frozen-nsis-v1"} and (plan.get("handshake") or plan.get("adapter") == "windows-frozen-nsis-v1"):
             from PySide6.QtCore import QTimer
+            from PySide6.QtWidgets import QProgressDialog
 
             self._frozen_update_plan = plan
             try:
@@ -5159,17 +5143,31 @@ class MainWindow(QMainWindow):
             self._frozen_update_timer = QTimer(self)
             self._frozen_update_timer.timeout.connect(self._poll_frozen_update)
             self._frozen_update_timer.start(250)
+            self._update_progress = QProgressDialog(
+                tr("Preparing spaCR {version}…", version=version), tr("Cancel"), 0, 0, self)
+            self._update_progress.setWindowTitle(tr("Updates"))
+            self._update_progress.setWindowModality(Qt.NonModal)
+            self._update_progress.setAutoClose(False)
+            self._update_progress.canceled.connect(self._cancel_frozen_update)
+            self._update_progress.show()
             self._poll_frozen_update()
             return
-        QMessageBox.information(
-            self, "Updates",
-            tr("spaCR will close, remove the older copies, install "
-               "{version} and start again.", version=version))
-        self.close()
+        QMessageBox.warning(
+            self, tr("Updates"),
+            tr("This installation cannot stage a verified update. Nothing was changed."))
         return
 
+    def _hide_update_progress(self):
+        """Close progress without treating verified readiness as cancellation."""
+        progress = getattr(self, "_update_progress", None)
+        if progress is not None:
+            progress.blockSignals(True)
+            progress.close()
+            progress.deleteLater()
+            self._update_progress = None
+
     def _save_pip_update_restart(self):
-        """Preserve current module settings before approving a pip update shutdown."""
+        """Preserve current module settings before approving update activation."""
         from spacr import restart_state
 
         try:
@@ -5190,6 +5188,7 @@ class MainWindow(QMainWindow):
 
     def _cancel_frozen_update(self):
         """Disarm preparation before an ordinary close, cancellation or refusal."""
+        self._hide_update_progress()
         handshake = getattr(self, "_frozen_update_handshake", None)
         timer = getattr(self, "_frozen_update_timer", None)
         if timer is not None:
@@ -5222,6 +5221,7 @@ class MainWindow(QMainWindow):
             if status["state"] == "error":
                 raise RuntimeError(status["error"])
             self._frozen_update_timer.stop()
+            self._hide_update_progress()
             if self._frozen_update_plan.get("adapter") == "windows-frozen-nsis-v1":
                 message = tr(
                     "spaCR will close before updating its Windows application. "
@@ -5237,21 +5237,20 @@ class MainWindow(QMainWindow):
                     "Your data and caches will be kept.")
             elif self._frozen_update_plan.get("adapter") in {"macos-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1"}:
                 message = tr(
-                    "This will reinstall spaCR in its current environment. "
-                    "spaCR will close before the update starts. "
-                    "It will reopen automatically after the update succeeds.")
+                    "spaCR {version} is ready. Restart to use the update. "
+                    "Your data and caches will be kept.",
+                    version=self._frozen_update_plan["version"])
             else:
-                message = tr("spaCR will close, remove the older copies, install "
-                             "{version} and start again.",
-                             version=self._frozen_update_plan["version"])
-            answer = QMessageBox.information(
-                self, "Updates", message, QMessageBox.Ok | QMessageBox.Cancel)
+                message = tr(
+                    "spaCR {version} is ready. Restart to use the update. "
+                    "Your data and caches will be kept.",
+                    version=self._frozen_update_plan["version"])
+            answer = self._confirm_update_restart(message)
             if answer != QMessageBox.Ok or self._closing:
                 self._cancel_frozen_update()
                 return
             handshake.check()
-            if (self._frozen_update_plan.get("adapter") in {"pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1", "windows-frozen-nsis-v1"}
-                    and not self._save_pip_update_restart()):
+            if not self._save_pip_update_restart():
                 self._cancel_frozen_update()
                 return
             self._frozen_update_closing = True
@@ -5272,6 +5271,14 @@ class MainWindow(QMainWindow):
             else:
                 QMessageBox.warning(
                     self, "Updates", tr("Upgrade unavailable: {error}", error=str(error)))
+
+    def _confirm_update_restart(self, message):
+        """Offer an explicit Restart action only after update preparation succeeds."""
+        box = QMessageBox(QMessageBox.Information, tr("Updates"), message,
+                          QMessageBox.Ok | QMessageBox.Cancel, self)
+        box.button(QMessageBox.Ok).setText(tr("Restart"))
+        box.setDefaultButton(QMessageBox.Cancel)
+        return box.exec()
 
     def _confirm_old_installs(self, records):
         """List the copies an update removes, with a tick box per environment.
@@ -5462,6 +5469,18 @@ class MainWindow(QMainWindow):
                 self._cancel_frozen_update()
                 QMessageBox.warning(
                     self, "Updates", tr("Upgrade unavailable: {error}", error=str(error)))
+                event.ignore()
+                self._closing = False
+                return
+        approve_uninstall = getattr(self, "_approve_uninstall_close", None)
+        if approve_uninstall is not None:
+            try:
+                if approve_uninstall() is not True:
+                    event.ignore()
+                    self._closing = False
+                    return
+            except Exception as error:
+                QMessageBox.warning(self, tr("Uninstall stopped"), str(error))
                 event.ignore()
                 self._closing = False
                 return
@@ -8149,6 +8168,11 @@ def _tear_down_before_finalization() -> None:
 def launch(argv: Optional[list[str]] = None) -> int:
     """Bootstrap QApplication and show the main window."""
     _timing.begin()
+    update_launch = None
+    if os.environ.get("SPACR_UPDATE_LAUNCH"):
+        from spacr.install_cleanup import _begin_update_launch, _finish_update_launch
+
+        update_launch = _begin_update_launch()
     if argv is None:
         argv = sys.argv[1:]
     from ..logging_util import _apply_portable_mode
@@ -8328,6 +8352,12 @@ def launch(argv: Optional[list[str]] = None) -> int:
     win._startup_benchmark_controller = benchmark_controller
     _open_at_the_measured_width(win)
     _show_at_launch(win)
+    if update_launch is not None:
+        from PySide6.QtCore import QTimer
+
+        QTimer.singleShot(0, lambda: win._after_the_startup_sequence(
+            lambda: _finish_update_launch(update_launch)
+            if win.isVisible() and not win._closing else None))
 
     install_the_dialog_filters(app)
 

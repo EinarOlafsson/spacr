@@ -15,6 +15,7 @@ import zipfile
 import pytest
 
 from spacr import install_cleanup as cleanup
+from tests.test_macos_online_update_n627 import desktop_boundary
 
 
 USER = 'S-1-5-21-123-456-789-1001'
@@ -492,6 +493,7 @@ def test_windows_update_uses_real_handshake_and_plan_dispatch(runtime, monkeypat
     def approve_after_ready(handshake):
         ready(handshake)
         assert snapshot(runtime.prefix) == before
+        assert any(command[1:5] == ['-I', '-m', 'pip', 'install'] for command in runner.commands)
         events.append('ready')
         cleanup._WindowsPipHandshake(plan).approve()
 

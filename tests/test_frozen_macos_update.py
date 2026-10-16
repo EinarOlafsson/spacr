@@ -344,7 +344,7 @@ def test_commit_publication_durability_error_does_not_swap_behind_committed_jour
 
 @pytest.mark.parametrize("detach_failure,launch_failure", [(False, False), (True, False), (False, True), (True, True)])
 @pytest.mark.parametrize("staged_change", [False, True])
-def test_committed_update_reports_cleanup_and_launchservices_outcomes(tmp_path, monkeypatch, detach_failure, launch_failure, staged_change):
+def test_committed_update_reports_cleanup_and_verified_desktop_outcomes(tmp_path, monkeypatch, detach_failure, launch_failure, staged_change):
     """Cleanup or launcher failure retains a truthful receipt and both application trees.
 
     :param tmp_path: pytest-owned inert bundle and download fixture directory.
@@ -360,10 +360,13 @@ def test_committed_update_reports_cleanup_and_launchservices_outcomes(tmp_path, 
         pytest.skip("the actual replacement fixture must belong to its normal user")
     target = _bundle(tmp_path / "spaCR.app", "1.5.1.0")
     (target / "analysis.csv").write_text("preserve")
+    other = _bundle(tmp_path / "Other spaCR.app", "1.5.1.0")
+    other_before = cleanup._macos_tree(str(other))
     payload = _bundle(tmp_path / "payload.app", "1.5.1.1")
     work = tmp_path / "work"
     work.mkdir(mode=0o700)
-    plan = {"records": [cleanup.asdict(cleanup.InstallRecord("installer", "macos-app", "macos", str(target), running=True))],
+    plan = {"records": [cleanup.asdict(cleanup.InstallRecord("installer", "macos-app", "macos", str(target), running=True)),
+                        cleanup.asdict(cleanup.InstallRecord("installer", "macos-app", "macos", str(other)))],
             "ticked": [], "version": "1.5.1.1", "workdir": str(work), "pid": 123,
             "adapter": "macos-frozen-v1",
             "handshake": {"schema": 1, "token": "a" * 64,
@@ -376,6 +379,18 @@ def test_committed_update_reports_cleanup_and_launchservices_outcomes(tmp_path, 
     monkeypatch.setattr(cleanup.os, "statvfs", lambda path: SimpleNamespace(f_flag=os.ST_RDONLY))
     original_uid = os.geteuid()
     calls = []
+    launches = []
+
+    def desktop(launch_plan, argv, version, root, *, frozen):
+        assert launch_plan == plan and frozen is True
+        assert argv == [str(target / "Contents/MacOS/spacr")]
+        assert version == "1.5.1.1" and root == str(target)
+        launches.append(os.geteuid())
+        if launch_failure:
+            raise RuntimeError("new desktop failed its startup acknowledgment")
+        return {"version": version, "executable": argv[0], "pid": 12345}
+
+    monkeypatch.setattr(cleanup, "_launch_updated_desktop", desktop)
 
     def native(argv, **options):
         """Model native staging and launcher outcomes without executing a subprocess.
@@ -411,6 +426,7 @@ def test_committed_update_reports_cleanup_and_launchservices_outcomes(tmp_path, 
         assert handshake.status() is None
         assert not (work / "approved.json").exists()
         assert (target / "analysis.csv").read_text() == "preserve"
+        assert cleanup._macos_tree(str(other)) == other_before
         assert not any(argv[0] == "/usr/bin/open" for argv, _ in calls)
         return
     receipt = cleanup._run_macos_frozen_update(plan, run=native,
@@ -418,12 +434,14 @@ def test_committed_update_reports_cleanup_and_launchservices_outcomes(tmp_path, 
         wait=lambda pid: handshake.status()["state"] == "ready", swap=_swap)
     assert receipt["state"] == "committed"
     assert receipt["detach"]["status"] == ("failed" if detach_failure else "detached")
-    assert receipt["relaunch"]["status"] == ("failed" if launch_failure else "accepted")
+    assert receipt["relaunch"]["status"] == ("failed" if launch_failure else "ready")
     assert receipt["original_uid"] == original_uid
     assert (Path(receipt["backup"]) / "analysis.csv").read_text() == "preserve"
     assert cleanup._macos_tree(str(target)) == cleanup._macos_tree(str(payload))
+    assert cleanup._macos_tree(str(other)) == other_before
     assert json.loads(Path(receipt["journal"]).read_text())["state"] == "committed"
-    assert [uid for argv, uid in calls if argv[0] == "/usr/bin/open"] == [original_uid]
+    assert launches == [original_uid]
+    assert not any(argv[0] == "/usr/bin/open" for argv, _ in calls)
 
 
 def _readiness_plan(tmp_path):

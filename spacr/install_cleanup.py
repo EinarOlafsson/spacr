@@ -8,8 +8,8 @@ other copies or requesting a restart. :func:`run_update_sequence` remains the
 low-level removal procedure used by explicit cleanup commands.
 
 Supported macOS online installations and dedicated POSIX pip environments
-use their existing package tool after approved shutdown to stage, verify and
-atomically activate an updated sibling runtime. Bootstrap files, launchers,
+use their existing package tool to stage and verify an updated sibling runtime
+before requesting Restart. Activation requires approved shutdown. Bootstrap files, launchers,
 unchanged packages and the previous runtime are retained. Shared, Conda and
 Windows Python environments require their own replacement adapter.
 
@@ -2469,19 +2469,21 @@ class _FrozenUpdateHandshake:
             raise ValueError("frozen updater readiness belongs to a different plan")
         return message
 
-    def _write(self, name, state, error="", expires=None):
+    def _write(self, name, state, error="", expires=None, details=None):
         """Atomically publish a complete message; interruption cannot expose half JSON.
 
         :param name: internal message filename inside the private helper folder.
         :param state: the protocol state being published.
         :param error: bounded diagnostic for a preparation failure.
         :param expires: a readiness-specific shutdown deadline, or the preparation deadline.
+        :param details: optional verified desktop identity carried by a launch acknowledgment.
         """
         descriptor, temporary = tempfile.mkstemp(prefix="readiness-", dir=self.root)
         with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
             json.dump({"binding": self.binding, "state": state,
                        "error": str(error)[:2000],
-                       "expires": self.expires if expires is None else expires}, stream)
+                       "expires": self.expires if expires is None else expires,
+                       "details": details}, stream)
             stream.flush()
             os.fsync(stream.fileno())
         os.replace(temporary, os.path.join(self.root, name))
@@ -2552,7 +2554,7 @@ def _run_macos_frozen_update(plan, *, run=None, download=None, wait=None, swap=N
     """Verify an official read-only DMG and replace a writable app without elevation.
 
     Cleanup and relaunch failures retain the committed replacement receipt.
-    A zero open result proves LaunchServices acceptance, not GUI readiness.
+    Relaunch requires the new executable to verify itself and reach its main window.
 
     :param plan: serialized update plan with the running bundle, release, workdir and PID.
     :param run: optional native-command runner, including the captured open request.
@@ -2571,7 +2573,7 @@ def _run_macos_frozen_update(plan, *, run=None, download=None, wait=None, swap=N
     if original_uid == 0:
         raise ValueError("start the application as its normal user before updating")
     records = [_record_from_json(data) for data in plan["records"]]
-    installers = [record for record in records if record.kind == "installer"]
+    installers = [record for record in records if record.kind == "installer" and record.running]
     if (len(installers) != 1 or not installers[0].running or plan.get("ticked")
             or installers[0].layout != "macos-app" or not installers[0].root.endswith(".app")):
         raise ValueError("mixed or legacy macOS installations require a separately reviewed migration")
@@ -2641,27 +2643,33 @@ def _run_macos_frozen_update(plan, *, run=None, download=None, wait=None, swap=N
                 else:
                     raise
     result.update(original_uid=original_uid, dmg_sha256=expected_digest)
-    return _macos_relaunch(result, original_uid, run=invoke)
+    return _macos_relaunch(result, original_uid, run=invoke, plan=plan)
 
 
-def _macos_relaunch(result, original_uid, *, run=None):
+def _macos_relaunch(result, original_uid, *, run=None, plan=None):
     """Keep verified replacement/recovery state even when normal-user launch fails.
 
     :param result: verified transaction receipt naming its installed target.
     :param original_uid: normal user that began this replacement or recovery.
     :param run: optional native-command runner for the captured LaunchServices request.
-    :returns: the same receipt with an accepted, failed or refused relaunch result.
+    :param plan: active update plan requiring actual desktop readiness; absent for legacy recovery.
+    :returns: the same receipt with a ready, accepted, failed or refused relaunch result.
     """
     invoke = run or _macos_native
     if os.geteuid() != original_uid or original_uid == 0:
         result["relaunch"] = {"status": "refused", "error": "updater identity changed; GUI relaunch requires the original normal user"}
         return result
     try:
-        invoke(["/usr/bin/open", "-n", result["target"]])
+        if plan is None:
+            invoke(["/usr/bin/open", "-n", result["target"]])
+        else:
+            executable = os.path.join(result["target"], "Contents", "MacOS", "spacr")
+            result["desktop"] = _launch_updated_desktop(
+                plan, [executable], result["version"], result["target"], frozen=True)
     except Exception as launch_error:
         result["relaunch"] = {"status": "failed", "error": str(launch_error)}
     else:
-        result["relaunch"] = {"status": "accepted"}
+        result["relaunch"] = {"status": "ready" if plan is not None else "accepted"}
     return result
 
 
@@ -2916,7 +2924,7 @@ def _helper_command(records: Sequence[InstallRecord], workdir: str,
 
 
 def _spawn_detached(argv: Sequence[str], env=None, cwd: Optional[str] = None,
-                    *, os_name: Optional[str] = None, popen=None) -> int:
+                    *, os_name: Optional[str] = None, popen=None, return_process=False):
     """Start a process that keeps running after spaCR exits.
 
     :param argv: the command.
@@ -2924,7 +2932,8 @@ def _spawn_detached(argv: Sequence[str], env=None, cwd: Optional[str] = None,
     :param cwd: its working folder, which must not be inside an installation.
     :param os_name: :data:`os.name` of the computer; this one when ``None``.
     :param popen: replaces :class:`subprocess.Popen`.
-    :returns: the new process id.
+    :param return_process: keep the owned process handle for verified startup and safe failure shutdown.
+    :returns: the new process id, or its handle when requested.
     """
     options: Dict[str, object] = {
         "stdin": subprocess.DEVNULL, "stdout": subprocess.DEVNULL,
@@ -2937,7 +2946,157 @@ def _spawn_detached(argv: Sequence[str], env=None, cwd: Optional[str] = None,
             | getattr(subprocess, "CREATE_NO_WINDOW", 0x8000000))
     else:
         options["start_new_session"] = True
-    return (popen or subprocess.Popen)([str(a) for a in argv], **options).pid
+    process = (popen or subprocess.Popen)([str(a) for a in argv], **options)
+    return process if return_process else process.pid
+
+
+class _UpdateLaunchHandshake(_FrozenUpdateHandshake):
+    """A private one-use acknowledgment from the newly launched GUI process."""
+
+    def __init__(self, root, binding):
+        """Validate the message location before either side reads a launch request."""
+        if (not isinstance(binding, str) or len(binding) != 64
+                or any(character not in "0123456789abcdef" for character in binding)):
+            raise ValueError(tr("invalid update launch binding"))
+        self.root = os.path.abspath(root)
+        if os.name == "nt":
+            _windows_pip_private_directory(self.root)
+        else:
+            details = os.lstat(self.root)
+            if (not stat.S_ISDIR(details.st_mode) or details.st_uid != os.geteuid()
+                    or stat.S_IMODE(details.st_mode) & 0o077):
+                raise ValueError(tr("update launch requires a private owner directory"))
+            self.root = os.path.realpath(self.root)
+            resolved = os.lstat(self.root)
+            if (resolved.st_dev, resolved.st_ino) != (details.st_dev, details.st_ino):
+                raise ValueError(tr("update launch directory changed during validation"))
+        self.binding = binding
+        self.expires = time.time() + _WAIT_SECONDS
+
+    def _read(self, name):
+        """Use the same bounded message guards as the platform's shutdown handoff."""
+        reader = _WindowsPipHandshake._read if os.name == "nt" else super()._read
+        return reader(self, name) if os.name == "nt" else reader(name)
+
+
+def _begin_update_launch():
+    """Verify this running executable and imported module before opening its GUI.
+
+    The environment carries only a private message location and one-use binding.
+    A normal launch has no update request and does no additional work.
+    """
+    request = os.environ.pop("SPACR_UPDATE_LAUNCH", "")
+    if not request:
+        return None
+    root, binding = json.loads(request)
+    handshake = _UpdateLaunchHandshake(root, binding)
+    try:
+        message = handshake._read("launch-request.json")
+        if message is None or message.get("state") != "requested" or time.time() >= float(message["expires"]):
+            raise ValueError(tr("update launch request expired or missing"))
+        if handshake._read("launch-result.json") is not None:
+            raise ValueError(tr("update launch request already consumed"))
+        expected = message["details"]
+        import spacr
+        from spacr._version import __version__ as shipped
+        from packaging.version import Version
+
+        actual = {"version": str(Version(str(spacr.__version__))),
+                  "executable": os.path.abspath(sys.executable),
+                  "module": os.path.realpath(spacr.__file__),
+                  "prefix": os.path.realpath(sys.prefix), "pid": os.getpid()}
+        if (Version(actual["version"]) != Version(expected["version"])
+                or Version(str(shipped)) != Version(expected["version"])
+                or os.path.normcase(actual["executable"]) != os.path.normcase(expected["executable"])
+                or not _inside(actual["module"], expected["root"])):
+            raise ValueError(tr("restarted executable, module or version differs from the verified update"))
+        if expected["frozen"]:
+            if not getattr(sys, "frozen", False):
+                raise ValueError(tr("the restarted application is not the verified frozen bundle"))
+        else:
+            from importlib.metadata import distributions
+
+            owners = [dist for dist in distributions()
+                      if dist.metadata.get("Name", "").lower().replace("_", "-") in {"spacr", "spacr-nightly"}
+                      and os.path.realpath(dist.locate_file("spacr/__init__.py")) == actual["module"]]
+            if (len(owners) != 1 or Version(owners[0].version) != Version(expected["version"])
+                    or actual["prefix"] != os.path.realpath(expected["root"])
+                    or not _inside(str(getattr(owners[0], "_path", "")), expected["root"])):
+                raise ValueError(tr("the restarted module is not owned by the verified update"))
+        handshake._write("launch-result.json", "starting", details=actual)
+        return handshake, actual
+    except Exception as error:
+        handshake._write("launch-result.json", "error", error)
+        raise
+
+
+def _finish_update_launch(launch):
+    """Acknowledge the verified process only after its startup reaches the main window."""
+    if launch is not None:
+        handshake, actual = launch
+        handshake._write("launch-result.json", "ready", details=actual)
+
+
+class _UpdateLaunchStillRunning(RuntimeError):
+    """Keep both runtimes when an unconfirmed desktop cannot be safely stopped."""
+
+    def __init__(self, pid):
+        """Bind recovery to the exact desktop that could not be stopped."""
+        self.pid = int(pid)
+        super().__init__(tr("The updated desktop could not be stopped; both runtimes were retained."))
+
+
+def _launch_updated_desktop(plan, argv, version, root, *, frozen=False, spawn=None):
+    """Launch the exact updated executable and wait for its verified main window.
+
+    Failure stops the owned child before a runtime transaction may roll back.
+    An unkillable child retains the activated runtime and its recovery copy.
+    """
+    folder = tempfile.mkdtemp(prefix="launch-", dir=plan["workdir"])
+    handshake = _UpdateLaunchHandshake(folder, os.urandom(32).hex())
+    expected = {"version": str(version), "executable": os.path.abspath(argv[0]),
+                "root": os.path.realpath(root), "frozen": bool(frozen)}
+    handshake._write("launch-request.json", "requested", details=expected)
+    environment = dict(os.environ)
+    for key in tuple(environment):
+        if key.startswith("DYLD_") or key in {"PYTHONHOME", "PYTHONPATH", "LD_LIBRARY_PATH", "LD_LIBRARY_PATH_ORIG"}:
+            environment.pop(key, None)
+    environment["PYINSTALLER_RESET_ENVIRONMENT"] = "1"
+    environment["SPACR_UPDATE_LAUNCH"] = json.dumps([folder, handshake.binding])
+    process = (spawn(argv, environment, plan["workdir"]) if spawn is not None else
+               _spawn_detached(argv, environment, plan["workdir"], return_process=True))
+    try:
+        while time.time() < handshake.expires:
+            message = handshake._read("launch-result.json")
+            if message is not None:
+                if message.get("state") == "error":
+                    raise RuntimeError(message["error"])
+                if message.get("state") == "ready":
+                    actual = message["details"]
+                    if (actual.get("version") != expected["version"]
+                            or actual.get("executable") != expected["executable"]
+                            or not _inside(actual.get("module", ""), expected["root"])
+                            or (process is not None and actual.get("pid") != process.pid)):
+                        raise RuntimeError(tr("the new desktop acknowledgment does not match its update"))
+                    if process is not None and process.poll() is not None:
+                        raise RuntimeError(tr("the updated application exited before its main window was ready"))
+                    return actual
+            if process is not None and process.poll() is not None:
+                raise RuntimeError(tr("the updated application exited before its main window was ready"))
+            time.sleep(0.05)
+        raise RuntimeError(tr("the updated application did not confirm its main window before the deadline"))
+    except BaseException:
+        if process is not None and process.poll() is None:
+            try:
+                process.terminate()
+                try:
+                    process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.wait(timeout=5)
+            except Exception as error:
+                raise _UpdateLaunchStillRunning(process.pid) from error
+        raise
 
 
 
@@ -3208,7 +3367,7 @@ def _recover_runtime_update(transaction, pid, *, machine=None, runner=None, wait
         state = json.load(stream)
     prefix, backup = state["prefix"], state["rollback_runtime"]
     if (state.get("schema") != 2 or state.get("family") != "posix-runtime"
-            or state.get("state") not in {"committed", "rolling_back", "rolled_back"}
+            or state.get("state") not in {"committed", "rolling_back", "rolled_back", "launch_unconfirmed"}
             or os.path.dirname(prefix) != os.path.dirname(root)
             or backup != os.path.join(root, "runtime")
             or any(os.path.realpath(path) != path for path in (prefix, backup))
@@ -3222,6 +3381,8 @@ def _recover_runtime_update(transaction, pid, *, machine=None, runner=None, wait
             raise ValueError("recovery cannot replace shared runtime directories")
     if isinstance(pid, bool) or not isinstance(pid, int) or pid <= 0 or pid == os.getpid():
         raise ValueError("recovery requires the previous desktop process identity")
+    if state.get("state") == "launch_unconfirmed" and pid != state.get("launch_pid"):
+        raise ValueError(tr("recovery requires the unconfirmed desktop process identity"))
     lock = os.path.join(os.path.dirname(prefix), "." + os.path.basename(prefix) + ".spacr-update-lock")
     os.mkdir(lock, 0o700)
     try:
@@ -3233,7 +3394,7 @@ def _recover_runtime_update(transaction, pid, *, machine=None, runner=None, wait
         identities = ([left.st_dev, left.st_ino], [right.st_dev, right.st_ino])
         new_at_target = identities == (state["new_identity"], state["old_identity"])
         old_at_target = identities == (state["old_identity"], state["new_identity"])
-        if ((state["state"] == "committed" and not new_at_target)
+        if ((state["state"] in {"committed", "launch_unconfirmed"} and not new_at_target)
                 or (state["state"] == "rolled_back" and not old_at_target)
                 or not (old_at_target or new_at_target)):
             raise ValueError("journaled runtime directories were replaced; preserving both")
@@ -3286,7 +3447,8 @@ def _runtime_recovery_journal(root, state):
             os.unlink(temporary)
 
 
-def _transactional_runtime_update(record, version, install, *, machine, runner=None, activate=None):
+def _transactional_runtime_update(record, version, install, *, machine, runner=None,
+                                  activate=None, before_activate=None):
     """Update a private POSIX runtime through a verified atomic exchange.
 
     The previous runtime is retained as a rollback copy. All package operations
@@ -3410,6 +3572,13 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
                 handle.write(header.replace(os.fsencode(staged), os.fsencode(prefix)) + remainder)
         state["new_identity"] = [os.stat(staged).st_dev, os.stat(staged).st_ino]
         note("ready")
+        if before_activate is not None:
+            before_activate()
+            _runtime_staging_allowed(prefix, machine)
+            if (_retiring_runtime_identity(prefix) != current
+                    or [os.stat(prefix).st_dev, os.stat(prefix).st_ino] != state["old_identity"]
+                    or _runtime_recovery_inventory(prefix) != state["old_inventory"]):
+                raise RuntimeError("The desktop interpreter could not be identified; no relaunch was requested.")
         _runtime_exchange(prefix, staged)
         exchanged = True
         note("verifying")
@@ -3432,6 +3601,11 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
             activate(identity["version"])
         committed = True
         return identity["version"], output + "\nPrevious runtime retained at " + staged
+    except _UpdateLaunchStillRunning as error:
+        committed = True
+        state["launch_pid"] = error.pid
+        note("launch_unconfirmed")
+        raise
     except BaseException:
         if exchanged:
             try:
@@ -3469,12 +3643,19 @@ def _run_macos_online_update(plan, machine, *, wait=None, run=None, spawn=None):
     if _runtime_version_compare(record.python, record.version, plan["version"], run) > 0:
         raise ValueError("The running spaCR is newer than the requested release. Nothing was changed.")
     handshake = _FrozenUpdateHandshake(plan)
-    handshake.ready()
-    handshake.wait_for_shutdown(wait)
-    _macos_online_commands(record, plan["version"], plan["workdir"])
+    handshake.check()
+
+    def prepared():
+        """Offer Restart only after the replacement passes its staged checks."""
+        handshake.ready()
+        handshake.wait_for_shutdown(wait)
+        _macos_online_commands(record, plan["version"], plan["workdir"])
+
     return _transactional_runtime_update(
         record, plan["version"], install, machine=machine, runner=run,
-        activate=lambda _version: (spawn or _spawn_detached)(relaunch, None, plan["workdir"]))
+        before_activate=prepared,
+        activate=lambda observed: _launch_updated_desktop(
+            plan, relaunch, observed, os.path.dirname(os.path.dirname(record.python)), spawn=spawn))
 
 
 @contextmanager
@@ -4439,7 +4620,8 @@ def _windows_pip_transition(path, identity, inventory):
         raise ValueError("windows_runtime_replaced_or_modified")
 
 
-def _windows_pip_transaction(record, version, install, *, machine, runner=None, activate=None):
+def _windows_pip_transaction(record, version, install, *, machine, runner=None, activate=None,
+                             before_activate=None):
     """Stage a Windows venv and retain its original through journaled, non-atomic replacement."""
     runner = runner or _run
     prefix = _windows_pip_private_directory(record.root)
@@ -4514,6 +4696,8 @@ def _windows_pip_transaction(record, version, install, *, machine, runner=None, 
         details = os.stat(staged, follow_symlinks=False)
         state.update(new_identity=[details.st_dev, details.st_ino], new_inventory=_windows_pip_tree(staged), state="ready")
         _runtime_recovery_journal(root, state)
+        if before_activate is not None:
+            before_activate()
         _windows_pip_transition(prefix, state["old_identity"], state["old_inventory"])
         _windows_pip_transition(staged, state["new_identity"], state["new_inventory"])
         state["state"] = "retiring"
@@ -4542,6 +4726,11 @@ def _windows_pip_transaction(record, version, install, *, machine, runner=None, 
         if activate is not None:
             activate(identity["version"])
         return identity["version"], output + "\nPrevious runtime retained at " + previous
+    except _UpdateLaunchStillRunning as error:
+        state["state"] = "launch_unconfirmed"
+        state["launch_pid"] = error.pid
+        _runtime_recovery_journal(root, state)
+        raise
     except BaseException:
         if retired:
             try:
@@ -4590,13 +4779,20 @@ def _run_windows_pip_update(plan, machine, *, wait=None, run=None, spawn=None):
     if code:
         raise RuntimeError(output)
     handshake = _WindowsPipHandshake(plan)
-    handshake.ready()
-    handshake.wait_for_shutdown(wait)
-    _windows_pip_commands(record, plan["version"], plan["workdir"], machine)
-    if _retiring_runtime_identity(record.root) != current:
-        raise ValueError("previous_runtime_identity_unverified")
+    handshake.check()
+
+    def prepared():
+        """Request shutdown only when the private replacement is verified."""
+        handshake.ready()
+        handshake.wait_for_shutdown(wait)
+        _windows_pip_commands(record, plan["version"], plan["workdir"], machine)
+        if _retiring_runtime_identity(record.root) != current:
+            raise ValueError("previous_runtime_identity_unverified")
+
     return _windows_pip_transaction(record, plan["version"], install, machine=machine, runner=runner,
-                                    activate=lambda _version: (spawn or _spawn_detached)(relaunch, None, plan["workdir"]))
+                                    before_activate=prepared,
+                                    activate=lambda observed: _launch_updated_desktop(
+                                        plan, relaunch, observed, record.root, spawn=spawn))
 
 
 _PRIVATE_PIP_UPDATE_ERROR = "This environment needs its package manager; spaCR cannot replace it safely. Nothing was changed."
@@ -4660,7 +4856,7 @@ def _pip_environment_identity(record, runner):
 
 
 def _run_pip_environment_update(plan, machine, *, wait=None, run=None, spawn=None):
-    """Wait for approved shutdown before updating a verified private pip venv."""
+    """Stage a private pip update before requesting approved shutdown."""
     if machine.platform == "windows":
         return _run_windows_pip_update(plan, machine, wait=wait, run=run, spawn=spawn)
     records = [_record_from_json(data) for data in plan["records"]]
@@ -4680,14 +4876,21 @@ def _run_pip_environment_update(plan, machine, *, wait=None, run=None, spawn=Non
     if code:
         raise RuntimeError(output)
     handshake = _FrozenUpdateHandshake(plan)
-    handshake.ready()
-    handshake.wait_for_shutdown(wait)
-    _pip_environment_commands(record, plan["version"], plan["workdir"], machine)
-    if _pip_environment_identity(record, runner) != current:
-        raise RuntimeError("The desktop interpreter could not be identified; no relaunch was requested.")
+    handshake.check()
+
+    def prepared():
+        """Keep the running environment until the verified replacement is accepted."""
+        handshake.ready()
+        handshake.wait_for_shutdown(wait)
+        _pip_environment_commands(record, plan["version"], plan["workdir"], machine)
+        if _pip_environment_identity(record, runner) != current:
+            raise RuntimeError("The desktop interpreter could not be identified; no relaunch was requested.")
+
     return _transactional_runtime_update(
         record, plan["version"], install, machine=machine, runner=runner,
-        activate=lambda _version: (spawn or _spawn_detached)(relaunch, None, plan["workdir"]))
+        before_activate=prepared,
+        activate=lambda observed: _launch_updated_desktop(
+            plan, relaunch, observed, record.root, spawn=spawn))
 
 
 def _frozen_windows_walk_error(error):
@@ -5156,10 +5359,10 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
     previous version, when that previous version is known. A failed upgrade
     or version check does not trigger removal or a replacement installer.
 
-    The standard replacement path downloads and runs the new staged installer,
-    verifies its actual interpreter and imported application, then retires other
-    copies and starts it. Failed installation or verification does not remove
-    the previous working copy. A failed retirement is logged without relaunch.
+    Runtime adapters install and verify a private replacement before publishing
+    readiness. The GUI offers Restart and preserves its settings before
+    approving shutdown. Relaunch verifies the actual new desktop process and
+    its main window. Unsupported layouts refuse before starting an installer.
 
     :param records: installations from :func:`find_old_installs`.
     :param version: the version to install.
@@ -5291,17 +5494,7 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
             "run the new installer instead. Nothing was removed."
         )
     else:
-        try:
-            with open(__file__, "rb") as source, open(module, "wb") as copy:
-                copy.write(source.read())
-        except OSError as error:
-            plan["error"] = f"could not prepare the updater: {error}. Nothing was removed."
-        else:
-            plan["fetch"], plan["install"], plan["relaunch"] = _reinstall_steps(
-                running, str(version), workdir, machine)
-            argv, environment, error = _helper_command(
-                records, workdir, module, plan_path, machine)
-            plan["command"], plan["error"] = argv, error
+        plan["error"] = tr("This installation cannot stage a verified update. Nothing was changed.")
     with open(plan_path, "w", encoding="utf-8") as handle:
         json.dump(plan, handle, indent=2)
     if plan["command"]:
@@ -5530,8 +5723,8 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
                 raise ValueError("the frozen update plan has no readiness handshake")
             receipt = _run_macos_frozen_update(plan, wait=wait)
             lines.append(json.dumps(receipt, sort_keys=True))
-            if receipt["relaunch"]["status"] != "accepted":
-                lines.append("The bundle replacement committed, but LaunchServices did not accept its relaunch; the backup and journal are retained.")
+            if receipt["relaunch"]["status"] != "ready":
+                lines.append("The bundle replacement committed, but its new desktop did not confirm startup; the backup and journal are retained.")
                 return _finish(6)
         except Exception as error:
             if plan.get("handshake"):

@@ -10,6 +10,7 @@ import pytest
 from spacr import install_cleanup as ic
 from tests.test_pip_runtime_transaction_703 import installation
 from tests.test_macos_runtime_transaction_703 import _snapshot, _wheel
+from tests.test_macos_online_update_n627 import desktop_boundary
 
 
 @pytest.fixture(autouse=True)
@@ -65,7 +66,7 @@ def test_real_offline_handoff_prepares_then_requires_approval(installation, tmp_
         if argv[0] == record.python and '-c' in argv and failure == 'unverified-current':
             return 0, '{}'
         if argv[1:6] == ['-I', '-m', 'pip', 'install', '--upgrade']:
-            assert events == ['ready', 'exit']
+            assert events == []
             assert _snapshot(prefix) == before
             assert argv[0] != record.python and argv[0] != sys.executable
             argv = [*argv[:-1], '--isolated', '--no-cache-dir', '--no-index', '--no-deps', str(wheel)]
@@ -86,11 +87,11 @@ def test_real_offline_handoff_prepares_then_requires_approval(installation, tmp_
     if failure:
         assert result != 0
         assert _snapshot(prefix) == before
-        if failure != 'restart':
+        if failure not in {'restart', 'cancelled'}:
             assert 'staged install' not in events
     else:
         assert result == 0
-        assert events == ['ready', 'exit', 'staged install', 'relaunch']
+        assert events == ['staged install', 'ready', 'exit', 'relaunch']
         transaction, = prefix.parent.glob('.spacr-runtime-update-*')
         assert _snapshot(transaction / 'runtime') == before
 
@@ -145,9 +146,11 @@ def test_changed_runtime_after_approval_is_not_downgraded(installation, tmp_path
     monkeypatch.setattr(ic._FrozenUpdateHandshake, 'ready', ready)
     exited = []
     probes = []
+    wheel = _wheel(tmp_path / 'changed-runtime-wheel', '1.5.1.5')
     def run(argv):
         if argv[1:6] == ['-I', '-m', 'pip', 'install', '--upgrade']:
-            pytest.fail('The stale offered version must never be installed')
+            assert argv[0] != record.python and not exited
+            argv = [*argv[:-1], '--isolated', '--no-cache-dir', '--no-index', '--no-deps', str(wheel)]
         result = subprocess.run(argv, capture_output=True, text=True, timeout=30)
         output = result.stdout + result.stderr
         if argv[0] == record.python and '-c' in argv and argv[-1] != 'import pip':
