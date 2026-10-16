@@ -123,6 +123,10 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
    <div><a href="../../readme_text/sv/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/generated-hardware-1.desktop.svg"><img src="../../readme_images/sv/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. stöds (stabilt) implementerat (beta) endast CPU-stöd."></picture></a></div>
 
+.. raw:: html
+
+   <div><a href="../../readme_text/sv/generated-hardware-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/generated-hardware-2.desktop.svg"><img src="../../readme_images/sv/generated-hardware-2.svg" alt="Linux (x86-64, ARM64): True 3D, provas i ordning Vulkan (wgpu), OpenGL, CPU. Windows (x64, ARM64): True 3D, provas i ordning Vulkan / Direct3D 12 (wgpu), OpenGL, CPU. macOS (Intel, Apple silicon): True 3D, provas i ordning Metal (wgpu), OpenGL, CPU. Utan wgpu: True 3D, provas i ordning OpenGL, CPU (Python 3.9, andra processorer, Linux med glibc äldre än 2.28 eller installerat utan wgpu)."></picture></a></div>
+
 .. spacr-hardware-end
 
 .. raw:: html
@@ -271,7 +275,7 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/install-from-source-light-2.desktop.svg"><img src="../../readme_images/sv/install-from-source-light-2.svg" alt="Den fullständiga nightly-klonen laddade ner 9.25 GiB. Att lägga till --filter=blob:none till den grunda klonen minskar inte utcheckningen: dess Git-objektlager är fortfarande 2032 MB. Git rapporterar inte lata hämtningar av objekt, så ingen total nedladdning uppmättes. De versionshanterade filerna i nightly ger en utcheckning på 3416 MB (uppmätt 2026-10-08), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen."></picture></a></div>
+   <div><a href="../../readme_text/sv/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/install-from-source-light-2.desktop.svg"><img src="../../readme_images/sv/install-from-source-light-2.svg" alt="Den fullständiga nightly-klonen laddade ner 9.25 GiB. Att lägga till --filter=blob:none till den grunda klonen minskar inte utcheckningen: dess Git-objektlager är fortfarande 2032 MB. Git rapporterar inte lata hämtningar av objekt, så ingen total nedladdning uppmättes. De versionshanterade filerna i nightly ger en utcheckning på 4657 MB (uppmätt 2026-10-15), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen."></picture></a></div>
 
 .. raw:: html
 

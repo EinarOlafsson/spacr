@@ -123,6 +123,10 @@
 
    <div><a href="../../readme_text/zh_CN/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-hardware-1.desktop.svg"><img src="../../readme_images/zh_CN/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. 支持（稳定） 已实现（beta） 仅支持 CPU."></picture></a></div>
 
+.. raw:: html
+
+   <div><a href="../../readme_text/zh_CN/generated-hardware-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-hardware-2.desktop.svg"><img src="../../readme_images/zh_CN/generated-hardware-2.svg" alt="Linux (x86-64, ARM64): True 3D，按顺序尝试 Vulkan (wgpu), OpenGL, CPU. Windows (x64, ARM64): True 3D，按顺序尝试 Vulkan / Direct3D 12 (wgpu), OpenGL, CPU. macOS (Intel, Apple silicon): True 3D，按顺序尝试 Metal (wgpu), OpenGL, CPU. 无 wgpu: True 3D，按顺序尝试 OpenGL, CPU (Python 3.9、其他处理器、glibc 低于 2.28 的 Linux 或未安装 wgpu)."></picture></a></div>
+
 .. spacr-hardware-end
 
 .. raw:: html
@@ -271,7 +275,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source-light-2.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source-light-2.svg" alt="nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 --filter=blob:none 不会缩小检出文件：其 Git 对象存储仍占用 2032 MB。Git 不报告按需延迟获取的对象，因此没有测得下载总量。nightly 的版本控制文件检出后占用 3416 MB（2026-10-08 测得），不含 Git 历史。下载大小和耗时随分支而变化。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source-light-2.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source-light-2.svg" alt="nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 --filter=blob:none 不会缩小检出文件：其 Git 对象存储仍占用 2032 MB。Git 不报告按需延迟获取的对象，因此没有测得下载总量。nightly 的版本控制文件检出后占用 4657 MB（2026-10-15 测得），不含 Git 历史。下载大小和耗时随分支而变化。"></picture></a></div>
 
 .. raw:: html
 
