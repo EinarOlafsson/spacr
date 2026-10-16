@@ -49,13 +49,13 @@ from typing import Dict, Iterable, List, Optional, Sequence
 import numpy as np
 from PySide6.QtCore import (QAbstractTableModel, QByteArray,
                             QMimeData, QModelIndex, QRect, QSize, Qt, Signal,
-                            QTimer)
+                            QTimer, QUrl)
 from PySide6.QtGui import (QBrush, QColor, QImage, QPainter, QPalette, QPen,
                            QPixmap)
 from PySide6.QtWidgets import (
     QAbstractItemView, QApplication, QCheckBox, QComboBox,
-    QDialog, QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdit,
-    QMessageBox, QPushButton, QStyle, QStyledItemDelegate, QTableView,
+    QDialog, QDialogButtonBox, QFileDialog, QFrame, QHBoxLayout, QHeaderView, QLabel, QLineEdit,
+    QMessageBox, QPushButton, QStyle, QStyledItemDelegate, QTableView, QTableWidget,
     QToolTip, QVBoxLayout,
 )
 
@@ -639,6 +639,178 @@ class _PathEdit(QLineEdit):
             return
         event.acceptProposedAction()
         self.setText(folders[0])
+
+
+class _VolumePathEdit(QLineEdit):
+    """A volume input accepting one local file by drop or pasted path."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setAcceptDrops(True)
+        self.setPlaceholderText(tr("Drop a file or paste its path"))
+
+    def dragEnterEvent(self, event):
+        paths = _mime_paths(event.mimeData())
+        if not self.isReadOnly() and len(paths) == 1 and os.path.isfile(paths[0]):
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):
+        self.dragEnterEvent(event)
+
+    def dropEvent(self, event):
+        paths = _mime_paths(event.mimeData())
+        if not self.isReadOnly() and len(paths) == 1 and os.path.isfile(paths[0]):
+            self.setText(paths[0])
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def path(self):
+        """Normalize a pasted path or local file URL without loading its data."""
+        value = self.text().strip().strip("\"'")
+        if not value:
+            return ""
+        if value.startswith("file:"):
+            value = QUrl(value).toLocalFile()
+        return os.path.abspath(os.path.expanduser(value)) if value else ""
+
+
+class MeasureVolumeDialog(QDialog):
+    """Choose extra channels and image sets for the current edited 3D mask."""
+
+    def __init__(self, source_path, parent=None, *, spacing=None, axes="ZYX", unit="pixel"):
+        super().__init__(parent)
+        self.setObjectName("MakeMasksMeasureVolumeDialog")
+        self.setWindowTitle(tr("Measure 3D images"))
+        self.resize(960, 440)
+        layout = QVBoxLayout(self)
+        description = QLabel(tr(
+            "The first image uses its current edited labels and all loaded channels. "
+            "Add matching 3D channel files or more image sets below. A blank mask "
+            "uses the image's saved mask. Measurements are written to measurements.db "
+            "in each image folder; existing measurements for these sets are updated."), self)
+        description.setWordWrap(True)
+        layout.addWidget(description)
+        if spacing is not None:
+            calibration = QLabel(tr(
+                "Current image voxel spacing ({axes}): {spacing} {unit}.",
+                axes=axes, spacing=" × ".join(f"{value:g}" for value in spacing), unit=unit), self)
+            calibration.setObjectName("VolumeMeasureCalibration")
+            calibration.setWordWrap(True)
+            layout.addWidget(calibration)
+        role_row = QHBoxLayout()
+        role_label = QLabel(tr("Object type"), self)
+        self.object_type = QComboBox(self)
+        self.object_type.setObjectName("VolumeMeasureObjectType")
+        for label, value in ((tr("Cell"), "cell"), (tr("Nucleus"), "nucleus"),
+                             (tr("Pathogen"), "pathogen"), (tr("Organelle"), "organelle")):
+            self.object_type.addItem(label, value)
+        role_label.setBuddy(self.object_type)
+        role_row.addWidget(role_label)
+        role_row.addWidget(self.object_type)
+        role_row.addStretch()
+        layout.addLayout(role_row)
+        self.table = QTableWidget(0, 4, self)
+        self.table.setObjectName("VolumeMeasureImageSets")
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table.setSelectionMode(QAbstractItemView.SingleSelection)
+        self._set_headers()
+        layout.addWidget(self.table, 1)
+        controls = QHBoxLayout()
+        self.add_row_button = QPushButton(tr("Add image set"), self)
+        self.add_row_button.setObjectName("VolumeMeasureAddImageSet")
+        self.add_row_button.clicked.connect(lambda: self.add_row())
+        self.add_channel_button = QPushButton(tr("Add channel"), self)
+        self.add_channel_button.setObjectName("VolumeMeasureAddChannel")
+        self.add_channel_button.clicked.connect(self.add_channel)
+        self.remove_row_button = QPushButton(tr("Remove image set"), self)
+        self.remove_row_button.clicked.connect(self.remove_row)
+        for button in (self.add_row_button, self.add_channel_button, self.remove_row_button):
+            controls.addWidget(button)
+        controls.addStretch()
+        layout.addLayout(controls)
+        self.error = QLabel(self)
+        self.error.setWordWrap(True)
+        self.error.setObjectName("VolumeMeasureInputError")
+        layout.addWidget(self.error)
+        self.buttons = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel, self)
+        self.buttons.button(QDialogButtonBox.Save).setText(tr("Save measurements"))
+        self.buttons.accepted.connect(self.accept)
+        self.buttons.rejected.connect(self.reject)
+        layout.addWidget(self.buttons)
+        self.add_row()
+        self.table.cellWidget(0, 0).setText(str(source_path))
+        self.table.cellWidget(0, 0).setReadOnly(True)
+        self.table.cellWidget(0, 1).setText(tr("Current edited labels"))
+        self.table.cellWidget(0, 1).setReadOnly(True)
+
+    def _set_headers(self):
+        self.table.setHorizontalHeaderLabels(
+            [tr("3D image"), tr("Saved mask (optional)")]
+            + [tr("Extra channel {n}", n=index + 1)
+               for index in range(self.table.columnCount() - 2)])
+
+    def _set_path_cell(self, row, column):
+        field = _VolumePathEdit(self.table)
+        field.setAccessibleName(tr("Image set {row}, {column}", row=row + 1,
+                                   column=self.table.horizontalHeaderItem(column).text()))
+        self.table.setCellWidget(row, column, field)
+
+    def add_row(self):
+        """Append an independently measured image set."""
+        row = self.table.rowCount()
+        self.table.insertRow(row)
+        for column in range(self.table.columnCount()):
+            self._set_path_cell(row, column)
+        self.table.setCurrentCell(row, 0)
+
+    def add_channel(self):
+        """Add an optional channel slot to every image set."""
+        column = self.table.columnCount()
+        self.table.insertColumn(column)
+        self._set_headers()
+        for row in range(self.table.rowCount()):
+            self._set_path_cell(row, column)
+
+    def remove_row(self):
+        row = self.table.currentRow()
+        if row > 0:
+            self.table.removeRow(row)
+
+    def requests(self):
+        """Validate local paths and preserve each row's channel ordering."""
+        rows = []
+        for row in range(self.table.rowCount()):
+            source = self.table.cellWidget(row, 0).path()
+            mask = self.table.cellWidget(row, 1).path() if row else ""
+            channels = [self.table.cellWidget(row, column).path()
+                        for column in range(2, self.table.columnCount())]
+            if row and not source and not mask and not any(channels):
+                continue
+            if not source:
+                raise ValueError(tr("Choose a 3D image for image set {n}.", n=row + 1))
+            while channels and not channels[-1]:
+                channels.pop()
+            if any(not path for path in channels):
+                raise ValueError(tr("Fill extra channels from left to right in image set {n}.", n=row + 1))
+            for path in (source, mask, *channels):
+                if path and not os.path.isfile(path):
+                    raise ValueError(tr("File not found: {path}", path=path))
+            rows.append({"source_path": source, "mask_path": mask or None,
+                         "channel_paths": tuple(channels)})
+        return rows
+
+    def accept(self):
+        try:
+            self.requests()
+        except ValueError as exc:
+            self.error.setText(str(exc))
+            return
+        self.error.clear()
+        super().accept()
 
 
 #: How the table shows a cell: its name, its thumbnail, or both.

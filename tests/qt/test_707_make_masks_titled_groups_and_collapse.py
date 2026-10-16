@@ -179,10 +179,10 @@ def test_save_menu_has_the_boolean_and_upload(screen, monkeypatch):
 
 def test_measure_button_is_an_extension_point(screen):
     menu = screen._measure_menu
-    assert [a.objectName() for a in menu.actions()] == ["MakeMasksMeasure2D"]
+    assert [a.objectName() for a in menu.actions()] == ["MakeMasksMeasure2D", "MakeMasksMeasure3D"]
     hits = []
-    action = screen._add_measure_section("3D section…", lambda: hits.append(1),
-                                        object_name="MakeMasksMeasure3D")
+    action = screen._add_measure_section("Another section…", lambda: hits.append(1),
+                                        object_name="MakeMasksMeasureOther")
     assert menu.actions()[-1] is action
     action.trigger()
     assert hits == [1]

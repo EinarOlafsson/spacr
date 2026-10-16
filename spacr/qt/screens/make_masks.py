@@ -12139,6 +12139,7 @@ class MakeMasksScreen(QWidget):
     _detection_delivered = Signal(object)
     _comparison_delivered = Signal(object)
     _uncertainty_delivered = Signal(object)
+    _volume_measure_delivered = Signal(object)
 
     _hide_judged = False
 
@@ -12210,6 +12211,9 @@ class MakeMasksScreen(QWidget):
         self._comparison_request = None
         self._comparison_serial = 0
         self._comparison_delivered.connect(self._take_comparison)
+        self._volume_measure_worker = None
+        self._volume_measure_running = False
+        self._volume_measure_delivered.connect(self._take_volume_measurement)
         #: Folded module key -> the module's own screen, built the first time
         #: its button is pressed and kept afterwards so a second press finds
         #: the paths, models and results the first one left.
@@ -20596,9 +20600,9 @@ class MakeMasksScreen(QWidget):
     def _build_organize_button(self) -> QPushButton:
         """The "Measure…" button in IO (it was "Organize for Measure…").
 
-        A split button: pressing it opens the 2D section, the "Organize for
-        Measure" popup that puts images and masks into the layout Measure
-        reads. Its arrow opens :attr:`_measure_menu`, one entry per section.
+        A split button: pressing it measures the open 3D image or opens the
+        2D "Organize for Measure" popup. Its arrow opens
+        :attr:`_measure_menu`, one entry per section.
         :meth:`_add_measure_section` is the extension point a further section
         (a 3D one) is added through.
         """
@@ -20608,11 +20612,8 @@ class MakeMasksScreen(QWidget):
         button.setObjectName("MakeMasksOrganizeButton")
         button.setCursor(Qt.PointingHandCursor)
         button.setToolTip(tr(
-            "Put images and their masks into the layout Measure reads: one "
-            "popup with the source folder, Mask generation's regex options "
-            "and a table with a column per channel and per mask, which takes "
-            "dropped files and folders. Apply moves them into Yokogawa-named "
-            "channel folders and merges them into merged/."))
+            "Measure the current 3D image and its edited labels, or organize "
+            "2D images and masks for Measure. Use the arrow to choose a section."))
         button.clicked.connect(lambda _checked=False: self._on_organize())
         menu = QMenu(button)
         menu.setObjectName("MakeMasksMeasureMenu")
@@ -20622,8 +20623,15 @@ class MakeMasksScreen(QWidget):
         self._btn_organize = button
         self._add_measure_section(
             tr("Organize images and masks for Measure (2D)…"),
-            lambda: self._on_organize(), object_name="MakeMasksMeasure2D",
+            lambda: self._open_organize(
+                self._folder if self._folder and not self._field_folders else "",
+                masks_dir=self._masks_dir), object_name="MakeMasksMeasure2D",
             tooltip=button.toolTip())
+        self._act_measure_volume = self._add_measure_section(
+            tr("Measure current 3D image…"), self._on_measure_volume,
+            object_name="MakeMasksMeasure3D", tooltip=tr(
+                "Measure current edited 3D labels, add channel files and image sets, "
+                "and save measurements in each image folder."))
         return button
 
     def _add_measure_section(self, label: str, callback, *, tooltip: str = "",
@@ -20779,8 +20787,78 @@ class MakeMasksScreen(QWidget):
 
         :returns: the dialog.
         """
+        if self._mask_stage.session is not None:
+            return self._on_measure_volume()
         folder = self._folder if self._folder and not self._field_folders else ""
         return self._open_organize(folder, masks_dir=self._masks_dir)
+
+    def _on_measure_volume(self):
+        """Configure measurements of the current edited volume and added image sets."""
+        from ..i18n import tr
+        from ..widgets.organize_for_measure import MeasureVolumeDialog
+
+        stage = self._mask_stage
+        if stage.session is None:
+            self._warn(tr("Measure 3D images"), tr("Open a 3D image before measuring."))
+            return None
+        if stage.busy or self._volume_measure_running:
+            self._warn(tr("Busy"), tr("Wait for the current 3D operation to finish."))
+            return None
+        dialog = MeasureVolumeDialog(
+            stage.session.source_path, self, spacing=stage.session.spacing,
+            axes=stage.session.axes, unit=stage.session.unit)
+        self._volume_measure_dialog = dialog
+        if self._run_organize(dialog):
+            self._start_volume_measurement(dialog.requests(), dialog.object_type.currentData())
+        return dialog
+
+    def _start_volume_measurement(self, rows, object_type="cell"):
+        """Snapshot the edited labels and measure image sets off the GUI thread."""
+        from ..i18n import tr
+
+        session = self._mask_stage.session
+        if self._volume_measure_running or self._mask_stage.busy:
+            self._warn(tr("Busy"), tr("Wait for the current 3D operation to finish."))
+            return False
+        if (session is None or not rows
+                or os.path.abspath(rows[0]["source_path"]) != os.path.abspath(session.source_path)):
+            self._warn(tr("Measure 3D images"), tr("The current 3D image changed. Open Measure again."))
+            return False
+        requests = [dict(row) for row in rows]
+        requests[0]["snapshot"] = {
+            "channels": tuple(session.channels), "mask": session.mask.copy(),
+            "axes": session.axes, "spacing": tuple(session.spacing), "unit": session.unit,
+        }
+        post = self._masks_console.post
+
+        def measure(request):
+            from ...measure import measure_volume_rows
+            return measure_volume_rows(request[0], object_type=request[1], progress=post)
+
+        if self._volume_measure_worker is None:
+            self._volume_measure_worker = _NewestRequestWorker(
+                measure, lambda request, result, error: self._volume_measure_delivered.emit(
+                    (result, error)), name="spacr-volume-measure")
+        self._volume_measure_running = True
+        self._sync_button_states()
+        self._status_label.setText(tr("Measuring {n} 3D image set(s)…", n=len(requests)))
+        self._volume_measure_worker.submit((requests, object_type), pin=True)
+        return True
+
+    def _take_volume_measurement(self, payload):
+        """Report committed databases or the measurement error on the GUI thread."""
+        from ..i18n import tr
+
+        result, error = payload
+        self._volume_measure_running = False
+        self._sync_button_states()
+        if error is not None:
+            self._warn(tr("3D measurement failed"), str(error))
+            return
+        message = tr("Measured {objects} object(s) in {images} 3D image set(s).",
+                     objects=result["objects"], images=result["images"])
+        self._status_label.setText(message)
+        self._masks_console.post(message)
 
     def _open_organize(self, source: str = "", channel_folders=None,
                        masks_dir: Optional[str] = None):
@@ -21204,6 +21282,12 @@ class MakeMasksScreen(QWidget):
         """
         from ..bridge import drain_thread
 
+        if self._volume_measure_running:
+            from ..i18n import tr
+            self._warn(tr("Measurements are running"), tr(
+                "Wait for the 3D measurements to finish writing before closing Make Masks."))
+            event.ignore()
+            return
         if not self._volume_leave_ok() or not self._save_boxes_if_needed():
             event.ignore()
             return
@@ -21231,6 +21315,8 @@ class MakeMasksScreen(QWidget):
         self._canvas.close_wand()
         self._canvas.close_lookup()
         self._cancel_comparison()
+        if self._volume_measure_worker is not None:
+            self._volume_measure_worker.close(timeout=0)
         if self._comparison_worker is not None:
             self._comparison_worker.close(timeout=0)
         self.close_folded()
@@ -21958,6 +22044,8 @@ class MakeMasksScreen(QWidget):
         self._btn_export_yolo.setEnabled(editable and self._blind is None
                                         and self._box_load_error is None)
         volume = self._mask_stage.session is not None
+        self._act_measure_volume.setEnabled(
+            editable and volume and not self._volume_measure_running)
         self._mode_buttons[MODE_BOX].setEnabled(
             editable and self._box_load_error is None and not volume)
         self._btn_recrop.setEnabled(editable and not volume)
