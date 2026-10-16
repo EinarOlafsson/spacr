@@ -1,0 +1,6 @@
+OBJECT DETECTION: A 3D SWITCH FOR 3D-CAPABLE MODELS AND THRESHOLDS
+
+Status:    new 2026-10-16 (handed to Codex; start after the Make Masks layout reorg lands)
+Requested: maintainer, 2026-10-16.
+
+Add a boolean "3D" option to object detection (Make Masks > Object operations). When on, models that support 3D run in 3D mode, and Otsu and the other threshold methods that support 3D run in 3D too.
