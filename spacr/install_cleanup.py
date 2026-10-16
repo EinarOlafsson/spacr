@@ -4049,7 +4049,8 @@ def _run_debian_update(plan, machine, *, wait=None, run=None, spawn=None, publis
         raise RuntimeError("the privileged Debian helper returned no verified receipt") from error
     if receipt.get("state") != "committed" or receipt.get("version") != plan["version"]:
         raise RuntimeError("the privileged Debian replacement was not verified")
-    (spawn or _spawn_detached)(relaunch, None, machine.home)
+    handshake._write("debian-transaction.json", "committed", details=receipt)
+    _launch_updated_desktop(plan, relaunch, plan["version"], "/opt/spacr", frozen=True, spawn=spawn)
     return plan["version"], output
 
 
@@ -5356,8 +5357,14 @@ def _run_windows_frozen_update(plan, machine, *, download=None, install=None, ru
             if _windows_process_elevated():
                 raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_elevated_relaunch"))
             _windows_frozen_update_journal(lock, plan, "verified", root=root, identity=identity)
-            (spawn or _spawn_detached)(relaunch, None, plan["workdir"])
-            _windows_frozen_update_journal(lock, plan, "relaunch-requested", root=root, identity=identity)
+            try:
+                desktop = _launch_updated_desktop(
+                    plan, relaunch, identity["version"], root, frozen=True, spawn=spawn)
+            except Exception as error:
+                _windows_frozen_update_journal(lock, plan, "desktop-unconfirmed", root=root,
+                    identity=identity, pid=getattr(error, "pid", None), error=str(error))
+                raise
+            _windows_frozen_update_journal(lock, plan, "desktop-ready", root=root, identity=desktop)
             retained = False
             return identity["version"], output
     except TimeoutError as error:
@@ -5742,7 +5749,7 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
         try:
             observed, output = _run_windows_frozen_update(
                 plan, machine, wait=wait, download=fetch, run=run, spawn=spawn)
-            lines.extend([output, json.dumps({"version": observed, "relaunch": "requested"})])
+            lines.extend([output, json.dumps({"version": observed, "relaunch": "ready"})])
             return _finish(0)
         except Exception as error:
             lines.append(str(error))
@@ -5754,7 +5761,7 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
     if plan.get("adapter") == "linux-deb-v1":
         try:
             observed, output = _run_debian_update(plan, machine, wait=wait, run=run, spawn=spawn)
-            lines.extend([output, "Verified Debian spaCR " + observed + "; desktop relaunch requested."])
+            lines.extend([output, "Verified Debian spaCR " + observed + "; updated desktop ready."])
             return _finish(0)
         except Exception as error:
             if plan.get("handshake"):

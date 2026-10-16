@@ -334,7 +334,8 @@ def test_root_account_binding_refuses_missing_or_different_pkexec_identity(ic, m
         ic._debian_authenticated_user(1000)
 
 
-@pytest.mark.parametrize("failure", [None, "cancel", "checksum", "authorization", "receipt", "tampered"])
+@pytest.mark.parametrize("failure", [None, "cancel", "checksum", "authorization", "receipt", "tampered",
+    "old-desktop", "exited-desktop", "no-window"])
 def test_debian_handoff_requires_checksums_approval_and_verified_receipt(ic, tmp_path, monkeypatch, failure):
     tmp_path.chmod(0o700)
     helper = str(tmp_path / "spacr-update-helper")
@@ -372,7 +373,27 @@ def test_debian_handoff_requires_checksums_approval_and_verified_receipt(ic, tmp
         assert pid == 123456
         events.append("exited")
         return True
-    arguments = dict(wait=wait, run=run, spawn=lambda *args: events.append("relaunched"),
+    def spawn(argv, environment, cwd):
+        assert argv == relaunch and cwd == str(tmp_path)
+        assert environment["PYINSTALLER_RESET_ENVIRONMENT"] == "1"
+        folder, binding = json.loads(environment["SPACR_UPDATE_LAUNCH"])
+        channel = ic._UpdateLaunchHandshake(folder, binding)
+        assert channel._read("launch-request.json")["details"] == {
+            "version": "1.5.1.5", "executable": relaunch[0], "root": "/opt/spacr", "frozen": True}
+        actual = {"version": "1.5.1.4" if failure == "old-desktop" else "1.5.1.5",
+            "executable": relaunch[0], "module": "/opt/spacr/_internal/spacr/__init__.py", "pid": 45678}
+        channel._write("launch-result.json", "starting" if failure == "no-window" else "ready", details=actual)
+        process = SimpleNamespace(pid=45678, poll=lambda: 1 if failure == "exited-desktop" else None)
+        if failure == "no-window":
+            monkeypatch.setattr(ic.time, "time", lambda: channel.expires + 1)
+        def stop():
+            events.append("stopped")
+            process.poll = lambda: -15
+        process.terminate = stop
+        process.wait = lambda timeout: -15
+        events.append("relaunched")
+        return process
+    arguments = dict(wait=wait, run=run, spawn=spawn,
         published_digest=lambda url: None if failure == "checksum" else "0" * 64)
     machine = SimpleNamespace(home=str(tmp_path))
     if failure is None:
@@ -381,7 +402,13 @@ def test_debian_handoff_requires_checksums_approval_and_verified_receipt(ic, tmp
     else:
         with pytest.raises((ValueError, RuntimeError)):
             ic._run_debian_update(plan, machine, **arguments)
-        assert "relaunched" not in events
+        if failure in {"old-desktop", "exited-desktop", "no-window"}:
+            assert "relaunched" in events
+            assert ("stopped" in events) is (failure != "exited-desktop")
+            retained = ic._FrozenUpdateHandshake(plan)._read("debian-transaction.json")
+            assert retained["state"] == "committed" and retained["details"]["version"] == "1.5.1.5"
+        else:
+            assert "relaunched" not in events
         if failure in {"cancel", "checksum", "tampered"}:
             assert "authorized" not in events
 

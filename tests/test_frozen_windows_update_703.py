@@ -130,10 +130,17 @@ def update(runtime, monkeypatch, tmp_path):
 
     def spawn(argv, env, cwd):
         assert argv == [str(runtime.executable)]
-        assert env is None and cwd == str(runtime.helper)
+        assert env["PYINSTALLER_RESET_ENVIRONMENT"] == "1" and cwd == str(runtime.helper)
         assert cleanup._frozen_windows_previous_version(runtime.root) == '1.5.1.5'
+        folder, binding = json.loads(env["SPACR_UPDATE_LAUNCH"])
+        channel = cleanup._UpdateLaunchHandshake(folder, binding)
+        assert channel._read("launch-request.json")["details"] == {
+            "version": "1.5.1.5", "executable": argv[0], "root": str(runtime.root), "frozen": True}
+        channel._write("launch-result.json", "ready", details={
+            "version": "1.5.1.5", "executable": argv[0], "pid": 100,
+            "module": str(runtime.internal / "spacr/__init__.py")})
         actions.append('relaunch')
-        return 100
+        return types.SimpleNamespace(pid=100, poll=lambda: None)
 
     return types.SimpleNamespace(plan=plan, incoming=incoming, expected=expected,
         download=download, install=install, wait=wait, spawn=spawn,
@@ -154,7 +161,47 @@ def test_verified_nsis_update_keeps_data_and_relaunches_after_actual_identity(up
     assert not list((update.runtime.home / '.spacr/update-locks').iterdir())
     results = list(update.runtime.helper.glob('windows-update-result-*.json'))
     assert len(results) == 1
-    assert json.loads(results[0].read_text())['state'] == 'relaunch-requested'
+    assert json.loads(results[0].read_text())['state'] == 'desktop-ready'
+
+
+@pytest.mark.parametrize("failure", ["old-version", "exited", "never-ready", "cannot-stop"])
+def test_unconfirmed_windows_desktop_retains_recovery_and_cannot_report_success(update, monkeypatch, failure):
+    stopped = []
+
+    def spawn(argv, env, cwd):
+        process = update.spawn(argv, env, cwd)
+        folder, binding = json.loads(env["SPACR_UPDATE_LAUNCH"])
+        channel = cleanup._UpdateLaunchHandshake(folder, binding)
+        message = channel._read("launch-result.json")
+        if failure == "old-version":
+            message["details"]["version"] = "1.5.1.4"
+            channel._write("launch-result.json", "ready", details=message["details"])
+        elif failure == "exited":
+            process.poll = lambda: 9
+        else:
+            channel._write("launch-result.json", "starting", details=message["details"])
+            monkeypatch.setattr(cleanup.time, "time", lambda: channel.expires + 1)
+
+        def stop():
+            if failure == "cannot-stop":
+                raise OSError("modeled child handle cannot be stopped")
+            stopped.append(True)
+            process.poll = lambda: -15
+
+        process.terminate = stop
+        process.wait = lambda timeout: -15
+        return process
+
+    with pytest.raises(RuntimeError):
+        run_update(update, spawn=spawn)
+    assert bool(stopped) is (failure in {"old-version", "never-ready"})
+    assert not list(update.runtime.helper.glob("windows-update-result-*.json"))
+    journals = list((update.runtime.home / ".spacr/update-locks").glob("*/journal.json"))
+    assert len(journals) == 1
+    journal = json.loads(journals[0].read_text())
+    assert journal["state"] == "desktop-unconfirmed"
+    assert journal["pid"] == (100 if failure == "cannot-stop" else None)
+    assert (update.runtime.root / "user-data/keep.csv").read_bytes() == b"unchanged user data"
 
 
 @pytest.mark.parametrize('expected', [None, '', 'not-a-checksum', 'a' * 64])
