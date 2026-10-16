@@ -75,9 +75,9 @@ who gets it and how to install without it.
    * - Linux (x86-64, ARM64; glibc 2.28 or newer)
      - Vulkan (wgpu), OpenGL, CPU
    * - Windows (x64, ARM64)
-     - Vulkan / Direct3D 12 (wgpu), OpenGL, CPU
+     - Vulkan, Direct3D 12 (wgpu), OpenGL, CPU
    * - macOS (Intel, Apple silicon)
-     - Metal (wgpu), OpenGL, CPU
+     - Metal, Vulkan when available (wgpu), OpenGL, CPU
    * - Without wgpu: Python 3.9, other processors, Linux glibc older than
        2.28, or an install made without wgpu
      - OpenGL, CPU

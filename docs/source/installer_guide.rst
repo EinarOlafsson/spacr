@@ -493,8 +493,8 @@ Direct3D 12. Without wgpu, spaCR draws 3D through OpenGL (VisPy), and through
 the CPU when OpenGL is not available either. The **Render backend** list offers
 Auto, Vulkan, Metal, Direct3D 12, OpenGL and CPU, showing only the backends
 this computer supports. **Auto** prefers wgpu (Vulkan on Linux and Windows,
-Metal on macOS, Direct3D 12 on Windows when Vulkan is missing), then OpenGL,
-then the CPU.
+Metal then available Vulkan on macOS, Direct3D 12 on Windows when Vulkan
+is unavailable), then OpenGL, then the CPU.
 
 .. list-table::
    :header-rows: 1
