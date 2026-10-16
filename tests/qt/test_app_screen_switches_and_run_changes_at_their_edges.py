@@ -202,10 +202,21 @@ def test_an_organelle_switch_never_reshapes_a_form_without_organelles(
 
 def test_a_chosen_model_is_written_into_a_plain_field(screen, monkeypatch,
                                                      qtbot, caplog):
-    from PySide6.QtWidgets import QLineEdit
+    from PySide6.QtWidgets import QDialog, QLineEdit
 
-    monkeypatch.setattr("spacr.qt.widgets.model_zoo_picker.choose_model",
-                        lambda parent, kinds: "/models/cyto3")
+    class Picker:
+        _chosen_reference = None
+
+        def __init__(self, kinds, parent):
+            assert parent is screen
+
+        def exec(self):
+            return QDialog.Accepted
+
+        def chosen_path(self):
+            return "/models/cyto3"
+
+    monkeypatch.setattr("spacr.qt.widgets.model_zoo_picker.ModelZooPicker", Picker)
     field = QLineEdit()
     qtbot.addWidget(field)
     screen._choose_a_model_for(field, "cell_model_name")

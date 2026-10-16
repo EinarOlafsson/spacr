@@ -1,0 +1,43 @@
+{
+  "affected_only_final": {
+    "result": "1PASS",
+    "scope": "Only plainfield test after removing introduced over-specific assertion; three unaffected passing plaque tests not replayed",
+    "seconds": 2.32
+  },
+  "baseline8": {
+    "busy_runner_warning": "One busy JobRunner reported for failing plainfield fixture; rawwarning retained",
+    "five_failures": "Four obsolete choose_model mocks plus Work-owned expected-field driver contract; the two actual localized Yes cases and strictpaint case passed locally without changes",
+    "result": "5FAIL3PASS",
+    "seconds": 13.24
+  },
+  "change": "Stub actual ModelZooPicker(kinds,parent), Accepted/chosen_path with None capsule or Rejected with chosen_path forbidden; original path/kinds/warning/field assertions remain exact",
+  "final_distinct_picker_cases": 4,
+  "first_picker_followup": {
+    "failure": "Author-added incorrect restriction to cellpose-only kinds on generic cell-model row; original assertions did not impose it",
+    "result": "3PASS1FAIL",
+    "seconds": 3.67
+  },
+  "no_single_four_green_run_claim": true,
+  "patch_sha256": "cae2742f04fc0b5aa1387d5590096384718e12bc5fdbf76aae637620d2d4391a",
+  "preservation": {
+    "tests/qt/test_a_model_row_has_a_zoo_button.py": {
+      "all_original_assertions_preserved": 7,
+      "final_sha256": "1adc46717d881ae77a4e3a2cdc1c6ac82ffa32252284d64dff4d77c48680d72c",
+      "old_sha256": "8563c9f5518e16ba6dcffb389869c78c105b112d791413bc1dd5c40790d19686",
+      "outside_functions_ast_unchanged": true
+    },
+    "tests/qt/test_app_screen_switches_and_run_changes_at_their_edges.py": {
+      "all_original_assertions_preserved": 27,
+      "final_sha256": "1a8d1115e3bbb45baef55aba9ff3c35728e4bff22527c312dfd2a85dc2b13086",
+      "old_sha256": "9f346f56159f95b410201b316b2cd05d3fcc35fef0fb0ae353baadc91268f3ce",
+      "outside_functions_ast_unchanged": true
+    }
+  },
+  "production_file": "spacr/qt/screens/app_screen.py",
+  "production_sha256": "9396db400fd1203b4f20b35c03dd595feb4fa789a5012f0f84bc8c5487ee26e9",
+  "production_unchanged": true,
+  "runner": "2G/noSwap/CPU1/thread1/offscreen/provenQt612/core0,bothlocks",
+  "scope": "Four existing picker tests only; no real dialog/network/model/provider verification bypass",
+  "source_head": "8b727e1d5bea4d5764730f2623eee84b3b4d07b4",
+  "unfixed_host_only_failures": "Hindi/IcelandicYes andstrictpaint remainopen; isolatedlocalpassisnotafix"
+}
