@@ -11,6 +11,10 @@
 
 
 
+## 2026-10-15 Work — Lesson07 video-only refresh in progress
+
+07 narration and all50 existing audio tracks remain valid; all14 catalogs/13 translation reviews are retained. The historical sidebar persists throughout the published video and omits currently stable Classify/Toxoplasma entries. Refreshing13 video scenes against public890e8db206 application tree, pinned locally as3baef5fc6. Recorder-only preview subscription and batch lifecycle corrections passed13 focused Qt tests; independent review and native capture are pending. Cached inputs and retained audio are being copied into a fresh owned stage. No new recording,07 completion or source push claimed. Ordered audit remains5/84 cleared;06 delivered890e8db206.
+
 ## 2026-10-15 Work — Lesson06 metadata repair completed;07 next
 
 Ordered06 audit keeps video,all27 offered audio tracks and all narration/translated caption text. The concrete repair replaces retired02_conda_install/03_pip_install prerequisite IDs with02_install_spacr+04_platform_installers in scene1 of all14 catalogs and the JavaScript catalog.13 source review hashes are rebound to normalizedEnglish5182c3efe47b1f6fa83911262a5b2b4eea6d619af5ea77044974276de96774f1; every other review byte,including translated text/history,is unchanged. Held source5430c0ceabbd9cf99a4f40ea3030eefa89c2bd87 contains only those13 hash-field changes; official review files/actual source proof are included in the completion capsule for Home's reviewed adoption. No tool/app source push under release hold.
