@@ -75,6 +75,13 @@
       "source_sha256": "5279ca111632af67030be8d908c02649520ebd869c845969ea3e64462046e8a2",
       "text": "Stop ``widgets`` painting a background of their own.\n\nA backdrop — the theme's wallpaper, or the DNA rain on the\nsequencing screen — is behind the *page*, and in the opaque themes\nevery container between it and the eye is an opaque ``bg`` by\nvirtue of the blanket ``QWidget`` rule. One container is enough to\nbury it: a screen's header widget, its splitter, a scroll area and\nthat scroll area's viewport are each a QWidget, and each one used to\npaint solid black over the animation the screen had just installed.\n\nTag the layout containers with this and the backdrop reaches the\neye; leave the cards, panels and inputs alone and they stay the\nreadable surface on top of it. Safe to call on a widget that is\nalready visible — the style is re-polished so the change takes\neffect immediately rather than at the next theme switch.\n\nA ``QScrollArea``'s ``viewport()`` is tagged automatically along\nwith it: they are two widgets, the viewport is the one that\nactually paints, and forgetting it is the obvious way to get this\nwrong."
     },
+    "534f33187deecbea1599b9e9aa55958070da326ee5431c21142909c5b8534ef8": {
+      "source_blocks_sha256": [
+        "534f33187deecbea1599b9e9aa55958070da326ee5431c21142909c5b8534ef8"
+      ],
+      "source_sha256": "534f33187deecbea1599b9e9aa55958070da326ee5431c21142909c5b8534ef8",
+      "text": "Return only providers whose CLI is installed and logged in."
+    },
     "5d65a5569a1ae58501f07ee22effe38c1c2a2664f178eceda6a7ca57b31ce6f3": {
       "source_blocks_sha256": [
         "7e87357ae7d65908808f1150f13667f616c7b568d8f6df8bebf835672068670b",
@@ -118,6 +125,19 @@
       "source_sha256": "6e1d32dcb81a471128b10915489f27bd29493686a6a7d6dd18d3200f0a5d9715",
       "text": "Start animating, and follow the window this widget belongs to.\n\n:param event: the Qt show event."
     },
+    "836f437ae8d7b86ab65fabb6086c93e532a1b8f4fab95f0d443d14c7a0926afa": {
+      "source_blocks_sha256": [
+        "4b4f4c864a6d6a54405a9db239b604eece859287d4ab76d60f77fcfa52db6998",
+        "f9e0fccea5d254c463195200455d44c1032c5e293c0bd094c11eb9fc9e9df3e3",
+        "bf089d3a5d44c06643d8a156c082fec6272315b4a6a95fa9e784cc070314796d",
+        "c8eb1abaea3fd9e65154f8b0379b34997df41da37898a111bd525655a170d856",
+        "204ef948c059dfc36f49b4566c67f63df6ea4fca201470d6568a4f114b0e48c5",
+        "b04c1a7ddf7c66c049907c96cc7b7c221e04b49f907ca3fedf95f2398fc960fa",
+        "5e39a047e529c1f881b126d604183a6aa1aeaf05947e692118f706eb62fbbd7a"
+      ],
+      "source_sha256": "836f437ae8d7b86ab65fabb6086c93e532a1b8f4fab95f0d443d14c7a0926afa",
+      "text": "Provider abstraction — one class per AI vendor. Each shells out to\nthe vendor's own coding-agent CLI so authentication piggy-backs on\nthe user's chat subscription (Claude.ai Pro, ChatGPT Plus/Pro/Team,\nGoogle account) — no separate API billing.\n\n* Anthropic Claude → the `claude` CLI (\"Claude Code\")\n* OpenAI ChatGPT   → the `codex`  CLI\n* Google Gemini    → the `gemini` CLI\n\nEach provider::\n\n    is_installed()   — is the CLI on PATH?\n    is_logged_in()   — best-effort check; falls back to \"assume yes if\n                       installed\" (the actual auth error surfaces on\n                       the first stream chunk).\n    stream_chat()    — spawn the CLI subprocess, yield stdout chunks.\n\nConversation context is carried by concatenating the full message\nhistory into each prompt (simplest approach that works uniformly\nacross all three CLIs). For subscription users token count is not a\nconcern.\n\nHow each CLI is installed is data, not prose: :data:`INSTALL_METHODS` holds\none row per way of installing it on each operating system, and both the\n``install_hint`` a screen shows and the command\n:mod:`spacr.qt.ai.cli_install` runs are read from those rows. The GitHub CLI\nis described the same way by :class:`GitHubCli`, which shares the\n:class:`CommandLineTool` interface without being a chat provider."
+    },
     "8eb77d4fac240d06957449323b42b5a872c9bc235cdc73149b1e48733ea9de28": {
       "source_blocks_sha256": [
         "0eb5ee178887eeb6c18e94c01135ba5b8f92fb0d92464ce3bdb375a934fbf594",
@@ -152,6 +172,22 @@
       ],
       "source_sha256": "c60be06622ffe4c46fa6bdbafd5ebb235ba81be8a7249e68758361f50acf2850",
       "text": "Enrol this screen and its panels with the workspace registry.\n\nRegistered as CALLABLES returning the attribute, never as the widget:\n`_results_panel` is rebuilt when the module changes, and a captured\nreference would hand a run journal a deleted C++ peer to ask."
+    },
+    "f3a75a6a1b9e576469fd2c28d2ef612b4b568b52c238fd37dee7345fcf94409e": {
+      "source_blocks_sha256": [
+        "f3a75a6a1b9e576469fd2c28d2ef612b4b568b52c238fd37dee7345fcf94409e"
+      ],
+      "source_sha256": "f3a75a6a1b9e576469fd2c28d2ef612b4b568b52c238fd37dee7345fcf94409e",
+      "text": "Return every registered provider, regardless of install state."
+    },
+    "f7b12025c7d64b6ecea370145f2a97ae2fa04a516a23dd32699314558621970f": {
+      "source_blocks_sha256": [
+        "30906fb91ecf62ea89c8e2b71dc1d2c0ca3fb234bcd103052f2c6f295530433c",
+        "d83dba46805c378a842ba1ac5d9b9beb8c704e8e9ed516b04a5a0c8208598f6d",
+        "046475e3c0fd377d4cf1c4d6d932652640b458b7edd33c1d0b97aa8e4c6a490f"
+      ],
+      "source_sha256": "f7b12025c7d64b6ecea370145f2a97ae2fa04a516a23dd32699314558621970f",
+      "text": "Look up a registered provider by its short id.\n\n:param name: provider id (``\"claude\"``, ``\"codex\"``, ``\"gemini\"``).\n:returns: the matching provider, or ``None`` if no such id."
     }
   }
 }

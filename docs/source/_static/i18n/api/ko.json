@@ -70166,17 +70166,19 @@
         "f9e0fccea5d254c463195200455d44c1032c5e293c0bd094c11eb9fc9e9df3e3",
         "bf089d3a5d44c06643d8a156c082fec6272315b4a6a95fa9e784cc070314796d",
         "c8eb1abaea3fd9e65154f8b0379b34997df41da37898a111bd525655a170d856",
+        "8edaac55540b63385aa21dc664338a88fa38ef6f988f1f6a2d9429836ffbd46c",
         "204ef948c059dfc36f49b4566c67f63df6ea4fca201470d6568a4f114b0e48c5",
         "b04c1a7ddf7c66c049907c96cc7b7c221e04b49f907ca3fedf95f2398fc960fa",
         "5e39a047e529c1f881b126d604183a6aa1aeaf05947e692118f706eb62fbbd7a"
       ],
-      "source_sha256": "836f437ae8d7b86ab65fabb6086c93e532a1b8f4fab95f0d443d14c7a0926afa",
-      "text": "공급자 추출 - AI 판매자 당 1 클래스. 각 샷은 판매자의 자신의 코딩 에이전트 CLI 그래서 사용자의 채팅 구독 (Claude.ai 프로, ChatGPT 플러스/프로/팀, 구글 계정)에 인증 piggy-backs - 별도의 API 청구하지 않습니다.\n\n* 안드로피 클로드 → `claude` CLI (\"Claude Code\")\n* 오픈AI ChatGPT → `codex` CLI\n* 구글 쌍둥이 → `gemini` CLI\n\n각 공급자::\n\n    is_installed()   — is the CLI on PATH?\n    is_logged_in()   — best-effort check; falls back to \"assume yes if\n                       installed\" (the actual auth error surfaces on\n                       the first stream chunk).\n    stream_chat()    — spawn the CLI subprocess, yield stdout chunks.\n\n대화의 맥락은 모든 움직임에 전체 메시지 역사 (세 개의 CLI를 통하여 동일하게 작동하는 가장 간단한 접근 방식)를 포장함으로써 이루어집니다.\n\n각 CLI 의 설치 방법은 산문이 아니라 데이터입니다. :data:`INSTALL_METHODS` 는 운영 체제별로 설치 방법마다 한 행을 담으며, 화면이 보여 주는 ``install_hint`` 와 :mod:`spacr.qt.ai.cli_install` 이 실행하는 명령 모두 그 행에서 읽습니다. GitHub CLI 도 :class:`GitHubCli` 가 같은 방식으로 기술하며, 이 클래스는 채팅 제공자가 아니면서 :class:`CommandLineTool` 인터페이스를 공유합니다.",
+      "source_sha256": "301f390b43f57c07fb27466cfe0dcc3a436d5dcba811422e70f8bb9b4fca9c05",
+      "text": "공급자 추출 - AI 판매자 당 1 클래스. 각 샷은 판매자의 자신의 코딩 에이전트 CLI 그래서 사용자의 채팅 구독 (Claude.ai 프로, ChatGPT 플러스/프로/팀, 구글 계정)에 인증 piggy-backs - 별도의 API 청구하지 않습니다.\n\n* 안드로피 클로드 → `claude` CLI (\"Claude Code\")\n* 오픈AI ChatGPT → `codex` CLI\n* 구글 쌍둥이 → `gemini` CLI\n\n네 번째 제공자는 :class:`HostedProvider` 입니다. CLI도 계정도 필요하지 않습니다. spaCR의 릴레이에 요청하면 무료 호스팅 모델로 응답하며, 앞의 세 제공자 중 설치되어 있고 로그인도 된 제공자가 하나도 없을 때 기본값으로 사용됩니다 (:func:`default_provider`).\n\n각 공급자::\n\n    is_installed()   — is the CLI on PATH?\n    is_logged_in()   — best-effort check; falls back to \"assume yes if\n                       installed\" (the actual auth error surfaces on\n                       the first stream chunk).\n    stream_chat()    — spawn the CLI subprocess, yield stdout chunks.\n\n대화의 맥락은 모든 움직임에 전체 메시지 역사 (세 개의 CLI를 통하여 동일하게 작동하는 가장 간단한 접근 방식)를 포장함으로써 이루어집니다.\n\n각 CLI 의 설치 방법은 산문이 아니라 데이터입니다. :data:`INSTALL_METHODS` 는 운영 체제별로 설치 방법마다 한 행을 담으며, 화면이 보여 주는 ``install_hint`` 와 :mod:`spacr.qt.ai.cli_install` 이 실행하는 명령 모두 그 행에서 읽습니다. GitHub CLI 도 :class:`GitHubCli` 가 같은 방식으로 기술하며, 이 클래스는 채팅 제공자가 아니면서 :class:`CommandLineTool` 인터페이스를 공유합니다.",
       "translation_source_blocks_sha256": [
         "4b4f4c864a6d6a54405a9db239b604eece859287d4ab76d60f77fcfa52db6998",
         "f9e0fccea5d254c463195200455d44c1032c5e293c0bd094c11eb9fc9e9df3e3",
         "bf089d3a5d44c06643d8a156c082fec6272315b4a6a95fa9e784cc070314796d",
         "c8eb1abaea3fd9e65154f8b0379b34997df41da37898a111bd525655a170d856",
+        "8edaac55540b63385aa21dc664338a88fa38ef6f988f1f6a2d9429836ffbd46c",
         "204ef948c059dfc36f49b4566c67f63df6ea4fca201470d6568a4f114b0e48c5",
         "b04c1a7ddf7c66c049907c96cc7b7c221e04b49f907ca3fedf95f2398fc960fa",
         "afb0176335763a9517f02d207ac2f960ee8d336eb45602e186077c3a7fa278bf"
@@ -70422,6 +70424,108 @@
         "c164e08351823f0c19826dc31fa6cd9737d14029ee1ca1b40ac352ea07a50498"
       ]
     },
+    "spacr.qt.ai.providers.HostedProvider": {
+      "source_blocks_sha256": [
+        "da1c14bc6ca951debdab9274c15473950d7f2b9bc30c4717bbb10f044ee912c5",
+        "2ca72c0c5556408e970a3c110a76f18f5acb527529aaa6347309111fc7f66ca2"
+      ],
+      "source_sha256": "4773f76a6059809b4623707b83f6c3ef3e2d6d12cee16157da92c174392641af",
+      "text": "spaCR의 호스팅 도우미: 계정 없이 spaCR 릴레이에서 받는 조언입니다.\n\n이 제공자는 :func:`_hosted_request` 가 남긴 익명화된 오류 요약과 질문만 릴레이의 ``/diagnose`` 경로로 :func:`spacr.crashreport.diagnose_remotely` 를 통해 보냅니다. 답변은 생성된 조언이며 그렇게 표시됩니다. 설치되어 있고 로그인도 된 공급업체 CLI가 하나도 없을 때 사용되는 제공자이며 (:func:`default_provider`), 네트워크가 금지되면 사용할 수 없습니다 (:func:`spacr.crashreport.network_allowed`).",
+      "translation_source_blocks_sha256": [
+        "da1c14bc6ca951debdab9274c15473950d7f2b9bc30c4717bbb10f044ee912c5",
+        "2ca72c0c5556408e970a3c110a76f18f5acb527529aaa6347309111fc7f66ca2"
+      ]
+    },
+    "spacr.qt.ai.providers.HostedProvider.check_signed_in": {
+      "source_blocks_sha256": [
+        "61dde51b6fdaf6c129b9ba1eaec8c62d36e61c49d74b2ed86d26959efa8757c3",
+        "19ccd0650c179313ee4cbd83c8934366e43399e557de86bef36b957f4709e1c3"
+      ],
+      "source_sha256": "790a0387cd9cdc858eacaa57cd0febd871b497b1b6b70a9f630b195e1bb89489",
+      "text": "확인할 로그인이 없습니다.\n\n:returns: ``None``.",
+      "translation_source_blocks_sha256": [
+        "61dde51b6fdaf6c129b9ba1eaec8c62d36e61c49d74b2ed86d26959efa8757c3",
+        "19ccd0650c179313ee4cbd83c8934366e43399e557de86bef36b957f4709e1c3"
+      ]
+    },
+    "spacr.qt.ai.providers.HostedProvider.is_configured": {
+      "source_blocks_sha256": [
+        "f29084ee2c2db3bbc90867ab9f7255cc03c6ec31b5b4c56ac04a269b4312cefa"
+      ],
+      "source_sha256": "f29084ee2c2db3bbc90867ab9f7255cc03c6ec31b5b4c56ac04a269b4312cefa",
+      "text": "호스팅 제공자를 사용할 수 있는지 여부: 네트워크가 허용되어 있습니다.",
+      "translation_source_blocks_sha256": [
+        "f29084ee2c2db3bbc90867ab9f7255cc03c6ec31b5b4c56ac04a269b4312cefa"
+      ]
+    },
+    "spacr.qt.ai.providers.HostedProvider.is_installed": {
+      "source_blocks_sha256": [
+        "b255adbc5f5930c788d1bde6fcec235a02073a9ee95ec24b6988f153494821bf"
+      ],
+      "source_sha256": "b255adbc5f5930c788d1bde6fcec235a02073a9ee95ec24b6988f153494821bf",
+      "text": "설치할 것이 없습니다. 호스팅 제공자는 항상 존재합니다.",
+      "translation_source_blocks_sha256": [
+        "b255adbc5f5930c788d1bde6fcec235a02073a9ee95ec24b6988f153494821bf"
+      ]
+    },
+    "spacr.qt.ai.providers.HostedProvider.is_logged_in": {
+      "source_blocks_sha256": [
+        "020c83ebfd2aceeb05d7b9ea39267e8c87a66e37083d96772343264b6b4e25dc"
+      ],
+      "source_sha256": "020c83ebfd2aceeb05d7b9ea39267e8c87a66e37083d96772343264b6b4e25dc",
+      "text": "로그인할 것이 없습니다. 릴레이에는 계정이 필요하지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "020c83ebfd2aceeb05d7b9ea39267e8c87a66e37083d96772343264b6b4e25dc"
+      ]
+    },
+    "spacr.qt.ai.providers.HostedProvider.source_of_key": {
+      "source_blocks_sha256": [
+        "f10b011b84c37cc94d13bd5266e900d547c34cfdeb99bf9b6953a9dacf79e2dc"
+      ],
+      "source_sha256": "f10b011b84c37cc94d13bd5266e900d547c34cfdeb99bf9b6953a9dacf79e2dc",
+      "text": "CLI 위치 대신 답변의 출처를 알려 줍니다.",
+      "translation_source_blocks_sha256": [
+        "f10b011b84c37cc94d13bd5266e900d547c34cfdeb99bf9b6953a9dacf79e2dc"
+      ]
+    },
+    "spacr.qt.ai.providers.HostedProvider.stream_chat": {
+      "source_blocks_sha256": [
+        "e5d24ec2cf7eb660bc2ba8c938708ea6b3ca3394da7f34b72d6d9e1bdcca0541",
+        "274d88becafc4c017d49f19efba6109161035e4ca2d817a1e65c090316e51861",
+        "5a2809f3c5a835d099945c170edbda416aeb8a6dc26d4f83550e9f283159efc6",
+        "31618f6f07924368276efb82ee7734b63c648083266347e900b047e6bfe2519b",
+        "5253a2a87f8317744e0a53bab28cc26a31aeb443fd7de567c973fd54026ba4d6",
+        "656f3c754e1a7a99b682f4c18a57aac46a6c1d75f42b092e3dd0ae776a520471"
+      ],
+      "source_sha256": "4d92f670852f5e91aca4209ba43b8195ce1cb671acaadfecdc4d986b26a54a77",
+      "text": "릴레이에 요청하여 조언을 제공한 뒤, 그 답변의 성격을 설명하는 한 줄을 제공합니다.\n\n:param messages: ``{role, content}`` 딕셔너리로 된 대화 기록입니다. 익명화된 요약과 가장 최근 질문만 이 컴퓨터를 떠납니다.\n:param system: 무시됩니다. 릴레이가 spaCR 자체 프롬프트를 보유합니다.\n:param model: 무시됩니다. 릴레이가 무료 모델을 선택합니다.\n:returns: 답변을 제공하는 반복자입니다.\n:raises HostedProviderRefused: 무료 일일 한도에 도달했거나 릴레이에 연결할 수 없었다는 메시지와 함께 발생합니다.",
+      "translation_source_blocks_sha256": [
+        "e5d24ec2cf7eb660bc2ba8c938708ea6b3ca3394da7f34b72d6d9e1bdcca0541",
+        "230d99df83d81281f327f58105bab4122ff6f045b05a74bd55b08eb716f82d47",
+        "5a2809f3c5a835d099945c170edbda416aeb8a6dc26d4f83550e9f283159efc6",
+        "31618f6f07924368276efb82ee7734b63c648083266347e900b047e6bfe2519b",
+        "5253a2a87f8317744e0a53bab28cc26a31aeb443fd7de567c973fd54026ba4d6",
+        "656f3c754e1a7a99b682f4c18a57aac46a6c1d75f42b092e3dd0ae776a520471"
+      ]
+    },
+    "spacr.qt.ai.providers.HostedProviderRefused": {
+      "source_blocks_sha256": [
+        "4ad93904e2d91853b453752668492fe9f42b913c2439d3082f5ab7765089f5ca",
+        "e51a2e6e13d3dd34e1eaca745a2372d37a25b3b0c6351d6471e0c1327dfbcd85",
+        "b63411dc819ca143936fbc35fcfb3829af7cc744b35ff43c25e604f46185fc24",
+        "3c36b4ab540322a7577d328c4eb038a6f944be73463cc53e604c9751e94d12de",
+        "5797f57330dc8b6799b318070c4b2d0825f80b7063eb369e143e3dd8f5c53c7e"
+      ],
+      "source_sha256": "a4fe8b47d82f627ae57295271338280ea85f102a02f4187bcd609956a7662800",
+      "text": "spaCR 릴레이가 조언을 제공하지 않았습니다. 무료 일일 한도에 도달했거나 연결되지 않았습니다.\n\n:class:`ProviderFailed` 이므로 콘솔은 \"[AI error]\" 뒤에 메시지를 그대로 씁니다.\n\n:param message: 사용자가 읽는 문장입니다.\n:param reason: ``\"quota\"``, ``\"network\"`` 또는 ``\"error\"`` 이며, :class:`spacr.crashreport.RelayRefused` 에서 가져와 예외의 ``reason`` 으로 유지됩니다.\n이유를 유지합니다. 메시지가 화면에 표시되는 전체 텍스트입니다.",
+      "translation_source_blocks_sha256": [
+        "4ad93904e2d91853b453752668492fe9f42b913c2439d3082f5ab7765089f5ca",
+        "e51a2e6e13d3dd34e1eaca745a2372d37a25b3b0c6351d6471e0c1327dfbcd85",
+        "b63411dc819ca143936fbc35fcfb3829af7cc744b35ff43c25e604f46185fc24",
+        "3c36b4ab540322a7577d328c4eb038a6f944be73463cc53e604c9751e94d12de",
+        "5797f57330dc8b6799b318070c4b2d0825f80b7063eb369e143e3dd8f5c53c7e"
+      ]
+    },
     "spacr.qt.ai.providers.InstallMethod": {
       "source_blocks_sha256": [
         "8de5633b37ae1fb2d99dcb5e128da24ce1608c7149eedc0f177393fd1e329cd5",
@@ -70476,27 +70580,95 @@
         "1a6e5000309195e6156656a0b3f5896173d76a33d1eaf992e2757b437ae38738"
       ]
     },
+    "spacr.qt.ai.providers.apply_provider_choice": {
+      "source_blocks_sha256": [
+        "a5ae9b6824253caab45554dd059e571e432bb89a10de613f7ebf6a357531ce9b",
+        "42bc83f8f8d1f55156cffeb7bd988b995768a6b2b063555cdb7ac139baba044d",
+        "7c2df80173c2376095e0e6e4d8509171924ef3afbff3790530f77329090d0f50",
+        "3787fde9e9f01afffe459d9ce287165c359bd0353aeead7536e479c4240323a7"
+      ],
+      "source_sha256": "669ae71fde5dd5ec4bd217271b16610343479efb31f9370bd49d29c3ba4685c6",
+      "text": "제공자 선택을 저장하고 열려 있는 모든 콘솔에서 즉시 사용합니다.\n\n설치되어 있고 로그인도 된 상태가 아닌 공급업체 CLI의 선택은 저장되지만 적용되지는 않습니다. 설정이 완료될 때까지 콘솔은 spaCR AI (무료)를 계속 사용합니다.\n\n:param name: :data:`PROVIDER_CHOICES` 에 있는 이름입니다.\n:returns: 선택한 제공자가 지금 답변할 수 있는지 여부입니다.",
+      "translation_source_blocks_sha256": [
+        "a5ae9b6824253caab45554dd059e571e432bb89a10de613f7ebf6a357531ce9b",
+        "42bc83f8f8d1f55156cffeb7bd988b995768a6b2b063555cdb7ac139baba044d",
+        "7c2df80173c2376095e0e6e4d8509171924ef3afbff3790530f77329090d0f50",
+        "3787fde9e9f01afffe459d9ce287165c359bd0353aeead7536e479c4240323a7"
+      ]
+    },
     "spacr.qt.ai.providers.configured_providers": {
       "source_blocks_sha256": [
-        "534f33187deecbea1599b9e9aa55958070da326ee5431c21142909c5b8534ef8"
+        "12149d7875dc77cebe728c15fd063f97b5ff1ea5dba019b89072cb2e5e826de3",
+        "ddca870541939d143b270a919500d0be204d97450cf055f814a2e2b900121f11"
       ],
-      "source_sha256": "534f33187deecbea1599b9e9aa55958070da326ee5431c21142909c5b8534ef8",
-      "text": "CLI가 설치되고 로그인된 공급자만 반환합니다.",
+      "source_sha256": "4ae62e7e53101b84263a26377252d817bcdfd2f4318c1be65edc94565747cb49",
+      "text": "지금 답변할 수 있는 제공자를 반환하며, spaCR AI (무료)가 먼저 옵니다.\n\n호스팅 제공자가 기본값이므로 네트워크가 허용될 때마다 맨 앞에 옵니다. 설치되어 있고 로그인도 된 공급업체 CLI가 그 뒤를 따릅니다.",
       "translation_source_blocks_sha256": [
-        "534f33187deecbea1599b9e9aa55958070da326ee5431c21142909c5b8534ef8"
+        "12149d7875dc77cebe728c15fd063f97b5ff1ea5dba019b89072cb2e5e826de3",
+        "ddca870541939d143b270a919500d0be204d97450cf055f814a2e2b900121f11"
+      ]
+    },
+    "spacr.qt.ai.providers.default_provider": {
+      "source_blocks_sha256": [
+        "a500cdcdc24198f5c346b4724bf0dd40f4af992093840579e4567ddee0592759",
+        "8edf3b29587838d71e60bfb3d547710432695f278b0dee9be491297a42dbdbbb",
+        "2b58f2c2f4c4029a55f5f207e230cfe244ce03e5db1872d465e1f7685ee4c7e5"
+      ],
+      "source_sha256": "d3e33116b8bac3ed15f1f67560e4ea14d5f5e04ec4aa1f1c27a4334b042f7ade",
+      "text": "AI 스위치가 사용하는 제공자를 반환합니다.\n\n:param preferred: 환경설정에 지정된 제공자 또는 ``\"\"`` 입니다.\n:returns: 답변할 수 있으면 ``preferred``, 그렇지 않으면 spaCR AI (무료), 그마저 불가능하고 네트워크가 금지된 경우 설치되어 있고 로그인도 된 첫 번째 공급업체 CLI를 반환합니다. 아무 제공자도 답변할 수 없으면 ``None`` 입니다.",
+      "translation_source_blocks_sha256": [
+        "a500cdcdc24198f5c346b4724bf0dd40f4af992093840579e4567ddee0592759",
+        "8edf3b29587838d71e60bfb3d547710432695f278b0dee9be491297a42dbdbbb",
+        "2b58f2c2f4c4029a55f5f207e230cfe244ce03e5db1872d465e1f7685ee4c7e5"
+      ]
+    },
+    "spacr.qt.ai.providers.effective_provider_name": {
+      "source_blocks_sha256": [
+        "c2683425f4995c2cde5db5eace9a0b488258a90c1ddc9aadcf155a3fa18ece07",
+        "83d70395c1cc35623156af8638390c8d233418aa12173ba9d8e9644b70b6e365",
+        "7c2df80173c2376095e0e6e4d8509171924ef3afbff3790530f77329090d0f50"
+      ],
+      "source_sha256": "3173d3a2ba19dba050f7152112ff7e4324ad10142a37f21ba6117a710d70a273",
+      "text": "환경설정에 선택된 것으로 표시되는 제공자의 이름을 반환합니다.\n\n:param preferred: 저장된 환경설정 값입니다. ``\"\"`` (선택한 적 없음)은 spaCR AI (무료)를 뜻합니다.\n:returns: :data:`PROVIDER_CHOICES` 에 있는 이름입니다.",
+      "translation_source_blocks_sha256": [
+        "c2683425f4995c2cde5db5eace9a0b488258a90c1ddc9aadcf155a3fa18ece07",
+        "83d70395c1cc35623156af8638390c8d233418aa12173ba9d8e9644b70b6e365",
+        "7c2df80173c2376095e0e6e4d8509171924ef3afbff3790530f77329090d0f50"
+      ]
+    },
+    "spacr.qt.ai.providers.explain_failure": {
+      "source_blocks_sha256": [
+        "ad7cc225f90cb372cca7e2e7c84e7dd2818883369b4e9408f66115b7f00f087c",
+        "bd98b7f9865a2d9fdea51da602e8a141bedd9cce2a20decd137961d2201263e4",
+        "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+        "15b4cb17546b1effbadb29ef18c1045837faf3b8acf06151d43d888726e1ddc9",
+        "5424d075b417d26cf094bfda8c0e1a5f55dc9b89894c2d94c0f3a900350bc722",
+        "f739a99d4a900440a2ea08d864d905586720381157d9c4004477829d6b12de91",
+        "7ea7e26255aa7c895df0363947439ecc1f2f02cf8f0dd21c81d0dfecee41a0d8"
+      ],
+      "source_sha256": "a3998223245141e544b98ee1aea0a8876a3d481fbbb36e4111565b9aa237e127",
+      "text": "활성 AI가 한 번의 실패를 한 번 설명하여 콘솔과 이슈 보고서에 사용하게 합니다.\n\nspaCR AI (free)는 릴레이의 ``/diagnose`` 에 익명화된 요약과 :data:`spacr.crashreport.EXPLAIN_QUESTION` 을 전달합니다. 공급업체 CLI는 여기서 :func:`spacr.crashreport.ai_summary_prompt` 에 답합니다(:func:`write_report_summary`). 같은 텍스트를 콘솔에 표시하고 보고서의 ``ai_summary`` 로 보내므로 실패 한 건당 AI 호출은 한 번입니다. 실행을 차단하므로 GUI 스레드 밖에서 호출해야 합니다.\n\n:param summary: :func:`spacr.crashreport.public_summary` 에서 얻은 요약입니다.\n:param provider: 활성 제공자 또는 ``None`` 입니다.\n:param timeout: 공급업체 CLI에 허용되는 시간(초)이며, 기본값은 :data:`spacr.crashreport.AI_SUMMARY_TIMEOUT_S` 입니다.\n:returns: ``{\"text\": explanation or \"\", \"tier\": \"best\"|\"light\"|\"\", \"refused\": \"\" or \"quota\"|\"network\"|\"error\"|\"none\"}`` 에 더해, 답변이 이 컴퓨터에 저장되어 있었다면 ``\"saved\": \"local\"``(AI 호출과 네트워크 사용 없음), 릴레이가 답변을 재사용했다면 ``\"relay\"`` 가 포함됩니다.\n\n이미 설명한 오류는 다시 설명하지 않습니다. 모든 제공자에서 이 컴퓨터에 저장된 답변(:func:`spacr.crashreport.saved_explanation`)을 먼저 사용하며, 새 답변은 모두 저장합니다.",
+      "translation_source_blocks_sha256": [
+        "ad7cc225f90cb372cca7e2e7c84e7dd2818883369b4e9408f66115b7f00f087c",
+        "724bd0fc9c91c0ae6178a07a281b6e725ba8afb2dbd86b5fc0ae3dfcfb145b41",
+        "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+        "15b4cb17546b1effbadb29ef18c1045837faf3b8acf06151d43d888726e1ddc9",
+        "5424d075b417d26cf094bfda8c0e1a5f55dc9b89894c2d94c0f3a900350bc722",
+        "f739a99d4a900440a2ea08d864d905586720381157d9c4004477829d6b12de91",
+        "7ea7e26255aa7c895df0363947439ecc1f2f02cf8f0dd21c81d0dfecee41a0d8"
       ]
     },
     "spacr.qt.ai.providers.get_provider": {
       "source_blocks_sha256": [
-        "30906fb91ecf62ea89c8e2b71dc1d2c0ca3fb234bcd103052f2c6f295530433c",
-        "d83dba46805c378a842ba1ac5d9b9beb8c704e8e9ed516b04a5a0c8208598f6d",
+        "641f498aafa0c9c8081b6422e6a5654c5e44b26ad2e139e5f07c4015aa0055d1",
+        "9cb91fc3bc8e6be1f7ab8cdbbe128db0647159821906d7a4c5ad1d66dd0f60e7",
         "046475e3c0fd377d4cf1c4d6d932652640b458b7edd33c1d0b97aa8e4c6a490f"
       ],
-      "source_sha256": "f7b12025c7d64b6ecea370145f2a97ae2fa04a516a23dd32699314558621970f",
-      "text": "짧은 ID로 등록된 공급자를 확인하십시오.\n\n:param name: 공급자 ID (``\"claude\"``, ``\"codex\"`` 및 ``\"gemini\"``)\n:returns: 해당 공급자 또는 ``None``이 없는 경우.",
+      "source_sha256": "baf06038267e2aa4d031dd09f5e561ffe7260ef3fc0ecc09b49a254c3d9b4041",
+      "text": "짧은 식별자로 제공자를 찾습니다.\n\n:param name: 제공자 식별자입니다 (``\"claude\"``, ``\"codex\"``, ``\"gemini\"`` 또는 :data:`HOSTED_PROVIDER_NAME`).\n:returns: 해당 공급자 또는 ``None``이 없는 경우.",
       "translation_source_blocks_sha256": [
-        "30906fb91ecf62ea89c8e2b71dc1d2c0ca3fb234bcd103052f2c6f295530433c",
-        "d83dba46805c378a842ba1ac5d9b9beb8c704e8e9ed516b04a5a0c8208598f6d",
+        "641f498aafa0c9c8081b6422e6a5654c5e44b26ad2e139e5f07c4015aa0055d1",
+        "9cb91fc3bc8e6be1f7ab8cdbbe128db0647159821906d7a4c5ad1d66dd0f60e7",
         "046475e3c0fd377d4cf1c4d6d932652640b458b7edd33c1d0b97aa8e4c6a490f"
       ]
     },
@@ -70524,6 +70696,72 @@
       "text": "AI 제공자와 같은 방식으로 기술한 GitHub CLI 입니다.",
       "translation_source_blocks_sha256": [
         "8cd53fc9e4aa4072d4b031dd3941c4a1cab8e24c8e886bd3483a6a3ce7432f90"
+      ]
+    },
+    "spacr.qt.ai.providers.hosted_allowance_text": {
+      "source_blocks_sha256": [
+        "bee336bbb797c24319cc8ca52ddfa3244ad881dd13d90355f840d939e2f9fdfd",
+        "67c75aa943bcbc53989c492e966a56ebed2de7a572cedd7a99bd1fd62a9eacdc",
+        "2959ccb8ea4f960cc26e35e76df42f51521efeec6fb41f848e9c5d0b370a1a66"
+      ],
+      "source_sha256": "0bb52493f86c0a386211c367c09456cc1ab0c4696a1c9ffeb0619f1a4594f92a",
+      "text": "오늘 무료 호스팅 AI 질문이 몇 개 남았는지 알려 주는 한 줄입니다.\n\n:param allowance: :func:`spacr.crashreport.fetch_allowance` 의 반환값이며, 알 수 없으면 ``None`` 입니다.\n:returns: 번역된 한 줄이며, 알려진 내용이 없으면 ``\"\"`` 입니다.",
+      "translation_source_blocks_sha256": [
+        "bee336bbb797c24319cc8ca52ddfa3244ad881dd13d90355f840d939e2f9fdfd",
+        "67c75aa943bcbc53989c492e966a56ebed2de7a572cedd7a99bd1fd62a9eacdc",
+        "2959ccb8ea4f960cc26e35e76df42f51521efeec6fb41f848e9c5d0b370a1a66"
+      ]
+    },
+    "spacr.qt.ai.providers.hosted_cli_hint": {
+      "source_blocks_sha256": [
+        "f860e21ca6ca624724f1755491d8b40a61d5d33fe049acb2619e99cb7a2b078d",
+        "179034997500fecb2638a2e3e0864feedf59a6a68034c41a078bb822bcd85ca6"
+      ],
+      "source_sha256": "2068913ea8dbe264b6254f04474da17f8e03ee077dc20b131a9ff6485f02d3e9",
+      "text": "사용자 소유 CLI로 무제한 답변을 받을 수 있다는 안내입니다.\n\n:returns: 번역된 문장입니다.",
+      "translation_source_blocks_sha256": [
+        "f860e21ca6ca624724f1755491d8b40a61d5d33fe049acb2619e99cb7a2b078d",
+        "179034997500fecb2638a2e3e0864feedf59a6a68034c41a078bb822bcd85ca6"
+      ]
+    },
+    "spacr.qt.ai.providers.hosted_daily_allowance_text": {
+      "source_blocks_sha256": [
+        "6b0bb9782451fb0f3a1e80541d2d3a66804e2b71186720bbf7e21db702f1da55",
+        "179034997500fecb2638a2e3e0864feedf59a6a68034c41a078bb822bcd85ca6"
+      ],
+      "source_sha256": "8587455ead43ac3bf36d55bfaf0abb3fe8cd4ece3414dd3aa9f491c7a7f1b790",
+      "text": "환경설정에 명시된 spaCR AI의 무료 사용량입니다.\n\n:returns: 번역된 문장입니다.",
+      "translation_source_blocks_sha256": [
+        "6b0bb9782451fb0f3a1e80541d2d3a66804e2b71186720bbf7e21db702f1da55",
+        "179034997500fecb2638a2e3e0864feedf59a6a68034c41a078bb822bcd85ca6"
+      ]
+    },
+    "spacr.qt.ai.providers.hosted_provider": {
+      "source_blocks_sha256": [
+        "643933d4f7257b504c2d976e4af944c27ad1e3b937470e61871a0cae85460370"
+      ],
+      "source_sha256": "643933d4f7257b504c2d976e4af944c27ad1e3b937470e61871a0cae85460370",
+      "text": "spaCR의 호스팅 제공자를 반환합니다.",
+      "translation_source_blocks_sha256": [
+        "643933d4f7257b504c2d976e4af944c27ad1e3b937470e61871a0cae85460370"
+      ]
+    },
+    "spacr.qt.ai.providers.hosted_refusal_message": {
+      "source_blocks_sha256": [
+        "1d9fac53ab51f8b426bdcf539632df428109b24cf04e65b72b20a564364bffc5",
+        "94486732b2e81ea20a46bfb88587f738fd097e1f71f121d8c41bc532617a78e6",
+        "88d76e8acd6186585d0cfa24e0dff23502fb3b96dbafdd980037db2198661b55",
+        "875374cdad4ca8f069f4f3a4d8099cd80878a1985f789f570efa199e67a4611b",
+        "bcc2d966bcc24b4d4ed311c2197e9d0450076cf7a808f5619157d0eec9c63914"
+      ],
+      "source_sha256": "bdb6a48e5fea8f4e590354dee121b6185949a0ddd0f411db896d5a4d523327bb",
+      "text": "호스팅 제공자가 조언을 제공하지 않을 때 표시하는 문장입니다.\n\n:param reason: ``\"quota\"``, ``\"network\"`` 또는 다른 값입니다.\n:param scope: 사용량 한도에 따른 거부의 경우 ``\"install\"``(이 설치의 일일 질문을 모두 사용함), ``\"global\"``(spaCR의 공유 무료 용량을 모두 사용함) 또는 ``\"ip\"`` 입니다.\n:param resets_at: 한도가 초기화되는 시각이며, 기본값은 다음 UTC 00:00입니다.\n:returns: 번역된 문장입니다. 사용량 한도에 따른 거부에는 :func:`hosted_cli_hint` 도 포함됩니다.",
+      "translation_source_blocks_sha256": [
+        "1d9fac53ab51f8b426bdcf539632df428109b24cf04e65b72b20a564364bffc5",
+        "94486732b2e81ea20a46bfb88587f738fd097e1f71f121d8c41bc532617a78e6",
+        "88d76e8acd6186585d0cfa24e0dff23502fb3b96dbafdd980037db2198661b55",
+        "875374cdad4ca8f069f4f3a4d8099cd80878a1985f789f570efa199e67a4611b",
+        "bcc2d966bcc24b4d4ed311c2197e9d0450076cf7a808f5619157d0eec9c63914"
       ]
     },
     "spacr.qt.ai.providers.install_hint_for": {
@@ -70562,12 +70800,28 @@
     },
     "spacr.qt.ai.providers.list_providers": {
       "source_blocks_sha256": [
-        "f3a75a6a1b9e576469fd2c28d2ef612b4b568b52c238fd37dee7345fcf94409e"
+        "d0cc25d3d78c49820b7c0ca675fe2afac44aaf43081501732a9e4f1450b80609",
+        "41268dab5a3a8a3efec7f3a88b2e684bd3d8ce3641df48169f1fc5a975c57033"
       ],
-      "source_sha256": "f3a75a6a1b9e576469fd2c28d2ef612b4b568b52c238fd37dee7345fcf94409e",
-      "text": "설치 상태에 관계없이 모든 등록된 공급자를 반환합니다.",
+      "source_sha256": "f031b2220c1b65f42927c3a6dae4d5d3bab613d3f1187f5416aba0773c6be3f6",
+      "text": "설치 상태와 관계없이 모든 공급업체 CLI 제공자를 반환합니다.\n\n호스팅 제공자는 이 목록에 포함되지 않습니다. 설치하거나 로그인할 것이 없기 때문입니다. :func:`hosted_provider` 가 해당 제공자를 반환합니다.",
       "translation_source_blocks_sha256": [
-        "f3a75a6a1b9e576469fd2c28d2ef612b4b568b52c238fd37dee7345fcf94409e"
+        "d0cc25d3d78c49820b7c0ca675fe2afac44aaf43081501732a9e4f1450b80609",
+        "41268dab5a3a8a3efec7f3a88b2e684bd3d8ce3641df48169f1fc5a975c57033"
+      ]
+    },
+    "spacr.qt.ai.providers.local_reset_time": {
+      "source_blocks_sha256": [
+        "3ec75c1e4585e36a5e49216a7d02d249986a4c6a09eb5e6226c371b2be2d2c2f",
+        "22bb30577faef9973ae6c3e55905d2c3d3eef9ba096877ae8f80825d551cb267",
+        "964e43a7953e87f03f8eb045c7cceab068d95da7403559c95969209258dec916"
+      ],
+      "source_sha256": "15a51af7eab2ede803f6dc0d05fecf798270be21b27206045579425e16c10dd3",
+      "text": "이 컴퓨터의 현지 시각으로 표시한 무료 사용량 초기화 시각입니다.\n\n:param resets_at: 시간대 정보가 있는 datetime 또는 ISO-8601 문자열이며, 기본값은 다음 UTC 00:00입니다.\n:returns: ``HH:MM`` 이며, 오늘이 아니면 뒤에 요일을 붙입니다.",
+      "translation_source_blocks_sha256": [
+        "3ec75c1e4585e36a5e49216a7d02d249986a4c6a09eb5e6226c371b2be2d2c2f",
+        "22bb30577faef9973ae6c3e55905d2c3d3eef9ba096877ae8f80825d551cb267",
+        "964e43a7953e87f03f8eb045c7cceab068d95da7403559c95969209258dec916"
       ]
     },
     "spacr.qt.ai.providers.platform_family": {
@@ -70582,6 +70836,22 @@
         "754e48575cca5901d1ce2e9f5a1149b3affd25c784c3dc49808e89ad59079e71",
         "b819ac43fe51e561e8a24cf15f667dc7cdd711ba587221b2d92bde64a81b5e2d",
         "8807529ec8707e465a366feb9f422c715c76b7905156856033c52eb4f5dddde6"
+      ]
+    },
+    "spacr.qt.ai.providers.question_cache_key": {
+      "source_blocks_sha256": [
+        "e28b64d8bded6b39ea33ed192b025c4c897576eb7664fda3ad9d7bb298549c25",
+        "3ca648fdcee288b74d8923fa3514adad78ee5751a72b69586eb1e96750529835",
+        "69388d176540fe771c0695e09aad7cd9085a60e08c44e2306bdd418f531232a3",
+        "1f0dc14b914d2ddcbbad0d1a3027f8067b5a49f5c483fd6e2dd53069ed211a86"
+      ],
+      "source_sha256": "7d905ed404532b8cbc7d5a9b07bdef623398297d4b8ef3dbe97a371ec34c8cab",
+      "text": "새 질문의 답변을 이 컴퓨터에 저장할 때 사용하는 키입니다.\n\n대화의 첫 질문만 저장하며, 질문과 함께 붙여 넣은 모든 내용(콘솔 맥락, 코드, 트레이스백)이 :data:`spacr.crashreport.QUESTION_CACHE_CONTEXT_MAX` 자 이내일 때만 저장합니다. 키는 질문과 활성 앱에 대한 :func:`spacr.crashreport.question_key` 이며 모든 제공자가 동일한 키를 사용합니다.\n\n:param messages: ``{role, content}`` 키-값 매핑으로 표현한 대화 기록입니다.\n:returns: 키이며, 답변을 저장하면 안 되는 경우 ``\"\"`` 입니다.",
+      "translation_source_blocks_sha256": [
+        "e28b64d8bded6b39ea33ed192b025c4c897576eb7664fda3ad9d7bb298549c25",
+        "3ca648fdcee288b74d8923fa3514adad78ee5751a72b69586eb1e96750529835",
+        "bf2c86071a129d90cdcb7969d9aa6567af3a20d43a13721f8b8c4a3dfc3b5c88",
+        "1f0dc14b914d2ddcbbad0d1a3027f8067b5a49f5c483fd6e2dd53069ed211a86"
       ]
     },
     "spacr.qt.ai.providers.quote_path": {
@@ -70610,6 +70880,62 @@
       "translation_source_blocks_sha256": [
         "b7bddd767a897d6a0bc2f63d382c63dbe788054cbf8cea8ee92e73fede0582de",
         "e6e224bb275da5cb4cd7db379c4c7aa1eb7050b9589f0cd97dd267ef9fcb7724"
+      ]
+    },
+    "spacr.qt.ai.providers.usage_bar": {
+      "source_blocks_sha256": [
+        "24333b7aee4dcc40213c530869b081870948173ad87be0c058a7d815e582e543",
+        "abf4cc29750e043ce7b0a678ef5365fcf268d4300ea287b79bd31e29f0ac582a",
+        "40116a74d5a90992300f5c91942105b07c0aea6f3ab32ce039d7391730c4b0b6",
+        "32ef863a644a0c2c2060f39837a2979ab146196a3fd651717f0bd5e390db15af",
+        "e86bdab970b4c3a1975f1d29262555e69548315910467fb3c690e338e6b23bb8"
+      ],
+      "source_sha256": "aed23315c0b27715e04b662ac7fed5c800bd14cd1db2482fb0149fa88a2e00e4",
+      "text": "AI 채팅 입력란 아래의 사용량 막대가 제공자에 대해 표시하는 내용입니다.\n\nspaCR AI (free)의 막대는 릴레이의 동적 할당량에서 얻은 ``neurons_left / share_neurons``, 즉 오늘의 공유 무료 용량 중 사용자 몫을 표시합니다. 공급업체 CLI에는 신뢰할 수 있는 사용량 출처(:data:`CLI_USAGE_TEXT`)가 없으므로 막대를 숨기고 한 줄만 표시합니다.\n\n:param provider_name: 선택한 제공자의 이름 또는 ``None`` 입니다.\n:param allowance: spaCR AI에 대해 :func:`spacr.crashreport.fetch_allowance` 가 반환한 값입니다.\n:returns: ``(percent or None to hide the bar, translated text)``.",
+      "translation_source_blocks_sha256": [
+        "24333b7aee4dcc40213c530869b081870948173ad87be0c058a7d815e582e543",
+        "abf4cc29750e043ce7b0a678ef5365fcf268d4300ea287b79bd31e29f0ac582a",
+        "40116a74d5a90992300f5c91942105b07c0aea6f3ab32ce039d7391730c4b0b6",
+        "32ef863a644a0c2c2060f39837a2979ab146196a3fd651717f0bd5e390db15af",
+        "e86bdab970b4c3a1975f1d29262555e69548315910467fb3c690e338e6b23bb8"
+      ]
+    },
+    "spacr.qt.ai.providers.with_ai_summary": {
+      "source_blocks_sha256": [
+        "ffe17686b3fc90fc5c889ae69cf17101985604ec3718ccad51765bf6e56828d6",
+        "9b8fd8924a9831e0f1c13029bba9fca82b7c12546c870044557a56288d0643aa",
+        "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+        "15b4cb17546b1effbadb29ef18c1045837faf3b8acf06151d43d888726e1ddc9",
+        "02b60c6a60beb4f41286fcff30e5fd3f8cc2a9d33c3aa4f96666fae1136ad480"
+      ],
+      "source_sha256": "1d8884f9b19130dfecc0fad4b2c63f699369dc1d9f13391ead56019e4e83a853",
+      "text": "해당 제공자가 허용하는 AI 요약이 포함된 보고서를 반환합니다.\n\nspaCR AI (free)는 릴레이에 작성을 요청합니다(``summarize: true``, 사용자의 경량 모델 할당량에서 차감). 공급업체 CLI는 여기서 작성하며(:func:`write_report_summary`), 결과는 ``ai_summary`` 로 전송됩니다. 제공자가 없거나 CLI가 아무것도 반환하지 않으면 보고서는 바뀌지 않습니다.\n\n:param summary: :func:`spacr.crashreport.public_summary` 에서 얻은 요약입니다.\n:param provider: 활성 제공자 또는 ``None`` 입니다.\n:returns: 새 요약 키-값 매핑입니다.",
+      "translation_source_blocks_sha256": [
+        "ffe17686b3fc90fc5c889ae69cf17101985604ec3718ccad51765bf6e56828d6",
+        "9b8fd8924a9831e0f1c13029bba9fca82b7c12546c870044557a56288d0643aa",
+        "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+        "15b4cb17546b1effbadb29ef18c1045837faf3b8acf06151d43d888726e1ddc9",
+        "f3fe46cfac7035372fa57ffe4c16cb344ba65ea55c45b095aef654c8a5f8bcd1"
+      ]
+    },
+    "spacr.qt.ai.providers.write_report_summary": {
+      "source_blocks_sha256": [
+        "408cdf38190d6e94fac43b2f634b450c72cb15026dec53c3ba89b3851c38474b",
+        "4316497ce7fa874d6ef3f0d3ac98265e07ce9ad4d8a3d18b26899a4eba8a49d1",
+        "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+        "e9ce85adc79bf0a3e31186b2a5716390fe72169a9a61bf72d047245c2735baa4",
+        "d8b64ab2f6f472a429a5d6f60fe10c490fe7613e3197d3ac94c4fadab77eb838",
+        "700fe5c737e9d8961f2d863481e673d91d54818949fad952dfc52fd207d2410c"
+      ],
+      "source_sha256": "0418496b2fe56dad7f850993d90e358492ba5006f99ed28e21ec45f806dc2415",
+      "text": "사용자 소유 AI가 익명화된 보고서를 요약하게 하거나 ``\"\"`` 를 반환합니다.\n\n제공자에게는 :func:`spacr.crashreport.ai_summary_prompt` 만 전달합니다. 별도의 스레드에서 실행하고 ``timeout`` 초 후 중지합니다. 실패, 시간 초과 또는 빈 답변이면 ``\"\"`` 를 반환하며, 보고서는 요약 없이 제출됩니다. 실행을 차단하므로 GUI 스레드 밖에서 호출해야 합니다.\n\n:param summary: :func:`spacr.crashreport.public_summary` 에서 얻은 요약입니다.\n:param provider: 공급업체 CLI 제공자 또는 ``None`` 입니다.\n:param timeout: 대기 시간(초)이며, 기본값은 :data:`spacr.crashreport.AI_SUMMARY_TIMEOUT_S` 입니다.\n:returns: 정리하고 :data:`spacr.crashreport.MAX_AI_SUMMARY_CHARS` 까지 잘라 낸 요약 텍스트입니다.",
+      "translation_source_blocks_sha256": [
+        "408cdf38190d6e94fac43b2f634b450c72cb15026dec53c3ba89b3851c38474b",
+        "2a97c7b6a34686ebdcf9e5867ee658da5fcb13a313d0a71336d13ab00e42cb6d",
+        "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+        "e9ce85adc79bf0a3e31186b2a5716390fe72169a9a61bf72d047245c2735baa4",
+        "d8b64ab2f6f472a429a5d6f60fe10c490fe7613e3197d3ac94c4fadab77eb838",
+        "700fe5c737e9d8961f2d863481e673d91d54818949fad952dfc52fd207d2410c"
       ]
     },
     "spacr.qt.ai.pty_sign_in": {

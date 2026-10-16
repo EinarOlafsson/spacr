@@ -70166,17 +70166,19 @@
         "f9e0fccea5d254c463195200455d44c1032c5e293c0bd094c11eb9fc9e9df3e3",
         "bf089d3a5d44c06643d8a156c082fec6272315b4a6a95fa9e784cc070314796d",
         "c8eb1abaea3fd9e65154f8b0379b34997df41da37898a111bd525655a170d856",
+        "8edaac55540b63385aa21dc664338a88fa38ef6f988f1f6a2d9429836ffbd46c",
         "204ef948c059dfc36f49b4566c67f63df6ea4fca201470d6568a4f114b0e48c5",
         "b04c1a7ddf7c66c049907c96cc7b7c221e04b49f907ca3fedf95f2398fc960fa",
         "5e39a047e529c1f881b126d604183a6aa1aeaf05947e692118f706eb62fbbd7a"
       ],
-      "source_sha256": "836f437ae8d7b86ab65fabb6086c93e532a1b8f4fab95f0d443d14c7a0926afa",
-      "text": "Provider-Abstraktion – eine Klasse pro KI-Anbieter. Die Authentifizierung erfolgt über das Chat-Abonnement des Benutzers (Claude.ai Pro, ChatGPT Plus/Pro/Team, Google-Konto) – keine separate API-Abrechnung.\n\n* Anthropologischer Claude → der CLI `claude` (\"Claude Code\")\n* OpenAI ChatGPT → das `codex` CLI\n* Google Gemini → das `gemini` CLI\n\nJeder Anbieter::\n\n    is_installed()   — is the CLI on PATH?\n    is_logged_in()   — best-effort check; falls back to \"assume yes if\n                       installed\" (the actual auth error surfaces on\n                       the first stream chunk).\n    stream_chat()    — spawn the CLI subprocess, yield stdout chunks.\n\nDer Gesprächskontext wird durch die Verkettung der gesamten Nachrichtenhistorie in jede Eingabeaufforderung (einfachste Vorgehensweise, die einheitlich über alle drei CLIs funktioniert) getragen.\n\nWie jede CLI installiert wird, sind Daten, keine Prosa: :data:`INSTALL_METHODS` enthält eine Zeile pro Installationsweg auf jedem Betriebssystem, und sowohl der ``install_hint``, den eine Ansicht anzeigt, als auch der Befehl, den :mod:`spacr.qt.ai.cli_install` ausführt, werden aus diesen Zeilen gelesen. Die GitHub-CLI wird auf dieselbe Weise durch :class:`GitHubCli` beschrieben, das die Schnittstelle :class:`CommandLineTool` teilt, ohne ein Chat-Anbieter zu sein.",
+      "source_sha256": "301f390b43f57c07fb27466cfe0dcc3a436d5dcba811422e70f8bb9b4fca9c05",
+      "text": "Provider-Abstraktion – eine Klasse pro KI-Anbieter. Die Authentifizierung erfolgt über das Chat-Abonnement des Benutzers (Claude.ai Pro, ChatGPT Plus/Pro/Team, Google-Konto) – keine separate API-Abrechnung.\n\n* Anthropologischer Claude → der CLI `claude` (\"Claude Code\")\n* OpenAI ChatGPT → das `codex` CLI\n* Google Gemini → das `gemini` CLI\n\nEin vierter, :class:`HostedProvider`, benötigt weder CLI noch Konto: Er fragt den Relay-Dienst von spaCR an, der mit einem kostenlos gehosteten Modell antwortet. Er ist die Standardauswahl, wenn keiner der drei installiert und angemeldet ist (:func:`default_provider`).\n\nJeder Anbieter::\n\n    is_installed()   — is the CLI on PATH?\n    is_logged_in()   — best-effort check; falls back to \"assume yes if\n                       installed\" (the actual auth error surfaces on\n                       the first stream chunk).\n    stream_chat()    — spawn the CLI subprocess, yield stdout chunks.\n\nDer Gesprächskontext wird durch die Verkettung der gesamten Nachrichtenhistorie in jede Eingabeaufforderung (einfachste Vorgehensweise, die einheitlich über alle drei CLIs funktioniert) getragen.\n\nWie jede CLI installiert wird, sind Daten, keine Prosa: :data:`INSTALL_METHODS` enthält eine Zeile pro Installationsweg auf jedem Betriebssystem, und sowohl der ``install_hint``, den eine Ansicht anzeigt, als auch der Befehl, den :mod:`spacr.qt.ai.cli_install` ausführt, werden aus diesen Zeilen gelesen. Die GitHub-CLI wird auf dieselbe Weise durch :class:`GitHubCli` beschrieben, das die Schnittstelle :class:`CommandLineTool` teilt, ohne ein Chat-Anbieter zu sein.",
       "translation_source_blocks_sha256": [
         "4b4f4c864a6d6a54405a9db239b604eece859287d4ab76d60f77fcfa52db6998",
         "f9e0fccea5d254c463195200455d44c1032c5e293c0bd094c11eb9fc9e9df3e3",
         "bf089d3a5d44c06643d8a156c082fec6272315b4a6a95fa9e784cc070314796d",
         "c8eb1abaea3fd9e65154f8b0379b34997df41da37898a111bd525655a170d856",
+        "8edaac55540b63385aa21dc664338a88fa38ef6f988f1f6a2d9429836ffbd46c",
         "204ef948c059dfc36f49b4566c67f63df6ea4fca201470d6568a4f114b0e48c5",
         "b04c1a7ddf7c66c049907c96cc7b7c221e04b49f907ca3fedf95f2398fc960fa",
         "afb0176335763a9517f02d207ac2f960ee8d336eb45602e186077c3a7fa278bf"
@@ -70422,6 +70424,108 @@
         "c164e08351823f0c19826dc31fa6cd9737d14029ee1ca1b40ac352ea07a50498"
       ]
     },
+    "spacr.qt.ai.providers.HostedProvider": {
+      "source_blocks_sha256": [
+        "da1c14bc6ca951debdab9274c15473950d7f2b9bc30c4717bbb10f044ee912c5",
+        "2ca72c0c5556408e970a3c110a76f18f5acb527529aaa6347309111fc7f66ca2"
+      ],
+      "source_sha256": "4773f76a6059809b4623707b83f6c3ef3e2d6d12cee16157da92c174392641af",
+      "text": "Der gehostete Assistent von spaCR: Rat vom Relay-Dienst von spaCR, ohne Konto.\n\nEr sendet nur das, was :func:`_hosted_request` beibehält, die anonymisierte Fehlerzusammenfassung und die Frage, an die Route ``/diagnose`` des Relay-Dienstes über :func:`spacr.crashreport.diagnose_remotely`. Die Antwort besteht aus generierten Ratschlägen und wird entsprechend gekennzeichnet. Dieser Anbieter wird verwendet, wenn keine Anbieter-CLI installiert und angemeldet ist (:func:`default_provider`), und ist nicht verfügbar, wenn der Netzwerkzugriff verboten ist (:func:`spacr.crashreport.network_allowed`).",
+      "translation_source_blocks_sha256": [
+        "da1c14bc6ca951debdab9274c15473950d7f2b9bc30c4717bbb10f044ee912c5",
+        "2ca72c0c5556408e970a3c110a76f18f5acb527529aaa6347309111fc7f66ca2"
+      ]
+    },
+    "spacr.qt.ai.providers.HostedProvider.check_signed_in": {
+      "source_blocks_sha256": [
+        "61dde51b6fdaf6c129b9ba1eaec8c62d36e61c49d74b2ed86d26959efa8757c3",
+        "19ccd0650c179313ee4cbd83c8934366e43399e557de86bef36b957f4709e1c3"
+      ],
+      "source_sha256": "790a0387cd9cdc858eacaa57cd0febd871b497b1b6b70a9f630b195e1bb89489",
+      "text": "Es gibt keine Anmeldung zu prüfen.\n\n:returns: ``None``.",
+      "translation_source_blocks_sha256": [
+        "61dde51b6fdaf6c129b9ba1eaec8c62d36e61c49d74b2ed86d26959efa8757c3",
+        "19ccd0650c179313ee4cbd83c8934366e43399e557de86bef36b957f4709e1c3"
+      ]
+    },
+    "spacr.qt.ai.providers.HostedProvider.is_configured": {
+      "source_blocks_sha256": [
+        "f29084ee2c2db3bbc90867ab9f7255cc03c6ec31b5b4c56ac04a269b4312cefa"
+      ],
+      "source_sha256": "f29084ee2c2db3bbc90867ab9f7255cc03c6ec31b5b4c56ac04a269b4312cefa",
+      "text": "Ob der gehostete Anbieter verwendet werden darf: Der Netzwerkzugriff ist erlaubt.",
+      "translation_source_blocks_sha256": [
+        "f29084ee2c2db3bbc90867ab9f7255cc03c6ec31b5b4c56ac04a269b4312cefa"
+      ]
+    },
+    "spacr.qt.ai.providers.HostedProvider.is_installed": {
+      "source_blocks_sha256": [
+        "b255adbc5f5930c788d1bde6fcec235a02073a9ee95ec24b6988f153494821bf"
+      ],
+      "source_sha256": "b255adbc5f5930c788d1bde6fcec235a02073a9ee95ec24b6988f153494821bf",
+      "text": "Nichts zu installieren: Der gehostete Anbieter ist immer vorhanden.",
+      "translation_source_blocks_sha256": [
+        "b255adbc5f5930c788d1bde6fcec235a02073a9ee95ec24b6988f153494821bf"
+      ]
+    },
+    "spacr.qt.ai.providers.HostedProvider.is_logged_in": {
+      "source_blocks_sha256": [
+        "020c83ebfd2aceeb05d7b9ea39267e8c87a66e37083d96772343264b6b4e25dc"
+      ],
+      "source_sha256": "020c83ebfd2aceeb05d7b9ea39267e8c87a66e37083d96772343264b6b4e25dc",
+      "text": "Keine Anmeldung nötig: Der Relay-Dienst benötigt kein Konto.",
+      "translation_source_blocks_sha256": [
+        "020c83ebfd2aceeb05d7b9ea39267e8c87a66e37083d96772343264b6b4e25dc"
+      ]
+    },
+    "spacr.qt.ai.providers.HostedProvider.source_of_key": {
+      "source_blocks_sha256": [
+        "f10b011b84c37cc94d13bd5266e900d547c34cfdeb99bf9b6953a9dacf79e2dc"
+      ],
+      "source_sha256": "f10b011b84c37cc94d13bd5266e900d547c34cfdeb99bf9b6953a9dacf79e2dc",
+      "text": "Angeben, woher die Antworten kommen, anstelle des Speicherorts einer CLI.",
+      "translation_source_blocks_sha256": [
+        "f10b011b84c37cc94d13bd5266e900d547c34cfdeb99bf9b6953a9dacf79e2dc"
+      ]
+    },
+    "spacr.qt.ai.providers.HostedProvider.stream_chat": {
+      "source_blocks_sha256": [
+        "e5d24ec2cf7eb660bc2ba8c938708ea6b3ca3394da7f34b72d6d9e1bdcca0541",
+        "274d88becafc4c017d49f19efba6109161035e4ca2d817a1e65c090316e51861",
+        "5a2809f3c5a835d099945c170edbda416aeb8a6dc26d4f83550e9f283159efc6",
+        "31618f6f07924368276efb82ee7734b63c648083266347e900b047e6bfe2519b",
+        "5253a2a87f8317744e0a53bab28cc26a31aeb443fd7de567c973fd54026ba4d6",
+        "656f3c754e1a7a99b682f4c18a57aac46a6c1d75f42b092e3dd0ae776a520471"
+      ],
+      "source_sha256": "4d92f670852f5e91aca4209ba43b8195ce1cb671acaadfecdc4d986b26a54a77",
+      "text": "Den Relay-Dienst fragen und seine Ratschläge liefern, gefolgt von einer Zeile, die deren Art angibt.\n\n:param messages: Gesprächsverlauf als ``{role, content}``-Wörterbücher; nur die anonymisierte Zusammenfassung und die neueste Frage verlassen diesen Computer.\n:param system: ignoriert; der Relay-Dienst hält die eigene Anweisung von spaCR vor.\n:param model: ignoriert; der Relay-Dienst wählt sein kostenloses Modell.\n:returns: Iterator, der die Antwort liefert.\n:raises HostedProviderRefused: mit einer Meldung, dass das kostenlose Tageslimit erreicht ist oder der Relay-Dienst nicht erreichbar war.",
+      "translation_source_blocks_sha256": [
+        "e5d24ec2cf7eb660bc2ba8c938708ea6b3ca3394da7f34b72d6d9e1bdcca0541",
+        "230d99df83d81281f327f58105bab4122ff6f045b05a74bd55b08eb716f82d47",
+        "5a2809f3c5a835d099945c170edbda416aeb8a6dc26d4f83550e9f283159efc6",
+        "31618f6f07924368276efb82ee7734b63c648083266347e900b047e6bfe2519b",
+        "5253a2a87f8317744e0a53bab28cc26a31aeb443fd7de567c973fd54026ba4d6",
+        "656f3c754e1a7a99b682f4c18a57aac46a6c1d75f42b092e3dd0ae776a520471"
+      ]
+    },
+    "spacr.qt.ai.providers.HostedProviderRefused": {
+      "source_blocks_sha256": [
+        "4ad93904e2d91853b453752668492fe9f42b913c2439d3082f5ab7765089f5ca",
+        "e51a2e6e13d3dd34e1eaca745a2372d37a25b3b0c6351d6471e0c1327dfbcd85",
+        "b63411dc819ca143936fbc35fcfb3829af7cc744b35ff43c25e604f46185fc24",
+        "3c36b4ab540322a7577d328c4eb038a6f944be73463cc53e604c9751e94d12de",
+        "5797f57330dc8b6799b318070c4b2d0825f80b7063eb369e143e3dd8f5c53c7e"
+      ],
+      "source_sha256": "a4fe8b47d82f627ae57295271338280ea85f102a02f4187bcd609956a7662800",
+      "text": "Der Relay-Dienst von spaCR gab keinen Rat: kostenloses Tageslimit erreicht oder keine Verbindung.\n\nEine :class:`ProviderFailed`, daher schreibt die Konsole die Meldung unverändert nach \"[AI error]\".\n\n:param message: der Satz, den der Benutzer liest.\n:param reason: ``\"quota\"``, ``\"network\"`` oder ``\"error\"``, aus :class:`spacr.crashreport.RelayRefused`, als ``reason`` an der Ausnahme gespeichert.\nDen Grund beibehalten; die Meldung ist der gesamte angezeigte Text.",
+      "translation_source_blocks_sha256": [
+        "4ad93904e2d91853b453752668492fe9f42b913c2439d3082f5ab7765089f5ca",
+        "e51a2e6e13d3dd34e1eaca745a2372d37a25b3b0c6351d6471e0c1327dfbcd85",
+        "b63411dc819ca143936fbc35fcfb3829af7cc744b35ff43c25e604f46185fc24",
+        "3c36b4ab540322a7577d328c4eb038a6f944be73463cc53e604c9751e94d12de",
+        "5797f57330dc8b6799b318070c4b2d0825f80b7063eb369e143e3dd8f5c53c7e"
+      ]
+    },
     "spacr.qt.ai.providers.InstallMethod": {
       "source_blocks_sha256": [
         "8de5633b37ae1fb2d99dcb5e128da24ce1608c7149eedc0f177393fd1e329cd5",
@@ -70476,27 +70580,95 @@
         "1a6e5000309195e6156656a0b3f5896173d76a33d1eaf992e2757b437ae38738"
       ]
     },
+    "spacr.qt.ai.providers.apply_provider_choice": {
+      "source_blocks_sha256": [
+        "a5ae9b6824253caab45554dd059e571e432bb89a10de613f7ebf6a357531ce9b",
+        "42bc83f8f8d1f55156cffeb7bd988b995768a6b2b063555cdb7ac139baba044d",
+        "7c2df80173c2376095e0e6e4d8509171924ef3afbff3790530f77329090d0f50",
+        "3787fde9e9f01afffe459d9ce287165c359bd0353aeead7536e479c4240323a7"
+      ],
+      "source_sha256": "669ae71fde5dd5ec4bd217271b16610343479efb31f9370bd49d29c3ba4685c6",
+      "text": "Eine Anbieterauswahl speichern und sofort in jeder offenen Konsole verwenden.\n\nEine Anbieter-CLI, die nicht installiert und angemeldet ist, wird als Auswahl gespeichert, aber nicht angewendet; die Konsolen behalten spaCR AI (kostenlos), bis sie eingerichtet ist.\n\n:param name: ein Name aus :data:`PROVIDER_CHOICES`.\n:returns: ob der gewählte Anbieter jetzt antworten kann.",
+      "translation_source_blocks_sha256": [
+        "a5ae9b6824253caab45554dd059e571e432bb89a10de613f7ebf6a357531ce9b",
+        "42bc83f8f8d1f55156cffeb7bd988b995768a6b2b063555cdb7ac139baba044d",
+        "7c2df80173c2376095e0e6e4d8509171924ef3afbff3790530f77329090d0f50",
+        "3787fde9e9f01afffe459d9ce287165c359bd0353aeead7536e479c4240323a7"
+      ]
+    },
     "spacr.qt.ai.providers.configured_providers": {
       "source_blocks_sha256": [
-        "534f33187deecbea1599b9e9aa55958070da326ee5431c21142909c5b8534ef8"
+        "12149d7875dc77cebe728c15fd063f97b5ff1ea5dba019b89072cb2e5e826de3",
+        "ddca870541939d143b270a919500d0be204d97450cf055f814a2e2b900121f11"
       ],
-      "source_sha256": "534f33187deecbea1599b9e9aa55958070da326ee5431c21142909c5b8534ef8",
-      "text": "Rückgabe nur Anbieter, deren CLI installiert und eingeloggt ist.",
+      "source_sha256": "4ae62e7e53101b84263a26377252d817bcdfd2f4318c1be65edc94565747cb49",
+      "text": "Die Anbieter zurückgeben, die jetzt antworten können, spaCR AI (kostenlos) zuerst.\n\nDer gehostete Anbieter steht an erster Stelle, sobald der Netzwerkzugriff erlaubt ist, da er die Standardauswahl ist; eine Anbieter-CLI folgt, wenn sie installiert und angemeldet ist.",
       "translation_source_blocks_sha256": [
-        "534f33187deecbea1599b9e9aa55958070da326ee5431c21142909c5b8534ef8"
+        "12149d7875dc77cebe728c15fd063f97b5ff1ea5dba019b89072cb2e5e826de3",
+        "ddca870541939d143b270a919500d0be204d97450cf055f814a2e2b900121f11"
+      ]
+    },
+    "spacr.qt.ai.providers.default_provider": {
+      "source_blocks_sha256": [
+        "a500cdcdc24198f5c346b4724bf0dd40f4af992093840579e4567ddee0592759",
+        "8edf3b29587838d71e60bfb3d547710432695f278b0dee9be491297a42dbdbbb",
+        "2b58f2c2f4c4029a55f5f207e230cfe244ce03e5db1872d465e1f7685ee4c7e5"
+      ],
+      "source_sha256": "d3e33116b8bac3ed15f1f67560e4ea14d5f5e04ec4aa1f1c27a4334b042f7ade",
+      "text": "Den Anbieter zurückgeben, den der KI-Schalter verwendet.\n\n:param preferred: der in den Einstellungen genannte Anbieter oder ``\"\"``.\n:returns: ``preferred``, wenn dieser Anbieter antworten kann; andernfalls spaCR AI (kostenlos); andernfalls bei verbotenem Netzwerkzugriff die erste installierte und angemeldete Anbieter-CLI; ``None``, wenn niemand antworten kann.",
+      "translation_source_blocks_sha256": [
+        "a500cdcdc24198f5c346b4724bf0dd40f4af992093840579e4567ddee0592759",
+        "8edf3b29587838d71e60bfb3d547710432695f278b0dee9be491297a42dbdbbb",
+        "2b58f2c2f4c4029a55f5f207e230cfe244ce03e5db1872d465e1f7685ee4c7e5"
+      ]
+    },
+    "spacr.qt.ai.providers.effective_provider_name": {
+      "source_blocks_sha256": [
+        "c2683425f4995c2cde5db5eace9a0b488258a90c1ddc9aadcf155a3fa18ece07",
+        "83d70395c1cc35623156af8638390c8d233418aa12173ba9d8e9644b70b6e365",
+        "7c2df80173c2376095e0e6e4d8509171924ef3afbff3790530f77329090d0f50"
+      ],
+      "source_sha256": "3173d3a2ba19dba050f7152112ff7e4324ad10142a37f21ba6117a710d70a273",
+      "text": "Den Namen des Anbieters zurückgeben, der in den Einstellungen als ausgewählt angezeigt wird.\n\n:param preferred: die gespeicherte Einstellung; ``\"\"`` (nie ausgewählt) bedeutet spaCR AI (kostenlos).\n:returns: ein Name aus :data:`PROVIDER_CHOICES`.",
+      "translation_source_blocks_sha256": [
+        "c2683425f4995c2cde5db5eace9a0b488258a90c1ddc9aadcf155a3fa18ece07",
+        "83d70395c1cc35623156af8638390c8d233418aa12173ba9d8e9644b70b6e365",
+        "7c2df80173c2376095e0e6e4d8509171924ef3afbff3790530f77329090d0f50"
+      ]
+    },
+    "spacr.qt.ai.providers.explain_failure": {
+      "source_blocks_sha256": [
+        "ad7cc225f90cb372cca7e2e7c84e7dd2818883369b4e9408f66115b7f00f087c",
+        "bd98b7f9865a2d9fdea51da602e8a141bedd9cce2a20decd137961d2201263e4",
+        "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+        "15b4cb17546b1effbadb29ef18c1045837faf3b8acf06151d43d888726e1ddc9",
+        "5424d075b417d26cf094bfda8c0e1a5f55dc9b89894c2d94c0f3a900350bc722",
+        "f739a99d4a900440a2ea08d864d905586720381157d9c4004477829d6b12de91",
+        "7ea7e26255aa7c895df0363947439ecc1f2f02cf8f0dd21c81d0dfecee41a0d8"
+      ],
+      "source_sha256": "a3998223245141e544b98ee1aea0a8876a3d481fbbb36e4111565b9aa237e127",
+      "text": "Die aktive KI einen Fehler einmal für die Konsole und das Issue erklären lassen.\n\nspaCR AI (free) fragt den Relay-Endpunkt ``/diagnose`` mit der anonymisierten Zusammenfassung und :data:`spacr.crashreport.EXPLAIN_QUESTION` an; eine Anbieter-CLI beantwortet hier :func:`spacr.crashreport.ai_summary_prompt` (:func:`write_report_summary`). Derselbe Text erscheint in der Konsole und wird als ``ai_summary`` des Berichts gesendet, sodass ein Fehler einen KI-Aufruf kostet. Blockiert; daher außerhalb des GUI-Threads aufrufen.\n\n:param summary: eine Zusammenfassung von :func:`spacr.crashreport.public_summary`.\n:param provider: der aktive Anbieter oder ``None``.\n:param timeout: die Sekunden, die eine Anbieter-CLI benötigen darf; Standard ist :data:`spacr.crashreport.AI_SUMMARY_TIMEOUT_S`.\n:returns: ``{\"text\": explanation or \"\", \"tier\": \"best\"|\"light\"|\"\", \"refused\": \"\" or \"quota\"|\"network\"|\"error\"|\"none\"}``, zusätzlich ``\"saved\": \"local\"``, wenn die Antwort auf diesem Computer gespeichert war (kein KI-Aufruf, kein Netzwerk), oder ``\"relay\"``, wenn das Relay eine Antwort wiederverwendet hat.\n\nEin bereits erklärter Fehler wird nicht erneut erklärt: Die auf diesem Computer gespeicherte Antwort (:func:`spacr.crashreport.saved_explanation`) hat bei jedem Anbieter Vorrang, und jede neue Antwort wird gespeichert.",
+      "translation_source_blocks_sha256": [
+        "ad7cc225f90cb372cca7e2e7c84e7dd2818883369b4e9408f66115b7f00f087c",
+        "724bd0fc9c91c0ae6178a07a281b6e725ba8afb2dbd86b5fc0ae3dfcfb145b41",
+        "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+        "15b4cb17546b1effbadb29ef18c1045837faf3b8acf06151d43d888726e1ddc9",
+        "5424d075b417d26cf094bfda8c0e1a5f55dc9b89894c2d94c0f3a900350bc722",
+        "f739a99d4a900440a2ea08d864d905586720381157d9c4004477829d6b12de91",
+        "7ea7e26255aa7c895df0363947439ecc1f2f02cf8f0dd21c81d0dfecee41a0d8"
       ]
     },
     "spacr.qt.ai.providers.get_provider": {
       "source_blocks_sha256": [
-        "30906fb91ecf62ea89c8e2b71dc1d2c0ca3fb234bcd103052f2c6f295530433c",
-        "d83dba46805c378a842ba1ac5d9b9beb8c704e8e9ed516b04a5a0c8208598f6d",
+        "641f498aafa0c9c8081b6422e6a5654c5e44b26ad2e139e5f07c4015aa0055d1",
+        "9cb91fc3bc8e6be1f7ab8cdbbe128db0647159821906d7a4c5ad1d66dd0f60e7",
         "046475e3c0fd377d4cf1c4d6d932652640b458b7edd33c1d0b97aa8e4c6a490f"
       ],
-      "source_sha256": "f7b12025c7d64b6ecea370145f2a97ae2fa04a516a23dd32699314558621970f",
-      "text": "Suchen Sie einen registrierten Anbieter durch seine kurze ID.\n\n:param name: Anbieter id (``\"claude\"``, ``\"codex\"``, ``\"gemini\"``).\n:returns: der entsprechende Anbieter oder ``None``, wenn keine solche ID vorliegt.",
+      "source_sha256": "baf06038267e2aa4d031dd09f5e561ffe7260ef3fc0ecc09b49a254c3d9b4041",
+      "text": "Einen Anbieter anhand seiner kurzen ID suchen.\n\n:param name: Anbieter-ID (``\"claude\"``, ``\"codex\"``, ``\"gemini\"`` oder :data:`HOSTED_PROVIDER_NAME`).\n:returns: der entsprechende Anbieter oder ``None``, wenn keine solche ID vorliegt.",
       "translation_source_blocks_sha256": [
-        "30906fb91ecf62ea89c8e2b71dc1d2c0ca3fb234bcd103052f2c6f295530433c",
-        "d83dba46805c378a842ba1ac5d9b9beb8c704e8e9ed516b04a5a0c8208598f6d",
+        "641f498aafa0c9c8081b6422e6a5654c5e44b26ad2e139e5f07c4015aa0055d1",
+        "9cb91fc3bc8e6be1f7ab8cdbbe128db0647159821906d7a4c5ad1d66dd0f60e7",
         "046475e3c0fd377d4cf1c4d6d932652640b458b7edd33c1d0b97aa8e4c6a490f"
       ]
     },
@@ -70524,6 +70696,72 @@
       "text": "Die GitHub CLI, mit derselben Beschreibung wie die KI-Anbieter.",
       "translation_source_blocks_sha256": [
         "8cd53fc9e4aa4072d4b031dd3941c4a1cab8e24c8e886bd3483a6a3ce7432f90"
+      ]
+    },
+    "spacr.qt.ai.providers.hosted_allowance_text": {
+      "source_blocks_sha256": [
+        "bee336bbb797c24319cc8ca52ddfa3244ad881dd13d90355f840d939e2f9fdfd",
+        "67c75aa943bcbc53989c492e966a56ebed2de7a572cedd7a99bd1fd62a9eacdc",
+        "2959ccb8ea4f960cc26e35e76df42f51521efeec6fb41f848e9c5d0b370a1a66"
+      ],
+      "source_sha256": "0bb52493f86c0a386211c367c09456cc1ab0c4696a1c9ffeb0619f1a4594f92a",
+      "text": "Eine Zeile mit der Anzahl der heute verbleibenden kostenlosen Fragen an die gehostete KI.\n\n:param allowance: der Rückgabewert von :func:`spacr.crashreport.fetch_allowance` oder ``None``, wenn er unbekannt ist.\n:returns: die übersetzte Zeile oder ``\"\"``, wenn nichts bekannt ist.",
+      "translation_source_blocks_sha256": [
+        "bee336bbb797c24319cc8ca52ddfa3244ad881dd13d90355f840d939e2f9fdfd",
+        "67c75aa943bcbc53989c492e966a56ebed2de7a572cedd7a99bd1fd62a9eacdc",
+        "2959ccb8ea4f960cc26e35e76df42f51521efeec6fb41f848e9c5d0b370a1a66"
+      ]
+    },
+    "spacr.qt.ai.providers.hosted_cli_hint": {
+      "source_blocks_sha256": [
+        "f860e21ca6ca624724f1755491d8b40a61d5d33fe049acb2619e99cb7a2b078d",
+        "179034997500fecb2638a2e3e0864feedf59a6a68034c41a078bb822bcd85ca6"
+      ],
+      "source_sha256": "2068913ea8dbe264b6254f04474da17f8e03ee077dc20b131a9ff6485f02d3e9",
+      "text": "Der Hinweis, dass die eigene CLI des Benutzers unbegrenzt Antworten liefert.\n\n:returns: der übersetzte Satz.",
+      "translation_source_blocks_sha256": [
+        "f860e21ca6ca624724f1755491d8b40a61d5d33fe049acb2619e99cb7a2b078d",
+        "179034997500fecb2638a2e3e0864feedf59a6a68034c41a078bb822bcd85ca6"
+      ]
+    },
+    "spacr.qt.ai.providers.hosted_daily_allowance_text": {
+      "source_blocks_sha256": [
+        "6b0bb9782451fb0f3a1e80541d2d3a66804e2b71186720bbf7e21db702f1da55",
+        "179034997500fecb2638a2e3e0864feedf59a6a68034c41a078bb822bcd85ca6"
+      ],
+      "source_sha256": "8587455ead43ac3bf36d55bfaf0abb3fe8cd4ece3414dd3aa9f491c7a7f1b790",
+      "text": "Das kostenlose Kontingent von spaCR AI, wie es in den Einstellungen angegeben ist.\n\n:returns: der übersetzte Satz.",
+      "translation_source_blocks_sha256": [
+        "6b0bb9782451fb0f3a1e80541d2d3a66804e2b71186720bbf7e21db702f1da55",
+        "179034997500fecb2638a2e3e0864feedf59a6a68034c41a078bb822bcd85ca6"
+      ]
+    },
+    "spacr.qt.ai.providers.hosted_provider": {
+      "source_blocks_sha256": [
+        "643933d4f7257b504c2d976e4af944c27ad1e3b937470e61871a0cae85460370"
+      ],
+      "source_sha256": "643933d4f7257b504c2d976e4af944c27ad1e3b937470e61871a0cae85460370",
+      "text": "Den gehosteten Anbieter von spaCR zurückgeben.",
+      "translation_source_blocks_sha256": [
+        "643933d4f7257b504c2d976e4af944c27ad1e3b937470e61871a0cae85460370"
+      ]
+    },
+    "spacr.qt.ai.providers.hosted_refusal_message": {
+      "source_blocks_sha256": [
+        "1d9fac53ab51f8b426bdcf539632df428109b24cf04e65b72b20a564364bffc5",
+        "94486732b2e81ea20a46bfb88587f738fd097e1f71f121d8c41bc532617a78e6",
+        "88d76e8acd6186585d0cfa24e0dff23502fb3b96dbafdd980037db2198661b55",
+        "875374cdad4ca8f069f4f3a4d8099cd80878a1985f789f570efa199e67a4611b",
+        "bcc2d966bcc24b4d4ed311c2197e9d0450076cf7a808f5619157d0eec9c63914"
+      ],
+      "source_sha256": "bdb6a48e5fea8f4e590354dee121b6185949a0ddd0f411db896d5a4d523327bb",
+      "text": "Der Satz, der erscheint, wenn der gehostete Anbieter keinen Rat gibt.\n\n:param reason: ``\"quota\"``, ``\"network\"`` oder ein anderer Wert.\n:param scope: bei einer Kontingentverweigerung ``\"install\"`` (die täglichen Fragen dieser Installation sind aufgebraucht), ``\"global\"`` (die gemeinsame kostenlose Kapazität von spaCR ist aufgebraucht) oder ``\"ip\"``.\n:param resets_at: wann das Limit zurückgesetzt wird; Standard ist das nächste 00:00 UTC.\n:returns: der übersetzte Satz; bei einer Kontingentverweigerung wird auch :func:`hosted_cli_hint` angefügt.",
+      "translation_source_blocks_sha256": [
+        "1d9fac53ab51f8b426bdcf539632df428109b24cf04e65b72b20a564364bffc5",
+        "94486732b2e81ea20a46bfb88587f738fd097e1f71f121d8c41bc532617a78e6",
+        "88d76e8acd6186585d0cfa24e0dff23502fb3b96dbafdd980037db2198661b55",
+        "875374cdad4ca8f069f4f3a4d8099cd80878a1985f789f570efa199e67a4611b",
+        "bcc2d966bcc24b4d4ed311c2197e9d0450076cf7a808f5619157d0eec9c63914"
       ]
     },
     "spacr.qt.ai.providers.install_hint_for": {
@@ -70562,12 +70800,28 @@
     },
     "spacr.qt.ai.providers.list_providers": {
       "source_blocks_sha256": [
-        "f3a75a6a1b9e576469fd2c28d2ef612b4b568b52c238fd37dee7345fcf94409e"
+        "d0cc25d3d78c49820b7c0ca675fe2afac44aaf43081501732a9e4f1450b80609",
+        "41268dab5a3a8a3efec7f3a88b2e684bd3d8ce3641df48169f1fc5a975c57033"
       ],
-      "source_sha256": "f3a75a6a1b9e576469fd2c28d2ef612b4b568b52c238fd37dee7345fcf94409e",
-      "text": "Rückgabe jedes registrierten Anbieters, unabhängig vom Installationszustand.",
+      "source_sha256": "f031b2220c1b65f42927c3a6dae4d5d3bab613d3f1187f5416aba0773c6be3f6",
+      "text": "Alle Anbieter-CLI-Provider unabhängig vom Installationsstatus zurückgeben.\n\nDer gehostete Anbieter gehört nicht dazu: Bei ihm gibt es nichts zu installieren und keine Anmeldung. :func:`hosted_provider` gibt ihn zurück.",
       "translation_source_blocks_sha256": [
-        "f3a75a6a1b9e576469fd2c28d2ef612b4b568b52c238fd37dee7345fcf94409e"
+        "d0cc25d3d78c49820b7c0ca675fe2afac44aaf43081501732a9e4f1450b80609",
+        "41268dab5a3a8a3efec7f3a88b2e684bd3d8ce3641df48169f1fc5a975c57033"
+      ]
+    },
+    "spacr.qt.ai.providers.local_reset_time": {
+      "source_blocks_sha256": [
+        "3ec75c1e4585e36a5e49216a7d02d249986a4c6a09eb5e6226c371b2be2d2c2f",
+        "22bb30577faef9973ae6c3e55905d2c3d3eef9ba096877ae8f80825d551cb267",
+        "964e43a7953e87f03f8eb045c7cceab068d95da7403559c95969209258dec916"
+      ],
+      "source_sha256": "15a51af7eab2ede803f6dc0d05fecf798270be21b27206045579425e16c10dd3",
+      "text": "Der Zeitpunkt, zu dem die kostenlosen Kontingente zurückgesetzt werden, in der lokalen Zeit dieses Computers.\n\n:param resets_at: ein datetime-Wert mit Zeitzoneninformation oder eine ISO-8601-Zeichenfolge; Standard ist das nächste 00:00 UTC.\n:returns: ``HH:MM``, gefolgt vom Wochentag, falls es nicht heute ist.",
+      "translation_source_blocks_sha256": [
+        "3ec75c1e4585e36a5e49216a7d02d249986a4c6a09eb5e6226c371b2be2d2c2f",
+        "22bb30577faef9973ae6c3e55905d2c3d3eef9ba096877ae8f80825d551cb267",
+        "964e43a7953e87f03f8eb045c7cceab068d95da7403559c95969209258dec916"
       ]
     },
     "spacr.qt.ai.providers.platform_family": {
@@ -70582,6 +70836,22 @@
         "754e48575cca5901d1ce2e9f5a1149b3affd25c784c3dc49808e89ad59079e71",
         "b819ac43fe51e561e8a24cf15f667dc7cdd711ba587221b2d92bde64a81b5e2d",
         "8807529ec8707e465a366feb9f422c715c76b7905156856033c52eb4f5dddde6"
+      ]
+    },
+    "spacr.qt.ai.providers.question_cache_key": {
+      "source_blocks_sha256": [
+        "e28b64d8bded6b39ea33ed192b025c4c897576eb7664fda3ad9d7bb298549c25",
+        "3ca648fdcee288b74d8923fa3514adad78ee5751a72b69586eb1e96750529835",
+        "69388d176540fe771c0695e09aad7cd9085a60e08c44e2306bdd418f531232a3",
+        "1f0dc14b914d2ddcbbad0d1a3027f8067b5a49f5c483fd6e2dd53069ed211a86"
+      ],
+      "source_sha256": "7d905ed404532b8cbc7d5a9b07bdef623398297d4b8ef3dbe97a371ec34c8cab",
+      "text": "Der Schlüssel, unter dem die Antwort auf eine neue Frage auf diesem Computer gespeichert wird.\n\nNur die erste Frage einer Unterhaltung wird gespeichert, und nur wenn die Frage samt eingefügtem Inhalt (Konsolenkontext, Code, Traceback) höchstens :data:`spacr.crashreport.QUESTION_CACHE_CONTEXT_MAX` Zeichen umfasst. Der Schlüssel ist :func:`spacr.crashreport.question_key` aus der Frage und der aktiven Anwendung; er ist für alle Anbieter gleich.\n\n:param messages: der Gesprächsverlauf als ``{role, content}``-Dictionaries.\n:returns: der Schlüssel oder ``\"\"``, wenn die Antwort nicht gespeichert werden darf.",
+      "translation_source_blocks_sha256": [
+        "e28b64d8bded6b39ea33ed192b025c4c897576eb7664fda3ad9d7bb298549c25",
+        "3ca648fdcee288b74d8923fa3514adad78ee5751a72b69586eb1e96750529835",
+        "bf2c86071a129d90cdcb7969d9aa6567af3a20d43a13721f8b8c4a3dfc3b5c88",
+        "1f0dc14b914d2ddcbbad0d1a3027f8067b5a49f5c483fd6e2dd53069ed211a86"
       ]
     },
     "spacr.qt.ai.providers.quote_path": {
@@ -70610,6 +70880,62 @@
       "translation_source_blocks_sha256": [
         "b7bddd767a897d6a0bc2f63d382c63dbe788054cbf8cea8ee92e73fede0582de",
         "e6e224bb275da5cb4cd7db379c4c7aa1eb7050b9589f0cd97dd267ef9fcb7724"
+      ]
+    },
+    "spacr.qt.ai.providers.usage_bar": {
+      "source_blocks_sha256": [
+        "24333b7aee4dcc40213c530869b081870948173ad87be0c058a7d815e582e543",
+        "abf4cc29750e043ce7b0a678ef5365fcf268d4300ea287b79bd31e29f0ac582a",
+        "40116a74d5a90992300f5c91942105b07c0aea6f3ab32ce039d7391730c4b0b6",
+        "32ef863a644a0c2c2060f39837a2979ab146196a3fd651717f0bd5e390db15af",
+        "e86bdab970b4c3a1975f1d29262555e69548315910467fb3c690e338e6b23bb8"
+      ],
+      "source_sha256": "aed23315c0b27715e04b662ac7fed5c800bd14cd1db2482fb0149fa88a2e00e4",
+      "text": "Was die Nutzungsanzeige unter dem KI-Chatfeld für einen Anbieter anzeigt.\n\nBei spaCR AI (free) zeigt der Balken den Anteil des Benutzers an der heutigen gemeinsamen kostenlosen Kapazität, ``neurons_left / share_neurons``, aus dem dynamischen Kontingent des Relays. Für eine Anbieter-CLI gibt es keine verlässliche Nutzungsquelle (:data:`CLI_USAGE_TEXT`); daher bleibt der Balken verborgen und nur eine Zeile wird angezeigt.\n\n:param provider_name: der Name des ausgewählten Anbieters oder ``None``.\n:param allowance: der Rückgabewert von :func:`spacr.crashreport.fetch_allowance` für spaCR AI.\n:returns: ``(percent or None to hide the bar, translated text)``.",
+      "translation_source_blocks_sha256": [
+        "24333b7aee4dcc40213c530869b081870948173ad87be0c058a7d815e582e543",
+        "abf4cc29750e043ce7b0a678ef5365fcf268d4300ea287b79bd31e29f0ac582a",
+        "40116a74d5a90992300f5c91942105b07c0aea6f3ab32ce039d7391730c4b0b6",
+        "32ef863a644a0c2c2060f39837a2979ab146196a3fd651717f0bd5e390db15af",
+        "e86bdab970b4c3a1975f1d29262555e69548315910467fb3c690e338e6b23bb8"
+      ]
+    },
+    "spacr.qt.ai.providers.with_ai_summary": {
+      "source_blocks_sha256": [
+        "ffe17686b3fc90fc5c889ae69cf17101985604ec3718ccad51765bf6e56828d6",
+        "9b8fd8924a9831e0f1c13029bba9fca82b7c12546c870044557a56288d0643aa",
+        "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+        "15b4cb17546b1effbadb29ef18c1045837faf3b8acf06151d43d888726e1ddc9",
+        "02b60c6a60beb4f41286fcff30e5fd3f8cc2a9d33c3aa4f96666fae1136ad480"
+      ],
+      "source_sha256": "1d8884f9b19130dfecc0fad4b2c63f699369dc1d9f13391ead56019e4e83a853",
+      "text": "Den Bericht mit der vom Anbieter erlaubten KI-Zusammenfassung zurückgeben.\n\nspaCR AI (free) bittet das Relay, sie zu schreiben (``summarize: true``, dem Kontingent des Benutzers für das leichte Modell angerechnet). Eine Anbieter-CLI schreibt sie hier (:func:`write_report_summary`), und sie wird als ``ai_summary`` übertragen. Ohne Anbieter oder wenn die CLI nichts liefert, bleibt der Bericht unverändert.\n\n:param summary: eine Zusammenfassung von :func:`spacr.crashreport.public_summary`.\n:param provider: der aktive Anbieter oder ``None``.\n:returns: ein neues Zusammenfassungs-Dictionary.",
+      "translation_source_blocks_sha256": [
+        "ffe17686b3fc90fc5c889ae69cf17101985604ec3718ccad51765bf6e56828d6",
+        "9b8fd8924a9831e0f1c13029bba9fca82b7c12546c870044557a56288d0643aa",
+        "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+        "15b4cb17546b1effbadb29ef18c1045837faf3b8acf06151d43d888726e1ddc9",
+        "f3fe46cfac7035372fa57ffe4c16cb344ba65ea55c45b095aef654c8a5f8bcd1"
+      ]
+    },
+    "spacr.qt.ai.providers.write_report_summary": {
+      "source_blocks_sha256": [
+        "408cdf38190d6e94fac43b2f634b450c72cb15026dec53c3ba89b3851c38474b",
+        "4316497ce7fa874d6ef3f0d3ac98265e07ce9ad4d8a3d18b26899a4eba8a49d1",
+        "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+        "e9ce85adc79bf0a3e31186b2a5716390fe72169a9a61bf72d047245c2735baa4",
+        "d8b64ab2f6f472a429a5d6f60fe10c490fe7613e3197d3ac94c4fadab77eb838",
+        "700fe5c737e9d8961f2d863481e673d91d54818949fad952dfc52fd207d2410c"
+      ],
+      "source_sha256": "0418496b2fe56dad7f850993d90e358492ba5006f99ed28e21ec45f806dc2415",
+      "text": "Die eigene KI des Benutzers einen anonymisierten Bericht zusammenfassen lassen oder ``\"\"`` zurückgeben.\n\nDem Anbieter wird ausschließlich :func:`spacr.crashreport.ai_summary_prompt` übergeben. Er läuft in einem eigenen Thread und wird nach ``timeout`` Sekunden gestoppt; bei einem Fehler, einer Zeitüberschreitung oder einer leeren Antwort wird ``\"\"`` zurückgegeben und der Bericht anschließend ohne Zusammenfassung eingereicht. Blockiert; daher außerhalb des GUI-Threads aufrufen.\n\n:param summary: eine Zusammenfassung von :func:`spacr.crashreport.public_summary`.\n:param provider: ein Anbieter mit CLI oder ``None``.\n:param timeout: die Wartezeit in Sekunden; Standard ist :data:`spacr.crashreport.AI_SUMMARY_TIMEOUT_S`.\n:returns: der bereinigte und auf :data:`spacr.crashreport.MAX_AI_SUMMARY_CHARS` gekürzte Zusammenfassungstext.",
+      "translation_source_blocks_sha256": [
+        "408cdf38190d6e94fac43b2f634b450c72cb15026dec53c3ba89b3851c38474b",
+        "2a97c7b6a34686ebdcf9e5867ee658da5fcb13a313d0a71336d13ab00e42cb6d",
+        "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+        "e9ce85adc79bf0a3e31186b2a5716390fe72169a9a61bf72d047245c2735baa4",
+        "d8b64ab2f6f472a429a5d6f60fe10c490fe7613e3197d3ac94c4fadab77eb838",
+        "700fe5c737e9d8961f2d863481e673d91d54818949fad952dfc52fd207d2410c"
       ]
     },
     "spacr.qt.ai.pty_sign_in": {
