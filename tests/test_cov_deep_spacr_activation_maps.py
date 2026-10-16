@@ -593,3 +593,52 @@ def test_counterfactual_crops_are_collected_up_to_the_limit(tmp_path,
     count, names, out = seen[0]
     assert count == len(names) == 3
     assert out.endswith("counterfactuals")
+
+
+def test_counterfactual_handoff_preserves_saved_class_order_and_actual_pixel_contract(tmp_path, monkeypatch):
+    """Saved classifier semantics travel with actual crops without running a generator."""
+    import copy
+    from pathlib import Path
+    import spacr.deep_spacr as ds
+    from spacr.classification_pixels import DECLARED_UINT8
+
+    root, tar_path, names = _project(tmp_path, n_images=2)
+    local_model = tmp_path / 'local-classifier.pth'
+    local_model.write_bytes(b'local fixture handle; deserialization is stubbed')
+    model = torch.nn.Sequential(torch.nn.Flatten(), torch.nn.Linear(3 * 32 * 32, 2)).eval()
+    metadata = {'classes': ['positive', 'negative'], 'preprocessing': {
+        'crop_loading_policy': DECLARED_UINT8, 'input_statistics': 'symmetric'}}
+    original_metadata = copy.deepcopy(metadata)
+    original_tar, original_model = Path(tar_path).read_bytes(), local_model.read_bytes()
+    loaded, handed = [], []
+    def load(path, device):
+        assert path == str(local_model) and device.type == 'cpu'
+        loaded.append(path)
+        return model, metadata
+    def handoff(settings, classifier, crops, filenames, output, device, *, input_contract):
+        assert classifier is model and device.type == 'cpu'
+        assert sum(len(batch) for batch in crops) == len(filenames) == 1
+        assert filenames == names[:1]
+        assert tuple(crops[0].shape) == (1, 3, 32, 32)
+        handed.append((input_contract, output))
+    monkeypatch.setattr(ds, '_load_inference_model', load)
+    monkeypatch.setattr(ds, '_run_counterfactuals', handoff)
+    ds.generate_activation_map(_settings(tar_path, str(local_model), model_type='tiny_local',
+        save=False, counterfactuals=True, counterfactual_crops=1,
+        counterfactual_condition='CLASS', normalize_input=True, input_statistics='symmetric'))
+    assert loaded == [str(local_model)] and len(handed) == 1
+    contract, output = handed[0]
+    assert contract == {
+        'schema': 1, 'channel_ids': ['stored_rgb_plane_0', 'stored_rgb_plane_1', 'stored_rgb_plane_2'],
+        'class_labels': ['positive', 'negative'], 'condition_key': 'class',
+        'preprocessing': {
+            'pipeline': 'activation_map_model_input_v1', 'crop_loading_policy': DECLARED_UINT8,
+            'center_crop': [32, 32], 'normalization': {'mean': [.5, .5, .5], 'std': [.5, .5, .5]},
+            'selected_channels_1based': [1, 2, 3],
+            'selection_semantics': 'zero_unselected_stored_rgb_planes',
+            'classifier_preprocessing': original_metadata['preprocessing'],
+        },
+    }
+    assert output.endswith('counterfactuals') and not Path(output).exists()
+    assert metadata == original_metadata
+    assert Path(tar_path).read_bytes() == original_tar and local_model.read_bytes() == original_model

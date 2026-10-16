@@ -797,3 +797,45 @@ def test_both_offered_split_units_are_accepted(split):
     assert "surrogate_split_by" not in _keys(problems)
     assert "surrogate_split_by" in _keys(V._check_app_specific(
         {"surrogate_split_by": "cell"}, "explain_cv"))
+
+
+def test_preflight_retains_numeric_and_typo_checks_when_cli_defaults_cannot_import(monkeypatch):
+    import builtins
+    import copy
+
+    settings = {'batch_size': 0, 'batch_siz': 3}
+    before = copy.deepcopy(settings)
+    original = builtins.__import__
+    refused = []
+
+    def importing(name, globals=None, locals=None, fromlist=(), level=0):
+        if (name == 'cli' and level == 1
+                and tuple(fromlist) == ('MODULES', 'module_defaults')):
+            refused.append(name)
+            raise ImportError('CLI defaults are unavailable')
+        return original(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(V, '_MODULE_DEFAULT_KEYS_CACHE', {})
+    monkeypatch.setattr(builtins, '__import__', importing)
+    problems = V.validate_settings(settings, 'mask')
+    assert refused
+    assert any(p.setting == 'batch_size' and p.is_error and 'at least 1' in p.message
+               for p in problems)
+    assert any(p.setting == 'batch_siz' and p.severity == V.WARNING
+               and "did you mean 'batch_size'" in p.message for p in problems)
+    assert settings == before
+
+
+@pytest.mark.parametrize('diameter', [0, -3])
+def test_generic_diameter_must_be_positive_while_object_zero_retains_auto(diameter):
+    settings = {'diameter': diameter, 'cell_diameter': 0, 'nucleus_diameter': 'auto'}
+    before = dict(settings)
+    problems = V.validate_settings(settings, '')
+    matches = [p for p in problems if p.setting == 'diameter']
+    assert len(matches) == 1 and matches[0].is_error
+    assert 'must be greater than zero' in matches[0].message
+    assert not [p for p in problems if p.setting in ('cell_diameter', 'nucleus_diameter')]
+    assert settings == before
+    for valid in (30, None):
+        positive = V.validate_settings({'diameter': valid}, '')
+        assert not [p for p in positive if p.setting == 'diameter']

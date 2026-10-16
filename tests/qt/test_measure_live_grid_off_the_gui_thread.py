@@ -465,3 +465,36 @@ def test_the_pass_holds_the_responsive_switch_interval(monkeypatch):
                                     {"crops": []})[1])
     MP._crop_pass((), None, None, {}, {}, threading.Event())
     assert seen == [True] and not gil.active()
+
+
+@pytest.mark.parametrize('dtype', [np.int32, np.uint64])
+def test_raw_label_types_preserve_object_areas_boxes_pixels_and_source(dtype):
+    mask = np.array([[0, 1, 1, 0, 0],
+                     [0, 1, 1, 0, 0],
+                     [0, 0, 0, 3, 0],
+                     [0, 0, 0, 3, 0]], dtype=dtype)
+    if np.issubdtype(dtype, np.signedinteger):
+        mask[0, 0] = -1
+    image = np.arange(20, dtype=dtype).reshape(mask.shape) + 1000
+    data = np.dstack([image, mask])
+    before = data.copy()
+    expected = _old_crop_objects(data, 1, buffer=0)
+    counted = M._label_areas_and_boxes(data[..., 1])
+    if np.issubdtype(dtype, np.signedinteger):
+        assert counted is None, 'Negative background labels require the safe per-label fallback'
+    else:
+        areas, boxes = counted
+        assert areas == [(1, 4), (3, 2)]
+        assert boxes == [(slice(0, 2), slice(1, 3)), None,
+                         (slice(2, 4), slice(3, 4))]
+    crops = M.crop_objects_from_array(data, 1, channels=(0,), buffer=0,
+                                     normalize=False, to_rgb=False)
+    assert [(entry['label'], entry['area'], entry['bbox']) for entry in crops] == expected
+    assert [entry['label'] for entry in crops] == [1, 3]
+    for entry in crops:
+        top, bottom, left, right = entry['bbox']
+        expected_pixels = image[top:bottom, left:right].copy()
+        expected_pixels[mask[top:bottom, left:right] != entry['label']] = 0
+        np.testing.assert_array_equal(entry['crop'], expected_pixels[..., None])
+        assert entry['crop'].dtype == dtype
+    np.testing.assert_array_equal(data, before)

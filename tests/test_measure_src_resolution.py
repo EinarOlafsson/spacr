@@ -99,3 +99,27 @@ def test_a_settings_path_error_is_not_filed_automatically():
     assert check(missing, {"src": os.path.join(os.sep, "elsewhere")}) is False
     assert check("spacr.errors.ConfigurationError: Measure cannot start", {}) is True
     assert check("ValueError: boom", {"src": src}) is False
+
+
+def test_missing_sources_skip_nonpath_values_and_keep_resolved_plate_sources(plate, tmp_path, monkeypatch):
+    from spacr import measure, validate
+
+    missing = str(tmp_path / 'gone' / 'plate2')
+    existing = tmp_path / 'existing empty folder'
+    existing.mkdir()
+    alias = str(plate / 'measure')
+    sources = [None, 123, plate / 'merged', alias, missing, str(existing)]
+    before = list(sources)
+    resolved = []
+    actual_resolve = validate._resolve_measure_src
+
+    def resolve(path):
+        assert isinstance(path, str), 'Nonstring settings must not reach filesystem resolution'
+        resolved.append(path)
+        return actual_resolve(path)
+
+    monkeypatch.setattr(validate, '_resolve_measure_src', resolve)
+    assert measure._missing_measure_sources(sources) == [missing]
+    assert resolved == [alias, missing, str(existing)]
+    assert sources == before
+    assert (plate / 'merged' / 'a.npy').is_file()
