@@ -1,0 +1,63 @@
+{
+  "normal_tool_sha256": "6bbdd7df679f8ee42f711def5835b1386c0276fbabcbbb036b71caed4012d39e",
+  "provider_source_sha256": "88eaf32a8ff9b158e4a900e4dc03f39ea3023aaf33003be612a0eb0bbb717725",
+  "locales": {
+    "de": {
+      "path": "/mnt/wd4tb/scratch/ci-providers-api-label-diagnosis-20261015/ci-drafts/de/2026-10-15-n700-provider-utilities.json",
+      "sha256": "4dedfb8598827824d23353eaee375d92da6fe814dd15c1013f34436e3f65db4f",
+      "records": 43,
+      "unique_sources": 39
+    },
+    "es": {
+      "path": "/mnt/wd4tb/scratch/ci-providers-api-label-diagnosis-20261015/ci-drafts/es/2026-10-15-n700-provider-utilities.json",
+      "sha256": "484ab5537b28fd56d1c87e73bfb1188e9308ae2a0e4961f8a7b271fae7110a52",
+      "records": 43,
+      "unique_sources": 39
+    },
+    "fr": {
+      "path": "/mnt/wd4tb/scratch/ci-providers-api-label-diagnosis-20261015/ci-drafts/fr/2026-10-15-n700-provider-utilities.json",
+      "sha256": "e98c023053ee7af7d670066e6894f26c349dce500b6da006792424a69515e1fe",
+      "records": 43,
+      "unique_sources": 39
+    },
+    "sv": {
+      "path": "/mnt/wd4tb/scratch/ci-providers-api-label-diagnosis-20261015/ci-drafts/sv/2026-10-15-n700-provider-utilities.json",
+      "sha256": "f5ee3a434038089f265002de4db9cadd1058a64b1888708fe9adea66909a3db0",
+      "records": 43,
+      "unique_sources": 39
+    },
+    "pt": {
+      "path": "/mnt/wd4tb/scratch/ci-providers-api-label-diagnosis-20261015/ci-drafts/pt/2026-10-15-n700-provider-utilities.json",
+      "sha256": "2c4115e3853e22f16d1aa1439281a6b70fb0a949e5aa5ebb75ebbb0e01dd4813",
+      "records": 43,
+      "unique_sources": 39
+    },
+    "is": {
+      "path": "/mnt/wd4tb/scratch/ci-providers-api-label-diagnosis-20261015/ci-drafts/is/2026-10-15-n700-provider-utilities.json",
+      "sha256": "15751389c7d20dfe2ec706f4d211ff71090d07f87bc4448c81c1ae07b5574317",
+      "records": 43,
+      "unique_sources": 39
+    },
+    "zh_CN": {
+      "path": "/mnt/wd4tb/scratch/ci-providers-api-label-diagnosis-20261015/ci-drafts/zh_CN/2026-10-15-n700-provider-utilities.json",
+      "sha256": "64adc56a83817b60ca82667d40bed75c3e2d67d57b2d1740b8f50300e1a195ed",
+      "records": 43,
+      "unique_sources": 39
+    },
+    "ko": {
+      "path": "/mnt/wd4tb/scratch/ci-providers-api-label-diagnosis-20261015/ci-drafts/ko/2026-10-15-n700-provider-utilities.json",
+      "sha256": "7c582e2b8365cbbeac239f19ba0cce869429e036ae6a29cd0f95c73739fa9d48",
+      "records": 43,
+      "unique_sources": 39
+    },
+    "hi": {
+      "path": "/mnt/wd4tb/scratch/ci-providers-api-label-diagnosis-20261015/ci-drafts/hi/2026-10-15-n700-provider-utilities.json",
+      "sha256": "20f2519f5c6fc124fab8187b115d73b04610e8f911988dfbfb369b7f56bdaedb",
+      "records": 43,
+      "unique_sources": 39
+    }
+  },
+  "records": 387,
+  "failures": [],
+  "scope": "Exact ordinary reviewed block validator only; no collector, public inventory, catalog writer or full audit."
+}
