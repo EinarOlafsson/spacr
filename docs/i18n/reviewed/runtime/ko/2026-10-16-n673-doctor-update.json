@@ -1,0 +1,169 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical translation, self-review and independent peer review; no native-speaker signoff",
+  "review": "N673 doctor and updater follow-up. Preserve the supported no-wgpu install choice, ordered rendering fallback, import versus adapter failures, commands, versions and every format placeholder. CPU, OpenGL, VisPy, wgpu, uv, Python, Linux, glibc, Vulkan, Metal, Direct3D 12, spaCR and the True 3D view name remain literal technical identities. Independent technical peer review included composed fallback grammar and supported-install meaning; normal runtime generation and gates remain required.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "3D backends",
+      "source": "3D backends",
+      "source_sha256": "21334c66aa2a4e65bddb40806e13bb906f01bef02b4b759b2242c8a71458187f",
+      "translation": "3D 백엔드"
+    },
+    {
+      "table": "ui",
+      "key": "CPU: always available",
+      "source": "CPU: always available",
+      "source_sha256": "778e53024dd17bdd1d4e17e033a3725bc772849946dd742d0da2bf141930a7fb",
+      "translation": "CPU: 항상 사용 가능"
+    },
+    {
+      "table": "ui",
+      "key": "OpenGL (VisPy), then the CPU",
+      "source": "OpenGL (VisPy), then the CPU",
+      "source_sha256": "2904efadeeb5572ea74418b2cc7e272696c0753bdb85ae79205280c32f0e55b5",
+      "translation": "OpenGL (VisPy), 그다음 CPU"
+    },
+    {
+      "table": "ui",
+      "key": "OpenGL (VisPy): available",
+      "source": "OpenGL (VisPy): available",
+      "source_sha256": "f7d9afa1324902d79b64ae309550b7e69b3b7ee017459a1c71c3d1a6109143f8",
+      "translation": "OpenGL (VisPy): 사용 가능"
+    },
+    {
+      "table": "ui",
+      "key": "OpenGL (VisPy): not installed",
+      "source": "OpenGL (VisPy): not installed",
+      "source_sha256": "8b8ff276f2133dbe32945f8b9aa9b5994870455c007086041b361818871e5e49",
+      "translation": "OpenGL (VisPy): 설치되지 않음"
+    },
+    {
+      "table": "ui",
+      "key": "Run {command}, or reinstall spaCR.",
+      "source": "Run {command}, or reinstall spaCR.",
+      "source_sha256": "fb01f7bcee4abfe36995bfa752343d75627f6748e1d5a8ccd8644b572f3703d5",
+      "translation": "{command}을(를) 실행하거나 spaCR를 다시 설치하세요."
+    },
+    {
+      "table": "ui",
+      "key": "installed without wgpu",
+      "source": "installed without wgpu",
+      "source_sha256": "5d4e631f0a2100c2eaf3e70ae447f47af667451d4068cf857852dc440f85ae1b",
+      "translation": "wgpu 없이 설치됨"
+    },
+    {
+      "table": "ui",
+      "key": "the CPU",
+      "source": "the CPU",
+      "source_sha256": "8ffbefafaa48cfd34e164179def7d0f40f632ca0d6288901fa31a39f57443292",
+      "translation": "CPU"
+    },
+    {
+      "table": "ui",
+      "key": "this CPU",
+      "source": "this CPU",
+      "source_sha256": "2ebbe557afa4f034e4008d090307a8947c0ac15cc3d539352556e33484c8123b",
+      "translation": "이 CPU"
+    },
+    {
+      "table": "ui",
+      "key": "wgpu is not installed; the True 3D view draws with {fallback}. This is a supported install.",
+      "source": "wgpu is not installed; the True 3D view draws with {fallback}. This is a supported install.",
+      "source_sha256": "9c58e01794265e71290057ce13f55dbf678794d3f1429c1d73fcc37ac1b0004d",
+      "translation": "wgpu가 설치되어 있지 않습니다. True 3D 뷰는 {fallback}을(를) 사용하여 그립니다. 지원되는 설치 구성입니다."
+    },
+    {
+      "table": "ui",
+      "key": "wgpu needs Python 3.10 or newer",
+      "source": "wgpu needs Python 3.10 or newer",
+      "source_sha256": "e2150b5faf78a6480d5d59c79d7e8ebf24fa34f381766675703ca29426bc7e46",
+      "translation": "wgpu에는 Python 3.10 이상이 필요합니다"
+    },
+    {
+      "table": "ui",
+      "key": "wgpu publishes no wheel for {machine}",
+      "source": "wgpu publishes no wheel for {machine}",
+      "source_sha256": "6531224b3d1852a00c0d7f8ad26dd369f48a905f6eeb7895f16aadaf0975b5c8",
+      "translation": "wgpu는 {machine}용 wheel 패키지를 배포하지 않습니다"
+    },
+    {
+      "table": "ui",
+      "key": "wgpu {backend}: {name} ({adapter_type})",
+      "source": "wgpu {backend}: {name} ({adapter_type})",
+      "source_sha256": "e294d27ff9d20610565393211831b98f91d3eaa81f097cd2c7c0163175d45c92",
+      "translation": "wgpu {backend}: {name} ({adapter_type})"
+    },
+    {
+      "table": "ui",
+      "key": "wgpu {version} can draw the True 3D view ({backends}); then {fallback}.",
+      "source": "wgpu {version} can draw the True 3D view ({backends}); then {fallback}.",
+      "source_sha256": "57bc74824f768f5f30d86c1f6e34a87ddd48038754cbad08a6883b4c0c8c6da5",
+      "translation": "wgpu {version}은(는) True 3D 뷰를 그릴 수 있습니다({backends}). 그다음에는 {fallback}을(를) 사용합니다."
+    },
+    {
+      "table": "ui",
+      "key": "wgpu {version} found no adapter; the True 3D view draws with {fallback}.",
+      "source": "wgpu {version} found no adapter; the True 3D view draws with {fallback}.",
+      "source_sha256": "08c661cefca85b04cba1871bb030f97684e0673c761b9f70fe7170227df389cc",
+      "translation": "wgpu {version}에서 어댑터를 찾지 못했습니다. True 3D 뷰는 {fallback}을(를) 사용하여 그립니다."
+    },
+    {
+      "table": "ui",
+      "key": "wgpu {version} is installed but cannot be imported ({error}); the True 3D view draws with {fallback}.",
+      "source": "wgpu {version} is installed but cannot be imported ({error}); the True 3D view draws with {fallback}.",
+      "source_sha256": "0aef3d4088858df17354a0524fae938435e5b6479d4c6bbefdbfe340dfd9e207",
+      "translation": "wgpu {version}이(가) 설치되어 있지만 가져올 수 없습니다({error}). True 3D 뷰는 {fallback}을(를) 사용하여 그립니다."
+    },
+    {
+      "table": "ui",
+      "key": "wgpu {version} is installed; the True 3D view prefers it, then {fallback}.",
+      "source": "wgpu {version} is installed; the True 3D view prefers it, then {fallback}.",
+      "source_sha256": "d1238224e530c6661da2cc8274a923c12c1fa5c1a63b76ef3041cde86e4769da",
+      "translation": "wgpu {version}이(가) 설치되어 있습니다. True 3D 뷰는 이를 우선 사용하고, 그다음에는 {fallback}을(를) 사용합니다."
+    },
+    {
+      "table": "ui",
+      "key": "wgpu {version}: installed, but no Vulkan, Metal or Direct3D 12 adapter was found",
+      "source": "wgpu {version}: installed, but no Vulkan, Metal or Direct3D 12 adapter was found",
+      "source_sha256": "828ca18933a3f6acb0df81bb7a9d4a39d6559118acc16a26838347be665fa1bb",
+      "translation": "wgpu {version}: 설치되어 있지만 Vulkan, Metal 또는 Direct3D 12 어댑터를 찾지 못함"
+    },
+    {
+      "table": "ui",
+      "key": "wgpu {version}: installed; adapters not listed ({why})",
+      "source": "wgpu {version}: installed; adapters not listed ({why})",
+      "source_sha256": "556b5c65b35e5d9a01e62d259d104b2ae3b743937d4c573fc1f2fad964d9602b",
+      "translation": "wgpu {version}: 설치됨; 어댑터를 나열하지 않음({why})"
+    },
+    {
+      "table": "ui",
+      "key": "wgpu's Linux wheels need glibc 2.28 (this has {version})",
+      "source": "wgpu's Linux wheels need glibc 2.28 (this has {version})",
+      "source_sha256": "6e51ac60ae4543795d161b91892b6bf7e9cb7a409630cc17f08e7e2b79967886",
+      "translation": "wgpu의 Linux wheel 패키지에는 glibc 2.28이 필요합니다(이 시스템의 버전: {version})"
+    },
+    {
+      "table": "ui",
+      "key": "wgpu: not installed ({reason})",
+      "source": "wgpu: not installed ({reason})",
+      "source_sha256": "892f3e6eb9dacf6c7191e5dcac59f1c958f883a4dad7a2b01d02cbc10f3f2ebc",
+      "translation": "wgpu: 설치되지 않음({reason})"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR was installed without wgpu. Restore uv before updating so that choice is preserved.",
+      "source": "spaCR was installed without wgpu. Restore uv before updating so that choice is preserved.",
+      "source_sha256": "87236f5ffabce5587340955b54c452787e175d85c127b8a96b97af7477b9dcf2",
+      "translation": "spaCR는 wgpu 없이 설치되었습니다. 이 선택을 유지하려면 업데이트 전에 uv를 복구하세요."
+    },
+    {
+      "table": "ui",
+      "key": "spaCR was installed without wgpu. The update could not write its dependency override. Check the install profile folder permissions and try again.",
+      "source": "spaCR was installed without wgpu. The update could not write its dependency override. Check the install profile folder permissions and try again.",
+      "source_sha256": "b416a96572794809480fc8af028c16a059ff89c8784594b7fb8b45345b1aa454",
+      "translation": "spaCR는 wgpu 없이 설치되었습니다. 업데이트가 종속성 재정의 파일을 쓰지 못했습니다. 설치 프로필 폴더의 권한을 확인하고 다시 시도하세요."
+    }
+  ]
+}
