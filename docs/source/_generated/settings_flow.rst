@@ -7905,11 +7905,12 @@ export_vvvv
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
+| ``_on_run`` **-- reads it**
 | ``_plan_gains``
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
 
-Read by ``preprocess_generate_masks``, ``_measure_crop_core``, ``get_measure_crop_settings``.
+Read by ``preprocess_generate_masks``, ``_measure_crop_core``, ``_on_run``, ``get_measure_crop_settings``.
 
 .. _setting-flow-extracellular_class:
 
