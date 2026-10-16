@@ -206,8 +206,8 @@ def test_installer_consent_is_optional_off_by_default_and_persisted():
         assert "spacr.install_profile" in source
     assert "Page custom ConsentPage ConsentPageLeave" in nsis
     assert nsis.count("off by default") >= 2
-    assert "PUBLIC spaCR GitHub repository" in nsis
-    assert "cannot be reliably unpublished" in nsis
+    assert "public GitHub issues by spaCR" in nsis
+    assert "AI Error report" in nsis
     assert "-ConsentCollected $ConsentCollectedValue" in nsis
 
 

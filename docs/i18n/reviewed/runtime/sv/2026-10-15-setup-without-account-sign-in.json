@@ -12,10 +12,10 @@
     },
     {
       "table": "ui",
-      "key": "Crash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished. A report is redacted, shown in an editable preview, and sent only when you press Send for that specific report. Both choices are optional and revocable in Preferences.",
-      "source": "Crash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished. A report is redacted, shown in an editable preview, and sent only when you press Send for that specific report. Both choices are optional and revocable in Preferences.",
-      "source_sha256": "7ac2ab3aea685d946cf4248e75022868af0d04dfe6097e86545e717f77ea291b",
-      "translation": "Kraschrapporter skickas till spaCR:s OFFENTLIGA GitHub-arkiv. De kan läsas av alla, indexeras och kan inte tas bort på ett tillförlitligt sätt. Rapporten rensas, visas i en redigerbar förhandsvisning och skickas bara när du trycker på Skicka för just den rapporten. Båda valen är frivilliga och kan återkallas i Inställningar."
+      "key": "Anonymised error reports are on by default. They are filed as public GitHub issues by spaCR's relay, with no account needed, and never include paths, names, IP addresses, emails, tokens, logs, images or your content. spaCR AI (free) is also on by default. Turn reports off in Preferences → AI → AI Error report. The terms of use, Sections 5.6–5.7 and 6, give the details.",
+      "source": "Anonymised error reports are on by default. They are filed as public GitHub issues by spaCR's relay, with no account needed, and never include paths, names, IP addresses, emails, tokens, logs, images or your content. spaCR AI (free) is also on by default. Turn reports off in Preferences → AI → AI Error report. The terms of use, Sections 5.6–5.7 and 6, give the details.",
+      "source_sha256": "4c828e0655b6d27121f2d7373e49acd08909ce93d05e7c4067d08e7b56071764",
+      "translation": "Anonymiserade felrapporter är aktiverade som standard. spaCR:s relä skapar dem som offentliga GitHub-ärenden utan att något konto behövs, och de innehåller aldrig sökvägar, namn, IP-adresser, e-postadresser, token, loggar, bilder eller ditt innehåll. spaCR AI (gratis) är också aktiverat som standard. Stäng av rapporterna under Inställningar → AI → AI Error report. Detaljer finns i användarvillkoren, avsnitt 5.6–5.7 och 6."
     }
   ]
 }
