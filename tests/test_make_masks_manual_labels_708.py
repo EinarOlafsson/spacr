@@ -106,3 +106,16 @@ def test_saved_manual_ids_reopen_exactly_without_external_files(tmp_path):
     _, after_refused_save = engine.load_image_and_mask(str(tmp_path), "frame.tif")
     np.testing.assert_array_equal(after_refused_save, labelled)
     assert target == str(tmp_path / "masks/frame.tif")
+
+
+@pytest.mark.parametrize("dtype", [np.int8, np.int16, np.int32])
+def test_reopening_negative_integer_ids_refuses_unsigned_wraparound(tmp_path, dtype):
+    image = np.arange(12 * 16, dtype=np.uint16).reshape(12, 16)
+    write_tiff(tmp_path / "frame.tif", image)
+    mask_dir = tmp_path / "masks"
+    mask_dir.mkdir()
+    labels = _labels(dtype)
+    labels[3, 3] = -1
+    write_tiff(mask_dir / "frame.tif", labels)
+    with pytest.raises(ValueError, match="non-negative integer labels"):
+        engine.load_image_and_mask(str(tmp_path), "frame.tif")

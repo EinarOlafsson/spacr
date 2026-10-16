@@ -876,6 +876,11 @@ def _as_field_mask(mask: np.ndarray, shape, mask_path: str,
             raise ValueError(
                 f"Mask must contain non-negative integer labels: {mask_path}"
             )
+    if np.issubdtype(mask.dtype, np.signedinteger) and np.any(mask < 0):
+        from .i18n import tr
+
+        raise ValueError(tr(
+            "Mask must contain non-negative integer labels: {path}", path=mask_path))
     maximum = int(mask.max()) if mask.size else 0
     if maximum > np.iinfo(np.uint16).max:
         raise ValueError(
