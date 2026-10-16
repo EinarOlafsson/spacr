@@ -4040,3 +4040,7 @@ Native installer workflow38873736048 is green on72e07; protected full CI38877579
 2026-10-16 — a37d0f10357 repairs the smoke-test fake by binding the real cleanup helper; worker and failed-database assertions are unchanged.
 Original node fails before the fixture repair; all17 owning tests pass afterward. Hosted72 coverage also passes the original1.35 Make Masks paint-rate check.
 Full CI still requires the reserved N700/N673 owner repairs and remaining job results; no release or whole-item completion claimed.
+
+2026-10-16 — 1a4f74fdac3 aligns FlowView packaging assertions with the core Qt6.12.0 exclusion and checks the unchanged lower/upper bounds and core-binding reuse.
+The original assertion fails before this test repair; the owning file passes afterward. Future-version admission states policy, not an upstream bug-fix claim.
+Remaining CI jobs and reserved-feature owner repairs still gate1.5.1.5; no whole-green or release claim.
