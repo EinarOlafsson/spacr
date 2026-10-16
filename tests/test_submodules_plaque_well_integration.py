@@ -79,12 +79,32 @@ def test_true_fetches_the_default_well_detector(tmp_path, monkeypatch):
 
 
 def test_an_unknown_well_detector_key_is_refused(monkeypatch):
-    from spacr import model_zoo
+    from spacr import model_zoo, plaque
 
     monkeypatch.setattr(model_zoo, "catalogue", lambda remote=True: [])
+    monkeypatch.setattr(model_zoo, "BUNDLED_REMOTE_MODELS", [
+        {"key": "controlled-well-detector", "kind": "detector",
+         "version": "001", "sha256": "a" * 64},
+        {"key": "unrelated-cellpose", "kind": "cellpose",
+         "version": "002", "sha256": "b" * 64},
+    ])
 
-    with pytest.raises(ValueError, match="neither a file nor a model_zoo key"):
-        sm._resolve_well_detector({"well_detection": "not-a-detector"})
+    def forbidden(*args, **kwargs):
+        pytest.fail("An unknown detector must not acquire or construct a model")
+
+    monkeypatch.setattr(model_zoo, "fetch", forbidden)
+    monkeypatch.setattr(plaque, "_load_detector", forbidden)
+    settings = {"well_detection": "not-a-detector"}
+
+    with pytest.raises(model_zoo.ModelZooError) as refused:
+        sm._resolve_well_detector(settings)
+
+    message = str(refused.value)
+    assert "well_detection" in message
+    assert repr("not-a-detector") in message
+    assert "controlled-well-detector@'001' [sha256=" + "a" * 64 + "]" in message
+    assert "unrelated-cellpose" not in message
+    assert settings == {"well_detection": "not-a-detector"}
 
 
 def test_split_wells_is_inert_when_detection_is_off(tmp_path, monkeypatch):

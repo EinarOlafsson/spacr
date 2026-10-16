@@ -1,0 +1,18 @@
+{
+  "run": 38816815119,
+  "job": 116724362321,
+  "hosted_head": "99789fd25c44",
+  "current_root_head": "50da4ed98f45a07c016439bbe358bb72dd44c506",
+  "node": "tests/test_submodules_plaque_well_integration.py::test_an_unknown_well_detector_key_is_refused",
+  "test_sha256": "2c3f908fec15d352dbbf9a2b40e993079319c472e276dc2340bdf65ad8a58e9b",
+  "test_entire_file_unchanged": true,
+  "production_functions_ast_unchanged": {
+    "_resolve_well_detector": true,
+    "_resolve_detector_weights": true
+  },
+  "log_sha256": "2b9dab26ade031cea107af54aaf99298d7383e4ca6b89162e897dc796d14d1eb",
+  "hosted_result": "1 failed, 495 passed, 11 skipped; 504.94s",
+  "failure_time_utc": "2026-10-15T23:35:33Z",
+  "cause": "Stale test ValueError/legacy diagnostic expectation; actual known current ModelZooError setting/request/candidate context",
+  "proposal": "Test-only exact current refusal contract with controlled compatible catalogue and acquisition/constructor tripwires; no source edit or tests yet"
+}
