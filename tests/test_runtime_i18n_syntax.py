@@ -75,6 +75,23 @@ def test_volume_measurement_diagnostics_enter_runtime_catalog():
     } <= sources
 
 
+def test_make_masks_short_group_headings_enter_translation():
+    import ast
+    import build_i18n_catalogs as builder
+
+    source = ROOT / "spacr/qt/screens/make_masks.py"
+    tree = ast.parse(source.read_text())
+    captions = {node.args[0].value for node in ast.walk(tree)
+                if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                and node.func.id == "tr" and node.args
+                and isinstance(node.args[0], ast.Constant)
+                and isinstance(node.args[0].value, str)
+                and builder._looks_translatable(node.args[0].value)}
+    assert {"TOOLS", "IO"} <= captions
+    for identifier in ("CPU", "GPU", "API", "XYZ", "RGBA", "N673"):
+        assert not builder._looks_translatable(identifier)
+
+
 def test_portuguese_well_locations_preserve_containers_and_repair_adverbs() -> None:
     """Container positions retain poço; adverbial well still repairs to bem."""
     from build_i18n_catalogs import _contextualize, _translation_rejection_reasons

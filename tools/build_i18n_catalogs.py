@@ -3731,7 +3731,7 @@ def _looks_translatable(text: str) -> bool:
         return False
     if re.fullmatch(r"\{[A-Za-z_][A-Za-z0-9_]*\}", source):
         return False
-    if re.fullmatch(r"[A-Z0-9_.+-]{1,8}", source):
+    if source not in {"TOOLS", "IO"} and re.fullmatch(r"[A-Z0-9_.+-]{1,8}", source):
         return False
     # Stylesheets, regexes and serialized records are not presentation prose.
     if any(marker in source for marker in (
