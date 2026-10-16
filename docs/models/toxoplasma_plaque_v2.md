@@ -37,6 +37,8 @@ Toxoplasma plaque assays stained with crystal violet, from three microscopes and
 
 F1 0.455 against stock cpsam_v2's 0.189 on the 282 strict hold-out fields at IoU 0.5; AJI 0.514 against 0.181.
 
+Scorecard state: **reviewed hold-out scorecard**.
+
 | Metric | This model | Stock | Difference |
 | --- | --- | --- | --- |
 | F1 | 0.4548 | 0.1891 | 0.2657 |
@@ -90,4 +92,4 @@ Evaluation set `gt_rescore_20261011`, version `strict hold-out, pooled`; 282 sco
 
 Models are hosted on each author's own Hugging Face account. spaCR downloads this one from there the first time it is needed and checks it against the SHA-256 above. `spacr.model_zoo.publish_model` uploads a model and returns the catalogue row to add.
 
-[All model cards](README.md)
+[All model cards](README.md) · [All scorecards as CSV](scorecards.csv)

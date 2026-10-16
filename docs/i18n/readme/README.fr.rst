@@ -22,7 +22,7 @@ Site web: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.
    :target: https://pypi.org/project/spacr/
    :alt: Python 3.9 à 3.14
 
-.. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/nightly?logo=codecov&logoColor=white
+.. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/main?logo=codecov&logoColor=white
    :target: https://app.codecov.io/github/EinarOlafsson/spacr
    :alt: Couverture de tests Codecov
 
@@ -111,23 +111,15 @@ Site web: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.
 
 .. raw:: html
 
-   <div><a href="../../readme_text/fr/try-spacr-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/try-spacr-2.desktop.svg"><img src="../../readme_images/fr/try-spacr-2.svg" alt="Utilisez Charger les données de test… dans Import, Make Masks, Annotate ou un écran d’essai pour télécharger des données d’exemple. Dans un terminal, utilisez spacr-download."></picture></a></div>
-
-.. raw:: html
-
    <div><a href="../../readme_text/fr/hardware-support.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/hardware-support.desktop.svg"><img src="../../readme_images/fr/hardware-support.svg" alt="Support matériel."></picture></a></div>
 
 .. spacr-hardware-begin
 
 .. raw:: html
 
-   <div><a href="../../readme_text/fr/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/generated-hardware-1.desktop.svg"><img src="../../readme_images/fr/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. pris en charge (stable) implémenté (bêta) uniquement sur CPU."></picture></a></div>
+   <div><a href="../../readme_text/fr/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/generated-hardware-1.desktop.svg"><img src="../../readme_images/fr/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU, 3D GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU, 3D CPU. pris en charge (stable) implémenté (bêta) uniquement sur CPU."></picture></a></div>
 
 .. spacr-hardware-end
-
-.. raw:: html
-
-   <div><a href="../../readme_text/fr/hardware-support-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/hardware-support-2.desktop.svg"><img src="../../readme_images/fr/hardware-support-2.svg" alt="CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM took 444.5 s on the CPU and 3.2 s on Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This is a historical example, not a speed guarantee. GPU acceleration requires a usable backend and compatible libraries. See the recorded hardware measurement."></picture></a></div>
 
 .. raw:: html
 
@@ -271,7 +263,7 @@ Site web: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.
 
 .. raw:: html
 
-   <div><a href="../../readme_text/fr/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/install-from-source-light-2.desktop.svg"><img src="../../readme_images/fr/install-from-source-light-2.svg" alt="Le clone complet de nightly a téléchargé 9.25 GiB. Ajouter --filter=blob:none au clone superficiel ne réduit pas la copie de travail : son magasin d’objets Git pèse encore 2032 MB. Git ne signale pas les récupérations différées d’objets, aucun total de téléchargement n’a donc été mesuré. Les fichiers suivis de nightly occupent 3416 MB dans la copie de travail (mesurés le 2026-10-08), hors historique Git. La taille et la durée du téléchargement varient selon la branche."></picture></a></div>
+   <div><a href="../../readme_text/fr/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/install-from-source-light-2.desktop.svg"><img src="../../readme_images/fr/install-from-source-light-2.svg" alt="Le clone complet de nightly a téléchargé 9.25 GiB. Ajouter --filter=blob:none au clone superficiel ne réduit pas la copie de travail : son magasin d’objets Git pèse encore 2032 MB. Git ne signale pas les récupérations différées d’objets, aucun total de téléchargement n’a donc été mesuré. Les fichiers suivis de nightly occupent 4657 MB dans la copie de travail (mesurés le 2026-10-15), hors historique Git. La taille et la durée du téléchargement varient selon la branche."></picture></a></div>
 
 .. raw:: html
 

@@ -30,7 +30,7 @@ blocks:
        :target: https://pypi.org/project/spacr/
        :alt: Python 3.9 से 3.14
 
-    .. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/nightly?logo=codecov&logoColor=white
+    .. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/main?logo=codecov&logoColor=white
        :target: https://app.codecov.io/github/EinarOlafsson/spacr
        :alt: Codecov परीक्षण कवरेज
 
@@ -116,17 +116,24 @@ blocks:
     python -m pip install spacr
     spacr
   lang: bash
-- p: उदाहरण डेटा डाउनलोड करने के लिए Import, Make Masks, Annotate या किसी असे स्क्रीन
-    में **टेस्ट डेटा लोड करें…** का उपयोग करें। टर्मिनल से ``spacr-download`` का
-    उपयोग करें।
 - h2: हार्डवेयर समर्थन
 - generated: hardware
-- p: CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core
-    i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM took 444.5 s on the CPU and 3.2 s on
-    Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This is a
-    historical example, not a speed guarantee. GPU acceleration requires a usable backend and
-    compatible libraries. See the `recorded hardware measurement
-    <features/new/319_use_non_nvidia_accelerators_where_they_exist.txt>`_.
+  details:
+  - 'Auto: Make Masks का True 3D उपलब्ध बैकएंड इस क्रम में आज़माता है: Linux: Vulkan → OpenGL
+    → CPU; Windows: Vulkan → Direct3D 12 → OpenGL → CPU; macOS: Metal → Vulkan → OpenGL →
+    CPU। Vulkan, Metal और Direct3D 12, wgpu का उपयोग करते हैं। GPU बैकएंड उपलब्ध न होने या
+    विफल होने पर अगला बैकएंड आज़माया जाता है; CPU रेंडरिंग उपलब्ध रहती है।'
+  - Windows (x64, ARM64), macOS (Intel, Apple silicon) और Linux (x86-64, ARM64, glibc 2.28
+    या बाद का संस्करण) पर Python 3.10 या बाद के संस्करण के साथ wgpu डिफ़ॉल्ट रूप से इंस्टॉल
+    होता है। Python 3.9, अन्य प्रोसेसर, पुराने glibc वाले Linux और wgpu के बिना इंस्टॉलेशन
+    पहले OpenGL, फिर CPU का उपयोग करते हैं। बैंगनी 3D सेल लागू किए गए GPU समर्थन को दर्शाते
+    हैं, जिसकी वास्तविक डिस्प्ले पर स्वीकृति जाँच बाकी है।
+  - CPU पर निष्पादन समर्थित है और धीमा हो सकता है। Intel iMac (Core i5-10500, AMD Radeon Pro
+    5300 4 GB) पर एक माप में torch 2.2.2, Python 3.12.11 और macOS 26.5.2 के साथ एक 256×256
+    चित्र के लिए Cellpose-SAM ने CPU पर 444.5 s और Metal पर 3.2 s लिए। यह एक पुराना उदाहरण
+    है, गति की गारंटी नहीं। GPU त्वरण के लिए उपयोग योग्य बैकएंड और संगत लाइब्रेरी आवश्यक हैं।
+    `दर्ज किया गया हार्डवेयर माप <features/new/319_use_non_nvidia_accelerators_where_they_exist.txt>`_
+    देखें।
 - h2: spaCR इंस्टॉल करें
 - p: 'इंस्टॉलेशन का तरीका चुनें:'
 - list:
@@ -237,8 +244,8 @@ blocks:
 - p: 'nightly के पूर्ण क्लोन ने 9.25 GiB डाउनलोड किया। उथले क्लोन में ``--filter=blob:none``
     जोड़ने से चेकआउट छोटा नहीं होता: उसका Git ऑब्जेक्ट भंडार अब भी 2032 MB है। Git
     आवश्यकता पड़ने पर बाद में लाए गए ऑब्जेक्ट की सूचना नहीं देता, इसलिए कुल डाउनलोड
-    नहीं मापा गया। nightly की संस्करण-नियंत्रित फ़ाइलें चेकआउट में 3416 MB लेती हैं
-    (2026-10-08 को मापी गईं), जिसमें Git इतिहास शामिल नहीं है। डाउनलोड का आकार और
+    नहीं मापा गया। nightly की संस्करण-नियंत्रित फ़ाइलें चेकआउट में 4657 MB लेती हैं
+    (2026-10-15 को मापी गईं), जिसमें Git इतिहास शामिल नहीं है। डाउनलोड का आकार और
     समय शाखा के अनुसार बदलते हैं।'
 - h2: कमांड-लाइन प्रवेश बिंदु
 - code: |-

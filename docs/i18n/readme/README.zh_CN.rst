@@ -22,7 +22,7 @@
    :target: https://pypi.org/project/spacr/
    :alt: Python 3.9 至 3.14
 
-.. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/nightly?logo=codecov&logoColor=white
+.. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/main?logo=codecov&logoColor=white
    :target: https://app.codecov.io/github/EinarOlafsson/spacr
    :alt: Codecov 测试覆盖率
 
@@ -111,23 +111,15 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/try-spacr-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/try-spacr-2.desktop.svg"><img src="../../readme_images/zh_CN/try-spacr-2.svg" alt="在 Import、Make Masks、Annotate 或实验分析界面中使用 加载测试数据… 下载示例数据。在终端中使用 spacr-download。"></picture></a></div>
-
-.. raw:: html
-
    <div><a href="../../readme_text/zh_CN/hardware-support.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/hardware-support.desktop.svg"><img src="../../readme_images/zh_CN/hardware-support.svg" alt="硬件支持."></picture></a></div>
 
 .. spacr-hardware-begin
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-hardware-1.desktop.svg"><img src="../../readme_images/zh_CN/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. 支持（稳定） 已实现（beta） 仅支持 CPU."></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-hardware-1.desktop.svg"><img src="../../readme_images/zh_CN/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU, 3D GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU, 3D CPU. 支持（稳定） 已实现（beta） 仅支持 CPU."></picture></a></div>
 
 .. spacr-hardware-end
-
-.. raw:: html
-
-   <div><a href="../../readme_text/zh_CN/hardware-support-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/hardware-support-2.desktop.svg"><img src="../../readme_images/zh_CN/hardware-support-2.svg" alt="CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM took 444.5 s on the CPU and 3.2 s on Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This is a historical example, not a speed guarantee. GPU acceleration requires a usable backend and compatible libraries. See the recorded hardware measurement."></picture></a></div>
 
 .. raw:: html
 
@@ -271,7 +263,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/zh_CN/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source-light-2.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source-light-2.svg" alt="nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 --filter=blob:none 不会缩小检出文件：其 Git 对象存储仍占用 2032 MB。Git 不报告按需延迟获取的对象，因此没有测得下载总量。nightly 的版本控制文件检出后占用 3416 MB（2026-10-08 测得），不含 Git 历史。下载大小和耗时随分支而变化。"></picture></a></div>
+   <div><a href="../../readme_text/zh_CN/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/install-from-source-light-2.desktop.svg"><img src="../../readme_images/zh_CN/install-from-source-light-2.svg" alt="nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 --filter=blob:none 不会缩小检出文件：其 Git 对象存储仍占用 2032 MB。Git 不报告按需延迟获取的对象，因此没有测得下载总量。nightly 的版本控制文件检出后占用 4657 MB（2026-10-15 测得），不含 Git 历史。下载大小和耗时随分支而变化。"></picture></a></div>
 
 .. raw:: html
 

@@ -22,7 +22,7 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
    :target: https://pypi.org/project/spacr/
    :alt: Python 3.9 through 3.14
 
-.. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/nightly?logo=codecov&logoColor=white
+.. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/main?logo=codecov&logoColor=white
    :target: https://app.codecov.io/github/EinarOlafsson/spacr
    :alt: Codecov coverage
 
@@ -111,23 +111,15 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="docs/readme_text/en/try-spacr-2.md"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/try-spacr-2.desktop.svg"><img src="docs/readme_images/en/try-spacr-2.svg" alt="Use Load test data… in Import, Make Masks, Annotate or an assay screen to download example data. From a terminal, use spacr-download."></picture></a></div>
-
-.. raw:: html
-
    <div><a href="docs/readme_text/en/hardware-support.md"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/hardware-support.desktop.svg"><img src="docs/readme_images/en/hardware-support.svg" alt="Hardware support."></picture></a></div>
 
 .. spacr-hardware-begin
 
 .. raw:: html
 
-   <div><a href="docs/readme_text/en/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/generated-hardware-1.desktop.svg"><img src="docs/readme_images/en/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. supported (stable) implemented (beta) CPU support only."></picture></a></div>
+   <div><a href="docs/readme_text/en/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/generated-hardware-1.desktop.svg"><img src="docs/readme_images/en/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU, 3D GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU, 3D CPU. supported (stable) implemented (beta) CPU support only."></picture></a></div>
 
 .. spacr-hardware-end
-
-.. raw:: html
-
-   <div><a href="docs/readme_text/en/hardware-support-2.md"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/hardware-support-2.desktop.svg"><img src="docs/readme_images/en/hardware-support-2.svg" alt="CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM took 444.5 s on the CPU and 3.2 s on Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This is a historical example, not a speed guarantee. GPU acceleration requires a usable backend and compatible libraries. See the recorded hardware measurement."></picture></a></div>
 
 .. raw:: html
 
@@ -271,7 +263,7 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. raw:: html
 
-   <div><a href="docs/readme_text/en/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/install-from-source-light-2.desktop.svg"><img src="docs/readme_images/en/install-from-source-light-2.svg" alt="The full nightly clone downloaded 9.25 GiB. Adding --filter=blob:none to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The nightly tracked tree is a 3416 MB checkout (measured 2026-10-08), excluding Git history. Download sizes and times vary with the branch."></picture></a></div>
+   <div><a href="docs/readme_text/en/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/install-from-source-light-2.desktop.svg"><img src="docs/readme_images/en/install-from-source-light-2.svg" alt="The full nightly clone downloaded 9.25 GiB. Adding --filter=blob:none to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The nightly tracked tree is a 4657 MB checkout (measured 2026-10-15), excluding Git history. Download sizes and times vary with the branch."></picture></a></div>
 
 .. raw:: html
 

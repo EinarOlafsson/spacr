@@ -35,6 +35,8 @@ Other versions: [toxoplasma_well_detector_v2](toxoplasma_well_detector_v2.md), [
 
 Stock was not evaluated in this run; see the named incumbent comparison on the model card.
 
+Scorecard state: **hold-out scorecard, not yet reviewed**.
+
 | Metric | This model |
 | --- | --- |
 | mAP50 | 0.9940 |
@@ -80,4 +82,4 @@ Evaluation set `detector_v3_validation_figure_clean`, version `20261007T205603`;
 
 Models are hosted on each author's own Hugging Face account. spaCR downloads this one from there the first time it is needed and checks it against the SHA-256 above. `spacr.model_zoo.publish_model` uploads a model and returns the catalogue row to add.
 
-[All model cards](README.md)
+[All model cards](README.md) · [All scorecards as CSV](scorecards.csv)

@@ -30,7 +30,7 @@ blocks:
        :target: https://pypi.org/project/spacr/
        :alt: Python 3.9~3.14
 
-    .. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/nightly?logo=codecov&logoColor=white
+    .. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/main?logo=codecov&logoColor=white
        :target: https://app.codecov.io/github/EinarOlafsson/spacr
        :alt: Codecov 테스트 커버리지
 
@@ -111,16 +111,19 @@ blocks:
     python -m pip install spacr
     spacr
   lang: bash
-- p: Import, Make Masks, Annotate 또는 분석 화면에서 **테스트 데이터 불러오기…**\ 를 사용하여 예제 데이터를 다운로드합니다.
-    터미널에서는 ``spacr-download``\ 를 사용합니다.
 - h2: 하드웨어 지원
 - generated: hardware
-- p: CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core
-    i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM took 444.5 s on the CPU and 3.2 s on
-    Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This is a
-    historical example, not a speed guarantee. GPU acceleration requires a usable backend and
-    compatible libraries. See the `recorded hardware measurement
-    <features/new/319_use_non_nvidia_accelerators_where_they_exist.txt>`_.
+  details:
+  - 'Auto: Make Masks의 True 3D는 사용 가능한 백엔드를 다음 순서로 시도합니다. Linux: Vulkan → OpenGL → CPU; Windows:
+    Vulkan → Direct3D 12 → OpenGL → CPU; macOS: Metal → Vulkan → OpenGL → CPU. Vulkan, Metal,
+    Direct3D 12는 wgpu를 사용합니다. GPU 백엔드를 사용할 수 없거나 실패하면 다음 백엔드를 시도하며 CPU 렌더링은 계속 사용할 수 있습니다.'
+  - Windows(x64, ARM64), macOS(Intel, Apple silicon), Linux(x86-64, ARM64, glibc 2.28 이상)에서
+    Python 3.10 이상은 wgpu를 기본으로 설치합니다. Python 3.9, 기타 프로세서, 이전 glibc를 사용하는 Linux 및 wgpu 없이
+    설치한 환경은 OpenGL을 사용한 뒤 CPU로 전환합니다. 보라색 3D 셀은 GPU 지원이 구현되었으나 실제 디스플레이에서의 검증이 남아 있음을 뜻합니다.
+  - CPU 실행을 지원하며 속도가 느릴 수 있습니다. Intel iMac(Core i5-10500, AMD Radeon Pro 5300 4 GB)에서 torch
+    2.2.2, Python 3.12.11, macOS 26.5.2를 사용한 한 측정에서 Cellpose-SAM은 256×256 이미지 한 장에 CPU에서 444.5
+    s, Metal에서 3.2 s가 걸렸습니다. 이는 과거의 예이며 속도를 보장하지 않습니다. GPU 가속에는 사용 가능한 백엔드와 호환 라이브러리가 필요합니다.
+    `기록된 하드웨어 측정 <features/new/319_use_non_nvidia_accelerators_where_they_exist.txt>`_ 을 참고하세요.
 - h2: spaCR 설치
 - p: '설치 방법을 선택하세요:'
 - list:
@@ -219,7 +222,7 @@ blocks:
   lang: bash
 - p: nightly 전체 클론은 9.25 GiB를 다운로드했습니다. 얕은 클론에 ``--filter=blob:none``\ 을 추가해도 체크아웃
     크기는 줄어들지 않습니다. Git 객체 저장소는 여전히 2032 MB입니다. Git은 필요할 때 나중에 가져오는 객체를 보고하지 않으므로
-    전체 다운로드 총량은 측정하지 않았습니다. nightly의 버전 관리 파일을 체크아웃하면 Git 이력을 제외하고 3416 MB를 차지합니다(2026-10-08
+    전체 다운로드 총량은 측정하지 않았습니다. nightly의 버전 관리 파일을 체크아웃하면 Git 이력을 제외하고 4657 MB를 차지합니다(2026-10-15
     측정). 다운로드 크기와 시간은 브랜치에 따라 달라집니다.
 - h2: 명령줄 진입점
 - code: |-
