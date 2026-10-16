@@ -4023,5 +4023,5 @@ data/ci_reviewed_folder_ellipsis_consumers_2026-10-15/.
 
 2026-10-15 — CI candidate: splitter lifecycle/sizing, high-DPI figure restoration, corrected fixtures, normal API/catalog/flow regeneration.
 BLOCKED ON MAINTAINER: Claude Home must register item 370 with the alpha gate and repair the bad inline literal in crashreport._normalized_problems (item 700).
-Work must restore expected-field waiting in record_yolo_boxes for Lesson 14. These claimed sources were not edited here.
-After those owner fixes, run the full nightly tests workflow green before releasing 1.5.1.5.
+2026-10-15 — Adopted Work Lesson14 expected-field waiting and approved seek fix; corrected completed-media bindings and organizer test readiness without changing its 5s deadline. Related tests pass.
+Remaining: Claude-owned 370/700 fixes and a green full nightly workflow before releasing 1.5.1.5.
