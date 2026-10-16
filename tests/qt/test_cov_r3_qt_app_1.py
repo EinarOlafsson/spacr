@@ -32,7 +32,6 @@ from spacr.qt import app as app_mod
 from spacr.qt import app_catalog, iconset
 from spacr.qt import screensaver as screensaver_mod
 from spacr.qt.app import MainWindow
-from spacr.qt.screens import app_screen as app_screen_mod
 from spacr.qt.widgets import fractal_travel
 
 #: A declared module whose row is metadata only, used as the stand-in for
@@ -377,10 +376,11 @@ def test_home_is_rebuilt_even_when_the_outgoing_page_will_not_close(
 
 # --- shutdown ---------------------------------------------------------------
 
-class _StubScreen:
-    """An owned app screen, in whatever state the test needs it."""
+class _StubScreen(QWidget):
+    """A cached widget with a controllable close result."""
 
-    def __init__(self, name, outcome=True):
+    def __init__(self, name, outcome=True, parent=None):
+        super().__init__(parent)
         self.name = name
         self.outcome = outcome
         self.closed = []
@@ -401,9 +401,12 @@ def test_a_screen_deleted_under_us_does_not_stop_the_shutdown(
     object: the screens behind it must still be asked, and the window must
     still close.
     """
-    gone = _StubScreen("gone", RuntimeError("already deleted"))
-    live = _StubScreen("live")
-    monkeypatch.setattr(app_screen_mod, "AppScreen", _StubScreen)
+    from shiboken6 import delete, isValid
+
+    gone = QWidget(win)
+    live = _StubScreen("live", parent=win)
+    delete(gone)
+    assert not isValid(gone), "the cached wrapper outlives its native widget"
     monkeypatch.setattr(win, "_screens", {"a": gone, "b": live})
 
     class _NoApplication:
@@ -427,9 +430,8 @@ def test_a_screen_that_raises_while_closing_keeps_the_window_open(
     drain did not finish, and closing anyway tears down a running analysis
     mid-write. The close is refused and the reason logged.
     """
-    angry = _StubScreen("angry", ValueError("mid-write"))
-    later = _StubScreen("later")
-    monkeypatch.setattr(app_screen_mod, "AppScreen", _StubScreen)
+    angry = _StubScreen("angry", ValueError("mid-write"), parent=win)
+    later = _StubScreen("later", parent=win)
     monkeypatch.setattr(win, "_screens", {"a": angry, "b": later})
 
     event = QCloseEvent()

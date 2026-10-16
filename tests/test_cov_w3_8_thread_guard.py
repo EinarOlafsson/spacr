@@ -124,6 +124,31 @@ def test_a_timer_whose_object_lives_elsewhere_is_reported(guard, qapp, caplog):
     timer.stop()
 
 
+def test_a_real_worker_timer_is_reported_without_retiring_its_thread(guard, qapp):
+    from PySide6.QtCore import QThread, QTimer, Qt
+    from shiboken6 import Shiboken
+
+    module, wrappers = guard
+    worker = QThread()
+    timer = QTimer()
+    timer.moveToThread(worker)
+    deleted = threading.Event()
+    timer.destroyed.connect(lambda: deleted.set(), Qt.DirectConnection)
+    worker.start()
+    try:
+        wrappers['timer_start'](timer, 10000)
+        assert len(module.offences()) == 1
+        assert not timer.isActive()
+        timer.deleteLater()
+        assert deleted.wait(5), 'the worker did not delete its timer'
+        assert not Shiboken.isValid(timer)
+        assert Shiboken.isValid(worker)
+        assert worker.isRunning()
+    finally:
+        worker.quit()
+        assert worker.wait(5000), 'the owned worker did not drain'
+
+
 def module_last_message(caplog):
     """The formatted text of the most recent captured record."""
     return caplog.records[-1].getMessage()

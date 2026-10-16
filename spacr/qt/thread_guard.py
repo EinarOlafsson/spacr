@@ -52,7 +52,7 @@ def install() -> bool:
     if _INSTALLED:
         return False
     try:
-        from PySide6.QtCore import QObject, QThread, QTimer
+        from PySide6.QtCore import QCoreApplication, QObject, QThread, QTimer
     except Exception:                                            # noqa: BLE001
         return False
 
@@ -89,11 +89,22 @@ def install() -> bool:
         There is deliberately no "is the caller the GUI thread" fallback. It
         added nothing the affinity test does not already cover, and it was the
         half that misfired.
+
+        PySide6 can attach the returned QThread wrapper to the queried object.
+        Restore the application's adopted thread to its application after the
+        read, so collecting a temporary timer cannot delete the GUI thread.
         """
         try:
             owner = obj.thread()
         except Exception:                                        # noqa: BLE001
             return ""
+        finally:
+            try:
+                application = QCoreApplication.instance()
+                if application is not None:
+                    application.thread()
+            except Exception:
+                pass
         if owner is None:
             return ""
         current = QThread.currentThread()
