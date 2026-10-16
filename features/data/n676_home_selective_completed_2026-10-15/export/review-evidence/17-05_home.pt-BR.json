@@ -1,0 +1,164 @@
+{
+  "lesson": "05_home",
+  "english_sha256": "f8908880aff368137b2883715d0e2ea4caf7f694a18426d3da1b567451455b38",
+  "review": {
+    "kind": "AI technical translation with independent technical peer; no native-speaker or listening signoff",
+    "translator": "Codex (AI)",
+    "date": "2026-10-15",
+    "independent_peer_review": true,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Only Home overview description, first objective and scene1 narration updated. Visible English UI labels retained. Other30narrations and all other translated fields unchanged.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) edited the row list in scene 1 and objective 1 to match the current English source",
+      "reviewer": "claude-opus-5.5",
+      "date": "2026-10-12",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false,
+      "scope": "Alpha-off Home (standing policy 2026-10-04: every lesson records with alpha off): the seven Home module scenes hidden with Feature maturity Show alpha off (Classify, Embeddings, Experiment Design, Dose-Response, QC, Gate Editor, Toxoplasma) are removed, and scene 1 and objective 1 name only the Core, Data and Tools rows. Every other scene and the metadata are retained verbatim. UI labels stay in English as shown in the recording.",
+      "revised_scenes": [
+        1
+      ],
+      "removed_english_scenes": [
+        5,
+        9,
+        11,
+        13,
+        14,
+        18,
+        20
+      ],
+      "previous_english_sha256": "a168511c74295aa129bbf56b9d2dba08075be182498cf3633a0b392c6515e5c3",
+      "previous_review_sha256": "ca0eea153d055e90c3014fdc9e42287672b47532c5c6606a45a76ffd49c2feaa",
+      "previous_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) translated and technically reviewed the revised Animation scene from the current English source",
+        "reviewer": "claude-opus-5.5",
+        "date": "2026-10-10",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false,
+        "scope": "Scene 33 revised: Field ripples is now a strength slider (zero turns ripples and automatic popup waves off) with a separate Click ripples switch (N684 controls, spacr/qt/preferences.py). Other scenes and metadata retained verbatim. UI labels stay in English as shown in the recording.",
+        "revised_scenes": [
+          33
+        ],
+        "previous_english_sha256": "89546d10a2a3a01f87c2541a2426da2250a870c22f40312fd15ec8df775c8852",
+        "previous_review_sha256": "58fb11251e9ca78252a6e4a534b543d12016e03550329b7a38aaab2d92506a98",
+        "previous_review": {
+          "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) translated and technically reviewed the revised scenes from the current English source",
+          "reviewer": "claude-opus-5.5",
+          "date": "2026-10-10",
+          "independent_peer_review": false,
+          "native_speaker_signoff": false,
+          "listening_review": false,
+          "scope": "Scenes 5 and 14 (Classify, QC) revised for N678 factual wording; the other 37 scene narrations, title, description, objectives and prerequisite retained verbatim. UI labels stay in English as shown in the recording.",
+          "revised_scenes": [
+            5,
+            14
+          ],
+          "previous_english_sha256": "67da3c4d65eee7091e7d8ba764f507e7ef0378961461df0a968764391afcdb99",
+          "previous_review_sha256": "6291cb6a2ede21cedb24db453b953a9abe7b35bc568b7a7eda75c8e798e3e18c",
+          "previous_review": {
+            "kind": "Technical source-bound editorial review; no native-speaker signoff",
+            "date": "2026-10-08",
+            "translator": "Current English module traversal and shared controls translated; unchanged utility and Preferences paragraphs retained.",
+            "independent_peer_review": false,
+            "native_speaker_signoff": false,
+            "listening_review": false,
+            "scope": "Every current module in left-to-right Home order, generic Mask controls and actual Spaceout effects;14 unchanged utility/Preferences narrations, title and prerequisite retained. UI labels follow actual English-language footage.",
+            "previous_english_sha256": "48f8dd9132a7484c878fb1d003b5e5c9db5c640b726c04c9be56e4b1041bf4ca",
+            "previous_review_sha256": "30cffe2aa4cfc7d76a3cb421edd5b81e2a299141a1596420ad1dfd3f8a100548",
+            "previous_review": {
+              "kind": "Technical source-bound editorial review; no native-speaker signoff",
+              "date": "2026-10-08",
+              "translator": "Current English controls and previous reviewed translation retained; one animation scene revised.",
+              "independent_peer_review": false,
+              "native_speaker_signoff": false,
+              "listening_review": false,
+              "scope": "Only scene18 narration revised for independent settings-window controls and Field ripples;23 scene narrations and all lesson metadata preserved.",
+              "previous_review": {
+                "kind": "AI technical review (Codex), no native-speaker signoff",
+                "translator": "Prior reviewed scene translations retained; Codex translated and technically reviewed the four current Preferences/Apply scenes.",
+                "date": "2026-10-08",
+                "independent_peer_review": false,
+                "native_speaker_signoff": false,
+                "listening_review": false,
+                "scope": "Exactly two revised narrations and two new Apply/Keep scenes; 20 prior narrations and metadata preserved. UI control names follow the actual English-language capture.",
+                "previous_review": {
+                  "kind": "AI technical review (Codex), no native-speaker signoff",
+                  "translator": "Prior reviewed text retained; Codex translated and reviewed the current module order and Source-control correction",
+                  "date": "2026-10-05",
+                  "independent_peer_review": false,
+                  "native_speaker_signoff": false,
+                  "listening_review": false,
+                  "scope": "Core, Data and Tools rows follow the visible left-to-right module order; all other scene translations retained.",
+                  "previous_review": {
+                    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+                    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+                    "date": "2026-09-30",
+                    "independent_peer_review": false,
+                    "native_speaker_signoff": false,
+                    "listening_review": false
+                  },
+                  "previous_english_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac"
+                },
+                "previous_english_sha256": "df01cfbd41c345bfed5ea9e8afa738a1d5dd9ffc534f6157b02218ccb45e3ee2",
+                "previous_review_sha256": "b950f76be6bb05fcdd142bcd25a2cc1f0829b45482309043a50b63db4c653656"
+              }
+            }
+          }
+        }
+      }
+    },
+    "previous_review_file_sha256": "2dacfcc1ac449b771348d3492952569ffd975b7d56f788a4c9180088da541bb0",
+    "previous_english_sha256": "033952771e99ec53519c0c3f4ecb6e3c31b2563e1d1ec865a4d1eba3ef544bf3",
+    "reviewer": "Codex contracts_701 (independent AI technical review)",
+    "independent_peer_receipt_sha256": "a569aaa2cb8b3dcf44e626b4ce0ad9a08215b2940424a3b0c11df31ed707d49a"
+  },
+  "language": "pt-BR",
+  "title": "Tela Home e navegação",
+  "description": "Explore a visão geral de Home e as abas de categorias; depois, aprenda os controles comuns dos módulos usando Mask e ajuste a navegação, a ajuda e a aparência.",
+  "objectives": [
+    "Encontre módulos pelas abas Home, Core, Data, Tools e Organism.",
+    "Usar Mask para reconhecer configurações, prévias, ações e resultados comuns.",
+    "Voltar a Home, usar a pesquisa e organizar os painéis.",
+    "Escolher as configurações de aparência e desempenho."
+  ],
+  "prerequisite": "Instale o spaCR e abra o aplicativo de desktop.",
+  "scenes": [
+    "Home é o ponto de partida. A visão geral agrupa os módulos em Core, Data, Tools e Organism. As abas de categorias restringem a visualização. Cada bloco abre o módulo com o nome indicado. A barra lateral oferece os mesmos caminhos e Home retorna à visão geral.",
+    "Mask gera máscaras de objetos a partir de imagens de microscopia. Vamos abri-lo brevemente para conhecer os controles comuns aos módulos de análise.",
+    "Measure combina imagens e máscaras para extrair medidas e recortes de objetos. Suas tabelas conectam as imagens às análises seguintes.",
+    "Annotate permite inspecionar recortes de objetos e registrar rótulos revisados para exemplos.",
+    "Map Barcodes lê dados de sequenciamento para contar e identificar guias ou códigos de barras.",
+    "Regression relaciona escores de fenótipo às contagens de guias, mantendo o agrupamento experimental.",
+    "Import prepara os arquivos de microscopia e metadados recebidos para a estrutura do projeto.",
+    "Run Compare reúne resultados salvos de execuções para examinar suas diferenças.",
+    "Power / Design explora hipóteses de tamanho amostral e poder estatístico ao planejar comparações.",
+    "Make Masks permite desenhar e revisar máscaras manualmente ou preparar pares de imagem e máscara.",
+    "Align & Stitch une blocos de imagens compatíveis e registra sua geometria.",
+    "Image UMAP projeta características de objetos para explorar objetos semelhantes e inspecionar recortes representativos.",
+    "Graph Builder cria gráficos a partir de tabelas de medidas com colunas e agrupamentos configuráveis.",
+    "Abra Mask como exemplo genérico de um módulo de análise. Aqui aprendemos a disposição da tela, sem completar uma segmentação. As configurações ficam à esquerda, o console e o progresso à direita, e as ações embaixo. Live abre a prévia quando há dados de entrada.",
+    "As configurações são agrupadas em seções. Expanda uma seção para ver seus controles. Escolha sua pasta de entrada ou use Load test data quando houver um exemplo. Os rótulos e a ajuda explicam o que cada configuração espera.",
+    "Import settings traz uma configuração salva para o formulário. Run inicia o trabalho escolhido e Stop solicita a parada de um trabalho em andamento. O console informa progresso e mensagens. Consulte o tutorial do módulo antes de iniciar uma análise.",
+    "Arraste o divisor para dar mais espaço às configurações ou à prévia. Control e a roda do mouse mudam o tamanho do texto de uma coluna. Esses controles ajudam na leitura sem alterar a análise.",
+    "De volta à Home, a coluna da direita acompanha o seu trabalho. Recent runs lista o que você executou, Totals conta execuções, máscaras e medições, e System mostra a carga do computador. Uma execução em andamento ou na fila também aparece aqui. O controle deslizante Text size, abaixo do último painel, aumenta ou diminui o texto desta coluna.",
+    "A alça com seta na borda esquerda da coluna funciona como as alças dos módulos. Arraste-a para alargar ou estreitar a coluna, ou clique nela para recolher a coluna e dar aos blocos toda a largura. Clique de novo na seta para trazer a coluna de volta.",
+    "Digite o nome de um módulo, de uma configuração ou de uma função no campo de busca ao lado de Help. Aqui, a busca por Performance encontra a página correspondente de Preferences. Clique em um resultado para abrir o destino. Os resultados de API abrem a documentação da função selecionada.",
+    "Pressione Control-K em qualquer lugar para abrir a paleta de comandos. Comece a digitar um nome, como Measure, e a lista diminui enquanto você digita. Pressione Enter para ir ao módulo, à execução recente ou à ação de menu destacada sem usar o mouse.",
+    "Em Preferences, escolha um perfil de Performance para o seu computador. Laptop usa menos recursos; os perfis mais altos permitem mais cache e mais trabalho em segundo plano. Comece com um perfil modesto se a memória for limitada. As configurações das suas análises continuam sob o seu controle em cada módulo.",
+    "A aba General de Preferences define o idioma da interface, a escala da fonte e da interface, se o dock de aplicativos fica aberto e uma paleta adequada para daltônicos nos gráficos. A aba Figures escolhe o formato e a resolução das figuras salvas, e Appearance controla quando as dicas aparecem.",
+    "Appearance define como a ajuda aparece enquanto você trabalha. Tooltip delay determina por quanto tempo o ponteiro fica parado antes de aparecer uma dica flutuante: dois segundos por padrão, ou zero para exibição imediata. Show tooltips controla essas dicas flutuantes. As áreas de ajuda dedicadas em Home e Preferences mostram o texto imediatamente. Abaixo, você pode expandir Theme e Animation para definir a aparência da janela.",
+    "Theme e Animation são seções recolhidas de Appearance. Clique em Theme para abri-la: ela define o tema da interface e a opacidade da página, se os campos esmaecem para a direita e a borda da janela, com seu comprimento, o quanto ela segue o ponteiro, seu alinhamento, modo e ciclo. A lista Theme também oferece High contrast, que reforça o contraste entre texto, controles e fundo.",
+    "Clique em Animation para escolher o fundo principal e sua paleta. Animation colours define as cores principal e de destaque de Custom colours; Animation background escolhe um fundo independente, e Theme colour restaura o tema da página. Detail controla a resolução da renderização. Speed, Size e Density alteram o movimento e a quantidade de elementos. Mouse gravity radius define o raio de influência do mouse; zero o desativa. Dot blinking controla os flashes brancos. Field ripples define a intensidade das ondas causadas por cliques, pela abertura ou pelo fechamento de contêineres, pelas janelas abertas e pelo encaixe da janela na borda da tela, independentemente da atração do mouse; zero desativa as ondas, inclusive as ondas automáticas das janelas abertas. Click ripples decide se um clique no fundo envia uma onda. Popup wave frequency define quantas ondas por minuto se espalham de uma janela aberta em spaCR field. Settings animation speed, Settings animation size, Settings animation detail e Settings animation density alteram apenas Settings backdrop. Settings backdrop darkness controla a legibilidade do formulário.",
+    "Clique em Apply para testar as alterações enquanto Preferences permanece aberto. Uma pergunta separada oferece Keep ou Revert para as configurações aplicadas. Revert restaura as configurações anteriores; os controles editados continuam disponíveis para ajustá-los ou aplicá-los novamente.",
+    "Keep aceita as configurações aplicadas e mantém Preferences aberto. Continue ajustando outra aba, ou clique em Save quando quiser manter os valores atuais e fechar a janela.",
+    "Na aba Modules, Session decide se o spaCR reabre o último módulo, as configurações e a pasta ao iniciar; esta gravação começa do zero. Update channel escolhe versões estáveis ou compilações noturnas, e Proxy e Certificate bundle permitem downloads atrás de um proxy institucional.",
+    "A aba Storage define por quanto tempo o spaCR mantém seus logs diários, logs de execução e pastas de execução, e um limite de tamanho para cada um. Abaixo, a lista de caches mostra onde ficam os modelos e downloads, com Clear e Move para cada cache.",
+    "Prune now nunca apaga sem perguntar. Com um limite de exemplo curto para as pastas de execução, ele lista o que apagaria em cada pasta e espera uma resposta. Clique em Cancel e nada é removido."
+  ]
+}

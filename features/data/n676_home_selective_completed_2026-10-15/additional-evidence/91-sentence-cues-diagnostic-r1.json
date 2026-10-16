@@ -1,0 +1,5422 @@
+{
+  "schema": 1,
+  "status": "owning_sentence_checks_failed",
+  "source_commit": "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9",
+  "source_sha256": {
+    "tools/tutorials/authoring/web/app_v2.js": "39591f1dd856cad05324fc32d871a6cc558078792c03dad4a473d7af9778bf25",
+    "tools/tutorials/verify_release_candidate.py": "df4a635f1afa065c1471a42bbb5d9fb03c9e7eaf1e961f46eaa62c16b478ff53",
+    "tools/tutorials/verify_staged_lesson.py": "0bcfc0298eaca16130cc59846f9133f5a5e317d1c19b3138cba17e54322c2a04"
+  },
+  "requests": [
+    {
+      "sentence_index": 1,
+      "requested_audio_time": 0.855,
+      "sentence": {
+        "sentence": 1,
+        "speech_start": 0,
+        "speech_end": 1.71,
+        "audible_start": 0.1,
+        "audible_end": 1.53,
+        "duration": 1.71,
+        "gap_from_previous": null,
+        "trimmed_lead": 0.2,
+        "trimmed_tail": 0.215,
+        "text": "Home is the starting point.",
+        "speech_text": "Home is the starting point.",
+        "phonemes": "h\u02c8Om \u026az \u00f0\u0259 st\u02c8\u0251\u0279T\u026a\u014b p\u02c8Ynt."
+      }
+    },
+    {
+      "sentence_index": 2,
+      "requested_audio_time": 4.005,
+      "sentence": {
+        "sentence": 2,
+        "speech_start": 1.83,
+        "speech_end": 6.18,
+        "audible_start": 1.93,
+        "audible_end": 6,
+        "duration": 4.35,
+        "gap_from_previous": 0.4,
+        "trimmed_lead": 0.21,
+        "trimmed_tail": 0.265,
+        "text": "Its overview groups modules under Core, Data, Tools and Organism.",
+        "speech_text": "Its overview groups modules under Core, Data, Tools and Organism.",
+        "phonemes": "\u02cc\u026ats \u02c8Ov\u0259\u0279vj\u02ccu \u0261\u0279\u02c8ups m\u02c8\u0251\u02a4ulz \u02c8\u028cnd\u0259\u0279 k\u02c8\u0254\u0279, d\u02c8AT\u0259, t\u02c8ulz \u00e6nd \u02c8\u0254\u0279\u0261\u0259n\u02cc\u026az\u0259m."
+      }
+    },
+    {
+      "sentence_index": 3,
+      "requested_audio_time": 7.3475,
+      "sentence": {
+        "sentence": 3,
+        "speech_start": 6.3,
+        "speech_end": 8.395,
+        "audible_start": 6.4,
+        "audible_end": 8.215,
+        "duration": 2.095,
+        "gap_from_previous": 0.4,
+        "trimmed_lead": 0.19,
+        "trimmed_tail": 0.265,
+        "text": "The category tabs narrow the view.",
+        "speech_text": "The category tabs narrow the view.",
+        "phonemes": "\u00f0\u0259 k\u02c8\u00e6T\u0259\u0261\u02cc\u0254\u0279i t\u02c8\u00e6bz n\u02c8\u025b\u0279O \u00f0\u0259 vj\u02c8u."
+      }
+    },
+    {
+      "sentence_index": 4,
+      "requested_audio_time": 9.6425,
+      "sentence": {
+        "sentence": 4,
+        "speech_start": 8.515,
+        "speech_end": 10.77,
+        "audible_start": 8.615,
+        "audible_end": 10.59,
+        "duration": 2.255,
+        "gap_from_previous": 0.4,
+        "trimmed_lead": 0.21,
+        "trimmed_tail": 0.285,
+        "text": "Every tile opens its named module.",
+        "speech_text": "Every tile opens its named module.",
+        "phonemes": "\u02c8\u025bv\u0259\u0279i t\u02c8Il \u02c8Op\u1d4anz \u026ats n\u02c8Amd m\u02c8\u0251\u02a4ul."
+      }
+    },
+    {
+      "sentence_index": 5,
+      "requested_audio_time": 12.947500000000002,
+      "sentence": {
+        "sentence": 5,
+        "speech_start": 10.89,
+        "speech_end": 15.005,
+        "audible_start": 10.99,
+        "audible_end": 14.825,
+        "duration": 4.115,
+        "gap_from_previous": 0.4,
+        "trimmed_lead": 0.195,
+        "trimmed_tail": 0.29,
+        "text": "The sidebar provides the same routes, and Home returns to the overview.",
+        "speech_text": "The sidebar provides the same routes, and Home returns to the overview.",
+        "phonemes": "\u00f0\u0259 s\u02c8Idb\u02cc\u0251\u0279 p\u0279\u0259v\u02c8Idz \u00f0\u0259 s\u02c8Am \u0279\u02c8uts, \u00e6nd h\u02c8Om \u0279\u0259t\u02c8\u025c\u0279nz t\u0259 \u00f0i \u02c8Ov\u0259\u0279vj\u02ccu."
+      }
+    },
+    {
+      "sentence_index": 6,
+      "requested_audio_time": 17.385,
+      "sentence": {
+        "sentence": 1,
+        "speech_start": 15.525,
+        "speech_end": 19.245,
+        "audible_start": 15.625,
+        "audible_end": 19.065,
+        "duration": 3.72,
+        "gap_from_previous": null,
+        "trimmed_lead": 0.215,
+        "trimmed_tail": 0.265,
+        "text": "Mask generates object masks from microscopy images.",
+        "speech_text": "Mask generates object masks from microscopy images.",
+        "phonemes": "m\u02c8\u00e6sk \u02a4\u02c8\u025bn\u0259\u0279\u02ccAts \u02c8\u0251b\u02a4\u0259kt m\u02c8\u00e6sks f\u0279\u028cm mIk\u0279\u02c8\u0251sk\u0259pi \u02c8\u026am\u026a\u02a4\u1d7bz."
+      }
+    },
+    {
+      "sentence_index": 7,
+      "requested_audio_time": 21.837500000000002,
+      "sentence": {
+        "sentence": 2,
+        "speech_start": 19.365000000000002,
+        "speech_end": 24.310000000000002,
+        "audible_start": 19.465,
+        "audible_end": 24.130000000000003,
+        "duration": 4.945,
+        "gap_from_previous": 0.4,
+        "trimmed_lead": 0.21,
+        "trimmed_tail": 0.27,
+        "text": "We will open it briefly later to learn the controls shared by analysis modules.",
+        "speech_text": "We will open it briefly later to learn the controls shared by analysis modules.",
+        "phonemes": "w\u02cci w\u026al \u02c8Op\u1d4an \u026at b\u0279\u02c8ifli l\u02c8AT\u0259\u0279 t\u0259 l\u02c8\u025c\u0279n \u00f0\u0259 k\u0259nt\u0279\u02c8Olz \u0283\u02c8\u025b\u0279d bI \u0259n\u02c8\u00e6l\u0259s\u026as m\u02c8\u0251\u02a4ulz."
+      }
+    },
+    {
+      "sentence_index": 8,
+      "requested_audio_time": 27.255000000000003,
+      "sentence": {
+        "sentence": 1,
+        "speech_start": 24.830000000000002,
+        "speech_end": 29.68,
+        "audible_start": 24.930000000000003,
+        "audible_end": 29.5,
+        "duration": 4.85,
+        "gap_from_previous": null,
+        "trimmed_lead": 0.21,
+        "trimmed_tail": 0.24,
+        "text": "Measure combines images and masks to extract object measurements and crops.",
+        "speech_text": "Measure combines images and masks to extract object measurements and crops.",
+        "phonemes": "m\u02c8\u025b\u0292\u0259\u0279 k\u0259mb\u02c8Inz \u02c8\u026am\u026a\u02a4\u1d7bz \u00e6nd m\u02c8\u00e6sks t\u028a \u026akst\u0279\u02c8\u00e6kt \u02c8\u0251b\u02a4\u0259kt m\u02c8\u025b\u0292\u0259\u0279m\u1d4ants \u00e6nd k\u0279\u02c8\u0251ps."
+      }
+    },
+    {
+      "sentence_index": 9,
+      "requested_audio_time": 31.67,
+      "sentence": {
+        "sentence": 2,
+        "speech_start": 29.8,
+        "speech_end": 33.540000000000006,
+        "audible_start": 29.900000000000002,
+        "audible_end": 33.36,
+        "duration": 3.74,
+        "gap_from_previous": 0.4,
+        "trimmed_lead": 0.215,
+        "trimmed_tail": 0.27,
+        "text": "Its measurement tables connect images to later analyses.",
+        "speech_text": "Its measurement tables connect images to later analyses.",
+        "phonemes": "\u02cc\u026ats m\u02c8\u025b\u0292\u0259\u0279m\u1d4ant t\u02c8Ab\u1d4alz k\u0259n\u02c8\u025bkt \u02c8\u026am\u026a\u02a4\u1d7bz t\u0259 l\u02c8AT\u0259\u0279 \u0259n\u02c8\u00e6l\u0259s\u02cciz."
+      }
+    },
+    {
+      "sentence_index": 10,
+      "requested_audio_time": 36.56000000000001,
+      "sentence": {
+        "sentence": 1,
+        "speech_start": 34.06000000000001,
+        "speech_end": 39.06000000000001,
+        "audible_start": 34.16000000000001,
+        "audible_end": 38.88000000000001,
+        "duration": 5,
+        "gap_from_previous": null,
+        "trimmed_lead": 0.225,
+        "trimmed_tail": 0.275,
+        "text": "Annotate lets you inspect object crops and record reviewed labels for examples.",
+        "speech_text": "Annotate lets you inspect object crops and record reviewed labels for examples.",
+        "phonemes": "\u02c8\u00e6n\u0259t\u02ccAt l\u02c8\u025bts ju \u026ansp\u02c8\u025bkt \u02c8\u0251b\u02a4\u0259kt k\u0279\u02c8\u0251ps \u00e6nd \u0279\u02c8\u025bk\u0259\u0279d \u0279\u0259vj\u02c8ud l\u02c8Ab\u0259lz f\u0254\u0279 \u026a\u0261z\u02c8\u00e6mp\u0259lz."
+      }
+    },
+    {
+      "sentence_index": 11,
+      "requested_audio_time": 42.172500000000014,
+      "sentence": {
+        "sentence": 1,
+        "speech_start": 39.58000000000001,
+        "speech_end": 44.765000000000015,
+        "audible_start": 39.680000000000014,
+        "audible_end": 44.585000000000015,
+        "duration": 5.185,
+        "gap_from_previous": null,
+        "trimmed_lead": 0.215,
+        "trimmed_tail": 0.25,
+        "text": "Map Barcodes reads sequencing data to count and identify guides or barcodes.",
+        "speech_text": "Map Barcodes reads sequencing data to count and identify guides or barcodes.",
+        "phonemes": "m\u02c8\u00e6p b\u02c8\u0251\u0279k\u02ccOdz \u0279\u02c8idz s\u02c8ikw\u0259ns\u026a\u014b d\u02c8AT\u0259 t\u0259 k\u02c8Wnt \u00e6nd Id\u02c8\u025bnt\u0259f\u02ccI \u0261\u02c8Idz \u0254\u0279 b\u02c8\u0251\u0279k\u02ccOdz."
+      }
+    },
+    {
+      "sentence_index": 12,
+      "requested_audio_time": 48.27250000000002,
+      "sentence": {
+        "sentence": 1,
+        "speech_start": 45.28500000000002,
+        "speech_end": 51.26000000000002,
+        "audible_start": 45.38500000000002,
+        "audible_end": 51.08000000000002,
+        "duration": 5.975,
+        "gap_from_previous": null,
+        "trimmed_lead": 0.215,
+        "trimmed_tail": 0.31,
+        "text": "Regression relates phenotype scores to sequencing guide counts, preserving the experimental grouping.",
+        "speech_text": "Regression relates phenotype scores to sequencing guide counts, preserving the experimental grouping.",
+        "phonemes": "\u0279\u0259\u0261\u0279\u02c8\u025b\u0283\u0259n \u0279\u0259l\u02c8Ats f\u02c8in\u0259t\u02ccIp sk\u02c8\u0254\u0279z t\u0259 s\u02c8ikw\u0259ns\u026a\u014b \u0261\u02c8Id k\u02c8Wnts, p\u0279\u026az\u02c8\u025c\u0279v\u026a\u014b \u00f0i \u026aksp\u02cc\u025b\u0279\u0259m\u02c8\u025bnt\u1d4al \u0261\u0279\u02c8up\u026a\u014b."
+      }
+    }
+  ],
+  "limits": "Official check/tolerances unchanged; delegated native setters and bounded observer logging add diagnostic overhead. No hearing or publication acceptance.",
+  "exception_type": "TimeoutError",
+  "last_requested": {
+    "sentence_index": 12,
+    "requested_audio_time": 48.27250000000002,
+    "sentence": {
+      "sentence": 1,
+      "speech_start": 45.28500000000002,
+      "speech_end": 51.26000000000002,
+      "audible_start": 45.38500000000002,
+      "audible_end": 51.08000000000002,
+      "duration": 5.975,
+      "gap_from_previous": null,
+      "trimmed_lead": 0.215,
+      "trimmed_tail": 0.31,
+      "text": "Regression relates phenotype scores to sequencing guide counts, preserving the experimental grouping.",
+      "speech_text": "Regression relates phenotype scores to sequencing guide counts, preserving the experimental grouping.",
+      "phonemes": "\u0279\u0259\u0261\u0279\u02c8\u025b\u0283\u0259n \u0279\u0259l\u02c8Ats f\u02c8in\u0259t\u02ccIp sk\u02c8\u0254\u0279z t\u0259 s\u02c8ikw\u0259ns\u026a\u014b \u0261\u02c8Id k\u02c8Wnts, p\u0279\u026az\u02c8\u025c\u0279v\u026a\u014b \u00f0i \u026aksp\u02cc\u025b\u0279\u0259m\u02c8\u025bnt\u1d4al \u0261\u0279\u02c8up\u026a\u014b."
+    }
+  },
+  "actual_failure_state": {
+    "audio": {
+      "time": 48.2725,
+      "seeking": true,
+      "ready": 1,
+      "paused": true,
+      "ended": false,
+      "error": null
+    },
+    "video": {
+      "time": 93.5875,
+      "seeking": false,
+      "ready": 4,
+      "paused": true,
+      "ended": false,
+      "error": null
+    },
+    "pending": false,
+    "nativeIndex": 5,
+    "waiting": false,
+    "loadPending": false,
+    "heldForAudio": false,
+    "complete": true,
+    "preserve": false
+  },
+  "trace": [
+    {
+      "at": 1724.7000000476837,
+      "kind": "installed",
+      "state": {
+        "audio": {
+          "time": 46.29268,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 91.633683,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": 5,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1732.7999999523163,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 0.855,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1869:32)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 46.29268,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 91.633683,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1732.9000000953674,
+      "kind": "currentTime.write",
+      "element": "video",
+      "requested": 0.8550000000000001,
+      "stack": [
+        "    at HTMLVideoElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at setVideoTimeFromNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1573:30)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1872:3)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 0.855,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 91.633683,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1736.1000001430511,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 0,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at HTMLAudioElement.updateNarrationHold (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1533:5)"
+      ],
+      "state": {
+        "audio": {
+          "time": 0.855,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 0.855,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1736.2000000476837,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 0,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 0.855,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1736.2999999523163,
+      "kind": "event",
+      "element": "video",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 0,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 0.855,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1736.4000000953674,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 0.8549999999999998,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at seekNarrationToVideo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1410:5)",
+        "    at HTMLVideoElement.<anonymous> (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:2154:3)"
+      ],
+      "state": {
+        "audio": {
+          "time": 0,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 0.855,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1736.4000000953674,
+      "kind": "event",
+      "element": "video",
+      "type": "play",
+      "state": {
+        "audio": {
+          "time": 0.854999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 0.855,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1736.4000000953674,
+      "kind": "event",
+      "element": "video",
+      "type": "waiting",
+      "state": {
+        "audio": {
+          "time": 0.854999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 0.855,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1736.5,
+      "kind": "event",
+      "element": "video",
+      "type": "pause",
+      "state": {
+        "audio": {
+          "time": 0.854999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 0.855,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1736.6000001430511,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 0.854999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 0.855,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1736.6000001430511,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 0.854999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 0.855,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1743.1000001430511,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeked",
+      "state": {
+        "audio": {
+          "time": 0.854999,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 0.855,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1830,
+      "kind": "event",
+      "element": "video",
+      "type": "seeked",
+      "state": {
+        "audio": {
+          "time": 0.854999,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 0.855,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1991.2999999523163,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 4.005,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1869:32)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 0.854999,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 0.855,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1991.4000000953674,
+      "kind": "currentTime.write",
+      "element": "video",
+      "requested": 4.005,
+      "stack": [
+        "    at HTMLVideoElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at setVideoTimeFromNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1573:30)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1872:3)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 4.005,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 0.855,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1991.6000001430511,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 0,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at HTMLAudioElement.updateNarrationHold (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1533:5)"
+      ],
+      "state": {
+        "audio": {
+          "time": 4.005,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 4.005,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1991.7000000476837,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 0,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 4.005,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1991.7000000476837,
+      "kind": "event",
+      "element": "video",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 0,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 4.005,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1991.7999999523163,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 4.004999999999999,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at seekNarrationToVideo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1410:5)",
+        "    at HTMLVideoElement.<anonymous> (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:2154:3)"
+      ],
+      "state": {
+        "audio": {
+          "time": 0,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 4.005,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1991.9000000953674,
+      "kind": "event",
+      "element": "video",
+      "type": "play",
+      "state": {
+        "audio": {
+          "time": 4.004999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 4.005,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1991.9000000953674,
+      "kind": "event",
+      "element": "video",
+      "type": "waiting",
+      "state": {
+        "audio": {
+          "time": 4.004999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 4.005,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1992,
+      "kind": "event",
+      "element": "video",
+      "type": "pause",
+      "state": {
+        "audio": {
+          "time": 4.004999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 4.005,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1992.1000001430511,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 4.004999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 4.005,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 1992.1000001430511,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 4.004999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 4.005,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2031.7000000476837,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeked",
+      "state": {
+        "audio": {
+          "time": 4.004998,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 4.005,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2213.2000000476837,
+      "kind": "event",
+      "element": "video",
+      "type": "seeked",
+      "state": {
+        "audio": {
+          "time": 4.004998,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 4.005,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2373.7000000476837,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 7.3475,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1869:32)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 4.004998,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 4.005,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2373.7000000476837,
+      "kind": "currentTime.write",
+      "element": "video",
+      "requested": 7.347500000000001,
+      "stack": [
+        "    at HTMLVideoElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at setVideoTimeFromNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1573:30)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1872:3)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 7.3475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 4.005,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2374,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 0,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at HTMLAudioElement.updateNarrationHold (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1533:5)"
+      ],
+      "state": {
+        "audio": {
+          "time": 7.3475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 7.3475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2374.100000143051,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 0,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 7.3475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2374.100000143051,
+      "kind": "event",
+      "element": "video",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 0,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 7.3475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2374.2000000476837,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 7.347499999999998,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at seekNarrationToVideo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1410:5)",
+        "    at HTMLVideoElement.<anonymous> (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:2154:3)"
+      ],
+      "state": {
+        "audio": {
+          "time": 0,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 7.3475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2374.2999999523163,
+      "kind": "event",
+      "element": "video",
+      "type": "play",
+      "state": {
+        "audio": {
+          "time": 7.347499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 7.3475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2374.2999999523163,
+      "kind": "event",
+      "element": "video",
+      "type": "waiting",
+      "state": {
+        "audio": {
+          "time": 7.347499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 7.3475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2374.5,
+      "kind": "event",
+      "element": "video",
+      "type": "pause",
+      "state": {
+        "audio": {
+          "time": 7.347499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 7.3475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2374.5,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 7.347499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 7.3475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2374.600000143051,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 7.347499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 7.3475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2384.100000143051,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeked",
+      "state": {
+        "audio": {
+          "time": 7.347499,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 7.3475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2728.2000000476837,
+      "kind": "event",
+      "element": "video",
+      "type": "seeked",
+      "state": {
+        "audio": {
+          "time": 7.347499,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 7.3475,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2888.600000143051,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 9.6425,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1869:32)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 7.347499,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 7.3475,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2888.7000000476837,
+      "kind": "currentTime.write",
+      "element": "video",
+      "requested": 9.642500000000002,
+      "stack": [
+        "    at HTMLVideoElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at setVideoTimeFromNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1573:30)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1872:3)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 9.6425,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 7.3475,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2888.9000000953674,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 0,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at HTMLAudioElement.updateNarrationHold (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1533:5)"
+      ],
+      "state": {
+        "audio": {
+          "time": 9.6425,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 9.6425,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2888.9000000953674,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 0,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 9.6425,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2888.9000000953674,
+      "kind": "event",
+      "element": "video",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 0,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 9.6425,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2889,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 9.642499999999998,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at seekNarrationToVideo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1410:5)",
+        "    at HTMLVideoElement.<anonymous> (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:2154:3)"
+      ],
+      "state": {
+        "audio": {
+          "time": 0,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 9.6425,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2889,
+      "kind": "event",
+      "element": "video",
+      "type": "play",
+      "state": {
+        "audio": {
+          "time": 9.642499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 9.6425,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2889,
+      "kind": "event",
+      "element": "video",
+      "type": "waiting",
+      "state": {
+        "audio": {
+          "time": 9.642499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 9.6425,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2889.100000143051,
+      "kind": "event",
+      "element": "video",
+      "type": "pause",
+      "state": {
+        "audio": {
+          "time": 9.642499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 9.6425,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2889.100000143051,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 9.642499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 9.6425,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2889.100000143051,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 9.642499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 9.6425,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 2898.600000143051,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeked",
+      "state": {
+        "audio": {
+          "time": 9.642499,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 9.6425,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3014,
+      "kind": "event",
+      "element": "video",
+      "type": "seeked",
+      "state": {
+        "audio": {
+          "time": 9.642499,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 9.6425,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3173.2999999523163,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 12.947500000000002,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1869:32)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 9.642499,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 9.6425,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3173.2999999523163,
+      "kind": "currentTime.write",
+      "element": "video",
+      "requested": 12.947500000000003,
+      "stack": [
+        "    at HTMLVideoElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at setVideoTimeFromNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1573:30)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1872:3)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 12.9475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 9.6425,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3173.5,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 0,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at HTMLAudioElement.updateNarrationHold (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1533:5)"
+      ],
+      "state": {
+        "audio": {
+          "time": 12.9475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 12.9475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3173.600000143051,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 0,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 12.9475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3173.600000143051,
+      "kind": "event",
+      "element": "video",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 0,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 12.9475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3173.7000000476837,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 12.947499999999998,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at seekNarrationToVideo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1410:5)",
+        "    at HTMLVideoElement.<anonymous> (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:2154:3)"
+      ],
+      "state": {
+        "audio": {
+          "time": 0,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 12.9475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3173.7000000476837,
+      "kind": "event",
+      "element": "video",
+      "type": "play",
+      "state": {
+        "audio": {
+          "time": 12.947499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 12.9475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3173.7000000476837,
+      "kind": "event",
+      "element": "video",
+      "type": "waiting",
+      "state": {
+        "audio": {
+          "time": 12.947499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 12.9475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3173.7999999523163,
+      "kind": "event",
+      "element": "video",
+      "type": "pause",
+      "state": {
+        "audio": {
+          "time": 12.947499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 12.9475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3173.7999999523163,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 12.947499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 12.9475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3173.9000000953674,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 12.947499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 12.9475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3183,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeked",
+      "state": {
+        "audio": {
+          "time": 12.947499,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 12.9475,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3432,
+      "kind": "event",
+      "element": "video",
+      "type": "seeked",
+      "state": {
+        "audio": {
+          "time": 12.947499,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 12.9475,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": 0,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3589.2999999523163,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 17.385,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1869:32)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 12.947499,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 12.9475,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3589.4000000953674,
+      "kind": "currentTime.write",
+      "element": "video",
+      "requested": 34.19333333333334,
+      "stack": [
+        "    at HTMLVideoElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at setVideoTimeFromNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1573:30)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1872:3)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 17.385,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 12.9475,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3589.600000143051,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 15.525,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at HTMLAudioElement.updateNarrationHold (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1533:5)"
+      ],
+      "state": {
+        "audio": {
+          "time": 17.385,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 34.193333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 1,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3589.600000143051,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 15.525,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 34.193333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 1,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3589.7000000476837,
+      "kind": "event",
+      "element": "video",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 15.525,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 34.193333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 1,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3589.7000000476837,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 17.384999666666666,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at seekNarrationToVideo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1410:5)",
+        "    at HTMLVideoElement.<anonymous> (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:2154:3)"
+      ],
+      "state": {
+        "audio": {
+          "time": 15.525,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 34.193333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 1,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3589.7000000476837,
+      "kind": "event",
+      "element": "video",
+      "type": "play",
+      "state": {
+        "audio": {
+          "time": 17.384999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 34.193333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 1,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3589.7000000476837,
+      "kind": "event",
+      "element": "video",
+      "type": "waiting",
+      "state": {
+        "audio": {
+          "time": 17.384999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 34.193333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 1,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3589.7999999523163,
+      "kind": "event",
+      "element": "video",
+      "type": "pause",
+      "state": {
+        "audio": {
+          "time": 17.384999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 34.193333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 1,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3589.9000000953674,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 17.384999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 34.193333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 1,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3589.9000000953674,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 17.384999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 34.193333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 1,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3598.7999999523163,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeked",
+      "state": {
+        "audio": {
+          "time": 17.384999,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 34.193333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 1,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3732.2999999523163,
+      "kind": "event",
+      "element": "video",
+      "type": "seeked",
+      "state": {
+        "audio": {
+          "time": 17.384999,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 34.193333,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": 1,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3889.100000143051,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 21.837500000000002,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1869:32)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 17.384999,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 34.193333,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3889.100000143051,
+      "kind": "currentTime.write",
+      "element": "video",
+      "requested": 38.64583333333334,
+      "stack": [
+        "    at HTMLVideoElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at setVideoTimeFromNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1573:30)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1872:3)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 21.8375,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 34.193333,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3889.4000000953674,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 15.525,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at HTMLAudioElement.updateNarrationHold (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1533:5)"
+      ],
+      "state": {
+        "audio": {
+          "time": 21.8375,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 38.645833,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 1,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3889.4000000953674,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 15.525,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 38.645833,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 1,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3889.5,
+      "kind": "event",
+      "element": "video",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 15.525,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 38.645833,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 1,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3889.5,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 21.83749966666666,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at seekNarrationToVideo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1410:5)",
+        "    at HTMLVideoElement.<anonymous> (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:2154:3)"
+      ],
+      "state": {
+        "audio": {
+          "time": 15.525,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 38.645833,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 1,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3889.5,
+      "kind": "event",
+      "element": "video",
+      "type": "play",
+      "state": {
+        "audio": {
+          "time": 21.837499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 38.645833,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 1,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3889.600000143051,
+      "kind": "event",
+      "element": "video",
+      "type": "waiting",
+      "state": {
+        "audio": {
+          "time": 21.837499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 38.645833,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 1,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3889.7000000476837,
+      "kind": "event",
+      "element": "video",
+      "type": "pause",
+      "state": {
+        "audio": {
+          "time": 21.837499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 38.645833,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 1,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3889.7000000476837,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 21.837499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 38.645833,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 1,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3889.7999999523163,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 21.837499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 38.645833,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 1,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 3898.600000143051,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeked",
+      "state": {
+        "audio": {
+          "time": 21.837499,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 38.645833,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 1,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4202.5,
+      "kind": "event",
+      "element": "video",
+      "type": "seeked",
+      "state": {
+        "audio": {
+          "time": 21.837499,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 38.645833,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": 1,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4371.600000143051,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 27.255000000000003,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1869:32)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 21.837499,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 38.645833,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4371.600000143051,
+      "kind": "currentTime.write",
+      "element": "video",
+      "requested": 51.558333333333344,
+      "stack": [
+        "    at HTMLVideoElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at setVideoTimeFromNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1573:30)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1872:3)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 27.255,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 38.645833,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4371.799999952316,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 24.830000000000002,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at HTMLAudioElement.updateNarrationHold (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1533:5)"
+      ],
+      "state": {
+        "audio": {
+          "time": 27.255,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 51.558333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 2,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4371.799999952316,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 24.83,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 51.558333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 2,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4371.900000095367,
+      "kind": "event",
+      "element": "video",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 24.83,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 51.558333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 2,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4371.900000095367,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 27.25499966666666,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at seekNarrationToVideo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1410:5)",
+        "    at HTMLVideoElement.<anonymous> (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:2154:3)"
+      ],
+      "state": {
+        "audio": {
+          "time": 24.83,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 51.558333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 2,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4371.900000095367,
+      "kind": "event",
+      "element": "video",
+      "type": "play",
+      "state": {
+        "audio": {
+          "time": 27.254999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 51.558333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 2,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4372,
+      "kind": "event",
+      "element": "video",
+      "type": "waiting",
+      "state": {
+        "audio": {
+          "time": 27.254999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 51.558333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 2,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4372.100000143051,
+      "kind": "event",
+      "element": "video",
+      "type": "pause",
+      "state": {
+        "audio": {
+          "time": 27.254999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 51.558333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 2,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4372.200000047684,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 27.254999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 51.558333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 2,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4372.200000047684,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 27.254999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 51.558333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 2,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4381.5,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeked",
+      "state": {
+        "audio": {
+          "time": 27.254999,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 51.558333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 2,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4539.900000095367,
+      "kind": "event",
+      "element": "video",
+      "type": "seeked",
+      "state": {
+        "audio": {
+          "time": 27.254999,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 51.558333,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": 2,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4705.400000095367,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 31.67,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1869:32)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 27.254999,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 51.558333,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4705.5,
+      "kind": "currentTime.write",
+      "element": "video",
+      "requested": 55.97333333333335,
+      "stack": [
+        "    at HTMLVideoElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at setVideoTimeFromNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1573:30)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1872:3)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 31.67,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 51.558333,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4705.700000047684,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 24.830000000000002,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at HTMLAudioElement.updateNarrationHold (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1533:5)"
+      ],
+      "state": {
+        "audio": {
+          "time": 31.67,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 55.973333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 2,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4705.700000047684,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 24.83,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 55.973333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 2,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4705.700000047684,
+      "kind": "event",
+      "element": "video",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 24.83,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 55.973333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 2,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4705.900000095367,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 31.66999966666665,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at seekNarrationToVideo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1410:5)",
+        "    at HTMLVideoElement.<anonymous> (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:2154:3)"
+      ],
+      "state": {
+        "audio": {
+          "time": 24.83,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 55.973333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 2,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4705.900000095367,
+      "kind": "event",
+      "element": "video",
+      "type": "play",
+      "state": {
+        "audio": {
+          "time": 31.669999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 55.973333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 2,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4705.900000095367,
+      "kind": "event",
+      "element": "video",
+      "type": "waiting",
+      "state": {
+        "audio": {
+          "time": 31.669999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 55.973333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 2,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4705.900000095367,
+      "kind": "event",
+      "element": "video",
+      "type": "pause",
+      "state": {
+        "audio": {
+          "time": 31.669999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 55.973333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 2,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4706,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 31.669999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 55.973333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 2,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4706.100000143051,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 31.669999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 55.973333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 2,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 4719.299999952316,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeked",
+      "state": {
+        "audio": {
+          "time": 31.669999,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 55.973333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 2,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5038.400000095367,
+      "kind": "event",
+      "element": "video",
+      "type": "seeked",
+      "state": {
+        "audio": {
+          "time": 31.669999,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 55.973333,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": 2,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5205.5,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 36.56000000000001,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1869:32)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 31.669999,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 55.973333,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5205.600000143051,
+      "kind": "currentTime.write",
+      "element": "video",
+      "requested": 68.73333333333336,
+      "stack": [
+        "    at HTMLVideoElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at setVideoTimeFromNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1573:30)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1872:3)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 36.56,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 55.973333,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5205.700000047684,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 34.06000000000001,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at HTMLAudioElement.updateNarrationHold (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1533:5)"
+      ],
+      "state": {
+        "audio": {
+          "time": 36.56,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 68.733333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 3,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5205.799999952316,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 34.06,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 68.733333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 3,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5205.900000095367,
+      "kind": "event",
+      "element": "video",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 34.06,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 68.733333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 3,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5205.900000095367,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 36.55999966666665,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at seekNarrationToVideo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1410:5)",
+        "    at HTMLVideoElement.<anonymous> (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:2154:3)"
+      ],
+      "state": {
+        "audio": {
+          "time": 34.06,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 68.733333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 3,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5206,
+      "kind": "event",
+      "element": "video",
+      "type": "play",
+      "state": {
+        "audio": {
+          "time": 36.559999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 68.733333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 3,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5206,
+      "kind": "event",
+      "element": "video",
+      "type": "waiting",
+      "state": {
+        "audio": {
+          "time": 36.559999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 68.733333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 3,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5206.100000143051,
+      "kind": "event",
+      "element": "video",
+      "type": "pause",
+      "state": {
+        "audio": {
+          "time": 36.559999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 68.733333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 3,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5206.100000143051,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 36.559999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 68.733333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 3,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5206.200000047684,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 36.559999,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 68.733333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 3,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5216.200000047684,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeked",
+      "state": {
+        "audio": {
+          "time": 36.559999,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 68.733333,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 3,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5364.400000095367,
+      "kind": "event",
+      "element": "video",
+      "type": "seeked",
+      "state": {
+        "audio": {
+          "time": 36.559999,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 68.733333,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": 3,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5523.700000047684,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 42.172500000000014,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1869:32)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 36.559999,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 68.733333,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5523.700000047684,
+      "kind": "currentTime.write",
+      "element": "video",
+      "requested": 81.12583333333336,
+      "stack": [
+        "    at HTMLVideoElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at setVideoTimeFromNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1573:30)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1872:3)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 42.1725,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 68.733333,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5524,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 39.58000000000001,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at HTMLAudioElement.updateNarrationHold (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1533:5)"
+      ],
+      "state": {
+        "audio": {
+          "time": 42.1725,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 81.125833,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 4,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5524,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 39.58,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 81.125833,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 4,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5524,
+      "kind": "event",
+      "element": "video",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 39.58,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 81.125833,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 4,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5524,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 42.17249966666665,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at seekNarrationToVideo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1410:5)",
+        "    at HTMLVideoElement.<anonymous> (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:2154:3)"
+      ],
+      "state": {
+        "audio": {
+          "time": 39.58,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 81.125833,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 4,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5524.100000143051,
+      "kind": "event",
+      "element": "video",
+      "type": "play",
+      "state": {
+        "audio": {
+          "time": 42.172499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 81.125833,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 4,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5524.100000143051,
+      "kind": "event",
+      "element": "video",
+      "type": "waiting",
+      "state": {
+        "audio": {
+          "time": 42.172499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 81.125833,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 4,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5524.200000047684,
+      "kind": "event",
+      "element": "video",
+      "type": "pause",
+      "state": {
+        "audio": {
+          "time": 42.172499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 81.125833,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 4,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5524.200000047684,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 42.172499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 81.125833,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 4,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5524.299999952316,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 42.172499,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 81.125833,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 4,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5534.100000143051,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeked",
+      "state": {
+        "audio": {
+          "time": 42.172499,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 81.125833,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 4,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5690.799999952316,
+      "kind": "event",
+      "element": "video",
+      "type": "seeked",
+      "state": {
+        "audio": {
+          "time": 42.172499,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 81.125833,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": 4,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5856.200000047684,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 48.27250000000002,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1869:32)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 42.172499,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 81.125833,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5856.200000047684,
+      "kind": "currentTime.write",
+      "element": "video",
+      "requested": 93.58750000000002,
+      "stack": [
+        "    at HTMLVideoElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at setVideoTimeFromNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1573:30)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1872:3)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 48.2725,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 81.125833,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5856.5,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 45.28500000000002,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at HTMLAudioElement.updateNarrationHold (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1533:5)"
+      ],
+      "state": {
+        "audio": {
+          "time": 48.2725,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 93.5875,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 5,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5856.5,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 45.285,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 93.5875,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 5,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5856.600000143051,
+      "kind": "event",
+      "element": "video",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 45.285,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 93.5875,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 5,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5856.700000047684,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 48.2725,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at seekNarrationToVideo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1410:5)",
+        "    at HTMLVideoElement.<anonymous> (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:2154:3)"
+      ],
+      "state": {
+        "audio": {
+          "time": 45.285,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 93.5875,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 5,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5856.700000047684,
+      "kind": "event",
+      "element": "video",
+      "type": "play",
+      "state": {
+        "audio": {
+          "time": 48.2725,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 93.5875,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 5,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5856.700000047684,
+      "kind": "event",
+      "element": "video",
+      "type": "waiting",
+      "state": {
+        "audio": {
+          "time": 48.2725,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 93.5875,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 5,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5856.799999952316,
+      "kind": "event",
+      "element": "video",
+      "type": "pause",
+      "state": {
+        "audio": {
+          "time": 48.2725,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 93.5875,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 5,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5856.900000095367,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 48.2725,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 93.5875,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 5,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5856.900000095367,
+      "kind": "event",
+      "element": "audio",
+      "type": "seeking",
+      "state": {
+        "audio": {
+          "time": 48.2725,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 93.5875,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 5,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 6030.700000047684,
+      "kind": "event",
+      "element": "video",
+      "type": "seeked",
+      "state": {
+        "audio": {
+          "time": 48.2725,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 93.5875,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": 5,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    }
+  ],
+  "owning_main_exception_type": "TimeoutError"
+}

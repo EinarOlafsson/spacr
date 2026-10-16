@@ -549,9 +549,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Parcourez tous les modules actuels de Home de gauche à droite, puis découvrez les commandes communes avec Mask et réglez la navigation, l’aide et l’apparence.",
+      "description": "Explorez la vue d’ensemble de Home et les onglets de catégories, puis découvrez les commandes communes aux modules avec Mask et ajustez la navigation, l’aide et l’apparence.",
       "objectives": [
-        "Identifier chaque module des lignes actuelles Core, Data et Tools.",
+        "Trouvez les modules à l’aide des onglets Home, Core, Data, Tools et Organism.",
         "Utiliser Mask pour reconnaître les réglages, aperçus, actions et résultats communs.",
         "Revenir à Home, utiliser la recherche et organiser les panneaux.",
         "Choisir les réglages d’apparence et de performances."
@@ -560,9 +560,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home est le point de départ. Lisez chaque rangée de gauche à droite : Core, Data et Tools. Chaque tuile ouvre son module. La barre latérale propose les mêmes accès et Home revient à cette vue.",
+          "narration": "Home est le point de départ. Sa vue d’ensemble regroupe les modules sous Core, Data, Tools et Organism. Les onglets de catégories limitent la vue. Chaque tuile ouvre le module dont elle porte le nom. La barre latérale propose les mêmes accès et Home ramène à la vue d’ensemble.",
           "hold_after": 0.7,
-          "speech_text": "Home est le point de départ. Lisez chaque rangée de gauche à droite : Core, Data et Tools. Chaque tuile ouvre son module. La barre latérale propose les mêmes accès et Home revient à cette vue."
+          "speech_text": "Home est le point de départ. Sa vue d’ensemble regroupe les modules sous Core, Data, Tools et Organism. Les onglets de catégories limitent la vue. Chaque tuile ouvre le module dont elle porte le nom. La barre latérale propose les mêmes accès et Home ramène à la vue d’ensemble."
         },
         {
           "visual": "home_module_mask",
@@ -875,12 +875,6 @@
             1500
           ],
           "speech_text": "Prune now ne supprime jamais sans demander. Avec une limite d’exemple courte pour les dossiers d’exécution, il liste ce qu’il supprimerait dans chaque dossier et attend une réponse. Cliquez sur Cancel et rien n’est supprimé."
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "En mode Spaceout, Preferences propose les commandes spaCR field pour huit effets indépendants. Activez ou désactivez chaque effet séparément. Les réglages habituels d’apparence et d’animation du panneau de réglages restent disponibles ; Apply prévisualise une modification, Keep l’accepte et Revert rétablit le choix précédent.",
-          "hold_after": 0.7,
-          "speech_text": "En mode Spaceout, Preferences propose les commandes spakeur field pour huit effets indépendants. Activez ou désactivez chaque effet séparément. Les réglages habituels d’apparence et d’animation du panneau de réglages restent disponibles ; Apply prévisualise une modification, Keep l’accepte et Revert rétablit le choix précédent."
         }
       ],
       "narration_voices": {

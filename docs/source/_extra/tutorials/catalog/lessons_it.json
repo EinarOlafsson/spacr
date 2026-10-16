@@ -549,9 +549,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Esamina tutti i moduli attuali di Home da sinistra a destra, poi impara i controlli condivisi usando Mask e regola navigazione, guida e aspetto.",
+      "description": "Esplora la panoramica di Home e le schede delle categorie, poi impara i controlli comuni dei moduli usando Mask e regola navigazione, guida e aspetto.",
       "objectives": [
-        "Identificare tutti i moduli delle righe attuali Core, Data e Tools.",
+        "Trova i moduli tramite le schede Home, Core, Data, Tools e Organism.",
         "Usare Mask per riconoscere impostazioni, anteprime, azioni e risultati condivisi.",
         "Tornare a Home, usare la ricerca e disporre i pannelli.",
         "Scegliere le impostazioni di aspetto e prestazioni."
@@ -560,9 +560,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home è il punto di partenza. Leggi ogni riga da sinistra a destra: Core, Data e Tools. Ogni riquadro apre il suo modulo. La barra laterale offre gli stessi percorsi e Home torna a questa panoramica.",
+          "narration": "Home è il punto di partenza. La panoramica raggruppa i moduli in Core, Data, Tools e Organism. Le schede delle categorie restringono la vista. Ogni riquadro apre il modulo di cui porta il nome. La barra laterale offre gli stessi percorsi e Home riporta alla panoramica.",
           "hold_after": 0.7,
-          "speech_text": "Home è il punto di partenza. Leggi ogni riga da sinistra a destra: Core, Data e Tools. Ogni riquadro apre il suo modulo. La barra laterale offre gli stessi percorsi e Home torna a questa panoramica."
+          "speech_text": "Home è il punto di partenza. La panoramica raggruppa i moduli in Core, Data, Tools e Organism. Le schede delle categorie restringono la vista. Ogni riquadro apre il modulo di cui porta il nome. La barra laterale offre gli stessi percorsi e Home riporta alla panoramica."
         },
         {
           "visual": "home_module_mask",
@@ -875,12 +875,6 @@
             1500
           ],
           "speech_text": "Prune now non cancella mai senza chiedere. Con un limite di esempio breve per le cartelle delle esecuzioni, elenca cosa cancellerebbe in ogni cartella e attende una risposta. Fai clic su Cancel e non viene rimosso nulla."
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "In modalità Spaceout, Preferences include i controlli spaCR field per otto effetti indipendenti. Attiva o disattiva ogni effetto separatamente. Restano disponibili i normali controlli di aspetto e animazione del pannello delle impostazioni; Apply mostra l’anteprima, Keep accetta e Revert ripristina la scelta precedente.",
-          "hold_after": 0.7,
-          "speech_text": "In modalità Spaceout, Preferences include i controlli spàker field per otto effetti indipendenti. Attiva o disattiva ogni effetto separatamente. Restano disponibili i normali controlli di aspetto e animazione del pannello delle impostazioni; Apply mostra l’anteprima, Keep accetta e Revert ripristina la scelta precedente."
         }
       ],
       "narration_voices": {

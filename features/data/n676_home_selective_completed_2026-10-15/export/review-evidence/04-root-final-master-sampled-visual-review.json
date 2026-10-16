@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "lesson": "05_home",
+  "status": "sampled_visual_review_pass",
+  "master": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/production/05_home/video/05_home_silent.mp4",
+    "bytes": 612468987,
+    "sha256": "bccee143f355fd732f47e8307d30f95d89a7f4010e35b7c924363a41896e0f2f"
+  },
+  "timing": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/production/05_home/video/native-live-timings.json",
+    "bytes": 43450,
+    "sha256": "7a5e9a202f74a0364f9ab68352a8820934480bbab53b1bdd088f4dc2bae660cc"
+  },
+  "complete_native_clips": true,
+  "source_commit": "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9",
+  "final_player_source_commit": "8ab0b4f421baf9e6318c9f9f0d08ccd73241113b",
+  "sampling_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/final-master-visual-samples/sampling-receipt.json",
+    "bytes": 7592,
+    "sha256": "9f617f8106066cbc472f84f99645dd615fa195ca9853a6865099a3aac85769c5"
+  },
+  "viewed_contact_sheet": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/final-master-visual-samples/contact-sheet.png",
+    "bytes": 1882366,
+    "sha256": "b8f43d9685c803f836e1f238ebcdb334b1292f0bf0fe8564c19c2851c2080820"
+  },
+  "sampled_master_frames": [
+    90,
+    3674,
+    19822,
+    23541
+  ],
+  "observations": [
+    "Opening shows current grouped Home/category tabs and fourteen module tiles.",
+    "Navigation sample highlights Run Compare in the Home Data group.",
+    "Apply sample shows Preferences Appearance/Theme plus real Keep/Revert confirmation and Revert pointer, aligned with accepted fresh Apply source.",
+    "Final sample shows Storage/Prune settings and cache rows; ending remains the final authored Prune scene, with no Spaceout scene in the accepted timeline.",
+    "No clipping, black frames, visible desktop top bar or private user paths seen in these four samples; temporary tutorial demo paths appear in cache rows."
+  ],
+  "human_listening_signoff": false,
+  "native_speaker_signoff": false,
+  "full_watch": false,
+  "whole_fresh_capture": false,
+  "limits": [
+    "Root viewed the four-frame scaled contact sheet, not the whole video.",
+    "Technical full decode/PTS coverage is bound separately by owning finish receipt and independent readback; this is bounded visual inspection.",
+    "No audio listening/native-speaker/live-publication claim."
+  ]
+}

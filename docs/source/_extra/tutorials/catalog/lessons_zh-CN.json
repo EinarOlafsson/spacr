@@ -549,9 +549,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "从左到右浏览 Home 中所有当前模块，然后通过 Mask 学习通用控件，并调整导航、帮助和外观。",
+      "description": "浏览 Home 概览和分类选项卡，然后通过 Mask 了解模块的通用控件，并调整导航、帮助和外观。",
       "objectives": [
-        "识别当前 Core、Data 和 Tools 各行中的所有模块。",
+        "通过 Home、Core、Data、Tools 和 Organism 选项卡查找模块。",
         "通过 Mask 认识通用设置、预览、操作和输出。",
         "返回 Home，使用搜索并排列面板。",
         "选择外观和性能设置。"
@@ -560,9 +560,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home 是起点。每行从左往右查看，依次为 Core、Data 和 Tools。每个磁贴打开对应模块。左侧栏提供相同入口，Home 返回此概览。",
+          "narration": "Home 是起点。概览将模块归入 Core、Data、Tools 和 Organism。分类选项卡可缩小显示范围。每个图块都会打开其名称所示的模块。侧边栏提供相同的入口，选择 Home 可返回概览。",
           "hold_after": 0.7,
-          "speech_text": "主页 是起点。每行从左往右查看，依次为 Core、Data 和 Tools。每个磁贴打开对应模块。左侧栏提供相同入口，主页 返回此概览。"
+          "speech_text": "主页 是起点。概览将模块归入 Core、Data、Tools 和 Organism。分类选项卡可缩小显示范围。每个图块都会打开其名称所示的模块。侧边栏提供相同的入口，选择 主页 可返回概览。"
         },
         {
           "visual": "home_module_mask",
@@ -875,12 +875,6 @@
             1500
           ],
           "speech_text": "Prune now 绝不会不经询问就删除。为运行文件夹设置一个较短的示例上限后，它会列出每个文件夹中将要删除的内容并等待回答。点击 Cancel，则不会删除任何内容。"
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "在 Spaceout 模式下，Preferences 提供 spaCR field 的八个独立效果控件。可分别开启或关闭各效果。常规外观和设置窗口动画控件仍可使用。Apply 预览修改，Keep 接受修改，Revert 恢复之前的选择。",
-          "hold_after": 0.7,
-          "speech_text": "在 Spaceout 模式下，Preferences 提供 斯佩克尔 field 的八个独立效果控件。可分别开启或关闭各效果。常规外观和设置窗口动画控件仍可使用。Apply 预览修改，Keep 接受修改，Revert 恢复之前的选择。"
         }
       ],
       "narration_voices": {

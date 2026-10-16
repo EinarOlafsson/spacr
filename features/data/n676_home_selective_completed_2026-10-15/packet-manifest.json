@@ -1,0 +1,2981 @@
+{
+  "schema": 1,
+  "lesson": "05_home",
+  "source_commit": "8ab0b4f421baf9e6318c9f9f0d08ccd73241113b",
+  "created_utc": "2026-10-16T00:50:51.252567+00:00",
+  "export_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/export-manifest.json",
+    "bytes": 58708,
+    "sha256": "868346da5c614cc69ddddc9e8031d6058b5e36a9842d464089b795abc2603873"
+  },
+  "final_publication_review": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/root-final-publication-review.json",
+    "bytes": 4638,
+    "sha256": "463ae12a4769a934033da885f0514c782e382adf701d96fcc75f8f67d76b1cb3"
+  },
+  "file_count": 294,
+  "files": [
+    {
+      "path": "export/export-manifest.json",
+      "bytes": 58708,
+      "sha256": "868346da5c614cc69ddddc9e8031d6058b5e36a9842d464089b795abc2603873",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/export-manifest.json",
+        "bytes": 58708,
+        "sha256": "868346da5c614cc69ddddc9e8031d6058b5e36a9842d464089b795abc2603873"
+      }
+    },
+    {
+      "path": "export/README.md",
+      "bytes": 415,
+      "sha256": "158485acc9560d246bad999a4fe589d1cc03a92c0d5bd6543b8a20564b262566",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/README.md",
+        "bytes": 415,
+        "sha256": "158485acc9560d246bad999a4fe589d1cc03a92c0d5bd6543b8a20564b262566"
+      }
+    },
+    {
+      "path": "export/review-evidence/11-05_home.hi.json",
+      "bytes": 25297,
+      "sha256": "c55466b9eba8fc60f4d309ec5201e9100b3ca1e54363cbf1963aec6d914f1938",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/11-05_home.hi.json",
+        "bytes": 25297,
+        "sha256": "c55466b9eba8fc60f4d309ec5201e9100b3ca1e54363cbf1963aec6d914f1938"
+      }
+    },
+    {
+      "path": "export/review-evidence/33-candidate-preservation-independent-peer.json",
+      "bytes": 28271,
+      "sha256": "c0368ee34570b2fdd11ebad5c384edf06a47f185b1ef796b8f4a6f755941eb97",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/33-candidate-preservation-independent-peer.json",
+        "bytes": 28271,
+        "sha256": "c0368ee34570b2fdd11ebad5c384edf06a47f185b1ef796b8f4a6f755941eb97"
+      }
+    },
+    {
+      "path": "export/review-evidence/00-root-selected-capture-acceptance.json",
+      "bytes": 2038,
+      "sha256": "689c401072671cf6252ebfb32ab4ebad36aa5fce9c5004d84118544f862bb05b",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/00-root-selected-capture-acceptance.json",
+        "bytes": 2038,
+        "sha256": "689c401072671cf6252ebfb32ab4ebad36aa5fce9c5004d84118544f862bb05b"
+      }
+    },
+    {
+      "path": "export/review-evidence/23-overview-translation-independent-technical-peer.json",
+      "bytes": 12295,
+      "sha256": "a569aaa2cb8b3dcf44e626b4ce0ad9a08215b2940424a3b0c11df31ed707d49a",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/23-overview-translation-independent-technical-peer.json",
+        "bytes": 12295,
+        "sha256": "a569aaa2cb8b3dcf44e626b4ce0ad9a08215b2940424a3b0c11df31ed707d49a"
+      }
+    },
+    {
+      "path": "export/review-evidence/18-05_home.sv.json",
+      "bytes": 16066,
+      "sha256": "5aed36141a85f9aa780701bf4d4b5b106cebe8445d686d44cbaba79397676503",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/18-05_home.sv.json",
+        "bytes": 16066,
+        "sha256": "5aed36141a85f9aa780701bf4d4b5b106cebe8445d686d44cbaba79397676503"
+      }
+    },
+    {
+      "path": "export/review-evidence/04-root-final-master-sampled-visual-review.json",
+      "bytes": 2473,
+      "sha256": "9f57e96a176c7a411532b2045cbcc0c9ea1bbd872e156104298ee4929af238a3",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/04-root-final-master-sampled-visual-review.json",
+        "bytes": 2473,
+        "sha256": "9f57e96a176c7a411532b2045cbcc0c9ea1bbd872e156104298ee4929af238a3"
+      }
+    },
+    {
+      "path": "export/review-evidence/19-05_home.zh-CN.json",
+      "bytes": 14931,
+      "sha256": "159d54cdf6cbd524782775e137e34c729734bb72f1a3401c7ed979351d1bc68d",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/19-05_home.zh-CN.json",
+        "bytes": 14931,
+        "sha256": "159d54cdf6cbd524782775e137e34c729734bb72f1a3401c7ed979351d1bc68d"
+      }
+    },
+    {
+      "path": "export/review-evidence/14-05_home.ja.json",
+      "bytes": 17949,
+      "sha256": "f6246aec9723873369e0f66de36c3e3ae0ea7720b99204830e6f35c4632b90ae",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/14-05_home.ja.json",
+        "bytes": 17949,
+        "sha256": "f6246aec9723873369e0f66de36c3e3ae0ea7720b99204830e6f35c4632b90ae"
+      }
+    },
+    {
+      "path": "export/review-evidence/22-previous-strict-pass-bounded-visual-peer.json",
+      "bytes": 46478,
+      "sha256": "8e4a03a06fc286bc9ceed630849a006551a6889ef77bf515552db25cf9a4c1b9",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/22-previous-strict-pass-bounded-visual-peer.json",
+        "bytes": 46478,
+        "sha256": "8e4a03a06fc286bc9ceed630849a006551a6889ef77bf515552db25cf9a4c1b9"
+      }
+    },
+    {
+      "path": "export/review-evidence/07-05_home.da.json",
+      "bytes": 15990,
+      "sha256": "903a67c51a8639b699c2fd49b5fbb4a7a4c4b686654d8fc72010f4deb11ad932",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/07-05_home.da.json",
+        "bytes": 15990,
+        "sha256": "903a67c51a8639b699c2fd49b5fbb4a7a4c4b686654d8fc72010f4deb11ad932"
+      }
+    },
+    {
+      "path": "export/review-evidence/36-master-and-finish-completed-independent-readback.json",
+      "bytes": 2146,
+      "sha256": "8261d7b675455d8f7268948dd7c0e70b99e7c04f37b0459bea9621a8cb581a4a",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/36-master-and-finish-completed-independent-readback.json",
+        "bytes": 2146,
+        "sha256": "8261d7b675455d8f7268948dd7c0e70b99e7c04f37b0459bea9621a8cb581a4a"
+      }
+    },
+    {
+      "path": "export/review-evidence/13-05_home.it.json",
+      "bytes": 16440,
+      "sha256": "dea49a18122151d6056441f510cd5057c5f95e0a44298be9e07d95667dc74232",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/13-05_home.it.json",
+        "bytes": 16440,
+        "sha256": "dea49a18122151d6056441f510cd5057c5f95e0a44298be9e07d95667dc74232"
+      }
+    },
+    {
+      "path": "export/review-evidence/25-final-caption-source-consistency.json",
+      "bytes": 19647,
+      "sha256": "4d07071089842f0fa3bf3fd90cb00ac363e2398b3fa2e134dfbc8961cbbff0d2",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/25-final-caption-source-consistency.json",
+        "bytes": 19647,
+        "sha256": "4d07071089842f0fa3bf3fd90cb00ac363e2398b3fa2e134dfbc8961cbbff0d2"
+      }
+    },
+    {
+      "path": "export/review-evidence/30-complete-native-seek-owning-tests.json",
+      "bytes": 3965,
+      "sha256": "6c9a893ef9dd5a3a6165df7d14f30205cc8337f3d82e826ce3d98d264a12eb8a",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/30-complete-native-seek-owning-tests.json",
+        "bytes": 3965,
+        "sha256": "6c9a893ef9dd5a3a6165df7d14f30205cc8337f3d82e826ce3d98d264a12eb8a"
+      }
+    },
+    {
+      "path": "export/review-evidence/08-05_home.de.json",
+      "bytes": 16764,
+      "sha256": "b655873079485614bc2b2fa8fa3efa56598b5653b493b7d3cd51415469d31540",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/08-05_home.de.json",
+        "bytes": 16764,
+        "sha256": "b655873079485614bc2b2fa8fa3efa56598b5653b493b7d3cd51415469d31540"
+      }
+    },
+    {
+      "path": "export/review-evidence/05-audio-checks.en+es+fr+hi+it+pt-BR+ja+zh-CN.json",
+      "bytes": 9028,
+      "sha256": "fb07205747e3e47b0858e89b470a9ce822fd6e6d25380667b0e1c96ffd84650d",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/05-audio-checks.en+es+fr+hi+it+pt-BR+ja+zh-CN.json",
+        "bytes": 9028,
+        "sha256": "fb07205747e3e47b0858e89b470a9ce822fd6e6d25380667b0e1c96ffd84650d"
+      }
+    },
+    {
+      "path": "export/review-evidence/17-05_home.pt-BR.json",
+      "bytes": 16248,
+      "sha256": "e1ad4f885df73bfe9d6b162b7a6bf43fbf1ba5166c0d2d13115b99b4bcfb12ac",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/17-05_home.pt-BR.json",
+        "bytes": 16248,
+        "sha256": "e1ad4f885df73bfe9d6b162b7a6bf43fbf1ba5166c0d2d13115b99b4bcfb12ac"
+      }
+    },
+    {
+      "path": "export/review-evidence/10-05_home.fr.json",
+      "bytes": 17110,
+      "sha256": "8800b259c8056b59654a137d463c48c58120200f4f8701ad61136a412397bbf0",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/10-05_home.fr.json",
+        "bytes": 17110,
+        "sha256": "8800b259c8056b59654a137d463c48c58120200f4f8701ad61136a412397bbf0"
+      }
+    },
+    {
+      "path": "export/review-evidence/02-05_home.json",
+      "bytes": 12628,
+      "sha256": "d57ea978b09a03132fad3f1d97dc83eabcb2403e607adb55deaaa4ef94ef2800",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/02-05_home.json",
+        "bytes": 12628,
+        "sha256": "d57ea978b09a03132fad3f1d97dc83eabcb2403e607adb55deaaa4ef94ef2800"
+      }
+    },
+    {
+      "path": "export/review-evidence/06-source-freeze.json",
+      "bytes": 2668,
+      "sha256": "cd3f274f5d9b1c28966117161d0edfaa042a84b457aaf39917603c793ec77760",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/06-source-freeze.json",
+        "bytes": 2668,
+        "sha256": "cd3f274f5d9b1c28966117161d0edfaa042a84b457aaf39917603c793ec77760"
+      }
+    },
+    {
+      "path": "export/review-evidence/01-actual-selected-clips.json",
+      "bytes": 69264,
+      "sha256": "d253fac880ddf8c32a1fcb7677d90ff7badc9440b6cac02ebfac120ef60a3f5d",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/01-actual-selected-clips.json",
+        "bytes": 69264,
+        "sha256": "d253fac880ddf8c32a1fcb7677d90ff7badc9440b6cac02ebfac120ef60a3f5d"
+      }
+    },
+    {
+      "path": "export/review-evidence/15-05_home.ko.json",
+      "bytes": 16950,
+      "sha256": "0ea33f7ec1cc5155a08632ccbbc196f46b907e87434e968cf4a6c8601b3f5a42",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/15-05_home.ko.json",
+        "bytes": 16950,
+        "sha256": "0ea33f7ec1cc5155a08632ccbbc196f46b907e87434e968cf4a6c8601b3f5a42"
+      }
+    },
+    {
+      "path": "export/review-evidence/35-publication-readback-pages-pin-independent-peer.json",
+      "bytes": 2750,
+      "sha256": "eac24b80e511474cf38f3e506c5971f1f63ded46d9c3f20d2abffd97a40535e2",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/35-publication-readback-pages-pin-independent-peer.json",
+        "bytes": 2750,
+        "sha256": "eac24b80e511474cf38f3e506c5971f1f63ded46d9c3f20d2abffd97a40535e2"
+      }
+    },
+    {
+      "path": "export/review-evidence/21-root-bounded-new-apply-visual-review.json",
+      "bytes": 1082,
+      "sha256": "f5647b26dcf7ff4e218f60b21feff8b03b2e7750f0ad3df96734175b499e1db5",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/21-root-bounded-new-apply-visual-review.json",
+        "bytes": 1082,
+        "sha256": "f5647b26dcf7ff4e218f60b21feff8b03b2e7750f0ad3df96734175b499e1db5"
+      }
+    },
+    {
+      "path": "export/review-evidence/27-all50-audio-catalog-independent-readback.json",
+      "bytes": 47308,
+      "sha256": "d99ae4e5f01ee34d1dd13bd634ef6f30eb9383cdeb9cac8f2a2ae2c92e4c1695",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/27-all50-audio-catalog-independent-readback.json",
+        "bytes": 47308,
+        "sha256": "d99ae4e5f01ee34d1dd13bd634ef6f30eb9383cdeb9cac8f2a2ae2c92e4c1695"
+      }
+    },
+    {
+      "path": "export/review-evidence/34-preupload-release-checks-independent-peer.json",
+      "bytes": 25187,
+      "sha256": "36682495f43a981adaed4e61f8c2d619bc442ff197fccf825708d8fa03d509f2",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/34-preupload-release-checks-independent-peer.json",
+        "bytes": 25187,
+        "sha256": "36682495f43a981adaed4e61f8c2d619bc442ff197fccf825708d8fa03d509f2"
+      }
+    },
+    {
+      "path": "export/review-evidence/31-complete-native-seek-independent-source-peer.json",
+      "bytes": 5078,
+      "sha256": "7a71faa2c7b0ca8a7793d3d00c87066600511a63547b4f8e019de3880005e64b",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/31-complete-native-seek-independent-source-peer.json",
+        "bytes": 5078,
+        "sha256": "7a71faa2c7b0ca8a7793d3d00c87066600511a63547b4f8e019de3880005e64b"
+      }
+    },
+    {
+      "path": "export/review-evidence/32-root-final-player-source-proof.json",
+      "bytes": 2467,
+      "sha256": "80ed63cb2d45224ae9b5cc32a0a7712500ff49bf5784f114bc42e421223d1087",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/32-root-final-player-source-proof.json",
+        "bytes": 2467,
+        "sha256": "80ed63cb2d45224ae9b5cc32a0a7712500ff49bf5784f114bc42e421223d1087"
+      }
+    },
+    {
+      "path": "export/review-evidence/26-english24-audio-independent-readback.json",
+      "bytes": 19838,
+      "sha256": "f256ec9440146a3c7b50c3749ec254654282c76f178b670444433ef0c4072383",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/26-english24-audio-independent-readback.json",
+        "bytes": 19838,
+        "sha256": "f256ec9440146a3c7b50c3749ec254654282c76f178b670444433ef0c4072383"
+      }
+    },
+    {
+      "path": "export/review-evidence/16-05_home.nb.json",
+      "bytes": 15888,
+      "sha256": "99555ea533c84bb151099cb888cbdc15665177a2ac44caed19941d4d41d2b10c",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/16-05_home.nb.json",
+        "bytes": 15888,
+        "sha256": "99555ea533c84bb151099cb888cbdc15665177a2ac44caed19941d4d41d2b10c"
+      }
+    },
+    {
+      "path": "export/review-evidence/03-native-live-timings.json",
+      "bytes": 43450,
+      "sha256": "7a5e9a202f74a0364f9ab68352a8820934480bbab53b1bdd088f4dc2bae660cc",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/03-native-live-timings.json",
+        "bytes": 43450,
+        "sha256": "7a5e9a202f74a0364f9ab68352a8820934480bbab53b1bdd088f4dc2bae660cc"
+      }
+    },
+    {
+      "path": "export/review-evidence/24-overview-final-source-closure-peer.json",
+      "bytes": 13884,
+      "sha256": "5d223536f8090e5bee7529e76fc832134727c36f34102ee57ac4b5c8afdc4785",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/24-overview-final-source-closure-peer.json",
+        "bytes": 13884,
+        "sha256": "5d223536f8090e5bee7529e76fc832134727c36f34102ee57ac4b5c8afdc4785"
+      }
+    },
+    {
+      "path": "export/review-evidence/29-browser-matrix-lesson05-selective-playerfix-20261015.json",
+      "bytes": 21659,
+      "sha256": "b09d47af62b859a3255e5f694db5a32aa7016808cfb16ea92bf645f4b593e858",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/29-browser-matrix-lesson05-selective-playerfix-20261015.json",
+        "bytes": 21659,
+        "sha256": "b09d47af62b859a3255e5f694db5a32aa7016808cfb16ea92bf645f4b593e858"
+      }
+    },
+    {
+      "path": "export/review-evidence/20-clean-apply-native-independent-evidence-peer.json",
+      "bytes": 20447,
+      "sha256": "a4054be8d0649e5b7c207ad2deba62f5a5081dc052b1b39e7c95cf2ea3f7da87",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/20-clean-apply-native-independent-evidence-peer.json",
+        "bytes": 20447,
+        "sha256": "a4054be8d0649e5b7c207ad2deba62f5a5081dc052b1b39e7c95cf2ea3f7da87"
+      }
+    },
+    {
+      "path": "export/review-evidence/09-05_home.es.json",
+      "bytes": 16580,
+      "sha256": "3714047211ad884fa2c0589d468099de957d976d6d17c1af1ef2d947ebb527a2",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/09-05_home.es.json",
+        "bytes": 16580,
+        "sha256": "3714047211ad884fa2c0589d468099de957d976d6d17c1af1ef2d947ebb527a2"
+      }
+    },
+    {
+      "path": "export/review-evidence/28-generated-native-timing-independent-readback.json",
+      "bytes": 16743,
+      "sha256": "17c7798ca880b7bb4b76581e9682d0bf2fe9d7b34c6743ee99383ddf63e13e08",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/28-generated-native-timing-independent-readback.json",
+        "bytes": 16743,
+        "sha256": "17c7798ca880b7bb4b76581e9682d0bf2fe9d7b34c6743ee99383ddf63e13e08"
+      }
+    },
+    {
+      "path": "export/review-evidence/12-05_home.is.json",
+      "bytes": 16112,
+      "sha256": "057b65a220f839c850086654e8633923133fb231ed20f654d094c056ae61a782",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/review-evidence/12-05_home.is.json",
+        "bytes": 16112,
+        "sha256": "057b65a220f839c850086654e8633923133fb231ed20f654d094c056ae61a782"
+      }
+    },
+    {
+      "path": "export/checkpoint/release-manifest.json",
+      "bytes": 1179634,
+      "sha256": "ced803ebdd5e93a6ada3fead48a3c6595afd77ef05d104dc0bd43e87a210bd2a",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/release-manifest.json",
+        "bytes": 1179634,
+        "sha256": "ced803ebdd5e93a6ada3fead48a3c6595afd77ef05d104dc0bd43e87a210bd2a"
+      }
+    },
+    {
+      "path": "export/checkpoint/publication-receipt.json",
+      "bytes": 141431,
+      "sha256": "9f58f30644880ff3faac98e756feba1d33ec3e812c02cf4f3b791b0ea02eef5a",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/publication-receipt.json",
+        "bytes": 141431,
+        "sha256": "9f58f30644880ff3faac98e756feba1d33ec3e812c02cf4f3b791b0ea02eef5a"
+      }
+    },
+    {
+      "path": "export/checkpoint/published-media-browser-checks.json",
+      "bytes": 134456,
+      "sha256": "59831089d06a8971b96a10e6a6de0bb240e5784b20ab030ef10d968c895582c7",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/published-media-browser-checks.json",
+        "bytes": 134456,
+        "sha256": "59831089d06a8971b96a10e6a6de0bb240e5784b20ab030ef10d968c895582c7"
+      }
+    },
+    {
+      "path": "export/checkpoint/checkpoint.json",
+      "bytes": 26427,
+      "sha256": "1ceb92c12efeadcfd2bcfd771b8d6e29c6efbd106ff044662ad91c0a8307dead",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/checkpoint.json",
+        "bytes": 26427,
+        "sha256": "1ceb92c12efeadcfd2bcfd771b8d6e29c6efbd106ff044662ad91c0a8307dead"
+      }
+    },
+    {
+      "path": "export/checkpoint/placeholder-mutation-checks.json",
+      "bytes": 510,
+      "sha256": "52287fd0d57ba7d2086f6555df5e6c21610bcb97d9b113787a3eb9925eb31900",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/placeholder-mutation-checks.json",
+        "bytes": 510,
+        "sha256": "52287fd0d57ba7d2086f6555df5e6c21610bcb97d9b113787a3eb9925eb31900"
+      }
+    },
+    {
+      "path": "export/checkpoint/candidate-browser-checks.json",
+      "bytes": 127553,
+      "sha256": "1ee33884c8a5c4253861bf1ffd3583831fd9be5b3db329c60ac55005e73453dd",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/candidate-browser-checks.json",
+        "bytes": 127553,
+        "sha256": "1ee33884c8a5c4253861bf1ffd3583831fd9be5b3db329c60ac55005e73453dd"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/styles.css",
+      "bytes": 35608,
+      "sha256": "48d77dd48b09ebbdbdb3a66983b0dd0b2c25d32f9d8717a030cba0485b12a7e3",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/styles.css",
+        "bytes": 35608,
+        "sha256": "48d77dd48b09ebbdbdb3a66983b0dd0b2c25d32f9d8717a030cba0485b12a7e3"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/TUTORIAL_MEDIA_NOTICE.md",
+      "bytes": 577,
+      "sha256": "98f4beeba0d78e025629de745073b763c135be06219a1530565c0ebe61a82f8b",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/TUTORIAL_MEDIA_NOTICE.md",
+        "bytes": 577,
+        "sha256": "98f4beeba0d78e025629de745073b763c135be06219a1530565c0ebe61a82f8b"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/voice_catalog.js",
+      "bytes": 4947,
+      "sha256": "2b05369143743eaa92da5c20376f868146f891426a51833a236f7516ada6b6a4",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/voice_catalog.js",
+        "bytes": 4947,
+        "sha256": "2b05369143743eaa92da5c20376f868146f891426a51833a236f7516ada6b6a4"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/lesson_catalog.js",
+      "bytes": 529853,
+      "sha256": "1c3035aed3ffbcd02b7f93e423dc2de2104c21c17a64c799b24131708cb98ec3",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/lesson_catalog.js",
+        "bytes": 529853,
+        "sha256": "1c3035aed3ffbcd02b7f93e423dc2de2104c21c17a64c799b24131708cb98ec3"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/logo_spacr.png",
+      "bytes": 185454,
+      "sha256": "269fe8f2d7040ad1241c6f5110e5f1fa5cd1426141837edb7ad1d3ffde390761",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/logo_spacr.png",
+        "bytes": 185454,
+        "sha256": "269fe8f2d7040ad1241c6f5110e5f1fa5cd1426141837edb7ad1d3ffde390761"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/index.html",
+      "bytes": 15670,
+      "sha256": "44cb8502f67a016e375e3408cd7d848d463b487d35b6da110533e7cbf9469b9b",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/index.html",
+        "bytes": 15670,
+        "sha256": "44cb8502f67a016e375e3408cd7d848d463b487d35b6da110533e7cbf9469b9b"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/module_navigation.js",
+      "bytes": 17258,
+      "sha256": "429a22652836fde539fc36ecb70c3942a98138239e3eba3560095555c6bd3c9d",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/module_navigation.js",
+        "bytes": 17258,
+        "sha256": "429a22652836fde539fc36ecb70c3942a98138239e3eba3560095555c6bd3c9d"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/translation-compatibility.json",
+      "bytes": 135754,
+      "sha256": "f405ccf4f0d4b9c428996d33ebdf3c0e1898ec78d7a12f86c75b6898bf9f199c",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/translation-compatibility.json",
+        "bytes": 135754,
+        "sha256": "f405ccf4f0d4b9c428996d33ebdf3c0e1898ec78d7a12f86c75b6898bf9f199c"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/favicon.svg",
+      "bytes": 465,
+      "sha256": "1c80967dbe79a7c57d6dad598e9dd7945518c62a851a48bf1ad8d35c51c21953",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/favicon.svg",
+        "bytes": 465,
+        "sha256": "1c80967dbe79a7c57d6dad598e9dd7945518c62a851a48bf1ad8d35c51c21953"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/app_v2.js",
+      "bytes": 103252,
+      "sha256": "27a50ed92ca98e53960a1b044fbefe9f8a36f43106153b4b1b038e8d5f2fde9b",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/app_v2.js",
+        "bytes": 103252,
+        "sha256": "27a50ed92ca98e53960a1b044fbefe9f8a36f43106153b4b1b038e8d5f2fde9b"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/fonts/OpenSans-Regular.ttf",
+      "bytes": 130832,
+      "sha256": "6530480277da62efde047eb26e78a7e532d1cfaeec91603e68d63876b9669f0d",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/fonts/OpenSans-Regular.ttf",
+        "bytes": 130832,
+        "sha256": "6530480277da62efde047eb26e78a7e532d1cfaeec91603e68d63876b9669f0d"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/17_timelapse/poster.jpg",
+      "bytes": 234308,
+      "sha256": "6be7eb3fe2e78e9c5c6eace6fd702b2faa04414e81f4781094c8659174c9bcf2",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/17_timelapse/poster.jpg",
+        "bytes": 234308,
+        "sha256": "6be7eb3fe2e78e9c5c6eace6fd702b2faa04414e81f4781094c8659174c9bcf2"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/79_module_inputs_outputs/poster.jpg",
+      "bytes": 175849,
+      "sha256": "fa4d060389e4105196e5ad9865f7d6de363a5de251e742a16d6d98cb9d3fd07a",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/79_module_inputs_outputs/poster.jpg",
+        "bytes": 175849,
+        "sha256": "fa4d060389e4105196e5ad9865f7d6de363a5de251e742a16d6d98cb9d3fd07a"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/74_import_images/poster.jpg",
+      "bytes": 136808,
+      "sha256": "23ce7ba1cf589dcc6784bea2a163a261c1b62977c54040eaa214c6a090c9dd53",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/74_import_images/poster.jpg",
+        "bytes": 136808,
+        "sha256": "23ce7ba1cf589dcc6784bea2a163a261c1b62977c54040eaa214c6a090c9dd53"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/50_run_compare/poster.jpg",
+      "bytes": 134364,
+      "sha256": "70d7e493cbd5792445b470922c0390b79ba2416cda03164c0600aed0482228cb",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/50_run_compare/poster.jpg",
+        "bytes": 134364,
+        "sha256": "70d7e493cbd5792445b470922c0390b79ba2416cda03164c0600aed0482228cb"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/40_run_history/poster.jpg",
+      "bytes": 189158,
+      "sha256": "7c12f5ac147e9002d4b51bf284d9c7f2a97f76d1598f1ec053d9a651ac716d1e",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/40_run_history/poster.jpg",
+        "bytes": 189158,
+        "sha256": "7c12f5ac147e9002d4b51bf284d9c7f2a97f76d1598f1ec053d9a651ac716d1e"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/30_plate_queue/poster.jpg",
+      "bytes": 207099,
+      "sha256": "f275d7b4d91948bc991ca1c1d9cf5364100d0d37bc65b69ce783268d4220be36",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/30_plate_queue/poster.jpg",
+        "bytes": 207099,
+        "sha256": "f275d7b4d91948bc991ca1c1d9cf5364100d0d37bc65b69ce783268d4220be36"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/12_map_barcodes/poster.jpg",
+      "bytes": 198403,
+      "sha256": "a69282a30979f3579b638da597d400c8051f68b28245e988ac66e0c4051100cb",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/12_map_barcodes/poster.jpg",
+        "bytes": 198403,
+        "sha256": "a69282a30979f3579b638da597d400c8051f68b28245e988ac66e0c4051100cb"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/65_feature_explorer/poster.jpg",
+      "bytes": 182823,
+      "sha256": "c8331b094072c0b94cf7122130630ba1ce883b57eae0c2af294893538e232bf6",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/65_feature_explorer/poster.jpg",
+        "bytes": 182823,
+        "sha256": "c8331b094072c0b94cf7122130630ba1ce883b57eae0c2af294893538e232bf6"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/33_plate_viewer/poster.jpg",
+      "bytes": 129107,
+      "sha256": "ad152e8524e748522ecd24c91081a607098836f6b849ef9dfab2fffa347c772f",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/33_plate_viewer/poster.jpg",
+        "bytes": 129107,
+        "sha256": "ad152e8524e748522ecd24c91081a607098836f6b849ef9dfab2fffa347c772f"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/85_host_pathogen/poster.jpg",
+      "bytes": 171994,
+      "sha256": "088b29d1931da776d8e97943c8e9d60f09a396bb5ea673c68fd0d1db55c6dd52",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/85_host_pathogen/poster.jpg",
+        "bytes": 171994,
+        "sha256": "088b29d1931da776d8e97943c8e9d60f09a396bb5ea673c68fd0d1db55c6dd52"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/11_classify_ml/poster.jpg",
+      "bytes": 799025,
+      "sha256": "90e064bcdce8664c98bc176a7d872e437bbd5741dff1a4b3eb2407fb73b9c597",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/11_classify_ml/poster.jpg",
+        "bytes": 799025,
+        "sha256": "90e064bcdce8664c98bc176a7d872e437bbd5741dff1a4b3eb2407fb73b9c597"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/71_investigate_hit/poster.jpg",
+      "bytes": 183048,
+      "sha256": "5934274c8c6dbb7099be076376cf9a2f211c2135ecbf5d71e5e11fa27f87fad6",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/71_investigate_hit/poster.jpg",
+        "bytes": 183048,
+        "sha256": "5934274c8c6dbb7099be076376cf9a2f211c2135ecbf5d71e5e11fa27f87fad6"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/81_sequencing_pathways/poster.jpg",
+      "bytes": 179129,
+      "sha256": "3202ea4ef5629231456da0629e2bf0161533382cc4f26021018bb7954677b28d",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/81_sequencing_pathways/poster.jpg",
+        "bytes": 179129,
+        "sha256": "3202ea4ef5629231456da0629e2bf0161533382cc4f26021018bb7954677b28d"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/34_database/poster.jpg",
+      "bytes": 157682,
+      "sha256": "817456b8dfccbc6a0e28f07a7fc2f4a670e41e04c2d8f00ec90e62c48426b049",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/34_database/poster.jpg",
+        "bytes": 157682,
+        "sha256": "817456b8dfccbc6a0e28f07a7fc2f4a670e41e04c2d8f00ec90e62c48426b049"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/47_barcode_qc/poster.jpg",
+      "bytes": 172929,
+      "sha256": "b26617e27c3c28386b996bb7b29fa0ced9b1a2a63fce592fffbeaec352ec7481",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/47_barcode_qc/poster.jpg",
+        "bytes": 172929,
+        "sha256": "b26617e27c3c28386b996bb7b29fa0ced9b1a2a63fce592fffbeaec352ec7481"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/55_image_scatter/poster.jpg",
+      "bytes": 157695,
+      "sha256": "f6a36ee7d302ffdb5ed95a3cfe03cd239cd887a0f2cf9ef892de444226067a90",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/55_image_scatter/poster.jpg",
+        "bytes": 157695,
+        "sha256": "f6a36ee7d302ffdb5ed95a3cfe03cd239cd887a0f2cf9ef892de444226067a90"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/77_embeddings/poster.jpg",
+      "bytes": 134187,
+      "sha256": "64e935afa6a63883a3da8e5bb356afaa775b81a0f382e7f8cc47d44f59a3518e",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/77_embeddings/poster.jpg",
+        "bytes": 134187,
+        "sha256": "64e935afa6a63883a3da8e5bb356afaa775b81a0f382e7f8cc47d44f59a3518e"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/49_methods_results/poster.jpg",
+      "bytes": 247357,
+      "sha256": "d361cd6e50a69910ee9eeb5de3d93872950af1919b308088bd7e1004e9d2285c",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/49_methods_results/poster.jpg",
+        "bytes": 247357,
+        "sha256": "d361cd6e50a69910ee9eeb5de3d93872950af1919b308088bd7e1004e9d2285c"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/24_plaque/poster.jpg",
+      "bytes": 129592,
+      "sha256": "fe91f2a818e8a02710bb35f9a0ccc442ba694a47a3ee9a9218ac38d6789d4971",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/24_plaque/poster.jpg",
+        "bytes": 129592,
+        "sha256": "fe91f2a818e8a02710bb35f9a0ccc442ba694a47a3ee9a9218ac38d6789d4971"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/13_regression/poster.jpg",
+      "bytes": 187999,
+      "sha256": "fe466873a25c0f127dc7c196bd5e694c4910dd5bb085e0634672dd339955acf4",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/13_regression/poster.jpg",
+        "bytes": 187999,
+        "sha256": "fe466873a25c0f127dc7c196bd5e694c4910dd5bb085e0634672dd339955acf4"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/59_anndata_export/poster.jpg",
+      "bytes": 150006,
+      "sha256": "266488d0d670c6a7474f2cce2c8fdec99bfd2d819891794f47aa88030f014b76",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/59_anndata_export/poster.jpg",
+        "bytes": 150006,
+        "sha256": "266488d0d670c6a7474f2cce2c8fdec99bfd2d819891794f47aa88030f014b76"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/08_measure/poster.jpg",
+      "bytes": 711509,
+      "sha256": "e34fb8cb25065a9d9203dbaf8df2ea2f9e96c5017267eea82158fbfc903f9101",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/08_measure/poster.jpg",
+        "bytes": 711509,
+        "sha256": "e34fb8cb25065a9d9203dbaf8df2ea2f9e96c5017267eea82158fbfc903f9101"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/23_agreement/poster.jpg",
+      "bytes": 755182,
+      "sha256": "a8cb835d009d5121bfa9a7de9654eea662c25214ff8700bfd2ee22d40c67f070",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/23_agreement/poster.jpg",
+        "bytes": 755182,
+        "sha256": "a8cb835d009d5121bfa9a7de9654eea662c25214ff8700bfd2ee22d40c67f070"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/87_alpha_features/poster.jpg",
+      "bytes": 448580,
+      "sha256": "6989bd907cd3fb3f0b4560a820d5724ad14d29c79849d0b7dbb4776b5d9a8ecb",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/87_alpha_features/poster.jpg",
+        "bytes": 448580,
+        "sha256": "6989bd907cd3fb3f0b4560a820d5724ad14d29c79849d0b7dbb4776b5d9a8ecb"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/80_image_analysis_pathways/poster.jpg",
+      "bytes": 1178102,
+      "sha256": "5e3b42fc3fa4dbf3e018980937a3225b3de03b6ce170b404139e5db96872550d",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/80_image_analysis_pathways/poster.jpg",
+        "bytes": 1178102,
+        "sha256": "5e3b42fc3fa4dbf3e018980937a3225b3de03b6ce170b404139e5db96872550d"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/20_cellpose_masks/poster.jpg",
+      "bytes": 213330,
+      "sha256": "26a9063bab0df488fc5d46b45c5e42aa0da6be2fc986663395ef0feeaaca9e0f",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/20_cellpose_masks/poster.jpg",
+        "bytes": 213330,
+        "sha256": "26a9063bab0df488fc5d46b45c5e42aa0da6be2fc986663395ef0feeaaca9e0f"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/78_spacr_screens/poster.jpg",
+      "bytes": 174673,
+      "sha256": "653862a236952ceb334d8e5451c8c499183ccf716e9ebf3d78e9ca49fcb4f820",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/78_spacr_screens/poster.jpg",
+        "bytes": 174673,
+        "sha256": "653862a236952ceb334d8e5451c8c499183ccf716e9ebf3d78e9ca49fcb4f820"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/06_api/poster.jpg",
+      "bytes": 102619,
+      "sha256": "c4f48312110a0fe5868229d2e7c31091d678951bf19dd817852fa45a5e9e1fdb",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/06_api/poster.jpg",
+        "bytes": 102619,
+        "sha256": "c4f48312110a0fe5868229d2e7c31091d678951bf19dd817852fa45a5e9e1fdb"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/51_control_charts/poster.jpg",
+      "bytes": 109896,
+      "sha256": "6c4d630758a8c2fed488776ec4314a1609a49490e492d479ed89c2d77a527d62",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/51_control_charts/poster.jpg",
+        "bytes": 109896,
+        "sha256": "6c4d630758a8c2fed488776ec4314a1609a49490e492d479ed89c2d77a527d62"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/63_small_multiples/poster.jpg",
+      "bytes": 109547,
+      "sha256": "9411cc6ac9bd9751372ff015ad47fc397303e7ca0e4ffcf081dd96a02d993f5f",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/63_small_multiples/poster.jpg",
+        "bytes": 109547,
+        "sha256": "9411cc6ac9bd9751372ff015ad47fc397303e7ca0e4ffcf081dd96a02d993f5f"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/86_alpha_organism_modules/poster.jpg",
+      "bytes": 137977,
+      "sha256": "9e726caa32c7defe69c352103230c3d5d655cbebc6ad1d4eeff8a222e9da7702",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/86_alpha_organism_modules/poster.jpg",
+        "bytes": 137977,
+        "sha256": "9e726caa32c7defe69c352103230c3d5d655cbebc6ad1d4eeff8a222e9da7702"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/14_make_masks/poster.jpg",
+      "bytes": 1147640,
+      "sha256": "c5131e276b88a4f53c780137870f49d7c4729ed7e2734acbc958ee436eeb2641",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/14_make_masks/poster.jpg",
+        "bytes": 1147640,
+        "sha256": "c5131e276b88a4f53c780137870f49d7c4729ed7e2734acbc958ee436eeb2641"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/22_model_zoo/poster.jpg",
+      "bytes": 132909,
+      "sha256": "190c1fc8abf6f31b984d648b4befc990ebf9552b9f168fb6a21ef2f766cae544",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/22_model_zoo/poster.jpg",
+        "bytes": 132909,
+        "sha256": "190c1fc8abf6f31b984d648b4befc990ebf9552b9f168fb6a21ef2f766cae544"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/45_project_browser/poster.jpg",
+      "bytes": 187004,
+      "sha256": "fccec2ddbd4613fbfd19b5ada4b1474f3b9cf0ca6f1ddf32afabba8d65e9ff14",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/45_project_browser/poster.jpg",
+        "bytes": 187004,
+        "sha256": "fccec2ddbd4613fbfd19b5ada4b1474f3b9cf0ca6f1ddf32afabba8d65e9ff14"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/42_curate/poster.jpg",
+      "bytes": 151365,
+      "sha256": "68a297fb16140119c9335141e0b2d5c85ee4a7c9b5dc156c8f5dcbac349f3f3b",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/42_curate/poster.jpg",
+        "bytes": 151365,
+        "sha256": "68a297fb16140119c9335141e0b2d5c85ee4a7c9b5dc156c8f5dcbac349f3f3b"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/27_replication/poster.jpg",
+      "bytes": 140838,
+      "sha256": "1ecf99797194c8d055bf3c76c0ba0633706261f93cb0c78497b54fc708ac326f",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/27_replication/poster.jpg",
+        "bytes": 140838,
+        "sha256": "1ecf99797194c8d055bf3c76c0ba0633706261f93cb0c78497b54fc708ac326f"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/60_pca/poster.jpg",
+      "bytes": 189822,
+      "sha256": "e498aa7029dc783530ecca0b9f43b60dba725a2c9b8533fc10cb5b5a51b4d3ec",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/60_pca/poster.jpg",
+        "bytes": 189822,
+        "sha256": "e498aa7029dc783530ecca0b9f43b60dba725a2c9b8533fc10cb5b5a51b4d3ec"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/72_volcano_explorer/poster.jpg",
+      "bytes": 237311,
+      "sha256": "4733058879b0dc4794195fff98ba26d8b59951d2a7b88355fd38b045ce7ff3dd",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/72_volcano_explorer/poster.jpg",
+        "bytes": 237311,
+        "sha256": "4733058879b0dc4794195fff98ba26d8b59951d2a7b88355fd38b045ce7ff3dd"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/25_recruitment/poster.jpg",
+      "bytes": 185095,
+      "sha256": "70890f743ba3a43393429879f094d26cc1710ed18da2cf20239248f5b23b1d40",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/25_recruitment/poster.jpg",
+        "bytes": 185095,
+        "sha256": "70890f743ba3a43393429879f094d26cc1710ed18da2cf20239248f5b23b1d40"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/64_gate_editor/poster.jpg",
+      "bytes": 151054,
+      "sha256": "c44715f362b9b1861018e1ef83660ff72d60878df3ebc44ff3ce476eb9820c68",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/64_gate_editor/poster.jpg",
+        "bytes": 151054,
+        "sha256": "c44715f362b9b1861018e1ef83660ff72d60878df3ebc44ff3ce476eb9820c68"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/52_pipeline_graph/poster.jpg",
+      "bytes": 187214,
+      "sha256": "bac50eb945a0f5cdad467a5cd951d115ee0a934984434898099078a77faf2c17",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/52_pipeline_graph/poster.jpg",
+        "bytes": 187214,
+        "sha256": "bac50eb945a0f5cdad467a5cd951d115ee0a934984434898099078a77faf2c17"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/07_mask/poster.jpg",
+      "bytes": 780163,
+      "sha256": "54a4fcc3126388e9c50ac39ca3ba22a5b6ed749f05b126a84f20b2afccd1f373",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/07_mask/poster.jpg",
+        "bytes": 780163,
+        "sha256": "54a4fcc3126388e9c50ac39ca3ba22a5b6ed749f05b126a84f20b2afccd1f373"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/57_layer_viewer/poster.jpg",
+      "bytes": 113750,
+      "sha256": "977f37f2c7302039938abbfdb45725366c09101eaa6b5be356623c889fcad62f",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/57_layer_viewer/poster.jpg",
+        "bytes": 113750,
+        "sha256": "977f37f2c7302039938abbfdb45725366c09101eaa6b5be356623c889fcad62f"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/54_qc_dashboard/poster.jpg",
+      "bytes": 137321,
+      "sha256": "be0645d6ed8ec8c0631ebd90cfd6c76e5d368ded1b5793dd6325e66c1c320637",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/54_qc_dashboard/poster.jpg",
+        "bytes": 137321,
+        "sha256": "be0645d6ed8ec8c0631ebd90cfd6c76e5d368ded1b5793dd6325e66c1c320637"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/67_experiment_design/poster.jpg",
+      "bytes": 189784,
+      "sha256": "ea2cae5a74ef28f4d21b46bf2f0c239e3a757c0dddf9368d13fdfdd897d987ec",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/67_experiment_design/poster.jpg",
+        "bytes": 189784,
+        "sha256": "ea2cae5a74ef28f4d21b46bf2f0c239e3a757c0dddf9368d13fdfdd897d987ec"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/44_data_manager/poster.jpg",
+      "bytes": 188466,
+      "sha256": "5bf676c8a3ec44927d5c014c3e155d64a5e725a011d4130eeb0739b6164202f8",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/44_data_manager/poster.jpg",
+        "bytes": 188466,
+        "sha256": "5bf676c8a3ec44927d5c014c3e155d64a5e725a011d4130eeb0739b6164202f8"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/70_explain_cv/poster.jpg",
+      "bytes": 171824,
+      "sha256": "7b549953917cca1dfa353996fdddcdbc8a3bd0c1de840d0c6534163943220f01",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/70_explain_cv/poster.jpg",
+        "bytes": 171824,
+        "sha256": "7b549953917cca1dfa353996fdddcdbc8a3bd0c1de840d0c6534163943220f01"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/69_dose_response/poster.jpg",
+      "bytes": 133378,
+      "sha256": "18dad3accf934b7f9adf6a549493c1acdd567d8e60ad30e5fafa15add8ef553c",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/69_dose_response/poster.jpg",
+        "bytes": 133378,
+        "sha256": "18dad3accf934b7f9adf6a549493c1acdd567d8e60ad30e5fafa15add8ef553c"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/75_regression_diagnostics/poster.jpg",
+      "bytes": 197967,
+      "sha256": "e8a10cf4883d3fe47acecc86d957c3054b583272fd83c80a6c99255233679126",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/75_regression_diagnostics/poster.jpg",
+        "bytes": 197967,
+        "sha256": "e8a10cf4883d3fe47acecc86d957c3054b583272fd83c80a6c99255233679126"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/56_lineage/poster.jpg",
+      "bytes": 143131,
+      "sha256": "f5c9902c9b229536a7a1dd96c1a2f9163c98cb26652511c1b602b0fe2b0c308c",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/56_lineage/poster.jpg",
+        "bytes": 143131,
+        "sha256": "f5c9902c9b229536a7a1dd96c1a2f9163c98cb26652511c1b602b0fe2b0c308c"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/02_install_spacr/poster.jpg",
+      "bytes": 247568,
+      "sha256": "631877cafaa3df65b993be9b73ca4888808aafd07f858d066dbc3b90c8f229b8",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/02_install_spacr/poster.jpg",
+        "bytes": 247568,
+        "sha256": "631877cafaa3df65b993be9b73ca4888808aafd07f858d066dbc3b90c8f229b8"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/09_annotate/poster.jpg",
+      "bytes": 776795,
+      "sha256": "2f3d32727afcda99da46b55851eb37480d59cd3c53309231453c3c144547cf3a",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/09_annotate/poster.jpg",
+        "bytes": 776795,
+        "sha256": "2f3d32727afcda99da46b55851eb37480d59cd3c53309231453c3c144547cf3a"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/37_batch/poster.jpg",
+      "bytes": 401988,
+      "sha256": "2398146f1e1811deeb1b18ad26b4c7c2ea3f0a45610b979a9033d8f6af5a65f4",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/37_batch/poster.jpg",
+        "bytes": 401988,
+        "sha256": "2398146f1e1811deeb1b18ad26b4c7c2ea3f0a45610b979a9033d8f6af5a65f4"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/10_classify_cv/poster.jpg",
+      "bytes": 137434,
+      "sha256": "db263e7817c5f9b5ee8df0b1a9511dd3018853a24b74e0b8e7e24129245914ae",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/10_classify_cv/poster.jpg",
+        "bytes": 137434,
+        "sha256": "db263e7817c5f9b5ee8df0b1a9511dd3018853a24b74e0b8e7e24129245914ae"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/18_motility/poster.jpg",
+      "bytes": 149472,
+      "sha256": "da03a3d1836d74b60eb43c9b741a61aea2896d86aee4eed9995f480b32f25ca3",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/18_motility/poster.jpg",
+        "bytes": 149472,
+        "sha256": "da03a3d1836d74b60eb43c9b741a61aea2896d86aee4eed9995f480b32f25ca3"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/66_outliers/poster.jpg",
+      "bytes": 115728,
+      "sha256": "a2d7edc16f2990c719684aa8383ec566bcabeba64f2780f25168d8e293d5ccea",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/66_outliers/poster.jpg",
+        "bytes": 115728,
+        "sha256": "a2d7edc16f2990c719684aa8383ec566bcabeba64f2780f25168d8e293d5ccea"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/05_home/poster.jpg",
+      "bytes": 783628,
+      "sha256": "3a6fcbe7f657c71bf98d78807afac43a968567b66d98d628398fe974f3ce7020",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/05_home/poster.jpg",
+        "bytes": 783628,
+        "sha256": "3a6fcbe7f657c71bf98d78807afac43a968567b66d98d628398fe974f3ce7020"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/35_converter/poster.jpg",
+      "bytes": 196330,
+      "sha256": "bdf1520c7b7b42098b31ddf59e4bbb749cb38d7b8621cbd7aed6be0ad9b92ce0",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/35_converter/poster.jpg",
+        "bytes": 196330,
+        "sha256": "bdf1520c7b7b42098b31ddf59e4bbb749cb38d7b8621cbd7aed6be0ad9b92ce0"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/76_ops/poster.jpg",
+      "bytes": 173421,
+      "sha256": "a02aa503b0fb24aaff2154798ec54fa0a18dd9e08be06d19aeb1dbefc273a9bc",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/76_ops/poster.jpg",
+        "bytes": 173421,
+        "sha256": "a02aa503b0fb24aaff2154798ec54fa0a18dd9e08be06d19aeb1dbefc273a9bc"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/21_model_compare/poster.jpg",
+      "bytes": 132909,
+      "sha256": "190c1fc8abf6f31b984d648b4befc990ebf9552b9f168fb6a21ef2f766cae544",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/21_model_compare/poster.jpg",
+        "bytes": 132909,
+        "sha256": "190c1fc8abf6f31b984d648b4befc990ebf9552b9f168fb6a21ef2f766cae544"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/61_tabulate/poster.jpg",
+      "bytes": 134955,
+      "sha256": "470f80bbda4ecfa6b165d6d02aeb03954f224cdd2170158e5756a5528a27ddca",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/61_tabulate/poster.jpg",
+        "bytes": 134955,
+        "sha256": "470f80bbda4ecfa6b165d6d02aeb03954f224cdd2170158e5756a5528a27ddca"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/29_report/poster.jpg",
+      "bytes": 192061,
+      "sha256": "28d2ac09fbb0a1e5cd68b753849c5f4ef199a387ad168b4c1420af27e23ff790",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/29_report/poster.jpg",
+        "bytes": 192061,
+        "sha256": "28d2ac09fbb0a1e5cd68b753849c5f4ef199a387ad168b4c1420af27e23ff790"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/62_feature_dictionary/poster.jpg",
+      "bytes": 190646,
+      "sha256": "cf2f0b393d01aefb3d43a96f68886cba6ff3e56500ca3d621e2fde2afbf1430d",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/62_feature_dictionary/poster.jpg",
+        "bytes": 190646,
+        "sha256": "cf2f0b393d01aefb3d43a96f68886cba6ff3e56500ca3d621e2fde2afbf1430d"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/48_hit_list/poster.jpg",
+      "bytes": 237748,
+      "sha256": "ff4c2314cbd17eb6f453054349a0e2ec766935c1c78c470bc4c8bfb942a142bf",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/48_hit_list/poster.jpg",
+        "bytes": 237748,
+        "sha256": "ff4c2314cbd17eb6f453054349a0e2ec766935c1c78c470bc4c8bfb942a142bf"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/26_invasion/poster.jpg",
+      "bytes": 145387,
+      "sha256": "69118eb98c791779a6c2b4ef6dd77c564ac8b3e0bdbaefec52641e0a4f38e354",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/26_invasion/poster.jpg",
+        "bytes": 145387,
+        "sha256": "69118eb98c791779a6c2b4ef6dd77c564ac8b3e0bdbaefec52641e0a4f38e354"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/43_illumination/poster.jpg",
+      "bytes": 774412,
+      "sha256": "c61e07df57f39665743117ff842d3562ccaee419691c546795ccf7ff83183b8c",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/43_illumination/poster.jpg",
+        "bytes": 774412,
+        "sha256": "c61e07df57f39665743117ff842d3562ccaee419691c546795ccf7ff83183b8c"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/53_prediction_profiler/poster.jpg",
+      "bytes": 195880,
+      "sha256": "f446ab44ed60619f4524e7b38bb2898cebf59ffe7a2c3d2cf9986506004bff34",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/53_prediction_profiler/poster.jpg",
+        "bytes": 195880,
+        "sha256": "f446ab44ed60619f4524e7b38bb2898cebf59ffe7a2c3d2cf9986506004bff34"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/68_power_design/poster.jpg",
+      "bytes": 262034,
+      "sha256": "b4fd4f4086f0eb386252ee287b886775d2f923ee74b115aa500f830077508f8b",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/68_power_design/poster.jpg",
+        "bytes": 262034,
+        "sha256": "b4fd4f4086f0eb386252ee287b886775d2f923ee74b115aa500f830077508f8b"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/04_platform_installers/poster.jpg",
+      "bytes": 273806,
+      "sha256": "550a168e688544c366e83a98b5a1b38ac0b954c4d0417bc9f9fc6ada3e66656c",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/04_platform_installers/poster.jpg",
+        "bytes": 273806,
+        "sha256": "550a168e688544c366e83a98b5a1b38ac0b954c4d0417bc9f9fc6ada3e66656c"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/28_training_runs/poster.jpg",
+      "bytes": 233583,
+      "sha256": "9ca64e7988afd2c11cfb0ddb468527ff4b4bcd2a766f8c3c5015231aa5a679b0",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/28_training_runs/poster.jpg",
+        "bytes": 233583,
+        "sha256": "9ca64e7988afd2c11cfb0ddb468527ff4b4bcd2a766f8c3c5015231aa5a679b0"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/16_activation/poster.jpg",
+      "bytes": 174536,
+      "sha256": "759063b05891adf31d6f0ea0b8dfc7b48df45234ccd45c0f2c261e2a373864f2",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/16_activation/poster.jpg",
+        "bytes": 174536,
+        "sha256": "759063b05891adf31d6f0ea0b8dfc7b48df45234ccd45c0f2c261e2a373864f2"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/73_parameter_sweep/poster.jpg",
+      "bytes": 186096,
+      "sha256": "6af58cf103b65c157520899107c3762452cdf9a77d041f2157173dd360c4b84f",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/73_parameter_sweep/poster.jpg",
+        "bytes": 186096,
+        "sha256": "6af58cf103b65c157520899107c3762452cdf9a77d041f2157173dd360c4b84f"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/39_classifier_evaluation/poster.jpg",
+      "bytes": 171820,
+      "sha256": "7a5b40f5564cea50a12c875d27b0bf2cb78730f7abe08acdc7a4a420f22431e7",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/39_classifier_evaluation/poster.jpg",
+        "bytes": 171820,
+        "sha256": "7a5b40f5564cea50a12c875d27b0bf2cb78730f7abe08acdc7a4a420f22431e7"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/46_napari_bridge/poster.jpg",
+      "bytes": 137212,
+      "sha256": "f6f7225b0e72fb9d5c5bfb62887451cfc61f1af0db60854353c4303374ae8665",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/46_napari_bridge/poster.jpg",
+        "bytes": 137212,
+        "sha256": "f6f7225b0e72fb9d5c5bfb62887451cfc61f1af0db60854353c4303374ae8665"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/01_pypi_github/poster.jpg",
+      "bytes": 339982,
+      "sha256": "e1f501ee1f6fa2e146e2c5d7555b0f1b85205f17a3f9de46ff5235c542414f1f",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/01_pypi_github/poster.jpg",
+        "bytes": 339982,
+        "sha256": "e1f501ee1f6fa2e146e2c5d7555b0f1b85205f17a3f9de46ff5235c542414f1f"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/38_distributed_jobs/poster.jpg",
+      "bytes": 387230,
+      "sha256": "d6973c5db863a996399b63fbc41f27f28a9852f38b66f8bdd10fdfaa48e63b8e",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/38_distributed_jobs/poster.jpg",
+        "bytes": 387230,
+        "sha256": "d6973c5db863a996399b63fbc41f27f28a9852f38b66f8bdd10fdfaa48e63b8e"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/15_image_umap/poster.jpg",
+      "bytes": 786346,
+      "sha256": "5c947b3bed47c1b49bd2d8deedfdf755e8df1f86907b6641f38dfd0c256adb45",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/15_image_umap/poster.jpg",
+        "bytes": 786346,
+        "sha256": "5c947b3bed47c1b49bd2d8deedfdf755e8df1f86907b6641f38dfd0c256adb45"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/82_toxoplasma/poster.jpg",
+      "bytes": 1188374,
+      "sha256": "cc9c98942ed575e1f9091fab7dc14358aa0511cb0d1cd95ee3773f22bab92ee5",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/82_toxoplasma/poster.jpg",
+        "bytes": 1188374,
+        "sha256": "cc9c98942ed575e1f9091fab7dc14358aa0511cb0d1cd95ee3773f22bab92ee5"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/58_graph_builder/poster.jpg",
+      "bytes": 130707,
+      "sha256": "71b095598c4a412b9727a1102e1fdeebf26f995b3ebc15f3e6d2ec48e858eab6",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/58_graph_builder/poster.jpg",
+        "bytes": 130707,
+        "sha256": "71b095598c4a412b9727a1102e1fdeebf26f995b3ebc15f3e6d2ec48e858eab6"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/19_train_cellpose/poster.jpg",
+      "bytes": 214034,
+      "sha256": "7fa4dfba73bd37cd818f822553a7b2d156a09e4704c1088c9fa9612a37a98097",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/19_train_cellpose/poster.jpg",
+        "bytes": 214034,
+        "sha256": "7fa4dfba73bd37cd818f822553a7b2d156a09e4704c1088c9fa9612a37a98097"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/32_align_stitch/poster.jpg",
+      "bytes": 152401,
+      "sha256": "549f87a53314ceec1d5ac57e4c6d92ce238a7c474f0b8d52b6cf016553c465e4",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/32_align_stitch/poster.jpg",
+        "bytes": 152401,
+        "sha256": "549f87a53314ceec1d5ac57e4c6d92ce238a7c474f0b8d52b6cf016553c465e4"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/36_import/poster.jpg",
+      "bytes": 177827,
+      "sha256": "a8a194ee13814ef4d37dd01de02d25f2210670cb4f9d43a7befa9b86eeb9ebf2",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/36_import/poster.jpg",
+        "bytes": 177827,
+        "sha256": "a8a194ee13814ef4d37dd01de02d25f2210670cb4f9d43a7befa9b86eeb9ebf2"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/31_external_masks/poster.jpg",
+      "bytes": 250982,
+      "sha256": "3b07ef8acef8bcd462b9fee783b0f50808bbd01750d63dee7550147d9928a1ec",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/31_external_masks/poster.jpg",
+        "bytes": 250982,
+        "sha256": "3b07ef8acef8bcd462b9fee783b0f50808bbd01750d63dee7550147d9928a1ec"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/production/41_classify/poster.jpg",
+      "bytes": 132567,
+      "sha256": "d57718b6c1b2c6c3053ddc39db9539eca813438a39c4ab5772dee1576baaba6a",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/production/41_classify/poster.jpg",
+        "bytes": 132567,
+        "sha256": "d57718b6c1b2c6c3053ddc39db9539eca813438a39c4ab5772dee1576baaba6a"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/catalog/captions_nb.json",
+      "bytes": 693149,
+      "sha256": "93428643f4e9ec18412d5175d87eb13b25331eeddfba311a7bc7ad5f0dc9481f",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/catalog/captions_nb.json",
+        "bytes": 693149,
+        "sha256": "93428643f4e9ec18412d5175d87eb13b25331eeddfba311a7bc7ad5f0dc9481f"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/catalog/lessons_hi.json",
+      "bytes": 1832339,
+      "sha256": "467514cd1d51452b671e1e85d2dec52d995c9a627d19cafaccaee3279afe4a82",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/catalog/lessons_hi.json",
+        "bytes": 1832339,
+        "sha256": "467514cd1d51452b671e1e85d2dec52d995c9a627d19cafaccaee3279afe4a82"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/catalog/captions_ko.json",
+      "bytes": 738748,
+      "sha256": "b2feae69fda0f0890d46421b7fb4c57a613e13cf7d4ae55afba423111a2d4515",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/catalog/captions_ko.json",
+        "bytes": 738748,
+        "sha256": "b2feae69fda0f0890d46421b7fb4c57a613e13cf7d4ae55afba423111a2d4515"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/catalog/lessons_it.json",
+      "bytes": 1093066,
+      "sha256": "db4162bc8c324c8207ccc97b23fbffb0dbd74f2768b70498d656b301eb47d892",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/catalog/lessons_it.json",
+        "bytes": 1093066,
+        "sha256": "db4162bc8c324c8207ccc97b23fbffb0dbd74f2768b70498d656b301eb47d892"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/catalog/lessons_pt-BR.json",
+      "bytes": 1087212,
+      "sha256": "bd448e93ba8b5f394f7ed22f0e894eca058f5f5fd6c016851e5987db62be4859",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/catalog/lessons_pt-BR.json",
+        "bytes": 1087212,
+        "sha256": "bd448e93ba8b5f394f7ed22f0e894eca058f5f5fd6c016851e5987db62be4859"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/catalog/lessons_zh-CN.json",
+      "bytes": 948865,
+      "sha256": "6c89e48d989e06c5d4aa60098581933578822c75dd795b407d7bf1b4f22b6230",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/catalog/lessons_zh-CN.json",
+        "bytes": 948865,
+        "sha256": "6c89e48d989e06c5d4aa60098581933578822c75dd795b407d7bf1b4f22b6230"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/catalog/lessons_es.json",
+      "bytes": 1104471,
+      "sha256": "7e73582148f0bded2460b5051e9135bc7c7316b2c55f874989e16d105a663c16",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/catalog/lessons_es.json",
+        "bytes": 1104471,
+        "sha256": "7e73582148f0bded2460b5051e9135bc7c7316b2c55f874989e16d105a663c16"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/catalog/captions_is.json",
+      "bytes": 702067,
+      "sha256": "e26186f6ded1741d50b6bb84398cf25c0011b68b41688fd621a9011df181d1f2",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/catalog/captions_is.json",
+        "bytes": 702067,
+        "sha256": "e26186f6ded1741d50b6bb84398cf25c0011b68b41688fd621a9011df181d1f2"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/catalog/captions_de.json",
+      "bytes": 744264,
+      "sha256": "ce9ae42dd8436bcb10417bc8375df74a9fcd2b5f75384b06a897c97e6d9717ff",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/catalog/captions_de.json",
+        "bytes": 744264,
+        "sha256": "ce9ae42dd8436bcb10417bc8375df74a9fcd2b5f75384b06a897c97e6d9717ff"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/catalog/lessons_fr.json",
+      "bytes": 1148195,
+      "sha256": "38872f0ba6531fb3d764305d772860acf538d26c07591219ff0ba5e2f33a165c",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/catalog/lessons_fr.json",
+        "bytes": 1148195,
+        "sha256": "38872f0ba6531fb3d764305d772860acf538d26c07591219ff0ba5e2f33a165c"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/catalog/lessons_ja.json",
+      "bytes": 1222656,
+      "sha256": "ca5318806d462a2a61d2c478806be18186df54fcd12697624acd64c554e1694f",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/catalog/lessons_ja.json",
+        "bytes": 1222656,
+        "sha256": "ca5318806d462a2a61d2c478806be18186df54fcd12697624acd64c554e1694f"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/catalog/captions_da.json",
+      "bytes": 697302,
+      "sha256": "3171dbdff897df9e4f85dc6001b92c8e5df76cdda0be3e90858446a4b17a9f85",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/catalog/captions_da.json",
+        "bytes": 697302,
+        "sha256": "3171dbdff897df9e4f85dc6001b92c8e5df76cdda0be3e90858446a4b17a9f85"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/catalog/lessons_en.json",
+      "bytes": 674302,
+      "sha256": "6494365f21d95c66777a27e72d9393680bc8efd560b9ffc5cf6be3725ef15abe",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/catalog/lessons_en.json",
+        "bytes": 674302,
+        "sha256": "6494365f21d95c66777a27e72d9393680bc8efd560b9ffc5cf6be3725ef15abe"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/catalog/captions_sv.json",
+      "bytes": 702075,
+      "sha256": "868b4ed1d929b3b7c68a9a7233d86fa0d61a7a76328ce3201f084d5b3d537628",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/catalog/captions_sv.json",
+        "bytes": 702075,
+        "sha256": "868b4ed1d929b3b7c68a9a7233d86fa0d61a7a76328ce3201f084d5b3d537628"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/SYNTHETIC_plaque_example.zip",
+      "bytes": 1549864,
+      "sha256": "7355b6d79e4afd03bdfa79118e0a76c03db514d8549c69702ad0c4e60b3d1619",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/SYNTHETIC_plaque_example.zip",
+        "bytes": 1549864,
+        "sha256": "7355b6d79e4afd03bdfa79118e0a76c03db514d8549c69702ad0c4e60b3d1619"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/Hit_List_real_results_companion.zip",
+      "bytes": 59303,
+      "sha256": "ab1c68e0f2293e5a6a90df180d8ec65b3dc5ba165b72265bf8e5fb54846d6dbb",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/Hit_List_real_results_companion.zip",
+        "bytes": 59303,
+        "sha256": "ab1c68e0f2293e5a6a90df180d8ec65b3dc5ba165b72265bf8e5fb54846d6dbb"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/SYNTHETIC_napari_example.zip",
+      "bytes": 132405,
+      "sha256": "22bcb651b1836a8df3430926970e279ba2f65d1dea8018a4f2ab265ed245cb6c",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/SYNTHETIC_napari_example.zip",
+        "bytes": 132405,
+        "sha256": "22bcb651b1836a8df3430926970e279ba2f65d1dea8018a4f2ab265ed245cb6c"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/Layer_Viewer_real_image_mask.zip",
+      "bytes": 5493647,
+      "sha256": "77b7c269616f2491b1a8c37003023699ba9648d3a8e282193d79fabc35a40e81",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/Layer_Viewer_real_image_mask.zip",
+        "bytes": 5493647,
+        "sha256": "77b7c269616f2491b1a8c37003023699ba9648d3a8e282193d79fabc35a40e81"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/SYNTHETIC_motility_tracks.zip",
+      "bytes": 2345013,
+      "sha256": "c8bbbb2a137d8b0e98458ddf731038671983b1ed8b20cd16f8d27d1fceb474a7",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/SYNTHETIC_motility_tracks.zip",
+        "bytes": 2345013,
+        "sha256": "c8bbbb2a137d8b0e98458ddf731038671983b1ed8b20cd16f8d27d1fceb474a7"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/AnnData_API_workaround.zip",
+      "bytes": 3788,
+      "sha256": "5a26c0553b9763b5eccf2de0ab6e5a36b5accc9683d6b6ff03ed28ec71b05f9d",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/AnnData_API_workaround.zip",
+        "bytes": 3788,
+        "sha256": "5a26c0553b9763b5eccf2de0ab6e5a36b5accc9683d6b6ff03ed28ec71b05f9d"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/Mask_overlay_API_workaround.zip",
+      "bytes": 4724,
+      "sha256": "f10f7f40daecef4b4813f18986efc08c0f3ed5f3891e874d40226c093e1e6eff",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/Mask_overlay_API_workaround.zip",
+        "bytes": 4724,
+        "sha256": "f10f7f40daecef4b4813f18986efc08c0f3ed5f3891e874d40226c093e1e6eff"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/Curate_SYNTHETIC_practice.zip",
+      "bytes": 8260,
+      "sha256": "784511f7de8059f16cd068ca1f429d8f1ffaf64061edcd327ced721c0964d931",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/Curate_SYNTHETIC_practice.zip",
+        "bytes": 8260,
+        "sha256": "784511f7de8059f16cd068ca1f429d8f1ffaf64061edcd327ced721c0964d931"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/Model_Compare_saved_masks_example.zip",
+      "bytes": 452803,
+      "sha256": "ee5906497c667eb3b6b8a2930f337c4b6015f92aa53a07c124a46f8abf632277",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/Model_Compare_saved_masks_example.zip",
+        "bytes": 452803,
+        "sha256": "ee5906497c667eb3b6b8a2930f337c4b6015f92aa53a07c124a46f8abf632277"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/SYNTHETIC_training_runs.zip",
+      "bytes": 13438,
+      "sha256": "945e7b422bcb2cd3454b4af10a3cbed498b96b14a602d47fdc0aadfa9f7382d0",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/SYNTHETIC_training_runs.zip",
+        "bytes": 13438,
+        "sha256": "945e7b422bcb2cd3454b4af10a3cbed498b96b14a602d47fdc0aadfa9f7382d0"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/Train_Cellpose_API_example.zip",
+      "bytes": 2264580,
+      "sha256": "0b1fe69c5d5c569afb9eb4fbc53e78a43b01e03c469825b2c4f547c97fcee469",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/Train_Cellpose_API_example.zip",
+        "bytes": 2264580,
+        "sha256": "0b1fe69c5d5c569afb9eb4fbc53e78a43b01e03c469825b2c4f547c97fcee469"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/Run_Compare_real_snapshots.zip",
+      "bytes": 5783785,
+      "sha256": "5a0523d3e8b7228ce44d192b274500083f5e89b83f4723023ba75cffdd60f453",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/Run_Compare_real_snapshots.zip",
+        "bytes": 5783785,
+        "sha256": "5a0523d3e8b7228ce44d192b274500083f5e89b83f4723023ba75cffdd60f453"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/Control_Charts_SYNTHETIC_campaign.csv",
+      "bytes": 10394,
+      "sha256": "b1f4f2789f953bf4340b720cdd1eed0861733594822e27b3c0d9a5c706a8fe1f",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/Control_Charts_SYNTHETIC_campaign.csv",
+        "bytes": 10394,
+        "sha256": "b1f4f2789f953bf4340b720cdd1eed0861733594822e27b3c0d9a5c706a8fe1f"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/SYNTHETIC_timelapse_preview.zip",
+      "bytes": 1050432,
+      "sha256": "a94da333f55c10470737855c74b6add9e55c0dbf955474126429df49c0027868",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/SYNTHETIC_timelapse_preview.zip",
+        "bytes": 1050432,
+        "sha256": "a94da333f55c10470737855c74b6add9e55c0dbf955474126429df49c0027868"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/Investigate_Hit_real_screen_example.zip",
+      "bytes": 1995731,
+      "sha256": "6383a0da41e0bf7f2691cf259fe12c6cc7a22f4c63ef9f6299ff82d3ebb22464",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/Investigate_Hit_real_screen_example.zip",
+        "bytes": 1995731,
+        "sha256": "6383a0da41e0bf7f2691cf259fe12c6cc7a22f4c63ef9f6299ff82d3ebb22464"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/anndata_missing_metadata_example.py",
+      "bytes": 6314,
+      "sha256": "47b3281847726548ac7617023bf756f5e3d94cf35417e68e0edf9de30625e919",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/anndata_missing_metadata_example.py",
+        "bytes": 6314,
+        "sha256": "47b3281847726548ac7617023bf756f5e3d94cf35417e68e0edf9de30625e919"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/SRR33531217_barcode_references.zip",
+      "bytes": 30824,
+      "sha256": "54a939e7a89d7fc7dcb607517c49e3a49e61bd6d769f53be1d02f2777a4764cf",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/SRR33531217_barcode_references.zip",
+        "bytes": 30824,
+        "sha256": "54a939e7a89d7fc7dcb607517c49e3a49e61bd6d769f53be1d02f2777a4764cf"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/REAL_evaluation_known_overlap.zip",
+      "bytes": 199726,
+      "sha256": "a5b7b039f7c072bfad610ac73ebb15272878bba1b2067a436a07bda17ea045e4",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/REAL_evaluation_known_overlap.zip",
+        "bytes": 199726,
+        "sha256": "a5b7b039f7c072bfad610ac73ebb15272878bba1b2067a436a07bda17ea045e4"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/Embeddings_API_example.zip",
+      "bytes": 4746,
+      "sha256": "7b396acb50a7072f55a6477fe2487862597a2d0eda80ee0992667047b4d56e11",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/Embeddings_API_example.zip",
+        "bytes": 4746,
+        "sha256": "7b396acb50a7072f55a6477fe2487862597a2d0eda80ee0992667047b4d56e11"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/SYNTHETIC_profiler_example.zip",
+      "bytes": 6231,
+      "sha256": "165ccd6a1bfd09f29b411c001c2722e82435fffeb9d40e930d3eb299551eec83",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/SYNTHETIC_profiler_example.zip",
+        "bytes": 6231,
+        "sha256": "165ccd6a1bfd09f29b411c001c2722e82435fffeb9d40e930d3eb299551eec83"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/Align_Stitch_nine_tiles.zip",
+      "bytes": 33292958,
+      "sha256": "bd606bb0652b7473299349455aebaecc05aa7c10699ed98a7604375e3fded94f",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/Align_Stitch_nine_tiles.zip",
+        "bytes": 33292958,
+        "sha256": "bd606bb0652b7473299349455aebaecc05aa7c10699ed98a7604375e3fded94f"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/SYNTHETIC_dose_response_examples.csv",
+      "bytes": 4730,
+      "sha256": "ecf1527399e55a8a4efdde53ee1c7b536259209173bc4aec7d422bd6b543838d",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/SYNTHETIC_dose_response_examples.csv",
+        "bytes": 4730,
+        "sha256": "ecf1527399e55a8a4efdde53ee1c7b536259209173bc4aec7d422bd6b543838d"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/Volcano_real_guide_family.zip",
+      "bytes": 63894,
+      "sha256": "9656373d2b8844e62e59c679e0197b2b83c0538a0de4e7c63f2496b13621b077",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/Volcano_real_guide_family.zip",
+        "bytes": 63894,
+        "sha256": "9656373d2b8844e62e59c679e0197b2b83c0538a0de4e7c63f2496b13621b077"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/Apply_Cellpose_stock_example.zip",
+      "bytes": 1056789,
+      "sha256": "191ed86c5bd41cf548d69c23354ddc6286256e62280764813acba8b29e1824db",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/Apply_Cellpose_stock_example.zip",
+        "bytes": 1056789,
+        "sha256": "191ed86c5bd41cf548d69c23354ddc6286256e62280764813acba8b29e1824db"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/Power_recorded_simulation_review.zip",
+      "bytes": 5112,
+      "sha256": "ec23021f83c1c782e10629089e52c00b7d4292ba2adc3d19f8b0936c0c2c9ef0",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/Power_recorded_simulation_review.zip",
+        "bytes": 5112,
+        "sha256": "ec23021f83c1c782e10629089e52c00b7d4292ba2adc3d19f8b0936c0c2c9ef0"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/SYNTHETIC_replication_example.zip",
+      "bytes": 35013,
+      "sha256": "03e4e725e60bd1dbeaddc3f68e97f90e57001dce9b671d0716c32ce8b5402fe7",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/SYNTHETIC_replication_example.zip",
+        "bytes": 35013,
+        "sha256": "03e4e725e60bd1dbeaddc3f68e97f90e57001dce9b671d0716c32ce8b5402fe7"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/Cellpose_training_images_masks.zip",
+      "bytes": 3437727,
+      "sha256": "53cbc54809c073a86e170ae63f60e3678aa44bc81fdeba6ee4bf5b5167d365a6",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/Cellpose_training_images_masks.zip",
+        "bytes": 3437727,
+        "sha256": "53cbc54809c073a86e170ae63f60e3678aa44bc81fdeba6ee4bf5b5167d365a6"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/Lineage_real_containment_review.zip",
+      "bytes": 51192,
+      "sha256": "ed24d5e54635c00573ea7b2a1fb3139b5b8094128f98959407d00e6e92fc3828",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/Lineage_real_containment_review.zip",
+        "bytes": 51192,
+        "sha256": "ed24d5e54635c00573ea7b2a1fb3139b5b8094128f98959407d00e6e92fc3828"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/Graph_Builder_real_measurements.zip",
+      "bytes": 15079923,
+      "sha256": "f018566da4f53ce00e367f6c7dcf432be94c5dd0beda3fdd4569d0ab2281a3f8",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/Graph_Builder_real_measurements.zip",
+        "bytes": 15079923,
+        "sha256": "f018566da4f53ce00e367f6c7dcf432be94c5dd0beda3fdd4569d0ab2281a3f8"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/Classify_existing_split_example.zip",
+      "bytes": 5324,
+      "sha256": "869da240b9ddf831784cdc7d4ee04f524b4d583a3972f3c4a9d4a48fac9bac86",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/Classify_existing_split_example.zip",
+        "bytes": 5324,
+        "sha256": "869da240b9ddf831784cdc7d4ee04f524b4d583a3972f3c4a9d4a48fac9bac86"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/SYNTHETIC_invasion_example.zip",
+      "bytes": 60593,
+      "sha256": "2306fd51da42108f46e2c5192509415c322ff1e66641d57339466074d36c7014",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/SYNTHETIC_invasion_example.zip",
+        "bytes": 60593,
+        "sha256": "2306fd51da42108f46e2c5192509415c322ff1e66641d57339466074d36c7014"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/AnnData_API_workaround_README.txt",
+      "bytes": 3056,
+      "sha256": "0f7552186032db74356e521d18f214f6fe40825046054bf8c74fe5e949525c6f",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/AnnData_API_workaround_README.txt",
+        "bytes": 3056,
+        "sha256": "0f7552186032db74356e521d18f214f6fe40825046054bf8c74fe5e949525c6f"
+      }
+    },
+    {
+      "path": "export/checkpoint/web/examples/Agreement_artificial_labels_real_crops.zip",
+      "bytes": 2143021,
+      "sha256": "47bb5556de177f3fd5beb97b55564eb0890d0e5d3739da0aba2f1902ab4d360c",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/checkpoint/web/examples/Agreement_artificial_labels_real_crops.zip",
+        "bytes": 2143021,
+        "sha256": "47bb5556de177f3fd5beb97b55564eb0890d0e5d3739da0aba2f1902ab4d360c"
+      }
+    },
+    {
+      "path": "helpers/export_completed05_checkpoint.py",
+      "bytes": 23114,
+      "sha256": "9d7c0f275af4ad16ccb24003dbe50f0d78cec669f22885292663332b11ccdd33",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/export_completed05_checkpoint.py",
+        "bytes": 23114,
+        "sha256": "9d7c0f275af4ad16ccb24003dbe50f0d78cec669f22885292663332b11ccdd33"
+      }
+    },
+    {
+      "path": "helpers/assemble_completed05_packet.py",
+      "bytes": 7193,
+      "sha256": "addf63ec9b4a67a58050dc2d3255d9e2cdc002b5eb7f974226a5e327f341fb56",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/assemble_completed05_packet.py",
+        "bytes": 7193,
+        "sha256": "addf63ec9b4a67a58050dc2d3255d9e2cdc002b5eb7f974226a5e327f341fb56"
+      }
+    },
+    {
+      "path": "helpers/copy_completed05_to_report.py",
+      "bytes": 8700,
+      "sha256": "c7d3a76ad9945bd3740817424bdf60a8c99252fad1fe5a0e1a9c67b1128b459b",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/copy_completed05_to_report.py",
+        "bytes": 8700,
+        "sha256": "c7d3a76ad9945bd3740817424bdf60a8c99252fad1fe5a0e1a9c67b1128b459b"
+      }
+    },
+    {
+      "path": "helpers/completed05-helper-USAGE.txt",
+      "bytes": 3694,
+      "sha256": "674e3278c5da01f6e4c5bbf3b24674b4a1be3fc959bf4f9bfab791d03ecefcf4",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/completed05-helper-USAGE.txt",
+        "bytes": 3694,
+        "sha256": "674e3278c5da01f6e4c5bbf3b24674b4a1be3fc959bf4f9bfab791d03ecefcf4"
+      }
+    },
+    {
+      "path": "helpers/completed05-helper-manifest.json",
+      "bytes": 1279,
+      "sha256": "597eee00e0c9777d596b106359195c4076a20eff225121be8b66a0286f017a98",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/completed05-helper-manifest.json",
+        "bytes": 1279,
+        "sha256": "597eee00e0c9777d596b106359195c4076a20eff225121be8b66a0286f017a98"
+      }
+    },
+    {
+      "path": "final-publication-review.json",
+      "bytes": 4638,
+      "sha256": "463ae12a4769a934033da885f0514c782e382adf701d96fcc75f8f67d76b1cb3",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/root-final-publication-review.json",
+        "bytes": 4638,
+        "sha256": "463ae12a4769a934033da885f0514c782e382adf701d96fcc75f8f67d76b1cb3"
+      }
+    },
+    {
+      "path": "additional-evidence/00-lesson05-selective-playerfix-20261015-05_home-cues-lesson05-selective-playerfix-20261015.log",
+      "bytes": 31220,
+      "sha256": "3da5ab7fedcfd1ef884f7e10a96664ecff6f4d20bad419ac9d922368b5d510a9",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-cues-lesson05-selective-playerfix-20261015.log",
+        "bytes": 31220,
+        "sha256": "3da5ab7fedcfd1ef884f7e10a96664ecff6f4d20bad419ac9d922368b5d510a9"
+      }
+    },
+    {
+      "path": "additional-evidence/01-lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1599,
+      "sha256": "400b5f5bda34d9d46a643cfc23acd3c66e99d966db59c8d3742cae3b6e1435aa",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1599,
+        "sha256": "400b5f5bda34d9d46a643cfc23acd3c66e99d966db59c8d3742cae3b6e1435aa"
+      }
+    },
+    {
+      "path": "additional-evidence/02-lesson05-selective-playerfix-20261015-05_home-master-es-ef_dora-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1647,
+      "sha256": "9052a67c65ce77c414269a93e6aec80263909a2ecb35621743364fc3f7e15a32",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-es-ef_dora-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1647,
+        "sha256": "9052a67c65ce77c414269a93e6aec80263909a2ecb35621743364fc3f7e15a32"
+      }
+    },
+    {
+      "path": "additional-evidence/03-lesson05-selective-playerfix-20261015-05_home-master-fr-ff_siwis-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1651,
+      "sha256": "ccf2b963b9270ff79c6b01ecad0cb9f754f23c291c3c83a8258a30ade91b2382",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-fr-ff_siwis-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1651,
+        "sha256": "ccf2b963b9270ff79c6b01ecad0cb9f754f23c291c3c83a8258a30ade91b2382"
+      }
+    },
+    {
+      "path": "additional-evidence/04-lesson05-selective-playerfix-20261015-05_home-master-hi-hf_alpha-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1650,
+      "sha256": "e6ecf39b7c404b496131b69dc60ab96382d73167bf28af1439299102b4f5c8eb",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-hi-hf_alpha-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1650,
+        "sha256": "e6ecf39b7c404b496131b69dc60ab96382d73167bf28af1439299102b4f5c8eb"
+      }
+    },
+    {
+      "path": "additional-evidence/05-lesson05-selective-playerfix-20261015-05_home-master-it-if_sara-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1648,
+      "sha256": "9b0c06e75133af61327cf9fa68f7d4c09c7892886410678115661ce485ca65f9",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-it-if_sara-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1648,
+        "sha256": "9b0c06e75133af61327cf9fa68f7d4c09c7892886410678115661ce485ca65f9"
+      }
+    },
+    {
+      "path": "additional-evidence/06-lesson05-selective-playerfix-20261015-05_home-master-pt-BR-pf_dora-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1654,
+      "sha256": "6c2c64500e7a0892488f629205a1125a4a97cddbeacfa7c0488b27fd2887a8fc",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-pt-BR-pf_dora-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1654,
+        "sha256": "6c2c64500e7a0892488f629205a1125a4a97cddbeacfa7c0488b27fd2887a8fc"
+      }
+    },
+    {
+      "path": "additional-evidence/07-lesson05-selective-playerfix-20261015-05_home-master-ja-jf_alpha-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1649,
+      "sha256": "c9683b1b2b512a6eb637741fc53f31427b10f96995917843147aa952a0f25a1f",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-ja-jf_alpha-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1649,
+        "sha256": "c9683b1b2b512a6eb637741fc53f31427b10f96995917843147aa952a0f25a1f"
+      }
+    },
+    {
+      "path": "additional-evidence/08-lesson05-selective-playerfix-20261015-05_home-master-zh-CN-zf_xiaobei-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1661,
+      "sha256": "9ce8e43fac0cd334d9e5c40bd6edd53f1ab81558e88318c889117ea0205c6e50",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-zh-CN-zf_xiaobei-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1661,
+        "sha256": "9ce8e43fac0cd334d9e5c40bd6edd53f1ab81558e88318c889117ea0205c6e50"
+      }
+    },
+    {
+      "path": "additional-evidence/09-lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-da-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1790,
+      "sha256": "b3ef70b75c9553c8bf055820ec90bd8c747a2b80472445c257b6f4d6fb94cdf4",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-da-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1790,
+        "sha256": "b3ef70b75c9553c8bf055820ec90bd8c747a2b80472445c257b6f4d6fb94cdf4"
+      }
+    },
+    {
+      "path": "additional-evidence/10-lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-de-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1790,
+      "sha256": "cfe93b559baefaf62fe94bd3e03d4c405a5333d9935bd2fea90734f38bdd20da",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-de-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1790,
+        "sha256": "cfe93b559baefaf62fe94bd3e03d4c405a5333d9935bd2fea90734f38bdd20da"
+      }
+    },
+    {
+      "path": "additional-evidence/11-lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-is-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1780,
+      "sha256": "a6584357a2c10eeaa0a642e56e9242cf6dcc283c553b99beee0d9f81414791bb",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-is-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1780,
+        "sha256": "a6584357a2c10eeaa0a642e56e9242cf6dcc283c553b99beee0d9f81414791bb"
+      }
+    },
+    {
+      "path": "additional-evidence/12-lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-ko-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1782,
+      "sha256": "73b0e7f555708323bfced1320511024b85b450355752fc69e85d02ae269e3a9c",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-ko-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1782,
+        "sha256": "73b0e7f555708323bfced1320511024b85b450355752fc69e85d02ae269e3a9c"
+      }
+    },
+    {
+      "path": "additional-evidence/13-lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-nb-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1790,
+      "sha256": "eed640f623903e00950737b2b04a8b02cbb4d203347f78f76c9ece8144d7b230",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-nb-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1790,
+        "sha256": "eed640f623903e00950737b2b04a8b02cbb4d203347f78f76c9ece8144d7b230"
+      }
+    },
+    {
+      "path": "additional-evidence/14-lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-sv-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1782,
+      "sha256": "139753b9fd540c2c2a37988ad45c3b3de3b2d9cf9058691be27793b593885ce8",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-sv-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1782,
+        "sha256": "139753b9fd540c2c2a37988ad45c3b3de3b2d9cf9058691be27793b593885ce8"
+      }
+    },
+    {
+      "path": "additional-evidence/15-lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1764,
+      "sha256": "eb7c7bae244e67ecb9afa97740b7bf137f8ce2ae28617da2b1af9d0ab729ccea",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1764,
+        "sha256": "eb7c7bae244e67ecb9afa97740b7bf137f8ce2ae28617da2b1af9d0ab729ccea"
+      }
+    },
+    {
+      "path": "additional-evidence/16-lesson05-selective-playerfix-20261015-05_home-web-en-af_aoede-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1765,
+      "sha256": "d414109a71a68e607501c3cd7791b61286e9697541773ed6264f200c64b126f0",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_aoede-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1765,
+        "sha256": "d414109a71a68e607501c3cd7791b61286e9697541773ed6264f200c64b126f0"
+      }
+    },
+    {
+      "path": "additional-evidence/17-lesson05-selective-playerfix-20261015-05_home-web-en-af_bella-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1772,
+      "sha256": "0bf19939bfc31dd790a1aa07e9cd3219cb8a570679ced9f8cb18962389aa554d",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_bella-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1772,
+        "sha256": "0bf19939bfc31dd790a1aa07e9cd3219cb8a570679ced9f8cb18962389aa554d"
+      }
+    },
+    {
+      "path": "additional-evidence/18-lesson05-selective-playerfix-20261015-05_home-web-en-af_jessica-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1776,
+      "sha256": "587a243cfb7261c910b81d873d2bdfffc08f2a99e02b4b2e2e9e4fae96031c14",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_jessica-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1776,
+        "sha256": "587a243cfb7261c910b81d873d2bdfffc08f2a99e02b4b2e2e9e4fae96031c14"
+      }
+    },
+    {
+      "path": "additional-evidence/19-lesson05-selective-playerfix-20261015-05_home-web-en-af_river-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1765,
+      "sha256": "6199d0c8dc259130d5f3e8b76e69d9b503595ef4f03eff72d68ef06d2a4544ab",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_river-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1765,
+        "sha256": "6199d0c8dc259130d5f3e8b76e69d9b503595ef4f03eff72d68ef06d2a4544ab"
+      }
+    },
+    {
+      "path": "additional-evidence/20-lesson05-selective-playerfix-20261015-05_home-web-en-af_sarah-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1772,
+      "sha256": "253825f277ba214a4de99912ecd446822296e6fbab64331b767ce01e84804991",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_sarah-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1772,
+        "sha256": "253825f277ba214a4de99912ecd446822296e6fbab64331b767ce01e84804991"
+      }
+    },
+    {
+      "path": "additional-evidence/21-lesson05-selective-playerfix-20261015-05_home-web-en-af_sky-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1769,
+      "sha256": "63743ae10d25703c12dbac3f96ae4c1e91b40fd369af267a3073fbc6d4d6eb41",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_sky-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1769,
+        "sha256": "63743ae10d25703c12dbac3f96ae4c1e91b40fd369af267a3073fbc6d4d6eb41"
+      }
+    },
+    {
+      "path": "additional-evidence/22-lesson05-selective-playerfix-20261015-05_home-web-en-am_adam-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1769,
+      "sha256": "d0cd2405fa817e9149e4fba3687558b60d3d973262e9bb326dbbf3b1ad0365d6",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_adam-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1769,
+        "sha256": "d0cd2405fa817e9149e4fba3687558b60d3d973262e9bb326dbbf3b1ad0365d6"
+      }
+    },
+    {
+      "path": "additional-evidence/23-lesson05-selective-playerfix-20261015-05_home-web-en-am_echo-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1771,
+      "sha256": "2096b9f77ce013693b6465a4b5ede502ec93d6a4fa0509e29a4e62bf7ab8b76f",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_echo-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1771,
+        "sha256": "2096b9f77ce013693b6465a4b5ede502ec93d6a4fa0509e29a4e62bf7ab8b76f"
+      }
+    },
+    {
+      "path": "additional-evidence/24-lesson05-selective-playerfix-20261015-05_home-web-en-am_eric-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1771,
+      "sha256": "92ed0e0a757284c97a0a5240c2ca9ce6bde8054ac4d3d598fa7f48b46aeb53e4",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_eric-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1771,
+        "sha256": "92ed0e0a757284c97a0a5240c2ca9ce6bde8054ac4d3d598fa7f48b46aeb53e4"
+      }
+    },
+    {
+      "path": "additional-evidence/25-lesson05-selective-playerfix-20261015-05_home-web-en-am_fenrir-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1773,
+      "sha256": "49ec538a7e22930789dd83058fdc787f30037eadd944b6fc0ab877dec796ca53",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_fenrir-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1773,
+        "sha256": "49ec538a7e22930789dd83058fdc787f30037eadd944b6fc0ab877dec796ca53"
+      }
+    },
+    {
+      "path": "additional-evidence/26-lesson05-selective-playerfix-20261015-05_home-web-en-am_liam-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1771,
+      "sha256": "154cfb2ceea8eda4449f3c7c34d6512bd9dd5b043c9c702bba16f8cac742642d",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_liam-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1771,
+        "sha256": "154cfb2ceea8eda4449f3c7c34d6512bd9dd5b043c9c702bba16f8cac742642d"
+      }
+    },
+    {
+      "path": "additional-evidence/27-lesson05-selective-playerfix-20261015-05_home-web-en-am_michael-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1776,
+      "sha256": "b72807558cc90c29cdc9cf536137006602f66f282ed77b9c9c2a952039c72d7f",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_michael-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1776,
+        "sha256": "b72807558cc90c29cdc9cf536137006602f66f282ed77b9c9c2a952039c72d7f"
+      }
+    },
+    {
+      "path": "additional-evidence/28-lesson05-selective-playerfix-20261015-05_home-web-en-am_onyx-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1763,
+      "sha256": "da04f6a9bcf2b11d5ac5e94881e1ce9f887c5d61f82086166f94e33c94baa914",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_onyx-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1763,
+        "sha256": "da04f6a9bcf2b11d5ac5e94881e1ce9f887c5d61f82086166f94e33c94baa914"
+      }
+    },
+    {
+      "path": "additional-evidence/29-lesson05-selective-playerfix-20261015-05_home-web-en-am_puck-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1760,
+      "sha256": "33b3c50ebc14482f8aba99c7b4ec54f35ebb37ed275d69f1e001a617e90a4733",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_puck-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1760,
+        "sha256": "33b3c50ebc14482f8aba99c7b4ec54f35ebb37ed275d69f1e001a617e90a4733"
+      }
+    },
+    {
+      "path": "additional-evidence/30-lesson05-selective-playerfix-20261015-05_home-web-en-am_santa-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1764,
+      "sha256": "256fe4e71d0aa550ed78b0e1b293880a68f182e33deabd635c4a1aa36dd1bad6",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_santa-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1764,
+        "sha256": "256fe4e71d0aa550ed78b0e1b293880a68f182e33deabd635c4a1aa36dd1bad6"
+      }
+    },
+    {
+      "path": "additional-evidence/31-lesson05-selective-playerfix-20261015-05_home-web-en-bf_alice-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1773,
+      "sha256": "b62a27580621550878134a66629ec7bfcde205dd5fa25e150b6f3b55567a9dea",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bf_alice-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1773,
+        "sha256": "b62a27580621550878134a66629ec7bfcde205dd5fa25e150b6f3b55567a9dea"
+      }
+    },
+    {
+      "path": "additional-evidence/32-lesson05-selective-playerfix-20261015-05_home-web-en-bf_emma-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1770,
+      "sha256": "d168574356191d1c1150fba81383589211f05b6dc77c6e7acad6ccda8d497760",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bf_emma-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1770,
+        "sha256": "d168574356191d1c1150fba81383589211f05b6dc77c6e7acad6ccda8d497760"
+      }
+    },
+    {
+      "path": "additional-evidence/33-lesson05-selective-playerfix-20261015-05_home-web-en-bf_isabella-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1777,
+      "sha256": "48df75edfdd4f58b1d5cd915abdc6744d5106cb7b0a14bda55ac9803d5415d8c",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bf_isabella-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1777,
+        "sha256": "48df75edfdd4f58b1d5cd915abdc6744d5106cb7b0a14bda55ac9803d5415d8c"
+      }
+    },
+    {
+      "path": "additional-evidence/34-lesson05-selective-playerfix-20261015-05_home-web-en-bf_lily-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1770,
+      "sha256": "7fff48f1d055329e8f32d5c561c53375be6911aefe917be2d8ddc4eb85707f06",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bf_lily-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1770,
+        "sha256": "7fff48f1d055329e8f32d5c561c53375be6911aefe917be2d8ddc4eb85707f06"
+      }
+    },
+    {
+      "path": "additional-evidence/35-lesson05-selective-playerfix-20261015-05_home-web-en-bm_daniel-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1766,
+      "sha256": "aee0b5f4f7914aab2dc0ae586d7799ea38518630297ef55b73a03f78f453d5f2",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bm_daniel-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1766,
+        "sha256": "aee0b5f4f7914aab2dc0ae586d7799ea38518630297ef55b73a03f78f453d5f2"
+      }
+    },
+    {
+      "path": "additional-evidence/36-lesson05-selective-playerfix-20261015-05_home-web-en-bm_fable-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1772,
+      "sha256": "e44433f2abf93e22631569049eea7e5dadd4a2fc050483567f92507e9decb714",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bm_fable-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1772,
+        "sha256": "e44433f2abf93e22631569049eea7e5dadd4a2fc050483567f92507e9decb714"
+      }
+    },
+    {
+      "path": "additional-evidence/37-lesson05-selective-playerfix-20261015-05_home-web-en-bm_george-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1774,
+      "sha256": "c2585cadfee52bf7461432ebed5f6e89cdc5fd8c8c3741242a0dbcf36314cf26",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bm_george-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1774,
+        "sha256": "c2585cadfee52bf7461432ebed5f6e89cdc5fd8c8c3741242a0dbcf36314cf26"
+      }
+    },
+    {
+      "path": "additional-evidence/38-lesson05-selective-playerfix-20261015-05_home-web-en-bm_lewis-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1772,
+      "sha256": "57fb6a883cc52aa2e01361508abee8f977ff8fc84aea66bba1d17b4a10e7752d",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bm_lewis-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1772,
+        "sha256": "57fb6a883cc52aa2e01361508abee8f977ff8fc84aea66bba1d17b4a10e7752d"
+      }
+    },
+    {
+      "path": "additional-evidence/39-lesson05-selective-playerfix-20261015-05_home-web-es-ef_dora-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1813,
+      "sha256": "aaddf5a121dabaf1769aecd95394793a5f342b7f522ee464f4f6f7728f47b724",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-es-ef_dora-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1813,
+        "sha256": "aaddf5a121dabaf1769aecd95394793a5f342b7f522ee464f4f6f7728f47b724"
+      }
+    },
+    {
+      "path": "additional-evidence/40-lesson05-selective-playerfix-20261015-05_home-web-es-em_alex-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1822,
+      "sha256": "cb1da36463e5d95774a5799be3601e435aef9ebcf5cc9358074da78ab5e336bf",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-es-em_alex-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1822,
+        "sha256": "cb1da36463e5d95774a5799be3601e435aef9ebcf5cc9358074da78ab5e336bf"
+      }
+    },
+    {
+      "path": "additional-evidence/41-lesson05-selective-playerfix-20261015-05_home-web-es-em_santa-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1824,
+      "sha256": "e47cbc1e5e48feb67e7da6a7b4a896bf48ff5229998b2d0fa2eba81cdd8364f3",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-es-em_santa-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1824,
+        "sha256": "e47cbc1e5e48feb67e7da6a7b4a896bf48ff5229998b2d0fa2eba81cdd8364f3"
+      }
+    },
+    {
+      "path": "additional-evidence/42-lesson05-selective-playerfix-20261015-05_home-web-fr-ff_siwis-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1824,
+      "sha256": "cac5ae8b6d6c30e0af4828d26a9b4975c7fd6844792f73a54ff8d6dbc7f9cd5c",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-fr-ff_siwis-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1824,
+        "sha256": "cac5ae8b6d6c30e0af4828d26a9b4975c7fd6844792f73a54ff8d6dbc7f9cd5c"
+      }
+    },
+    {
+      "path": "additional-evidence/43-lesson05-selective-playerfix-20261015-05_home-web-hi-hf_alpha-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1823,
+      "sha256": "5732e87707a92dbcfa9e26a1bc6c7470a30001a35102246a5f087ae9aedb2cc8",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-hi-hf_alpha-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1823,
+        "sha256": "5732e87707a92dbcfa9e26a1bc6c7470a30001a35102246a5f087ae9aedb2cc8"
+      }
+    },
+    {
+      "path": "additional-evidence/44-lesson05-selective-playerfix-20261015-05_home-web-hi-hf_beta-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1821,
+      "sha256": "e2da7edfb182b15d5ef1a08e9803e2fa6fdc1062e76d28e1083646fc90440014",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-hi-hf_beta-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1821,
+        "sha256": "e2da7edfb182b15d5ef1a08e9803e2fa6fdc1062e76d28e1083646fc90440014"
+      }
+    },
+    {
+      "path": "additional-evidence/45-lesson05-selective-playerfix-20261015-05_home-web-hi-hm_omega-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1821,
+      "sha256": "99aba19a900a9e5ec197f470a758f890f399ac7b689a08cdcceb666bf1e1aeef",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-hi-hm_omega-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1821,
+        "sha256": "99aba19a900a9e5ec197f470a758f890f399ac7b689a08cdcceb666bf1e1aeef"
+      }
+    },
+    {
+      "path": "additional-evidence/46-lesson05-selective-playerfix-20261015-05_home-web-hi-hm_psi-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1820,
+      "sha256": "dfe9b9b3ce926b450e661e629c23cceb0f7f52cdb2d37e34a5e16e7800b49e39",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-hi-hm_psi-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1820,
+        "sha256": "dfe9b9b3ce926b450e661e629c23cceb0f7f52cdb2d37e34a5e16e7800b49e39"
+      }
+    },
+    {
+      "path": "additional-evidence/47-lesson05-selective-playerfix-20261015-05_home-web-it-if_sara-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1822,
+      "sha256": "b40750865b4d426d03634a909ec6f62917231d22ed7cf92335f9050166f03d06",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-it-if_sara-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1822,
+        "sha256": "b40750865b4d426d03634a909ec6f62917231d22ed7cf92335f9050166f03d06"
+      }
+    },
+    {
+      "path": "additional-evidence/48-lesson05-selective-playerfix-20261015-05_home-web-it-im_nicola-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1825,
+      "sha256": "00c90394f8a530752e37d6c46e9df78203e06619f31e3c550c0cd4da9ef6663d",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-it-im_nicola-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1825,
+        "sha256": "00c90394f8a530752e37d6c46e9df78203e06619f31e3c550c0cd4da9ef6663d"
+      }
+    },
+    {
+      "path": "additional-evidence/49-lesson05-selective-playerfix-20261015-05_home-web-pt-BR-pf_dora-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1828,
+      "sha256": "ba2d9c44d28e5321f24c11b28e3514512e0ad4826c5d6cff6365568186980d7b",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-pt-BR-pf_dora-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1828,
+        "sha256": "ba2d9c44d28e5321f24c11b28e3514512e0ad4826c5d6cff6365568186980d7b"
+      }
+    },
+    {
+      "path": "additional-evidence/50-lesson05-selective-playerfix-20261015-05_home-web-pt-BR-pm_alex-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1820,
+      "sha256": "95dfd3936783c6fd9875ab5eb8aa12499be4a4ae8bb4e95678130942023b5aed",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-pt-BR-pm_alex-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1820,
+        "sha256": "95dfd3936783c6fd9875ab5eb8aa12499be4a4ae8bb4e95678130942023b5aed"
+      }
+    },
+    {
+      "path": "additional-evidence/51-lesson05-selective-playerfix-20261015-05_home-web-pt-BR-pm_santa-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1829,
+      "sha256": "a665474082922b56098dd277c23053afe20c33f00b47fdac99a648c3a212dcfb",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-pt-BR-pm_santa-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1829,
+        "sha256": "a665474082922b56098dd277c23053afe20c33f00b47fdac99a648c3a212dcfb"
+      }
+    },
+    {
+      "path": "additional-evidence/52-lesson05-selective-playerfix-20261015-05_home-web-ja-jf_alpha-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1822,
+      "sha256": "4957028a50d050e54b4551f5fb575348d6461102aad4b650d1d3ac826cdb83c8",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-ja-jf_alpha-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1822,
+        "sha256": "4957028a50d050e54b4551f5fb575348d6461102aad4b650d1d3ac826cdb83c8"
+      }
+    },
+    {
+      "path": "additional-evidence/53-lesson05-selective-playerfix-20261015-05_home-web-ja-jf_gongitsune-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1821,
+      "sha256": "963a39b157c6af337364d671fbbc07accf8d7714b08ca5f5ea2229ff6145b600",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-ja-jf_gongitsune-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1821,
+        "sha256": "963a39b157c6af337364d671fbbc07accf8d7714b08ca5f5ea2229ff6145b600"
+      }
+    },
+    {
+      "path": "additional-evidence/54-lesson05-selective-playerfix-20261015-05_home-web-ja-jf_nezumi-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1824,
+      "sha256": "77a368f8f5556f98b6f11b74a2e62a4894093b7c683898c4d4712d3ede8cb66e",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-ja-jf_nezumi-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1824,
+        "sha256": "77a368f8f5556f98b6f11b74a2e62a4894093b7c683898c4d4712d3ede8cb66e"
+      }
+    },
+    {
+      "path": "additional-evidence/55-lesson05-selective-playerfix-20261015-05_home-web-ja-jf_tebukuro-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1830,
+      "sha256": "09dcfb14d7b367f76e2d694db8ee3931dc3c9cfc1f4cadae27ff5051b14a5ebe",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-ja-jf_tebukuro-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1830,
+        "sha256": "09dcfb14d7b367f76e2d694db8ee3931dc3c9cfc1f4cadae27ff5051b14a5ebe"
+      }
+    },
+    {
+      "path": "additional-evidence/56-lesson05-selective-playerfix-20261015-05_home-web-ja-jm_kumo-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1821,
+      "sha256": "2e870b0c53553c059b9e2dc9c9744f08aa5a1b74434d04d2df4acb1b6aaf6eba",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-ja-jm_kumo-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1821,
+        "sha256": "2e870b0c53553c059b9e2dc9c9744f08aa5a1b74434d04d2df4acb1b6aaf6eba"
+      }
+    },
+    {
+      "path": "additional-evidence/57-lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zf_xiaobei-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1834,
+      "sha256": "f19b51d27ef6f4b79aaa5a4fbebe853708ca9fc44f8d6f5517611ba86ebd985b",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zf_xiaobei-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1834,
+        "sha256": "f19b51d27ef6f4b79aaa5a4fbebe853708ca9fc44f8d6f5517611ba86ebd985b"
+      }
+    },
+    {
+      "path": "additional-evidence/58-lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zf_xiaoni-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1831,
+      "sha256": "4e88a511f52167cdd4c545b32b7228a3debae8745b6c6b21d385140f6a17d5c8",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zf_xiaoni-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1831,
+        "sha256": "4e88a511f52167cdd4c545b32b7228a3debae8745b6c6b21d385140f6a17d5c8"
+      }
+    },
+    {
+      "path": "additional-evidence/59-lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zf_xiaoxiao-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1834,
+      "sha256": "55d335abe1e9274ca4a36074c87e47095f406710bc86269c4d7f0cb54ce2100d",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zf_xiaoxiao-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1834,
+        "sha256": "55d335abe1e9274ca4a36074c87e47095f406710bc86269c4d7f0cb54ce2100d"
+      }
+    },
+    {
+      "path": "additional-evidence/60-lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zf_xiaoyi-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1832,
+      "sha256": "8d0bb93c829bba4b830a000bdd4f3d8be8ab091575910f8a915f500e173e2698",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zf_xiaoyi-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1832,
+        "sha256": "8d0bb93c829bba4b830a000bdd4f3d8be8ab091575910f8a915f500e173e2698"
+      }
+    },
+    {
+      "path": "additional-evidence/61-lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zm_yunjian-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1834,
+      "sha256": "6042cef4581f5de99e56970b9664e7e24640ffca7720339f5fbf298a5ac44154",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zm_yunjian-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1834,
+        "sha256": "6042cef4581f5de99e56970b9664e7e24640ffca7720339f5fbf298a5ac44154"
+      }
+    },
+    {
+      "path": "additional-evidence/62-lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zm_yunxi-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1830,
+      "sha256": "8595fa7144afcb9f788dfcf7ebb19495acd39a42fc5a3800e4bced672a84a983",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zm_yunxi-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1830,
+        "sha256": "8595fa7144afcb9f788dfcf7ebb19495acd39a42fc5a3800e4bced672a84a983"
+      }
+    },
+    {
+      "path": "additional-evidence/63-lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zm_yunxia-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1832,
+      "sha256": "798eeb697afd3a9fee021d218b6ccdc563a6e8acee30326aca5be759405403c1",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zm_yunxia-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1832,
+        "sha256": "798eeb697afd3a9fee021d218b6ccdc563a6e8acee30326aca5be759405403c1"
+      }
+    },
+    {
+      "path": "additional-evidence/64-lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zm_yunyang-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1833,
+      "sha256": "53de9a7c35e960dd3916b52e8420984afce8768a86395b96d7d663a63079792e",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zm_yunyang-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1833,
+        "sha256": "53de9a7c35e960dd3916b52e8420984afce8768a86395b96d7d663a63079792e"
+      }
+    },
+    {
+      "path": "additional-evidence/65-lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-da-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1963,
+      "sha256": "26207a1badfec8f7e1d3b8040f6054fbfb112e82bf0525b1051ee2eb5894b9f8",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-da-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1963,
+        "sha256": "26207a1badfec8f7e1d3b8040f6054fbfb112e82bf0525b1051ee2eb5894b9f8"
+      }
+    },
+    {
+      "path": "additional-evidence/66-lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-de-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1955,
+      "sha256": "37445a40a0139bfd6b6b0a3dfb48dd7224a512f371e27f510f1864cabfb29e5b",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-de-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1955,
+        "sha256": "37445a40a0139bfd6b6b0a3dfb48dd7224a512f371e27f510f1864cabfb29e5b"
+      }
+    },
+    {
+      "path": "additional-evidence/67-lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-is-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1955,
+      "sha256": "764d2144dd5d123cf28d8a5e4f928ffc5eff41abec5913f16f538b115d8100d1",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-is-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1955,
+        "sha256": "764d2144dd5d123cf28d8a5e4f928ffc5eff41abec5913f16f538b115d8100d1"
+      }
+    },
+    {
+      "path": "additional-evidence/68-lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-ko-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1963,
+      "sha256": "dd5a7e9b708d09e14d215cb0c769913e406f461c4900bd41de8a2c26cc831e40",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-ko-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1963,
+        "sha256": "dd5a7e9b708d09e14d215cb0c769913e406f461c4900bd41de8a2c26cc831e40"
+      }
+    },
+    {
+      "path": "additional-evidence/69-lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-nb-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1963,
+      "sha256": "a253d681d34ff2d2738913d6fd9a1d11ff38f14a3e15f781365321599267c2b6",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-nb-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1963,
+        "sha256": "a253d681d34ff2d2738913d6fd9a1d11ff38f14a3e15f781365321599267c2b6"
+      }
+    },
+    {
+      "path": "additional-evidence/70-lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-sv-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1955,
+      "sha256": "98904b510a939c8105a2394994bf69f0d0cda2880769c6926e25d217dcbfc8a4",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-sv-lesson05-selective-playerfix-20261015.log",
+        "bytes": 1955,
+        "sha256": "98904b510a939c8105a2394994bf69f0d0cda2880769c6926e25d217dcbfc8a4"
+      }
+    },
+    {
+      "path": "additional-evidence/71-lesson05-selective-playerfix-20261015-05_home-preserve-interval-boundary-eof-lesson05-selective-playerfix-20261015.log",
+      "bytes": 294884,
+      "sha256": "32a9102691d75e62dec262d3c946558abee8021b2f0092810ea59382aefd7b4d",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-preserve-interval-boundary-eof-lesson05-selective-playerfix-20261015.log",
+        "bytes": 294884,
+        "sha256": "32a9102691d75e62dec262d3c946558abee8021b2f0092810ea59382aefd7b4d"
+      }
+    },
+    {
+      "path": "additional-evidence/72-lesson05-selective-playerfix-20261015-05_home-completed-matrix-lesson05-selective-playerfix-20261015.log",
+      "bytes": 510,
+      "sha256": "77edfba7d474133b0e49ccf00254b0d048e497f842945c798310cad7afd05e40",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-completed-matrix-lesson05-selective-playerfix-20261015.log",
+        "bytes": 510,
+        "sha256": "77edfba7d474133b0e49ccf00254b0d048e497f842945c798310cad7afd05e40"
+      }
+    },
+    {
+      "path": "additional-evidence/73-lesson05-selective-playerfix-20261015-browser-matrix.log",
+      "bytes": 5418,
+      "sha256": "3a696f5d4c83d294a9b15cf796867abf26d80b4208726c4b38b53b48adf0cd8c",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-browser-matrix.log",
+        "bytes": 5418,
+        "sha256": "3a696f5d4c83d294a9b15cf796867abf26d80b4208726c4b38b53b48adf0cd8c"
+      }
+    },
+    {
+      "path": "additional-evidence/74-lesson05-selective-playerfix-20261015-candidate.log",
+      "bytes": 756,
+      "sha256": "edf876137ef5af3dcab7305b5421f57862a62bef01f306f573a537d447e1e4f4",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-candidate.log",
+        "bytes": 756,
+        "sha256": "edf876137ef5af3dcab7305b5421f57862a62bef01f306f573a537d447e1e4f4"
+      }
+    },
+    {
+      "path": "additional-evidence/75-lesson05-selective-playerfix-20261015-verify-candidate.log",
+      "bytes": 3773,
+      "sha256": "27c794ff6694d61d1d45a1ea28bd0466c32029dd266e347fac00455024c5773d",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-verify-candidate.log",
+        "bytes": 3773,
+        "sha256": "27c794ff6694d61d1d45a1ea28bd0466c32029dd266e347fac00455024c5773d"
+      }
+    },
+    {
+      "path": "additional-evidence/76-lesson05-selective-playerfix-20261015-placeholder.log",
+      "bytes": 499,
+      "sha256": "fd801cf1b7a78cf2cfe4aa2347d3992b617e3900ce6ec1cb0f33d83559387fe3",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-placeholder.log",
+        "bytes": 499,
+        "sha256": "fd801cf1b7a78cf2cfe4aa2347d3992b617e3900ce6ec1cb0f33d83559387fe3"
+      }
+    },
+    {
+      "path": "additional-evidence/77-lesson05-selective-playerfix-20261015-checkpoint.log",
+      "bytes": 601,
+      "sha256": "17ce71d16e56ef839bec6aa06f3d69c36494bc7a63ff21ee8a1be1d596a9b70f",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-checkpoint.log",
+        "bytes": 601,
+        "sha256": "17ce71d16e56ef839bec6aa06f3d69c36494bc7a63ff21ee8a1be1d596a9b70f"
+      }
+    },
+    {
+      "path": "additional-evidence/78-lesson05-selective-playerfix-20261015-upload.log",
+      "bytes": 144305,
+      "sha256": "a4e781216c92163c709c9ac6a1ec56d4d8788a6b893db52e317e118577f36124",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-upload.log",
+        "bytes": 144305,
+        "sha256": "a4e781216c92163c709c9ac6a1ec56d4d8788a6b893db52e317e118577f36124"
+      }
+    },
+    {
+      "path": "additional-evidence/79-lesson05-selective-playerfix-20261015-pages.log",
+      "bytes": 1585,
+      "sha256": "4064388bc04299bab1185fa910ca463feaa76791793a20e7f923644b9836cf97",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-pages.log",
+        "bytes": 1585,
+        "sha256": "4064388bc04299bab1185fa910ca463feaa76791793a20e7f923644b9836cf97"
+      }
+    },
+    {
+      "path": "additional-evidence/80-lesson05-selective-playerfix-20261015-verify-pages.log",
+      "bytes": 3890,
+      "sha256": "45f002e7e2434000dee3fa7bccf32aec0069b54f51e2488fb4306fa04c205c99",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-verify-pages.log",
+        "bytes": 3890,
+        "sha256": "45f002e7e2434000dee3fa7bccf32aec0069b54f51e2488fb4306fa04c205c99"
+      }
+    },
+    {
+      "path": "additional-evidence/81-lesson05-selective-playerfix-20261015-record.log",
+      "bytes": 543,
+      "sha256": "236f2d3b7841013e59fd9c2ee3a4cab7e8169ce237c9636ddf5bb2dcac6e0752",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-record.log",
+        "bytes": 543,
+        "sha256": "236f2d3b7841013e59fd9c2ee3a4cab7e8169ce237c9636ddf5bb2dcac6e0752"
+      }
+    },
+    {
+      "path": "additional-evidence/82-lesson05-selective-20261015-masters.log",
+      "bytes": 550,
+      "sha256": "322b36c3148bb08f3515678226d99bb4d3051b71555fb64b08b916867c8c9f3d",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-20261015-masters.log",
+        "bytes": 550,
+        "sha256": "322b36c3148bb08f3515678226d99bb4d3051b71555fb64b08b916867c8c9f3d"
+      }
+    },
+    {
+      "path": "additional-evidence/83-lesson05-selective-20261015-finish.log",
+      "bytes": 687,
+      "sha256": "cbfaeb1e1f27d2d1c36d2ab975ce8d73d8110d1e826e16935710ddecb02112d3",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-20261015-finish.log",
+        "bytes": 687,
+        "sha256": "cbfaeb1e1f27d2d1c36d2ab975ce8d73d8110d1e826e16935710ddecb02112d3"
+      }
+    },
+    {
+      "path": "additional-evidence/84-lesson05-selective-20261015-timing.log",
+      "bytes": 624,
+      "sha256": "5a7338f418a252cdfe52f760e9a4ad68e0cbfbf830be8bfc6f36f19ce3692d4d",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-20261015-timing.log",
+        "bytes": 624,
+        "sha256": "5a7338f418a252cdfe52f760e9a4ad68e0cbfbf830be8bfc6f36f19ce3692d4d"
+      }
+    },
+    {
+      "path": "additional-evidence/85-lesson05-selective-20261015-audio.log",
+      "bytes": 1644,
+      "sha256": "e0bd6df88b9afc2f8fe85208ea6f04912ce2df1eb86917f57270589cf2475316",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-20261015-audio.log",
+        "bytes": 1644,
+        "sha256": "e0bd6df88b9afc2f8fe85208ea6f04912ce2df1eb86917f57270589cf2475316"
+      }
+    },
+    {
+      "path": "additional-evidence/86-lesson05-selective-20261015-onsets.log",
+      "bytes": 558,
+      "sha256": "6e15315b8e4c21c3463686fe734530eedb5b560cc50c23963bc20dd96da06463",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-20261015-onsets.log",
+        "bytes": 558,
+        "sha256": "6e15315b8e4c21c3463686fe734530eedb5b560cc50c23963bc20dd96da06463"
+      }
+    },
+    {
+      "path": "additional-evidence/87-lesson05-selective-20261015-adopt.log",
+      "bytes": 673,
+      "sha256": "a1ecbffa4898be22a71b07fd2b7fb2a4f4bc2b2ca162396dfa5058d786e286ee",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-20261015-adopt.log",
+        "bytes": 673,
+        "sha256": "a1ecbffa4898be22a71b07fd2b7fb2a4f4bc2b2ca162396dfa5058d786e286ee"
+      }
+    },
+    {
+      "path": "additional-evidence/88-lesson05-selective-20261015-stage-capture.log",
+      "bytes": 758,
+      "sha256": "7ddc04f8258899e929bd163752c31097200942ce3e5c8d14f3d538cc40fabe9c",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-20261015-stage-capture.log",
+        "bytes": 758,
+        "sha256": "7ddc04f8258899e929bd163752c31097200942ce3e5c8d14f3d538cc40fabe9c"
+      }
+    },
+    {
+      "path": "additional-evidence/89-lesson05-selective-20261015-browser-matrix.log",
+      "bytes": 468,
+      "sha256": "fae0603e506009da9d80c9174148ce0368641d9d43e0e49123d528a0bb4e2401",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-20261015-browser-matrix.log",
+        "bytes": 468,
+        "sha256": "fae0603e506009da9d80c9174148ce0368641d9d43e0e49123d528a0bb4e2401"
+      }
+    },
+    {
+      "path": "additional-evidence/90-lesson05-selective-20261015-diagnostic-cues.log",
+      "bytes": 4690,
+      "sha256": "10a825a7a60d1ae0af1247c30dad35b69dc6978cd083009b443431955159365c",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-20261015-diagnostic-cues.log",
+        "bytes": 4690,
+        "sha256": "10a825a7a60d1ae0af1247c30dad35b69dc6978cd083009b443431955159365c"
+      }
+    },
+    {
+      "path": "additional-evidence/91-sentence-cues-diagnostic-r1.json",
+      "bytes": 145431,
+      "sha256": "bb1f6b1bf49e7a47e775f1615dd472e35d6a2ed32b4bddfed57d4c69fc4bcb86",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/sentence-cues-diagnostic-r1.json",
+        "bytes": 145431,
+        "sha256": "bb1f6b1bf49e7a47e775f1615dd472e35d6a2ed32b4bddfed57d4c69fc4bcb86"
+      }
+    },
+    {
+      "path": "additional-evidence/92-sentence-cue-conflicting-seek-independent-cause-peer.json",
+      "bytes": 6859,
+      "sha256": "d28bf624fb5e9f69f2c07ab7fc10a401d8257558085f203ba07750ca141cdc37",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/sentence-cue-conflicting-seek-independent-cause-peer.json",
+        "bytes": 6859,
+        "sha256": "d28bf624fb5e9f69f2c07ab7fc10a401d8257558085f203ba07750ca141cdc37"
+      }
+    },
+    {
+      "path": "additional-evidence/93-complete-native-seek-tests-r1.log",
+      "bytes": 607,
+      "sha256": "f13351cdca4286a96351a21798628cc0394a70fea83f655dea2f24f3dcbc1539",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/complete-native-seek-tests-r1.log",
+        "bytes": 607,
+        "sha256": "f13351cdca4286a96351a21798628cc0394a70fea83f655dea2f24f3dcbc1539"
+      }
+    },
+    {
+      "path": "additional-evidence/94-root-final-player-source-proof.json",
+      "bytes": 2467,
+      "sha256": "80ed63cb2d45224ae9b5cc32a0a7712500ff49bf5784f114bc42e421223d1087",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/root-final-player-source-proof.json",
+        "bytes": 2467,
+        "sha256": "80ed63cb2d45224ae9b5cc32a0a7712500ff49bf5784f114bc42e421223d1087"
+      }
+    },
+    {
+      "path": "additional-evidence/95-completed05-helpers-independent-source-peer.json",
+      "bytes": 3214,
+      "sha256": "9db24293c8e6aef5b96ff5d3b37983bae783239dd807f66813050d2ee8772685",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/completed05-helpers-independent-source-peer.json",
+        "bytes": 3214,
+        "sha256": "9db24293c8e6aef5b96ff5d3b37983bae783239dd807f66813050d2ee8772685"
+      }
+    },
+    {
+      "path": "additional-evidence/96-portable-player-seek-packet-independent-peer.json",
+      "bytes": 4352,
+      "sha256": "f9a187ba0d167712bc5d06e5096ca577b25fe4ad7a7c602f96e907d9bb3e0fef",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/portable-player-seek-packet-independent-peer.json",
+        "bytes": 4352,
+        "sha256": "f9a187ba0d167712bc5d06e5096ca577b25fe4ad7a7c602f96e907d9bb3e0fef"
+      }
+    },
+    {
+      "path": "additional-evidence/97-master-and-finish-completed-independent-readback.json",
+      "bytes": 2146,
+      "sha256": "8261d7b675455d8f7268948dd7c0e70b99e7c04f37b0459bea9621a8cb581a4a",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/master-and-finish-completed-independent-readback.json",
+        "bytes": 2146,
+        "sha256": "8261d7b675455d8f7268948dd7c0e70b99e7c04f37b0459bea9621a8cb581a4a"
+      }
+    },
+    {
+      "path": "additional-evidence/98-sampling-receipt.json",
+      "bytes": 7592,
+      "sha256": "9f617f8106066cbc472f84f99645dd615fa195ca9853a6865099a3aac85769c5",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/final-master-visual-samples/sampling-receipt.json",
+        "bytes": 7592,
+        "sha256": "9f617f8106066cbc472f84f99645dd615fa195ca9853a6865099a3aac85769c5"
+      }
+    },
+    {
+      "path": "additional-evidence/99-contact-sheet.png",
+      "bytes": 1882366,
+      "sha256": "b8f43d9685c803f836e1f238ebcdb334b1292f0bf0fe8564c19c2851c2080820",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/final-master-visual-samples/contact-sheet.png",
+        "bytes": 1882366,
+        "sha256": "b8f43d9685c803f836e1f238ebcdb334b1292f0bf0fe8564c19c2851c2080820"
+      }
+    },
+    {
+      "path": "additional-evidence/100-run_tool.py",
+      "bytes": 4855,
+      "sha256": "92da0b48504b596b33123297cf05f117d48ee90738a0aac666a475dd6837eb4e",
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/stage-tools/run_tool.py",
+        "bytes": 4855,
+        "sha256": "92da0b48504b596b33123297cf05f117d48ee90738a0aac666a475dd6837eb4e"
+      }
+    }
+  ],
+  "counts": {
+    "checkpoint_snapshot": 148,
+    "official_reviews_bound_in_export": 13,
+    "source_bound_audio_tracks": 50,
+    "full_native_clips": 31,
+    "reused_strict_clips": 30,
+    "fresh_strict_clips": 1,
+    "preserved_other_lessons": 83
+  },
+  "scope": "Copies existing actual export and acceptance evidence; does not execute or author acceptance. 31whole clips:30 reused strict clips plus1 fresh strict Apply/Revert;23571frames/785.7seconds at1x. All50 audio assemblies source-bound to current31scenes. No wholly fresh capture or causal product-fix claim.",
+  "claims": {
+    "whole_fresh_capture": false,
+    "human_listening": false,
+    "native_speaker_acceptance": false
+  },
+  "limits": [
+    "Existing immutable upload/readback/Pages-tree receipts; not a fresh remote verification or liveSpace deployment proof.",
+    "All84 route receipt coverage does not claim84current GNOME remakes.",
+    "Selection comprises30 reused strict full clips plus1 fresh strict Apply/Revert clip; no wholly fresh capture or causal product-fix claim.",
+    "Actual master content review is sampled; audioQA is not human listening/native-speaker acceptance.",
+    "Export contains complete generated145+3checkpoint files and bound reviewevidence, not hosted media, private configurations or app patch."
+  ]
+}

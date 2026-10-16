@@ -489,9 +489,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Gehen Sie alle aktuellen Home-Module von links nach rechts durch. Lernen Sie anschließend mit Mask die gemeinsamen Bedienelemente kennen und passen Sie Navigation, Hilfe und Darstellung an.",
+      "description": "Erkunden Sie die Home-Übersicht und die Kategorie-Tabs, lernen Sie dann anhand von Mask die gemeinsamen Bedienelemente der Module kennen und passen Sie Navigation, Hilfe und Erscheinungsbild an.",
       "objectives": [
-        "Alle Module in den aktuellen Reihen Core, Data und Tools erkennen.",
+        "Finden Sie Module über die Tabs Home, Core, Data, Tools und Organism.",
         "Mit Mask die gemeinsamen Einstellungen, Vorschauen, Aktionen und Ausgaben kennenlernen.",
         "Zu Home zurückkehren, die Suche verwenden und die Bereiche anordnen.",
         "Einstellungen für Darstellung und Leistung auswählen."
@@ -500,7 +500,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home ist der Ausgangspunkt. Lesen Sie jede Reihe von links nach rechts: Core, Data und Tools. Jede Kachel öffnet ihr Modul. Die Seitenleiste bietet dieselben Zugänge; Home führt zurück zur Übersicht.",
+          "narration": "Home ist der Ausgangspunkt. Die Übersicht gruppiert Module unter Core, Data, Tools und Organism. Die Kategorie-Tabs grenzen die Ansicht ein. Jede Kachel öffnet das darauf benannte Modul. Die Seitenleiste bietet dieselben Zugänge, und Home führt zurück zur Übersicht.",
           "hold_after": 0.7
         },
         {
@@ -784,11 +784,6 @@
             1200,
             1500
           ]
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "Im Modus Spaceout enthält Preferences die spaCR field-Bedienelemente für acht unabhängige Effekte. Schalten Sie jeden Effekt einzeln ein oder aus. Die üblichen Einstellungen für Erscheinungsbild und Animation des Einstellungsfensters bleiben verfügbar. Apply zeigt eine Vorschau, Keep übernimmt die Änderung und Revert stellt die vorherige Wahl wieder her.",
-          "hold_after": 0.7
         }
       ],
       "narration_voices": {

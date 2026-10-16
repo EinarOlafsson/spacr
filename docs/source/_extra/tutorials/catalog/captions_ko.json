@@ -489,9 +489,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Home의 현재 모든 모듈을 왼쪽에서 오른쪽으로 살펴봅니다. 그런 다음 Mask로 공통 조작 요소를 배우고 탐색, 도움말, 모양을 조정합니다.",
+      "description": "Home 개요와 범주 탭을 살펴본 다음, Mask로 모듈의 공통 조작 방법을 익히고 탐색, 도움말, 모양을 조정합니다.",
       "objectives": [
-        "현재 Core, Data, Tools 행의 모든 모듈을 식별합니다.",
+        "Home, Core, Data, Tools, Organism 탭을 사용해 모듈을 찾습니다.",
         "Mask로 공통 설정, 미리보기, 동작, 출력을 파악합니다.",
         "Home으로 돌아가 검색을 사용하고 패널을 배치합니다.",
         "모양과 성능 설정을 선택합니다."
@@ -500,7 +500,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home이 시작점입니다. 각 행을 왼쪽부터 읽으세요. Core, Data, Tools 순서입니다. 각 타일은 해당 모듈을 엽니다. 왼쪽 사이드바에도 같은 경로가 있으며 Home으로 이 개요에 돌아옵니다.",
+          "narration": "Home이 시작점입니다. 개요에서는 모듈을 Core, Data, Tools, Organism으로 묶어 보여 줍니다. 범주 탭으로 표시 범위를 좁힐 수 있습니다. 각 타일은 해당 이름의 모듈을 엽니다. 사이드바에서도 같은 경로를 이용할 수 있으며, Home을 선택하면 개요로 돌아옵니다.",
           "hold_after": 0.7
         },
         {
@@ -784,11 +784,6 @@
             1200,
             1500
           ]
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "Spaceout 모드의 Preferences에는 독립적인 여덟 효과를 위한 spaCR field 항목이 있습니다. 각 효과를 따로 켜거나 끌 수 있습니다. 일반적인 모양과 설정 창 애니메이션 항목도 계속 사용할 수 있습니다. Apply는 변경을 미리 보고 Keep은 적용을 확정하며 Revert는 이전 선택으로 되돌립니다.",
-          "hold_after": 0.7
         }
       ],
       "narration_voices": {

@@ -1,0 +1,6845 @@
+Command: ['/home/carruthers/anaconda3/envs/spacr/bin/python', '/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/stage-tools/run_tool.py', 'tools/tutorials/publish_release_candidate.py', 'upload', '/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l', '--branch', 'n676-selective05-20261015', '--tag', 'n676-selective05-20261015-verified']
+Source: 8ab0b4f421baf9e6318c9f9f0d08ccd73241113b
+  hf upload einarolafsson/spacr-tutorials /media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/media_host . --repo-type dataset --revision n676-selective05-20261015 --commit-message Tutorial media for release candidate release-candidate-append-ln3oto4l --commit-description release-manifest.json sha256 ced803ebdd5e93a6ada3fead48a3c6595afd77ef05d104dc0bd43e87a210bd2a
+It seems you are trying to upload a large folder at once. This might take some time and then fail if the folder is too large. For such cases, it is recommended to upload in smaller batches or to use `HfApi().upload_large_folder(...)`/`hf upload-large-folder` instead. For more details, check out https://huggingface.co/docs/huggingface_hub/main/en/guides/upload#upload-a-large-folder.
+Start hashing 5370 files.
+Finished hashing 5370 files.
+Processing Files (0 / 0)      : |          |  0.00B /  0.00B            
+New Data Upload               : |          |  0.00B /  0.00B            [A
+
+  ...hub/audio/en/af_aoede.m4a: 100%|██████████|  668kB /  668kB            [A[A
+
+  ...hub/audio/en/af_aoede.m4a: 100%|██████████|  668kB /  668kB            [A[A
+
+
+  .../audio/en/bf_isabella.m4a: 100%|██████████|  684kB /  684kB            [A[A[A
+
+
+
+  ..._install_spacr_silent.mp4: 100%|██████████| 16.7MB / 16.7MB            [A[A[A[A
+
+
+
+
+  ...acr/audio/en/af_aoede.m4a: 100%|██████████| 1.72MB / 1.72MB            [A[A[A[A[A
+
+
+
+
+
+  ...udio/zh-CN/zf_xiaobei.m4a: 100%|██████████| 1.39MB / 1.39MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...acr/audio/en/af_sarah.m4a: 100%|██████████| 1.72MB / 1.72MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...r/audio/pt-BR/pf_dora.m4a: 100%|██████████| 1.62MB / 1.62MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...cr/audio/en/bm_daniel.m4a: 100%|██████████| 1.78MB / 1.78MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...pacr/audio/en/bf_lily.m4a: 100%|██████████| 1.80MB / 1.80MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...acr/audio/fr/ff_siwis.m4a: 100%|██████████| 1.69MB / 1.69MB            [A[A[A[A[A[A[A[A[A[A[A
+
+  ...hub/audio/en/af_aoede.m4a: 100%|██████████|  668kB /  668kB            [A[A
+
+
+  .../audio/en/bf_isabella.m4a: 100%|██████████|  684kB /  684kB            [A[A[A
+
+
+
+  ..._install_spacr_silent.mp4: 100%|██████████| 16.7MB / 16.7MB            [A[A[A[A
+
+
+
+
+  ...acr/audio/en/af_aoede.m4a: 100%|██████████| 1.72MB / 1.72MB            [A[A[A[A[A
+
+
+
+
+
+  ...udio/zh-CN/zf_xiaobei.m4a: 100%|██████████| 1.39MB / 1.39MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...acr/audio/en/af_sarah.m4a: 100%|██████████| 1.72MB / 1.72MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...r/audio/pt-BR/pf_dora.m4a: 100%|██████████| 1.62MB / 1.62MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...cr/audio/en/bm_daniel.m4a: 100%|██████████| 1.78MB / 1.78MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...pacr/audio/en/bf_lily.m4a: 100%|██████████| 1.80MB / 1.80MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 146 files]               : 100%|██████████|  294MB /  294MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (156 / 2758) :   4%|▎         |  322MB / 8.66GB,   ???B/s  
+
+  ...hub/audio/en/bf_alice.m4a: 100%|██████████|  688kB /  688kB            [A[A
+
+
+  ...ub/audio/en/bm_daniel.m4a: 100%|██████████|  699kB /  699kB            [A[A[A
+
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 1.21MB / 1.21MB            [A[A[A[A
+
+
+
+
+  ...ithub/audio/hi/hm_psi.m4a: 100%|██████████|  816kB /  816kB            [A[A[A[A[A
+
+
+
+
+
+  ...thub/audio/en/bf_emma.m4a: 100%|██████████|  670kB /  670kB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...ub/audio/en/am_fenrir.m4a: 100%|██████████|  690kB /  690kB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...ub/audio/ja/jf_nezumi.m4a: 100%|██████████| 1.05MB / 1.05MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...hub/audio/en/bm_fable.m4a: 100%|██████████|  720kB /  720kB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ers/audio/en/af_river.m4a: 100%|██████████| 1.31MB / 1.31MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 124 files]               :  37%|███▋      |  157MB /  428MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (255 / 2758) :   5%|▌         |  476MB / 8.66GB,   ???B/s  
+New Data Upload               :   0%|          |  529kB /  130MB,   ???B/s  [A
+
+  ...ome/audio/en/bm_fable.m4a:  18%|█▊        |  531kB / 2.93MB            [A[A
+
+
+  ...home/audio/en/am_onyx.m4a:  18%|█▊        |  524kB / 2.90MB            [A[A[A
+
+
+
+  ...ome/audio/en/af_aoede.m4a:  18%|█▊        |  488kB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...home/audio/en/am_adam.m4a:  18%|█▊        |  493kB / 2.73MB            [A[A[A[A[A
+
+
+
+
+
+  ...me/audio/en/am_fenrir.m4a:  18%|█▊        |  496kB / 2.74MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...ome/audio/en/af_river.m4a:  18%|█▊        |  486kB / 2.69MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...home/audio/en/am_eric.m4a:  18%|█▊        |  477kB / 2.64MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ome/audio/en/af_sarah.m4a:  18%|█▊        |  498kB / 2.75MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ome/audio/en/af_heart.m4a:  18%|█▊        |  491kB / 2.72MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 202 files]               :  57%|█████▋    |  704MB / 1.24GB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (418 / 2758) :  13%|█▎        | 1.16GB / 8.66GB,  112MB/s  
+New Data Upload               :   5%|▌         | 13.2MB /  264MB, 1.29MB/s  [A
+
+  ...ome/audio/en/bm_fable.m4a:  32%|███▏      |  940kB / 2.93MB            [A[A
+
+
+  ...home/audio/en/am_onyx.m4a:  32%|███▏      |  928kB / 2.90MB            [A[A[A
+
+
+
+  ...ome/audio/en/af_aoede.m4a:  32%|███▏      |  865kB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...home/audio/en/am_adam.m4a:  32%|███▏      |  874kB / 2.73MB            [A[A[A[A[A
+
+
+
+
+
+  ...me/audio/en/am_fenrir.m4a:  32%|███▏      |  879kB / 2.74MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...ome/audio/en/af_river.m4a:  32%|███▏      |  861kB / 2.69MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...home/audio/en/am_eric.m4a:  32%|███▏      |  845kB / 2.64MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ome/audio/en/af_sarah.m4a:  32%|███▏      |  882kB / 2.75MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ome/audio/en/af_heart.m4a:  32%|███▏      |  870kB / 2.72MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 120 files]               :  77%|███████▋  | 1.01GB / 1.32GB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (499 / 2758) :  22%|██▏       | 1.87GB / 8.66GB,  178MB/s  
+New Data Upload               :   9%|▉         | 23.8MB /  264MB, 2.29MB/s  [A
+
+  ...ome/audio/en/bm_fable.m4a:  50%|█████     | 1.47MB / 2.93MB            [A[A
+
+
+  ...home/audio/en/am_onyx.m4a:  50%|█████     | 1.45MB / 2.90MB            [A[A[A
+
+
+
+  ...ome/audio/en/af_aoede.m4a:  50%|█████     | 1.35MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...home/audio/en/am_adam.m4a:  50%|█████     | 1.37MB / 2.73MB            [A[A[A[A[A
+
+
+
+
+
+  ...me/audio/en/am_fenrir.m4a:  50%|█████     | 1.37MB / 2.74MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...ome/audio/en/af_river.m4a:  50%|█████     | 1.35MB / 2.69MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...home/audio/en/am_eric.m4a:  50%|█████     | 1.32MB / 2.64MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ome/audio/en/af_sarah.m4a:  50%|█████     | 1.38MB / 2.75MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ome/audio/en/af_heart.m4a:  50%|█████     | 1.36MB / 2.72MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 154 files]               :  65%|██████▌   | 1.25GB / 1.90GB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (613 / 2758) :  30%|██▉       | 2.57GB / 8.66GB,  242MB/s  
+New Data Upload               :  14%|█▍        | 37.6MB /  264MB, 3.56MB/s  [A
+
+  ...ome/audio/en/bm_fable.m4a:  66%|██████▌   | 1.93MB / 2.93MB            [A[A
+
+
+  ...home/audio/en/am_onyx.m4a:  66%|██████▌   | 1.90MB / 2.90MB            [A[A[A
+
+
+
+  ...ome/audio/en/af_aoede.m4a:  66%|██████▌   | 1.77MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...home/audio/en/am_adam.m4a:  66%|██████▌   | 1.79MB / 2.73MB            [A[A[A[A[A
+
+
+
+
+
+  ...me/audio/en/am_fenrir.m4a:  66%|██████▌   | 1.80MB / 2.74MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...ome/audio/en/af_river.m4a:  66%|██████▌   | 1.77MB / 2.69MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...home/audio/en/am_eric.m4a:  66%|██████▌   | 1.73MB / 2.64MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ome/audio/en/af_sarah.m4a:  66%|██████▌   | 1.81MB / 2.75MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ome/audio/en/af_heart.m4a:  66%|██████▌   | 1.79MB / 2.72MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 244 files]               :  75%|███████▌  |  899MB / 1.20GB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (819 / 2758) :  38%|███▊      | 3.26GB / 8.66GB,  301MB/s  
+New Data Upload               :  19%|█▉        | 50.8MB /  264MB, 4.74MB/s  [A
+
+  ...ome/audio/en/bm_fable.m4a:  84%|████████▍ | 2.46MB / 2.93MB            [A[A
+
+
+  ...home/audio/en/am_onyx.m4a:  85%|████████▌ | 2.47MB / 2.90MB            [A[A[A
+
+
+
+  ...ome/audio/en/af_aoede.m4a:  85%|████████▍ | 2.28MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...home/audio/en/am_adam.m4a:  84%|████████▍ | 2.28MB / 2.73MB            [A[A[A[A[A
+
+
+
+
+
+  ...me/audio/en/am_fenrir.m4a:  85%|████████▌ | 2.34MB / 2.74MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...ome/audio/en/af_river.m4a:  85%|████████▌ | 2.30MB / 2.69MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...home/audio/en/am_eric.m4a:  85%|████████▌ | 2.25MB / 2.64MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ome/audio/en/af_sarah.m4a:  85%|████████▌ | 2.35MB / 2.75MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ome/audio/en/af_heart.m4a:  85%|████████▌ | 2.32MB / 2.72MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 209 files]               :  88%|████████▊ | 1.07GB / 1.21GB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (988 / 2758) :  46%|████▌     | 3.96GB / 8.66GB,  361MB/s  
+New Data Upload               :  24%|██▍       | 64.6MB /  264MB, 5.93MB/s  [A
+
+  ...ome/audio/en/bm_fable.m4a:  99%|█████████▉| 2.92MB / 2.93MB            [A[A
+
+
+  ...home/audio/en/am_onyx.m4a:  99%|█████████▉| 2.88MB / 2.90MB            [A[A[A
+
+
+
+  ...ome/audio/en/af_aoede.m4a:  99%|█████████▉| 2.68MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...home/audio/en/am_adam.m4a:  99%|█████████▉| 2.71MB / 2.73MB            [A[A[A[A[A
+
+
+
+
+
+  ...me/audio/en/am_fenrir.m4a:  99%|█████████▉| 2.73MB / 2.74MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...ome/audio/en/af_river.m4a:  99%|█████████▉| 2.67MB / 2.69MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...home/audio/en/am_eric.m4a:  99%|█████████▉| 2.62MB / 2.64MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ome/audio/en/af_sarah.m4a:  99%|█████████▉| 2.74MB / 2.75MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ome/audio/en/af_heart.m4a:  99%|█████████▉| 2.70MB / 2.72MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 467 files]               :  96%|█████████▌| 1.14GB / 1.19GB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (1418 / 2758):  53%|█████▎    | 4.61GB / 8.66GB,  414MB/s  
+New Data Upload               :  29%|██▉       | 77.8MB /  264MB, 7.04MB/s  [A
+
+  ...ome/audio/en/bm_fable.m4a:  99%|█████████▉| 2.92MB / 2.93MB            [A[A
+
+
+  ...home/audio/en/am_onyx.m4a:  99%|█████████▉| 2.88MB / 2.90MB            [A[A[A
+
+
+
+  ...ome/audio/en/af_aoede.m4a:  99%|█████████▉| 2.68MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...home/audio/en/am_adam.m4a:  99%|█████████▉| 2.71MB / 2.73MB            [A[A[A[A[A
+
+
+
+
+
+  ...me/audio/en/am_fenrir.m4a:  99%|█████████▉| 2.73MB / 2.74MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...ome/audio/en/af_river.m4a:  99%|█████████▉| 2.67MB / 2.69MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...home/audio/en/am_eric.m4a:  99%|█████████▉| 2.62MB / 2.64MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ome/audio/en/af_sarah.m4a:  99%|█████████▉| 2.74MB / 2.75MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ome/audio/en/af_heart.m4a:  99%|█████████▉| 2.70MB / 2.72MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 475 files]               :  86%|████████▌ |  742MB /  860MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (1854 / 2758):  61%|██████▏   | 5.30GB / 8.66GB,  469MB/s  
+New Data Upload               :  33%|███▎      | 86.8MB /  264MB, 7.72MB/s  [A
+
+  ...ome/audio/en/bm_fable.m4a:  99%|█████████▉| 2.92MB / 2.93MB            [A[A
+
+
+  ...home/audio/en/am_onyx.m4a:  99%|█████████▉| 2.88MB / 2.90MB            [A[A[A
+
+
+
+  ...ome/audio/en/af_aoede.m4a:  99%|█████████▉| 2.68MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...home/audio/en/am_adam.m4a:  99%|█████████▉| 2.71MB / 2.73MB            [A[A[A[A[A
+
+
+
+
+
+  ...me/audio/en/am_fenrir.m4a:  99%|█████████▉| 2.73MB / 2.74MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...ome/audio/en/af_river.m4a:  99%|█████████▉| 2.67MB / 2.69MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...home/audio/en/am_eric.m4a:  99%|█████████▉| 2.62MB / 2.64MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ome/audio/en/af_sarah.m4a:  99%|█████████▉| 2.74MB / 2.75MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ome/audio/en/af_heart.m4a:  99%|█████████▉| 2.70MB / 2.72MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 290 files]               :  96%|█████████▋|  863MB /  895MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2108 / 2758):  69%|██████▉   | 5.97GB / 8.66GB,  520MB/s  
+New Data Upload               :  37%|███▋      | 98.4MB /  264MB, 8.63MB/s  [A
+
+  ...ome/audio/en/bm_fable.m4a: 100%|██████████| 2.93MB / 2.93MB            [A[A
+
+
+  ...home/audio/en/am_onyx.m4a: 100%|██████████| 2.90MB / 2.90MB            [A[A[A
+
+
+
+  ...ome/audio/en/af_aoede.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...home/audio/en/am_adam.m4a: 100%|██████████| 2.73MB / 2.73MB            [A[A[A[A[A
+
+
+
+
+
+  ...me/audio/en/am_fenrir.m4a: 100%|██████████| 2.74MB / 2.74MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...ome/audio/en/af_river.m4a: 100%|██████████| 2.69MB / 2.69MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...home/audio/en/am_eric.m4a: 100%|██████████| 2.64MB / 2.64MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ome/audio/en/af_sarah.m4a: 100%|██████████| 2.75MB / 2.75MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ome/audio/en/af_heart.m4a: 100%|██████████| 2.72MB / 2.72MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 389 files]               :  94%|█████████▍|  744MB /  789MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2480 / 2758):  77%|███████▋  | 6.63GB / 8.66GB,  570MB/s  
+New Data Upload               :  42%|████▏     |  111MB /  264MB, 9.59MB/s  [A
+
+  ...home/audio/es/em_alex.m4a:  83%|████████▎ | 2.36MB / 2.85MB            [A[A
+
+
+  ...e/audio/pt-BR/pf_dora.m4a:  83%|████████▎ | 2.23MB / 2.69MB            [A[A[A
+
+
+
+  ...udio/zh-CN/zf_xiaobei.m4a:  83%|████████▎ | 2.11MB / 2.55MB            [A[A[A[A
+
+
+
+
+  ...me/audio/it/im_nicola.m4a:  83%|████████▎ | 2.52MB / 3.04MB            [A[A[A[A[A
+
+
+
+
+
+  .../audio/ja/jf_tebukuro.m4a:  83%|████████▎ | 3.08MB / 3.72MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...udio/ja/jf_gongitsune.m4a:  83%|████████▎ | 3.08MB / 3.72MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zf_xiaoni.m4a:  83%|████████▎ | 1.84MB / 2.22MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ome/audio/hi/hm_omega.m4a:  83%|████████▎ | 2.40MB / 2.90MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ome/audio/hi/hf_alpha.m4a:  83%|████████▎ | 2.33MB / 2.81MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 185 files]               :  46%|████▋     |  873MB / 1.89GB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2645 / 2758):  86%|████████▌ | 7.42GB / 8.66GB,  630MB/s  
+New Data Upload               :  38%|███▊      |  127MB /  331MB, 10.8MB/s  [A
+
+  ...home/audio/es/em_alex.m4a:  93%|█████████▎| 2.66MB / 2.85MB            [A[A
+
+
+  ...e/audio/pt-BR/pf_dora.m4a:  93%|█████████▎| 2.51MB / 2.69MB            [A[A[A
+
+
+
+  ...udio/zh-CN/zf_xiaobei.m4a:  93%|█████████▎| 2.38MB / 2.55MB            [A[A[A[A
+
+
+
+
+  ...me/audio/it/im_nicola.m4a:  93%|█████████▎| 2.84MB / 3.04MB            [A[A[A[A[A
+
+
+
+
+
+  .../audio/ja/jf_tebukuro.m4a:  93%|█████████▎| 3.47MB / 3.72MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...udio/ja/jf_gongitsune.m4a:  93%|█████████▎| 3.47MB / 3.72MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zf_xiaoni.m4a:  93%|█████████▎| 2.07MB / 2.22MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ome/audio/hi/hm_omega.m4a:  93%|█████████▎| 2.71MB / 2.90MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ome/audio/hi/hf_alpha.m4a:  93%|█████████▎| 2.62MB / 2.81MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 99 files]                :  51%|█████     |  736MB / 1.44GB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2728 / 2758):  92%|█████████▏| 7.94GB / 8.66GB,  662MB/s  
+New Data Upload               :  43%|████▎     |  143MB /  331MB, 12.0MB/s  [A
+
+  ...home/audio/es/em_alex.m4a: 100%|█████████▉| 2.84MB / 2.85MB            [A[A
+
+
+  ...e/audio/pt-BR/pf_dora.m4a: 100%|█████████▉| 2.69MB / 2.69MB            [A[A[A
+
+
+
+  ...udio/zh-CN/zf_xiaobei.m4a: 100%|█████████▉| 2.54MB / 2.55MB            [A[A[A[A
+
+
+
+
+  ...me/audio/it/im_nicola.m4a: 100%|█████████▉| 3.03MB / 3.04MB            [A[A[A[A[A
+
+
+
+
+
+  .../audio/ja/jf_tebukuro.m4a: 100%|█████████▉| 3.71MB / 3.72MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...udio/ja/jf_gongitsune.m4a: 100%|█████████▉| 3.71MB / 3.72MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zf_xiaoni.m4a: 100%|█████████▉| 2.21MB / 2.22MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ome/audio/hi/hm_omega.m4a: 100%|█████████▉| 2.89MB / 2.90MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ome/audio/hi/hf_alpha.m4a: 100%|█████████▉| 2.80MB / 2.81MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 16 files]                :  25%|██▍       |  228MB /  925MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2728 / 2758):  92%|█████████▏| 7.95GB / 8.66GB,  648MB/s  
+New Data Upload               :  39%|███▊      |  154MB /  399MB, 12.8MB/s  [A
+
+  ...home/audio/es/em_alex.m4a: 100%|█████████▉| 2.84MB / 2.85MB            [A[A
+
+
+  ...e/audio/pt-BR/pf_dora.m4a: 100%|█████████▉| 2.69MB / 2.69MB            [A[A[A
+
+
+
+  ...udio/zh-CN/zf_xiaobei.m4a: 100%|█████████▉| 2.54MB / 2.55MB            [A[A[A[A
+
+
+
+
+  ...me/audio/it/im_nicola.m4a: 100%|█████████▉| 3.03MB / 3.04MB            [A[A[A[A[A
+
+
+
+
+
+  .../audio/ja/jf_tebukuro.m4a: 100%|█████████▉| 3.71MB / 3.72MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...udio/ja/jf_gongitsune.m4a: 100%|█████████▉| 3.71MB / 3.72MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zf_xiaoni.m4a: 100%|█████████▉| 2.21MB / 2.22MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ome/audio/hi/hm_omega.m4a: 100%|█████████▉| 2.89MB / 2.90MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ome/audio/hi/hf_alpha.m4a: 100%|█████████▉| 2.80MB / 2.81MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 16 files]                :  26%|██▌       |  240MB /  925MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2728 / 2758):  92%|█████████▏| 7.96GB / 8.66GB,  635MB/s  
+New Data Upload               :  42%|████▏     |  167MB /  399MB, 13.6MB/s  [A
+
+  ...home/audio/es/em_alex.m4a: 100%|█████████▉| 2.84MB / 2.85MB            [A[A
+
+
+  ...e/audio/pt-BR/pf_dora.m4a: 100%|█████████▉| 2.69MB / 2.69MB            [A[A[A
+
+
+
+  ...udio/zh-CN/zf_xiaobei.m4a: 100%|█████████▉| 2.54MB / 2.55MB            [A[A[A[A
+
+
+
+
+  ...me/audio/it/im_nicola.m4a: 100%|█████████▉| 3.03MB / 3.04MB            [A[A[A[A[A
+
+
+
+
+
+  .../audio/ja/jf_tebukuro.m4a: 100%|█████████▉| 3.71MB / 3.72MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...udio/ja/jf_gongitsune.m4a: 100%|█████████▉| 3.71MB / 3.72MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zf_xiaoni.m4a: 100%|█████████▉| 2.21MB / 2.22MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ome/audio/hi/hm_omega.m4a: 100%|█████████▉| 2.89MB / 2.90MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ome/audio/hi/hf_alpha.m4a: 100%|█████████▉| 2.80MB / 2.81MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 16 files]                :  27%|██▋       |  253MB /  925MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2728 / 2758):  92%|█████████▏| 7.97GB / 8.66GB,  622MB/s  
+New Data Upload               :  45%|████▌     |  180MB /  399MB, 14.6MB/s  [A
+
+  ...home/audio/es/em_alex.m4a: 100%|█████████▉| 2.84MB / 2.85MB            [A[A
+
+
+  ...e/audio/pt-BR/pf_dora.m4a: 100%|█████████▉| 2.69MB / 2.69MB            [A[A[A
+
+
+
+  ...udio/zh-CN/zf_xiaobei.m4a: 100%|█████████▉| 2.54MB / 2.55MB            [A[A[A[A
+
+
+
+
+  ...me/audio/it/im_nicola.m4a: 100%|█████████▉| 3.03MB / 3.04MB            [A[A[A[A[A
+
+
+
+
+
+  .../audio/ja/jf_tebukuro.m4a: 100%|█████████▉| 3.71MB / 3.72MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...udio/ja/jf_gongitsune.m4a: 100%|█████████▉| 3.71MB / 3.72MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zf_xiaoni.m4a: 100%|█████████▉| 2.21MB / 2.22MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ome/audio/hi/hm_omega.m4a: 100%|█████████▉| 2.89MB / 2.90MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ome/audio/hi/hf_alpha.m4a: 100%|█████████▉| 2.80MB / 2.81MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 16 files]                :  29%|██▉       |  269MB /  925MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2728 / 2758):  92%|█████████▏| 7.99GB / 8.66GB,  609MB/s  
+New Data Upload               :  42%|████▏     |  196MB /  466MB, 15.7MB/s  [A
+
+  ...home/audio/es/em_alex.m4a: 100%|██████████| 2.85MB / 2.85MB            [A[A
+
+
+  ...e/audio/pt-BR/pf_dora.m4a: 100%|██████████| 2.69MB / 2.69MB            [A[A[A
+
+
+
+  ...udio/zh-CN/zf_xiaobei.m4a: 100%|██████████| 2.55MB / 2.55MB            [A[A[A[A
+
+
+
+
+  ...me/audio/it/im_nicola.m4a: 100%|██████████| 3.04MB / 3.04MB            [A[A[A[A[A
+
+
+
+
+
+  .../audio/ja/jf_tebukuro.m4a: 100%|██████████| 3.72MB / 3.72MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...udio/ja/jf_gongitsune.m4a: 100%|██████████| 3.72MB / 3.72MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zf_xiaoni.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ome/audio/hi/hm_omega.m4a: 100%|██████████| 2.90MB / 2.90MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ome/audio/hi/hf_alpha.m4a: 100%|██████████| 2.81MB / 2.81MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 16 files]                :  31%|███       |  285MB /  925MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  93%|█████████▎| 8.01GB / 8.66GB,  597MB/s  
+New Data Upload               :  40%|███▉      |  212MB /  533MB, 16.7MB/s  [A
+
+  ...home/audio/ja/jm_kumo.m4a: 100%|██████████| 3.21MB / 3.21MB            [A[A
+
+
+  ...ome/audio/ja/jf_alpha.m4a: 100%|██████████| 2.93MB / 2.93MB            [A[A[A
+
+
+
+  ...ome/audio/es/em_santa.m4a: 100%|██████████| 2.85MB / 2.85MB            [A[A[A[A
+
+
+
+
+  ..._home/audio/hi/hm_psi.m4a: 100%|██████████| 2.93MB / 2.93MB            [A[A[A[A[A
+
+
+
+
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...inputs_outputs_silent.mp4:  95%|█████████▌|  164MB /  172MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../video/05_home_silent.mp4:   4%|▍         | 25.7MB /  612MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  66%|██████▌   | 66.8MB /  102MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  93%|█████████▎| 8.02GB / 8.66GB,  585MB/s  
+New Data Upload               :  37%|███▋      |  223MB /  600MB, 17.3MB/s  [A
+
+  ...home/audio/ja/jm_kumo.m4a: 100%|██████████| 3.21MB / 3.21MB            [A[A
+
+
+  ...ome/audio/ja/jf_alpha.m4a: 100%|██████████| 2.93MB / 2.93MB            [A[A[A
+
+
+
+  ...ome/audio/es/em_santa.m4a: 100%|██████████| 2.85MB / 2.85MB            [A[A[A[A
+
+
+
+
+  ..._home/audio/hi/hm_psi.m4a: 100%|██████████| 2.93MB / 2.93MB            [A[A[A[A[A
+
+
+
+
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...inputs_outputs_silent.mp4:  95%|█████████▌|  164MB /  172MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../video/05_home_silent.mp4:   6%|▋         | 38.3MB /  612MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  66%|██████▌   | 66.8MB /  102MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  93%|█████████▎| 8.03GB / 8.66GB,  573MB/s  
+New Data Upload               :  39%|███▉      |  235MB /  600MB, 18.0MB/s  [A
+
+  ...home/audio/ja/jm_kumo.m4a: 100%|██████████| 3.21MB / 3.21MB            [A[A
+
+
+  ...ome/audio/ja/jf_alpha.m4a: 100%|██████████| 2.93MB / 2.93MB            [A[A[A
+
+
+
+  ...ome/audio/es/em_santa.m4a: 100%|██████████| 2.85MB / 2.85MB            [A[A[A[A
+
+
+
+
+  ..._home/audio/hi/hm_psi.m4a: 100%|██████████| 2.93MB / 2.93MB            [A[A[A[A[A
+
+
+
+
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...inputs_outputs_silent.mp4:  95%|█████████▌|  164MB /  172MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../video/05_home_silent.mp4:   9%|▉         | 54.1MB /  612MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  66%|██████▌   | 66.8MB /  102MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  93%|█████████▎| 8.05GB / 8.66GB,  562MB/s  
+New Data Upload               :  38%|███▊      |  251MB /  667MB, 19.0MB/s  [A
+
+  ...home/audio/ja/jm_kumo.m4a: 100%|██████████| 3.21MB / 3.21MB            [A[A
+
+
+  ...ome/audio/ja/jf_alpha.m4a: 100%|██████████| 2.93MB / 2.93MB            [A[A[A
+
+
+
+  ...ome/audio/es/em_santa.m4a: 100%|██████████| 2.85MB / 2.85MB            [A[A[A[A
+
+
+
+
+  ..._home/audio/hi/hm_psi.m4a: 100%|██████████| 2.93MB / 2.93MB            [A[A[A[A[A
+
+
+
+
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...inputs_outputs_silent.mp4:  95%|█████████▌|  164MB /  172MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../video/05_home_silent.mp4:  11%|█         | 68.7MB /  612MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  66%|██████▌   | 67.0MB /  102MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  93%|█████████▎| 8.06GB / 8.66GB,  551MB/s  
+New Data Upload               :  36%|███▌      |  266MB /  734MB, 19.9MB/s  [A
+
+  ...home/audio/ja/jm_kumo.m4a: 100%|██████████| 3.21MB / 3.21MB            [A[A
+
+
+  ...ome/audio/ja/jf_alpha.m4a: 100%|██████████| 2.93MB / 2.93MB            [A[A[A
+
+
+
+  ...ome/audio/es/em_santa.m4a: 100%|██████████| 2.85MB / 2.85MB            [A[A[A[A
+
+
+
+
+  ..._home/audio/hi/hm_psi.m4a: 100%|██████████| 2.93MB / 2.93MB            [A[A[A[A[A
+
+
+
+
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...inputs_outputs_silent.mp4:  95%|█████████▌|  164MB /  172MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../video/05_home_silent.mp4:  13%|█▎        | 82.4MB /  612MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  66%|██████▌   | 67.0MB /  102MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  93%|█████████▎| 8.07GB / 8.66GB,  540MB/s  
+New Data Upload               :  35%|███▍      |  280MB /  801MB, 20.7MB/s  [A
+
+  ...home/audio/ja/jm_kumo.m4a: 100%|██████████| 3.21MB / 3.21MB            [A[A
+
+
+  ...ome/audio/ja/jf_alpha.m4a: 100%|██████████| 2.93MB / 2.93MB            [A[A[A
+
+
+
+  ...ome/audio/es/em_santa.m4a: 100%|██████████| 2.85MB / 2.85MB            [A[A[A[A
+
+
+
+
+  ..._home/audio/hi/hm_psi.m4a: 100%|██████████| 2.93MB / 2.93MB            [A[A[A[A[A
+
+
+
+
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...inputs_outputs_silent.mp4:  95%|█████████▌|  164MB /  172MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../video/05_home_silent.mp4:  15%|█▌        | 93.9MB /  612MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  66%|██████▌   | 67.0MB /  102MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  93%|█████████▎| 8.09GB / 8.66GB,  529MB/s  
+New Data Upload               :  36%|███▋      |  291MB /  801MB, 21.2MB/s  [A
+
+  ...home/audio/ja/jm_kumo.m4a: 100%|██████████| 3.21MB / 3.21MB            [A[A
+
+
+  ...ome/audio/ja/jf_alpha.m4a: 100%|██████████| 2.93MB / 2.93MB            [A[A[A
+
+
+
+  ...ome/audio/es/em_santa.m4a: 100%|██████████| 2.85MB / 2.85MB            [A[A[A[A
+
+
+
+
+  ..._home/audio/hi/hm_psi.m4a: 100%|██████████| 2.93MB / 2.93MB            [A[A[A[A[A
+
+
+
+
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...inputs_outputs_silent.mp4:  95%|█████████▌|  164MB /  172MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../video/05_home_silent.mp4:  17%|█▋        |  105MB /  612MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  66%|██████▌   | 67.0MB /  102MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  94%|█████████▎| 8.10GB / 8.66GB,  519MB/s  
+New Data Upload               :  35%|███▌      |  302MB /  861MB, 21.7MB/s  [A
+
+  ...home/audio/ja/jm_kumo.m4a: 100%|██████████| 3.21MB / 3.21MB            [A[A
+
+
+  ...ome/audio/ja/jf_alpha.m4a: 100%|██████████| 2.93MB / 2.93MB            [A[A[A
+
+
+
+  ...ome/audio/es/em_santa.m4a: 100%|██████████| 2.85MB / 2.85MB            [A[A[A[A
+
+
+
+
+  ..._home/audio/hi/hm_psi.m4a: 100%|██████████| 2.93MB / 2.93MB            [A[A[A[A[A
+
+
+
+
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...inputs_outputs_silent.mp4:  95%|█████████▌|  164MB /  172MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../video/05_home_silent.mp4:  19%|█▊        |  113MB /  612MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  66%|██████▌   | 67.0MB /  102MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  94%|█████████▎| 8.10GB / 8.66GB,  508MB/s  
+New Data Upload               :  36%|███▌      |  311MB /  861MB, 22.0MB/s  [A
+
+  ...home/audio/ja/jm_kumo.m4a: 100%|██████████| 3.21MB / 3.21MB            [A[A
+
+
+  ...ome/audio/ja/jf_alpha.m4a: 100%|██████████| 2.93MB / 2.93MB            [A[A[A
+
+
+
+  ...ome/audio/es/em_santa.m4a: 100%|██████████| 2.85MB / 2.85MB            [A[A[A[A
+
+
+
+
+  ..._home/audio/hi/hm_psi.m4a: 100%|██████████| 2.93MB / 2.93MB            [A[A[A[A[A
+
+
+
+
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../video/05_home_silent.mp4:  19%|█▉        |  119MB /  612MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 4 files]                 :  61%|██████    | 67.4MB /  110MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  94%|█████████▎| 8.11GB / 8.66GB,  498MB/s  
+New Data Upload               :  37%|███▋      |  317MB /  861MB, 22.0MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  21%|██        |  126MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  66%|██████▌   | 67.4MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   1%|          | 21.4kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   1%|          | 19.8kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   1%|          | 18.8kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   1%|          | 18.6kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  94%|█████████▍| 8.12GB / 8.66GB,  488MB/s  
+New Data Upload               :  38%|███▊      |  324MB /  861MB, 22.1MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  22%|██▏       |  132MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  66%|██████▌   | 67.4MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   1%|          | 21.4kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   1%|          | 19.8kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   1%|          | 18.8kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   1%|          | 18.6kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  94%|█████████▍| 8.12GB / 8.66GB,  478MB/s  
+New Data Upload               :  38%|███▊      |  330MB /  861MB, 22.2MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  23%|██▎       |  138MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  66%|██████▌   | 67.4MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   1%|          | 21.4kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   1%|          | 19.8kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   1%|          | 18.8kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   1%|          | 18.6kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  94%|█████████▍| 8.13GB / 8.66GB,  469MB/s  
+New Data Upload               :  39%|███▉      |  336MB /  861MB, 22.2MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  23%|██▎       |  143MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  66%|██████▌   | 67.4MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   1%|          | 21.4kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   1%|          | 19.8kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   1%|          | 18.8kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   1%|          | 18.6kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  94%|█████████▍| 8.14GB / 8.66GB,  459MB/s  
+New Data Upload               :  40%|███▉      |  341MB /  861MB, 22.2MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  25%|██▍       |  152MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  66%|██████▌   | 67.4MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   1%|          | 21.4kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   1%|          | 19.8kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   1%|          | 18.8kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   1%|          | 18.6kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  94%|█████████▍| 8.14GB / 8.66GB,  450MB/s  
+New Data Upload               :  41%|████      |  349MB /  861MB, 22.4MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  26%|██▌       |  157MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  66%|██████▋   | 67.7MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   2%|▏         | 42.9kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   2%|▏         | 39.6kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   2%|▏         | 37.6kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   2%|▏         | 37.2kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  94%|█████████▍| 8.15GB / 8.66GB,  441MB/s  
+New Data Upload               :  41%|████▏     |  355MB /  861MB, 22.5MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  26%|██▋       |  161MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  66%|██████▋   | 67.7MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   2%|▏         | 42.9kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   2%|▏         | 39.6kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   2%|▏         | 37.6kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   2%|▏         | 37.2kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  94%|█████████▍| 8.15GB / 8.66GB,  432MB/s  
+New Data Upload               :  42%|████▏     |  359MB /  861MB, 22.3MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  27%|██▋       |  165MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  66%|██████▋   | 67.7MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   2%|▏         | 42.9kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   2%|▏         | 39.6kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   2%|▏         | 37.6kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   2%|▏         | 37.2kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  94%|█████████▍| 8.16GB / 8.66GB,  424MB/s  
+New Data Upload               :  42%|████▏     |  363MB /  861MB, 22.2MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  28%|██▊       |  171MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  66%|██████▋   | 67.7MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   2%|▏         | 42.9kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   2%|▏         | 39.6kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   2%|▏         | 37.6kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   2%|▏         | 37.2kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  94%|█████████▍| 8.16GB / 8.66GB,  416MB/s  
+New Data Upload               :  43%|████▎     |  369MB /  861MB, 22.2MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  29%|██▉       |  179MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  66%|██████▋   | 67.7MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   2%|▏         | 42.9kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   2%|▏         | 39.6kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   2%|▏         | 37.6kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   2%|▏         | 37.2kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  94%|█████████▍| 8.17GB / 8.66GB,  408MB/s  
+New Data Upload               :  44%|████▍     |  377MB /  861MB, 22.4MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  31%|███       |  188MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  67%|██████▋   | 68.0MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   3%|▎         | 64.3kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   3%|▎         | 59.3kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   3%|▎         | 56.4kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   3%|▎         | 55.9kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  95%|█████████▍| 8.18GB / 8.66GB,  400MB/s  
+New Data Upload               :  45%|████▍     |  387MB /  861MB, 22.7MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  32%|███▏      |  194MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  67%|██████▋   | 68.0MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   3%|▎         | 64.3kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   3%|▎         | 59.3kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   3%|▎         | 56.4kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   3%|▎         | 55.9kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  95%|█████████▍| 8.19GB / 8.66GB,  392MB/s  
+New Data Upload               :  46%|████▌     |  393MB /  861MB, 22.8MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  33%|███▎      |  201MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  67%|██████▋   | 68.0MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   3%|▎         | 64.3kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   3%|▎         | 59.3kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   3%|▎         | 56.4kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   3%|▎         | 55.9kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  95%|█████████▍| 8.19GB / 8.66GB,  385MB/s  
+New Data Upload               :  46%|████▋     |  399MB /  861MB, 22.8MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  33%|███▎      |  205MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  67%|██████▋   | 68.0MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   3%|▎         | 64.3kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   3%|▎         | 59.3kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   3%|▎         | 56.4kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   3%|▎         | 55.9kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  95%|█████████▍| 8.20GB / 8.66GB,  378MB/s  
+New Data Upload               :  47%|████▋     |  403MB /  861MB, 22.7MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  34%|███▍      |  210MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  67%|██████▋   | 68.0MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   3%|▎         | 64.3kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   3%|▎         | 59.3kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   3%|▎         | 56.4kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   3%|▎         | 55.9kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  95%|█████████▍| 8.20GB / 8.66GB,  370MB/s  
+New Data Upload               :  47%|████▋     |  408MB /  861MB, 22.6MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  35%|███▍      |  214MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  67%|██████▋   | 68.3MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   4%|▎         | 85.7kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   4%|▎         | 79.1kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   4%|▎         | 75.2kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   4%|▎         | 74.5kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  95%|█████████▍| 8.21GB / 8.66GB,  363MB/s  
+New Data Upload               :  48%|████▊     |  413MB /  861MB, 22.6MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  36%|███▌      |  221MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  67%|██████▋   | 68.3MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   4%|▎         | 85.7kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   4%|▎         | 79.1kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   4%|▎         | 75.2kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   4%|▎         | 74.5kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  95%|█████████▍| 8.21GB / 8.66GB,  356MB/s  
+New Data Upload               :  49%|████▉     |  420MB /  861MB, 22.7MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  38%|███▊      |  232MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  67%|██████▋   | 68.3MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   4%|▎         | 85.7kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   4%|▎         | 79.1kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   4%|▎         | 75.2kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   4%|▎         | 74.5kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  95%|█████████▌| 8.23GB / 8.66GB,  350MB/s  
+New Data Upload               :  50%|█████     |  431MB /  861MB, 23.1MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  39%|███▉      |  238MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  67%|██████▋   | 68.7MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   5%|▍         |  107kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   5%|▍         | 98.9kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   5%|▍         | 94.0kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   5%|▍         | 93.1kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  95%|█████████▌| 8.23GB / 8.66GB,  344MB/s  
+New Data Upload               :  51%|█████     |  438MB /  861MB, 23.2MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  40%|████      |  247MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  67%|██████▋   | 68.7MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   5%|▍         |  107kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   5%|▍         | 98.9kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   5%|▍         | 94.0kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   5%|▍         | 93.1kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  95%|█████████▌| 8.24GB / 8.66GB,  338MB/s  
+New Data Upload               :  52%|█████▏    |  447MB /  861MB, 23.4MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  42%|████▏     |  255MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  67%|██████▋   | 68.7MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   5%|▍         |  107kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   5%|▍         | 98.9kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   5%|▍         | 94.0kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   5%|▍         | 93.1kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  95%|█████████▌| 8.25GB / 8.66GB,  331MB/s  
+New Data Upload               :  53%|█████▎    |  454MB /  861MB, 23.6MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  43%|████▎     |  262MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  68%|██████▊   | 69.0MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   6%|▌         |  129kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   6%|▌         |  119kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   6%|▌         |  113kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   6%|▌         |  112kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  95%|█████████▌| 8.26GB / 8.66GB,  326MB/s  
+New Data Upload               :  54%|█████▎    |  462MB /  861MB, 23.8MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  44%|████▍     |  268MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  68%|██████▊   | 69.0MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   6%|▌         |  129kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   6%|▌         |  119kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   6%|▌         |  113kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   6%|▌         |  112kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  95%|█████████▌| 8.26GB / 8.66GB,  320MB/s  
+New Data Upload               :  54%|█████▍    |  468MB /  861MB, 23.7MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  45%|████▌     |  277MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  68%|██████▊   | 69.3MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   7%|▋         |  150kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   7%|▋         |  138kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   7%|▋         |  132kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   7%|▋         |  130kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  96%|█████████▌| 8.27GB / 8.66GB,  314MB/s  
+New Data Upload               :  55%|█████▌    |  478MB /  861MB, 24.0MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  46%|████▋     |  284MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  68%|██████▊   | 69.3MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   7%|▋         |  150kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   7%|▋         |  138kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   7%|▋         |  132kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   7%|▋         |  130kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  96%|█████████▌| 8.28GB / 8.66GB,  308MB/s  
+New Data Upload               :  56%|█████▌    |  483MB /  861MB, 24.0MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  164MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  48%|████▊     |  291MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  68%|██████▊   | 69.3MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   7%|▋         |  150kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   7%|▋         |  138kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   7%|▋         |  132kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   7%|▋         |  130kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  96%|█████████▌| 8.29GB / 8.66GB,  303MB/s  
+New Data Upload               :  57%|█████▋    |  492MB /  861MB, 24.2MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  165MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  48%|████▊     |  296MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  68%|██████▊   | 69.7MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   7%|▋         |  171kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   7%|▋         |  158kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   7%|▋         |  150kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   7%|▋         |  149kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  96%|█████████▌| 8.29GB / 8.66GB,  297MB/s  
+New Data Upload               :  58%|█████▊    |  497MB /  861MB, 24.1MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  165MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  49%|████▉     |  302MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  68%|██████▊   | 69.7MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   7%|▋         |  171kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   7%|▋         |  158kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   7%|▋         |  150kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   7%|▋         |  149kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  96%|█████████▌| 8.30GB / 8.66GB,  292MB/s  
+New Data Upload               :  58%|█████▊    |  503MB /  861MB, 24.1MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  165MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  50%|█████     |  309MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  69%|██████▊   | 70.0MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   8%|▊         |  193kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   8%|▊         |  178kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   8%|▊         |  169kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   8%|▊         |  168kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  96%|█████████▌| 8.30GB / 8.66GB,  287MB/s  
+New Data Upload               :  59%|█████▉    |  510MB /  861MB, 24.2MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  165MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  52%|█████▏    |  317MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  69%|██████▉   | 70.3MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   9%|▉         |  214kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   9%|▉         |  198kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   9%|▉         |  188kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   9%|▉         |  186kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  96%|█████████▌| 8.31GB / 8.66GB,  282MB/s  
+New Data Upload               :  60%|██████    |  519MB /  861MB, 24.4MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  165MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  52%|█████▏    |  319MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  69%|██████▉   | 70.3MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:   9%|▉         |  214kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:   9%|▉         |  198kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:   9%|▉         |  188kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:   9%|▉         |  186kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  96%|█████████▌| 8.31GB / 8.66GB,  277MB/s  
+New Data Upload               :  60%|██████    |  521MB /  861MB, 24.1MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  165MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  53%|█████▎    |  324MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  69%|██████▉   | 70.6MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  10%|█         |  236kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  10%|█         |  218kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  10%|█         |  207kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  10%|█         |  205kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  96%|█████████▌| 8.32GB / 8.66GB,  272MB/s  
+New Data Upload               :  61%|██████    |  526MB /  861MB, 24.0MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  165MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  54%|█████▍    |  330MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  69%|██████▉   | 70.6MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  10%|█         |  236kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  10%|█         |  218kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  10%|█         |  207kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  10%|█         |  205kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  96%|█████████▌| 8.33GB / 8.66GB,  267MB/s  
+New Data Upload               :  62%|██████▏   |  532MB /  861MB, 24.0MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  165MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  55%|█████▌    |  339MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  70%|██████▉   | 71.0MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  11%|█         |  257kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  11%|█         |  237kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  11%|█         |  226kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  11%|█         |  223kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  96%|█████████▋| 8.34GB / 8.66GB,  263MB/s  
+New Data Upload               :  63%|██████▎   |  542MB /  861MB, 24.4MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  165MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  57%|█████▋    |  349MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  70%|██████▉   | 71.3MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  12%|█▏        |  279kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  12%|█▏        |  257kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  12%|█▏        |  244kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  12%|█▏        |  242kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  96%|█████████▋| 8.35GB / 8.66GB,  258MB/s  
+New Data Upload               :  64%|██████▍   |  553MB /  861MB, 24.7MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  165MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  58%|█████▊    |  356MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  71%|███████   | 71.9MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  14%|█▍        |  321kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  14%|█▍        |  297kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  14%|█▍        |  282kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  14%|█▍        |  279kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  97%|█████████▋| 8.35GB / 8.66GB,  254MB/s  
+New Data Upload               :  65%|██████▌   |  561MB /  861MB, 24.8MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  165MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  59%|█████▉    |  363MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  71%|███████   | 72.3MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  15%|█▍        |  343kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  15%|█▍        |  316kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  15%|█▍        |  301kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  15%|█▍        |  298kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  97%|█████████▋| 8.36GB / 8.66GB,  250MB/s  
+New Data Upload               :  66%|██████▌   |  568MB /  861MB, 24.9MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▌|  165MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  60%|█████▉    |  367MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  71%|███████▏  | 72.9MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  17%|█▋        |  386kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  17%|█▋        |  356kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  17%|█▋        |  338kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  17%|█▋        |  335kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  97%|█████████▋| 8.37GB / 8.66GB,  245MB/s  
+New Data Upload               :  67%|██████▋   |  573MB /  861MB, 24.8MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▋|  165MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  61%|██████    |  374MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  72%|███████▏  | 73.2MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  18%|█▊        |  407kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  18%|█▊        |  376kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  18%|█▊        |  357kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  18%|█▊        |  354kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  97%|█████████▋| 8.37GB / 8.66GB,  241MB/s  
+New Data Upload               :  67%|██████▋   |  581MB /  861MB, 24.9MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▋|  165MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  62%|██████▏   |  382MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  72%|███████▏  | 73.6MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  19%|█▊        |  429kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  19%|█▊        |  396kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  19%|█▊        |  376kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  19%|█▊        |  372kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  97%|█████████▋| 8.38GB / 8.66GB,  237MB/s  
+New Data Upload               :  68%|██████▊   |  589MB /  861MB, 25.1MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▋|  166MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  64%|██████▎   |  390MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  73%|███████▎  | 74.2MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  21%|██        |  471kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  21%|██        |  435kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  21%|██        |  414kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  21%|██        |  410kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  97%|█████████▋| 8.39GB / 8.66GB,  233MB/s  
+New Data Upload               :  69%|██████▉   |  598MB /  861MB, 25.3MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  96%|█████████▋|  166MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  64%|██████▍   |  395MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  73%|███████▎  | 74.9MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  22%|██▏       |  514kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  22%|██▏       |  475kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  22%|██▏       |  451kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  22%|██▏       |  447kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  97%|█████████▋| 8.40GB / 8.66GB,  229MB/s  
+New Data Upload               :  70%|███████   |  603MB /  861MB, 25.2MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  97%|█████████▋|  166MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  66%|██████▌   |  404MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  74%|███████▎  | 75.2MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  23%|██▎       |  536kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  23%|██▎       |  494kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  23%|██▎       |  470kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  23%|██▎       |  465kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  97%|█████████▋| 8.41GB / 8.66GB,  226MB/s  
+New Data Upload               :  71%|███████   |  613MB /  861MB, 25.5MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  97%|█████████▋|  166MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  67%|██████▋   |  408MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  74%|███████▍  | 75.8MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  25%|██▌       |  579kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  25%|██▌       |  534kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  25%|██▌       |  508kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  25%|██▌       |  503kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  97%|█████████▋| 8.41GB / 8.66GB,  222MB/s  
+New Data Upload               :  72%|███████▏  |  618MB /  861MB, 25.4MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  97%|█████████▋|  166MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  68%|██████▊   |  414MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  74%|███████▍  | 75.8MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  25%|██▌       |  579kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  25%|██▌       |  534kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  25%|██▌       |  508kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  25%|██▌       |  503kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  97%|█████████▋| 8.42GB / 8.66GB,  218MB/s  
+New Data Upload               :  72%|███████▏  |  624MB /  861MB, 25.3MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  97%|█████████▋|  166MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  69%|██████▉   |  422MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  75%|███████▌  | 76.5MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  27%|██▋       |  621kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  27%|██▋       |  574kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  27%|██▋       |  545kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  27%|██▋       |  540kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  97%|█████████▋| 8.43GB / 8.66GB,  215MB/s  
+New Data Upload               :  74%|███████▎  |  633MB /  861MB, 25.5MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  97%|█████████▋|  166MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  70%|███████   |  430MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  76%|███████▌  | 77.2MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  29%|██▉       |  664kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  29%|██▉       |  613kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  29%|██▉       |  583kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  29%|██▉       |  577kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  97%|█████████▋| 8.44GB / 8.66GB,  211MB/s  
+New Data Upload               :  75%|███████▍  |  642MB /  861MB, 25.8MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  97%|█████████▋|  166MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  71%|███████▏  |  437MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  76%|███████▋  | 77.8MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  31%|███       |  707kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  31%|███       |  653kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  31%|███       |  620kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  31%|███       |  614kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  98%|█████████▊| 8.44GB / 8.66GB,  208MB/s  
+New Data Upload               :  76%|███████▌  |  650MB /  861MB, 25.9MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  97%|█████████▋|  166MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  73%|███████▎  |  447MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  77%|███████▋  | 78.5MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  33%|███▎      |  750kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  33%|███▎      |  692kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  33%|███▎      |  658kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  33%|███▎      |  652kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  98%|█████████▊| 8.45GB / 8.66GB,  205MB/s  
+New Data Upload               :  77%|███████▋  |  661MB /  861MB, 26.2MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  97%|█████████▋|  166MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  74%|███████▎  |  451MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  77%|███████▋  | 78.5MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  33%|███▎      |  750kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  33%|███▎      |  692kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  33%|███▎      |  658kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  33%|███▎      |  652kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  98%|█████████▊| 8.46GB / 8.66GB,  201MB/s  
+New Data Upload               :  77%|███████▋  |  665MB /  861MB, 26.0MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  97%|█████████▋|  167MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  74%|███████▍  |  455MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  78%|███████▊  | 79.1MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  35%|███▍      |  793kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  35%|███▍      |  732kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  35%|███▍      |  696kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  35%|███▍      |  689kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  98%|█████████▊| 8.46GB / 8.66GB,  198MB/s  
+New Data Upload               :  78%|███████▊  |  670MB /  861MB, 25.9MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  97%|█████████▋|  167MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  76%|███████▌  |  464MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  78%|███████▊  | 79.8MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  36%|███▋      |  836kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  36%|███▋      |  771kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  36%|███▋      |  733kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  36%|███▋      |  726kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  98%|█████████▊| 8.47GB / 8.66GB,  195MB/s  
+New Data Upload               :  79%|███████▉  |  680MB /  861MB, 26.2MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  97%|█████████▋|  167MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  77%|███████▋  |  473MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  79%|███████▉  | 80.7MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  39%|███▉      |  900kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  39%|███▉      |  831kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  39%|███▉      |  790kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  39%|███▉      |  782kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  98%|█████████▊| 8.48GB / 8.66GB,  192MB/s  
+New Data Upload               :  80%|████████  |  690MB /  861MB, 26.4MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  97%|█████████▋|  167MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  78%|███████▊  |  479MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  79%|███████▉  | 80.7MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  39%|███▉      |  900kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  39%|███▉      |  831kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  39%|███▉      |  790kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  39%|███▉      |  782kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  98%|█████████▊| 8.49GB / 8.66GB,  189MB/s  
+New Data Upload               :  81%|████████  |  696MB /  861MB, 26.4MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  97%|█████████▋|  167MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  80%|███████▉  |  487MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  80%|████████  | 81.7MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  42%|████▏     |  964kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  42%|████▏     |  890kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  42%|████▏     |  846kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  42%|████▏     |  838kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  98%|█████████▊| 8.50GB / 8.66GB,  186MB/s  
+New Data Upload               :  82%|████████▏ |  706MB /  861MB, 26.6MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  97%|█████████▋|  167MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  80%|████████  |  491MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  80%|████████  | 81.7MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  42%|████▏     |  964kB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  42%|████▏     |  890kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  42%|████▏     |  846kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  42%|████▏     |  838kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  98%|█████████▊| 8.50GB / 8.66GB,  183MB/s  
+New Data Upload               :  82%|████████▏ |  709MB /  861MB, 26.4MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  97%|█████████▋|  167MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  82%|████████▏ |  500MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  81%|████████  | 82.4MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  44%|████▍     | 1.01MB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  44%|████▍     |  930kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  44%|████▍     |  884kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  44%|████▍     |  875kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  98%|█████████▊| 8.51GB / 8.66GB,  180MB/s  
+New Data Upload               :  84%|████████▎ |  720MB /  861MB, 26.7MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  98%|█████████▊|  168MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  82%|████████▏ |  502MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  82%|████████▏ | 83.3MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  47%|████▋     | 1.07MB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  47%|████▋     |  989kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  47%|████▋     |  940kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  47%|████▋     |  931kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  98%|█████████▊| 8.52GB / 8.66GB,  177MB/s  
+New Data Upload               :  84%|████████▍ |  723MB /  861MB, 26.4MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  98%|█████████▊|  168MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  83%|████████▎ |  508MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  82%|████████▏ | 83.3MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  47%|████▋     | 1.07MB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  47%|████▋     |  989kB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  47%|████▋     |  940kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  47%|████▋     |  931kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  98%|█████████▊| 8.52GB / 8.66GB,  174MB/s  
+New Data Upload               :  85%|████████▍ |  729MB /  861MB, 26.4MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  98%|█████████▊|  168MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  84%|████████▍ |  515MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  82%|████████▏ | 84.0MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  49%|████▊     | 1.11MB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  49%|████▊     | 1.03MB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  49%|████▊     |  978kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  49%|████▊     |  968kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  99%|█████████▊| 8.53GB / 8.66GB,  172MB/s  
+New Data Upload               :  86%|████████▌ |  737MB /  861MB, 26.5MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  98%|█████████▊|  168MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  84%|████████▍ |  516MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  82%|████████▏ | 84.0MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  49%|████▊     | 1.11MB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  49%|████▊     | 1.03MB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  49%|████▊     |  978kB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  49%|████▊     |  968kB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  99%|█████████▊| 8.53GB / 8.66GB,  169MB/s  
+New Data Upload               :  86%|████████▌ |  738MB /  861MB, 26.0MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  98%|█████████▊|  168MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  86%|████████▌ |  524MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  83%|████████▎ | 85.0MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  51%|█████▏    | 1.18MB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  51%|█████▏    | 1.09MB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  51%|█████▏    | 1.03MB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  51%|█████▏    | 1.02MB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  99%|█████████▊| 8.54GB / 8.66GB,  166MB/s  
+New Data Upload               :  87%|████████▋ |  747MB /  861MB, 26.3MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  98%|█████████▊|  168MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  87%|████████▋ |  532MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  84%|████████▍ | 86.0MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  54%|█████▍    | 1.24MB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  54%|█████▍    | 1.15MB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  54%|█████▍    | 1.09MB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  54%|█████▍    | 1.08MB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  99%|█████████▉| 8.55GB / 8.66GB,  164MB/s  
+New Data Upload               :  88%|████████▊ |  757MB /  861MB, 26.5MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  98%|█████████▊|  168MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  88%|████████▊ |  538MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  85%|████████▍ | 86.6MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  56%|█████▌    | 1.29MB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  56%|█████▌    | 1.19MB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  56%|█████▌    | 1.13MB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  56%|█████▌    | 1.12MB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  99%|█████████▉| 8.56GB / 8.66GB,  161MB/s  
+New Data Upload               :  89%|████████▊ |  764MB /  861MB, 26.5MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  98%|█████████▊|  168MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  89%|████████▉ |  546MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  86%|████████▌ | 87.6MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  59%|█████▉    | 1.35MB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  59%|█████▉    | 1.25MB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  59%|█████▉    | 1.18MB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  59%|█████▉    | 1.17MB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  99%|█████████▉| 8.57GB / 8.66GB,  159MB/s  
+New Data Upload               :  90%|████████▉ |  773MB /  861MB, 26.7MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  98%|█████████▊|  169MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  90%|████████▉ |  551MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  87%|████████▋ | 88.6MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  62%|██████▏   | 1.41MB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  62%|██████▏   | 1.31MB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  62%|██████▏   | 1.24MB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  62%|██████▏   | 1.23MB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  99%|█████████▉| 8.57GB / 8.66GB,  157MB/s  
+New Data Upload               :  91%|█████████ |  779MB /  861MB, 26.7MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  98%|█████████▊|  169MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  91%|█████████ |  556MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  88%|████████▊ | 89.5MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  64%|██████▍   | 1.48MB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  64%|██████▍   | 1.36MB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  64%|██████▍   | 1.30MB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  64%|██████▍   | 1.28MB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  99%|█████████▉| 8.58GB / 8.66GB,  154MB/s  
+New Data Upload               :  91%|█████████▏|  786MB /  861MB, 26.6MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  99%|█████████▊|  169MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  92%|█████████▏|  565MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  89%|████████▉ | 90.5MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  67%|██████▋   | 1.54MB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  67%|██████▋   | 1.42MB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  67%|██████▋   | 1.35MB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  67%|██████▋   | 1.34MB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  99%|█████████▉| 8.59GB / 8.66GB,  152MB/s  
+New Data Upload               :  92%|█████████▏|  796MB /  861MB, 26.9MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  99%|█████████▊|  169MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  94%|█████████▎|  574MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  90%|████████▉ | 91.5MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  70%|██████▉   | 1.61MB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  70%|██████▉   | 1.48MB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  70%|██████▉   | 1.41MB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  70%|██████▉   | 1.40MB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  99%|█████████▉| 8.60GB / 8.66GB,  150MB/s  
+New Data Upload               :  94%|█████████▎|  807MB /  861MB, 27.2MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  99%|█████████▉|  170MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  95%|█████████▌|  582MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  91%|█████████▏| 93.1MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  75%|███████▍  | 1.71MB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  75%|███████▍  | 1.58MB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  75%|███████▍  | 1.50MB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  75%|███████▍  | 1.49MB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758):  99%|█████████▉| 8.61GB / 8.66GB,  148MB/s  
+New Data Upload               :  95%|█████████▍|  817MB /  861MB, 27.5MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  99%|█████████▉|  170MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  96%|█████████▋|  590MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  93%|█████████▎| 95.1MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  80%|████████  | 1.84MB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  80%|████████  | 1.70MB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  80%|████████  | 1.62MB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  80%|████████  | 1.60MB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758): 100%|█████████▉| 8.62GB / 8.66GB,  146MB/s  
+New Data Upload               :  96%|█████████▌|  828MB /  861MB, 27.8MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4:  99%|█████████▉|  171MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  98%|█████████▊|  598MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  95%|█████████▌| 97.0MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  86%|████████▌ | 1.97MB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  86%|████████▌ | 1.82MB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  86%|████████▌ | 1.73MB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  86%|████████▌ | 1.71MB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758): 100%|█████████▉| 8.63GB / 8.66GB,  145MB/s  
+New Data Upload               :  98%|█████████▊|  839MB /  861MB, 28.1MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4: 100%|█████████▉|  171MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4:  99%|█████████▉|  608MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4:  98%|█████████▊|  100MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a:  94%|█████████▍| 2.16MB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a:  94%|█████████▍| 2.00MB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a:  94%|█████████▍| 1.90MB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a:  94%|█████████▍| 1.88MB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758): 100%|█████████▉| 8.65GB / 8.66GB,  143MB/s  
+New Data Upload               :  99%|█████████▉|  853MB /  861MB, 28.6MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4: 100%|█████████▉|  172MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4: 100%|█████████▉|  611MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4: 100%|█████████▉|  102MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a: 100%|█████████▉| 2.29MB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a: 100%|█████████▉| 2.12MB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a: 100%|█████████▉| 2.01MB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a: 100%|█████████▉| 1.99MB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2751 / 2758): 100%|█████████▉| 8.65GB / 8.66GB,  141MB/s  
+New Data Upload               : 100%|█████████▉|  860MB /  861MB, 28.5MB/s  [A
+
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            [A[A
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            [A[A[A
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            [A[A[A[A
+
+
+
+
+  ...inputs_outputs_silent.mp4: 100%|██████████|  172MB /  172MB            [A[A[A[A[A
+
+
+
+
+
+  .../video/05_home_silent.mp4: 100%|██████████|  612MB /  612MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...me/web/05_home_silent.mp4: 100%|██████████|  102MB /  102MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zm_yunxia.m4a: 100%|██████████| 2.30MB / 2.30MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a: 100%|██████████| 2.12MB / 2.12MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a: 100%|██████████| 2.02MB / 2.02MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a: 100%|██████████| 2.00MB / 2.00MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2758 / 2758): 100%|██████████| 8.66GB / 8.66GB,  133MB/s  
+New Data Upload               : 100%|██████████|  861MB /  861MB, 27.1MB/s  [AProcessing Files (2758 / 2758): 100%|██████████| 8.66GB / 8.66GB,  133MB/s  
+New Data Upload               : 100%|██████████|  861MB /  861MB, 27.1MB/s  
+  ...ome/audio/en/bm_lewis.m4a: 100%|██████████| 2.95MB / 2.95MB            
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████| 2.22MB / 2.22MB            
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████| 2.70MB / 2.70MB            
+  ...inputs_outputs_silent.mp4: 100%|██████████|  172MB /  172MB            
+  .../video/05_home_silent.mp4: 100%|██████████|  612MB /  612MB            
+  ...me/web/05_home_silent.mp4: 100%|██████████|  102MB /  102MB            
+  ...audio/zh-CN/zm_yunxia.m4a: 100%|██████████| 2.30MB / 2.30MB            
+  ...udio/zh-CN/zm_yunjian.m4a: 100%|██████████| 2.12MB / 2.12MB            
+  .../audio/zh-CN/zm_yunxi.m4a: 100%|██████████| 2.02MB / 2.02MB            
+  ...udio/zh-CN/zm_yunyang.m4a: 100%|██████████| 2.00MB / 2.00MB            
+https://huggingface.co/datasets/einarolafsson/spacr-tutorials/tree/n676-selective05-20261015/.
+  read back 500/5370 files, 0.52 GB
+  read back 1000/5370 files, 2.30 GB
+  read back 1500/5370 files, 4.18 GB
+  read back 2000/5370 files, 4.84 GB
+  read back 2500/5370 files, 5.21 GB
+  read back 3000/5370 files, 5.57 GB
+  media host rate limit; retrying after 102s
+  media host rate limit; retrying after 102s
+  media host rate limit; retrying after 102s
+  media host rate limit; retrying after 102s
+  media host rate limit; retrying after 102s
+  media host rate limit; retrying after 102s
+  media host rate limit; retrying after 102s
+  media host rate limit; retrying after 102s
+  media host rate limit; retrying after 102s
+  media host rate limit; retrying after 102s
+  media host rate limit; retrying after 102s
+  media host rate limit; retrying after 102s
+  read back 3500/5370 files, 6.03 GB
+  read back 4000/5370 files, 6.57 GB
+  read back 4500/5370 files, 7.13 GB
+  read back 5000/5370 files, 7.93 GB
+  read back 5370/5370 files, 8.81 GB
+{"commit": "4e4de22dce9cc5e7f1c86747b6159b538e66f7a1", "files_expected": 5370, "metadata_matched": 5370, "metadata_failures": [], "bytes_read_back": 8807787387, "downloaded_sha256_matched": 5370, "download_failures": [], "seconds": 382.3, "passed": true}
+PUBLISHED MEDIA https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/4e4de22dce9cc5e7f1c86747b6159b538e66f7a1
+
+Terminal exit status: 0

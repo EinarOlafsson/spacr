@@ -11,6 +11,14 @@
 
 
 
+## 2026-10-15 Work — Lesson05 completed; ordered audit proceeds to06
+
+Lesson05 Home/navigation is completed for nightly delivery:31 full native clips (30 reused strict passes plus1fresh standalone Apply/Revert),23571frames/785.7s at1x; revised overview narration across50 source-bound31-scene tracks;13 reviewed translations/14 catalogs. Spaceout ending removed. Owning73 staged operations,84 candidate routes,placeholder checks,145-file checkpoint,84 prepared Pages hosted routes and record all pass. Independent review confirms all83 other tutorials unchanged. Actual5370 media files/8,807,787,387B were downloaded and SHA-verified at immutable HF4e4de22dce9cc5e7f1c86747b6159b538e66f7a1, branch n676-selective05-20261015/tag n676-selective05-20261015-verified. Pages pins that exact commit.
+
+Closed completion evidence: data/n676_home_selective_completed_2026-10-15/ (294listedfiles+manifest;148 coherent recorded checkpoint files and13official reviews), adjacent independent peer. Root sampled4 actual master frames; no fullwatch,human listening/native-speaker or live-site/fullCI claim. Finalplayer8ab0b4f42 is held locally; capture/render/voice87ff preserved. Player seek repair and7-test evidence already delivered in9e4452f6c/data/n676_complete_native_seek_fix_2026-10-15/. No app-source push: final outgoing changes remain docs/features-only under Home release hold.
+
+Ordered pass now clears01KEEP,02DONE,04DONE,05DONE (4of84active lessons);06 is next. Previously completed later lessons still receive their ordered audit rather than an assumed remake. Home Lesson14 navigation dependency is acknowledged for a bounded owner source fix after this05 publication, without marking14 audited or completed.
+
 ## 2026-10-15 Work — Lesson05 media validated; native seek fix delivered
 
 Lesson05 actual50-track audio QA,13 reviewed translations/14 catalogs,31 whole native clips,master/full decode/PTS/web rendition and73 staged player operations all pass. Candidate ln3oto4l (manifest ced803ebdd5e93a6ada3fead48a3c6595afd77ef05d104dc0bd43e87a210bd2a) passed84 routes,placeholder andcheckpoint checks; independent preservation confirms all83 other tutorials unchanged. HF upload/readback is running on n676-selective05-20261015; Pages/record/final nightly delivery remain pending, so no05 completion tick yet.

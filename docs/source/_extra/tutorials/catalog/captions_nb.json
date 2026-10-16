@@ -489,9 +489,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Gå gjennom alle gjeldende moduler på Home fra venstre mot høyre. Lær deretter de felles kontrollene med Mask, og tilpass navigasjon, hjelp og utseende.",
+      "description": "Utforsk Home-oversikten og kategorifanene, lær deretter modulenes felles kontroller med Mask, og tilpass navigasjon, hjelp og utseende.",
       "objectives": [
-        "Identifisere alle modulene i de gjeldende radene Core, Data og Tools.",
+        "Finn moduler med fanene Home, Core, Data, Tools og Organism.",
         "Bruke Mask til å kjenne igjen felles innstillinger, forhåndsvisninger, handlinger og resultater.",
         "Gå tilbake til Home, bruke søk og ordne panelene.",
         "Velge innstillinger for utseende og ytelse."
@@ -500,7 +500,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home er utgangspunktet. Les hver rad fra venstre mot høyre: Core, Data og Tools. Hver flis åpner modulen sin. Sidepanelet gir de samme inngangene, og Home går tilbake til oversikten.",
+          "narration": "Home er utgangspunktet. Oversikten grupperer moduler under Core, Data, Tools og Organism. Kategorifanene avgrenser visningen. Hver flis åpner modulen den er oppkalt etter. Sidepanelet gir de samme inngangene, og Home går tilbake til oversikten.",
           "hold_after": 0.7
         },
         {
@@ -784,11 +784,6 @@
             1200,
             1500
           ]
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "I Spaceout-modus inneholder Preferences spaCR field-kontroller for åtte uavhengige effekter. Slå hver effekt av eller på separat. De vanlige kontrollene for utseende og animasjon i innstillingsvinduet er fortsatt tilgjengelige. Apply forhåndsviser, Keep godtar, og Revert gjenoppretter det tidligere valget.",
-          "hold_after": 0.7
         }
       ],
       "narration_voices": {

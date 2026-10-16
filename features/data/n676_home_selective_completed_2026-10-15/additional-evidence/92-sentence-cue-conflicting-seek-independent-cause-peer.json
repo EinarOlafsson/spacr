@@ -1,0 +1,179 @@
+{
+  "schema": 1,
+  "status": "observed_explicit_target_overwrite",
+  "source_commit": "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9",
+  "source_sha256": {
+    "tools/tutorials/authoring/web/app_v2.js": "39591f1dd856cad05324fc32d871a6cc558078792c03dad4a473d7af9778bf25",
+    "tools/tutorials/verify_release_candidate.py": "df4a635f1afa065c1471a42bbb5d9fb03c9e7eaf1e961f46eaa62c16b478ff53",
+    "tools/tutorials/verify_staged_lesson.py": "0bcfc0298eaca16130cc59846f9133f5a5e317d1c19b3138cba17e54322c2a04"
+  },
+  "diagnostic": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/sentence-cues-diagnostic-r1.json",
+    "bytes": 145431,
+    "sha256": "bb1f6b1bf49e7a47e775f1615dd472e35d6a2ed32b4bddfed57d4c69fc4bcb86"
+  },
+  "last_requested": {
+    "sentence_index": 12,
+    "requested_audio_time": 48.27250000000002,
+    "sentence": {
+      "sentence": 1,
+      "speech_start": 45.28500000000002,
+      "speech_end": 51.26000000000002,
+      "audible_start": 45.38500000000002,
+      "audible_end": 51.08000000000002,
+      "duration": 5.975,
+      "gap_from_previous": null,
+      "trimmed_lead": 0.215,
+      "trimmed_tail": 0.31,
+      "text": "Regression relates phenotype scores to sequencing guide counts, preserving the experimental grouping.",
+      "speech_text": "Regression relates phenotype scores to sequencing guide counts, preserving the experimental grouping.",
+      "phonemes": "\u0279\u0259\u0261\u0279\u02c8\u025b\u0283\u0259n \u0279\u0259l\u02c8Ats f\u02c8in\u0259t\u02ccIp sk\u02c8\u0254\u0279z t\u0259 s\u02c8ikw\u0259ns\u026a\u014b \u0261\u02c8Id k\u02c8Wnts, p\u0279\u026az\u02c8\u025c\u0279v\u026a\u014b \u00f0i \u026aksp\u02cc\u025b\u0279\u0259m\u02c8\u025bnt\u1d4al \u0261\u0279\u02c8up\u026a\u014b."
+    }
+  },
+  "last_three_audio_writes": [
+    {
+      "at": 5856.200000047684,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 48.27250000000002,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at seekTo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1869:32)",
+        "    at eval (eval at evaluate (:311:30), <anonymous>:1:16)",
+        "    at UtilityScript.evaluate (<anonymous>:318:18)",
+        "    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "state": {
+        "audio": {
+          "time": 42.172499,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 81.125833,
+          "seeking": false,
+          "ready": 4,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": false,
+        "nativeIndex": null,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5856.5,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 45.28500000000002,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at HTMLAudioElement.updateNarrationHold (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1533:5)"
+      ],
+      "state": {
+        "audio": {
+          "time": 48.2725,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 93.5875,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 5,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    },
+    {
+      "at": 5856.700000047684,
+      "kind": "currentTime.write",
+      "element": "audio",
+      "requested": 48.2725,
+      "stack": [
+        "    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:22:16)",
+        "    at syncCompleteNativeNarration (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1461:34)",
+        "    at seekNarrationToVideo (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:1410:5)",
+        "    at HTMLVideoElement.<anonymous> (http://127.0.0.1:33729/web/app_v2.js?v=n676-selective04-20261015-verified-k6-2427d57f1:2154:3)"
+      ],
+      "state": {
+        "audio": {
+          "time": 45.285,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "video": {
+          "time": 93.5875,
+          "seeking": true,
+          "ready": 1,
+          "paused": true,
+          "ended": false,
+          "error": null
+        },
+        "pending": true,
+        "nativeIndex": 5,
+        "waiting": false,
+        "loadPending": false,
+        "heldForAudio": false,
+        "complete": true,
+        "preserve": false
+      }
+    }
+  ],
+  "final_failure_state": {
+    "audio": {
+      "time": 48.2725,
+      "seeking": true,
+      "ready": 1,
+      "paused": true,
+      "ended": false,
+      "error": null
+    },
+    "video": {
+      "time": 93.5875,
+      "seeking": false,
+      "ready": 4,
+      "paused": true,
+      "ended": false,
+      "error": null
+    },
+    "pending": false,
+    "nativeIndex": 5,
+    "waiting": false,
+    "loadPending": false,
+    "heldForAudio": false,
+    "complete": true,
+    "preserve": false
+  },
+  "observed_mechanism": "seekTo requested48.2725; audio seeking/updateNarrationHold calledsync(false) while visual correctionpending/video seeking; resetnativeindex caused scenestart45.285 write; queuedvideo play/seekNarrationToVideo(true) restored48.2725. All3 writes within0.5ms. Finalaudio remainedseeking/ready1, videoready4/settled after unchanged90s wait.",
+  "source_gap": "Existing pending/seeking guard is preserve_visual_intervals-only; actualcomplete_native_clips:true/preserve:false skips it.",
+  "minimal_fix": "Apply existingguard to both completeNativePlayback kinds; existingfunctionentry alreadyrequires thatmode. Parameterize existing coldpausedseek regression.",
+  "limits": [
+    "Native setter delegation and eventrecording introduce overhead; no claim that all Chromium seek hangs share thiscause.",
+    "Observed wrongtarget writes and finaltimeout supported; actualfixed05fullbrowser gate remains required.",
+    "No app/native/audio/masterdata changes."
+  ]
+}

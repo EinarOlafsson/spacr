@@ -1,0 +1,94 @@
+{
+  "schema": 1,
+  "lesson": "05_home",
+  "status": "pass",
+  "source_commit": "8ab0b4f421baf9e6318c9f9f0d08ccd73241113b",
+  "capture_render_voice_source_commit": "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9",
+  "export_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/published05-checkpoint-export-20261015/export-manifest.json",
+    "bytes": 58708,
+    "sha256": "868346da5c614cc69ddddc9e8031d6058b5e36a9842d464089b795abc2603873"
+  },
+  "export_snapshot_file_count": 148,
+  "candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l",
+  "manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/release-manifest.json",
+    "bytes": 1179634,
+    "sha256": "ced803ebdd5e93a6ada3fead48a3c6595afd77ef05d104dc0bd43e87a210bd2a"
+  },
+  "master": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/production/05_home/video/05_home_silent.mp4",
+    "bytes": 612468987,
+    "sha256": "bccee143f355fd732f47e8307d30f95d89a7f4010e35b7c924363a41896e0f2f"
+  },
+  "timing": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/production/05_home/video/native-live-timings.json",
+    "bytes": 43450,
+    "sha256": "7a5e9a202f74a0364f9ab68352a8820934480bbab53b1bdd088f4dc2bae660cc"
+  },
+  "publication_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/publication-receipt.json",
+    "bytes": 141431,
+    "sha256": "9f58f30644880ff3faac98e756feba1d33ec3e812c02cf4f3b791b0ea02eef5a"
+  },
+  "published_media_browser_checks": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/release_candidate/published-media-browser-checks.json",
+    "bytes": 134456,
+    "sha256": "59831089d06a8971b96a10e6a6de0bb240e5784b20ab030ef10d968c895582c7"
+  },
+  "recorded_checkpoint": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/release_candidate/checkpoint.json",
+    "bytes": 26427,
+    "sha256": "1ceb92c12efeadcfd2bcfd771b8d6e29c6efbd106ff044662ad91c0a8307dead"
+  },
+  "whole_fresh_capture": false,
+  "human_listening_signoff": false,
+  "native_speaker_signoff": false,
+  "audible_word_completeness_verified": false,
+  "checks": {
+    "source_tracks_50": true,
+    "scenes_31": true,
+    "full_native_frames": 23571,
+    "native_seconds": 785.7,
+    "staged_operations": 73,
+    "candidate_routes": 84,
+    "prepared_pages_hosted_routes": 84,
+    "uploaded_media_files": 5370,
+    "downloaded_and_sha_verified_bytes": 8807787387,
+    "other_lessons_preserved": 83,
+    "owning_player_regression_tests": 7
+  },
+  "root_review_evidence": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/root-final-master-sampled-visual-review.json",
+      "bytes": 2473,
+      "sha256": "9f57e96a176c7a411532b2045cbcc0c9ea1bbd872e156104298ee4929af238a3"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/candidate-preservation-independent-peer.json",
+      "bytes": 28271,
+      "sha256": "c0368ee34570b2fdd11ebad5c384edf06a47f185b1ef796b8f4a6f755941eb97"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/preupload-release-checks-independent-peer.json",
+      "bytes": 25187,
+      "sha256": "36682495f43a981adaed4e61f8c2d619bc442ff197fccf825708d8fa03d509f2"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/publication-readback-pages-pin-independent-peer.json",
+      "bytes": 2750,
+      "sha256": "eac24b80e511474cf38f3e506c5971f1f63ded46d9c3f20d2abffd97a40535e2"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/root-final-player-source-proof.json",
+      "bytes": 2467,
+      "sha256": "80ed63cb2d45224ae9b5cc32a0a7712500ff49bf5784f114bc42e421223d1087"
+    }
+  ],
+  "limits": [
+    "31whole clips comprise30 strict-pass reused clips and1fresh Apply/Revert; no whole-fresh capture claim.",
+    "Actual master content review sampled4frames; no fullwatch, human listening or native-speaker signoff.",
+    "HF media uploaded and immutable readback passed; prepared Pages tree verified and record complete. Nightly commit/push and live site deployment remain separate.",
+    "Source8ab held locally; publicdelivery limiteddocs/features during Home releaseCIhold."
+  ]
+}

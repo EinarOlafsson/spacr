@@ -549,9 +549,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Percorra todos os módulos atuais de Home da esquerda para a direita; depois, aprenda os controles comuns usando Mask e ajuste a navegação, a ajuda e a aparência.",
+      "description": "Explore a visão geral de Home e as abas de categorias; depois, aprenda os controles comuns dos módulos usando Mask e ajuste a navegação, a ajuda e a aparência.",
       "objectives": [
-        "Identificar cada módulo das linhas atuais Core, Data e Tools.",
+        "Encontre módulos pelas abas Home, Core, Data, Tools e Organism.",
         "Usar Mask para reconhecer configurações, prévias, ações e resultados comuns.",
         "Voltar a Home, usar a pesquisa e organizar os painéis.",
         "Escolher as configurações de aparência e desempenho."
@@ -560,9 +560,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home é o ponto de partida. Leia cada linha da esquerda para a direita: Core, Data e Tools. Cada bloco abre seu módulo. A barra lateral oferece as mesmas rotas, e Home retorna a esta visão geral.",
+          "narration": "Home é o ponto de partida. A visão geral agrupa os módulos em Core, Data, Tools e Organism. As abas de categorias restringem a visualização. Cada bloco abre o módulo com o nome indicado. A barra lateral oferece os mesmos caminhos e Home retorna à visão geral.",
           "hold_after": 0.7,
-          "speech_text": "Home é o ponto de partida. Leia cada linha da esquerda para a direita: Core, Data e Tools. Cada bloco abre seu módulo. A barra lateral oferece as mesmas rotas, e Home retorna a esta visão geral."
+          "speech_text": "Home é o ponto de partida. A visão geral agrupa os módulos em Core, Data, Tools e Organism. As abas de categorias restringem a visualização. Cada bloco abre o módulo com o nome indicado. A barra lateral oferece os mesmos caminhos e Home retorna à visão geral."
         },
         {
           "visual": "home_module_mask",
@@ -875,12 +875,6 @@
             1500
           ],
           "speech_text": "Prune now nunca apaga sem perguntar. Com um limite de exemplo curto para as pastas de execução, ele lista o que apagaria em cada pasta e espera uma resposta. Clique em Cancel e nada é removido."
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "No modo Spaceout, Preferences inclui os controles spaCR field para oito efeitos independentes. Ative ou desative cada efeito separadamente. Os controles comuns de aparência e animação da janela de configurações continuam disponíveis; Apply mostra a prévia, Keep aceita e Revert restaura a escolha anterior.",
-          "hold_after": 0.7,
-          "speech_text": "No modo Spaceout, Preferences inclui os controles espáquer field para oito efeitos independentes. Ative ou desative cada efeito separadamente. Os controles comuns de aparência e animação da janela de configurações continuam disponíveis; Apply mostra a prévia, Keep aceita e Revert restaura a escolha anterior."
         }
       ],
       "narration_voices": {

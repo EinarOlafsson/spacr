@@ -1,0 +1,440 @@
+[
+  {
+    "run": "05_home-cues-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 38.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-cues-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-master-en-af_heart-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-master-es-ef_dora-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-es-ef_dora-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-master-fr-ff_siwis-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-fr-ff_siwis-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-master-hi-hf_alpha-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 5.2,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-hi-hf_alpha-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-master-it-if_sara-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-it-if_sara-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-master-pt-BR-pf_dora-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-pt-BR-pf_dora-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-master-ja-jf_alpha-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 5.1,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-ja-jf_alpha-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-master-zh-CN-zf_xiaobei-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 5.0,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-zh-CN-zf_xiaobei-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-master-en-af_heart-captions-da-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-da-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-master-en-af_heart-captions-de-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-de-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-master-en-af_heart-captions-is-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 5.1,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-is-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-master-en-af_heart-captions-ko-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-ko-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-master-en-af_heart-captions-nb-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-nb-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-master-en-af_heart-captions-sv-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-sv-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-af_heart-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-af_aoede-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_aoede-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-af_bella-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_bella-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-af_jessica-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_jessica-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-af_river-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_river-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-af_sarah-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_sarah-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-af_sky-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_sky-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-am_adam-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_adam-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-am_echo-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_echo-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-am_eric-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_eric-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-am_fenrir-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_fenrir-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-am_liam-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_liam-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-am_michael-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_michael-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-am_onyx-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_onyx-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-am_puck-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_puck-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-am_santa-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_santa-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-bf_alice-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bf_alice-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-bf_emma-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bf_emma-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-bf_isabella-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bf_isabella-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-bf_lily-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bf_lily-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-bm_daniel-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bm_daniel-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-bm_fable-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bm_fable-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-bm_george-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bm_george-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-bm_lewis-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.7,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bm_lewis-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-es-ef_dora-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-es-ef_dora-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-es-em_alex-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-es-em_alex-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-es-em_santa-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-es-em_santa-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-fr-ff_siwis-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-fr-ff_siwis-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-hi-hf_alpha-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 5.1,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-hi-hf_alpha-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-hi-hf_beta-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 5.1,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-hi-hf_beta-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-hi-hm_omega-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 5.1,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-hi-hm_omega-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-hi-hm_psi-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 5.1,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-hi-hm_psi-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-it-if_sara-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-it-if_sara-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-it-im_nicola-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-it-im_nicola-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-pt-BR-pf_dora-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-pt-BR-pf_dora-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-pt-BR-pm_alex-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-pt-BR-pm_alex-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-pt-BR-pm_santa-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-pt-BR-pm_santa-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-ja-jf_alpha-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 5.0,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-ja-jf_alpha-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-ja-jf_gongitsune-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 5.0,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-ja-jf_gongitsune-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-ja-jf_nezumi-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 5.0,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-ja-jf_nezumi-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-ja-jf_tebukuro-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 5.0,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-ja-jf_tebukuro-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-ja-jm_kumo-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 5.1,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-ja-jm_kumo-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-zh-CN-zf_xiaobei-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zf_xiaobei-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-zh-CN-zf_xiaoni-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zf_xiaoni-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-zh-CN-zf_xiaoxiao-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zf_xiaoxiao-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-zh-CN-zf_xiaoyi-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zf_xiaoyi-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-zh-CN-zm_yunjian-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zm_yunjian-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-zh-CN-zm_yunxi-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zm_yunxi-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-zh-CN-zm_yunxia-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zm_yunxia-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-zh-CN-zm_yunyang-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zm_yunyang-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-af_heart-captions-da-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-da-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-af_heart-captions-de-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-de-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-af_heart-captions-is-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-is-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-af_heart-captions-ko-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-ko-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-af_heart-captions-nb-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-nb-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-web-en-af_heart-captions-sv-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 4.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-sv-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-preserve-interval-boundary-eof-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 47.9,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-preserve-interval-boundary-eof-lesson05-selective-playerfix-20261015.log"
+  },
+  {
+    "run": "05_home-completed-matrix-lesson05-selective-playerfix-20261015",
+    "returncode": 0,
+    "seconds": 0.8,
+    "log": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-completed-matrix-lesson05-selective-playerfix-20261015.log"
+  }
+]

@@ -1,0 +1,7 @@
+Command: ['/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/bin/python', '/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/stage-tools/run_tool.py', '/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/stage-tools/build_stage.py', '--selection', '/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/actual-selected-clips.json', '--accept-verified-partial']
+Source: 87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9
+Validated 05_home: 31 real capture scenes; catalogs unchanged.
+Staged 05_home: 31 real capture scenes; not published.
+Staged31whole native05clips from actual root selection; per-source evidence retained, not a wholefreshcapture.
+
+Terminal exit status: 0

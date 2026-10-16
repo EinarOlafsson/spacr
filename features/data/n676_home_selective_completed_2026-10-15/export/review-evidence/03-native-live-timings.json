@@ -1,0 +1,935 @@
+{
+  "schema": 1,
+  "kind": "native_visual_timing",
+  "native_live_video": true,
+  "lesson": "05_home",
+  "fps": 30,
+  "total_duration": 785.6999999999999,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 32.333333333333336,
+      "scene_end": 32.333333333333336,
+      "duration": 32.333333333333336,
+      "text": "Home is the starting point. Its overview groups modules under Core, Data, Tools and Organism. The category tabs narrow the view. Every tile opens its named module. The sidebar provides the same routes, and Home returns to the overview.",
+      "visual": "00_home",
+      "longest_narration_duration": 25.325,
+      "complete_native_duration": 32.333333333333336,
+      "native_live_video": true
+    },
+    {
+      "scene": 2,
+      "speech_start": 32.333333333333336,
+      "speech_end": 49.13333333333334,
+      "scene_end": 49.13333333333334,
+      "duration": 16.8,
+      "text": "Mask generates object masks from microscopy images. We will open it briefly later to learn the controls shared by analysis modules.",
+      "visual": "home_module_mask",
+      "longest_narration_duration": 12.370000000000001,
+      "complete_native_duration": 16.8,
+      "native_live_video": true
+    },
+    {
+      "scene": 3,
+      "speech_start": 49.13333333333334,
+      "speech_end": 66.23333333333335,
+      "scene_end": 66.23333333333335,
+      "duration": 17.1,
+      "text": "Measure combines images and masks to extract object measurements and crops. Its measurement tables connect images to later analyses.",
+      "visual": "home_module_measure",
+      "longest_narration_duration": 12.680000000000007,
+      "complete_native_duration": 17.1,
+      "native_live_video": true
+    },
+    {
+      "scene": 4,
+      "speech_start": 66.23333333333335,
+      "speech_end": 78.53333333333335,
+      "scene_end": 78.53333333333335,
+      "duration": 12.3,
+      "text": "Annotate lets you inspect object crops and record reviewed labels for examples.",
+      "visual": "home_module_annotate",
+      "longest_narration_duration": 7.885000000000005,
+      "complete_native_duration": 12.3,
+      "native_live_video": true
+    },
+    {
+      "scene": 5,
+      "speech_start": 78.53333333333335,
+      "speech_end": 90.60000000000001,
+      "scene_end": 90.60000000000001,
+      "duration": 12.066666666666666,
+      "text": "Map Barcodes reads sequencing data to count and identify guides or barcodes.",
+      "visual": "home_module_map_barcodes",
+      "longest_narration_duration": 7.634999999999991,
+      "complete_native_duration": 12.066666666666666,
+      "native_live_video": true
+    },
+    {
+      "scene": 6,
+      "speech_start": 90.60000000000001,
+      "speech_end": 104.36666666666667,
+      "scene_end": 104.36666666666667,
+      "duration": 13.766666666666667,
+      "text": "Regression relates phenotype scores to sequencing guide counts, preserving the experimental grouping.",
+      "visual": "home_module_regression",
+      "longest_narration_duration": 9.36,
+      "complete_native_duration": 13.766666666666667,
+      "native_live_video": true
+    },
+    {
+      "scene": 7,
+      "speech_start": 104.36666666666667,
+      "speech_end": 117.46666666666667,
+      "scene_end": 117.46666666666667,
+      "duration": 13.1,
+      "text": "Import prepares incoming microscopy files and metadata for the project structure.",
+      "visual": "home_module_foreign",
+      "longest_narration_duration": 8.685000000000002,
+      "complete_native_duration": 13.1,
+      "native_live_video": true
+    },
+    {
+      "scene": 8,
+      "speech_start": 117.46666666666667,
+      "speech_end": 129.33333333333334,
+      "scene_end": 129.33333333333334,
+      "duration": 11.866666666666667,
+      "text": "Run Compare brings saved run results together so you can inspect differences.",
+      "visual": "home_module_run_compare",
+      "longest_narration_duration": 7.469999999999999,
+      "complete_native_duration": 11.866666666666667,
+      "native_live_video": true
+    },
+    {
+      "scene": 9,
+      "speech_start": 129.33333333333334,
+      "speech_end": 143.13333333333335,
+      "scene_end": 143.13333333333335,
+      "duration": 13.8,
+      "text": "Power / Design explores sample-size and power assumptions when planning comparisons.",
+      "visual": "home_module_power",
+      "longest_narration_duration": 9.414999999999992,
+      "complete_native_duration": 13.8,
+      "native_live_video": true
+    },
+    {
+      "scene": 10,
+      "speech_start": 143.13333333333335,
+      "speech_end": 156.0666666666667,
+      "scene_end": 156.0666666666667,
+      "duration": 12.933333333333334,
+      "text": "Make Masks lets you draw and review masks by hand, or prepare image-mask pairs.",
+      "visual": "home_module_make_masks",
+      "longest_narration_duration": 8.524999999999991,
+      "complete_native_duration": 12.933333333333334,
+      "native_live_video": true
+    },
+    {
+      "scene": 11,
+      "speech_start": 156.0666666666667,
+      "speech_end": 168.16666666666669,
+      "scene_end": 168.16666666666669,
+      "duration": 12.1,
+      "text": "Align & Stitch joins compatible image tiles and records their geometry.",
+      "visual": "home_module_align",
+      "longest_narration_duration": 7.699999999999989,
+      "complete_native_duration": 12.1,
+      "native_live_video": true
+    },
+    {
+      "scene": 12,
+      "speech_start": 168.16666666666669,
+      "speech_end": 183.16666666666669,
+      "scene_end": 183.16666666666669,
+      "duration": 15.0,
+      "text": "Image UMAP projects object features so you can explore similar objects and inspect representative crops.",
+      "visual": "home_module_umap",
+      "longest_narration_duration": 10.579999999999998,
+      "complete_native_duration": 15.0,
+      "native_live_video": true
+    },
+    {
+      "scene": 13,
+      "speech_start": 183.16666666666669,
+      "speech_end": 196.0666666666667,
+      "scene_end": 196.0666666666667,
+      "duration": 12.9,
+      "text": "Graph Builder creates plots from measurement tables with configurable columns and grouping.",
+      "visual": "home_module_graph_builder",
+      "longest_narration_duration": 8.490000000000023,
+      "complete_native_duration": 12.9,
+      "native_live_video": true
+    },
+    {
+      "scene": 14,
+      "speech_start": 196.0666666666667,
+      "speech_end": 224.53333333333336,
+      "scene_end": 224.53333333333336,
+      "duration": 28.466666666666665,
+      "text": "Open Mask as a generic example of an analysis module. Here we are learning the screen layout, rather than completing a segmentation workflow. Settings sit on the left, the console and progress panels on the right, and actions along the bottom. Live opens the module’s preview when input data is available.",
+      "visual": "06_mask_host",
+      "longest_narration_duration": 24.045000000000016,
+      "complete_native_duration": 28.466666666666665,
+      "native_live_video": true
+    },
+    {
+      "scene": 15,
+      "speech_start": 224.53333333333336,
+      "speech_end": 248.3,
+      "scene_end": 248.3,
+      "duration": 23.766666666666666,
+      "text": "Settings are grouped into sections. Expand a section to see its controls. Choose your own input folder or use Load test data when a supplied example is available. Labels and help explain what each setting expects.",
+      "visual": "06b_mask_settings",
+      "longest_narration_duration": 19.345,
+      "complete_native_duration": 23.766666666666666,
+      "native_live_video": true
+    },
+    {
+      "scene": 16,
+      "speech_start": 248.3,
+      "speech_end": 277.56666666666666,
+      "scene_end": 277.56666666666666,
+      "duration": 29.266666666666666,
+      "text": "Import settings brings a saved configuration into this form. Run starts the chosen work and Stop asks a running job to stop. The console reports progress and messages. Check the module-specific tutorial before starting an analysis.",
+      "visual": "06c_mask_actions",
+      "longest_narration_duration": 24.840000000000003,
+      "complete_native_duration": 29.266666666666666,
+      "native_live_video": true
+    },
+    {
+      "scene": 17,
+      "speech_start": 277.56666666666666,
+      "speech_end": 298.3333333333333,
+      "scene_end": 298.3333333333333,
+      "duration": 20.766666666666666,
+      "text": "Drag the divider to give the settings or preview more space. Control plus the mouse wheel changes the text size in a column. These layout controls help you read the settings without changing the analysis itself.",
+      "visual": "14_resize_panels",
+      "longest_narration_duration": 16.390000000000015,
+      "complete_native_duration": 20.766666666666666,
+      "native_live_video": true
+    },
+    {
+      "scene": 18,
+      "speech_start": 298.3333333333333,
+      "speech_end": 333.93333333333334,
+      "scene_end": 333.93333333333334,
+      "duration": 35.6,
+      "text": "Back on Home, the column on the right keeps track of your work. Recent runs lists what you ran, Totals counts runs, masks and measurements, and System shows the load on your computer. While a run is going or waiting, it appears here too. The Text size slider under the lowest panel makes this column's text larger or smaller.",
+      "visual": "10_home_column",
+      "longest_narration_duration": 31.170000000000016,
+      "complete_native_duration": 35.6,
+      "native_live_video": true
+    },
+    {
+      "scene": 19,
+      "speech_start": 333.93333333333334,
+      "speech_end": 361.5,
+      "scene_end": 361.5,
+      "duration": 27.566666666666666,
+      "text": "The arrow handle on the column's left edge works like the module handles. Drag it to make the column wider or narrower, or click it to fold the column away so the tiles get the whole width. Click the arrow again to bring the column back.",
+      "visual": "11_column_folded",
+      "longest_narration_duration": 23.189999999999998,
+      "complete_native_duration": 27.566666666666666,
+      "native_live_video": true
+    },
+    {
+      "scene": 20,
+      "speech_start": 361.5,
+      "speech_end": 391.5,
+      "scene_end": 391.5,
+      "duration": 30.0,
+      "text": "Type a module, setting or function name into the search field beside Help. Here, searching for Performance finds the matching Preferences page. Click a result to open its destination. API results open the documentation for the selected function.",
+      "visual": "08_help_search",
+      "longest_narration_duration": 25.625,
+      "complete_native_duration": 30.0,
+      "native_live_video": true
+    },
+    {
+      "scene": 21,
+      "speech_start": 391.5,
+      "speech_end": 418.1666666666667,
+      "scene_end": 418.1666666666667,
+      "duration": 26.666666666666668,
+      "text": "Press Control-K anywhere to open the command palette. Start typing a name, such as Measure, and the list narrows as you type. Press Enter to jump to the highlighted module, recent run or menu action without reaching for the mouse.",
+      "visual": "12_command_palette",
+      "longest_narration_duration": 22.274999999999977,
+      "complete_native_duration": 26.666666666666668,
+      "native_live_video": true
+    },
+    {
+      "scene": 22,
+      "speech_start": 418.1666666666667,
+      "speech_end": 451.40000000000003,
+      "scene_end": 451.40000000000003,
+      "duration": 33.233333333333334,
+      "text": "In Preferences, choose a Performance profile for your computer. Laptop uses fewer resources; the higher profiles allow more caching and background work. Start with a modest profile if memory is limited. Your analysis settings stay under your control in each module.",
+      "visual": "09_performance",
+      "longest_narration_duration": 28.805000000000007,
+      "complete_native_duration": 33.233333333333334,
+      "native_live_video": true
+    },
+    {
+      "scene": 23,
+      "speech_start": 451.40000000000003,
+      "speech_end": 481.6333333333334,
+      "scene_end": 481.6333333333334,
+      "duration": 30.233333333333334,
+      "text": "The General tab of Preferences sets the interface language, the font and GUI scale, whether the app dock stays open, and a palette for plots that suits colour vision deficiency. The Figures tab chooses the format and resolution of saved figures, and Appearance controls when tooltips appear.",
+      "visual": "13_preferences_general",
+      "longest_narration_duration": 25.82499999999999,
+      "complete_native_duration": 30.233333333333334,
+      "native_live_video": true
+    },
+    {
+      "scene": 24,
+      "speech_start": 481.6333333333334,
+      "speech_end": 520.9666666666667,
+      "scene_end": 520.9666666666667,
+      "duration": 39.333333333333336,
+      "text": "Appearance decides how help appears as you work. Tooltip delay sets how long the pointer rests before a floating tip appears: two seconds by default, or zero for immediate tips. Show tooltips controls those floating tips. The dedicated help areas on Home and in Preferences show their text immediately. Theme and Animation fold open below to set the window's appearance.",
+      "visual": "13b_preferences_appearance",
+      "longest_narration_duration": 34.964999999999975,
+      "complete_native_duration": 39.333333333333336,
+      "native_live_video": true
+    },
+    {
+      "scene": 25,
+      "speech_start": 520.9666666666667,
+      "speech_end": 557.4,
+      "scene_end": 557.4,
+      "duration": 36.43333333333333,
+      "text": "Theme and Animation are folded sections of Appearance. Click Theme to open it: it sets the interface theme and page opacity, whether fields fade towards the right, and the window rim, with its length, how closely it follows the pointer, its alignment, mode and cycle. The Theme list also offers High contrast, which strengthens the contrast between text, controls and background.",
+      "visual": "13c_appearance_theme",
+      "longest_narration_duration": 32.01999999999998,
+      "complete_native_duration": 36.43333333333333,
+      "native_live_video": true
+    },
+    {
+      "scene": 26,
+      "speech_start": 557.4,
+      "speech_end": 648.7333333333333,
+      "scene_end": 648.7333333333333,
+      "duration": 91.33333333333333,
+      "text": "Click Animation to choose the main backdrop and its palette. Animation colours sets the primary and accent colours for Custom colours; Animation background chooses an independent background, and Theme colour restores the page theme. Detail controls rendering resolution. Speed, Size and Density change motion and population. Mouse gravity radius sets mouse influence; zero disables it. Dot blinking controls white flashes. Field ripples sets the strength of ripples from clicks, opening or closing containers, popups and window snapping, independently of mouse gravity; zero turns ripples off, including the automatic popup waves. Click ripples decides whether a click on the background sends a ripple. Popup wave frequency sets how many waves per minute spread from an open popup window into spaCR field. Settings animation speed, Settings animation size, Settings animation detail and Settings animation density change only the Settings backdrop. Settings backdrop darkness controls the form’s readability.",
+      "visual": "13d_appearance_animation",
+      "longest_narration_duration": 72.46999999999997,
+      "complete_native_duration": 91.33333333333333,
+      "native_live_video": true
+    },
+    {
+      "scene": 27,
+      "speech_start": 648.7333333333333,
+      "speech_end": 681.5333333333333,
+      "scene_end": 681.5333333333333,
+      "duration": 32.8,
+      "text": "Click Apply to preview your changes while Preferences stays open. A separate question asks whether to Keep or Revert the applied settings. Revert restores the previous settings; your edited controls remain available so you can adjust them or apply again.",
+      "visual": "13h_preferences_apply",
+      "longest_narration_duration": 27.85499999999996,
+      "complete_native_duration": 32.8,
+      "native_live_video": true
+    },
+    {
+      "scene": 28,
+      "speech_start": 681.5333333333333,
+      "speech_end": 702.9,
+      "scene_end": 702.9,
+      "duration": 21.366666666666667,
+      "text": "Keep accepts the applied settings and leaves Preferences open. Continue adjusting another tab, or click Save when you are ready to keep the current values and close the window.",
+      "visual": "13i_preferences_kept",
+      "longest_narration_duration": 16.93999999999994,
+      "complete_native_duration": 21.366666666666667,
+      "native_live_video": true
+    },
+    {
+      "scene": 29,
+      "speech_start": 702.9,
+      "speech_end": 734.1999999999999,
+      "scene_end": 734.1999999999999,
+      "duration": 31.3,
+      "text": "On the Modules tab, Session decides whether spaCR reopens the last module, settings and folder when it starts; this recording starts fresh. Update channel chooses stable releases or nightly builds, and Proxy and Certificate bundle let downloads work behind an institutional proxy.",
+      "visual": "13e_session_updates",
+      "longest_narration_duration": 26.875,
+      "complete_native_duration": 31.3,
+      "native_live_video": true
+    },
+    {
+      "scene": 30,
+      "speech_start": 734.1999999999999,
+      "speech_end": 761.0999999999999,
+      "scene_end": 761.0999999999999,
+      "duration": 26.9,
+      "text": "The Storage tab sets how long spaCR keeps its daily logs, run logs and run folders, and a size cap for each. Below them, the cache list shows where models and downloads are stored, with Clear and Move for each cache.",
+      "visual": "13f_storage",
+      "longest_narration_duration": 22.480000000000018,
+      "complete_native_duration": 26.9,
+      "native_live_video": true
+    },
+    {
+      "scene": 31,
+      "speech_start": 761.0999999999999,
+      "speech_end": 785.6999999999999,
+      "scene_end": 785.6999999999999,
+      "duration": 24.6,
+      "text": "Prune now never deletes without asking. With a short example limit for run folders, it lists what it would delete in each folder and waits for an answer. Click Cancel and nothing is removed.",
+      "visual": "13g_storage_prune",
+      "longest_narration_duration": 20.184999999999945,
+      "complete_native_duration": 24.6,
+      "native_live_video": true
+    }
+  ],
+  "playback_speed": 1,
+  "looped_or_stretched": false,
+  "complete_native_clips": true,
+  "english_sha256": "f8908880aff368137b2883715d0e2ea4caf7f694a18426d3da1b567451455b38",
+  "source_tracks": [
+    {
+      "language": "en",
+      "voice": "af_heart",
+      "timing_sha256": "8c41c93b6257ebea04a1ac90963c5060a638f6f9781ba8f420d80ec0da9f4f49",
+      "audio_sha256": "993834f73e81dcd227c82f60bca33a177f77c9a477c8bd6357071842593e810c",
+      "render_fingerprint": "171a7a1811b52f0843c46f95c5f3a866f7169442e5b655cea259624fbcb2d08b"
+    },
+    {
+      "language": "en",
+      "voice": "af_aoede",
+      "timing_sha256": "6fe7837d693a4548a3fe2707412fc19c5848c68b9f568162d08c31e7672867ca",
+      "audio_sha256": "8e48633e0d4ebf1b6579a64a16f240ec904016c7049dccb5b700ac0591124c96",
+      "render_fingerprint": "4549431213fce868808ea5ac643266dda7b27ca5ec3de30145d3033662de47d0"
+    },
+    {
+      "language": "en",
+      "voice": "af_bella",
+      "timing_sha256": "d06a8cb08693ae6e8728b897751116e076194004d7e5f4c69d46229ab8ca5d3b",
+      "audio_sha256": "734f16e7125c2444c5ae99645f81ef1cf584f9637139bb48b886b978db2dc859",
+      "render_fingerprint": "49446cb9f5a65e7cde6c309470c5c6df5b58cabcbd001c04a469b9e01337acd8"
+    },
+    {
+      "language": "en",
+      "voice": "af_jessica",
+      "timing_sha256": "a2e33982c4679e93230314273c8535659599e51afb94deddd4a700195c380851",
+      "audio_sha256": "9ac7157df7c84a5510d1460fa71a7fb371ec6410bd4dc2f19a397926eda5eeef",
+      "render_fingerprint": "33fbf38d26ad8666ec6bebc897de8d3e43780a159c3a031eb3ffa856cda273bb"
+    },
+    {
+      "language": "en",
+      "voice": "af_river",
+      "timing_sha256": "f88e24ea629cbbc2f78a21aaa3a33e2213a8d25f3c8e4c2a7c3efdd1ade1b41d",
+      "audio_sha256": "790733ab3a98f50f78eccec6ca8254b67c866798f491b22e4422fa671460fddc",
+      "render_fingerprint": "29ecf4a2a3963a668a455fa0d0e12311da142c20f8c4036148512b116900c737"
+    },
+    {
+      "language": "en",
+      "voice": "af_sarah",
+      "timing_sha256": "c6d0909b818545b9a3492f2b63faff7c94515dbc70eb665616c562aa98a272aa",
+      "audio_sha256": "8885f6858b9c5d79d71723a84d3faf323504cc25698b0be74125c39d9014a39a",
+      "render_fingerprint": "e55fbea956d7f72e0efef8d584e692506a7eb335b01df787f2c6ab25e77b9682"
+    },
+    {
+      "language": "en",
+      "voice": "af_sky",
+      "timing_sha256": "796828b97ff4eff2ed5fab68a8814572922fe1a985045c742bd81e86f2909601",
+      "audio_sha256": "687176578d16f73d5d36ddc5ea6fa859844b3aca7c6ebdca426cf76e264f7564",
+      "render_fingerprint": "e66c8d184c84acffe4564b8afc7fbb14f4b7c1c3b52ff87c935289b389a25bb7"
+    },
+    {
+      "language": "en",
+      "voice": "am_adam",
+      "timing_sha256": "8658073f22b2238a7a3c49e3af0f2e99f8b284ad9adcccf2ca646247187f9866",
+      "audio_sha256": "8e68521fe1eef2310a80a056c0759bb982e9279a34203bb2d654b4f7d09dbc6f",
+      "render_fingerprint": "6cc47b0e7f6068c51d427d77829515d9844bc8547581200a619fdb8bd8e61dfb"
+    },
+    {
+      "language": "en",
+      "voice": "am_echo",
+      "timing_sha256": "fd38e79f626bc638eaa7a91d450537fb56e5014b286357ab2ac8c0c3ae4f2996",
+      "audio_sha256": "2d52ddfc8488b97a4c1e196e88e1e4d40ee2eb3032bfc215374eb7a13431b528",
+      "render_fingerprint": "b2a6122aded48197178d48df83f5e665655a4a4958ce4795f81471c687aa623a"
+    },
+    {
+      "language": "en",
+      "voice": "am_eric",
+      "timing_sha256": "7e7358ceedae484545519345ec92fd846a5905822ce3305e831034e8b9f52b6a",
+      "audio_sha256": "5d25e53cbe79030f5bb92171fcdbc85266ffd2f1b093af713e1612b9b7f456ec",
+      "render_fingerprint": "581034d6fe147778276b069f301bce0f4a2394435f271bef3d9777230b7ee130"
+    },
+    {
+      "language": "en",
+      "voice": "am_fenrir",
+      "timing_sha256": "aaf67a900c321f1abf59fdd8c160534a222e201a9936b23398e5366f35ae1003",
+      "audio_sha256": "48cfcb0b2972964c0f4d8e330554b9d12b9e8e327177d2b379f9846cc206f159",
+      "render_fingerprint": "73938b5c3345788ac2597122334a9036f7ebf7c209ed6cc73cf75b60b630b762"
+    },
+    {
+      "language": "en",
+      "voice": "am_liam",
+      "timing_sha256": "2c595bcfa2ded1c3ad309d342cd53bfffa0fd7118d205a80d3e3fbab6acd6555",
+      "audio_sha256": "41959e917235b6c29b3e8d430ceada8f818356a7875b636643d01a9be14e7702",
+      "render_fingerprint": "d8443412d8dd847a6adf5315df63ca149489ed70cf2b9104bf1392784b8ba567"
+    },
+    {
+      "language": "en",
+      "voice": "am_michael",
+      "timing_sha256": "c7aa4d264f77079de61db0b0ad03de4d8e7301118192d051de0975adae560785",
+      "audio_sha256": "10eb06fea78dfe88cb8ec0a88f35020f7466f7b4722cdc94234013e5c26d43a1",
+      "render_fingerprint": "3bdfe4b2b956eda82114bff474ee4fe745f10c0bfe3c782f2700d2433c99d13e"
+    },
+    {
+      "language": "en",
+      "voice": "am_onyx",
+      "timing_sha256": "bb4de90e68c860d9ea2c47f4d905e92c489d5ff52bf41ae6c8ae227c6a280123",
+      "audio_sha256": "298ca591e478362213ff8c0de585766a14040c0cfb3fc77a74bc0cdfb753c81c",
+      "render_fingerprint": "9849f8127adcff6d3341eb61dc413fd5354d3692f701002bb42401b5887a8b1b"
+    },
+    {
+      "language": "en",
+      "voice": "am_puck",
+      "timing_sha256": "e5c22b09ddd752bab6ea8f2d84177a336122a261bf2827537268ccfb7b4b9e6e",
+      "audio_sha256": "15b9b335cebbcc27fd5dc5bc5250abdfc5c9fd4695842a63367aeb28f1360f38",
+      "render_fingerprint": "fc1c3096ae7e0945d333ee2078471c6931a8ec3e190794f9b14aaf61939bd1e0"
+    },
+    {
+      "language": "en",
+      "voice": "am_santa",
+      "timing_sha256": "d887580cd78bfcd8260ec0f9a7b3e024b853c1ed6a3bb07612be825860d5e2a6",
+      "audio_sha256": "a2bc6131c97c3d85feba69de8dcef55e2077d1e5892e9da3f3ccb09c23526570",
+      "render_fingerprint": "ee84926d90e50e4f389d755cb68d17d70564203145f520d34fcf90ee2fe0d057"
+    },
+    {
+      "language": "en",
+      "voice": "bf_alice",
+      "timing_sha256": "1a50ce451a26bafd77f52d93296279f3570362b1b59ca420175d1f3e06f47e34",
+      "audio_sha256": "8fbfc5774156635415bbe901ddabc75f6de9c2015874998cf4bb59f149692324",
+      "render_fingerprint": "e83d699df51614cfcca1c694265a894c183fac917fd54036288d40f4f2788460"
+    },
+    {
+      "language": "en",
+      "voice": "bf_emma",
+      "timing_sha256": "d98ff8a50d8ac2f1a6e905d6f64c2c3eb339fbcc646a5f159a0bed0e2e1785bf",
+      "audio_sha256": "6dfc14e037e52db7a117514d4fb2cea8ebca46d934d5fa1b4e6925ff06ea4213",
+      "render_fingerprint": "1b8139f806b2a7cc2a1e877bad7723f4c723c21a537ed41c706aea0ea8dfa477"
+    },
+    {
+      "language": "en",
+      "voice": "bf_isabella",
+      "timing_sha256": "1598f384f6df6d40615bc7b62be8ecc2a520cc58e6be74780700930afaa4f83b",
+      "audio_sha256": "86eb9d85d3c1192eba9f768ca797ec8565e57bb5fa622624f01ea748a589654d",
+      "render_fingerprint": "418f362b234db404e99817708d1cc22984c4ffded4e129e212ddc3d167e38242"
+    },
+    {
+      "language": "en",
+      "voice": "bf_lily",
+      "timing_sha256": "6f528421f2fae4232e4fc2ca48091fa053c71af5d595ac4834b948b971162e05",
+      "audio_sha256": "6db4458397117e579185a571f2db3a71777ee51d4a75a531149542821b15606f",
+      "render_fingerprint": "37b19e18d46c5ca7c4c8831b8f664a5d06976452a0aea4a6050be179c1cec3de"
+    },
+    {
+      "language": "en",
+      "voice": "bm_daniel",
+      "timing_sha256": "1cd1688b8876af9680b27b68676c5f10c7d2def08e26c07af173db9a470082f0",
+      "audio_sha256": "4f208f569f6827fe33f5b2748056e7e8c14f4c163bafa8cb57b986ae52d64a9d",
+      "render_fingerprint": "bfb90890bfef07850ab33be47876b7cb510153f11252f979db57bb873bb93062"
+    },
+    {
+      "language": "en",
+      "voice": "bm_fable",
+      "timing_sha256": "e6f08e2b9e2e9e18855f54df3d565687ea08cc65fa4fccb73c7b417654c35619",
+      "audio_sha256": "5a8edeb2ad2bdc6b609d9aae829d8398de83d3d6d92ba6588cd0a8aa3f9fadf5",
+      "render_fingerprint": "c96b3203a64083b6b04dc6f5014cd6b5c55469bd31477a99df3226e94e8d13f0"
+    },
+    {
+      "language": "en",
+      "voice": "bm_george",
+      "timing_sha256": "44b76b278dad0996f1c6f4b9176ccca2ba197c1d641d04936e5401af01565435",
+      "audio_sha256": "f63aff1f51dda71c39b0d48324f4ad4463f530ec3181b0aaaac49aa249a945ae",
+      "render_fingerprint": "a2749987f43907cf1b8abd698452f53d7b3328b96bf33ad52eec2de691cff61f"
+    },
+    {
+      "language": "en",
+      "voice": "bm_lewis",
+      "timing_sha256": "7fff14efdf331beefe202e0f97f6d8597872a0dd4ee4761e26847b0f209ca8e1",
+      "audio_sha256": "1c3f6bf59a3144ff046435100f8ae83adbc944141d703b8fda43695195c0581a",
+      "render_fingerprint": "5a81fd0bc65ab564e89546a7fe558d7140f0ae1335535b3efe9beecd1b26e39f"
+    },
+    {
+      "language": "es",
+      "voice": "ef_dora",
+      "timing_sha256": "0869473a74d895661a4ce7ceb23cfb091a1c34b87c1f923846f27046d331a9fd",
+      "audio_sha256": "d325b559fb82502c6a1d65b63c3cf96a092a110bae28d1302d5f214f509f3343",
+      "render_fingerprint": "be0ad11b1d451355dd1eec9c3bef09ad50f2d655c2ddca61597924bcb5487915"
+    },
+    {
+      "language": "es",
+      "voice": "em_alex",
+      "timing_sha256": "425e1ab999d1395a4b7ef334f67bc29df3bb2630eee3c6a9494df043659e36ea",
+      "audio_sha256": "39741247f0ab3f4879fd2a0e2612bc7326e2ec44e7dd040a46f3511da971cdd9",
+      "render_fingerprint": "f7ef64c3e74ef3147a2f4a43d595161015ea7d59bdc02b65d1ad393f357001e3"
+    },
+    {
+      "language": "es",
+      "voice": "em_santa",
+      "timing_sha256": "9e1143965fc2f61302f947fe05cb18aa2221319f840a99c1d2425e1570893617",
+      "audio_sha256": "ad4be4e523359efe975e6dbcdfaf3241f966cc5d562fef35ae65f86ee7cd5498",
+      "render_fingerprint": "67eb9dab17a3d21c735a67bca99a75e1f3028126126cb8a87956932d0bdf6b89"
+    },
+    {
+      "language": "fr",
+      "voice": "ff_siwis",
+      "timing_sha256": "5c5ba5ae010256c2c84dba982fa39d4a2ae9ecc6adbbe843e9c3821891f86db8",
+      "audio_sha256": "f9a16a446029485433484e61b49dae35c31bf06b40846046822466b96dba1e08",
+      "render_fingerprint": "d0220aa82b2909f6d5760dd0c7063a6c114a92b87880cd151e51931d6e50f702"
+    },
+    {
+      "language": "hi",
+      "voice": "hf_alpha",
+      "timing_sha256": "960bbc2b634b88feb6b7d7beb70b5da336b508a3d5643962d9cbe8323b881999",
+      "audio_sha256": "41a5137a86970929de630f81b0f954d45934d3cb61f9fc25d99b450e4e2e7260",
+      "render_fingerprint": "dd8c56243fa3faed4501d7760643d107fc2b4444d323cd1863f2a2070013cbe9"
+    },
+    {
+      "language": "hi",
+      "voice": "hf_beta",
+      "timing_sha256": "7340341b7d35b5db97be2d1bf55dba6406ec0e3006b8190d67f00d4de43c7044",
+      "audio_sha256": "47e47b47eb96bea0d17f63536d02dc807ef7c10da0804870d449e69124f2fc84",
+      "render_fingerprint": "7771c6c69190f81f6379fa133c2eba721bb87357f48f1143dc1cbdcd9f32804e"
+    },
+    {
+      "language": "hi",
+      "voice": "hm_omega",
+      "timing_sha256": "0add7e987b44d3ee6884bfe9c4808871d3ffe0888a53e629777eba8f8294f69b",
+      "audio_sha256": "7c92aea3314f60defb62ded9082ffa450ac466b91583e9168ca00a3b64c9fde2",
+      "render_fingerprint": "756e24808d643a741c895bff0a9a881fd91de8be89e32132f97d9d0f798c4299"
+    },
+    {
+      "language": "hi",
+      "voice": "hm_psi",
+      "timing_sha256": "5a5b19066a6e38aaa6694f82f9821f4ff2398c8c40963aa40d6774331b1bd60c",
+      "audio_sha256": "4e68e19787dbeceeb2f41de3269e00bce6de8dcbac946963d26ab58c399d066b",
+      "render_fingerprint": "30a332d1765847c4a1da675e466faeed28e339dadc96b2c86edb8528d12b613f"
+    },
+    {
+      "language": "it",
+      "voice": "if_sara",
+      "timing_sha256": "d47bb97c42482c85ada1aec6d6c0c288f49a38bed9f56706de0f2731b9f2f6ad",
+      "audio_sha256": "26b9b7672c02a6054739f487d1fd6d6a72b5fff70a37cf77865e118b51efc268",
+      "render_fingerprint": "dba5a60011da08e987e722ea3c47e7060455051d78e8741ea9fa6796310b4c98"
+    },
+    {
+      "language": "it",
+      "voice": "im_nicola",
+      "timing_sha256": "5e9e0fec382b4496fadc1d40e2b3feae3560b9b8685b43bfd4606a7f7dd0f30b",
+      "audio_sha256": "7b298577ac2312509755d30fb9bafec120e1590ef772128101b48ce0f6a1856e",
+      "render_fingerprint": "8e91dd85e47711e9db71d1d7e705f78bdcaf3dccfea09c36c31fb49a7f8bf552"
+    },
+    {
+      "language": "pt-BR",
+      "voice": "pf_dora",
+      "timing_sha256": "ce6e9ce2a209abac728c7a27a72c3e2fea22468440f3609148c2f5b2076b763c",
+      "audio_sha256": "686afbe9ff9399c212ae9b5b1f9043f6ba2d9e9952ef30eab7d438759dd2b40c",
+      "render_fingerprint": "8435f7923b0198cf79279d950ff567b7bd9049181f1a0b10182d059bb1215938"
+    },
+    {
+      "language": "pt-BR",
+      "voice": "pm_alex",
+      "timing_sha256": "7b451019d075ce98bb4ede5778bbd92e459ebd92e0a48c08cda69285c22b5939",
+      "audio_sha256": "ba86b7958f608497aec305003f629b95eead7ef7c106e8c638b25bb97e827fe4",
+      "render_fingerprint": "d7bf2078c7a3e081cb9120fffa3e11d6530b833b15e8c5cdb27a10465e5c8220"
+    },
+    {
+      "language": "pt-BR",
+      "voice": "pm_santa",
+      "timing_sha256": "189b93a339fa6a63e1c3cfb18e0fcbf4624b58385b6ad73c16484bb80bdfbdf0",
+      "audio_sha256": "7907bd68636175182f63c78da2b65e83aa60ebae38ba6d2d45db9f523d44624a",
+      "render_fingerprint": "260dbf8215143d098c5000c7852ea607a284764a0b07a486646a62772f71d701"
+    },
+    {
+      "language": "ja",
+      "voice": "jf_alpha",
+      "timing_sha256": "cbda288c76d1d40c9cf76400ccbf2e56f2e7623cefc513e1cc61b8d248deb3d2",
+      "audio_sha256": "f451633b11ac19f226d94352060667a9a97437a1bc9dfb615be56272bafdf2e8",
+      "render_fingerprint": "be41c5d0280e3b2a6925a825dc171a7d0c0d2023bfd73444c8ffe027b79c2a03"
+    },
+    {
+      "language": "ja",
+      "voice": "jf_gongitsune",
+      "timing_sha256": "6d5e82bcf16121cb977cf538a6963c6b49acf9c5ea88ddce97a2ec14c269251d",
+      "audio_sha256": "ea74fffbc6b03c8a43144da9691396484b978cc7e27ddb7ecd5e1e3c4833361d",
+      "render_fingerprint": "0d8d94b6a28c6d7fa771d0cc804ce592ceb34d2bd4b1327cb2f25a7d1fe150d6"
+    },
+    {
+      "language": "ja",
+      "voice": "jf_nezumi",
+      "timing_sha256": "799720e2a3612d504f73cfffcd6f2e8721ba59ef09b7fc3fd1d36017116fbc6d",
+      "audio_sha256": "00cb0b60aa815a948c1bb0351a32bc0de4de09bc9d6d91ae31b8461f0b12da6e",
+      "render_fingerprint": "72359ea41552fb7a35c20344eeebaecece33fc74650b068c9fa9e7dc5c6b638f"
+    },
+    {
+      "language": "ja",
+      "voice": "jf_tebukuro",
+      "timing_sha256": "4843f4b1ebef9fb68601d7e4d17ad6a3ee5ac85a509827e67b99c395a2c27675",
+      "audio_sha256": "7d4d968ed99053d821cbfd2799def7dbb52470480539a6f2910551542e5c697d",
+      "render_fingerprint": "8d5c08806c8163412eb53c1135e3cb55f43b9604b6361f33dc89f7e6eeb7e630"
+    },
+    {
+      "language": "ja",
+      "voice": "jm_kumo",
+      "timing_sha256": "ae1577789e12d032ddc07f210d29843a309d57e366add2de97953824ba3a87fb",
+      "audio_sha256": "3905b39701d2c7b7c1fecf3244243ff7227530084ff06821a9834eecdbb44dbb",
+      "render_fingerprint": "3e476cd0dd27eb39b2f71f66569fc7d325b35e156fdfa441720ccdceaec8920c"
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zf_xiaobei",
+      "timing_sha256": "c6c1a7caf8c2d2b30e30e35be2ba8e2e78adfa0b145bb68a33e1596a95869175",
+      "audio_sha256": "675c550f622981e6b2a8480028592ac822936c38e01b16ba01edcbd19751e865",
+      "render_fingerprint": "82761c4ea6672951ff2a207726a0fae653a5f95b82d4860d2895a9cee54a89a7"
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zf_xiaoni",
+      "timing_sha256": "03d337a601981a9e6c30989d2770a6b5658cf518b4a1b54e83fff37f52f3a608",
+      "audio_sha256": "039f868993eb051cd44bbcfffef0b1f7ff5c11f1af7e96218aeddfdfddc052c0",
+      "render_fingerprint": "3a20d1c8b593d41461d127a3b59814656f147afcf7790cd41a8b9ade71ce91d9"
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zf_xiaoxiao",
+      "timing_sha256": "458bc7ab5aff21e671fc196ad9e1d83a9c76ddb614b6bd6cc0e4accbf2453343",
+      "audio_sha256": "2dcfc8bb466a61054ff9db5ac1aaf6fbcd14ea35faa15b380b5d43f3f2065fef",
+      "render_fingerprint": "19c3b2b3455a6d334a6d0e427840134bec15bc7d94d1db5677d774f3b396cae9"
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zf_xiaoyi",
+      "timing_sha256": "001899a628a3a0ac0c1634a6688893bcecb863ec8aa3c6babea12e213383bdfc",
+      "audio_sha256": "e9088eb588b0d87e8a96f5eea7aca12c1950ef72d713909cfeff2b2a9a79d7c8",
+      "render_fingerprint": "1a2d421103a8406a78414e2d979a56b7fa61fa4b69cad51c285df24306496c4a"
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zm_yunjian",
+      "timing_sha256": "5abf14a991506db59d1df55b15b95ebb811bffabe02b55914404e0fefdc3ee50",
+      "audio_sha256": "eaaac21bf8d6deb0779e9faac4149eeaa57948a81df7b8190543f3749d84a7ac",
+      "render_fingerprint": "2cf292765f6b25d0b6fad649c2656511b8773152063fc951705e6a141d92ee8f"
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zm_yunxi",
+      "timing_sha256": "08a2240e0266dc59edbfb9633ab96f34d3773a8ba6cc3c93021a011ca042b5d6",
+      "audio_sha256": "e42eade8be7dd6fed334e191802bc93452962c3941f3e286e4871a95521081dd",
+      "render_fingerprint": "ac669173e1af04c41e7ae65dfa894f358e88cf89164436db501b79c5b48e5edc"
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zm_yunxia",
+      "timing_sha256": "3ba029a2ffb596479336b2510d66edc12a8401fd224d88312e4217a26a32423d",
+      "audio_sha256": "710f529a5351948002cb1eedb847205d7dd7ea632f1858e5df3d6c67fcf443a9",
+      "render_fingerprint": "f8939e68e9cb2bc627f2bf1ece2208fa54268c17da888ea58795b34198dc647d"
+    },
+    {
+      "language": "zh-CN",
+      "voice": "zm_yunyang",
+      "timing_sha256": "5ea12161d5c5cb96f52f745401272b91a286cd1912b20296713327251a109bbb",
+      "audio_sha256": "d39164b84933ed6d1bd0798591d4b60818d5e2d8725b3c7d60ce06a32720f11b",
+      "render_fingerprint": "f1f1c41c4a83963ef1810e912d9625adf182c1f63d7cebdc956ab38fd5116303"
+    }
+  ],
+  "visual_spec_sha256": "ba4a4dde4ec8f289fa2d91fa8ed46924c6f1c19c060cf9fc4691d761e8a0b5a9",
+  "native_clip_sources": [
+    {
+      "scene": 1,
+      "clip_sha256": "e8468715eb0ba1b9182de89babc243afd74ffa14644be659444db3c5457fd90c",
+      "receipt_sha256": "cc88a8387473c1d0e43c80678c1c7c5507b183b61d1efc976b7442cf5aafd7b4"
+    },
+    {
+      "scene": 2,
+      "clip_sha256": "900d68508df0507b75df8cc5a5072f3aaf501847370027ee91f07e2d9ab45034",
+      "receipt_sha256": "4fda4c302672eca9fb858fb9476380f0f82b6844d8cd2b1f2107afd312ba9b01"
+    },
+    {
+      "scene": 3,
+      "clip_sha256": "c9ee5d6b4e553bffa99adbff206cb289e74d397203179b6b15c109e15d1143c2",
+      "receipt_sha256": "ea3a6e7b8e954f2fd9e122976eb8a04143befa670ad2355c0241277408422c88"
+    },
+    {
+      "scene": 4,
+      "clip_sha256": "9f13db0fbc479f124df7fbbc4655a22018ccee276baa09da7cd33c3474e767d5",
+      "receipt_sha256": "fd9e8df265b07b3bb8e1623ae87176cb7805a0713f07245db0da1263fdcc431a"
+    },
+    {
+      "scene": 5,
+      "clip_sha256": "8be70ad8710f8920baaa9ef0481971601d652c7f1b5739758a9429ede78e2807",
+      "receipt_sha256": "91ef10b4de038007504018ed714b3a5053bd031640623e273269ee366df36f4e"
+    },
+    {
+      "scene": 6,
+      "clip_sha256": "0ed7a8ba4f3f40d434c4bcd23c8c3b75c932f69a4f338c70b139c6dd0dcf9d6a",
+      "receipt_sha256": "8c1a0529da71351f60d236d68a1d51e89e4e05db859394ff5ca8ae0c0e5bacca"
+    },
+    {
+      "scene": 7,
+      "clip_sha256": "344ada4365ba29e4c50917a1746b7039d36f7857e0b46c5de7f3d2306a82e589",
+      "receipt_sha256": "67dbe3a5e3b9c1b0dec20b121b7a149ae702cea0c2b94d58f972f833f144335f"
+    },
+    {
+      "scene": 8,
+      "clip_sha256": "82cfc7a38e1982be9c6936e826a8e252fec4f80569090c35b8fa674a05f72ea1",
+      "receipt_sha256": "3a1a79689177c03b0020dcb4751bde22498f7f7af893216fedf4ec712eb32d11"
+    },
+    {
+      "scene": 9,
+      "clip_sha256": "c4104270b72bd8e5d6b019f28b8481fa7acc8297790e806f7bc1cc8fb55f659e",
+      "receipt_sha256": "34e13b3a06c3f646e9d8a8dd98fe7ac1c61486d04402d4c1c9cffe2087a76fd5"
+    },
+    {
+      "scene": 10,
+      "clip_sha256": "c2e1e2b727f93638c04cbb0d52eb687be0b09659bbfc78f28c6d540c9f87614a",
+      "receipt_sha256": "7b5b019fb0c179efef328948b9bee4dd9587ff4e3de1a2d54ac1dbfa0836f7e6"
+    },
+    {
+      "scene": 11,
+      "clip_sha256": "664588ccfb0398d1e9574d83d7baad479577694b11ff423a4c04c081eb43dc84",
+      "receipt_sha256": "4463db4d1b2111bb40fb3c7fb95568f1c33f81467e9185b157f636ae49f32edd"
+    },
+    {
+      "scene": 12,
+      "clip_sha256": "222f46c6ad6c89a0881a7c2a9ece9a3e0d81658c92bc8be289396d8e6a00fe21",
+      "receipt_sha256": "d0eeb4d91d58564cc49b6da006cabb9b58ef6852b586a1cce10aaf5f51de5132"
+    },
+    {
+      "scene": 13,
+      "clip_sha256": "51f84f1b952e18725f5a142e4e276be3fce2916db1c83c7205b09cd3a6ec4eb1",
+      "receipt_sha256": "c1dd81b39d1be095c8cd1756776ac85d65921bad8f8af325e32a867e12c71975"
+    },
+    {
+      "scene": 14,
+      "clip_sha256": "f8e6b5b6a52ee1d95ca5f1bd66dcfae1e77ee8c28eb3a0e208f437205bcd7035",
+      "receipt_sha256": "7de2dd51546e9d498c714f38a879c11c35d913a860cb2f2551542a05aeead88b"
+    },
+    {
+      "scene": 15,
+      "clip_sha256": "4c44217ee72698721a90d9dfff781353efea8ed353e937eee7d7d83418e59fd3",
+      "receipt_sha256": "8cd667653d9528725aee9e574d52576d14e58c7f44a6cc05583aca66167b051b"
+    },
+    {
+      "scene": 16,
+      "clip_sha256": "cf9762a25beeb758cc395f8ad36979c074abe6d83b12897165d2eaf5e82b68e1",
+      "receipt_sha256": "235f1018464217d022fcb039d2ed023e299e84dd1a5d8978c6829eca82d15abe"
+    },
+    {
+      "scene": 17,
+      "clip_sha256": "9d3902f910c08e4a1cd0b27de4b6e0ed4d7df0950753bf0b8e06e807b58eaf17",
+      "receipt_sha256": "c8fa8c6f1582ac3be817cbd6631a8fa3abb5d8c04ac31ef8eb652e465f831c3e"
+    },
+    {
+      "scene": 18,
+      "clip_sha256": "9cc4a0a4eb8a59f11754e41dc6f9d75246a907bb6de63c2a087b3a8018383453",
+      "receipt_sha256": "a6a10db825e2d9c5683a555c182d6693f0036226e3dcf660adbf8d7cfdc9c9ce"
+    },
+    {
+      "scene": 19,
+      "clip_sha256": "9600ff8fa388926e039f1172e40ebeb2fcad848c6e074f6861e61095044d10cb",
+      "receipt_sha256": "51a0dab80e240319ba73fc63c0f417240a4b844d9c43922a05a82b3ea8c17b6b"
+    },
+    {
+      "scene": 20,
+      "clip_sha256": "ed14c2e1371f391f681cf55940cbdc30c1d1ac24450e457d3fb7f4c19c417105",
+      "receipt_sha256": "01b2b66a2833a0c7df13fd89400e164cc4af0dfcb2599c114663aac7d63a4cc9"
+    },
+    {
+      "scene": 21,
+      "clip_sha256": "ff51278cb785ca93d6dd0cbb97edba3c5e8d5fbc1e7a0d38f146c780ea3d2005",
+      "receipt_sha256": "a43342973abbea9c750dda1d154b06e1fe90ed9614af5fb9bef777c4dafbb87f"
+    },
+    {
+      "scene": 22,
+      "clip_sha256": "2deb087e3946cfa9b5e5c4a3cc554145cdb99577ea8ab9810f6e0a53a3ea0969",
+      "receipt_sha256": "586a26b5baae00e49cb454f9735874af89414586efbccf475d54ef3eae7d9dc3"
+    },
+    {
+      "scene": 23,
+      "clip_sha256": "f4de6378ae342765b61f5ee60fca036f205b78c50080fb570d5812142c7195b2",
+      "receipt_sha256": "35f0c2083f2f4ef2a7fefc0d03f5f215ae672e30d21cfb5ae732808bc58e0826"
+    },
+    {
+      "scene": 24,
+      "clip_sha256": "7856fba93d1f3738d8866be0af60e154527eca24a8394d25888f7c080e76ccce",
+      "receipt_sha256": "75035637ce08c929e5c5bf55eb088fa45e0ee316940c65b9609ebf074a69c8dd"
+    },
+    {
+      "scene": 25,
+      "clip_sha256": "413cc24cd9450f58c5e593e6ca4ca12a1782fe1e3782919835851a08aac48c4f",
+      "receipt_sha256": "4e4a533ac2333f0b6bfadf212756b54f71fd01f9bcc5148ee3cb597055fdf4f1"
+    },
+    {
+      "scene": 26,
+      "clip_sha256": "8adcd08402d5dac626295a03b022be5a6795c4256c9cd44e0f839682cfe770e6",
+      "receipt_sha256": "a3e25e0df41cf86cc2a211a0a4dcb4515d168807925685781e86b87b2ed65908"
+    },
+    {
+      "scene": 27,
+      "clip_sha256": "b1a5a125f44af9fecdca40f6a1959ac5c1ea8f90fb758d7e66a1fddeb0961d0a",
+      "receipt_sha256": "471050dcb2ab512d2da96eb6775a6ee53bbf00cd94b763621195b8d46c2f320b"
+    },
+    {
+      "scene": 28,
+      "clip_sha256": "bcf5c2ff6077b97b46ff0e696e34051bc51a7e91faf8bfec16ac90256d18d5f5",
+      "receipt_sha256": "c8cbd91651d650f7d3a64e7918589afbab43ee86f630ab062e6e0bde5c69a847"
+    },
+    {
+      "scene": 29,
+      "clip_sha256": "e8d9723e184b0735f9310185d98ed9d17a8c7c0891c4d06af00e47cf463ada02",
+      "receipt_sha256": "0cf41dba9cdf11a473688f8751fd040afee4653686a4ac4916e979e63910f2a2"
+    },
+    {
+      "scene": 30,
+      "clip_sha256": "cb9e7ed1befc60f173d2283897403485d7fdb23754b9f87f5b547429e5778341",
+      "receipt_sha256": "208be75588c15c11246166bb8ad085bf89e86eada647389dccdebd80765acb9a"
+    },
+    {
+      "scene": 31,
+      "clip_sha256": "435714dfd128fb889d174301c10aab556911eda9ed352fca4e26f4103c57718a",
+      "receipt_sha256": "a18ff2160ef010e3bf5aefc9fa1ebafea04cf1a24736fe4654ddf4abd0d37957"
+    }
+  ],
+  "coverage": {
+    "accepted": true,
+    "gaps": [],
+    "track_count": 50,
+    "native_scene_count": 31,
+    "capture_plan_seconds": {
+      "00_home": 34.333,
+      "home_module_mask": 18.8,
+      "home_module_measure": 19.1,
+      "home_module_annotate": 14.3,
+      "home_module_map_barcodes": 14.067,
+      "home_module_regression": 15.767,
+      "home_module_foreign": 15.1,
+      "home_module_run_compare": 13.867,
+      "home_module_power": 15.8,
+      "home_module_make_masks": 14.933,
+      "home_module_align": 14.1,
+      "home_module_umap": 17.0,
+      "home_module_graph_builder": 14.9,
+      "06_mask_host": 30.467,
+      "06b_mask_settings": 25.767,
+      "06c_mask_actions": 31.267,
+      "14_resize_panels": 22.767,
+      "10_home_column": 37.6,
+      "11_column_folded": 29.567,
+      "08_help_search": 32.0,
+      "12_command_palette": 28.667,
+      "09_performance": 35.233,
+      "13_preferences_general": 32.233,
+      "13b_preferences_appearance": 41.333,
+      "13c_appearance_theme": 38.433,
+      "13d_appearance_animation": 93.333,
+      "13h_preferences_apply": 34.8,
+      "13i_preferences_kept": 23.367,
+      "13e_session_updates": 33.3,
+      "13f_storage": 28.9,
+      "13g_storage_prune": 26.6
+    }
+  }
+}

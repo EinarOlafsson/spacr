@@ -1439,8 +1439,7 @@ function syncCompleteNativeNarration(seek = false) {
   if (narrationLoadPending || !completeNativePlayback() || !narrationAudioAvailable ||
       elements.voice.value === "silent" || !elements.video.duration ||
       !elements.audio.duration || !audioTimings) return;
-  if (visualTimings?.preserve_visual_intervals === true &&
-      (videoClockCorrectionPending || elements.video.seeking)) {
+  if (videoClockCorrectionPending || elements.video.seeking) {
     if (!elements.audio.paused) elements.audio.pause();
     return;
   }

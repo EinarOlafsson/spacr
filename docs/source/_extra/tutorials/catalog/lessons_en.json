@@ -510,9 +510,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Tour every current Home module from left to right, then learn the shared module controls using Mask and adjust navigation, help and appearance.",
+      "description": "Explore the Home overview and category tabs, then learn shared module controls using Mask and adjust navigation, help and appearance.",
       "objectives": [
-        "Identify every module in the current Core, Data and Tools rows.",
+        "Find modules using the Home, Core, Data, Tools and Organism tabs.",
         "Use Mask to recognize shared settings, previews, actions and outputs.",
         "Return Home, use search and arrange panels.",
         "Choose appearance and performance settings."
@@ -521,7 +521,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home is the starting point. Read each row from left to right: Core, Data and Tools. Every tile opens its named module. The sidebar provides the same routes, and Home returns to this overview.",
+          "narration": "Home is the starting point. Its overview groups modules under Core, Data, Tools and Organism. The category tabs narrow the view. Every tile opens its named module. The sidebar provides the same routes, and Home returns to the overview.",
           "hold_after": 0.7
         },
         {
@@ -805,11 +805,6 @@
             1200,
             1500
           ]
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "In Spaceout mode, Preferences includes spaCR field controls for eight independent effects. Turn each effect on or off separately. Ordinary appearance and settings-window animation controls remain available; Apply previews a change, Keep accepts it and Revert restores the previous choice.",
-          "hold_after": 0.7
         }
       ],
       "narration_voices": {

@@ -489,9 +489,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Farðu yfir allar núverandi einingar á Home frá vinstri til hægri. Lærðu síðan á sameiginleg stjórntæki með Mask og stilltu leiðsögn, hjálp og útlit.",
+      "description": "Skoðaðu Home-yfirlitið og flokkaflipana, kynntu þér síðan sameiginlegar stjórnir eininga með Mask og stilltu leiðsögn, hjálp og útlit.",
       "objectives": [
-        "Þekkja allar einingarnar í núverandi röðunum Core, Data og Tools.",
+        "Finndu einingar með flipunum Home, Core, Data, Tools og Organism.",
         "Nota Mask til að þekkja sameiginlegar stillingar, forskoðanir, aðgerðir og niðurstöður.",
         "Fara aftur á Home, nota leit og raða spjöldum.",
         "Velja stillingar fyrir útlit og afköst."
@@ -500,7 +500,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home er upphafspunkturinn. Lestu hverja röð frá vinstri til hægri: Core, Data og Tools. Hver reitur opnar sína einingu. Hliðarstikan býður sömu leiðir og Home fer aftur í yfirlitið.",
+          "narration": "Home er upphafspunkturinn. Yfirlitið flokkar einingar undir Core, Data, Tools og Organism. Flokkafliparnir þrengja sýnina. Hver reitur opnar eininguna sem hann er nefndur eftir. Hliðarstikan býður sömu leiðir og Home fer aftur í yfirlitið.",
           "hold_after": 0.7
         },
         {
@@ -784,11 +784,6 @@
             1200,
             1500
           ]
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "Í Spaceout-ham inniheldur Preferences spaCR field-stjórntæki fyrir átta óháð áhrif. Kveiktu eða slökktu á hverju fyrir sig. Venjuleg stjórntæki fyrir útlit og hreyfimyndir stillingagluggans eru áfram tiltæk. Apply forskoðar breytingu, Keep samþykkir hana og Revert endurheimtir fyrra val.",
-          "hold_after": 0.7
         }
       ],
       "narration_voices": {

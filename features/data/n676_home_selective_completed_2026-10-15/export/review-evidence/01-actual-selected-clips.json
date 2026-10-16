@@ -1,0 +1,1504 @@
+{
+  "schema": 1,
+  "lesson": "05_home",
+  "status": "actual31_strict_row_and_source_selection_verified",
+  "accepted": true,
+  "whole_capture_accepted": false,
+  "whole_fresh_capture": false,
+  "canonical": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/05_home.json",
+    "bytes": 12628,
+    "sha256": "d57ea978b09a03132fad3f1d97dc83eabcb2403e607adb55deaaa4ef94ef2800"
+  },
+  "canonical_normalized_sha256": "f8908880aff368137b2883715d0e2ea4caf7f694a18426d3da1b567451455b38",
+  "selected_visuals": [
+    "00_home",
+    "home_module_mask",
+    "home_module_measure",
+    "home_module_annotate",
+    "home_module_map_barcodes",
+    "home_module_regression",
+    "home_module_foreign",
+    "home_module_run_compare",
+    "home_module_power",
+    "home_module_make_masks",
+    "home_module_align",
+    "home_module_umap",
+    "home_module_graph_builder",
+    "06_mask_host",
+    "06b_mask_settings",
+    "06c_mask_actions",
+    "14_resize_panels",
+    "10_home_column",
+    "11_column_folded",
+    "08_help_search",
+    "12_command_palette",
+    "09_performance",
+    "13_preferences_general",
+    "13b_preferences_appearance",
+    "13c_appearance_theme",
+    "13d_appearance_animation",
+    "13h_preferences_apply",
+    "13i_preferences_kept",
+    "13e_session_updates",
+    "13f_storage",
+    "13g_storage_prune"
+  ],
+  "required_actual_inputs": [],
+  "existing30_full_native_frames": 22587,
+  "existing30_full_native_seconds": 752.9,
+  "source_groups": [
+    {
+      "capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home",
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "provenance": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/provenance.json",
+        "bytes": 715,
+        "sha256": "98fdf365f2862b8082c4cf4b3cab7dc7f8a94b2712a74b427852e793ca5de34f"
+      },
+      "frames_manifest": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/frames.json",
+        "bytes": 208264,
+        "sha256": "01560a08ff78ea6219e59c3f41104233eb4c3307d86ad141897317cd3680a387"
+      },
+      "whole_source_completed_capture": true
+    },
+    {
+      "capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home",
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "provenance": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/provenance.json",
+        "bytes": 614,
+        "sha256": "a6d152ec266afd0d76dc1747d97b7aa5468747104c07d899eedb881f66d02c77"
+      },
+      "frames_manifest": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/frames.json",
+        "bytes": 181834,
+        "sha256": "7c68098344070133ff84cc97db5609c852940957da5df85aad4099ac2625700a"
+      },
+      "whole_source_completed_capture": false
+    },
+    {
+      "capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/d05-clean-r3/captures/home",
+      "capture_source_commit": "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9",
+      "provenance": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-clean-r3/captures/home/provenance.json",
+        "bytes": 1131,
+        "sha256": "18b51ade41a9426e38bd9b1156fc486e61f6729fde331b74d05f83d1ecb6ab92"
+      },
+      "frames_manifest": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-clean-r3/captures/home/frames.json",
+        "bytes": 1505,
+        "sha256": "ff23ab725125fa9b1fb8efc0cf57cef3ed743c586f943ca429806355341ea531"
+      },
+      "whole_source_completed_capture": true,
+      "whole_lesson_fresh": false,
+      "recording_context": "clean standalone worker HumanProcess with ordinary Qt event loop; lifecycle only uses owning recorder adapter",
+      "external_recorder_source": {
+        "capture_job.py": "6deee78950e9a234a034e7c42566cd3b5fb9e788b63b7accbb7f5dcdb3d55a88",
+        "native_once.sh": "09730824bdae06c9b2ad2d05a9527dcc455772e09fd879c9a6ab48e2de9bc81d",
+        "run_with_lease.sh": "6d5f885e4067167ac26ecfa10987167e9896ca68724c75fad5e4dcb92ad464f3",
+        "supervise_once.py": "4b775a3d2eb506ebe3afa620d0cfe0783f75de8e08f8d6f1b4b3614f29705ef8",
+        "capture_driver.py": "723c18db8c8101e4387234e42b6c6abcb13abf50fda7a8fbbb933948c70451df"
+      }
+    }
+  ],
+  "rows": [
+    {
+      "scene": 1,
+      "visual": "00_home",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/00_home.mp4",
+        "bytes": 37344348,
+        "sha256": "e8468715eb0ba1b9182de89babc243afd74ffa14644be659444db3c5457fd90c"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/00_home.capture.json",
+        "bytes": 85381,
+        "sha256": "cc88a8387473c1d0e43c80678c1c7c5507b183b61d1efc976b7442cf5aafd7b4"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/00_home.gate.json",
+        "bytes": 2670,
+        "sha256": "ab33c36b0e5fd5caf2d4a2a96170e46f81128dd1b7918b76f0f7aa017474dd2d"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 970,
+      "full_native_duration_seconds": 32.333333333333336,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/00_home.native.mp4",
+        "bytes": 26294978,
+        "sha256": "8923cebfa2526ac059d902b779914a4acb094b6c3972d058f523f8d21048084f"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 970,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [
+        3,
+        4
+      ],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 2,
+      "visual": "home_module_mask",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_mask.mp4",
+        "bytes": 21722148,
+        "sha256": "900d68508df0507b75df8cc5a5072f3aaf501847370027ee91f07e2d9ab45034"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_mask.capture.json",
+        "bytes": 45012,
+        "sha256": "4fda4c302672eca9fb858fb9476380f0f82b6844d8cd2b1f2107afd312ba9b01"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_mask.gate.json",
+        "bytes": 2211,
+        "sha256": "2c143bec56b1634b11f4fc33834d3f024fefa20631b602f6c21a31c169ef8cee"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 504,
+      "full_native_duration_seconds": 16.8,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_mask.native.mp4",
+        "bytes": 15527615,
+        "sha256": "f89a6be318e1d8b0dc3951d414d57e2668b2b2d0f8c8af0ecf1af4f6e45cd1a8"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 504,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 3,
+      "visual": "home_module_measure",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_measure.mp4",
+        "bytes": 17465849,
+        "sha256": "c9ee5d6b4e553bffa99adbff206cb289e74d397203179b6b15c109e15d1143c2"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_measure.capture.json",
+        "bytes": 45804,
+        "sha256": "ea3a6e7b8e954f2fd9e122976eb8a04143befa670ad2355c0241277408422c88"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_measure.gate.json",
+        "bytes": 2241,
+        "sha256": "74f4ced510af1c179bc9d79d53050c12d501496418299d7f512dd62b8419645d"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 513,
+      "full_native_duration_seconds": 17.1,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_measure.native.mp4",
+        "bytes": 12256941,
+        "sha256": "adb7cdc67329cad4efe5ecaadf2e2f9e72b6e0b449331fdfd97ec021100b6e9f"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 513,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 4,
+      "visual": "home_module_annotate",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_annotate.mp4",
+        "bytes": 16398370,
+        "sha256": "9f13db0fbc479f124df7fbbc4655a22018ccee276baa09da7cd33c3474e767d5"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_annotate.capture.json",
+        "bytes": 33277,
+        "sha256": "fd9e8df265b07b3bb8e1623ae87176cb7805a0713f07245db0da1263fdcc431a"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_annotate.gate.json",
+        "bytes": 2102,
+        "sha256": "95574f72f0863af23da38f1fef9d236389b1343de464b0ab05fbea5058a95fb2"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 369,
+      "full_native_duration_seconds": 12.3,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_annotate.native.mp4",
+        "bytes": 12046903,
+        "sha256": "f4abd46c30d16cc4de0e48808f4ad87f3760e4a94c1c4c310966f2038165699c"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 369,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 5,
+      "visual": "home_module_map_barcodes",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_map_barcodes.mp4",
+        "bytes": 14142435,
+        "sha256": "8be70ad8710f8920baaa9ef0481971601d652c7f1b5739758a9429ede78e2807"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_map_barcodes.capture.json",
+        "bytes": 32684,
+        "sha256": "91ef10b4de038007504018ed714b3a5053bd031640623e273269ee366df36f4e"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_map_barcodes.gate.json",
+        "bytes": 2117,
+        "sha256": "5bab301833f1ca1c95caeeeb758c1d566837aff048b462f8996efedc9d9e804e"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 362,
+      "full_native_duration_seconds": 12.066666666666666,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_map_barcodes.native.mp4",
+        "bytes": 10293291,
+        "sha256": "e458f41c62ddfda8ea1bccb97f17b99bb01242dd39cbe014732507999a75e263"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 362,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [
+        0
+      ],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 6,
+      "visual": "home_module_regression",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_regression.mp4",
+        "bytes": 11243500,
+        "sha256": "0ed7a8ba4f3f40d434c4bcd23c8c3b75c932f69a4f338c70b139c6dd0dcf9d6a"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_regression.capture.json",
+        "bytes": 37113,
+        "sha256": "8c1a0529da71351f60d236d68a1d51e89e4e05db859394ff5ca8ae0c0e5bacca"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_regression.gate.json",
+        "bytes": 2144,
+        "sha256": "c5cb54b2a7c128d47c6909163d297adc096953b5b69f00b973184dd7954366fb"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 413,
+      "full_native_duration_seconds": 13.766666666666667,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_regression.native.mp4",
+        "bytes": 8249516,
+        "sha256": "c879e1f3984e32e25c5da035a6e31315627b15e536c28329692290858bc8ab33"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 413,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [
+        2
+      ],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 7,
+      "visual": "home_module_foreign",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_foreign.mp4",
+        "bytes": 18517549,
+        "sha256": "344ada4365ba29e4c50917a1746b7039d36f7857e0b46c5de7f3d2306a82e589"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_foreign.capture.json",
+        "bytes": 35364,
+        "sha256": "67dbe3a5e3b9c1b0dec20b121b7a149ae702cea0c2b94d58f972f833f144335f"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_foreign.gate.json",
+        "bytes": 2130,
+        "sha256": "cd33f24cd63799544d1a6c74d50e8a90821937edffd88924eb89bc40da38ea70"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 393,
+      "full_native_duration_seconds": 13.1,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_foreign.native.mp4",
+        "bytes": 13394325,
+        "sha256": "799b9f49263793e84046473d14e65fb38ac0242a47144beb87d72b0316414254"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 393,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 8,
+      "visual": "home_module_run_compare",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_run_compare.mp4",
+        "bytes": 10857190,
+        "sha256": "82cfc7a38e1982be9c6936e826a8e252fec4f80569090c35b8fa674a05f72ea1"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_run_compare.capture.json",
+        "bytes": 32157,
+        "sha256": "3a1a79689177c03b0020dcb4751bde22498f7f7af893216fedf4ec712eb32d11"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_run_compare.gate.json",
+        "bytes": 2079,
+        "sha256": "af004df16858b7b5e6103b4d08277f3ad446644e6473fa8d6e5030eec0b6aeed"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 356,
+      "full_native_duration_seconds": 11.866666666666667,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_run_compare.native.mp4",
+        "bytes": 7678134,
+        "sha256": "881e7fa92f9ecc02eeb88fe0d407d76b4ef8b068996f9f8d5a1593c6d7cbfdc5"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 356,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 9,
+      "visual": "home_module_power",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_power.mp4",
+        "bytes": 17441003,
+        "sha256": "c4104270b72bd8e5d6b019f28b8481fa7acc8297790e806f7bc1cc8fb55f659e"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_power.capture.json",
+        "bytes": 37183,
+        "sha256": "34e13b3a06c3f646e9d8a8dd98fe7ac1c61486d04402d4c1c9cffe2087a76fd5"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_power.gate.json",
+        "bytes": 2127,
+        "sha256": "4416800d34d38b345635610665a0b2cdb83fe72c37407809133c199dc0c155ad"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 414,
+      "full_native_duration_seconds": 13.8,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_power.native.mp4",
+        "bytes": 12680647,
+        "sha256": "9536b557d5e8909e52278c77d184dcbc22fbaeb36c0c2006c077e4429fb39b3a"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 414,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 10,
+      "visual": "home_module_make_masks",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_make_masks.mp4",
+        "bytes": 14929885,
+        "sha256": "c2e1e2b727f93638c04cbb0d52eb687be0b09659bbfc78f28c6d540c9f87614a"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_make_masks.capture.json",
+        "bytes": 34940,
+        "sha256": "7b5b019fb0c179efef328948b9bee4dd9587ff4e3de1a2d54ac1dbfa0836f7e6"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_make_masks.gate.json",
+        "bytes": 2106,
+        "sha256": "0f54ffdc9c18bf76d26f5557180baeb1054688c10eeba8a5f7315af47c8e35e8"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 388,
+      "full_native_duration_seconds": 12.933333333333334,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_make_masks.native.mp4",
+        "bytes": 10849452,
+        "sha256": "442746c73d2a9150363447bd08a83a2bc6a881f54213d48c1a211d783fef7aca"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 388,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 11,
+      "visual": "home_module_align",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_align.mp4",
+        "bytes": 12179549,
+        "sha256": "664588ccfb0398d1e9574d83d7baad479577694b11ff423a4c04c081eb43dc84"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_align.capture.json",
+        "bytes": 32748,
+        "sha256": "4463db4d1b2111bb40fb3c7fb95568f1c33f81467e9185b157f636ae49f32edd"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_align.gate.json",
+        "bytes": 2099,
+        "sha256": "daed2c737949e964df3b534fd4a8a185ed65500d0daa1357fd5bf8dc92929f88"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 363,
+      "full_native_duration_seconds": 12.1,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_align.native.mp4",
+        "bytes": 8999044,
+        "sha256": "11a5eb1319c20e285ee09e3737de1513e3e4e108a348689033e75f7d0a4b1d90"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 363,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 12,
+      "visual": "home_module_umap",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_umap.mp4",
+        "bytes": 19047155,
+        "sha256": "222f46c6ad6c89a0881a7c2a9ece9a3e0d81658c92bc8be289396d8e6a00fe21"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_umap.capture.json",
+        "bytes": 40314,
+        "sha256": "d0eeb4d91d58564cc49b6da006cabb9b58ef6852b586a1cce10aaf5f51de5132"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_umap.gate.json",
+        "bytes": 2181,
+        "sha256": "3b2ca2fa81b83360c6eed43a0d4bd9de02672a98d668ce121591ec7d74278067"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 450,
+      "full_native_duration_seconds": 15.0,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_umap.native.mp4",
+        "bytes": 13785297,
+        "sha256": "cf6eaeab7b865e3d1989bcef453a018c16a69ca70d0a3f9b2dde69a9737a46ed"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 450,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 13,
+      "visual": "home_module_graph_builder",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_graph_builder.mp4",
+        "bytes": 13350779,
+        "sha256": "51f84f1b952e18725f5a142e4e276be3fce2916db1c83c7205b09cd3a6ec4eb1"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_graph_builder.capture.json",
+        "bytes": 34859,
+        "sha256": "c1dd81b39d1be095c8cd1756776ac85d65921bad8f8af325e32a867e12c71975"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_graph_builder.gate.json",
+        "bytes": 2107,
+        "sha256": "17c2d1b136e282c8f76c4f6a0e5a8146c2d27f3368709fedff2a9f25b0b95255"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 387,
+      "full_native_duration_seconds": 12.9,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/home_module_graph_builder.native.mp4",
+        "bytes": 9869956,
+        "sha256": "14fd68f10719fa08eddaf77f6dc0fb857b30cfd175ce82eccb8e58f2305e35d6"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 387,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 14,
+      "visual": "06_mask_host",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/06_mask_host.mp4",
+        "bytes": 21760976,
+        "sha256": "f8e6b5b6a52ee1d95ca5f1bd66dcfae1e77ee8c28eb3a0e208f437205bcd7035"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/06_mask_host.capture.json",
+        "bytes": 75458,
+        "sha256": "7de2dd51546e9d498c714f38a879c11c35d913a860cb2f2551542a05aeead88b"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/06_mask_host.gate.json",
+        "bytes": 2565,
+        "sha256": "fd6a6d674eb79e32f1fd8f4f8d397e8879ab6cf6f057473a4017e1b2e17023db"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 854,
+      "full_native_duration_seconds": 28.466666666666665,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/06_mask_host.native.mp4",
+        "bytes": 13272463,
+        "sha256": "466493c9d9914f9832b69c3c1678fee016b46cfb6eca83e1c4689add34dc9e71"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 854,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [
+        3,
+        27
+      ],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 15,
+      "visual": "06b_mask_settings",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/06b_mask_settings.mp4",
+        "bytes": 18593795,
+        "sha256": "4c44217ee72698721a90d9dfff781353efea8ed353e937eee7d7d83418e59fd3"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/06b_mask_settings.capture.json",
+        "bytes": 63231,
+        "sha256": "8cd667653d9528725aee9e574d52576d14e58c7f44a6cc05583aca66167b051b"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/06b_mask_settings.gate.json",
+        "bytes": 2434,
+        "sha256": "fb107af72f9c50a31f206e8c7859f7716a53014d191cc3189323fdf719acd5b4"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 713,
+      "full_native_duration_seconds": 23.766666666666666,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/06b_mask_settings.native.mp4",
+        "bytes": 10387723,
+        "sha256": "3cb7969c97e6901e90200a3c33422fc82dfc203d90fcb2a34bf5dd1c50f0c471"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 713,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [
+        1,
+        7,
+        22
+      ],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 16,
+      "visual": "06c_mask_actions",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/06c_mask_actions.mp4",
+        "bytes": 21559491,
+        "sha256": "cf9762a25beeb758cc395f8ad36979c074abe6d83b12897165d2eaf5e82b68e1"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/06c_mask_actions.capture.json",
+        "bytes": 77587,
+        "sha256": "235f1018464217d022fcb039d2ed023e299e84dd1a5d8978c6829eca82d15abe"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/06c_mask_actions.gate.json",
+        "bytes": 2602,
+        "sha256": "c9ce30e23d0205efcf955eed7a1ae106ca0426e4589fb311041a2630f6eb84f0"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 878,
+      "full_native_duration_seconds": 29.266666666666666,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/06c_mask_actions.native.mp4",
+        "bytes": 11914421,
+        "sha256": "8c42913acf94c5a6055f2c66e434073520337fe9a7832fe2fe883a3bdc9ac42e"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 878,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [
+        0,
+        3,
+        13
+      ],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 17,
+      "visual": "14_resize_panels",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/14_resize_panels.mp4",
+        "bytes": 13815828,
+        "sha256": "9d3902f910c08e4a1cd0b27de4b6e0ed4d7df0950753bf0b8e06e807b58eaf17"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/14_resize_panels.capture.json",
+        "bytes": 55391,
+        "sha256": "c8fa8c6f1582ac3be817cbd6631a8fa3abb5d8c04ac31ef8eb652e465f831c3e"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/14_resize_panels.gate.json",
+        "bytes": 2359,
+        "sha256": "6f9a83129487c619239a3bcfb1c1900dbceafbaac34cd2151291854c19bd7edd"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 623,
+      "full_native_duration_seconds": 20.766666666666666,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/14_resize_panels.native.mp4",
+        "bytes": 8787902,
+        "sha256": "becab3300b46f695c5c15b4c258226f11b9d7cb58cfc57314b093e5faf04a3e4"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 623,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [
+        0,
+        8,
+        9,
+        10
+      ],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 18,
+      "visual": "10_home_column",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/10_home_column.mp4",
+        "bytes": 40459496,
+        "sha256": "9cc4a0a4eb8a59f11754e41dc6f9d75246a907bb6de63c2a087b3a8018383453"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/10_home_column.capture.json",
+        "bytes": 94172,
+        "sha256": "a6a10db825e2d9c5683a555c182d6693f0036226e3dcf660adbf8d7cfdc9c9ce"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/10_home_column.gate.json",
+        "bytes": 2742,
+        "sha256": "c1af50ee600933b20f1a25754fd8ccca8446978d0a7cc6a5dd4f8bbafe94d408"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 1068,
+      "full_native_duration_seconds": 35.6,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/10_home_column.native.mp4",
+        "bytes": 28462772,
+        "sha256": "41abe9964ee8b6823d3055395bd768dc925f174428ed4ffa23539e224abe07a2"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 1068,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 19,
+      "visual": "11_column_folded",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/11_column_folded.mp4",
+        "bytes": 35663087,
+        "sha256": "9600ff8fa388926e039f1172e40ebeb2fcad848c6e074f6861e61095044d10cb"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/11_column_folded.capture.json",
+        "bytes": 73254,
+        "sha256": "51a0dab80e240319ba73fc63c0f417240a4b844d9c43922a05a82b3ea8c17b6b"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/11_column_folded.gate.json",
+        "bytes": 2537,
+        "sha256": "4e717b201b6edc8a55b3f10b064d3eb8a03552635cb1079dfe8f487a22ca4245"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 827,
+      "full_native_duration_seconds": 27.566666666666666,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/11_column_folded.native.mp4",
+        "bytes": 25017471,
+        "sha256": "57e2cb87a679ea65b208e0fb602453a97ed778916875e56f675bc8561e15c0cd"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 827,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [
+        0,
+        23
+      ],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 20,
+      "visual": "08_help_search",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/08_help_search.mp4",
+        "bytes": 35285277,
+        "sha256": "ed14c2e1371f391f681cf55940cbdc30c1d1ac24450e457d3fb7f4c19c417105"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/08_help_search.capture.json",
+        "bytes": 79620,
+        "sha256": "01b2b66a2833a0c7df13fd89400e164cc4af0dfcb2599c114663aac7d63a4cc9"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/08_help_search.gate.json",
+        "bytes": 2622,
+        "sha256": "8c9b2f5a29cfd2a2037839de2e72b521f02ec05690fe8f8e5c0d185e02ec1a32"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 900,
+      "full_native_duration_seconds": 30.0,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/08_help_search.native.mp4",
+        "bytes": 24872425,
+        "sha256": "edbf72d8a31e63e112b0ab0054fdc28f36add07f73181849cafc00781cefac92"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 900,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [
+        5,
+        14
+      ],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 21,
+      "visual": "12_command_palette",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/12_command_palette.mp4",
+        "bytes": 35918089,
+        "sha256": "ff51278cb785ca93d6dd0cbb97edba3c5e8d5fbc1e7a0d38f146c780ea3d2005"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/12_command_palette.capture.json",
+        "bytes": 70627,
+        "sha256": "a43342973abbea9c750dda1d154b06e1fe90ed9614af5fb9bef777c4dafbb87f"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/12_command_palette.gate.json",
+        "bytes": 2489,
+        "sha256": "61e4ab7cdfd72f6077af72aba3d9dd6d0c0c2918e47dafc66c508b3f38f70c2c"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 800,
+      "full_native_duration_seconds": 26.666666666666668,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/captures/home/12_command_palette.native.mp4",
+        "bytes": 24159164,
+        "sha256": "0db09b9a061c23302add0407dfbb3b91476b8dccebdcbc3dff22485c75881739"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 800,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 22,
+      "visual": "09_performance",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/09_performance.mp4",
+        "bytes": 41047912,
+        "sha256": "2deb087e3946cfa9b5e5c4a3cc554145cdb99577ea8ab9810f6e0a53a3ea0969"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/09_performance.capture.json",
+        "bytes": 87752,
+        "sha256": "586a26b5baae00e49cb454f9735874af89414586efbccf475d54ef3eae7d9dc3"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/09_performance.gate.json",
+        "bytes": 2689,
+        "sha256": "4714c8567c0ddaa168dc48b02673bb0b0793b4af5bf0358bf686b3b8a2f430ce"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 997,
+      "full_native_duration_seconds": 33.233333333333334,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/09_performance.native.mp4",
+        "bytes": 28811441,
+        "sha256": "3a3d0d1505fb8c1c117e0418659210214d5c968dcbd691b75443ef12ed6e01f3"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 997,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 23,
+      "visual": "13_preferences_general",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13_preferences_general.mp4",
+        "bytes": 34260892,
+        "sha256": "f4de6378ae342765b61f5ee60fca036f205b78c50080fb570d5812142c7195b2"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13_preferences_general.capture.json",
+        "bytes": 79947,
+        "sha256": "35f0c2083f2f4ef2a7fefc0d03f5f215ae672e30d21cfb5ae732808bc58e0826"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13_preferences_general.gate.json",
+        "bytes": 2610,
+        "sha256": "28dc8d6c8b5df76d5af5087cf1e018cba7a5accfa50590c4d692abe3f03cb088"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 907,
+      "full_native_duration_seconds": 30.233333333333334,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13_preferences_general.native.mp4",
+        "bytes": 24619725,
+        "sha256": "e26a24040d19ba493b34d1e419747ccbd701f4995855ab09bf34207e98b2289e"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 907,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 24,
+      "visual": "13b_preferences_appearance",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13b_preferences_appearance.mp4",
+        "bytes": 40145244,
+        "sha256": "7856fba93d1f3738d8866be0af60e154527eca24a8394d25888f7c080e76ccce"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13b_preferences_appearance.capture.json",
+        "bytes": 103890,
+        "sha256": "75035637ce08c929e5c5bf55eb088fa45e0ee316940c65b9609ebf074a69c8dd"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13b_preferences_appearance.gate.json",
+        "bytes": 2869,
+        "sha256": "635c78927ae6d46ed017798776d80bfd017a6e7b92a97a49f64e0efefa6210f6"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 1180,
+      "full_native_duration_seconds": 39.333333333333336,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13b_preferences_appearance.native.mp4",
+        "bytes": 28513646,
+        "sha256": "7dd130c49b208a43a7dea0cc9821099652c10b66eb573b07953da90827599389"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 1180,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 25,
+      "visual": "13c_appearance_theme",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13c_appearance_theme.mp4",
+        "bytes": 42288518,
+        "sha256": "413cc24cd9450f58c5e593e6ca4ca12a1782fe1e3782919835851a08aac48c4f"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13c_appearance_theme.capture.json",
+        "bytes": 96216,
+        "sha256": "4e4a533ac2333f0b6bfadf212756b54f71fd01f9bcc5148ee3cb597055fdf4f1"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13c_appearance_theme.gate.json",
+        "bytes": 2779,
+        "sha256": "2c4462068b51f3875b0f0a73e4509c269b7177ca78b6e4701ae756abb01ad702"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 1093,
+      "full_native_duration_seconds": 36.43333333333333,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13c_appearance_theme.native.mp4",
+        "bytes": 30263824,
+        "sha256": "3dd388436f10678701f6c4420d01b34228fc9557ccddf0376b34d4da306248c3"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 1093,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 26,
+      "visual": "13d_appearance_animation",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13d_appearance_animation.mp4",
+        "bytes": 97503080,
+        "sha256": "8adcd08402d5dac626295a03b022be5a6795c4256c9cd44e0f839682cfe770e6"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13d_appearance_animation.capture.json",
+        "bytes": 241164,
+        "sha256": "a3e25e0df41cf86cc2a211a0a4dcb4515d168807925685781e86b87b2ed65908"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13d_appearance_animation.gate.json",
+        "bytes": 4341,
+        "sha256": "bf4eb15fec94fa839b982ef3e80d6b78c42d2c13baaae8a1daef6f87c4438833"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 2740,
+      "full_native_duration_seconds": 91.33333333333333,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13d_appearance_animation.native.mp4",
+        "bytes": 69639252,
+        "sha256": "f3657f97e348b5b6c3b95dc9068f61adf2cd3394132dbc07eec73fbb983eae03"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 2740,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [
+        30,
+        46
+      ],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 27,
+      "visual": "13h_preferences_apply",
+      "status": "actual_strict_row_bindings_verified",
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/d05-clean-r3/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-clean-r3/captures/home/13h_preferences_apply.mp4",
+        "bytes": 38399732,
+        "sha256": "b1a5a125f44af9fecdca40f6a1959ac5c1ea8f90fb758d7e66a1fddeb0961d0a"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-clean-r3/captures/home/13h_preferences_apply.gate.json",
+        "bytes": 2730,
+        "sha256": "5c333093d22e0a0c3087b0804691d49e61760812dbd2ee7e80a5a88a09b41b02"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-clean-r3/captures/home/13h_preferences_apply.capture.json",
+        "bytes": 86672,
+        "sha256": "471050dcb2ab512d2da96eb6775a6ee53bbf00cd94b763621195b8d46c2f320b"
+      },
+      "accepted": true,
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-clean-r3/captures/home/13h_preferences_apply.native.mp4",
+        "bytes": 27200379,
+        "sha256": "26e3b8d9aeb1c2939d2ca31858acad2a8daf341cd1c0ad2487ce0c867c18eb8c"
+      },
+      "source_commit": "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9",
+      "capture_source_commit": "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9",
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 984,
+      "full_native_duration_seconds": 32.8,
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 984,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [
+        0,
+        1,
+        5,
+        7
+      ],
+      "owning_full_decode_reused": true,
+      "recording_context": "clean_standalone_no_prior_tour_equivalence",
+      "historical_prefix_executed": false,
+      "whole_lesson_fresh": false,
+      "focus_rect": [
+        75,
+        75,
+        1041,
+        981
+      ],
+      "poster": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-clean-r3/captures/home/13h_preferences_apply.png",
+        "bytes": 3264081,
+        "sha256": "09a7152a9f3ce74b3af641774ba261d1ece3c4c33075eab48085f412741c480d"
+      },
+      "actual_completion_evidence": {
+        "worker_result": {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-clean-r3/worker-capture-result.json",
+          "bytes": 1977,
+          "sha256": "b606ce51e79a216f0a8e3e4fcc56d4c2ae49db8cf2a48ddca69ca7ff65c718e4"
+        },
+        "host_run": {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-clean-r3/host-run.json",
+          "bytes": 647,
+          "sha256": "66ee865c7ee47f83d6052ff3a99811bd74aa2e589d14c2937297710dbc9f544c"
+        },
+        "provenance": {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-clean-r3/captures/home/provenance.json",
+          "bytes": 1131,
+          "sha256": "18b51ade41a9426e38bd9b1156fc486e61f6729fde331b74d05f83d1ecb6ab92"
+        },
+        "host_facts": {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-clean-r3/captures/home/13h_preferences_apply.host.json",
+          "bytes": 81958,
+          "sha256": "c767f6e964730218069d97707bedf6df1d8d54753c171f553a9f22468d9309ac"
+        },
+        "pointer_trace": {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-clean-r3/captures/home/13h_preferences_apply.pointer.json",
+          "bytes": 19848,
+          "sha256": "4e92d60ef1afc6f5604f92af3202d3ba244ee5a88fe3570ed776e55dabc19bce"
+        },
+        "supervisor": {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-clean-r3/supervisor-result.json",
+          "bytes": 1254,
+          "sha256": "08099e34b30edca190a0dcb4db036d2715e37e8d105b7c69b7f175df73fe9eae"
+        },
+        "cleanup": {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-clean-r3/owner-cleanup.json",
+          "bytes": 112,
+          "sha256": "06533f5f87359342eed170a7edc775ba8310f988b266e45a57de6ab757cb5950"
+        },
+        "gnome_cleanup": {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-clean-r3/gnome-host/cleanup.json",
+          "bytes": 54,
+          "sha256": "e4f4e227fe9f600867abcee4b67cd62e67e471195c499a6e54524d71785d969a"
+        },
+        "exact_source": {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-clean-r3/exact-source.json",
+          "bytes": 55047,
+          "sha256": "dc203c544fea8d805c307ef507966cbf8a18b8d8c1d372190c2fad1e5cd8b97b"
+        },
+        "profile": {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-clean-r3/capture-profile.json",
+          "bytes": 713,
+          "sha256": "5c575f9879785bce31ab38736e6df2db7b9c73d46acbbcc3122f0d4fc6dae437"
+        }
+      }
+    },
+    {
+      "scene": 28,
+      "visual": "13i_preferences_kept",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13i_preferences_kept.mp4",
+        "bytes": 26785450,
+        "sha256": "bcf5c2ff6077b97b46ff0e696e34051bc51a7e91faf8bfec16ac90256d18d5f5"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13i_preferences_kept.capture.json",
+        "bytes": 56798,
+        "sha256": "c8cbd91651d650f7d3a64e7918589afbab43ee86f630ab062e6e0bde5c69a847"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13i_preferences_kept.gate.json",
+        "bytes": 2365,
+        "sha256": "4db5f39f5ff14add164cd224cede8651e1db365eba9ca7d0e694decd6094b6e1"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 641,
+      "full_native_duration_seconds": 21.366666666666667,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13i_preferences_kept.native.mp4",
+        "bytes": 18877149,
+        "sha256": "8b3e09d3e3e12e8214999486df4051c0fa760ddd324adcad7517af58e23a1780"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 641,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [
+        2
+      ],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 29,
+      "visual": "13e_session_updates",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13e_session_updates.mp4",
+        "bytes": 37049788,
+        "sha256": "e8d9723e184b0735f9310185d98ed9d17a8c7c0891c4d06af00e47cf463ada02"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13e_session_updates.capture.json",
+        "bytes": 82720,
+        "sha256": "0cf41dba9cdf11a473688f8751fd040afee4653686a4ac4916e979e63910f2a2"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13e_session_updates.gate.json",
+        "bytes": 2632,
+        "sha256": "5b44bc9e01ca5fe899d186f368a25bd7f5ef9415d54e4f37779c92ae90f539cf"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 939,
+      "full_native_duration_seconds": 31.3,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13e_session_updates.native.mp4",
+        "bytes": 26833143,
+        "sha256": "4f3ea88b17ede08c40956b8ce7a37bbf7101598b4860ab083dedc41a960c50a5"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 939,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 30,
+      "visual": "13f_storage",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13f_storage.mp4",
+        "bytes": 27642970,
+        "sha256": "cb9e7ed1befc60f173d2283897403485d7fdb23754b9f87f5b547429e5778341"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13f_storage.capture.json",
+        "bytes": 71213,
+        "sha256": "208be75588c15c11246166bb8ad085bf89e86eada647389dccdebd80765acb9a"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13f_storage.gate.json",
+        "bytes": 2486,
+        "sha256": "f6f936819a43cf55be0667a7c87a0ba897b2e78d9609a07a2c7b264b506a757f"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 807,
+      "full_native_duration_seconds": 26.9,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13f_storage.native.mp4",
+        "bytes": 19624126,
+        "sha256": "9afa68634cbd2b6034a72c261adccab44f2c6f63c4e2735d554bdda417ae7724"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 807,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [],
+      "owning_full_decode_reused": true
+    },
+    {
+      "scene": 31,
+      "visual": "13g_storage_prune",
+      "status": "actual_strict_row_bindings_verified",
+      "accepted": true,
+      "source_capture_directory": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home",
+      "source_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13g_storage_prune.mp4",
+        "bytes": 29067979,
+        "sha256": "435714dfd128fb889d174301c10aab556911eda9ed352fca4e26f4103c57718a"
+      },
+      "capture_receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13g_storage_prune.capture.json",
+        "bytes": 65226,
+        "sha256": "a18ff2160ef010e3bf5aefc9fa1ebafea04cf1a24736fe4654ddf4abd0d37957"
+      },
+      "gate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13g_storage_prune.gate.json",
+        "bytes": 2459,
+        "sha256": "e1eca42aca5f005bc7cede01e49ddde9e5fba734cfd6425289f0258154f8d85a"
+      },
+      "observed_unmodified_gate_passed": true,
+      "full_native_frames": 738,
+      "full_native_duration_seconds": 24.6,
+      "source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "native_video": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/captures/home/13g_storage_prune.native.mp4",
+        "bytes": 20928182,
+        "sha256": "20cc60afd6da66665d543e2a9b56869ca9cc4b799104a47c84edf65c16787a71"
+      },
+      "capture_source_commit": "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+      "source_start_frame": 0,
+      "source_end_frame_exclusive": 738,
+      "playback_speed": 1.0,
+      "trimmed": false,
+      "looped": false,
+      "gate_capture_loss_seconds": [
+        0,
+        7,
+        12
+      ],
+      "owning_full_decode_reused": true
+    }
+  ],
+  "supporting_sample_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/previous-strict-pass-midpoint-samples/samples.json",
+    "bytes": 25121,
+    "sha256": "0eb81ad2fb4561ee5ad8e9efa350a10adc3de737138071a305c45df9e95de8e6"
+  },
+  "bounded30clip_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/previous-strict-pass-bounded-visual-peer.json",
+    "bytes": 46478,
+    "sha256": "8e4a03a06fc286bc9ceed630849a006551a6889ef77bf515552db25cf9a4c1b9"
+  },
+  "old_failedApply_disposition": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/previous-apply-failure-disposition.json",
+    "bytes": 45968,
+    "sha256": "ab2286169f0d8b459045c6fb9844c670362d6e95f410c418bd51ed24344d8c48"
+  },
+  "remaining_workflow": [
+    "Rootoverallselection/visualacceptance, then sourcebound selectiveaudio/staging/render/hosting pipeline.",
+    "Preserve allperclip revisions/rawgates/fullnative; no oldfailedApply or omittedSpaceout scene entersselection."
+  ],
+  "limits": [
+    "accepted:true is scoped to actual31 verifiedrow/source/nativegate bindings; rootoverallacceptance/publication separate.",
+    "Allsourceframes retained1x,frame0..fullN. Owningframeclock/fullDecode authoritative; no newdurationtolerance/gate or oldclipdecode.",
+    "NewApply strictgatepassed with benign capture_loss_seconds[0,1,5,7]; allactualfreeze/slow/unknown/gaps/stalls/bypass/jumps empty. Do not claimzero capture loss.",
+    "30oldf9 clips plusone87ff cleanstandaloneApply have sameapp/502sourcebytes; no wholefreshlesson/prior-tour equivalence/causalproductrepair claim.",
+    "Only source/metadata verification and streamedselectedmedia hashing; no capture/audio/render/browser/network/tests/model/sourceedit/commit/push."
+  ],
+  "accepted_scope": "Actual selected31 row/source/nativegate bindings; overall root acceptance separate.",
+  "root_overall_acceptance_recorded": false,
+  "capture_source_commits": [
+    "f9be2391fa3e7d4ef86676bdcf001563517be87a",
+    "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9"
+  ],
+  "current_source_commit": "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9",
+  "existing_strict_selected_count": 30,
+  "selected_full_native_frames": 23571,
+  "selected_full_native_seconds": 785.7,
+  "actual_native_independent_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/clean-apply-native-independent-evidence-peer.json",
+    "bytes": 20447,
+    "sha256": "a4054be8d0649e5b7c207ad2deba62f5a5081dc052b1b39e7c95cf2ea3f7da87"
+  },
+  "input_draft": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/selective31-clip-selection-draft.json",
+    "bytes": 47536,
+    "sha256": "493909dfa19e82af74a122f8fa2007d39ebd1e3bb309d06cc1ee1d6f82a3227d"
+  },
+  "source_inventory_verification": {
+    "files": 502,
+    "three_selected_source_groups_same_inventory": true,
+    "inventory_bindings": [
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/exact-source.json",
+        "bytes": 54675,
+        "sha256": "d2b23d67645386aebdd478061f72f573f197cc2c0af266d61af1617285087b3a"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/exact-source.json",
+        "bytes": 54902,
+        "sha256": "5453488e83d97dee5bc33c835698c47e65f7d196ac15a6fb0717521b092c2569"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-clean-r3/exact-source.json",
+        "bytes": 55047,
+        "sha256": "dc203c544fea8d805c307ef507966cbf8a18b8d8c1d372190c2fad1e5cd8b97b"
+      }
+    ],
+    "application_trees": {
+      "f9be2391fa3e7d4ef86676bdcf001563517be87a": "7f59178fa79d30f39d3b4f0b9a10601687a7a82e",
+      "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9": "7f59178fa79d30f39d3b4f0b9a10601687a7a82e"
+    },
+    "current502_sha_comparison_passed_in_initial_bounded_readback": true,
+    "independent_current502_readback_peer": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/clean-apply-native-independent-evidence-peer.json",
+      "bytes": 20447,
+      "sha256": "a4054be8d0649e5b7c207ad2deba62f5a5081dc052b1b39e7c95cf2ea3f7da87"
+    },
+    "repeat_current_inventory_hash_sweep": false
+  }
+}
