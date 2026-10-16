@@ -68,7 +68,6 @@
   "gui_public_reports": "Los informes de incidencias son públicos y no se pueden retirar de forma fiable. Los informes se redactan para ocultar información sensible y se muestran antes de cada envío. Estas opciones son voluntarias y pueden cambiarse después en Preferencias.",
   "gui_share_diagnostics": "Incluir registros de diagnóstico redactados en las vistas previas de informes",
   "gui_report_issues": "Activar el envío de incidencias públicas a GitHub",
-  "gui_account_setup": "Abrir la configuración de cuentas en el primer inicio",
   "gui_preserve": "Se conservan los datos, modelos, cachés y preferencias existentes. No hay ninguna limpieza opcional seleccionada.",
   "gui_close": "Cerrar",
   "gui_install": "Instalar",

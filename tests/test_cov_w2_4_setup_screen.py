@@ -1,4 +1,4 @@
-"""First-run setup — the four places it is allowed to give up quietly.
+"""First-run setup — the three places it is allowed to give up quietly.
 
 Every question on this screen has a working default, and the module's rule
 is that nothing about the questions may take a launch down. That rule only
@@ -9,9 +9,6 @@ breaking the thing it guards:
   a partially installed or vendored copy looks like;
 * the language list, when the translation table cannot be imported. The
   fallback is English alone, and the screen must still open;
-* the provider list, when the AI provider registry raises. The fallback is
-  the empty list, and an empty list REMOVES the question rather than asking
-  the user to choose between providers none of which exist;
 * :func:`current`, when one preference getter raises -- the key it belongs
   to is dropped and the other answers still populate the screen.
 """
@@ -72,51 +69,6 @@ def test_the_language_question_survives_a_broken_translation_table(
     monkeypatch.delattr(i18n, "LANGUAGES")
     asked = {row[0]: row for row in setup_screen.questions()}
     assert asked["language"][4] == [("en", "English")]
-
-
-# ---------------------------------------------------------------------------
-# _provider_choices
-# ---------------------------------------------------------------------------
-
-def test_a_provider_registry_that_raises_removes_the_question(monkeypatch):
-    """No providers is not a question with no true answers -- it is no
-    question at all."""
-    from spacr.qt.ai import providers
-
-    def explode():
-        raise RuntimeError("provider discovery failed")
-
-    monkeypatch.setattr(providers, "list_providers", explode)
-
-    assert setup_screen._provider_choices() == []
-    assert "ai_provider" not in [row[0] for row in setup_screen.questions()]
-
-
-def test_a_registry_of_nameless_providers_also_removes_the_question(
-        monkeypatch):
-    """A provider whose name is blank cannot be offered or stored."""
-    from spacr.qt.ai import providers
-
-    class Nameless:
-        name = ""
-
-    monkeypatch.setattr(providers, "list_providers", lambda: [Nameless()])
-    assert setup_screen._provider_choices() == []
-
-
-def test_whatever_is_available_leads_the_provider_list(monkeypatch):
-    """A pinned name that has gone away is worse than no preference."""
-    from spacr.qt.ai import providers
-
-    class Named:
-        def __init__(self, name):
-            self.name = name
-
-    monkeypatch.setattr(providers, "list_providers",
-                        lambda: [Named("claude_code"), Named("codex")])
-    choices = setup_screen._provider_choices()
-    assert choices[0] == ("", "whatever is available")
-    assert ("claude_code", "claude code") in choices
 
 
 # ---------------------------------------------------------------------------

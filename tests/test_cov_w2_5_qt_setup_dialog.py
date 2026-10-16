@@ -134,16 +134,16 @@ def test_resizing_a_plain_dialog_touches_no_backdrop(qapp):
 def test_a_group_whose_questions_all_left_is_not_drawn(qapp, monkeypatch):
     """An empty heading would read as a bug, so it is skipped entirely."""
     asked = [q for q in setup_screen.questions()
-             if q[0] not in ("ai_provider", "ai_default")]
+             if q[0] not in ("spacr_mode", "hash_inputs")]
     monkeypatch.setattr(setup_screen, "questions", lambda: asked)
 
     dialog = sd.SetupDialog()
 
     headings = _headings(dialog)
-    assert "<b>The assistant</b>" not in headings
+    assert "<b>How it runs</b>" not in headings
     assert "<b>How it looks</b>" in headings
-    assert "ai_provider" not in dialog._editors
-    assert "ai_default" not in dialog._editors
+    assert "spacr_mode" not in dialog._editors
+    assert "hash_inputs" not in dialog._editors
     dialog.deleteLater()
 
 

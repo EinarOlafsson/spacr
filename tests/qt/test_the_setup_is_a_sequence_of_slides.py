@@ -16,36 +16,9 @@ import pytest
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QPointF  # noqa: E402
-from PySide6.QtWidgets import QApplication, QCheckBox, QComboBox  # noqa: E402
+from PySide6.QtWidgets import QApplication, QCheckBox  # noqa: E402
 
-from spacr.qt.widgets.setup_slides import GREETINGS, PROVIDERS, SLIDES, SetupSlides, greeting_for
-
-@pytest.fixture(autouse=True)
-def _the_provider_step_is_offered_back(monkeypatch):
-    """Offer the AI-provider question again, so its slide is still tested.
-
-    Item 700 (2026-10-14) took the question out of first-run setup: a new
-    user starts on spaCR AI (free) and changes provider in Preferences.
-    The slide that draws the question is kept for a question list that
-    offers it, and these tests drive it through exactly that.
-    """
-    from spacr.qt import preferences as prefs
-    from spacr.qt import setup_screen
-
-    shipped = setup_screen.questions
-
-    def with_the_provider_question():
-        rows = list(shipped())
-        choices = setup_screen._provider_choices()
-        if choices:
-            rows.append(("ai_provider", "AI provider",
-                         prefs.get_preferred_provider,
-                         prefs.set_preferred_provider, choices))
-        return rows
-
-    monkeypatch.setattr(setup_screen, "questions",
-                        with_the_provider_question)
-
+from spacr.qt.widgets.setup_slides import GREETINGS, SLIDES, SetupSlides, greeting_for
 
 
 def _past_the_greeting(slides):
@@ -90,15 +63,19 @@ def slides(app, qtbot):
 
 class TestTheOrderIsTheMaintainers:
 
-    def test_there_are_seven(self):
-        """SEVEN, not six: the terms of use are now a slide of their own.
+    def test_there_are_five(self):
+        """Five: language, theme, how it runs, the terms of use, and Done.
+
+        The assistant and error-report slides were taken out (item 700): spaCR
+        AI and anonymised error reports are on by default and Preferences
+        changes them. The terms of use are a slide of their own.
 
         They are not a preference -- every other question here has a working
         default and can be answered by dismissing the screen -- so they could
         not be folded onto an existing page without making that page
         refusable in a way none of the others are.
         """
-        assert len(SLIDES) == 7
+        assert len(SLIDES) == 5
 
     def test_they_are_in_the_order_asked_for(self):
         """The terms sit second to last, between the questions and Done.
@@ -108,8 +85,7 @@ class TestTheOrderIsTheMaintainers:
         they are agreeing to set up.
         """
         assert [title for title, _b, _k in SLIDES] == [
-            "Language", "Theme", "How it runs", "The assistant",
-            "When something breaks", "Terms of use", "Done"]
+            "Language", "Theme", "How it runs", "Terms of use", "Done"]
 
     def test_language_is_first(self):
         """It changes the screen the user is looking at."""
@@ -118,9 +94,6 @@ class TestTheOrderIsTheMaintainers:
     def test_theme_and_colour_blind_are_one_slide(self):
         """One question: what this looks like."""
         assert set(SLIDES[1][2]) == {"theme", "colour_blind"}
-
-    def test_the_assistant_asks_provider_and_launch(self):
-        assert set(SLIDES[3][2]) == {"ai_provider", "ai_default"}
 
     def test_the_last_one_asks_nothing(self):
         """"then a screen that just says Done" -- it is the transition, not
@@ -175,12 +148,12 @@ class TestOneQuestionPerSlide:
     def test_the_position_is_shown(self, slides):
         """Paging without a total is navigation without a map.
 
-        Seven since the terms of use became a slide.
+        Five since the assistant and error-report slides were removed.
 
-        NOT ON SLIDE ONE, and that is deliberate. This asserted "1 of 7"
+        NOT ON SLIDE ONE, and that is deliberate. This asserted "1 of N"
         on the first slide, and `_show_slide` now leaves the counter empty
         there: slide one carries the greeting AND the capability table,
-        and "1 of 7" was landing on top of the GPU note. A counter that
+        and "1 of N" was landing on top of the GPU note. A counter that
         overlaps the thing it sits under is worse than no counter on the
         one slide where the answer is obvious anyway -- there is no Back
         button to wonder about.
@@ -194,7 +167,7 @@ class TestOneQuestionPerSlide:
         # The first Next holds the greeting on screen for GREETING_MS, so
         # the file's own helper is what actually reaches slide two.
         assert _past_the_greeting(slides) == 1
-        assert "2 of 7" in slides._where.text()
+        assert "2 of 5" in slides._where.text()
 
     def test_the_last_button_starts_spacr(self, slides):
         """Walked to the end, the button offers to start rather than to page.
@@ -320,73 +293,11 @@ class TestEveryBooleanIsASlider:
     def test_the_booleans_are_toggles(self, slides):
         from spacr.qt.widgets.toggle import Toggle
 
-        for key in ("hash_inputs", "ai_default", "share_logs"):
-            assert isinstance(slides._editors[key], Toggle), key
+        assert isinstance(slides._editors["hash_inputs"], Toggle)
 
     def test_they_still_read_back(self, slides):
         slides._editors["hash_inputs"].setChecked(True)
         assert slides.answers()["hash_inputs"] is True
-
-
-class TestTheProviderIsALogoButton:
-
-    @pytest.fixture(autouse=True)
-    def _no_modal(self, slides, monkeypatch):
-        """Answer the set-up prompt instead of opening it.
-
-        Choosing a provider that is not installed now asks what to do
-        about that (open the page / sign in / copy the command), and a
-        QMessageBox has nobody to answer it in a headless run -- the
-        suite's own guard raises rather than letting it hang.
-        """
-        monkeypatch.setattr(slides, "_prompt_to_set_up",
-                            lambda *a, **k: None)
-
-    def test_there_is_one_per_provider(self, slides):
-        holder = slides._editors["ai_provider"]
-        assert set(holder._buttons) == {code for code, _l, _c in PROVIDERS}
-
-    def test_it_is_not_a_dropdown(self, slides):
-        """A dropdown of three names is a dropdown; three logos is a choice
-        somebody makes in one glance."""
-        assert not isinstance(slides._editors["ai_provider"], QComboBox)
-
-    def test_choosing_one_unchooses_the_rest(self, slides):
-        holder = slides._editors["ai_provider"]
-        slides._choose_provider(holder, "claude")
-        assert holder._buttons["claude"].is_chosen()
-        slides._choose_provider(holder, "gpt")
-        assert not holder._buttons["claude"].is_chosen()
-        assert holder._buttons["gpt"].is_chosen()
-
-    def test_the_choice_reaches_the_answers(self, slides):
-        slides._choose_provider(slides._editors["ai_provider"], "gemini")
-        assert slides.answers()["ai_provider"] == "gemini"
-
-    def test_a_provider_that_is_not_ready_is_still_choosable(self, slides):
-        """Reported 2026-08-22: "for the ai assistant i can only click
-        claude". Whatever state a provider is in, picking it must work --
-        the state is drawn and said, not enforced.
-
-        WHAT CHANGED. This used to add "and launches nothing": the screen
-        wrote a preference and the login instructions lived on a different
-        screen entirely. Asked for on 2026-08-23 -- "if the user clicks an
-        AI provider they should get prompted to login right away" -- so
-        choosing one now starts its sign-in as well as recording it. The
-        tooltip says that instead of saying the CLI can be installed later,
-        and the mark's colour means SIGNED IN rather than merely installed.
-
-        The launch is stubbed here: this test is about the choice being
-        possible, and a real `codex login` would open a terminal.
-        """
-        slides._run_in_a_terminal = lambda command: True
-        holder = slides._editors["ai_provider"]
-        for code, _label, _command in PROVIDERS:
-            mark = holder._buttons[code]
-            if not mark.available:
-                assert "sign-in" in mark.toolTip()
-            slides._choose_provider(holder, code)
-            assert slides.answers()["ai_provider"] == code
 
 
 class TestTheRim:

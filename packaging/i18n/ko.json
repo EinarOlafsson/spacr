@@ -68,7 +68,6 @@
   "gui_public_reports": "문제 보고서는 공개되며 게시를 확실하게 취소할 수 없습니다. 매번 전송하기 전에 민감한 정보를 가리고 미리보기를 표시합니다. 이 선택 사항은 나중에 환경설정에서 변경할 수 있습니다.",
   "gui_share_diagnostics": "보고서 미리보기에 민감한 정보를 가린 진단 로그 포함",
   "gui_report_issues": "공개 GitHub 문제 보고 기능 활성화",
-  "gui_account_setup": "첫 실행 시 계정 설정 열기",
   "gui_preserve": "기존 데이터, 모델, 캐시 및 환경설정은 보존됩니다. 선택적 정리는 선택되지 않았습니다.",
   "gui_close": "닫기",
   "gui_install": "설치",

@@ -412,13 +412,6 @@
     },
     {
       "table": "ui",
-      "key": "Finish signing in to {label} in the window that opened, then press Done.",
-      "source": "Finish signing in to {label} in the window that opened, then press Done.",
-      "source_sha256": "eecb98b2dd4576250672cbceba3e1622303d8f87555486c985a3df474e8349fe",
-      "translation": "खुली विंडो में {label} में साइन इन पूरा करें, फिर पूर्ण दबाएँ।"
-    },
-    {
-      "table": "ui",
       "key": "Flatten the histogram of the whole region at once, so every brightness band ends up with the same number of pixels. It is the strongest of the contrast steps and the least respectful of the data: a field that is mostly background has its background stretched across half the range.",
       "source": "Flatten the histogram of the whole region at once, so every brightness band ends up with the same number of pixels. It is the strongest of the contrast steps and the least respectful of the data: a field that is mostly background has its background stretched across half the range.",
       "source_sha256": "69b290e0d6c71dfe9ff67646482b0d6e03a1b609d9408b638511995918e232c8",
@@ -706,13 +699,6 @@
     },
     {
       "table": "ui",
-      "key": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
-      "source": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
-      "source_sha256": "dd935b5d7fe48a39493b59e044ff62e36a0ca816576d970d263c3b7ea601d776",
-      "translation": "GitHub CLI इंस्टॉल करने की पेशकश करता है और फिर आपको साइन इन कराता है। इसके बिना भी इश्यू दर्ज करना काम करता है -- यह उसी ब्राउज़र में खुलता है जिसमें आप पहले से साइन इन हैं।"
-    },
-    {
-      "table": "ui",
       "key": "On by default. A build's bundled release notes stop at the release before its own, so with this on spaCR reads the public list of releases from GitHub once a day, on a background thread, after Home is drawn, and shows anything newer at the top of News. Nothing is sent and nothing is signed in. Off shows only the notes bundled in this build.",
       "source": "On by default. A build's bundled release notes stop at the release before its own, so with this on spaCR reads the public list of releases from GitHub once a day, on a background thread, after Home is drawn, and shows anything newer at the top of News. Nothing is sent and nothing is signed in. Off shows only the notes bundled in this build.",
       "source_sha256": "4f436b775efc5f19fa3f9d156204b22867db2541b0e5c60134a67dda255020a4",
@@ -752,13 +738,6 @@
       "source": "Open a module with a settings panel first — a template is a bundle of one module's settings.",
       "source_sha256": "0d906f1d1ba73882206ff7639f594549513c7be78bf3eed1b97dd65e7d02c044",
       "translation": "पहले सेटिंग्स पैनल वाला कोई मॉड्यूल खोलें — टेम्पलेट एक मॉड्यूल की सेटिंग्स का समूह है।"
-    },
-    {
-      "table": "ui",
-      "key": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
-      "source": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
-      "source_sha256": "6f5e747dba4dc3d4cc0a05b17936533f61b4bd23cedd56267396af17fe22d9f8",
-      "translation": "आपके ब्राउज़र में GitHub का साइन-अप पेज खोलता है। बाद में GitHub CLI इंस्टॉल करने और साइन इन करने के लिए यहाँ लौटें।"
     },
     {
       "table": "ui",
@@ -972,20 +951,6 @@
     },
     {
       "table": "ui",
-      "key": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
-      "source": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
-      "source_sha256": "ef897d0ef358f9b184a513da4ab465debe812d22ce608282b06b5bfe3e6d609f",
-      "translation": "खुली विंडो में {label} में साइन इन करें। आपके पूरा करते ही spaCR इसे पहचान लेता है।"
-    },
-    {
-      "table": "ui",
-      "key": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
-      "source": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
-      "source_sha256": "deec05063963965c40890d0b21b74cace845bb7fa0e561af9e3d1ebc65589d7f",
-      "translation": "{label} में साइन इन {minutes} मिनट में पूरा नहीं हुआ। फिर प्रयास करने के लिए साइन इन करें दबाएँ।"
-    },
-    {
-      "table": "ui",
       "key": "Smooth the noise before the contrast step amplifies it. Gaussian is a blur and softens edges with the noise; Median removes speckle and keeps edges; Bilateral and Non-local means keep edges better still and are much slower. HEAVY: non-local means is minutes on a whole 2,000 px field, and seconds on a magnifier box.",
       "source": "Smooth the noise before the contrast step amplifies it. Gaussian is a blur and softens edges with the noise; Median removes speckle and keeps edges; Bilateral and Non-local means keep edges better still and are much slower. HEAVY: non-local means is minutes on a whole 2,000 px field, and seconds on a magnifier box.",
       "source_sha256": "6ffa933ec8b3ad14e5f1dd788b1a2955ad26446b460536bbe643cc0ca4b472f6",
@@ -1011,13 +976,6 @@
       "source": "Stop this montage and queued selections after the current read finishes.",
       "source_sha256": "3864a8c7159432852cd9b7ceb65e734357dff8ece7c85ea8d42432691f02ed91",
       "translation": "वर्तमान पठन पूरा होने के बाद यह मोंटाज और कतार में लगे चयन रोकें।"
-    },
-    {
-      "table": "ui",
-      "key": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
-      "source": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
-      "source_sha256": "f7441f3a2c785aa2262308bdb4f92fa2c9106ceba32fb21639f2ccc895747bc0",
-      "translation": "साइन-इन की प्रतीक्षा रोकी गई। इसे फिर शुरू करने के लिए साइन इन करें दबाएँ, या साइन इन हो जाने पर पूर्ण दबाएँ।"
     },
     {
       "table": "ui",
@@ -1252,13 +1210,6 @@
     },
     {
       "table": "ui",
-      "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
-      "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
-      "source_sha256": "4bbf3ad8e30bbbc39c55d1b49ad3ebbd59692284ee35fd06abeecb76e4f7bcc3",
-      "translation": "वह कमांड जो spaCR चलाता है। इसके बजाय इसे ख़ुद टर्मिनल में चलाने के लिए कॉपी करें।"
-    },
-    {
-      "table": "ui",
       "key": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in ParaScape. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
       "source": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in ParaScape. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
       "source_sha256": "486cc736ebc04f37f783b8e95fe4dff7c6a8c3f1795d4213c8712c82f6dbe554",
@@ -1410,13 +1361,6 @@
       "source": "The second reading changed: press Run preview to read the figure again.",
       "source_sha256": "c17d7841420e80fccc25797c2cd9889470defa3ee50768fd34a4532194b90364",
       "translation": "दूसरा पठन बदल गया: चित्र फिर से पढ़ने के लिए पूर्वावलोकन चलाएँ दबाएँ।"
-    },
-    {
-      "table": "ui",
-      "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
-      "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
-      "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4",
-      "translation": "साइन-इन यहाँ से शुरू नहीं हो सका। नीचे दी गई कमांड टर्मिनल में चलाएँ, फिर पूर्ण दबाएँ।"
     },
     {
       "table": "ui",
@@ -1784,13 +1728,6 @@
     },
     {
       "table": "ui",
-      "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
-      "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
-      "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2",
-      "translation": "npm को उसके वैश्विक फ़ोल्डर में लिखने की अनुमति नहीं मिली। टर्मिनल में एक बार `npm config set prefix ~/.local` चलाएँ ताकि npm आपके स्वामित्व वाले फ़ोल्डर में इंस्टॉल करे, फिर फिर कोशिश करें दबाएँ।"
-    },
-    {
-      "table": "ui",
       "key": "path to measurements.db, or to a *_png crop folder",
       "source": "path to measurements.db, or to a *_png crop folder",
       "source_sha256": "94b30260bb4812f5e3b2008e375948b67235e35bfe419a8065dc740fd41f7502",
@@ -2005,6 +1942,96 @@
       "source_sha256": "4875a24655bac4495fc6ad1f4511a75f88bf6dcece0e4455d7dfb129b6031d21",
       "translation": "ऑब्जेक्ट क्रॉप निर्यात करने के लिए मापन का उपयोग करें। मर्ज की गई छवियों और मास्क वाला प्रोजेक्ट चुनें, फिर क्रॉप सहेजना सक्षम करें और ऑब्जेक्ट प्रकार चुनें।",
       "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Finish signing in to {label} in the window that opened, then press Done.",
+        "source": "Finish signing in to {label} in the window that opened, then press Done.",
+        "source_sha256": "eecb98b2dd4576250672cbceba3e1622303d8f87555486c985a3df474e8349fe",
+        "translation": "खुली विंडो में {label} में साइन इन पूरा करें, फिर पूर्ण दबाएँ।"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+        "source": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+        "source_sha256": "dd935b5d7fe48a39493b59e044ff62e36a0ca816576d970d263c3b7ea601d776",
+        "translation": "GitHub CLI इंस्टॉल करने की पेशकश करता है और फिर आपको साइन इन कराता है। इसके बिना भी इश्यू दर्ज करना काम करता है -- यह उसी ब्राउज़र में खुलता है जिसमें आप पहले से साइन इन हैं।"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+        "source": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+        "source_sha256": "6f5e747dba4dc3d4cc0a05b17936533f61b4bd23cedd56267396af17fe22d9f8",
+        "translation": "आपके ब्राउज़र में GitHub का साइन-अप पेज खोलता है। बाद में GitHub CLI इंस्टॉल करने और साइन इन करने के लिए यहाँ लौटें।"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+        "source": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+        "source_sha256": "ef897d0ef358f9b184a513da4ab465debe812d22ce608282b06b5bfe3e6d609f",
+        "translation": "खुली विंडो में {label} में साइन इन करें। आपके पूरा करते ही spaCR इसे पहचान लेता है।"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+        "source": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+        "source_sha256": "deec05063963965c40890d0b21b74cace845bb7fa0e561af9e3d1ebc65589d7f",
+        "translation": "{label} में साइन इन {minutes} मिनट में पूरा नहीं हुआ। फिर प्रयास करने के लिए साइन इन करें दबाएँ।"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+        "source": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+        "source_sha256": "f7441f3a2c785aa2262308bdb4f92fa2c9106ceba32fb21639f2ccc895747bc0",
+        "translation": "साइन-इन की प्रतीक्षा रोकी गई। इसे फिर शुरू करने के लिए साइन इन करें दबाएँ, या साइन इन हो जाने पर पूर्ण दबाएँ।"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+        "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+        "source_sha256": "4bbf3ad8e30bbbc39c55d1b49ad3ebbd59692284ee35fd06abeecb76e4f7bcc3",
+        "translation": "वह कमांड जो spaCR चलाता है। इसके बजाय इसे ख़ुद टर्मिनल में चलाने के लिए कॉपी करें।"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+        "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+        "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4",
+        "translation": "साइन-इन यहाँ से शुरू नहीं हो सका। नीचे दी गई कमांड टर्मिनल में चलाएँ, फिर पूर्ण दबाएँ।"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+        "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+        "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2",
+        "translation": "npm को उसके वैश्विक फ़ोल्डर में लिखने की अनुमति नहीं मिली। टर्मिनल में एक बार `npm config set prefix ~/.local` चलाएँ ताकि npm आपके स्वामित्व वाले फ़ोल्डर में इंस्टॉल करे, फिर फिर कोशिश करें दबाएँ।"
+      }
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",

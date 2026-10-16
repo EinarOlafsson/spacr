@@ -2769,7 +2769,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                              item.accepted_documented_parameters - private_parameters[item.symbol]))
                  if item.symbol in private_parameters else item for item in callables]
     by_symbol = {item.symbol: item for item in callables}
-    assert len(callables) == len(by_symbol) == 10026
+    # 2026-10-15 item 700: -23 callables with the cli_setup_panel and
+    # provider_marks modules and SetupSlides.provider_status.
+    assert len(callables) == len(by_symbol) == 10003
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -2852,7 +2854,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # load_volume_image_and_mask and save_volume_mask).
         # Item 690, 2026-10-11: +9 function (spacr.io's five TEM readers,
         # mask_engine.pixel_size_nm, make_masks_demo's three TEM loaders).
-        "function": 4471,
+        # Item 700, 2026-10-15: -5 function (provider_marks' claude_path,
+        # gemini_path, github_path, gpt_path and mark_for).
+        "function": 4466,
         # -9 on 2026-09-15: the seven spacrStitcher methods,
         # StitchedMultiAligner.align and FOVAlignAndCropper.run.
         # Items 591-592: +2 method (the object grid's filter rows and the
@@ -2862,13 +2866,16 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # AmbientWidget.set_click_ripples).
         # Items 672/673: +18 method (EditableVolumeGate, VolumeMaskSession,
         # GateCanvas.volume_surface_at, MakeMasksScreen.open_volume).
-        "method": 4335,
+        # Item 700, 2026-10-15: -16 method (CliSetupPanel's nine,
+        # ProviderMark's six and SetupSlides.provider_status).
+        "method": 4319,
         # -3 on 2026-09-15: spacrStitcher, StitchedMultiAligner and
         # FOVAlignAndCropper.
         # Item 600: +1 constructor (OrganizeForMeasureDialog).
         # Item 673: +1 constructor (VolumeMaskSession).
         # Item 690: +1 constructor (spacr.io.MissingTEMReader).
-        "constructor": 464,
+        # Item 700: -2 constructor (CliSetupPanel, ProviderMark).
+        "constructor": 462,
         # 473 -> 474 on 2026-09-15, +1: `SearchThresholds` is a frozen
         # dataclass, so it lands here and in no other category.
         # +2 on 2026-09-15: spacr.install_cleanup.InstallRecord and
@@ -2929,7 +2936,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # Item 600, 2026-09-29: +11.
         # Items 672/673, 2026-10-10: +23, as the total.
         # Item 690, 2026-10-11: +10, as the total.
-        "autoapi": 10021,
+        # Item 700, 2026-10-15: -23, as the total.
+        "autoapi": 9998,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -2987,7 +2995,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Item 684: +2, snap_window and set_click_ripples, one variant each.
     # Items 672/673, 2026-10-10: +23 callables, one prose variant each.
     # Item 690, 2026-10-11: +10 variants, one per new callable.
-    assert sum(item.variant_count for item in callables) == 10033
+    # Item 700, 2026-10-15: -23, one per retired callable.
+    assert sum(item.variant_count for item in callables) == 10010
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -3009,7 +3018,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # Item 600: +11.
         # Item 684: +2, as the sum above.
         # Items 672/673, 2026-10-10: +23 single-variant callables.
-        1: 10019,
+        # Item 700, 2026-10-15: -23, the retired setup callables.
+        1: 9996,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -3059,12 +3069,13 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 456 on 2026-09-29 with item 600's OrganizeForMeasureDialog.
     # 463 on 2026-10-10 with item 673's VolumeMaskSession.
     # 464 on 2026-10-11 with item 690's spacr.io.MissingTEMReader.
+    # 462 on 2026-10-15: item 700 retires CliSetupPanel and ProviderMark.
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 464
+    ) == 462
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 464
+    ) == 462
     # RE-RECORDED 2026-09-07, and the direction check still holds: every
     # figure moved UP with the nine new callables and not one fell.
     # 16,654 -> 16,681 parameters and 8,436 -> 8,452 required. The
@@ -3281,7 +3292,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # replays the prior rows above; no callable or required parameter arrived.
     # 2026-10-15 N673 napari True 3D: 19,924 - 19,923 = 1, the optional
     # keyword channels= on VolumeMaskSession; no required parameter.
-    assert sum(len(item.parameters) for item in callables) == 19924
+    # Item 700, 2026-10-15: 19,924 -> 19,897, the 27 parameters of the 23
+    # retired setup callables.
+    assert sum(len(item.parameters) for item in callables) == 19897
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -3332,7 +3345,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # two GateEditorSettings fields carry defaults.
     # 2026-10-11 item 690: +12 required, the ten TEM callables' parameters
     # without defaults (the two loaders' ask= and folder= have them).
-    assert sum(len(item.required_parameters) for item in callables) == 10258
+    # 2026-10-15 item 700: -18 required, those of the retired setup callables.
+    assert sum(len(item.required_parameters) for item in callables) == 10240
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -3534,7 +3548,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # VolumeMaskSession constructor gained the optional channels=; the new
     # callables arrive through 673_napari_true3d_api_arrivals_2026-10-15.json
     # and are subtracted above; no row removed.
-) == '13e0c16d919d216f766d4e019279f7933e92eb068cc2878be0ec36efc07d35eb'
+    # Moved 2026-10-15 for item 700 (was 13e0c16d...): the 23 callables of
+    # cli_setup_panel, provider_marks and SetupSlides.provider_status are
+    # removed; no surviving callable changed its parameters (apply_choices
+    # changed only its return annotation, which the digest does not cover).
+) == 'c52fcfdef990e604cc59c496c4c4f1f71811da36adf64883c4a36231e540c688'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -4394,7 +4412,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                - popup_additions.keys() - background_additions.keys()
                - animation_arrivals.keys()
                - volume_additions.keys()
-               - zoo_additions.keys()) == 13182
+               - zoo_additions.keys()) == 13154
+    # 2026-10-15 item 700: 13,182 -> 13,154, the 28 first-run setup symbols
+    # retired with the AI-assistant and GitHub pages; nothing added.
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -4787,10 +4807,12 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         / "data/release_contracts"
         / "tutorial_cli_api_changes_2026-10-12.json").read_text())["added"])
     prior = prior - contract_callables
-    assert len(prior - pipeline_callables) == 9675
+    # Item 700, 2026-10-15: -23, the first-run setup's retired callables.
+    assert len(prior - pipeline_callables) == 9652
     # Item 600, 2026-09-29: +11 callables (drop_classification, organize_for_measure).
     # Item 690: +10, as above.
-    assert len(prior - pipeline_callables - validation_functions) == 9669
+    # Item 700: -23, as above.
+    assert len(prior - pipeline_callables - validation_functions) == 9646
     # 9,522 -> 9,630 on 2026-09-25: +109 session_callables, -1 render_cellprob;
     # 9,640 with the ten rebase_callables; 9,687 with merged_callables.
     # 9,727 with item 528's eleven; 9,784 on 2026-09-26, +59 / -2.
@@ -4839,7 +4861,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         / "tutorial_cli_api_changes_2026-10-12.json").read_text())["added"])
     arrival_callables &= rendered_documented_callables.keys()
     assert len(rendered_documented_callables.keys() - yolo_callables
-               - volume_callables - arrival_callables) == 9998
+               - volume_callables - arrival_callables) == 9975
+    # Item 700, 2026-10-15: 9,998 -> 9,975, the 23 retired setup callables.
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 

@@ -202,10 +202,10 @@ def test_installer_consent_is_optional_off_by_default_and_persisted():
     for source in (unix, windows):
         assert "ShareDiagnostics" in source or "SHARE_DIAGNOSTICS=0" in source
         assert "ReportIssues" in source or "REPORT_ISSUES=0" in source
-        assert "SignInNow" in source or "SIGN_IN_NOW=0" in source
+        assert "SignInNow" not in source and "SIGN_IN_NOW" not in source and "sign-in-now" not in source
         assert "spacr.install_profile" in source
     assert "Page custom ConsentPage ConsentPageLeave" in nsis
-    assert nsis.count("off by default") >= 3
+    assert nsis.count("off by default") >= 2
     assert "PUBLIC spaCR GitHub repository" in nsis
     assert "cannot be reliably unpublished" in nsis
     assert "-ConsentCollected $ConsentCollectedValue" in nsis

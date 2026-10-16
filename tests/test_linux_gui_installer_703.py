@@ -68,7 +68,7 @@ NO_LAUNCH=1
 if [[ "$GUI_CASE" == missing ]]; then
     command() { if [[ "${2:-}" == zenity ]]; then return 1; fi; builtin command "$@"; }
 fi
-spacr_linux_gui_install ''' + shlex.quote(str(backend)) + ''' --package-spec 'fake wheel.whl' --gui --share-diagnostics --report-issues --sign-in-now
+spacr_linux_gui_install ''' + shlex.quote(str(backend)) + ''' --package-spec 'fake wheel.whl' --gui --share-diagnostics --report-issues
 ''')
     environment = dict(os.environ, PATH=str(bindir) + os.pathsep + os.environ['PATH'],
                        XDG_CACHE_HOME=str(tmp_path / 'cache'), DIALOG_RECORD=str(tmp_path / 'dialogs.jsonl'),
@@ -76,7 +76,7 @@ spacr_linux_gui_install ''' + shlex.quote(str(backend)) + ''' --package-spec 'fa
     return tmp_path, harness, environment
 
 
-@pytest.mark.parametrize('choices', ['', 'diagnostics|accounts'])
+@pytest.mark.parametrize('choices', ['', 'diagnostics'])
 def test_gui_choices_default_off_and_only_current_selection_reaches_headless_child(gui, choices):
     tmp, harness, environment = gui
     result = subprocess.run(['bash', str(harness)], env=dict(environment, GUI_CASE='success', GUI_CHOICES=choices),
@@ -88,10 +88,10 @@ def test_gui_choices_default_off_and_only_current_selection_reaches_headless_chi
     assert '--consent-collected' in arguments and '--skip-system-deps' in arguments and '--no-launch' in arguments
     assert ('--share-diagnostics' in arguments) == ('diagnostics' in choices)
     assert '--report-issues' not in arguments
-    assert ('--sign-in-now' in arguments) == ('accounts' in choices)
+    assert '--sign-in-now' not in arguments
     dialogs = [json.loads(line) for line in (tmp / 'dialogs.jsonl').read_text().splitlines()]
     checklist, = [args for args in dialogs if '--checklist' in args]
-    assert checklist.count('FALSE') == 3
+    assert checklist.count('FALSE') == 2
     assert any('--text-info' in args for args in dialogs)
     logs = list((tmp / 'cache/spacr/installer').glob('gui.*/install.log'))
     assert len(logs) == 1 and 'backend complete' in logs[0].read_text()

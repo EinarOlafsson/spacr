@@ -115,7 +115,7 @@ def test_gui_has_default_off_consent_bounded_log_and_cpu_choice():
     builder = (ONLINE / 'build_macos_online.sh').read_text()
     assert 'Terminal' not in launcher and 'osascript' not in launcher
     assert 'index == 0 ? NSControlStateValueOn : NSControlStateValueOff' in gui
-    assert '--share-diagnostics' in gui and '--report-issues' in gui and '--sign-in-now' in gui
+    assert '--share-diagnostics' in gui and '--report-issues' in gui and '--sign-in-now' not in gui and 'gui_account_setup' not in gui
     assert '@"auto" : @"cpu"' in gui
     assert 'self.child > 0' in gui and 'NSTerminateCancel' in gui
     assert '1024 * 1024' in gui and 'dispatch_sync(dispatch_get_main_queue()' in gui
@@ -134,7 +134,7 @@ def test_all_window_keys_have_nine_locale_translations():
     spec.loader.exec_module(renderer)
     catalogs = renderer.catalogs()
     keys = {key for key in catalogs['en'] if key.startswith('gui_')}
-    assert len(keys) == 13
+    assert len(keys) == 12
     for language, table in catalogs.items():
         assert keys <= table.keys()
         if language != 'en':

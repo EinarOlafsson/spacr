@@ -38,10 +38,8 @@ Page custom ConsentPage ConsentPageLeave
 
 Var ConsentShare
 Var ConsentIssues
-Var ConsentSignIn
 Var ConsentShareValue
 Var ConsentIssuesValue
-Var ConsentSignInValue
 Var ConsentCollectedValue
 
 Section /o "$(SPACR_NSIS_GPU)" SecGpu
@@ -55,7 +53,6 @@ Function .onInit
   SectionSetFlags ${SecGpu} ${SF_SELECTED}
   StrCpy $ConsentShareValue 0
   StrCpy $ConsentIssuesValue 0
-  StrCpy $ConsentSignInValue 0
   StrCpy $ConsentCollectedValue 0
 FunctionEnd
 
@@ -65,21 +62,18 @@ Function ConsentPage
   ${If} $0 == error
     Abort
   ${EndIf}
-  ${NSD_CreateLabel} 0 0 100% 58u "Privacy and optional account setup$\r$\n$\r$\nCrash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished. Every report is redacted, shown in an editable preview, and sent only when you press Send for that report. These choices are optional and revocable in Preferences."
+  ${NSD_CreateLabel} 0 0 100% 58u "Privacy choices$\r$\n$\r$\nCrash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished. Every report is redacted, shown in an editable preview, and sent only when you press Send for that report. These choices are optional and revocable in Preferences."
   Pop $0
   ${NSD_CreateCheckbox} 0 66u 100% 12u "Include redacted diagnostic logs in report previews (off by default)"
   Pop $ConsentShare
   ${NSD_CreateCheckbox} 0 84u 100% 12u "Enable the public GitHub issue-report action (off by default)"
   Pop $ConsentIssues
-  ${NSD_CreateCheckbox} 0 102u 100% 22u "Set up GitHub, Claude, GPT/Codex, and Gemini on first launch; official CLIs own credentials (off by default)"
-  Pop $ConsentSignIn
   nsDialogs::Show
 FunctionEnd
 
 Function ConsentPageLeave
   ${NSD_GetState} $ConsentShare $ConsentShareValue
   ${NSD_GetState} $ConsentIssues $ConsentIssuesValue
-  ${NSD_GetState} $ConsentSignIn $ConsentSignInValue
   StrCpy $ConsentCollectedValue 1
 FunctionEnd
 
@@ -135,7 +129,7 @@ Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
   FileWrite $4 "starting backend=$1 language=$3 consent=$ConsentCollectedValue$\r$\n"
   FileClose $4
   DetailPrint "$(SPACR_NSIS_DOWNLOADING)"
-  nsExec::ExecToLog 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$PLUGINSDIR\spaCR-online-installer\install_spacr_windows.ps1" -InstallRoot "$INSTDIR" -Version "${VERSION}" -TorchBackend "$1" -Language "$3" -ConsentCollected $ConsentCollectedValue -ShareDiagnostics $ConsentShareValue -ReportIssues $ConsentIssuesValue -SignInNow $ConsentSignInValue'
+  nsExec::ExecToLog 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$PLUGINSDIR\spaCR-online-installer\install_spacr_windows.ps1" -InstallRoot "$INSTDIR" -Version "${VERSION}" -TorchBackend "$1" -Language "$3" -ConsentCollected $ConsentCollectedValue -ShareDiagnostics $ConsentShareValue -ReportIssues $ConsentIssuesValue'
   Pop $0
   FileOpen $4 "$INSTDIR\nsis-bootstrap-status.txt" a
   FileWrite $4 "exit=$0$\r$\n"

@@ -345,3 +345,32 @@ deployed; /health reports 0.2.5 with cache stats):
 - The AI ends error answers with CAUSE: <slug>; issues get cause:<slug>
   labels, a "Same likely cause" section, and the oldest open issue per cause
   (D1 ai_causes) gets one comment per new signature. Signatures never merge.
+
+2026-10-15 — BUILT, first-run setup without AI-provider or GitHub pages
+(maintainer: the start window's AI-assistant and GitHub sign-in pages are
+redundant now that reports go through the relay and spaCR AI (free) is on):
+- Setup slides are Language, Theme, How it runs, Terms of use, Done. "The
+  assistant" (Claude/GPT/Gemini marks, AI on at launch) and "When something
+  breaks" (issue filing, logs, GitHub sign-in) are gone, with every provider,
+  install and GitHub sign-in path of the slides; setup_screen.questions()
+  asks only language, theme, colour-blind mode, performance and the
+  reproducibility hash. The grouped setup form drops the same two groups.
+- spacr/qt/widgets/cli_setup_panel.py and provider_marks.py left the package
+  (only the slides used them; baseline entry retired with --retire-module,
+  shipped pin 664 -> 662). Preferences -> AI keeps its own Providers dialog.
+- Installer consent (Qt dialog, Unix terminal/zenity, Windows NSIS/PowerShell,
+  macOS native window) no longer offers "Set up GitHub, Claude, GPT/Codex, and
+  Gemini"; spacr.install_profile still accepts and ignores --sign-in-now so
+  older installers keep working.
+- Terms of use 4.3 (existing profiles accept again once): Section 5.6
+  anonymised error reports on by default, what is and is never sent, relay to
+  a public issue on EinarOlafsson/spacr with no GitHub account; 5.7 the "AI
+  Error report" choices and how to turn reports off; Section 6 spaCR AI (free)
+  on by default through the relay on Cloudflare Workers AI, daily fair share,
+  reusable saved answers, generated advice may be wrong, relay keeps counters,
+  saved answers and issue links but no personal data, saved answers expire
+  after 30 days, own Claude/GPT/Gemini via Preferences -> AI. The agreement
+  stays English-only by design (spacr/qt/terms_i18n registers no locale).
+- Two new installer-dialog captions carry AI-reviewed records in nine
+  languages (no native-speaker signoff); captions of the removed pages are
+  retired from the reviewed records and catalogs.

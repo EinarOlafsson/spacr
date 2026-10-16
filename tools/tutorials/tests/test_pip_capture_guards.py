@@ -114,7 +114,7 @@ def test_linux_commands_read_the_actual_profile_and_launcher(recorder, tmp_path)
 
 
 def test_privacy_dialog_is_real_exact_title_and_our_process(recorder):
-    name = 'spaCR privacy and optional account setup'
+    name = 'spaCR privacy choices'
     properties = '_NET_WM_PID(CARDINAL) = 1234\nWM_TRANSIENT_FOR:  not found.\n'
     assert recorder.privacy_window_owned(name, properties, 1234)
     assert recorder.privacy_window_owned(name + ' — spaCR', properties, 1234)
@@ -125,7 +125,7 @@ def test_privacy_dialog_is_real_exact_title_and_our_process(recorder):
 
 
 def test_privacy_dismissal_requires_hidden_or_actually_destroyed_window(recorder):
-    tree = '  0x80000e "spaCR privacy and optional account setup — spaCR": () 960x342+0+0\n'
+    tree = '  0x80000e "spaCR privacy choices — spaCR": () 960x342+0+0\n'
     remaining = '  0x800007 "spaCR": () 3840x2160+0+0\n'
     assert recorder.dialog_dismissed(0, 'Map State: IsUnMapped', tree, 0x80000e)
     assert recorder.dialog_dismissed(1, '', remaining, 0x80000e)

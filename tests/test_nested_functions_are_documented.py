@@ -166,7 +166,6 @@ BUDGET = {
     "spacr/qt/widgets/dna_rain.py": 0,
     "spacr/qt/widgets/figure_queue.py": 0,
     "spacr/qt/widgets/graph_builder.py": 0,
-    "spacr/qt/widgets/provider_marks.py": 0,
     "spacr/qt/widgets/setup_card.py": 0,
     "spacr/qt/__init__.py": 0,
     "spacr/qt/ask_for_the_path.py": 0,

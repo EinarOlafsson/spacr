@@ -51,7 +51,6 @@ DRY_RUN="${SPACR_INSTALL_DRY_RUN:-0}"
 CONSENT_COLLECTED=0
 SHARE_DIAGNOSTICS=0
 REPORT_ISSUES=0
-SIGN_IN_NOW=0
 # An offline bundle (packaging/offline/build_offline_bundle.py) carries uv,
 # the private Python, every wheel, Cellpose weights and Mask test data, so
 # nothing is downloaded. Without it the installer is the online one.
@@ -73,7 +72,6 @@ usage() {
     printf '  --dry-run               %s\n' "$(spacr_say help_dry_run)"
     printf '  --share-diagnostics     Include redacted logs in report previews.\n'
     printf '  --report-issues         Show the public GitHub report action.\n'
-    printf '  --sign-in-now           Open account setup on first launch.\n'
     printf '  --consent-collected     Record that these choices were reviewed.\n'
     printf '  --offline-bundle PATH   Install from an offline bundle, with no network.\n'
     printf '  --check-mask            After an offline install, run Mask on its test data.\n'
@@ -140,10 +138,6 @@ while (($#)); do
             ;;
         --report-issues)
             REPORT_ISSUES=1
-            shift
-            ;;
-        --sign-in-now)
-            SIGN_IN_NOW=1
             shift
             ;;
         --consent-collected)
@@ -246,17 +240,15 @@ ask_yes_no() {
 
 # A terminal-launched .run (and the macOS first-user helper) can collect the
 # choices here. Package-manager and CI invocations have no TTY, remain fully
-# non-interactive, and leave all three choices off for the app to ask later.
+# non-interactive, and leave both choices off for the app to ask later.
 if [[ "$CONSENT_COLLECTED" == "0" && -t 0 && "$DRY_RUN" != "1" && "$GUI_REQUEST" != "1" ]]; then
-    printf '\nspaCR privacy and account setup\n'
+    printf '\nspaCR privacy choices\n'
     printf '%s\n' \
         'Crash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished.' \
         'Every report is redacted, shown in an editable preview, and sent only when you press Send for that report.' \
-        'Account setup runs the official GitHub, Claude, Codex (GPT), and Gemini login tools; spaCR never stores their passwords or tokens.' \
         'All choices are optional, default off, and can be changed later in Preferences.'
     ask_yes_no 'Include redacted diagnostic logs in report previews?' && SHARE_DIAGNOSTICS=1
     ask_yes_no 'Enable the public GitHub issue-report action?' && REPORT_ISSUES=1
-    ask_yes_no 'Open GitHub, Claude, GPT/Codex, and Gemini setup on first launch?' && SIGN_IN_NOW=1
     CONSENT_COLLECTED=1
 fi
 
@@ -350,14 +342,12 @@ spacr_linux_gui_install() {
         --cancel-label="$(spacr_say gui_cancel)" \
         --column="" --column="" --column="" --hide-column=2 --print-column=2 --separator='|' \
         FALSE diagnostics "$(spacr_say gui_share_diagnostics)" \
-        FALSE issues "$(spacr_say gui_report_issues)" \
-        FALSE accounts "$(spacr_say gui_account_setup)")"; then
+        FALSE issues "$(spacr_say gui_report_issues)")"; then
         return 130
     fi
-    local diagnostics=0 issues=0 accounts=0
+    local diagnostics=0 issues=0
     case "|$choices|" in *'|diagnostics|'*) diagnostics=1 ;; esac
     case "|$choices|" in *'|issues|'*) issues=1 ;; esac
-    case "|$choices|" in *'|accounts|'*) accounts=1 ;; esac
     umask 077
     log_folder="${XDG_CACHE_HOME:-$HOME/.cache}/spacr/installer"
     mkdir -p "$log_folder"
@@ -374,13 +364,12 @@ spacr_linux_gui_install() {
     local argument
     for argument in "$@"; do
         case "$argument" in
-            --gui|--consent-collected|--share-diagnostics|--report-issues|--sign-in-now) ;;
+            --gui|--consent-collected|--share-diagnostics|--report-issues) ;;
             *) child_args+=("$argument") ;;
         esac
     done
     if [[ "$diagnostics" == "1" ]]; then child_options+=(--share-diagnostics); fi
     if [[ "$issues" == "1" ]]; then child_options+=(--report-issues); fi
-    if [[ "$accounts" == "1" ]]; then child_options+=(--sign-in-now); fi
     SPACR_INSTALL_GUI_CHILD=1 SPACR_GUI_LOG="$log" SPACR_GUI_FIFO="$fifo" \
         setsid bash -c 'set -o pipefail; trap "wait; exit 130" TERM INT; bash "$@" 2>&1 | tee "$SPACR_GUI_LOG" > "$SPACR_GUI_FIFO"' \
         spacr-gui "$installer" "${child_args[@]}" "${child_options[@]}" < /dev/null &
@@ -715,8 +704,7 @@ fi
     --detected "$DETECTED_ACCELERATOR" \
     --consent-collected "$CONSENT_COLLECTED" \
     --share-diagnostics "$SHARE_DIAGNOSTICS" \
-    --report-issues "$REPORT_ISSUES" \
-    --sign-in-now "$SIGN_IN_NOW"
+    --report-issues "$REPORT_ISSUES"
 
 identity_args=(verify-runtime)
 if [[ "$DEFAULT_SPACR_VERSION" != @*@ ]]; then

@@ -96,7 +96,6 @@ def write_profile(
     consent_collected: bool = False,
     share_diagnostics: bool = False,
     report_issues: bool = False,
-    sign_in_now: bool = False,
 ) -> Dict[str, Any]:
     """Atomically write and return an installer profile.
 
@@ -111,7 +110,6 @@ def write_profile(
         "collected": bool(consent_collected),
         "share_diagnostics": bool(share_diagnostics),
         "report_issues": bool(report_issues),
-        "sign_in_now": bool(sign_in_now),
     }
     fd, temporary = tempfile.mkstemp(
         prefix=f".{target.name}.", suffix=".tmp", dir=str(target.parent)
@@ -156,10 +154,14 @@ def build_parser() -> argparse.ArgumentParser:
     that silently stopped being accepted would otherwise only show up as a
     failed install on somebody's machine.
 
-    The four consent flags take ``"0"`` / ``"1"`` rather than being
+    The three consent flags take ``"0"`` / ``"1"`` rather than being
     store_true switches: the installer passes a value for every one of them
     on every run, so an unchecked box is recorded as a deliberate no rather
     than as an absent answer.
+
+    ``--sign-in-now`` is still accepted and ignored: installers released
+    before setup stopped offering GitHub and AI sign-in pass it, and an
+    install must not fail on an option that no longer does anything.
 
     :returns: the parser, with ``--path``, ``--requested``, ``--detected``
         and the consent flags.
@@ -174,9 +176,10 @@ def build_parser() -> argparse.ArgumentParser:
         "consent-collected",
         "share-diagnostics",
         "report-issues",
-        "sign-in-now",
     ):
         parser.add_argument(f"--{option}", choices=("0", "1"), default="0")
+    parser.add_argument("--sign-in-now", choices=("0", "1"), default="0",
+                        help=argparse.SUPPRESS)
     return parser
 
 
@@ -199,7 +202,6 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         consent_collected=args.consent_collected == "1",
         share_diagnostics=args.share_diagnostics == "1",
         report_issues=args.report_issues == "1",
-        sign_in_now=args.sign_in_now == "1",
     )
     print(json.dumps(profile, sort_keys=True))
     return 0
