@@ -52,3 +52,13 @@ def test_growing_stream_cannot_read_past_the_explicit_checkpoint_budget(monkeypa
     with pytest.raises(ValueError, match='counterfactual checkpoint'):
         cf._cf_checkpoint_sha256(stream)
     assert stream.reads == 5
+
+
+def test_missing_selected_checksum_refuses_before_accessing_any_path(monkeypatch):
+    class UnopenedPath:
+        def __fspath__(self):
+            pytest.fail('missing checksum accessed selected path')
+
+    monkeypatch.setattr(cf.torch, 'load', lambda *args, **kwargs: pytest.fail('missing checksum decoded state'))
+    with pytest.raises(ValueError, match='counterfactual checkpoint'):
+        cf._cf_load_checkpoint(UnopenedPath(), None, {})

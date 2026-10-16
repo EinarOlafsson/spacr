@@ -4418,6 +4418,9 @@ def _relocate_cache(key: str, parent: Any) -> Path:
         copied_source = False
         if had_source:
             if had_target:
+                import stat
+
+                target_mode = stat.S_IMODE(target.stat().st_mode)
                 target.rmdir()
             try:
                 try:
@@ -4434,7 +4437,7 @@ def _relocate_cache(key: str, parent: Any) -> Path:
                     copied_source = True
             except BaseException:
                 if had_target and not target.exists():
-                    target.mkdir()
+                    target.mkdir(mode=target_mode)
                 raise
         else:
             target.mkdir(parents=True, exist_ok=True)
@@ -4450,6 +4453,8 @@ def _relocate_cache(key: str, parent: Any) -> Path:
                     if source.exists():
                         raise FileExistsError(str(source))
                     target.rename(source)
+                    if had_target and not target.exists():
+                        target.mkdir(mode=target_mode)
                 except OSError:
                     LOG.warning("Cache retained at %s", target, exc_info=True)
             elif not had_target:

@@ -538,3 +538,85 @@ def test_a_block_with_nothing_new_is_skipped_while_a_fresh_one_goes(panel):
 
     assert "boom" in second
     assert "the run said this" not in second
+
+
+@pytest.fixture
+def linked_log(qtbot, monkeypatch):
+    from PySide6.QtGui import QDesktopServices
+
+    block = cp._StdoutBlock('See https://example.org/details. Plain output here.')
+    qtbot.addWidget(block)
+    block.resize(850, 100)
+    block.show()
+    opened = []
+    monkeypatch.setattr(QDesktopServices, 'openUrl', lambda url: opened.append(url.toString()) or True)
+    qtbot.waitExposed(block)
+    return block, opened
+
+
+def _console_text_point(block, token, offset=1):
+    from PySide6.QtCore import QPoint
+
+    cursor = block.textCursor()
+    cursor.setPosition(block.toPlainText().index(token) + offset)
+    rect = block.cursorRect(cursor)
+    return QPoint(rect.x() + 2, rect.center().y())
+
+
+def test_log_hover_and_left_click_open_only_the_web_link(linked_log, qtbot):
+    from PySide6.QtCore import Qt
+
+    block, opened = linked_log
+    link = _console_text_point(block, 'https://')
+    plain = _console_text_point(block, 'Plain')
+    qtbot.mouseMove(block.viewport(), link)
+    assert block.viewport().cursor().shape() == Qt.PointingHandCursor
+    qtbot.mouseClick(block.viewport(), Qt.LeftButton, pos=link)
+    assert opened == ['https://example.org/details']
+    qtbot.mouseMove(block.viewport(), plain)
+    assert block.viewport().cursor().shape() == Qt.IBeamCursor
+    qtbot.mouseClick(block.viewport(), Qt.LeftButton, pos=plain)
+    assert opened == ['https://example.org/details']
+
+
+@pytest.mark.parametrize('button_name', ['RightButton', 'MiddleButton'])
+def test_log_nonleft_release_over_web_link_does_not_launch(linked_log, qtbot, button_name):
+    from PySide6.QtCore import Qt
+
+    block, opened = linked_log
+    qtbot.mouseRelease(block.viewport(), getattr(Qt, button_name),
+                       pos=_console_text_point(block, 'https://'))
+    assert opened == []
+
+
+@pytest.mark.parametrize('address', ['file:///tmp/private.txt', 'ftp://example.org/file',
+                                    'javascript:alert(1)'])
+def test_log_nonweb_addresses_remain_selectable_text(linked_log, qtbot, address):
+    from PySide6.QtCore import Qt
+
+    block, opened = linked_log
+    block.setPlainText('Output ' + address + ' finished')
+    point = _console_text_point(block, address)
+    assert block.link_at(point) == ''
+    qtbot.mouseClick(block.viewport(), Qt.LeftButton, pos=point)
+    assert opened == []
+    assert block.toPlainText() == 'Output ' + address + ' finished'
+
+
+def test_selecting_log_url_text_does_not_open_the_browser(linked_log, qtbot):
+    from PySide6.QtCore import QEvent, QPointF, Qt
+    from PySide6.QtGui import QMouseEvent
+    from PySide6.QtWidgets import QApplication
+
+    block, opened = linked_log
+    start = _console_text_point(block, 'https://', offset=0)
+    end = _console_text_point(block, 'https://', offset=15)
+    qtbot.mousePress(block.viewport(), Qt.LeftButton, pos=start)
+    global_end = block.viewport().mapToGlobal(end)
+    event = QMouseEvent(QEvent.MouseMove, QPointF(end), QPointF(global_end),
+                        Qt.NoButton, Qt.LeftButton, Qt.NoModifier)
+    QApplication.sendEvent(block.viewport(), event)
+    qtbot.mouseRelease(block.viewport(), Qt.LeftButton, pos=end)
+    assert block.textCursor().hasSelection()
+    assert 'https://' in block.textCursor().selectedText()
+    assert opened == []
