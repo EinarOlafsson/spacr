@@ -1,0 +1,27 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "key": "Ctrl+Shift+D",
+      "source": "Ctrl+Shift+D",
+      "source_sha256": "fd73cd9e1971dae8eec7c06d571932068f16b99074c4f7983b725531a2102704",
+      "table": "ui",
+      "translation": "Ctrl+Shift+D"
+    },
+    {
+      "key": "Ctrl+Shift+N",
+      "source": "Ctrl+Shift+N",
+      "source_sha256": "5cb5eaa912607b7bf2887575fa7045fe8e045b5c193e3145c708ee3e49c4042e",
+      "table": "ui",
+      "translation": "Ctrl+Shift+N"
+    },
+    {
+      "key": "Ctrl+[ / Ctrl+]",
+      "source": "Ctrl+[ / Ctrl+]",
+      "source_sha256": "fce3cc303f6cba2dd154aa3a4b53f14aae967c380dde0d514ef732090b421284",
+      "table": "ui",
+      "translation": "Ctrl+[ / Ctrl+]"
+    }
+  ],
+  "schema": 1
+}

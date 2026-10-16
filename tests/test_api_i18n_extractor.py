@@ -1698,6 +1698,22 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in n703_arrivals} == n703_arrivals
     assert not n703_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **n703_arrivals}
+    lineage_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "708_label_time_api_arrivals_2026-10-16.json").read_text())
+    assert set(lineage_arrivals) == {
+        *("spacr.qt.mask_engine." + name for name in (
+            "assign_lineage_label", "assign_object_label", "assign_tracked_object",
+            "divide_lineage_cell", "load_mask_lineage", "load_mask_metadata",
+            "merge_lineage_states", "new_lineage_cell", "prune_lineage_frame",
+            "rename_lineage_cell", "restore_lineage_state", "validate_lineage")),
+        "spacr.qt.screens.make_masks.MakeMasksScreen._prepare_label_assignment.commit",
+    }
+    assert {key: docs[key] for key in lineage_arrivals} == lineage_arrivals
+    assert not lineage_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **lineage_arrivals}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
         / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text())

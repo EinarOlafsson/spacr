@@ -297,6 +297,7 @@ _IDENTITY_TEXT = {
     "Leishmania spp.", "NCBI Virus", "TriTrypDB", "Trypanosoma spp.", "ViralZone",
     "BEI Resources", "BEI Resources / MR4", "Candida Genome Database",
     "NCBI Taxonomy", "Ctrl+S", "Ctrl+Z / Ctrl+Y", "Esc",
+    "Ctrl+Shift+D", "Ctrl+Shift+N", "Ctrl+[ / Ctrl+]",
     # 2026-10-12: N673 shortcut rows name keys only.
     "Page Up / Page Down", "Shift+E / Shift+S / Shift+D", "Shift+X / Shift+Y / Shift+Z",
     # N673 View mode name, kept in English like the other protected 3D terms.

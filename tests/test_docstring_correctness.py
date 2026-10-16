@@ -2150,6 +2150,46 @@ def _validated_prior_701_callables(callables):
             if item.symbol in additions else item for item in callables]
 
 
+def _validated_prior_708_callables(callables):
+    """Validate the optional embedded-lineage input before replaying old pins."""
+    import json
+    root = pathlib.Path(__file__).resolve().parents[1]
+    fixture = json.loads((root / "tests/data/release_contracts"
+        / "708_label_time_existing_api_changes_2026-10-16.json").read_text())
+    assert fixture["schema"] == 1
+    assert fixture["kind"] == "existing_callable_optional_parameter_changes"
+    assert fixture["item"] == 708
+    symbol = "spacr.qt.mask_engine.save_mask"
+    assert set(fixture["changes"]) == {symbol}
+    change = fixture["changes"][symbol]
+    assert change["added_optional_parameters"] == ["lineage"]
+    item = next(item for item in callables if item.symbol == symbol)
+    actual = {
+        key: sorted(value) if isinstance(value, frozenset) else value
+        for key, value in vars(item).items() if key != "docstring"
+    }
+    assert actual == change["after"]
+    assert "lineage" not in item.required_parameters
+    assert "lineage" in _documented_parameter_names(item.docstring)
+    tree = ast.parse((root / "spacr/qt/mask_engine.py").read_text())
+    declaration = next(node for node in tree.body
+                       if isinstance(node, ast.FunctionDef)
+                       and node.name == "save_mask")
+    assert [arg.arg for arg in declaration.args.kwonlyargs] == [
+        "preserve_ids", "lineage"]
+    default = declaration.args.kw_defaults[-1]
+    assert isinstance(default, ast.Constant) and default.value is None
+    prior = replace(item, parameters=item.parameters - {"lineage"},
+                    accepted_documented_parameters=(
+                        item.accepted_documented_parameters - {"lineage"}))
+    prior_row = {
+        key: sorted(value) if isinstance(value, frozenset) else value
+        for key, value in vars(prior).items() if key != "docstring"
+    }
+    assert prior_row == change["before"]
+    return [prior if item.symbol == symbol else item for item in callables]
+
+
 def _validated_prior_699_callables(callables):
     """Validate both SSH options before reproducing the historical signature."""
     profile = next(item for item in callables
@@ -2208,8 +2248,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
             _validated_prior_radius_callables(
                 _validated_prior_worker_callables(
                     list(_public_callables()), replay_dialog_signature=True))))
-    callables = _validated_prior_699_callables(
-        _validated_prior_701_callables(callables))
+    callables = _validated_prior_708_callables(
+        _validated_prior_699_callables(_validated_prior_701_callables(callables)))
     imported_package_modules = {
         name for name in set(sys.modules) - before_modules
         if name == "spacr" or name.startswith("spacr.")
@@ -2623,6 +2663,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "706_object_detection_3d_api_arrivals_2026-10-17.json",
                      "560_dinov2_drop_in_api_arrivals_2026-10-17.json",
                      "703_background_update_and_uninstall_api_arrivals_2026-10-17.json",
+                     "708_label_time_api_arrivals_2026-10-16.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
@@ -2712,6 +2753,61 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
             1 if category == "constructor" else 0)
         assert not item.accepts_arbitrary_keywords
         assert item.docstring == measure_sources[symbol]
+    lineage_sources = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "708_label_time_api_arrivals_2026-10-16.json").read_text())
+    lineage_parameters = {
+        'spacr.qt.mask_engine.assign_lineage_label': (
+            {'cell_uuid', 'frame', 'label', 'old_label', 'state'},
+            {'frame', 'label', 'state'}),
+        'spacr.qt.mask_engine.assign_object_label': (
+            {'label', 'mask', 'x', 'y'},
+            {'label', 'mask', 'x', 'y'}),
+        'spacr.qt.mask_engine.assign_tracked_object': (
+            {'cell_uuid', 'frame', 'mask', 'preferred_label', 'state', 'x', 'y'},
+            {'cell_uuid', 'frame', 'mask', 'state', 'x', 'y'}),
+        'spacr.qt.mask_engine.divide_lineage_cell': (
+            {'daughter_names', 'frame', 'labels', 'parent_uuid', 'state'},
+            {'daughter_names', 'frame', 'labels', 'parent_uuid', 'state'}),
+        'spacr.qt.mask_engine.load_mask_lineage': (
+            {'filename', 'folder', 'masks_dir'},
+            {'filename', 'folder'}),
+        'spacr.qt.mask_engine.load_mask_metadata': (
+            {'filename', 'folder', 'masks_dir'},
+            {'filename', 'folder'}),
+        'spacr.qt.mask_engine.merge_lineage_states': (
+            {'active', 'frame', 'incoming'},
+            {'active', 'incoming'}),
+        'spacr.qt.mask_engine.new_lineage_cell': (
+            {'frame', 'label', 'name', 'state'},
+            {'frame', 'label', 'name', 'state'}),
+        'spacr.qt.mask_engine.prune_lineage_frame': (
+            {'frame', 'mask', 'state'},
+            {'frame', 'mask', 'state'}),
+        'spacr.qt.mask_engine.rename_lineage_cell': (
+            {'cell_uuid', 'name', 'state'},
+            {'cell_uuid', 'name', 'state'}),
+        'spacr.qt.mask_engine.restore_lineage_state': (
+            {'current', 'restored'},
+            {'current', 'restored'}),
+        'spacr.qt.mask_engine.validate_lineage': (
+            {'state'},
+            set()),
+    }
+    assert len(lineage_sources) == 13 and len(lineage_parameters) == 12
+    assert lineage_parameters.keys() == lineage_sources.keys() & by_symbol.keys()
+    assert lineage_sources.keys() - lineage_parameters.keys() == {
+        "spacr.qt.screens.make_masks.MakeMasksScreen._prepare_label_assignment.commit",
+    }
+    for symbol, (parameters, required) in lineage_parameters.items():
+        item = by_symbol[symbol]
+        assert item.parameters == item.accepted_documented_parameters == parameters
+        assert item.required_parameters == required
+        assert item.category == "function" and item.exposure == "autoapi"
+        assert item.variant_count == 1
+        assert item.docless_variant_count == item.constructor_prose_variant_count == 0
+        assert not item.accepts_arbitrary_keywords
+        assert item.docstring == lineage_sources[symbol]
     assert contract_arrivals & by_symbol.keys()
     callables = [item for item in callables if item.symbol not in contract_arrivals]
     by_symbol = {item.symbol: item for item in callables}
@@ -4413,6 +4509,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("706_object_detection_3d_api_arrivals_2026-10-17.json", 2),
         ("560_dinov2_drop_in_api_arrivals_2026-10-17.json", 3),
         ("703_background_update_and_uninstall_api_arrivals_2026-10-17.json", 17),
+        ("708_label_time_api_arrivals_2026-10-16.json", 13),
         ("561_classifier_api_arrivals_2026-10-15.json", 19),
         ("180_session_figure_api_arrivals_2026-10-15.json", 2),
     ):
@@ -4863,6 +4960,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "706_object_detection_3d_api_arrivals_2026-10-17.json",
                      "560_dinov2_drop_in_api_arrivals_2026-10-17.json",
                      "703_background_update_and_uninstall_api_arrivals_2026-10-17.json",
+                     "708_label_time_api_arrivals_2026-10-16.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
@@ -4923,6 +5021,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "706_object_detection_3d_api_arrivals_2026-10-17.json",
                      "560_dinov2_drop_in_api_arrivals_2026-10-17.json",
                      "703_background_update_and_uninstall_api_arrivals_2026-10-17.json",
+                     "708_label_time_api_arrivals_2026-10-16.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
