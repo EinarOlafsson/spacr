@@ -4032,3 +4032,7 @@ Mac failure identified the actual first-install cache dialog; smoke now complete
 Related controller checks pass, including real asynchronous review, retained files and no late button clicks; the unchanged1.35 paint test also passes with coverage onQt6.11.2.
 Full tests38861369146 still fail reserved N700/F370/N673/N698 checks; owner repairs remain required before release.
 New native/full CI verdicts remain pending;1.5.1.5 is not released.
+
+2026-10-16 — 4180045b922 makes finite grain/satin CPU compilers survive interpreter teardown; rendering stays asynchronous and the copy queue remains a daemon.
+Both subprocess regressions fail before the fix; all52 related checks pass afterward, including unchanged Classify import isolation. No old LLVM-crash causality claim.
+Native installer workflow38873736048 is green on72e07; protected full CI38877579907 continues. Reserved-feature failures and full-green release gate remain open.

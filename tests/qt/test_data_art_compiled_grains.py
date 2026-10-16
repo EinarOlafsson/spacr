@@ -121,7 +121,7 @@ def test_unavailable_compiler_keeps_exact_numpy_once(monkeypatch, failure):
     for _ in range(3):
         assert ambient._ready_packed_scatter() is None
     assert ambient._PACKED_SCATTER_FAILED and ambient._PACKED_SCATTER_STARTED
-    assert starts == [{'name': 'spacr-grain-compile', 'daemon': True}]
+    assert starts == [{'name': 'spacr-grain-compile', 'daemon': False}]
     image = _engine()._point_material(3, 3, [1], [1], [.8], True)
     assert image.width() == image.height() == 3
 
