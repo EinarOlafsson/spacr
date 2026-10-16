@@ -1,0 +1,22 @@
+{
+  "issue150_exact_reported_inputs": {
+    "cell_diameter": 60.0,
+    "nucleus_diameter": 30.0,
+    "pathogen_diameter": 25.0
+  },
+  "diameter_problems": {
+    "mask": [],
+    "timelapse": []
+  },
+  "issue146_zero_values": {
+    "cell_diameter": "auto",
+    "nucleus_diameter": "auto",
+    "pathogen_diameter": "auto"
+  },
+  "source_sha256": {
+    "spacr/validate.py": "e574d78984dc81156842bb8117eacd7d2f0396c03c8083a7001711eb5abbf03c",
+    "spacr/object_settings_table.py": "e793c24403132e4f87a374de1958ac2c043922fad4d4493740e1a0ce0d34dd2f",
+    "spacr/settings.py": "7e75b7238428dc3e56f1e43569034af61c34115e971867c3fc67efc52b125bf5"
+  },
+  "scope": "Existing current source validation only, no source/test edit, full run/native acceptance or issue closure."
+}
