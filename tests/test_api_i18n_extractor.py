@@ -1461,7 +1461,6 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # and the nested _parse_svg_path.num, _svg_arc.ang and _svg_arc.pt; and
     # SetupSlides.provider_status. Nothing added.
     expected = 13_190
-    import json
     worker_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts/664_665_worker_api_arrivals_2026-10-08.json").read_text())
     assert len(worker_arrivals) == 8
