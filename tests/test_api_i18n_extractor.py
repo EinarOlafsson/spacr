@@ -276,7 +276,14 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # the validator that refuses an open, self-intersecting or degenerate
     # mesh -- a contract a reader meets on the API page.
     assert "spacr.qt.widgets.gate_spec.EditableVolumeGate.__post_init__" in dunders
-    assert len(dunders) == 216
+    # 216 -> 217 on 2026-10-16: VolumeLens.__post_init__ (item 673 speed
+    # follow-up), the validator that refuses a magnifier cube with no size
+    # or a zoom below 1.
+    assert "spacr.layers.VolumeLens.__post_init__" in dunders
+    assert len(dunders) == 217
+    # It is counted here and left out of the historical fingerprints below,
+    # which it would otherwise move.
+    dunders = dunders - {"spacr.layers.VolumeLens.__post_init__"}
     # The historical digests below describe the surface without it.
     dunders = dunders - {
         "spacr.qt.widgets.gate_spec.EditableVolumeGate.__post_init__"}
@@ -1606,6 +1613,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in n673_arrivals} == n673_arrivals
     assert not n673_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **n673_arrivals}
+    # 2026-10-16: Item 673 speed follow-up: GPU volume renderer, render scale, surface finishes, magnifier cube and True 3D render settings; one named contract.
+    n673g_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
+        / "673_true3d_gpu_api_arrivals_2026-10-16.json").read_text())
+    assert len(n673g_arrivals) == 23
+    assert {key: docs[key] for key in n673g_arrivals} == n673g_arrivals
+    assert not n673g_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **n673g_arrivals}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
         / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text())

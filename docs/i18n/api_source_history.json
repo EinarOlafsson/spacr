@@ -472,6 +472,16 @@
       "source_sha256": "cbdf42f8a6dedb8eec6bbfd065535a8a09a9bd9ce87b0085975c6eda50c2e63f",
       "text": "Put the command on the clipboard.\n\n:returns: the command copied, which stays on screen either way."
     },
+    "cd98ef9114624858997f99b6361b0c585aaef55de41aef3d87fa3f8182c78a52": {
+      "source_blocks_sha256": [
+        "ec25bcbed6f66858fd06705f514db41d6147cebb158e0818cfd3eafb90649c70",
+        "628390e04dbd222a9d8c257e74d2c47cd4582051f8765c1e628cf8abcf74f37e",
+        "346ab27046565245601a22aacdbd30e1f32559dbc6c0e8b88e543bca49228cbb",
+        "f066a0dbf34dd6939b32f2654c7dbbd458c38ebe253d5663c5b2a39883034414"
+      ],
+      "source_sha256": "cd98ef9114624858997f99b6361b0c585aaef55de41aef3d87fa3f8182c78a52",
+      "text": "Why this start is illegal, or \"\" when it is fine.\n\nMakes the same test Qt makes: is the object's own thread the calling\nthread? Qt refuses whenever they differ, which happens both ways\nround -- a worker touching a GUI object, and the GUI thread touching a\nworker-affine object; the second is easier to write by accident\nbecause the code reads as ordinary GUI-thread code.\n\nThe threads are compared with `==`, not `is`. `QThread.currentThread()`\nreturns a new Python wrapper around the same underlying QThread on each\ncall, so an identity test would report every ordinary start, such as a\nplain GUI-thread `timer.start()`, as illegal and bury the real reports.\n\nThere is deliberately no \"is the caller the GUI thread\" fallback. It\nadded nothing the affinity test does not already cover, and it was the\nhalf that misfired."
+    },
     "d7f2f0dbf55603427d496ecb5dad667ed3f719440a547a48cb2d16b67c551b76": {
       "source_blocks_sha256": [
         "fbcca45e40a87c941f4bfcceca3a18501977b73b9786a814510464f888b692ba",

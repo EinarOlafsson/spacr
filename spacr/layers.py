@@ -61,7 +61,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field, replace
-from types import MappingProxyType
+from types import MappingProxyType, SimpleNamespace
 from typing import (Any, Callable, ClassVar, Dict, Iterable, List, Mapping, cast,
                     Optional, Sequence, Tuple, Union)
 
@@ -97,6 +97,18 @@ __all__ = [
     "volume_steps",
     "downsample_volume",
     "render_volume",
+    "SurfaceFinish",
+    "SURFACE_FINISHES",
+    "VOLUME_FINISHES",
+    "surface_finish",
+    "SurfaceLight",
+    "surface_normals",
+    "shade_surface",
+    "VolumeLens",
+    "CUBE_EDGES",
+    "RenderScale",
+    "render_scale",
+    "GLVolumeRenderer",
 ]
 
 
@@ -3970,6 +3982,21 @@ class VolumeRays:
                          + k[None, None, :] * self.depth[axis])
         return out.reshape(len(self.origin), (last - first) * columns, samples)
 
+    def ray(self, row: float, column: float) -> "VolumeRays":
+        """The single ray through one output pixel, as its own 1 x 1 grid.
+
+        Rendering it draws (and picks) exactly what that pixel of the full
+        grid shows, so a click can be answered without drawing the frame.
+
+        :param row: the output row (may be fractional).
+        :param column: the output column (may be fractional).
+        :returns: a :class:`VolumeRays` of shape ``(1, 1, samples)``.
+        """
+        origin = tuple(float(o + row * d + column * a)
+                       for o, d, a in zip(self.origin, self.down, self.across))
+        return VolumeRays(origin=origin, across=self.across, down=self.down,
+                          depth=self.depth, shape=(1, 1, self.shape[2]))
+
 
 def _layer_rendering(layer: "Layer") -> str:
     """The 3-D rendering a layer asks for in its metadata, checked."""
@@ -4000,10 +4027,329 @@ def _reduce_image(values: np.ndarray, inside: np.ndarray, rendering: str,
     return np.minimum((before * alpha).sum(axis=1) * 2.0, 1.0)
 
 
+@dataclass(frozen=True)
+class SurfaceFinish:
+    """How a mask surface reflects light in a 3-D view (Blinn-Phong).
+
+    A surface point of base colour ``c`` with unit normal ``n`` is drawn as
+    ``c * (ambient + diffuse * max(n.l, 0)) + specular * max(n.h, 0) **
+    shininess * mix(white, c, tint)``, where ``l`` points at the light and
+    ``h`` halfway between the light and the viewer. The GPU and the CPU
+    renderers use the same numbers.
+
+    :param name: the finish's key in :data:`SURFACE_FINISHES`.
+    :param ambient: light every point gets, facing the light or not.
+    :param diffuse: weight of the light falling on the surface.
+    :param specular: weight of the highlight; 0 has none.
+    :param shininess: how small and sharp the highlight is.
+    :param tint: 0 for a white highlight (plastic), 1 for a highlight in the
+        object's own colour (metal).
+    """
+
+    name: str
+    ambient: float
+    diffuse: float
+    specular: float
+    shininess: float
+    tint: float
+
+
+#: The finishes a mask surface can have in a 3-D view, dullest first.
+SURFACE_FINISHES: Mapping[str, SurfaceFinish] = MappingProxyType({
+    "matte": SurfaceFinish("matte", 0.35, 0.65, 0.0, 1.0, 0.0),
+    "satin": SurfaceFinish("satin", 0.30, 0.60, 0.25, 12.0, 0.0),
+    "glossy": SurfaceFinish("glossy", 0.25, 0.60, 0.70, 60.0, 0.0),
+    "metallic": SurfaceFinish("metallic", 0.15, 0.45, 0.95, 28.0, 0.85),
+})
+
+#: The finish names, in the order a list offers them.
+VOLUME_FINISHES: Tuple[str, ...] = tuple(SURFACE_FINISHES)
+
+
+def surface_finish(name: Any) -> SurfaceFinish:
+    """The lighting numbers of one finish.
+
+    :param name: a key of :data:`SURFACE_FINISHES`; ``None`` is ``matte``.
+    :returns: the :class:`SurfaceFinish`.
+    :raises LayerError: for a name that is not a finish.
+    """
+    key = "matte" if name is None else str(name)
+    if key not in SURFACE_FINISHES:
+        raise LayerError(f"no surface finish is called {key!r}; "
+                         f"choose one of {', '.join(VOLUME_FINISHES)}")
+    return SURFACE_FINISHES[key]
+
+
+@dataclass(frozen=True)
+class SurfaceLight:
+    """Where the light and the viewer are, for shading surfaces along rays.
+
+    Every vector is a unit vector in physical units, one component per array
+    axis of the volume (its storage order). The light is a head light a
+    little above and left of the viewer, so it turns with the camera.
+
+    :param view: towards the viewer.
+    :param light: towards the light.
+    :param half: halfway between :attr:`light` and :attr:`view`.
+    :param size: the physical length of one voxel along each array axis.
+    """
+
+    view: Tuple[float, ...]
+    light: Tuple[float, ...]
+    half: Tuple[float, ...]
+    size: Tuple[float, ...]
+
+    @classmethod
+    def for_rays(cls, rays: "VolumeRays",
+                 voxel_size: Optional[Sequence[float]] = None) -> "SurfaceLight":
+        """The light for one camera.
+
+        :param rays: the camera's rays, in array indices.
+        :param voxel_size: physical length of one voxel along each array
+            axis; ``None`` for cubic voxels of length 1.
+        :returns: the :class:`SurfaceLight`.
+        """
+        axes = len(rays.origin)
+        size = np.ones(axes) if voxel_size is None else np.asarray(voxel_size, dtype=np.float64)
+        if size.shape != (axes,) or np.any(size <= 0):
+            raise LayerError(f"voxel_size needs {axes} positive lengths, got {voxel_size!r}")
+
+        def unit(vector: np.ndarray) -> np.ndarray:
+            """``vector`` scaled to length 1 (a zero vector is left alone)."""
+            length = float(np.linalg.norm(vector))
+            return vector / length if length > _EPS else vector
+
+        view = unit(-np.asarray(rays.depth, dtype=np.float64) * size)
+        right = unit(np.asarray(rays.across, dtype=np.float64) * size)
+        up = unit(-np.asarray(rays.down, dtype=np.float64) * size)
+        light = unit(view + 0.45 * up - 0.30 * right)
+        half = unit(light + view)
+        return cls(tuple(view), tuple(light), tuple(half), tuple(size))
+
+
+def surface_normals(occupancy: np.ndarray, points: np.ndarray, light: SurfaceLight
+                    ) -> np.ndarray:
+    """Outward unit normals of a mask's surface at points on it.
+
+    Central differences, one voxel each way, of the trilinearly sampled
+    occupancy (1 inside an object, 0 outside), scaled to physical units and
+    turned to face the viewer. Where the occupancy is flat the normal is the
+    direction to the viewer.
+
+    :param occupancy: ``float32`` occupancy volume.
+    :param points: ``(axes, n)`` array indices.
+    :param light: the camera's :class:`SurfaceLight`.
+    :returns: ``(n, axes)`` normals.
+    """
+    from scipy import ndimage
+
+    points = np.asarray(points, dtype=np.float32)
+    axes, count = points.shape
+    gradient = np.empty((count, axes), dtype=np.float64)
+    for axis in range(axes):
+        ahead, behind = points.copy(), points.copy()
+        ahead[axis] += 1.0
+        behind[axis] -= 1.0
+        gradient[:, axis] = (
+            ndimage.map_coordinates(occupancy, ahead, order=1, mode="nearest")
+            - ndimage.map_coordinates(occupancy, behind, order=1, mode="nearest")
+        ) / (2.0 * light.size[axis])
+    length = np.linalg.norm(gradient, axis=1)
+    view = np.asarray(light.view, dtype=np.float64)
+    normal = np.where(length[:, None] > 1e-6, -gradient / np.maximum(length, _EPS)[:, None],
+                      view[None, :])
+    facing = normal @ view
+    return np.where(facing[:, None] < 0, -normal, normal)
+
+
+def shade_surface(colour: np.ndarray, normal: np.ndarray, light: SurfaceLight,
+                  finish: SurfaceFinish) -> np.ndarray:
+    """Light surface points of known colour and normal by one finish.
+
+    :param colour: ``(..., 3)`` base colours, 0 to 1.
+    :param normal: ``(..., axes)`` unit normals facing the viewer.
+    :param light: the camera's :class:`SurfaceLight`.
+    :param finish: the :class:`SurfaceFinish`.
+    :returns: ``(..., 3)`` lit colour (not clipped).
+    """
+    colour = np.asarray(colour, dtype=np.float64)
+    normal = np.asarray(normal, dtype=np.float64)
+    diffuse = np.clip(normal @ np.asarray(light.light), 0.0, None)
+    shine = np.zeros_like(diffuse)
+    if finish.specular > 0:
+        shine = np.clip(normal @ np.asarray(light.half), 0.0, None) ** finish.shininess
+    highlight = finish.tint * colour + (1.0 - finish.tint)
+    return (colour * (finish.ambient + finish.diffuse * diffuse)[..., None]
+            + finish.specular * shine[..., None] * highlight)
+
+
+@dataclass(frozen=True)
+class VolumeLens:
+    """A magnifying cube in a volume, for a 3-D view's magnifier.
+
+    Inside the cube the volume is drawn ``zoom`` times larger about the
+    cube's centre; outside it, everything is dimmed to ``dim`` of its
+    brightness. Positions are array indices, as for :class:`VolumeRays`.
+
+    :param centre: the cube's centre.
+    :param half: half the cube's side along each array axis.
+    :param zoom: how many times larger the inside is drawn (at least 1).
+    :param dim: brightness kept outside the cube, 0 to 1.
+    """
+
+    centre: Tuple[float, ...]
+    half: Tuple[float, ...]
+    zoom: float = 2.0
+    dim: float = 0.35
+
+    def __post_init__(self) -> None:
+        """Refuse a cube with no size or a zoom that shrinks."""
+        if len(self.centre) != len(self.half) or any(h <= 0 for h in self.half):
+            raise LayerError(f"a lens needs a positive half-side per axis, got {self.half!r}")
+        if not self.zoom >= 1.0 or not 0.0 <= self.dim <= 1.0:
+            raise LayerError(f"a lens needs zoom >= 1 and dim in 0..1, got {self.zoom!r}, {self.dim!r}")
+
+    def contains(self, points: Any) -> np.ndarray:
+        """Whether points lie inside the cube.
+
+        :param points: ``(axes, ...)`` array indices.
+        :returns: a boolean array of the points' shape without the axes.
+        """
+        points = np.asarray(points)
+        centre = np.asarray(self.centre, dtype=np.float32).reshape((-1,) + (1,) * (points.ndim - 1))
+        half = np.asarray(self.half, dtype=np.float32).reshape(centre.shape)
+        return np.all(np.abs(points - centre) <= half, axis=0)
+
+    def warp(self, points: Any) -> Tuple[np.ndarray, np.ndarray]:
+        """Where each point samples the volume, and how bright it is drawn.
+
+        :param points: ``(axes, ...)`` array indices.
+        :returns: ``(where, weight)``: inside the cube a point samples
+            ``centre + (point - centre) / zoom`` at weight 1; outside it
+            samples itself at weight :attr:`dim`.
+        """
+        points = np.asarray(points, dtype=np.float32)
+        inside = self.contains(points)
+        centre = np.asarray(self.centre, dtype=np.float32).reshape((-1,) + (1,) * (points.ndim - 1))
+        where = np.where(inside, centre + (points - centre) / np.float32(self.zoom), points)
+        return where.astype(np.float32), np.where(inside, 1.0, self.dim).astype(np.float32)
+
+    def corners(self) -> np.ndarray:
+        """The cube's eight corners.
+
+        :returns: ``(8, axes)`` array indices.
+        """
+        centre, half = np.asarray(self.centre, float), np.asarray(self.half, float)
+        signs = np.array([(a, b, c) for a in (-1, 1) for b in (-1, 1) for c in (-1, 1)], float)
+        return centre + signs[:, :len(centre)] * half
+
+    def covers(self, rays: "VolumeRays") -> np.ndarray:
+        """Which rays pass through the cube between their first and last sample.
+
+        :param rays: the camera's rays.
+        :returns: ``(rows, columns)`` booleans; ``False`` pixels are dimmed
+            all the way along.
+        """
+        rows, columns, samples = rays.shape
+        r, c = np.mgrid[0:rows, 0:columns].astype(np.float64)
+        low = np.zeros((rows, columns))
+        high = np.full((rows, columns), float(max(samples - 1, 0)))
+        for axis in range(len(self.centre)):
+            start = (rays.origin[axis] + c * rays.across[axis] + r * rays.down[axis]
+                     - self.centre[axis])
+            step = float(rays.depth[axis])
+            if abs(step) < _EPS:
+                outside = np.abs(start) > self.half[axis]
+                high = np.where(outside, -1.0, high)
+                continue
+            a = (-self.half[axis] - start) / step
+            b = (self.half[axis] - start) / step
+            low = np.maximum(low, np.minimum(a, b))
+            high = np.minimum(high, np.maximum(a, b))
+        return low <= high
+
+
+#: The edges of a cube, as pairs of :meth:`VolumeLens.corners` indices.
+CUBE_EDGES: Tuple[Tuple[int, int], ...] = (
+    (0, 1), (2, 3), (4, 5), (6, 7), (0, 2), (1, 3),
+    (4, 6), (5, 7), (0, 4), (1, 5), (2, 6), (3, 7))
+
+
+@dataclass(frozen=True)
+class RenderScale:
+    """How finely one 3-D frame is drawn.
+
+    :param percent: the share of full resolution, 1 to 100, along each axis.
+    :param max_voxels: the most voxels the frame is drawn from (see
+        :func:`volume_steps`), or ``None`` for every voxel.
+    :param pixel: display pixels per rendered pixel along each side.
+    :param sample: voxels between two samples along a line of sight.
+    """
+
+    percent: int
+    max_voxels: Optional[int]
+    pixel: float
+    sample: float
+
+
+#: The coarsest rendered pixel, in display pixels, at any scale.
+RENDER_SCALE_MAX_PIXEL = 8.0
+
+#: The fewest voxels a frame is drawn from, so 1 % still shows a shape.
+RENDER_SCALE_MIN_VOXELS = 512
+
+#: Most voxels the CPU draws from while the view is being dragged.
+RENDER_DRAG_VOXELS = 262_144
+
+#: Most voxels a GPU texture holds per channel (512 MB of ``float32``).
+GPU_MAX_VOXELS = 1 << 27
+
+
+def render_scale(percent: Any, voxels: int, *, dragging: bool = False,
+                 gpu: bool = False, gpu_max_voxels: Optional[int] = GPU_MAX_VOXELS
+                 ) -> RenderScale:
+    """Turn the Render scale slider into what one frame is drawn from.
+
+    ``percent`` is the share of full resolution along each axis: at 50 %
+    every second voxel along X, Y and Z (an eighth of the voxels) is drawn,
+    into a picture of half the display's width and height. While the view
+    is dragged the frame is drawn coarser still and then again at the
+    slider's scale once it stops: the CPU draws from at most
+    :data:`RENDER_DRAG_VOXELS` voxels into pixels of at least 4 display
+    pixels; the GPU keeps its voxels (so nothing is uploaded again) and
+    draws pixels of at least 2.
+
+    :param percent: the slider, 1 to 100 (clipped).
+    :param voxels: how many voxels the full volume holds.
+    :param dragging: whether the view is moving.
+    :param gpu: whether the GPU draws the frame.
+    :param gpu_max_voxels: the most voxels one GPU texture may hold.
+    :returns: the :class:`RenderScale`.
+    """
+    percent = int(round(min(100.0, max(1.0, float(percent)))))
+    fraction = percent / 100.0
+    voxels = max(1, int(voxels))
+    budget = None if percent >= 100 else min(voxels, max(RENDER_SCALE_MIN_VOXELS,
+                                                         int(voxels * fraction ** 3)))
+    if gpu and gpu_max_voxels and (budget or voxels) > gpu_max_voxels:
+        budget = int(gpu_max_voxels)
+    pixel = min(RENDER_SCALE_MAX_PIXEL, 1.0 / fraction)
+    sample = 1.0
+    if dragging and gpu:
+        pixel = min(RENDER_SCALE_MAX_PIXEL, max(pixel, 2.0))
+    elif dragging:
+        budget = min(budget or voxels, RENDER_DRAG_VOXELS)
+        pixel = min(RENDER_SCALE_MAX_PIXEL, max(pixel, 4.0))
+        sample = 1.5
+    return RenderScale(percent, budget, float(pixel), sample)
+
+
 def render_volume(layers: Iterable["Layer"], rays: VolumeRays, *,
                   highlight: int = 0,
                   cancelled: Optional[Callable[[], bool]] = None,
-                  chunk: int = 300_000
+                  chunk: int = 300_000,
+                  voxel_size: Optional[Sequence[float]] = None,
+                  lens: Optional[VolumeLens] = None
                   ) -> Optional[Tuple[np.ndarray, np.ndarray]]:
     """Draw 3-D image and labels layers along parallel rays, as napari does.
 
@@ -4013,8 +4359,11 @@ def render_volume(layers: Iterable["Layer"], rays: VolumeRays, *,
     (``mip`` when absent). Labels layers are then laid over them in stack
     order, each object in its :func:`label_color`, by the
     :data:`LABEL_RENDERINGS` mode (``surface`` when absent) and the layer's
-    opacity. Hidden layers draw nothing. Every layer must have the volume's
-    shape; image layers draw their first channel.
+    opacity. A surface is lit by the :data:`SURFACE_FINISHES` entry in
+    ``layer.metadata["finish"]`` (``matte`` when absent), with normals from
+    the mask itself (:func:`surface_normals`). Hidden layers draw nothing.
+    Every layer must have the volume's shape; image layers draw their first
+    channel. :class:`GLVolumeRenderer` draws the same picture on the GPU.
 
     The rays are walked a few rows at a time, so a caller on a worker thread
     can stop a render that is no longer wanted.
@@ -4025,11 +4374,14 @@ def render_volume(layers: Iterable["Layer"], rays: VolumeRays, *,
     :param cancelled: asked between chunks; returning ``True`` abandons the
         render.
     :param chunk: about how many samples one step holds.
+    :param voxel_size: physical length of one voxel along each array axis,
+        for lighting; ``None`` for cubic voxels.
+    :param lens: a magnifier cube (:class:`VolumeLens`), or ``None``.
     :returns: ``(rgb, picked)``: ``rows x columns x 3`` float32 colour
         between 0 and 1, and the object nearest the viewer under each pixel
         (0 for none), or ``None`` when cancelled.
-    :raises LayerError: for a rendering no layer of that kind has, or a layer
-        whose shape differs from the others'.
+    :raises LayerError: for a rendering or finish no layer of that kind has,
+        or a layer whose shape differs from the others'.
     """
     from scipy import ndimage
 
@@ -4041,17 +4393,23 @@ def render_volume(layers: Iterable["Layer"], rays: VolumeRays, *,
     if len(shapes) > 1:
         raise LayerError(f"3-D layers must share one shape, got {sorted(shapes)}")
     modes = [_layer_rendering(layer) for layer in drawn]
+    finishes = [surface_finish(layer.metadata.get("finish")) if isinstance(layer, LabelsLayer)
+                else None for layer in drawn]
     length = max(rays.sample_length, 1e-6)
+    axes = len(rays.origin)
     images = [np.zeros((rows, columns), dtype=np.float32) for _ in drawn]
     nearest = np.zeros((rows, columns), dtype=np.int64)
     first_hit = np.full((rows, columns), np.nan, dtype=np.float32)
     glass = {index: np.zeros((rows, columns, 4), dtype=np.float32)
              for index, layer in enumerate(drawn)
              if isinstance(layer, LabelsLayer) and modes[index] == "translucent"}
-    surfaces = {index: (np.zeros((rows, columns), dtype=np.int64),
-                        np.full((rows, columns), np.nan, dtype=np.float32))
-                for index, layer in enumerate(drawn)
-                if isinstance(layer, LabelsLayer) and modes[index] == "surface"}
+    surfaces = {index: SimpleNamespace(
+        ids=np.zeros((rows, columns), dtype=np.int64),
+        depth=np.full((rows, columns), np.nan, dtype=np.float32),
+        where=np.zeros((axes, rows, columns), dtype=np.float32),
+        weight=np.ones((rows, columns), dtype=np.float32))
+        for index, layer in enumerate(drawn)
+        if isinstance(layer, LabelsLayer) and modes[index] == "surface"}
     shape = next(iter(shapes)) if shapes else ()
     step = max(1, int(chunk) // max(1, columns * samples))
     for first in range(0, rows, step):
@@ -4059,7 +4417,10 @@ def render_volume(layers: Iterable["Layer"], rays: VolumeRays, *,
             return None
         last = min(rows, first + step)
         where = rays.positions(first, last)
-        flat = where.reshape(len(rays.origin), -1)
+        weight = None
+        if lens is not None:
+            where, weight = lens.warp(where)
+        flat = where.reshape(axes, -1)
         inside = np.ones(flat.shape[1], dtype=bool)
         for axis, size in enumerate(shape):
             inside &= (flat[axis] >= -0.5) & (flat[axis] <= size - 0.5)
@@ -4071,6 +4432,8 @@ def render_volume(layers: Iterable["Layer"], rays: VolumeRays, *,
                     np.asarray(layer.channel_data(0), dtype=np.float32), flat,
                     order=1, mode="nearest").reshape(inside.shape)
                 values = np.clip((values - low) / max(high - low, _EPS), 0.0, 1.0) * inside
+                if weight is not None:
+                    values = values * weight
                 images[index][first:last] = _reduce_image(
                     values, inside, modes[index], length).reshape(last - first, columns)
                 continue
@@ -4080,7 +4443,8 @@ def render_volume(layers: Iterable["Layer"], rays: VolumeRays, *,
             hit = labels != 0
             seen = hit.any(axis=1)
             depth = hit.argmax(axis=1)
-            ids = labels[np.arange(labels.shape[0]), depth] * seen
+            ray_index = np.arange(labels.shape[0])
+            ids = labels[ray_index, depth] * seen
             block = slice(first, last)
             older = nearest[block].reshape(-1)
             old_depth = first_hit[block].reshape(-1)
@@ -4088,23 +4452,29 @@ def render_volume(layers: Iterable["Layer"], rays: VolumeRays, *,
             nearest[block] = np.where(closer, ids, older).reshape(last - first, columns)
             first_hit[block] = np.where(closer, depth, old_depth).reshape(last - first, columns)
             if index in surfaces:
-                surface_ids, surface_depth = surfaces[index]
-                surface_ids[block] = ids.reshape(last - first, columns)
-                surface_depth[block] = np.where(seen, depth, np.nan).reshape(last - first, columns)
+                surface = surfaces[index]
+                surface.ids[block] = ids.reshape(last - first, columns)
+                surface.depth[block] = np.where(seen, depth, np.nan).reshape(last - first, columns)
+                surface.where[:, block] = where[:, ray_index, depth].reshape(axes, last - first, columns)
+                if weight is not None:
+                    surface.weight[block] = weight[ray_index, depth].reshape(last - first, columns)
                 continue
             colours = label_colors(labels).astype(np.float32)
+            if weight is not None:
+                colours = colours * weight[..., None]
             alpha = np.where(hit, min(1.0, LABEL_DENSITY * length), 0.0).astype(np.float32)
             clear = np.cumprod(1.0 - alpha, axis=1)
             before = np.concatenate([np.ones_like(clear[:, :1]), clear[:, :-1]], axis=1)
-            weight = before * alpha
-            rgb = (weight[..., None] * colours).sum(axis=1)
+            share = before * alpha
+            rgb = (share[..., None] * colours).sum(axis=1)
             glass[index][block] = np.concatenate(
-                [rgb, weight.sum(axis=1)[:, None]], axis=1).reshape(last - first, columns, 4)
+                [rgb, share.sum(axis=1)[:, None]], axis=1).reshape(last - first, columns, 4)
     out = np.zeros((rows, columns, 3), dtype=np.float32)
     for index, layer in enumerate(drawn):
         if isinstance(layer, ImageLayer):
             out += layer.colormap.map(images[index]) * float(layer.opacity)
     np.clip(out, 0.0, 1.0, out=out)
+    light = SurfaceLight.for_rays(rays, voxel_size) if surfaces else None
     for index, layer in enumerate(drawn):
         if index in glass:
             rgba = glass[index]
@@ -4115,20 +4485,576 @@ def render_volume(layers: Iterable["Layer"], rays: VolumeRays, *,
                                   0.5 * colour + 0.5, colour)
             out = out * (1.0 - alpha) + colour * alpha
         elif index in surfaces:
-            ids, depth = surfaces[index]
-            seen = ids != 0
+            surface = surfaces[index]
+            seen = surface.ids != 0
             if not seen.any():
                 continue
-            filled = np.where(seen, depth, np.nanmax(depth[seen])) * length
-            pixel = max(float(np.linalg.norm(rays.across)), _EPS)
-            gy, gx = np.gradient(filled / pixel)
-            light = 1.0 / np.sqrt(1.0 + gx * gx + gy * gy)
-            cue = 1.0 - 0.35 * np.nan_to_num(depth) / max(samples, 1)
-            shade = (0.35 + 0.65 * light) * cue
-            colour = label_colors(ids).astype(np.float32) * shade[..., None]
+            occupancy = (np.asarray(layer.data) != 0).astype(np.float32)
+            normals = surface_normals(occupancy, surface.where[:, seen], light)
+            ids = surface.ids[seen]
+            lit = shade_surface(label_colors(ids), normals, light, finishes[index])
+            cue = 1.0 - 0.35 * surface.depth[seen] / max(samples, 1)
+            lit = np.clip(lit * cue[:, None], 0.0, 1.0)
             if highlight:
-                colour = np.where((ids == highlight)[..., None],
-                                  0.5 * colour + 0.5, colour)
+                lit = np.where((ids == highlight)[:, None], 0.5 * lit + 0.5, lit)
+            lit = lit * surface.weight[seen][:, None]
+            colour = np.zeros((rows, columns, 3), dtype=np.float32)
+            colour[seen] = lit
             alpha = (seen * float(layer.opacity))[..., None]
             out = out * (1.0 - alpha) + colour * alpha
     return np.clip(out, 0.0, 1.0).astype(np.float32), nearest
+
+
+_GL_VERTEX = """
+attribute vec2 a_position;
+varying vec2 v_uv;
+void main() {
+    v_uv = (a_position + 1.0) / 2.0;
+    gl_Position = vec4(a_position, 0.0, 1.0);
+}
+"""
+
+_GL_RAYS = """
+uniform vec3 u_origin;
+uniform vec3 u_across;
+uniform vec3 u_down;
+uniform vec3 u_depth;
+uniform vec3 u_shape;
+uniform float u_rows;
+uniform int u_samples;
+uniform vec3 u_lens_centre;
+uniform vec3 u_lens_half;
+uniform float u_lens_zoom;
+uniform float u_lens_dim;
+const int MAX_SAMPLES = 2048;
+
+vec3 ray_start() {
+    float column = gl_FragCoord.x - 0.5;
+    float row = u_rows - gl_FragCoord.y - 0.5;
+    return u_origin + column * u_across + row * u_down;
+}
+
+vec3 warp(vec3 p, out float weight) {
+    weight = 1.0;
+    if (u_lens_zoom <= 0.0) return p;
+    vec3 offset = p - u_lens_centre;
+    if (all(lessThanEqual(abs(offset), u_lens_half))) return u_lens_centre + offset / u_lens_zoom;
+    weight = u_lens_dim;
+    return p;
+}
+
+bool inside(vec3 p) {
+    return all(greaterThanEqual(p, vec3(-0.5))) && all(lessThanEqual(p, u_shape - 0.5));
+}
+
+vec3 texcoord(vec3 p) {
+    return vec3((p.z + 0.5) / u_shape.z, (p.y + 0.5) / u_shape.y, (p.x + 0.5) / u_shape.x);
+}
+"""
+
+_GL_IMAGE = """
+uniform sampler3D u_volume;
+uniform sampler2D u_lut;
+uniform int u_mode;
+uniform float u_low;
+uniform float u_high;
+uniform float u_opacity;
+uniform float u_length;
+uniform float u_attenuation;
+uniform float u_density;
+
+void main() {
+    vec3 start = ray_start();
+    float best = 0.0;
+    float least = 1.0;
+    float seen = 0.0;
+    float total = 0.0;
+    float count = 0.0;
+    float crossed = 0.0;
+    float clear = 1.0;
+    float glow = 0.0;
+    float span = max(u_high - u_low, 1e-12);
+    for (int k = 0; k < MAX_SAMPLES; k++) {
+        if (k >= u_samples) break;
+        float weight;
+        vec3 p = warp(start + float(k) * u_depth, weight);
+        float v = 0.0;
+        bool within = inside(p);
+        if (within) v = clamp((texture3D(u_volume, texcoord(p)).r - u_low) / span, 0.0, 1.0) * weight;
+        if (u_mode == 0) {
+            best = max(best, v);
+        } else if (u_mode == 1) {
+            best = max(best, v * exp(-u_attenuation * u_length * crossed));
+            crossed += v;
+        } else if (u_mode == 2) {
+            float a = clamp(v * u_density * u_length, 0.0, 1.0);
+            glow += clear * a;
+            clear *= 1.0 - a;
+        } else if (u_mode == 3) {
+            total += v;
+            if (within) count += 1.0;
+        } else if (within) {
+            least = min(least, v);
+            seen = 1.0;
+        }
+    }
+    float value = best;
+    if (u_mode == 2) value = min(glow * 2.0, 1.0);
+    else if (u_mode == 3) value = total / max(count, 1.0);
+    else if (u_mode == 4) value = seen > 0.5 ? least : 0.0;
+    vec3 colour = texture2D(u_lut, vec2((value * 255.0 + 0.5) / 256.0, 0.5)).rgb;
+    gl_FragColor = vec4(colour * u_opacity, 1.0);
+}
+"""
+
+_GL_LABELS = """
+uniform sampler3D u_ids;
+uniform sampler3D u_occupancy;
+uniform sampler2D u_colours;
+uniform vec2 u_colours_size;
+uniform int u_mode;
+uniform float u_highlight;
+uniform float u_opacity;
+uniform float u_alpha;
+uniform vec3 u_size;
+uniform vec3 u_view;
+uniform vec3 u_light;
+uniform vec3 u_half;
+uniform float u_ambient;
+uniform float u_diffuse;
+uniform float u_specular;
+uniform float u_shininess;
+uniform float u_tint;
+
+float object_at(vec3 p) {
+    return floor(texture3D(u_ids, texcoord(p)).r + 0.5);
+}
+
+vec3 colour_of(float id) {
+    float x = mod(id, u_colours_size.x);
+    float y = floor(id / u_colours_size.x);
+    return texture2D(u_colours, vec2((x + 0.5) / u_colours_size.x,
+                                     (y + 0.5) / u_colours_size.y)).rgb;
+}
+
+float occupancy(vec3 p) {
+    return texture3D(u_occupancy, texcoord(p)).r;
+}
+
+void main() {
+    vec3 start = ray_start();
+    if (u_mode == 1) {
+        vec3 rgb = vec3(0.0);
+        float share = 0.0;
+        float clear = 1.0;
+        float first = 0.0;
+        for (int k = 0; k < MAX_SAMPLES; k++) {
+            if (k >= u_samples) break;
+            float weight;
+            vec3 p = warp(start + float(k) * u_depth, weight);
+            if (!inside(p)) continue;
+            float id = object_at(p);
+            if (id < 0.5) continue;
+            if (first < 0.5) first = id;
+            rgb += clear * u_alpha * colour_of(id) * weight;
+            share += clear * u_alpha;
+            clear *= 1.0 - u_alpha;
+        }
+        if (share <= 0.0) discard;
+        vec3 colour = rgb / share;
+        if (u_highlight > 0.5 && abs(first - u_highlight) < 0.5) colour = 0.5 * colour + 0.5;
+        gl_FragColor = vec4(colour, share * u_opacity);
+        return;
+    }
+    float id = 0.0;
+    float depth = 0.0;
+    float weight = 1.0;
+    vec3 hit = vec3(0.0);
+    for (int k = 0; k < MAX_SAMPLES; k++) {
+        if (k >= u_samples) break;
+        float w;
+        vec3 p = warp(start + float(k) * u_depth, w);
+        if (!inside(p)) continue;
+        float here = object_at(p);
+        if (here > 0.5) {
+            id = here;
+            depth = float(k);
+            weight = w;
+            hit = p;
+            break;
+        }
+    }
+    if (id < 0.5) discard;
+    if (u_mode == 2) {
+        float red = mod(id, 256.0);
+        float green = mod(floor(id / 256.0), 256.0);
+        float blue = floor(id / 65536.0);
+        gl_FragColor = vec4(red / 255.0, green / 255.0, blue / 255.0, 1.0);
+        gl_FragDepth = (depth + 0.5) / float(MAX_SAMPLES);
+        return;
+    }
+    vec3 g = vec3(occupancy(hit + vec3(1.0, 0.0, 0.0)) - occupancy(hit - vec3(1.0, 0.0, 0.0)),
+                  occupancy(hit + vec3(0.0, 1.0, 0.0)) - occupancy(hit - vec3(0.0, 1.0, 0.0)),
+                  occupancy(hit + vec3(0.0, 0.0, 1.0)) - occupancy(hit - vec3(0.0, 0.0, 1.0)))
+             / (2.0 * u_size);
+    vec3 n = length(g) > 1e-6 ? -normalize(g) : u_view;
+    if (dot(n, u_view) < 0.0) n = -n;
+    vec3 base = colour_of(id);
+    float diffuse = max(dot(n, u_light), 0.0);
+    float shine = u_specular > 0.0 ? pow(max(dot(n, u_half), 0.0), u_shininess) : 0.0;
+    vec3 colour = base * (u_ambient + u_diffuse * diffuse)
+                  + u_specular * shine * mix(vec3(1.0), base, u_tint);
+    colour = clamp(colour * (1.0 - 0.35 * depth / float(u_samples)), 0.0, 1.0);
+    if (u_highlight > 0.5 && abs(id - u_highlight) < 0.5) colour = 0.5 * colour + 0.5;
+    gl_FragColor = vec4(colour * weight, u_opacity);
+}
+"""
+
+_GL_COPY = """
+uniform sampler2D u_image;
+varying vec2 v_uv;
+void main() {
+    gl_FragColor = vec4(texture2D(u_image, v_uv).rgb, 1.0);
+}
+"""
+
+#: The image renderings by the number the GPU shader knows them by.
+_GL_IMAGE_MODES = {"mip": 0, "attenuated_mip": 1, "translucent": 2, "average": 3, "minip": 4}
+
+#: Width of the texture of object colours the GPU looks an object ID up in.
+_GL_COLOUR_WIDTH = 4096
+
+
+def _array_owner(array: Any) -> Any:
+    """The array that owns the memory a view looks at (itself if none)."""
+    owner = array
+    while isinstance(getattr(owner, "base", None), np.ndarray):
+        owner = owner.base
+    return owner
+
+
+def _array_key(array: Any) -> Tuple[Any, ...]:
+    """What identifies a volume's voxels: its memory, shape, strides and type.
+
+    Two views built over the same cached array, frame after frame, have
+    one key, so their texture is uploaded once.
+    """
+    data = np.asarray(array)
+    return (id(_array_owner(data)), data.__array_interface__["data"][0], data.shape,
+            data.strides, data.dtype.str)
+
+
+class GLVolumeRenderer:
+    """:func:`render_volume`, ray-marched on the GPU through OpenGL (VisPy gloo).
+
+    The same rays (:class:`VolumeRays`), the same layer model, renderings,
+    finishes and lens, so a frame drawn here matches the CPU's to within
+    8-bit rounding and picks the same objects. Each fragment walks one ray;
+    image layers add up, labels layers are laid over them, and a last pass
+    writes the object nearest the viewer under each pixel for picking.
+
+    The caller owns the OpenGL context and makes it current around every
+    call; this class creates nothing until the first :meth:`render`. A
+    volume is uploaded once and kept, keyed by its memory, for as long as
+    every frame draws it; a frame frees the textures it did not use. A mask
+    edited in place must therefore be handed over as a new array.
+    """
+
+    def __init__(self) -> None:
+        """Hold no GPU object until the first frame."""
+        self._canvas = None
+        self._programs: Dict[str, Any] = {}
+        self._textures: Dict[Tuple[int, str], Tuple[Any, Any]] = {}
+        self._targets: Dict[Tuple[int, int, str], Any] = {}
+        self._luts: Dict[Any, Any] = {}
+        self._used: set = set()
+
+    def _gloo(self):
+        """Make this renderer's GLIR queue the current one; return ``gloo``.
+
+        Only when it is not current already: making it current again in the
+        middle of a frame would rebind the default framebuffer at the next
+        draw, and the rest of the frame would be drawn off the picture.
+        """
+        from vispy import gloo
+        from vispy.gloo.context import FakeCanvas, get_current_canvas, set_current_canvas
+
+        if self._canvas is None:
+            self._canvas = FakeCanvas()
+        elif get_current_canvas() is not self._canvas:
+            set_current_canvas(self._canvas)
+        return gloo
+
+    def _release(self) -> None:
+        """Run the queued commands and stop being VisPy's current canvas."""
+        from vispy.gloo.context import forget_canvas
+
+        self._canvas.flush()
+        forget_canvas(self._canvas)
+
+    def limits(self) -> Dict[str, Any]:
+        """The context's renderer name and its largest 3-D texture side.
+
+        :returns: ``{"renderer": str, "version": str, "max_3d": int}``.
+        """
+        from vispy.gloo import gl
+
+        self._gloo()
+        try:
+            return {"renderer": str(gl.glGetParameter(gl.GL_RENDERER)),
+                    "version": str(gl.glGetParameter(gl.GL_VERSION)),
+                    "max_3d": int(gl.glGetParameter(0x8073))}
+        finally:
+            self._release()
+
+    def _program(self, name: str):
+        """One compiled program, built the first time it is asked for."""
+        gloo = self._gloo()
+        program = self._programs.get(name)
+        if program is None:
+            fragment = {"image": _GL_RAYS + _GL_IMAGE, "labels": _GL_RAYS + _GL_LABELS,
+                        "copy": _GL_COPY}[name]
+            program = gloo.Program(_GL_VERTEX, fragment)
+            program["a_position"] = np.array([[-1, -1], [1, -1], [-1, 1], [1, 1]], np.float32)
+            self._programs[name] = program
+        return program
+
+    def _texture(self, array: np.ndarray, kind: str):
+        """The GPU copy of one volume (``image``, ``ids`` or ``occupancy``)."""
+        gloo = self._gloo()
+        key = (_array_key(array), kind)
+        held = self._textures.get(key)
+        if held is not None and held[0] is _array_owner(array):
+            self._used.add(key)
+            return held[1]
+        if kind == "occupancy":
+            data = (np.asarray(array) != 0).astype(np.float32)
+            texture = gloo.Texture3D(data, interpolation="linear", wrapping="clamp_to_edge",
+                                     internalformat="r32f")
+        else:
+            data = np.ascontiguousarray(np.asarray(array), dtype=np.float32)
+            texture = gloo.Texture3D(data, interpolation="nearest" if kind == "ids" else "linear",
+                                     wrapping="clamp_to_edge", internalformat="r32f")
+        self._textures[key] = (_array_owner(array), texture)
+        self._used.add(key)
+        return texture
+
+    def _forget_unused(self) -> None:
+        """Free the textures the frame just drawn did not use."""
+        for key in [key for key in self._textures if key not in self._used]:
+            self._textures.pop(key)[1].delete()
+        self._used = set()
+
+    def _target(self, rows: int, columns: int, kind: str):
+        """A framebuffer of one size: ``frame`` (sampled later), ``pick`` or ``out``."""
+        gloo = self._gloo()
+        key = (rows, columns, kind)
+        target = self._targets.get(key)
+        if target is None:
+            for old in [old for old in self._targets if old[2] == kind]:
+                self._targets.pop(old).delete()
+            if kind == "frame":
+                colour = gloo.Texture2D(shape=(rows, columns, 4), interpolation="linear",
+                                        wrapping="clamp_to_edge")
+            else:
+                colour = gloo.RenderBuffer((rows, columns, 4))
+            depth = gloo.RenderBuffer((rows, columns), format="depth") if kind == "pick" else None
+            target = gloo.FrameBuffer(color=colour, depth=depth)
+            self._targets[key] = target
+        return target
+
+    @staticmethod
+    def _ray_uniforms(program, rays: VolumeRays, shape: Sequence[int],
+                      lens: Optional[VolumeLens]) -> None:
+        """Hand one camera, volume shape and lens to a program."""
+        program["u_origin"] = tuple(float(v) for v in rays.origin)
+        program["u_across"] = tuple(float(v) for v in rays.across)
+        program["u_down"] = tuple(float(v) for v in rays.down)
+        program["u_depth"] = tuple(float(v) for v in rays.depth)
+        program["u_shape"] = tuple(float(v) for v in shape)
+        program["u_rows"] = float(rays.shape[0])
+        program["u_samples"] = int(rays.shape[2])
+        if lens is None:
+            program["u_lens_centre"] = (0.0, 0.0, 0.0)
+            program["u_lens_half"] = (1.0, 1.0, 1.0)
+            program["u_lens_zoom"] = 0.0
+            program["u_lens_dim"] = 1.0
+        else:
+            program["u_lens_centre"] = tuple(float(v) for v in lens.centre)
+            program["u_lens_half"] = tuple(float(v) for v in lens.half)
+            program["u_lens_zoom"] = float(lens.zoom)
+            program["u_lens_dim"] = float(lens.dim)
+
+    def _lut(self, colormap: "Colormap"):
+        """A 256-entry texture of one colormap, kept for the next frame."""
+        gloo = self._gloo()
+        texture = self._luts.get(colormap)
+        if texture is None:
+            lut = np.ones((1, 256, 4), dtype=np.float32)
+            lut[0, :, :3] = colormap.map(np.linspace(0.0, 1.0, 256))
+            texture = gloo.Texture2D(lut, interpolation="linear", wrapping="clamp_to_edge",
+                                     internalformat="rgba32f")
+            self._luts[colormap] = texture
+        return texture
+
+    def _colours(self, labels: np.ndarray):
+        """A texture of every object's colour, indexed by object ID."""
+        gloo = self._gloo()
+        key = (_array_key(labels), "colours")
+        held = self._textures.get(key)
+        if held is not None and held[0] is _array_owner(labels):
+            self._used.add(key)
+            return held[1]
+        present = np.unique(np.asarray(labels))
+        top = int(present.max()) if present.size else 0
+        if top >= 1 << 24:
+            raise LayerError("object IDs of 2**24 and above cannot be drawn on the GPU")
+        height = top // _GL_COLOUR_WIDTH + 1
+        table = np.zeros((height * _GL_COLOUR_WIDTH, 4), dtype=np.float32)
+        table[present, :3] = label_colors(present)
+        table[:, 3] = 1.0
+        texture = gloo.Texture2D(table.reshape(height, _GL_COLOUR_WIDTH, 4),
+                                 interpolation="nearest", internalformat="rgba32f")
+        self._textures[key] = (_array_owner(labels), texture)
+        self._used.add(key)
+        return texture
+
+    def render(self, layers: Iterable["Layer"], rays: VolumeRays, *,
+               highlight: int = 0, voxel_size: Optional[Sequence[float]] = None,
+               lens: Optional[VolumeLens] = None,
+               size: Optional[Tuple[int, int]] = None) -> Tuple[np.ndarray, np.ndarray]:
+        """Draw one frame; the same picture as :func:`render_volume`.
+
+        :param layers: the layers, bottom first.
+        :param rays: where to sample, in the layers' array indices.
+        :param highlight: an object drawn lighter.
+        :param voxel_size: physical voxel length along each array axis.
+        :param lens: a magnifier cube, or ``None``.
+        :param size: ``(rows, columns)`` of the picture returned, scaled up
+            from the rays' grid on the GPU; ``None`` keeps the rays' grid.
+        :returns: ``(rgb, picked)``: ``uint8`` colour of ``size`` and the
+            object nearest the viewer under each ray (``int64``, the rays'
+            grid).
+        :raises LayerError: as :func:`render_volume`.
+        """
+        rows, columns, _samples = (int(value) for value in rays.shape)
+        drawn = [layer for layer in layers if layer.visible
+                 and isinstance(layer, (ImageLayer, LabelsLayer))]
+        shapes = {layer.shape if isinstance(layer, LabelsLayer) else layer.channel_data(0).shape
+                  for layer in drawn}
+        if len(shapes) > 1:
+            raise LayerError(f"3-D layers must share one shape, got {sorted(shapes)}")
+        if any(len(shape) != 3 for shape in shapes):
+            raise LayerError("the GPU draws 3-D layers only")
+        modes = [_layer_rendering(layer) for layer in drawn]
+        finishes = [surface_finish(layer.metadata.get("finish")) if isinstance(layer, LabelsLayer)
+                    else None for layer in drawn]
+        light = SurfaceLight.for_rays(rays, voxel_size)
+        length = max(rays.sample_length, 1e-6)
+        gloo = self._gloo()
+        try:
+            frame = self._target(rows, columns, "frame")
+            with frame:
+                gloo.set_viewport(0, 0, columns, rows)
+                gloo.set_state(depth_test=False, cull_face=False, blend=True,
+                               blend_func=("one", "one"))
+                gloo.clear(color=(0.0, 0.0, 0.0, 1.0))
+                for index, layer in enumerate(drawn):
+                    if not isinstance(layer, ImageLayer):
+                        continue
+                    program = self._program("image")
+                    data = layer.channel_data(0)
+                    self._ray_uniforms(program, rays, data.shape, lens)
+                    low, high = layer.contrast_limits(0)
+                    program["u_volume"] = self._texture(data, "image")
+                    program["u_lut"] = self._lut(layer.colormap)
+                    program["u_mode"] = _GL_IMAGE_MODES[modes[index]]
+                    program["u_low"], program["u_high"] = float(low), float(high)
+                    program["u_opacity"] = float(layer.opacity)
+                    program["u_length"] = float(length)
+                    program["u_attenuation"] = float(VOLUME_ATTENUATION)
+                    program["u_density"] = float(VOLUME_DENSITY)
+                    program.draw("triangle_strip")
+                gloo.set_state(blend_func=("src_alpha", "one_minus_src_alpha"))
+                for index, layer in enumerate(drawn):
+                    if isinstance(layer, LabelsLayer):
+                        program = self._labels_program(layer, rays, lens, light,
+                                                       finishes[index], highlight)
+                        program["u_mode"] = 0 if modes[index] == "surface" else 1
+                        program["u_opacity"] = float(layer.opacity)
+                        program["u_alpha"] = float(min(1.0, LABEL_DENSITY * length))
+                        program.draw("triangle_strip")
+            pick = self._target(rows, columns, "pick")
+            with pick:
+                gloo.set_viewport(0, 0, columns, rows)
+                gloo.set_state(blend=False, depth_test=True, depth_func="less")
+                gloo.clear(color=(0.0, 0.0, 0.0, 0.0), depth=1.0)
+                for index, layer in enumerate(drawn):
+                    if isinstance(layer, LabelsLayer):
+                        program = self._labels_program(layer, rays, lens, light,
+                                                       finishes[index], highlight)
+                        program["u_mode"] = 2
+                        program.draw("triangle_strip")
+                codes = pick.read("color", alpha=False).astype(np.int64)
+                gloo.set_state(depth_test=False)
+            picked = codes[..., 0] + 256 * codes[..., 1] + 65536 * codes[..., 2]
+            if size is None or tuple(size) == (rows, columns):
+                with frame:
+                    rgb = frame.read("color", alpha=False)
+            else:
+                height, width = (max(1, int(v)) for v in size)
+                out = self._target(height, width, "out")
+                program = self._program("copy")
+                program["u_image"] = frame.color_buffer
+                with out:
+                    gloo.set_viewport(0, 0, width, height)
+                    gloo.set_state(blend=False, depth_test=False)
+                    gloo.clear(color=(0.0, 0.0, 0.0, 1.0))
+                    program.draw("triangle_strip")
+                    rgb = out.read("color", alpha=False)
+            self._forget_unused()
+        finally:
+            self._release()
+        return np.ascontiguousarray(rgb), picked
+
+    def _labels_program(self, layer: "LabelsLayer", rays: VolumeRays,
+                        lens: Optional[VolumeLens], light: SurfaceLight,
+                        finish: SurfaceFinish, highlight: int):
+        """The labels program set up for one layer, camera and finish."""
+        program = self._program("labels")
+        data = np.asarray(layer.data)
+        self._ray_uniforms(program, rays, data.shape, lens)
+        colours = self._colours(layer.data)
+        program["u_ids"] = self._texture(layer.data, "ids")
+        program["u_occupancy"] = self._texture(layer.data, "occupancy")
+        program["u_colours"] = colours
+        program["u_colours_size"] = (float(_GL_COLOUR_WIDTH), float(colours.shape[0]))
+        program["u_highlight"] = float(highlight)
+        program["u_size"] = tuple(float(v) for v in light.size)
+        program["u_view"] = tuple(float(v) for v in light.view)
+        program["u_light"] = tuple(float(v) for v in light.light)
+        program["u_half"] = tuple(float(v) for v in light.half)
+        program["u_ambient"] = float(finish.ambient)
+        program["u_diffuse"] = float(finish.diffuse)
+        program["u_specular"] = float(finish.specular)
+        program["u_shininess"] = float(finish.shininess)
+        program["u_tint"] = float(finish.tint)
+        program["u_opacity"] = float(layer.opacity)
+        program["u_alpha"] = float(min(1.0, LABEL_DENSITY * max(rays.sample_length, 1e-6)))
+        return program
+
+    def close(self) -> None:
+        """Free every texture, framebuffer and program (context current)."""
+        if self._canvas is None:
+            return
+        self._gloo()
+        try:
+            for _array, texture in self._textures.values():
+                texture.delete()
+            for target in self._targets.values():
+                target.delete()
+            for other in (*self._luts.values(), *self._programs.values()):
+                other.delete()
+        finally:
+            self._release()
+        self._textures, self._targets, self._programs, self._luts = {}, {}, {}, {}

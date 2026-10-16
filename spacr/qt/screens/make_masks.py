@@ -9502,16 +9502,27 @@ class _VolumeSliceHistory:
 #: rather than the drawing plane, in seconds.
 SPIN_CHORD_SECONDS = 1.5
 
-#: Most voxels the True 3D view draws from, by quality: ``interactive``
-#: while the view is turning, ``preview`` once it stops, ``full`` on demand
-#: (``None``: every voxel).
-VOLUME_RENDER_VOXELS = {'interactive': 262_144, 'preview': 4_194_304, 'full': None}
+#: The Render backends of the True 3D view, in the order the list offers
+#: them: ``auto`` (the GPU when it works, else the CPU), ``opengl`` (VisPy
+#: gloo on the GPU) and ``cpu`` (NumPy/SciPy). Vulkan, Metal and Direct3D
+#: need wgpu, which spaCR does not ship, so they are never offered.
+VOLUME_BACKENDS = ('auto', 'opengl', 'cpu')
 
-#: Display pixels per rendered pixel, by quality.
-VOLUME_RENDER_PIXEL = {'interactive': 4.0, 'preview': 2.0, 'full': 1.0}
+#: The Render scale (percent of full resolution along each axis) a True 3D
+#: view starts at, by the backend drawing it.
+VOLUME_DEFAULT_SCALE = {'opengl': 100, 'cpu': 50}
 
-#: Voxels between two samples along a line of sight, by quality.
-VOLUME_RENDER_SAMPLE = {'interactive': 1.5, 'preview': 1.0, 'full': 1.0}
+#: OpenGL renderers that are software rasterisers: no faster than the CPU
+#: path, so Auto does not choose them (OpenGL still can).
+VOLUME_SOFTWARE_GL = ('llvmpipe', 'softpipe', 'swrast', 'swiftshader',
+                      'software rasterizer', 'gdi generic', 'microsoft basic render')
+
+#: The 3-D magnifier cube: its side at the start as a share of the volume's
+#: longest side, its smallest side in voxels, and how bright everything
+#: outside it stays.
+VOLUME_CUBE_SHARE = 0.25
+VOLUME_CUBE_MIN = 4
+VOLUME_CUBE_DIM = 0.35
 
 #: Most rendered pixels along either side, and most samples along a ray.
 VOLUME_RENDER_MAX_SIDE = 1600
@@ -9535,7 +9546,14 @@ VOLUME_EDGE_ON = 0.05
 
 
 class _RenderRequest(NamedTuple):
-    """One True 3D view to draw off the GUI thread, read on the GUI thread."""
+    """One True 3D view to draw, read on the GUI thread.
+
+    ``backend`` is ``opengl`` (drawn at once on the GUI thread, which owns
+    the GL context) or ``cpu`` (drawn on the render worker); ``scale`` is
+    the :class:`~spacr.layers.RenderScale` it is drawn at, ``voxel_size``
+    the physical size of one strided voxel per array axis and ``lens`` the
+    magnifier cube (:class:`~spacr.layers.VolumeLens`) or None.
+    """
 
     serial: int
     quality: str
@@ -9548,6 +9566,44 @@ class _RenderRequest(NamedTuple):
     cache: dict
     cancelled: Any
     session: Any
+    backend: str = 'cpu'
+    scale: Any = None
+    voxel_size: tuple = ()
+    lens: Any = None
+
+
+def _strided_layers(request):
+    """The request's visible layers over strided copies of their volumes.
+
+    A volume is strided once per volume, stride and (for the masks) edit,
+    and kept in ``request.cache``. The masks are always copied, even at
+    full resolution, so an edit made in place is a new array to the GPU's
+    texture cache.
+
+    :returns: the :class:`~spacr.layers.ImageLayer` and
+        :class:`~spacr.layers.LabelsLayer` list, bottom first.
+    """
+    from ...layers import ImageLayer, LabelsLayer
+
+    layers = []
+    cache = request.cache
+    for name, image, data, visible, opacity, colormap, limits, rendering, finish in request.layers:
+        if not visible:
+            continue
+        key = (name, id(data), 0 if image else request.version, request.steps)
+        if key not in cache:
+            for stale in [old for old in cache if old[0] == name and old[3] == request.steps]:
+                del cache[stale]
+            strided = np.asarray(data)[tuple(slice(None, None, step) for step in request.steps)]
+            cache[key] = np.ascontiguousarray(strided) if image else np.array(strided, order='C')
+        if image:
+            layers.append(ImageLayer(cache[key], name=name, colormaps=[colormap],
+                                     contrast_limits=[limits], opacity=opacity,
+                                     metadata={'rendering': rendering}))
+        else:
+            layers.append(LabelsLayer(cache[key], name=name, opacity=opacity,
+                                      metadata={'rendering': rendering, 'finish': finish}))
+    return layers
 
 
 def _render_volume_view(request):
@@ -9559,30 +9615,14 @@ def _render_volume_view(request):
         object under each rendered pixel, or None when cancelled.
     """
     from scipy import ndimage
-    from ...layers import ImageLayer, LabelsLayer, render_volume
+    from ...layers import render_volume
     from ..gil_priority import responsive_gui
 
-    layers = []
-    cache = request.cache
     with responsive_gui():
-        for name, image, data, visible, opacity, colormap, limits, rendering in request.layers:
-            if not visible:
-                continue
-            key = (name, id(data), 0 if image else request.version, request.steps)
-            if key not in cache:
-                for stale in [old for old in cache if old[0] == name and old[3] == request.steps]:
-                    del cache[stale]
-                cache[key] = np.ascontiguousarray(
-                    np.asarray(data)[tuple(slice(None, None, step) for step in request.steps)])
-            if image:
-                layers.append(ImageLayer(cache[key], name=name, colormaps=[colormap],
-                                         contrast_limits=[limits], opacity=opacity,
-                                         metadata={'rendering': rendering}))
-            else:
-                layers.append(LabelsLayer(cache[key], name=name, opacity=opacity,
-                                          metadata={'rendering': rendering}))
+        layers = _strided_layers(request)
         drawn = render_volume(layers, request.rays, highlight=request.highlight,
-                              cancelled=request.cancelled)
+                              cancelled=request.cancelled,
+                              voxel_size=request.voxel_size or None, lens=request.lens)
         if drawn is None:
             return None
         rgb, picked = drawn
@@ -9592,6 +9632,131 @@ def _render_volume_view(request):
             rgb = ndimage.zoom(rgb, (size[0] / rgb.shape[0], size[1] / rgb.shape[1], 1), order=1,
                                grid_mode=True, mode='nearest')
         return (np.clip(rgb, 0.0, 1.0) * 255).round().astype(np.uint8), picked
+
+
+def _volume_view_settings():
+    """The True 3D view's saved Render backend, Render scale and finish.
+
+    :returns: ``(backend, scale, finish)``; ``scale`` is None until one was
+        chosen, so each backend starts at its own default.
+    """
+    from ...layers import VOLUME_FINISHES
+    from ..preferences import get_volume_view
+
+    saved = get_volume_view()
+    backend = saved.get('backend') if saved.get('backend') in VOLUME_BACKENDS else 'auto'
+    if backend not in volume_render_backends():
+        backend = 'auto'
+    try:
+        scale = int(saved['scale']) if saved.get('scale') is not None else None
+    except (TypeError, ValueError):
+        scale = None
+    if scale is not None:
+        scale = min(100, max(1, scale))
+    finish = saved.get('finish') if saved.get('finish') in VOLUME_FINISHES else 'matte'
+    return backend, scale, finish
+
+
+def volume_render_backends():
+    """The Render backends this machine can offer the True 3D view.
+
+    ``auto`` and ``cpu`` always; ``opengl`` when VisPy (a spaCR dependency)
+    is importable. Whether a GL context really works is only known when the
+    first frame is drawn; :class:`_GLVolumeContext` finds out, and Auto
+    falls back to the CPU with a one-line note if it does not.
+
+    :returns: backend keys from :data:`VOLUME_BACKENDS`, in list order.
+    """
+    return tuple(key for key in VOLUME_BACKENDS
+                 if key != 'opengl' or find_spec('vispy') is not None)
+
+
+class _GLVolumeContext:
+    """An offscreen OpenGL context the True 3D view's GPU renderer draws in.
+
+    Made on the GUI thread the first time a frame is drawn on the GPU and
+    kept for the screen's life. A Qt :class:`QOpenGLContext` on a
+    :class:`QOffscreenSurface`, asked for desktop OpenGL; VisPy gloo
+    (:class:`spacr.layers.GLVolumeRenderer`) draws into its framebuffers and
+    reads the frame back, so the picture lands under the same matplotlib
+    axes the anchors are drawn on and nothing about the camera changes.
+
+    :param allow_software: whether a software rasteriser
+        (:data:`VOLUME_SOFTWARE_GL`) is accepted.
+    :raises RuntimeError: with a one-line reason when no usable context can
+        be made.
+    """
+
+    def __init__(self, allow_software=True):
+        """Make the context current once, check it and test-draw a frame."""
+        from PySide6.QtGui import QOffscreenSurface, QOpenGLContext, QSurfaceFormat
+        from ...layers import GLVolumeRenderer, ImageLayer, VolumeRays
+
+        if find_spec('vispy') is None:
+            raise RuntimeError('VisPy is not installed')
+        wanted = QSurfaceFormat()
+        wanted.setRenderableType(QSurfaceFormat.OpenGL)
+        wanted.setProfile(QSurfaceFormat.CompatibilityProfile)
+        self.context = QOpenGLContext()
+        self.context.setFormat(wanted)
+        if not self.context.create():
+            raise RuntimeError('no OpenGL context could be created')
+        if self.context.isOpenGLES():
+            raise RuntimeError('only OpenGL ES is available, and the shaders need desktop OpenGL')
+        self.surface = QOffscreenSurface()
+        self.surface.setFormat(self.context.format())
+        self.surface.create()
+        if not self.surface.isValid():
+            raise RuntimeError('no offscreen OpenGL surface could be created')
+        self.renderer = GLVolumeRenderer()
+        with self:
+            self.limits = self.renderer.limits()
+            name = self.limits['renderer'].lower()
+            if not allow_software and any(soft in name for soft in VOLUME_SOFTWARE_GL):
+                raise RuntimeError(f"OpenGL is drawn in software ({self.limits['renderer']})")
+            probe = ImageLayer(np.arange(8, dtype=np.float32).reshape(2, 2, 2), name='probe',
+                               contrast_limits=[(0.0, 7.0)])
+            rgb, _picked = self.renderer.render(
+                [probe], VolumeRays(origin=(0.0, 0.0, 0.0), across=(0.0, 0.0, 1.0),
+                                    down=(0.0, 1.0, 0.0), depth=(1.0, 0.0, 0.0),
+                                    shape=(2, 2, 2)))
+            if rgb.shape != (2, 2, 3) or not rgb.any():
+                raise RuntimeError('the OpenGL test frame came back empty')
+
+    def __enter__(self):
+        """Make the context current on the offscreen surface."""
+        if not self.context.makeCurrent(self.surface):
+            raise RuntimeError('the OpenGL context could not be made current')
+        return self
+
+    def __exit__(self, *_exc):
+        """Release the context, so another GL widget can draw."""
+        self.context.doneCurrent()
+        return False
+
+    def name(self):
+        """The GPU's own name, as its driver gives it."""
+        return self.limits['renderer']
+
+    def render(self, request):
+        """Draw one request on the GPU.
+
+        :returns: ``(rgb, picked)`` as :func:`_render_volume_view` returns.
+        """
+        x0, x1, y0, y1 = request.rect
+        size = (max(1, int(round(y1 - y0))), max(1, int(round(x1 - x0))))
+        with self:
+            return self.renderer.render(
+                _strided_layers(request), request.rays, highlight=request.highlight,
+                voxel_size=request.voxel_size or None, lens=request.lens, size=size)
+
+    def close(self):
+        """Free the GPU's textures and programs."""
+        try:
+            with self:
+                self.renderer.close()
+        except Exception:
+            LOG.debug('the True 3D GPU renderer could not be freed', exc_info=True)
 
 
 class _VolumeStage(QWidget):
@@ -9642,6 +9807,13 @@ class _VolumeStage(QWidget):
         self._version = 0
         self._frame_stale = False
         self._spin_armed = 0.0
+        self._gl = None
+        self._gl_tried = False
+        self._backend_note = ''
+        self._backend_choice, self._scale, self._finish = _volume_view_settings()
+        self._backend_box = self._scale_slider = self._scale_value = None
+        self._cube = SimpleNamespace(on=False, side=0.0, zoom=_MAGNIFIER_ZOOM, centre=None)
+        self._cube_artist = self._cube_button = None
         self._cancel = threading.Event()
         self._delivered.connect(self._take_edit)
         self._worker = _NewestRequestWorker(
@@ -9807,6 +9979,12 @@ class _VolumeStage(QWidget):
         self._layers = self._render_state = None
         self._render_cache = {}
         self._stroke = self._pan_from = None
+        self._cube.on, self._cube.side, self._cube.centre = False, 0.0, None
+        self._cube_artist = None
+        if self._cube_button is not None:
+            blocked = self._cube_button.blockSignals(True)
+            self._cube_button.setChecked(False)
+            self._cube_button.blockSignals(blocked)
         if self._settle_timer is not None:
             self._settle_timer.stop()
         for widget in (self._strip, self._rail, self.view_picker, self._xz, self._yz):
@@ -9825,6 +10003,9 @@ class _VolumeStage(QWidget):
         self._worker.close(timeout=0)
         self._mesher.close(timeout=0)
         self._renderer.close(timeout=0)
+        if self._gl is not None:
+            self._gl.close()
+            self._gl = None
 
     def draw_label(self):
         """The object a stroke draws: the chosen ID, or the first unused one."""
@@ -9973,7 +10154,7 @@ class _VolumeStage(QWidget):
         kind = event.type()
         if self._panel is not None and watched is self._panel.canvas._canvas:
             if (self.session is not None and kind in (QEvent.MouseButtonPress, QEvent.MouseMove,
-                                                      QEvent.MouseButtonRelease)
+                                                      QEvent.MouseButtonRelease, QEvent.Wheel)
                     and self._view_event(event)):
                 return True
             return super().eventFilter(watched, event)
@@ -10194,6 +10375,16 @@ class _VolumeStage(QWidget):
             button.clicked.connect(partial(self._choose_tool, key))
             controls.addWidget(button)
             self._tool_buttons[key] = button
+        self._cube_button = QPushButton(tr('Magnifier'), page)
+        self._cube_button.setObjectName('VolumeMask3DMagnifier')
+        self._cube_button.setCheckable(True)
+        tip = tr('A cube that shows the volume inside it magnified and dims everything '
+                 'outside it. It follows the pointer; Shift+wheel changes its size and '
+                 'Ctrl+wheel its zoom. M turns it on and off.')
+        self._cube_button.setToolTip(tip)
+        self._cube_button.setAccessibleDescription(tip)
+        self._cube_button.toggled.connect(self.set_magnifier)
+        controls.addWidget(self._cube_button)
         controls.addStretch(1)
         page.layout().addLayout(controls)
         for control, text in (
@@ -10274,9 +10465,29 @@ class _VolumeStage(QWidget):
         row.addWidget(self._grid_toggle)
         row.addStretch(1)
         column.addLayout(row)
-        self._full_button = QPushButton(tr('Render at full resolution'), dock)
-        self._full_button.setObjectName('VolumeRenderFull')
-        column.addWidget(self._full_button)
+        self._active_backend()
+        settings = QFormLayout()
+        settings.setContentsMargins(0, 0, 0, 0)
+        self._backend_box = QComboBox(dock)
+        self._backend_box.setObjectName('VolumeRenderBackend')
+        names = self._backend_names()
+        for key in volume_render_backends():
+            self._backend_box.addItem(names[key], key)
+        self._backend_box.setCurrentIndex(max(0, self._backend_box.findData(self._backend_choice)))
+        settings.addRow(tr('Render backend'), self._backend_box)
+        scale_row = QHBoxLayout()
+        self._scale_slider = QSlider(Qt.Horizontal, dock)
+        self._scale_slider.setObjectName('VolumeRenderScale')
+        self._scale_slider.setRange(1, 100)
+        self._scale_slider.setValue(self._render_percent())
+        self._scale_value = QLabel(dock)
+        self._scale_value.setObjectName('VolumeRenderScaleValue')
+        self._scale_value.setMinimumWidth(40)
+        self._scale_value.setText(f'{self._scale_slider.value()}%')
+        scale_row.addWidget(self._scale_slider, 1)
+        scale_row.addWidget(self._scale_value)
+        settings.addRow(tr('Render scale'), scale_row)
+        column.addLayout(settings)
         self._detail = QLabel(dock)
         self._detail.setObjectName('VolumeRenderDetail')
         self._detail.setWordWrap(True)
@@ -10284,13 +10495,96 @@ class _VolumeStage(QWidget):
         for control, text in (
                 (self._grid_toggle, tr('Draw the axes, ticks and grid around the volume. '
                                        'They zoom and move with the data.')),
-                (self._full_button, tr('Draw this view from every voxel. Turning or '
-                                       'zooming draws from the downsampled copy again.'))):
+                (self._backend_box, tr('What draws the 3D view. Auto uses the graphics card '
+                                       '(OpenGL) when it works and the CPU otherwise.')),
+                (self._scale_slider, tr('How much of the full resolution the 3D view is drawn '
+                                        'at, along each axis. Turning the view draws coarser '
+                                        'and sharpens to this when it stops.'))):
             control.setToolTip(text)
             control.setAccessibleDescription(text)
         self._grid_toggle.toggled.connect(self._grid_toggled)
-        self._full_button.clicked.connect(lambda: self._submit_render('full'))
+        self._backend_box.currentIndexChanged.connect(self._backend_chosen)
+        self._scale_slider.valueChanged.connect(self._scale_changed)
         return dock
+
+    @staticmethod
+    def _backend_names():
+        """The Render backend list's captions, by backend key."""
+        from ..i18n import tr
+
+        return {'auto': tr('Auto'), 'opengl': tr('OpenGL'), 'cpu': tr('CPU (software)')}
+
+    def _render_percent(self):
+        """The Render scale in use: the saved one, or the backend's default."""
+        if self._scale is not None:
+            return int(self._scale)
+        return VOLUME_DEFAULT_SCALE[self._active_backend()]
+
+    def _active_backend(self):
+        """``opengl`` when the GPU draws the 3-D view, else ``cpu``.
+
+        The GL context is made the first time it is asked for; when that
+        fails the view is drawn on the CPU, with a one-line note.
+        """
+        if self._backend_choice == 'cpu':
+            return 'cpu'
+        if self._gl is None and not self._gl_tried:
+            self._gl_tried = True
+            try:
+                self._gl = _GLVolumeContext(allow_software=self._backend_choice == 'opengl')
+            except Exception as exc:
+                self._gpu_failed(exc)
+        return 'opengl' if self._gl is not None else 'cpu'
+
+    def _gpu_failed(self, exc):
+        """Draw on the CPU from now on, and say why in one line."""
+        from ..i18n import tr
+
+        broken, self._gl = self._gl, None
+        self._gl_tried = True
+        if broken is not None:
+            broken.close()
+        reason = str(exc).strip().splitlines()[0] if str(exc).strip() else type(exc).__name__
+        self._backend_note = tr('GPU rendering is unavailable ({reason}); drawing on the CPU.',
+                                reason=reason)
+        LOG.warning('True 3D view: %s', self._backend_note)
+        self._say(self._backend_note)
+        self._sync_scale_slider()
+
+    def _sync_scale_slider(self):
+        """Show the Render scale in use, which until one is chosen is the
+        default of the backend now drawing."""
+        slider = self._scale_slider
+        if slider is None:
+            return
+        percent = self._render_percent()
+        blocked = slider.blockSignals(True)
+        slider.setValue(percent)
+        slider.blockSignals(blocked)
+        self._scale_value.setText(f'{percent}%')
+
+    def _backend_chosen(self, _index):
+        """Draw with the backend just chosen, and remember it."""
+        from ..preferences import set_volume_view
+
+        key = self._backend_box.currentData()
+        self._backend_choice = key
+        set_volume_view(backend=key)
+        self._backend_note = ''
+        if key != 'cpu' and self._gl is None:
+            self._gl_tried = False
+        self._active_backend()
+        self._sync_scale_slider()
+        self._view_changed()
+
+    def _scale_changed(self, value):
+        """Draw at the Render scale just set, and remember it."""
+        from ..preferences import set_volume_view
+
+        self._scale = int(value)
+        self._scale_value.setText(f'{int(value)}%')
+        set_volume_view(scale=int(value))
+        self._view_changed()
 
     def _fill_layer_list(self):
         """One row per layer, top layer first: eye, name, colour, opacity,
@@ -10366,6 +10660,17 @@ class _VolumeStage(QWidget):
             rendering.setCurrentIndex(max(0, rendering.findData(layer.metadata['rendering'])))
             rendering_line.addWidget(rendering, 1)
             lines.addLayout(rendering_line)
+            finish = None
+            if not image:
+                finish_line = QHBoxLayout()
+                finish_line.addWidget(QLabel(tr('Surface finish'), row))
+                finish = QComboBox(row)
+                finish.setObjectName('VolumeLayerFinish')
+                for key, text in self._finish_names().items():
+                    finish.addItem(text, key)
+                finish.setCurrentIndex(max(0, finish.findData(layer.metadata.get('finish', 'matte'))))
+                finish_line.addWidget(finish, 1)
+                lines.addLayout(finish_line)
             for control, text in (
                     (eye, tr('Show or hide this layer.')),
                     (colour, tr('The colour this channel is drawn in.')),
@@ -10375,7 +10680,10 @@ class _VolumeStage(QWidget):
                     (rendering, tr('MIP draws the brightest voxel along each line of sight; '
                                    'Attenuated MIP dims what lies behind bright voxels; '
                                    'Translucent draws the volume as a glowing fog. Masks are '
-                                   'drawn as shaded surfaces or as coloured glass.'))):
+                                   'drawn as shaded surfaces or as coloured glass.')),
+                    (finish, tr('How the mask surfaces catch the light: Matte is dull, Satin '
+                                'has a soft sheen, Glossy a sharp white highlight and Metallic '
+                                'a highlight in the object\'s own colour.'))):
                 if control is not None:
                     control.setToolTip(text)
                     control.setAccessibleDescription(text)
@@ -10386,9 +10694,12 @@ class _VolumeStage(QWidget):
                 colour.currentIndexChanged.connect(partial(self._layer_colour, layer.name, colour))
                 low.valueChanged.connect(partial(self._layer_contrast, layer.name, low, high))
                 high.valueChanged.connect(partial(self._layer_contrast, layer.name, low, high))
+            else:
+                finish.currentIndexChanged.connect(partial(self._layer_finish, layer.name, finish))
             holder.addWidget(row)
             self._layer_rows[layer.name] = SimpleNamespace(
-                eye=eye, colour=colour, opacity=opacity, low=low, high=high, rendering=rendering)
+                eye=eye, colour=colour, opacity=opacity, low=low, high=high, rendering=rendering,
+                finish=finish)
         holder.addStretch(1)
 
     @staticmethod
@@ -10408,6 +10719,14 @@ class _VolumeStage(QWidget):
             return {'mip': tr('MIP'), 'attenuated_mip': tr('Attenuated MIP'),
                     'translucent': tr('Translucent'), 'average': tr('Average'), 'minip': tr('MinIP')}
         return {'surface': tr('Surface'), 'translucent': tr('Translucent')}
+
+    @staticmethod
+    def _finish_names():
+        """The finishes a mask surface can have, dullest first."""
+        from ..i18n import tr
+
+        return {'matte': tr('Matte'), 'satin': tr('Satin'), 'glossy': tr('Glossy'),
+                'metallic': tr('Metallic')}
 
     @staticmethod
     def _swatch(key):
@@ -10447,6 +10766,15 @@ class _VolumeStage(QWidget):
         self._layers[name].metadata['rendering'] = box.currentData()
         self._view_changed()
 
+    def _layer_finish(self, name, box, _index):
+        """Light one masks layer's surfaces by another finish, and remember it."""
+        from ..preferences import set_volume_view
+
+        self._finish = box.currentData()
+        self._layers[name].metadata['finish'] = self._finish
+        set_volume_view(finish=self._finish)
+        self._view_changed()
+
     def _on_layer_event(self, event):
         """Redraw the 3-D view when a layer's picture changes."""
         from ...layers import LayerEvent
@@ -10483,7 +10811,7 @@ class _VolumeStage(QWidget):
                 blending='additive',
                 metadata={'rendering': 'mip', 'range': (bottom, max(top, bottom + 1.0))}))
         layers.append(LabelsLayer(session.mask, name=tr('Masks'), opacity=0.6,
-                                  metadata={'rendering': 'surface'}))
+                                  metadata={'rendering': 'surface', 'finish': self._finish}))
         stack = LayerStack(layers)
         stack.subscribe(self._on_layer_event)
         return stack
@@ -10581,6 +10909,8 @@ class _VolumeStage(QWidget):
         figure.patch.set_alpha(1.0)
         self._slice_artist = None
         self._place_slice_plane(draw=False)
+        self._cube_artist = None
+        self._place_cube(draw=False)
         self._render_artist = None
         self._show_render(draw=False)
 
@@ -10644,12 +10974,14 @@ class _VolumeStage(QWidget):
         return origin, matrix, screen[0]
 
     def _render_request(self, quality):
-        """Everything the worker needs to draw the current view, read now.
+        """Everything needed to draw the current view, read now.
 
-        :param quality: ``interactive``, ``preview`` or ``full``.
+        :param quality: ``interactive`` while the view moves (drawn coarser,
+            see :func:`~spacr.layers.render_scale`), ``preview`` once it
+            stops (drawn at the Render scale).
         :returns: a :class:`_RenderRequest`, or None when nothing can be drawn.
         """
-        from ...layers import ImageLayer, VolumeRays, volume_steps
+        from ...layers import ImageLayer, LabelsLayer, VolumeRays, render_scale, volume_steps
 
         ax = self._view_axes()
         if ax is None or self.session is None or self._layers is None:
@@ -10669,8 +11001,16 @@ class _VolumeStage(QWidget):
         if x1 - x0 < 2 or y1 - y0 < 2:
             return None
         near, far = float(screen[:, 2].min()), float(screen[:, 2].max())
-        steps = volume_steps(session.image.shape, VOLUME_RENDER_VOXELS[quality])
-        pixel = VOLUME_RENDER_PIXEL[quality]
+        backend = self._active_backend()
+        gpu = backend == 'opengl'
+        scale = render_scale(self._render_percent(), session.image.size,
+                             dragging=quality == 'interactive', gpu=gpu)
+        steps = volume_steps(session.image.shape, scale.max_voxels)
+        if gpu:
+            side = max(1, int(self._gl.limits.get('max_3d', 2048)))
+            steps = tuple(max(step, -(-int(length) // side))
+                          for step, length in zip(steps, session.image.shape))
+        pixel = scale.pixel
         columns = int(min(VOLUME_RENDER_MAX_SIDE, max(2, np.ceil((x1 - x0) / pixel))))
         rows = int(min(VOLUME_RENDER_MAX_SIDE, max(2, np.ceil((y1 - y0) / pixel))))
         inverse = np.linalg.inv(matrix)
@@ -10678,7 +11018,7 @@ class _VolumeStage(QWidget):
         stride = np.asarray([steps[session.axes.index(axis)] for axis in 'XYZ'], dtype=np.float64)
         per_depth = np.linalg.norm(inverse[:, 2] / (spacing * stride))
         samples = int(min(VOLUME_RENDER_MAX_SAMPLES,
-                          max(2, np.ceil((far - near) * per_depth / VOLUME_RENDER_SAMPLE[quality]))))
+                          max(2, np.ceil((far - near) * per_depth / scale.sample))))
 
         def index(point, offset=True):
             """Physical screen point (or step) to strided array indices in storage order."""
@@ -10700,30 +11040,39 @@ class _VolumeStage(QWidget):
              layer.visible, layer.opacity,
              layer.colormap if isinstance(layer, ImageLayer) else None,
              layer.contrast_limits(0) if isinstance(layer, ImageLayer) else None,
-             layer.metadata.get('rendering'))
+             layer.metadata.get('rendering'),
+             layer.metadata.get('finish') if isinstance(layer, LabelsLayer) else None)
             for layer in self._layers)
+        voxel_size = tuple(float(spacing['XYZ'.index(axis)] * steps[position])
+                           for position, axis in enumerate(session.axes))
         self._render_serial += 1
         serial = self._render_serial
         return _RenderRequest(serial=serial, quality=quality, layers=snapshot, steps=steps,
                               rays=rays, rect=(x0, x1, y0, y1), version=self._version,
                               highlight=int(self._selected), cache=self._render_cache,
                               cancelled=lambda: self._render_serial != serial,
-                              session=session)
+                              session=session, backend=backend, scale=scale,
+                              voxel_size=voxel_size, lens=self._lens(steps))
 
     def _submit_render(self, quality):
-        """Ask the render worker for the current view at one quality.
+        """Draw the current view at one quality: at once on the GPU, or on the
+        render worker on the CPU.
 
-        :returns: whether a render was asked for.
+        :returns: whether a render was drawn or asked for.
         """
-        from ..i18n import tr
-
         if self.view != 'true3d' or self._panel is None:
             return False
         request = self._render_request(quality)
         if request is None:
             return False
-        if quality == 'full':
-            self._detail.setText(tr('Rendering the full-resolution volume…'))
+        if request.backend == 'opengl':
+            try:
+                result = self._gl.render(request)
+            except Exception as exc:
+                self._gpu_failed(exc)
+                return self._submit_render(quality)
+            self._take_render((request, result, None))
+            return True
         self._renderer.submit(request)
         return True
 
@@ -10762,14 +11111,29 @@ class _VolumeStage(QWidget):
             return
         if result is None:
             return
-        if request.serial != self._render_serial and request.quality != 'full':
+        if request.serial != self._render_serial:
             return
         rgb, picked = result
         self._render_state = SimpleNamespace(rgb=rgb, picked=picked, rect=request.rect,
-                                             quality=request.quality, steps=request.steps)
+                                             quality=request.quality, steps=request.steps,
+                                             backend=request.backend, scale=request.scale)
         reduction = max(request.steps)
-        self._detail.setText(tr('Shown at full resolution.') if reduction == 1 else tr(
-            'Shown at 1/{n} resolution; Render at full resolution shows every voxel.', n=reduction))
+        percent = request.scale.percent
+        if request.backend == 'opengl' and self._gl is not None:
+            name = self._gl.name()
+            text = (tr('Drawn on the GPU (OpenGL, {name}) at {percent}% scale, from every '
+                       'voxel.', name=name, percent=percent) if reduction == 1 else
+                    tr('Drawn on the GPU (OpenGL, {name}) at {percent}% scale, from 1 voxel '
+                       'in {n} along the most reduced axis.', name=name, percent=percent,
+                       n=reduction))
+        else:
+            text = (tr('Drawn on the CPU at {percent}% scale, from every voxel.',
+                       percent=percent) if reduction == 1 else
+                    tr('Drawn on the CPU at {percent}% scale, from 1 voxel in {n} along the '
+                       'most reduced axis.', percent=percent, n=reduction))
+        if self._backend_note:
+            text = f'{text} {self._backend_note}'
+        self._detail.setText(text)
         self._show_render()
 
     def _show_render(self, draw=True):
@@ -10797,6 +11161,182 @@ class _VolumeStage(QWidget):
         for name, button in self._tool_buttons.items():
             button.setChecked(name == self._tool3d)
 
+    def set_magnifier(self, on):
+        """Turn the 3-D magnifier on or off: a cube that shows the volume
+        inside it magnified and dims everything outside it.
+
+        Its side starts at :data:`VOLUME_CUBE_SHARE` of the volume's longest
+        side and its zoom at the Live magnifier's; it sits in the middle of
+        the volume until the pointer moves over the view.
+
+        :param on: whether the cube is shown.
+        :returns: whether it is on now.
+        """
+        cube = self._cube
+        on = bool(on) and self.session is not None and self._panel is not None
+        if on and cube.side <= 0:
+            low, high = self._cube_side_range()
+            cube.side = float(min(high, max(low, VOLUME_CUBE_SHARE * high)))
+            magnifier = getattr(self.canvas, 'magnifier', None)
+            cube.zoom = float(getattr(magnifier, 'zoom', _MAGNIFIER_ZOOM) or _MAGNIFIER_ZOOM)
+        if on and cube.centre is None:
+            cube.centre = np.asarray([sum(pair) / 2.0 for pair in self.session.limits], float)
+        cube.on = on
+        if self._cube_button is not None and self._cube_button.isChecked() != on:
+            blocked = self._cube_button.blockSignals(True)
+            self._cube_button.setChecked(on)
+            self._cube_button.blockSignals(blocked)
+        self._place_cube()
+        self._view_changed()
+        return on
+
+    def toggle_magnifier(self):
+        """The M key in True 3D: the magnifier cube on or off.
+
+        :returns: whether the key was taken.
+        """
+        if self.session is None or self.view != 'true3d' or self._panel is None:
+            return False
+        self.set_magnifier(not self._cube.on)
+        return True
+
+    def _cube_side_range(self):
+        """``(smallest, largest)`` cube side, in physical units."""
+        spacing = np.asarray(self.session.xyz_spacing, float)
+        longest = max(high - low for low, high in self.session.limits)
+        return float(VOLUME_CUBE_MIN * spacing.min()), float(longest)
+
+    def _wheel_speed(self):
+        """How much one wheel notch changes the cube: the canvas's zoom per notch."""
+        return max(1.001, float(getattr(self.canvas, 'zoom_speed', 1.15)))
+
+    def step_cube_size(self, up):
+        """Shift+wheel with the cube on: one notch larger or smaller.
+
+        :returns: the new side, in physical units.
+        """
+        low, high = self._cube_side_range()
+        speed = self._wheel_speed()
+        side = self._cube.side * speed if up else self._cube.side / speed
+        self._cube.side = float(min(high, max(low, side)))
+        self._place_cube()
+        self._view_changed()
+        return self._cube.side
+
+    def step_cube_zoom(self, up):
+        """Ctrl+wheel with the cube on: magnify one notch more or less.
+
+        :returns: the new zoom.
+        """
+        low, high = _MAGNIFIER_ZOOM_RANGE
+        speed = self._wheel_speed()
+        zoom = self._cube.zoom * speed if up else self._cube.zoom / speed
+        self._cube.zoom = float(min(high, max(low, zoom)))
+        self._view_changed()
+        return self._cube.zoom
+
+    def cube_corners(self):
+        """The magnifier cube's eight corners, in physical X/Y/Z.
+
+        :returns: an ``(8, 3)`` array, or None while the cube is off.
+        """
+        from ...layers import VolumeLens
+
+        cube = self._cube
+        if not cube.on or cube.centre is None:
+            return None
+        return VolumeLens(tuple(cube.centre), (cube.side / 2.0,) * 3).corners()
+
+    def _lens(self, steps):
+        """The cube as the renderer sees it, in strided array indices, or None."""
+        from ...layers import VolumeLens
+
+        cube = self._cube
+        if not cube.on or cube.centre is None or self.session is None:
+            return None
+        session = self.session
+        spacing = np.asarray(session.xyz_spacing, float)
+        stride = np.asarray([steps[session.axes.index(axis)] for axis in 'XYZ'], float)
+        centre = (np.asarray(cube.centre, float) / spacing - 0.5) / stride
+        half = cube.side / 2.0 / (spacing * stride)
+        order = ['XYZ'.index(axis) for axis in session.axes]
+        return VolumeLens(tuple(float(centre[i]) for i in order),
+                          tuple(float(half[i]) for i in order),
+                          zoom=float(cube.zoom), dim=VOLUME_CUBE_DIM)
+
+    def _cube_point(self, x, y):
+        """Where the cube goes for a display point: on the slice plane, or
+        halfway through the volume along the line of sight when the plane is
+        seen edge-on. Kept inside the volume.
+
+        :returns: physical X/Y/Z, or None off the volume.
+        """
+        ax = self._view_axes()
+        projected = None if ax is None else self._projection(ax)
+        if projected is None:
+            return None
+        origin, matrix, screen0 = projected
+        inverse = np.linalg.inv(matrix)
+        base = origin + inverse @ (np.array([x, y, 0.0]) - screen0)
+        slope = inverse[:, 2]
+        limits = np.asarray(self.session.limits, float)
+        if abs(slope[2]) >= VOLUME_EDGE_ON * np.linalg.norm(slope):
+            z = (self._cursor[2] + 0.5) * self.session.xyz_spacing[2]
+            point = base + (z - base[2]) / slope[2] * slope
+        else:
+            low, high = -np.inf, np.inf
+            for axis in range(3):
+                if abs(slope[axis]) < 1e-12:
+                    if not limits[axis, 0] <= base[axis] <= limits[axis, 1]:
+                        return None
+                    continue
+                a = (limits[axis, 0] - base[axis]) / slope[axis]
+                b = (limits[axis, 1] - base[axis]) / slope[axis]
+                low, high = max(low, min(a, b)), min(high, max(a, b))
+            if low > high:
+                return None
+            point = base + (low + high) / 2.0 * slope
+        if np.any(point < limits[:, 0]) or np.any(point > limits[:, 1]):
+            return None
+        return point
+
+    def _move_cube(self, x, y):
+        """Follow the pointer with the cube."""
+        point = self._cube_point(x, y)
+        if point is None:
+            return False
+        self._cube.centre = point
+        self._place_cube()
+        self._view_changed()
+        return True
+
+    def _place_cube(self, draw=True):
+        """Outline the magnifier cube in the 3-D view, or take it away."""
+        from mpl_toolkits.mplot3d.art3d import Line3DCollection
+        from ...layers import CUBE_EDGES
+
+        ax = self._view_axes()
+        if ax is None:
+            return
+        corners = self.cube_corners()
+        artist = self._cube_artist
+        if corners is None:
+            if artist is not None and artist.axes is ax:
+                artist.set_visible(False)
+        else:
+            segments = [(corners[a], corners[b]) for a, b in CUBE_EDGES]
+            if artist is None or artist.axes is not ax:
+                artist = Line3DCollection(segments, colors=active_palette()['accent'],
+                                          linewidths=1.4)
+                artist.set_gid('VolumeMagnifierCube')
+                ax.add_collection3d(artist)
+                self._cube_artist = artist
+            else:
+                artist.set_segments(segments)
+            artist.set_visible(True)
+        if draw:
+            self._panel.canvas._canvas.draw_idle()
+
     def _display_point(self, event):
         """A mouse event on the 3-D canvas as matplotlib display pixels."""
         x, y = self._panel.canvas._canvas.mouseEventCoords(event.position())
@@ -10808,6 +11348,17 @@ class _VolumeStage(QWidget):
         :returns: whether the event was used here.
         """
         kind = event.type()
+        if kind == QEvent.Wheel:
+            notches = event.angleDelta().y() or event.angleDelta().x()
+            modifiers = event.modifiers()
+            if (not self._cube.on or not notches
+                    or not modifiers & (Qt.ShiftModifier | Qt.ControlModifier)):
+                return False
+            if modifiers & Qt.ShiftModifier:
+                self.step_cube_size(notches > 0)
+            else:
+                self.step_cube_zoom(notches > 0)
+            return True
         if kind == QEvent.MouseButtonPress:
             point = self._display_point(event)
             shifted = bool(event.modifiers() & Qt.ShiftModifier)
@@ -10831,6 +11382,8 @@ class _VolumeStage(QWidget):
             if self._stroke is not None:
                 self._stroke_to(*self._display_point(event))
                 return True
+            if self._cube.on and event.buttons() == Qt.NoButton:
+                self._move_cube(*self._display_point(event))
             return False
         if kind == QEvent.MouseButtonRelease:
             if self._pan_from is not None:
@@ -14405,6 +14958,9 @@ class MakeMasksScreen(QWidget):
 
         :returns: whether the magnifier changed state.
         """
+        stage = getattr(self, "_mask_stage", None)
+        if stage is not None and stage.toggle_magnifier():
+            return True
         button = getattr(self, "_btn_magnifier", None)
         if button is None or not button.isEnabled() \
                 or not button.isVisibleTo(self):

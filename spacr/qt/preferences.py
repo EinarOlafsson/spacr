@@ -653,6 +653,7 @@ DEFAULT_FIG_SAVE_MODE = "print"
 
 _KEY_FIG_LIVE_CACHE = "prefs/figure_live_cache"
 _KEY_FIG_DYNAMIC = "prefs/figure_dynamic"
+_KEY_VOLUME_VIEW = "prefs/volume_view"
 DEFAULT_FIG_LIVE_CACHE = 20
 #: Bounds, not a menu: any number in range is legal.
 MIN_FIG_LIVE_CACHE = 1
@@ -1296,6 +1297,42 @@ def set_figure_dynamic(enabled: bool) -> None:
         false to keep showing its raster; stored as a ``bool``.
     """
     _settings().setValue(_KEY_FIG_DYNAMIC, bool(enabled))
+
+
+def get_volume_view() -> dict:
+    """The Make Masks True 3D view's saved render settings.
+
+    :returns: a dict that may hold ``backend`` (``auto``, ``opengl`` or
+        ``cpu``), ``scale`` (the Render scale, 1 to 100) and ``finish`` (the
+        mask surfaces' finish); a key never chosen is absent. The caller
+        checks the values, so a store written by a later version still
+        opens.
+    """
+    import json
+
+    raw = _settings().value(_KEY_VOLUME_VIEW, "")
+    try:
+        saved = json.loads(raw) if isinstance(raw, str) and raw else raw
+    except ValueError:
+        return {}
+    return dict(saved) if isinstance(saved, dict) else {}
+
+
+def set_volume_view(**values) -> None:
+    """Remember some of the True 3D view's render settings.
+
+    :param values: any of ``backend``, ``scale`` and ``finish``; the others
+        keep their saved values.
+    :raises ValueError: for any other name.
+    """
+    import json
+
+    unknown = set(values) - {"backend", "scale", "finish"}
+    if unknown:
+        raise ValueError(f"unknown True 3D settings: {', '.join(sorted(unknown))}")
+    saved = get_volume_view()
+    saved.update(values)
+    _settings().setValue(_KEY_VOLUME_VIEW, json.dumps(saved, sort_keys=True))
 
 
 def get_figure_png_dpi() -> int:

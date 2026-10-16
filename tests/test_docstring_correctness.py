@@ -2616,6 +2616,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "700_anonymous_reports_client_api_arrivals_2026-10-14.json",
                      "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json",
                      "673_napari_true3d_api_arrivals_2026-10-15.json",
+                     "673_true3d_gpu_api_arrivals_2026-10-16.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
@@ -4348,6 +4349,13 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert {key: docs[key] for key in n673_additions} == n673_additions
     assert not n673_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **n673_additions}
+    # 2026-10-16: Item 673 speed follow-up: GPU volume renderer, render scale, surface finishes, magnifier cube and True 3D render settings; one named contract.
+    n673g_additions = json.loads((pathlib.Path(__file__).resolve().parent / "data/release_contracts"
+        / "673_true3d_gpu_api_arrivals_2026-10-16.json").read_text())
+    assert len(n673g_additions) == 23
+    assert {key: docs[key] for key in n673g_additions} == n673g_additions
+    assert not n673g_additions.keys() & zoo_additions.keys()
+    zoo_additions = {**zoo_additions, **n673g_additions}
     for contract, expected_count in (
         ("561_classifier_api_arrivals_2026-10-15.json", 19),
         ("180_session_figure_api_arrivals_2026-10-15.json", 2),
@@ -4792,6 +4800,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "700_anonymous_reports_client_api_arrivals_2026-10-14.json",
                      "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json",
                      "673_napari_true3d_api_arrivals_2026-10-15.json",
+                     "673_true3d_gpu_api_arrivals_2026-10-16.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
@@ -4845,6 +4854,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "700_anonymous_reports_client_api_arrivals_2026-10-14.json",
                      "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json",
                      "673_napari_true3d_api_arrivals_2026-10-15.json",
+                     "673_true3d_gpu_api_arrivals_2026-10-16.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",

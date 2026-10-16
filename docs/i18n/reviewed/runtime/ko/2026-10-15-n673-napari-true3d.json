@@ -62,24 +62,10 @@
     },
     {
       "table": "ui",
-      "key": "Render at full resolution",
-      "source": "Render at full resolution",
-      "source_sha256": "0373d05cb3f911945f6490d9cf83ccc3287fab517110efdff90d9f93350e8115",
-      "translation": "전체 해상도로 렌더링"
-    },
-    {
-      "table": "ui",
       "key": "Draw the axes, ticks and grid around the volume. They zoom and move with the data.",
       "source": "Draw the axes, ticks and grid around the volume. They zoom and move with the data.",
       "source_sha256": "fe5947437519cbb0ccc75d342d89c2ea166418427206c0c4b6d2a441dc5e956d",
       "translation": "볼륨 주위에 축, 눈금, 격자를 그립니다. 데이터와 함께 확대/축소되고 이동합니다."
-    },
-    {
-      "table": "ui",
-      "key": "Draw this view from every voxel. Turning or zooming draws from the downsampled copy again.",
-      "source": "Draw this view from every voxel. Turning or zooming draws from the downsampled copy again.",
-      "source_sha256": "1839e16b4fedf6f76b818c7bb3b1fcb3cdb842482ad7bb820cb19367bc69a44e",
-      "translation": "모든 복셀로 이 보기를 그립니다. 회전하거나 확대/축소하면 다시 다운샘플링된 사본으로 그립니다."
     },
     {
       "table": "ui",
@@ -199,27 +185,6 @@
       "source": "Surface",
       "source_sha256": "0905f7f59021c2a85f1c0a50d7c252a3e6c6ee006514f01d7264097f1fd4337a",
       "translation": "표면"
-    },
-    {
-      "table": "ui",
-      "key": "Rendering the full-resolution volume…",
-      "source": "Rendering the full-resolution volume…",
-      "source_sha256": "1e74051ad0155297accf569a971bebbc8c2f7fcb8ae7e4152601547a8ea0f434",
-      "translation": "볼륨을 전체 해상도로 렌더링하는 중…"
-    },
-    {
-      "table": "ui",
-      "key": "Shown at full resolution.",
-      "source": "Shown at full resolution.",
-      "source_sha256": "53a83d273ddef334ed7504226309147bc01797bcbeab8cddd5f86a77c745d8a8",
-      "translation": "전체 해상도로 표시했습니다."
-    },
-    {
-      "table": "ui",
-      "key": "Shown at 1/{n} resolution; Render at full resolution shows every voxel.",
-      "source": "Shown at 1/{n} resolution; Render at full resolution shows every voxel.",
-      "source_sha256": "f3db8580917e05050041a5192f3e2749d856c5e96ba1829c4d50bc150e064517",
-      "translation": "1/{n} 해상도로 표시했습니다. 전체 해상도로 렌더링하면 모든 복셀이 표시됩니다."
     },
     {
       "table": "ui",
