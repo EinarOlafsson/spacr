@@ -1,6 +1,6 @@
 MAKE MASKS: EDIT LABELS AND CURATE TIMELAPSE IDENTITIES / DIVISIONS
 
-Status:    in progress 2026-10-16; existing-control check first, lineage storage choice pending maintainer.
+Status:    in progress 2026-10-16; manual controls underway, enlarged lineage capacity/storage choice pending maintainer.
 Requested: maintainer, 2026-10-16.
 
 WHAT TO BUILD
@@ -17,3 +17,7 @@ Use generic synthetic timelapse examples with division for CPU/offscreen tests: 
 Coordinate make_masks.py ownership with705/706 Measure/detection and673 volume renderer; no new module under spacr, no Home GPU use. This manual workflow does not rerun or alter F537's scientific lineage inference.
 
 2026-10-16 — Registered the complete maintainer request before implementation; storage proposal explained, choice pending. Existing CI,673,703,705/706 and other authorized work continues.
+
+2026-10-16 — Expanded capacity: preferably10000 starting cells,100 divisions and10 generations of ancestry.16-bit pixel IDs alone cannot satisfy this:10 complete binary generations from10000 founders require20470000 distinct identities.
+Explained options:32-bit masks with embedded TIFF lineage records (recommended),16-bit per-frame labels mapped to persistent IDs in embedded metadata, or32-bit labels-only encoding with fixed depth. Clarification pending whether100 means division events per family or100 successive generations.
+Continue independent editing/navigation work; hold the storage contract and dtype-dependent integration until the maintainer chooses. Preserve existing limits honestly and avoid allocations proportional to the maximum possible label.
