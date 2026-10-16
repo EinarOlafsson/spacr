@@ -650,8 +650,9 @@ jobs:
           VERSION: ${{ needs.bump.outputs.version }}
         run: |
           if [ -z "$GH_TOKEN" ]; then
-            echo "::warning::SITE_DISPATCH_TOKEN is not configured; the website's daily rebuild remains the fallback."
-            echo 'Project website: immediate refresh needs SITE_DISPATCH_TOKEN with access to EinarOlafsson/site-src.' >> "$GITHUB_STEP_SUMMARY"
+            echo "::warning::SITE_DISPATCH_TOKEN is not configured; the website checks release versions and assets hourly and rebuilds all metadata daily."
+            echo 'Project website: automatic release checks run hourly; immediate automatic refresh needs SITE_DISPATCH_TOKEN with access to EinarOlafsson/site-src.' >> "$GITHUB_STEP_SUMMARY"
+            echo 'An authorized maintainer can also run [Build and deploy](https://github.com/EinarOlafsson/site-src/actions/workflows/deploy.yml) with force=true after publication.' >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
           gh api --method POST repos/EinarOlafsson/site-src/dispatches \
