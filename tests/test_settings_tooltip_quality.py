@@ -1017,15 +1017,22 @@ def test_real_default_claims_have_no_unrecorded_drift():
                                   "timelapse_lineage_bud_guard",
                                   "timelapse_lineage_bud_threshold")}
     assert item_537_rules <= compared_pairs
-    # F580 adds the same blank-reference claim in these two consumers.
-    # Remove only those named arrivals before the unchanged historical census.
-    reference_plate_arrivals = {
-        (app, "intensity_calibration_reference_plate")
+    # F580 adds four blank session/reference inputs in these two consumers.
+    # Subtract only the exact named arrivals; the historical census stays 931.
+    session_reference_arrivals = {
+        (app, key)
         for app in ("measure", "external_masks")
+        for key in (
+            "intensity_calibration_reference_plate",
+            "intensity_calibration_sessions",
+            "intensity_calibration_beads",
+            "intensity_calibration_reference_session",
+        )
     }
-    assert reference_plate_arrivals <= compared_pairs
-    assert not reference_plate_arrivals & variants.keys()
-    assert comparisons - len(reference_plate_arrivals) == 931
+    assert len(session_reference_arrivals) == 8
+    assert session_reference_arrivals <= compared_pairs
+    assert not session_reference_arrivals & variants.keys()
+    assert comparisons - len(session_reference_arrivals) == 931
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
@@ -1077,7 +1084,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
             + len(item_537_min_division)
             + len(item_548_pool)
             + len(item_685) + len(item_537_rules)
-            == comparisons - len(reference_plate_arrivals))
+            == comparisons - len(session_reference_arrivals))
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19

@@ -148,7 +148,16 @@ def test_the_shortcuts_sit_right_of_the_three_views(screen, qtbot):
         "the shortcuts are to the RIGHT of Mask / Cell probability / Flows")
     assert [tabs.tabText(i) for i in range(tabs.count())] == [
         "Mask", "Cell probability", "Flows"]
-    assert panel.isVisible() and panel.width() == mm.SHORTCUTS_WIDTH
+    shortcut_pane = screen._view_pane.pane("Shortcuts")
+    assert shortcut_pane.minimum == mm.SHORTCUTS_WIDTH
+    assert panel.isVisible() and panel.width() >= mm.SHORTCUTS_WIDTH
+    initial_width = panel.width()
+    sizes = screen._view_pane.sizes()
+    screen._view_pane.setSizes([sizes[0] - 80, sizes[1] + 80])
+    QApplication.processEvents()
+    assert panel.width() > initial_width
+    assert panel.mapTo(screen, panel.rect().topLeft()).x() > (
+        tabs.mapTo(screen, tabs.rect().topRight()).x())
 
 
 def test_every_hint_is_on_the_screen_with_its_keys_and_its_sentence(
