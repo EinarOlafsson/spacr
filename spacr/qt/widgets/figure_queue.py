@@ -825,8 +825,10 @@ class _ClearFiguresLabel(QLabel):
         :param event: the key event.
         """
         if event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space):
-            self.flash()
-            self.clicked.emit()
+            if not event.isAutoRepeat():
+                self.flash()
+                self.clicked.emit()
+            event.accept()
             return
         super().keyPressEvent(event)
 

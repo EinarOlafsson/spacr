@@ -685,3 +685,9 @@ other-platform, provider/reporting or whole-N655 acceptance is claimed.
   live tree; no product code or action/state assertions were changed.
   Evidence:data/655_native_figure_actions_2026-10-15/receipt.json.
   No speech, human, other-OS or whole-N655 completion claim is added.
+
+2026-10-15 — Clear figures now ignores held-key repeats (source df654f5d846); related14 checks pass; naming70 and preference51 checks pass.
+BLOCKED ON MAINTAINER: run current spaCR with Orca on Linux, NVDA on Windows and VoiceOver on macOS.
+Use Tab/Shift+Tab through module screens and Preferences; confirm spoken names, roles, values/states and single Space/Enter activation.
+Check High contrast, text size, Reduce motion and Stronger focus, language changes and Apply/Cancel/reopen; report OS/control/keys/spoken output for failures.
+Work owns the Appearance tutorial refresh; offscreen checks do not establish audible or human screen-reader usability.
