@@ -578,10 +578,13 @@ def test_counterfactual_crops_are_collected_up_to_the_limit(tmp_path,
     import spacr.deep_spacr as ds
 
     seen = []
-    monkeypatch.setattr(ds, "_run_counterfactuals",
-                        lambda settings, model, crops, names, out, device:
-                        seen.append((sum(len(c) for c in crops), list(names),
-                                     out)))
+
+    def run_counterfactuals(settings, model, crops, names, out, device, *,
+                           input_contract):
+        assert input_contract is None, "the legacy fixture declares no classes"
+        seen.append((sum(len(c) for c in crops), list(names), out))
+
+    monkeypatch.setattr(ds, "_run_counterfactuals", run_counterfactuals)
     _root, tar_path, _names = _project(tmp_path, n_images=6)
     ds.generate_activation_map(_settings(tar_path, model_path, save=False,
                                          counterfactuals=True,

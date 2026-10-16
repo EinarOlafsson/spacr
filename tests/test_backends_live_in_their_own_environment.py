@@ -1749,9 +1749,13 @@ def test_a_checkpoint_path_is_used_and_a_missing_one_refused(tmp_path):
     checkpoint = tmp_path / "bioimage.pth"
     checkpoint.write_bytes(b"x")
     assert SB._cellpose3_model(str(checkpoint)) == str(checkpoint)
+    from spacr.model_zoo import ModelZooError, _model_resolution_context
+
     for missing in (str(tmp_path / "gone.pth"), "models/mine", "mine.pth"):
-        with pytest.raises(FileNotFoundError, match="the file is not there"):
+        with pytest.raises(ModelZooError) as exc:
             SB._cellpose3_model(missing)
+        assert str(exc.value) == _model_resolution_context(
+            missing, setting="model_name", kinds=("cellpose3",))
 
 
 def test_request_parameters_become_plain_json():
