@@ -450,13 +450,6 @@
       "translation": "Hitta databasen eller mappen med bildutsnitt"
     },
     {
-      "key": "Finish signing in to {label} in the window that opened, then press Done.",
-      "source": "Finish signing in to {label} in the window that opened, then press Done.",
-      "source_sha256": "eecb98b2dd4576250672cbceba3e1622303d8f87555486c985a3df474e8349fe",
-      "table": "ui",
-      "translation": "Slutför inloggningen till {label} i fönstret som öppnades och tryck sedan på Klar."
-    },
-    {
       "key": "Five-parameter logistic (asymmetric)",
       "source": "Five-parameter logistic (asymmetric)",
       "source_sha256": "15e33d5ee0e9a910ce568e333c3abbecc9db89cb2b39b847e027c54b0ccac736",
@@ -574,13 +567,6 @@
       "source_sha256": "4344f77671756f5afbcaad8b9059c69b18baab56372d3355ea4c24a495d9060e",
       "table": "ui",
       "translation": "Installera {name}?"
-    },
-    {
-      "key": "Installing {label}…",
-      "source": "Installing {label}…",
-      "source_sha256": "a7a453fe3013e5f0d4d61aec261226d80aeac78e0ed6124f6514f51e65c1c3d4",
-      "table": "ui",
-      "translation": "Installerar {label}…"
     },
     {
       "key": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
@@ -793,13 +779,6 @@
       "translation": "Avstängt som standard. När ljudet är avstängt laddar spaCR inget ljudbibliotek och spelar ingenting. När det är på spelar spaCR de ljud som aktiveras nedan genom datorns förvalda ljudutgång."
     },
     {
-      "key": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
-      "source": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
-      "source_sha256": "dd935b5d7fe48a39493b59e044ff62e36a0ca816576d970d263c3b7ea601d776",
-      "table": "ui",
-      "translation": "Erbjuder installation av GitHub CLI och startar sedan inloggningen. Utan det går det fortfarande att skicka ett ärende: det öppnas i webbläsaren där du redan är inloggad."
-    },
-    {
       "key": "On by default. When on, an error report saves recent log lines, with paths and credentials redacted, to a file on this computer and names that file in the report. The log itself is never posted to GitHub.",
       "source": "On by default. When on, an error report saves recent log lines, with paths and credentials redacted, to a file on this computer and names that file in the report. The log itself is never posted to GitHub.",
       "source_sha256": "9b74032817cc3d8694c522542143e5ecff9dfdf100e6dba15c5b3ed2e83cedda",
@@ -854,13 +833,6 @@
       "source_sha256": "4b3b966cb45c6b0e7e73f3f68a0ccb9ba62c05de684832e86095d30bba5c2c5f",
       "table": "ui",
       "translation": "Öppnar {name}"
-    },
-    {
-      "key": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
-      "source": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
-      "source_sha256": "6f5e747dba4dc3d4cc0a05b17936533f61b4bd23cedd56267396af17fe22d9f8",
-      "table": "ui",
-      "translation": "Öppnar registreringssidan för GitHub i webbläsaren. Kom tillbaka hit efteråt för att installera GitHub CLI och logga in."
     },
     {
       "key": "Otsu",
@@ -1059,27 +1031,6 @@
       "translation": "Krymp"
     },
     {
-      "key": "Sign in",
-      "source": "Sign in",
-      "source_sha256": "bfd402b2f6f3812529b55596136d3a11c51616317e3b1cd999928e2d4eae7d3f",
-      "table": "ui",
-      "translation": "Logga in"
-    },
-    {
-      "key": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
-      "source": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
-      "source_sha256": "ef897d0ef358f9b184a513da4ab465debe812d22ce608282b06b5bfe3e6d609f",
-      "table": "ui",
-      "translation": "Logga in till {label} i fönstret som öppnades. spaCR upptäcker när du är klar."
-    },
-    {
-      "key": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
-      "source": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
-      "source_sha256": "deec05063963965c40890d0b21b74cace845bb7fa0e561af9e3d1ebc65589d7f",
-      "table": "ui",
-      "translation": "Inloggningen till {label} slutfördes inte inom {minutes} minuter. Tryck på Logga in för att försöka igen."
-    },
-    {
       "key": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
       "source": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
       "source_sha256": "149849acca7368282ad4b79559b42336aba111022b4df5d83808c2f85905bdf4",
@@ -1115,13 +1066,6 @@
       "translation": "Startar…"
     },
     {
-      "key": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
-      "source": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
-      "source_sha256": "f7441f3a2c785aa2262308bdb4f92fa2c9106ceba32fb21639f2ccc895747bc0",
-      "table": "ui",
-      "translation": "Slutade vänta på inloggningen. Tryck på Logga in för att börja igen, eller på Klar när du har loggat in."
-    },
-    {
       "key": "Stopping after this page…",
       "source": "Stopping after this page…",
       "source_sha256": "6ac19a1be499d0e73f3ee89b45c2f84300ce884b76f4e53691272fa54b94f438",
@@ -1129,25 +1073,11 @@
       "translation": "Stoppar efter denna sida…"
     },
     {
-      "key": "Stopping the installer…",
-      "source": "Stopping the installer…",
-      "source_sha256": "42958a5514188bdb1e8613d56d63acba59a710857f2735e7cb28781d5fac0906",
-      "table": "ui",
-      "translation": "Stoppar installationsprogrammet…"
-    },
-    {
       "key": "Test on my folder",
       "source": "Test on my folder",
       "source_sha256": "db188c0321042df271b0156ba35b7ee5f1d76cb7b69b904710e36cdcb76f8592",
       "table": "ui",
       "translation": "Testa på min mapp"
-    },
-    {
-      "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
-      "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
-      "source_sha256": "4bbf3ad8e30bbbc39c55d1b49ad3ebbd59692284ee35fd06abeecb76e4f7bcc3",
-      "table": "ui",
-      "translation": "Kommandot spaCR kör. Kopiera det för att köra det i en terminal själv istället."
     },
     {
       "key": "The file table decides this. Change the table's channels or mask columns and this follows.",
@@ -1162,13 +1092,6 @@
       "source_sha256": "ad110d7e4a316c0571044afa95d2aaac8bc30fb4555ad5a5a7926999778d5479",
       "table": "ui",
       "translation": "Filerna"
-    },
-    {
-      "key": "The installer could not be run: {error}",
-      "source": "The installer could not be run: {error}",
-      "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b",
-      "table": "ui",
-      "translation": "Installationsprogrammet kunde inte köras: {error}"
     },
     {
       "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
@@ -1197,13 +1120,6 @@
       "source_sha256": "28486dcd296765e6c94d34aefaea9f44e8ba7cb3ee33cff56d3ed3b40c3610f3",
       "table": "ui",
       "translation": "Rapporten skickades: {url}"
-    },
-    {
-      "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
-      "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
-      "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4",
-      "table": "ui",
-      "translation": "Inloggningen kunde inte startas härifrån. Kör kommandot nedan i en terminal och tryck sedan på Klar."
     },
     {
       "key": "The square the local level is measured in, centred on each pixel. Make it comfortably bigger than one object and smaller than the illumination's own scale: too small and the inside of a large object becomes its own background, so it comes back hollow; too large and it is the whole-field threshold again. Even numbers are rounded up, so the square has a centre.",
@@ -1528,13 +1444,6 @@
       "translation": "varje platta"
     },
     {
-      "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
-      "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
-      "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2",
-      "table": "ui",
-      "translation": "npm fick inte skriva till sin globala mapp. Kör `npm config set prefix ~/.local` en gång i en terminal så att npm installerar i en mapp som du äger, och tryck sedan på Försök igen."
-    },
-    {
       "key": "path to a folder of crop PNGs",
       "source": "path to a folder of crop PNGs",
       "source_sha256": "a45722613ad34bf3e323512783a11c859e726853d78b33c34b870ad0de109438",
@@ -1589,20 +1498,6 @@
       "source_sha256": "92bac7852c5d93147ce7805e0e9c68df652f59d7d7f06552657b1bc13d5ee47e",
       "table": "ui",
       "translation": "{key} finns inte i denna moduls formulär."
-    },
-    {
-      "key": "{label} is installed.",
-      "source": "{label} is installed.",
-      "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e",
-      "table": "ui",
-      "translation": "{label} är installerad."
-    },
-    {
-      "key": "{label} is signed in and ready.",
-      "source": "{label} is signed in and ready.",
-      "source_sha256": "bb5fc33dbf7cd3f9ab2ba87cf48e7575a1a6c18bae01c505d0eac9a54028cfce",
-      "table": "ui",
-      "translation": "{label} är inloggat och klart."
     },
     {
       "key": "{name} in {where}",
@@ -1852,11 +1747,161 @@
     },
     {
       "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json",
       "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
       "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
       "table": "ui",
-      "translation": "En 4PL är symmetrisk kring sin mittpunkt. Verklig asymmetri förekommer, och en 4PL absorberar den genom att förskjuta EC50. En 5PL anpassar asymmetrin med ytterligare en parameter, kräver ytterligare en koncentration och visar om den extra parametern är motiverad.",
-      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+      "translation": "En 4PL är symmetrisk kring sin mittpunkt. Verklig asymmetri förekommer, och en 4PL absorberar den genom att förskjuta EC50. En 5PL anpassar asymmetrin med ytterligare en parameter, kräver ytterligare en koncentration och visar om den extra parametern är motiverad."
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Finish signing in to {label} in the window that opened, then press Done.",
+        "source": "Finish signing in to {label} in the window that opened, then press Done.",
+        "source_sha256": "eecb98b2dd4576250672cbceba3e1622303d8f87555486c985a3df474e8349fe",
+        "table": "ui",
+        "translation": "Slutför inloggningen till {label} i fönstret som öppnades och tryck sedan på Klar."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Installing {label}…",
+        "source": "Installing {label}…",
+        "source_sha256": "a7a453fe3013e5f0d4d61aec261226d80aeac78e0ed6124f6514f51e65c1c3d4",
+        "table": "ui",
+        "translation": "Installerar {label}…"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+        "source": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+        "source_sha256": "dd935b5d7fe48a39493b59e044ff62e36a0ca816576d970d263c3b7ea601d776",
+        "table": "ui",
+        "translation": "Erbjuder installation av GitHub CLI och startar sedan inloggningen. Utan det går det fortfarande att skicka ett ärende: det öppnas i webbläsaren där du redan är inloggad."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+        "source": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+        "source_sha256": "6f5e747dba4dc3d4cc0a05b17936533f61b4bd23cedd56267396af17fe22d9f8",
+        "table": "ui",
+        "translation": "Öppnar registreringssidan för GitHub i webbläsaren. Kom tillbaka hit efteråt för att installera GitHub CLI och logga in."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Sign in",
+        "source": "Sign in",
+        "source_sha256": "bfd402b2f6f3812529b55596136d3a11c51616317e3b1cd999928e2d4eae7d3f",
+        "table": "ui",
+        "translation": "Logga in"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+        "source": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+        "source_sha256": "ef897d0ef358f9b184a513da4ab465debe812d22ce608282b06b5bfe3e6d609f",
+        "table": "ui",
+        "translation": "Logga in till {label} i fönstret som öppnades. spaCR upptäcker när du är klar."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+        "source": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+        "source_sha256": "deec05063963965c40890d0b21b74cace845bb7fa0e561af9e3d1ebc65589d7f",
+        "table": "ui",
+        "translation": "Inloggningen till {label} slutfördes inte inom {minutes} minuter. Tryck på Logga in för att försöka igen."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+        "source": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+        "source_sha256": "f7441f3a2c785aa2262308bdb4f92fa2c9106ceba32fb21639f2ccc895747bc0",
+        "table": "ui",
+        "translation": "Slutade vänta på inloggningen. Tryck på Logga in för att börja igen, eller på Klar när du har loggat in."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Stopping the installer…",
+        "source": "Stopping the installer…",
+        "source_sha256": "42958a5514188bdb1e8613d56d63acba59a710857f2735e7cb28781d5fac0906",
+        "table": "ui",
+        "translation": "Stoppar installationsprogrammet…"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+        "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+        "source_sha256": "4bbf3ad8e30bbbc39c55d1b49ad3ebbd59692284ee35fd06abeecb76e4f7bcc3",
+        "table": "ui",
+        "translation": "Kommandot spaCR kör. Kopiera det för att köra det i en terminal själv istället."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "The installer could not be run: {error}",
+        "source": "The installer could not be run: {error}",
+        "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b",
+        "table": "ui",
+        "translation": "Installationsprogrammet kunde inte köras: {error}"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+        "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+        "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4",
+        "table": "ui",
+        "translation": "Inloggningen kunde inte startas härifrån. Kör kommandot nedan i en terminal och tryck sedan på Klar."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+        "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+        "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2",
+        "table": "ui",
+        "translation": "npm fick inte skriva till sin globala mapp. Kör `npm config set prefix ~/.local` en gång i en terminal så att npm installerar i en mapp som du äger, och tryck sedan på Försök igen."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "{label} is installed.",
+        "source": "{label} is installed.",
+        "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e",
+        "table": "ui",
+        "translation": "{label} är installerad."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "{label} is signed in and ready.",
+        "source": "{label} is signed in and ready.",
+        "source_sha256": "bb5fc33dbf7cd3f9ab2ba87cf48e7575a1a6c18bae01c505d0eac9a54028cfce",
+        "table": "ui",
+        "translation": "{label} är inloggat och klart."
+      }
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",

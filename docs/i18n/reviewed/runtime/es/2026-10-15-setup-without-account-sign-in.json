@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_scope": "Claude AI technical review (Opus 5.5); adapted directly from the reviewed English and the existing translation for the installer privacy dialog after first-run setup stopped offering GitHub, Claude, GPT/Codex and Gemini sign-in; no native-speaker or human signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "spaCR privacy choices",
+      "source": "spaCR privacy choices",
+      "source_sha256": "e8108070bc92465570c121abbc23ccee070234cf6c77da046de04851d255e19f",
+      "translation": "Opciones de privacidad de spaCR"
+    },
+    {
+      "table": "ui",
+      "key": "Crash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished. A report is redacted, shown in an editable preview, and sent only when you press Send for that specific report. Both choices are optional and revocable in Preferences.",
+      "source": "Crash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished. A report is redacted, shown in an editable preview, and sent only when you press Send for that specific report. Both choices are optional and revocable in Preferences.",
+      "source_sha256": "7ac2ab3aea685d946cf4248e75022868af0d04dfe6097e86545e717f77ea291b",
+      "translation": "Los informes de fallos se envían al repositorio PÚBLICO de spaCR en GitHub. Cualquiera puede leerlos, se indexan y no se pueden retirar de forma fiable. El informe se censura, se muestra en una vista previa editable y solo se envía cuando pulse Enviar para ese informe concreto. Ambas opciones son voluntarias y se pueden revocar en Preferencias."
+    }
+  ]
+}

@@ -63,7 +63,7 @@ def test_choosing_a_language_redraws_the_screen_in_it(slides, qapp):
 
     # THE COUNTER IS BLANK ON SLIDE ONE, ON PURPOSE. This used to assert
     # "1 von 7" and went red without the translation getting worse:
-    # `_show_slide` now writes "" at index 0, because "1 of 7" was landing on
+    # `_show_slide` now writes "" at index 0, because "1 of N" was landing on
     # top of the GPU note and says least there anyway -- nobody needs telling
     # they are at the beginning.
     assert slides._where.text() == ""
@@ -75,7 +75,7 @@ def test_choosing_a_language_redraws_the_screen_in_it(slides, qapp):
     qapp.processEvents()
     assert slides._where.text() == i18n.tr("{n} of {total}", "de").format(
         n=2, total=len(SLIDES))
-    assert slides._where.text() != "2 of 7"
+    assert slides._where.text() != f"2 of {len(SLIDES)}"
 
 
 def test_it_switches_between_two_translations_not_through_english(slides,

@@ -1,7 +1,7 @@
 """The setup slides keep working when the parts around them do not.
 
-INVARIANTS 10: the fades, the palette, the ambient row, the bundled fonts and
-the provider registry are decoration or optional, and every one of them can be
+INVARIANTS 10: the fades, the palette, the ambient row and the bundled fonts
+are decoration or optional, and every one of them can be
 missing on a fresh machine -- which is the machine this screen is built for.
 These drive the paths that only appear when something is absent, broken, or
 already deleted.
@@ -18,16 +18,14 @@ import pytest
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QEvent, QPoint, QPointF, QSize, Qt  # noqa: E402
-from PySide6.QtGui import QDesktopServices, QMouseEvent, QResizeEvent, QShowEvent  # noqa: E402
-from PySide6.QtWidgets import QApplication, QComboBox, QLabel, QMessageBox  # noqa: E402
+from PySide6.QtGui import QMouseEvent, QResizeEvent, QShowEvent  # noqa: E402
+from PySide6.QtWidgets import QApplication, QComboBox  # noqa: E402
 
 from spacr.qt.widgets import setup_slides as mod  # noqa: E402
 from spacr.qt.widgets.setup_slides import (  # noqa: E402
     GPU_NOTE_BAND,
     SLIDES,
     SetupSlides,
-    _held_at_the_top,
-    _let_go_of,
     _say,
     graphics_card,
 )
@@ -65,15 +63,6 @@ def debug_log(caplog):
     return caplog
 
 
-@pytest.fixture
-def empty_path(tmp_path, monkeypatch):
-    """A PATH with no CLI on it at all."""
-    bare = tmp_path / "nothing"
-    bare.mkdir()
-    monkeypatch.setenv("PATH", str(bare))
-    return bare
-
-
 # ------------------------------------------------------------- the machine
 
 
@@ -109,31 +98,6 @@ def test_a_caption_survives_a_broken_translator(monkeypatch):
     assert _say("Language") == "Language"
 
 
-def test_a_dying_dialog_lets_go_of_gh_without_raising(debug_log):
-    """``gh auth login`` outlives this screen on purpose, so the detach runs
-    while the dialog is being destroyed: a signal that was never connected and
-    a process already reparented are both ordinary there, and raising on
-    either is the "C++ object already deleted" crash on the way out."""
-    seen = []
-    _let_go_of(types.SimpleNamespace(
-        finished=types.SimpleNamespace(
-            disconnect=lambda: seen.append("disconnected")),
-        setParent=lambda parent: seen.append(parent) or _boom()))
-    assert seen == ["disconnected", None]
-    assert "gh process could not be detached" in debug_log.text
-
-
-def test_the_provider_caption_still_gets_its_cell(app, monkeypatch):
-    """The AI caption is pinned to the top of a cell as tall as the marks it
-    names; with no mark to measure it keeps its natural height rather than the
-    row losing its label, which would read as a control that failed to
-    build."""
-    assert _held_at_the_top(QLabel("A")).findChild(QLabel).minimumHeight() > 0
-    monkeypatch.setattr("spacr.qt.widgets.provider_marks.ProviderMark", _boom)
-    bare = _held_at_the_top(QLabel("A"))
-    assert bare.findChild(QLabel).minimumHeight() == 0
-
-
 # ---------------------------------------------------------------- the card
 
 
@@ -158,8 +122,8 @@ def test_the_card_is_dressed_without_fonts_or_theme(slides, monkeypatch,
 
 def test_a_question_that_removed_itself_leaves_no_empty_row(app, qtbot,
                                                             monkeypatch):
-    """A question can withdraw -- the provider one does when no CLI is found
-    -- and the slide it was on closes over the gap: an empty labelled row
+    """A question can withdraw -- one whose choices are empty is
+    dropped -- and the slide it was on closes over the gap: an empty labelled row
     reads as a broken control rather than a question that does not apply."""
     from spacr.qt import setup_screen
     real = setup_screen.questions
@@ -184,141 +148,6 @@ def test_a_window_that_will_not_go_frameless_is_still_the_window(slides,
         "spacr.qt.widgets.glass._paint_nothing_behind_the_card", _boom)
     assert slides._go_frameless() is False
     assert "the setup screen would not go frameless" in debug_log.text
-
-
-# ------------------------------------------------------------------ github
-
-
-def test_the_status_survives_the_dialog_it_belongs_to(slides, monkeypatch):
-    """``gh auth login`` finishes long after this screen may be gone and its
-    ``finished`` lands on ``_refresh_github``, so the refresh has to notice
-    its labels are deleted C++ objects: touching one is a hard crash."""
-    from shiboken6 import delete
-    assert slides._still_on_screen() is True
-    slides._gh_action = "sentinel"
-    delete(slides._gh_status)
-    assert slides._still_on_screen() is False
-    slides._refresh_github()
-    assert slides._gh_action == "sentinel", "a gone dialog is not touched"
-    monkeypatch.setitem(sys.modules, "shiboken6", None)
-    assert slides._still_on_screen() is True, "no shiboken, assume alive"
-
-
-def test_the_github_row_names_all_three_states(slides, monkeypatch, tmp_path,
-                                               debug_log):
-    """Signed in, no CLI, and CLI-but-signed-out need three different things
-    from the user and this row is the only place that says which. The mark can
-    be absent on the way in, and the sentence still has to be written."""
-    del slides._gh_mark
-    monkeypatch.setattr("spacr.qt.ai.github_auth.auth_source", lambda: "gh")
-    slides._refresh_github()
-    assert "GitHub CLI" in slides._gh_status.text()
-    assert slides._gh_action == "login"
-    bare = tmp_path / "bare"
-    bare.mkdir()
-    monkeypatch.setenv("PATH", str(bare))
-    monkeypatch.setattr("spacr.qt.ai.github_auth.auth_source", _boom)
-    slides._refresh_github()
-    assert "not installed" in slides._gh_status.text()
-    assert slides._gh_action == "install"
-    assert "GitHub auth is not readable here" in debug_log.text
-    gh = bare / "gh"
-    gh.write_text("#!/bin/sh\nsleep 5\n")
-    gh.chmod(0o755)
-    monkeypatch.setattr("spacr.qt.ai.github_auth.auth_source", lambda: None)
-    slides._refresh_github()
-    assert slides._gh_status.text().startswith("not signed in")
-    assert slides._gh_action == "login"
-
-
-def test_the_logo_opens_the_install_page_when_there_is_no_cli(slides,
-                                                              monkeypatch,
-                                                              debug_log):
-    """With no ``gh`` there is nothing to log in to, so the click installs one
-    instead: a control that says "not installed" and then does nothing is the
-    dead button this row was reported for.
-
-    CHANGED 2026-09-19, item 420: the click now asks first, offering Install
-    beside the install page ("and same for the github cli"). The page is still
-    one press away, and this drives that press."""
-    opened = []
-    monkeypatch.setattr(QDesktopServices, "openUrl",
-                        staticmethod(lambda url: opened.append(url.toString())
-                                     or True))
-    offered = {}
-
-    def press_open_the_page(box):
-        offered["buttons"] = [b.text() for b in box.buttons()]
-        offered["pressed"] = next(b for b in box.buttons()
-                                  if b.text() == "Open the page")
-        return 0
-
-    monkeypatch.setattr(QMessageBox, "exec", press_open_the_page)
-    monkeypatch.setattr(QMessageBox, "clickedButton",
-                        lambda box: offered.get("pressed"))
-    slides._gh_action = "install"
-    assert slides._on_github_mark() is True
-    assert opened == [SetupSlides.GITHUB_CLI_PAGE]
-    assert "Copy the command" in offered["buttons"]
-    monkeypatch.setattr(QDesktopServices, "openUrl", staticmethod(_boom))
-    assert slides._open_in_the_browser(SetupSlides.GITHUB_CLI_PAGE) is False
-    assert "could not open" in debug_log.text
-
-
-def test_a_sign_in_says_whether_it_began(slides, tmp_path, monkeypatch,
-                                         debug_log):
-    """A login with no word on screen is the "nothing happened" this button
-    was reported for. A ``gh`` that cannot be launched -- missing, or refused
-    outright by a locked-down machine -- sends the user to a terminal, and one
-    that starts is held on the dialog, since a QProcess nobody holds is
-    collected mid-login."""
-    bin_dir = tmp_path / "bin"
-    bin_dir.mkdir()
-    monkeypatch.setenv("PATH", str(bin_dir))
-    slides._gh_action = "login"
-    assert slides._sign_in_to_github() is False
-    assert "would not start" in slides._gh_status.text()
-    gh = bin_dir / "gh"
-    gh.write_text("#!/bin/sh\nsleep 5\n")
-    gh.chmod(0o755)
-    assert slides._sign_in_to_github() is True
-    assert "starting" in slides._gh_status.text().lower()
-    slides._gh_process.kill()
-    slides._gh_process.waitForFinished(2000)
-
-    class _Refusing:
-        MergedChannels = 0
-        readyReadStandardOutput = finished = types.SimpleNamespace(
-            connect=lambda *_a: None)
-        start = _boom
-
-        def __init__(self, *_a):
-            pass
-
-        def setProcessChannelMode(self, *_a):
-            pass
-
-    monkeypatch.setattr("PySide6.QtCore.QProcess", _Refusing)
-    assert slides._sign_in_to_github() is False
-    assert "gh auth login would not start" in debug_log.text.replace("`", "")
-
-
-def test_the_one_time_code_is_shown_even_when_the_prompt_is_closed(slides,
-                                                                   debug_log):
-    """The code and the page to type it into are the whole of this flow.
-    ``gh`` waits on an Enter no GUI can send, and if that write fails the user
-    must still be looking at the code -- reading it off the screen is the only
-    way the sign-in can finish."""
-    chatty = types.SimpleNamespace(
-        readAllStandardOutput=lambda: b"copy your code: ABCD-1234\n",
-        write=_boom)
-    slides._open_in_the_browser = lambda url: False
-    assert slides._read_github_output(chatty) == "ABCD-1234"
-    assert "ABCD-1234" in slides._gh_status.text()
-    assert SetupSlides.GITHUB_DEVICE_PAGE in slides._gh_status.text()
-    assert "could not answer the gh prompt" in debug_log.text
-    assert slides._read_github_output(
-        types.SimpleNamespace(readAllStandardOutput=_boom)) == ""
 
 
 # --------------------------------------------------------------- the terms
@@ -430,128 +259,6 @@ def test_the_backdrop_is_stored_only_when_one_is_named(slides, monkeypatch):
     slides._animation = box
     slides._apply_animation()
     assert written == [box.currentData()]
-
-
-# ---------------------------------------------------------------- providers
-
-
-def test_a_provider_is_found_under_either_name_or_falls_back_to_path(
-        monkeypatch, empty_path, debug_log):
-    """This screen calls OpenAI's provider ``gpt`` and the registry files it
-    under ``codex``; a lookup that knows one spelling left that mark drawn as
-    neither installed nor signed in, which is how it was reported. A registry
-    that raises or cannot be imported falls back to PATH, so the mark still
-    says something rather than carrying no state at all."""
-    assert SetupSlides._provider_object("claude", "claude").name == "claude"
-    assert SetupSlides._provider_object("gpt", "codex").name == "codex"
-    assert SetupSlides._provider_object("", "") is None
-    monkeypatch.setattr("spacr.qt.ai.providers.get_provider", _boom)
-    assert SetupSlides._provider_object("claude", "claude") is None
-    assert SetupSlides._provider_is_signed_in("claude", "claude") is False
-    monkeypatch.setattr(
-        "spacr.qt.ai.providers.get_provider",
-        lambda name: types.SimpleNamespace(is_installed=_boom,
-                                           is_configured=lambda: True))
-    assert SetupSlides.provider_status("claude", "claude") == "not installed"
-    assert "could not ask 'claude' what state it is in" in debug_log.text
-    assert SetupSlides._provider_is_signed_in("claude", "claude") is True
-    monkeypatch.setattr("spacr.qt.ai.providers.get_provider",
-                        lambda name: None)
-    assert SetupSlides._provider_is_signed_in("claude", "claude") is False
-    monkeypatch.setitem(sys.modules, "spacr.qt.ai.providers", None)
-    assert SetupSlides._provider_object("claude", "claude") is None
-
-
-def test_a_login_needs_a_terminal_and_finds_one_per_platform(slides,
-                                                             monkeypatch):
-    """These CLI logins are conversations -- a code to copy, a key to paste --
-    and started without a terminal they hang on a prompt nobody can see, which
-    is how the GitHub button used to fail. Every platform gets its own way of
-    opening one, and a machine with none says so instead of pretending."""
-    launched = []
-
-    monkeypatch.setattr("PySide6.QtCore.QProcess", types.SimpleNamespace(
-        startDetached=lambda program, args: launched.append(
-            (program, tuple(args))) or True))
-    assert slides._run_in_a_terminal("   ") is False
-    monkeypatch.setattr(sys, "platform", "darwin")
-    assert slides._run_in_a_terminal("claude login") is True
-    assert launched[-1][0] == "osascript"
-    monkeypatch.setattr(sys, "platform", "win32")
-    assert slides._run_in_a_terminal("claude login") is True
-    assert launched[-1] == ("cmd", ("/c", "start", "claude", "login"))
-    monkeypatch.setattr(sys, "platform", "linux")
-    monkeypatch.setattr("shutil.which", lambda name: None)
-    assert slides._run_in_a_terminal("claude login") is False, "none found"
-    monkeypatch.setattr("shutil.which",
-                        lambda name: "/usr/bin/xterm" if name == "xterm"
-                        else None)
-    assert slides._run_in_a_terminal("claude login") is True
-    assert launched[-1] == ("xterm", ("-e", "claude", "login"))
-
-
-def test_choosing_a_provider_it_cannot_set_up_says_what_to_do(slides,
-                                                              monkeypatch):
-    """Choosing a provider you have not set up is the moment to say what it
-    needs -- "there is no popup no prompt for installing or any guidance" --
-    and every button in that prompt has to do something. A provider the
-    registry does not know has nothing to prompt about."""
-    copied = []
-    monkeypatch.setattr(QApplication, "clipboard",
-                        staticmethod(lambda: types.SimpleNamespace(
-                            setText=copied.append)))
-    picked = {}
-
-    def _press(text):
-        def _exec(box):
-            picked["button"] = next(
-                (b for b in box.buttons() if b.text() == text), None)
-            return 0
-        monkeypatch.setattr(QMessageBox, "exec", _exec)
-        monkeypatch.setattr(QMessageBox, "clickedButton",
-                            lambda box: picked.get("button"))
-
-    provider = types.SimpleNamespace(
-        label="Fake", cli_name="fake", install_hint="pip install fake",
-        login_command="fake login", is_installed=lambda: False,
-        is_logged_in=lambda: False)
-    _press("Copy the command")
-    assert slides._prompt_to_set_up(provider, "gpt") == \
-        "Copied: pip install fake"
-    assert copied == ["pip install fake"]
-    _press("Later")
-    assert slides._prompt_to_set_up(provider, "gpt") == \
-        "Fake is not set up yet."
-    monkeypatch.setattr(QApplication, "clipboard", staticmethod(_boom))
-    _press("Copy the command")
-    assert slides._prompt_to_set_up(provider, "gpt") == \
-        "Copied: pip install fake", "the command is still on screen to read"
-    assert copied == ["pip install fake"], "a refusing clipboard copies none"
-    monkeypatch.setattr(SetupSlides, "_provider_object",
-                        staticmethod(lambda code, command="": None))
-    assert slides._start_provider_login("claude") == ""
-
-
-def test_the_marks_are_recoloured_from_the_state_they_are_in(slides,
-                                                             monkeypatch):
-    """The colour of a mark IS its sign-in state, so choosing one has to
-    re-ask: an installed-but-signed-out provider looked exactly like one that
-    was ready to answer, which is why the three states exist at all."""
-    mark = types.SimpleNamespace(status="", available=False, chosen=None,
-                                 tip="", repaints=0)
-    mark.set_chosen = lambda on: setattr(mark, "chosen", on)
-    mark.setToolTip = lambda text: setattr(mark, "tip", text)
-    mark.update = lambda: setattr(mark, "repaints", mark.repaints + 1)
-    holder = types.SimpleNamespace(_chosen="", _buttons={"claude": mark},
-                                   _note=None)
-    monkeypatch.setattr(SetupSlides, "_start_provider_login",
-                        lambda self, code: "a note nobody can show")
-    slides._choose_provider(holder, "claude")
-    assert holder._chosen == "claude"
-    assert mark.chosen is True
-    assert mark.repaints == 1
-    assert mark.status in ("ready", "signed out", "not installed")
-    assert "Claude" in mark.tip
 
 
 # ----------------------------------------------------------------- motion
@@ -705,7 +412,7 @@ def test_the_slides_advance_with_no_timer_to_wait_on(slides, monkeypatch,
 
 
 def test_the_last_next_finishes_the_setup(slides, monkeypatch, debug_log):
-    """"Start spaCR" is the answer to the seven questions: it writes them and
+    """"Start spaCR" is the answer to the setup questions: it writes them and
     records that this version was answered, so the screen does not come back on
     every launch -- and it says in the log which answers the model refused
     rather than dropping them silently."""

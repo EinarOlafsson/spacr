@@ -68,7 +68,6 @@
   "gui_public_reports": "Fehlerberichte sind öffentlich und lassen sich nicht zuverlässig zurückziehen. Berichte werden vor jedem Senden bereinigt und zur Vorschau angezeigt. Diese Auswahl ist freiwillig und kann später in den Einstellungen geändert werden.",
   "gui_share_diagnostics": "Bereinigte Diagnoseprotokolle in Berichtsvorschauen aufnehmen",
   "gui_report_issues": "Öffentliche GitHub-Fehlerberichte aktivieren",
-  "gui_account_setup": "Kontoeinrichtung beim ersten Start öffnen",
   "gui_preserve": "Vorhandene Daten, Modelle, Caches und Einstellungen bleiben erhalten. Es ist keine optionale Bereinigung ausgewählt.",
   "gui_close": "Schließen",
   "gui_install": "Installieren",

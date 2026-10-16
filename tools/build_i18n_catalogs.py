@@ -3646,10 +3646,6 @@ _HELPER_CAPTION_RULES: dict[
     # A QPlainTextEdit, whose contents the language pass does not translate.
     ("widgets/annotation_umap_tab.py", "say"):
         ("widgets/annotation_umap_tab.py", ((0, "text"),)),
-    # A module-level helper, not a method: it translates the caption it is
-    # given and fills its {label}, {minutes} and {error} fields.
-    ("widgets/cli_setup_panel.py", "_say"):
-        ("widgets/cli_setup_panel.py", ((0, "text"),)),
     ("widgets/fast_plots.py", "_gated"):
         ("widgets/fast_plots.py", ((1, "label"), (3, "reason"))),
     # The plot's style note, stored and shown later.

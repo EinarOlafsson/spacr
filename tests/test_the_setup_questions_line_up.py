@@ -14,38 +14,10 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import (QFormLayout, QLabel,       # noqa: E402
-                               QWidget)
+from PySide6.QtWidgets import QFormLayout       # noqa: E402
 
 from spacr.qt.widgets.setup_slides import (FORM_GAP_PX,   # noqa: E402
                                            SetupSlides)
-
-
-@pytest.fixture(autouse=True)
-def _the_provider_step_is_offered_back(monkeypatch):
-    """Offer the AI-provider question again, so its row is still measured.
-
-    Item 700 (2026-10-14) took the question out of first-run setup: a new
-    user starts on spaCR AI (free) and changes provider in Preferences.
-    The slide still draws the provider row for a question list that offers
-    it, so its alignment is measured through exactly that list.
-    """
-    from spacr.qt import preferences as prefs
-    from spacr.qt import setup_screen
-
-    shipped = setup_screen.questions
-
-    def with_the_provider_question():
-        rows = list(shipped())
-        choices = setup_screen._provider_choices()
-        if choices:
-            rows.append(("ai_provider", "AI provider",
-                         prefs.get_preferred_provider,
-                         prefs.set_preferred_provider, choices))
-        return rows
-
-    monkeypatch.setattr(setup_screen, "questions",
-                        with_the_provider_question)
 
 
 @pytest.fixture()
@@ -112,39 +84,10 @@ def test_nothing_is_a_card_width_from_its_caption(slides):
                 f"{label} sits {right - left} px from its control")
 
 
-def test_the_provider_caption_is_level_with_its_marks(slides):
-    """The field is a stack, so centring on it lands between its parts.
-
-    A row of logo marks with a status note underneath: centred on the pair,
-    the caption sat level with the seam between them and 42 px below the
-    marks it names.
-    """
-    index = next(i for i in _pages_with_rows(slides)
-                 if any("provider" in (lab.text() if isinstance(lab, QLabel)
-                                       else (lab.findChild(QLabel).text()
-                                             if lab.findChild(QLabel) else ""))
-                        .lower()
-                        for lab, _f in _rows(slides, i)))
-    for label, field in _rows(slides, index):
-        text = label if isinstance(label, QLabel) else label.findChild(QLabel)
-        if text is None or "provider" not in text.text().lower():
-            continue
-        marks_row = field.layout().itemAt(0).layout()
-        first_mark = marks_row.itemAt(0).widget()
-        caption_y = text.mapTo(slides, text.rect().center()).y()
-        mark_y = first_mark.mapTo(slides, first_mark.rect().center()).y()
-        assert abs(mark_y - caption_y) <= 2, (
-            f"the caption is {mark_y - caption_y} px off its marks")
-        return
-    pytest.fail("the provider row was not found")
-
-
 def test_a_single_line_control_is_centred_on_its_caption(slides):
     """Everything that is not a stack must still read as one line."""
     for index in _pages_with_rows(slides):
         for label, field in _rows(slides, index):
-            if isinstance(label, QWidget) and not isinstance(label, QLabel):
-                continue        # the provider row, covered above
             drift = (field.mapTo(slides, field.rect().center()).y()
                      - label.mapTo(slides, label.rect().center()).y())
             assert abs(drift) <= 2, f"{label.text()} drifts {drift} px"

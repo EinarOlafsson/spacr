@@ -207,13 +207,6 @@
     },
     {
       "table": "ui",
-      "key": "Finish signing in to {label} in the window that opened, then press Done.",
-      "source": "Finish signing in to {label} in the window that opened, then press Done.",
-      "translation": "Terminez la connexion à {label} dans la fenêtre ouverte, puis appuyez sur Terminé.",
-      "source_sha256": "eecb98b2dd4576250672cbceba3e1622303d8f87555486c985a3df474e8349fe"
-    },
-    {
-      "table": "ui",
       "key": "Five-parameter logistic (asymmetric)",
       "source": "Five-parameter logistic (asymmetric)",
       "translation": "Logistique à cinq paramètres (asymétrique)",
@@ -316,13 +309,6 @@
       "source": "Install {name}?",
       "translation": "Installer {name} ?",
       "source_sha256": "4344f77671756f5afbcaad8b9059c69b18baab56372d3355ea4c24a495d9060e"
-    },
-    {
-      "table": "ui",
-      "key": "Installing {label}…",
-      "source": "Installing {label}…",
-      "translation": "Installation de {label}…",
-      "source_sha256": "a7a453fe3013e5f0d4d61aec261226d80aeac78e0ed6124f6514f51e65c1c3d4"
     },
     {
       "table": "ui",
@@ -547,6 +533,26 @@
       "source": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
       "translation": "Télécharger dix champs d'exemple pour l'analyse des plages de lyse et définir src sur leur dossier. Deux jeux sont proposés : des champs de plages de lyse segmentés, utilisés pour entraîner le modèle, ou des figures de plaques entières, utilisées en entrée du pipeline. Les données sont mises en cache après le premier téléchargement.",
       "source_sha256": "2712c235708a6e6d3cf1479fc35c5ce9de07d44520620a1e2a6a21cee9dddffa"
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Finish signing in to {label} in the window that opened, then press Done.",
+        "source": "Finish signing in to {label} in the window that opened, then press Done.",
+        "translation": "Terminez la connexion à {label} dans la fenêtre ouverte, puis appuyez sur Terminé.",
+        "source_sha256": "eecb98b2dd4576250672cbceba3e1622303d8f87555486c985a3df474e8349fe"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Installing {label}…",
+        "source": "Installing {label}…",
+        "translation": "Installation de {label}…",
+        "source_sha256": "a7a453fe3013e5f0d4d61aec261226d80aeac78e0ed6124f6514f51e65c1c3d4"
+      }
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27."

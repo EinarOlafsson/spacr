@@ -68,7 +68,6 @@
   "gui_public_reports": "Issue reports are public and cannot be reliably unpublished. Reports are redacted and previewed before each send. These choices are optional and can be changed later in Preferences.",
   "gui_share_diagnostics": "Include redacted diagnostic logs in report previews",
   "gui_report_issues": "Enable the public GitHub issue-report action",
-  "gui_account_setup": "Open account setup on first launch",
   "gui_preserve": "Your existing data, models, caches and preferences are kept. No optional cleanup is selected.",
   "gui_close": "Close",
   "gui_install": "Install",

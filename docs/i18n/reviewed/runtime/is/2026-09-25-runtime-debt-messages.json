@@ -783,13 +783,6 @@
     },
     {
       "table": "ui",
-      "key": "Finish signing in to {label} in the window that opened, then press Done.",
-      "source": "Finish signing in to {label} in the window that opened, then press Done.",
-      "source_sha256": "eecb98b2dd4576250672cbceba3e1622303d8f87555486c985a3df474e8349fe",
-      "translation": "Ljúktu innskráningu í {label} í glugganum sem opnaðist og ýttu svo á Lokið."
-    },
-    {
-      "table": "ui",
       "key": "Fit a measured-feature surrogate to existing computer-vision scores, preserving identity joins. A surrogate explanation is not causality.",
       "source": "Fit a measured-feature surrogate to existing computer-vision scores, preserving identity joins. A surrogate explanation is not causality.",
       "source_sha256": "d17d8fb71e7b0be7bf66776d0a32400b03bca80145816a8d884fff1b4a4084e1",
@@ -1336,13 +1329,6 @@
     },
     {
       "table": "ui",
-      "key": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
-      "source": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
-      "source_sha256": "dd935b5d7fe48a39493b59e044ff62e36a0ca816576d970d263c3b7ea601d776",
-      "translation": "Býðst til að setja upp GitHub CLI og skráir þig svo inn. Án þess virkar samt að skrá mál -- það opnast í þeim vafra sem þú ert þegar innskráð/ur í."
-    },
-    {
-      "table": "ui",
       "key": "On by default. A build's bundled release notes stop at the release before its own, so with this on spaCR reads the public list of releases from GitHub once a day, on a background thread, after Home is drawn, and shows anything newer at the top of News. Nothing is sent and nothing is signed in. Off shows only the notes bundled in this build.",
       "source": "On by default. A build's bundled release notes stop at the release before its own, so with this on spaCR reads the public list of releases from GitHub once a day, on a background thread, after Home is drawn, and shows anything newer at the top of News. Nothing is sent and nothing is signed in. Off shows only the notes bundled in this build.",
       "source_sha256": "4f436b775efc5f19fa3f9d156204b22867db2541b0e5c60134a67dda255020a4",
@@ -1431,13 +1417,6 @@
       "source": "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table.",
       "source_sha256": "7fd1ca38483ff7f42e51bed6c20ac2428ad7369c113eeb92b5fd0e031230e0d2",
       "translation": "Opnaðu lífverulýsinguna af Heimaskjánum, skoðaðu skýringarmynd hólfanna og veldu svo Plaque Assay, Söfnunargreiningu, Invasion Assay eða Replication Assay. Reitirnir fjórir merktir Væntanlegt lýsa tillögum og geta ekki keyrt. Lýsingin sjálf greinir ekki verkefni né býr til mælingatöflu."
-    },
-    {
-      "table": "ui",
-      "key": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
-      "source": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
-      "source_sha256": "6f5e747dba4dc3d4cc0a05b17936533f61b4bd23cedd56267396af17fe22d9f8",
-      "translation": "Opnar nýskráningarsíðu GitHub í vafranum þínum. Komdu svo aftur hingað til að setja upp GitHub CLI og skrá þig inn."
     },
     {
       "table": "ui",
@@ -1931,20 +1910,6 @@
     },
     {
       "table": "ui",
-      "key": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
-      "source": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
-      "source_sha256": "ef897d0ef358f9b184a513da4ab465debe812d22ce608282b06b5bfe3e6d609f",
-      "translation": "Skráðu þig inn í {label} í glugganum sem opnaðist. spaCR tekur eftir því þegar þú ert búin/n."
-    },
-    {
-      "table": "ui",
-      "key": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
-      "source": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
-      "source_sha256": "deec05063963965c40890d0b21b74cace845bb7fa0e561af9e3d1ebc65589d7f",
-      "translation": "Innskráning í {label} lauk ekki innan {minutes} mínútna. Ýttu á Skrá inn til að reyna aftur."
-    },
-    {
-      "table": "ui",
       "key": "Single-end or paired FASTQ files, with the matching barcode reference tables.",
       "source": "Single-end or paired FASTQ files, with the matching barcode reference tables.",
       "source_sha256": "0386f78d235909cfa5ae06c876ef6f91690c42f21c189eca9f20144eecc1f80a",
@@ -1984,13 +1949,6 @@
       "source": "Stop this montage and queued selections after the current read finishes.",
       "source_sha256": "3864a8c7159432852cd9b7ceb65e734357dff8ece7c85ea8d42432691f02ed91",
       "translation": "Stöðva þessa myndasamstæðu og val í biðröð eftir að núverandi lestri lýkur."
-    },
-    {
-      "table": "ui",
-      "key": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
-      "source": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
-      "source_sha256": "f7441f3a2c785aa2262308bdb4f92fa2c9106ceba32fb21639f2ccc895747bc0",
-      "translation": "Hætti að bíða eftir innskráningunni. Ýttu á Skrá inn til að hefja hana aftur, eða á Lokið þegar þú hefur skráð þig inn."
     },
     {
       "table": "ui",
@@ -2365,13 +2323,6 @@
     },
     {
       "table": "ui",
-      "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
-      "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
-      "source_sha256": "4bbf3ad8e30bbbc39c55d1b49ad3ebbd59692284ee35fd06abeecb76e4f7bcc3",
-      "translation": "Skipunin sem spaCR keyrir. Afritaðu hana til að keyra hana sjálf/ur í skipanalínu í staðinn."
-    },
-    {
-      "table": "ui",
       "key": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in ParaScape. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
       "source": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in ParaScape. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
       "source_sha256": "486cc736ebc04f37f783b8e95fe4dff7c6a8c3f1795d4213c8712c82f6dbe554",
@@ -2572,13 +2523,6 @@
       "source": "The side of one tile, in pixels. Comfortably larger than one object and smaller than the scale the illumination varies on; a tile the size of one object equalises the object against itself.",
       "source_sha256": "e06f724c273503648709fcf95234306da12f793623dd1f460cbb1ff28ba65565",
       "translation": "Hlið eins reits, í pixlum. Vel stærri en einn hlutur og minni en kvarðinn sem lýsingin breytist á; reitur á stærð við einn hlut jafnar hlutinn gagnvart sjálfum sér."
-    },
-    {
-      "table": "ui",
-      "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
-      "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
-      "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4",
-      "translation": "Ekki var hægt að hefja innskráninguna héðan. Keyrðu skipunina hér að neðan í skipanalínu og ýttu svo á Lokið."
     },
     {
       "table": "ui",
@@ -3135,13 +3079,6 @@
     },
     {
       "table": "ui",
-      "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
-      "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
-      "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2",
-      "translation": "npm fékk ekki að skrifa í alþjóðlegu möppuna sína. Keyrðu `npm config set prefix ~/.local` einu sinni í skipanalínu svo npm setji upp í möppu sem þú átt, og ýttu svo á Reyna aftur."
-    },
-    {
-      "table": "ui",
       "key": "path to measurements.db, or to a *_png crop folder",
       "source": "path to measurements.db, or to a *_png crop folder",
       "source_sha256": "94b30260bb4812f5e3b2008e375948b67235e35bfe419a8065dc740fd41f7502",
@@ -3414,6 +3351,96 @@
       "source_sha256": "4875a24655bac4495fc6ad1f4511a75f88bf6dcece0e4455d7dfb129b6031d21",
       "translation": "Notaðu Mælingu til að flytja út myndskurði hluta. Veldu verkefnið sem inniheldur sameinuðu myndirnar og grímurnar, virkjaðu svo vistun myndskurða og veldu gerð hlutar.",
       "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Finish signing in to {label} in the window that opened, then press Done.",
+        "source": "Finish signing in to {label} in the window that opened, then press Done.",
+        "source_sha256": "eecb98b2dd4576250672cbceba3e1622303d8f87555486c985a3df474e8349fe",
+        "translation": "Ljúktu innskráningu í {label} í glugganum sem opnaðist og ýttu svo á Lokið."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+        "source": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+        "source_sha256": "dd935b5d7fe48a39493b59e044ff62e36a0ca816576d970d263c3b7ea601d776",
+        "translation": "Býðst til að setja upp GitHub CLI og skráir þig svo inn. Án þess virkar samt að skrá mál -- það opnast í þeim vafra sem þú ert þegar innskráð/ur í."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+        "source": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+        "source_sha256": "6f5e747dba4dc3d4cc0a05b17936533f61b4bd23cedd56267396af17fe22d9f8",
+        "translation": "Opnar nýskráningarsíðu GitHub í vafranum þínum. Komdu svo aftur hingað til að setja upp GitHub CLI og skrá þig inn."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+        "source": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+        "source_sha256": "ef897d0ef358f9b184a513da4ab465debe812d22ce608282b06b5bfe3e6d609f",
+        "translation": "Skráðu þig inn í {label} í glugganum sem opnaðist. spaCR tekur eftir því þegar þú ert búin/n."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+        "source": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+        "source_sha256": "deec05063963965c40890d0b21b74cace845bb7fa0e561af9e3d1ebc65589d7f",
+        "translation": "Innskráning í {label} lauk ekki innan {minutes} mínútna. Ýttu á Skrá inn til að reyna aftur."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+        "source": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+        "source_sha256": "f7441f3a2c785aa2262308bdb4f92fa2c9106ceba32fb21639f2ccc895747bc0",
+        "translation": "Hætti að bíða eftir innskráningunni. Ýttu á Skrá inn til að hefja hana aftur, eða á Lokið þegar þú hefur skráð þig inn."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+        "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+        "source_sha256": "4bbf3ad8e30bbbc39c55d1b49ad3ebbd59692284ee35fd06abeecb76e4f7bcc3",
+        "translation": "Skipunin sem spaCR keyrir. Afritaðu hana til að keyra hana sjálf/ur í skipanalínu í staðinn."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+        "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+        "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4",
+        "translation": "Ekki var hægt að hefja innskráninguna héðan. Keyrðu skipunina hér að neðan í skipanalínu og ýttu svo á Lokið."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+        "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+        "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2",
+        "translation": "npm fékk ekki að skrifa í alþjóðlegu möppuna sína. Keyrðu `npm config set prefix ~/.local` einu sinni í skipanalínu svo npm setji upp í möppu sem þú átt, og ýttu svo á Reyna aftur."
+      }
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",

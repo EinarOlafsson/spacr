@@ -74,13 +74,6 @@
     },
     {
       "table": "ui",
-      "key": "Installing {label}…",
-      "source": "Installing {label}…",
-      "translation": "正在安装 {label}…",
-      "source_sha256": "a7a453fe3013e5f0d4d61aec261226d80aeac78e0ed6124f6514f51e65c1c3d4"
-    },
-    {
-      "table": "ui",
       "key": "Invert image",
       "source": "Invert image",
       "translation": "反相图像",
@@ -247,6 +240,16 @@
         "source_sha256": "66756402c8ebea2e3d38897d2df455b480a2499312a3e082a2d770824329343f"
       },
       "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Installing {label}…",
+        "source": "Installing {label}…",
+        "translation": "正在安装 {label}…",
+        "source_sha256": "a7a453fe3013e5f0d4d61aec261226d80aeac78e0ed6124f6514f51e65c1c3d4"
+      }
     }
   ]
 }

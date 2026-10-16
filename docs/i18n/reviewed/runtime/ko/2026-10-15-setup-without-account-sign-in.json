@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_scope": "Claude AI technical review (Opus 5.5); adapted directly from the reviewed English and the existing translation for the installer privacy dialog after first-run setup stopped offering GitHub, Claude, GPT/Codex and Gemini sign-in; no native-speaker or human signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "spaCR privacy choices",
+      "source": "spaCR privacy choices",
+      "source_sha256": "e8108070bc92465570c121abbc23ccee070234cf6c77da046de04851d255e19f",
+      "translation": "spaCR 개인정보 보호 선택"
+    },
+    {
+      "table": "ui",
+      "key": "Crash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished. A report is redacted, shown in an editable preview, and sent only when you press Send for that specific report. Both choices are optional and revocable in Preferences.",
+      "source": "Crash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished. A report is redacted, shown in an editable preview, and sent only when you press Send for that specific report. Both choices are optional and revocable in Preferences.",
+      "source_sha256": "7ac2ab3aea685d946cf4248e75022868af0d04dfe6097e86545e717f77ea291b",
+      "translation": "충돌 보고서는 공개 spaCR GitHub 저장소로 전송됩니다. 누구나 읽을 수 있고 검색에 노출되며, 게시 후 완전히 회수된다고 보장할 수 없습니다. 보고서는 민감 정보가 제거된 뒤 편집 가능한 미리보기에 표시되며, 해당 보고서에서 보내기를 눌렀을 때만 전송됩니다. 두 가지 선택 사항 모두 선택적이며 환경설정에서 철회할 수 있습니다."
+    }
+  ]
+}

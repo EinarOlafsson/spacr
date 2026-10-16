@@ -68,7 +68,6 @@
   "gui_public_reports": "Ärenderapporter är offentliga och kan inte säkert dras tillbaka. Rapporter avidentifieras och förhandsvisas före varje sändning. Valen är frivilliga och kan ändras senare i Inställningar.",
   "gui_share_diagnostics": "Ta med avidentifierade diagnostikloggar i rapportförhandsvisningar",
   "gui_report_issues": "Aktivera rapportering av offentliga GitHub-ärenden",
-  "gui_account_setup": "Öppna kontoinställningen vid första starten",
   "gui_preserve": "Befintliga data, modeller, cachefiler och inställningar behålls. Ingen frivillig rensning har valts.",
   "gui_close": "Stäng",
   "gui_install": "Installera",

@@ -11,13 +11,6 @@
     },
     {
       "table": "ui",
-      "key": "The installer could not be run: {error}",
-      "source": "The installer could not be run: {error}",
-      "translation": "O instalador não pôde ser executado: {error}",
-      "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b"
-    },
-    {
-      "table": "ui",
       "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
       "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
       "translation": "A última cor no céu — rosa e magenta sobre dourado suave, com o tom de ameixa que o horizonte assume pouco antes de escurecer.",
@@ -43,13 +36,6 @@
       "source": "The report was sent: {url}",
       "translation": "O relatório foi enviado: {url}",
       "source_sha256": "28486dcd296765e6c94d34aefaea9f44e8ba7cb3ee33cff56d3ed3b40c3610f3"
-    },
-    {
-      "table": "ui",
-      "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
-      "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
-      "translation": "Não foi possível iniciar a entrada na conta daqui. Execute o comando abaixo em um terminal e pressione Concluído.",
-      "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4"
     },
     {
       "table": "ui",
@@ -368,13 +354,6 @@
     },
     {
       "table": "ui",
-      "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
-      "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
-      "translation": "npm não teve permissão para gravar em sua pasta global. Execute `npm config set prefix ~/.local` uma vez em um terminal para que npm instale em uma pasta que pertence a você; depois, pressione Tentar novamente.",
-      "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2"
-    },
-    {
-      "table": "ui",
       "key": "path to a folder of crop PNGs",
       "source": "path to a folder of crop PNGs",
       "translation": "caminho para uma pasta de recortes PNG",
@@ -428,20 +407,6 @@
       "source": "{key} is not on this module's form.",
       "translation": "{key} não está no formulário deste módulo.",
       "source_sha256": "92bac7852c5d93147ce7805e0e9c68df652f59d7d7f06552657b1bc13d5ee47e"
-    },
-    {
-      "table": "ui",
-      "key": "{label} is installed.",
-      "source": "{label} is installed.",
-      "translation": "{label} está instalado.",
-      "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e"
-    },
-    {
-      "table": "ui",
-      "key": "{label} is signed in and ready.",
-      "source": "{label} is signed in and ready.",
-      "translation": "{label} está conectado e pronto.",
-      "source_sha256": "bb5fc33dbf7cd3f9ab2ba87cf48e7575a1a6c18bae01c505d0eac9a54028cfce"
     },
     {
       "table": "ui",
@@ -589,6 +554,56 @@
         "source": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
         "translation": "O que um novo objeto faz onde a máscara já contém um objeto. Recortar mantém apenas os pixels ainda sem rótulo, de modo que nenhum objeto existente perde pixels. Ignorar exclui qualquer novo objeto que toque em um existente. Substituir permite que o novo objeto ocupe todos os pixels que cobre. Em Região sob o rato, a caixa mostra o efeito da regra: o que um clique adicionaria aparece preenchido, e o que removeria aparece esmaecido.",
         "source_sha256": "682cf7017c6296385171eb74b984b4cb438a3f5ad8bcb470e4ad3f3898bd11eb"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "The installer could not be run: {error}",
+        "source": "The installer could not be run: {error}",
+        "translation": "O instalador não pôde ser executado: {error}",
+        "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+        "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+        "translation": "Não foi possível iniciar a entrada na conta daqui. Execute o comando abaixo em um terminal e pressione Concluído.",
+        "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+        "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+        "translation": "npm não teve permissão para gravar em sua pasta global. Execute `npm config set prefix ~/.local` uma vez em um terminal para que npm instale em uma pasta que pertence a você; depois, pressione Tentar novamente.",
+        "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "{label} is installed.",
+        "source": "{label} is installed.",
+        "translation": "{label} está instalado.",
+        "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "{label} is signed in and ready.",
+        "source": "{label} is signed in and ready.",
+        "translation": "{label} está conectado e pronto.",
+        "source_sha256": "bb5fc33dbf7cd3f9ab2ba87cf48e7575a1a6c18bae01c505d0eac9a54028cfce"
       }
     }
   ]

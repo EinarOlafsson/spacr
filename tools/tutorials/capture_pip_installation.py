@@ -144,7 +144,7 @@ def visible_app_window(tree):
 
 
 def privacy_window_owned(title, properties, gui_pid):
-    expected = 'spaCR privacy and optional account setup'
+    expected = 'spaCR privacy choices'
     return (title in {expected, expected + ' — spaCR'} and re.search(
         r'^_NET_WM_PID\(CARDINAL\) =\s*' + str(gui_pid) + r'\s*$',
         properties, re.MULTILINE) is not None)
@@ -302,7 +302,7 @@ def record(stage, root, venv, prior, capture, route='pip'):
                 # --no-setup skips account setup, not the installer's separate
                 # unanswered privacy dialog. Record it, then use its native
                 # reject/Escape action: no consent or account is enabled.
-                expected_title = 'spaCR privacy and optional account setup'
+                expected_title = 'spaCR privacy choices'
                 dialog_wid, dialog_title = desktop.find(expected_title, settle)
                 dialog_owner = subprocess.check_output(
                     ['xprop', '-id', hex(dialog_wid), '_NET_WM_PID', 'WM_TRANSIENT_FOR'], text=True)

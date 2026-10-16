@@ -1,4 +1,4 @@
-"""Apply privacy and account choices collected by desktop installation.
+"""Apply privacy choices collected by desktop installation.
 
 Also the one-time notice that anonymised error reports are on by default
 (:func:`maybe_show_anonymous_report_notice`) and the example of what such a
@@ -52,13 +52,13 @@ def _as_bool(value: Any) -> bool:
 
 
 class InstallerConsentDialog(QDialog):
-    """One first-launch page whose three optional choices start off.
+    """One first-launch page whose two optional choices start off.
 
     :param parent: parent widget.
     """
 
     def __init__(self, parent=None):
-        """Build the privacy and optional-account dialog.
+        """Build the privacy choices dialog.
 
         Sized in scaled pixels rather than raw ones: a size set from Python does
         not grow with the stylesheet's font size, and at the 200% scale the
@@ -67,7 +67,7 @@ class InstallerConsentDialog(QDialog):
         :param parent: parent widget, or ``None``.
         """
         super().__init__(parent)
-        self.setWindowTitle(tr("spaCR privacy and optional account setup"))
+        self.setWindowTitle(tr("spaCR privacy choices"))
         from .preferences import scaled_px
 
         self.setMinimumWidth(scaled_px(640))
@@ -76,10 +76,8 @@ class InstallerConsentDialog(QDialog):
             "Crash reports go to the PUBLIC spaCR GitHub repository. They "
             "are world-readable, indexed, and cannot be reliably unpublished. "
             "A report is redacted, shown in an editable preview, and sent "
-            "only when you press Send for that specific report. Account setup "
-            "uses the official GitHub, Claude, Codex (GPT), and Gemini CLIs; "
-            "spaCR does not store their passwords or tokens. All choices are "
-            "optional and revocable in Preferences."
+            "only when you press Send for that specific report. Both choices "
+            "are optional and revocable in Preferences."
         ))
         explanation.setWordWrap(True)
         explanation.setSizePolicy(QSizePolicy.Preferred,
@@ -92,12 +90,7 @@ class InstallerConsentDialog(QDialog):
         self.report_issues = Toggle(tr(
             "Enable the public GitHub issue-report action"
         ))
-        self.sign_in_now = Toggle(tr(
-            "Set up GitHub, Claude, GPT/Codex, and Gemini now"
-        ))
-        for choice in (
-            self.share_diagnostics, self.report_issues, self.sign_in_now
-        ):
+        for choice in (self.share_diagnostics, self.report_issues):
             choice.setChecked(False)
             layout.addWidget(choice)
 
@@ -113,51 +106,37 @@ class InstallerConsentDialog(QDialog):
         layout.addWidget(buttons)
 
     def choices(self) -> dict[str, bool]:
-        """Return the three explicit checkbox states."""
+        """Return the two explicit checkbox states."""
         return {
             "share_diagnostics": self.share_diagnostics.isChecked(),
             "report_issues": self.report_issues.isChecked(),
-            "sign_in_now": self.sign_in_now.isChecked(),
         }
 
 
-def apply_choices(choices: Mapping[str, Any]) -> bool:
-    """Persist choices and return whether account setup was requested.
+def apply_choices(choices: Mapping[str, Any]) -> None:
+    """Persist the installer's privacy choices.
 
     :param choices: the consent answers, read by the keys
-        ``share_diagnostics``, ``report_issues`` and ``sign_in_now``; a
-        missing or unrecognised value counts as no.
+        ``share_diagnostics`` and ``report_issues``; a missing or
+        unrecognised value counts as no, and any other key is ignored.
     """
     from . import preferences
     from .ai import settings as ai_settings
 
     share = _as_bool(choices.get("share_diagnostics", False))
     reports = _as_bool(choices.get("report_issues", False))
-    sign_in = _as_bool(choices.get("sign_in_now", False))
     preferences.set_share_diagnostic_logs(share)
     ai_settings.set_auto_file_issues(reports)
     preferences.set_issue_prompt_mode(
         preferences.ISSUE_PROMPT_ASK
         if reports else preferences.ISSUE_PROMPT_NEVER
     )
-    return sign_in
-
-
-def _open_account_setup(parent) -> None:
-    """Open the AI providers dialog, for the optional account step.
-
-    :param parent: the dialog to parent it to.
-    """
-    from .widgets.ai_chat_panel import _ProvidersDialog
-
-    _ProvidersDialog(parent).exec()
 
 
 def maybe_show_installer_consent(parent) -> bool:
     """Apply installer choices once, asking in-app if no page was shown.
 
-    :param parent: the widget that parents the in-app consent dialog and, if
-        sign-in was chosen, the account setup dialog.
+    :param parent: the widget that parents the in-app consent dialog.
     :returns: ``True`` when an installer profile was handled this call.
     """
     store = _settings()
@@ -177,11 +156,9 @@ def maybe_show_installer_consent(parent) -> bool:
         accepted = dialog.exec() == QDialog.Accepted
         choices = dialog.choices() if accepted else {}
 
-    sign_in = apply_choices(choices)
+    apply_choices(choices)
     store.setValue(_KEY_APPLIED, True)
     store.sync()
-    if sign_in:
-        _open_account_setup(parent)
     return True
 
 
