@@ -60,6 +60,10 @@ def test_every_tool_is_in_one_horizontal_row(qtbot, qt_theme_applied):
             controls = screen.findChild(QWidget, "MakeMasksViewControls")
             assert controls.layout().indexOf(button) >= 0
             continue
+        if mode == mm.MODE_LABEL_TIME:
+            assert screen._label_tracking_controls.layout().indexOf(button) >= 0
+            assert row.indexOf(screen._label_tool_group) >= 0
+            continue
         assert row.indexOf(button) >= 0, f"{mode} is not in the tool row"
     # ...and one row means one: no tool has a second home in the settings.
     for mode, button in screen._mode_buttons.items():
@@ -288,7 +292,7 @@ def test_a_dragged_settings_width_survives_a_hide(
 
 
 def test_hiding_the_settings_leaves_every_tool_reachable(
-        qtbot, qt_theme_applied, folder_2: Path):
+        qtbot, qt_theme_applied, monkeypatch, folder_2: Path):
     """The tools and Reset zoom outlive the hide.
 
     The tools are in the row precisely so that putting the panel away does
@@ -298,6 +302,9 @@ def test_hiding_the_settings_leaves_every_tool_reachable(
     qtbot.addWidget(screen)
     screen._open_folder(str(folder_2))
     screen._set_settings_shown(False)
+    assert not screen._mode_buttons[mm.MODE_LABEL_TIME].isEnabled()
+    monkeypatch.setattr(screen, "_confirm", lambda *args: True)
+    screen._btn_label_time.click()
 
     for mode, button in screen._mode_buttons.items():
         assert button.isVisibleTo(screen), f"{mode} went away with the settings"

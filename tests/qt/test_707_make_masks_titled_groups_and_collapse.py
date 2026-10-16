@@ -102,7 +102,7 @@ def test_groups_are_titled_and_placed_around_the_image(screen, qtbot):
 def test_every_button_is_in_its_group_once(screen):
     expected = {
         screen._tools_group: ["Brush", "Erase", "Erase object", "Wand", "Draw",
-                              "Box", "Divide / Merge", "Zoom", "Recrop",
+                              "Box", "Edit Label", "Divide / Merge", "Zoom", "Recrop",
                               "Magnifier"],
         screen._annotation_group: ["Keep", "Skip", "Discard"],
         screen._io_group: ["Open File / Folder…", "Measure…",
@@ -143,6 +143,9 @@ def test_tabs_controls_and_footer_have_separate_visible_geometry(
 
     screen = _screen(qtbot, folder)
     screen.resize(*size)
+    monkeypatch.setattr(screen, "_confirm", lambda *args: True)
+    screen._btn_label_time.click()
+    assert screen._btn_label_time.isChecked()
     tabs = screen._view_tabs
     for index, caption in enumerate(("Mask", "Cell probability", "Flows")):
         tabs.setTabText(index, tr(caption))
@@ -169,8 +172,17 @@ def test_tabs_controls_and_footer_have_separate_visible_geometry(
     assert footer_rect.bottom() < _where(screen, screen._io_group).y()
     assert footer_rect.left() - _where(screen, screen._image_container).x() < 20
     assert not screen._status_label.isVisible()
-    label_controls = (screen._label_tool_button, screen._btn_label_time,
+    label_controls = (screen._label_tool_button, screen._label_time_tool_button,
+                      screen._btn_label_time,
                       *screen._label_tool_group.findChildren(QToolButton))
+    row = screen._tool_row_layout
+    assert row.indexOf(screen._label_tool_button) < row.indexOf(screen._label_tool_group)
+    cluster = screen._label_tool_group.layout()
+    assert cluster.itemAt(cluster.count() - 1).widget() is screen._btn_label_time
+    for button in label_controls:
+        assert button.isEnabled()
+        assert _where(screen, button).x() < _where(screen, screen._btn_label_time).x() \
+            or button is screen._btn_label_time or button is screen._label_tool_button
     for button in (screen._btn_recrop, screen._btn_magnifier,
                    screen._btn_test_data, *label_controls):
         assert button.visibleRegion().boundingRect() == button.rect(), {

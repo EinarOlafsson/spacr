@@ -15778,33 +15778,46 @@ class MakeMasksScreen(QWidget):
         """Offer direct identity editing and a CPU-only time-label mode."""
         from ..i18n import tr
 
+        direct = QPushButton(tr("Edit Label"), self)
+        direct.setObjectName("MakeMasksEditLabel")
+        direct.setCheckable(True)
+        direct.setMinimumHeight(32)
+        direct.setToolTip(tr(
+            "Show object IDs and click to change one. Enable Time to trace cells "
+            "through frames; 0 removes an object."))
+        direct.clicked.connect(lambda: self._set_mode(MODE_EDIT_LABEL))
+        row.addWidget(direct)
         group = QWidget(self)
         group.setObjectName("MakeMasksLabelTool")
         layout = QHBoxLayout(group)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
-        less = QToolButton(group)
+        tracking = QWidget(group)
+        tracking.setObjectName("MakeMasksLabelTrackingControls")
+        tracking_layout = QHBoxLayout(tracking)
+        tracking_layout.setContentsMargins(0, 0, 0, 0)
+        tracking_layout.setSpacing(0)
+        layout.addWidget(tracking)
+        less = QToolButton(tracking)
         less.setText("−")
         less.setObjectName("MakeMasksLabelDecrease")
         less.setToolTip(tr("Decrease selected label (Ctrl+[)"))
         less.clicked.connect(lambda: self._step_selected_label(-1))
-        layout.addWidget(less)
-        button = _SplitMenuButton(tr("Edit Label"), group)
-        button.setObjectName("MakeMasksEditLabel")
+        tracking_layout.addWidget(less)
+        button = _SplitMenuButton(tr("Edit Label / Time"), tracking)
+        button.setObjectName("MakeMasksEditLabelTime")
         button.setCheckable(True)
         button.setMinimumHeight(32)
-        button.setToolTip(tr(
-            "Show object IDs and click to change one. Enable Time to trace cells "
-            "through frames; 0 removes an object."))
-        button.clicked.connect(lambda: self._set_mode(
-            MODE_LABEL_TIME if self._time_label_enabled else MODE_EDIT_LABEL))
-        layout.addWidget(button)
-        more = QToolButton(group)
+        button.setToolTip(tr("Select a cell, then hover and scroll to trace it. Names are editable; "
+                             "pixel labels remain numeric."))
+        button.clicked.connect(lambda: self._set_mode(MODE_LABEL_TIME))
+        tracking_layout.addWidget(button)
+        more = QToolButton(tracking)
         more.setText("+")
         more.setObjectName("MakeMasksLabelIncrease")
         more.setToolTip(tr("Increase selected label (Ctrl+])"))
         more.clicked.connect(lambda: self._step_selected_label(1))
-        layout.addWidget(more)
+        tracking_layout.addWidget(more)
         self._btn_label_time = QPushButton(tr("Time"), group)
         self._btn_label_time.setObjectName("MakeMasksLabelTime")
         self._btn_label_time.setCheckable(True)
@@ -15833,9 +15846,12 @@ class MakeMasksScreen(QWidget):
         self._build_lineage_menu(menu)
         button.set_split_menu(menu)
         self._label_tool_group = group
-        self._label_tool_button = button
+        self._label_tracking_controls = tracking
+        self._label_tool_button = direct
+        self._label_time_tool_button = button
+        self._mode_buttons[MODE_LABEL_TIME] = button
         row.addWidget(group)
-        return button
+        return direct
 
     def _step_selected_label(self, step):
         """Move the editable identity within the unsigned 32-bit label range."""
@@ -15876,7 +15892,7 @@ class MakeMasksScreen(QWidget):
             self._cancel_label_time_navigation()
             if self._canvas.mode == MODE_LABEL_TIME:
                 self._set_mode(MODE_EDIT_LABEL)
-        self._lineage_controls.setEnabled(bool(enabled) and not self._loading)
+        self._sync_button_states()
 
     def _build_lineage_menu(self, menu):
         """Show a virtual cell table and compact name/division controls."""
@@ -16376,10 +16392,7 @@ class MakeMasksScreen(QWidget):
                         else boxes if mode == MODE_BOX else normal)
                 shortcut[1].setText(text)
         for m, btn in self._mode_buttons.items():
-            btn.setChecked(m == mode or (m == MODE_EDIT_LABEL and mode == MODE_LABEL_TIME))
-        self._label_tool_button.setText(tr("Edit Label / Time")
-                                        if self._time_label_enabled
-                                        else tr("Edit Label"))
+            btn.setChecked(m == mode)
         self._canvas.update()
 
     def _on_brush_size_changed(self, v: int):
@@ -23152,7 +23165,9 @@ class MakeMasksScreen(QWidget):
         self._mode_buttons[MODE_BOX].setEnabled(
             editable and self._box_load_error is None and not volume)
         self._btn_recrop.setEnabled(editable and not volume)
+        self._mode_buttons[MODE_EDIT_LABEL].setEnabled(editable and not volume)
         self._label_tool_group.setEnabled(has_files and not volume)
+        self._label_tracking_controls.setEnabled(editable and self._time_label_enabled and not volume)
         self._lineage_controls.setEnabled(editable and self._time_label_enabled and not volume)
         self._sync_detect_3d()
         self._sync_queue_tally()

@@ -217,6 +217,85 @@ def test_ordinary_wheel_keeps_zoom_and_does_not_navigate(screen):
     assert screen._canvas.is_zoomed()
 
 
+def test_separate_label_tools_switch_without_disabling_time(qtbot, screen, monkeypatch):
+    screen.resize(1366, 768)
+    screen.show()
+    qtbot.waitExposed(screen)
+    direct = screen._label_tool_button
+    tracking = screen._label_time_tool_button
+    toggle = screen._btn_label_time
+    qtbot.waitUntil(lambda: all(button.visibleRegion().boundingRect() == button.rect()
+                               for button in (direct, tracking, toggle)))
+    assert direct is not tracking
+    assert direct.text() == "Edit Label"
+    assert tracking.text() == "Edit Label / Time"
+    assert direct.isEnabled() and not tracking.isEnabled()
+    row = screen._tool_row_layout
+    assert row.indexOf(direct) + 1 == row.indexOf(screen._label_tool_group)
+    cluster = screen._label_tool_group.layout()
+    assert cluster.itemAt(cluster.count() - 1).widget() is toggle
+    qtbot.mouseClick(toggle, Qt.LeftButton)
+    assert screen._time_label_enabled and toggle.isChecked()
+    for button in (direct, tracking, toggle):
+        assert button.isVisible() and button.isEnabled()
+        assert button.visibleRegion().boundingRect() == button.rect()
+    assert tracking.isChecked() and not direct.isChecked()
+    screen._label_value.setText("321")
+    canvas = screen._canvas
+    pos = QPointF(canvas._image_to_canvas(10.5, 10.5))
+    canvas.mouseMoveEvent(QMouseEvent(QEvent.MouseMove, pos, pos,
+                                      Qt.NoButton, Qt.NoButton, Qt.NoModifier))
+    identity = screen._selected_cell
+    frame = screen._lineage_frame()
+    assert screen._lineage["frames"][frame]["321"] == identity
+
+    qtbot.mouseClick(direct, Qt.LeftButton)
+    assert toggle.isChecked() and screen._time_label_enabled
+    assert direct.isChecked() and not tracking.isChecked()
+    assert canvas.mode == mm.MODE_EDIT_LABEL
+    screen._label_value.setText("654")
+    canvas.mouseMoveEvent(QMouseEvent(QEvent.MouseMove, pos, pos,
+                                      Qt.NoButton, Qt.NoButton, Qt.NoModifier))
+    assert int(canvas.mask[10, 10]) == 321
+    dialogs = []
+
+    def choose_label(*args, **kwargs):
+        dialogs.append(kwargs["text"])
+        return "654", True
+
+    monkeypatch.setattr(mm.QInputDialog, "getText", choose_label)
+    qtbot.mouseClick(canvas, Qt.LeftButton, pos=pos.toPoint())
+    assert dialogs == ["321"]
+    assert int(canvas.mask[10, 10]) == 654
+    assert screen._lineage["frames"][frame] == {"654": identity}
+    screen._on_undo()
+    assert int(canvas.mask[10, 10]) == 321
+    assert screen._lineage["frames"][frame] == {"321": identity}
+    screen._on_redo()
+    assert int(canvas.mask[10, 10]) == 654
+    assert screen._selected_cell == identity
+    wheel(screen, -1)
+    assert screen._current_index == 0 and canvas.is_zoomed()
+
+    qtbot.mouseClick(tracking, Qt.LeftButton, pos=QPoint(5, tracking.height() // 2))
+    assert toggle.isChecked() and screen._time_label_enabled
+    assert tracking.isChecked() and not direct.isChecked()
+    assert canvas.mode == mm.MODE_LABEL_TIME
+    assert screen._canvas.selected_label == 654
+    wheel(screen, 1)
+    wait_idle(qtbot, screen)
+    assert screen._current_index == 1
+    assert int(canvas.mask[10, 10]) == 654
+    assert screen._lineage["frames"][screen._lineage_frame()]["654"] == identity
+    assert direct.text() == "Edit Label" and tracking.text() == "Edit Label / Time"
+    qtbot.mouseClick(direct, Qt.LeftButton)
+    qtbot.mouseClick(toggle, Qt.LeftButton)
+    assert direct.isChecked() and direct.isEnabled()
+    assert not tracking.isChecked() and not tracking.isEnabled()
+    assert not screen._lineage_controls.isEnabled()
+    assert screen._selected_cell == identity and screen._lineage["cells"]
+
+
 def test_time_confirmation_cancel_blue_state_and_off_gates(screen, monkeypatch):
     path = engine.mask_save_path(screen._folder, screen._image_files[0])
     before = open(path, "rb").read()
