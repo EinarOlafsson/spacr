@@ -34,6 +34,8 @@
 ### Fixed
 
 - Corrected the restart command and launch environment for frozen desktop applications, while preserving saved workspace state.
+- Prevented environment capture from relaunching frozen desktop applications.
+- Installations avoid PySide6 6.12.0, which can crash rendering on Python 3.10.
 - Failed cache moves retain data and location settings, restore an existing empty destination after successful rollback, and do not broaden its permissions.
 - Own-DINO classifier loading rejects teacher checkpoints that change during loading.
 - Embeddings reports unreadable or empty label tables without discarding existing labels, vectors or scorecards.

@@ -4026,3 +4026,9 @@ Related checks pass: native-release files125 (2 native-only skips), actual dialo
 Protected full run38852206708 remains active; the next code candidate contains these fixes. No whole-green, native installer acceptance or release claim.
 BLOCKED ON MAINTAINER: have Claude resolve N700 retired setup tests/terms/markup, N370 alpha registration, N698 obsolete source fixtures and N673 Matplotlib private-attribute use; preserve behavior and existing gates.
 The hosted big-folder DND test passed this run without changing its700ms limit; finish remaining owned CI repairs and require full green before publishing1.5.1.5.
+
+2026-10-16 — 621bf7433fb passes native Windows NSIS, Debian12 and Ubuntu22.04 install/app/uninstall/helper checks, including retained user data.
+Mac failure identified the actual first-install cache dialog; smoke now completes default-off Keep review before Preferences/Quit, retaining unknown-modal and deadline refusal.
+Related controller checks pass, including real asynchronous review, retained files and no late button clicks; the unchanged1.35 paint test also passes with coverage onQt6.11.2.
+Full tests38861369146 still fail reserved N700/F370/N673/N698 checks; owner repairs remain required before release.
+New native/full CI verdicts remain pending;1.5.1.5 is not released.
