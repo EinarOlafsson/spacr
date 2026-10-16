@@ -12493,11 +12493,10 @@ class MakeMasksScreen(QWidget):
     def _build_ui(self):
         """Lay out the title, the editor and the four button groups.
 
-        THE BUTTONS SIT IN FOUR TITLED GROUPS AROUND THE IMAGE (the
-        maintainer's layout, 2026-10-16): TOOLS at its top left and
-        ANNOTATION (Keep, Skip, Discard) at its top right, IO (Open File /
-        Folder, Measure, Load test data, ROIs) at its bottom left and
-        NAVIGATION (Save mask, Previous, Next) at its bottom right. The top
+        THE BUTTONS SIT IN FOUR TITLED GROUPS AROUND THE IMAGE: TOOLS at its
+        top left and ANNOTATION (Keep, Skip, Discard) at its top right,
+        IO (Open File / Folder, Measure, Load test data, ROIs) at its bottom
+        left and NAVIGATION (Save mask, Previous, Next) at its bottom right. The top
         and bottom bars are EDGE panes of one vertical
         :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
         around the views, and the title with its row of folded modules is an
