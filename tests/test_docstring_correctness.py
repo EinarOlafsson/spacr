@@ -2615,6 +2615,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "quit_and_warmup_api_arrivals_2026-10-13.json",
                      "700_anonymous_reports_client_api_arrivals_2026-10-14.json",
                      "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json",
+                     "673_napari_true3d_api_arrivals_2026-10-15.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
@@ -3278,7 +3279,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # apply_stylesheet_per_window; no new callable or required parameter.
     # Item 701 validates its three optional queue names separately, then
     # replays the prior rows above; no callable or required parameter arrived.
-    assert sum(len(item.parameters) for item in callables) == 19923
+    # 2026-10-15 N673 napari True 3D: 19,924 - 19,923 = 1, the optional
+    # keyword channels= on VolumeMaskSession; no required parameter.
+    assert sum(len(item.parameters) for item in callables) == 19924
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -3527,7 +3530,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # optional in_slices=; removing only that keyword from those two rows
     # restores 7a471ca0... byte for byte. The new callables arrive through
     # prefs_apply_api_arrivals_2026-10-12.json and are subtracted above.
-) == '5d9ad4e842a1047b105a31c338d5da0b228a044251a34b37d7fde962b8f0bf54'
+    # Moved 2026-10-15 for N673 napari True 3D (was 5d9ad4e8...): the
+    # VolumeMaskSession constructor gained the optional channels=; the new
+    # callables arrive through 673_napari_true3d_api_arrivals_2026-10-15.json
+    # and are subtracted above; no row removed.
+) == '13e0c16d919d216f766d4e019279f7933e92eb068cc2878be0ec36efc07d35eb'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -4316,6 +4323,13 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert {key: docs[key] for key in s700_additions} == s700_additions
     assert not s700_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **s700_additions}
+    # 2026-10-15: Item 673: napari-like True 3D view (3-D volume rendering in spacr.layers and its ray helper); one named contract.
+    n673_additions = json.loads((pathlib.Path(__file__).resolve().parent / "data/release_contracts"
+        / "673_napari_true3d_api_arrivals_2026-10-15.json").read_text())
+    assert len(n673_additions) == 8
+    assert {key: docs[key] for key in n673_additions} == n673_additions
+    assert not n673_additions.keys() & zoo_additions.keys()
+    zoo_additions = {**zoo_additions, **n673_additions}
     for contract, expected_count in (
         ("561_classifier_api_arrivals_2026-10-15.json", 19),
         ("180_session_figure_api_arrivals_2026-10-15.json", 2),
@@ -4757,6 +4771,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "quit_and_warmup_api_arrivals_2026-10-13.json",
                      "700_anonymous_reports_client_api_arrivals_2026-10-14.json",
                      "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json",
+                     "673_napari_true3d_api_arrivals_2026-10-15.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
@@ -4807,6 +4822,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "quit_and_warmup_api_arrivals_2026-10-13.json",
                      "700_anonymous_reports_client_api_arrivals_2026-10-14.json",
                      "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json",
+                     "673_napari_true3d_api_arrivals_2026-10-15.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",

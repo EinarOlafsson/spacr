@@ -5539,13 +5539,16 @@ class VolumeMaskSession:
     :param axes: a permutation of the three spatial axes ``XYZ``.
     :param spacing: positive finite distances in that same array axis order.
     :param unit: the physical distance unit, or ``pixel`` when unspecified.
+    :param channels: every channel of a multichannel volume, each shaped
+        like ``image`` (which the slice views show); the 3-D view draws each
+        as its own layer. Together they share the 256 MiB budget.
     """
 
     MAX_VOXELS = 16_777_216
     MAX_HISTORY_BYTES = 64 * 1024 * 1024
 
     def __init__(self, image, mask, *, axes='ZYX', spacing=(1., 1., 1.),
-                 unit='pixel'):
+                 unit='pixel', channels=None):
         """Validate one spatial image and own its mutable label array.
 
         :param image: finite real numeric source intensities.
@@ -5553,6 +5556,8 @@ class VolumeMaskSession:
         :param axes: spatial storage-axis order, a permutation of XYZ.
         :param spacing: three positive finite distances in storage order.
         :param unit: the common distance unit.
+        :param channels: every channel of a multichannel volume, each shaped
+            like ``image``; ``None`` means ``image`` is the only channel.
         """
         from .i18n import tr
 
@@ -5575,7 +5580,13 @@ class VolumeMaskSession:
         if (labels.shape != image.shape or labels.dtype.kind not in 'ui'
                 or labels.min() < 0 or labels.max() > 65535):
             raise ValueError(tr('The volume mask must contain matching nonnegative integer object labels up to 65535.'))
+        stack = (image,) if channels is None else tuple(np.asarray(plane) for plane in channels)
+        if (not stack or any(plane.shape != image.shape or plane.dtype.kind not in 'uif'
+                             or not np.isfinite(plane).all() for plane in stack)
+                or sum(plane.nbytes for plane in stack) > 256 * 1024 * 1024):
+            raise ValueError(tr('3D masks require a finite numeric spatial TIFF within the volume memory budget.'))
         self.image = image
+        self.channels = stack
         self.mask = np.array(labels, copy=True, order="C")
         self.axes, self.spacing, self.unit = axes, distances, str(unit)
         self.geometries = {}
@@ -6021,19 +6032,29 @@ def _is_volume_file(path):
 
         with tifffile.TiffFile(path) as handle:
             series = handle.series[0]
-            return len(series.shape) == 3 and sorted(_spatial_page_axes(series.axes)) == ['X', 'Y', 'Z']
+            axes = _spatial_page_axes(series.axes)
+            return (len(series.shape) == len(axes) and sorted(axes.replace('C', '', 1)) == ['X', 'Y', 'Z']
+                    and len(series.shape) in (3, 4))
     except Exception:
         return False
 
 
 def _read_tiff_volume(source):
-    """Read one spatial TIFF as ``(image, axes, spacing, unit)``."""
+    """Read one spatial TIFF as ``(image, axes, spacing, unit)``.
+
+    A TIFF with one channel axis besides X, Y and Z (``CZYX``, ``ZCYX``)
+    gives ``image`` with the channels first.
+    """
     import tifffile
     from .i18n import tr
 
     with tifffile.TiffFile(source) as handle:
         series = handle.series[0]
-        axes = _spatial_page_axes(series.axes)
+        stored = _spatial_page_axes(series.axes)
+        channel = stored.find('C') if len(series.shape) == 4 and len(stored) == 4 else -1
+        axes = stored.replace('C', '', 1) if channel >= 0 else stored
+        if channel >= 0 and series.shape[channel] > 16:
+            channel, axes = -1, stored
         metadata = (handle.shaped_metadata or ({},))[0] or {}
         spacing = metadata.get('voxel_spacing', (1., 1., 1.))
         unit = metadata.get('unit', 'pixel')
@@ -6061,11 +6082,16 @@ def _read_tiff_volume(source):
                     raise ValueError(tr('Voxel spacing must contain three positive finite distances.'))
                 distances[axis] = value[1] / value[0]
             spacing = tuple(distances[axis] for axis in axes)
-        if len(series.shape) != 3 or sorted(axes) != ['X', 'Y', 'Z']:
+        if len(series.shape) != 3 + (channel >= 0) or sorted(axes) != ['X', 'Y', 'Z']:
             raise ValueError(tr('Choose a TIFF explicitly declaring three spatial axes; time, channels and RGB are not 3D fields.'))
-        if math.prod(series.shape) > VolumeMaskSession.MAX_VOXELS or math.prod(series.shape) * series.dtype.itemsize > 256 * 1024 * 1024:
+        spatial = math.prod(series.shape) // (series.shape[channel] if channel >= 0 else 1)
+        if spatial > VolumeMaskSession.MAX_VOXELS or math.prod(series.shape) * series.dtype.itemsize > 256 * 1024 * 1024:
             raise ValueError(tr('This TIFF exceeds the native volume memory budget.'))
         image = series.asarray()
+    if channel >= 0:
+        image = np.moveaxis(image, channel, 0)
+        if len(spacing) == 4:
+            spacing = tuple(value for index, value in enumerate(spacing) if index != channel)
     return image, axes, spacing, unit
 
 
@@ -6094,12 +6120,14 @@ def _read_mrc_volume(source):
 
 
 def load_volume_image_and_mask(folder, filename, masks_dir=None):
-    """Open a grayscale spatial volume for native 3-D editing.
+    """Open a spatial volume, one channel or several, for native 3-D editing.
 
     TIFF volumes need exactly three spatial axes, in any order. A plain
     three-dimensional page stack (tifffile's ``Q`` or ``I`` page axis over
-    ``YX``) is read as Z sections, as z-stacks and FIB-SEM series are saved;
-    time, channel and colour axes are refused. ``voxel_spacing`` metadata is
+    ``YX``) is read as Z sections, as z-stacks and FIB-SEM series are saved.
+    One channel axis (``CZYX``, ``ZCYX``, at most 16 channels) is kept as
+    :attr:`VolumeMaskSession.channels`; the slice views show the first
+    channel. Time and colour axes are refused. ``voxel_spacing`` metadata is
     read in storage-axis order. OME physical sizes are converted to micrometres;
     ImageJ spacing and XY resolution are retained. MRC volumes (``.mrc``,
     ``.rec``, ``.map``) are read as ZYX with their voxel size in nanometres;
@@ -6123,6 +6151,9 @@ def load_volume_image_and_mask(folder, filename, masks_dir=None):
         image, axes, spacing, unit = _read_mrc_volume(source)
     else:
         image, axes, spacing, unit = _read_tiff_volume(source)
+    channels = None
+    if image.ndim == 4:
+        channels, image = tuple(image), image[0]
     mask_path = Path(mask_save_path(folder, filename, masks_dir))
     if mask_path.exists():
         with tifffile.TiffFile(mask_path) as handle:
@@ -6135,7 +6166,7 @@ def load_volume_image_and_mask(folder, filename, masks_dir=None):
             labels = mask_series.asarray()
     else:
         labels = np.zeros(image.shape, dtype=np.uint16)
-    session = VolumeMaskSession(image, labels, axes=axes, spacing=spacing, unit=unit)
+    session = VolumeMaskSession(image, labels, axes=axes, spacing=spacing, unit=unit, channels=channels)
     session.source_path, session.source_sha256, session.mask_path = str(source), digest, str(mask_path)
     if _yolo_source_hash(source) != digest:
         raise ValueError(tr('The source volume changed while opening it.'))

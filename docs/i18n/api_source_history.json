@@ -119,25 +119,6 @@
       "source_sha256": "8eb77d4fac240d06957449323b42b5a872c9bc235cdc73149b1e48733ea9de28",
       "text": "Download the files of the Hugging Face dataset repo ``repo_id`` into the package's ``resources/models`` folder.\n\nIf ``resources/models`` already contains files, nothing is downloaded and\nits path is returned. Files are saved under their base names.\n\nArgs:\n    repo_id (str): The repository ID on Hugging Face (default is 'einarolafsson/models').\n    retries (int): Number of retry attempts in case of failure.\n    delay (int): Delay in seconds between retries.\n\nReturns:\n    str: The local path to the downloaded models."
     },
-    "8f340495d1c595d60230eb54dc6e4a5181aa999d47ddcb317dd9dd713295f09b": {
-      "source_blocks_sha256": [
-        "68913058365eb85ea296ef7da6e0ca047b023c983948c33499c59c0e543ae9ba",
-        "cce79f0fe01a16f1e346bc54225582562360ca75f48e3ba06043c16830e0fbc6",
-        "13e9763aca137f3a7e5e904a63b9da57aa2c06cbfd2c86fe24d8fd790e73e9e4",
-        "e14d2a2a312f7ee66192f2ce2d02059340e15327dad4194b1deab56332230d2f",
-        "90180aba6ce978eeb56baf292ad4ceeb401bf7081a7f21059f51479d3e101fc9",
-        "31cea6053deebd64357c5faa9b98643abfef7d8a2b7cf0e882fd168c9036fa01",
-        "3d00d86447e98509b0d47b81f76a950461b6df06a29ea728c1490e17faf2b663",
-        "d9b1edf3826dd7d27b54fc29afcf76bdab95a0a17e491290bb1fcea45b6408f3",
-        "12282c75555250aa625d576954e2a192fab8f9a13c1008fa003691fd58ef68ef",
-        "a5d7ec449ef4a602a61a8b52723791cfc41cf14f765e0ff9e181edaf66fb18f8",
-        "882b025608cfd488e23a584b446ed392b1687ebc25a7fd9d842b8d1ee4baf9e4",
-        "8dd0e2a8113506874bc11e2fc2fc9c3f48a62736e07a25a74bd3c94a52ef8885",
-        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b"
-      ],
-      "source_sha256": "8f340495d1c595d60230eb54dc6e4a5181aa999d47ddcb317dd9dd713295f09b",
-      "text": "One pipeline run: its id, its seed, its error policy, its ledger.\n\nCreated by :func:`run_context`; read anywhere by\n:func:`current_run_context`. The id on this object is the id on every\nlog line the run emits (:func:`read_run_log`), on every\n:class:`~spacr.errors.RunLedger` it hands out, and on every\n:class:`spacr.artifacts.Artifact` it registers — which is what lets a\nlog line and an output be joined.\n\n:param run_id: the id.\n:param module: the producing module key — ``\"mask\"``, ``\"measure\"``,\n    the same keys :mod:`spacr.ports` uses.\n:param seed: the seed applied, or None when the run is unseeded.\n:param policy: the :class:`ErrorPolicy` in force.\n:param ledger: the run's :class:`~spacr.errors.RunLedger`, whose\n    ``run_id`` has been set to this run's.\n:param settings: the settings the run was started with.\n:param seed_report: what :func:`seed_everything` managed to seed.\n:param started_utc: when the run opened.\n:param log_path: the run's JSONL log, or ``\"\"`` when logging is off.\n:param resource_log_path: path to the run's process-tree resource JSON\n    document, or ``\"\"`` when resource accounting is off or unavailable.\n    Set when sampling starts and used to register the document.\n:param resource_artifact_id: artifact-registry identifier assigned after\n    successful resource-document registration, or ``\"\"`` when no record\n    was created."
-    },
     "a7b7a58936f03f2ab59079897c95ec59e5b1afa0d13602a9c5810d1b093bb3d2": {
       "source_blocks_sha256": [
         "1a031a47f24a40563e68b745a3fa56009f1b0aa6fc88e118a9bb4d4959e677eb",

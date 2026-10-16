@@ -531,9 +531,10 @@ def test_true_3d_draws_reshapes_and_deletes_objects_into_voxels(true3d, screen, 
     assert np.array_equal(stage.session.mask, expected)
     assert stage._selected == 1 and "64 voxels" in stage._count.text()
     assert "Updated 64 voxels" in screen._status_label.text()
-    points, colours = stage._cloud
-    assert len(points) == len(colours) > 0
-    assert np.all(points.max(axis=0) <= [1., 2., 4.])
+    # 2026-10-15: the object is drawn by the layer rendering, not a point cloud.
+    qtbot.waitUntil(stage.render_idle, timeout=WAIT)
+    _settle()
+    assert stage._render_state.picked.max() == 1
     axes = panel.canvas._axes[(0, 0)]
     assert len(axes.collections) >= 2
     stage.set_view("default")
@@ -657,17 +658,18 @@ def test_shapes_that_cannot_be_voxelized_or_did_not_change_queue_nothing(true3d,
     assert not stage.busy
 
 
-def test_the_object_cloud_is_sampled_and_drawn_into_the_3d_view(true3d, qtbot, monkeypatch):
+def test_the_volume_layers_are_drawn_under_the_3d_view(true3d, qtbot):
+    """2026-10-15: the sampled object cloud is replaced by the napari-style
+    volume rendering (test_673_napari_true3d.py covers it in full); the
+    wrapper still passes a refused render through untouched."""
     stage = true3d
     _draw_box(stage, qtbot)
-    monkeypatch.setattr(mm, "VOLUME_LABEL_POINTS", 5)
-    points, colours = stage._label_cloud()
-    assert points.shape == (5, 3) and colours.shape == (5, 3)
-    assert stage._with_labels(lambda: False)() is False
-    stage._cloud = None
-    assert stage._with_labels(lambda: True)() is True
-    stage._cloud = (np.zeros((0, 3)), np.zeros((0, 3)))
-    assert stage._with_labels(lambda: True)() is True
+    assert stage._with_layers(lambda: False)() is False
+    assert stage._with_layers(lambda: True)() is True
+    qtbot.waitUntil(stage.render_idle, timeout=WAIT)
+    _settle()
+    assert stage._render_state is not None
+    assert stage._render_state.picked.max() == 1
 
 
 def test_leaving_a_volume_mid_edit_cancels_it_without_a_late_result(true3d, screen, qtbot, monkeypatch):

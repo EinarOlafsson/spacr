@@ -27344,6 +27344,37 @@
       "source_sha256": "164d00d51fade3099128753c069567e116fb8c9e4d89dac2d146b49b0acfeae6",
       "text": ":meth:`to_world` keyed by axis name.\n\n:param index: Fractional data coordinate in :attr:`axes` order."
     },
+    "spacr.layers.VolumeRays": {
+      "source_blocks_sha256": [
+        "a44283130a25168318414e7c9f3bdaa6d1d12718564530cd2a243137d123320c",
+        "592e14bba309821be9714e5ac7b0b59af5aacce2623dcd6a3ad06f2d9a62dc09",
+        "d65090c44463aba5abdbd5ca3de9e88fd9800b5011c33875fd37665acddc952d",
+        "633f84a4da4292b9a3cc3c42d09dcb2d48c7399cc29921ab5fde8e234fb57a08",
+        "791fa249a5ab3f3eacbdff860658bb680bdae7c2f1ccda088dabc5429907570c",
+        "af7932e1cd7a5db5dd89c2ab74786cd354ac5ff87cc1c7b4367f8f29d88e34be",
+        "80662206b6705eb1573f4817531979e22929b53f9dc524f8defce182968e5f94"
+      ],
+      "source_sha256": "9c625f4937ffbe185a722c239a80790129b38b9f8e78e50654a0b319528bf368",
+      "text": "Parallel rays through a volume, one per output pixel.\n\nPositions are continuous array indices of the volume being drawn (voxel\n``i`` is centred on index ``i``). The sample ``k`` of the ray through\noutput row ``r`` and column ``c`` lies at\n``origin + c * across + r * down + k * depth``; sample 0 is nearest the\nviewer.\n\n:param origin: the first sample of the top-left ray.\n:param across: the step from one output column to the next.\n:param down: the step from one output row to the next.\n:param depth: the step between samples, away from the viewer.\n:param shape: ``(rows, columns, samples)``."
+    },
+    "spacr.layers.VolumeRays.positions": {
+      "source_blocks_sha256": [
+        "d15f3b86c91c1d09af3b8fc7d8033bbbc35e482369137b50cb7db40481c27d02",
+        "cfe88670b8542dfe845f8e12c88cd34a4ab5fd0184cc0ec9e3d1e209d540593e",
+        "d495d366bfb1b91297a0c3ded6ca21811b9316bdf8f1398f9a9b942029365040",
+        "032a64f2ef20fce40667d66f35c0c8f4ad283a60e970f0d2445733e90c7c5551"
+      ],
+      "source_sha256": "bfc2db4161d24b779f953a803c17e6c949a1c8ef056301ed5e0c03447d17eb33",
+      "text": "Every sample of the rays through output rows ``first`` to ``last``.\n\n:param first: the first row.\n:param last: one past the last row.\n:returns: an ``(axes, rays, samples)`` array of indices."
+    },
+    "spacr.layers.VolumeRays.sample_length": {
+      "source_blocks_sha256": [
+        "b423c66335df9372d94a3cb6f75068ce329765afbc95989c7d2c078c9252553d",
+        "40c6d2cb10378047482845a0546c676d2bb94688907c124833820983c005055a"
+      ],
+      "source_sha256": "34f83c9cb382da2ca5f94683c33a67492da35496f6ef64996fa6c5e0e9fa46eb",
+      "text": "The distance between two samples of a ray, in voxels.\n\n:returns: the length of :attr:`depth`."
+    },
     "spacr.layers.colormap": {
       "source_blocks_sha256": [
         "b70adc58d1a296d246861e565861caab06b2eb82b026532fffaf42da88b02398",
@@ -27354,6 +27385,17 @@
       ],
       "source_sha256": "5a31aa1ad57e938922c8dca2c49fc960286efb9ec7eee7321f20d2e1f4dabb7a",
       "text": "Resolve ``spec`` to a :class:`Colormap`.\n\nTakes a :class:`Colormap` (returned unchanged), a name in\n:data:`COLORMAPS`, a colour (any :func:`to_rgba` form) which becomes a\nblack→colour ramp, or — as a last resort — a matplotlib colormap name.\n\nMatplotlib is tried last and lazily. This module must stay importable\nwhere matplotlib is not installed and cheap to import in a worker, so it\nis never a hard dependency; but if a user types ``\"viridis\"`` and\nmatplotlib is there, refusing would be pedantry.\n\n:param spec: Existing :class:`Colormap`, built-in or matplotlib colormap\n    name, or a colour specification from which to build a black-to-colour\n    ramp.\n:raises LayerError: if ``spec`` names nothing."
+    },
+    "spacr.layers.downsample_volume": {
+      "source_blocks_sha256": [
+        "6ba68dbefab8aed1ca050d9f2d2320e3dabf14137506f0873e5383c59b29e222",
+        "063383da51b4a54f25f022b8148c4706e6c6bfe626884d576bfd14e355c828e4",
+        "a98d8283d628e610dce9ffd6e70b59b8704be0d89519821eef94e6e601b70fae",
+        "761ab2fd9ccb9f003ded3d7882c132bb83d435707f78c05b41199031a7163387",
+        "d0f0d63110bec5d62c10ea29bf37211e9dc708b146583111718f0a7204c6d912"
+      ],
+      "source_sha256": "61a2006f59162131542c474f21c7bd6924a7a8788fa611187e63782300d17c21",
+      "text": "A volume small enough to turn interactively, and how it was reduced.\n\nEvery ``step``-th voxel is kept along each axis (see\n:func:`volume_steps`), so voxel ``j`` of the result is voxel\n``j * step`` of the input. Labels keep their exact IDs and an image its\nexact values; nothing is averaged or interpolated.\n\n:param array: the volume.\n:param max_voxels: the most voxels the result may hold, or ``None`` to\n    keep every voxel.\n:returns: ``(volume, steps)``; the input itself when nothing is removed."
     },
     "spacr.layers.label_color": {
       "source_blocks_sha256": [
@@ -27374,6 +27416,22 @@
       "source_sha256": "345f05b2443a82e184d8e346ce91da928bce02bdc04091dd46a271a50d3f2dfa",
       "text": ":func:`label_color` over an array, returning ``(..., 3)`` float32.\n\nBuilt by looking up the unique labels once rather than per pixel: a\n2048×2048 mask holds a few hundred objects and tens of millions of pixels.\n\n:param labels: Array-like integer labels; the output preserves their shape\n    and appends one RGB axis."
     },
+    "spacr.layers.render_volume": {
+      "source_blocks_sha256": [
+        "bcc9598a66ed23fa8b4f7e75ebaf0d7ebe2500bcebfbe842941ef22fee1cb835",
+        "a51cc1d8dbb18e368430ccb150b9b603c373254f1e95c3706a0cfe5256a0ac75",
+        "e207f00eba063286729d2d6e8137c3e5b125dc8d75ba51e552fc419c559cb418",
+        "14cb64571c5f80f106dbba545ce05fe2341052ff03086782b1bb3a1df904e7c7",
+        "5a68833be9d4e9d2cd5d6c448c3ac28a6124b42e1041ac4402f14e303110631f",
+        "8143012bde54f68ed1502851792f718a00a585c4d1da9a76def94ade0f0f8bd3",
+        "51a432b1eb665a88925845eb4705301f9ce5d3e26f229ff7f9562146412967db",
+        "5f58eb0160b9c99c46f3e7f69fbadc2a6c23a03927188982b0cd3d39db449204",
+        "48162ef345d09e6a8c2f28d02fa74d47d371a0c4748f26b1c03ea748cb5cf1b8",
+        "bc8cb8b30a8d83205cd52ec9805d24b7c722f2ca810679015e3f8242ace26028"
+      ],
+      "source_sha256": "0b584cda67175d803d3a63d9f37845825071b8ff844cbf1ad93228af9620ae0f",
+      "text": "Draw 3-D image and labels layers along parallel rays, as napari does.\n\nImage layers are added together, each through its colormap, between its\ncontrast limits, times its opacity; each is drawn by the\n:data:`VOLUME_RENDERINGS` mode in ``layer.metadata[\"rendering\"]``\n(``mip`` when absent). Labels layers are then laid over them in stack\norder, each object in its :func:`label_color`, by the\n:data:`LABEL_RENDERINGS` mode (``surface`` when absent) and the layer's\nopacity. Hidden layers draw nothing. Every layer must have the volume's\nshape; image layers draw their first channel.\n\nThe rays are walked a few rows at a time, so a caller on a worker thread\ncan stop a render that is no longer wanted.\n\n:param layers: the layers, bottom first.\n:param rays: where to sample, in the layers' array indices.\n:param highlight: an object drawn lighter, as a chosen object is.\n:param cancelled: asked between chunks; returning ``True`` abandons the\n    render.\n:param chunk: about how many samples one step holds.\n:returns: ``(rgb, picked)``: ``rows x columns x 3`` float32 colour\n    between 0 and 1, and the object nearest the viewer under each pixel\n    (0 for none), or ``None`` when cancelled.\n:raises LayerError: for a rendering no layer of that kind has, or a layer\n    whose shape differs from the others'."
+    },
     "spacr.layers.to_rgba": {
       "source_blocks_sha256": [
         "a4c734d80f67d3c7f3384df69ee5e721968cd19227b371711e8bf964175b87c1",
@@ -27384,6 +27442,24 @@
       ],
       "source_sha256": "52f069683b3dcbd4843a3d1ee4f3cbd6aefed411e1efc604ec94812778f20627",
       "text": "Coerce anything that names a colour into ``(r, g, b, a)`` in 0–1.\n\nAccepts a name from :data:`_NAMED_COLORS`, ``#rgb`` / ``#rrggbb`` /\n``#rrggbbaa``, a 3- or 4-tuple in 0–1, or a 3- or 4-tuple in 0–255 (any\ncomponent above 1 switches the whole tuple to the 0–255 reading, which is\nthe only unambiguous rule — ``(1, 1, 1)`` is white either way).\n\n:param colour: named, hexadecimal or three-/four-component colour value\n    to normalise; numeric components may use either the 0–1 or 0–255\n    scale.\n:param alpha: overrides whatever the colour carried.\n:raises LayerError: on anything else."
+    },
+    "spacr.layers.volume_steps": {
+      "source_blocks_sha256": [
+        "9f0339d8718b30ea7df478f26ee5a4154d6e83d9275bf6dee5fb1a2c4b25b2f4",
+        "d08468004eebf00c942d2034e4f66b6e7e85226593e1a2e9b18a850a3c74182c",
+        "d5bfb8b5e602dc0fa0d6c2335ebc6aa8cc8629014891e8c51f30fe401c04ddcd",
+        "6ea37d055bc657e7f7cd117a1f701627dbc59c4e46e5e91e742becbb1d07ff0c",
+        "6e394f235a87df8e9d775f26775ed62809586990552b89a5434c2ee92dc83e1a"
+      ],
+      "source_sha256": "f2a02a64f403587275e43fca23061c6231d9f3fdfe4e380d4c243e38ee96c7ca",
+      "text": "The integer stride along each axis that fits a volume in a budget.\n\nThe longest strided axis is halved in resolution first, so a thin stack\n(40 sections of 1,000 x 1,000) keeps its depth while its width is\nreduced.\n\n:param shape: the volume's shape.\n:param max_voxels: the most voxels the strided volume may hold, or\n    ``None`` for no limit.\n:returns: one stride per axis, each at least 1."
+    },
+    "spacr.layers.volume_steps.strided": {
+      "source_blocks_sha256": [
+        "5021aa5ae3a8f2d4717bf3613cfa5507065510668bf8462e58160e732d30dc82"
+      ],
+      "source_sha256": "5021aa5ae3a8f2d4717bf3613cfa5507065510668bf8462e58160e732d30dc82",
+      "text": "Length of one axis at its current stride."
     },
     "spacr.lineage": {
       "source_blocks_sha256": [
@@ -53547,15 +53623,17 @@
         "d3e6b1677cc803199a85986aa71863e9d84e75fa69ae3912c3bde5f8cc9cfb36",
         "aaa130c107588dccaee1e47d995d7840fe0a8aa78ab08f454890d907f907ce31",
         "582ac5c292b3acd18f28dc3dc21347437ff5e0643d6143bf08a3f0f69ccb1614",
+        "9d006ecb05f1fb3026cda1a41f50726e1326217a85c2f16e4ce91011232bedd4",
         "6a00c04dd619f24beda91fb0f5cb640ea45009c16b9d9ecffafa7d46b91d55f5",
         "0b4037594367d1d8f2a05353be9bf8f44f1181bd8ee083880193299f6bd134e5",
         "40b190d760c03568cb680953c9875e7c995c6a671be2663a957318475df38cba",
         "26759ba634e6f78afd40e4e217075ee2599ba3e440b6a6158f0d77ee82c0710e",
         "f059cb94a71f1a899e0b4151a5ad84c86cece6fb7786731e8798fa367525a3d0",
-        "1430e9b40ff1bbd07fcfc63de38089726693aea59b952a9cc2699759a966550b"
+        "1430e9b40ff1bbd07fcfc63de38089726693aea59b952a9cc2699759a966550b",
+        "fbea4a14dcf28b102f6f82eebde82499790b20b37d794568bb279e35bdeeb43c"
       ],
-      "source_sha256": "a2891fbdf0da347f05c6afda5c6561dfbc6c396b65fda3c6a1aa3fb2b40bdeaa",
-      "text": "Edit native spatial labels using the same boundary as the 3-D gate view.\n\nCoordinates are physical X/Y/Z distances from the image's outer origin;\nvoxel centres lie at ``(index + 0.5) * spacing``. Arrays retain their\ndeclared spatial axis order, source dtype and existing object identities.\nAt most 16,777,216 voxels and 256 MiB of source intensities are accepted;\nlarger fields are refused explicitly. Sparse undo deltas have a combined\n64 MiB budget rather than retaining a volume for every edit.\n\n:param image: finite real numeric three-dimensional source intensities.\n:param mask: nonnegative integer labels of exactly the source shape.\n:param axes: a permutation of the three spatial axes ``XYZ``.\n:param spacing: positive finite distances in that same array axis order.\n:param unit: the physical distance unit, or ``pixel`` when unspecified.\nValidate one spatial image and own its mutable label array.\n\n:param image: finite real numeric source intensities.\n:param mask: nonnegative integer object labels matching the image.\n:param axes: spatial storage-axis order, a permutation of XYZ.\n:param spacing: three positive finite distances in storage order.\n:param unit: the common distance unit."
+      "source_sha256": "bf7476123deeba65442f5aaee0967c0886b5bc12d2702f2d9ea6a15f3bd49bbf",
+      "text": "Edit native spatial labels using the same boundary as the 3-D gate view.\n\nCoordinates are physical X/Y/Z distances from the image's outer origin;\nvoxel centres lie at ``(index + 0.5) * spacing``. Arrays retain their\ndeclared spatial axis order, source dtype and existing object identities.\nAt most 16,777,216 voxels and 256 MiB of source intensities are accepted;\nlarger fields are refused explicitly. Sparse undo deltas have a combined\n64 MiB budget rather than retaining a volume for every edit.\n\n:param image: finite real numeric three-dimensional source intensities.\n:param mask: nonnegative integer labels of exactly the source shape.\n:param axes: a permutation of the three spatial axes ``XYZ``.\n:param spacing: positive finite distances in that same array axis order.\n:param unit: the physical distance unit, or ``pixel`` when unspecified.\n:param channels: every channel of a multichannel volume, each shaped\n    like ``image`` (which the slice views show); the 3-D view draws each\n    as its own layer. Together they share the 256 MiB budget.\nValidate one spatial image and own its mutable label array.\n\n:param image: finite real numeric source intensities.\n:param mask: nonnegative integer object labels matching the image.\n:param axes: spatial storage-axis order, a permutation of XYZ.\n:param spacing: three positive finite distances in storage order.\n:param unit: the common distance unit.\n:param channels: every channel of a multichannel volume, each shaped\n    like ``image``; ``None`` means ``image`` is the only channel."
     },
     "spacr.qt.mask_engine.VolumeMaskSession.apply_geometry": {
       "source_blocks_sha256": [
@@ -54093,15 +54171,15 @@
     },
     "spacr.qt.mask_engine.load_volume_image_and_mask": {
       "source_blocks_sha256": [
-        "b2a5f5453a4281fdf11dceff4dda389cc6a8fde9f91cd7a0a3075ece77c591c6",
-        "a741945fb4cd3cf36c8cc61ed77b6687562892aa230f344726f719f473c6b28a",
+        "f5737aa4b8008209201ff090394eb7367245bebe60741cd318ee13da056d26cc",
+        "3fadac73bfca2bb9ad2e0edeacdf234386853325cf5b5c0c6ec9a1386eae7d94",
         "d6bd70cde704f639f66ecb67b8ddecfd38b38dbfea5b2e896a774d9936fbec7a",
         "ae90fa7807b412ee2ef0174e830caf07f00e7fd56a3b4a0451be4391debacdf9",
         "063d5c8df85e3073873f87a00d46689202ac0110d8a607423d07d6333068568c",
         "4b3a91c94033d97ab8bee5337efd9d5d470c3a26a884d5c6ddb77a2f17d68b39"
       ],
-      "source_sha256": "c9247172793d4ae12e10edd0d15adc430764f8d3d75bdeba192af38629048c69",
-      "text": "Open a grayscale spatial volume for native 3-D editing.\n\nTIFF volumes need exactly three spatial axes, in any order. A plain\nthree-dimensional page stack (tifffile's ``Q`` or ``I`` page axis over\n``YX``) is read as Z sections, as z-stacks and FIB-SEM series are saved;\ntime, channel and colour axes are refused. ``voxel_spacing`` metadata is\nread in storage-axis order. OME physical sizes are converted to micrometres;\nImageJ spacing and XY resolution are retained. MRC volumes (``.mrc``,\n``.rec``, ``.map``) are read as ZYX with their voxel size in nanometres;\nthey need the optional ``mrcfile`` package. Absent physical metadata\nmeans pixel coordinates.\nLabels retain dtype and identity. A saved geometry sidecar is bound to\nthe exact source file and mask pixels and is refused when stale.\n\n:param folder: source image directory.\n:param filename: spatial TIFF or MRC volume filename.\n:param masks_dir: optional existing sibling mask directory.\n:returns: a ``VolumeMaskSession`` owning the labels and source metadata."
+      "source_sha256": "fad8d2002ffc7cb5d40726d31a3dd56f1e981826e8b6ff14fa5b5b019bad5a2e",
+      "text": "Open a spatial volume, one channel or several, for native 3-D editing.\n\nTIFF volumes need exactly three spatial axes, in any order. A plain\nthree-dimensional page stack (tifffile's ``Q`` or ``I`` page axis over\n``YX``) is read as Z sections, as z-stacks and FIB-SEM series are saved.\nOne channel axis (``CZYX``, ``ZCYX``, at most 16 channels) is kept as\n:attr:`VolumeMaskSession.channels`; the slice views show the first\nchannel. Time and colour axes are refused. ``voxel_spacing`` metadata is\nread in storage-axis order. OME physical sizes are converted to micrometres;\nImageJ spacing and XY resolution are retained. MRC volumes (``.mrc``,\n``.rec``, ``.map``) are read as ZYX with their voxel size in nanometres;\nthey need the optional ``mrcfile`` package. Absent physical metadata\nmeans pixel coordinates.\nLabels retain dtype and identity. A saved geometry sidecar is bound to\nthe exact source file and mask pixels and is refused when stale.\n\n:param folder: source image directory.\n:param filename: spatial TIFF or MRC volume filename.\n:param masks_dir: optional existing sibling mask directory.\n:returns: a ``VolumeMaskSession`` owning the labels and source metadata."
     },
     "spacr.qt.mask_engine.load_yolo_boxes": {
       "source_blocks_sha256": [
@@ -67797,6 +67875,13 @@
       ],
       "source_sha256": "6720a095875b86deb6a549073e274ee83c7130a07f4357dea8366972eff50bc0",
       "text": "Propagate the seeds off the GUI thread and report the labels."
+    },
+    "spacr.qt.screens.make_masks._VolumeStage._render_request.index": {
+      "source_blocks_sha256": [
+        "70993c57174a9a89447e7952a6e1a7717a56c8363cf102df051b7b8185e88746"
+      ],
+      "source_sha256": "70993c57174a9a89447e7952a6e1a7717a56c8363cf102df051b7b8185e88746",
+      "text": "Physical screen point (or step) to strided array indices in storage order."
     },
     "spacr.qt.screens.make_masks._counting_tiles.before_a_tile": {
       "source_blocks_sha256": [

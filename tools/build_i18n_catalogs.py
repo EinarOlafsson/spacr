@@ -301,6 +301,8 @@ _IDENTITY_TEXT = {
     "Page Up / Page Down", "Shift+E / Shift+S / Shift+D", "Shift+X / Shift+Y / Shift+Z",
     # N673 View mode name, kept in English like the other protected 3D terms.
     "True 3D", "ER 2",
+    # 2026-10-15: N673 True 3D rendering name, napari's minimum-intensity projection.
+    "MinIP",
     "ER", "ER (Y)", "DNA (B)", "IMC", "CC BY 4.0",
     "3D", "API", "CPU", "CUDA", "CV", "DNA", "EC50", "Eps", "FOV", "GPU",
     "CSV", "Cellpose-SAM", "DINOCell", "FlowView", "JSON", "MIP", "ML",

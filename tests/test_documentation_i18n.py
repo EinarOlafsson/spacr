@@ -3445,6 +3445,13 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     assert {key: docs[key] for key in s700_arrivals} == s700_arrivals
     assert not s700_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **s700_arrivals}
+    # 2026-10-15: Item 673: napari-like True 3D view (3-D volume rendering in spacr.layers and its ray helper); one named contract.
+    n673_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "673_napari_true3d_api_arrivals_2026-10-15.json").read_text())
+    assert len(n673_arrivals) == 8
+    assert {key: docs[key] for key in n673_arrivals} == n673_arrivals
+    assert not n673_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **n673_arrivals}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text())

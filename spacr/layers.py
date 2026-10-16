@@ -91,6 +91,12 @@ __all__ = [
     "LayerEvent",
     "LayerStack",
     "DEFAULT_PERCENTILES",
+    "VOLUME_RENDERINGS",
+    "LABEL_RENDERINGS",
+    "VolumeRays",
+    "volume_steps",
+    "downsample_volume",
+    "render_volume",
 ]
 
 
@@ -3835,3 +3841,294 @@ class LayerStack:
         if not self._layers:
             return "no layers"
         return "\n".join(l.describe() for l in reversed(self._layers))
+
+
+#: How an image layer is drawn in a 3-D view, as napari names them: the
+#: brightest sample along each ray (``mip``), the brightest sample dimmed by
+#: what lies in front of it (``attenuated_mip``), a glowing fog whose density
+#: is the intensity (``translucent``), the mean (``average``) and the dimmest
+#: sample (``minip``).
+VOLUME_RENDERINGS: Tuple[str, ...] = (
+    "mip", "attenuated_mip", "translucent", "average", "minip")
+
+#: How a labels layer is drawn in a 3-D view: each object's nearest surface,
+#: shaded (``surface``), or every object as coloured glass (``translucent``).
+LABEL_RENDERINGS: Tuple[str, ...] = ("surface", "translucent")
+
+#: How fast intensity in front of a sample dims it in ``attenuated_mip``,
+#: per voxel of full-scale intensity crossed.
+VOLUME_ATTENUATION = 0.05
+
+#: Opacity per voxel of full-scale intensity in ``translucent`` rendering.
+VOLUME_DENSITY = 0.08
+
+#: Opacity per voxel inside an object in ``translucent`` labels rendering.
+LABEL_DENSITY = 0.2
+
+
+def volume_steps(shape: Sequence[int], max_voxels: Optional[int]
+                 ) -> Tuple[int, ...]:
+    """The integer stride along each axis that fits a volume in a budget.
+
+    The longest strided axis is halved in resolution first, so a thin stack
+    (40 sections of 1,000 x 1,000) keeps its depth while its width is
+    reduced.
+
+    :param shape: the volume's shape.
+    :param max_voxels: the most voxels the strided volume may hold, or
+        ``None`` for no limit.
+    :returns: one stride per axis, each at least 1.
+    """
+    shape = tuple(max(1, int(length)) for length in shape)
+    steps = [1] * len(shape)
+    if max_voxels is None:
+        return tuple(steps)
+    budget = max(1, int(max_voxels))
+
+    def strided(axis: int) -> int:
+        """Length of one axis at its current stride."""
+        return -(-shape[axis] // steps[axis])
+
+    while math.prod(strided(axis) for axis in range(len(shape))) > budget:
+        longest = max(range(len(shape)), key=strided)
+        if strided(longest) <= 1:
+            break
+        steps[longest] += 1
+    return tuple(steps)
+
+
+def downsample_volume(array: Any, max_voxels: Optional[int]
+                      ) -> Tuple[np.ndarray, Tuple[int, ...]]:
+    """A volume small enough to turn interactively, and how it was reduced.
+
+    Every ``step``-th voxel is kept along each axis (see
+    :func:`volume_steps`), so voxel ``j`` of the result is voxel
+    ``j * step`` of the input. Labels keep their exact IDs and an image its
+    exact values; nothing is averaged or interpolated.
+
+    :param array: the volume.
+    :param max_voxels: the most voxels the result may hold, or ``None`` to
+        keep every voxel.
+    :returns: ``(volume, steps)``; the input itself when nothing is removed.
+    """
+    data = np.asarray(array)
+    steps = volume_steps(data.shape, max_voxels)
+    if all(step == 1 for step in steps):
+        return data, steps
+    return np.ascontiguousarray(data[tuple(slice(None, None, step)
+                                           for step in steps)]), steps
+
+
+@dataclass(frozen=True)
+class VolumeRays:
+    """Parallel rays through a volume, one per output pixel.
+
+    Positions are continuous array indices of the volume being drawn (voxel
+    ``i`` is centred on index ``i``). The sample ``k`` of the ray through
+    output row ``r`` and column ``c`` lies at
+    ``origin + c * across + r * down + k * depth``; sample 0 is nearest the
+    viewer.
+
+    :param origin: the first sample of the top-left ray.
+    :param across: the step from one output column to the next.
+    :param down: the step from one output row to the next.
+    :param depth: the step between samples, away from the viewer.
+    :param shape: ``(rows, columns, samples)``.
+    """
+
+    origin: Tuple[float, ...]
+    across: Tuple[float, ...]
+    down: Tuple[float, ...]
+    depth: Tuple[float, ...]
+    shape: Tuple[int, int, int]
+
+    @property
+    def sample_length(self) -> float:
+        """The distance between two samples of a ray, in voxels.
+
+        :returns: the length of :attr:`depth`.
+        """
+        return float(np.linalg.norm(np.asarray(self.depth, dtype=np.float64)))
+
+    def positions(self, first: int, last: int) -> np.ndarray:
+        """Every sample of the rays through output rows ``first`` to ``last``.
+
+        :param first: the first row.
+        :param last: one past the last row.
+        :returns: an ``(axes, rays, samples)`` array of indices.
+        """
+        rows, columns, samples = self.shape
+        r = np.arange(first, last, dtype=np.float32)
+        c = np.arange(columns, dtype=np.float32)
+        k = np.arange(samples, dtype=np.float32)
+        out = np.empty((len(self.origin), last - first, columns, samples),
+                       dtype=np.float32)
+        for axis in range(len(self.origin)):
+            out[axis] = (self.origin[axis]
+                         + r[:, None, None] * self.down[axis]
+                         + c[None, :, None] * self.across[axis]
+                         + k[None, None, :] * self.depth[axis])
+        return out.reshape(len(self.origin), (last - first) * columns, samples)
+
+
+def _layer_rendering(layer: "Layer") -> str:
+    """The 3-D rendering a layer asks for in its metadata, checked."""
+    allowed = LABEL_RENDERINGS if isinstance(layer, LabelsLayer) else VOLUME_RENDERINGS
+    value = str(layer.metadata.get("rendering", allowed[0]))
+    if value not in allowed:
+        raise LayerError(f"layer {layer.name!r} cannot be rendered as {value!r}; "
+                         f"choose one of {', '.join(allowed)}")
+    return value
+
+
+def _reduce_image(values: np.ndarray, inside: np.ndarray, rendering: str,
+                  length: float) -> np.ndarray:
+    """Collapse the normalised samples of each ray into one value."""
+    if rendering == "mip":
+        return values.max(axis=1)
+    if rendering == "minip":
+        return np.where(inside.any(axis=1),
+                        np.where(inside, values, 1.0).min(axis=1), 0.0)
+    if rendering == "average":
+        return values.sum(axis=1) / np.maximum(inside.sum(axis=1), 1)
+    if rendering == "attenuated_mip":
+        crossed = np.cumsum(values, axis=1) - values
+        return (values * np.exp(-VOLUME_ATTENUATION * length * crossed)).max(axis=1)
+    alpha = np.clip(values * VOLUME_DENSITY * length, 0.0, 1.0)
+    clear = np.cumprod(1.0 - alpha, axis=1)
+    before = np.concatenate([np.ones_like(clear[:, :1]), clear[:, :-1]], axis=1)
+    return np.minimum((before * alpha).sum(axis=1) * 2.0, 1.0)
+
+
+def render_volume(layers: Iterable["Layer"], rays: VolumeRays, *,
+                  highlight: int = 0,
+                  cancelled: Optional[Callable[[], bool]] = None,
+                  chunk: int = 300_000
+                  ) -> Optional[Tuple[np.ndarray, np.ndarray]]:
+    """Draw 3-D image and labels layers along parallel rays, as napari does.
+
+    Image layers are added together, each through its colormap, between its
+    contrast limits, times its opacity; each is drawn by the
+    :data:`VOLUME_RENDERINGS` mode in ``layer.metadata["rendering"]``
+    (``mip`` when absent). Labels layers are then laid over them in stack
+    order, each object in its :func:`label_color`, by the
+    :data:`LABEL_RENDERINGS` mode (``surface`` when absent) and the layer's
+    opacity. Hidden layers draw nothing. Every layer must have the volume's
+    shape; image layers draw their first channel.
+
+    The rays are walked a few rows at a time, so a caller on a worker thread
+    can stop a render that is no longer wanted.
+
+    :param layers: the layers, bottom first.
+    :param rays: where to sample, in the layers' array indices.
+    :param highlight: an object drawn lighter, as a chosen object is.
+    :param cancelled: asked between chunks; returning ``True`` abandons the
+        render.
+    :param chunk: about how many samples one step holds.
+    :returns: ``(rgb, picked)``: ``rows x columns x 3`` float32 colour
+        between 0 and 1, and the object nearest the viewer under each pixel
+        (0 for none), or ``None`` when cancelled.
+    :raises LayerError: for a rendering no layer of that kind has, or a layer
+        whose shape differs from the others'.
+    """
+    from scipy import ndimage
+
+    rows, columns, samples = (int(value) for value in rays.shape)
+    drawn = [layer for layer in layers if layer.visible
+             and isinstance(layer, (ImageLayer, LabelsLayer))]
+    shapes = {layer.shape if isinstance(layer, LabelsLayer) else layer.channel_data(0).shape
+              for layer in drawn}
+    if len(shapes) > 1:
+        raise LayerError(f"3-D layers must share one shape, got {sorted(shapes)}")
+    modes = [_layer_rendering(layer) for layer in drawn]
+    length = max(rays.sample_length, 1e-6)
+    images = [np.zeros((rows, columns), dtype=np.float32) for _ in drawn]
+    nearest = np.zeros((rows, columns), dtype=np.int64)
+    first_hit = np.full((rows, columns), np.nan, dtype=np.float32)
+    glass = {index: np.zeros((rows, columns, 4), dtype=np.float32)
+             for index, layer in enumerate(drawn)
+             if isinstance(layer, LabelsLayer) and modes[index] == "translucent"}
+    surfaces = {index: (np.zeros((rows, columns), dtype=np.int64),
+                        np.full((rows, columns), np.nan, dtype=np.float32))
+                for index, layer in enumerate(drawn)
+                if isinstance(layer, LabelsLayer) and modes[index] == "surface"}
+    shape = next(iter(shapes)) if shapes else ()
+    step = max(1, int(chunk) // max(1, columns * samples))
+    for first in range(0, rows, step):
+        if cancelled is not None and cancelled():
+            return None
+        last = min(rows, first + step)
+        where = rays.positions(first, last)
+        flat = where.reshape(len(rays.origin), -1)
+        inside = np.ones(flat.shape[1], dtype=bool)
+        for axis, size in enumerate(shape):
+            inside &= (flat[axis] >= -0.5) & (flat[axis] <= size - 0.5)
+        inside = inside.reshape(where.shape[1:])
+        for index, layer in enumerate(drawn):
+            if isinstance(layer, ImageLayer):
+                low, high = layer.contrast_limits(0)
+                values = ndimage.map_coordinates(
+                    np.asarray(layer.channel_data(0), dtype=np.float32), flat,
+                    order=1, mode="nearest").reshape(inside.shape)
+                values = np.clip((values - low) / max(high - low, _EPS), 0.0, 1.0) * inside
+                images[index][first:last] = _reduce_image(
+                    values, inside, modes[index], length).reshape(last - first, columns)
+                continue
+            labels = ndimage.map_coordinates(
+                np.asarray(layer.data), flat, order=0, mode="nearest"
+            ).reshape(inside.shape).astype(np.int64) * inside
+            hit = labels != 0
+            seen = hit.any(axis=1)
+            depth = hit.argmax(axis=1)
+            ids = labels[np.arange(labels.shape[0]), depth] * seen
+            block = slice(first, last)
+            older = nearest[block].reshape(-1)
+            old_depth = first_hit[block].reshape(-1)
+            closer = seen & ~(old_depth <= depth)
+            nearest[block] = np.where(closer, ids, older).reshape(last - first, columns)
+            first_hit[block] = np.where(closer, depth, old_depth).reshape(last - first, columns)
+            if index in surfaces:
+                surface_ids, surface_depth = surfaces[index]
+                surface_ids[block] = ids.reshape(last - first, columns)
+                surface_depth[block] = np.where(seen, depth, np.nan).reshape(last - first, columns)
+                continue
+            colours = label_colors(labels).astype(np.float32)
+            alpha = np.where(hit, min(1.0, LABEL_DENSITY * length), 0.0).astype(np.float32)
+            clear = np.cumprod(1.0 - alpha, axis=1)
+            before = np.concatenate([np.ones_like(clear[:, :1]), clear[:, :-1]], axis=1)
+            weight = before * alpha
+            rgb = (weight[..., None] * colours).sum(axis=1)
+            glass[index][block] = np.concatenate(
+                [rgb, weight.sum(axis=1)[:, None]], axis=1).reshape(last - first, columns, 4)
+    out = np.zeros((rows, columns, 3), dtype=np.float32)
+    for index, layer in enumerate(drawn):
+        if isinstance(layer, ImageLayer):
+            out += layer.colormap.map(images[index]) * float(layer.opacity)
+    np.clip(out, 0.0, 1.0, out=out)
+    for index, layer in enumerate(drawn):
+        if index in glass:
+            rgba = glass[index]
+            alpha = rgba[..., 3:] * float(layer.opacity)
+            colour = rgba[..., :3] / np.maximum(rgba[..., 3:], _EPS)
+            if highlight:
+                colour = np.where((nearest == highlight)[..., None],
+                                  0.5 * colour + 0.5, colour)
+            out = out * (1.0 - alpha) + colour * alpha
+        elif index in surfaces:
+            ids, depth = surfaces[index]
+            seen = ids != 0
+            if not seen.any():
+                continue
+            filled = np.where(seen, depth, np.nanmax(depth[seen])) * length
+            pixel = max(float(np.linalg.norm(rays.across)), _EPS)
+            gy, gx = np.gradient(filled / pixel)
+            light = 1.0 / np.sqrt(1.0 + gx * gx + gy * gy)
+            cue = 1.0 - 0.35 * np.nan_to_num(depth) / max(samples, 1)
+            shade = (0.35 + 0.65 * light) * cue
+            colour = label_colors(ids).astype(np.float32) * shade[..., None]
+            if highlight:
+                colour = np.where((ids == highlight)[..., None],
+                                  0.5 * colour + 0.5, colour)
+            alpha = (seen * float(layer.opacity))[..., None]
+            out = out * (1.0 - alpha) + colour * alpha
+    return np.clip(out, 0.0, 1.0).astype(np.float32), nearest
