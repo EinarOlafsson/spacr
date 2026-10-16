@@ -812,7 +812,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "validate the ids as exact primary IDs first (uint16-compatible, via :func:`canonical_labels`). Either way every id is kept. By default a mask with a single foreground value -- a brush-painted binary mask, which carries no ids -- is numbered by connectivity first, as :func:`canonical_labels` numbers it.",
       "source_sha256": "3f6405ab7f5ecb1b8bc0ceed13a7a2ff4c0950edcca5e752efb54e7d6d68c2d9",
-      "translation": "先将编号验证为精确的主编号（与 uint16 兼容，通过 :func:`canonical_labels`）。无论哪种情况，每个编号都会保留。默认情况下，只有单一前景值的掩膜——用画笔绘制的二值掩膜，不带编号——会先按连通性编号，与 :func:`canonical_labels` 的编号方式相同。"
+      "translation": "先将编号验证为精确的主编号（与 uint16 兼容，通过 :func:`canonical_labels`）。无论哪种情况，每个编号都会保留。默认情况下，只有单一前景值的掩膜——用画笔绘制的二值掩膜，不带编号——会先按连通性编号，与 :func:`canonical_labels` 的编号方式相同。",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "context": "Close the holes inside each object, keeping every id it already had.",

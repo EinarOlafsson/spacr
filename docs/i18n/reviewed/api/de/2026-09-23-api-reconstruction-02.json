@@ -167,7 +167,9 @@
       "label": "spacr.qt.mask_engine.canonical_labels#8",
       "source": "the labels as ``uint16``.",
       "source_sha256": "a89fb9a7a288e2e65c48e4f9c0fc9f7579568abbb0ee1e5c3fbf077f86570623",
-      "translation": "die Objektlabels als ``uint16``."
+      "translation": "die Objektlabels als ``uint16``.",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "context": "the measurements to test.",

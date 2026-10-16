@@ -426,7 +426,9 @@
       "source_sha256": "86d45588220adff140a79f8f7ff91a4a154d945d67f1d16c980cde581f36fdd1",
       "context": "retain exact primary/secondary IDs without interpreting single-valued masks as binary or splitting disconnected pieces. The explicit mode validates nonnegative 2-D integer labels and refuses IDs above 65535 before writing; it never silently renumbers them.",
       "translation": "एकल-मान वाले मास्क को बाइनरी मानने या असंबद्ध टुकड़ों को विभाजित किए बिना सटीक प्राथमिक/द्वितीयक ID बनाए रखें। स्पष्ट मोड गैर-ऋणात्मक 2-D पूर्णांक लेबलों का सत्यापन करता है और लिखने से पहले 65535 से ऊपर की ID अस्वीकार करता है; यह उन्हें कभी चुपचाप फिर से क्रमांकित नहीं करता।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "label": "spacr.qt.mask_engine.save_seg_bundle#0",

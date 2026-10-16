@@ -552,7 +552,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the labels as ``uint16``.",
       "source_sha256": "a89fb9a7a288e2e65c48e4f9c0fc9f7579568abbb0ee1e5c3fbf077f86570623",
-      "translation": "以 ``uint16`` 表示的标签。"
+      "translation": "以 ``uint16`` 表示的标签。",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "context": "when an id does not fit in ``uint16``, or exact-ID mode receives invalid labels. Oversized IDs are never truncated.",
@@ -560,7 +562,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "when an id does not fit in ``uint16``, or exact-ID mode receives invalid labels. Oversized IDs are never truncated.",
       "source_sha256": "1a6423bda836e7645559cf6a555e2638d3b7e67bf5a5c1e0b006f83e35fffde0",
-      "translation": "当某个 ID 无法放入 ``uint16``，或精确 ID 模式收到无效标签时。过大的 ID 绝不会被截断。"
+      "translation": "当某个 ID 无法放入 ``uint16``，或精确 ID 模式收到无效标签时。过大的 ID 绝不会被截断。",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "context": "``name`` as the regionprop it means, or a ValueError naming the choices.",
@@ -1763,7 +1767,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "label mask; an empty array gives 1.",
       "source_sha256": "f5498ad93ff511e6e045bbd7d187f8685f7b93ec4c8267d800161571f764d218",
-      "translation": "标签掩膜；空数组返回 1。"
+      "translation": "标签掩膜；空数组返回 1。",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "context": "``filters`` as the canonical list of ``{property, min, max}`` key-value mappings.",
@@ -2235,7 +2241,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "retain exact primary/secondary IDs without interpreting single-valued masks as binary or splitting disconnected pieces. The explicit mode validates nonnegative 2-D integer labels and refuses IDs above 65535 before writing; it never silently renumbers them.",
       "source_sha256": "86d45588220adff140a79f8f7ff91a4a154d945d67f1d16c980cde581f36fdd1",
-      "translation": "保留精确的初级/次级 ID，不把单值掩膜解读为二值掩膜，也不拆分不连通的部分。显式模式会验证非负的 2-D 整数标签，并在写入前拒绝大于 65535 的 ID；它绝不会悄悄地重新编号。"
+      "translation": "保留精确的初级/次级 ID，不把单值掩膜解读为二值掩膜，也不拆分不连通的部分。显式模式会验证非负的 2-D 整数标签，并在写入前拒绝大于 65535 的 ID；它绝不会悄悄地重新编号。",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "context": "Write edited labels back into the bundle they came from.",
