@@ -12824,6 +12824,7 @@ def _volume_measure_input(row):
         raise ValueError(tr('The volume mask must contain matching nonnegative integer object labels up to 65535.'))
     if not np.any(labels):
         raise ValueError(tr('Draw or load object labels before measuring {name}.', name=source.name))
+    labels = labels.astype(np.uint16, copy=False)
     paths = []
     origins = [{'path': str(source), 'channel': index} for index in range(len(channels))]
     for raw_path in row.get('channel_paths', ()):
@@ -12890,10 +12891,9 @@ def _volume_measure_frame(row, object_type):
             frame = frame.merge(correlation, on='label', validate='one_to_one')
     image_key = hashlib.sha256(json.dumps([str(source), paths]).encode('utf-8')).hexdigest()
     plate = 'make_masks_volume'
-    field_id = str(int(image_key[:15], 16))
+    field = schema.FieldID.build(plate, well='A01', field=int(image_key[:15], 16))
     identity = {
-        'plateID': plate, 'rowID': 'A', 'columnID': '01', 'fieldID': field_id,
-        'prcf': f'{schema.escape_filename_component(plate)}_A_01_{field_id}',
+        **field.to_dict(), 'prcf': field.prcf,
         'file_name': source.name, 'path_name': str(source),
         'measurement_ndim': 3, 'measurement_units': units, 'n_z': labels.shape[0],
         'voxel_size_z_um': spacing[0] if units == UNITS_UM else None,

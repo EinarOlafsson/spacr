@@ -50,6 +50,10 @@ def test_current_unsaved_labels_measure_true_3d_geometry_float_channels_and_corr
     assert result == {'db_paths': (str(tmp_path / 'measurements.db'),), 'images': 1, 'objects': 2}
     frame = _read(result['db_paths'][0]).sort_values('object_label')
     schema.validate_object_table_frame(frame, 'cell')
+    parsed = schema.parse_prcf(frame.prcf.iloc[0])
+    assert parsed.to_dict() == frame.iloc[0][['plateID', 'rowID', 'columnID', 'fieldID']].to_dict()
+    assert parsed.rowID == 'r1' and parsed.columnID == 'c1'
+    assert parsed.fieldID.startswith('f')
     assert frame.object_label.tolist() == [4, 19]
     assert frame.measurement_ndim.tolist() == [3, 3]
     assert frame.measurement_units.tolist() == ['um', 'um']
@@ -231,3 +235,15 @@ def test_saved_destination_is_reported_even_if_a_later_folder_write_fails(tmp_pa
     assert f'Measurements saved: {tmp_path / "measurements.db"}' in messages
     assert len(_read(tmp_path / 'measurements.db')) == 2
     assert not (other / 'measurements.db').exists()
+
+
+def test_wide_integer_label_dtype_retains_object_identity(tmp_path):
+    row = _row(tmp_path)
+    row['snapshot']['mask'] = row['snapshot']['mask'].astype(np.uint64)
+    row['snapshot']['mask'][row['snapshot']['mask'] == 19] = 65535
+    result = measure.measure_volume_rows([row])
+    frame = _read(result['db_paths'][0])
+    assert frame.object_label.tolist() == [4, 65535]
+    assert schema.parse_prcf(frame.prcf.iloc[0]).fieldID == frame.fieldID.iloc[0]
+    np.testing.assert_allclose(frame.cell_nearest_neighbor_distance, [10., 10.])
+    assert row['snapshot']['mask'].dtype == np.dtype(np.uint64)
