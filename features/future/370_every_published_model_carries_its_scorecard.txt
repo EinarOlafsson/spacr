@@ -3,14 +3,9 @@ EVERY PUBLISHED MODEL CARRIES A SCORECARD: FINETUNED AGAINST VANILLA, ON A
 HELD-OUT SET, IN THE TOOLTIP, ON HUGGING FACE, AND IN THE API
 ================================================================================
 
-Status:    BUILT 2026-10-15 (Claude Home): software side complete. Every
-           published model shows a scorecard state (reviewed / hold-out /
-           recorded at publication / not yet evaluated) in the catalogue,
-           tooltips, picker card and detail panel; matched-stock export
-           docs/models/scorecards.csv; card JSON / zoo / generator consistency
-           tested. OPEN, assigned to WS and the maintainer: GPU re-scores of
-           the eight non-reviewed models, central dataset upload, native GUI
-           check and scientific sign-off (exact steps in the last note).
+Status:    BUILT 2026-10-15; the maintainer signed off the published score
+           cards 2026-10-15. Only WS re-scoring of the 5 recorded models and
+           the detectors remains.
 Previous status (superseded 2026-10-15):    PARTIAL 2026-10-14 — nine approved curated cards are published;
            catalogue/tooltips, matched-stock exports, API consistency and
            remaining published-model acceptance still need completion.
@@ -1629,3 +1624,5 @@ REMAINING, ASSIGNMENT FOR WS (all GPU work), in order:
 REMAINING, MAINTAINER: scientific sign-off of the re-scored cards (step 3),
 whether "recorded" numbers may stay visible until then, and native-speaker
 review of the two new captions (optional; they are labelled AI-reviewed).
+
+2026-10-15: maintainer scientific sign-off on the published score cards.

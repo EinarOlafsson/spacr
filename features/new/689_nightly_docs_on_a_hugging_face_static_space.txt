@@ -1,9 +1,9 @@
 =========================================================================NIGHTLY DOCS ON A HUGGING FACE STATIC SPACE, MAIN DOCS STAY ON GITHUB PAGES
 =========================================================================
-Status:    BUILT, BLOCKED ON MAINTAINER — code complete on nightly; HF
-           publication stopped by the old Space's 1 GB storage limit; needs
-           token scope + two repo variables (steps 2026-10-15), then the
-           nightly->main merge for main-only Pages and the /nightly/ redirect
+Status:    BUILT; the maintainer granted the token write access and added
+           HF_DOCS_SPACE/HF_DOCS_URL 2026-10-15 (verify-host-access run
+           38829534457 succeeded). Remaining: first nightly publication, then
+           the nightly->main merge for main-only Pages and the /nightly/ redirect.
 Requested: 2026-10-10 — "Can you host the docs on huggingface? Removing docs
            from nightly sees like a bad idea as my process is to change nightly
            (including docs) then push and merge with main"; chose "Nightly on
@@ -322,3 +322,4 @@ MAINTAINER STEPS (no agent may touch tokens; do them in order):
  The old Space keeps serving its stale 2026-10-14 build. Its direct
  bookmarks do not redirect (see the 2026-10-15 quota plan).
 
+2026-10-15: maintainer granted the token write access and added HF_DOCS_SPACE/HF_DOCS_URL; verify-host-access run 38829534457 succeeded.

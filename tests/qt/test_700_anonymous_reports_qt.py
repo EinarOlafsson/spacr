@@ -944,3 +944,117 @@ class TestTheUsageBar:
         assert "limits set by Google" in text.text()
         panel.set_ai_provider(None)
         assert panel.findChild(object, "AiUsageRow").isHidden()
+
+
+ADVICE = (
+    "**What happened**\n\nThe run was refused: no channel is set.\n\n"
+    "**Fix**\n\n1. Open Settings.\n2. Set `cell_channel` to 1.\n"
+    "   - or `organelle_channel`\n\n"
+    "| key | value |\n|---|---|\n| cell_channel | 1 |\n\n"
+    "```\ncell_channel = 1\n```\n\n> Set cell_channel first.\n")
+
+
+class TestTheReportLineAfterTheAiEntry:
+    """The refused run's console shows the AI answer, then the issue line."""
+
+    def _run(self, qtbot, monkeypatch, relay, number_url):
+        from spacr.errors import raise_if_strict
+        from spacr.qt.screens.app_screen import AppScreen
+
+        screen = AppScreen("mask")
+        qtbot.addWidget(screen)
+        monkeypatch.setattr(screen, "_report_summary_provider",
+                            providers.hosted_provider)
+        cr.set_error_report_mode("all")
+        relay.routes["/diagnose"] = [(200, {"advice": ADVICE,
+                                            "model": "big", "tier": "best"})]
+        relay.routes["/report"] = [(200, dict(number_url,
+                                              deduplicated=False))]
+        screen._watch_for_refusals()
+        raise_if_strict("At least one registered *_channel must be set; no "
+                        "masks can be generated.", settings={})
+        screen._on_finished(True)
+        qtbot.waitUntil(lambda: "Reported" in self._texts(screen),
+                        timeout=15000)
+        return screen
+
+    def _texts(self, screen):
+        from PySide6.QtWidgets import QPlainTextEdit, QTextBrowser, QLabel
+
+        out = []
+        for cls in (QPlainTextEdit, QTextBrowser, QLabel):
+            for w in screen._console.findChildren(cls):
+                out.append(w.toPlainText() if hasattr(w, "toPlainText")
+                           else w.text())
+        return "\n".join(out)
+
+    def test_the_issue_line_and_link_follow_the_ai_entry(
+            self, qtbot, qt_theme_applied, monkeypatch, relay):
+        url = "https://github.com/olafsson-lab/spacr/issues/151"
+        screen = self._run(qtbot, monkeypatch, relay,
+                           {"issue_number": 151, "issue_url": url})
+        text = self._texts(screen)
+        assert "Set cell_channel" in text
+        assert "Reported as issue #151 (with AI summary)" in text
+        assert url in text
+        assert text.index("Set cell_channel") < text.index(
+            "Reported as issue #151")
+
+    def test_the_line_follows_a_saved_answer_too(
+            self, qtbot, qt_theme_applied, monkeypatch, relay):
+        url = "https://github.com/olafsson-lab/spacr/issues/152"
+        self._run(qtbot, monkeypatch, relay,
+                  {"issue_number": 151, "issue_url": url})
+        screen = self._run(qtbot, monkeypatch, relay,
+                           {"issue_number": 152, "issue_url": url})
+        text = self._texts(screen)
+        assert "saved answer" in text
+        assert "Reported as issue #152 (with AI summary)" in text
+        assert url in text
+
+    def test_the_line_is_shown_below_the_entry(
+            self, qtbot, qt_theme_applied, monkeypatch, relay):
+        from PySide6.QtWidgets import QPlainTextEdit
+
+        url = "https://github.com/olafsson-lab/spacr/issues/153"
+        screen = self._run(qtbot, monkeypatch, relay,
+                           {"issue_number": 153, "issue_url": url})
+        layout = screen._console._entries
+        order = []
+        for i in range(layout.count()):
+            w = layout.itemAt(i).widget()
+            if isinstance(w, QPlainTextEdit):
+                order.append((w.property("consoleContextKind"),
+                              w.isHidden(), w.toPlainText()))
+        print(order)
+        ai = [i for i, o in enumerate(order) if o[0] == "spacr_ai"]
+        line = [i for i, o in enumerate(order) if "issue #153" in o[2]]
+        assert ai and line and line[0] > ai[0]
+        assert not order[line[0]][1]
+
+    def test_the_link_is_clickable_and_survives_a_failed_ai_fill(
+            self, qtbot, qt_theme_applied, monkeypatch, relay):
+        from PySide6.QtCore import QPoint
+        from PySide6.QtWidgets import QPlainTextEdit
+
+        from spacr.qt.widgets.console_panel import ConsolePanel
+
+        def broken(self, block, text, saved=False):
+            raise RuntimeError("the entry cannot be drawn")
+
+        monkeypatch.setattr(ConsolePanel, "fill_ai_entry", broken)
+        url = "https://github.com/olafsson-lab/spacr/issues/154"
+        screen = self._run(qtbot, monkeypatch, relay,
+                           {"issue_number": 154, "issue_url": url})
+        blocks = [w for w in screen._console.findChildren(QPlainTextEdit)
+                  if "issue #154" in w.toPlainText()]
+        assert blocks
+        block = blocks[0]
+        block.resize(900, 60)
+        text = block.toPlainText()
+        column = text.index(url) + 5
+        cursor = block.textCursor()
+        cursor.setPosition(column)
+        rect = block.cursorRect(cursor)
+        assert block.link_at(QPoint(rect.x() + 2, rect.y() + 2)) == url
+

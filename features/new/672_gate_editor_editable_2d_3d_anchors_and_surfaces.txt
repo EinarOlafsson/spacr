@@ -2,7 +2,7 @@
 EDITABLE GATE ANCHORS AND SELECTABLE 3D SURFACES
 ================================================================================
 
-Status:    OPEN 2026-10-10 — implemented and published with nine-language captions and API pages; only the maintainer's hands-on desktop check is left
+Status:    DONE (maintainer accepted 2026-10-15)
 Requested: 2026-10-08
 Owner:     Home/root CPU gate editing lane; workstation API/docs/translations/tutorials
 Depends:   N671 rounded Gate Editor plot backing
@@ -77,3 +77,5 @@ and moves; Escape, empty space, leaving Edit, changing 2D/3D or replacing the
 gate set close it. 8 new captions (4 compact shortcut rows, 4 picker rows)
 with AI-reviewed translations in nine locales, no native-speaker signoff.
 Tests: tests/qt/test_gate_editor_mode_keys_and_overlap_picker.py.
+
+2026-10-15: maintainer accepted (visual check passed).

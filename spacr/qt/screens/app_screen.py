@@ -9871,30 +9871,33 @@ class AppScreen(QWidget):
         relay_text = str(outcome.get("ai_summary", "") or "")
         entry = getattr(self, "_ai_report_entry", None)
         self._ai_report_entry = None
-        if explanation.get("saved") == "local" and entry is None:
-            pass
-        elif relay_text and not explanation.get("text"):
-            self._console.fill_ai_entry(
-                entry, relay_text + "\n\n[" + tr("lighter model") + "]")
-        elif outcome.get("explained"):
-            if explanation.get("text"):
-                light = "\n\n[" + tr("lighter model") + "]" if explanation.get(
-                    "tier") == "light" else ""
+        try:
+            if explanation.get("saved") == "local" and entry is None:
+                pass
+            elif relay_text and not explanation.get("text"):
                 self._console.fill_ai_entry(
-                    entry, explanation["text"] + light,
-                    saved=bool(explanation.get("saved")))
-            elif refused == "quota":
-                self._console.fill_ai_entry(entry, tr(
-                    "spaCR AI: today's free AI is used up, so this error is "
-                    "not explained. It is still handled as Preferences → AI "
-                    "→ AI Error report says."))
-            else:
-                self._console.fill_ai_entry(entry, tr(
-                    "spaCR AI could not explain this error this time."))
-            try:
-                self._console.refresh_ai_usage()
-            except Exception:                                # noqa: BLE001
-                LOG.debug("could not refresh the AI usage", exc_info=True)
+                    entry, relay_text + "\n\n[" + tr("lighter model") + "]")
+            elif outcome.get("explained"):
+                if explanation.get("text"):
+                    light = "\n\n[" + tr("lighter model") + "]" if explanation.get(
+                        "tier") == "light" else ""
+                    self._console.fill_ai_entry(
+                        entry, explanation["text"] + light,
+                        saved=bool(explanation.get("saved")))
+                elif refused == "quota":
+                    self._console.fill_ai_entry(entry, tr(
+                        "spaCR AI: today's free AI is used up, so this error is "
+                        "not explained. It is still handled as Preferences → AI "
+                        "→ AI Error report says."))
+                else:
+                    self._console.fill_ai_entry(entry, tr(
+                        "spaCR AI could not explain this error this time."))
+                try:
+                    self._console.refresh_ai_usage()
+                except Exception:                                # noqa: BLE001
+                    LOG.debug("could not refresh the AI usage", exc_info=True)
+        except Exception:                                    # noqa: BLE001
+            LOG.warning("could not show the AI answer", exc_info=True)
         if status == crashreport.REPORT_SENT:
             number = outcome.get("issue_number") or "?"
             url = str(outcome.get("issue_url", "") or "")

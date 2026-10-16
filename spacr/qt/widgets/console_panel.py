@@ -619,6 +619,7 @@ class _StdoutBlock(QPlainTextEdit):
             Qt.TextSelectableByMouse | Qt.TextSelectableByKeyboard
         )
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.viewport().setMouseTracking(True)
         self._font_pt = 10
         self._font = QFont("Open Sans", self._font_pt, QFont.Light)
         self._font.setStyleName("Light")
@@ -801,6 +802,42 @@ class _StdoutBlock(QPlainTextEdit):
         cursor.setPosition(block.position(), QTextCursor.KeepAnchor)
         cursor.removeSelectedText()
         self._chars = max(0, self._chars - removed)
+
+    _LINK = re.compile(r"https?://[^\s<>\"')\]]+")
+
+    def link_at(self, pos) -> str:
+        """The web address under a point of the block, or an empty string.
+
+        :param pos: a point in the viewport's coordinates.
+        """
+        cursor = self.cursorForPosition(pos)
+        line = cursor.block().text()
+        column = cursor.positionInBlock()
+        for match in self._LINK.finditer(line):
+            if match.start() <= column <= match.end():
+                return match.group(0).rstrip(".,;:")
+        return ""
+
+    def mouseMoveEvent(self, event) -> None:           # noqa: N802
+        """Show the pointing hand over an address."""
+        try:
+            over = bool(self.link_at(event.position().toPoint()))
+        except Exception:                              # noqa: BLE001
+            over = False
+        self.viewport().setCursor(
+            Qt.PointingHandCursor if over else Qt.IBeamCursor)
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event) -> None:        # noqa: N802
+        """Open the address that was clicked, unless text was selected."""
+        super().mouseReleaseEvent(event)
+        if event.button() != Qt.LeftButton or self.textCursor().hasSelection():
+            return
+        url = self.link_at(event.position().toPoint())
+        if url:
+            from PySide6.QtCore import QUrl
+            from PySide6.QtGui import QDesktopServices
+            QDesktopServices.openUrl(QUrl(url))
 
     def sizeHint(self) -> QSize:
         """Report the full document height; the outer console owns scrolling.

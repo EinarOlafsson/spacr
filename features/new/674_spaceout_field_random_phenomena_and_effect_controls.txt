@@ -2,7 +2,7 @@
 DEFAULT SPACEOUT FIELD WITH ELEGANT RANDOM PHENOMENA
 ================================================================================
 
-Status:    in progress — unchanged by N684 apart from GPU and Dynamic animation; aesthetic acceptance open
+Status:    DONE (maintainer accepted 2026-10-15)
 Requested: 2026-10-08
 Owner:     Home/root and reused CPU theme/preferences lanes; workstation API/docs/translations/tutorials
 
@@ -36,3 +36,5 @@ Focused capped CPU/Qt checks cover fresh Spaceout defaults and ordinary-mode exc
 no colour-wave/spiral event is active and Animation GPU allows it; colour
 events stay on the CPU path. Dynamic animation pauses it during CPU-heavy
 jobs. Phenomena unchanged; human aesthetic acceptance remains open.
+
+2026-10-15: maintainer accepted (visual check passed).

@@ -2,7 +2,7 @@
 INDEPENDENT FIELD RIPPLES AND FIELD SETUP BACKDROP
 ================================================================================
 
-Status:    in progress — software scope done; native/user visual acceptance open
+Status:    DONE (maintainer accepted 2026-10-15)
 Requested: 2026-10-08
 Owner:     Home/root and delegated CPU UI lanes
 
@@ -65,3 +65,5 @@ thread's engine (same object, set under the engine lock); a test now pins
 that. Tests: tests/qt/test_n670_close_ripples_and_intensity_20261012.py.
 The workstation should re-run GPU parity (N684 command). Native/user visual
 acceptance remains open.
+
+2026-10-15: maintainer accepted (visual check passed).
