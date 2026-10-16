@@ -1630,8 +1630,8 @@ def _uninstall_from_environment(record: InstallRecord, machine: _Machine,
     :param machine: the computer.
     :param report: where the outcome is recorded.
     """
-    dists = _distributions(record.root) or glob.glob(
-        os.path.join(record.root, "site-packages", "spacr*-*.dist-info"))
+    dists = _distributions(record.root) or [dist for name in _DISTRIBUTIONS
+        for dist in glob.glob(os.path.join(record.root, "site-packages", f"{name}-*.dist-info"))]
     names = sorted({_dist_name(d) for d in dists}) or ["spacr"]
     python = record.python
     if not python:
@@ -1652,6 +1652,319 @@ def _uninstall_from_environment(record: InstallRecord, machine: _Machine,
     else:
         last = (output or "").strip().splitlines()
         report.failed.append((item, last[-1] if last else f"exit code {code}"))
+
+
+_UNINSTALL_CATEGORIES = ("caches", "models", "logs", "settings", "history",
+                         "temporary", "downloads", "other")
+
+
+def _uninstall_path_state(path):
+    """Bind an existing path to its unlinked directory ancestry without reading file contents."""
+    path = os.path.abspath(path)
+    cursor = path
+    identity = []
+    while True:
+        details = os.lstat(cursor)
+        if (stat.S_ISLNK(details.st_mode)
+                or getattr(details, "st_file_attributes", 0) & 0x400):
+            raise ValueError("linked_path")
+        identity.append([cursor, details.st_dev,
+                         None if cursor == path and stat.S_ISREG(details.st_mode) else details.st_ino,
+                         stat.S_IFMT(details.st_mode)])
+        parent = os.path.dirname(cursor)
+        if parent == cursor:
+            return identity
+        cursor = parent
+
+
+def _uninstall_data_candidates(machine):
+    """List known spaCR data locations by independent uninstall category, without broad home deletion."""
+    home = machine.home
+
+    def expand(value):
+        """Expand the configured user's leading home marker."""
+        value = value.strip()
+        if value == "~" or value.startswith(("~/", "~\\")):
+            value = home + value[1:]
+        return os.path.abspath(value)
+
+    app_home = expand(machine.env("SPACR_HOME").strip() or os.path.join(home, ".spacr"))
+    children = {
+        "caches": ("cache", "news", "backgrounds", "sounds", "icons"),
+        "models": ("models", "backends", "community_models.json"),
+        "logs": ("logs", "anonymous_reports"),
+        "settings": ("settings", "network.json", "notification_secrets.json", "cache_locations.json"),
+        "history": ("runs", "history", "restart_state.json", "last_session.json", "queue.json"),
+        "temporary": ("tmp", "temp"),
+        "downloads": ("downloads",),
+        "other": ("plugins", "recipes", "macros", "blinding", "analysis_locks", "features"),
+    }
+    candidates = [(category, os.path.join(app_home, name), True)
+                  for category, names in children.items() for name in names]
+    candidates.extend((category, path, True) for category, path in (
+        ("caches", os.path.join(machine.xdg("XDG_CACHE_HOME", ".cache"), "spacr")),
+        ("settings", os.path.join(machine.xdg("XDG_CONFIG_HOME", ".config"), "spacr")),
+        ("settings", os.path.join(home, "Library", "Preferences", "com.spacr.qt.plist")),
+        ("history", os.path.join(machine.xdg("XDG_STATE_HOME", os.path.join(".local", "state")), "spacr")),
+        ("downloads", os.path.join(home, "spacr-demos")),
+        ("downloads", os.path.join(home, "spacr-tutorials")),
+    ))
+    variables = {
+        "SPACR_MODEL_CACHE": "models", "SPACR_BACKENDS_DIR": "models",
+        "SPACR_LOG_DIR": "logs", "SPACR_PLUGIN_HOME": "other",
+        "SPACR_NEWS_CACHE": "caches", "SPACR_SPACE_CACHE": "caches",
+        "SPACR_SOUND_CACHE": "caches", "SPACR_ICON_CACHE": "caches",
+        "MPLCONFIGDIR": "caches", "HF_HOME": "models", "TORCH_HOME": "models",
+        "CELLPOSE_LOCAL_MODELS_PATH": "models",
+    }
+    relocated = {_norm(path) for path in _relocated_caches(machine)}
+    for variable, category in variables.items():
+        raw = machine.env(variable)
+        if not raw.strip():
+            continue
+        path = expand(raw)
+        owned = (_inside(path, app_home) and _norm(path) != _norm(app_home)
+                 or _norm(path) in relocated
+                 or os.path.basename(path).lower().startswith("spacr-"))
+        candidates.append((category, path, owned))
+    for path in _relocated_caches(machine):
+        category = "models" if any(name in os.path.basename(path).lower()
+                                   for name in ("model", "backend", "huggingface", "torch", "cellpose")) else "caches"
+        candidates.append((category, path, True))
+    shared = {_norm(path) for path in _never_delete(machine)}
+    unique = {}
+    for category, path, owned in candidates:
+        if not _exists(path):
+            continue
+        path = os.path.abspath(path)
+        if _norm(path) in shared or (machine.running_prefix and _inside(machine.running_prefix, path)):
+            owned = False
+        unique[path] = (category, path, owned)
+    result = []
+    pending = list(unique.values())
+    while pending:
+        category, path, owned = pending.pop(0)
+        nested = [other for other in unique if other != path and _inside(other, path)]
+        if nested and owned and os.path.isdir(path) and not os.path.islink(path):
+            try:
+                entries = sorted(os.listdir(path))
+            except OSError:
+                result.append((category, path, False))
+                continue
+            for name in entries:
+                child = os.path.join(path, name)
+                if child not in unique:
+                    pending.append((category, child, owned))
+        else:
+            result.append((category, path, owned))
+    return sorted(set(result), key=lambda row: (row[0], row[1]))
+
+
+def _uninstall_preview(operation_id, *, system=None):
+    """Discover exact current/all installation scopes and separately selectable spaCR data paths."""
+    if not isinstance(operation_id, str) or not operation_id.strip():
+        raise ValueError("operation_id")
+    machine = system or _Machine()
+    records = find_old_installs(system=machine)
+    current = {record.root for record in records if record.running
+               or (machine.real and record.kind == "installer" and _inside(__file__, record.root))}
+    mac_apps = [record for record in records if record.layout == "macos-app"]
+    if (len(mac_apps) == 1 and os.path.isfile(os.path.join(mac_apps[0].root, "install-for-user.sh"))
+            and any(record.root in current and record.layout in {"macos-runtime", "macos-online"}
+                                  and os.path.basename(record.root).lower() == "spacr"
+                                  for record in records)):
+        current.add(mac_apps[0].root)
+    installations = []
+    for record in records:
+        data = json.loads(json.dumps(asdict(record)))
+        key = hashlib.sha256((record.kind + "\0" + _norm(record.root)).encode()).hexdigest()
+        try:
+            identity = _uninstall_path_state(record.root)
+            reason = "checkout" if record.kind == "checkout" else ""
+        except (OSError, ValueError):
+            identity, reason = [], "unverified"
+        sites = [os.path.join(record.root, "site-packages")] if record.layout == "user-site" else _site_packages(record.root)
+        paths = ([record.root] if record.kind != "environment" else
+                 [path for site in sites for name in _DISTRIBUTIONS
+                  for path in glob.glob(os.path.join(site, f"{name}-*.dist-info"))]
+                 + [os.path.join(site, "spacr") for site in sites if os.path.isdir(os.path.join(site, "spacr"))])
+        paths += list(record.launchers + record.shortcuts + record.menu_entries + record.registrations)
+        installations.append({"key": key, "record": data, "paths": list(dict.fromkeys(paths)),
+                              "identity": identity, "current": record.root in current,
+                              "selectable": not reason, "reason": reason})
+    cleanup = []
+    for category, path, owned in _uninstall_data_candidates(machine):
+        try:
+            identity = _uninstall_path_state(path)
+            reason = "" if owned else "unverified"
+        except (OSError, ValueError):
+            identity, reason = [], "unverified"
+        cleanup.append({"category": category, "path": path, "identity": identity,
+                        "selectable": not reason, "reason": reason})
+    registry = machine.registry
+    if registry is not None and (registry.values(_SETTINGS_REGISTRY_KEY) or registry.subkeys(_SETTINGS_REGISTRY_KEY)):
+        cleanup.append({"category": "settings", "path": "registry:" + _SETTINGS_REGISTRY_KEY,
+                        "identity": [], "selectable": True, "reason": ""})
+    payload = {"schema": 1, "operation_id": operation_id, "installations": installations,
+               "cleanup": cleanup, "categories": list(_UNINSTALL_CATEGORIES)}
+    payload["snapshot_id"] = hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
+    return payload
+
+
+def _uninstall_selection(preview, *, scope="current", categories=None):
+    """Freeze an explicit current/all choice; uninstall data categories default to selected."""
+    if scope not in {"current", "all"}:
+        raise ValueError("scope")
+    chosen = list(_UNINSTALL_CATEGORIES if categories is None else categories)
+    if len(set(chosen)) != len(chosen) or any(key not in _UNINSTALL_CATEGORIES for key in chosen):
+        raise ValueError("categories")
+    keys = [row["key"] for row in preview["installations"]
+            if row["selectable"] and (scope == "all" or row["current"])]
+    if not keys:
+        raise ValueError(tr("No removable spaCR installation was found for this scope."))
+    return {"operation_id": preview["operation_id"], "snapshot_id": preview["snapshot_id"],
+            "scope": scope, "installations": keys, "categories": chosen}
+
+
+def _validate_uninstall_selection(preview, selection, machine, *, after_shutdown=False):
+    """Re-discover selected scope and reject changed roots before any deletion or package operation."""
+    expected = _uninstall_selection(preview, scope=selection.get("scope"), categories=selection.get("categories"))
+    if expected != selection:
+        raise ValueError(tr("The uninstall selection changed. Review the paths again."))
+    current = _uninstall_preview(preview["operation_id"], system=machine)
+    available = {row["key"]: row for row in current["installations"]}
+    selected = []
+    for row in preview["installations"]:
+        if row["key"] not in selection["installations"]:
+            continue
+        fresh = available.get(row["key"])
+        if fresh is None:
+            raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+        before, now = dict(row["record"]), dict(fresh["record"])
+        before.pop("running", None)
+        now.pop("running", None)
+        if (before != now or row["identity"] != fresh["identity"]
+                or row["paths"] != fresh["paths"] or not fresh["selectable"]):
+            raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+        if fresh["record"]["running"] and not after_shutdown:
+            raise ValueError(tr("spaCR must close before this installation can be removed."))
+        selected.append(_record_from_json(dict(fresh["record"], running=False)))
+    fresh_data = {(row["category"], row["path"]): row for row in current["cleanup"]}
+    cleanup = []
+    for row in preview["cleanup"]:
+        if not row["selectable"] or row["category"] not in selection["categories"]:
+            continue
+        fresh = fresh_data.get((row["category"], row["path"]))
+        if fresh != row:
+            raise ValueError(tr("The cleanup paths changed. Review the uninstall paths again."))
+        cleanup.append(row)
+    return selected, cleanup
+
+
+def _apply_uninstall_selection(preview, selection, *, system=None, after_shutdown=False):
+    """Remove only a revalidated confirmed scope, retaining shared environments and opted-out data."""
+    machine = system or _Machine()
+    records, cleanup = _validate_uninstall_selection(preview, selection, machine,
+                                                     after_shutdown=after_shutdown)
+    protected = [row["path"] for row in preview["cleanup"] if not row["path"].startswith("registry:")]
+    reports = []
+    for record in records:
+        report = remove_install(record, ticked=True, keep=protected, system=machine)
+        reports.append(report)
+        if not report.ok:
+            return {"ok": False, "reports": [asdict(item) for item in reports], "cleanup": None}
+    data = RemovalReport(record=None)
+    keep = [row["path"] for row in preview["cleanup"]
+            if (not row["selectable"] or row["category"] not in selection["categories"])
+            and not row["path"].startswith("registry:")]
+    for row in cleanup:
+        if row["path"].startswith("registry:"):
+            _delete_registry_tree(machine.registry, _SETTINGS_REGISTRY_KEY, data)
+        else:
+            _delete(row["path"], keep, data, tr("Permission denied. These files were kept."))
+    return {"ok": data.ok, "reports": [asdict(item) for item in reports], "cleanup": asdict(data)}
+
+
+def _uninstall_binding(preview, selection):
+    """Bind the exact displayed scope and selected categories into the existing shutdown lease."""
+    return hashlib.sha256(json.dumps([preview, selection], sort_keys=True,
+                                     separators=(",", ":")).encode()).hexdigest()
+
+
+def _start_uninstall_helper(preview, selection, *, pid=None, workdir=None, system=None, spawn=None):
+    """Prepare a copied helper outside the removed paths; no removal precedes approved GUI shutdown."""
+    machine = system or _Machine()
+    records, cleanup = _validate_uninstall_selection(preview, selection, machine, after_shutdown=True)
+    workdir = os.path.abspath(workdir or tempfile.mkdtemp(prefix="spacr-uninstall-"))
+    os.makedirs(workdir, mode=0o700, exist_ok=True)
+    paths = [record.root for record in records] + [row["path"] for row in cleanup
+                                                   if not row["path"].startswith("registry:")]
+    if any(_inside(workdir, path) for path in paths):
+        raise ValueError(tr("The uninstall helper must be outside every selected path."))
+    plan = {"schema": 1, "adapter": "uninstall-v1", "preview": preview, "selection": selection,
+            "version": _uninstall_binding(preview, selection),
+            "pid": int(os.getpid() if pid is None else pid),
+            "records": [row["record"] for row in preview["installations"]],
+            "ticked": list(selection["installations"]), "workdir": workdir,
+            "running_prefix": machine.running_prefix, "platform": machine.platform,
+            "handshake": {"schema": 1, "token": os.urandom(32).hex(), "expires": time.time() + _WAIT_SECONDS}}
+    handshake_type = _WindowsPipHandshake if machine.platform == "windows" else _FrozenUpdateHandshake
+    handshake_type(plan)
+    module = os.path.join(workdir, "install_cleanup.py")
+    plan_path = os.path.join(workdir, "plan.json")
+    running = next((record for record in records if record.kind == "installer"
+                    and _inside(machine.executable, record.root)), None)
+    if machine.platform == "windows" and running is not None and not getattr(sys, "frozen", False):
+        copied = os.path.join(workdir, "helper")
+        os.mkdir(copied, mode=0o700)
+        prepared = _prepare_windows_uninstall(running.root, copied, machine=machine)
+        command = prepared["command"][:3] + ["run-uninstall-plan", plan_path]
+        environment = None
+    else:
+        if not getattr(sys, "frozen", False):
+            shutil.copy2(__file__, module)
+        original_records = [_record_from_json(row["record"]) for row in preview["installations"]
+                            if row["key"] in selection["installations"]]
+        command, environment, error = _helper_command(original_records, workdir, module, plan_path, machine)
+        if error or not command:
+            raise ValueError(tr("Uninstall preparation stopped: {error}", error=error))
+        command[-2] = "run-uninstall-plan"
+    plan["command"] = command
+    descriptor = os.open(plan_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+        json.dump(plan, handle, indent=2)
+    (spawn or _spawn_detached)(command, environment, workdir)
+    return plan
+
+
+def _run_uninstall_plan(plan_path, *, system=None, wait=None):
+    """Require an intact confirmed plan, explicit shutdown approval and actual exit before uninstalling."""
+    descriptor = os.open(plan_path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+    with os.fdopen(descriptor, "r", encoding="utf-8") as handle:
+        details = os.fstat(handle.fileno())
+        if not stat.S_ISREG(details.st_mode) or details.st_size > 16 * 1024 * 1024:
+            raise ValueError("invalid_uninstall_plan")
+        plan = json.load(handle)
+    machine = system or _Machine(running_prefix=plan.get("running_prefix"))
+    if (plan.get("schema") != 1 or plan.get("adapter") != "uninstall-v1"
+            or plan.get("platform") != machine.platform
+            or os.path.abspath(plan_path) != os.path.join(plan["workdir"], "plan.json")
+            or plan.get("version") != _uninstall_binding(plan["preview"], plan["selection"])):
+        raise ValueError("invalid_uninstall_binding")
+    handshake = (_WindowsPipHandshake if machine.platform == "windows" else _FrozenUpdateHandshake)(plan)
+    try:
+        _validate_uninstall_selection(plan["preview"], plan["selection"], machine, after_shutdown=True)
+        handshake.ready()
+        handshake.wait_for_shutdown(wait=wait)
+        outcome = _apply_uninstall_selection(plan["preview"], plan["selection"],
+                                            system=machine, after_shutdown=True)
+        destination = os.path.join(plan["workdir"], "result.json")
+        with open(destination, "x", encoding="utf-8") as handle:
+            json.dump(outcome, handle, indent=2)
+        return 0 if outcome["ok"] else 1
+    except Exception as error:
+        handshake.failed(error)
+        raise
 
 
 
@@ -6803,6 +7116,8 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     purge.add_argument("--root", default="/", help=argparse.SUPPRESS)
     plan = commands.add_parser("run-plan", help="finish an in-app update")
     plan.add_argument("plan")
+    uninstall_plan = commands.add_parser("run-uninstall-plan", help=tr("finish a confirmed uninstall after spaCR closes"))
+    uninstall_plan.add_argument("plan")
     recover = commands.add_parser("recover-macos-frozen", help="recover one retained macOS bundle transaction")
     recover.add_argument("transaction")
     recover.add_argument("--protected", action="store_true")
@@ -6819,6 +7134,12 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     metadata.add_argument("--folder", required=True)
     metadata.add_argument("--paths", nargs="*")
     args = parser.parse_args(argv)
+    if args.command == "run-uninstall-plan":
+        try:
+            return _run_uninstall_plan(args.plan)
+        except Exception as error:
+            print(tr("Uninstall stopped: {error}", error=str(error)))
+            return 1
     if args.command == "install-frozen-windows":
         try:
             if args.phase_channel is not None:
