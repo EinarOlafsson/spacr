@@ -253,7 +253,7 @@ def test_brush_defaults_to_one_pixel(screen):
     assert screen._brush_size_label.text() == "1 px"
 
 
-def test_image_footer_keeps_the_index_and_filename_together(screen, monkeypatch):
+def test_image_footer_keeps_the_index_and_filename_together(screen, monkeypatch, qtbot):
     assert screen._tally_index.text() == "1"
     assert screen._tally_total.text() == "/3"
     assert screen._tally_filename.full_text() == "field_0.tif"
@@ -263,9 +263,13 @@ def test_image_footer_keeps_the_index_and_filename_together(screen, monkeypatch)
     assert not hasattr(screen._canvas, "field_label")
     assert screen._image_footer.isAncestorOf(screen._tally_index)
     assert screen._image_footer.isAncestorOf(screen._tally_filename)
-    monkeypatch.setattr(screen, "_blind_label", lambda path: "Field B")
+    screen._tally_filename.setMaximumWidth(40)
+    qtbot.waitUntil(lambda: screen._tally_filename.is_elided())
+    assert screen._tally_filename.toolTip() == "field_1.tif"
+    monkeypatch.setattr(screen, "_blind_label", lambda path: "B")
     screen._sync_queue_tally()
-    assert screen._tally_filename.full_text() == "Field B"
+    assert screen._tally_filename.full_text() == "B"
+    assert screen._tally_filename.toolTip() == ""
     screen._image_files = []
     screen._sync_queue_tally()
     assert screen._tally_filename.full_text() == ""

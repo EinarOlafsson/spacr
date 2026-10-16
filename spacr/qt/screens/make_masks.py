@@ -16867,6 +16867,7 @@ class MakeMasksScreen(QWidget):
             folder = (self._field_folders[index] if self._field_folders
                       else self._folder or "")
             name = self._blind_label(os.path.join(folder, files[index]))
+        self._tally_filename.setToolTip("")
         self._tally_filename.setText(name)
         first = getattr(self, "_btn_first_unreviewed", None)
         if first is not None:
