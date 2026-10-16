@@ -1924,7 +1924,9 @@ def _macos_native_uninstall_adapter(preview, records, machine):
     support = machine.path("/Library/Application Support/spaCR")
     eligible = [record for record in records if record.layout == "macos-app"
                 and record.root in {app, support} and any(
-                    _exists(path) and not os.access(os.path.dirname(path), os.W_OK | os.X_OK)
+                    _exists(path) and (not os.access(os.path.dirname(path), os.W_OK | os.X_OK)
+                        or os.path.isdir(path) and (not os.access(path, os.W_OK | os.X_OK)
+                            or machine.real and os.lstat(path).st_uid != os.geteuid()))
                     for path in [record.root, *record.registrations, *record.launchers])]
     if not eligible:
         return None
@@ -2065,9 +2067,12 @@ def _uninstall_debian_root(endpoint, desktop_pid, desktop_executable, desktop_ui
 def _macos_frozen_uninstall_adapter(preview, records, machine):
     """Select the signed frozen bundle's installed helper without elevating user-owned code."""
     app = machine.path("/Applications/spaCR.app")
-    selected = [record for record in records if record.layout == "macos-app" and record.root == app
-                and not os.access(os.path.dirname(app), os.W_OK | os.X_OK)]
+    selected = [record for record in records if record.layout == "macos-app" and record.root == app]
     if not selected or not machine.real or not os.path.isfile(os.path.join(app, "Contents", "Frameworks", "spacr-update-helper")):
+        return None
+    required = [os.path.dirname(app), app, os.path.join(app, "Contents"),
+                os.path.join(app, "Contents", "MacOS"), os.path.join(app, "Contents", "Frameworks")]
+    if os.lstat(app).st_uid == os.geteuid() and all(os.access(path, os.W_OK | os.X_OK) for path in required):
         return None
     if len(selected) != 1 or selected[0].registrations != (app,) or selected[0].launchers:
         raise ValueError(tr("The installation changed. Review the uninstall paths again."))

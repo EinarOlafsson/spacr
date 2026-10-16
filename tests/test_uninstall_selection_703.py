@@ -984,3 +984,24 @@ def test_windows_new_payload_marker_does_not_authorize_an_old_uninstaller(protec
         ic._windows_uninstall_targets(request)
     assert (root / "_internal/spacr-uninstall-protocol.json").exists()
     assert project.read_text() == "unrelated" and (root / "spacr.exe").exists()
+
+
+def test_frozen_macos_authorizes_nonwritable_bundle_even_with_writable_applications(tmp_path, monkeypatch):
+    box = Box(tmp_path)
+    app = box.system("/Applications/spaCR.app")
+    helper = box.write(app / "Contents/Frameworks/spacr-update-helper")
+    box.write(app / "Contents/MacOS/spacr")
+    machine = box.machine("macos")
+    machine.real = True
+    actual_access = ic.os.access
+    protected = {str(app), str(app / "Contents"), str(helper.parent)}
+    monkeypatch.setattr(ic.os, "access", lambda path, mode: False if str(path) in protected else actual_access(path, mode))
+    assert ic.os.access(app.parent, ic.os.W_OK | ic.os.X_OK)
+    checked = []
+    monkeypatch.setattr(ic, "_macos_frozen_trusted_helper", lambda: checked.append("trusted") or str(helper))
+    monkeypatch.setattr(ic, "_macos_bundle_identity", lambda path, version: {"SPACRPackageVersion": version})
+    record = ic.InstallRecord(kind="installer", layout="macos-app", platform="macos", root=str(app),
+        version="1.5.0.7", registrations=(str(app),), needs_admin=True)
+    adapter = ic._macos_frozen_uninstall_adapter({"cleanup": []}, [record], machine)
+    assert adapter["adapter"] == "macos-frozen-native" and checked == ["trusted"]
+    assert adapter["roots"] == [str(app)]
