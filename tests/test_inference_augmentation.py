@@ -148,7 +148,14 @@ def test_folder_and_tar_use_same_augmentation_and_save_diagnostics(tmp_path, mon
     tar_path = tmp_path / 'crops.tar'
     with tarfile.open(tar_path, 'w') as archive:
         archive.add(path, arcname=path.name)
-    monkeypatch.setattr(deep, '_load_inference_model', lambda *args: (CornerModel().eval(), {}))
+    checkpoint = tmp_path / 'model.pth'
+    checkpoint.write_bytes(b'local-augmentation-loader-fixture')
+
+    def load_model(path, *args):
+        assert path == str(checkpoint)
+        return CornerModel().eval(), {}
+
+    monkeypatch.setattr(deep, '_load_inference_model', load_model)
     monkeypatch.setattr(deep, 'pick_device', lambda **kwargs: (torch.device('cpu'), ''))
     model_path = str(tmp_path / 'model.pth')
     options = dict(tta_enabled=True, tta_rotations=True, tta_aggregation='majority_vote')
@@ -164,6 +171,7 @@ def test_folder_and_tar_use_same_augmentation_and_save_diagnostics(tmp_path, mon
     assert archive['cv_predictions'].tolist() == archive['predicted_label'].tolist()
     assert archive['tta_views'].tolist() == [4]
     assert any('transform_agreement' in file.read_text() for file in tmp_path.rglob('*.csv'))
+    assert checkpoint.read_bytes() == b'local-augmentation-loader-fixture'
 
 
 def test_defaults_types_and_classify_category_are_complete():

@@ -1,0 +1,7 @@
+[
+  "tests/test_coverage_fill_cellpose_gpu_funcs.py::TestIdentifyMasksFinetune::test_custom_model_not_found_refuses_stock_fallback",
+  "tests/test_prefixed_backends_run_in_their_own_environment.py::test_load_backend_refuses_what_it_cannot_run",
+  "tests/test_inference_augmentation.py::test_folder_and_tar_use_same_augmentation_and_save_diagnostics",
+  "tests/test_plaque_assay_growth_models_and_figure_notes.py::test_a_zoo_base_without_a_local_file_is_fetched_into_the_model_folder",
+  "tests/test_470_real_object_classifier.py::test_a_missing_channel_skips_rather_than_guesses"
+]

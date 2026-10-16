@@ -203,9 +203,13 @@ class TestIdentifyMasksFinetune:
 
     def test_custom_model_not_found_refuses_stock_fallback(self, tmp_path,
                                                            _mock_cellpose):
+        from spacr.model_zoo import ModelZooError
+
         s = self._settings(tmp_path, custom_model=str(tmp_path / "nope.pth"))
-        with pytest.raises(FileNotFoundError, match="nope.pth"):
+        with pytest.raises(ModelZooError) as refused:
             SC.identify_masks_finetune(s)
+        assert repr(s["custom_model"]) in str(refused.value)
+        assert "stock weights were not substituted" in str(refused.value)
         assert not _mock_cellpose.models
 
     def test_no_images_returns(self, tmp_path, _mock_cellpose):

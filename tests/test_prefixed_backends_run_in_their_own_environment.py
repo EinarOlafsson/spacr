@@ -276,13 +276,21 @@ def test_load_backend_builds_the_remote_model(tmp_path, capsys):
     assert default.model == "2D_versatile_fluo"
 
 
-def test_load_backend_refuses_what_it_cannot_run(tmp_path):
+def test_load_backend_refuses_what_it_cannot_run(tmp_path, monkeypatch):
     with pytest.raises(ImportError, match="StarDist is not installed"):
         SB._load_backend("stardist", model_name="stardist:")
     _finish(tmp_path, "stardist")
-    with pytest.raises(FileNotFoundError):
+    def forbidden(*args, **kwargs):
+        pytest.fail("A missing prefixed checkpoint must not be acquired")
+
+    monkeypatch.setattr(zoo, "fetch", forbidden)
+    requested = f"stardist:{tmp_path / 'gone'}"
+    with pytest.raises(zoo.ModelZooError) as refused:
         SB._load_backend("stardist",
-                         model_name=f"stardist:{tmp_path / 'gone'}")
+                         model_name=requested)
+    assert "model_name" in str(refused.value)
+    assert repr(requested) in str(refused.value)
+    assert "Available compatible zoo identities: []." in str(refused.value)
     with pytest.raises(ValueError, match="single 2-D planes"):
         SB._load_backend("stardist", model_name="stardist:", z_plan=object())
 

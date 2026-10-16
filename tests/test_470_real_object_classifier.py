@@ -143,8 +143,12 @@ def test_a_missing_channel_skips_rather_than_guesses(tmp_path, capsys):
     assert "skipped" in capsys.readouterr().out
     np.testing.assert_array_equal(
         before, np.load(src / "masks" / "pathogen_mask_stack" / "plate1_A01_1.npy"))
-    with pytest.raises(ValueError, match="not found"):
-        oc._real_classifier_bundles(str(tmp_path / "absent"))
+    missing = str(tmp_path / "absent")
+    with pytest.raises(ValueError) as refused:
+        oc._real_classifier_bundles(missing)
+    assert "real_object_classifier" in str(refused.value)
+    assert repr(missing) in str(refused.value)
+    assert "Available compatible zoo identities: []." in str(refused.value)
 
 
 def test_the_mask_run_applies_the_classifier_when_set(yokogawa_cellvoyager_dir,
