@@ -342,6 +342,8 @@
     },
     {
       "label": "spacr.qt.mask_engine.load_volume_image_and_mask#0",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-api-current-volume-rendering.json. Historical translation retained.",
       "source": "Open a grayscale spatial volume for native 3-D editing.",
       "source_sha256": "b2a5f5453a4281fdf11dceff4dda389cc6a8fde9f91cd7a0a3075ece77c591c6",
       "context": "Open a grayscale spatial volume for native 3-D editing.",
@@ -350,6 +352,8 @@
     },
     {
       "label": "spacr.qt.mask_engine.load_volume_image_and_mask#1",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-api-current-volume-rendering.json. Historical translation retained.",
       "source": "TIFF volumes need exactly three spatial axes, in any order. A plain three-dimensional page stack (tifffile's ``Q`` or ``I`` page axis over ``YX``) is read as Z sections, as z-stacks and FIB-SEM series are saved; time, channel and colour axes are refused. ``voxel_spacing`` metadata is read in storage-axis order. OME physical sizes are converted to micrometres; ImageJ spacing and XY resolution are retained. MRC volumes (``.mrc``, ``.rec``, ``.map``) are read as ZYX with their voxel size in nanometres; they need the optional ``mrcfile`` package. Absent physical metadata means pixel coordinates. Labels retain dtype and identity. A saved geometry sidecar is bound to the exact source file and mask pixels and is refused when stale.",
       "source_sha256": "a741945fb4cd3cf36c8cc61ed77b6687562892aa230f344726f719f473c6b28a",
       "context": "TIFF volumes need exactly three spatial axes, in any order. A plain three-dimensional page stack (tifffile's ``Q`` or ``I`` page axis over ``YX``) is read as Z sections, as z-stacks and FIB-SEM series are saved; time, image data channel and colour axes are refused. ``voxel_spacing`` metadata is read in storage-axis order. OME physical sizes are converted to micrometres; ImageJ spacing and XY resolution are retained. MRC volumes (``.mrc``, ``.rec``, ``.map``) are read as ZYX with their voxel size in nanometres; they need the optional ``mrcfile`` package. Absent physical metadata means pixel coordinates. Labels retain dtype and identity. A saved geometry sidecar is bound to the exact source file and mask pixels and is refused when stale.",

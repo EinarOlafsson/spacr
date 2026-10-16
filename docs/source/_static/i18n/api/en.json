@@ -14271,6 +14271,20 @@
       "source_sha256": "bc4e272f9a3f0faa190a8c825bc78d120993597b161e3ed0ce16b7194c7b3870",
       "text": "True when this row should make the command exit non-zero."
     },
+    "spacr.doctor.WGPU_MACHINES": {
+      "source_blocks_sha256": [
+        "d252ad96f00ffbe7eb404805735beb7b670d4f711b83e705fc7764e48c6baf9d"
+      ],
+      "source_sha256": "d252ad96f00ffbe7eb404805735beb7b670d4f711b83e705fc7764e48c6baf9d",
+      "text": "The CPUs setup.py installs wgpu on by default."
+    },
+    "spacr.doctor.WGPU_MIN_PYTHON": {
+      "source_blocks_sha256": [
+        "b1d23762ab31b116dab7b6267d502241a6179f11ef41db17b996ebb4ee3bfb8b"
+      ],
+      "source_sha256": "b1d23762ab31b116dab7b6267d502241a6179f11ef41db17b996ebb4ee3bfb8b",
+      "text": "The first Python version setup.py installs wgpu on by default."
+    },
     "spacr.doctor._importable_spacr_dirs.add": {
       "source_blocks_sha256": [
         "38fa177e2fe310c24111364625459e0db2184775010ea538d06cba7f2b5e2de1"
@@ -24158,6 +24172,20 @@
       "source_sha256": "97b3e69a426bdb659d5fc2614c3b5c264a70b407e23ca87c6673353b92fe1ce6",
       "text": "Read and write the hardware choice made by the desktop installer.\n\nThe online installers live outside the Python environment they create, so\ntheir durable hand-off is a tiny JSON file beside the private ``venv``.  This\nmodule owns the schema and probes the *installed* torch build before writing\nit.  Keeping that probe here means ``spacr-doctor`` reports facts rather than\ntrying to infer an install-time choice from whatever hardware is visible\nlater."
     },
+    "spacr.install_profile.NO_WGPU_OVERRIDE": {
+      "source_blocks_sha256": [
+        "0dd264de1f242561664b9f53a59abd6eaf6436cecb88dd45231b844c07e24d7c"
+      ],
+      "source_sha256": "0dd264de1f242561664b9f53a59abd6eaf6436cecb88dd45231b844c07e24d7c",
+      "text": "A requirement with a never-true marker that overrides every wgpu requirement."
+    },
+    "spacr.install_profile.NO_WGPU_OVERRIDE_NAME": {
+      "source_blocks_sha256": [
+        "faabb2d75877e186898ad43a5a6d1f830f52fa3d7dd6deac4a6b4938299e36d7"
+      ],
+      "source_sha256": "faabb2d75877e186898ad43a5a6d1f830f52fa3d7dd6deac4a6b4938299e36d7",
+      "text": "The file :func:`no_wgpu_override` writes beside the installer profile."
+    },
     "spacr.install_profile.build_parser": {
       "source_blocks_sha256": [
         "6fd19d28651705c0e87abb7978a10ab872abffd7aa28e018495b905ec7bf7524",
@@ -26126,6 +26154,14 @@
       "source_sha256": "61ca378a91ab274f9afb7d69148528b808b379aa780ae56a4858bfd94a7f7686",
       "text": "Draw one frame; the same picture as :func:`render_volume`.\n\n:param layers: the layers, bottom first.\n:param rays: where to sample, in the layers' array indices.\n:param highlight: an object drawn lighter.\n:param voxel_size: physical voxel length along each array axis.\n:param lens: a magnifier cube, or ``None``.\n:param size: ``(rows, columns)`` of the picture returned, scaled up\n    from the rays' grid on the GPU; ``None`` keeps the rays' grid.\n:returns: ``(rgb, picked)``: ``uint8`` colour of ``size`` and the\n    object nearest the viewer under each ray (``int64``, the rays'\n    grid).\n:raises LayerError: as :func:`render_volume`."
     },
+    "spacr.layers.GPU_RENDER_OFF_ENV": {
+      "source_blocks_sha256": [
+        "5ed59397b26468a3da1dd4ebcb8948caeb7008071b22b9524337b85a7e7a16e2",
+        "5db8352785976377a62ab115f6cdbc33c945ce1599e8b6175367764b956ff146"
+      ],
+      "source_sha256": "35c5e38545887e875a98a3d4280476bf2bb71642a515fe4769f8517809500942",
+      "text": "Set to anything but ``0`` or empty to keep 3-D rendering off the GPU.\n\nAn empty ``CUDA_VISIBLE_DEVICES`` also keeps the 3-D view on the CPU."
+    },
     "spacr.layers.ImageLayer": {
       "source_blocks_sha256": [
         "93f377fc4c43118461dd38b69e030a8596392d1750b68638f4875c7f368fab6c",
@@ -27595,6 +27631,14 @@
       ],
       "source_sha256": "61ca378a91ab274f9afb7d69148528b808b379aa780ae56a4858bfd94a7f7686",
       "text": "Draw one frame; the same picture as :func:`render_volume`.\n\n:param layers: the layers, bottom first.\n:param rays: where to sample, in the layers' array indices.\n:param highlight: an object drawn lighter.\n:param voxel_size: physical voxel length along each array axis.\n:param lens: a magnifier cube, or ``None``.\n:param size: ``(rows, columns)`` of the picture returned, scaled up\n    from the rays' grid on the GPU; ``None`` keeps the rays' grid.\n:returns: ``(rgb, picked)``: ``uint8`` colour of ``size`` and the\n    object nearest the viewer under each ray (``int64``, the rays'\n    grid).\n:raises LayerError: as :func:`render_volume`."
+    },
+    "spacr.layers.WGPU_BACKENDS": {
+      "source_blocks_sha256": [
+        "784ed470f69b58c48b0a7940007e0571b4ce5b55b8b2e08c97f5cd93b88eb355",
+        "cf48c23aa4492c32606b6677fbeda07d32abb0930ae2ad4b7045e902109f9566"
+      ],
+      "source_sha256": "080ed09f7e2d99561b83d6ade2cf0e8f53a4e12e694f1c48881179a70f8b58b2",
+      "text": "The True 3D view's wgpu backend keys mapped to wgpu ``backend_type`` values.\n\nwgpu's OpenGL adapters are excluded; OpenGL uses :class:`GLVolumeRenderer`."
     },
     "spacr.layers.colormap": {
       "source_blocks_sha256": [
@@ -64617,6 +64661,20 @@
       "source_sha256": "8adc198a24ac4d529d8b33ccd14aab32b2317d8ba444c7d6e429bffe08a52b73",
       "text": "Score and fit off the GUI thread."
     },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._load_demo_crops.finished": {
+      "source_blocks_sha256": [
+        "c6e2ecebb174ddb426811f35712f1653f6353f7df316b807e3a39b56b5b54066"
+      ],
+      "source_sha256": "c6e2ecebb174ddb426811f35712f1653f6353f7df316b807e3a39b56b5b54066",
+      "text": "Select the CPU example and attach its row-aligned labels."
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._load_demo_crops.work": {
+      "source_blocks_sha256": [
+        "d723afe38678426f8ddab58aaeb32ea0751d823851a72f83e3e79c9d00c99e6e"
+      ],
+      "source_sha256": "d723afe38678426f8ddab58aaeb32ea0751d823851a72f83e3e79c9d00c99e6e",
+      "text": "Unpack and read the small local example off the GUI thread."
+    },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._on_planned.work": {
       "source_blocks_sha256": [
         "879b02ad919dc72ade43e3b97a523412a8c05efe4c439e79314dd7714a86717c",
@@ -68185,6 +68243,28 @@
       ],
       "source_sha256": "f676439cd2acf4737fd847a308c5f24d0758cb3b9aeb04254b8ae107bfedda2e",
       "text": "Offer the intensity properties only when an image is open.\n\n:param available: whether an intensity image is open."
+    },
+    "spacr.qt.screens.make_masks.VOLUME_BACKENDS": {
+      "source_blocks_sha256": [
+        "1e1df2c397289c1925a9bd0317d0e8e50d7c2dea7db89282c63fdf11218f15e4",
+        "1106baa2677567bd4c81217c2fe5486356d95ebbc9c33556e8dc99304f8fd2fa"
+      ],
+      "source_sha256": "0692b676344f2a74096f0492966112c213cf62d1f4bbc32875a18469f03f86bf",
+      "text": "The True 3D render backends, in list order; only supported choices are offered.\n\n``auto`` tries :func:`volume_backend_chain`; Vulkan, Metal and Direct3D 12\nuse :class:`spacr.layers.WGPUVolumeRenderer`, OpenGL uses\n:class:`spacr.layers.GLVolumeRenderer`, and CPU uses NumPy/SciPy."
+    },
+    "spacr.qt.screens.make_masks.VOLUME_BACKEND_API": {
+      "source_blocks_sha256": [
+        "eb9acff2ddacff534d0ba420f0d9756f6c853b91585fae125dbbc887788f7d47"
+      ],
+      "source_sha256": "eb9acff2ddacff534d0ba420f0d9756f6c853b91585fae125dbbc887788f7d47",
+      "text": "The graphics API each GPU backend draws through, as the view names it."
+    },
+    "spacr.qt.screens.make_masks.VOLUME_WGPU_BACKENDS": {
+      "source_blocks_sha256": [
+        "13621ba4314dadee9f5925c0797698f0fd864a882a0c78f5c391048b8374fc3d"
+      ],
+      "source_sha256": "13621ba4314dadee9f5925c0797698f0fd864a882a0c78f5c391048b8374fc3d",
+      "text": "The wgpu backends among :data:`VOLUME_BACKENDS`."
     },
     "spacr.qt.screens.make_masks._Sam2SeedDialog.run.work": {
       "source_blocks_sha256": [

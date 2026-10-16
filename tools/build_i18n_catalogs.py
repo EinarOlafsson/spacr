@@ -4228,6 +4228,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "object.py")
     paths.add(ROOT / "spacr" / "remote_execution.py")
     paths.add(ROOT / "spacr" / "install_cleanup.py")
+    paths.add(ROOT / "spacr" / "doctor.py")
+    paths.add(ROOT / "spacr" / "updater.py")
     paths.add(ROOT / "spacr" / "model_zoo.py")
     paths.add(ROOT / "spacr" / "utils.py")
     paths.add(ROOT / "spacr" / "attribution.py")

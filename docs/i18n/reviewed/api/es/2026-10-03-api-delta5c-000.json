@@ -2052,6 +2052,8 @@
     {
       "context": "Draw the existing tab with its arrow at 75 percent of baseline.",
       "label": "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow#0",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-707-api-make-masks-layout-and-collapse-arrow.json. Historical translation retained.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Draw the existing tab with its arrow at 75 percent of baseline.",
       "source_sha256": "26103d5586292e4ede82b4b8153296a52efa9ffbce89e105873a5114949ac6bd",

@@ -4705,7 +4705,7 @@
     },
     {
       "context": "allow prerelease packages.",
-      "label": "spacr.updater.upgrade_command#1",
+      "label": "spacr.updater.upgrade_command#2",
       "review_basis": "written from the English (no current MT draft)",
       "source": "allow prerelease packages.",
       "source_sha256": "236f872425636136cba7eb2b1e2fb20b992d9a1c2ead34303a68bd8f6b813188",
@@ -4713,7 +4713,7 @@
     },
     {
       "context": "explicit version selected by the update check.",
-      "label": "spacr.updater.upgrade_command#2",
+      "label": "spacr.updater.upgrade_command#3",
       "review_basis": "written from the English (no current MT draft)",
       "source": "explicit version selected by the update check.",
       "source_sha256": "0119142e2f9eb666b758ce08fc10fea20c19072dc7236201c1246bf30a1bd7fa",

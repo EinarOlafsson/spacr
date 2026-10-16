@@ -3895,7 +3895,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.widgets.figure_queue.FigureQueue.show_live_canvas#2",
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.show_live_canvas#3",
       "source": "the Matplotlib figure to embed in a Qt canvas with its navigation toolbar; the canvas already showing it is just redrawn.",
       "source_sha256": "82c3b34db2a34d4467c1d03824c7455dec8c93c9da7386805aa45c5daba9378a",
       "context": "the Matplotlib figure to embed in a Qt canvas with its navigation toolbar; the canvas already showing it is just redrawn.",
@@ -4726,7 +4726,7 @@
       "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
-      "label": "spacr.updater.upgrade_command#1",
+      "label": "spacr.updater.upgrade_command#2",
       "source": "allow prerelease packages.",
       "source_sha256": "236f872425636136cba7eb2b1e2fb20b992d9a1c2ead34303a68bd8f6b813188",
       "context": "allow prerelease packages.",
@@ -4734,7 +4734,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.updater.upgrade_command#2",
+      "label": "spacr.updater.upgrade_command#3",
       "source": "explicit version selected by the update check.",
       "source_sha256": "0119142e2f9eb666b758ce08fc10fea20c19072dc7236201c1246bf30a1bd7fa",
       "context": "explicit version selected by the update check.",

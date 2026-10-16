@@ -1,0 +1,251 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "context": "Report what can draw the True 3D view: wgpu, OpenGL and the CPU.",
+      "label": "spacr.doctor.check_3d_backends#0",
+      "source": "Report what can draw the True 3D view: wgpu, OpenGL and the CPU.",
+      "source_sha256": "b8eda718d991bac384bf33693d42036cdbfa7d99b111d365cca9a114f2e68fb2",
+      "translation": "बताएँ कि True 3D दृश्य को कौन रेंडर कर सकता है: wgpu, OpenGL और CPU।"
+    },
+    {
+      "context": "wgpu (Vulkan, Metal, Direct3D 12) is a default dependency, but a computer without it is a supported install: the view then draws with OpenGL (VisPy) or the CPU. A missing wgpu is therefore a ``PASS``; only a wgpu that is installed and cannot be imported is a ``WARN``.",
+      "label": "spacr.doctor.check_3d_backends#1",
+      "source": "wgpu (Vulkan, Metal, Direct3D 12) is a default dependency, but a computer without it is a supported install: the view then draws with OpenGL (VisPy) or the CPU. A missing wgpu is therefore a ``PASS``; only a wgpu that is installed and cannot be imported is a ``WARN``.",
+      "source_sha256": "8b11956791f38a4e23ee2f831e5b4c6819337c27b3e53ef09c857cca45f5bd4d",
+      "translation": "wgpu (Vulkan, Metal, Direct3D 12) एक डिफ़ॉल्ट निर्भरता है, लेकिन इसके बिना भी स्थापना समर्थित है: तब दृश्य OpenGL (VisPy) या CPU से रेंडर होता है। इसलिए wgpu का अनुपस्थित होना ``PASS`` है; केवल ऐसा wgpu जो स्थापित है लेकिन आयात नहीं किया जा सकता, ``WARN`` देता है।"
+    },
+    {
+      "context": "``probe_gpu=True`` lets wgpu list its adapters, which loads the graphics drivers but draws nothing; it is skipped when ``SPACR_NO_GPU_RENDER`` is set or ``CUDA_VISIBLE_DEVICES`` is empty, as the True 3D view skips the GPU then.",
+      "label": "spacr.doctor.check_3d_backends#2",
+      "source": "``probe_gpu=True`` lets wgpu list its adapters, which loads the graphics drivers but draws nothing; it is skipped when ``SPACR_NO_GPU_RENDER`` is set or ``CUDA_VISIBLE_DEVICES`` is empty, as the True 3D view skips the GPU then.",
+      "source_sha256": "bc637b236eaa56b418404fdcb02699e855d7295011b712e270206bf20b640fee",
+      "translation": "``probe_gpu=True`` wgpu को अपने एडाप्टर सूचीबद्ध करने देता है; इससे ग्राफिक्स ड्राइवर लोड होते हैं, लेकिन कुछ भी रेंडर नहीं होता। ``SPACR_NO_GPU_RENDER`` सेट होने या ``CUDA_VISIBLE_DEVICES`` खाली होने पर यह चरण छोड़ दिया जाता है, क्योंकि तब True 3D दृश्य भी GPU का उपयोग नहीं करता।"
+    },
+    {
+      "context": "The uv ``--override`` file that keeps wgpu out, when the install did.",
+      "label": "spacr.install_profile.no_wgpu_override#0",
+      "source": "The uv ``--override`` file that keeps wgpu out, when the install did.",
+      "source_sha256": "6e915bf8a163ef6cdd629f54467df54a4d9adaf60cb01f5cf12221270fa35260",
+      "translation": "uv की ``--override`` फ़ाइल, जो स्थापना में wgpu छोड़े जाने पर उसे आगे भी बाहर रखती है।"
+    },
+    {
+      "context": "a profile from :func:`read_profile`, or ``None``.",
+      "label": "spacr.install_profile.no_wgpu_override#1",
+      "source": "a profile from :func:`read_profile`, or ``None``.",
+      "source_sha256": "7f0680fac5d236f36d4de7238ecf0c86c0e7f120388fea161c00acc60c91a789",
+      "translation": ":func:`read_profile` से मिली प्रोफ़ाइल, या ``None``।"
+    },
+    {
+      "context": "the written file when the profile records ``without_wgpu``, else ``None`` (also when the file cannot be written).",
+      "label": "spacr.install_profile.no_wgpu_override#3",
+      "source": "the written file when the profile records ``without_wgpu``, else ``None`` (also when the file cannot be written).",
+      "source_sha256": "2539b0109d0371747e2bdee1aae364986d74d1e251ac9e68923edd157e0e3a3d",
+      "translation": "प्रोफ़ाइल में ``without_wgpu`` दर्ज होने पर लिखी गई फ़ाइल; अन्यथा ``None`` (फ़ाइल न लिखी जा सकने पर भी यही)।"
+    },
+    {
+      "context": "the install left wgpu out (the installers' \"Install without wgpu\" option, or Linux with glibc older than 2.28); recorded so an in-app update leaves it out too (:func:`no_wgpu_override`).",
+      "label": "spacr.install_profile.write_profile#4",
+      "source": "the install left wgpu out (the installers' \"Install without wgpu\" option, or Linux with glibc older than 2.28); recorded so an in-app update leaves it out too (:func:`no_wgpu_override`).",
+      "source_sha256": "038864379b17789f078c632901fe9be0c4d9c44eeff811a401ee2b1251040c3f",
+      "translation": "स्थापना में wgpu छोड़ दिया गया था (इंस्टॉलर के \"Install without wgpu\" विकल्प से, या 2.28 से पुराने glibc वाले Linux पर); यह दर्ज किया जाता है ताकि ऐप के भीतर अपडेट भी उसे छोड़ दें (:func:`no_wgpu_override`)।"
+    },
+    {
+      "context": "The third renderer of the same frame: Vulkan, Metal or Direct3D 12 by the adapter it is given. The same rays (:class:`VolumeRays`), renderings, finishes and lens as :func:`render_volume` and :class:`GLVolumeRenderer`; one compute invocation walks one ray. Volumes are read with ``textureLoad`` and interpolated in the shader exactly as :func:`scipy.ndimage.map_coordinates` does (``order=1``, edges repeated), image layers add up, labels layers are laid over them in stack order, and each labels layer writes the object nearest the viewer under each ray for picking. The frame is drawn into a storage buffer, scaled to the picture's size and read back, so it lands under the same matplotlib axes as the CPU's.",
+      "label": "spacr.layers.WGPUVolumeRenderer#1",
+      "source": "The third renderer of the same frame: Vulkan, Metal or Direct3D 12 by the adapter it is given. The same rays (:class:`VolumeRays`), renderings, finishes and lens as :func:`render_volume` and :class:`GLVolumeRenderer`; one compute invocation walks one ray. Volumes are read with ``textureLoad`` and interpolated in the shader exactly as :func:`scipy.ndimage.map_coordinates` does (``order=1``, edges repeated), image layers add up, labels layers are laid over them in stack order, and each labels layer writes the object nearest the viewer under each ray for picking. The frame is drawn into a storage buffer, scaled to the picture's size and read back, so it lands under the same matplotlib axes as the CPU's.",
+      "source_sha256": "df87602fa9ec4c3c20c6a9672078f968d0e89ad2282ca16daf356e2dcdb6d565",
+      "translation": "उसी फ़्रेम का तीसरा रेंडरर: दिए गए एडाप्टर के अनुसार Vulkan, Metal या Direct3D 12। वही किरणें (:class:`VolumeRays`), रेंडरिंग प्रकार, सतह के प्रभाव और लेंस जो :func:`render_volume` और :class:`GLVolumeRenderer` में हैं; प्रत्येक गणना आह्वान एक किरण के साथ आगे बढ़ता है। वॉल्यूम ``textureLoad`` से पढ़े जाते हैं और शेडर में ठीक :func:`scipy.ndimage.map_coordinates` की तरह इंटरपोलेट किए जाते हैं (``order=1``, किनारों के मान दोहराए जाते हैं)। छवि की परतें जोड़ी जाती हैं, लेबल की परतें स्टैक के क्रम में उनके ऊपर रखी जाती हैं, और प्रत्येक लेबल परत हर किरण पर दर्शक के सबसे निकट की वस्तु को वस्तु-चयन के लिए दर्ज करती है। फ़्रेम एक स्टोरेज बफ़र में रेंडर होता है, छवि के आकार तक स्केल किया जाता है और फिर वापस पढ़ा जाता है, ताकि वह CPU से बने फ़्रेम वाले ही matplotlib अक्षों में दिखाई दे।"
+    },
+    {
+      "context": "Free every volume, buffer and the device.",
+      "label": "spacr.layers.WGPUVolumeRenderer.close#0",
+      "source": "Free every volume, buffer and the device.",
+      "source_sha256": "5c7a7de2b931c0483b52dc1a028ca177a96ca65eed2d343c0ea9e6defeee2eac",
+      "translation": "हर वॉल्यूम, बफ़र और डिवाइस को मुक्त करें।"
+    },
+    {
+      "context": "The adapter's name, its backend and its largest 3-D texture side.",
+      "label": "spacr.layers.WGPUVolumeRenderer.limits#0",
+      "source": "The adapter's name, its backend and its largest 3-D texture side.",
+      "source_sha256": "25086d94b9b80315930098d8d53fbe49cd5827bb04f2fcd7f00b1d3b8b5b2606",
+      "translation": "एडाप्टर का नाम, उसका बैकएंड और 3D टेक्सचर की अधिकतम भुजा-लंबाई।"
+    },
+    {
+      "context": "Draw one frame; the same picture as :func:`render_volume`.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#0",
+      "source": "Draw one frame; the same picture as :func:`render_volume`.",
+      "source_sha256": "70a2013676a8d386c2fdd2947a30979964b58a9a1663add195dfeef9f2418f88",
+      "translation": "एक फ़्रेम रेंडर करें; वही छवि जो :func:`render_volume` बनाता है।"
+    },
+    {
+      "context": "the layers, bottom first.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#1",
+      "source": "the layers, bottom first.",
+      "source_sha256": "14cb64571c5f80f106dbba545ce05fe2341052ff03086782b1bb3a1df904e7c7",
+      "translation": "परतें, सबसे नीचे वाली पहले।"
+    },
+    {
+      "context": "where to sample, in the layers' array indices.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#2",
+      "source": "where to sample, in the layers' array indices.",
+      "source_sha256": "5a68833be9d4e9d2cd5d6c448c3ac28a6124b42e1041ac4402f14e303110631f",
+      "translation": "सैंपल लेने के स्थान, परतों के ऐरे इंडेक्स में।"
+    },
+    {
+      "context": "an object drawn lighter.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#3",
+      "source": "an object drawn lighter.",
+      "source_sha256": "f966b4c17af8888f15b83a7d7d9f82d6a7b9a30237f2fe40217ec200744caaba",
+      "translation": "अधिक उजले रंग में रेंडर की जाने वाली वस्तु।"
+    },
+    {
+      "context": "physical voxel length along each array axis.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#4",
+      "source": "physical voxel length along each array axis.",
+      "source_sha256": "f330bc9cf061ec48d1f709b73377e5e76ee98b96cf0eb933369b3552b89de5b1",
+      "translation": "ऐरे के प्रत्येक अक्ष की दिशा में वॉक्सेल की भौतिक लंबाई।"
+    },
+    {
+      "context": "a magnifier cube, or ``None``.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#5",
+      "source": "a magnifier cube, or ``None``.",
+      "source_sha256": "2743d26a84c1777382ed737de8712c4367cebfc01a4d335e6070bc1c55dd3e02",
+      "translation": "आवर्धक घन, या ``None``।"
+    },
+    {
+      "context": "``(rows, columns)`` of the picture returned, scaled up from the rays' grid on the GPU; ``None`` keeps the rays' grid.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#6",
+      "source": "``(rows, columns)`` of the picture returned, scaled up from the rays' grid on the GPU; ``None`` keeps the rays' grid.",
+      "source_sha256": "0a9043e1d517e66b1cb0f97bc382fcc563fd7cf463bd8702c3e07d04e9e1b8af",
+      "translation": "लौटाई गई छवि के ``(rows, columns)``, जिन्हें GPU पर किरणों के ग्रिड से बड़ा किया गया है; ``None`` किरणों का मूल ग्रिड बनाए रखता है।"
+    },
+    {
+      "context": "``(rgb, picked)``: ``uint8`` colour of ``size`` and the object nearest the viewer under each ray (``int64``, the rays' grid).",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#7",
+      "source": "``(rgb, picked)``: ``uint8`` colour of ``size`` and the object nearest the viewer under each ray (``int64``, the rays' grid).",
+      "source_sha256": "b6f4c0bcba01c984cead4919d8021998e3a2b7b8c0e77a5ee1ad73d1cdf5cd8a",
+      "translation": "``(rgb, picked)``: ``uint8`` प्रकार का रंग डेटा, जिसका आकार ``size`` है, और प्रत्येक किरण पर दर्शक के सबसे निकट की वस्तु (``int64``, किरणों के ग्रिड पर)।"
+    },
+    {
+      "context": "Why a 3-D view must not draw on the GPU here, or ``\"\"``.",
+      "label": "spacr.layers.gpu_render_refusal#0",
+      "source": "Why a 3-D view must not draw on the GPU here, or ``\"\"``.",
+      "source_sha256": "13ff1b338956527418011a1b790b28302b5ccf67840c2570b77c7ab14dbd15dd",
+      "translation": "यहाँ 3D दृश्य को GPU पर रेंडर न करने का कारण, या ``\"\"``।"
+    },
+    {
+      "context": "``\"SPACR_NO_GPU_RENDER is set\"`` (:data:`GPU_RENDER_OFF_ENV`, any value but ``0`` or empty), ``\"CUDA_VISIBLE_DEVICES is empty\"`` (set to nothing), or ``\"\"`` when the GPU may be used.",
+      "label": "spacr.layers.gpu_render_refusal#1",
+      "source": "``\"SPACR_NO_GPU_RENDER is set\"`` (:data:`GPU_RENDER_OFF_ENV`, any value but ``0`` or empty), ``\"CUDA_VISIBLE_DEVICES is empty\"`` (set to nothing), or ``\"\"`` when the GPU may be used.",
+      "source_sha256": "c1557f4cc874f1e28bdcc5daf187a3af10d957238b2371ec0d713b883deb898d",
+      "translation": "``\"SPACR_NO_GPU_RENDER is set\"`` (:data:`GPU_RENDER_OFF_ENV`, ``0`` या खाली मान के अलावा कोई भी मान), ``\"CUDA_VISIBLE_DEVICES is empty\"`` (खाली मान पर सेट), या GPU उपयोग की अनुमति होने पर ``\"\"``।"
+    },
+    {
+      "context": "A discrete GPU is preferred to an integrated one, and a software rasteriser (``adapter_type`` ``CPU``) comes last, or not at all.",
+      "label": "spacr.layers.wgpu_adapter#1",
+      "source": "A discrete GPU is preferred to an integrated one, and a software rasteriser (``adapter_type`` ``CPU``) comes last, or not at all.",
+      "source_sha256": "a0b6510272d616f54ebcd2f50331a91ad981015e8f574a1cb57800c34b39c220",
+      "translation": "एकीकृत विकल्प की तुलना में समर्पित GPU को प्राथमिकता दी जाती है, और सॉफ़्टवेयर रास्टराइज़र (``adapter_type`` ``CPU``) सबसे अंत में आता है, या बिल्कुल स्वीकार नहीं किया जाता।"
+    },
+    {
+      "context": "a key of :data:`WGPU_BACKENDS`.",
+      "label": "spacr.layers.wgpu_adapter#2",
+      "source": "a key of :data:`WGPU_BACKENDS`.",
+      "source_sha256": "ab940514c5d4db0f209bdb261cd4014c1d9068f1fdc42bc3bf7a86eeb94bbc18",
+      "translation": ":data:`WGPU_BACKENDS` की एक कुंजी।"
+    },
+    {
+      "context": "with a one-line reason when there is none.",
+      "label": "spacr.layers.wgpu_adapter#5",
+      "source": "with a one-line reason when there is none.",
+      "source_sha256": "e784eb68bf47f8bc3321c4ddf1a267e4c641c033aa6fea9d7e9e093dfa2fea8c",
+      "translation": "कोई एडाप्टर न होने पर एक पंक्ति में कारण के साथ।"
+    },
+    {
+      "context": "wgpu is imported the first time this is asked, never before, so a computer without it pays nothing; it is then remembered.",
+      "label": "spacr.layers.wgpu_adapters#1",
+      "source": "wgpu is imported the first time this is asked, never before, so a computer without it pays nothing; it is then remembered.",
+      "source_sha256": "2cdb02e405e9c1ebdeeb068d68b2b6791e6d4331eabbf659ee021f3b2103bcac",
+      "translation": "wgpu को पहली बार यह जानकारी माँगे जाने पर ही आयात किया जाता है, उससे पहले कभी नहीं, ताकि इसके बिना वाले कंप्यूटर पर यह अतिरिक्त भार न पड़े; फिर परिणाम मेमोरी में रखा जाता है।"
+    },
+    {
+      "context": "one ``{\"backend\", \"name\", \"adapter_type\", \"description\"}`` per Vulkan, Metal or Direct3D 12 adapter; empty without wgpu.",
+      "label": "spacr.layers.wgpu_adapters#3",
+      "source": "one ``{\"backend\", \"name\", \"adapter_type\", \"description\"}`` per Vulkan, Metal or Direct3D 12 adapter; empty without wgpu.",
+      "source_sha256": "ca81b70bce58fcc0560cec35f32dc8855d5f67b6baa35f03de3299e050c669b0",
+      "translation": "हर Vulkan, Metal या Direct3D 12 एडाप्टर के लिए एक ``{\"backend\", \"name\", \"adapter_type\", \"description\"}`` प्रविष्टि; wgpu न होने पर खाली।"
+    },
+    {
+      "context": "a key-value mapping that may hold ``backend`` (``auto``, ``vulkan``, ``metal``, ``d3d12``, ``opengl`` or ``cpu``), ``scale`` (the Render scale, 1 to 100) and ``finish`` (the mask surfaces' finish); a structured-data name never chosen is absent. The caller checks the values, so a store written by a later version still opens.",
+      "label": "spacr.qt.preferences.get_volume_view#1",
+      "source": "a dict that may hold ``backend`` (``auto``, ``vulkan``, ``metal``, ``d3d12``, ``opengl`` or ``cpu``), ``scale`` (the Render scale, 1 to 100) and ``finish`` (the mask surfaces' finish); a key never chosen is absent. The caller checks the values, so a store written by a later version still opens.",
+      "source_sha256": "5a10d40273c87e39a871b830712422664da124f71b866eaeeb2fec37c45bfbaa",
+      "translation": "एक डिक्शनरी जिसमें ``backend`` (``auto``, ``vulkan``, ``metal``, ``d3d12``, ``opengl`` या ``cpu``), ``scale`` (रेंडर स्केल, 1 से 100) और ``finish`` (मास्क की सतहों का प्रभाव) हो सकते हैं; कभी न चुनी गई कुंजी अनुपस्थित रहती है। कॉल करने वाला कोड मानों की जाँच करता है, इसलिए बाद के संस्करण द्वारा लिखी गई सेटिंग्स भी खुल जाती हैं।"
+    },
+    {
+      "context": "The GPU backends a choice tries, in order, before the CPU.",
+      "label": "spacr.qt.screens.make_masks.volume_backend_chain#0",
+      "source": "The GPU backends a choice tries, in order, before the CPU.",
+      "source_sha256": "ad781141c364e0b2e5e0570975191cd4f44cfb51dde4ea7bc77297b0b0fe5a00",
+      "translation": "वे GPU बैकएंड जिन्हें कोई विकल्प CPU से पहले क्रमशः आज़माता है।"
+    },
+    {
+      "context": "Auto prefers wgpu -- Vulkan on Linux and Windows, Metal on macOS, and on Windows Direct3D 12 when Vulkan is missing -- then OpenGL. Any other GPU choice is tried alone; ``cpu`` tries none.",
+      "label": "spacr.qt.screens.make_masks.volume_backend_chain#1",
+      "source": "Auto prefers wgpu -- Vulkan on Linux and Windows, Metal on macOS, and on Windows Direct3D 12 when Vulkan is missing -- then OpenGL. Any other GPU choice is tried alone; ``cpu`` tries none.",
+      "source_sha256": "96f292bd51a9124264d855e42ce94ab2e250d753306367a0b3af6e9fa5d7783e",
+      "translation": "Auto पहले wgpu को चुनता है -- Linux और Windows पर Vulkan, macOS पर Metal, तथा Windows पर Vulkan न मिलने पर Direct3D 12 -- फिर OpenGL। किसी अन्य GPU विकल्प में केवल उसी बैकएंड को आज़माया जाता है; ``cpu`` कोई बैकएंड नहीं आज़माता।"
+    },
+    {
+      "context": "a key of :data:`VOLUME_BACKENDS`.",
+      "label": "spacr.qt.screens.make_masks.volume_backend_chain#2",
+      "source": "a key of :data:`VOLUME_BACKENDS`.",
+      "source_sha256": "394671030ef87be733409bbac66adf8e886c14b0decd274efd335c8df07ca40c",
+      "translation": ":data:`VOLUME_BACKENDS` की एक कुंजी।"
+    },
+    {
+      "context": "the backends offered; defaults to :func:`volume_render_backends`.",
+      "label": "spacr.qt.screens.make_masks.volume_backend_chain#3",
+      "source": "the backends offered; defaults to :func:`volume_render_backends`.",
+      "source_sha256": "23a414b6a8cdccb5361548026b3b5853e9c7c756035ac213ccb2573e0f91f6ce",
+      "translation": "उपलब्ध बैकएंड; डिफ़ॉल्ट रूप से :func:`volume_render_backends` का परिणाम।"
+    },
+    {
+      "context": "``sys.platform``; defaults to this computer's.",
+      "label": "spacr.qt.screens.make_masks.volume_backend_chain#4",
+      "source": "``sys.platform``; defaults to this computer's.",
+      "source_sha256": "98cecf4522321d185f3c6acbe53b4718e9467034b1efa6e29a81a10f9114352d",
+      "translation": "``sys.platform``; डिफ़ॉल्ट रूप से इस कंप्यूटर का मान।"
+    },
+    {
+      "context": "Why the True 3D view must not draw on the GPU here, or ``''``.",
+      "label": "spacr.qt.screens.make_masks.volume_gpu_refusal#0",
+      "source": "Why the True 3D view must not draw on the GPU here, or ``''``.",
+      "source_sha256": "9f4ae569cf871d5e81685fbb7333907b1858712f0a7f70351ed47d92b1fd35df",
+      "translation": "यहाँ True 3D दृश्य को GPU पर रेंडर न करने का कारण, या ``''``।"
+    },
+    {
+      "context": "a one-line reason naming the variable, or ``''``.",
+      "label": "spacr.qt.screens.make_masks.volume_gpu_refusal#2",
+      "source": "a one-line reason naming the variable, or ``''``.",
+      "source_sha256": "002a142ff3b97da71419c4e17b8b70b9c4263634e6e950e9151ab4bfcf7d8142",
+      "translation": "एक पंक्ति में कारण जिसमें वेरिएबल का नाम दिया गया हो, या ``''``।"
+    },
+    {
+      "context": "``auto`` and ``cpu`` always; ``vulkan``, ``metal`` and ``d3d12`` when wgpu is installed and finds an adapter of that kind (:func:`spacr.layers.wgpu_adapters`, which imports wgpu the first time and never before); ``opengl`` when VisPy (a spaCR dependency) is importable. With the GPU turned off (:func:`volume_gpu_refusal`) only ``auto`` and ``cpu``. Whether a backend really draws is only known when the first frame is drawn; :meth:`_VolumeStage._active_backend` finds out, and Auto falls back along :func:`volume_backend_chain`.",
+      "label": "spacr.qt.screens.make_masks.volume_render_backends#1",
+      "source": "``auto`` and ``cpu`` always; ``vulkan``, ``metal`` and ``d3d12`` when wgpu is installed and finds an adapter of that kind (:func:`spacr.layers.wgpu_adapters`, which imports wgpu the first time and never before); ``opengl`` when VisPy (a spaCR dependency) is importable. With the GPU turned off (:func:`volume_gpu_refusal`) only ``auto`` and ``cpu``. Whether a backend really draws is only known when the first frame is drawn; :meth:`_VolumeStage._active_backend` finds out, and Auto falls back along :func:`volume_backend_chain`.",
+      "source_sha256": "60e2f48fcd39dab08fe4f6024740cf91c1f765664cb6cbeffe72a5fdb920bed6",
+      "translation": "``auto`` और ``cpu`` हमेशा उपलब्ध हैं; ``vulkan``, ``metal`` और ``d3d12`` तब, जब wgpu स्थापित हो और उस प्रकार का एडाप्टर मिले (:func:`spacr.layers.wgpu_adapters`, जो wgpu को पहली बार बुलाए जाने पर ही आयात करता है, उससे पहले कभी नहीं); ``opengl`` तब, जब VisPy (spaCR की एक निर्भरता) आयात किया जा सके। GPU बंद होने पर (:func:`volume_gpu_refusal`) केवल ``auto`` और ``cpu`` उपलब्ध हैं। बैकएंड वास्तव में रेंडर कर सकता है या नहीं, यह पहला फ़्रेम रेंडर होने पर ही पता चलता है; :meth:`_VolumeStage._active_backend` इसे जाँचता है, और Auto :func:`volume_backend_chain` के क्रम में वैकल्पिक बैकएंड आज़माता है।"
+    },
+    {
+      "context": "An install that left wgpu out (its installer profile records ``without_wgpu``) is upgraded with uv's ``--override`` of :func:`spacr.install_profile.no_wgpu_override`, so the update leaves it out too.",
+      "label": "spacr.updater.upgrade_command#1",
+      "source": "An install that left wgpu out (its installer profile records ``without_wgpu``) is upgraded with uv's ``--override`` of :func:`spacr.install_profile.no_wgpu_override`, so the update leaves it out too.",
+      "source_sha256": "a9946bbe0907d70735d911e3509181d5ad71030515170b76b29ef6bc509582d6",
+      "translation": "जिस स्थापना में wgpu छोड़ दिया गया था (उसकी इंस्टॉलर प्रोफ़ाइल में ``without_wgpu`` दर्ज है), उसे uv के ``--override`` के साथ अपग्रेड किया जाता है, जो :func:`spacr.install_profile.no_wgpu_override` प्रदान करता है, ताकि अपडेट भी उसे छोड़ दे।"
+    }
+  ],
+  "schema": 1
+}

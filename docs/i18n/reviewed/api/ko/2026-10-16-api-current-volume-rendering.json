@@ -1,0 +1,27 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "Agg's savefig touches no Qt, so the expensive part happens off the main GUI execution path, and the PNG is decoded here too (:func:`spacr.qt.widgets.figure_queue._decode_display_png`): the GUI only moves a file and wraps a picture, which is what stops it hanging while figures stream in.",
+      "label": "spacr.qt.bridge.PipelineWorker.run._capture_show#1",
+      "source": "Agg's savefig touches no Qt, so the expensive part happens off the GUI thread, and the PNG is decoded here too (:func:`spacr.qt.widgets.figure_queue._decode_display_png`): the GUI only moves a file and wraps a picture, which is what stops it hanging while figures stream in.",
+      "source_sha256": "4b6c201c4898e1ce5d85d7570d250e93161fe3e325ad07c58628e77042fab747",
+      "translation": "Agg의 savefig는 Qt를 사용하지 않으므로 비용이 큰 작업은 GUI 스레드 밖에서 실행되고 PNG도 여기에서 디코딩됩니다(:func:`spacr.qt.widgets.figure_queue._decode_display_png`). GUI는 파일을 이동하고 이미지를 감싸기만 하므로 그림이 계속 들어와도 멈추지 않습니다."
+    },
+    {
+      "context": "Open a spatial volume, one channel or several, for native 3-D editing.",
+      "label": "spacr.qt.mask_engine.load_volume_image_and_mask#0",
+      "source": "Open a spatial volume, one channel or several, for native 3-D editing.",
+      "source_sha256": "f5737aa4b8008209201ff090394eb7367245bebe60741cd318ee13da056d26cc",
+      "translation": "네이티브 3D 편집을 위해 하나 또는 여러 채널의 공간 볼륨을 엽니다."
+    },
+    {
+      "context": "TIFF volumes need exactly three spatial axes, in any order. A plain three-dimensional page stack (tifffile's ``Q`` or ``I`` page axis over ``YX``) is read as Z sections, as z-stacks and FIB-SEM series are saved. One image data channel axis (``CZYX``, ``ZCYX``, at most 16 image data channels) is kept as :attr:`VolumeMaskSession.channels`; the slice views show the first image data channel. Time and colour axes are refused. ``voxel_spacing`` metadata is read in storage-axis order. OME physical sizes are converted to micrometres; ImageJ spacing and XY resolution are retained. MRC volumes (``.mrc``, ``.rec``, ``.map``) are read as ZYX with their voxel size in nanometres; they need the optional ``mrcfile`` package. Absent physical metadata means pixel coordinates. Labels retain dtype and identity. A saved geometry sidecar is bound to the exact source file and mask pixels and is refused when stale.",
+      "label": "spacr.qt.mask_engine.load_volume_image_and_mask#1",
+      "source": "TIFF volumes need exactly three spatial axes, in any order. A plain three-dimensional page stack (tifffile's ``Q`` or ``I`` page axis over ``YX``) is read as Z sections, as z-stacks and FIB-SEM series are saved. One channel axis (``CZYX``, ``ZCYX``, at most 16 channels) is kept as :attr:`VolumeMaskSession.channels`; the slice views show the first channel. Time and colour axes are refused. ``voxel_spacing`` metadata is read in storage-axis order. OME physical sizes are converted to micrometres; ImageJ spacing and XY resolution are retained. MRC volumes (``.mrc``, ``.rec``, ``.map``) are read as ZYX with their voxel size in nanometres; they need the optional ``mrcfile`` package. Absent physical metadata means pixel coordinates. Labels retain dtype and identity. A saved geometry sidecar is bound to the exact source file and mask pixels and is refused when stale.",
+      "source_sha256": "3fadac73bfca2bb9ad2e0edeacdf234386853325cf5b5c0c6ec9a1386eae7d94",
+      "translation": "TIFF 볼륨에는 순서에 관계없이 정확히 세 개의 공간 축이 필요합니다. tifffile ``Q`` 또는 ``I`` 페이지 축이 ``YX`` 위에 놓인 평범한 3차원 페이지 스택은 z-스택과 FIB-SEM 시리즈가 저장되는 방식대로 Z 단면으로 읽습니다. 하나의 채널 축(``CZYX``, ``ZCYX``, 최대 16개 채널)은 :attr:`VolumeMaskSession.channels` 에 유지되며 슬라이스 뷰는 첫 번째 채널을 표시합니다. 시간 축과 색상 축은 거부됩니다. ``voxel_spacing`` 메타데이터는 저장 축 순서로 읽습니다. OME 물리 크기는 마이크로미터로 변환되고, ImageJ 간격과 XY 해상도는 유지됩니다. MRC 볼륨(``.mrc``, ``.rec``, ``.map``)은 나노미터 단위의 복셀 크기와 함께 ZYX로 읽으며, 선택적 ``mrcfile`` 패키지가 필요합니다. 물리 메타데이터가 없으면 픽셀 좌표를 뜻합니다. 레이블은 dtype과 정체성을 유지합니다. 저장된 기하 보조 파일은 정확한 원본 파일과 마스크 픽셀에 묶여 있으며, 오래된 경우 거부됩니다."
+    }
+  ],
+  "schema": 1
+}

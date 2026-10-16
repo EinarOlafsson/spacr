@@ -1246,6 +1246,8 @@
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.add_toolbar_action#1",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-api-current-controls.json. Historical translation retained.",
       "source": "The button is placed after the other actions in the part of the row that scrolls. The Magnifier and the settings toggle are pinned outside it, so nothing added here can come between them or push them out of sight.",
       "source_sha256": "0e071f2a19694cb5607a794eccf08a076cc61a1ec3dc7796a9a724cbf32429b0",
       "context": "The button is placed after the other actions in the part of the row that scrolls. The Magnifier and the settings toggle are pinned outside it, so nothing added here can come between them or push them out of sight.",

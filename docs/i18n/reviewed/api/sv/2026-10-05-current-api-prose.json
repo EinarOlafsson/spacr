@@ -250,6 +250,8 @@
     },
     {
       "label": "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow#7",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-707-api-make-masks-layout-and-collapse-arrow.json. Historical translation retained.",
       "source": "Only the baseline glyph is scaled; the painted tab and the hit target stay put.",
       "source_sha256": "fb29afca7dbfe4aedbc5d227255463cf7c97ec1b3697d178f402db6319adff7c",
       "context": "Only the baseline glyph is scaled; the painted tab and the hit target stay put.",

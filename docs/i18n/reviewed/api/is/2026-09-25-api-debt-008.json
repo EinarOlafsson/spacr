@@ -2846,6 +2846,8 @@
     },
     {
       "label": "spacr.qt.widgets.setup_slides.SetupSlides.reject#3",
+      "retired": "2026-10-16",
+      "retired_reason": "The current docstring no longer contains this paragraph; no replacement block exists. Historical translation retained.",
       "source": "While an installer is running the user is asked first, as :meth:`accept` asks; keeping it running leaves the screen open.",
       "source_sha256": "1eda2cf0c28e073f1515d8d31e44e8486932be66e55d31fe698222c0ba7f4b18",
       "context": "While an installer is running the user is asked first, as :meth:`accept` asks; keeping it running leaves the application view open.",
