@@ -20,6 +20,11 @@ def _field(tmp_path, name="frame.tif"):
     return str(tmp_path / name), image
 
 
+def _mapped_cell(state, name, label, frame):
+    state, identity = engine.new_lineage_cell(state, name, label, frame)
+    return engine.assign_lineage_label(state, frame, label, identity), identity
+
+
 def test_sparse_uint32_editing_lookup_filters_and_overlay_allocate_observed_ids_only():
     mask = np.zeros((12, 12), np.uint32)
     mask[2:7, 2:7] = 2**31 + 11
@@ -51,21 +56,21 @@ def test_sparse_uint32_editing_lookup_filters_and_overlay_allocate_observed_ids_
 def test_division_display_name_reuse_is_not_a_self_parent_cycle(tmp_path):
     first, _ = _field(tmp_path)
     second = str(tmp_path / "next.tif")
-    state, founder = engine.new_lineage_cell(None, "1", 1, first)
+    state, founder = _mapped_cell(None, "1", 1, first)
     divided, daughters = engine.divide_lineage_cell(state, founder, second,
                                                     ["1", "1d"], [1, 2**31 + 7])
     assert founder not in daughters and daughters[0] != daughters[1]
     assert divided["cells"][daughters[0]]["name"] == "1"
     assert all(divided["cells"][child]["parent_uuid"] == founder for child in daughters)
     assert divided["frames"][first]["1"] == founder
-    assert divided["frames"][second]["1"] == daughters[0]
+    assert divided["frames"][second] == {}
     assert state["cells"][founder]["children"] == []
     assert engine.validate_lineage(divided) == divided
 
 
 def test_snapshot_merge_retains_new_name_and_new_division(tmp_path):
     frame, _ = _field(tmp_path)
-    initial, founder = engine.new_lineage_cell(None, "1", 1, frame)
+    initial, founder = _mapped_cell(None, "1", 1, frame)
     divided, daughters = engine.divide_lineage_cell(initial, founder,
         str(tmp_path / "next.tif"), ["1", "1d"], [1, 2])
     renamed = engine.rename_lineage_cell(divided, daughters[0], "1a")
@@ -75,14 +80,15 @@ def test_snapshot_merge_retains_new_name_and_new_division(tmp_path):
     assert merged["cells"][founder]["children"] == list(daughters)
     conflicting = copy.deepcopy(divided)
     conflicting["cells"][daughters[0]]["born_frame"] = "elsewhere"
+    conflicting["cells"][daughters[0]].pop("born_frame_id")
     with pytest.raises(ValueError, match="ancestry"):
         engine.merge_lineage_states(merged, conflicting)
 
 
 def test_mapping_removal_and_collision_are_copy_on_write(tmp_path):
     frame, _ = _field(tmp_path)
-    state, one = engine.new_lineage_cell(None, "first", 1, frame)
-    state, two = engine.new_lineage_cell(state, "second", 2, frame)
+    state, one = _mapped_cell(None, "first", 1, frame)
+    state, two = _mapped_cell(state, "second", 2, frame)
     before = copy.deepcopy(state)
     with pytest.raises(ValueError, match="already belongs"):
         engine.assign_lineage_label(state, frame, 1, two)
@@ -94,8 +100,8 @@ def test_mapping_removal_and_collision_are_copy_on_write(tmp_path):
 
 def test_tiff_is_self_contained_and_ordinary_resave_retains_width_and_lineage(tmp_path):
     frame, image = _field(tmp_path)
-    state, founder = engine.new_lineage_cell(None, "1", 2**31 + 9, frame)
-    state, unplaced = engine.new_lineage_cell(state, "unplaced", 2, frame)
+    state, founder = _mapped_cell(None, "1", 2**31 + 9, frame)
+    state, unplaced = _mapped_cell(state, "unplaced", 2, frame)
     mask = np.zeros(image.shape, np.uint32)
     mask[2:6, 2:6] = 2**31 + 9
     mask[9, 9] = 2**31 + 9
@@ -166,9 +172,10 @@ def test_large_population_and_deep_ancestry_roundtrip_with_tiny_pixels(tmp_path)
     state["frames"][frame] = {str(engine.MAX_MASK_LABEL): parent}
     state["frame_revisions"][frame] = 3
     mask = np.array([[0, engine.MAX_MASK_LABEL], [0, 0]], np.uint32)
+    write_tiff(tmp_path / "frame.tif", np.zeros(mask.shape, np.uint16))
     engine.save_mask(str(tmp_path), "frame.tif", mask, lineage=state)
     reopened = engine.load_mask_lineage(str(tmp_path), "frame.tif")
-    assert reopened == state
+    assert reopened == engine.validate_lineage(state)
     assert len(reopened["cells"]) == 10512
     count = 0
     while reopened["cells"][parent]["parent_uuid"] is not None:
@@ -179,7 +186,7 @@ def test_large_population_and_deep_ancestry_roundtrip_with_tiny_pixels(tmp_path)
 
 def test_invalid_cycle_or_unknown_schema_is_refused(tmp_path):
     frame, _ = _field(tmp_path)
-    state, founder = engine.new_lineage_cell(None, "1", 1, frame)
+    state, founder = _mapped_cell(None, "1", 1, frame)
     state["cells"][founder]["parent_uuid"] = founder
     with pytest.raises(ValueError, match="metadata"):
         engine.validate_lineage(state)
@@ -190,7 +197,7 @@ def test_invalid_cycle_or_unknown_schema_is_refused(tmp_path):
 def test_tracking_permuted_segmentation_ids_preserves_both_objects_and_identity(tmp_path):
     first, image = _field(tmp_path)
     second, _ = _field(tmp_path, "next.tif")
-    state, identity = engine.new_lineage_cell(None, "1", 1, first)
+    state, identity = _mapped_cell(None, "1", 1, first)
     mask = np.zeros(image.shape, np.uint16)
     mask[2:5, 2:5] = 1
     mask[7:10, 7:10] = 2
@@ -212,8 +219,8 @@ def test_tracking_permuted_segmentation_ids_preserves_both_objects_and_identity(
 
 def test_tracking_refuses_to_steal_an_established_cell(tmp_path):
     frame, image = _field(tmp_path)
-    state, first = engine.new_lineage_cell(None, "first", 1, frame)
-    state, second = engine.new_lineage_cell(state, "second", 2, frame)
+    state, first = _mapped_cell(None, "first", 1, frame)
+    state, second = _mapped_cell(state, "second", 2, frame)
     mask = np.zeros(image.shape, np.uint32)
     mask[2:5, 2:5] = 1
     mask[7:10, 7:10] = 2
@@ -227,7 +234,7 @@ def test_tracking_refuses_to_steal_an_established_cell(tmp_path):
 def test_undo_division_and_rename_survive_saved_older_snapshots_and_redo(tmp_path):
     frame, image = _field(tmp_path)
     next_frame = str(tmp_path / "next.tif")
-    initial, founder = engine.new_lineage_cell(None, "1", 1, frame)
+    initial, founder = _mapped_cell(None, "1", 1, frame)
     divided, daughters = engine.divide_lineage_cell(initial, founder, next_frame,
                                                     ["1", "1d"], [1, 2])
     undone = engine.restore_lineage_state(initial, divided)
@@ -245,3 +252,119 @@ def test_undo_division_and_rename_survive_saved_older_snapshots_and_redo(tmp_pat
     name_undone = engine.restore_lineage_state(redone, renamed)
     merged = engine.merge_lineage_states(name_undone, renamed)
     assert merged["cells"][daughters[0]]["name"] == "1"
+
+
+def test_new_cell_does_not_bind_an_unrelated_object_with_its_preferred_id(tmp_path):
+    frame, image = _field(tmp_path)
+    state, identity = engine.new_lineage_cell(None, "1", 1, frame)
+    assert state["frames"].get(frame, {}) == {}
+    mask = np.zeros(image.shape, np.uint32)
+    mask[2:5, 2:5] = 1
+    mask[7:10, 7:10] = 5
+    changed, state, old, local = engine.assign_tracked_object(mask, 8, 8, state, frame, identity)
+    assert (old, local) == (5, 5)
+    np.testing.assert_array_equal(changed, mask)
+    assert state["frames"][frame] == {"5": identity}
+    divided, children = engine.divide_lineage_cell(state, identity, frame, ["1", "1d"], [1, 2])
+    assert divided["frames"][frame] == {}
+    assert all(child in divided["cells"] for child in children)
+
+
+def test_preferred_numeric_edit_relabels_existing_track_but_repeated_hover_is_noop(tmp_path):
+    frame, image = _field(tmp_path)
+    state, identity = _mapped_cell(None, "name", 321, frame)
+    mask = np.full(image.shape, 321, np.uint32)
+    changed, state, old, local = engine.assign_tracked_object(
+        mask, 2, 2, state, frame, identity, preferred_label=654)
+    assert (old, local) == (321, 654)
+    assert np.all(changed == 654)
+    assert state["frames"][frame] == {"654": identity}
+    _, unchanged, _, _ = engine.assign_tracked_object(changed, 2, 2, state, frame, identity)
+    assert unchanged == state
+
+
+def test_pruned_mapping_beats_an_older_tiff_snapshot(tmp_path):
+    frame, image = _field(tmp_path)
+    original, identity = _mapped_cell(None, "1", 1, frame)
+    path = engine.save_mask(str(tmp_path), "frame.tif", np.zeros(image.shape, np.uint32),
+                            lineage=original)
+    pruned = engine.load_mask_lineage(str(tmp_path), "frame.tif")
+    merged = engine.merge_lineage_states(pruned, original, frame=frame)
+    assert merged["frames"][frame] == {}
+    assert identity in merged["cells"]
+    assert tifffile.imread(path).dtype == np.uint32
+
+
+def test_directory_move_preserves_frame_uuid_mapping_and_immutable_ancestry(tmp_path):
+    original = tmp_path / "original"
+    original.mkdir()
+    first, image = _field(original)
+    second, _ = _field(original, "next.tif")
+    state, parent = _mapped_cell(None, "1", 1, first)
+    state, children = engine.divide_lineage_cell(state, parent, second, ["1", "1d"], [1, 2])
+    state = engine.assign_lineage_label(state, second, 1, children[0])
+    mask = np.ones(image.shape, np.uint32)
+    for name in ("frame.tif", "next.tif"):
+        engine.save_mask(str(original), name, mask, lineage=state)
+    moved = tmp_path / "renamed sequence"
+    original.rename(moved)
+    assert not original.exists()
+    reopened = engine.load_mask_lineage(str(moved), "frame.tif")
+    next_state = engine.load_mask_lineage(str(moved), "next.tif")
+    merged = engine.merge_lineage_states(reopened, next_state, frame=str(moved / "next.tif"))
+    assert merged["frames"][str(moved / "frame.tif")]["1"] == parent
+    assert merged["frames"][str(moved / "next.tif")]["1"] == children[0]
+    assert merged["cells"][children[0]]["born_frame_id"] == state["cells"][children[0]]["born_frame_id"]
+    assert merged["cells"][parent]["division_frame_id"] == state["cells"][parent]["division_frame_id"]
+    assert all(str(original) not in frame for frame in merged["frame_ids"])
+    _, pixels = engine.load_image_and_mask(str(moved), "next.tif")
+    np.testing.assert_array_equal(pixels, mask)
+
+
+def test_windows_frame_aliases_reopen_on_linux_without_cwd_prefix(tmp_path):
+    frame, image = _field(tmp_path)
+    state, identity = _mapped_cell(None, "1", 1, frame)
+    windows = r"C:\acquisition\frame.tif"
+    state = engine._remap_lineage_frames(state, {frame: windows})
+    target = tmp_path / "masks/frame.tif"
+    target.parent.mkdir()
+    metadata = {"schema": "spacr.mask/v1", "preserve_ids": True,
+                "frame": windows, "lineage": state}
+    write_tiff(target, np.ones(image.shape, np.uint32), metadata=None,
+               description=json.dumps({"spacr_mask": metadata}))
+    reopened = engine.load_mask_lineage(str(tmp_path), "frame.tif")
+    assert reopened["frames"] == {frame: {"1": identity}}
+    assert reopened["cells"][identity]["born_frame"] == frame
+    assert reopened["cells"][identity]["born_frame_id"] == state["cells"][identity]["born_frame_id"]
+    assert not any("C:" in path for path in reopened["frame_ids"])
+
+
+def test_earlier_machine_clock_cannot_make_a_new_edit_lose_on_merge(tmp_path, monkeypatch):
+    import time
+
+    frame, _ = _field(tmp_path)
+    old, identity = _mapped_cell(None, "1", 1, frame)
+    monkeypatch.setattr(time, "time_ns", lambda: 1)
+    renamed = engine.rename_lineage_cell(old, identity, "1a")
+    assert renamed["cells"][identity]["revision"] > old["cells"][identity]["revision"]
+    assert engine.merge_lineage_states(renamed, old)["cells"][identity]["name"] == "1a"
+    remapped = engine.assign_lineage_label(renamed, frame, 2, identity, old_label=1)
+    assert remapped["frame_revisions"][frame] > renamed["cells"][identity]["revision"]
+
+
+def test_boundary_ids_do_not_change_other_identity_colors_or_prevent_correction():
+    ids = np.array([1, 65535, 65536, 2**31 + 7, engine.MAX_MASK_LABEL], np.uint32)
+    colors = engine._label_colors(ids)
+    for index, identity in enumerate(ids):
+        np.testing.assert_array_equal(colors[index], engine._label_colors(np.array([identity]))[0])
+    mask = np.zeros((20, 20), np.uint32)
+    mask[2:18, 2:18] = engine.MAX_MASK_LABEL
+    mask[0, 0] = 1
+    assert engine.next_label(mask) == 2
+    changed, splits = engine.divide_object(mask, (9, 0), (9, 19))
+    assert splits == [(engine.MAX_MASK_LABEL, 2)]
+    assert changed[0, 0] == 1
+    assert engine.MAX_MASK_LABEL in changed
+    drawn, label = engine.fill_polygon(mask, [(0, 18), (2, 18), (2, 19), (0, 19)])
+    assert label == 2
+    assert drawn.dtype == np.uint32
