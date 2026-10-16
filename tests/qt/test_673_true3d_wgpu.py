@@ -33,6 +33,7 @@ from spacr.layers import (VOLUME_FINISHES, VOLUME_RENDERINGS, ImageLayer, Labels
 from spacr.qt.screens import make_masks as mm
 
 from .test_673_napari_true3d import _spheres, _wait_render, screen, view
+from .test_673_true3d_gpu import _gl_context
 
 __all__ = ["screen", "view"]
 
@@ -361,10 +362,7 @@ def _wgpu_context():
     found = layers.wgpu_adapters(refresh=True)
     if not found:
         pytest.skip("wgpu finds no Vulkan, Metal or Direct3D 12 adapter")
-    try:
-        return mm._WGPUVolumeContext(found[0]["backend"])
-    except Exception as exc:
-        pytest.skip(f"no wgpu device: {exc}")
+    return mm._WGPUVolumeContext(found[0]["backend"])
 
 
 def _rays(shape=(30, 36, 30)):
@@ -411,15 +409,15 @@ def test_wgpu_frames_match_the_cpu_for_every_rendering_finish_and_lens():
 def test_wgpu_and_opengl_frames_agree():
     gpu = _wgpu_context()
     try:
-        gl = mm._GLVolumeContext()
-    except Exception as exc:
+        gl = _gl_context()
+        try:
+            channel, masks = _layers(labels_rendering="surface", finish="glossy")
+            with gl:
+                opengl, gl_picked = gl.renderer.render([channel, masks], _rays(), highlight=1)
+            drawn, picked = gpu.renderer.render([channel, masks], _rays(), highlight=1)
+            assert np.abs(opengl.astype(int) - drawn.astype(int)).max() <= 3
+            assert np.array_equal(gl_picked, picked)
+        finally:
+            gl.close()
+    finally:
         gpu.close()
-        pytest.skip(f"no OpenGL context offscreen: {exc}")
-    channel, masks = _layers(labels_rendering="surface", finish="glossy")
-    with gl:
-        opengl, gl_picked = gl.renderer.render([channel, masks], _rays(), highlight=1)
-    drawn, picked = gpu.renderer.render([channel, masks], _rays(), highlight=1)
-    assert np.abs(opengl.astype(int) - drawn.astype(int)).max() <= 3
-    assert np.array_equal(gl_picked, picked)
-    gl.close()
-    gpu.close()

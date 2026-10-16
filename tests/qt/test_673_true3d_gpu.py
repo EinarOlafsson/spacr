@@ -49,7 +49,15 @@ def _gl_context():
         pytest.skip(f"GPU rendering is turned off here ({refusal})")
     try:
         return mm._GLVolumeContext()
-    except Exception as exc:
+    except RuntimeError as exc:
+        if str(exc) not in {
+            "VisPy is not installed",
+            "no OpenGL context could be created",
+            "only OpenGL ES is available, and the shaders need desktop OpenGL",
+            "no offscreen OpenGL surface could be created",
+            "the OpenGL context could not be made current",
+        }:
+            raise
         pytest.skip(f"no OpenGL context offscreen: {exc}")
 
 
