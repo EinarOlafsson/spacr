@@ -29602,7 +29602,7 @@
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
       "source_sha256": "3609254215931f4defb93502b2cbd3da28a540e8c827755b9608869bd6a185c5",
-      "text": "स्थान धारक का उपयोग तब किया जाता है जब PySide6 उपलब्ध नहीं है।\n\nनिर्माण :class:`ImportError` को ``pip install spacr[flowview]`` मरम्मत के साथ बढ़ाता है। PySide6 के साथ, ``FlowGraphicsView`` पेंटिंग और सीमित ज़ूम प्रदान करता है।\n\n:param scene: दृश्य द्वारा प्रदर्शित ग्राफिक्स दृश्य।\n:param parent: वैकल्पिक Qt माता-पिता विजेट।\nएक पारदर्शी पृष्ठभूमि के साथ ग्राफिक्स दृश्य बनाएं।\n\nदिखाने के लिए पीछे के पृष्ठ के लिए तीन सतहों को पारदर्शी होना चाहिए: विजेट, इसके दृश्य पोर्ट का स्वचालित भरना, और पृष्ठभूमि ब्रश. केवल दृश्य ब्रश को साफ करना दृश्य पेंटिंग को एक निकट-ब्लैक रेटिंग छोड़ देता है।\n\n:param scene: दिखाने के लिए दृश्य\n:param parent: पैरेंट विजेट, या ``None``।",
+      "text": "स्थान धारक का उपयोग तब किया जाता है जब PySide6 उपलब्ध नहीं है।\n\nनिर्माण :class:`ImportError` को ``pip install spacr[flowview]`` मरम्मत के साथ बढ़ाता है। PySide6 के साथ, ``FlowGraphicsView`` पेंटिंग और सीमित ज़ूम प्रदान करता है।\n\n:param scene: दृश्य द्वारा प्रदर्शित ग्राफिक्स दृश्य।\n:param parent: वैकल्पिक Qt पैरेंट विजेट।\nएक पारदर्शी पृष्ठभूमि के साथ ग्राफिक्स दृश्य बनाएं।\n\nदिखाने के लिए पीछे के पृष्ठ के लिए तीन सतहों को पारदर्शी होना चाहिए: विजेट, इसके दृश्य पोर्ट का स्वचालित भरना, और पृष्ठभूमि ब्रश. केवल दृश्य ब्रश को साफ करना दृश्य पेंटिंग को एक निकट-ब्लैक रेटिंग छोड़ देता है।\n\n:param scene: दिखाने के लिए दृश्य\n:param parent: पैरेंट विजेट, या ``None``।",
       "translation_source_blocks_sha256": [
         "542bb397f8f08e2621a8b2347ed9bb6991de0b20e8f1f7667c2251339fa6d589",
         "7d9d44fdb085285391714fe4265f3d08b865dbab28b066d79e3101e71448e73b",
@@ -29668,7 +29668,7 @@
         "adea5a1a453d33d09ce889bd7493b3c8d0ae71f00c99bfa1d783982c3370ac98"
       ],
       "source_sha256": "d8d1384b30b43f0d20ecf5127ada66a602f1fe2a1114c2ecd8a47d8a8373f4fb",
-      "text": "स्थान धारक का उपयोग तब किया जाता है जब PySide6 उपलब्ध नहीं है।\n\nनिर्माण :class:`ImportError` को ``pip install spacr[flowview]`` मरम्मत के साथ बढ़ाता है। PySide6 के साथ, ``FlowViewPanel`` रेंडर और लाइव स्नैपशॉट की निगरानी करता है।\n\n:param collector: घटना संग्रहक जिनके स्नैपशॉट पैनल रेंडर हैं।\n:param parent: वैकल्पिक Qt माता-पिता विजेट।\n:param refresh_interval_ms: सकारात्मक टाइमर अंतराल, मिलीसेकंड में, स्वचालित फ्रीज के बीच।\n:param export_path_provider: वैकल्पिक कॉलबैक वापस निर्यात गंतव्य, या ``None`` रद्द करने के लिए. एक के बिना, निर्यात एक Qt फ़ाइल डायलॉग खुलता है.\n:param auto_start: या तो प्रारंभिक मजबूर रिलेशनशिप के बाद ताइमर शुरू करने के लिए।\n:param embedded: या तो एक पारदर्शी, सीमाहीन सतह का उपयोग करें और अन्य स्क्रीनिंग में अंतर्निहित करने के लिए पैनल शीर्षक को छिपाएं।\nFlowView पैनल बनाएं: निरीक्षक के ऊपर चार्ट, विभाजित करें।\n\n:param collector: इस पैनल को रिकॉर्डिंग के लिए रीसेट किया जाता है।\n:param parent: पैरेंट विजेट, या ``None``।\n:param refresh_interval_ms: कितनी बार रिकॉर्ड को फिर से पढ़ा जाता है।\n:param export_path_provider: फ़ाइल वार्तालाप खोलने के बजाय निर्यात मार्ग के लिए कॉल; ``None`` उपयोगकर्ता से पूछता है।\n:param auto_start: तुरंत ताज़ा करना शुरू करें।\n:param embedded: शीर्षक और पैनल की खुद की गोल सतह को फेंक दें, एक खंड के अंदर उपयोग करने के लिए जो पहले से ही एक खींचता है।\n:raises ValueError: यदि ``refresh_interval_ms`` सकारात्मक नहीं है - एक शून्य अंतराल टाइमर लगातार ताज़ा हो जाएगा।",
+      "text": "स्थान धारक का उपयोग तब किया जाता है जब PySide6 उपलब्ध नहीं है।\n\nनिर्माण :class:`ImportError` को ``pip install spacr[flowview]`` मरम्मत के साथ बढ़ाता है। PySide6 के साथ, ``FlowViewPanel`` रेंडर और लाइव स्नैपशॉट की निगरानी करता है।\n\n:param collector: घटना संग्रहक जिनके स्नैपशॉट पैनल रेंडर हैं।\n:param parent: वैकल्पिक Qt पैरेंट विजेट।\n:param refresh_interval_ms: सकारात्मक टाइमर अंतराल, मिलीसेकंड में, स्वचालित फ्रीज के बीच।\n:param export_path_provider: वैकल्पिक कॉलबैक वापस निर्यात गंतव्य, या ``None`` रद्द करने के लिए. एक के बिना, निर्यात एक Qt फ़ाइल डायलॉग खुलता है.\n:param auto_start: या तो प्रारंभिक मजबूर रिलेशनशिप के बाद ताइमर शुरू करने के लिए।\n:param embedded: या तो एक पारदर्शी, सीमाहीन सतह का उपयोग करें और अन्य स्क्रीनिंग में अंतर्निहित करने के लिए पैनल शीर्षक को छिपाएं।\nFlowView पैनल बनाएं: निरीक्षक के ऊपर चार्ट, विभाजित करें।\n\n:param collector: इस पैनल को रिकॉर्डिंग के लिए रीसेट किया जाता है।\n:param parent: पैरेंट विजेट, या ``None``।\n:param refresh_interval_ms: कितनी बार रिकॉर्ड को फिर से पढ़ा जाता है।\n:param export_path_provider: फ़ाइल वार्तालाप खोलने के बजाय निर्यात मार्ग के लिए कॉल; ``None`` उपयोगकर्ता से पूछता है।\n:param auto_start: तुरंत ताज़ा करना शुरू करें।\n:param embedded: शीर्षक और पैनल की खुद की गोल सतह को फेंक दें, एक खंड के अंदर उपयोग करने के लिए जो पहले से ही एक खींचता है।\n:raises ValueError: यदि ``refresh_interval_ms`` सकारात्मक नहीं है - एक शून्य अंतराल टाइमर लगातार ताज़ा हो जाएगा।",
       "translation_source_blocks_sha256": [
         "542bb397f8f08e2621a8b2347ed9bb6991de0b20e8f1f7667c2251339fa6d589",
         "000489ea20a1c25d5448e9a7bec300cd3c773936059fef04ff56bb253916c241",
@@ -46938,6 +46938,16 @@
         "01ea6ee50870a5094c9fd19a90437404020d7d7b10eb4c09a5c2b34b29b9b91e"
       ]
     },
+    "spacr.measure._write_volume_measurements.write": {
+      "source_blocks_sha256": [
+        "89e4f8237bc773681a5a868663ef0ff1df617da97e1d4cc19fdd968fc40c3a44"
+      ],
+      "source_sha256": "89e4f8237bc773681a5a868663ef0ff1df617da97e1d4cc19fdd968fc40c3a44",
+      "text": "गंतव्य को बदलने से पहले उसके लेखन लेनदेन के भीतर उसे सत्यापित करता है।",
+      "translation_source_blocks_sha256": [
+        "89e4f8237bc773681a5a868663ef0ff1df617da97e1d4cc19fdd968fc40c3a44"
+      ]
+    },
     "spacr.measure.assign_paths_by_regex": {
       "source_blocks_sha256": [
         "1618a688ed9aa10d1e98bfd558e6bf73701cfbfa12c9842c50374204c0a5db05",
@@ -47362,6 +47372,36 @@
       "translation_source_blocks_sha256": [
         "832bc7c099d034d6bd0dc291daa82e83d65ab89627cf17cc28727f5e61484d26",
         "f62104352208fcebc02baa277dde05ee65e7cce3a5aed4f58a4594b19e7a1c5b"
+      ]
+    },
+    "spacr.measure.measure_volume_rows": {
+      "source_blocks_sha256": [
+        "d091d99711ba02dd2c67a91df30a5479ff28d2c0e45e8cc2d8abe05102c039b8",
+        "87b5db553f3c354a5ddc364302bee2fea94c390622a953b0f1d40e9315024d1c",
+        "549f5e865a39f3f51fa9116db71147fe1ab2422d963d59abc5753471e6e9edf0",
+        "8523fa45a603f3fb2ee33fa04134e0de5711ff3dbd22529ba95493b2d00e31f1",
+        "50923ed68c19d77d9af835955c8b565ba581c8c116a920ec869035aeedea2cb2",
+        "807e3342b85c1e627fea2edd36221f89def8e572b46bee51ea9506902acdb3da"
+      ],
+      "source_sha256": "e80dc0f3f179230ebdeeff085f4de9f30da6888f9dbb8467c2e1438d8f41d5c1",
+      "text": "वर्तमान या सहेजे गए 3D छवि समूहों को मापकर उनकी छवि फ़ोल्डर की डेटाबेस में लिखता है।\n\n:param rows: ``source_path``, वैकल्पिक ``mask_path`` और अतिरिक्त ``channel_paths`` वाली डिक्शनरी। वर्तमान छवि एक ``snapshot`` देती है, जिसमें अपरिवर्तनीय चैनल, प्रतिलिपि किए गए लेबल, अक्ष, अंतराल और इकाई होते हैं, ताकि बिना सहेजे संपादन सहेजे गए मास्क को बदले बिना मापे जाएँ।\n:param object_type: मानक ऑब्जेक्ट भूमिका, जैसे ``cell`` या ``nucleus``।\n:param progress: वैकल्पिक कॉलबैक, जिसे वर्कर से सुरक्षित रूप से बुलाया जा सकता है और जो अनूदित पाठ प्राप्त करता है।\n:returns: डेटाबेस पथ, छवियों की संख्या और ऑब्जेक्ट की संख्या। कुछ भी लिखने से पहले सभी पंक्तियाँ मापी जाती हैं; हर गंतव्य का कमिट अलग से परमाण्विक रूप में होता है।\n\nसंग्रहित आकृति, तीव्रता, सहसंबंध और स्थानिक विशेषताओं के नाम Measure के अनुसार होते हैं। पिक्सेल निर्देशांक स्पष्ट रूप से पिक्सेल निर्देशांक ही रहते हैं; भौतिक मेटाडेटा माइक्रोमीटर में बदला जाता है। किसी छवि समूह को दोहराने पर केवल इस प्रवेश बिंदु की पिछली पंक्तियाँ बदली जाती हैं। अन्य छवि दृश्य-क्षेत्र और तालिकाएँ सुरक्षित रखी जाती हैं।",
+      "translation_source_blocks_sha256": [
+        "d091d99711ba02dd2c67a91df30a5479ff28d2c0e45e8cc2d8abe05102c039b8",
+        "857c501a1158a659504bed662796e5320558541d29a8ce3fa9f99453947eb662",
+        "549f5e865a39f3f51fa9116db71147fe1ab2422d963d59abc5753471e6e9edf0",
+        "8523fa45a603f3fb2ee33fa04134e0de5711ff3dbd22529ba95493b2d00e31f1",
+        "50923ed68c19d77d9af835955c8b565ba581c8c116a920ec869035aeedea2cb2",
+        "61fd40cc6e512b333a8c6f8bb9cb6ae196f6ecd41fb6aa55c946cfa10c182fe3"
+      ]
+    },
+    "spacr.measure.measure_volume_rows.report": {
+      "source_blocks_sha256": [
+        "30e9bd5fa19c20a10ea228ce38c495b899363503eae3fec71b6af176ae51f51d"
+      ],
+      "source_sha256": "30e9bd5fa19c20a10ea228ce38c495b899363503eae3fec71b6af176ae51f51d",
+      "text": "बंद किए गए प्रगति प्रदर्शन को डेटाबेस परिणाम बदलने से रोकता है।",
+      "translation_source_blocks_sha256": [
+        "30e9bd5fa19c20a10ea228ce38c495b899363503eae3fec71b6af176ae51f51d"
       ]
     },
     "spacr.measure.process_meassure_crop_results": {
@@ -108440,6 +108480,16 @@
         "2c6b5c29b03ba5ed44d8e72c1af775895ab38bd111cb57ad8eeb3eab4b70f72a"
       ]
     },
+    "spacr.qt.screens.make_masks.MakeMasksScreen._start_volume_measurement.measure": {
+      "source_blocks_sha256": [
+        "64e73ac3bdd6c0620a4f39c9ce49436dea9d0c4eedfa1a3bc872a9e7aa09d350"
+      ],
+      "source_sha256": "64e73ac3bdd6c0620a4f39c9ce49436dea9d0c4eedfa1a3bc872a9e7aa09d350",
+      "text": "कैप्चर किए गए छवि समूहों को मापता है और जिन डेटाबेस में कमिट पूरा हो चुका है उनके पथ बताता है।",
+      "translation_source_blocks_sha256": [
+        "64e73ac3bdd6c0620a4f39c9ce49436dea9d0c4eedfa1a3bc872a9e7aa09d350"
+      ]
+    },
     "spacr.qt.screens.make_masks.MakeMasksScreen.add_toolbar_action": {
       "source_blocks_sha256": [
         "f475513b8254934f8bbdcefa6de8437816e3c9f79b844e09cb82e4beaf117e25",
@@ -165154,6 +165204,76 @@
         "2246ac0ebcebcc13660ebb0e6c13732413bb3820b023b86236ab602fec49a5c8",
         "b826e41739fdb98f46d8f5a2a85a1d4e570470331c3757c5ae5f0ac5d3d4e301",
         "014c844e9ee749df4bf9f6de8adda62fe7c54fd5720619e60623450ae5de6403"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog": {
+      "source_blocks_sha256": [
+        "231b9621e7a6d45ddca90f926f6a72b25c6385ee7b20ce575d47870a4dce4b0c",
+        "f3eb7cfebc2418f8059311ac8c2e1c1a7655cca2d2b371c1f9ef577c43340398",
+        "bcc80647aea791f8266cefcfa42ffa341223a8b35caf135b8a8289e51f386689",
+        "14b99d20250f0a391efc0b85b2f482855a133c0f7a99d7300624711c28ec63ea",
+        "82cc530fe7cc899a497ef9314711fb2a3d74e98cb026bff40b673360227e264e",
+        "143b4938af954fc05fadcecc98ea92fa2326f98b76244b479ac3cfddab14a2ee"
+      ],
+      "source_sha256": "8f145486ada493dec6b9183d095d3e1bacbb07c2ed83a3c845a4df67f2e80caf",
+      "text": "वर्तमान संपादित 3D मास्क के लिए अतिरिक्त चैनल और छवि समूह चुनता है।\n\n:param source_path: वर्तमान 3D छवि का पथ, जो पहली पंक्ति में स्थिर रहता है।\n:param parent: वैकल्पिक Qt पैरेंट विजेट।\n:param spacing: अक्षों के क्रम में दिखाई जाने वाली वैकल्पिक वॉक्सेल दूरियाँ।\n:param axes: दिखाई गई दूरियों को लेबल करने के लिए प्रयुक्त स्थानिक अक्षों का क्रम।\n:param unit: वॉक्सेल दूरियों के बगल में दिखाई जाने वाली इकाई।",
+      "translation_source_blocks_sha256": [
+        "e40dfe0d04d87a68af29bace9f90ab6d60c42ccc9c03c00c952b16b54afabc9e",
+        "f3eb7cfebc2418f8059311ac8c2e1c1a7655cca2d2b371c1f9ef577c43340398",
+        "bcc80647aea791f8266cefcfa42ffa341223a8b35caf135b8a8289e51f386689",
+        "14b99d20250f0a391efc0b85b2f482855a133c0f7a99d7300624711c28ec63ea",
+        "82cc530fe7cc899a497ef9314711fb2a3d74e98cb026bff40b673360227e264e",
+        "143b4938af954fc05fadcecc98ea92fa2326f98b76244b479ac3cfddab14a2ee"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog.accept": {
+      "source_blocks_sha256": [
+        "ca3c8239b63aa998f427bd7b5b6ca9694c7c1c40ab9d5d83ff8e2be8f20a3074"
+      ],
+      "source_sha256": "ca3c8239b63aa998f427bd7b5b6ca9694c7c1c40ab9d5d83ff8e2be8f20a3074",
+      "text": "केवल मान्य छवि-समूह अनुरोध स्वीकार करें; संवाद बंद किए बिना सत्यापन त्रुटियाँ दिखाएँ।",
+      "translation_source_blocks_sha256": [
+        "ca3c8239b63aa998f427bd7b5b6ca9694c7c1c40ab9d5d83ff8e2be8f20a3074"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog.add_channel": {
+      "source_blocks_sha256": [
+        "671ec9242b48a260c064c6edd56dbd00ba48e8c8d6cb9442a6e8960f50472e42"
+      ],
+      "source_sha256": "671ec9242b48a260c064c6edd56dbd00ba48e8c8d6cb9442a6e8960f50472e42",
+      "text": "हर छवि समूह में एक वैकल्पिक चैनल स्थान जोड़ता है।",
+      "translation_source_blocks_sha256": [
+        "a0a271523aa1310653c8ed65f41f34488c5bdf8722f682eb06f9729fb5848aab"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog.add_row": {
+      "source_blocks_sha256": [
+        "d91adf3c3ccbbb47b09359fa2539cc2af50090005ba2ab0c89e3163ce1999c6e"
+      ],
+      "source_sha256": "d91adf3c3ccbbb47b09359fa2539cc2af50090005ba2ab0c89e3163ce1999c6e",
+      "text": "स्वतंत्र रूप से मापा जाने वाला एक छवि समूह जोड़ता है।",
+      "translation_source_blocks_sha256": [
+        "d91adf3c3ccbbb47b09359fa2539cc2af50090005ba2ab0c89e3163ce1999c6e"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog.remove_row": {
+      "source_blocks_sha256": [
+        "cce69342abf901fadf4499bd5f21586b773036c148553223c020f03f2c82fa57"
+      ],
+      "source_sha256": "cce69342abf901fadf4499bd5f21586b773036c148553223c020f03f2c82fa57",
+      "text": "चुने गए अतिरिक्त छवि समूह को हटाएँ और वर्तमान छवि की पंक्ति को बनाए रखें।",
+      "translation_source_blocks_sha256": [
+        "cce69342abf901fadf4499bd5f21586b773036c148553223c020f03f2c82fa57"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog.requests": {
+      "source_blocks_sha256": [
+        "69218ea7be6ad4f5c153d14ba3aae2bdb019bca5f19684f7d20cd89d8955abe5"
+      ],
+      "source_sha256": "69218ea7be6ad4f5c153d14ba3aae2bdb019bca5f19684f7d20cd89d8955abe5",
+      "text": "स्थानीय पथों को सत्यापित करता है और हर पंक्ति में चैनलों का क्रम बनाए रखता है।",
+      "translation_source_blocks_sha256": [
+        "69218ea7be6ad4f5c153d14ba3aae2bdb019bca5f19684f7d20cd89d8955abe5"
       ]
     },
     "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog": {

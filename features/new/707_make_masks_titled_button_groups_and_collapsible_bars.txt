@@ -2,9 +2,9 @@
 MAKE MASKS BUTTONS IN TITLED GROUPS AROUND THE IMAGE, WITH COLLAPSIBLE BARS
 ================================================================================
 
-Status:    in progress 2026-10-16; initial layout published59ce785b443;
-           maintainer footer/tab/control corrections accepted below.
-           Tutorials showing Make Masks need re-recording by WS.
+Status:    in progress — footer/tab/control corrections and translated outputs
+           ship with705; native layout acceptance and Work-owned tutorial
+           recordings remain.
 Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
            spacr/qt/preferences.py (Plugins tab), spacr/qt/screens/
            settings_model.py and app_screen.py (vvvv), spacr/qt/theme.py
@@ -160,3 +160,8 @@ CI pair handles the real N698 fake-tree and alpha tutorial contract failures; st
 2026-10-16 — Maintainer correction supersedes the original image-overlay placement: show the editable image index and filename together at the bottom-left of the image-containing container, outside the image pixels; remove their canvas overlay and duplicate row beneath Open File / Folder.
 Flows remains an ordinary content tab. Image index, Reset zoom and Ruler must not be embedded in the Flows tab; place Reset zoom/Ruler separately beside the tabs with their top edges aligned to the tab tops and their full height visible above the image.
 Retain index-based navigation, filenames, reset/ruler behavior, collapse persistence and the new705/706/708 controls. Check actual widget geometry/visibility at1366×768 and1920×1080, with translated captions and tab switching; no Home GPU/native-display claim.
+
+2026-10-16 — Footer now holds the editable index and filename outside image pixels; duplicate identity rows are removed, Flows is a normal tab, and Reset zoom/Ruler align beside the tabs with their full height visible.
+2026-10-16 — Retained26 focused checks cover behavior, EN/FR geometry at1366×768 and1920×1080, and clearing stale filename tooltips in blind mode; no native-display acceptance is inferred.
+2026-10-16 — Capture helper uses current Edit actions; TOOLS/IO are normally extracted with approved nine-language records. Runtime/API audits, Help/arrival generation and13 catalog checks pass; normal outputs ship with705.
+2026-10-16 — Remaining owner steps: maintainer native layout check at both resolutions; Work fresh recordings14/42/46/79 and checks05/19–22/54/57/80, preserving the current-layout/alpha-content rules.

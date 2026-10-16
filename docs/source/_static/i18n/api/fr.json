@@ -29602,7 +29602,7 @@
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
       "source_sha256": "3609254215931f4defb93502b2cbd3da28a540e8c827755b9608869bd6a185c5",
-      "text": "Placeholder utilisé lorsque PySide6 n'est pas disponible.\n\nLa construction soulève :class:`ImportError` avec l'assainissement ``pip install spacr[flowview]``. Avec PySide6, ``FlowGraphicsView`` fournit le panoramique et le zoom délimité.\n\n:param scene: scène graphique affichée par la vue.\n:param parent: option Qt widget parent.\nCréez la vue graphique avec un arrière-plan transparent.\n\nTrois surfaces doivent être transparentes pour que la page derrière montre : le widget, l'auto-remplissage de son port de vue et la brosse d'arrière-plan.\n\n:param scene: la scène à montrer.\n:param parent: widget parent, ou ``None``.",
+      "text": "Placeholder utilisé lorsque PySide6 n'est pas disponible.\n\nLa construction soulève :class:`ImportError` avec l'assainissement ``pip install spacr[flowview]``. Avec PySide6, ``FlowGraphicsView`` fournit le panoramique et le zoom délimité.\n\n:param scene: scène graphique affichée par la vue.\n:param parent: widget parent Qt facultatif.\nCréez la vue graphique avec un arrière-plan transparent.\n\nTrois surfaces doivent être transparentes pour que la page derrière montre : le widget, l'auto-remplissage de son port de vue et la brosse d'arrière-plan.\n\n:param scene: la scène à montrer.\n:param parent: widget parent, ou ``None``.",
       "translation_source_blocks_sha256": [
         "542bb397f8f08e2621a8b2347ed9bb6991de0b20e8f1f7667c2251339fa6d589",
         "7d9d44fdb085285391714fe4265f3d08b865dbab28b066d79e3101e71448e73b",
@@ -29668,7 +29668,7 @@
         "adea5a1a453d33d09ce889bd7493b3c8d0ae71f00c99bfa1d783982c3370ac98"
       ],
       "source_sha256": "d8d1384b30b43f0d20ecf5127ada66a602f1fe2a1114c2ecd8a47d8a8373f4fb",
-      "text": "Placeholder utilisé lorsque PySide6 n'est pas disponible.\n\nLa construction soulève :class:`ImportError` avec l'assainissement ``pip install spacr[flowview]``. Avec PySide6, ``FlowViewPanel`` rend et inspecte des instantanés en direct.\n\n:param collector: collectionneur d'événements dont les instantanés sont rendus par le panneau.\n:param parent: option Qt widget parent.\n:param refresh_interval_ms: intervalle de minuterie positif, en millisecondes, entre les rafraîchissements automatiques.\n:param export_path_provider: callback optionnel renvoyant la destination d'exportation, ou ``None`` pour annuler. Sans cela, l'export ouvre une boîte de dialogue de fichier Qt.\n:param auto_start: s'il faut démarrer la minuterie de rafraîchissement après le rendu initial forcé.\n:param embedded: s'il faut utiliser une surface transparente et sans bordure et cacher le titre du panneau pour l'intégration dans un autre criblage.\nConstruisez le panneau FlowView : le graphique au-dessus de l'inspecteur, divisez.\n\n:param collector: le collecteur de course ce panneau dessine.\n:param parent: widget parent, ou ``None``.\n:param refresh_interval_ms: la fréquence à laquelle le graphique est relu.\n:param export_path_provider: appelé pour le chemin d'exportation au lieu d'ouvrir une boîte de dialogue de fichier; ``None`` demande à l'utilisateur.\n:param auto_start: commencer à rafraîchir immédiatement.\n:param embedded: déposer le titre et la propre surface arrondie du panneau, pour l'utiliser à l'intérieur d'une section qui en dessine déjà un.\n:raises ValueError: si ``refresh_interval_ms`` n'est pas positif, un minuteur d'intervalle zéro se rafraîchirait continuellement.",
+      "text": "Placeholder utilisé lorsque PySide6 n'est pas disponible.\n\nLa construction soulève :class:`ImportError` avec l'assainissement ``pip install spacr[flowview]``. Avec PySide6, ``FlowViewPanel`` rend et inspecte des instantanés en direct.\n\n:param collector: collectionneur d'événements dont les instantanés sont rendus par le panneau.\n:param parent: widget parent Qt facultatif.\n:param refresh_interval_ms: intervalle de minuterie positif, en millisecondes, entre les rafraîchissements automatiques.\n:param export_path_provider: callback optionnel renvoyant la destination d'exportation, ou ``None`` pour annuler. Sans cela, l'export ouvre une boîte de dialogue de fichier Qt.\n:param auto_start: s'il faut démarrer la minuterie de rafraîchissement après le rendu initial forcé.\n:param embedded: s'il faut utiliser une surface transparente et sans bordure et cacher le titre du panneau pour l'intégration dans un autre criblage.\nConstruisez le panneau FlowView : le graphique au-dessus de l'inspecteur, divisez.\n\n:param collector: le collecteur de course ce panneau dessine.\n:param parent: widget parent, ou ``None``.\n:param refresh_interval_ms: la fréquence à laquelle le graphique est relu.\n:param export_path_provider: appelé pour le chemin d'exportation au lieu d'ouvrir une boîte de dialogue de fichier; ``None`` demande à l'utilisateur.\n:param auto_start: commencer à rafraîchir immédiatement.\n:param embedded: déposer le titre et la propre surface arrondie du panneau, pour l'utiliser à l'intérieur d'une section qui en dessine déjà un.\n:raises ValueError: si ``refresh_interval_ms`` n'est pas positif, un minuteur d'intervalle zéro se rafraîchirait continuellement.",
       "translation_source_blocks_sha256": [
         "542bb397f8f08e2621a8b2347ed9bb6991de0b20e8f1f7667c2251339fa6d589",
         "000489ea20a1c25d5448e9a7bec300cd3c773936059fef04ff56bb253916c241",
@@ -46938,6 +46938,16 @@
         "01ea6ee50870a5094c9fd19a90437404020d7d7b10eb4c09a5c2b34b29b9b91e"
       ]
     },
+    "spacr.measure._write_volume_measurements.write": {
+      "source_blocks_sha256": [
+        "89e4f8237bc773681a5a868663ef0ff1df617da97e1d4cc19fdd968fc40c3a44"
+      ],
+      "source_sha256": "89e4f8237bc773681a5a868663ef0ff1df617da97e1d4cc19fdd968fc40c3a44",
+      "text": "Valider la destination dans sa transaction d'écriture avant de la modifier.",
+      "translation_source_blocks_sha256": [
+        "89e4f8237bc773681a5a868663ef0ff1df617da97e1d4cc19fdd968fc40c3a44"
+      ]
+    },
     "spacr.measure.assign_paths_by_regex": {
       "source_blocks_sha256": [
         "1618a688ed9aa10d1e98bfd558e6bf73701cfbfa12c9842c50374204c0a5db05",
@@ -47362,6 +47372,36 @@
       "translation_source_blocks_sha256": [
         "832bc7c099d034d6bd0dc291daa82e83d65ab89627cf17cc28727f5e61484d26",
         "f62104352208fcebc02baa277dde05ee65e7cce3a5aed4f58a4594b19e7a1c5b"
+      ]
+    },
+    "spacr.measure.measure_volume_rows": {
+      "source_blocks_sha256": [
+        "d091d99711ba02dd2c67a91df30a5479ff28d2c0e45e8cc2d8abe05102c039b8",
+        "87b5db553f3c354a5ddc364302bee2fea94c390622a953b0f1d40e9315024d1c",
+        "549f5e865a39f3f51fa9116db71147fe1ab2422d963d59abc5753471e6e9edf0",
+        "8523fa45a603f3fb2ee33fa04134e0de5711ff3dbd22529ba95493b2d00e31f1",
+        "50923ed68c19d77d9af835955c8b565ba581c8c116a920ec869035aeedea2cb2",
+        "807e3342b85c1e627fea2edd36221f89def8e572b46bee51ea9506902acdb3da"
+      ],
+      "source_sha256": "e80dc0f3f179230ebdeeff085f4de9f30da6888f9dbb8467c2e1438d8f41d5c1",
+      "text": "Mesurer les jeux d'images 3D actuels ou enregistrés et écrire les résultats dans les bases de données de leurs dossiers d'images.\n\n:param rows: dictionnaires contenant ``source_path``, éventuellement ``mask_path`` et des ``channel_paths`` supplémentaires. L'image actuelle fournit un ``snapshot`` contenant des canaux immuables, des étiquettes copiées, les axes, l'espacement et l'unité, afin de mesurer les modifications non enregistrées sans modifier le masque enregistré.\n:param object_type: rôle canonique de l'objet, tel que ``cell`` ou ``nucleus``.\n:param progress: fonction de rappel facultative, qui peut être appelée en toute sécurité depuis le thread de travail et reçoit du texte traduit.\n:returns: chemins des bases de données, nombre d'images et nombre d'objets. Toutes les lignes sont mesurées avant toute écriture ; chaque base de données de destination valide ses modifications de manière atomique.\n\nLes noms des caractéristiques morphologiques, d'intensité, de corrélation et spatiales enregistrées suivent ceux de Measure. Les coordonnées en pixels restent explicitement exprimées en pixels ; les métadonnées physiques sont converties en micromètres. Mesurer à nouveau un jeu d'images remplace uniquement les lignes précédemment écrites par ce point d'entrée. Les autres champs d'image et les autres tables sont conservés.",
+      "translation_source_blocks_sha256": [
+        "d091d99711ba02dd2c67a91df30a5479ff28d2c0e45e8cc2d8abe05102c039b8",
+        "857c501a1158a659504bed662796e5320558541d29a8ce3fa9f99453947eb662",
+        "549f5e865a39f3f51fa9116db71147fe1ab2422d963d59abc5753471e6e9edf0",
+        "8523fa45a603f3fb2ee33fa04134e0de5711ff3dbd22529ba95493b2d00e31f1",
+        "50923ed68c19d77d9af835955c8b565ba581c8c116a920ec869035aeedea2cb2",
+        "61fd40cc6e512b333a8c6f8bb9cb6ae196f6ecd41fb6aa55c946cfa10c182fe3"
+      ]
+    },
+    "spacr.measure.measure_volume_rows.report": {
+      "source_blocks_sha256": [
+        "30e9bd5fa19c20a10ea228ce38c495b899363503eae3fec71b6af176ae51f51d"
+      ],
+      "source_sha256": "30e9bd5fa19c20a10ea228ce38c495b899363503eae3fec71b6af176ae51f51d",
+      "text": "Préserver le résultat de la base de données si l'affichage de la progression est fermé.",
+      "translation_source_blocks_sha256": [
+        "30e9bd5fa19c20a10ea228ce38c495b899363503eae3fec71b6af176ae51f51d"
       ]
     },
     "spacr.measure.process_meassure_crop_results": {
@@ -108440,6 +108480,16 @@
         "2c6b5c29b03ba5ed44d8e72c1af775895ab38bd111cb57ad8eeb3eab4b70f72a"
       ]
     },
+    "spacr.qt.screens.make_masks.MakeMasksScreen._start_volume_measurement.measure": {
+      "source_blocks_sha256": [
+        "64e73ac3bdd6c0620a4f39c9ce49436dea9d0c4eedfa1a3bc872a9e7aa09d350"
+      ],
+      "source_sha256": "64e73ac3bdd6c0620a4f39c9ce49436dea9d0c4eedfa1a3bc872a9e7aa09d350",
+      "text": "Mesurer les jeux d'images recueillis et indiquer les chemins des bases de données dont les transactions ont été validées.",
+      "translation_source_blocks_sha256": [
+        "64e73ac3bdd6c0620a4f39c9ce49436dea9d0c4eedfa1a3bc872a9e7aa09d350"
+      ]
+    },
     "spacr.qt.screens.make_masks.MakeMasksScreen.add_toolbar_action": {
       "source_blocks_sha256": [
         "f475513b8254934f8bbdcefa6de8437816e3c9f79b844e09cb82e4beaf117e25",
@@ -165154,6 +165204,76 @@
         "2246ac0ebcebcc13660ebb0e6c13732413bb3820b023b86236ab602fec49a5c8",
         "b826e41739fdb98f46d8f5a2a85a1d4e570470331c3757c5ae5f0ac5d3d4e301",
         "014c844e9ee749df4bf9f6de8adda62fe7c54fd5720619e60623450ae5de6403"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog": {
+      "source_blocks_sha256": [
+        "231b9621e7a6d45ddca90f926f6a72b25c6385ee7b20ce575d47870a4dce4b0c",
+        "f3eb7cfebc2418f8059311ac8c2e1c1a7655cca2d2b371c1f9ef577c43340398",
+        "bcc80647aea791f8266cefcfa42ffa341223a8b35caf135b8a8289e51f386689",
+        "14b99d20250f0a391efc0b85b2f482855a133c0f7a99d7300624711c28ec63ea",
+        "82cc530fe7cc899a497ef9314711fb2a3d74e98cb026bff40b673360227e264e",
+        "143b4938af954fc05fadcecc98ea92fa2326f98b76244b479ac3cfddab14a2ee"
+      ],
+      "source_sha256": "8f145486ada493dec6b9183d095d3e1bacbb07c2ed83a3c845a4df67f2e80caf",
+      "text": "Choisir des canaux supplémentaires et des jeux d'images pour le masque 3D modifié actuel.\n\n:param source_path: chemin de l’image 3D actuelle, fixé dans la première ligne.\n:param parent: widget parent Qt facultatif.\n:param spacing: distances facultatives entre voxels, affichées dans l’ordre des axes.\n:param axes: ordre des axes spatiaux utilisé pour étiqueter les distances affichées.\n:param unit: unité affichée à côté des distances entre voxels.",
+      "translation_source_blocks_sha256": [
+        "e40dfe0d04d87a68af29bace9f90ab6d60c42ccc9c03c00c952b16b54afabc9e",
+        "f3eb7cfebc2418f8059311ac8c2e1c1a7655cca2d2b371c1f9ef577c43340398",
+        "bcc80647aea791f8266cefcfa42ffa341223a8b35caf135b8a8289e51f386689",
+        "14b99d20250f0a391efc0b85b2f482855a133c0f7a99d7300624711c28ec63ea",
+        "82cc530fe7cc899a497ef9314711fb2a3d74e98cb026bff40b673360227e264e",
+        "143b4938af954fc05fadcecc98ea92fa2326f98b76244b479ac3cfddab14a2ee"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog.accept": {
+      "source_blocks_sha256": [
+        "ca3c8239b63aa998f427bd7b5b6ca9694c7c1c40ab9d5d83ff8e2be8f20a3074"
+      ],
+      "source_sha256": "ca3c8239b63aa998f427bd7b5b6ca9694c7c1c40ab9d5d83ff8e2be8f20a3074",
+      "text": "Accepter uniquement les demandes valides de jeux d’images ; afficher les erreurs de validation sans fermer la boîte de dialogue.",
+      "translation_source_blocks_sha256": [
+        "ca3c8239b63aa998f427bd7b5b6ca9694c7c1c40ab9d5d83ff8e2be8f20a3074"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog.add_channel": {
+      "source_blocks_sha256": [
+        "671ec9242b48a260c064c6edd56dbd00ba48e8c8d6cb9442a6e8960f50472e42"
+      ],
+      "source_sha256": "671ec9242b48a260c064c6edd56dbd00ba48e8c8d6cb9442a6e8960f50472e42",
+      "text": "Ajouter un emplacement de canal facultatif à chaque jeu d'images.",
+      "translation_source_blocks_sha256": [
+        "a0a271523aa1310653c8ed65f41f34488c5bdf8722f682eb06f9729fb5848aab"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog.add_row": {
+      "source_blocks_sha256": [
+        "d91adf3c3ccbbb47b09359fa2539cc2af50090005ba2ab0c89e3163ce1999c6e"
+      ],
+      "source_sha256": "d91adf3c3ccbbb47b09359fa2539cc2af50090005ba2ab0c89e3163ce1999c6e",
+      "text": "Ajouter un jeu d'images mesuré indépendamment.",
+      "translation_source_blocks_sha256": [
+        "d91adf3c3ccbbb47b09359fa2539cc2af50090005ba2ab0c89e3163ce1999c6e"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog.remove_row": {
+      "source_blocks_sha256": [
+        "cce69342abf901fadf4499bd5f21586b773036c148553223c020f03f2c82fa57"
+      ],
+      "source_sha256": "cce69342abf901fadf4499bd5f21586b773036c148553223c020f03f2c82fa57",
+      "text": "Supprimer le jeu d’images supplémentaire sélectionné en conservant la ligne de l’image actuelle.",
+      "translation_source_blocks_sha256": [
+        "cce69342abf901fadf4499bd5f21586b773036c148553223c020f03f2c82fa57"
+      ]
+    },
+    "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog.requests": {
+      "source_blocks_sha256": [
+        "69218ea7be6ad4f5c153d14ba3aae2bdb019bca5f19684f7d20cd89d8955abe5"
+      ],
+      "source_sha256": "69218ea7be6ad4f5c153d14ba3aae2bdb019bca5f19684f7d20cd89d8955abe5",
+      "text": "Valider les chemins locaux et conserver l'ordre des canaux de chaque ligne.",
+      "translation_source_blocks_sha256": [
+        "69218ea7be6ad4f5c153d14ba3aae2bdb019bca5f19684f7d20cd89d8955abe5"
       ]
     },
     "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog": {

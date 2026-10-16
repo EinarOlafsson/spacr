@@ -2,8 +2,8 @@
 CODECOV FOR spaCR, WITH A README BADGE
 ================================================================================
 
-Status:    PARTIAL — genuine main/nightly uploads and main policy are published;
-           generated main-branch README badges await nightly/main publication.
+Status:    COMPLETE — genuine main/nightly uploads, informational main policy
+           and all ten numerical main-branch README badges are published.
 Requested: 2026-10-10 — "configure https://app.codecov.io/github/EinarOlafsson/
            spacr/new for spacr and add a badge when you are done"
 Owner:     Home (CI); WS (README badge in the localized READMEs)
@@ -117,4 +117,4 @@ The existing codecov_integration + codecov_acceptance pair owns the authenticate
 Codecov reports 98.35% against coverage.py 98.75879199074107% (difference 0.40879199074107 pp); native and README Shields main badges both return numerical 98%.
 The original measurement remains incomplete and its failed CI/gate verdict is unchanged; Codecov receipt is not release or CI acceptance.
 Published main config 3a28c53c764 keeps future project/patch statuses informational and comments off; historical f0ef policy is not retroactively changed.
-All ten README badges were normally regenerated with N673 and integrated locally in 4032409e0db; independent URL/target verification passed 10/10, with prior nightly upload acceptance retained; nightly/main publication remains.
+All ten normally generated README badges are published on nightly0ddb27f652c and main4cd20cec313; all20 served READMEs match the reviewed outputs byte-for-byte, with one verified main Codecov badge each; prior nightly upload acceptance is retained.
