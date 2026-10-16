@@ -146,8 +146,8 @@ blocks:
     docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.4 spacr-run --list
     docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4 spacr-run --list
   lang: bash
-- p: '`Docker-guiden <docs/source/installer_guide.rst#container-images>`_ beskriver
-    GPU-inställning, montering av data och kommandon för bearbetningsflödena.'
+- p: '`Docker-guiden (nightly, engelska) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>`_
+    beskriver GPU-inställning, montering av data och kommandon för bearbetningsflödena.'
 - h3: Skrivbordsprogram
 - p: Installatörerna buntar ihop sina egna Python. Conda krävs inte.
 - generated: installer-links
@@ -158,10 +158,10 @@ blocks:
   lang: bash
 - p: På macOS, öppna ``.pkg``. Nuvarande beta notariseras inte. Om Gatekeeper blockerar
     den, välj **Systeminställningar → Integritet & Säkerhet → Öppna ändå**.
-- p: Se `installationsguiden <docs/source/installer_guide.rst>`_ för instruktioner
-    om uppdatering, avinstallation, offlineanvändning och felsökning, och `systemkraven
-    <docs/source/system_requirements.rst>`_ för rekommendationer om arbetsstationer
-    och servrar samt tabeller över GPU-kompatibilitet.
+- p: För installation, uppdatering, ominstallation, avinstallation, offlineanvändning
+    och felsökning, se den `aktuella installationsguiden på nightly (engelska) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_.
+    Se `systemkraven <docs/source/system_requirements.rst>`_ för rekommendationer
+    om arbetsstationer och servrar samt tabeller över GPU-kompatibilitet.
 - h3: Installation från PyPI
 - p: 'För PyPI-utgåvan installerar du spaCR med pip i en Conda-miljö. Python 3.12
     ger det största urvalet av valfria vetenskapliga paket:'
@@ -186,8 +186,8 @@ blocks:
   lang: bash
 - p: Optional integrations are installed separately, for example ``spacr[zarr]``,
     ``spacr[omero]``, ``spacr[napari]`` and ``spacr[czi,nd2,lif]``. See the `installationsguide
-    <docs/source/installer_guide.rst>`_ for the complete extras and Python-version
-    compatibility table.
+    (nightly, engelska) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_
+    for the complete extras and Python-version compatibility table.
 - h3: Installation med conda-forge
 - p: 'Det officiella conda-forge-paketet installerar spaCR och dess skrivbordsberoenden
     i den aktiva miljön:'

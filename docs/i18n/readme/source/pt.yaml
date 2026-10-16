@@ -149,8 +149,9 @@ blocks:
     docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.4 spacr-run --list
     docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4 spacr-run --list
   lang: bash
-- p: O `guia do Docker <docs/source/installer_guide.rst#container-images>`_ explica
-    a configuração da GPU, a montagem de dados e os comandos dos fluxos de processamento.
+- p: O `guia do Docker (nightly, em inglês) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>`_
+    explica a configuração da GPU, a montagem de dados e os comandos dos fluxos de
+    processamento.
 - h3: Aplicativo para desktop
 - p: Os instaladores empacotam seus próprios Python. Conda não é necessário.
 - generated: installer-links
@@ -162,10 +163,12 @@ blocks:
 - p: No macOS, abra o arquivo ``.pkg``. A versão beta atual não é notarizada; se
     o Gatekeeper a bloquear, selecione **Ajustes do Sistema → Privacidade e Segurança
     → Abrir Mesmo Assim**.
-- p: Consulte o `guia de instalação <docs/source/installer_guide.rst>`_ para obter
-    instruções de atualização, desinstalação, uso offline e solução de problemas,
-    e os `requisitos do sistema <docs/source/system_requirements.rst>`_ para recomendações
-    sobre estações de trabalho e servidores e tabelas de compatibilidade de GPU.
+- p: Para instruções de instalação, atualização, reinstalação, desinstalação, uso
+    offline e solução de problemas, consulte o `guia de instalação atual do nightly
+    (em inglês) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_.
+    Consulte os `requisitos do sistema <docs/source/system_requirements.rst>`_ para
+    recomendações sobre estações de trabalho e servidores e tabelas de compatibilidade
+    de GPU.
 - h3: Instalação pelo PyPI
 - p: 'Para usar a versão publicada no PyPI, instale o spaCR com pip em um ambiente
     Conda. O Python 3.12 oferece a maior variedade de pacotes científicos opcionais:'
@@ -189,7 +192,8 @@ blocks:
   lang: bash
 - p: As integrações opcionais são instaladas separadamente, por exemplo ``spacr[zarr]``,  ``spacr[omero]``,``spacr[napari]``
     e ``spacr[czi,nd2,lif]``. Veja a tabela de compatibilidade  `guia de instalação
-    <docs/source/installer_guide.rst>`_ para os extras completos e ?Python-versão.
+    (nightly, em inglês) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_
+    para os extras completos e ?Python-versão.
 - h3: Instalação com conda-forge
 - p: 'O pacote oficial do conda-forge instala o spaCR e suas dependências de desktop
     no ambiente ativo:'
