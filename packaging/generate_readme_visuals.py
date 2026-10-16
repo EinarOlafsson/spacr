@@ -632,6 +632,23 @@ HARDWARE_TASKS = (
 #: These render identically on GitHub, PyPI, Sphinx and a plain editor.
 GREEN, PURPLE, RED = "\U0001F7E2", "\U0001F7E3", "\U0001F534"
 
+#: The True 3D view's renderers, per platform, in the order Auto tries them.
+#:
+#: Platform rows, not GPU rows, because what draws a volume is decided by
+#: the operating system's graphics API rather than by the vendor: wgpu
+#: (Vulkan, Metal, Direct3D 12) where it is installed, then OpenGL through
+#: VisPy, then the CPU. wgpu is installed for Python 3.10+ on x86-64 and
+#: ARM64 (Linux needs glibc 2.28+); every other install draws with OpenGL,
+#: else the CPU, which is the last row.
+HARDWARE_3D_HEADER = ("3D rendering", "True 3D, tried in order")
+HARDWARE_3D_ROWS = (
+    ("Linux (x86-64, ARM64)", "Vulkan (wgpu), OpenGL, CPU"),
+    ("Windows (x64, ARM64)", "Vulkan / Direct3D 12 (wgpu), OpenGL, CPU"),
+    ("macOS (Intel, Apple silicon)", "Metal (wgpu), OpenGL, CPU"),
+    ("Without wgpu", "OpenGL, CPU (Python 3.9, other processors, "
+     "Linux with glibc older than 2.28 or installed without wgpu)"),
+)
+
 
 def _cell(accelerated: bool, maturity: str, row_has_a_gpu: bool) -> str:
     """One table cell: the mark, then what it runs on.
@@ -712,7 +729,12 @@ def _hardware_table() -> str:
         f"{GREEN} supported (stable) \u2003 {PURPLE} implemented (beta) "
         f"\u2003 {RED} CPU support only",
         "",
+        ".. list-table::", "   :header-rows: 1", "   :widths: 32 58", "",
     ]
+    for row in [HARDWARE_3D_HEADER] + list(HARDWARE_3D_ROWS):
+        lines.append(f"   * - {row[0]}")
+        lines.append(f"     - {row[1]}")
+    lines.append("")
     return "\n".join(lines)
 
 

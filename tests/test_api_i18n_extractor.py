@@ -1620,6 +1620,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in n673g_arrivals} == n673g_arrivals
     assert not n673g_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **n673g_arrivals}
+    # 2026-10-16: Item 673 wgpu follow-up: Vulkan/Metal/Direct3D 12 renderer, adapter listing, GPU-off switch, backend chain, doctor row and the without-wgpu update override; one named contract.
+    n673w_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
+        / "673_wgpu_api_arrivals_2026-10-16.json").read_text())
+    assert len(n673w_arrivals) == 11
+    assert {key: docs[key] for key in n673w_arrivals} == n673w_arrivals
+    assert not n673w_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **n673w_arrivals}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
         / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text())

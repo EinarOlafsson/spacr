@@ -96,12 +96,16 @@ def write_profile(
     consent_collected: bool = False,
     share_diagnostics: bool = False,
     report_issues: bool = False,
+    without_wgpu: bool = False,
 ) -> Dict[str, Any]:
     """Atomically write and return an installer profile.
 
     :param path: destination of the JSON installer profile.
     :param requested_backend: installer backend choice to validate and record.
     :param detected_accelerator: detected hardware class to validate and record.
+    :param without_wgpu: the install left wgpu out (the installers' "Install
+        without wgpu" option, or Linux with glibc older than 2.28); recorded
+        so an in-app update leaves it out too (:func:`no_wgpu_override`).
     """
     target = Path(path).expanduser().resolve()
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -111,6 +115,7 @@ def write_profile(
         "share_diagnostics": bool(share_diagnostics),
         "report_issues": bool(report_issues),
     }
+    payload["without_wgpu"] = bool(without_wgpu)
     fd, temporary = tempfile.mkstemp(
         prefix=f".{target.name}.", suffix=".tmp", dir=str(target.parent)
     )
@@ -146,6 +151,35 @@ def read_profile(path: Optional[Path] = None) -> Optional[Dict[str, Any]]:
     return payload
 
 
+#: The uv override that keeps wgpu out of a resolve: a requirement whose
+#: marker is never true replaces every wgpu requirement.
+NO_WGPU_OVERRIDE = 'wgpu; sys_platform == "never"'
+
+#: The file :func:`no_wgpu_override` writes, beside the installer profile.
+NO_WGPU_OVERRIDE_NAME = "no-wgpu-override.txt"
+
+
+def no_wgpu_override(profile: Optional[Dict[str, Any]],
+                     path: Optional[Path] = None) -> Optional[Path]:
+    """The uv ``--override`` file that keeps wgpu out, when the install did.
+
+    :param profile: a profile from :func:`read_profile`, or ``None``.
+    :param path: where to write the file; defaults to beside the profile.
+    :returns: the written file when the profile records ``without_wgpu``,
+        else ``None`` (also when the file cannot be written).
+    """
+    if not profile or not profile.get("without_wgpu"):
+        return None
+    target = (default_profile_path().parent / NO_WGPU_OVERRIDE_NAME
+              if path is None else Path(path))
+    try:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(NO_WGPU_OVERRIDE + "\n", encoding="utf-8")
+    except OSError:
+        return None
+    return target
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Return the argument parser for the command line the installers use.
 
@@ -163,8 +197,11 @@ def build_parser() -> argparse.ArgumentParser:
     before setup stopped offering GitHub and AI sign-in pass it, and an
     install must not fail on an option that no longer does anything.
 
-    :returns: the parser, with ``--path``, ``--requested``, ``--detected``
-        and the consent flags.
+    ``--without-wgpu`` (``"0"`` / ``"1"``) records an install that left wgpu
+    out, so in-app updates leave it out too.
+
+    :returns: the parser, with ``--path``, ``--requested``, ``--detected``,
+        the consent flags and ``--without-wgpu``.
     """
     parser = argparse.ArgumentParser(description="Record the spaCR installer profile")
     parser.add_argument("--path", type=Path, required=True)
@@ -176,6 +213,7 @@ def build_parser() -> argparse.ArgumentParser:
         "consent-collected",
         "share-diagnostics",
         "report-issues",
+        "without-wgpu",
     ):
         parser.add_argument(f"--{option}", choices=("0", "1"), default="0")
     parser.add_argument("--sign-in-now", choices=("0", "1"), default="0",
@@ -202,6 +240,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         consent_collected=args.consent_collected == "1",
         share_diagnostics=args.share_diagnostics == "1",
         report_issues=args.report_issues == "1",
+        without_wgpu=args.without_wgpu == "1",
     )
     print(json.dumps(profile, sort_keys=True))
     return 0

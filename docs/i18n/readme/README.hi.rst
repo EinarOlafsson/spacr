@@ -123,6 +123,10 @@
 
    <div><a href="../../readme_text/hi/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/generated-hardware-1.desktop.svg"><img src="../../readme_images/hi/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. समर्थित (स्थिर) लागू (बीटा) केवल CPU समर्थन."></picture></a></div>
 
+.. raw:: html
+
+   <div><a href="../../readme_text/hi/generated-hardware-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/generated-hardware-2.desktop.svg"><img src="../../readme_images/hi/generated-hardware-2.svg" alt="Linux (x86-64, ARM64): True 3D, क्रम से आज़माए जाते हैं Vulkan (wgpu), OpenGL, CPU. Windows (x64, ARM64): True 3D, क्रम से आज़माए जाते हैं Vulkan / Direct3D 12 (wgpu), OpenGL, CPU. macOS (Intel, Apple silicon): True 3D, क्रम से आज़माए जाते हैं Metal (wgpu), OpenGL, CPU. wgpu के बिना: True 3D, क्रम से आज़माए जाते हैं OpenGL, CPU (Python 3.9, अन्य प्रोसेसर, 2.28 से पुराने glibc वाला Linux या wgpu के बिना इंस्टॉल)."></picture></a></div>
+
 .. spacr-hardware-end
 
 .. raw:: html

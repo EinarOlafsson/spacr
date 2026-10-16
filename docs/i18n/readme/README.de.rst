@@ -123,6 +123,10 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
    <div><a href="../../readme_text/de/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/generated-hardware-1.desktop.svg"><img src="../../readme_images/de/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. unterstützt (stabil) implementiert (Beta) nur CPU-Unterstützung."></picture></a></div>
 
+.. raw:: html
+
+   <div><a href="../../readme_text/de/generated-hardware-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/de/generated-hardware-2.desktop.svg"><img src="../../readme_images/de/generated-hardware-2.svg" alt="Linux (x86-64, ARM64): True 3D, der Reihe nach versucht Vulkan (wgpu), OpenGL, CPU. Windows (x64, ARM64): True 3D, der Reihe nach versucht Vulkan / Direct3D 12 (wgpu), OpenGL, CPU. macOS (Intel, Apple silicon): True 3D, der Reihe nach versucht Metal (wgpu), OpenGL, CPU. Ohne wgpu: True 3D, der Reihe nach versucht OpenGL, CPU (Python 3.9, andere Prozessoren, Linux mit glibc älter als 2.28 oder ohne wgpu installiert)."></picture></a></div>
+
 .. spacr-hardware-end
 
 .. raw:: html

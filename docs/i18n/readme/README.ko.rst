@@ -123,6 +123,10 @@
 
    <div><a href="../../readme_text/ko/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/generated-hardware-1.desktop.svg"><img src="../../readme_images/ko/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. 지원 (안정) 구현됨 (베타) CPU만 지원."></picture></a></div>
 
+.. raw:: html
+
+   <div><a href="../../readme_text/ko/generated-hardware-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/generated-hardware-2.desktop.svg"><img src="../../readme_images/ko/generated-hardware-2.svg" alt="Linux (x86-64, ARM64): True 3D, 순서대로 시도 Vulkan (wgpu), OpenGL, CPU. Windows (x64, ARM64): True 3D, 순서대로 시도 Vulkan / Direct3D 12 (wgpu), OpenGL, CPU. macOS (Intel, Apple silicon): True 3D, 순서대로 시도 Metal (wgpu), OpenGL, CPU. wgpu 없음: True 3D, 순서대로 시도 OpenGL, CPU (Python 3.9, 기타 프로세서, glibc 2.28 미만 Linux 또는 wgpu 없이 설치)."></picture></a></div>
+
 .. spacr-hardware-end
 
 .. raw:: html

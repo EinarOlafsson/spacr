@@ -76,5 +76,12 @@
   "gui_cancelled": "Hætt var við uppsetningu. Skoðaðu annálinn áður en þú reynir aftur.",
   "gui_failed": "Uppsetning eða ræsing mistókst. Skoðaðu annálinn og reyndu aftur í þessum glugga.",
   "gui_stopping": "Stöðva uppsetningu og endurheimta fyrra keyrsluumhverfið…",
-  "nsis_uninstall_failed": "spaCR gat ekki lokið fjarlægingu á öruggan hátt. Sjá nánari upplýsingar hér að ofan; gögnin þín hafa verið varðveitt."
+  "nsis_uninstall_failed": "spaCR gat ekki lokið fjarlægingu á öruggan hátt. Sjá nánari upplýsingar hér að ofan; gögnin þín hafa verið varðveitt.",
+  "help_without_wgpu": "Setja upp án wgpu; þrívíddarsýnir nota þá OpenGL eða örgjörvann.",
+  "without_wgpu": "Setja upp án wgpu (nota OpenGL/örgjörva fyrir þrívídd)",
+  "without_wgpu_description": "Sleppir wgpu (Vulkan, Metal, Direct3D 12). spaCR teiknar þá þrívíddarsýnir með OpenGL, eða með örgjörvanum ef OpenGL er ekki tiltækt. Hakaðu ekki við þetta nema wgpu valdi vandræðum á þessari tölvu.",
+  "wgpu_plan": "wgpu þrívíddarteiknun",
+  "wgpu_plan_install": "setja upp",
+  "wgpu_plan_skip": "sleppa (þrívídd notar OpenGL, annars örgjörvann)",
+  "wgpu_glibc_too_old": "wgpu þarf glibc 2.28 eða nýrra (þetta kerfi er með %s); sett upp án wgpu, svo þrívídd notar OpenGL eða örgjörvann."
 }

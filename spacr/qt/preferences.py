@@ -1302,8 +1302,8 @@ def set_figure_dynamic(enabled: bool) -> None:
 def get_volume_view() -> dict:
     """The Make Masks True 3D view's saved render settings.
 
-    :returns: a dict that may hold ``backend`` (``auto``, ``opengl`` or
-        ``cpu``), ``scale`` (the Render scale, 1 to 100) and ``finish`` (the
+    :returns: a dict that may hold ``backend`` (``auto``, ``vulkan``,
+        ``metal``, ``d3d12``, ``opengl`` or ``cpu``), ``scale`` (the Render scale, 1 to 100) and ``finish`` (the
         mask surfaces' finish); a key never chosen is absent. The caller
         checks the values, so a store written by a later version still
         opens.

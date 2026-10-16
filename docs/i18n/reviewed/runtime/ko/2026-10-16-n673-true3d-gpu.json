@@ -27,13 +27,6 @@
     },
     {
       "table": "ui",
-      "key": "What draws the 3D view. Auto uses the graphics card (OpenGL) when it works and the CPU otherwise.",
-      "source": "What draws the 3D view. Auto uses the graphics card (OpenGL) when it works and the CPU otherwise.",
-      "source_sha256": "8c88314f87d7d5a49b324f57873ae18bfd40ebb0481e92a3ebb66703b4d1c058",
-      "translation": "3D 보기를 그리는 방식입니다. 자동은 그래픽 카드(OpenGL)가 작동하면 그것을, 아니면 CPU를 사용합니다."
-    },
-    {
-      "table": "ui",
       "key": "How much of the full resolution the 3D view is drawn at, along each axis. Turning the view draws coarser and sharpens to this when it stops.",
       "source": "How much of the full resolution the 3D view is drawn at, along each axis. Turning the view draws coarser and sharpens to this when it stops.",
       "source_sha256": "2f2170cd8d8fc7daf09e3b264b590c36c0b868ea5fb506902dc82da1b3f889d3",
@@ -101,20 +94,6 @@
       "source": "Metallic",
       "source_sha256": "5d08f304a03e1fedc20358f8f233e38a0dd68652286fa116c44d598ec56593cd",
       "translation": "메탈릭"
-    },
-    {
-      "table": "ui",
-      "key": "Drawn on the GPU (OpenGL, {name}) at {percent}% scale, from every voxel.",
-      "source": "Drawn on the GPU (OpenGL, {name}) at {percent}% scale, from every voxel.",
-      "source_sha256": "b702e2ce1e8cc537a02294a6d9d12a3347c6c0dc0d38df907684385f6a77961c",
-      "translation": "GPU(OpenGL, {name})에서 {percent}% 배율로, 모든 복셀로 그렸습니다."
-    },
-    {
-      "table": "ui",
-      "key": "Drawn on the GPU (OpenGL, {name}) at {percent}% scale, from 1 voxel in {n} along the most reduced axis.",
-      "source": "Drawn on the GPU (OpenGL, {name}) at {percent}% scale, from 1 voxel in {n} along the most reduced axis.",
-      "source_sha256": "71c7936cc0fddf8c5b988707aabbd219709329a9c4b551e2ac75b730f730e9f9",
-      "translation": "GPU(OpenGL, {name})에서 {percent}% 배율로, 가장 많이 줄인 축을 따라 {n}개 중 1개의 복셀로 그렸습니다."
     },
     {
       "table": "ui",

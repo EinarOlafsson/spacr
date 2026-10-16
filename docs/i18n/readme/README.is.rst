@@ -123,6 +123,10 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
    <div><a href="../../readme_text/is/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/generated-hardware-1.desktop.svg"><img src="../../readme_images/is/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. með stuðningi (stöðugt) útfært (beta) aðeins CPU-stuðningur."></picture></a></div>
 
+.. raw:: html
+
+   <div><a href="../../readme_text/is/generated-hardware-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/generated-hardware-2.desktop.svg"><img src="../../readme_images/is/generated-hardware-2.svg" alt="Linux (x86-64, ARM64): True 3D, reynt í röð Vulkan (wgpu), OpenGL, CPU. Windows (x64, ARM64): True 3D, reynt í röð Vulkan / Direct3D 12 (wgpu), OpenGL, CPU. macOS (Intel, Apple silicon): True 3D, reynt í röð Metal (wgpu), OpenGL, CPU. Án wgpu: True 3D, reynt í röð OpenGL, CPU (Python 3.9, aðrir örgjörvar, Linux með glibc eldra en 2.28 eða sett upp án wgpu)."></picture></a></div>
+
 .. spacr-hardware-end
 
 .. raw:: html

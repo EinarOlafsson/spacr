@@ -305,6 +305,8 @@ _IDENTITY_TEXT = {
     "MinIP",
     # 2026-10-16: N673 True 3D Render backend name (the graphics API), a product name.
     "OpenGL",
+    # 2026-10-16: N673 wgpu Render backend names (graphics APIs), product names.
+    "Vulkan", "Metal", "Direct3D 12",
     "ER", "ER (Y)", "DNA (B)", "IMC", "CC BY 4.0",
     "3D", "API", "CPU", "CUDA", "CV", "DNA", "EC50", "Eps", "FOV", "GPU",
     "CSV", "Cellpose-SAM", "DINOCell", "FlowView", "JSON", "MIP", "ML",

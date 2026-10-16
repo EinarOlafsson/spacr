@@ -1,6 +1,16 @@
 {
   "schema": 1,
   "sources": {
+    "162a620187936a65103d3ae6c5faeb824f5c0715bbafda4f92a76821b145fbb4": {
+      "source_blocks_sha256": [
+        "085535958065e3301be8c2a9c0521b59fc53772f02998338233814d0bad8b539",
+        "5554fdbbf2190849d11b2e181aa1a710df86731fcceff8007694382eb2bedd88",
+        "fa6b93d23e67884a0b1daff12004d91008b7b7e8137b21af03d080a872032b89",
+        "8deae7f9018327db2c024c961aa76b101d788fa79431eae44cb4fb5a2c7fca08"
+      ],
+      "source_sha256": "162a620187936a65103d3ae6c5faeb824f5c0715bbafda4f92a76821b145fbb4",
+      "text": "Atomically write and return an installer profile.\n\n:param path: destination of the JSON installer profile.\n:param requested_backend: installer backend choice to validate and record.\n:param detected_accelerator: detected hardware class to validate and record."
+    },
     "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f": {
       "source_blocks_sha256": [
         "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f"
@@ -275,6 +285,15 @@
       ],
       "source_sha256": "76c6fca5ca7737b3ed9ceee4472049d0c5e92bf8f767b391edf3bf7ed386de3b",
       "text": "Install one command-line tool and see its sign-in through.\n\n:param parent: the owning widget.\n:param threaded: ``False`` runs the installer and the sign-in checks\n    inline, for a test that drives the panel synchronously.\n:param open_page: opens an install page; the default browser by default.\n:ivar state: what the panel is doing, one of this module's states.\nBuild the panel, hidden until there is something to show.\n\n:param parent: the owning widget.\n:param threaded: run jobs on a worker thread.\n:param open_page: opens an install page."
+    },
+    "7927e7497906dc69cf8c9411d1d53d81eed6c9f00872024b0b422ff077b98036": {
+      "source_blocks_sha256": [
+        "45ea506356cca95293770d1b4b7924daef7c3a093b9f770e8a217c8540f46c58",
+        "236f872425636136cba7eb2b1e2fb20b992d9a1c2ead34303a68bd8f6b813188",
+        "0119142e2f9eb666b758ce08fc10fea20c19072dc7236201c1246bf30a1bd7fa"
+      ],
+      "source_sha256": "7927e7497906dc69cf8c9411d1d53d81eed6c9f00872024b0b422ff077b98036",
+      "text": "Return the command that upgrades spaCR in this environment.\n\n:param pre_release: allow prerelease packages.\n:param target_version: explicit version selected by the update check."
     },
     "7c4ab3af6a81ef0856511d472d7661fea2116a4e377f9815ce1793a6713562ed": {
       "source_blocks_sha256": [

@@ -50,7 +50,10 @@ access. Automatic hardware acceleration is selected by default. It installs a
 CUDA-capable PyTorch build on compatible NVIDIA systems. On other systems it
 installs the PyTorch build that ``uv`` selects for the detected hardware, which
 is the CPU build when no supported GPU is detected. Clear the component only
-when you require the smaller CPU-only installation.
+when you require the smaller CPU-only installation. The unticked component
+**Install without wgpu (use OpenGL/CPU for 3D)** leaves out the wgpu 3D
+renderer; see :ref:`wgpu-3d-rendering`. From PowerShell, the same choice is
+the ``-WithoutWgpu`` switch of ``install_spacr_windows.ps1``.
 
 macOS 11 or later
 ~~~~~~~~~~~~~~~~~
@@ -59,7 +62,9 @@ Open ``SpaCR-<version>-macOS-Universal-Online.pkg``. The application is placed
 in ``/Applications/spaCR.app``. On first launch, a visible Terminal bootstrap
 creates the private runtime under ``~/Library/Application Support/spaCR``.
 The current beta is not notarized. If Gatekeeper blocks it, open **System
-Settings → Privacy & Security** and choose **Open Anyway** for spaCR.
+Settings → Privacy & Security** and choose **Open Anyway** for spaCR. The
+first-launch window has an unchecked **Install without wgpu (use OpenGL/CPU
+for 3D)** box; see :ref:`wgpu-3d-rendering`.
 
 Linux x86-64
 ~~~~~~~~~~~~
@@ -79,6 +84,14 @@ does not already include it.
 Automatic backend selection is the Linux default. It installs CUDA support
 when compatible NVIDIA hardware is available. To require the smaller CPU-only
 build instead, run the installer with ``--torch-backend cpu``.
+
+To leave out the wgpu 3D renderer, run the installer with ``--without-wgpu``,
+or tick **Install without wgpu (use OpenGL/CPU for 3D)** in the installer
+window; the box is unchecked by default. On a Linux system whose glibc is
+older than 2.28 the installer leaves wgpu out by itself and prints one line
+saying so, because wgpu publishes Linux wheels only for glibc 2.28 and newer.
+``--dry-run`` shows the decision in its plan, as the ``wgpu 3D rendering``
+line. See :ref:`wgpu-3d-rendering`.
 
 Updating
 --------
@@ -468,6 +481,79 @@ Common additions are:
      - RAPIDS acceleration where compatible CUDA wheels are available.
    * - ``tutorial``
      - Packages used by the interactive tutorial environment.
+
+.. _wgpu-3d-rendering:
+
+3D rendering and wgpu
+---------------------
+
+spaCR installs `wgpu <https://github.com/pygfx/wgpu-py>`_ by default where it
+publishes wheels. wgpu draws the **True 3D** view through Vulkan, Metal or
+Direct3D 12. Without wgpu, spaCR draws 3D through OpenGL (VisPy), and through
+the CPU when OpenGL is not available either. The **Render backend** list offers
+Auto, Vulkan, Metal, Direct3D 12, OpenGL and CPU, showing only the backends
+this computer supports. **Auto** prefers wgpu (Vulkan on Linux and Windows,
+Metal on macOS, Direct3D 12 on Windows when Vulkan is missing), then OpenGL,
+then the CPU.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 34 30 36
+
+   * - Installation
+     - wgpu
+     - True 3D view uses
+   * - Python 3.10 on Windows x86-64/ARM64, macOS Intel/Apple silicon, or
+       Linux x86-64/aarch64 with glibc 2.28 or newer
+     - Installed, ``wgpu<=0.31.0``
+     - Vulkan, Metal or Direct3D 12 (Auto), else OpenGL, else CPU
+   * - Python 3.11 or newer on the same platforms (the desktop installers
+       use Python 3.12)
+     - Installed, ``wgpu<0.33``
+     - Vulkan, Metal or Direct3D 12 (Auto), else OpenGL, else CPU
+   * - Python 3.9
+     - Not installed
+     - OpenGL, else CPU
+   * - Other processors (for example 32-bit x86, ppc64le, s390x)
+     - Not installed
+     - OpenGL, else CPU
+   * - Linux with glibc older than 2.28 (installers skip wgpu automatically)
+     - Not installed
+     - OpenGL, else CPU
+   * - Installed without wgpu (installer option, or the commands below)
+     - Not installed
+     - OpenGL, else CPU
+
+The desktop installers skip wgpu when it is resolved, so it is never
+downloaded: they pass ``uv`` an override file containing the single line
+``wgpu; sys_platform == "never"``. Because the marker never holds, the
+resolver drops wgpu, and with it ``rendercanvas``, which only wgpu needs.
+
+With pip, install spaCR as usual and then remove wgpu:
+
+.. code-block:: bash
+
+   python -m pip install spacr
+   python -m pip uninstall -y wgpu rendercanvas
+
+``pip check`` then reports that spaCR's ``wgpu`` requirement is missing; this
+is expected, and spaCR draws 3D through OpenGL or the CPU.
+
+On Linux with glibc older than 2.28 (check with ``getconf GNU_LIBC_VERSION``),
+``pip install spacr`` finds no wgpu wheel and tries to build wgpu from its
+source release, which fails. pip cannot drop a dependency while it resolves,
+so install with `uv <https://docs.astral.sh/uv/>`_ and the same override the
+installers use, inside the activated environment:
+
+.. code-block:: bash
+
+   python -m pip install uv
+   printf '%s\n' 'wgpu; sys_platform == "never"' > no-wgpu.txt
+   python -m uv pip install --override no-wgpu.txt spacr
+
+Use the same ``--override no-wgpu.txt`` when upgrading spaCR in that
+environment. Add ``--dry-run`` to the last command to see the resolved
+packages, without wgpu, before anything is installed.
 
 .. _container-images:
 

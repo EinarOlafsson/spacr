@@ -1438,6 +1438,106 @@ def check_gpu(ctx: Context) -> Result:
     )
 
 
+#: The Python versions and CPUs setup.py installs wgpu on by default.
+WGPU_MIN_PYTHON = (3, 10)
+WGPU_MACHINES = ("x86_64", "AMD64", "aarch64", "arm64", "ARM64")
+
+
+def _wgpu_expected() -> Tuple[bool, str]:
+    """Whether a default install puts wgpu on this computer, and why not."""
+    import platform
+
+    if sys.version_info[:2] < WGPU_MIN_PYTHON:
+        return False, "wgpu needs Python 3.10 or newer"
+    if platform.machine() not in WGPU_MACHINES:
+        return False, f"wgpu publishes no wheel for {platform.machine() or 'this CPU'}"
+    if sys.platform.startswith("linux"):
+        libc, version = platform.libc_ver()
+        parts = re.findall(r"\d+", version)[:2] if libc == "glibc" else []
+        if len(parts) == 2 and tuple(int(part) for part in parts) < (2, 28):
+            return False, f"wgpu's Linux wheels need glibc 2.28 (this has {version})"
+    return True, ""
+
+
+@_register("3D backends")
+def check_3d_backends(ctx: Context) -> Result:
+    """Report what can draw the True 3D view: wgpu, OpenGL and the CPU.
+
+    wgpu (Vulkan, Metal, Direct3D 12) is a default dependency, but a
+    computer without it is a supported install: the view then draws with
+    OpenGL (VisPy) or the CPU. A missing wgpu is therefore a ``PASS``; only
+    a wgpu that is installed and cannot be imported is a ``WARN``.
+
+    :param ctx: ``probe_gpu=True`` lets wgpu list its adapters, which loads
+        the graphics drivers but draws nothing; it is skipped when
+        ``SPACR_NO_GPU_RENDER`` is set or ``CUDA_VISIBLE_DEVICES`` is empty,
+        as the True 3D view skips the GPU then.
+    """
+    import importlib
+    from importlib.util import find_spec
+
+    from .layers import gpu_render_refusal
+
+    version = _distribution_version("wgpu")
+    expected, why_not = _wgpu_expected()
+    opengl = find_spec("vispy") is not None
+    fallback = "OpenGL (VisPy), then the CPU" if opengl else "the CPU"
+    details: List[str] = [f"OpenGL (VisPy): {'available' if opengl else 'not installed'}",
+                          "CPU: always available"]
+    if version is None:
+        reason = why_not or "installed without wgpu"
+        details.insert(0, f"wgpu: not installed ({reason})")
+        return Result(
+            "3D backends",
+            PASS,
+            f"wgpu is not installed; the True 3D view draws with {fallback}. "
+            "This is a supported install.",
+            details=tuple(details),
+        )
+    try:
+        importlib.import_module("wgpu")
+    except Exception as exc:
+        return Result(
+            "3D backends",
+            WARN,
+            f"wgpu {version} is installed but cannot be imported "
+            f"({type(exc).__name__}: {exc}); the True 3D view draws with {fallback}.",
+            fix="python -m pip uninstall -y wgpu rendercanvas   # or reinstall spacr",
+            details=tuple(details),
+        )
+    refusal = gpu_render_refusal()
+    if refusal or not ctx.probe_gpu:
+        why = refusal or "--no-gpu-probe"
+        details.insert(0, f"wgpu {version}: installed; adapters not listed ({why})")
+        return Result(
+            "3D backends",
+            PASS,
+            f"wgpu {version} is installed; the True 3D view prefers it, then {fallback}.",
+            details=tuple(details),
+        )
+    from .layers import wgpu_adapters
+
+    adapters = wgpu_adapters(refresh=True)
+    for info in adapters:
+        details.insert(0, f"wgpu {info['backend']}: {info['name']} ({info['adapter_type']})")
+    if not adapters:
+        details.insert(0, f"wgpu {version}: installed, but no Vulkan, Metal or "
+                          "Direct3D 12 adapter was found")
+        return Result(
+            "3D backends",
+            PASS,
+            f"wgpu {version} found no adapter; the True 3D view draws with {fallback}.",
+            details=tuple(details),
+        )
+    backends = ", ".join(sorted({info["backend"] for info in adapters}))
+    return Result(
+        "3D backends",
+        PASS,
+        f"wgpu {version} can draw the True 3D view ({backends}); then {fallback}.",
+        details=tuple(details),
+    )
+
+
 #: The Cellpose major version spaCR's code is written against. spaCR calls
 #: ``CellposeModel(pretrained_model=...)`` and the ``cpsam`` weights; the
 #: Cellpose 3 wrapper class ``models.Cellpose`` is called nowhere.

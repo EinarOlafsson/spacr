@@ -76,5 +76,12 @@
   "gui_cancelled": "Installation annulée. Consultez le journal avant de réessayer.",
   "gui_failed": "Échec de l’installation ou du lancement. Consultez le journal et réessayez dans cette fenêtre.",
   "gui_stopping": "Arrêt de l’installation et restauration de l’environnement précédent…",
-  "nsis_uninstall_failed": "spaCR n’a pas pu terminer la désinstallation en toute sécurité. Consultez les détails ci-dessus ; vos données ont été conservées."
+  "nsis_uninstall_failed": "spaCR n’a pas pu terminer la désinstallation en toute sécurité. Consultez les détails ci-dessus ; vos données ont été conservées.",
+  "help_without_wgpu": "Installer sans wgpu ; les vues 3D utilisent alors OpenGL ou le processeur.",
+  "without_wgpu": "Installer sans wgpu (utiliser OpenGL/CPU pour la 3D)",
+  "without_wgpu_description": "Omet wgpu (Vulkan, Metal, Direct3D 12). spaCR dessine alors les vues 3D avec OpenGL, ou avec le processeur si OpenGL n’est pas disponible. Laissez cette option décochée sauf si wgpu pose problème sur cet ordinateur.",
+  "wgpu_plan": "rendu 3D wgpu",
+  "wgpu_plan_install": "installer",
+  "wgpu_plan_skip": "ignorer (la 3D utilise OpenGL, sinon le processeur)",
+  "wgpu_glibc_too_old": "wgpu nécessite glibc 2.28 ou plus récent (ce système a %s) ; installation sans wgpu, la 3D utilisera donc OpenGL ou le processeur."
 }

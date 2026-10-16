@@ -2617,6 +2617,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json",
                      "673_napari_true3d_api_arrivals_2026-10-15.json",
                      "673_true3d_gpu_api_arrivals_2026-10-16.json",
+                     "673_wgpu_api_arrivals_2026-10-16.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
@@ -3295,7 +3296,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # keyword channels= on VolumeMaskSession; no required parameter.
     # Item 700, 2026-10-15: 19,924 -> 19,897, the 27 parameters of the 23
     # retired setup callables.
-    assert sum(len(item.parameters) for item in callables) == 19897
+    # N673 wgpu, 2026-10-16: 19,898 - 19,897 = 1, install_profile.write_profile's
+    # optional keyword without_wgpu=; the new callables are in their contract.
+    assert sum(len(item.parameters) for item in callables) == 19898
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -3553,7 +3556,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # cli_setup_panel, provider_marks and SetupSlides.provider_status are
     # removed; no surviving callable changed its parameters (apply_choices
     # changed only its return annotation, which the digest does not cover).
-) == 'c52fcfdef990e604cc59c496c4c4f1f71811da36adf64883c4a36231e540c688'
+    # Moved 2026-10-16 for N673 wgpu (was c52fcfde...): write_profile gained
+    # the optional without_wgpu=; the new callables arrive through
+    # 673_wgpu_api_arrivals_2026-10-16.json and are subtracted above; no row
+    # removed.
+) == 'bb271d75975e76fe871c8f7c33a1ed4429cc56529a301d195f3edf66f17380de'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -4356,6 +4363,13 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert {key: docs[key] for key in n673g_additions} == n673g_additions
     assert not n673g_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **n673g_additions}
+    # 2026-10-16: Item 673 wgpu follow-up: Vulkan/Metal/Direct3D 12 renderer, adapter listing, GPU-off switch, backend chain, doctor row and the without-wgpu update override; one named contract.
+    n673w_additions = json.loads((pathlib.Path(__file__).resolve().parent / "data/release_contracts"
+        / "673_wgpu_api_arrivals_2026-10-16.json").read_text())
+    assert len(n673w_additions) == 11
+    assert {key: docs[key] for key in n673w_additions} == n673w_additions
+    assert not n673w_additions.keys() & zoo_additions.keys()
+    zoo_additions = {**zoo_additions, **n673w_additions}
     for contract, expected_count in (
         ("561_classifier_api_arrivals_2026-10-15.json", 19),
         ("180_session_figure_api_arrivals_2026-10-15.json", 2),
@@ -4801,6 +4815,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json",
                      "673_napari_true3d_api_arrivals_2026-10-15.json",
                      "673_true3d_gpu_api_arrivals_2026-10-16.json",
+                     "673_wgpu_api_arrivals_2026-10-16.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
@@ -4855,6 +4870,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json",
                      "673_napari_true3d_api_arrivals_2026-10-15.json",
                      "673_true3d_gpu_api_arrivals_2026-10-16.json",
+                     "673_wgpu_api_arrivals_2026-10-16.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",

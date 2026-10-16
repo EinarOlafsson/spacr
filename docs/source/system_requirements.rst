@@ -60,6 +60,28 @@ specific PyTorch build you install. `Apple's PyTorch requirements
 <https://developer.apple.com/metal/pytorch/>`_ describe the current native
 Apple-silicon route.
 
+The **True 3D** view draws through wgpu (Vulkan, Metal or Direct3D 12) where
+wgpu is installed, and otherwise through OpenGL or the CPU. wgpu needs Python
+3.10 or newer on x86-64 or ARM64, and on Linux glibc 2.28 or newer; the
+:ref:`3D rendering section of the installer guide <wgpu-3d-rendering>` lists
+who gets it and how to install without it.
+
+.. list-table:: 3D rendering, in the order Auto tries
+   :header-rows: 1
+   :widths: 32 58
+
+   * - Platform
+     - True 3D view
+   * - Linux (x86-64, ARM64; glibc 2.28 or newer)
+     - Vulkan (wgpu), OpenGL, CPU
+   * - Windows (x64, ARM64)
+     - Vulkan / Direct3D 12 (wgpu), OpenGL, CPU
+   * - macOS (Intel, Apple silicon)
+     - Metal (wgpu), OpenGL, CPU
+   * - Without wgpu: Python 3.9, other processors, Linux glibc older than
+       2.28, or an install made without wgpu
+     - OpenGL, CPU
+
 GPU support by chip and framework
 ---------------------------------
 
@@ -213,6 +235,9 @@ Which spaCR operations use these backends?
    * - Optional accelerated dimensionality reduction
      - RAPIDS/cuML with CUDA and CuPy
      - Explicit opt-in; CPU fallback when unavailable or when deterministic behavior requires it
+   * - Make Masks True 3D view
+     - wgpu (Vulkan, Metal or Direct3D 12) where installed, then OpenGL through VisPy
+     - CPU drawing when neither is available; Python 3.9 and installs without wgpu start at OpenGL
    * - Measurement tables, image I/O and many classical statistics
      - Predominantly CPU, RAM and disk throughput
      - Adding VRAM does not replace host RAM or speed up every module

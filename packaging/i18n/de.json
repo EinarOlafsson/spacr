@@ -76,5 +76,12 @@
   "gui_cancelled": "Installation abgebrochen. Vor einem erneuten Versuch das Protokoll prüfen.",
   "gui_failed": "Installation oder Start fehlgeschlagen. Protokoll prüfen und in diesem Fenster erneut versuchen.",
   "gui_stopping": "Installation wird angehalten und die vorherige Laufzeitumgebung wiederhergestellt…",
-  "nsis_uninstall_failed": "spaCR konnte die Deinstallation nicht sicher abschließen. Siehe die Details oben; Ihre Daten wurden beibehalten."
+  "nsis_uninstall_failed": "spaCR konnte die Deinstallation nicht sicher abschließen. Siehe die Details oben; Ihre Daten wurden beibehalten.",
+  "help_without_wgpu": "Ohne wgpu installieren; 3D-Ansichten verwenden dann OpenGL oder die CPU.",
+  "without_wgpu": "Ohne wgpu installieren (OpenGL/CPU für 3D verwenden)",
+  "without_wgpu_description": "Lässt wgpu (Vulkan, Metal, Direct3D 12) weg. spaCR zeichnet 3D-Ansichten dann mit OpenGL oder, wenn OpenGL nicht verfügbar ist, mit der CPU. Lassen Sie diese Option deaktiviert, sofern wgpu auf diesem Computer keine Probleme verursacht.",
+  "wgpu_plan": "wgpu-3D-Darstellung",
+  "wgpu_plan_install": "installieren",
+  "wgpu_plan_skip": "überspringen (3D verwendet OpenGL, sonst die CPU)",
+  "wgpu_glibc_too_old": "wgpu benötigt glibc 2.28 oder neuer (dieses System hat %s); Installation ohne wgpu, 3D verwendet daher OpenGL oder die CPU."
 }

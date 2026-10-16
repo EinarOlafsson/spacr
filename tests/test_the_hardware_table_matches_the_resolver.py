@@ -61,8 +61,10 @@ def test_the_readme_holds_what_the_generator_produces(generator, table):
         "python packaging/generate_readme_visuals.py")
     # THE TABLE IS AN IMAGE since 2026-10-12, and its alt text is the table
     # read out row by row, so every row is still in the README's words.
-    for line in re.findall(r"^   \* - (.+)$", table, re.M)[1:]:
-        assert f"{line}: " in block, line
+    headers = {generator.HARDWARE_3D_HEADER[0], "Hardware"}
+    for line in re.findall(r"^   \* - (.+)$", table, re.M):
+        if line not in headers:
+            assert f"{line}: " in block, line
 
 
 def test_the_generated_file_matches_too(table):
@@ -185,8 +187,12 @@ def test_every_readme_has_current_hardware_table_and_sourced_cpu_context(generat
     block = readme.partition(generator.HARDWARE_BEGIN)[2].partition(generator.HARDWARE_END)[0]
     assert block.strip() == tool.convert_generated(localized, language, "hardware", render=False).strip()
     output = tool.compose(language, render=False)
+    blocks = tool.parse_rst(localized)
+    second = [i for i, b in enumerate(blocks) if b["kind"] == "table"][1]
     assert output.pages["generated-hardware-1"] == tool.readable_page(
-        tool.parse_rst(localized), language, generated=True)
+        blocks[:second], language, generated=True)
+    assert output.pages["generated-hardware-2"] == tool.readable_page(
+        blocks[second:], language, generated=True)
     source = tool.load_source(language)
     position = next(i for i, row in enumerate(source)
                     if row.get("kind") == "generated" and row.get("name") == "hardware")
@@ -200,3 +206,38 @@ def test_every_readme_has_current_hardware_table_and_sourced_cpu_context(generat
     page = next(value for value in output.pages.values() if "444.5 s" in value)
     assert "../../../" + target in page
     assert "444.5 s" in readme
+
+
+def test_the_3d_table_names_each_platform_api_then_opengl_then_cpu(generator):
+    """True 3D: wgpu's native API first, then OpenGL, then the CPU.
+
+    Vulkan on Linux, Vulkan or Direct3D 12 on Windows, Metal on macOS; an
+    install without wgpu (Python 3.9, other processors, old glibc, or the
+    installer's opt-out) starts at OpenGL.
+    """
+    rows = dict(generator.HARDWARE_3D_ROWS)
+    assert rows["Linux (x86-64, ARM64)"].startswith("Vulkan (wgpu)")
+    assert rows["Windows (x64, ARM64)"].startswith(
+        "Vulkan / Direct3D 12 (wgpu)")
+    assert rows["macOS (Intel, Apple silicon)"].startswith("Metal (wgpu)")
+    assert rows["Without wgpu"].startswith("OpenGL, CPU")
+    assert "Python 3.9" in rows["Without wgpu"]
+    assert "2.28" in rows["Without wgpu"]
+    for cell in rows.values():
+        assert cell.split(" (")[0].endswith("OpenGL, CPU") or \
+            cell.endswith("OpenGL, CPU")
+    table = generator._hardware_table()
+    assert "   :widths: 32 58" in table
+
+
+@pytest.mark.parametrize("language", ("sv", "de", "es", "zh_CN", "pt", "hi",
+                                      "ko", "is", "fr"))
+def test_the_3d_table_words_are_translated_and_product_names_kept(
+        generator, table, language):
+    localized = generator.localize_hardware_markup(table, language)
+    for source in ("3D rendering", "True 3D, tried in order", "Without wgpu",
+                   "other processors"):
+        assert source not in localized, (language, source)
+    for name in ("Vulkan", "Metal", "Direct3D 12", "OpenGL", "wgpu",
+                 "Python 3.9", "2.28", "True 3D"):
+        assert name in localized, (language, name)

@@ -109,6 +109,12 @@ __all__ = [
     "RenderScale",
     "render_scale",
     "GLVolumeRenderer",
+    "WGPU_BACKENDS",
+    "GPU_RENDER_OFF_ENV",
+    "gpu_render_refusal",
+    "wgpu_adapters",
+    "wgpu_adapter",
+    "WGPUVolumeRenderer",
 ]
 
 
@@ -5058,3 +5064,660 @@ class GLVolumeRenderer:
         finally:
             self._release()
         self._textures, self._targets, self._programs, self._luts = {}, {}, {}, {}
+
+
+#: The wgpu backends the True 3D view draws with: the view's key, and the
+#: ``backend_type`` wgpu reports for an adapter of it. wgpu's own OpenGL
+#: adapters are left out; OpenGL is :class:`GLVolumeRenderer`'s.
+WGPU_BACKENDS: Mapping[str, str] = MappingProxyType({
+    "vulkan": "vulkan", "metal": "metal", "d3d12": "d3d12"})
+
+#: How an adapter of each wgpu ``adapter_type`` ranks when one is chosen;
+#: ``CPU`` (lavapipe, WARP) is a software rasteriser.
+_WGPU_ADAPTER_RANK = {"discretegpu": 0, "integratedgpu": 1, "virtualgpu": 2, "cpu": 4}
+
+#: Set to anything but ``0`` or empty, no 3-D view draws on the GPU. An
+#: empty ``CUDA_VISIBLE_DEVICES`` does the same, so a computer (or a test
+#: run) that hides its GPU from spaCR keeps it hidden from the 3-D view too.
+GPU_RENDER_OFF_ENV = "SPACR_NO_GPU_RENDER"
+
+#: The adapters :func:`wgpu_adapters` found, once it has looked.
+_WGPU_FOUND: Optional[Tuple[Dict[str, str], ...]] = None
+
+_WGSL_COMMON = """
+struct Params { v: array<vec4<f32>, 17> };
+@group(0) @binding(0) var<uniform> P: Params;
+
+struct Warped { p: vec3<f32>, weight: f32 };
+
+fn ray_start(column: u32, row: u32) -> vec3<f32> {
+    return P.v[0].xyz + f32(column) * P.v[1].xyz + f32(row) * P.v[2].xyz;
+}
+
+fn warp(p: vec3<f32>) -> Warped {
+    if (P.v[8].x <= 0.0) { return Warped(p, 1.0); }
+    let offset = p - P.v[6].xyz;
+    if (all(abs(offset) <= P.v[7].xyz)) { return Warped(P.v[6].xyz + offset / P.v[8].x, 1.0); }
+    return Warped(p, P.v[8].y);
+}
+
+fn inside(p: vec3<f32>) -> bool {
+    return all(p >= vec3<f32>(-0.5)) && all(p <= P.v[4].xyz - vec3<f32>(0.5));
+}
+
+fn last_voxel() -> vec3<i32> {
+    return vec3<i32>(P.v[4].xyz) - vec3<i32>(1);
+}
+
+fn corner_weight(t: vec3<f32>, corner: u32) -> f32 {
+    let o = vec3<u32>(corner & 1u, (corner >> 1u) & 1u, (corner >> 2u) & 1u);
+    let w = select(vec3<f32>(1.0) - t, t, o == vec3<u32>(1u));
+    return w.x * w.y * w.z;
+}
+
+fn corner_offset(corner: u32) -> vec3<i32> {
+    return vec3<i32>(i32(corner & 1u), i32((corner >> 1u) & 1u), i32((corner >> 2u) & 1u));
+}
+"""
+
+_WGSL_CLEAR = """
+@group(0) @binding(1) var<storage, read_write> frame: array<vec4<f32>>;
+@group(0) @binding(2) var<storage, read_write> pick: array<vec2<u32>>;
+
+@compute @workgroup_size(8, 8, 1)
+fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
+    let rows = u32(P.v[5].x);
+    let columns = u32(P.v[5].y);
+    if (gid.x >= columns || gid.y >= rows) { return; }
+    let index = gid.y * columns + gid.x;
+    frame[index] = vec4<f32>(0.0, 0.0, 0.0, 1.0);
+    pick[index] = vec2<u32>(0u, 0xffffffffu);
+}
+"""
+
+_WGSL_IMAGE = """
+@group(0) @binding(1) var<storage, read_write> frame: array<vec4<f32>>;
+@group(0) @binding(2) var volume: texture_3d<u32>;
+@group(0) @binding(3) var<storage, read> lut: array<vec4<f32>>;
+
+fn voxel(i: vec3<i32>) -> f32 {
+    let c = clamp(i, vec3<i32>(0), last_voxel());
+    return bitcast<f32>(textureLoad(volume, vec3<i32>(c.z, c.y, c.x), 0).r);
+}
+
+fn trilinear(p: vec3<f32>) -> f32 {
+    let f = floor(p);
+    let t = p - f;
+    let b = vec3<i32>(f);
+    var total = 0.0;
+    for (var corner = 0u; corner < 8u; corner = corner + 1u) {
+        total = total + corner_weight(t, corner) * voxel(b + corner_offset(corner));
+    }
+    return total;
+}
+
+fn colour(value: f32) -> vec3<f32> {
+    let t = clamp(value, 0.0, 1.0) * 255.0;
+    let i = min(u32(floor(t)), 254u);
+    return mix(lut[i].rgb, lut[i + 1u].rgb, t - f32(i));
+}
+
+@compute @workgroup_size(8, 8, 1)
+fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
+    let rows = u32(P.v[5].x);
+    let columns = u32(P.v[5].y);
+    if (gid.x >= columns || gid.y >= rows) { return; }
+    let samples = u32(P.v[5].z);
+    let mode = u32(P.v[5].w);
+    let low = P.v[9].x;
+    let span = max(P.v[9].y - P.v[9].x, 1e-12);
+    let opacity = P.v[9].z;
+    let step_length = P.v[9].w;
+    let attenuation = P.v[10].x;
+    let density = P.v[10].y;
+    let start = ray_start(gid.x, gid.y);
+    var best = 0.0;
+    var least = 1.0;
+    var seen = false;
+    var total = 0.0;
+    var count = 0.0;
+    var crossed = 0.0;
+    var transparency = 1.0;
+    var glow = 0.0;
+    for (var k = 0u; k < samples; k = k + 1u) {
+        let w = warp(start + f32(k) * P.v[3].xyz);
+        let within = inside(w.p);
+        var v = 0.0;
+        if (within) { v = clamp((trilinear(w.p) - low) / span, 0.0, 1.0) * w.weight; }
+        if (mode == 0u) {
+            best = max(best, v);
+        } else if (mode == 1u) {
+            best = max(best, v * exp(-attenuation * step_length * crossed));
+            crossed = crossed + v;
+        } else if (mode == 2u) {
+            let a = clamp(v * density * step_length, 0.0, 1.0);
+            glow = glow + transparency * a;
+            transparency = transparency * (1.0 - a);
+        } else if (mode == 3u) {
+            total = total + v;
+            if (within) { count = count + 1.0; }
+        } else if (within) {
+            least = min(least, v);
+            seen = true;
+        }
+    }
+    var value = best;
+    if (mode == 2u) { value = min(glow * 2.0, 1.0); }
+    else if (mode == 3u) { value = total / max(count, 1.0); }
+    else if (mode == 4u) { value = select(0.0, least, seen); }
+    let index = gid.y * columns + gid.x;
+    frame[index] = vec4<f32>(frame[index].rgb + colour(value) * opacity, 1.0);
+}
+"""
+
+_WGSL_LABELS = """
+@group(0) @binding(1) var<storage, read_write> frame: array<vec4<f32>>;
+@group(0) @binding(2) var<storage, read_write> pick: array<vec2<u32>>;
+@group(0) @binding(3) var ids: texture_3d<u32>;
+@group(0) @binding(4) var<storage, read> colours: array<vec4<f32>>;
+
+fn id_at(p: vec3<f32>) -> u32 {
+    let c = clamp(vec3<i32>(floor(p + vec3<f32>(0.5))), vec3<i32>(0), last_voxel());
+    return textureLoad(ids, vec3<i32>(c.z, c.y, c.x), 0).r;
+}
+
+fn occupied(i: vec3<i32>) -> f32 {
+    let c = clamp(i, vec3<i32>(0), last_voxel());
+    return select(0.0, 1.0, textureLoad(ids, vec3<i32>(c.z, c.y, c.x), 0).r != 0u);
+}
+
+fn occupancy(p: vec3<f32>) -> f32 {
+    let f = floor(p);
+    let t = p - f;
+    let b = vec3<i32>(f);
+    var total = 0.0;
+    for (var corner = 0u; corner < 8u; corner = corner + 1u) {
+        total = total + corner_weight(t, corner) * occupied(b + corner_offset(corner));
+    }
+    return total;
+}
+
+fn colour_of(id: u32) -> vec3<f32> {
+    return colours[min(id, arrayLength(&colours) - 1u)].rgb;
+}
+
+@compute @workgroup_size(8, 8, 1)
+fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
+    let rows = u32(P.v[5].x);
+    let columns = u32(P.v[5].y);
+    if (gid.x >= columns || gid.y >= rows) { return; }
+    let samples = u32(P.v[5].z);
+    let mode = u32(P.v[5].w);
+    let opacity = P.v[9].z;
+    let alpha = P.v[10].z;
+    let highlight = u32(P.v[10].w + 0.5);
+    let index = gid.y * columns + gid.x;
+    let start = ray_start(gid.x, gid.y);
+    var base = clamp(frame[index].rgb, vec3<f32>(0.0), vec3<f32>(1.0));
+    var first = 0u;
+    var first_k = 0u;
+    var first_weight = 1.0;
+    var hit = vec3<f32>(0.0);
+    var rgb = vec3<f32>(0.0);
+    var share = 0.0;
+    var transparency = 1.0;
+    for (var k = 0u; k < samples; k = k + 1u) {
+        let w = warp(start + f32(k) * P.v[3].xyz);
+        if (!inside(w.p)) { continue; }
+        let id = id_at(w.p);
+        if (id == 0u) { continue; }
+        if (first == 0u) {
+            first = id;
+            first_k = k;
+            first_weight = w.weight;
+            hit = w.p;
+            if (mode == 0u) { break; }
+        }
+        rgb = rgb + transparency * alpha * colour_of(id) * w.weight;
+        share = share + transparency * alpha;
+        transparency = transparency * (1.0 - alpha);
+    }
+    if (first != 0u && first_k < pick[index].y) {
+        pick[index] = vec2<u32>(first, first_k);
+    }
+    if (mode == 0u && first != 0u) {
+        let size = P.v[11].xyz;
+        let g = vec3<f32>(
+            occupancy(hit + vec3<f32>(1.0, 0.0, 0.0)) - occupancy(hit - vec3<f32>(1.0, 0.0, 0.0)),
+            occupancy(hit + vec3<f32>(0.0, 1.0, 0.0)) - occupancy(hit - vec3<f32>(0.0, 1.0, 0.0)),
+            occupancy(hit + vec3<f32>(0.0, 0.0, 1.0)) - occupancy(hit - vec3<f32>(0.0, 0.0, 1.0)))
+            / (2.0 * size);
+        let view = P.v[12].xyz;
+        var n = view;
+        if (length(g) > 1e-6) { n = -normalize(g); }
+        if (dot(n, view) < 0.0) { n = -n; }
+        let colour = colour_of(first);
+        let diffuse = max(dot(n, P.v[13].xyz), 0.0);
+        var shine = 0.0;
+        if (P.v[15].z > 0.0) { shine = pow(max(dot(n, P.v[14].xyz), 0.0), P.v[15].w); }
+        var lit = colour * (P.v[15].x + P.v[15].y * diffuse)
+                  + P.v[15].z * shine * mix(vec3<f32>(1.0), colour, P.v[16].x);
+        lit = clamp(lit * (1.0 - 0.35 * f32(first_k) / max(f32(samples), 1.0)),
+                    vec3<f32>(0.0), vec3<f32>(1.0));
+        if (highlight > 0u && first == highlight) { lit = 0.5 * lit + vec3<f32>(0.5); }
+        lit = lit * first_weight;
+        base = base * (1.0 - opacity) + lit * opacity;
+    } else if (mode == 1u && share > 0.0) {
+        var glass = rgb / share;
+        if (highlight > 0u && first == highlight) { glass = 0.5 * glass + vec3<f32>(0.5); }
+        let a = share * opacity;
+        base = base * (1.0 - a) + glass * a;
+    }
+    frame[index] = vec4<f32>(base, 1.0);
+}
+"""
+
+_WGSL_PACK = """
+@group(0) @binding(1) var<storage, read> frame: array<vec4<f32>>;
+@group(0) @binding(2) var<storage, read_write> picture: array<u32>;
+
+fn texel(x: i32, y: i32, columns: i32) -> vec3<f32> {
+    return clamp(frame[u32(y * columns + x)].rgb, vec3<f32>(0.0), vec3<f32>(1.0));
+}
+
+@compute @workgroup_size(8, 8, 1)
+fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
+    let rows = i32(P.v[5].x);
+    let columns = i32(P.v[5].y);
+    let height = u32(P.v[16].y);
+    let width = u32(P.v[16].z);
+    if (gid.x >= width || gid.y >= height) { return; }
+    let sx = (f32(gid.x) + 0.5) * f32(columns) / f32(width) - 0.5;
+    let sy = (f32(gid.y) + 0.5) * f32(rows) / f32(height) - 0.5;
+    let fx = floor(sx);
+    let fy = floor(sy);
+    let tx = sx - fx;
+    let ty = sy - fy;
+    let x0 = clamp(i32(fx), 0, columns - 1);
+    let x1 = clamp(i32(fx) + 1, 0, columns - 1);
+    let y0 = clamp(i32(fy), 0, rows - 1);
+    let y1 = clamp(i32(fy) + 1, 0, rows - 1);
+    let top = mix(texel(x0, y0, columns), texel(x1, y0, columns), tx);
+    let bottom = mix(texel(x0, y1, columns), texel(x1, y1, columns), tx);
+    picture[gid.y * width + gid.x] = pack4x8unorm(vec4<f32>(mix(top, bottom, ty), 1.0));
+}
+"""
+
+#: The compute kernels of :class:`WGPUVolumeRenderer`, by name.
+_WGSL_KERNELS = {"clear": _WGSL_CLEAR, "image": _WGSL_IMAGE, "labels": _WGSL_LABELS,
+                 "pack": _WGSL_PACK}
+
+
+def gpu_render_refusal() -> str:
+    """Why a 3-D view must not draw on the GPU here, or ``""``.
+
+    :returns: ``"SPACR_NO_GPU_RENDER is set"`` (:data:`GPU_RENDER_OFF_ENV`,
+        any value but ``0`` or empty), ``"CUDA_VISIBLE_DEVICES is empty"``
+        (set to nothing), or ``""`` when the GPU may be used.
+    """
+    import os
+
+    flag = os.environ.get(GPU_RENDER_OFF_ENV, "").strip()
+    if flag and flag != "0":
+        return f"{GPU_RENDER_OFF_ENV} is set"
+    if "CUDA_VISIBLE_DEVICES" in os.environ and not os.environ["CUDA_VISIBLE_DEVICES"].strip():
+        return "CUDA_VISIBLE_DEVICES is empty"
+    return ""
+
+
+def _wgpu_enumerate() -> List[Any]:
+    """Every adapter wgpu finds; none when wgpu is missing or cannot look."""
+    from importlib.util import find_spec
+
+    if find_spec("wgpu") is None:
+        return []
+    try:
+        import wgpu
+
+        found = getattr(wgpu.gpu, "enumerate_adapters_sync", None) or wgpu.gpu.enumerate_adapters
+        return list(found())
+    except Exception:
+        return []
+
+
+def _wgpu_info(adapter: Any) -> Dict[str, str]:
+    """An adapter's backend key (``vulkan``, ``metal``, ``d3d12`` or ``""``) and names."""
+    info = dict(getattr(adapter, "info", None) or {})
+    kind = str(info.get("backend_type", "")).lower().replace(" ", "")
+    backend = next((key for key, name in WGPU_BACKENDS.items() if kind == name), "")
+    return {"backend": backend, "name": str(info.get("device") or info.get("description") or ""),
+            "adapter_type": str(info.get("adapter_type", "")),
+            "description": str(info.get("description", ""))}
+
+
+def wgpu_adapters(refresh: bool = False) -> Tuple[Dict[str, str], ...]:
+    """The graphics adapters wgpu can draw the True 3D view with.
+
+    wgpu is imported the first time this is asked, never before, so a
+    computer without it pays nothing; it is then remembered.
+
+    :param refresh: look again rather than use what was found before.
+    :returns: one ``{"backend", "name", "adapter_type", "description"}`` per
+        Vulkan, Metal or Direct3D 12 adapter; empty without wgpu.
+    """
+    global _WGPU_FOUND
+    if _WGPU_FOUND is None or refresh:
+        infos = (_wgpu_info(adapter) for adapter in _wgpu_enumerate())
+        _WGPU_FOUND = tuple(info for info in infos if info["backend"])
+    return _WGPU_FOUND
+
+
+def wgpu_adapter(backend: str, allow_software: bool = True) -> Any:
+    """A fresh wgpu adapter of one backend, the best kind first.
+
+    A discrete GPU is preferred to an integrated one, and a software
+    rasteriser (``adapter_type`` ``CPU``) comes last, or not at all.
+
+    :param backend: a key of :data:`WGPU_BACKENDS`.
+    :param allow_software: whether a software rasteriser is accepted.
+    :returns: the adapter, ready for one device.
+    :raises RuntimeError: with a one-line reason when there is none.
+    """
+    if backend not in WGPU_BACKENDS:
+        raise RuntimeError(f"{backend!r} is not a wgpu backend")
+    ranked = []
+    for adapter in _wgpu_enumerate():
+        info = _wgpu_info(adapter)
+        if info["backend"] != backend:
+            continue
+        rank = _WGPU_ADAPTER_RANK.get(info["adapter_type"].lower(), 3)
+        if rank == _WGPU_ADAPTER_RANK["cpu"] and not allow_software:
+            continue
+        ranked.append((rank, len(ranked), adapter))
+    if not ranked:
+        raise RuntimeError(f"wgpu has no {'' if allow_software else 'hardware '}"
+                           f"{backend} adapter on this computer")
+    return min(ranked)[2]
+
+
+class WGPUVolumeRenderer:
+    """:func:`render_volume`, ray-marched on the GPU through wgpu (WGSL).
+
+    The third renderer of the same frame: Vulkan, Metal or Direct3D 12 by the
+    adapter it is given. The same rays (:class:`VolumeRays`), renderings,
+    finishes and lens as :func:`render_volume` and
+    :class:`GLVolumeRenderer`; one compute invocation walks one ray. Volumes
+    are read with ``textureLoad`` and interpolated in the shader exactly as
+    :func:`scipy.ndimage.map_coordinates` does (``order=1``, edges
+    repeated), image layers add up, labels layers are laid over them in
+    stack order, and each labels layer writes the object nearest the viewer
+    under each ray for picking. The frame is drawn into a storage buffer,
+    scaled to the picture's size and read back, so it lands under the same
+    matplotlib axes as the CPU's.
+
+    A volume is uploaded once and kept, keyed by its memory, for as long as
+    every frame draws it, as :class:`GLVolumeRenderer` does.
+
+    :param adapter: a wgpu adapter (:func:`wgpu_adapter`).
+    """
+
+    def __init__(self, adapter: Any) -> None:
+        """Ask the adapter for a device with its own largest limits."""
+        self._adapter = adapter
+        info = _wgpu_info(adapter)
+        self.backend = info["backend"]
+        offered = dict(getattr(adapter, "limits", None) or {})
+        wanted = {key: value for key, value in offered.items()
+                  if key.replace("_", "-") in ("max-texture-dimension-3d",
+                                               "max-storage-buffer-binding-size",
+                                               "max-buffer-size")}
+        ask = getattr(adapter, "request_device_sync", None) or adapter.request_device
+        self._device = ask(required_limits=wanted)
+        self._info = info
+        self._offered = offered
+        self._pipelines: Dict[str, Any] = {}
+        self._textures: Dict[Tuple[Any, ...], Tuple[Any, Any]] = {}
+        self._buffers: Dict[str, Tuple[int, Any]] = {}
+        self._luts: Dict[Any, Any] = {}
+        self._used: set = set()
+
+    def _limit(self, name: str, default: int) -> int:
+        """One of the device's limits, by its hyphenated WebGPU name."""
+        for key in (name, name.replace("-", "_")):
+            if key in self._offered:
+                return int(self._offered[key])
+        return int(default)
+
+    def limits(self) -> Dict[str, Any]:
+        """The adapter's name, its backend and its largest 3-D texture side.
+
+        :returns: ``{"renderer": str, "version": str, "max_3d": int,
+            "adapter_type": str}``.
+        """
+        return {"renderer": self._info["name"], "version": self._info["description"],
+                "max_3d": self._limit("max-texture-dimension-3d", 2048),
+                "adapter_type": self._info["adapter_type"]}
+
+    def _pipeline(self, name: str):
+        """One compute pipeline, compiled the first time it is asked for."""
+        pipeline = self._pipelines.get(name)
+        if pipeline is None:
+            module = self._device.create_shader_module(code=_WGSL_COMMON + _WGSL_KERNELS[name])
+            pipeline = self._device.create_compute_pipeline(
+                layout="auto", compute={"module": module, "entry_point": "main"})
+            self._pipelines[name] = pipeline
+        return pipeline
+
+    def _volume(self, array: Any, kind: str):
+        """The GPU copy of one volume: ``image`` (float bits) or ``ids``."""
+        import wgpu
+
+        key = (_array_key(array), kind)
+        held = self._textures.get(key)
+        if held is not None and held[0] is _array_owner(array):
+            self._used.add(key)
+            return held[1]
+        data = np.asarray(array)
+        if kind == "ids":
+            top = int(data.max()) if data.size else 0
+            if int(data.min() if data.size else 0) < 0 or top >= 1 << 32:
+                raise LayerError("object IDs must lie between 0 and 2**32 - 1 to be drawn on the GPU")
+            texels = np.ascontiguousarray(data, dtype=np.uint32)
+        else:
+            texels = np.ascontiguousarray(data, dtype=np.float32).view(np.uint32)
+        depth, height, width = texels.shape
+        side = self._limit("max-texture-dimension-3d", 2048)
+        if max(texels.shape) > side:
+            raise LayerError(f"a volume side of {max(texels.shape)} exceeds this GPU's {side}")
+        texture = self._device.create_texture(
+            size=(width, height, depth), dimension="3d", format=wgpu.TextureFormat.r32uint,
+            usage=wgpu.TextureUsage.TEXTURE_BINDING | wgpu.TextureUsage.COPY_DST)
+        self._device.queue.write_texture(
+            {"texture": texture, "mip_level": 0, "origin": (0, 0, 0)}, texels,
+            {"offset": 0, "bytes_per_row": width * 4, "rows_per_image": height},
+            (width, height, depth))
+        view = texture.create_view()
+        self._textures[key] = (_array_owner(array), (texture, view))
+        self._used.add(key)
+        return texture, view
+
+    def _colours(self, labels: Any):
+        """A storage buffer of every object's colour, indexed by object ID."""
+        import wgpu
+
+        key = (_array_key(labels), "colours")
+        held = self._textures.get(key)
+        if held is not None and held[0] is _array_owner(labels):
+            self._used.add(key)
+            return held[1]
+        present = np.unique(np.asarray(labels))
+        top = int(present.max()) if present.size else 0
+        if (top + 1) * 16 > self._limit("max-storage-buffer-binding-size", 1 << 27):
+            raise LayerError(f"object IDs up to {top} are too many for this GPU's colour table")
+        table = np.zeros((top + 1, 4), dtype=np.float32)
+        table[present, :3] = label_colors(present)
+        table[:, 3] = 1.0
+        buffer = self._device.create_buffer_with_data(data=table, usage=wgpu.BufferUsage.STORAGE)
+        self._textures[key] = (_array_owner(labels), (buffer, None))
+        self._used.add(key)
+        return buffer, None
+
+    def _lut(self, colormap: "Colormap"):
+        """A 256-entry storage buffer of one colormap, kept for the next frame."""
+        import wgpu
+
+        buffer = self._luts.get(colormap)
+        if buffer is None:
+            lut = np.ones((256, 4), dtype=np.float32)
+            lut[:, :3] = colormap.map(np.linspace(0.0, 1.0, 256))
+            buffer = self._device.create_buffer_with_data(data=lut, usage=wgpu.BufferUsage.STORAGE)
+            self._luts[colormap] = buffer
+        return buffer
+
+    def _buffer(self, name: str, size: int, readable: bool):
+        """A storage buffer of at least ``size`` bytes, reused while it is big enough."""
+        import wgpu
+
+        held = self._buffers.get(name)
+        if held is not None and held[0] == size:
+            return held[1]
+        if held is not None:
+            held[1].destroy()
+        usage = wgpu.BufferUsage.STORAGE | (wgpu.BufferUsage.COPY_SRC if readable else 0)
+        buffer = self._device.create_buffer(size=size, usage=usage)
+        self._buffers[name] = (size, buffer)
+        return buffer
+
+    def _forget_unused(self) -> None:
+        """Free the volumes the frame just drawn did not use."""
+        for key in [key for key in self._textures if key not in self._used]:
+            resource = self._textures.pop(key)[1][0]
+            resource.destroy()
+        self._used = set()
+
+    @staticmethod
+    def _params(rays: VolumeRays, shape: Sequence[int], lens: Optional[VolumeLens],
+                mode: int = 0) -> np.ndarray:
+        """The uniform block every kernel reads, for one camera and volume."""
+        params = np.zeros((17, 4), dtype=np.float32)
+        params[0, :3], params[1, :3] = rays.origin, rays.across
+        params[2, :3], params[3, :3] = rays.down, rays.depth
+        params[4, :3] = tuple(float(v) for v in shape) if len(shape) == 3 else (1.0, 1.0, 1.0)
+        params[5] = (rays.shape[0], rays.shape[1], rays.shape[2], mode)
+        if lens is not None:
+            params[6, :3], params[7, :3] = lens.centre, lens.half
+            params[8, :2] = (lens.zoom, lens.dim)
+        return params
+
+    def _dispatch(self, compute, name: str, params: np.ndarray, resources: Sequence[Any],
+                  groups: Tuple[int, int]) -> None:
+        """Run one kernel over a grid of 8 x 8 workgroups."""
+        import wgpu
+
+        pipeline = self._pipeline(name)
+        uniform = self._device.create_buffer_with_data(data=params, usage=wgpu.BufferUsage.UNIFORM)
+        entries = [{"binding": 0, "resource": {"buffer": uniform, "offset": 0,
+                                               "size": uniform.size}}]
+        for binding, resource in enumerate(resources, start=1):
+            if isinstance(resource, wgpu.GPUBuffer):
+                entries.append({"binding": binding, "resource": {
+                    "buffer": resource, "offset": 0, "size": resource.size}})
+            else:
+                entries.append({"binding": binding, "resource": resource})
+        group = self._device.create_bind_group(layout=pipeline.get_bind_group_layout(0),
+                                               entries=entries)
+        compute.set_pipeline(pipeline)
+        compute.set_bind_group(0, group)
+        compute.dispatch_workgroups(int(groups[0]), int(groups[1]), 1)
+
+    def render(self, layers: Iterable["Layer"], rays: VolumeRays, *,
+               highlight: int = 0, voxel_size: Optional[Sequence[float]] = None,
+               lens: Optional[VolumeLens] = None,
+               size: Optional[Tuple[int, int]] = None) -> Tuple[np.ndarray, np.ndarray]:
+        """Draw one frame; the same picture as :func:`render_volume`.
+
+        :param layers: the layers, bottom first.
+        :param rays: where to sample, in the layers' array indices.
+        :param highlight: an object drawn lighter.
+        :param voxel_size: physical voxel length along each array axis.
+        :param lens: a magnifier cube, or ``None``.
+        :param size: ``(rows, columns)`` of the picture returned, scaled up
+            from the rays' grid on the GPU; ``None`` keeps the rays' grid.
+        :returns: ``(rgb, picked)``: ``uint8`` colour of ``size`` and the
+            object nearest the viewer under each ray (``int64``, the rays'
+            grid).
+        :raises LayerError: as :func:`render_volume`.
+        """
+        rows, columns, _samples = (int(value) for value in rays.shape)
+        drawn = [layer for layer in layers if layer.visible
+                 and isinstance(layer, (ImageLayer, LabelsLayer))]
+        shapes = {layer.shape if isinstance(layer, LabelsLayer) else layer.channel_data(0).shape
+                  for layer in drawn}
+        if len(shapes) > 1:
+            raise LayerError(f"3-D layers must share one shape, got {sorted(shapes)}")
+        if any(len(shape) != 3 for shape in shapes):
+            raise LayerError("the GPU draws 3-D layers only")
+        modes = [_layer_rendering(layer) for layer in drawn]
+        finishes = [surface_finish(layer.metadata.get("finish")) if isinstance(layer, LabelsLayer)
+                    else None for layer in drawn]
+        light = SurfaceLight.for_rays(rays, voxel_size)
+        length = max(rays.sample_length, 1e-6)
+        height, width = (rows, columns) if size is None else (max(1, int(v)) for v in size)
+        shape = next(iter(shapes)) if shapes else (1, 1, 1)
+        frame = self._buffer("frame", rows * columns * 16, False)
+        pick = self._buffer("pick", rows * columns * 8, True)
+        picture = self._buffer("picture", height * width * 4, True)
+        grid = (-(-columns // 8), -(-rows // 8))
+        encoder = self._device.create_command_encoder()
+        compute = encoder.begin_compute_pass()
+        self._dispatch(compute, "clear", self._params(rays, shape, lens), (frame, pick), grid)
+        for index, layer in enumerate(drawn):
+            if not isinstance(layer, ImageLayer):
+                continue
+            data = layer.channel_data(0)
+            low, high = layer.contrast_limits(0)
+            params = self._params(rays, data.shape, lens, _GL_IMAGE_MODES[modes[index]])
+            params[9] = (low, high, layer.opacity, length)
+            params[10, :2] = (VOLUME_ATTENUATION, VOLUME_DENSITY)
+            self._dispatch(compute, "image", params,
+                           (frame, self._volume(data, "image")[1], self._lut(layer.colormap)),
+                           grid)
+        for index, layer in enumerate(drawn):
+            if not isinstance(layer, LabelsLayer):
+                continue
+            finish = finishes[index]
+            params = self._params(rays, layer.shape, lens, 0 if modes[index] == "surface" else 1)
+            params[9, 2] = layer.opacity
+            params[10, 2:] = (min(1.0, LABEL_DENSITY * length), float(highlight))
+            params[11, :3], params[12, :3] = light.size, light.view
+            params[13, :3], params[14, :3] = light.light, light.half
+            params[15] = (finish.ambient, finish.diffuse, finish.specular, finish.shininess)
+            params[16, 0] = finish.tint
+            self._dispatch(compute, "labels", params,
+                           (frame, pick, self._volume(layer.data, "ids")[1],
+                            self._colours(layer.data)[0]), grid)
+        params = self._params(rays, shape, lens)
+        params[16, 1:3] = (height, width)
+        self._dispatch(compute, "pack", params, (frame, picture),
+                       (-(-width // 8), -(-height // 8)))
+        compute.end()
+        self._device.queue.submit([encoder.finish()])
+        rgb = np.frombuffer(self._device.queue.read_buffer(picture), dtype=np.uint8)
+        codes = np.frombuffer(self._device.queue.read_buffer(pick), dtype=np.uint32)
+        self._forget_unused()
+        rgb = rgb[:height * width * 4].reshape(height, width, 4)[..., :3]
+        picked = codes[:rows * columns * 2].reshape(rows, columns, 2)[..., 0].astype(np.int64)
+        return np.ascontiguousarray(rgb), picked
+
+    def close(self) -> None:
+        """Free every volume, buffer and the device."""
+        for _owner, (resource, _view) in self._textures.values():
+            resource.destroy()
+        for _size, buffer in self._buffers.values():
+            buffer.destroy()
+        for buffer in self._luts.values():
+            buffer.destroy()
+        self._textures, self._buffers, self._luts, self._pipelines = {}, {}, {}, {}
+        destroy = getattr(self._device, "destroy", None)
+        if destroy is not None:
+            destroy()

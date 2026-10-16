@@ -91,7 +91,8 @@ def test_gui_choices_default_off_and_only_current_selection_reaches_headless_chi
     assert '--sign-in-now' not in arguments
     dialogs = [json.loads(line) for line in (tmp / 'dialogs.jsonl').read_text().splitlines()]
     checklist, = [args for args in dialogs if '--checklist' in args]
-    assert checklist.count('FALSE') == 2
+    assert checklist.count('FALSE') == 3
+    assert 'without_wgpu' in checklist and '--without-wgpu' not in arguments
     assert any('--text-info' in args for args in dialogs)
     logs = list((tmp / 'cache/spacr/installer').glob('gui.*/install.log'))
     assert len(logs) == 1 and 'backend complete' in logs[0].read_text()

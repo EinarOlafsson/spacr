@@ -38,7 +38,15 @@ __all__ = ["screen", "view"]
 
 
 def _gl_context():
-    """An offscreen OpenGL context for the GPU renderer, or skip the test."""
+    """An offscreen OpenGL context for the GPU renderer, or skip the test.
+
+    2026-10-16 (wgpu follow-up): never where the GPU is hidden
+    (CUDA_VISIBLE_DEVICES empty or SPACR_NO_GPU_RENDER set), as at a
+    computer whose GPU another job owns.
+    """
+    refusal = layers.gpu_render_refusal()
+    if refusal:
+        pytest.skip(f"GPU rendering is turned off here ({refusal})")
     try:
         return mm._GLVolumeContext()
     except Exception as exc:
@@ -113,7 +121,9 @@ def test_backends_offered_and_the_choice_is_remembered(view, qtbot):
     offered = [stage._backend_box.itemData(i) for i in range(stage._backend_box.count())]
     assert offered == list(mm.volume_render_backends())
     assert offered[0] == "auto" and offered[-1] == "cpu"
-    assert not {"vulkan", "metal", "direct3d"} & set(offered)
+    # 2026-10-16: wgpu ships by default, so Vulkan, Metal and Direct3D 12 are
+    # offered where wgpu finds an adapter (tests/qt/test_673_true3d_wgpu.py).
+    assert set(offered) <= set(mm.VOLUME_BACKENDS)
     _use(stage, "cpu", qtbot)
     assert preferences.get_volume_view()["backend"] == "cpu"
     assert stage._render_state.backend == "cpu" and "the CPU" in stage._detail.text()
@@ -127,6 +137,10 @@ def test_auto_falls_back_to_the_cpu_with_a_one_line_note(view, qtbot, monkeypatc
         raise RuntimeError("no OpenGL context could be created")
 
     monkeypatch.setattr(mm, "_GLVolumeContext", broken)
+    # 2026-10-16: the chain is OpenGL alone here, with the GPU allowed; the
+    # wgpu steps of Auto are covered in test_673_true3d_wgpu.py.
+    monkeypatch.setattr(mm, "volume_gpu_refusal", lambda: "")
+    monkeypatch.setattr(mm, "volume_render_backends", lambda: ("auto", "opengl", "cpu"))
     if stage._gl is not None:
         stage._gl.close()
     stage._gl = None
@@ -144,6 +158,7 @@ def test_a_gpu_that_fails_mid_frame_hands_the_frame_to_the_cpu(view, qtbot, monk
     stage = view
     stage._gl = None
     stage._gl_tried = True
+    monkeypatch.setattr(mm, "volume_render_backends", lambda: ("auto", "opengl", "cpu"))
     _gl = _gl_context()
     stage._gl = _gl
 
@@ -372,8 +387,9 @@ def test_gpu_frames_match_the_cpu_for_every_rendering_finish_and_lens():
     gl.close()
 
 
-def test_the_gpu_view_uses_the_cpu_camera_and_picks_the_same_objects(view, qtbot):
+def test_the_gpu_view_uses_the_cpu_camera_and_picks_the_same_objects(view, qtbot, monkeypatch):
     stage = view
+    monkeypatch.setattr(mm, "volume_render_backends", lambda: ("auto", "opengl", "cpu"))
     _use(stage, "auto", qtbot)
     if stage._active_backend() != "opengl":
         pytest.skip("no OpenGL context offscreen")
@@ -404,8 +420,9 @@ def test_the_gpu_view_uses_the_cpu_camera_and_picks_the_same_objects(view, qtbot
     assert stage.pick_at(x, y) == 2
 
 
-def test_gpu_drag_frames_stay_inside_an_interactive_budget(view, qtbot):
+def test_gpu_drag_frames_stay_inside_an_interactive_budget(view, qtbot, monkeypatch):
     stage = view
+    monkeypatch.setattr(mm, "volume_render_backends", lambda: ("auto", "opengl", "cpu"))
     _use(stage, "auto", qtbot)
     if stage._active_backend() != "opengl":
         pytest.skip("no OpenGL context offscreen")

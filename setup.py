@@ -158,6 +158,16 @@ dependencies = [
     'pyqtgraph>=0.13.3,<1',
     'mpmath>=1.3,<2',
     'vispy>=0.14,<1.0',
+    # wgpu draws the True 3D view through Vulkan, Metal or Direct3D 12. Its
+    # wheels cover Windows x86/x64/arm64, macOS x86_64/arm64 and manylinux_2_28
+    # x86_64/aarch64; wgpu 0.32 needs Python 3.11, 0.25-0.31.0 Python 3.10,
+    # and Python 3.9 gets none. Without it the view draws with OpenGL (VisPy)
+    # or the CPU; `pip uninstall -y wgpu rendercanvas` is the supported way
+    # to drop it, and the installers' "Install without wgpu" option does the
+    # same. Linux with glibc older than 2.28 cannot install the wheel; the
+    # installers detect that and skip it.
+    'wgpu>=0.25,<=0.31.0; python_version == "3.10" and (platform_machine == "x86_64" or platform_machine == "AMD64" or platform_machine == "aarch64" or platform_machine == "arm64" or platform_machine == "ARM64")',
+    'wgpu>=0.25,<0.33; python_version >= "3.11" and (platform_machine == "x86_64" or platform_machine == "AMD64" or platform_machine == "aarch64" or platform_machine == "arm64" or platform_machine == "ARM64")',
     'win10toast>=0.9; platform_system == "Windows"',
     'adjustText>=1.2.0,<2.0',
     'bottleneck>=1.3.6,<2.0',

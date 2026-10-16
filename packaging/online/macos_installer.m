@@ -47,7 +47,7 @@ static NSString *tr(NSString *key) { return messages[key] ?: key; }
     [self label:tr(@"gui_explanation") frame:NSMakeRect(24, 548, 712, 44)];
     [self label:tr(@"gui_public_reports") frame:NSMakeRect(24, 476, 712, 64)];
     self.choices = [NSMutableArray array];
-    NSArray *keys = @[@"nsis_gpu", @"gui_share_diagnostics", @"gui_report_issues"];
+    NSArray *keys = @[@"nsis_gpu", @"gui_share_diagnostics", @"gui_report_issues", @"without_wgpu"];
     for (NSUInteger index = 0; index < keys.count; ++index) {
         NSButton *choice = [NSButton checkboxWithTitle:tr(keys[index]) target:nil action:nil];
         choice.frame = NSMakeRect(24, 428 - index * 44, 712, 40);
@@ -131,7 +131,7 @@ static NSString *tr(NSString *key) { return messages[key] ?: key; }
     NSMutableArray<NSString *> *arguments = [NSMutableArray arrayWithArray:
         @[@"/bin/sh", @"/Library/Application Support/spaCR/install-for-user.sh", @"--torch-backend",
           self.choices[0].state == NSControlStateValueOn ? @"auto" : @"cpu"]];
-    NSArray *flags = @[@"--share-diagnostics", @"--report-issues"];
+    NSArray *flags = @[@"--share-diagnostics", @"--report-issues", @"--without-wgpu"];
     for (NSUInteger index = 0; index < flags.count; ++index)
         if (self.choices[index + 1].state == NSControlStateValueOn) [arguments addObject:flags[index]];
     NSMutableDictionary *environment = [NSProcessInfo.processInfo.environment mutableCopy];

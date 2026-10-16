@@ -123,6 +123,10 @@
 
    <div><a href="../../readme_text/zh_CN/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-hardware-1.desktop.svg"><img src="../../readme_images/zh_CN/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. 支持（稳定） 已实现（beta） 仅支持 CPU."></picture></a></div>
 
+.. raw:: html
+
+   <div><a href="../../readme_text/zh_CN/generated-hardware-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/generated-hardware-2.desktop.svg"><img src="../../readme_images/zh_CN/generated-hardware-2.svg" alt="Linux (x86-64, ARM64): True 3D，按顺序尝试 Vulkan (wgpu), OpenGL, CPU. Windows (x64, ARM64): True 3D，按顺序尝试 Vulkan / Direct3D 12 (wgpu), OpenGL, CPU. macOS (Intel, Apple silicon): True 3D，按顺序尝试 Metal (wgpu), OpenGL, CPU. 无 wgpu: True 3D，按顺序尝试 OpenGL, CPU (Python 3.9、其他处理器、glibc 低于 2.28 的 Linux 或未安装 wgpu)."></picture></a></div>
+
 .. spacr-hardware-end
 
 .. raw:: html

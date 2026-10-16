@@ -550,6 +550,11 @@ def find_uv() -> Optional[str]:
 def upgrade_command(pre_release: bool = False, *, target_version=None) -> list:
     """Return the command that upgrades spaCR in this environment.
 
+    An install that left wgpu out (its installer profile records
+    ``without_wgpu``) is upgraded with uv's ``--override`` of
+    :func:`spacr.install_profile.no_wgpu_override`, so the update leaves it
+    out too.
+
     :param pre_release: allow prerelease packages.
     :param target_version: explicit version selected by the update check.
     """
@@ -566,6 +571,10 @@ def upgrade_command(pre_release: bool = False, *, target_version=None) -> list:
         profile = read_profile()
         if profile is not None:
             args.extend(["--torch-backend", profile["requested_backend"]])
+            from .install_profile import no_wgpu_override
+            override = no_wgpu_override(profile)
+            if override is not None:
+                args.extend(["--override", str(override)])
     else:
         args = [sys.executable, "-m", "pip", "install", "--upgrade"]
     if pre_release:

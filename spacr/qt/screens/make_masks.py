@@ -9793,14 +9793,22 @@ class _VolumeSliceHistory:
 SPIN_CHORD_SECONDS = 1.5
 
 #: The Render backends of the True 3D view, in the order the list offers
-#: them: ``auto`` (the GPU when it works, else the CPU), ``opengl`` (VisPy
-#: gloo on the GPU) and ``cpu`` (NumPy/SciPy). Vulkan, Metal and Direct3D
-#: need wgpu, which spaCR does not ship, so they are never offered.
-VOLUME_BACKENDS = ('auto', 'opengl', 'cpu')
+#: them: ``auto`` (the best that works, see :func:`volume_backend_chain`),
+#: ``vulkan``, ``metal`` and ``d3d12`` (wgpu, :class:`spacr.layers.WGPUVolumeRenderer`),
+#: ``opengl`` (VisPy gloo, :class:`spacr.layers.GLVolumeRenderer`) and
+#: ``cpu`` (NumPy/SciPy). Only what the computer supports is offered.
+VOLUME_BACKENDS = ('auto', 'vulkan', 'metal', 'd3d12', 'opengl', 'cpu')
+
+#: The wgpu backends among :data:`VOLUME_BACKENDS`.
+VOLUME_WGPU_BACKENDS = ('vulkan', 'metal', 'd3d12')
+
+#: The graphics API each GPU backend draws through, as the view names it.
+VOLUME_BACKEND_API = {'vulkan': 'Vulkan', 'metal': 'Metal', 'd3d12': 'Direct3D 12',
+                      'opengl': 'OpenGL'}
 
 #: The Render scale (percent of full resolution along each axis) a True 3D
 #: view starts at, by the backend drawing it.
-VOLUME_DEFAULT_SCALE = {'opengl': 100, 'cpu': 50}
+VOLUME_DEFAULT_SCALE = {'vulkan': 100, 'metal': 100, 'd3d12': 100, 'opengl': 100, 'cpu': 50}
 
 #: OpenGL renderers that are software rasterisers: no faster than the CPU
 #: path, so Auto does not choose them (OpenGL still can).
@@ -9947,18 +9955,126 @@ def _volume_view_settings():
     return backend, scale, finish
 
 
+def volume_gpu_refusal():
+    """Why the True 3D view must not draw on the GPU here, or ``''``.
+
+    :func:`spacr.layers.gpu_render_refusal`: ``SPACR_NO_GPU_RENDER`` set, or
+    ``CUDA_VISIBLE_DEVICES`` set and empty, keeps the view on the CPU.
+
+    :returns: a one-line reason naming the variable, or ``''``.
+    """
+    from ...layers import gpu_render_refusal
+
+    return gpu_render_refusal()
+
+
 def volume_render_backends():
     """The Render backends this machine can offer the True 3D view.
 
-    ``auto`` and ``cpu`` always; ``opengl`` when VisPy (a spaCR dependency)
-    is importable. Whether a GL context really works is only known when the
-    first frame is drawn; :class:`_GLVolumeContext` finds out, and Auto
-    falls back to the CPU with a one-line note if it does not.
+    ``auto`` and ``cpu`` always; ``vulkan``, ``metal`` and ``d3d12`` when wgpu
+    is installed and finds an adapter of that kind
+    (:func:`spacr.layers.wgpu_adapters`, which imports wgpu the first time
+    and never before); ``opengl`` when VisPy (a spaCR dependency) is
+    importable. With the GPU turned off (:func:`volume_gpu_refusal`) only
+    ``auto`` and ``cpu``. Whether a backend really draws is only known when
+    the first frame is drawn; :meth:`_VolumeStage._active_backend` finds
+    out, and Auto falls back along :func:`volume_backend_chain`.
 
     :returns: backend keys from :data:`VOLUME_BACKENDS`, in list order.
     """
+    from ...layers import wgpu_adapters
+
+    if volume_gpu_refusal():
+        return ('auto', 'cpu')
+    found = {info['backend'] for info in wgpu_adapters()}
     return tuple(key for key in VOLUME_BACKENDS
-                 if key != 'opengl' or find_spec('vispy') is not None)
+                 if (key not in VOLUME_WGPU_BACKENDS or key in found)
+                 and (key != 'opengl' or find_spec('vispy') is not None))
+
+
+def volume_backend_chain(choice, offered=None, platform=None):
+    """The GPU backends a choice tries, in order, before the CPU.
+
+    Auto prefers wgpu -- Vulkan on Linux and Windows, Metal on macOS, and on
+    Windows Direct3D 12 when Vulkan is missing -- then OpenGL. Any other
+    GPU choice is tried alone; ``cpu`` tries none.
+
+    :param choice: a key of :data:`VOLUME_BACKENDS`.
+    :param offered: the backends offered; defaults to
+        :func:`volume_render_backends`.
+    :param platform: ``sys.platform``; defaults to this computer's.
+    :returns: GPU backend keys, best first.
+    """
+    offered = volume_render_backends() if offered is None else tuple(offered)
+    if choice == 'cpu':
+        return ()
+    if choice != 'auto':
+        return (choice,) if choice in offered else ()
+    platform = sys.platform if platform is None else platform
+    if platform == 'darwin':
+        order = ('metal', 'vulkan', 'opengl')
+    elif platform.startswith('win'):
+        order = ('vulkan', 'd3d12', 'opengl')
+    else:
+        order = ('vulkan', 'opengl')
+    return tuple(key for key in order if key in offered)
+
+
+class _WGPUVolumeContext:
+    """A wgpu device the True 3D view's GPU renderer draws with.
+
+    Vulkan, Metal or Direct3D 12 (:class:`spacr.layers.WGPUVolumeRenderer`),
+    made the first time a frame is drawn on that backend and kept for the
+    screen's life. Nothing is shown in a window of its own: each frame is
+    drawn offscreen, read back and put under the same matplotlib axes the
+    anchors are drawn on, as :class:`_GLVolumeContext` does.
+
+    :param backend: a key of :data:`VOLUME_WGPU_BACKENDS`.
+    :param allow_software: whether a software rasteriser (an adapter of
+        type ``CPU``, such as lavapipe or WARP) is accepted.
+    :raises RuntimeError: with a one-line reason when no usable device can
+        be made.
+    """
+
+    def __init__(self, backend, allow_software=True):
+        """Ask wgpu for a device and test-draw a frame."""
+        from ...layers import ImageLayer, VolumeRays, WGPUVolumeRenderer, wgpu_adapter
+
+        if find_spec('wgpu') is None:
+            raise RuntimeError('wgpu is not installed')
+        self.backend = backend
+        self.renderer = WGPUVolumeRenderer(wgpu_adapter(backend, allow_software=allow_software))
+        self.limits = self.renderer.limits()
+        probe = ImageLayer(np.arange(8, dtype=np.float32).reshape(2, 2, 2), name='probe',
+                           contrast_limits=[(0.0, 7.0)])
+        rgb, _picked = self.renderer.render(
+            [probe], VolumeRays(origin=(0.0, 0.0, 0.0), across=(0.0, 0.0, 1.0),
+                                down=(0.0, 1.0, 0.0), depth=(1.0, 0.0, 0.0), shape=(2, 2, 2)))
+        if rgb.shape != (2, 2, 3) or not rgb.any():
+            self.renderer.close()
+            raise RuntimeError(f'the {VOLUME_BACKEND_API[backend]} test frame came back empty')
+
+    def name(self):
+        """The GPU's own name, as its driver gives it."""
+        return self.limits['renderer']
+
+    def render(self, request):
+        """Draw one request on the GPU.
+
+        :returns: ``(rgb, picked)`` as :func:`_render_volume_view` returns.
+        """
+        x0, x1, y0, y1 = request.rect
+        size = (max(1, int(round(y1 - y0))), max(1, int(round(x1 - x0))))
+        return self.renderer.render(
+            _strided_layers(request), request.rays, highlight=request.highlight,
+            voxel_size=request.voxel_size or None, lens=request.lens, size=size)
+
+    def close(self):
+        """Free the GPU's volumes, buffers and device."""
+        try:
+            self.renderer.close()
+        except Exception:
+            LOG.debug('the True 3D wgpu renderer could not be freed', exc_info=True)
 
 
 class _GLVolumeContext:
@@ -9976,6 +10092,8 @@ class _GLVolumeContext:
     :raises RuntimeError: with a one-line reason when no usable context can
         be made.
     """
+
+    backend = 'opengl'
 
     def __init__(self, allow_software=True):
         """Make the context current once, check it and test-draw a frame."""
@@ -10099,6 +10217,7 @@ class _VolumeStage(QWidget):
         self._spin_armed = 0.0
         self._gl = None
         self._gl_tried = False
+        self._gpu_refused = set()
         self._backend_note = ''
         self._backend_choice, self._scale, self._finish = _volume_view_settings()
         self._backend_box = self._scale_slider = self._scale_value = None
@@ -10786,7 +10905,8 @@ class _VolumeStage(QWidget):
                 (self._grid_toggle, tr('Draw the axes, ticks and grid around the volume. '
                                        'They zoom and move with the data.')),
                 (self._backend_box, tr('What draws the 3D view. Auto uses the graphics card '
-                                       '(OpenGL) when it works and the CPU otherwise.')),
+                                       'through Vulkan, Metal or Direct3D 12 when it can, '
+                                       'then OpenGL, then the CPU.')),
                 (self._scale_slider, tr('How much of the full resolution the 3D view is drawn '
                                         'at, along each axis. Turning the view draws coarser '
                                         'and sharpens to this when it stops.'))):
@@ -10802,41 +10922,93 @@ class _VolumeStage(QWidget):
         """The Render backend list's captions, by backend key."""
         from ..i18n import tr
 
-        return {'auto': tr('Auto'), 'opengl': tr('OpenGL'), 'cpu': tr('CPU (software)')}
+        return {'auto': tr('Auto'), 'vulkan': tr('Vulkan'), 'metal': tr('Metal'),
+                'd3d12': tr('Direct3D 12'), 'opengl': tr('OpenGL'),
+                'cpu': tr('CPU (software)')}
 
     def _render_percent(self):
         """The Render scale in use: the saved one, or the backend's default."""
         if self._scale is not None:
             return int(self._scale)
-        return VOLUME_DEFAULT_SCALE[self._active_backend()]
+        return VOLUME_DEFAULT_SCALE.get(self._active_backend(), 100)
 
     def _active_backend(self):
-        """``opengl`` when the GPU draws the 3-D view, else ``cpu``.
+        """The backend drawing the 3-D view: a GPU one, or ``cpu``.
 
-        The GL context is made the first time it is asked for; when that
-        fails the view is drawn on the CPU, with a one-line note.
+        The GPU context is made the first time it is asked for, trying each
+        backend of :func:`volume_backend_chain` in turn; when one fails the
+        next is tried and, when none is left, the view is drawn on the CPU.
+        Each fallback is said in one line.
         """
         if self._backend_choice == 'cpu':
             return 'cpu'
         if self._gl is None and not self._gl_tried:
             self._gl_tried = True
+            self._open_gpu()
+        return self._gl.backend if self._gl is not None else 'cpu'
+
+    def _open_gpu(self, failed=None):
+        """Make the first GPU context of the chosen chain that works.
+
+        :param failed: ``(backend, exception)`` of a backend that already
+            failed this time, for the note.
+        """
+        from ..i18n import tr
+
+        refusal = volume_gpu_refusal()
+        if refusal:
+            self._backend_note = tr('GPU rendering is turned off ({reason}); drawing on the '
+                                    'CPU.', reason=refusal)
+            LOG.info('True 3D view: %s', self._backend_note)
+            return
+        allow_software = self._backend_choice != 'auto'
+        for key in volume_backend_chain(self._backend_choice):
+            if key in self._gpu_refused:
+                continue
             try:
-                self._gl = _GLVolumeContext(allow_software=self._backend_choice == 'opengl')
+                if key == 'opengl':
+                    self._gl = _GLVolumeContext(allow_software=allow_software)
+                else:
+                    self._gl = _WGPUVolumeContext(key, allow_software=allow_software)
             except Exception as exc:
-                self._gpu_failed(exc)
-        return 'opengl' if self._gl is not None else 'cpu'
+                self._gpu_refused.add(key)
+                failed = failed or (key, exc)
+                continue
+            if failed is not None:
+                self._backend_note = tr(
+                    '{backend} is unavailable ({reason}); drawing with {fallback} instead.',
+                    backend=VOLUME_BACKEND_API[failed[0]], reason=self._reason(failed[1]),
+                    fallback=VOLUME_BACKEND_API[key])
+                LOG.warning('True 3D view: %s', self._backend_note)
+                self._say(self._backend_note)
+            return
+        if failed is not None:
+            self._gpu_failed(failed[1])
+
+    @staticmethod
+    def _reason(exc):
+        """An exception's first line, or its type's name."""
+        text = str(exc).strip()
+        return text.splitlines()[0] if text else type(exc).__name__
 
     def _gpu_failed(self, exc):
-        """Draw on the CPU from now on, and say why in one line."""
+        """Leave the GPU backend that failed: Auto goes on to the next one in
+        :func:`volume_backend_chain`, any other choice to the CPU, and
+        either says why in one line."""
         from ..i18n import tr
 
         broken, self._gl = self._gl, None
         self._gl_tried = True
         if broken is not None:
+            self._gpu_refused.add(broken.backend)
             broken.close()
-        reason = str(exc).strip().splitlines()[0] if str(exc).strip() else type(exc).__name__
+            if self._backend_choice == 'auto':
+                self._open_gpu(failed=(broken.backend, exc))
+                if self._gl is not None:
+                    self._sync_scale_slider()
+                return
         self._backend_note = tr('GPU rendering is unavailable ({reason}); drawing on the CPU.',
-                                reason=reason)
+                                reason=self._reason(exc))
         LOG.warning('True 3D view: %s', self._backend_note)
         self._say(self._backend_note)
         self._sync_scale_slider()
@@ -10861,6 +11033,10 @@ class _VolumeStage(QWidget):
         self._backend_choice = key
         set_volume_view(backend=key)
         self._backend_note = ''
+        self._gpu_refused = set()
+        if self._gl is not None and key not in ('auto', 'cpu', self._gl.backend):
+            self._gl.close()
+            self._gl = None
         if key != 'cpu' and self._gl is None:
             self._gl_tried = False
         self._active_backend()
@@ -11292,7 +11468,7 @@ class _VolumeStage(QWidget):
             return None
         near, far = float(screen[:, 2].min()), float(screen[:, 2].max())
         backend = self._active_backend()
-        gpu = backend == 'opengl'
+        gpu = backend != 'cpu'
         scale = render_scale(self._render_percent(), session.image.size,
                              dragging=quality == 'interactive', gpu=gpu)
         steps = volume_steps(session.image.shape, scale.max_voxels)
@@ -11355,7 +11531,7 @@ class _VolumeStage(QWidget):
         request = self._render_request(quality)
         if request is None:
             return False
-        if request.backend == 'opengl':
+        if request.backend != 'cpu':
             try:
                 result = self._gl.render(request)
             except Exception as exc:
@@ -11409,13 +11585,14 @@ class _VolumeStage(QWidget):
                                              backend=request.backend, scale=request.scale)
         reduction = max(request.steps)
         percent = request.scale.percent
-        if request.backend == 'opengl' and self._gl is not None:
+        if request.backend != 'cpu' and self._gl is not None:
             name = self._gl.name()
-            text = (tr('Drawn on the GPU (OpenGL, {name}) at {percent}% scale, from every '
-                       'voxel.', name=name, percent=percent) if reduction == 1 else
-                    tr('Drawn on the GPU (OpenGL, {name}) at {percent}% scale, from 1 voxel '
-                       'in {n} along the most reduced axis.', name=name, percent=percent,
-                       n=reduction))
+            api = VOLUME_BACKEND_API.get(request.backend, request.backend)
+            text = (tr('Drawn on the GPU ({api}, {name}) at {percent}% scale, from every '
+                       'voxel.', api=api, name=name, percent=percent) if reduction == 1 else
+                    tr('Drawn on the GPU ({api}, {name}) at {percent}% scale, from 1 voxel '
+                       'in {n} along the most reduced axis.', api=api, name=name,
+                       percent=percent, n=reduction))
         else:
             text = (tr('Drawn on the CPU at {percent}% scale, from every voxel.',
                        percent=percent) if reduction == 1 else
