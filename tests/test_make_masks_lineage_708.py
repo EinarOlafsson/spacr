@@ -339,6 +339,26 @@ def test_windows_frame_aliases_reopen_on_linux_without_cwd_prefix(tmp_path):
     assert not any("C:" in path for path in reopened["frame_ids"])
 
 
+def test_copied_standalone_mask_recovers_names_and_ids_without_source_or_sidecar(tmp_path):
+    import shutil
+
+    original = tmp_path / "original"
+    original.mkdir()
+    frame, image = _field(original)
+    state, identity = _mapped_cell(None, "1ad", 2**31 + 8, frame)
+    mask = np.full(image.shape, 2**31 + 8, np.uint32)
+    saved = engine.save_mask(str(original), "frame.tif", mask, lineage=state)
+    standalone = tmp_path / "standalone.tif"
+    shutil.copy2(saved, standalone)
+    shutil.rmtree(original)
+    metadata = engine.load_mask_metadata(str(tmp_path), "standalone.tif", masks_dir=str(tmp_path))
+    assert metadata["lineage"]["cells"][identity]["name"] == "1ad"
+    assert metadata["lineage"]["frames"][str(standalone)] == {str(2**31 + 8): identity}
+    assert metadata["frame_id"] == state["frame_ids"][frame]
+    np.testing.assert_array_equal(tifffile.imread(standalone), mask)
+    assert list(tmp_path.iterdir()) == [standalone]
+
+
 def test_earlier_machine_clock_cannot_make_a_new_edit_lose_on_merge(tmp_path, monkeypatch):
     import time
 
