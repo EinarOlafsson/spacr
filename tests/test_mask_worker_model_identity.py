@@ -87,9 +87,14 @@ def test_gpu_selection_and_cosmetics_do_not_change_material_identity(weights):
 
 
 def test_a_missing_custom_checkpoint_is_not_downloaded_as_stock(weights, tmp_path):
+    from spacr.model_zoo import ModelZooError
+
     _, calls = weights
-    with pytest.raises(FileNotFoundError):
-        _prepare_mask_model({'cell_model_name': str(tmp_path / 'missing.pt')}, 'cell')
+    missing = str(tmp_path / 'missing.pt')
+    with pytest.raises(ModelZooError) as refused:
+        _prepare_mask_model({'cell_model_name': missing}, 'cell')
+    assert repr(missing) in str(refused.value)
+    assert 'stock weights were not substituted' in str(refused.value)
     assert calls == []
 
 

@@ -457,14 +457,18 @@ def test_a_user_trained_checkpoint_reaches_cellpose(tmp_path, fake_cellpose):
 
 
 def test_a_checkpoint_path_that_is_not_there_stops_the_run(tmp_path, fake_cellpose):
+    from spacr.model_zoo import ModelZooError
+
     src = tmp_path / "stack"
     _write_npz(src, n=2, c=3)
     settings = _settings(src, pathogen_channel=2,
                          pathogen_model=str(tmp_path / "gone" / "model.pth"))
 
-    with pytest.raises(FileNotFoundError) as excinfo:
+    with pytest.raises(ModelZooError) as excinfo:
         O.generate_cellpose_masks(str(src), settings, "pathogen")
-    assert "cpsam" in str(excinfo.value), "the message must name the safe fallback"
+    assert repr(settings["pathogen_model"]) in str(excinfo.value)
+    assert "stock weights were not substituted" in str(excinfo.value)
+    assert fake_cellpose["model"] is None
     assert _mask_files(src, "pathogen") == []
 
 

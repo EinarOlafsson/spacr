@@ -237,8 +237,9 @@ def test_deep_spacr_apply_only_reuses_existing_tar_for_every_src(tmp_path, ds_st
 def test_deep_spacr_relative_tar_regenerated_and_missing_model_skips(tmp_path,
                                                                      ds_stubs,
                                                                      capsys):
-    """A non-absolute tar_path is regenerated; a missing model skips inference."""
+    """A non-absolute tar_path is regenerated; a missing model refuses inference."""
     from spacr.deep_spacr import deep_spacr
+    from spacr.model_zoo import ModelZooError
 
     tar = tmp_path / "ds.tar"
     tar.write_bytes(b"tar")
@@ -253,15 +254,19 @@ def test_deep_spacr_relative_tar_regenerated_and_missing_model_skips(tmp_path,
         "tar_path": os.path.join("relative", "ds.tar"),
         "model_path": str(missing_model),
     }
-    deep_spacr(settings)
+    with pytest.raises(ModelZooError) as refused:
+        deep_spacr(settings)
 
     assert len(ds_stubs.gen_ds) == 1             # relative -> regenerated
     assert settings["tar_path"] == str(tar)
-    assert ds_stubs.apply_tar == []              # model missing -> skipped
+    assert ds_stubs.apply_tar == []              # model missing -> refused
     assert ds_stubs.top == []
     assert ds_stubs.merge == []
     out = capsys.readouterr().out
-    assert "not found; skipping model application" in out
+    assert "Generating full dataset tar" in out
+    assert "model_path" in str(refused.value)
+    assert repr(str(missing_model)) in str(refused.value)
+    assert "Available compatible zoo identities: []." in str(refused.value)
 
 
 def test_full_dataset_can_be_generated_without_applying_a_model(

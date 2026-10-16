@@ -469,10 +469,23 @@ def test_a_colony_detector_that_is_neither_file_nor_zoo_key_is_refused(
     from spacr import model_zoo, submodules
 
     monkeypatch.setattr(model_zoo, "catalogue", lambda remote=True: [])
-    with pytest.raises(ValueError, match="colony_detector="):
+    monkeypatch.setattr(model_zoo, "BUNDLED_REMOTE_MODELS", [
+        {"key": "controlled-colony-detector", "kind": "detector",
+         "version": "003", "sha256": "c" * 64},
+    ])
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("An unknown colony detector must not acquire or construct a model")
+
+    monkeypatch.setattr(model_zoo, "fetch", forbidden)
+    monkeypatch.setattr(plaque, "_load_detector", forbidden)
+    with pytest.raises(model_zoo.ModelZooError) as refused:
         submodules._analyze_colony_plates({
             "src": str(tmp_path), "save": False,
             "colony_detector": "no_such_detector"})
+    assert "colony_detector" in str(refused.value)
+    assert repr("no_such_detector") in str(refused.value)
+    assert "controlled-colony-detector@'003' [sha256=" + "c" * 64 + "]" in str(refused.value)
 
 
 def test_the_published_colony_detector_is_fetched_by_its_zoo_key(
