@@ -1519,7 +1519,11 @@ class FigureQueue(QWidget):
                 item.setTextAlignment(Qt.AlignCenter)
                 reader = QImageReader(paths[index])
                 if reader.canRead():
-                    reader.setScaledSize(reader.size().scaled(THUMB_SIZE, Qt.KeepAspectRatio))
+                    ratio = device_ratio(self._list)
+                    target = QSize(round(THUMB_SIZE.width() * ratio),
+                                   round(THUMB_SIZE.height() * ratio))
+                    reader.setScaledSize(QSize.scaled(reader.size(), target,
+                                                     Qt.KeepAspectRatio))
                     image = reader.read()
                     if not image.isNull():
                         item.setIcon(self._thumb_icon(QPixmap.fromImage(image)))

@@ -951,3 +951,35 @@ def test_the_hub_is_told_nothing_about_a_root_that_is_gone_or_unwatched(
     _tell_the_watchers(_Hub(), alive, {})
     assert asked == [QEvent.StyleChange]
     assert _application_event_hub_class() is not None
+
+
+def test_a_native_parent_can_paint_and_close_after_the_python_owner_is_released(
+        qtbot, store):
+    import gc
+
+    from PySide6.QtCore import QCoreApplication
+    from shiboken6 import isValid
+
+    host = QWidget()
+    qtbot.addWidget(host)
+    layout = QVBoxLayout(host)
+    split = cs.CollapsibleSplitter(Qt.Horizontal, host)
+    split.add_pane(_labels(QWidget(), 3, "Settings"), "Settings",
+                   mode=cs.EDGE, extent=240)
+    split.add_pane(_labels(QWidget(), 3, "Runtime"), "Runtime", stretch=2)
+    layout.addWidget(split)
+    host.resize(800, 300)
+    host.show()
+    qtbot.waitExposed(host)
+    handle = split.handle(1)
+    assert handle.edge_pane() is split.pane("Settings")
+    assert not handle.grab().isNull()
+    del split
+    gc.collect()
+    host.repaint()
+    _pump()
+    host.close()
+    host.deleteLater()
+    QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    _pump()
+    assert not isValid(handle)

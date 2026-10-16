@@ -299,9 +299,19 @@ def test_xenium_reads_are_counted_into_the_cells_and_join_measure(xenium_run):
 
 
 
-def test_zero_qv_map_retires_verified_analyses_and_keeps_other_outputs(tmp_path):
+def test_zero_qv_map_retires_verified_analyses_and_keeps_other_outputs(tmp_path, monkeypatch):
     import hashlib
     import pathlib
+
+    def write_retirement_fixture(path, labels, genes, matrix, obs, spatial):
+        """Supply optional output bytes while exercising real ownership retirement."""
+        assert matrix.shape == (len(labels), len(genes))
+        assert len(obs) == len(labels)
+        assert spatial.shape == (len(labels), 2)
+        pathlib.Path(path).write_bytes(b"optional AnnData output retirement fixture\n")
+        return path
+
+    monkeypatch.setattr(oe, "_st_write_anndata", write_retirement_fixture)
 
     source = xenium_slide(tmp_path / "bundle")
     other_source = xenium_slide(tmp_path / "other_bundle")

@@ -152295,13 +152295,15 @@
       "source_blocks_sha256": [
         "1993a27719aca3586520e6a847808a68af06b79cf158182625d5f8669db3046d",
         "a7bd4e6952b64e2f51735f2cdd906e35b046db2fe655b8caec5b13197c1d08bf",
+        "39a8bd5a67a629f63e1f2598f77ea632c1c34173abd7792c3ca3e0ea21e8cb86",
         "32ad184b5d895760a58585e6b97140a9ce6a1c9c468e6f3a054396b3342cd65e"
       ],
-      "source_sha256": "08045e7872c4e753dad77ca9b23447cd3ddfd27c530c1deb41916ae6ebe8b5df",
-      "text": "给一个对话的卡和里姆. True 如果它被应用。\n\nIdempotent:已持有 :data:`GLASSED` 的对话单独留下,因此显示、关闭和再次显示的对话不会积累卡。\n\n:param dialog: 要装饰的对话框；除非 :func:`wants_glass` 接受它，否则保持不变。",
+      "source_sha256": "911d51ee59d650bccb5d2923b55d3ada0ff7b21e8f7e9e3068f6c7593cfc6c35",
+      "text": "给一个对话的卡和里姆. True 如果它被应用。\n\nIdempotent:已持有 :data:`GLASSED` 的对话单独留下,因此显示、关闭和再次显示的对话不会积累卡。\n\n样式表在最后只应用一次。下面的每个步骤都会重新设置已带有窗口样式表的对话框：对话框自己的规则又是一份样式表，无边框标志使 Qt 重新润饰已设置样式的窗口中的每个控件，每个透明容器也会再次润饰。在偏好设置中（967 个控件），一次 ``Polish`` 就耗时 425-484 ms，即第 05 课调整大小片段中 0.36 s 的卡顿。在 :func:`spacr.qt.theme._one_sheet_for` 的作用下，各步骤在未设置样式的对话框上执行，最后只应用一次相同的样式表文本。\n\n:param dialog: 要装饰的对话框；除非 :func:`wants_glass` 接受它，否则保持不变。",
       "translation_source_blocks_sha256": [
         "1993a27719aca3586520e6a847808a68af06b79cf158182625d5f8669db3046d",
         "a7bd4e6952b64e2f51735f2cdd906e35b046db2fe655b8caec5b13197c1d08bf",
+        "7a3a4a2e96eb641628588f93f4cd45ef38795691d3ed25daa9f2378e03ed2cd2",
         "32ad184b5d895760a58585e6b97140a9ce6a1c9c468e6f3a054396b3342cd65e"
       ]
     },
@@ -187007,10 +187009,11 @@
         "a5d7ec449ef4a602a61a8b52723791cfc41cf14f765e0ff9e181edaf66fb18f8",
         "882b025608cfd488e23a584b446ed392b1687ebc25a7fd9d842b8d1ee4baf9e4",
         "8dd0e2a8113506874bc11e2fc2fc9c3f48a62736e07a25a74bd3c94a52ef8885",
-        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b"
+        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b",
+        "73a1ffe75988b2b3cf4a04261a07be7d7cdee6aeabd20ee69f5f533310d74ad4"
       ],
-      "source_sha256": "8f340495d1c595d60230eb54dc6e4a5181aa999d47ddcb317dd9dd713295f09b",
-      "text": "一个工作流处理会议:其ID、其种子、错误政策、LEDGER。\n\n由 :func:`run_context` 创建; 以 :func:`current_run_context` 阅读到任何地方. 此对象的 ID 是每个日志行中的 ID,处理会议发行(:func:`read_run_log`),每个 :class:`~spacr.errors.RunLedger` 它输出,每个 :class:`spacr.artifacts.Artifact` 记录 - 这就是允许一个日志线和一个输出被添加。\n\n:param run_id: 是ID。\n:param module: 生成模块键 — ``\"mask\"``, ``\"measure\"``,使用相同的键 :mod:`spacr.ports`。\n:param seed: 种子应用,或 None 当跑步不种子时。\n:param policy: 以“:class:`ErrorPolicy`”为准。\n:param ledger: 运行的 :class:`~spacr.errors.RunLedger`,其 ``run_id``已设置为此运行。\n:param settings: 处理会议的设置开始了。\n:param seed_report: 什么是:func:`seed_everything`成功种子。\n:param started_utc: 当跑步开启时。\n:param log_path: 运行的 JSONL 登录,或 ``\"\"`` 当登录关闭时。\n:param resource_log_path: 路径到处理会议的过程树资源 JSON 文档,或 ``\"\"`` 当资源会计关闭或不可用时。\n:param resource_artifact_id: 在成功的资源文档登记后,或 ``\"\"`` 当没有创建记录时,会分配的文档记录标识符。",
+      "source_sha256": "b17236a3334e68ec484a01688c8da915414c51d140fe249949ad1dc8b5dde16d",
+      "text": "一个工作流处理会议:其ID、其种子、错误政策、LEDGER。\n\n由 :func:`run_context` 创建; 以 :func:`current_run_context` 阅读到任何地方. 此对象的 ID 是每个日志行中的 ID,处理会议发行(:func:`read_run_log`),每个 :class:`~spacr.errors.RunLedger` 它输出,每个 :class:`spacr.artifacts.Artifact` 记录 - 这就是允许一个日志线和一个输出被添加。\n\n:param run_id: 是ID。\n:param module: 生成模块键 — ``\"mask\"``, ``\"measure\"``,使用相同的键 :mod:`spacr.ports`。\n:param seed: 种子应用,或 None 当跑步不种子时。\n:param policy: 以“:class:`ErrorPolicy`”为准。\n:param ledger: 运行的 :class:`~spacr.errors.RunLedger`,其 ``run_id``已设置为此运行。\n:param settings: 处理会议的设置开始了。\n:param seed_report: 什么是:func:`seed_everything`成功种子。\n:param started_utc: 当跑步开启时。\n:param log_path: 运行的 JSONL 登录,或 ``\"\"`` 当登录关闭时。\n:param resource_log_path: 路径到处理会议的过程树资源 JSON 文档,或 ``\"\"`` 当资源会计关闭或不可用时。\n:param resource_artifact_id: 在成功的资源文档登记后,或 ``\"\"`` 当没有创建记录时,会分配的文档记录标识符。\n:param _resource_sampler: 内部进程树资源采样器；在资源统计开始前或不可用时为 ``None``。",
       "translation_source_blocks_sha256": [
         "5182280c6a8c9d3beeb11fd5d8146fb99dfe657e4176813b67dc999249ca0860",
         "8ebc90c80c227b9def3c1bf4239226d4e1305bd40bf6b88dd21f839c05d44eca",
@@ -187024,7 +187027,8 @@
         "a5d7ec449ef4a602a61a8b52723791cfc41cf14f765e0ff9e181edaf66fb18f8",
         "882b025608cfd488e23a584b446ed392b1687ebc25a7fd9d842b8d1ee4baf9e4",
         "08b25e6a845ac4070efa6d49416713b5de7c4e53f35e5831544ee92efe51428a",
-        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b"
+        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b",
+        "73a1ffe75988b2b3cf4a04261a07be7d7cdee6aeabd20ee69f5f533310d74ad4"
       ]
     },
     "spacr.runctx.RunContext.__str__": {

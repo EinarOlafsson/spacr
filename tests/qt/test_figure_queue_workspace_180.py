@@ -1,6 +1,9 @@
 """Session-created figures survive the real screen's saved workspace."""
 import copy
 import json
+import os
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -256,3 +259,65 @@ def test_registry_does_not_construct_unvisited_results_for_restore(qtbot, qt_the
     assert not path.exists()
     assert Path(queue._png_paths[0]).is_file()
     screen.close()
+
+
+_RESTORE_DPR = r"""
+import json
+import sys
+from pathlib import Path
+from PySide6.QtCore import QSettings
+from PySide6.QtGui import QColor, QImage, QPixmap
+from PySide6.QtWidgets import QApplication
+from spacr.qt import preferences
+from spacr.qt.hidpi import device_ratio, scaled_for
+from spacr.qt.widgets.figure_queue import FigureQueue, THUMB_SIZE
+
+app = QApplication([])
+directory = Path(sys.argv[1])
+preferences._settings = lambda: QSettings(str(directory / 'preferences.ini'), QSettings.IniFormat)
+source = QImage(280, 180, QImage.Format_RGBA8888)
+for x in range(source.width()):
+    for y in range(source.height()):
+        source.setPixelColor(x, y, QColor('white' if (x + y) % 2 else 'black'))
+path = directory / 'detail.png'
+assert source.save(str(path))
+original = path.read_bytes()
+queue = FigureQueue()
+ratio = device_ratio(queue._list)
+assert ratio == float(sys.argv[2]), ratio
+state = {'version': 1, 'figures': [{'png': str(path), 'title': 'detail'}], 'runs': [], 'current': 0}
+try:
+    assert queue.apply_workspace_state(state) is True
+    assert queue.count() == 1
+    assert queue.figure_titles() == ['detail']
+    assert path.read_bytes() == original
+    assert Path(queue._png_paths[0]).read_bytes() == original
+    icon = queue._list.item(0).icon()
+    actual = icon.pixmap(THUMB_SIZE, ratio)
+    expected = scaled_for(QPixmap.fromImage(source), queue._list, THUMB_SIZE)
+    assert actual.size() == expected.size(), (actual.size(), expected.size())
+    assert actual.devicePixelRatio() == ratio
+    if ratio == 2:
+        actual_image = actual.toImage().convertToFormat(QImage.Format_RGBA8888)
+        expected_image = expected.toImage().convertToFormat(QImage.Format_RGBA8888)
+        assert bytes(actual_image.constBits()) == bytes(expected_image.constBits()), 'restored thumbnail discarded original pixel detail'
+    print(json.dumps({'ratio': ratio, 'pixels': [actual.width(), actual.height()], 'original_preserved': True, 'detail_checked': ratio == 2}))
+finally:
+    queue.close()
+assert path.read_bytes() == original
+"""
+
+
+@pytest.mark.parametrize("ratio", [1, 2])
+def test_workspace_restore_decodes_thumbnail_at_real_screen_density(tmp_path, ratio):
+    env = dict(os.environ, QT_SCALE_FACTOR=str(ratio), QT_QPA_PLATFORM="offscreen")
+    process = subprocess.run(
+        [sys.executable, "-c", _RESTORE_DPR, str(tmp_path), str(ratio)],
+        env=env, text=True, capture_output=True, timeout=60,
+    )
+    assert process.returncode == 0, process.stdout + process.stderr
+    report = json.loads(process.stdout.strip().splitlines()[-1])
+    assert report["ratio"] == ratio
+    assert report["pixels"] == [140 * ratio, 90 * ratio]
+    assert report["original_preserved"]
+    assert report["detail_checked"] is (ratio == 2)

@@ -421,8 +421,11 @@ def test_a_deleted_download_is_refused_not_run_as_cyto3(tmp_path, monkeypatch):
     monkeypatch.setattr(zoo, "catalogue", lambda **kwargs: [])
     monkeypatch.setattr(zoo, "fetch", lambda *args, **kwargs:
                         pytest.fail("an unavailable deleted model must not be fetched"))
-    with pytest.raises(FileNotFoundError, match="not there"):
+    with pytest.raises(zoo.ModelZooError) as refused:
         SB._cellpose3_model(value, object_type="cell")
+    assert "model_name" in str(refused.value)
+    assert repr(value) in str(refused.value)
+    assert "Available compatible zoo identities: []." in str(refused.value)
     assert not path.exists()
 
 

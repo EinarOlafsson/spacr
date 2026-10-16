@@ -152294,13 +152294,15 @@
       "source_blocks_sha256": [
         "1993a27719aca3586520e6a847808a68af06b79cf158182625d5f8669db3046d",
         "a7bd4e6952b64e2f51735f2cdd906e35b046db2fe655b8caec5b13197c1d08bf",
+        "39a8bd5a67a629f63e1f2598f77ea632c1c34173abd7792c3ca3e0ea21e8cb86",
         "32ad184b5d895760a58585e6b97140a9ce6a1c9c468e6f3a054396b3342cd65e"
       ],
-      "source_sha256": "08045e7872c4e753dad77ca9b23447cd3ddfd27c530c1deb41916ae6ebe8b5df",
-      "text": "Dele un diálogo a la tarjeta y el borde. True si se aplicó.\n\nIdempotente: un diálogo que ya lleva :data:`GLASSED` se deja solo, por lo que un diálogo mostrado, cerrado y mostrado de nuevo no acumula cartas.\n\n:param dialog: el diálogo que se decora; se deja tal cual salvo que :func:`wants_glass` lo acepte.",
+      "source_sha256": "911d51ee59d650bccb5d2923b55d3ada0ff7b21e8f7e9e3068f6c7593cfc6c35",
+      "text": "Dele un diálogo a la tarjeta y el borde. True si se aplicó.\n\nIdempotente: un diálogo que ya lleva :data:`GLASSED` se deja solo, por lo que un diálogo mostrado, cerrado y mostrado de nuevo no acumula cartas.\n\nLa hoja de estilos se aplica una sola vez, al final. Cada paso siguiente vuelve a dar estilo a un diálogo que ya tiene la hoja de estilos de la ventana: su propia regla es otra hoja de estilos, las opciones de ventana sin marco hacen que Qt vuelva a pulir cada widget de una ventana con estilo y cada contenedor transparente se vuelve a pulir. En Preferencias (967 widgets), esto tardaba 425-484 ms en un solo ``Polish``: la pausa de 0.36 s del clip de cambio de tamaño de la lección 05. Bajo :func:`spacr.qt.theme._one_sheet_for`, los pasos se ejecutan en un diálogo sin estilo y el mismo texto de la hoja de estilos se aplica una vez al final.\n\n:param dialog: el diálogo que se decora; se deja tal cual salvo que :func:`wants_glass` lo acepte.",
       "translation_source_blocks_sha256": [
         "1993a27719aca3586520e6a847808a68af06b79cf158182625d5f8669db3046d",
         "a7bd4e6952b64e2f51735f2cdd906e35b046db2fe655b8caec5b13197c1d08bf",
+        "7a3a4a2e96eb641628588f93f4cd45ef38795691d3ed25daa9f2378e03ed2cd2",
         "32ad184b5d895760a58585e6b97140a9ce6a1c9c468e6f3a054396b3342cd65e"
       ]
     },
@@ -187006,10 +187008,11 @@
         "a5d7ec449ef4a602a61a8b52723791cfc41cf14f765e0ff9e181edaf66fb18f8",
         "882b025608cfd488e23a584b446ed392b1687ebc25a7fd9d842b8d1ee4baf9e4",
         "8dd0e2a8113506874bc11e2fc2fc9c3f48a62736e07a25a74bd3c94a52ef8885",
-        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b"
+        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b",
+        "73a1ffe75988b2b3cf4a04261a07be7d7cdee6aeabd20ee69f5f533310d74ad4"
       ],
-      "source_sha256": "8f340495d1c595d60230eb54dc6e4a5181aa999d47ddcb317dd9dd713295f09b",
-      "text": "Una sesión de procesamiento de flujo de trabajo: su id, su semilla, su política de errores, su libro mayor.\n\nCreado por :func:`run_context`; leído en cualquier lugar por =:func:`current_run_context`. El id de este objeto es el id en cada línea de registro que la sesión de procesamiento emite (:func:`read_run_log`), en cada :class:`~spacr.errors.RunLedger` que reparte, y en cada :class:`spacr.artifacts.Artifact` que registra — que es lo que permite unir una línea de log y una salida.\n\n:param run_id: la identificación.\n:param module: la clave del módulo de producción — ``\"mask\"``, ``\"measure\"``, las mismas claves :mod:`spacr.ports` utiliza.\n:param seed: la semilla aplicada, o None cuando la ejecución no está desplantada.\n:param policy: el :class:`ErrorPolicy` en vigor.\n:param ledger: la ejecución :class:`~spacr.errors.RunLedger`, cuya ``run_id`` se ha configurado a la de esta ejecución.\n:param settings: la configuración con la que se inició la sesión de procesamiento.\n:param seed_report: qué :func:`seed_everything` logró sembrar.\n:param started_utc: cuando se abrió la ejecución.\n:param log_path: el registro JSONL de la ejecución, o ``\"\"`` cuando el registro está apagado.\n:param resource_log_path: ruta al recurso process-tree de la sesión de procesamiento JSON documento, o ``\"\"`` cuando la contabilidad de recursos está desactivada o no disponible. Establezca cuando comience el muestreo y se use para registrar el documento.\n:param resource_artifact_id: identificador de registro de artefactos asignado después del registro exitoso de documentos de recursos, o ``\"\"`` cuando no se creó ningún registro.",
+      "source_sha256": "b17236a3334e68ec484a01688c8da915414c51d140fe249949ad1dc8b5dde16d",
+      "text": "Una sesión de procesamiento de flujo de trabajo: su id, su semilla, su política de errores, su libro mayor.\n\nCreado por :func:`run_context`; leído en cualquier lugar por =:func:`current_run_context`. El id de este objeto es el id en cada línea de registro que la sesión de procesamiento emite (:func:`read_run_log`), en cada :class:`~spacr.errors.RunLedger` que reparte, y en cada :class:`spacr.artifacts.Artifact` que registra — que es lo que permite unir una línea de log y una salida.\n\n:param run_id: la identificación.\n:param module: la clave del módulo de producción — ``\"mask\"``, ``\"measure\"``, las mismas claves :mod:`spacr.ports` utiliza.\n:param seed: la semilla aplicada, o None cuando la ejecución no está desplantada.\n:param policy: el :class:`ErrorPolicy` en vigor.\n:param ledger: la ejecución :class:`~spacr.errors.RunLedger`, cuya ``run_id`` se ha configurado a la de esta ejecución.\n:param settings: la configuración con la que se inició la sesión de procesamiento.\n:param seed_report: qué :func:`seed_everything` logró sembrar.\n:param started_utc: cuando se abrió la ejecución.\n:param log_path: el registro JSONL de la ejecución, o ``\"\"`` cuando el registro está apagado.\n:param resource_log_path: ruta al recurso process-tree de la sesión de procesamiento JSON documento, o ``\"\"`` cuando la contabilidad de recursos está desactivada o no disponible. Establezca cuando comience el muestreo y se use para registrar el documento.\n:param resource_artifact_id: identificador de registro de artefactos asignado después del registro exitoso de documentos de recursos, o ``\"\"`` cuando no se creó ningún registro.\n:param _resource_sampler: el muestreador interno de recursos del árbol de procesos, o ``None`` antes de iniciar la contabilidad de recursos o cuando no está disponible.",
       "translation_source_blocks_sha256": [
         "5182280c6a8c9d3beeb11fd5d8146fb99dfe657e4176813b67dc999249ca0860",
         "8ebc90c80c227b9def3c1bf4239226d4e1305bd40bf6b88dd21f839c05d44eca",
@@ -187023,7 +187026,8 @@
         "a5d7ec449ef4a602a61a8b52723791cfc41cf14f765e0ff9e181edaf66fb18f8",
         "882b025608cfd488e23a584b446ed392b1687ebc25a7fd9d842b8d1ee4baf9e4",
         "08b25e6a845ac4070efa6d49416713b5de7c4e53f35e5831544ee92efe51428a",
-        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b"
+        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b",
+        "73a1ffe75988b2b3cf4a04261a07be7d7cdee6aeabd20ee69f5f533310d74ad4"
       ]
     },
     "spacr.runctx.RunContext.__str__": {

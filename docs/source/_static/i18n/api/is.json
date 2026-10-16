@@ -152294,13 +152294,15 @@
       "source_blocks_sha256": [
         "1993a27719aca3586520e6a847808a68af06b79cf158182625d5f8669db3046d",
         "a7bd4e6952b64e2f51735f2cdd906e35b046db2fe655b8caec5b13197c1d08bf",
+        "39a8bd5a67a629f63e1f2598f77ea632c1c34173abd7792c3ca3e0ea21e8cb86",
         "32ad184b5d895760a58585e6b97140a9ce6a1c9c468e6f3a054396b3342cd65e"
       ],
-      "source_sha256": "08045e7872c4e753dad77ca9b23447cd3ddfd27c530c1deb41916ae6ebe8b5df",
-      "text": "Gefðu sögu á kortinu og rími. True ef það var notað.\n\nÓmögulegt: samskipti sem nú hefur verið :data:`GLASSED` er eftir einn, þannig að samskipti sem birtist, lokað og sýnt aftur hækkar ekki kort.\n\n:param dialog: glugginn sem á að skreyta; hann er látinn í friði nema :func:`wants_glass` samþykki hann.",
+      "source_sha256": "911d51ee59d650bccb5d2923b55d3ada0ff7b21e8f7e9e3068f6c7593cfc6c35",
+      "text": "Gefðu sögu á kortinu og rími. True ef það var notað.\n\nÓmögulegt: samskipti sem nú hefur verið :data:`GLASSED` er eftir einn, þannig að samskipti sem birtist, lokað og sýnt aftur hækkar ekki kort.\n\nStílblaðið er sett á einu sinni, síðast. Hvert skref hér að neðan breytir stíl glugga sem ber þegar stílblað gluggans: eigin regla hans verður enn eitt stílblaðið, rammalausu gluggaflöggin fá Qt til að endurfægja hverja viðmótseiningu í stílsniðnum glugga og hver gagnsær gámur er fægður aftur. Í kjörstillingum (967 viðmótseiningar) tók þetta 425-484 ms í einu ``Polish``, 0.36 s stöðvunin í stærðarbreytingarmyndskeiði kennslustundar 05. Innan :func:`spacr.qt.theme._one_sheet_for` keyra skrefin á glugga án stílblaðs og sami stílblaðstexti er settur á einu sinni í lokin.\n\n:param dialog: glugginn sem á að skreyta; hann er látinn í friði nema :func:`wants_glass` samþykki hann.",
       "translation_source_blocks_sha256": [
         "1993a27719aca3586520e6a847808a68af06b79cf158182625d5f8669db3046d",
         "a7bd4e6952b64e2f51735f2cdd906e35b046db2fe655b8caec5b13197c1d08bf",
+        "7a3a4a2e96eb641628588f93f4cd45ef38795691d3ed25daa9f2378e03ed2cd2",
         "32ad184b5d895760a58585e6b97140a9ce6a1c9c468e6f3a054396b3342cd65e"
       ]
     },
@@ -187006,10 +187008,11 @@
         "a5d7ec449ef4a602a61a8b52723791cfc41cf14f765e0ff9e181edaf66fb18f8",
         "882b025608cfd488e23a584b446ed392b1687ebc25a7fd9d842b8d1ee4baf9e4",
         "8dd0e2a8113506874bc11e2fc2fc9c3f48a62736e07a25a74bd3c94a52ef8885",
-        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b"
+        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b",
+        "73a1ffe75988b2b3cf4a04261a07be7d7cdee6aeabd20ee69f5f533310d74ad4"
       ],
-      "source_sha256": "8f340495d1c595d60230eb54dc6e4a5181aa999d47ddcb317dd9dd713295f09b",
-      "text": ". Ein vinnuflæðisvinnsla: auðkenni hennar, fræ hennar, villureglur hennar, bókhald hennar.\n\nSkreitt af :func:`run_context`; lesa hvar sem er með :func:`current_run_context`. ID á þessu hlutum er ID á hverjum log línu sem meðhöndlun fer út (:func:`read_run_log`), á hvert :class:`~spacr.errors.RunLedger` það fer út, og á hverju :class:`spacr.artifacts.Artifact` það rekstur - sem er það sem gerir log lín og útgang að tengjast.\n\n:param run_id: og ID.\n:param module: að framleiðandi keyfi — ``\"mask\"``, ``\"measure\"``, sama keyfi :mod:`spacr.ports` notar.\n:param seed: sem er notað, eða None þegar flutning er ósetur.\n:param policy: „:class:`ErrorPolicy`“ er í gildi.\n:param ledger: :class:`~spacr.errors.RunLedger` í rúnum, sem ``run_id`` hefur verið sett á þessu rúnni.\n:param settings: Sættir sem meðhöndla samsetningu var byrjað með.\n:param seed_report: Það sem :func:`seed_everything` gerði að sendi.\n:param started_utc: Þegar ferli er opið.\n:param log_path: JSONL log, eða ``\"\"`` þegar skrá er off.\n:param resource_log_path: leið til tákn-tákn JSON táknina, eða ``\"\"`` þegar táknin er off eða óþægilegt. Sættu þegar mönnun byrjar og notað til að skrá táknið.\n:param resource_artifact_id: Artifact registry identifier aðstæður eftir vellíðan resource-document registration, eða ``\"\"`` þegar engin skrá var skapað.",
+      "source_sha256": "b17236a3334e68ec484a01688c8da915414c51d140fe249949ad1dc8b5dde16d",
+      "text": ". Ein vinnuflæðisvinnsla: auðkenni hennar, fræ hennar, villureglur hennar, bókhald hennar.\n\nSkreitt af :func:`run_context`; lesa hvar sem er með :func:`current_run_context`. ID á þessu hlutum er ID á hverjum log línu sem meðhöndlun fer út (:func:`read_run_log`), á hvert :class:`~spacr.errors.RunLedger` það fer út, og á hverju :class:`spacr.artifacts.Artifact` það rekstur - sem er það sem gerir log lín og útgang að tengjast.\n\n:param run_id: og ID.\n:param module: að framleiðandi keyfi — ``\"mask\"``, ``\"measure\"``, sama keyfi :mod:`spacr.ports` notar.\n:param seed: sem er notað, eða None þegar flutning er ósetur.\n:param policy: „:class:`ErrorPolicy`“ er í gildi.\n:param ledger: :class:`~spacr.errors.RunLedger` í rúnum, sem ``run_id`` hefur verið sett á þessu rúnni.\n:param settings: Sættir sem meðhöndla samsetningu var byrjað með.\n:param seed_report: Það sem :func:`seed_everything` gerði að sendi.\n:param started_utc: Þegar ferli er opið.\n:param log_path: JSONL log, eða ``\"\"`` þegar skrá er off.\n:param resource_log_path: leið til tákn-tákn JSON táknina, eða ``\"\"`` þegar táknin er off eða óþægilegt. Sættu þegar mönnun byrjar og notað til að skrá táknið.\n:param resource_artifact_id: Artifact registry identifier aðstæður eftir vellíðan resource-document registration, eða ``\"\"`` þegar engin skrá var skapað.\n:param _resource_sampler: innri auðlindasýnatökuaðili fyrir ferlatréð, eða ``None`` áður en auðlindaskráning hefst eða þegar hún er ekki tiltæk.",
       "translation_source_blocks_sha256": [
         "5182280c6a8c9d3beeb11fd5d8146fb99dfe657e4176813b67dc999249ca0860",
         "8ebc90c80c227b9def3c1bf4239226d4e1305bd40bf6b88dd21f839c05d44eca",
@@ -187023,7 +187026,8 @@
         "a5d7ec449ef4a602a61a8b52723791cfc41cf14f765e0ff9e181edaf66fb18f8",
         "882b025608cfd488e23a584b446ed392b1687ebc25a7fd9d842b8d1ee4baf9e4",
         "08b25e6a845ac4070efa6d49416713b5de7c4e53f35e5831544ee92efe51428a",
-        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b"
+        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b",
+        "73a1ffe75988b2b3cf4a04261a07be7d7cdee6aeabd20ee69f5f533310d74ad4"
       ]
     },
     "spacr.runctx.RunContext.__str__": {

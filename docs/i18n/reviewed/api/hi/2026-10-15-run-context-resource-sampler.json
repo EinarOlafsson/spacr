@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical authoring; independent peer recorded separately; no human/native signoff",
+  "records": [
+    {
+      "label": "spacr.runctx.RunContext#13",
+      "source": "the internal process-tree resource sampler, or ``None`` before resource accounting starts or when it is unavailable.",
+      "source_sha256": "73a1ffe75988b2b3cf4a04261a07be7d7cdee6aeabd20ee69f5f533310d74ad4",
+      "context": "the internal process-tree resource sampler, or ``None`` before resource accounting starts or when it is unavailable.",
+      "translation": "आंतरिक प्रक्रिया-वृक्ष संसाधन सैंपलर, या संसाधन लेखांकन शुरू होने से पहले अथवा उसके अनुपलब्ध होने पर ``None``।",
+      "review_basis": "Exact source-bound API parameter technical authoring; independent review pending."
+    }
+  ]
+}

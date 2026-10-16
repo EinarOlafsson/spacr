@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical authoring; independent peer recorded separately; no human/native signoff",
+  "records": [
+    {
+      "label": "spacr.runctx.RunContext#13",
+      "source": "the internal process-tree resource sampler, or ``None`` before resource accounting starts or when it is unavailable.",
+      "source_sha256": "73a1ffe75988b2b3cf4a04261a07be7d7cdee6aeabd20ee69f5f533310d74ad4",
+      "context": "the internal process-tree resource sampler, or ``None`` before resource accounting starts or when it is unavailable.",
+      "translation": "내부 프로세스 트리 리소스 샘플러이며, 리소스 집계가 시작되기 전이나 사용할 수 없을 때는 ``None`` 입니다.",
+      "review_basis": "Exact source-bound API parameter technical authoring; independent review pending."
+    }
+  ]
+}

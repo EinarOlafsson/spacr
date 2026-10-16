@@ -152294,13 +152294,15 @@
       "source_blocks_sha256": [
         "1993a27719aca3586520e6a847808a68af06b79cf158182625d5f8669db3046d",
         "a7bd4e6952b64e2f51735f2cdd906e35b046db2fe655b8caec5b13197c1d08bf",
+        "39a8bd5a67a629f63e1f2598f77ea632c1c34173abd7792c3ca3e0ea21e8cb86",
         "32ad184b5d895760a58585e6b97140a9ce6a1c9c468e6f3a054396b3342cd65e"
       ],
-      "source_sha256": "08045e7872c4e753dad77ca9b23447cd3ddfd27c530c1deb41916ae6ebe8b5df",
-      "text": "Donnez une boîte de dialogue à la carte et à la jante. True si elle a été appliquée.\n\nIdémpotent : un dialogue qui porte déjà :data:`GLASSED` est laissé seul, donc un dialogue affiché, fermé et montré à nouveau n'accumule pas de cartes.\n\n:param dialog: la boîte de dialogue à décorer ; elle est laissée telle quelle sauf si :func:`wants_glass` l’accepte.",
+      "source_sha256": "911d51ee59d650bccb5d2923b55d3ada0ff7b21e8f7e9e3068f6c7593cfc6c35",
+      "text": "Donnez une boîte de dialogue à la carte et à la jante. True si elle a été appliquée.\n\nIdémpotent : un dialogue qui porte déjà :data:`GLASSED` est laissé seul, donc un dialogue affiché, fermé et montré à nouveau n'accumule pas de cartes.\n\nLa feuille de style est appliquée une seule fois, en dernier. Chaque étape ci-dessous redéfinit le style d’une boîte de dialogue qui porte déjà la feuille de style de la fenêtre : sa propre règle constitue une feuille supplémentaire, les indicateurs de fenêtre sans cadre obligent Qt à repolir chaque widget d’une fenêtre stylée, et chaque conteneur transparent est repoli. Dans les Préférences (967 widgets), cela prenait 425-484 ms dans un seul ``Polish``, soit le blocage de 0.36 s du clip de redimensionnement de la leçon 05. Sous :func:`spacr.qt.theme._one_sheet_for`, les étapes s’exécutent sur une boîte de dialogue sans style, puis le même texte de feuille de style est appliqué une fois à la fin.\n\n:param dialog: la boîte de dialogue à décorer ; elle est laissée telle quelle sauf si :func:`wants_glass` l’accepte.",
       "translation_source_blocks_sha256": [
         "1993a27719aca3586520e6a847808a68af06b79cf158182625d5f8669db3046d",
         "a7bd4e6952b64e2f51735f2cdd906e35b046db2fe655b8caec5b13197c1d08bf",
+        "7a3a4a2e96eb641628588f93f4cd45ef38795691d3ed25daa9f2378e03ed2cd2",
         "32ad184b5d895760a58585e6b97140a9ce6a1c9c468e6f3a054396b3342cd65e"
       ]
     },
@@ -187006,10 +187008,11 @@
         "a5d7ec449ef4a602a61a8b52723791cfc41cf14f765e0ff9e181edaf66fb18f8",
         "882b025608cfd488e23a584b446ed392b1687ebc25a7fd9d842b8d1ee4baf9e4",
         "8dd0e2a8113506874bc11e2fc2fc9c3f48a62736e07a25a74bd3c94a52ef8885",
-        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b"
+        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b",
+        "73a1ffe75988b2b3cf4a04261a07be7d7cdee6aeabd20ee69f5f533310d74ad4"
       ],
-      "source_sha256": "8f340495d1c595d60230eb54dc6e4a5181aa999d47ddcb317dd9dd713295f09b",
-      "text": "Une session de traitement de workflow : son id, sa graine, sa politique d'erreur, son grand livre.\n\nCréé par :func:`run_context`; lu n'importe où par :func:`current_run_context`. L'id de cet objet est l'id sur chaque ligne de log que la session de traitement émet (:func:`read_run_log`), sur chaque :class:`~spacr.errors.RunLedger` qu'elle distribue, et sur tous les :class:`spacr.artifacts.Artifact` elle enregistre — ce qui permet d'attacher une ligne de journal et une sortie.\n\n:param run_id: l'identité.\n:param module: la clé du module de production — ``\"mask\"``, ``\"measure\"``, les mêmes touches :mod:`spacr.ports` utilise.\n:param seed: la graine appliquée, ou None lorsque le exécution n'est pas ensemencé.\n:param policy: le :class:`ErrorPolicy` en vigueur.\n:param ledger: le run est :class:`~spacr.errors.RunLedger`, dont ``run_id`` a été réglé sur ce run.\n:param settings: les paramètres avec lesquels la session de traitement a été commencée.\n:param seed_report: ce que :func:`seed_everything` a réussi à semer.\n:param started_utc: quand l’exécution s'est ouverte.\n:param log_path: le journal JSONL de l'exécution, ou ``\"\"`` quand la connexion est désactivée.\n:param resource_log_path: chemin vers la ressource process-tree de la session de traitement JSON document, ou ``\"\"`` lorsque la comptabilité des ressources est désactivée ou indisponible.\n:param resource_artifact_id: identificateur d'enregistrement des artefacts attribué après l'enregistrement réussi des documents relatifs aux ressources, ou ``\"\"`` lorsqu'aucun enregistrement n'a été créé.",
+      "source_sha256": "b17236a3334e68ec484a01688c8da915414c51d140fe249949ad1dc8b5dde16d",
+      "text": "Une session de traitement de workflow : son id, sa graine, sa politique d'erreur, son grand livre.\n\nCréé par :func:`run_context`; lu n'importe où par :func:`current_run_context`. L'id de cet objet est l'id sur chaque ligne de log que la session de traitement émet (:func:`read_run_log`), sur chaque :class:`~spacr.errors.RunLedger` qu'elle distribue, et sur tous les :class:`spacr.artifacts.Artifact` elle enregistre — ce qui permet d'attacher une ligne de journal et une sortie.\n\n:param run_id: l'identité.\n:param module: la clé du module de production — ``\"mask\"``, ``\"measure\"``, les mêmes touches :mod:`spacr.ports` utilise.\n:param seed: la graine appliquée, ou None lorsque le exécution n'est pas ensemencé.\n:param policy: le :class:`ErrorPolicy` en vigueur.\n:param ledger: le run est :class:`~spacr.errors.RunLedger`, dont ``run_id`` a été réglé sur ce run.\n:param settings: les paramètres avec lesquels la session de traitement a été commencée.\n:param seed_report: ce que :func:`seed_everything` a réussi à semer.\n:param started_utc: quand l’exécution s'est ouverte.\n:param log_path: le journal JSONL de l'exécution, ou ``\"\"`` quand la connexion est désactivée.\n:param resource_log_path: chemin vers la ressource process-tree de la session de traitement JSON document, ou ``\"\"`` lorsque la comptabilité des ressources est désactivée ou indisponible.\n:param resource_artifact_id: identificateur d'enregistrement des artefacts attribué après l'enregistrement réussi des documents relatifs aux ressources, ou ``\"\"`` lorsqu'aucun enregistrement n'a été créé.\n:param _resource_sampler: l’échantillonneur interne des ressources de l’arbre de processus, ou ``None`` avant le début du suivi des ressources ou lorsque celui-ci est indisponible.",
       "translation_source_blocks_sha256": [
         "5182280c6a8c9d3beeb11fd5d8146fb99dfe657e4176813b67dc999249ca0860",
         "8ebc90c80c227b9def3c1bf4239226d4e1305bd40bf6b88dd21f839c05d44eca",
@@ -187023,7 +187026,8 @@
         "a5d7ec449ef4a602a61a8b52723791cfc41cf14f765e0ff9e181edaf66fb18f8",
         "882b025608cfd488e23a584b446ed392b1687ebc25a7fd9d842b8d1ee4baf9e4",
         "08b25e6a845ac4070efa6d49416713b5de7c4e53f35e5831544ee92efe51428a",
-        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b"
+        "e76f888c5582a93deaa2570221f883b9a08a83e9036bd0f75e63e1bd94c10b9b",
+        "73a1ffe75988b2b3cf4a04261a07be7d7cdee6aeabd20ee69f5f533310d74ad4"
       ]
     },
     "spacr.runctx.RunContext.__str__": {

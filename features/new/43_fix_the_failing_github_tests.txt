@@ -4020,3 +4020,8 @@ data/reviewed_folder_ellipsis_normal_closure_2026-10-15/ and
 data/ci_reviewed_folder_ellipsis_consumers_2026-10-15/.
 
 2026-10-15 Original Home — dated README checkout size factual CI repair. Immutable public81ffd9 regular tracked blobs measure4656.950838MiB, rounded4657 under existing MB label. Only size/date tokens changed in ten YAML paragraphs; nine new source-bound technical reviews retain all historical reviews and measurements. Normal ten-language README writer/check and original11 size/review/structure cases PASS1.42s, zero skips/network. Only40 intended generated panel/text/README paths changed; foreign panels/links/source/review pins exact. First shaping-dependency failure stopped before writes; unchanged writer retried using an existing fully equipped interpreter, tests retained spaCR. No package/tool/tolerance change or full-CI claim. WholeN43 remains open on actual hosted/current-source verdict and remaining explicit gates. Evidence: data/ci_readme_tracked_size_inputs_2026-10-15/ and normal closure receipt.
+
+2026-10-15 — CI candidate: splitter lifecycle/sizing, high-DPI figure restoration, corrected fixtures, normal API/catalog/flow regeneration.
+BLOCKED ON MAINTAINER: Claude Home must register item 370 with the alpha gate and repair the bad inline literal in crashreport._normalized_problems (item 700).
+Work must restore expected-field waiting in record_yolo_boxes for Lesson 14. These claimed sources were not edited here.
+After those owner fixes, run the full nightly tests workflow green before releasing 1.5.1.5.

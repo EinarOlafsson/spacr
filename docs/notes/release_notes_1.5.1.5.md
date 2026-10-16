@@ -30,6 +30,8 @@
 
 ### Fixed
 
+- Resizable panes keep their remembered sizes and close safely with their screen.
+- Figures restored from a saved workspace retain thumbnail detail on high-DPI screens.
 - Module screens no longer stall every 2 s. The GPU is read through NVML instead of starting `nvidia-smi`, and usage bars paint with the next frame.
 - Command palette: a key typed while the list is rebuilding is kept instead of crashing the app.
 - Regression panel: fixed a thread error.
