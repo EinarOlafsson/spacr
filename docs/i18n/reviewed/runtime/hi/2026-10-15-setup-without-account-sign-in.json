@@ -12,10 +12,10 @@
     },
     {
       "table": "ui",
-      "key": "Crash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished. A report is redacted, shown in an editable preview, and sent only when you press Send for that specific report. Both choices are optional and revocable in Preferences.",
-      "source": "Crash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished. A report is redacted, shown in an editable preview, and sent only when you press Send for that specific report. Both choices are optional and revocable in Preferences.",
-      "source_sha256": "7ac2ab3aea685d946cf4248e75022868af0d04dfe6097e86545e717f77ea291b",
-      "translation": "क्रैश रिपोर्ट सार्वजनिक spaCR GitHub रिपॉज़िटरी में जाती हैं। उन्हें दुनिया भर में पढ़ा और अनुक्रमित किया जा सकता है तथा उनका प्रकाशन भरोसेमंद तरीके से वापस नहीं लिया जा सकता। रिपोर्ट से संवेदनशील जानकारी हटाकर संपादन योग्य पूर्वावलोकन दिखाया जाता है और वह तभी भेजी जाती है जब आप उसी रिपोर्ट के लिए भेजें दबाते हैं। दोनों विकल्प वैकल्पिक हैं और प्राथमिकताओं में वापस लिए जा सकते हैं।"
+      "key": "Anonymised error reports are on by default. They are filed as public GitHub issues by spaCR's relay, with no account needed, and never include paths, names, IP addresses, emails, tokens, logs, images or your content. spaCR AI (free) is also on by default. Turn reports off in Preferences → AI → AI Error report. The terms of use, Sections 5.6–5.7 and 6, give the details.",
+      "source": "Anonymised error reports are on by default. They are filed as public GitHub issues by spaCR's relay, with no account needed, and never include paths, names, IP addresses, emails, tokens, logs, images or your content. spaCR AI (free) is also on by default. Turn reports off in Preferences → AI → AI Error report. The terms of use, Sections 5.6–5.7 and 6, give the details.",
+      "source_sha256": "4c828e0655b6d27121f2d7373e49acd08909ce93d05e7c4067d08e7b56071764",
+      "translation": "गुमनाम त्रुटि रिपोर्ट डिफ़ॉल्ट रूप से चालू हैं। spaCR का रिले उन्हें सार्वजनिक GitHub इश्यू के रूप में दर्ज करता है, खाते की आवश्यकता नहीं है, और उनमें पथ, नाम, IP पते, ईमेल, टोकन, लॉग, चित्र या आपकी सामग्री कभी शामिल नहीं होती। spaCR AI (निःशुल्क) भी डिफ़ॉल्ट रूप से चालू है। रिपोर्ट को प्राथमिकताएँ → AI → AI Error report में बंद करें। विवरण उपयोग की शर्तों, अनुभाग 5.6–5.7 और 6 में हैं।"
     }
   ]
 }

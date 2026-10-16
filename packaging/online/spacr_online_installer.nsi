@@ -62,7 +62,7 @@ Function ConsentPage
   ${If} $0 == error
     Abort
   ${EndIf}
-  ${NSD_CreateLabel} 0 0 100% 58u "Privacy choices$\r$\n$\r$\nCrash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished. Every report is redacted, shown in an editable preview, and sent only when you press Send for that report. These choices are optional and revocable in Preferences."
+  ${NSD_CreateLabel} 0 0 100% 58u "Privacy choices$\r$\nAnonymised error reports are on by default. They are filed as public GitHub issues by spaCR's relay, with no account needed, and never include paths, names, IP addresses, emails, tokens, logs, images or your content. spaCR AI (free) is also on by default. Turn reports off in Preferences > AI > AI Error report. See the terms of use, Sections 5.6-5.7 and 6."
   Pop $0
   ${NSD_CreateCheckbox} 0 66u 100% 12u "Include redacted diagnostic logs in report previews (off by default)"
   Pop $ConsentShare

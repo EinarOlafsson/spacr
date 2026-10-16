@@ -244,9 +244,8 @@ ask_yes_no() {
 if [[ "$CONSENT_COLLECTED" == "0" && -t 0 && "$DRY_RUN" != "1" && "$GUI_REQUEST" != "1" ]]; then
     printf '\nspaCR privacy choices\n'
     printf '%s\n' \
-        'Crash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished.' \
-        'Every report is redacted, shown in an editable preview, and sent only when you press Send for that report.' \
-        'All choices are optional, default off, and can be changed later in Preferences.'
+        'Anonymised error reports are on by default. They are filed as public GitHub issues by spaCR'"'"'s relay, with no account needed, and never include paths, names, IP addresses, emails, tokens, logs, images or your content.' \
+        'spaCR AI (free) is also on by default. Turn reports off in Preferences > AI > AI Error report. The terms of use, Sections 5.6-5.7 and 6, give the details.'
     ask_yes_no 'Include redacted diagnostic logs in report previews?' && SHARE_DIAGNOSTICS=1
     ask_yes_no 'Enable the public GitHub issue-report action?' && REPORT_ISSUES=1
     CONSENT_COLLECTED=1

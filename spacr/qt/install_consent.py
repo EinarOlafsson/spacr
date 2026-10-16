@@ -73,11 +73,13 @@ class InstallerConsentDialog(QDialog):
         self.setMinimumWidth(scaled_px(640))
         layout = QVBoxLayout(self)
         explanation = QLabel(tr(
-            "Crash reports go to the PUBLIC spaCR GitHub repository. They "
-            "are world-readable, indexed, and cannot be reliably unpublished. "
-            "A report is redacted, shown in an editable preview, and sent "
-            "only when you press Send for that specific report. Both choices "
-            "are optional and revocable in Preferences."
+            "Anonymised error reports are on by default. They are filed as "
+            "public GitHub issues by spaCR's relay, with no account needed, "
+            "and never include paths, names, IP addresses, emails, tokens, "
+            "logs, images or your content. spaCR AI (free) is also on by "
+            "default. Turn reports off in Preferences \u2192 AI \u2192 AI "
+            "Error report. The terms of use, Sections 5.6\u20135.7 and 6, "
+            "give the details."
         ))
         explanation.setWordWrap(True)
         explanation.setSizePolicy(QSizePolicy.Preferred,

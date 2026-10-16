@@ -12,10 +12,10 @@
     },
     {
       "table": "ui",
-      "key": "Crash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished. A report is redacted, shown in an editable preview, and sent only when you press Send for that specific report. Both choices are optional and revocable in Preferences.",
-      "source": "Crash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished. A report is redacted, shown in an editable preview, and sent only when you press Send for that specific report. Both choices are optional and revocable in Preferences.",
-      "source_sha256": "7ac2ab3aea685d946cf4248e75022868af0d04dfe6097e86545e717f77ea291b",
-      "translation": "충돌 보고서는 공개 spaCR GitHub 저장소로 전송됩니다. 누구나 읽을 수 있고 검색에 노출되며, 게시 후 완전히 회수된다고 보장할 수 없습니다. 보고서는 민감 정보가 제거된 뒤 편집 가능한 미리보기에 표시되며, 해당 보고서에서 보내기를 눌렀을 때만 전송됩니다. 두 가지 선택 사항 모두 선택적이며 환경설정에서 철회할 수 있습니다."
+      "key": "Anonymised error reports are on by default. They are filed as public GitHub issues by spaCR's relay, with no account needed, and never include paths, names, IP addresses, emails, tokens, logs, images or your content. spaCR AI (free) is also on by default. Turn reports off in Preferences → AI → AI Error report. The terms of use, Sections 5.6–5.7 and 6, give the details.",
+      "source": "Anonymised error reports are on by default. They are filed as public GitHub issues by spaCR's relay, with no account needed, and never include paths, names, IP addresses, emails, tokens, logs, images or your content. spaCR AI (free) is also on by default. Turn reports off in Preferences → AI → AI Error report. The terms of use, Sections 5.6–5.7 and 6, give the details.",
+      "source_sha256": "4c828e0655b6d27121f2d7373e49acd08909ce93d05e7c4067d08e7b56071764",
+      "translation": "익명화된 오류 보고서는 기본적으로 켜져 있습니다. spaCR 릴레이가 계정 없이 공개 GitHub 이슈로 등록하며, 경로, 이름, IP 주소, 이메일, 토큰, 로그, 이미지, 사용자 콘텐츠는 절대 포함되지 않습니다. spaCR AI(무료)도 기본적으로 켜져 있습니다. 환경설정 → AI → AI Error report에서 보고서를 끌 수 있습니다. 자세한 내용은 이용 약관 5.6–5.7절과 6절을 참조하세요."
     }
   ]
 }

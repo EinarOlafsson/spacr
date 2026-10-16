@@ -65,7 +65,7 @@
   "old_install_same": "Það er sama útgáfa og þetta uppsetningarforrit ber.",
   "old_copy_not_removed": "Uppsetning stöðvuð: ekki tókst að fjarlægja eldri spaCR (sjá ofar). Lokaðu öllum spaCR sem eru í gangi og keyrðu uppsetningarforritið aftur.",
   "gui_explanation": "Setja upp einkarekna Python-umhverfið og spaCR-háð pakka í þessum glugga. Þetta notandaumhverfi krefst hvorki svara í Terminal né lykilorðs stjórnanda.",
-  "gui_public_reports": "Villuskýrslur eru opinberar og ekki er hægt að tryggja að birting þeirra sé afturkölluð. Viðkvæmar upplýsingar eru fjarlægðar og skýrslan forskoðuð fyrir hverja sendingu. Valin eru valfrjáls og má breyta síðar í stillingum.",
+  "gui_public_reports": "Nafnlausar villuskýrslur eru sjálfgefið virkar. Milliþjónn spaCR skráir þær sem opinber GitHub-mál án þess að aðgangur þurfi, og þær innihalda aldrei slóðir, nöfn, IP-tölur, netföng, lykla, annála, myndir eða efni þitt. spaCR AI (ókeypis) er einnig sjálfgefið virkt. Slökktu á skýrslum í Stillingar → AI → AI Error report. Nánari upplýsingar eru í notkunarskilmálunum, kafla 5.6–5.7 og 6.",
   "gui_share_diagnostics": "Hafa greiningarannála án viðkvæmra upplýsinga með í forskoðun skýrslna",
   "gui_report_issues": "Virkja opinbera villutilkynningu á GitHub",
   "gui_preserve": "Núverandi gögn, líkön, skyndiminni og stillingar eru varðveitt. Engin valfrjáls hreinsun er valin.",

@@ -12,10 +12,10 @@
     },
     {
       "table": "ui",
-      "key": "Crash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished. A report is redacted, shown in an editable preview, and sent only when you press Send for that specific report. Both choices are optional and revocable in Preferences.",
-      "source": "Crash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished. A report is redacted, shown in an editable preview, and sent only when you press Send for that specific report. Both choices are optional and revocable in Preferences.",
-      "source_sha256": "7ac2ab3aea685d946cf4248e75022868af0d04dfe6097e86545e717f77ea291b",
-      "translation": "Os relatórios de falhas são enviados para o repositório PÚBLICO do spaCR no GitHub. Podem ser lidos por qualquer pessoa, são indexados e não podem ser retirados de forma fiável. O relatório tem as informações sensíveis ocultadas, é mostrado numa pré-visualização alterável e só é enviado quando carrega em Enviar nesse relatório específico. Ambas as opções são voluntárias e podem ser revogadas nas Preferências."
+      "key": "Anonymised error reports are on by default. They are filed as public GitHub issues by spaCR's relay, with no account needed, and never include paths, names, IP addresses, emails, tokens, logs, images or your content. spaCR AI (free) is also on by default. Turn reports off in Preferences → AI → AI Error report. The terms of use, Sections 5.6–5.7 and 6, give the details.",
+      "source": "Anonymised error reports are on by default. They are filed as public GitHub issues by spaCR's relay, with no account needed, and never include paths, names, IP addresses, emails, tokens, logs, images or your content. spaCR AI (free) is also on by default. Turn reports off in Preferences → AI → AI Error report. The terms of use, Sections 5.6–5.7 and 6, give the details.",
+      "source_sha256": "4c828e0655b6d27121f2d7373e49acd08909ce93d05e7c4067d08e7b56071764",
+      "translation": "Os relatórios de erro anonimizados estão ativados por predefinição. O relay do spaCR regista-os como issues públicas do GitHub, sem necessidade de conta, e nunca incluem caminhos, nomes, endereços IP, e-mails, tokens, registos, imagens nem o seu conteúdo. O spaCR AI (gratuito) também está ativado por predefinição. Pode desativar os relatórios em Preferências → AI → AI Error report. Os detalhes constam dos termos de utilização, secções 5.6–5.7 e 6."
     }
   ]
 }

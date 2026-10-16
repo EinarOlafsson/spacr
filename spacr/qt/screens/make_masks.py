@@ -17359,9 +17359,9 @@ class MakeMasksScreen(QWidget):
         self._method_groups = {}
         for name, build in builders:
             _screens_package._breathe_while_a_window_opens()
-            self._method_groups[name] = build()
-        for group in self._method_groups.values():
+            group = build()
             card.body_layout.addWidget(group)
+            self._method_groups[name] = group
         self._gate_mitonet_mode()
         card.body_layout.addWidget(self._build_uncertainty_ensemble_setting())
         self._magnification_card = self._build_magnifier_card()

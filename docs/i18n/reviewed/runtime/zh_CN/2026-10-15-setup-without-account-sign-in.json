@@ -12,10 +12,10 @@
     },
     {
       "table": "ui",
-      "key": "Crash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished. A report is redacted, shown in an editable preview, and sent only when you press Send for that specific report. Both choices are optional and revocable in Preferences.",
-      "source": "Crash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished. A report is redacted, shown in an editable preview, and sent only when you press Send for that specific report. Both choices are optional and revocable in Preferences.",
-      "source_sha256": "7ac2ab3aea685d946cf4248e75022868af0d04dfe6097e86545e717f77ea291b",
-      "translation": "崩溃报告会提交到公开的 spaCR GitHub 仓库。任何人都能阅读，搜索引擎也会收录，而且无法保证彻底撤回。报告会先脱敏并显示在可编辑的预览中；只有当你为该报告按下“发送”时才会提交。两个选项均为自愿选择，并可在首选项中撤销。"
+      "key": "Anonymised error reports are on by default. They are filed as public GitHub issues by spaCR's relay, with no account needed, and never include paths, names, IP addresses, emails, tokens, logs, images or your content. spaCR AI (free) is also on by default. Turn reports off in Preferences → AI → AI Error report. The terms of use, Sections 5.6–5.7 and 6, give the details.",
+      "source": "Anonymised error reports are on by default. They are filed as public GitHub issues by spaCR's relay, with no account needed, and never include paths, names, IP addresses, emails, tokens, logs, images or your content. spaCR AI (free) is also on by default. Turn reports off in Preferences → AI → AI Error report. The terms of use, Sections 5.6–5.7 and 6, give the details.",
+      "source_sha256": "4c828e0655b6d27121f2d7373e49acd08909ce93d05e7c4067d08e7b56071764",
+      "translation": "匿名错误报告默认开启。它们由 spaCR 的中继以公开 GitHub issue 的形式提交，无需账户，且绝不包含路径、名称、IP 地址、电子邮件、令牌、日志、图像或您的内容。spaCR AI（免费）同样默认开启。可在“偏好设置”→ AI → AI Error report 中关闭报告。详情见使用条款第 5.6–5.7 节和第 6 节。"
     }
   ]
 }
