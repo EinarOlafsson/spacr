@@ -16702,7 +16702,9 @@ class MakeMasksScreen(QWidget):
 
         Both tabs stay ENABLED before Cellpose has run, unlike the
         standalone tool's, because a disabled tab cannot be opened to
-        read the one sentence that explains why it is empty.
+        read the one sentence that explains why it is empty. The picture
+        panes can shrink vertically so wrapped button bars keep their
+        full height on a laptop screen.
         """
         tabs = QTabWidget()
         tabs.setObjectName("MakeMasksViewTabs")
@@ -16719,6 +16721,8 @@ class MakeMasksScreen(QWidget):
         tabs.setCornerWidget(self._mask_stage.view_picker, Qt.TopLeftCorner)
         self._prob_pane = _FlowPane()
         self._flow_pane = _FlowPane()
+        for pane in (self._canvas, self._prob_pane, self._flow_pane):
+            pane.setMinimumHeight(1)
         self._tab_prob = tabs.addTab(self._prob_pane, "Cell probability")
         self._tab_flow = tabs.addTab(self._flow_pane, "Flows")
         tabs.setCornerWidget(controls, Qt.TopRightCorner)

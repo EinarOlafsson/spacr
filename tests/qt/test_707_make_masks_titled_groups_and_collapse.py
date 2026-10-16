@@ -169,6 +169,17 @@ def test_tabs_controls_and_footer_have_separate_visible_geometry(
     assert footer_rect.bottom() < _where(screen, screen._io_group).y()
     assert footer_rect.left() - _where(screen, screen._image_container).x() < 20
     assert not screen._status_label.isVisible()
+    for button in (screen._btn_recrop, screen._btn_magnifier,
+                   screen._btn_test_data):
+        assert button.visibleRegion().boundingRect() == button.rect(), {
+            "button": button.text(),
+            "top": (screen._tool_row.height(),
+                    screen._tool_row.heightForWidth(screen._tool_row.width())),
+            "image_minimum": screen._body_stack.minimumSizeHint().toTuple(),
+            "bottom": (screen._bottom_bar.height(),
+                       screen._bottom_bar.heightForWidth(screen._bottom_bar.width())),
+            "panes": screen._image_container.sizes(),
+        }
     for index in (screen._tab_flow, screen._tab_prob, 0):
         tabs.setCurrentIndex(index)
         assert tabs.currentIndex() == index
