@@ -1,0 +1,259 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "key": "Administrator access is required for these paths. Nothing was removed and spaCR will stay open: {paths}",
+      "source": "Administrator access is required for these paths. Nothing was removed and spaCR will stay open: {paths}",
+      "source_sha256": "f3deae331dec497ee57d216067f969fc80bdd12f6e9eb6c65e03656933bd0122",
+      "table": "ui",
+      "translation": "इन पथों के लिए व्यवस्थापक अनुमतियाँ आवश्यक हैं। कुछ भी नहीं हटाया गया और spaCR खुला रहेगा: {paths}"
+    },
+    {
+      "key": "All detected spaCR versions",
+      "source": "All detected spaCR versions",
+      "source_sha256": "2060d12aa10f3d1951817fefddc7cdba0729dcde9e51267403ce827ec220043f",
+      "table": "ui",
+      "translation": "spaCR के सभी मिले हुए संस्करण"
+    },
+    {
+      "key": "Choose which detected spaCR installations to remove. Shared Python and Conda environments keep their other packages. Source checkouts and unverified paths are kept.",
+      "source": "Choose which detected spaCR installations to remove. Shared Python and Conda environments keep their other packages. Source checkouts and unverified paths are kept.",
+      "source_sha256": "3dcaacef55b60499f8be3ae29de2501500169217bd2dff6e63bd665712dff6a3",
+      "table": "ui",
+      "translation": "चुनें कि मिले हुए spaCR इंस्टॉलेशन में से किन्हें हटाना है। साझा Python और Conda परिवेशों में अन्य पैकेज बने रहेंगे। स्रोत कोड की कार्यशील प्रतियाँ और असत्यापित पथ सुरक्षित रखे जाएँगे।"
+    },
+    {
+      "key": "Cleanup category or path",
+      "source": "Cleanup category or path",
+      "source_sha256": "53327f18dfc0a3d4f601378777798d0555cee40b0b225602f38a2add70d37919",
+      "table": "ui",
+      "translation": "सफ़ाई श्रेणी या पथ"
+    },
+    {
+      "key": "Confirm uninstall",
+      "source": "Confirm uninstall",
+      "source_sha256": "d6c33a825b2d230c9e929f0315f3656f7bcbc27393e757b1682a675cd38e4289",
+      "table": "ui",
+      "translation": "अनइंस्टॉल की पुष्टि करें"
+    },
+    {
+      "key": "Current version",
+      "source": "Current version",
+      "source_sha256": "a74487de8969b1f177259bc414ee97cb82a47a8d3ece58f3513f3757cd465fcc",
+      "table": "ui",
+      "translation": "वर्तमान संस्करण"
+    },
+    {
+      "key": "Delete if selected",
+      "source": "Delete if selected",
+      "source_sha256": "0c977b7e3f89a4e52f3cf3d9311170fdd15c9316cbb1570c6d798ec810d55bb2",
+      "table": "ui",
+      "translation": "चुने जाने पर हटाएँ"
+    },
+    {
+      "key": "Downloads",
+      "source": "Downloads",
+      "source_sha256": "d5fdc1af021e2d360ff80496c4c5d698e77fc3015a157ea08e8e60cf81690a46",
+      "table": "ui",
+      "translation": "डाउनलोड"
+    },
+    {
+      "key": "Finding installed spaCR versions…",
+      "source": "Finding installed spaCR versions…",
+      "source_sha256": "7bbe6e2b9335ed03af36aa33239f63ddcd161543ea9e902520b4dcd1639d1b3d",
+      "table": "ui",
+      "translation": "spaCR के स्थापित संस्करण खोजे जा रहे हैं…"
+    },
+    {
+      "key": "Finish or cancel the current update before uninstalling spaCR.",
+      "source": "Finish or cancel the current update before uninstalling spaCR.",
+      "source_sha256": "23eda1fabfabda56c56abc4c1a91a671e6a26831affbe4b2773472f57138064a",
+      "table": "ui",
+      "translation": "spaCR को अनइंस्टॉल करने से पहले वर्तमान अपडेट पूरा करें या रद्द करें।"
+    },
+    {
+      "key": "History",
+      "source": "History",
+      "source_sha256": "0e769600933790607b2a13b33ddfade0fa17810eb62c3b28ee23e59516516491",
+      "table": "ui",
+      "translation": "इतिहास"
+    },
+    {
+      "key": "Installation or path",
+      "source": "Installation or path",
+      "source_sha256": "2b1b5e06daf4d4cc9b4ed6dbf8797d612fa57be66b5688469e25e39816790f3d",
+      "table": "ui",
+      "translation": "इंस्टॉलेशन या पथ"
+    },
+    {
+      "key": "Kept: ownership or path could not be verified",
+      "source": "Kept: ownership or path could not be verified",
+      "source_sha256": "030223400bac1461d75731284c0e73d1788688de5f72f01053f31c1498b7976c",
+      "table": "ui",
+      "translation": "सुरक्षित रखा गया: स्वामित्व या पथ सत्यापित नहीं हो सका"
+    },
+    {
+      "key": "Logs",
+      "source": "Logs",
+      "source_sha256": "ea2100dc89ae9fe21fa9b08ab1bf18662dca1e53a3eebd7d03afebcaf5d57515",
+      "table": "ui",
+      "translation": "लॉग"
+    },
+    {
+      "key": "No files found",
+      "source": "No files found",
+      "source_sha256": "949d59b7ee8dabf8c14f26bb88463d19a331f38aa2542534727cb77fc3b94338",
+      "table": "ui",
+      "translation": "कोई फ़ाइल नहीं मिली"
+    },
+    {
+      "key": "No removable spaCR installation was found for this scope.",
+      "source": "No removable spaCR installation was found for this scope.",
+      "source_sha256": "988eca741cc3ea05d91f77b56069d71ee72a7f301fca29d9cc0d8ab38f67d7c0",
+      "table": "ui",
+      "translation": "इस दायरे में हटाने योग्य कोई spaCR इंस्टॉलेशन नहीं मिला।"
+    },
+    {
+      "key": "Nothing to delete",
+      "source": "Nothing to delete",
+      "source_sha256": "28615499cec0c588b423225d26440a81f953fbd082d540f265a9189542c3d9dc",
+      "table": "ui",
+      "translation": "हटाने के लिए कुछ नहीं है"
+    },
+    {
+      "key": "Other spaCR data",
+      "source": "Other spaCR data",
+      "source_sha256": "a138978ebf7e0b1a6a364d012e739175261a47a81ebe138c17482d1a93d782a7",
+      "table": "ui",
+      "translation": "अन्य spaCR डेटा"
+    },
+    {
+      "key": "Permission denied. These files were kept.",
+      "source": "Permission denied. These files were kept.",
+      "source_sha256": "a57db55b41e1148ae0a19fdfbabe661313b7b11ffe77b143385274dc11b6d438",
+      "table": "ui",
+      "translation": "अनुमति अस्वीकृत। ये फ़ाइलें सुरक्षित रखी गईं।"
+    },
+    {
+      "key": "Preparing uninstall. spaCR will stay open until preparation succeeds…",
+      "source": "Preparing uninstall. spaCR will stay open until preparation succeeds…",
+      "source_sha256": "4ea245c617855f61c12be98ed4a8fcc3a7ab1695b998f8a6efbf7b5d6f41f8cb",
+      "table": "ui",
+      "translation": "अनइंस्टॉल की तैयारी की जा रही है। तैयारी सफल होने तक spaCR खुला रहेगा…"
+    },
+    {
+      "key": "Remove application",
+      "source": "Remove application",
+      "source_sha256": "49c56cbd22a8ef2ddb31cb5b774fd3282f1a37e69311340ec750fe8a35370a0a",
+      "table": "ui",
+      "translation": "ऐप्लिकेशन हटाएँ"
+    },
+    {
+      "key": "Remove spaCR package only",
+      "source": "Remove spaCR package only",
+      "source_sha256": "9147e27e0179bcba969000d3972b65ea32c835c81f11e518c068766addaa5b1c",
+      "table": "ui",
+      "translation": "केवल spaCR पैकेज हटाएँ"
+    },
+    {
+      "key": "Remove the current spaCR version or all detected versions. Review the exact paths and choose which spaCR data to keep.",
+      "source": "Remove the current spaCR version or all detected versions. Review the exact paths and choose which spaCR data to keep.",
+      "source_sha256": "d7cdb86de19ccd3906888155ee0b45bc21a9825155e405be27ecdd476be730e3",
+      "table": "ui",
+      "translation": "spaCR का वर्तमान संस्करण या सभी मिले हुए संस्करण हटाएँ। सटीक पथों की समीक्षा करें और चुनें कि कौन-सा spaCR डेटा रखना है।"
+    },
+    {
+      "key": "The cleanup paths changed. Review the uninstall paths again.",
+      "source": "The cleanup paths changed. Review the uninstall paths again.",
+      "source_sha256": "d918f4d8051b61234dcf0a24c5d1aab8688aa76bd598ebc71c88550227265471",
+      "table": "ui",
+      "translation": "सफ़ाई के पथ बदल गए हैं। अनइंस्टॉल के पथों की फिर से समीक्षा करें।"
+    },
+    {
+      "key": "The installation changed. Review the uninstall paths again.",
+      "source": "The installation changed. Review the uninstall paths again.",
+      "source_sha256": "55c7db8f5c8e95f6097046ccabd0d539e030e109d79432fd00ff5827faa5831a",
+      "table": "ui",
+      "translation": "इंस्टॉलेशन बदल गया है। अनइंस्टॉल के पथों की फिर से समीक्षा करें।"
+    },
+    {
+      "key": "The uninstall helper must be outside every selected path.",
+      "source": "The uninstall helper must be outside every selected path.",
+      "source_sha256": "9b81d1bb848429501530813296be658e507a9bb302cd4fa2aa9520930f20047c",
+      "table": "ui",
+      "translation": "अनइंस्टॉल सहायक सभी चुने हुए पथों के बाहर होना चाहिए।"
+    },
+    {
+      "key": "The uninstall selection changed. Review the paths again.",
+      "source": "The uninstall selection changed. Review the paths again.",
+      "source_sha256": "277e6d6257cf96dc63afe7b75b9cee996cb10f28cc31cca2c756a722274246d7",
+      "table": "ui",
+      "translation": "अनइंस्टॉल का चयन बदल गया है। पथों की फिर से समीक्षा करें।"
+    },
+    {
+      "key": "Uninstall cleanup categories start selected. Clear any category to keep its files. Review every listed path before confirming. History includes output copies saved in run records. Ordinary updates keep user data.",
+      "source": "Uninstall cleanup categories start selected. Clear any category to keep its files. Review every listed path before confirming. History includes output copies saved in run records. Ordinary updates keep user data.",
+      "source_sha256": "72be4e52b045599486487614e5638f26d1993905744cb6fde8a796ac67d1f390",
+      "table": "ui",
+      "translation": "अनइंस्टॉल की सफ़ाई श्रेणियाँ शुरू में चुनी हुई होती हैं। किसी श्रेणी की फ़ाइलें रखने के लिए उसका चयन हटाएँ। पुष्टि करने से पहले सूचीबद्ध हर पथ की समीक्षा करें। इतिहास में रन रिकॉर्ड में सहेजी गई आउटपुट प्रतियाँ शामिल हैं। सामान्य अपडेट उपयोगकर्ता का डेटा सुरक्षित रखते हैं।"
+    },
+    {
+      "key": "Uninstall scope",
+      "source": "Uninstall scope",
+      "source_sha256": "050eb89adf90a27b0ed2c385626f7a8101d61568a4256a5567df7368a0e1b5ad",
+      "table": "ui",
+      "translation": "अनइंस्टॉल का दायरा"
+    },
+    {
+      "key": "Uninstall spaCR",
+      "source": "Uninstall spaCR",
+      "source_sha256": "941ad3c694116f858c3fc3cd5697e2a7c58c1666503b8d0926a7849afbc1af3a",
+      "table": "ui",
+      "translation": "spaCR अनइंस्टॉल करें"
+    },
+    {
+      "key": "Uninstall stopped",
+      "source": "Uninstall stopped",
+      "source_sha256": "01705ea25ef724c6faba53e94c3fddd1082cc2e2dba231805d6de538400ffd43",
+      "table": "ui",
+      "translation": "अनइंस्टॉल रुक गया"
+    },
+    {
+      "key": "Uninstall stopped: {error}",
+      "source": "Uninstall stopped: {error}",
+      "source_sha256": "92a3230889aab875ab15a2bdaa81123e3853149b2d139f7eae9bea1fdb354e3c",
+      "table": "ui",
+      "translation": "अनइंस्टॉल रुक गया: {error}"
+    },
+    {
+      "key": "Uninstall…",
+      "source": "Uninstall…",
+      "source_sha256": "07d4b8ed253af35180e50af78acc456f5eacb58dd0f35c9a33c24cb488ac9a89",
+      "table": "ui",
+      "translation": "अनइंस्टॉल करें…"
+    },
+    {
+      "key": "Unknown",
+      "source": "Unknown",
+      "source_sha256": "b764cdc0eab7137467211272fa539f1260d1bf2e71bcf6ff3bdc960f5c16aa14",
+      "table": "ui",
+      "translation": "अज्ञात"
+    },
+    {
+      "key": "finish a confirmed uninstall after spaCR closes",
+      "source": "finish a confirmed uninstall after spaCR closes",
+      "source_sha256": "0ac60313634be7a67cfd12e014b8371bf09a7b0e24265c639408e376c7cc5d6d",
+      "table": "ui",
+      "translation": "spaCR बंद होने के बाद पुष्टि किए गए अनइंस्टॉल को पूरा करें"
+    },
+    {
+      "key": "spaCR must close before this installation can be removed.",
+      "source": "spaCR must close before this installation can be removed.",
+      "source_sha256": "5a9dd517697cb74da7ae537e6fb4a53708d7601a4f836037a08eeaa3fa608041",
+      "table": "ui",
+      "translation": "इस इंस्टॉलेशन को हटाने से पहले spaCR बंद करना आवश्यक है।"
+    }
+  ],
+  "review_kind": "AI technical source and target-language review; no native-speaker signoff",
+  "schema": 1
+}
