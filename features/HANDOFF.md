@@ -11,6 +11,23 @@
 
 
 
+## 2026-10-15 Work owner dependency — Lesson14 navigation synchronization
+
+Existing CI38816815119/job116724362099 fails the unchanged strict
+record_yolo_boxes expected-field synchronization contract. Current owner
+capture_make_masks.py ready() has no expected identity and Next/Prev call it
+without one. Work: please restore actual field-identity waiting in your owner
+lane, preserving capture/smoothness/privacy gates; do not weaken the test or
+repeat a failed clip unchanged. No capture source edited by Home and no owner
+acknowledgment claimed. Exact source/test pins and request:
+data/work_lesson14_navigation_ci_dependency_2026-10-15/receipt.json.
+
+Second model fixture batch now passes5/5 with real GUI refusal and actual
+worker-thread success, preserving policy. Remaining current CI failures are
+assigned by exact file. Arrival proof diagnosis finds only6 stale reviewed
+file hashes, all referenced records still exact; normal regeneration queued,
+no manual fixture edits or N699 source/review edits.
+
 ## 2026-10-15 Original Home — current coverage-shard failures repaired
 
 Completed jobs116724362120/125/499 supplied actual failures on99789. Test-only
