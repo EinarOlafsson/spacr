@@ -1068,7 +1068,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A supported frozen macOS application uses a verified DMG replacement and retains its complete previous application bundle. These macOS update paths do not run the standard deletion procedure. Other frozen application families require a supported replacement adapter before an update can start.",
       "source_sha256": "e017a0d3e804e71040c5189f6b6426d8402cab247d827b87e69f69e9b020125a",
-      "translation": "Une application macOS figée prise en charge utilise un remplacement DMG vérifié et conserve son paquet d’application précédent complet. Ces chemins de mise à jour macOS n’exécutent pas la procédure de suppression standard. Les autres familles d’applications figées nécessitent un adaptateur de remplacement pris en charge avant qu’une mise à jour puisse démarrer."
+      "translation": "Une application macOS figée prise en charge utilise un remplacement DMG vérifié et conserve son paquet d’application précédent complet. Ces chemins de mise à jour macOS n’exécutent pas la procédure de suppression standard. Les autres familles d’applications figées nécessitent un adaptateur de remplacement pris en charge avant qu’une mise à jour puisse démarrer.",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "context": "The running copy is not removed here, because on Windows an installation cannot delete itself while it runs. :func:`start_update_helper` runs the appropriate update procedure after spaCR has closed.",
@@ -1102,7 +1104,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "For a supported macOS online installation, use the existing bundled ``uv`` and private Python to upgrade spaCR in the same environment. Preserve the environment directory, bootstrap files, application launcher, and installed packages that need no update. Restart only after verifying that the installed version is at least ``version`` and newer than the previous version, when that previous version is known. A failed upgrade or version check does not trigger removal or a replacement installer.",
       "source_sha256": "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
-      "translation": "Pour une installation macOS en ligne prise en charge, utilise le ``uv`` fourni existant et le Python privé pour mettre à niveau spaCR dans le même environnement. Conserve le répertoire de l’environnement, les fichiers d’amorçage, le lanceur de l’application et les paquets installés qui n’ont pas besoin de mise à jour. Redémarre seulement après avoir vérifié que la version installée est au moins ``version`` et plus récente que la version précédente, lorsque celle-ci est connue. Un échec de mise à niveau ou de vérification de version ne déclenche ni suppression ni programme d’installation de remplacement."
+      "translation": "Pour une installation macOS en ligne prise en charge, utilise le ``uv`` fourni existant et le Python privé pour mettre à niveau spaCR dans le même environnement. Conserve le répertoire de l’environnement, les fichiers d’amorçage, le lanceur de l’application et les paquets installés qui n’ont pas besoin de mise à jour. Redémarre seulement après avoir vérifié que la version installée est au moins ``version`` et plus récente que la version précédente, lorsque celle-ci est connue. Un échec de mise à niveau ou de vérification de version ne déclenche ni suppression ni programme d’installation de remplacement.",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "context": "The standard replacement path downloads the new installer, removes older installer-made copies, installs the new version, and starts it. If any required removal fails, skip installation and write the reason to the log.",

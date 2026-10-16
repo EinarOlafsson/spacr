@@ -130,7 +130,9 @@
       "context": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. A protocol-marked Debian bundle uses graphical administrator authorization and a root-owned helper outside the installation. Both the replacement and rollback package require published checksums; package and unprivileged runtime verification precede relaunch. Unsupported frozen application families return an error before removing anything; no online-installer fallback is enabled for them.",
       "source_sha256": "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674",
       "translation": "Ein eingefrorenes macOS-Anwendungspaket an einem für den Benutzer beschreibbaren Ort verwendet seinen geprüften DMG-Ersetzungsadapter und behält das vollständige vorherige Anwendungspaket. Ein Debian-Anwendungspaket mit Protokollmarkierung verwendet eine grafische Administratorautorisierung und ein root-eigenes Hilfsprogramm außerhalb der Installation. Sowohl das Ersatzpaket als auch das Paket für die Wiederherstellung benötigen veröffentlichte Prüfsummen; die Prüfung des Pakets und der Laufzeitumgebung ohne erhöhte Rechte erfolgt vor dem erneuten Start. Nicht unterstützte Familien eingefrorener Anwendungen geben einen Fehler zurück, bevor etwas entfernt wird; für sie ist kein Rückgriff auf das Online-Installationsprogramm aktiviert.",
-      "review_basis": "Original Home Hard author; Original Home root independent target peer, exact unchanged final paragraph12; technical review only, no native-speaker claim."
+      "review_basis": "Original Home Hard author; Original Home root independent target peer, exact unchanged final paragraph12; technical review only, no native-speaker claim.",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "label": "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding#0",

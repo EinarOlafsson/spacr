@@ -1068,7 +1068,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A supported frozen macOS application uses a verified DMG replacement and retains its complete previous application bundle. These macOS update paths do not run the standard deletion procedure. Other frozen application families require a supported replacement adapter before an update can start.",
       "source_sha256": "e017a0d3e804e71040c5189f6b6426d8402cab247d827b87e69f69e9b020125a",
-      "translation": "समर्थित फ़्रोज़न macOS ऐप्लिकेशन सत्यापित DMG प्रतिस्थापन का उपयोग करता है और अपना पूरा पिछला ऐप्लिकेशन बंडल बनाए रखता है। ये macOS अपडेट पथ मानक हटाने की प्रक्रिया नहीं चलाते। अन्य फ़्रोज़न ऐप्लिकेशन परिवारों को अपडेट शुरू होने से पहले एक समर्थित प्रतिस्थापन एडेप्टर की आवश्यकता होती है।"
+      "translation": "समर्थित फ़्रोज़न macOS ऐप्लिकेशन सत्यापित DMG प्रतिस्थापन का उपयोग करता है और अपना पूरा पिछला ऐप्लिकेशन बंडल बनाए रखता है। ये macOS अपडेट पथ मानक हटाने की प्रक्रिया नहीं चलाते। अन्य फ़्रोज़न ऐप्लिकेशन परिवारों को अपडेट शुरू होने से पहले एक समर्थित प्रतिस्थापन एडेप्टर की आवश्यकता होती है।",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "context": "The running copy is not removed here, because on Windows an installation cannot delete itself while it runs. :func:`start_update_helper` runs the appropriate update procedure after spaCR has closed.",
@@ -1102,7 +1104,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "For a supported macOS online installation, use the existing bundled ``uv`` and private Python to upgrade spaCR in the same environment. Preserve the environment directory, bootstrap files, application launcher, and installed packages that need no update. Restart only after verifying that the installed version is at least ``version`` and newer than the previous version, when that previous version is known. A failed upgrade or version check does not trigger removal or a replacement installer.",
       "source_sha256": "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
-      "translation": "समर्थित macOS ऑनलाइन इंस्टॉलेशन के लिए, उसी वातावरण में spaCR अपग्रेड करने हेतु मौजूदा साथ आए ``uv`` और निजी Python का उपयोग करें। वातावरण डायरेक्टरी, बूटस्ट्रैप फ़ाइलें, ऐप्लिकेशन लॉन्चर, और वे इंस्टॉल किए गए पैकेज सुरक्षित रखें जिन्हें अपडेट की ज़रूरत नहीं है। फिर से शुरू केवल यह सत्यापित करने के बाद करें कि इंस्टॉल किया गया संस्करण कम से कम ``version`` है और, जब पिछला संस्करण ज्ञात हो, उससे नया है। विफल अपग्रेड या संस्करण जाँच न तो हटाने की प्रक्रिया शुरू करती है और न ही प्रतिस्थापन इंस्टॉलर।"
+      "translation": "समर्थित macOS ऑनलाइन इंस्टॉलेशन के लिए, उसी वातावरण में spaCR अपग्रेड करने हेतु मौजूदा साथ आए ``uv`` और निजी Python का उपयोग करें। वातावरण डायरेक्टरी, बूटस्ट्रैप फ़ाइलें, ऐप्लिकेशन लॉन्चर, और वे इंस्टॉल किए गए पैकेज सुरक्षित रखें जिन्हें अपडेट की ज़रूरत नहीं है। फिर से शुरू केवल यह सत्यापित करने के बाद करें कि इंस्टॉल किया गया संस्करण कम से कम ``version`` है और, जब पिछला संस्करण ज्ञात हो, उससे नया है। विफल अपग्रेड या संस्करण जाँच न तो हटाने की प्रक्रिया शुरू करती है और न ही प्रतिस्थापन इंस्टॉलर।",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "context": "The standard replacement path downloads the new installer, removes older installer-made copies, installs the new version, and starts it. If any required removal fails, skip installation and write the reason to the log.",

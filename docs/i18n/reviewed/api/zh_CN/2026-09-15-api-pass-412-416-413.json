@@ -113,7 +113,9 @@
       "label": "spacr.install_cleanup#4",
       "source": "Removal never runs an old version's own uninstaller, so a copy whose ``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed all the same. Preferences and user data are kept: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt`` settings (``~/.config/spacr``, the macOS preferences file, and the ``Software\\spacr`` registry key on Windows).",
       "source_sha256": "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
-      "translation": "删除时从不运行旧版本自带的卸载程序，因此即使某个副本的 ``Uninstall.exe`` 或 ``uninstall-spacr.sh`` 缺失或损坏，它也照样会被删除。首选项和用户数据会保留：``~/.spacr``、``~/.cache/spacr``、``~/.local/state/spacr``、``~/spacr-demos``、``~/spacr-tutorials``、Hugging Face 缓存，以及 ``spacr``/``qt`` 设置（``~/.config/spacr``、macOS 上的首选项文件，以及 Windows 上的 ``Software\\spacr`` 注册表键）。"
+      "translation": "删除时从不运行旧版本自带的卸载程序，因此即使某个副本的 ``Uninstall.exe`` 或 ``uninstall-spacr.sh`` 缺失或损坏，它也照样会被删除。首选项和用户数据会保留：``~/.spacr``、``~/.cache/spacr``、``~/.local/state/spacr``、``~/spacr-demos``、``~/spacr-tutorials``、Hugging Face 缓存，以及 ``spacr``/``qt`` 设置（``~/.config/spacr``、macOS 上的首选项文件，以及 Windows 上的 ``Software\\spacr`` 注册表键）。",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "context": "A pip or conda environment the user made is listed but never deleted; the spaCR package is uninstalled from it only when the caller says it was ticked. An editable source checkout is reported and left alone.",

@@ -113,7 +113,9 @@
       "label": "spacr.install_cleanup#4",
       "source": "Removal never runs an old version's own uninstaller, so a copy whose ``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed all the same. Preferences and user data are kept: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt`` settings (``~/.config/spacr``, the macOS preferences file, and the ``Software\\spacr`` registry key on Windows).",
       "source_sha256": "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
-      "translation": "La eliminación nunca ejecuta el desinstalador propio de una versión antigua, así que una copia cuyo ``Uninstall.exe`` o ``uninstall-spacr.sh`` falta o está dañado se elimina igualmente. Las preferencias y los datos del usuario se conservan: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, la caché de Hugging Face y la configuración de ``spacr``/``qt`` (``~/.config/spacr``, el archivo de preferencias de macOS y la clave del registro ``Software\\spacr`` en Windows)."
+      "translation": "La eliminación nunca ejecuta el desinstalador propio de una versión antigua, así que una copia cuyo ``Uninstall.exe`` o ``uninstall-spacr.sh`` falta o está dañado se elimina igualmente. Las preferencias y los datos del usuario se conservan: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, la caché de Hugging Face y la configuración de ``spacr``/``qt`` (``~/.config/spacr``, el archivo de preferencias de macOS y la clave del registro ``Software\\spacr`` en Windows).",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "context": "A pip or conda environment the user made is listed but never deleted; the spaCR package is uninstalled from it only when the caller says it was ticked. An editable source checkout is reported and left alone.",

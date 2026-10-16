@@ -130,7 +130,9 @@
       "context": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. A protocol-marked Debian bundle uses graphical administrator authorization and a root-owned helper outside the installation. Both the replacement and rollback package require published checksums; package and unprivileged runtime verification precede relaunch. Unsupported frozen application families return an error before removing anything; no online-installer fallback is enabled for them.",
       "source_sha256": "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674",
       "translation": "位于用户可写位置的冻结 macOS 应用程序包使用其经过验证的 DMG 替换适配器，并完整保留先前的应用程序包。带有协议标记的 Debian 程序包使用图形化管理员授权，以及位于安装目录之外、归 root 所有的辅助程序。替换软件包和回滚软件包都需要已公布的校验和；重新启动应用程序之前，必须验证软件包和非特权运行环境。不受支持的冻结应用程序系列会在删除任何内容之前返回错误；这些系列未启用通过在线安装器进行回退的路径。",
-      "review_basis": "Original Home Hard author; Original Home root independent target peer, exact unchanged final paragraph12; technical review only, no native-speaker claim."
+      "review_basis": "Original Home Hard author; Original Home root independent target peer, exact unchanged final paragraph12; technical review only, no native-speaker claim.",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "label": "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding#0",

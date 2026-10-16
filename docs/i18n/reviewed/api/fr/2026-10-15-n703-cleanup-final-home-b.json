@@ -130,7 +130,9 @@
       "context": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. A protocol-marked Debian bundle uses graphical administrator authorization and a root-owned helper outside the installation. Both the replacement and rollback package require published checksums; package and unprivileged runtime verification precede relaunch. Unsupported frozen application families return an error before removing anything; no online-installer fallback is enabled for them.",
       "source_sha256": "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674",
       "translation": "Un paquet d’application macOS figé situé dans un emplacement accessible en écriture à l’utilisateur utilise son adaptateur de remplacement DMG vérifié et conserve l’intégralité du paquet précédent. Un paquet Debian portant un marqueur de protocole utilise une autorisation graphique d’administrateur et un programme auxiliaire appartenant à root, situé hors de l’installation. Le paquet de remplacement et celui de retour à la version précédente exigent tous deux des sommes de contrôle publiées ; la vérification du paquet et de l’environnement d’exécution sans privilèges précède le redémarrage. Les familles d’applications figées non prises en charge renvoient une erreur avant toute suppression ; aucun recours à l’installateur en ligne n’est activé pour elles.",
-      "review_basis": "Original Home Hard author; Original Home root independent target peer, exact unchanged final paragraph12; technical review only, no native-speaker claim."
+      "review_basis": "Original Home Hard author; Original Home root independent target peer, exact unchanged final paragraph12; technical review only, no native-speaker claim.",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "label": "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding#0",

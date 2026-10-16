@@ -9,7 +9,9 @@
       "source_sha256": "cec3fb3c67983bab4fd6ea6ca11c0bcb33e727d5bdffd7eee3df8b03aeb6f8c7",
       "context": "Installer-made copies and supported dedicated POSIX or Windows pip environments can use this helper. It waits for the executing process to exit before changing the installation; the pip adapter also requires authenticated shutdown approval.",
       "translation": "Las copias creadas por el instalador y los entornos dedicados POSIX o Windows con pip compatibles pueden usar este asistente. Espera a que termine el proceso en ejecución antes de modificar la instalación; el adaptador pip también exige una aprobación autenticada del cierre.",
-      "review_basis": "AI technical review of the exact current paragraph. Supported dedicated Windows pip environments are added alongside POSIX; installer-made copies, process-exit-before-mutation and authenticated pip shutdown approval are preserved. No universal/shared/Conda support or native-platform acceptance is claimed."
+      "review_basis": "AI technical review of the exact current paragraph. Supported dedicated Windows pip environments are added alongside POSIX; installer-made copies, process-exit-before-mutation and authenticated pip shutdown approval are preserved. No universal/shared/Conda support or native-platform acceptance is claimed.",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     }
   ]
 }

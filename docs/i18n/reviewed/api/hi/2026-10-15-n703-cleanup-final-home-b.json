@@ -130,7 +130,9 @@
       "context": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. A protocol-marked Debian bundle uses graphical administrator authorization and a root-owned helper outside the installation. Both the replacement and rollback package require published checksums; package and unprivileged runtime verification precede relaunch. Unsupported frozen application families return an error before removing anything; no online-installer fallback is enabled for them.",
       "source_sha256": "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674",
       "translation": "उपयोगकर्ता द्वारा लिखे जा सकने वाले स्थान में स्थित फ़्रीज़ किया हुआ macOS अनुप्रयोग बंडल अपने सत्यापित DMG प्रतिस्थापन अडैप्टर का उपयोग करता है और पूरा पिछला बंडल बनाए रखता है। प्रोटोकॉल मार्कर वाला Debian बंडल ग्राफ़िकल प्रशासक अनुमति और स्थापना के बाहर स्थित, root के स्वामित्व वाले सहायक का उपयोग करता है। प्रतिस्थापन और रोलबैक, दोनों पैकेजों के लिए प्रकाशित चेकसम आवश्यक हैं; अनुप्रयोग को दोबारा शुरू करने से पहले पैकेज और बिना विशेषाधिकार वाले रनटाइम परिवेश का सत्यापन होता है। फ़्रीज़ किए हुए अनुप्रयोगों के असमर्थित परिवार कुछ भी हटाने से पहले त्रुटि लौटाते हैं; उनके लिए ऑनलाइन इंस्टॉलर का कोई वैकल्पिक मार्ग सक्षम नहीं है।",
-      "review_basis": "Original Home Hard author; Original Home root independent target peer, exact unchanged final paragraph12; technical review only, no native-speaker claim."
+      "review_basis": "Original Home Hard author; Original Home root independent target peer, exact unchanged final paragraph12; technical review only, no native-speaker claim.",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "label": "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding#0",

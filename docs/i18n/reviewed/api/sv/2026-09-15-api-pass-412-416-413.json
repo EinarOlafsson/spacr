@@ -113,7 +113,9 @@
       "label": "spacr.install_cleanup#4",
       "source": "Removal never runs an old version's own uninstaller, so a copy whose ``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed all the same. Preferences and user data are kept: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt`` settings (``~/.config/spacr``, the macOS preferences file, and the ``Software\\spacr`` registry key on Windows).",
       "source_sha256": "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
-      "translation": "Borttagningen kör aldrig en gammal versions eget avinstallationsprogram, så en kopia vars ``Uninstall.exe`` eller ``uninstall-spacr.sh`` saknas eller är trasig tas bort ändå. Inställningar och användardata behålls: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, cachen för Hugging Face och inställningarna för ``spacr``/``qt`` (``~/.config/spacr``, inställningsfilen i macOS och registernyckeln ``Software\\spacr`` i Windows)."
+      "translation": "Borttagningen kör aldrig en gammal versions eget avinstallationsprogram, så en kopia vars ``Uninstall.exe`` eller ``uninstall-spacr.sh`` saknas eller är trasig tas bort ändå. Inställningar och användardata behålls: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, cachen för Hugging Face och inställningarna för ``spacr``/``qt`` (``~/.config/spacr``, inställningsfilen i macOS och registernyckeln ``Software\\spacr`` i Windows).",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "context": "A pip or conda environment the user made is listed but never deleted; the spaCR package is uninstalled from it only when the caller says it was ticked. An editable source checkout is reported and left alone.",
