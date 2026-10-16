@@ -13,7 +13,7 @@ Read `features/HANDOFF.md`, section "CURRENT HANDOFF FOR CODEX AND OTHER AGENTS"
 9. Tables via `spacr.tabular`; figures via `spacr.plot.save_figure`, styled by `spacr.figures.style._apply_user_style`.
 10. Regenerate generated artefacts with their tools; never hand-merge them or raise a ratchet ceiling.
 11. Tests: `CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 8G python -m pytest`, `-n 4` at most, never the whole suite.
-12. Keep RAM under 110 GB (`tools/run_capped.sh`). GPU only via `tools/gpu_turn.sh`.
+12. Keep RAM under 110 GB (`tools/run_capped.sh`). GPU only via `tools/gpu_turn.sh`. Chrome and its graphics processes must NEVER count as compute jobs or block any GPU queue, even when `nvidia-smi` lists them. Verify this exclusion in the actual scheduler used by every new run, including older worktrees.
 13. Never touch livecell or cellposeTIME jobs; they belong to another session.
 14. `einarolafsson/models` on Hugging Face is a DATASET repo.
 15. Item state is in each item file's dated trailing notes and `features/00_INDEX.txt` (generated).
