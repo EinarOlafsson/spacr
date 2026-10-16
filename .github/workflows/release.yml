@@ -596,3 +596,35 @@ jobs:
               exit 1
             fi
           done
+
+  refresh-project-site:
+    name: Refresh the project website after publication
+    needs: [bump, verify-pypi, github-release, release-metadata]
+    if: >-
+      always() &&
+      needs.bump.result == 'success' &&
+      needs.verify-pypi.result == 'success' &&
+      needs.github-release.result == 'success' &&
+      needs.release-metadata.result == 'success' &&
+      needs.bump.outputs.release_required == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    continue-on-error: true
+    permissions:
+      contents: read
+    steps:
+      - name: Request the project site's release rebuild
+        env:
+          GH_TOKEN: ${{ secrets.SITE_DISPATCH_TOKEN }}
+          VERSION: ${{ needs.bump.outputs.version }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::warning::SITE_DISPATCH_TOKEN is not configured; the website's daily rebuild remains the fallback."
+            echo 'Project website: immediate refresh needs SITE_DISPATCH_TOKEN with access to EinarOlafsson/site-src.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          gh api --method POST repos/EinarOlafsson/site-src/dispatches \
+            -f event_type=spacr-release \
+            -f "client_payload[version]=$VERSION" \
+            -f "client_payload[tag]=v$VERSION"
+          echo "Project website: requested rebuild for spaCR $VERSION; publication is verified by the site workflow." >> "$GITHUB_STEP_SUMMARY"

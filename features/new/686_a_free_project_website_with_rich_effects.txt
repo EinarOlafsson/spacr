@@ -2,8 +2,8 @@
 A FREE WEBSITE FOR spaCR AND THE MAINTAINER'S OTHER PROJECTS, WITH RICH EFFECTS
 ================================================================================
 
-Status:    PARTIAL — site live and README/docs/project metadata links present;
-           current startup repairs deployed; idle-host performance acceptance remains.
+Status:    BLOCKED ON MAINTAINER — release rebuild wired; private-site token
+           and current idle-laptop performance acceptance remain.
 Requested: 2026-10-10 — "I'd like to have a free webpage for spacr and my other
            projects. I'd like the page to be able to have cooler effects than
            GitHub allows me to have."
@@ -175,3 +175,9 @@ Latest actual release remains1.5.1.4; no1.5.1.5release claim.
 Evidence:data/687_reduced_motion_2026-10-14/publication-receipt.json.
 This closes publication of these repairs. Current mobile Lighthouse thresholds
 and physical mid-range laptop60fps acceptance remain OPEN; full item PARTIAL.
+
+2026-10-15 — Release workflow now requests the site rebuild after PyPI/GitHub publication and final metadata;19 related checks pass.
+BLOCKED ON MAINTAINER: create a fine-grained token restricted to EinarOlafsson/site-src with Contents read/write; save it as SITE_DISPATCH_TOKEN in spacr Settings → Secrets and variables → Actions.
+GitHub permission reference: https://docs.github.com/en/rest/repos/repos#create-a-repository-dispatch-event ; never commit or paste the token.
+After main promotion/release, confirm refresh-project-site and site production/Pages success; check published version, three installer links and DOI.
+On an idle physical mid-range laptop, verify normal unpaused hardware-rendered pointer/scroll interaction at60fps and current mobile Lighthouse≥90/95,<1MB; retain hardware/browser results. Home GPU was not used.
