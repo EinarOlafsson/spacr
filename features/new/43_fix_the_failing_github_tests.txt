@@ -4044,3 +4044,8 @@ Full CI still requires the reserved N700/N673 owner repairs and remaining job re
 2026-10-16 — 1a4f74fdac3 aligns FlowView packaging assertions with the core Qt6.12.0 exclusion and checks the unchanged lower/upper bounds and core-binding reuse.
 The original assertion fails before this test repair; the owning file passes afterward. Future-version admission states policy, not an upstream bug-fix claim.
 Remaining CI jobs and reserved-feature owner repairs still gate1.5.1.5; no whole-green or release claim.
+
+2026-10-16 — 19143604c79 closes every cached QWidget screen before main-window destruction, flushing pending Annotate labels and draining its writer/page worker; close vetoes and deduplication remain intact.
+Two real shutdown regressions fail before the fix; all14 related checks pass, with the two test-helper follow-ups also passing. Original Undo/Redo assertions are unchanged; hosted crash causality remains unproven.
+7c37664cb309/42f1c953abb isolate GDB embedded Python from inherited runtime libraries while retaining inferior search paths and bounded core cleanup; all95 related cases and five focused follow-ups pass.
+Full CI and reserved-feature repairs still gate1.5.1.5; no whole-item completion or release claim.

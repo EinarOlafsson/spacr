@@ -131,10 +131,10 @@ def test_edit_menu_routes_real_annotation_history(qtbot, tmp_path):
     screen._settings.grid_rows, screen._settings.grid_cols = 2, 3
     screen._settings.image_size = (24, 24)
     screen._compute_grid_dims = lambda: None
-    screen._rebuild_grid()
-    screen._open_source(str(source))
-    qtbot.waitUntil(lambda: len(screen._page_paths) == 6, timeout=5000)
     try:
+        screen._rebuild_grid()
+        screen._open_source(str(source))
+        qtbot.waitUntil(lambda: len(screen._page_paths) == 6, timeout=5000)
         screen._set_focus_slot(0)
         screen.handle_key("1")
         assert screen._current_value(0) == 1
@@ -148,8 +148,7 @@ def test_edit_menu_routes_real_annotation_history(qtbot, tmp_path):
         assert not undo.shortcut().toString()
         assert not redo.shortcut().toString()
     finally:
-        if screen._worker is not None:
-            screen._worker.stop(wait=True)
+        screen.close()
 
 
 def test_focused_text_owns_undo_before_a_parent_settings_stack(qtbot):

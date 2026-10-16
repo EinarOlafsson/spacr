@@ -5435,10 +5435,9 @@ class MainWindow(QMainWindow):
             event.ignore()
             self._closing = False
             return
-        from .screens.app_screen import AppScreen
         seen_screens = set()
         for screen in list(getattr(self, "_screens", {}).values()):
-            if not isinstance(screen, AppScreen) or id(screen) in seen_screens:
+            if not isinstance(screen, QWidget) or id(screen) in seen_screens:
                 continue
             seen_screens.add(id(screen))
             try:
