@@ -1,0 +1,379 @@
+{
+  "schema": 1,
+  "lesson": "06_api",
+  "status": "assessment_complete",
+  "visual_disposition": "KEEP",
+  "assembly_disposition": "KEEP_existing_media_with_historical_provenance_limits",
+  "baseline_candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l",
+  "baseline_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/release-manifest.json",
+    "bytes": 1179634,
+    "sha256": "ced803ebdd5e93a6ada3fead48a3c6595afd77ef05d104dc0bd43e87a210bd2a"
+  },
+  "immutable_hosted_media_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/publication-receipt.json",
+    "bytes": 141431,
+    "sha256": "9f58f30644880ff3faac98e756feba1d33ec3e812c02cf4f3b791b0ea02eef5a"
+  },
+  "current_root_head": "8ab0b4f421baf9e6318c9f9f0d08ccd73241113b",
+  "current_canonical": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/06_api.json",
+    "bytes": 3584,
+    "sha256": "a7a67a5ed3103d5fca855e03397c1ae0a461cbd9cfa0ad8ecb1e79e868a13d0b"
+  },
+  "published_media": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/media_host/06_api/video/06_api_silent.mp4",
+      "bytes": 3255467,
+      "sha256": "090735b9b233339cbff894391e723b5c5376b0387c22a1a2634160733e398aeb"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/media_host/06_api/web/06_api_silent.mp4",
+      "bytes": 1491154,
+      "sha256": "d633e3c4a9d69ea0e5af7a44ee7ee06c5446250925e9fbe08d661f5bf9b10d7b"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/production/06_api/poster.jpg",
+      "bytes": 102619,
+      "sha256": "c4f48312110a0fe5868229d2e7c31091d678951bf19dd817852fa45a5e9e1fdb"
+    }
+  ],
+  "container_probe": {
+    "programs": [],
+    "streams": [
+      {
+        "codec_type": "video",
+        "width": 3840,
+        "height": 2160,
+        "r_frame_rate": "30/1",
+        "duration": "102.700000",
+        "nb_frames": "3081"
+      }
+    ],
+    "format": {
+      "duration": "102.700000",
+      "size": "3255467"
+    }
+  },
+  "default_audio_metadata": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/media_host/06_api/audio/en/af_heart.json",
+    "bytes": 30468,
+    "sha256": "f73e32b649bc474fae3c0b74dcc6be5a99711cb7d855bbb739f27c0540a18977"
+  },
+  "default_audio_duration_seconds": 102.71,
+  "master_duration_seconds": 102.7,
+  "duration_note": "10ms legacy video/audio duration difference alone is not demonstrated clipping; no new native or exact-frame gate applied.",
+  "catalog_voice_inventory_bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/captions_da.json",
+      "bytes": 697302,
+      "sha256": "3171dbdff897df9e4f85dc6001b92c8e5df76cdda0be3e90858446a4b17a9f85"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/captions_de.json",
+      "bytes": 744264,
+      "sha256": "ce9ae42dd8436bcb10417bc8375df74a9fcd2b5f75384b06a897c97e6d9717ff"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/captions_is.json",
+      "bytes": 702067,
+      "sha256": "e26186f6ded1741d50b6bb84398cf25c0011b68b41688fd621a9011df181d1f2"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/captions_ko.json",
+      "bytes": 738748,
+      "sha256": "b2feae69fda0f0890d46421b7fb4c57a613e13cf7d4ae55afba423111a2d4515"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/captions_nb.json",
+      "bytes": 693149,
+      "sha256": "93428643f4e9ec18412d5175d87eb13b25331eeddfba311a7bc7ad5f0dc9481f"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/captions_sv.json",
+      "bytes": 702075,
+      "sha256": "868b4ed1d929b3b7c68a9a7233d86fa0d61a7a76328ce3201f084d5b3d537628"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/lessons_en.json",
+      "bytes": 674302,
+      "sha256": "6494365f21d95c66777a27e72d9393680bc8efd560b9ffc5cf6be3725ef15abe"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/lessons_es.json",
+      "bytes": 1104471,
+      "sha256": "7e73582148f0bded2460b5051e9135bc7c7316b2c55f874989e16d105a663c16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/lessons_fr.json",
+      "bytes": 1148195,
+      "sha256": "38872f0ba6531fb3d764305d772860acf538d26c07591219ff0ba5e2f33a165c"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/lessons_hi.json",
+      "bytes": 1832339,
+      "sha256": "467514cd1d51452b671e1e85d2dec52d995c9a627d19cafaccaee3279afe4a82"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/lessons_it.json",
+      "bytes": 1093066,
+      "sha256": "db4162bc8c324c8207ccc97b23fbffb0dbd74f2768b70498d656b301eb47d892"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/lessons_ja.json",
+      "bytes": 1222656,
+      "sha256": "ca5318806d462a2a61d2c478806be18186df54fcd12697624acd64c554e1694f"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/lessons_pt-BR.json",
+      "bytes": 1087212,
+      "sha256": "bd448e93ba8b5f394f7ed22f0e894eca058f5f5fd6c016851e5987db62be4859"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/lessons_zh-CN.json",
+      "bytes": 948865,
+      "sha256": "6c89e48d989e06c5d4aa60098581933578822c75dd795b407d7bf1b4f22b6230"
+    }
+  ],
+  "javascript_catalog": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/lesson_catalog.js",
+    "bytes": 529853,
+    "sha256": "1c3035aed3ffbcd02b7f93e423dc2de2104c21c17a64c799b24131708cb98ec3"
+  },
+  "actual_and_offered_voice_inventory": {
+    "en": [
+      "af_heart"
+    ],
+    "es": [
+      "ef_dora",
+      "em_alex",
+      "em_santa"
+    ],
+    "fr": [
+      "ff_siwis"
+    ],
+    "hi": [
+      "hf_alpha",
+      "hf_beta",
+      "hm_omega",
+      "hm_psi"
+    ],
+    "it": [
+      "if_sara",
+      "im_nicola"
+    ],
+    "ja": [
+      "jf_alpha",
+      "jf_gongitsune",
+      "jf_nezumi",
+      "jf_tebukuro",
+      "jm_kumo"
+    ],
+    "pt-BR": [
+      "pf_dora",
+      "pm_alex",
+      "pm_santa"
+    ],
+    "zh-CN": [
+      "zf_xiaobei",
+      "zf_xiaoni",
+      "zf_xiaoxiao",
+      "zf_xiaoyi",
+      "zm_yunjian",
+      "zm_yunxi",
+      "zm_yunxia",
+      "zm_yunyang"
+    ]
+  },
+  "actual_track_count": 27,
+  "offered_track_count": 27,
+  "unavailable_tracks_offered": [],
+  "missing23_English_offered": false,
+  "player": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/app_v2.js",
+    "bytes": 103252,
+    "sha256": "27a50ed92ca98e53960a1b044fbefe9f8a36f43106153b4b1b038e8d5f2fde9b"
+  },
+  "voice_option_policy_source": "function lessonVoices(language, lesson = activeLesson) {\n  // An absent declaration preserves the published fifty-voice lessons.\n  // An explicit declaration offers only the tracks verified for this lesson.\n  if (!lesson || !Object.prototype.hasOwnProperty.call(lesson, \"narration_voices\")) {\n    return language.voices;\n  }\n  const declared = lesson.narration_voices?.[language.id];\n  if (!Array.isArray(declared)) return [];\n  return language.voices.filter(voice => declared.includes(voice.id));\n}\n",
+  "sampled_poster": {
+    "binding": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/production/06_api/poster.jpg",
+      "bytes": 102619,
+      "sha256": "c4f48312110a0fe5868229d2e7c31091d678951bf19dd817852fa45a5e9e1fdb"
+    },
+    "physically_viewed_by_agent": true,
+    "observation": "Actual version-print command output1.5.0.9 with exit0; historical version recording supports general narration and is not a current-version promise."
+  },
+  "bounded_master_samples": [
+    {
+      "scene": 2,
+      "requested_seconds": 21.38,
+      "clock_source": "Current published English af_heart midpoint; scene-interior sample, not exact frame/boundary proof.",
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/published-master-four-samples/scene-02-mid.png",
+        "bytes": 1543697,
+        "sha256": "fcd01445344b456819fe420fd9ad2027c0b5052fd19daf561f3781e81e89f8c6"
+      },
+      "command": [
+        "ffmpeg",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-threads",
+        "1",
+        "-ss",
+        "21.380000000",
+        "-i",
+        "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/media_host/06_api/video/06_api_silent.mp4",
+        "-frames:v",
+        "1",
+        "-threads",
+        "1",
+        "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/published-master-four-samples/scene-02-mid.png"
+      ],
+      "physically_viewed_by_agent": true,
+      "observation": "Actual spacr-run --list; visible mask/measure/regression entrypoint mapping supports narration. No visible Spaceout/alpha labels in sampled frame. Lower list continues outside viewport; narration does not promise every row visible."
+    },
+    {
+      "scene": 3,
+      "requested_seconds": 39.5725,
+      "clock_source": "Current published English af_heart midpoint; scene-interior sample, not exact frame/boundary proof.",
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/published-master-four-samples/scene-03-mid.png",
+        "bytes": 415447,
+        "sha256": "5560ebbe5caabb63ef90453cae00bb1b04f0b837e00310b89c67ab1a50598371"
+      },
+      "command": [
+        "ffmpeg",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-threads",
+        "1",
+        "-ss",
+        "39.572500000",
+        "-i",
+        "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/media_host/06_api/video/06_api_silent.mp4",
+        "-frames:v",
+        "1",
+        "-threads",
+        "1",
+        "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/published-master-four-samples/scene-03-mid.png"
+      ],
+      "physically_viewed_by_agent": true,
+      "observation": "Actual --describe regression; perform_regression/settings/paired_data and dry-run example visible. No fitted regression execution implied."
+    },
+    {
+      "scene": 4,
+      "requested_seconds": 56.114999999999995,
+      "clock_source": "Current published English af_heart midpoint; scene-interior sample, not exact frame/boundary proof.",
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/published-master-four-samples/scene-04-mid.png",
+        "bytes": 153660,
+        "sha256": "b21a7974f469fc66f2d6f116159149b46f66c9a48cb413f2151515db08cbfa20"
+      },
+      "command": [
+        "ffmpeg",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-threads",
+        "1",
+        "-ss",
+        "56.115000000",
+        "-i",
+        "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/media_host/06_api/video/06_api_silent.mp4",
+        "-frames:v",
+        "1",
+        "-threads",
+        "1",
+        "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/published-master-four-samples/scene-04-mid.png"
+      ],
+      "physically_viewed_by_agent": true,
+      "observation": "Actual inspect.signature(build_report) shows src,out,fmt=html,**kwargs with successful exit; matches function-signature example."
+    },
+    {
+      "scene": 5,
+      "requested_seconds": 73.68,
+      "clock_source": "Current published English af_heart midpoint; scene-interior sample, not exact frame/boundary proof.",
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/published-master-four-samples/scene-05-mid.png",
+        "bytes": 884930,
+        "sha256": "2010a0d1e66aa57032645f7c77c110e5ff3ca37508d5f8867498d83324418170"
+      },
+      "command": [
+        "ffmpeg",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-threads",
+        "1",
+        "-ss",
+        "73.680000000",
+        "-i",
+        "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/media_host/06_api/video/06_api_silent.mp4",
+        "-frames:v",
+        "1",
+        "-threads",
+        "1",
+        "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/published-master-four-samples/scene-05-mid.png"
+      ],
+      "physically_viewed_by_agent": true,
+      "observation": "Actual regression dry-run shows four paired tables, preflight no-problems and explicit nothing executed/no model loaded; matches configuration-check narration."
+    },
+    {
+      "scene": 6,
+      "requested_seconds": 92.9575,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/published-master-four-samples/scene-06-mid.png",
+        "bytes": 415447,
+        "sha256": "5560ebbe5caabb63ef90453cae00bb1b04f0b837e00310b89c67ab1a50598371"
+      },
+      "clock_source": "Current published af_heart scene6 midpoint; bounded seek.",
+      "physically_viewed_by_agent": true,
+      "observation": "Actual closing image reuses --describe regression/dry-run example; narration instructs subsequent execution rather than asserting a completed analysis."
+    }
+  ],
+  "samples_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/published-master-four-samples/samples.json",
+    "bytes": 4943,
+    "sha256": "eb2ae307a5195632846ff3b49713284ba40b7151babb8cf0bcc79be1709090e8"
+  },
+  "historical_specs_not_used_as_current_proof": [
+    {
+      "binding": {
+        "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/production/06_api/scenes.json",
+        "bytes": 2713,
+        "sha256": "4b9d311b154e4c0f110393a4217c41e616f216f94a6fc7aecb881afa62379ac3"
+      },
+      "scene_count": 5,
+      "current_assembly_identity_established": false
+    },
+    {
+      "binding": {
+        "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/06_api/visual.json",
+        "bytes": 2517,
+        "sha256": "1b023eb8edf2b05fe2344fe91de613a55aafd98587c0201b49c1c6032863d53f"
+      },
+      "scene_count": 8,
+      "current_assembly_identity_established": false
+    }
+  ],
+  "current_matching_source_spec_or_full_owning_render_receipt_located": false,
+  "specific_visual_repairs_required": [],
+  "minimal_next_step": "Retain existing video and honestly declared27track inventory; coordinate the separate caption/API owner’s metadata-only merged-installation related-links correction. Do not synthesize23 English tracks or remake visuals solely for historical version aging.",
+  "limits": [
+    "Five scene-interior bounded decoder seeks plus publishedposter physically reviewed; no whole-master watch/full decode/PTS sweep, new capture or current nativegate acceptance.",
+    "Only selected06 master/web/poster bytes were SHAchecked; no global8GBrehash or remote readback repeated.",
+    "Current6scene master has exact baseline manifest identity; located5- and8-scene source specs/oldQA are historical and do not prove current assembly provenance.",
+    "No listening/phoneme completeness, fullscientificpipeline execution or biologicalcorrectness claim.",
+    "API/narration/13review factual assessment belongs to MEDIUM; this receipt does not duplicate or supersede it."
+  ],
+  "source_edits": false,
+  "media_or_audio_edits": false,
+  "owned_jobs_or_leases_remaining": false
+}

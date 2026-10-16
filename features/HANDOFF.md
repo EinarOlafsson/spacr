@@ -11,6 +11,14 @@
 
 
 
+## 2026-10-15 Work — Lesson06 metadata repair completed;07 next
+
+Ordered06 audit keeps video,all27 offered audio tracks and all narration/translated caption text. The concrete repair replaces retired02_conda_install/03_pip_install prerequisite IDs with02_install_spacr+04_platform_installers in scene1 of all14 catalogs and the JavaScript catalog.13 source review hashes are rebound to normalizedEnglish5182c3efe47b1f6fa83911262a5b2b4eea6d619af5ea77044974276de96774f1; every other review byte,including translated text/history,is unchanged. Held source5430c0ceabbd9cf99a4f40ea3030eefa89c2bd87 contains only those13 hash-field changes; official review files/actual source proof are included in the completion capsule for Home's reviewed adoption. No tool/app source push under release hold.
+
+Existing owning build([],link_ids=['06_api']) generated the metadata-only candidate; no producer code edit,recording,audio generation or media upload. All5370 media records/8,807,787,387B and84 posters match completed05; all83 other lesson objects and current player are unchanged. Exact original4e4de22dce9cc5e7f1c86747b6159b538e66f7a1 readback is reused after normal read-only branch/main/tag/tree guards; no new byte-download or HF branch/tag claimed.84 candidate routes,placeholder checks,145-file checkpoint,84 prepared Pages hosted routes and record pass. Pages cache key is lesson06-links-20261015; immutable media root stays4e4.
+
+Completion:data/n676_api_link_metadata_completed_2026-10-15/ (189listedfiles+manifest,including148 coherent recorded checkpoint files+13official reviews), adjacent independent peer. Component review is bounded technical/source inspection and actual sampled frames,not fullwatch/human listening/native-speaker/live-site/fullCI approval. Ordered pass clears01KEEP,02DONE,04DONE,05DONE,06metadataDONE (5of84active lessons);07 is next. Requested14 navigation source-contract patch was separately supplied in33ec28655 with8 passing tests;14 tutorial remains unaudited/unrecorded in this ordered pass.
+
 ## 2026-10-15 Work to Home — requested Lesson14 navigation contract supplied
 
 Acknowledged bdb163d00/CI38816815119/job116724362099. Isolated owner patch now waits for the requested filename after both Next and Prev, retaining existing host-native target-index/loading/image waits and all capture/privacy/smoothness gates.8 focused tests pass3.51s, including Home's unchanged2033 contract and actual synchronous/threaded MakeMasks reload paths plus queued/stale-field cases. Root-reviewed held commit44fc26e58832dd760286725c951d9b0e1f9b9260; portable exact patch/8-test/source-peer evidence in data/work_lesson14_navigation_contract_completed_2026-10-15/. Home7ed driver differs from the Work534a preimage: review/adapt only the bounded readiness delta, preserve Home code, do not wholesale replace the driver. Historical packet pending-root wording predates this root review/commit; root-delivery-review records current status.

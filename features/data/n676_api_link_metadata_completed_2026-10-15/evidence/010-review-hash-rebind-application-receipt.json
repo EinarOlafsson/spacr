@@ -1,0 +1,308 @@
+{
+  "schema": 1,
+  "lesson": "06_api",
+  "status": "applied_hash_only_validated_all13",
+  "source_head_held": "8ab0b4f421baf9e6318c9f9f0d08ccd73241113b",
+  "canonical": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/06_api.json",
+    "bytes": 3584,
+    "sha256": "a7a67a5ed3103d5fca855e03397c1ae0a461cbd9cfa0ad8ecb1e79e868a13d0b"
+  },
+  "old_normalized_english_sha256": "a48e16fce2492866cb7894a42976f612efa1239b793128a8ccfce2ef2d62fbc1",
+  "new_normalized_english_sha256": "5182c3efe47b1f6fa83911262a5b2b4eea6d619af5ea77044974276de96774f1",
+  "canonical_vs_published_difference_only": {
+    "field": "scenes[0].related_lessons",
+    "published": [
+      "02_conda_install",
+      "03_pip_install",
+      "04_platform_installers"
+    ],
+    "canonical": [
+      "02_install_spacr",
+      "04_platform_installers"
+    ],
+    "all_six_English_paragraphs_and_every_other_field_unchanged": true
+  },
+  "review_count": 13,
+  "owning_validator": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/apply_translation_review.py",
+    "bytes": 4775,
+    "sha256": "642ed9bf340bda46c3259087e0b3b2685032d0995be1383b7f1916d65128b083"
+  },
+  "applications": [
+    {
+      "language": "da",
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.da.json",
+      "before": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/before-review-hash-rebind/06_api.da.json",
+        "bytes": 2781,
+        "sha256": "891ac7537e4bd919baf62c2dfd076c99bdded49ac5bebf798ee9947a890ab28c"
+      },
+      "after": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.da.json",
+        "bytes": 2781,
+        "sha256": "2fb059d3fda62f8304ddfe01ddd54b383dc5b630f85fb17b0996e1eb2de2626e"
+      },
+      "only_english_sha256_bytes_changed": true,
+      "all_other_parsed_fields_unchanged": true,
+      "historical_review_metadata_unchanged": true,
+      "owning_translated_lesson_validated": true,
+      "scene_count": 6,
+      "narration_paragraphs_unchanged": true
+    },
+    {
+      "language": "de",
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.de.json",
+      "before": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/before-review-hash-rebind/06_api.de.json",
+        "bytes": 3113,
+        "sha256": "06e96cc516d7f10cd0904503b2db6c18c4258620c40ab11dfac8ddb5e90ac18f"
+      },
+      "after": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.de.json",
+        "bytes": 3113,
+        "sha256": "ef93cead0b1947e7d12d4b7dd168038341aedd030f57b2ee5081d03a5b4e25fe"
+      },
+      "only_english_sha256_bytes_changed": true,
+      "all_other_parsed_fields_unchanged": true,
+      "historical_review_metadata_unchanged": true,
+      "owning_translated_lesson_validated": true,
+      "scene_count": 6,
+      "narration_paragraphs_unchanged": true
+    },
+    {
+      "language": "es",
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.es.json",
+      "before": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/before-review-hash-rebind/06_api.es.json",
+        "bytes": 3022,
+        "sha256": "b8aa5e9ebbd0aefd231c0f7389538bf82fe01b62498330c9b612be3b87627339"
+      },
+      "after": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.es.json",
+        "bytes": 3022,
+        "sha256": "67e843fafb123618fb3ea7caae8d32efeaa4f503a18cd4f2ddde9689204acf48"
+      },
+      "only_english_sha256_bytes_changed": true,
+      "all_other_parsed_fields_unchanged": true,
+      "historical_review_metadata_unchanged": true,
+      "owning_translated_lesson_validated": true,
+      "scene_count": 6,
+      "narration_paragraphs_unchanged": true
+    },
+    {
+      "language": "fr",
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.fr.json",
+      "before": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/before-review-hash-rebind/06_api.fr.json",
+        "bytes": 3170,
+        "sha256": "3337cc3fceacb351b39e5c9c9aefdf988cf5281bdadb68c59bb0195a6cec7d71"
+      },
+      "after": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.fr.json",
+        "bytes": 3170,
+        "sha256": "ab7bb9ea482bbffff9d02ecc35ae589f088a6941275871b50c4bf7df96358a60"
+      },
+      "only_english_sha256_bytes_changed": true,
+      "all_other_parsed_fields_unchanged": true,
+      "historical_review_metadata_unchanged": true,
+      "owning_translated_lesson_validated": true,
+      "scene_count": 6,
+      "narration_paragraphs_unchanged": true
+    },
+    {
+      "language": "hi",
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.hi.json",
+      "before": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/before-review-hash-rebind/06_api.hi.json",
+        "bytes": 5379,
+        "sha256": "0ab3fede50efe8d9be52cb25c638927bd901142327c06bd4976f4f5e099f2032"
+      },
+      "after": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.hi.json",
+        "bytes": 5379,
+        "sha256": "e90ba93024ad8360c1ca79e1f7ed2cb86880203eb4ba070f20e69ffc09d414e9"
+      },
+      "only_english_sha256_bytes_changed": true,
+      "all_other_parsed_fields_unchanged": true,
+      "historical_review_metadata_unchanged": true,
+      "owning_translated_lesson_validated": true,
+      "scene_count": 6,
+      "narration_paragraphs_unchanged": true
+    },
+    {
+      "language": "is",
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.is.json",
+      "before": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/before-review-hash-rebind/06_api.is.json",
+        "bytes": 2845,
+        "sha256": "0e08dcde06b19f6cb1c399c4efd5baeb41e356cc168bba94672dd20985ada465"
+      },
+      "after": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.is.json",
+        "bytes": 2845,
+        "sha256": "81536aec31b3f16fe431fcbd2f864aabdf7ee929fd722c1228ae1481c610f151"
+      },
+      "only_english_sha256_bytes_changed": true,
+      "all_other_parsed_fields_unchanged": true,
+      "historical_review_metadata_unchanged": true,
+      "owning_translated_lesson_validated": true,
+      "scene_count": 6,
+      "narration_paragraphs_unchanged": true
+    },
+    {
+      "language": "it",
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.it.json",
+      "before": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/before-review-hash-rebind/06_api.it.json",
+        "bytes": 2978,
+        "sha256": "8d52b37910e108de6826cb7e0888819f45bfc5d2caa283d3f7863872be71ac63"
+      },
+      "after": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.it.json",
+        "bytes": 2978,
+        "sha256": "88cad395ecc0bf758b3bb77b600f95136b583dd9a31d7a1845f056d1685681a5"
+      },
+      "only_english_sha256_bytes_changed": true,
+      "all_other_parsed_fields_unchanged": true,
+      "historical_review_metadata_unchanged": true,
+      "owning_translated_lesson_validated": true,
+      "scene_count": 6,
+      "narration_paragraphs_unchanged": true
+    },
+    {
+      "language": "ja",
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.ja.json",
+      "before": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/before-review-hash-rebind/06_api.ja.json",
+        "bytes": 3577,
+        "sha256": "cc866636a4a50416c6eacbf430b789b49e2c389738b26a26824ed3d6fb65421a"
+      },
+      "after": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.ja.json",
+        "bytes": 3577,
+        "sha256": "41494b03c44945259438f89af66932696cf63f3c6f54b993db6f7e6e1dd63338"
+      },
+      "only_english_sha256_bytes_changed": true,
+      "all_other_parsed_fields_unchanged": true,
+      "historical_review_metadata_unchanged": true,
+      "owning_translated_lesson_validated": true,
+      "scene_count": 6,
+      "narration_paragraphs_unchanged": true
+    },
+    {
+      "language": "ko",
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.ko.json",
+      "before": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/before-review-hash-rebind/06_api.ko.json",
+        "bytes": 2988,
+        "sha256": "dbbe52b0e86ea19b34ab07151c67bba29e5b5aa2d0abad746c175de95ed479c9"
+      },
+      "after": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.ko.json",
+        "bytes": 2988,
+        "sha256": "d9317391ab5a2e2827603cd5b01d0ae306a2dbc9ccb48bdc14191b290a1b029d"
+      },
+      "only_english_sha256_bytes_changed": true,
+      "all_other_parsed_fields_unchanged": true,
+      "historical_review_metadata_unchanged": true,
+      "owning_translated_lesson_validated": true,
+      "scene_count": 6,
+      "narration_paragraphs_unchanged": true
+    },
+    {
+      "language": "nb",
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.nb.json",
+      "before": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/before-review-hash-rebind/06_api.nb.json",
+        "bytes": 2793,
+        "sha256": "257cde9ca9e2ac9ea95dabd6523b784a620ec50e4e54f718c2cc8aa68233db06"
+      },
+      "after": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.nb.json",
+        "bytes": 2793,
+        "sha256": "4e80f0ae0d4b06e0d68165a528abf3bf66654b66f004df9eda821c8c6081545d"
+      },
+      "only_english_sha256_bytes_changed": true,
+      "all_other_parsed_fields_unchanged": true,
+      "historical_review_metadata_unchanged": true,
+      "owning_translated_lesson_validated": true,
+      "scene_count": 6,
+      "narration_paragraphs_unchanged": true
+    },
+    {
+      "language": "pt-BR",
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.pt-BR.json",
+      "before": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/before-review-hash-rebind/06_api.pt-BR.json",
+        "bytes": 2996,
+        "sha256": "c51444e2ee60a2d33fcf8d03841806e2f8bcf0777be973a3d1c9bd5e6ea12d99"
+      },
+      "after": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.pt-BR.json",
+        "bytes": 2996,
+        "sha256": "ea878afa7f8ca32da72f5bdc7af8ad3eef8ba862e1e51e17eb1984863a6a89c0"
+      },
+      "only_english_sha256_bytes_changed": true,
+      "all_other_parsed_fields_unchanged": true,
+      "historical_review_metadata_unchanged": true,
+      "owning_translated_lesson_validated": true,
+      "scene_count": 6,
+      "narration_paragraphs_unchanged": true
+    },
+    {
+      "language": "sv",
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.sv.json",
+      "before": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/before-review-hash-rebind/06_api.sv.json",
+        "bytes": 2804,
+        "sha256": "058fb244616ac88e11182b659a950f6857c8dcc288bba2fe95f7bec154114010"
+      },
+      "after": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.sv.json",
+        "bytes": 2804,
+        "sha256": "c184448a66b3b15c5665de877c0b5c706a7db8ed65d66d4a76f52b217e705a6d"
+      },
+      "only_english_sha256_bytes_changed": true,
+      "all_other_parsed_fields_unchanged": true,
+      "historical_review_metadata_unchanged": true,
+      "owning_translated_lesson_validated": true,
+      "scene_count": 6,
+      "narration_paragraphs_unchanged": true
+    },
+    {
+      "language": "zh-CN",
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.zh-CN.json",
+      "before": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/before-review-hash-rebind/06_api.zh-CN.json",
+        "bytes": 2535,
+        "sha256": "53866c0ee0ca7d80e915698ffc64e10d82d9c5703c70d3a15d29efdd765ccd5b"
+      },
+      "after": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.zh-CN.json",
+        "bytes": 2535,
+        "sha256": "4d1918ed5adc24b91905c7c428ea72fa13c8ff57c9c71c242924f4dc59c8dd1e"
+      },
+      "only_english_sha256_bytes_changed": true,
+      "all_other_parsed_fields_unchanged": true,
+      "historical_review_metadata_unchanged": true,
+      "owning_translated_lesson_validated": true,
+      "scene_count": 6,
+      "narration_paragraphs_unchanged": true
+    }
+  ],
+  "git_diff_numstat": "1\t1\ttools/tutorials/lessons/reviews/06_api.da.json\n1\t1\ttools/tutorials/lessons/reviews/06_api.de.json\n1\t1\ttools/tutorials/lessons/reviews/06_api.es.json\n1\t1\ttools/tutorials/lessons/reviews/06_api.fr.json\n1\t1\ttools/tutorials/lessons/reviews/06_api.hi.json\n1\t1\ttools/tutorials/lessons/reviews/06_api.is.json\n1\t1\ttools/tutorials/lessons/reviews/06_api.it.json\n1\t1\ttools/tutorials/lessons/reviews/06_api.ja.json\n1\t1\ttools/tutorials/lessons/reviews/06_api.ko.json\n1\t1\ttools/tutorials/lessons/reviews/06_api.nb.json\n1\t1\ttools/tutorials/lessons/reviews/06_api.pt-BR.json\n1\t1\ttools/tutorials/lessons/reviews/06_api.sv.json\n1\t1\ttools/tutorials/lessons/reviews/06_api.zh-CN.json\n",
+  "claims": {
+    "retranslation": false,
+    "audio_changed": false,
+    "video_changed": false,
+    "catalogs_changed": false,
+    "commit_or_push": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "limits": [
+    "Puredata source hash and projection validation only; no API/CLI operation, synthesis/model, browser, decode or tests.",
+    "Review historical metadata and all translated fields are byte-preserved. Metadata-only link publication remains root-owned."
+  ]
+}

@@ -880,12 +880,11 @@
             650
           ],
           "narration": "Aktiver Python-miljøet der du installerte spaCR. Importer spacr og skriv ut versjonen med kommandoen som vises. Ta vare på versjonen sammen med analysenotatene dine, slik at du kan gjenskape den samme kjøringen senere.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "02_conda_install",
-            "03_pip_install",
+            "02_install_spacr",
             "04_platform_installers"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "02_list",
@@ -907,11 +906,11 @@
             900
           ],
           "narration": "Kjør spacr-run --describe regression. Les de obligatoriske inndataene, standardverdiene og funksjonsnavnet. Her kaller batchkommandoen perform_regression i spacr.ml. Åpne funksjonen i API-referansen for å lese parameterne og resultatene den returnerer.",
+          "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "05_report_api",
@@ -944,11 +943,11 @@
             900
           ],
           "narration": "For å utføre analysen kjører du den samme kommandoen uten --dry-run. Følg konsollen til kommandoen er ferdig, og undersøk deretter utdataene som er beskrevet i modulens veiledning og API-side. Ta vare på innstillingsfilen, inndatatabellene, pakkeversjonen og konsolloggen sammen med resultatene.",
+          "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7
+          ]
         }
       ],
       "narration_voices": {

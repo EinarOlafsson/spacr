@@ -1,0 +1,29 @@
+{
+  "lesson": "06_api",
+  "english_sha256": "5182c3efe47b1f6fa83911262a5b2b4eea6d619af5ea77044974276de96774f1",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Python API与批处理命令",
+  "description": "找到分析函数，加载保存的设置，检查输入，并从终端运行spaCR。",
+  "objectives": [
+    "找到已安装的批处理命令及其对应的Python函数。",
+    "检查函数签名及其API参考。",
+    "在运行分析之前检查保存的设置。"
+  ],
+  "prerequisite": "安装spaCR并激活其Python环境。按照Regression教程准备成对的分数与计数表，并保存分析设置。在命令中使用您自己的文件路径。",
+  "scenes": [
+    "激活安装了spaCR的Python环境。使用显示的命令导入spacr并打印其版本。把版本号与分析笔记一起保存，以便以后重现同样的运行。",
+    "运行spacr-run加上横杠横杠list，查看可用的批处理命令。列表显示每个命令的键及其对应的Python函数。为您的任务选择命令，例如mask、measure或regression。在Annotate中给图像加标签这类交互式任务，请使用桌面应用程序。",
+    "运行spacr-run加上横杠横杠describe，后面跟regression。阅读必需的输入、默认值和函数名称。这里，批处理命令调用的是spacr.ml中的perform_regression。在API参考中打开该函数，阅读它的参数和返回结果。",
+    "在Python中导入您需要的函数并检查它的签名。本例从spacr.report导入build_report。在API参考中查找同一个名称，准备好必需的参数，然后在脚本或笔记本中调用该函数。",
+    "保存模块工作流程中的设置，然后用横杠横杠settings传入该文件。加上横杠横杠dry-run可以检查配置和输入路径。在这个Regression示例中，设置会把每块板的表型分数与向导计数配对。继续之前，请阅读提示信息并补齐缺失的输入。",
+    "要执行分析，请去掉横杠横杠dry-run再运行同一条命令。在控制台中跟踪直到命令完成，然后检查该模块教程和API页面中描述的输出。把设置文件、输入表、软件包版本和控制台日志与结果一起保存。"
+  ]
+}

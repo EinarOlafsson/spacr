@@ -1,0 +1,358 @@
+{
+  "schema": 1,
+  "lesson": "06_api",
+  "status": "pass",
+  "source_commit": "5430c0ceabbd9cf99a4f40ea3030eefa89c2bd87",
+  "candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_",
+  "manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/release-manifest.json",
+    "bytes": 1166528,
+    "sha256": "e5d099163ba3a99cf9cba249d07ad5e64609f8ea46ce59213519591655257aba"
+  },
+  "baseline_candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l",
+  "baseline_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/release-manifest.json",
+    "bytes": 1179634,
+    "sha256": "ced803ebdd5e93a6ada3fead48a3c6595afd77ef05d104dc0bd43e87a210bd2a"
+  },
+  "root_media_reuse_proof": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/root-media-reuse-proof.json",
+    "bytes": 1957,
+    "sha256": "024509ec04eae7900aa84c314c2c6b23ee66f2e384719efe2eae47bfbf6b27df"
+  },
+  "source_review_hash_rebind": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/review-hash-rebind-application-receipt.json",
+    "bytes": 15238,
+    "sha256": "8e3c1b84ba51581e8ac78324ca291acf350e2664d79e71b84fd37228ff7c8243"
+  },
+  "component_decision": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/root-component-decision.json",
+    "bytes": 2068,
+    "sha256": "2e13681af5322f1b66fac30b9a6779bb7799b163a6a89d7e5cb5beac3a1f1170"
+  },
+  "counts": {
+    "unchanged_media_records": 5370,
+    "unchanged_media_bytes": 8807787387,
+    "unchanged_posters": 84,
+    "other_lesson_objects_preserved_per_catalog": 83,
+    "catalogs": 14,
+    "source_review_hash_rebindings": 13,
+    "retained_offered_and_actual_06_tracks": 27
+  },
+  "catalog_bindings": [
+    {
+      "name": "captions_da.json",
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/captions_da.json",
+        "bytes": 697302,
+        "sha256": "3171dbdff897df9e4f85dc6001b92c8e5df76cdda0be3e90858446a4b17a9f85"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/captions_da.json",
+        "bytes": 697272,
+        "sha256": "709388321008392cb116b1da98c0bfb434b99749148975fde2b95099a8186662"
+      },
+      "only_scene1_related_links_changed": true
+    },
+    {
+      "name": "captions_de.json",
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/captions_de.json",
+        "bytes": 744264,
+        "sha256": "ce9ae42dd8436bcb10417bc8375df74a9fcd2b5f75384b06a897c97e6d9717ff"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/captions_de.json",
+        "bytes": 744234,
+        "sha256": "0e54bbd9cb1ecd3ecbfd92fad8b8d3205c240146c417ebf4ca7a58c814ab08ed"
+      },
+      "only_scene1_related_links_changed": true
+    },
+    {
+      "name": "captions_is.json",
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/captions_is.json",
+        "bytes": 702067,
+        "sha256": "e26186f6ded1741d50b6bb84398cf25c0011b68b41688fd621a9011df181d1f2"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/captions_is.json",
+        "bytes": 702037,
+        "sha256": "fca1a724d8a7bbd257afecd9b34d26ac123d9c6283a04da99537e919f23b9c07"
+      },
+      "only_scene1_related_links_changed": true
+    },
+    {
+      "name": "captions_ko.json",
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/captions_ko.json",
+        "bytes": 738748,
+        "sha256": "b2feae69fda0f0890d46421b7fb4c57a613e13cf7d4ae55afba423111a2d4515"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/captions_ko.json",
+        "bytes": 738718,
+        "sha256": "5364c23af7aa5cb981f5780647ee05562f8c9b177483d532ac9234781bc13023"
+      },
+      "only_scene1_related_links_changed": true
+    },
+    {
+      "name": "captions_nb.json",
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/captions_nb.json",
+        "bytes": 693149,
+        "sha256": "93428643f4e9ec18412d5175d87eb13b25331eeddfba311a7bc7ad5f0dc9481f"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/captions_nb.json",
+        "bytes": 693119,
+        "sha256": "0b3c8069fa5a3b4d5e661a484338e6fb718ef3a1a12f94dcff580de3c298b288"
+      },
+      "only_scene1_related_links_changed": true
+    },
+    {
+      "name": "captions_sv.json",
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/captions_sv.json",
+        "bytes": 702075,
+        "sha256": "868b4ed1d929b3b7c68a9a7233d86fa0d61a7a76328ce3201f084d5b3d537628"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/captions_sv.json",
+        "bytes": 702045,
+        "sha256": "26a2b6e5ce31382b76dd251d6af89eb909d787ce70660d20278b383360d296df"
+      },
+      "only_scene1_related_links_changed": true
+    },
+    {
+      "name": "lessons_en.json",
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/lessons_en.json",
+        "bytes": 674302,
+        "sha256": "6494365f21d95c66777a27e72d9393680bc8efd560b9ffc5cf6be3725ef15abe"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/lessons_en.json",
+        "bytes": 674272,
+        "sha256": "f51031c81d1a19eed303b6e834b78d54691d032f33597f364932462c9f4475c2"
+      },
+      "only_scene1_related_links_changed": true
+    },
+    {
+      "name": "lessons_es.json",
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/lessons_es.json",
+        "bytes": 1104471,
+        "sha256": "7e73582148f0bded2460b5051e9135bc7c7316b2c55f874989e16d105a663c16"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/lessons_es.json",
+        "bytes": 1104441,
+        "sha256": "13de5d7a198332b2d15188352a5f2e2d7627587dd043eda1f8bd83b96764c96d"
+      },
+      "only_scene1_related_links_changed": true
+    },
+    {
+      "name": "lessons_fr.json",
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/lessons_fr.json",
+        "bytes": 1148195,
+        "sha256": "38872f0ba6531fb3d764305d772860acf538d26c07591219ff0ba5e2f33a165c"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/lessons_fr.json",
+        "bytes": 1148165,
+        "sha256": "f26e76596ec61e59a9cb3427c337da32685551866a134219cbae64b50154fce5"
+      },
+      "only_scene1_related_links_changed": true
+    },
+    {
+      "name": "lessons_hi.json",
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/lessons_hi.json",
+        "bytes": 1832339,
+        "sha256": "467514cd1d51452b671e1e85d2dec52d995c9a627d19cafaccaee3279afe4a82"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/lessons_hi.json",
+        "bytes": 1832309,
+        "sha256": "d258a45584949d4e432af5b3bdc5a0f0f5f192c61816b94c8cdf6e868ce77aa3"
+      },
+      "only_scene1_related_links_changed": true
+    },
+    {
+      "name": "lessons_it.json",
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/lessons_it.json",
+        "bytes": 1093066,
+        "sha256": "db4162bc8c324c8207ccc97b23fbffb0dbd74f2768b70498d656b301eb47d892"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/lessons_it.json",
+        "bytes": 1093036,
+        "sha256": "7a5bc9367a1cf7d089ffe563e79d0c2d4b1514a4425c8bd828ad48c4370f9116"
+      },
+      "only_scene1_related_links_changed": true
+    },
+    {
+      "name": "lessons_ja.json",
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/lessons_ja.json",
+        "bytes": 1222656,
+        "sha256": "ca5318806d462a2a61d2c478806be18186df54fcd12697624acd64c554e1694f"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/lessons_ja.json",
+        "bytes": 1222626,
+        "sha256": "6c9a2491c492dbc5c8df671b8ee6a6bb787481587d6ce97b60d2f41d76646702"
+      },
+      "only_scene1_related_links_changed": true
+    },
+    {
+      "name": "lessons_pt-BR.json",
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/lessons_pt-BR.json",
+        "bytes": 1087212,
+        "sha256": "bd448e93ba8b5f394f7ed22f0e894eca058f5f5fd6c016851e5987db62be4859"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/lessons_pt-BR.json",
+        "bytes": 1087182,
+        "sha256": "f0bf95787cb23a3728c5757652c72ab8364902c47b038c3bea1e6488f1062629"
+      },
+      "only_scene1_related_links_changed": true
+    },
+    {
+      "name": "lessons_zh-CN.json",
+      "baseline": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/catalog/lessons_zh-CN.json",
+        "bytes": 948865,
+        "sha256": "6c89e48d989e06c5d4aa60098581933578822c75dd795b407d7bf1b4f22b6230"
+      },
+      "candidate": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/lessons_zh-CN.json",
+        "bytes": 948835,
+        "sha256": "85ab12af7d8fb7945e474b6131227a7df3612edbce2ade90241b485a045f7cd9"
+      },
+      "only_scene1_related_links_changed": true
+    }
+  ],
+  "javascript_catalog": {
+    "baseline": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/web/lesson_catalog.js",
+      "bytes": 529853,
+      "sha256": "1c3035aed3ffbcd02b7f93e423dc2de2104c21c17a64c799b24131708cb98ec3"
+    },
+    "candidate": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/lesson_catalog.js",
+      "bytes": 529835,
+      "sha256": "8ec0993a9b9649e834da7bcd7ff0a0230ca993b62ec7e31a64c2929a5f57e770"
+    }
+  },
+  "player": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/app_v2.js",
+    "bytes": 103252,
+    "sha256": "27a50ed92ca98e53960a1b044fbefe9f8a36f43106153b4b1b038e8d5f2fde9b"
+  },
+  "only_published_lesson_change": {
+    "lesson": "06_api",
+    "field": "scenes[0].related_lessons",
+    "before": [
+      "02_conda_install",
+      "03_pip_install",
+      "04_platform_installers"
+    ],
+    "after": [
+      "02_install_spacr",
+      "04_platform_installers"
+    ]
+  },
+  "official_review_bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.da.json",
+      "bytes": 2781,
+      "sha256": "2fb059d3fda62f8304ddfe01ddd54b383dc5b630f85fb17b0996e1eb2de2626e"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.de.json",
+      "bytes": 3113,
+      "sha256": "ef93cead0b1947e7d12d4b7dd168038341aedd030f57b2ee5081d03a5b4e25fe"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.es.json",
+      "bytes": 3022,
+      "sha256": "67e843fafb123618fb3ea7caae8d32efeaa4f503a18cd4f2ddde9689204acf48"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.fr.json",
+      "bytes": 3170,
+      "sha256": "ab7bb9ea482bbffff9d02ecc35ae589f088a6941275871b50c4bf7df96358a60"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.hi.json",
+      "bytes": 5379,
+      "sha256": "e90ba93024ad8360c1ca79e1f7ed2cb86880203eb4ba070f20e69ffc09d414e9"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.is.json",
+      "bytes": 2845,
+      "sha256": "81536aec31b3f16fe431fcbd2f864aabdf7ee929fd722c1228ae1481c610f151"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.it.json",
+      "bytes": 2978,
+      "sha256": "88cad395ecc0bf758b3bb77b600f95136b583dd9a31d7a1845f056d1685681a5"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.ja.json",
+      "bytes": 3577,
+      "sha256": "41494b03c44945259438f89af66932696cf63f3c6f54b993db6f7e6e1dd63338"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.ko.json",
+      "bytes": 2988,
+      "sha256": "d9317391ab5a2e2827603cd5b01d0ae306a2dbc9ccb48bdc14191b290a1b029d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.nb.json",
+      "bytes": 2793,
+      "sha256": "4e80f0ae0d4b06e0d68165a528abf3bf66654b66f004df9eda821c8c6081545d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.pt-BR.json",
+      "bytes": 2996,
+      "sha256": "ea878afa7f8ca32da72f5bdc7af8ad3eef8ba862e1e51e17eb1984863a6a89c0"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.sv.json",
+      "bytes": 2804,
+      "sha256": "c184448a66b3b15c5665de877c0b5c706a7db8ed65d66d4a76f52b217e705a6d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/06_api.zh-CN.json",
+      "bytes": 2535,
+      "sha256": "4d1918ed5adc24b91905c7c428ea72fa13c8ff57c9c71c242924f4dc59c8dd1e"
+    }
+  ],
+  "reused_immutable_media_commit": "4e4de22dce9cc5e7f1c86747b6159b538e66f7a1",
+  "checks": {
+    "all5370_media_path_bytes_SHA_maps_exact": true,
+    "all84_poster_maps_exact": true,
+    "all83_other_objects_in14catalogs_and_JS_exact": true,
+    "only06scene1_links_delta": true,
+    "all6_narrations_all14languages_and27voice_inventory_unchanged": true,
+    "player_unchanged": true,
+    "13_source_reviews_only_english_hash_bytes_changed": true,
+    "rootproof_existing_full_readback_association_valid": true
+  },
+  "blocking_issues": [],
+  "fresh_upload_performed": false,
+  "fresh_remote_readback_performed": false,
+  "publication_accepted": false,
+  "limits": [
+    "Actual smallcatalog/source JSON/JS byte and manifest association review; no media rehash/decode/browser/network/test run.",
+    "Old immutable4e4 full5370 metadata/downloadSHA coverage is reused, not newly performed.",
+    "PreparedPages84/currentrecord/export/push remain parent-owned; no liveCI/Space or hearing/native-speaker claim."
+  ],
+  "owned_jobs_or_leases_remaining": false
+}
