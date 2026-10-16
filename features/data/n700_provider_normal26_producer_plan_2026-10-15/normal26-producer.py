@@ -1,4 +1,5 @@
 import argparse
+import gzip
 import hashlib
 import importlib.abc
 import importlib.util
@@ -126,6 +127,25 @@ try:
     save()
     print('PHASE unchanged FULL9 ordinary API+README audit', flush=True)
     full_docs = tool.public_docstrings()
+    snapshot = json.dumps(full_docs, ensure_ascii=False, indent=2).encode('utf-8')
+    assert json.loads(snapshot) == full_docs
+    snapshot_path = out / 'full-current-source-docs.json.gz'
+    snapshot_path.write_bytes(gzip.compress(snapshot, mtime=0))
+    assert json.loads(gzip.decompress(snapshot_path.read_bytes())) == full_docs
+    result['full_source_snapshot'] = {'path': snapshot_path.name,
+        'json_sha256': hashlib.sha256(snapshot).hexdigest(),
+        'gzip_sha256': sha(snapshot_path), 'symbols': len(full_docs)}
+    english_symbols = before_api['en']['symbols']
+    missing_english = sorted(set(full_docs) - set(english_symbols))
+    extra_english = sorted(set(english_symbols) - set(full_docs))
+    stale_english = sorted(key for key in set(full_docs) & set(english_symbols)
+        if english_symbols[key].get('text') != full_docs[key]
+        or english_symbols[key].get('source_sha256') != tool._source_hash(full_docs[key])
+        or english_symbols[key].get('source_blocks_sha256') != tool._source_block_hashes(full_docs[key]))
+    result['global_english_diagnostic'] = {'missing': missing_english,
+        'extra': extra_english, 'stale': stale_english,
+        'equal': not (missing_english or extra_english or stale_english)}
+    save()
     assert all(full_docs[key] == source for key, source in docs.items())
     result['full_source_inventory_symbols'] = len(full_docs)
     result['full9_audit_exit'] = tool.audit(full_docs, list(tool.MODEL_SPECS))
