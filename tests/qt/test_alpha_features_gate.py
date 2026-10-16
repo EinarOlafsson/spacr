@@ -42,6 +42,7 @@ FUTURE = ROOT / "features" / "future"
 # same for all of them.
 RELEASED_BEFORE_THE_ALPHA_RULE = {
     59: "released before the alpha rule of 2026-09-26",
+    370: "public scorecard tooltips and API shipped before 2026-09-26; later work reconciled the cards",
     407: "released before the alpha rule of 2026-09-26",
     423: "released before the alpha rule of 2026-09-26",
     424: "released before the alpha rule of 2026-09-26",
@@ -68,6 +69,9 @@ BUILT = re.compile(r"\b(built|implemented|done)\b", re.IGNORECASE)
 # ops carries 554's Spotiflow entry of ops_spot_detector.
 # activation carries 564's counterfactual settings (Activation Maps).
 EXTRA_SETTINGS_HOSTS = ("timelapse", "anndata_export", "ops", "activation")
+
+# N707 moved this switch out of module forms and into Preferences -> Plugins.
+PREFERENCE_SETTINGS = {"export_vvvv": "PreferencesExportVvvv"}
 
 
 @pytest.fixture
@@ -205,7 +209,7 @@ def test_every_registered_setting_and_choice_follows_the_switch_live(
 
     wanted = set(_alpha_names("settings")) | set(_alpha_names("choices"))
     seen_choices = set()
-    for app_key, keys in _hosts_for(wanted).items():
+    for app_key, keys in _hosts_for(wanted - PREFERENCE_SETTINGS.keys()).items():
         screen = AppScreen(app_key)
         try:
             for dimension in ("z", "t"):
@@ -252,6 +256,35 @@ def test_every_registered_setting_and_choice_follows_the_switch_live(
     expected = {(key, value) for key in _alpha_names("choices")
                 for value in _alpha_choices(key)}
     assert expected <= seen_choices, expected - seen_choices
+
+
+def test_registered_preference_settings_follow_the_gate(qtbot, prefs, monkeypatch):
+    """A relocated switch stays gated and retains its saved value while hidden."""
+    from PySide6.QtWidgets import QCheckBox
+
+    from spacr.qt.widgets import ambient
+
+    monkeypatch.setattr(ambient.AmbientWidget, "_start_producer", lambda self: None)
+    assert PREFERENCE_SETTINGS == {"export_vvvv": "PreferencesExportVvvv"}
+    assert set(PREFERENCE_SETTINGS) <= _alpha_names("settings")
+    assert set(PREFERENCE_SETTINGS.values()) <= _alpha_names("widgets")
+    prefs._set_export_vvvv(True)
+    for visible in (False, True, False):
+        prefs._set_show_alpha_features(visible)
+        dialog = prefs.PreferencesDialog()
+        qtbot.addWidget(dialog)
+        try:
+            switch = dialog.findChild(QCheckBox, PREFERENCE_SETTINGS["export_vvvv"])
+            if visible:
+                assert switch is not None and switch.isChecked()
+                assert not switch.isHidden()
+            else:
+                assert switch is None
+            assert prefs._get_export_vvvv() is True
+            assert prefs._vvvv_export_enabled() is visible
+        finally:
+            dialog.close()
+            dialog.deleteLater()
 
 
 def test_a_saved_alpha_entry_still_loads_and_runs_while_hidden(qtbot, prefs):

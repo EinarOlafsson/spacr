@@ -11416,7 +11416,7 @@ class PreferencesDialog:
             plugins_form = _page("Plugins", "PreferencesTabPlugins")
             if show_vvvv:
                 export_vvvv_check = QCheckBox(tr("Export to vvvv"))
-                export_vvvv_check.setObjectName(_EXPORT_VVVV_ALPHA_WIDGET)
+                export_vvvv_check.setObjectName("PreferencesExportVvvv")
                 export_vvvv_check.setChecked(_get_export_vvvv())
                 export_vvvv_check.setToolTip(tr(
                     "Also write every saved mask in Make Masks, and every "
