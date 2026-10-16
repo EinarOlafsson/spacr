@@ -2,8 +2,8 @@
 CODECOV FOR spaCR, WITH A README BADGE
 ================================================================================
 
-Status:    PARTIAL — nightly upload and all ten README badges implemented;
-           first main upload remains pending approved main promotion.
+Status:    COMPLETE — genuine main/nightly uploads and numerical README badges;
+           published main policy keeps future Codecov checks informational.
 Requested: 2026-10-10 — "configure https://app.codecov.io/github/EinarOlafsson/
            spacr/new for spacr and add a badge when you are done"
 Owner:     Home (CI); WS (README badge in the localized READMEs)
@@ -112,3 +112,9 @@ Retain nightly upload/all-ten-README work and informational Codecov status; dete
 2026-10-16 — Original Home permits replay of genuine main run38796441956 under the existing successful-combine upload policy, including its explicitly disclosed incomplete measurement and failed gate.
 Require all twelve original shards, main-source ancestry, exact source checkout, identical regenerated coverage.py JSON and branch-preserving Cobertura; never substitute nightly data or claim green CI.
 The existing codecov_integration + codecov_acceptance pair owns the authenticated upload, numerical agreement and normally generated main-badge switch; all enforcing gates remain unchanged.
+
+2026-10-16 — Main upload 38932290371 reuses genuine run 38796441956/f0efcc75 with all twelve original shards and identical regenerated coverage.py JSON/branch-preserving Cobertura.
+Codecov reports 98.35% against coverage.py 98.75879199074107% (difference 0.40879199074107 pp); native and README Shields main badges both return numerical 98%.
+The original measurement remains incomplete and its failed CI/gate verdict is unchanged; Codecov receipt is not release or CI acceptance.
+Published main config 3a28c53c764 keeps future project/patch statuses informational and comments off; historical f0ef policy is not retroactively changed.
+All ten README badges were normally regenerated with N673 in 5c52dba84e2; independent URL/target verification passed 10/10, with prior nightly upload acceptance retained.
