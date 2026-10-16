@@ -1,5 +1,5 @@
 {
-  "status": "PRIVATE_REVIEW_INPUTS_NORMAL_BLOCK_VALID_FINAL_DELTA_PEER_PENDING",
+  "status": "PRIVATE_REVIEW_INPUTS_NORMAL_BLOCK_VALID_FINAL_INDEPENDENT_PEER_ACCEPTED",
   "scope": "11 public provider utility/report symbols;43 exact canonical block records per locale;39 unique sources;387 records total. No provider runtime/source/route/catalog changes.",
   "public_source_revision": "7d9fc83a07f32129366134f12e10fabafb33350f",
   "provider_source_sha256": "88eaf32a8ff9b158e4a900e4dc03f39ea3023aaf33003be612a0eb0bbb717725",
@@ -56,7 +56,7 @@
     "source_and_context_valid": true,
     "collector_or_writer_executed": false
   },
-  "peer": "Independent semantic reviews supplied for all9; final target-only normal-syntax/Korean-spacing delta awaiting hash-bound addendum. Do not run producer before addendum.",
+  "peer": "Independent semantic source/context/RST review covers all387 records. Final correction delta accepted by exact independent peer commit; no human/native-language signoff.",
   "history": "Four original EN records recovered from exact pre-hosted source6e386930; actual AST hashes and normal historical helper verify8 reusable blocks×9. Records are evidence only; source-history file unmodified.",
   "limits": [
     "AI technical authoring/review, no human or native-language signoff",
@@ -78,5 +78,10 @@
     "is-peer-corrections.json": "5963b605407a2ee369de41198311fb1d3804dfed2315117d0eef66e2cd99d083",
     "validate-ci-drafts.py": "6a3dfe1363b08939b68f343182e26bc49853373e01af6e6024bb99bbf69a6897",
     "prove-historical-en.py": "3c7e2ab3916a6885ed69af63064be7ae3eea94fa7703798fa603e5472d066e22"
+  },
+  "final_independent_peer": {
+    "commit": "cfa6f94b63838d260c0d28514ed099c03c909058",
+    "path": "features/data/n700_provider_api_incremental_independent_peer_2026-10-15/hard-final-utilities-delta-peer.json",
+    "sha256": "4597e737ab18f8dd7a954b3ffcb25bad33cc15a66d6c0353f636f4a303e6424b"
   }
 }
