@@ -17,7 +17,7 @@ import imageio.v2 as imageio
 import numpy as np
 import pytest
 from PySide6.QtCore import QPoint, QRect, QRectF, Qt
-from PySide6.QtWidgets import QPushButton, QTabBar
+from PySide6.QtWidgets import QPushButton, QTabBar, QToolButton
 
 from spacr.qt.screens.make_masks import (
     DEFAULT_BRUSH_RADIUS,
@@ -169,8 +169,10 @@ def test_tabs_controls_and_footer_have_separate_visible_geometry(
     assert footer_rect.bottom() < _where(screen, screen._io_group).y()
     assert footer_rect.left() - _where(screen, screen._image_container).x() < 20
     assert not screen._status_label.isVisible()
+    label_controls = (screen._label_tool_button, screen._btn_label_time,
+                      *screen._label_tool_group.findChildren(QToolButton))
     for button in (screen._btn_recrop, screen._btn_magnifier,
-                   screen._btn_test_data):
+                   screen._btn_test_data, *label_controls):
         assert button.visibleRegion().boundingRect() == button.rect(), {
             "button": button.text(),
             "top": (screen._tool_row.height(),
