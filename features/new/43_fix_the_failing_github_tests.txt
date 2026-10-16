@@ -4053,3 +4053,8 @@ Full CI and reserved-feature repairs still gate1.5.1.5; no whole-item completion
 2026-10-16 — 23580ea8701 makes the field-drag test consume its queued release through the existing zero-time frame API; nonblocking input and all original spring assertions remain unchanged.
 A held-render-lock baseline reproduces the stale engine assertion; all17 owning tests pass, including unchanged150ms responsiveness and strengthened queued-release continuity/no-replay checks.
 HostedQt6.11.2 passes all four strict opaque/classic paint modes. Full-green CI, reserved-feature repairs and1.5.1.5 publication remain open.
+
+2026-10-16 — The serial GDB test now covers absent, empty and inherited library paths without changing debugger isolation, exact commands or backtrace limits; all9 focused checks pass.
+This repairs current run38896248803/job116957311449; the protected run and its existing observer remain active, with no cancellation or duplicate dispatch.
+BLOCKED ON MAINTAINER: the N700 owner must reconcile tests/test_packaging_metadata.py:378 with the deliberate Terms4.3 change; compatibility38894990268/job116953641767 still expects4.2.
+Release1.5.1.5 remains unpublished; continue owned CI repairs as the remaining jobs finish, then require green final-source tests and compatibility before promotion.
