@@ -3465,7 +3465,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     # 2026-10-16: Item 673 wgpu follow-up: Vulkan/Metal/Direct3D 12 renderer, adapter listing, GPU-off switch, backend chain, doctor row and the without-wgpu update override; one named contract.
     n673w_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "673_wgpu_api_arrivals_2026-10-16.json").read_text())
-    assert len(n673w_arrivals) == 11
+    assert len(n673w_arrivals) == 20
     assert {key: docs[key] for key in n673w_arrivals} == n673w_arrivals
     assert not n673w_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **n673w_arrivals}
@@ -3509,6 +3509,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     for filename, count in (
         ("699_ssh_connection_worker_api_arrival_2026-10-14.json", 1),
         ("reviewed_api_surface_arrivals_2026-10-15.json", 20),
+        ("560_embedding_demo_api_arrivals_2026-10-16.json", 2),
         ("561_classifier_api_arrivals_2026-10-15.json", 19),
         ("180_session_figure_api_arrivals_2026-10-15.json", 2),
     ):

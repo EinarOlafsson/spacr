@@ -54,6 +54,17 @@ _N696_ASSIGNMENT_ARRIVALS = {
         '``None`` is the magnification default, drawn greyed (item 696).'
     ),
 }
+_N673_WGPU_ASSIGNMENTS = frozenset({
+    'spacr.doctor.WGPU_MACHINES',
+    'spacr.doctor.WGPU_MIN_PYTHON',
+    'spacr.install_profile.NO_WGPU_OVERRIDE',
+    'spacr.install_profile.NO_WGPU_OVERRIDE_NAME',
+    'spacr.layers.GPU_RENDER_OFF_ENV',
+    'spacr.layers.WGPU_BACKENDS',
+    'spacr.qt.screens.make_masks.VOLUME_BACKENDS',
+    'spacr.qt.screens.make_masks.VOLUME_BACKEND_API',
+    'spacr.qt.screens.make_masks.VOLUME_WGPU_BACKENDS',
+})
 _LAUNCHER_ASSIGNMENTS = {"spacr._parascape.MINIMUM_VERSION",
                          "spacr.qt.widgets.live_preview.FILTER_DEBOUNCE_MS"}
 _ASSIGNMENTS_ADDED_2026_09_25 = frozenset({
@@ -307,8 +318,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in _N696_ASSIGNMENT_ARRIVALS} == (
         _N696_ASSIGNMENT_ARRIVALS
     )
+    wgpu_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "673_wgpu_api_arrivals_2026-10-16.json").read_text())
+    assert len(wgpu_arrivals) == 20
+    assert wgpu_arrivals.keys() & assignments == _N673_WGPU_ASSIGNMENTS
+    assert {key: docs[key] for key in _N673_WGPU_ASSIGNMENTS} == {
+        key: wgpu_arrivals[key] for key in _N673_WGPU_ASSIGNMENTS}
     assignments = (assignments - spatial_arrivals.keys()
-                   - _LAUNCHER_ASSIGNMENTS - _N696_ASSIGNMENT_ARRIVALS.keys())
+                   - _LAUNCHER_ASSIGNMENTS - _N696_ASSIGNMENT_ARRIVALS.keys()
+                   - _N673_WGPU_ASSIGNMENTS)
     assert len(assignments) == 35
     assert _ASSIGNMENTS_ADDED_2026_09_25 <= assignments
     new_assignments = assignments
@@ -1623,10 +1641,19 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 2026-10-16: Item 673 wgpu follow-up: Vulkan/Metal/Direct3D 12 renderer, adapter listing, GPU-off switch, backend chain, doctor row and the without-wgpu update override; one named contract.
     n673w_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
         / "673_wgpu_api_arrivals_2026-10-16.json").read_text())
-    assert len(n673w_arrivals) == 11
+    assert len(n673w_arrivals) == 20
     assert {key: docs[key] for key in n673w_arrivals} == n673w_arrivals
     assert not n673w_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **n673w_arrivals}
+    demo_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "560_embedding_demo_api_arrivals_2026-10-16.json").read_text())
+    assert set(demo_arrivals) == {
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._load_demo_crops.work",
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._load_demo_crops.finished",
+    }
+    assert {key: docs[key] for key in demo_arrivals} == demo_arrivals
+    assert not demo_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **demo_arrivals}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
         / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text())

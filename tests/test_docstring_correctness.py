@@ -2618,6 +2618,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "673_napari_true3d_api_arrivals_2026-10-15.json",
                      "673_true3d_gpu_api_arrivals_2026-10-16.json",
                      "673_wgpu_api_arrivals_2026-10-16.json",
+                     "560_embedding_demo_api_arrivals_2026-10-16.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
@@ -4366,11 +4367,12 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 2026-10-16: Item 673 wgpu follow-up: Vulkan/Metal/Direct3D 12 renderer, adapter listing, GPU-off switch, backend chain, doctor row and the without-wgpu update override; one named contract.
     n673w_additions = json.loads((pathlib.Path(__file__).resolve().parent / "data/release_contracts"
         / "673_wgpu_api_arrivals_2026-10-16.json").read_text())
-    assert len(n673w_additions) == 11
+    assert len(n673w_additions) == 20
     assert {key: docs[key] for key in n673w_additions} == n673w_additions
     assert not n673w_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **n673w_additions}
     for contract, expected_count in (
+        ("560_embedding_demo_api_arrivals_2026-10-16.json", 2),
         ("561_classifier_api_arrivals_2026-10-15.json", 19),
         ("180_session_figure_api_arrivals_2026-10-15.json", 2),
     ):
@@ -4816,6 +4818,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "673_napari_true3d_api_arrivals_2026-10-15.json",
                      "673_true3d_gpu_api_arrivals_2026-10-16.json",
                      "673_wgpu_api_arrivals_2026-10-16.json",
+                     "560_embedding_demo_api_arrivals_2026-10-16.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
@@ -4871,6 +4874,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "673_napari_true3d_api_arrivals_2026-10-15.json",
                      "673_true3d_gpu_api_arrivals_2026-10-16.json",
                      "673_wgpu_api_arrivals_2026-10-16.json",
+                     "560_embedding_demo_api_arrivals_2026-10-16.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",

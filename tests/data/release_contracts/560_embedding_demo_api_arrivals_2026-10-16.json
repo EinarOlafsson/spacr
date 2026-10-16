@@ -1,0 +1,4 @@
+{
+  "spacr.qt.screens.embeddings.EmbeddingsScreen._load_demo_crops.finished": "Select the CPU example and attach its row-aligned labels.",
+  "spacr.qt.screens.embeddings.EmbeddingsScreen._load_demo_crops.work": "Unpack and read the small local example off the GUI thread."
+}
