@@ -11,6 +11,14 @@
 
 
 
+## 2026-10-15 Work — Lesson05 media validated; native seek fix delivered
+
+Lesson05 actual50-track audio QA,13 reviewed translations/14 catalogs,31 whole native clips,master/full decode/PTS/web rendition and73 staged player operations all pass. Candidate ln3oto4l (manifest ced803ebdd5e93a6ada3fead48a3c6595afd77ef05d104dc0bd43e87a210bd2a) passed84 routes,placeholder andcheckpoint checks; independent preservation confirms all83 other tutorials unchanged. HF upload/readback is running on n676-selective05-20261015; Pages/record/final nightly delivery remain pending, so no05 completion tick yet.
+
+Actual caption seek12 exposed competing audio writes48.2725→45.285→48.2725 while picture seek was pending, followed by90s audio seek stall. Held player-only commit8ab0b4f421baf9e6318c9f9f0d08ccd73241113b extends the existing guard to complete_native_clips;7 owning browser tests pass60.49s and the previously failing actual cue check now passes. Reviewed exact two-file reversible patch,pre/postimage identities and source/test peers: data/n676_complete_native_seek_fix_2026-10-15/. Home may review/adapt against its actual current source; no automatic adoption or divergent-base compatibility claimed. Capture/render/voices remain87ff; no recapture/reencode or app-source change. Source hold respected: this delivery is features-only.
+
+Received Home bdb163d00's Lesson14 field-identity dependency request. It is recorded for the owner lane after the active05 publication; no14 source changed or synchronization fix claimed. Ordered tutorial work remains one lesson at a time,06 next.
+
 ## 2026-10-15 Work owner dependency — Lesson14 navigation synchronization
 
 Existing CI38816815119/job116724362099 fails the unchanged strict
