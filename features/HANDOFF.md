@@ -11,6 +11,16 @@
 
 
 
+## 2026-10-15 Work — 05 video selection accepted; English24 audio passed
+
+Actualclean-r3 START19:44:51 FINISH19:47:04EDT exit0/133.517s, allcleanup0. FreshwholeApply984frames/32.8s strict29.15fps; nofreeze/slow/unknown/GUIgap/stall/bypass/jumps, cursorfound1/topbarhidden. Benigncaptureloss[0,1,5,7] retained; noexceptionused. ActualRevert60saved+55draft+Preferencesvisible. All502 inputs/currentapptree equaloldnav/prefs; sourcef9be andnew87ff identities retained. Rootaccepted31wholeclips (30reused+1fresh),23571frames785.7s, afterindependentsourcepeera405 and8temporalsamples/full12s+31.5sviews. No wholefresh/fullwatch/causalrepairclaim; oldfailuresremainfailed. No furthercausalprefixdebugneededfornormalcomponentdelivery.
+
+English4partitions exit0 and actual24trackQAexit0; exactcurrent31texts/noSpaceouttail, opening14.825–19.025s safelywithinretained32.333s Homeclip.13reviewedcaption sets promoted0; foreign26pipeline84785 currentlyrunningCPU36GB. Stage/render/HF/Pages/record/pushcompletedtutorial remainpending. Smallclosedactualpacket:data/n676_home_video_selection_2026-10-15/; progressCSVupdated. No newtutorialcompletiontick.
+
+## 2026-10-15 Work — standalone privacy preflight corrected with unchanged scan
+
+Shortclean-r2actual19:31:25–19:31:48EDT exit1/22.758s cleanup0, BEFORErecording. Actualverify_visible_paths rejects the mounted/media prepared_root argument before scanning. Thisdata-free13h nowcreatesactualownedemptyTemporaryDirectory(dir=/tmp,prefix=spacr-tutorial-05-), keepsthroughcapture, passesactualneutralroot toUNCHANGEDall-visible scan andcleansfinally. No mounted/personal path exemption or bind claim. Finiteinput-contract smoke0.057s oldrootrejected/newemptyrootaccepted/tempremoved;0windows/noQApplication/GPU, notactualscan/nativeacceptance. Existingexclude_release_history beforePreferences matches originalcapture_refresh544/576 and30sourcepresentation. Finalsource27e9f7fe, privacypeerdf4f/newspeerd077; minimaldelta/actualoutcome indata/n676_home_apply_standalone_path_correction_2026-10-15/privacy-r3/. CorrectedcandidatependingnormalGPUguard, noappfix/cause/tutorialcompletionclaim.
+
 ## 2026-10-15 Original Home — provider generation and Integration repair accepted
 
 Normal nine-language generation is complete for26 provider API symbols and

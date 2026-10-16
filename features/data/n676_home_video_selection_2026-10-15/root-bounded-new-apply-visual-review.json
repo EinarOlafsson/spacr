@@ -1,0 +1,15 @@
+{
+  "lesson": "05_home",
+  "visual": "13h_preferences_apply",
+  "reviewed_utc": "2026-10-15T23:52:03.324386+00:00",
+  "accepted_for_selected_component": true,
+  "sampling_receipt_sha256": "a7b6cfeefbb76fb1f3c8d709299b383e53b5cc6c7e8942c138a4e9a805f49870",
+  "independent_actual_evidence_peer_sha256": "a4054be8d0649e5b7c207ad2deba62f5a5081dc052b1b39e7c95cf2ea3f7da87",
+  "observations": [
+    "Root viewed eight temporal handoff samples, plus full 12.0s and31.5s frames",
+    "Current14module Home/categorytabs visible behind actual Preferences; stableToxoplasma/no alphacontent in samples",
+    "Theme opened, opacity55 preview; actual Keep/Revert confirmation/physicalpointer; afterRevert questiongone, Preferencesstillopen and draft55visible",
+    "Dark field background/plain glass; no personalpaths in inspected samples and actualfullvisibletextpreflight passed"
+  ],
+  "scope": "Bounded visual samples plus unchanged strict motion gate/actual source/state receipts, not full video watch or prior-tour causal proof. Wholelesson selection acceptance pending actual31closure."
+}

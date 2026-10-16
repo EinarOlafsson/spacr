@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "status": "pass",
+  "source_peer_passed": true,
+  "blocking_findings": [],
+  "preparation_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-clean-r3/preparation-manifest.json",
+    "bytes": 5824,
+    "sha256": "27e9f7fefc682b42fd705478cc007200c3d06c873fe7ef6900431c692129acdb"
+  },
+  "prior_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-clean-r3-privacy-independent-source-peer.json",
+    "bytes": 3843,
+    "sha256": "df4f4e30d311e976a43c05acdf7e6ab5051bd1f34dc7028ba94ede474021db7a"
+  },
+  "findings": [
+    "Exact onlyruntime delta imports existing capture_policy.exclude_release_history and calls it after verify_fresh_start before Preferences/recording; records static count only.",
+    "Matches original capture_refresh unconditional/HomePreferences News omission; no application/policy/gate edits or other source change.",
+    "Removing two additions reconstructs exact prior frozen driver SHA; allother listedfiles unchanged."
+  ],
+  "validation": "Source/hash/AST only; root privacy-contract smoke is separate, not repeated or native acceptance.",
+  "owned_jobs_or_leases_remaining": false
+}

@@ -1,0 +1,42 @@
+{
+  "status": "capture_incomplete",
+  "error": "none",
+  "phase": "begin_complete_apply_clip",
+  "pre_apply_public_state": null,
+  "human_startup_elapsed_ns": 87232684,
+  "initial_window_dispatch_elapsed_ns": 2377479352,
+  "failure_phase": "begin_complete_apply_clip",
+  "exception_type": "ValueError",
+  "exception_locations": [
+    {
+      "file": "capture_driver.py",
+      "function": "worker",
+      "line": 224
+    },
+    {
+      "file": "capture_driver.py",
+      "function": "call",
+      "line": 52
+    },
+    {
+      "file": "human_input.py",
+      "function": "__call__",
+      "line": 557
+    },
+    {
+      "file": "human_input.py",
+      "function": "run",
+      "line": 537
+    },
+    {
+      "file": "capture_driver.py",
+      "function": "preflight",
+      "line": 222
+    },
+    {
+      "file": "capture_policy.py",
+      "function": "verify_visible_paths",
+      "line": 488
+    }
+  ]
+}
