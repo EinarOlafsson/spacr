@@ -83,6 +83,7 @@ _WAIT_SECONDS = 600.0
 _FROZEN_PREPARATION_SECONDS = 3600.0
 _RMTREE_TAKES_ONEXC = sys.version_info >= (3, 12)
 _PRIVILEGED_DEBIAN_HELPER = False
+_MACOS_FROZEN_PHASE_COMMANDS = ("apply-macos-root",)
 
 
 @dataclass(frozen=True)
@@ -1775,6 +1776,7 @@ private_stage=
 old_identity=
 new_identity=
 receipt_ready=0
+phased=${phased:-0}
 
 private_path() {
   [ ! -L "$1" ] && [ -e "$1" ] || return 1
@@ -1916,11 +1918,24 @@ restore_transaction() {
   write_journal
 }
 
+phase_checkpoint() {
+  [ "$phased" = 1 ] || return 0
+  printf 'SPACR_PHASE_%s\n' "$1"
+  answer=
+  IFS= read -r answer || answer=retain
+  case "$1:$answer" in
+    prepared:activate|activated:confirmed) return 0;;
+    activated:failed) return 1;;
+    activated:*) phase=desktop-unconfirmed; write_journal; exit 79;;
+    *) return 1;;
+  esac
+}
+
 finish() {
   result=$?
   trap - EXIT HUP INT TERM
   set +e
-  if [ "$phase" != initial ] && [ "$phase" != committed ] && [ "$phase" != rolled-back ] && [ -n "$old_identity" ] && [ -n "$new_identity" ]; then
+  if [ "$phase" != initial ] && [ "$phase" != committed ] && [ "$phase" != desktop-unconfirmed ] && [ "$phase" != rolled-back ] && [ -n "$old_identity" ] && [ -n "$new_identity" ]; then
     if ! restore_transaction; then
       printf 'Automatic recovery refused changed identities/content; preserved transaction: %s\n' "$txn" >&2
       result=76
@@ -2014,6 +2029,9 @@ new_identity=$(identity "$txn/new.app")
 inventory "$target" "$txn/old.inventory"
 phase=prepared
 write_journal
+phase_checkpoint prepared || exit 79
+[ "$(identity "$target")" = "$old_identity" ] || exit 75
+matches_inventory "$target" "$txn/old.inventory" || exit 75
 /bin/mv -n "$target" "$txn/previous.app"
 [ "$(identity "$txn/previous.app")" = "$old_identity" ] || exit 75
 phase=old-moved
@@ -2026,28 +2044,16 @@ write_journal
 verify_bundle "$target"
 matches_inventory "$target" "$txn/source.inventory"
 matches_inventory "$txn/previous.app" "$txn/old.inventory"
+phase_checkpoint activated || exit 79
 phase=committed
 write_journal
 receipt_ready=1
 """
 
 
-def _macos_protected_command(version, digest, *, image=None, transaction=None,
-                              original_identity=None):
-    """Encode one fixed native administrator transaction without executing user-owned code.
-
-    The protected inventory uses byte lengths under ``LC_ALL=C`` to delimit
-    paths and link targets, retaining trailing target newlines and removing only
-    readlink's output terminator. Every inventory command propagates failure
-    even when a caller uses a conditional or OR-list.
-
-    :param version: exact numeric public package release string.
-    :param digest: positive published lowercase SHA-256 of that release's DMG.
-    :param image: absolute DMG path for replacement, mutually exclusive with transaction.
-    :param transaction: exact protected transaction directory for restart recovery.
-    :param original_identity: installed bundle's device/inode pair, required for replacement.
-    :returns: quoted OS osascript argument vector; constructing it executes nothing.
-    """
+def _macos_protected_script(version, digest, *, image=None, transaction=None,
+                            original_identity=None):
+    """Build the fixed privileged transaction without entering an authorization boundary."""
     import re
     import shlex
 
@@ -2072,10 +2078,205 @@ def _macos_protected_command(version, digest, *, image=None, transaction=None,
               "build_version": fields["CFBundleVersion"], "expected_digest": digest,
               "download": image or "", "recovery_transaction": transaction or "",
               "original_identity": ":".join(map(str, original_identity or []))}
-    script = "\n".join(f"{key}={shlex.quote(value)}" for key, value in values.items()) + "\n" + _MACOS_PROTECTED_TRANSACTION
+    return "\n".join(f"{key}={shlex.quote(value)}" for key, value in values.items()) + "\n" + _MACOS_PROTECTED_TRANSACTION
+
+
+def _macos_protected_command(version, digest, *, image=None, transaction=None,
+                              original_identity=None):
+    """Encode one fixed native administrator transaction without executing user-owned code.
+
+    The protected inventory uses byte lengths under ``LC_ALL=C`` to delimit
+    paths and link targets, retaining trailing target newlines and removing only
+    readlink's output terminator. Every inventory command propagates failure
+    even when a caller uses a conditional or OR-list.
+
+    :param version: exact numeric public package release string.
+    :param digest: positive published lowercase SHA-256 of that release's DMG.
+    :param image: absolute DMG path for replacement, mutually exclusive with transaction.
+    :param transaction: exact protected transaction directory for restart recovery.
+    :param original_identity: installed bundle's device/inode pair, required for replacement.
+    :returns: quoted OS osascript argument vector; constructing it executes nothing.
+    """
+    script = _macos_protected_script(version, digest, image=image, transaction=transaction,
+                                      original_identity=original_identity)
     literal = script.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
     return ["/usr/bin/osascript", "-e",
             f'do shell script "{literal}" with administrator privileges without altering line endings']
+
+
+def _macos_frozen_trusted_helper(*, run=None):
+    """Validate the installed root-owned helper and every containing directory."""
+    import re
+
+    helper = "/Applications/spaCR.app/Contents/Frameworks/spacr-update-helper"
+    invoke = run or _macos_native
+    paths = ["/", "/Applications", "/Applications/spaCR.app", "/Applications/spaCR.app/Contents",
+             "/Applications/spaCR.app/Contents/Frameworks", helper]
+    for path in paths:
+        details = os.lstat(path)
+        allowed_group = path in {"/", "/Applications"} and details.st_gid in {0, 80}
+        if (os.path.realpath(path) != path or details.st_uid != 0
+                or not (stat.S_ISREG if path == helper else stat.S_ISDIR)(details.st_mode)
+                or stat.S_IMODE(details.st_mode) & (0o002 if allowed_group else 0o022)
+                or re.search(r"(?m)^\s+[0-9]+:.* allow ", invoke(["/bin/ls", "-lde", path]))):
+            raise ValueError(tr("The installed macOS helper is not protected from modification."))
+    invoke(["/usr/bin/codesign", "--verify", "--strict", helper])
+    return helper
+
+
+def _macos_frozen_authorized_command(command, arguments):
+    """Authorize only an installed trusted helper copied into a root-private directory."""
+    import shlex
+
+    if (command not in {"apply-macos-root", "uninstall-macos-root"}
+            or not isinstance(arguments, (list, tuple)) or len(arguments) > 32
+            or any(not isinstance(value, str) or len(value) > 32768
+                   or any(ord(character) < 32 for character in value) for value in arguments)):
+        raise ValueError(tr("The macOS helper request is invalid."))
+    if os.geteuid() == 0:
+        raise ValueError(tr("The desktop coordinator must run without administrator privileges."))
+    helper = _macos_frozen_trusted_helper()
+    capability = json.loads(_macos_native([helper, "native-phase-protocol"]))
+    if (not isinstance(capability, dict) or capability.get("schema") != 1
+            or not isinstance(capability.get("commands"), list)
+            or command not in capability["commands"]):
+        raise ValueError(tr("The installed macOS helper does not support this operation."))
+    script = r'''
+set -eu
+PATH=/usr/bin:/bin:/usr/sbin:/sbin
+export PATH
+umask 077
+[ "$(/usr/bin/id -u)" = 0 ] || exit 70
+helper=/Applications/spaCR.app/Contents/Frameworks/spacr-update-helper
+for path in / /Applications /Applications/spaCR.app /Applications/spaCR.app/Contents /Applications/spaCR.app/Contents/Frameworks "$helper" /private /private/var /private/var/root; do
+  [ ! -L "$path" ] && [ "$(/usr/bin/stat -f %u "$path")" = 0 ] || exit 71
+  mode=$(/usr/bin/stat -f %Lp "$path")
+  [ $((0$mode & 0002)) = 0 ] || exit 71
+  if [ $((0$mode & 0020)) != 0 ]; then
+    [ "$path" = / ] || [ "$path" = /Applications ] || exit 71
+    group=$(/usr/bin/stat -f %g "$path")
+    [ "$group" = 0 ] || [ "$group" = 80 ] || exit 71
+  fi
+  if /bin/ls -lde "$path" | /usr/bin/grep -Eq '^[[:space:]]+[0-9]+:.* allow '; then exit 71; fi
+done
+[ -f "$helper" ] || exit 71
+/usr/bin/codesign --verify --strict "$helper"
+stage=$(/usr/bin/mktemp -d /private/var/root/spacr-helper.XXXXXXXX)
+/bin/cp -pP "$helper" "$stage/helper"
+/usr/bin/cmp "$helper" "$stage/helper"
+/bin/chmod 700 "$stage/helper"
+/usr/bin/codesign --verify --strict "$stage/helper"
+trap 'result=$?; if [ "$result" = 0 ]; then /bin/rm -rf "$stage"; fi; exit "$result"' EXIT
+'''
+    script += '\n/usr/bin/env -i PATH=/usr/bin:/bin:/usr/sbin:/sbin HOME=/private/var/root TMPDIR="$stage/" PYINSTALLER_RESET_ENVIRONMENT=1 "$stage/helper" '
+    script += " ".join(shlex.quote(value) for value in [command, *arguments])
+    literal = script.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+    return ["/usr/bin/osascript", "-e",
+            f'do shell script "{literal}" with administrator privileges without altering line endings']
+
+
+def _macos_phased_transaction(script, channel, version, desktop_pid, *, popen=None):
+    """Relay fixed transaction checkpoints over root-private pipes and retain uncertain activation."""
+    import selectors
+
+    with tempfile.TemporaryFile(mode="w+b") as errors:
+        child = (popen or subprocess.Popen)(["/bin/sh", "-c", script], stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE, stderr=errors, cwd="/", env={"PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
+                "HOME": "/private/var/root", "LC_ALL": "C"})
+        phase = "preparing"
+        output = bytearray()
+        pending = bytearray()
+        failure = None
+        deadline = time.monotonic() + 10800
+        try:
+            with selectors.DefaultSelector() as reader:
+                reader.register(child.stdout, selectors.EVENT_READ)
+                while True:
+                    if time.monotonic() > deadline:
+                        raise TimeoutError(tr("The macOS transaction did not finish before its deadline."))
+                    if not reader.select(0.2):
+                        continue
+                    chunk = os.read(child.stdout.fileno(), 8192)
+                    if not chunk:
+                        break
+                    pending.extend(chunk)
+                    if len(pending) > 65536:
+                        raise ValueError(tr("The macOS helper returned an invalid transaction receipt."))
+                    while b"\n" in pending:
+                        line, _, remaining = pending.partition(b"\n")
+                        pending = bytearray(remaining)
+                        if line == b"SPACR_PHASE_prepared" and phase == "preparing":
+                            _native_update_ready(channel, version, desktop_pid)
+                            child.stdin.write(b"activate\n")
+                            child.stdin.flush()
+                            phase = "activating"
+                        elif line == b"SPACR_PHASE_activated" and phase == "activating":
+                            phase = "activated"
+                            try:
+                                _native_update_activated(channel, version)
+                            except _UpdateActivationUnconfirmed:
+                                child.stdin.write(b"retain\n")
+                                child.stdin.flush()
+                                raise
+                            except Exception:
+                                child.stdin.write(b"failed\n")
+                                child.stdin.flush()
+                                raise
+                            child.stdin.write(b"confirmed\n")
+                            child.stdin.flush()
+                            phase = "confirmed"
+                        else:
+                            output.extend(line + b"\n")
+                            if len(output) > 65536:
+                                raise ValueError(tr("The macOS helper returned an invalid transaction receipt."))
+            output.extend(pending)
+        except BaseException as error:
+            failure = error
+        finally:
+            try:
+                child.stdin.close()
+            except OSError:
+                pass
+            try:
+                code = child.wait(timeout=180)
+            except subprocess.TimeoutExpired as error:
+                raise _UpdateActivationUnconfirmed(tr("The macOS transaction is still running; its recovery files were retained.")) from error
+            child.stdout.close()
+        if failure is not None:
+            raise failure
+        if code or phase != "confirmed":
+            errors.seek(0)
+            detail = errors.read(8192).decode("utf-8", "replace")
+            raise RuntimeError(tr("The macOS transaction stopped: {error}", error=detail))
+        return output.decode("utf-8")
+
+
+def _macos_apply_root_transaction(version, digest, image, phase_channel, desktop_pid):
+    """Run only the authenticated release transaction from the copied root-owned helper."""
+    import re
+
+    executable = os.path.realpath(sys.executable)
+    if (os.geteuid() != 0 or not getattr(sys, "frozen", False)
+            or not re.fullmatch(r"/private/var/root/spacr-helper\.[A-Za-z0-9]{8}/helper", executable)):
+        raise ValueError(tr("The macOS transaction requires its trusted copied helper."))
+    for path in (os.path.dirname(executable), executable):
+        details = os.lstat(path)
+        if details.st_uid != 0 or stat.S_IMODE(details.st_mode) & 0o077 or os.path.realpath(path) != path:
+            raise ValueError(tr("The macOS transaction requires its trusted copied helper."))
+    owner, desktop = _desktop_process_identity(desktop_pid)
+    expected_desktop = "/Applications/spaCR.app/Contents/MacOS/spacr"
+    if owner == 0 or desktop != expected_desktop:
+        raise ValueError(tr("The running desktop could not be identified."))
+    version = _runtime_requested_version(version)
+    if _published_digest(_RELEASE_DOWNLOAD + "/v" + version + "/spaCR-" + version + ".dmg") != digest:
+        raise ValueError(tr("The macOS release checksum could not be authenticated."))
+    target = "/Applications/spaCR.app"
+    _macos_frozen_trusted_helper()
+    details = os.lstat(target)
+    script = "phased=1\n" + _macos_protected_script(version, digest, image=image,
+        original_identity=(details.st_dev, details.st_ino))
+    with _UpdatePhaseClient(phase_channel, desktop_pid, expected_desktop) as channel:
+        return _macos_phased_transaction(script, channel, version, desktop_pid)
 
 
 def _macos_request_protected_update(version, digest, *, image=None, transaction=None,
@@ -2109,6 +2310,16 @@ def _macos_request_protected_update(version, digest, *, image=None, transaction=
     argv = _macos_protected_command(version, digest, image=image, transaction=transaction,
                                     original_identity=identity)
     receipt = (run or _macos_native)(argv).strip()
+    return _macos_protected_receipt(version, digest, receipt, original_uid, image=image,
+        transaction=transaction, expected_inventory=expected_inventory, run=run)
+
+
+def _macos_protected_receipt(version, digest, receipt, original_uid, *, image=None,
+                             transaction=None, expected_inventory=None, run=None):
+    """Check the fixed privileged receipt and installed bundle from the original desktop account."""
+    import re
+
+    target = "/Applications/spaCR.app"
     match = re.fullmatch(r"(committed|rolled-back)\t(/Applications/\.spacr-update\.[A-Za-z0-9]{8})\t(detached|failed|not-mounted)", receipt)
     if match is None:
         raise ValueError("native authorization returned no valid transaction receipt")
@@ -2581,8 +2792,9 @@ def _run_macos_frozen_update(plan, *, run=None, download=None, wait=None, swap=N
     if os.path.realpath(target) != target or not os.path.isdir(target):
         raise ValueError("the installed app must be an actual canonical directory")
     _macos_bundle_identity(target, run=invoke)
-    if not os.access(os.path.dirname(target), os.W_OK | os.X_OK):
-        raise ValueError("protected Applications replacement requires its reviewed native authorization adapter")
+    protected = not os.access(os.path.dirname(target), os.W_OK | os.X_OK)
+    if protected and (target != "/Applications/spaCR.app" or handshake is None):
+        raise ValueError(tr("Protected macOS updates require the standard application and its desktop handoff."))
     parent_details = os.stat(os.path.dirname(target))
     if parent_details.st_mode & 0o002:
         raise ValueError("an application in a world-writable parent cannot be replaced safely")
@@ -2612,22 +2824,55 @@ def _run_macos_frozen_update(plan, *, run=None, download=None, wait=None, swap=N
         source = os.path.join(mount, "spaCR.app")
         _macos_bundle_identity(source, version, run=invoke)
         expected = _macos_tree(source)
-        transaction = tempfile.mkdtemp(prefix=".spacr-update-", dir=os.path.dirname(target))
-        staged = os.path.join(transaction, "previous-or-new.app")
-        invoke(["/usr/bin/ditto", "--rsrc", "--extattr", source, staged])
-        if _macos_digest(image) != expected_digest:
-            raise ValueError("DMG changed while its payload was staged")
-        if handshake is not None:
-            _macos_bundle_identity(staged, version, run=invoke)
-            if _macos_tree(staged) != expected:
-                raise ValueError("staged bytes differ from the authenticated read-only mounted payload")
-            _macos_tree(target, allow_external_links=True)
-            handshake.ready()
-            handshake.wait_for_shutdown(wait)
-        elif not (wait or _wait_for_exit)(int(plan["pid"])):
-            raise RuntimeError("spaCR did not close; the installed bundle was not changed")
-        result = _macos_replace_user_bundle(target, staged, transaction, version, expected,
-                                            run=invoke, swap=swap)
+        if protected:
+            before = os.lstat(target)
+            old_inventory = _macos_tree(target, allow_external_links=True)
+
+            def _unchanged():
+                """Refuse activation if the installed bundle or authenticated image changed."""
+                current = os.lstat(target)
+                if ((current.st_dev, current.st_ino) != (before.st_dev, before.st_ino)
+                        or _macos_tree(target, allow_external_links=True) != old_inventory
+                        or _macos_digest(image) != expected_digest):
+                    raise ValueError(tr("The installed application changed during staging; activation was stopped."))
+
+            def _authorized(endpoint):
+                """Request one native authorization for trusted staging and deferred activation."""
+                command = _macos_frozen_authorized_command("apply-macos-root", [
+                    "--version", version, "--digest", expected_digest, "--image", image,
+                    "--phase-channel", endpoint, "--desktop-pid", str(plan["pid"])])
+                return 0, invoke(command)
+
+            def _new_desktop():
+                """Verify the activated release and wait for its actual main window."""
+                _macos_bundle_identity(target, version, run=invoke)
+                if _macos_tree(target) != expected:
+                    raise ValueError(tr("The activated macOS application differs from its authenticated release."))
+                return _launch_updated_desktop(plan, [os.path.join(target, "Contents", "MacOS", "spacr")],
+                    version, target, frozen=True)
+
+            receipt, desktop = _coordinate_native_update(plan, handshake, _authorized,
+                check=_unchanged, launch=_new_desktop, wait=wait)
+            result = _macos_protected_receipt(version, expected_digest, receipt.strip(), original_uid,
+                image=image, expected_inventory=expected, run=invoke)
+            result.update(desktop=desktop, relaunch={"status": "ready"})
+        else:
+            transaction = tempfile.mkdtemp(prefix=".spacr-update-", dir=os.path.dirname(target))
+            staged = os.path.join(transaction, "previous-or-new.app")
+            invoke(["/usr/bin/ditto", "--rsrc", "--extattr", source, staged])
+            if _macos_digest(image) != expected_digest:
+                raise ValueError("DMG changed while its payload was staged")
+            if handshake is not None:
+                _macos_bundle_identity(staged, version, run=invoke)
+                if _macos_tree(staged) != expected:
+                    raise ValueError("staged bytes differ from the authenticated read-only mounted payload")
+                _macos_tree(target, allow_external_links=True)
+                handshake.ready()
+                handshake.wait_for_shutdown(wait)
+            elif not (wait or _wait_for_exit)(int(plan["pid"])):
+                raise RuntimeError("spaCR did not close; the installed bundle was not changed")
+            result = _macos_replace_user_bundle(target, staged, transaction, version, expected,
+                                                run=invoke, swap=swap)
     finally:
         if attached:
             operation_error = sys.exc_info()[1]
@@ -2643,7 +2888,7 @@ def _run_macos_frozen_update(plan, *, run=None, download=None, wait=None, swap=N
                 else:
                     raise
     result.update(original_uid=original_uid, dmg_sha256=expected_digest)
-    return _macos_relaunch(result, original_uid, run=invoke, plan=plan)
+    return result if protected else _macos_relaunch(result, original_uid, run=invoke, plan=plan)
 
 
 def _macos_relaunch(result, original_uid, *, run=None, plan=None):
@@ -3279,6 +3524,7 @@ def _coordinate_native_update(plan, handshake, operation, *, check, launch, wait
         result = []
 
         def _run_authorized():
+            """Retain the native worker's completion or error until its owned process finishes."""
             try:
                 result.append(operation(channel.endpoint))
             except BaseException as error:
@@ -3287,6 +3533,7 @@ def _coordinate_native_update(plan, handshake, operation, *, check, launch, wait
                 completed.set()
 
         def _stopped():
+            """Check desktop cancellation before observing native worker completion."""
             handshake.check()
             return completed.is_set()
 
@@ -4340,6 +4587,7 @@ def _run_debian_update(plan, machine, *, wait=None, run=None, spawn=None, publis
     handshake = _FrozenUpdateHandshake(plan)
 
     def _check_current():
+        """Bind activation to the same installed Debian package and trusted helper."""
         if _debian_update_commands(records, plan["version"], machine, helper=True) != (command, relaunch):
             raise ValueError("the Debian update identity changed after shutdown")
 
@@ -4846,7 +5094,7 @@ def _windows_frozen_install(installer, destination, *, timeout=1800, phase_chann
     return _windows_authorized_process(installer, parameters, timeout=timeout)
 
 
-def _windows_authorized_process(installer, parameters, *, timeout=1800):
+def _windows_authorized_process(installer, parameters, *, timeout=1800, visible=True):
     """Run a caller-validated trusted helper with one native authorization and an owned process handle.
 
     The caller must pin or otherwise protect the executable and construct only
@@ -4895,7 +5143,7 @@ def _windows_authorized_process(installer, parameters, *, timeout=1800):
     request.lpFile = installer
     request.lpParameters = parameters
     request.lpDirectory = ntpath.dirname(installer)
-    request.nShow = 1
+    request.nShow = 1 if visible else 0
     if not execute(ctypes.byref(request)):
         raise OSError(ctypes.get_last_error(), tr("Windows installer authorization did not complete"))
     if not request.hProcess:
@@ -5721,6 +5969,7 @@ def _run_windows_frozen_update(plan, machine, *, download=None, install=None, ru
             retained = True
 
             def _check_current():
+                """Recheck the pinned installer and unchanged Windows destination before activation."""
                 if _macos_digest(installer) != expected:
                     raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_installer_checksum"))
                 if (_windows_process_elevated() or _windows_frozen_root_state(root) != (root, initial)
@@ -5728,6 +5977,7 @@ def _run_windows_frozen_update(plan, machine, *, download=None, install=None, ru
                     raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_changed_destination"))
 
             def _launch_verified():
+                """Confirm the activated Windows payload and its unelevated main window."""
                 observed_root, observed_state = _windows_frozen_root_state(root)
                 if observed_root != root or observed_state[:2] != initial[:2]:
                     raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_changed_destination"))
@@ -5788,17 +6038,18 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
     """Run an installation update in a process that outlives spaCR.
 
     Installer-made copies and supported dedicated POSIX or Windows pip
-    environments can use this helper. It waits for the running process to exit before changing
-    the installation; the pip adapter also requires authenticated shutdown
-    approval.
+    environments can use this helper. It stages replacements while the current
+    application runs and requires authenticated shutdown approval and actual
+    process exit before activation.
 
     For a supported macOS online installation, use the existing bundled
-    ``uv`` and private Python to upgrade spaCR in the same environment.
-    Preserve the environment directory, bootstrap files, application launcher,
-    and installed packages that need no update. Restart only after verifying
-    that the installed version is at least ``version`` and newer than the
-    previous version, when that previous version is known. A failed upgrade
-    or version check does not trigger removal or a replacement installer.
+    ``uv`` and private Python to install the requested spaCR release into a
+    staged sibling environment. Preserve bootstrap files, the application
+    launcher, and packages that need no update. After verified staging and
+    approved shutdown, activate the staged environment at the existing runtime
+    path and retain the complete previous environment for recovery. Relaunch
+    verifies the requested version, executable, imported module and visible
+    main window. Failed preparation leaves the running environment unchanged.
 
     Runtime adapters install and verify a private replacement before publishing
     readiness. The GUI offers Restart and preserves its settings before
@@ -6424,9 +6675,30 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     :returns: the exit code; ``1`` when an installer-made copy was not removed,
         or ``6`` when retained-runtime recovery or its launch request fails.
     """
+    global _PRIVILEGED_DEBIAN_HELPER
+
     arguments = list(sys.argv[1:] if argv is None else argv)
+    if arguments == ["native-phase-protocol"]:
+        print(json.dumps({"schema": 1, "commands": list(_MACOS_FROZEN_PHASE_COMMANDS)}))
+        return 0
+    if arguments and arguments[0] == "apply-macos-root":
+        root_parser = argparse.ArgumentParser(prog="spacr-update-helper")
+        root_parser.add_argument("command", choices=("apply-macos-root",))
+        for name in ("version", "digest", "image", "phase-channel"):
+            root_parser.add_argument("--" + name, required=True)
+        root_parser.add_argument("--desktop-pid", type=int, required=True)
+        root_args = root_parser.parse_args(arguments)
+        _PRIVILEGED_DEBIAN_HELPER = True
+        try:
+            print(_macos_apply_root_transaction(root_args.version, root_args.digest, root_args.image,
+                root_args.phase_channel, root_args.desktop_pid), end="")
+            return 0
+        except Exception as error:
+            print(json.dumps({"state": "stopped", "error": str(error)}, sort_keys=True))
+            return 6
+        finally:
+            _PRIVILEGED_DEBIAN_HELPER = False
     if arguments and arguments[0] in {"prepare-debian-root", "apply-debian-root"}:
-        global _PRIVILEGED_DEBIAN_HELPER
 
         root_parser = argparse.ArgumentParser(prog="spacr-update-helper")
         root_parser.add_argument("command", choices=("prepare-debian-root", "apply-debian-root"))

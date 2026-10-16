@@ -195,3 +195,11 @@ def test_prepared_update_passes_only_private_descriptor_and_pid_before_final_des
     request, = native.requests
     assert request.lpParameters == '/S /SPACRUPDATE="' + descriptor + r'" /SPACRPID=4242 /D=C:\Program Files\spaCR'
     assert native.closed == [123, 321]
+
+
+def test_fixed_console_helper_can_request_uac_without_showing_a_terminal(native):
+    assert cleanup._windows_authorized_process(r'C:\Program Files\spaCR\_internal\spacr-update-helper.exe',
+        'uninstall-windows-root --phase-channel "C:\\private\\phase"', visible=False) == (0, '')
+    request, = native.requests
+    assert request.lpVerb == 'runas' and request.nShow == 0
+    assert native.closed == [123, 321]
