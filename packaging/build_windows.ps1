@@ -110,9 +110,20 @@ UninstPage instfiles
 Section
   SetShellVarContext all
   InitPluginsDir
+  System::Call 'advapi32::ConvertStringSecurityDescriptorToSecurityDescriptorW(w "O:BAG:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)", i 1, *p .r5, p 0) i .r6'
+  ${If} $6 == 0
+    Goto frozen_install_failed
+  ${EndIf}
+  System::Call 'advapi32::SetFileSecurityW(w "$PLUGINSDIR", i 0x80000005, p r5) i .r6'
+  System::Call 'kernel32::LocalFree(p r5)'
+  ${If} $6 == 0
+    Goto frozen_install_failed
+  ${EndIf}
   ClearErrors
   SetOutPath "$PLUGINSDIR\spaCR-payload"
   File /r "@SOURCE@\*"
+  IfErrors frozen_install_failed
+  WriteUninstaller "$PLUGINSDIR\spaCR-payload\Uninstall.exe"
   IfErrors frozen_install_failed
   CopyFiles /SILENT "$PLUGINSDIR\spaCR-payload\_internal\spacr-update-helper.exe" "$PLUGINSDIR\spacr-update-helper.exe"
   IfErrors frozen_install_failed
@@ -142,7 +153,6 @@ Section
   ${EndIf}
 !ifndef SPACR_UPDATE_ONLY
   SetOutPath "$INSTDIR"
-  WriteUninstaller "$INSTDIR\Uninstall.exe"
   CreateShortcut "$SMPROGRAMS\spaCR.lnk" "$INSTDIR\spacr.exe"
 !endif
   Goto frozen_install_finished

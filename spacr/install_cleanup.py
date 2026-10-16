@@ -5696,8 +5696,10 @@ def _install_frozen_windows(source, destination, version, *, run=None,
                             before_activate=None, after_activate=None, preserve_previous=False):
     """Stage, verify and replace only a Windows bundle's application payload.
 
-    Caches, preferences, unrelated install-root files and the existing uninstaller
-    are never part of the replacement. A displaced legacy payload, or one with
+    Caches, preferences and unrelated install-root files are never part of the
+    replacement. A new native uninstaller and its executable-bound capability
+    record participate in the same transaction when supplied by the installer;
+    otherwise the existing uninstaller remains unchanged. A displaced legacy payload, or one with
     unknown or modified files, remains in private recovery storage. A failed
     activation restores the original payload; an interrupted transaction refuses
     further changes and leaves its recovery directory intact.
@@ -5716,6 +5718,18 @@ def _install_frozen_windows(source, destination, version, *, run=None,
         raise ValueError("frozen_install_requires_outside_helper")
     _macos_online_version(version)
     _frozen_windows_payload(source, version)
+    names = ("_internal", "spacr.exe", "spacr-payload.json")
+    native_names = ("Uninstall.exe", "spacr-uninstaller.json")
+    native_state = None
+    candidate = source / native_names[0]
+    if os.path.lexists(candidate):
+        details = candidate.lstat()
+        if (not stat.S_ISREG(details.st_mode)
+                or getattr(details, "st_file_attributes", 0) & 0x400
+                or details.st_size == 0 or os.path.lexists(source / native_names[1])):
+            raise ValueError("frozen_uninstaller_candidate_invalid")
+        native_state = _frozen_windows_entry_state(candidate)
+        names += native_names
     destination.parent.mkdir(parents=True, exist_ok=True)
     lock = destination.parent / ("." + destination.name + ".spacr-install-lock")
     lock.mkdir(mode=0o700)
@@ -5728,9 +5742,25 @@ def _install_frozen_windows(source, destination, version, *, run=None,
         if previous is not None and _macos_online_version(previous) > _macos_online_version(version):
             raise ValueError("frozen_application_downgrade_refused")
         previous_state = _windows_frozen_root_state(str(destination)) if before_activate is not None else None
+        if native_state:
+            for name in native_names:
+                if os.path.lexists(destination / name) and not stat.S_ISREG((destination / name).lstat().st_mode):
+                    raise ValueError("frozen_uninstaller_candidate_invalid")
+        previous_native = {name: _frozen_windows_entry_state(destination / name)
+                           if os.path.lexists(destination / name) else None for name in native_names} if native_state else None
         transaction = Path(tempfile.mkdtemp(prefix=".spacr-frozen-install-", dir=destination.parent))
         staged, backup = transaction / "new", transaction / "previous"
         shutil.copytree(source, staged)
+        if native_state is not None:
+            if (_frozen_windows_entry_state(candidate) != native_state
+                    or _frozen_windows_entry_state(staged / native_names[0])[2] != native_state[2]):
+                raise ValueError("frozen_uninstaller_candidate_changed")
+            with open(staged / native_names[1], "x", encoding="utf-8") as stream:
+                json.dump({"schema": 1, "adapter": "windows-frozen-uninstall-v1",
+                           "sha256": native_state[2]}, stream, sort_keys=True)
+                stream.flush()
+                os.fsync(stream.fileno())
+            staged_native = {name: _frozen_windows_entry_state(staged / name) for name in native_names}
         _frozen_windows_payload(staged, version)
         _frozen_windows_identity(staged, version, run)
         _frozen_windows_payload(staged, version)
@@ -5738,6 +5768,11 @@ def _install_frozen_windows(source, destination, version, *, run=None,
             before_activate()
             if _windows_frozen_root_state(str(destination)) != previous_state:
                 raise ValueError(tr("The installed application changed during staging; activation was stopped."))
+        if previous_native is not None:
+            for name, expected in previous_native.items():
+                actual = _frozen_windows_entry_state(destination / name) if os.path.lexists(destination / name) else None
+                if actual != expected or _frozen_windows_entry_state(staged / name) != staged_native[name]:
+                    raise ValueError("frozen_uninstaller_changed_during_staging")
         backup.mkdir()
         destination.mkdir(exist_ok=True)
         old_manifest = None
@@ -5746,7 +5781,6 @@ def _install_frozen_windows(source, destination, version, *, run=None,
                 old_manifest = _frozen_windows_payload(destination, previous, retirement=True)
         except (OSError, ValueError, TypeError):
             pass
-        names = ("_internal", "spacr.exe", "spacr-payload.json")
         with open(transaction / "recovery.json", "x", encoding="utf-8") as stream:
             json.dump({"schema": 1, "destination": str(destination), "version": version,
                        "payload": names}, stream)
