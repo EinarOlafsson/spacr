@@ -4297,6 +4297,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                              "_measurement_channel_index",
                              "_wound_calibration",
                              "measure_from_field_table",
+                             "_volume_measure_spacing", "_volume_measure_input",
+                             "_write_volume_measurements", "measure_volume_rows",
                          }]
         if path == source_root / "channel_sorting.py":
             tree.body = [node for node in tree.body

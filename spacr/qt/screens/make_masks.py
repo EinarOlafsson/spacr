@@ -20626,7 +20626,12 @@ class MakeMasksScreen(QWidget):
             lambda: self._open_organize(
                 self._folder if self._folder and not self._field_folders else "",
                 masks_dir=self._masks_dir), object_name="MakeMasksMeasure2D",
-            tooltip=button.toolTip())
+            tooltip=tr(
+                "Put images and their masks into the layout Measure reads: one "
+                "popup with the source folder, Mask generation's regex options "
+                "and a table with a column per channel and per mask, which takes "
+                "dropped files and folders. Apply moves them into Yokogawa-named "
+                "channel folders and merges them into merged/."))
         self._act_measure_volume = self._add_measure_section(
             tr("Measure current 3D image…"), self._on_measure_volume,
             object_name="MakeMasksMeasure3D", tooltip=tr(
@@ -20832,6 +20837,7 @@ class MakeMasksScreen(QWidget):
         post = self._masks_console.post
 
         def measure(request):
+            """Measure the captured image sets and report committed database paths."""
             from ...measure import measure_volume_rows
             return measure_volume_rows(request[0], object_type=request[1], progress=post)
 

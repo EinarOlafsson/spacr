@@ -62,6 +62,19 @@ def test_make_masks_tool_registry_and_fallback_names_enter_extraction(monkeypatc
     assert "Fallback sentinel" in sources
 
 
+def test_volume_measurement_diagnostics_enter_runtime_catalog():
+    from build_i18n_catalogs import extract_static_ui_sources
+
+    sources = set(extract_static_ui_sources())
+    assert {
+        "3D measurement requires exactly three spatial axes.",
+        "The channel voxel spacing does not match the source image: {path}.",
+        "This image identity already belongs to other measurements; existing rows were preserved.",
+        "Measuring 3D image set {current} of {total}...",
+        "Measurements saved: {path}",
+    } <= sources
+
+
 def test_portuguese_well_locations_preserve_containers_and_repair_adverbs() -> None:
     """Container positions retain poço; adverbial well still repairs to bem."""
     from build_i18n_catalogs import _contextualize, _translation_rejection_reasons

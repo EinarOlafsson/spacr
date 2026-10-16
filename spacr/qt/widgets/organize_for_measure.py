@@ -688,8 +688,8 @@ class MeasureVolumeDialog(QDialog):
         layout = QVBoxLayout(self)
         description = QLabel(tr(
             "The first image uses its current edited labels and all loaded channels. "
-            "Add matching 3D channel files or more image sets below. A blank mask "
-            "uses the image's saved mask. Measurements are written to measurements.db "
+            "Add matching 3D channel files or more image sets below. Leave the mask "
+            "field blank to use the image's saved mask. Measurements are written to measurements.db "
             "in each image folder; existing measurements for these sets are updated."), self)
         description.setWordWrap(True)
         layout.addWidget(description)
