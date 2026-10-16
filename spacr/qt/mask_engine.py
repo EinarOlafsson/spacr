@@ -3035,6 +3035,47 @@ def fill_holes(mask: np.ndarray, *, preserve_ids: bool = False) -> np.ndarray:
     return _fit_label_width(fill_label_holes(labels), m)
 
 
+def assign_object_label(mask: np.ndarray, x: int, y: int,
+                        label: int) -> Tuple[np.ndarray, int]:
+    """Assign one explicit uint16 identity without joining different objects.
+
+    All pixels bearing the clicked object's existing ID move together,
+    including disconnected pieces deliberately sharing that identity. Zero
+    removes that object. A nonzero target already belonging to another
+    object is refused before any pixel changes.
+
+    :param mask: nonempty 2-D nonnegative integer labels; never modified.
+    :param x: integer column; outside the field changes nothing.
+    :param y: integer row; outside the field changes nothing.
+    :param label: integer in 0 through 65535, with zero reserved for background.
+    :returns: a uint16 copy and the original ID under the pointer, or zero
+        for background or an outside position. The same ID is a no-op.
+    :raises ValueError: for invalid labels, coordinates, or an occupied ID.
+    """
+    from .i18n import tr
+
+    if isinstance(label, (bool, np.bool_)) or not isinstance(label, Integral) \
+            or not 0 <= int(label) <= np.iinfo(np.uint16).max:
+        raise ValueError(tr("Labels must be whole numbers from 0 through 65535."))
+    if any(isinstance(value, (bool, np.bool_)) or not isinstance(value, Integral)
+           for value in (x, y)):
+        raise ValueError(tr("Object coordinates must be integer pixels."))
+    labels = canonical_labels(mask, preserve_ids=True)
+    height, width = labels.shape
+    if not (0 <= int(y) < height and 0 <= int(x) < width):
+        return labels, 0
+    original = int(labels[int(y), int(x)])
+    target = int(label)
+    if not original or original == target:
+        return labels, original
+    if target and np.any(labels == target):
+        raise ValueError(tr(
+            "Label {label} already belongs to another object in this frame.",
+            label=target))
+    labels[labels == original] = target
+    return labels, original
+
+
 def relabel_objects(mask: np.ndarray) -> np.ndarray:
     """Return a mask whose connected components are labeled 1..N.
 
