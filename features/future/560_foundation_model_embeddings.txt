@@ -1,8 +1,7 @@
 FOUNDATION-MODEL EMBEDDINGS: SubCell, OpenPhenom, ChAda-ViT, Cell-DINO
 
-Status: OPEN (alpha) 2026-10-06 — supported-backbone human-label comparisons,
-chance/provenance APIs and four-channel CPU/CUDA parity are verified;
-official Cell-DINO loading and final hosted acceptance remain. See dated notes.
+Status: BLOCKED ON MAINTAINER (alpha) — official Cell-DINO checkpoint access
+and labelled comparison; loader, alpha GUI and scoring software checks pass.
 2026-10-11: official Cell-DINO weights still only via Meta's gated request
 form (maintainer must submit it); see the 2026-10-11 note.
 Previous status: DONE (alpha) 2026-09-27 (evidence d8f7deeda)
@@ -405,3 +404,9 @@ and scientific acceptance remain open. Evidence:
 data/560_comparison_input_boundary_2026-10-15/,
 data/560_comparison_caption_owner_2026-10-15/ and
 data/370_560_runtime_catalogs_2026-10-15/.
+
+2026-10-15 — Labels now reports unreadable/empty tables without losing existing labels, vectors or scorecards (source 5bbc31cec12); 19 related checks and normal nine-locale generation/audit pass.
+BLOCKED ON MAINTAINER: request official Cell-DINO access at https://ai.meta.com/resources/models-and-libraries/cell-dino-downloads/ and review the model terms personally.
+Download the approved checkpoint; provide its path, SHA256, official factory and correctly ordered biological channels using the existing instructions above.
+Enable Show alpha features → Embeddings; embed the same labelled crops for each backbone, load Labels… with one row per crop in crop order and a label column, then compare kNN/mAP/chance and classifier results.
+Record the dataset/labels, checkpoint and resulting scores; these CPU software checks neither recertify historical scientific results nor establish official-weight acceptance.

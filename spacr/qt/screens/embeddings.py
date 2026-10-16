@@ -858,9 +858,14 @@ class EmbeddingsScreen(QWidget):
                 tr("Tables (*.csv *.tsv *.parquet *.feather *.xlsx)"))
         if not path:
             return ""
-        frame = read_table(str(path), report=None)
-        column = "label" if "label" in frame.columns else frame.columns[0]
-        values = frame[column].tolist()
+        try:
+            frame = read_table(str(path), report=None)
+            column = "label" if "label" in frame.columns else frame.columns[0]
+            values = frame[column].tolist()
+        except (OSError, ValueError, IndexError, ImportError) as error:
+            self._status.setText(tr(
+                "Could not read the label table: {error}", error=str(error)))
+            return ""
         embedded = getattr(self, "_frame", None)
         if embedded is not None and len(values) != len(embedded):
             self._status.setText(tr(
