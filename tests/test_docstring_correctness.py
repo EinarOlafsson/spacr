@@ -2619,6 +2619,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "673_true3d_gpu_api_arrivals_2026-10-16.json",
                      "673_wgpu_api_arrivals_2026-10-16.json",
                      "560_embedding_demo_api_arrivals_2026-10-16.json",
+                     "705_volume_measure_api_arrivals_2026-10-16.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
@@ -2676,6 +2677,35 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         assert item.docless_variant_count == item.constructor_prose_variant_count == 0
         assert not item.accepts_arbitrary_keywords
         assert item.docstring == late_sources[symbol]
+    measure_sources = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "705_volume_measure_api_arrivals_2026-10-16.json").read_text())
+    measure_parameters = {
+        "spacr.measure.measure_volume_rows": (
+            {"rows", "object_type", "progress"}, {"rows"}, "function"),
+        "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog": (
+            {"source_path", "parent", "spacing", "axes", "unit"},
+            {"source_path"}, "constructor"),
+        **{"spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog." + name:
+           (set(), set(), "method") for name in (
+               "accept", "add_channel", "add_row", "remove_row", "requests")},
+    }
+    assert len(measure_sources) == 10 and len(measure_parameters) == 7
+    assert measure_parameters.keys() == measure_sources.keys() & by_symbol.keys()
+    assert measure_sources.keys() - measure_parameters.keys() == {
+        "spacr.measure._write_volume_measurements.write",
+        "spacr.measure.measure_volume_rows.report",
+        "spacr.qt.screens.make_masks.MakeMasksScreen._start_volume_measurement.measure",
+    }
+    for symbol, (parameters, required, category) in measure_parameters.items():
+        item = by_symbol[symbol]
+        assert item.parameters == item.accepted_documented_parameters == parameters
+        assert item.required_parameters == required
+        assert item.category == category and item.exposure == "autoapi"
+        assert item.variant_count == 1
+        assert item.docless_variant_count == item.constructor_prose_variant_count == 0
+        assert not item.accepts_arbitrary_keywords
+        assert item.docstring == measure_sources[symbol]
     assert contract_arrivals & by_symbol.keys()
     callables = [item for item in callables if item.symbol not in contract_arrivals]
     by_symbol = {item.symbol: item for item in callables}
@@ -4373,6 +4403,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     zoo_additions = {**zoo_additions, **n673w_additions}
     for contract, expected_count in (
         ("560_embedding_demo_api_arrivals_2026-10-16.json", 2),
+        ("705_volume_measure_api_arrivals_2026-10-16.json", 10),
         ("561_classifier_api_arrivals_2026-10-15.json", 19),
         ("180_session_figure_api_arrivals_2026-10-15.json", 2),
     ):
@@ -4819,6 +4850,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "673_true3d_gpu_api_arrivals_2026-10-16.json",
                      "673_wgpu_api_arrivals_2026-10-16.json",
                      "560_embedding_demo_api_arrivals_2026-10-16.json",
+                     "705_volume_measure_api_arrivals_2026-10-16.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
@@ -4875,6 +4907,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "673_true3d_gpu_api_arrivals_2026-10-16.json",
                      "673_wgpu_api_arrivals_2026-10-16.json",
                      "560_embedding_demo_api_arrivals_2026-10-16.json",
+                     "705_volume_measure_api_arrivals_2026-10-16.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",

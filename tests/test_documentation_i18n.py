@@ -3510,6 +3510,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
         ("699_ssh_connection_worker_api_arrival_2026-10-14.json", 1),
         ("reviewed_api_surface_arrivals_2026-10-15.json", 20),
         ("560_embedding_demo_api_arrivals_2026-10-16.json", 2),
+        ("705_volume_measure_api_arrivals_2026-10-16.json", 10),
         ("561_classifier_api_arrivals_2026-10-15.json", 19),
         ("180_session_figure_api_arrivals_2026-10-15.json", 2),
     ):

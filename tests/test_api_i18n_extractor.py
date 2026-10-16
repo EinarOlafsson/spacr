@@ -1653,6 +1653,23 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in demo_arrivals} == demo_arrivals
     assert not demo_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **demo_arrivals}
+    measure_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "705_volume_measure_api_arrivals_2026-10-16.json").read_text())
+    assert set(measure_arrivals) == {
+        "spacr.measure._write_volume_measurements.write",
+        "spacr.measure.measure_volume_rows",
+        "spacr.measure.measure_volume_rows.report",
+        "spacr.qt.screens.make_masks.MakeMasksScreen._start_volume_measurement.measure",
+        "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog",
+        *("spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog." + name
+          for name in ("accept", "add_channel", "add_row", "remove_row", "requests")),
+    }
+    assert {key: docs[key] for key in measure_arrivals} == measure_arrivals
+    assert not measure_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **measure_arrivals}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
         / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text())
