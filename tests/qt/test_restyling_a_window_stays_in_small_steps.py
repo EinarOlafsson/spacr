@@ -77,13 +77,25 @@ def test_sheeting_a_window_reads_the_font_scale_once(qtbot, monkeypatch, parked_
 
 
 def test_the_pinned_scale_makes_sheeting_cheaper(qtbot, monkeypatch, parked_sheet):
-    """Self-calibrated: the same window sheeted with and without the pin."""
+    """Compare warmed restyles in both orders on the same window.
+
+    Measuring every pinned restyle before every unpinned one couples the
+    mode to changes in Qt caches and host load. Both modes get a warm-up,
+    then alternate which goes first; the fastest complete restyle still
+    has to be cheaper with the pin.
+    """
     app = parked_sheet
     window = _window_of_close_marks(qtbot, 300)
-    _sheet(app, window)
-    pinned = min(_sheet(app, window) for _ in range(3))
-    monkeypatch.setattr(theme, "_font_scale_pinned", contextlib.nullcontext)
-    unpinned = min(_sheet(app, window) for _ in range(3))
+    modes = (theme._font_scale_pinned, contextlib.nullcontext)
+    for mode in modes:
+        monkeypatch.setattr(theme, "_font_scale_pinned", mode)
+        _sheet(app, window)
+    samples = ([], [])
+    for order in ((0, 1), (1, 0)) * 3:
+        for index in order:
+            monkeypatch.setattr(theme, "_font_scale_pinned", modes[index])
+            samples[index].append(_sheet(app, window))
+    pinned, unpinned = (min(values) for values in samples)
     assert pinned < unpinned, (pinned, unpinned)
 
 

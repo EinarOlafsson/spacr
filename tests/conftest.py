@@ -1269,6 +1269,71 @@ def pytest_runtest_setup(item):
 # honestly slow is measured from the point the reporting plugins have finished
 # rather than from the last test.
 
+_WORKER_TIMEOUT_STDERR = pytest.StashKey()
+
+
+def _worker_timeout_stderr(config):
+    """Retain uncaptured stderr before a worker's first thread timeout."""
+    stream = config.stash.get(_WORKER_TIMEOUT_STDERR, None)
+    if stream is not None:
+        return stream
+    from contextlib import nullcontext
+
+    capture = config.pluginmanager.getplugin("capturemanager")
+    disabled = capture.global_and_fixture_disabled() if capture else nullcontext()
+    with disabled:
+        try:
+            try:
+                descriptor = sys.stderr.fileno()
+            except (AttributeError, ValueError):
+                descriptor = sys.__stderr__.fileno()
+            stream = os.fdopen(os.dup(descriptor), "w", buffering=1,
+                               encoding="utf-8", errors="backslashreplace")
+        except (AttributeError, ValueError, OSError):
+            return None
+    config.stash[_WORKER_TIMEOUT_STDERR] = stream
+    config.add_cleanup(stream.close)
+    return stream
+
+
+@pytest.hookimpl(optionalhook=True, tryfirst=True)
+def pytest_timeout_set_timer(item, settings):
+    """Send an xdist thread timeout's existing report to retained stderr.
+
+    execnet discards worker stdout, where pytest-timeout's terminal writer
+    normally prints. A forked child can keep the worker's transport open even
+    after its timeout exits, hiding both the diagnostic and the worker death.
+    Only the expiry callback changes its output stream; pytest-timeout keeps
+    its debugger detection, capture flush, stack formatting and failure exit.
+    """
+    if settings.method != "thread" or not hasattr(item.config, "workerinput"):
+        return None
+    stream = _worker_timeout_stderr(item.config)
+    if stream is None:
+        return None
+    from pytest_timeout import timeout_timer
+
+    def expired():
+        writer = item.config.get_terminal_writer()
+        original = writer._file
+        try:
+            writer._file = stream
+            timeout_timer(item, settings)
+        finally:
+            writer._file = original
+
+    timer = _threading.Timer(settings.timeout, expired)
+    timer.name = f"pytest_timeout {item.nodeid}"
+
+    def cancel():
+        timer.cancel()
+        timer.join()
+
+    item.cancel_timeout = cancel
+    timer.start()
+    return True
+
+
 SHUTDOWN_WATCHDOG_ENV = "SPACR_PYTEST_SHUTDOWN_WATCHDOG_S"
 
 #: Seconds the interpreter may take to shut down after the last test before

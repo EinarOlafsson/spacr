@@ -793,7 +793,9 @@ def test_qthread_fault_reports_only_a_bounded_python_wrapper_class(
     assert 'controlled library' not in ''.join(messages)
 
 
-def test_serial_gdb_command_remains_the_original_bounded_backtrace(tmp_path, monkeypatch):
+@pytest.mark.parametrize('library_path', [None, '', "/inferior/library 'quoted' with spaces:/inferior/lib"],
+                         ids=['unset', 'empty', 'inherited'])
+def test_serial_gdb_command_remains_the_original_bounded_backtrace(tmp_path, monkeypatch, library_path):
     import json
 
     executable, evidence, session = _identity(tmp_path)
@@ -803,15 +805,26 @@ def test_serial_gdb_command_remains_the_original_bounded_backtrace(tmp_path, mon
     monkeypatch.setenv('GITHUB_WORKSPACE', str(tmp_path))
     monkeypatch.setenv('RUNNER_TEMP', str(tmp_path))
     monkeypatch.setenv('GITHUB_SHA', 'source')
+    if library_path is None:
+        monkeypatch.delenv('LD_LIBRARY_PATH', raising=False)
+    else:
+        monkeypatch.setenv('LD_LIBRARY_PATH', library_path)
+    monkeypatch.setenv('PYTHONHOME', '/foreign/python')
+    monkeypatch.setenv('PYTHONPATH', '/foreign/modules')
+    parent_environment = os.environ.copy()
     monkeypatch.setattr(collector.sys, 'executable', str(executable))
     monkeypatch.setattr(collector.shutil, 'which', lambda name: '/usr/bin/' + name)
     monkeypatch.setattr(collector, '_candidate_files', lambda *args: iter([(core, core.stat().st_size)]))
     monkeypatch.setattr(collector, '_apport_reports', lambda *args: [])
     expected = ['gdb', '-q', '-nx', '-nh', '-batch',
                 '-iex', 'set auto-load safe-path /dev/null',
-                '-iex', 'set debuginfod enabled off', '-ex', 'set pagination off',
-                '-ex', 'info proc', '-ex', 'info threads', '-ex', 'thread apply all bt 24',
-                str(executable), str(core)]
+                '-iex', 'set debuginfod enabled off']
+    if library_path:
+        expected.extend(['-iex', "python import gdb; gdb.set_parameter('solib-search-path', " +
+                         repr(library_path) + ')'])
+    expected.extend(['-ex', 'set pagination off', '-ex', 'info proc',
+                     '-ex', 'info threads', '-ex', 'thread apply all bt 24',
+                     str(executable), str(core)])
 
     def command(argv, **kwargs):
         if argv[0] == 'git':
@@ -819,10 +832,13 @@ def test_serial_gdb_command_remains_the_original_bounded_backtrace(tmp_path, mon
         assert argv == expected
         assert kwargs['timeout'] == 90
         assert kwargs['preexec_fn'] is collector._cap_backtrace_file
+        assert kwargs['env'] == {key: value for key, value in parent_environment.items()
+                                 if key not in {'LD_LIBRARY_PATH', 'PYTHONHOME', 'PYTHONPATH'}}
         kwargs['stdout'].write(b'unchanged serial trace\n')
         return subprocess.CompletedProcess(argv, 0)
 
     monkeypatch.setattr(collector.subprocess, 'run', command)
     assert collector.main(['--evidence-dir', str(evidence)]) == 0
+    assert os.environ == parent_environment
     assert core.exists()
     assert collector.MAX_BACKTRACE_BYTES == 4 * 1024 ** 2

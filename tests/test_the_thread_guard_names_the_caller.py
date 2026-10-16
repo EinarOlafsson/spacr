@@ -9,6 +9,10 @@ instrumentation on afterwards: it has to be on already.
 """
 
 import logging
+import os
+import subprocess
+import sys
+import textwrap
 import threading
 
 import spacr
@@ -80,3 +84,50 @@ def test_the_application_installs_it():
     from spacr.qt import app as module
 
     assert "_install_thread_guard" in inspect.getsource(module)
+
+
+@pytest.mark.parametrize('entrypoint', ['timer', 'object'])
+def test_guarded_timer_cycles_preserve_the_application_thread(entrypoint):
+    script = textwrap.dedent('''
+        import gc
+        import sys
+        import weakref
+        from PySide6.QtCore import QCoreApplication, QEventLoop, QObject, QThread, QTimer
+        from shiboken6 import Shiboken
+        from spacr.qt import thread_guard
+
+        app = QCoreApplication([])
+        gc.disable()
+        assert thread_guard.install()
+
+        def abandon_timer_cycle():
+            thread = QThread.currentThread()
+            obj = QTimer() if sys.argv[1] == 'timer' else QObject()
+            obj.cycle = obj
+            if sys.argv[1] == 'timer':
+                obj.start(10000)
+                obj.stop()
+            else:
+                timer_id = obj.startTimer(10000)
+                obj.killTimer(timer_id)
+            assert not thread_guard.offences()
+            return Shiboken.getCppPointer(thread)[0], weakref.ref(obj)
+
+        pointer, abandoned = abandon_timer_cycle()
+        gc.collect()
+        current = QThread.currentThread()
+        assert current is not None, 'collecting a guarded timer deleted the application thread'
+        assert Shiboken.isValid(current)
+        assert Shiboken.getCppPointer(current)[0] == pointer
+        assert not Shiboken.ownedByPython(current)
+        assert abandoned() is None, 'the guard retained the abandoned timer cycle'
+        loop = QEventLoop()
+        QTimer.singleShot(0, loop.quit)
+        assert loop.exec() == 0
+    ''')
+    result = subprocess.run(
+        [sys.executable, '-c', script, entrypoint],
+        env={**os.environ, 'QT_QPA_PLATFORM': 'offscreen'},
+        capture_output=True, text=True, timeout=30,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr

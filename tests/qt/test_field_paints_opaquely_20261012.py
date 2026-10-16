@@ -26,7 +26,7 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QEvent, QPoint, QSettings, Qt  # noqa: E402
 from PySide6.QtGui import QColor, QImage, QPalette, QPixmap  # noqa: E402
-from PySide6.QtWidgets import QApplication, QWidget  # noqa: E402
+from PySide6.QtWidgets import QApplication, QScrollArea, QWidget  # noqa: E402
 
 from spacr.qt import preferences  # noqa: E402
 
@@ -175,6 +175,23 @@ def _freeze(window, field) -> None:
         producer.stop()
 
 
+def _settings_geometry(window) -> tuple:
+    """The visible settings layouts that can settle between captures."""
+    state = []
+    for scroll in window.findChildren(QScrollArea, "SettingsBox"):
+        if not scroll.isVisibleTo(window):
+            continue
+        content = scroll.widget()
+        widgets = [scroll, scroll.viewport()]
+        if content is not None:
+            widgets.append(content)
+            widgets.extend(body for body in content.findChildren(
+                QWidget, "SectionBody") if body.isVisibleTo(scroll))
+        state.extend((widget, widget.geometry().getRect())
+                     for widget in widgets)
+    return tuple(state)
+
+
 def _compare(window, field, label, qtbot=None):
     """The first frame as it is now, then the window against itself painted
     classically.
@@ -183,24 +200,39 @@ def _compare(window, field, label, qtbot=None):
     Then, with the field stopped, an opaque paint must equal a classic one;
     on the real window labels and panels may still be settling after a
     resize or a screen switch, so a pair is taken only when two opaque
-    paints around the classic one agree.
+    paints around the classic one agree and every capture has the same
+    settings geometry. Matching endpoints alone can hide a different
+    scroll-content height in the classic capture between them.
     """
     assert field.testAttribute(Qt.WA_OpaquePaintEvent), label
     first = _flushed(window)
     assert _magenta_in(first, field) == 0, label
     _freeze(window, field)
+    settled = False
     for _attempt in range(8):
+        layouts = []
+
+        def capture(reader):
+            layouts.append(_settings_geometry(window))
+            image = reader(window)
+            layouts.append(_settings_geometry(window))
+            return image
+
         window.repaint()
-        flushed, grabbed = _flushed(window), _grabbed(window)
+        flushed, grabbed = capture(_flushed), capture(_grabbed)
         _classic(field, True)
         window.repaint()
-        classic_flushed, classic_grabbed = _flushed(window), _grabbed(window)
+        classic_flushed, classic_grabbed = capture(_flushed), capture(_grabbed)
         _classic(field, False)
         window.repaint()
-        if _flushed(window) == flushed and _grabbed(window) == grabbed:
+        again_flushed, again_grabbed = capture(_flushed), capture(_grabbed)
+        if (all(layout == layouts[0] for layout in layouts[1:])
+                and again_flushed == flushed and again_grabbed == grabbed):
+            settled = True
             break
         assert qtbot is not None, label
         qtbot.wait(700)
+    assert settled, f"{label!r}: no stable capture geometry within eight attempts"
     assert flushed == classic_flushed, label + _where(flushed,
                                                       classic_flushed, window)
     assert grabbed == classic_grabbed, label + _where(grabbed,
