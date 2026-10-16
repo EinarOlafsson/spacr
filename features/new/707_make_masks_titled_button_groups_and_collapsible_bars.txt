@@ -151,3 +151,7 @@ image", "Organize for Measure", "Prev image", "Next image", the Settings and
 Undo/Redo buttons, Save on navigation / Hide judged fields / First unreviewed
 as buttons (now menu entries). Lesson 87 (alpha) may mention Preferences ->
 Plugins -> Export to vvvv instead of the two retired Make Masks buttons.
+
+2026-10-16 — Follow-ups accepted:705/706 pair updates capture_make_masks_experiment.py to use current Edit actions instead of removed _btn_undo/_btn_redo and makes TOOLS/IO extractable through the normal caption pipeline.
+Tutorial owner retains fresh re-recording14/42/46/79 and checks05/19–22/54/57/80; no Home recording. Maintainer checks layout at1366×768 and1920×1080.
+CI pair handles the real N698 fake-tree and alpha tutorial contract failures; stale Swedish install_consent.apply_choices#1 is refreshed against final N703 source before normal API generation, preserving assertions and reviewed translations.

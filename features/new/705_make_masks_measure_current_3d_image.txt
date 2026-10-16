@@ -1,6 +1,6 @@
 MAKE MASKS: MEASURE THE CURRENT 3D IMAGE INTO A SPACR-STYLE DATABASE
 
-Status:    new 2026-10-16 (handed to Codex; start after the Make Masks layout reorg lands)
+Status:    in progress 2026-10-16 (layout707/59ce785b443 is on nightly)
 Requested: maintainer, 2026-10-16.
 
 In Make Masks > IO > Measure, add a 3D section with one button that measures the current 3D image: scikit-image regionprops (3D), channel correlation, object-to-object distances, and similar. It prompts to fill extra channel slots (drag and drop or paste paths) and lets the user add rows for new image sets. It writes a database in the image folder, or appends to one already there, using a structure as close as possible to spaCR Measure.
@@ -8,3 +8,5 @@ In Make Masks > IO > Measure, add a 3D section with one button that measures the
 2026-10-16 — Accepted Claude handover; start only after the titled-container Make Masks layout commit is verified on origin/nightly; finish705 before706 with reused available agents.
 Under IO > Measure add a3D section measuring the current image via3D region properties, channel correlations and object distances; prompt for extra channels by drag/drop or pasted paths and allow additional image-set rows.
 Write or append the image-folder database using existing spaCR Measure structures; use spacr.tabular for tables, related CPU checks, normal generated artifacts and one integrated publication.
+
+2026-10-16 — Dependency verified: use the landed _add_measure_section(label, callback) hook; reused pair owns705 end to end, then706, with volume-render changes coordinated with673.

@@ -1,9 +1,11 @@
 OBJECT DETECTION: A 3D SWITCH FOR 3D-CAPABLE MODELS AND THRESHOLDS
 
-Status:    new 2026-10-16 (handed to Codex; start after the Make Masks layout reorg lands)
+Status:    queued 2026-10-16 (layout707 landed; same pair finishes705 first)
 Requested: maintainer, 2026-10-16.
 
 Add a boolean "3D" option to object detection (Make Masks > Object operations). When on, models that support 3D run in 3D mode, and Otsu and the other threshold methods that support 3D run in 3D too.
 
 2026-10-16 — Accepted Claude handover; wait for the Make Masks layout commit and completion of705, then reuse the same agents.
 Add a3D boolean under Make Masks > Object operations that routes capable models and Otsu/other capable thresholds through their actual3D implementation; preserve existing2D behavior and explicitly handle unsupported choices.
+
+2026-10-16 — Layout707/59ce785b443 is verified on nightly; the705 pair retains context and implements706 next.
