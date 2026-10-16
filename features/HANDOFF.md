@@ -11,6 +11,23 @@
 
 
 
+## 2026-10-15 Original Home — current coverage-shard failures repaired
+
+Completed jobs116724362120/125/499 supplied actual failures on99789. Test-only
+repairs retain strict ModelZooError/no-stock-fallback behavior, use actual
+local fixture files for two downstream fake-loader tests, select provisional
+ScanR rather than confirmed EVOS, and explicitly verify both statuses in all
+nine locales. Tooltip census subtracts eight exact F580 arrivals before the
+unchanged931 historical count; the resizable shortcut pane is checked for
+minimum/right-side geometry and actual widening instead of a fixed230px.
+
+Eight model cases:7pass then the one corrected overstrict tripwire1pass;
+nine metadata cases9pass; tooltip/shortcut cohort3pass. All original failure
+and intermediate receipts retained. No product/conftest/catalog changes,
+no final CI rerun/dispatch or release. Evidence:data/ci_model_resolution_fixtures_2026-10-15/,
+data/ci_n441_current_provisional_fixture_2026-10-15/,
+data/ci_tooltip_shortcuts_contracts_2026-10-15/. No whole-item tick.
+
 ## 2026-10-15 Work — 05 video selection accepted; English24 audio passed
 
 Actualclean-r3 START19:44:51 FINISH19:47:04EDT exit0/133.517s, allcleanup0. FreshwholeApply984frames/32.8s strict29.15fps; nofreeze/slow/unknown/GUIgap/stall/bypass/jumps, cursorfound1/topbarhidden. Benigncaptureloss[0,1,5,7] retained; noexceptionused. ActualRevert60saved+55draft+Preferencesvisible. All502 inputs/currentapptree equaloldnav/prefs; sourcef9be andnew87ff identities retained. Rootaccepted31wholeclips (30reused+1fresh),23571frames785.7s, afterindependentsourcepeera405 and8temporalsamples/full12s+31.5sviews. No wholefresh/fullwatch/causalrepairclaim; oldfailuresremainfailed. No furthercausalprefixdebugneededfornormalcomponentdelivery.

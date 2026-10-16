@@ -164,7 +164,7 @@
       "percent_done": 85,
       "time_left_hours": "3–6",
       "owner": "Home",
-      "description": "Latest Integration run had one obsolete model-error assertion. Corrected test plus two unchanged controls pass locally; remaining current-source CI acceptance is open.",
+      "description": "Published Integration repair plus current coverage-shard test repairs:8 strict model-resolution cases,9 actual localized metadata cases and3 tooltip/resizable-shortcut checks pass. No production safety bypass. Final current-source CI acceptance remains.",
       "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
     },
     {

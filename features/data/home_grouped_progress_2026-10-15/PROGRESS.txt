@@ -22,7 +22,7 @@ Hours are estimates; external unknowns remain explicit.
 | F556 | ✅ | 0 | Easy / Home | Complete (alpha): propagation workflow, real-movie baseline comparisons and current nine-language/runtime/API closure. |
 | N692 | ✅ | 0 | CI / Home | Complete: 3D drawing/save/load, protected published FIB-SEM sample and current translations; original contract accepted. |
 | Release1.5.1.5 | 85 | 4–8 | Home | Publish remaining implementation; release/final CI at end per maintainer. |
-| N43 | 85 | 3–6 | Home | Latest Integration run had one obsolete model-error assertion. Corrected test plus two unchanged controls pass locally; remaining current-source CI acceptance is open. |
+| N43 | 85 | 3–6 | Home | Published Integration repair plus current coverage-shard test repairs:8 strict model-resolution cases,9 actual localized metadata cases and3 tooltip/resizable-shortcut checks pass. No production safety bypass. Final current-source CI acceptance remains. |
 | N700 | 90 | 1–3 | Home / Claude | Claude implementation delivered; Home is repairing actual CI/API translation debt, including26 provider symbols and711 reviewed records. Current-source final acceptance remains. |
 | N703 | 95 | 2–4 + external | Home | Installer replacement, rollback/cache-preservation software and translations published; native platform acceptance remains. |
 | N696 | 95 | 1–2 | Home | Source/widget/diameter/auto semantics and235merged owning checks plus original1.35paintgate passed, normal API/Help generation recorded. Fresh fullCI/platform-native and Work currentlayout tutorial remain; no new native modelquality/GPU acceptance. |
