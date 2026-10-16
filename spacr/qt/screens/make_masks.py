@@ -9792,19 +9792,20 @@ class _VolumeSliceHistory:
 #: rather than the drawing plane, in seconds.
 SPIN_CHORD_SECONDS = 1.5
 
-#: The Render backends of the True 3D view, in the order the list offers
-#: them: ``auto`` (the best that works, see :func:`volume_backend_chain`),
-#: ``vulkan``, ``metal`` and ``d3d12`` (wgpu, :class:`spacr.layers.WGPUVolumeRenderer`),
-#: ``opengl`` (VisPy gloo, :class:`spacr.layers.GLVolumeRenderer`) and
-#: ``cpu`` (NumPy/SciPy). Only what the computer supports is offered.
 VOLUME_BACKENDS = ('auto', 'vulkan', 'metal', 'd3d12', 'opengl', 'cpu')
+"""The True 3D render backends, in list order; only supported choices are offered.
 
-#: The wgpu backends among :data:`VOLUME_BACKENDS`.
+``auto`` tries :func:`volume_backend_chain`; Vulkan, Metal and Direct3D 12
+use :class:`spacr.layers.WGPUVolumeRenderer`, OpenGL uses
+:class:`spacr.layers.GLVolumeRenderer`, and CPU uses NumPy/SciPy.
+"""
+
 VOLUME_WGPU_BACKENDS = ('vulkan', 'metal', 'd3d12')
+"""The wgpu backends among :data:`VOLUME_BACKENDS`."""
 
-#: The graphics API each GPU backend draws through, as the view names it.
 VOLUME_BACKEND_API = {'vulkan': 'Vulkan', 'metal': 'Metal', 'd3d12': 'Direct3D 12',
                       'opengl': 'OpenGL'}
+"""The graphics API each GPU backend draws through, as the view names it."""
 
 #: The Render scale (percent of full resolution along each axis) a True 3D
 #: view starts at, by the backend drawing it.

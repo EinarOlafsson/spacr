@@ -335,6 +335,22 @@ def test_doctor_knows_who_a_default_install_gives_wgpu(monkeypatch):
     assert doctor._wgpu_expected() == (True, "")
 
 
+def test_doctor_3d_status_and_platform_reason_use_runtime_translation(monkeypatch):
+    from spacr.qt import i18n
+
+    monkeypatch.setattr(i18n, "tr", lambda text, **values: "translated: " + text.format(**values))
+    monkeypatch.setattr(sys, "version_info", (3, 9, 18, "final", 0))
+    monkeypatch.setattr(doctor, "_distribution_version", lambda name: None)
+
+    expected, reason = doctor._wgpu_expected()
+    assert not expected and reason == "translated: wgpu needs Python 3.10 or newer"
+    row = doctor.check_3d_backends(doctor.Context(probe_gpu=False))
+    assert row.check == "translated: 3D backends"
+    assert row.message.startswith("translated: wgpu is not installed")
+    assert all(detail.startswith("translated: ") for detail in row.details)
+    assert reason in row.details[0]
+
+
 def _wgpu_context():
     """A real wgpu context, or skip: never where the GPU is hidden."""
     refusal = layers.gpu_render_refusal()

@@ -563,16 +563,30 @@ def upgrade_command(pre_release: bool = False, *, target_version=None) -> list:
             "A frozen spaCR application is not a Python environment. "
             "Update it with its installer instead of pip."
         )
+    from .install_profile import no_wgpu_override, read_profile
+
+    profile = read_profile()
+    without_wgpu = bool(profile and profile.get("without_wgpu"))
     uv = find_uv()
+    if without_wgpu and not uv:
+        from .qt.i18n import tr
+
+        raise RuntimeError(tr(
+            "spaCR was installed without wgpu. Restore uv before updating "
+            "so that choice is preserved."))
     if uv:
         args = [uv, "pip", "install", "--upgrade",
                 "--python", sys.executable]
-        from .install_profile import read_profile
-        profile = read_profile()
         if profile is not None:
             args.extend(["--torch-backend", profile["requested_backend"]])
-            from .install_profile import no_wgpu_override
             override = no_wgpu_override(profile)
+            if without_wgpu and override is None:
+                from .qt.i18n import tr
+
+                raise RuntimeError(tr(
+                    "spaCR was installed without wgpu. The update could not "
+                    "write its dependency override. Check the install profile "
+                    "folder permissions and try again."))
             if override is not None:
                 args.extend(["--override", str(override)])
     else:

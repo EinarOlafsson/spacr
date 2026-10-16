@@ -215,3 +215,19 @@ def test_in_app_updates_keep_wgpu_out_of_an_install_that_left_it_out(tmp_path, m
     parsed = install_profile.build_parser().parse_args(
         ["--path", "p", "--requested", "auto", "--detected", "none", "--without-wgpu", "1"])
     assert parsed.without_wgpu == "1"
+
+
+@pytest.mark.parametrize("problem", ("missing_uv", "unwritable_override"))
+def test_an_update_cannot_silently_drop_the_without_wgpu_choice(tmp_path, monkeypatch, problem):
+    from spacr import install_profile, updater
+
+    monkeypatch.setenv("SPACR_INSTALL_PROFILE", str(tmp_path / "install-profile.json"))
+    monkeypatch.setattr(install_profile, "read_profile", lambda path=None: {
+        "requested_backend": "cpu", "without_wgpu": True,
+    })
+    monkeypatch.setattr(updater, "find_uv", lambda: None if problem == "missing_uv" else "uv")
+    if problem == "unwritable_override":
+        (tmp_path / install_profile.NO_WGPU_OVERRIDE_NAME).mkdir()
+
+    with pytest.raises(RuntimeError, match="without wgpu"):
+        updater.upgrade_command(target_version="1.5.1.5")

@@ -5066,23 +5066,24 @@ class GLVolumeRenderer:
         self._textures, self._targets, self._programs, self._luts = {}, {}, {}, {}
 
 
-#: The wgpu backends the True 3D view draws with: the view's key, and the
-#: ``backend_type`` wgpu reports for an adapter of it. wgpu's own OpenGL
-#: adapters are left out; OpenGL is :class:`GLVolumeRenderer`'s.
 WGPU_BACKENDS: Mapping[str, str] = MappingProxyType({
     "vulkan": "vulkan", "metal": "metal", "d3d12": "d3d12"})
+"""The True 3D view's wgpu backend keys mapped to wgpu ``backend_type`` values.
 
-#: How an adapter of each wgpu ``adapter_type`` ranks when one is chosen;
-#: ``CPU`` (lavapipe, WARP) is a software rasteriser.
+wgpu's OpenGL adapters are excluded; OpenGL uses :class:`GLVolumeRenderer`.
+"""
+
 _WGPU_ADAPTER_RANK = {"discretegpu": 0, "integratedgpu": 1, "virtualgpu": 2, "cpu": 4}
+"""Adapter preference by ``adapter_type``; ``CPU`` denotes a software rasteriser."""
 
-#: Set to anything but ``0`` or empty, no 3-D view draws on the GPU. An
-#: empty ``CUDA_VISIBLE_DEVICES`` does the same, so a computer (or a test
-#: run) that hides its GPU from spaCR keeps it hidden from the 3-D view too.
 GPU_RENDER_OFF_ENV = "SPACR_NO_GPU_RENDER"
+"""Set to anything but ``0`` or empty to keep 3-D rendering off the GPU.
 
-#: The adapters :func:`wgpu_adapters` found, once it has looked.
+An empty ``CUDA_VISIBLE_DEVICES`` also keeps the 3-D view on the CPU.
+"""
+
 _WGPU_FOUND: Optional[Tuple[Dict[str, str], ...]] = None
+"""The adapters :func:`wgpu_adapters` found, once it has looked."""
 
 _WGSL_COMMON = """
 struct Params { v: array<vec4<f32>, 17> };
@@ -5348,9 +5349,9 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
 }
 """
 
-#: The compute kernels of :class:`WGPUVolumeRenderer`, by name.
 _WGSL_KERNELS = {"clear": _WGSL_CLEAR, "image": _WGSL_IMAGE, "labels": _WGSL_LABELS,
                  "pack": _WGSL_PACK}
+"""The compute kernels of :class:`WGPUVolumeRenderer`, by name."""
 
 
 def gpu_render_refusal() -> str:

@@ -151,12 +151,11 @@ def read_profile(path: Optional[Path] = None) -> Optional[Dict[str, Any]]:
     return payload
 
 
-#: The uv override that keeps wgpu out of a resolve: a requirement whose
-#: marker is never true replaces every wgpu requirement.
 NO_WGPU_OVERRIDE = 'wgpu; sys_platform == "never"'
+"""A requirement with a never-true marker that overrides every wgpu requirement."""
 
-#: The file :func:`no_wgpu_override` writes, beside the installer profile.
 NO_WGPU_OVERRIDE_NAME = "no-wgpu-override.txt"
+"""The file :func:`no_wgpu_override` writes beside the installer profile."""
 
 
 def no_wgpu_override(profile: Optional[Dict[str, Any]],

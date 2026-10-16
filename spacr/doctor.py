@@ -1438,24 +1438,28 @@ def check_gpu(ctx: Context) -> Result:
     )
 
 
-#: The Python versions and CPUs setup.py installs wgpu on by default.
 WGPU_MIN_PYTHON = (3, 10)
+"""The first Python version setup.py installs wgpu on by default."""
 WGPU_MACHINES = ("x86_64", "AMD64", "aarch64", "arm64", "ARM64")
+"""The CPUs setup.py installs wgpu on by default."""
 
 
 def _wgpu_expected() -> Tuple[bool, str]:
     """Whether a default install puts wgpu on this computer, and why not."""
     import platform
+    from .qt.i18n import tr
 
     if sys.version_info[:2] < WGPU_MIN_PYTHON:
-        return False, "wgpu needs Python 3.10 or newer"
+        return False, tr("wgpu needs Python 3.10 or newer")
     if platform.machine() not in WGPU_MACHINES:
-        return False, f"wgpu publishes no wheel for {platform.machine() or 'this CPU'}"
+        return False, tr("wgpu publishes no wheel for {machine}",
+                         machine=platform.machine() or tr("this CPU"))
     if sys.platform.startswith("linux"):
         libc, version = platform.libc_ver()
         parts = re.findall(r"\d+", version)[:2] if libc == "glibc" else []
         if len(parts) == 2 and tuple(int(part) for part in parts) < (2, 28):
-            return False, f"wgpu's Linux wheels need glibc 2.28 (this has {version})"
+            return False, tr("wgpu's Linux wheels need glibc 2.28 (this has {version})",
+                             version=version)
     return True, ""
 
 
@@ -1477,63 +1481,72 @@ def check_3d_backends(ctx: Context) -> Result:
     from importlib.util import find_spec
 
     from .layers import gpu_render_refusal
+    from .qt.i18n import tr
 
     version = _distribution_version("wgpu")
-    expected, why_not = _wgpu_expected()
+    _expected, why_not = _wgpu_expected()
     opengl = find_spec("vispy") is not None
-    fallback = "OpenGL (VisPy), then the CPU" if opengl else "the CPU"
-    details: List[str] = [f"OpenGL (VisPy): {'available' if opengl else 'not installed'}",
-                          "CPU: always available"]
+    fallback = tr("OpenGL (VisPy), then the CPU") if opengl else tr("the CPU")
+    label = tr("3D backends")
+    details: List[str] = [tr("OpenGL (VisPy): available") if opengl else
+                          tr("OpenGL (VisPy): not installed"),
+                          tr("CPU: always available")]
     if version is None:
-        reason = why_not or "installed without wgpu"
-        details.insert(0, f"wgpu: not installed ({reason})")
+        reason = why_not or tr("installed without wgpu")
+        details.insert(0, tr("wgpu: not installed ({reason})", reason=reason))
         return Result(
-            "3D backends",
+            label,
             PASS,
-            f"wgpu is not installed; the True 3D view draws with {fallback}. "
-            "This is a supported install.",
+            tr("wgpu is not installed; the True 3D view draws with {fallback}. "
+               "This is a supported install.", fallback=fallback),
             details=tuple(details),
         )
     try:
         importlib.import_module("wgpu")
     except Exception as exc:
         return Result(
-            "3D backends",
+            label,
             WARN,
-            f"wgpu {version} is installed but cannot be imported "
-            f"({type(exc).__name__}: {exc}); the True 3D view draws with {fallback}.",
-            fix="python -m pip uninstall -y wgpu rendercanvas   # or reinstall spacr",
+            tr("wgpu {version} is installed but cannot be imported "
+               "({error}); the True 3D view draws with {fallback}.",
+               version=version, error=f"{type(exc).__name__}: {exc}", fallback=fallback),
+            fix=tr("Run {command}, or reinstall spaCR.",
+                   command="python -m pip uninstall -y wgpu rendercanvas"),
             details=tuple(details),
         )
     refusal = gpu_render_refusal()
     if refusal or not ctx.probe_gpu:
         why = refusal or "--no-gpu-probe"
-        details.insert(0, f"wgpu {version}: installed; adapters not listed ({why})")
+        details.insert(0, tr("wgpu {version}: installed; adapters not listed ({why})",
+                             version=version, why=why))
         return Result(
-            "3D backends",
+            label,
             PASS,
-            f"wgpu {version} is installed; the True 3D view prefers it, then {fallback}.",
+            tr("wgpu {version} is installed; the True 3D view prefers it, then {fallback}.",
+               version=version, fallback=fallback),
             details=tuple(details),
         )
     from .layers import wgpu_adapters
 
     adapters = wgpu_adapters(refresh=True)
     for info in adapters:
-        details.insert(0, f"wgpu {info['backend']}: {info['name']} ({info['adapter_type']})")
+        details.insert(0, tr("wgpu {backend}: {name} ({adapter_type})", **info))
     if not adapters:
-        details.insert(0, f"wgpu {version}: installed, but no Vulkan, Metal or "
-                          "Direct3D 12 adapter was found")
+        details.insert(0, tr("wgpu {version}: installed, but no Vulkan, Metal or "
+                             "Direct3D 12 adapter was found", version=version))
         return Result(
-            "3D backends",
+            label,
             PASS,
-            f"wgpu {version} found no adapter; the True 3D view draws with {fallback}.",
+            tr("wgpu {version} found no adapter; the True 3D view draws with {fallback}.",
+               version=version, fallback=fallback),
             details=tuple(details),
         )
     backends = ", ".join(sorted({info["backend"] for info in adapters}))
     return Result(
-        "3D backends",
+        label,
         PASS,
-        f"wgpu {version} can draw the True 3D view ({backends}); then {fallback}.",
+        tr("wgpu {version} can draw the True 3D view ({backends}); then {fallback}.",
+           version=version, backends=backends, fallback=fallback),
         details=tuple(details),
     )
 
