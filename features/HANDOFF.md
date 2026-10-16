@@ -11,6 +11,23 @@
 
 
 
+## 2026-10-15 Maintainer — other Home session closed; Original Home takeover
+
+The maintainer explicitly assigns the other Home session's unfinished tasks
+to Original Home. Original now owns Home-B's remaining implementation,
+integration, publication coordination and acceptance follow-ups. The canonical
+69-row grouped tracker already includes every open Home-B item; its older
+extra N626 row is historical closure, not a missing task. No completion is
+claimed merely from transfer. Work retains tutorial/capture ownership; Claude
+software deliveries and maintainer access/platform gates are preserved.
+
+Takeover inventory is read-only: preserve coordinator and worker branches,
+private packets and any progress-file edits. Do not reset, clean, replace old
+files or replay previously published changes. Current provider API closure
+continues:711 new/changed targets independently reviewed; final normal writer
+is still pending. No finalCI/release dispatch. Grouped progress ownership is
+updated in data/home_grouped_progress_2026-10-15/.
+
 ## 2026-10-15 Original Home — existing CI has assigned running jobs
 
 Read-only follow-up located Tests38816815119 on99789fd25c44. Its run-level
