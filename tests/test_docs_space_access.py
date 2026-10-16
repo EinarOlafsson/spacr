@@ -197,6 +197,8 @@ def test_denied_boundary_preserves_exception_and_reports_only_safe_operation(
     api, _, *_ = service
     failure = HTTPError("https://invalid/?token=sensitive-credential", 403,
                         "private server message sensitive-credential", {}, None)
+    # Python 3.9 leaves the delegated file unset when HTTPError has no body.
+    failure.__dict__.pop("file", None)
 
     def fail(*args, **kwargs):
         raise failure
@@ -239,6 +241,8 @@ def test_commit_refusal_reports_a_fixed_reason_without_server_text(
     from urllib.error import HTTPError
     failure = HTTPError("https://invalid/?token=sensitive-credential", 403, "Forbidden",
                         {"X-Error-Message": message + " sensitive-credential"}, None)
+    # Preserve the bodyless Python 3.9 case on newer interpreters too.
+    failure.__dict__.pop("file", None)
 
     def fail(*args, **kwargs):
         raise failure

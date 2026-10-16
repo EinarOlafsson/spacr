@@ -823,6 +823,9 @@ jobs:
           python -m pip install \
             -c .github/constraints/minimum-py39.txt \
             "pytest-timeout>=2.3,<3"
+          # Offline fixture builds must work with the packaging==21.3 floor.
+          # The project above uses its own isolated build-system requirements.
+          python -m pip install "setuptools==70.3.0"
           python -m pip check
 
       - name: Verify installed minimum profile
