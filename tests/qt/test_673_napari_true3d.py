@@ -215,13 +215,22 @@ def test_shift_drag_pans_the_box_and_reset_view_centres_it(view, qtbot):
     assert stage._view_axes().get_position(original=True).x0 == pytest.approx(start)
 
 
-def test_the_slice_plane_is_outlined_and_follows_the_slice(view):
+def test_the_slice_plane_is_outlined_and_follows_the_slice(view, monkeypatch):
     stage = view
     ax = stage._view_axes()
     plane = next(artist for artist in ax.collections if artist.get_gid() == "VolumeSlicePlane")
+    updates = []
+    actual_set_verts = plane.set_verts
+
+    def record_verts(vertices, *args, **kwargs):
+        updates.append(np.asarray(vertices).copy())
+        return actual_set_verts(vertices, *args, **kwargs)
+
+    monkeypatch.setattr(plane, "set_verts", record_verts)
     stage.set_slice(3)
     assert stage._slice_artist is plane
-    z = plane._vec[2]
+    assert updates and updates[-1].shape == (1, 4, 3)
+    z = updates[-1][..., 2]
     assert np.allclose(z, 3.5 * stage.session.xyz_spacing[2])
 
 
