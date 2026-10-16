@@ -58,7 +58,7 @@
       "key": "the CPU",
       "source": "the CPU",
       "source_sha256": "8ffbefafaa48cfd34e164179def7d0f40f632ca0d6288901fa31a39f57443292",
-      "translation": "CPU"
+      "translation": "프로세서(CPU)"
     },
     {
       "table": "ui",
@@ -93,7 +93,7 @@
       "key": "wgpu {backend}: {name} ({adapter_type})",
       "source": "wgpu {backend}: {name} ({adapter_type})",
       "source_sha256": "e294d27ff9d20610565393211831b98f91d3eaa81f097cd2c7c0163175d45c92",
-      "translation": "wgpu {backend}: {name} ({adapter_type})"
+      "translation": "wgpu {backend}: {name} (어댑터 유형: {adapter_type})"
     },
     {
       "table": "ui",
