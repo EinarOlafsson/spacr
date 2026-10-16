@@ -189,6 +189,17 @@ def example_plate_folder() -> Path:
     return Path.home() / ".cache" / "spacr" / "example_data" / "plate1"
 
 
+def _prepare_embeddings_example(destination=None) -> Dict[str, Path]:
+    """Unpack the bundled geometric demo into its own example-cache folder."""
+    folder = (Path(destination) if destination is not None else
+              example_plate_folder().parent / "embeddings_synthetic_v1")
+    archive = (Path(__file__).resolve().parent / "resources" / "data" /
+               "embeddings_synthetic_example.tar.gz")
+    extract_example_archive(archive, folder)
+    return {"folder": folder, "crops": folder / "crops",
+            "labels": folder / "labels.csv"}
+
+
 #: The single archive each example repo ships, keyed by repo.
 #:
 #: ONE REQUEST INSTEAD OF THOUSANDS. The annotate set is 2,365 files; fetching
