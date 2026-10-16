@@ -95,11 +95,13 @@ def test_terminal_success_waits_for_worker_and_requires_complete_database(tmp_pa
     calls = []
     fake = SimpleNamespace(
         started=benchmark.time.monotonic(), phase='running',
+        app=SimpleNamespace(activeModalWidget=lambda: None),
         screen=SimpleNamespace(_thread=object()), record={},
         window=SimpleNamespace(findChildren=lambda kind: []),
         _pipeline_failed=lambda error: calls.append(('failed', error)),
         _finish=lambda code: calls.append(('finished', code)),
     )
+    fake._keep_installer_cleanup = lambda: Controller._keep_installer_cleanup(fake)
     Controller._advance(fake)
     assert not calls
     fake.screen._thread = None

@@ -4036,3 +4036,7 @@ New native/full CI verdicts remain pending;1.5.1.5 is not released.
 2026-10-16 — 4180045b922 makes finite grain/satin CPU compilers survive interpreter teardown; rendering stays asynchronous and the copy queue remains a daemon.
 Both subprocess regressions fail before the fix; all52 related checks pass afterward, including unchanged Classify import isolation. No old LLVM-crash causality claim.
 Native installer workflow38873736048 is green on72e07; protected full CI38877579907 continues. Reserved-feature failures and full-green release gate remain open.
+
+2026-10-16 — a37d0f10357 repairs the smoke-test fake by binding the real cleanup helper; worker and failed-database assertions are unchanged.
+Original node fails before the fixture repair; all17 owning tests pass afterward. Hosted72 coverage also passes the original1.35 Make Masks paint-rate check.
+Full CI still requires the reserved N700/N673 owner repairs and remaining job results; no release or whole-item completion claimed.
