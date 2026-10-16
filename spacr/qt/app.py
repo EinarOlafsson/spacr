@@ -5222,29 +5222,10 @@ class MainWindow(QMainWindow):
                 raise RuntimeError(status["error"])
             self._frozen_update_timer.stop()
             self._hide_update_progress()
-            if self._frozen_update_plan.get("adapter") == "windows-frozen-nsis-v1":
-                message = tr(
-                    "spaCR will close before updating its Windows application. "
-                    "An administrator authorization window may open. "
-                    "The previous application will be retained for rollback. "
-                    "Your data and caches will be kept. "
-                    "spaCR will reopen after the update succeeds.")
-            elif self._frozen_update_plan.get("adapter") == "linux-deb-v1":
-                message = tr(
-                    "spaCR will close before updating its Debian package. "
-                    "A graphical administrator authorization window will open. "
-                    "The previous package will be retained for rollback. "
-                    "Your data and caches will be kept.")
-            elif self._frozen_update_plan.get("adapter") in {"macos-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1"}:
-                message = tr(
-                    "spaCR {version} is ready. Restart to use the update. "
-                    "Your data and caches will be kept.",
-                    version=self._frozen_update_plan["version"])
-            else:
-                message = tr(
-                    "spaCR {version} is ready. Restart to use the update. "
-                    "Your data and caches will be kept.",
-                    version=self._frozen_update_plan["version"])
+            message = tr(
+                "spaCR {version} is ready. Restart to use the update. "
+                "Your data and caches will be kept.",
+                version=self._frozen_update_plan["version"])
             answer = self._confirm_update_restart(message)
             if answer != QMessageBox.Ok or self._closing:
                 self._cancel_frozen_update()

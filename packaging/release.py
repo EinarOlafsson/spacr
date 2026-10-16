@@ -91,26 +91,28 @@ def collect_frozen_installers(
 
     Native smoke jobs gate this command in the release workflow. Build logs,
     portable archives and standalone helper executables remain CI artifacts;
-    only the three updater payloads are copied into the public asset folder.
+    Native installers and the mandatory-phase Windows update payload are
+    copied into the public asset folder.
     """
     if not PROJECT_RELEASE_PATTERN.fullmatch(version):
         raise ValueError("A numeric release version is required")
     if not re.fullmatch(r"[0-9a-f]{40}", source_commit):
         raise ValueError("An immutable release source commit is required")
-    expected = {
-        "windows": f"spaCR-{version}-setup.exe",
-        "macos": f"spaCR-{version}.dmg",
-        "debian": f"spacr_{version}_amd64.deb",
-    }
+    expected = [
+        ("windows", f"spaCR-{version}-setup.exe"),
+        ("windows", f"spaCR-{version}-update.exe"),
+        ("macos", f"spaCR-{version}.dmg"),
+        ("debian", f"spacr_{version}_amd64.deb"),
+    ]
     selected = []
-    for platform, filename in expected.items():
+    for platform, filename in expected:
         root = source / f"legacy-build-{platform}"
         metadata = root / "acceptance"
         for name, value in (("source-commit.txt", source_commit), ("version.txt", version)):
             path = metadata / name
             if path.is_symlink() or not path.is_file() or path.read_text().strip() != value:
                 raise ValueError(f"Native {platform} {name} does not match the release")
-        allowed = {filename}
+        allowed = {name for owner, name in expected if owner == platform}
         if platform == "windows":
             allowed.update({f"spaCR-{version}-windows.zip", "spacr-update-helper.exe"})
         elif platform == "macos":

@@ -185,3 +185,13 @@ def test_native_library_preserves_win32_last_error_for_uac_cancellation(monkeypa
     monkeypatch.setattr(ctypes, 'WinDLL', load, raising=False)
     assert cleanup._windows_update_library('shell32') is library
     assert loaded == [('shell32', {'use_last_error': True})]
+
+
+def test_prepared_update_passes_only_private_descriptor_and_pid_before_final_destination(native):
+    installer = r'C:\stage\spaCR-1.5.1.5-update.exe'
+    descriptor = r'C:\Users\Alice\private stage\phase-descriptor'
+    assert cleanup._windows_frozen_install(installer, r'C:\Program Files\spaCR',
+        phase_channel=descriptor, desktop_pid=4242) == (0, '')
+    request, = native.requests
+    assert request.lpParameters == '/S /SPACRUPDATE="' + descriptor + r'" /SPACRPID=4242 /D=C:\Program Files\spaCR'
+    assert native.closed == [123, 321]

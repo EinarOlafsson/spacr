@@ -3245,6 +3245,103 @@ class _UpdatePhaseClient(_UpdatePhaseChannel):
         self._direction = "installer"
 
 
+class _UpdateActivationUnconfirmed(RuntimeError):
+    """Retain both payloads after losing the coordinator during desktop startup."""
+
+
+def _native_update_ready(channel, version, desktop_pid):
+    """Offer activation only after staging; require the old desktop's actual exit."""
+    channel._send("prepared", version=version, desktop_pid=desktop_pid)
+    decision = channel._receive({"activate", "cancel"}, timeout=_WAIT_SECONDS)
+    if decision["phase"] != "activate":
+        raise RuntimeError(tr("Update cancelled; the previous application was preserved."))
+    if not _wait_for_exit(desktop_pid, timeout=1):
+        raise RuntimeError(tr("The running application has not closed; activation was stopped."))
+
+
+def _native_update_activated(channel, version):
+    """Retain recovery until the unelevated new desktop confirms its main window."""
+    try:
+        channel._send("activated", version=version)
+        decision = channel._receive({"confirmed", "failed", "retain"}, timeout=_WAIT_SECONDS)
+    except Exception as error:
+        raise _UpdateActivationUnconfirmed(tr("Desktop startup was not confirmed; both application versions were retained.")) from error
+    if decision["phase"] == "retain":
+        raise _UpdateActivationUnconfirmed(tr("Desktop startup was not confirmed; both application versions were retained."))
+    if decision["phase"] != "confirmed":
+        raise RuntimeError(tr("The new desktop could not open; restoring the previous application."))
+
+
+def _coordinate_native_update(plan, handshake, operation, *, check, launch, wait=None):
+    """Authorize staging while the GUI runs, then bind activation to Restart and startup."""
+    with _UpdatePhaseServer(plan["workdir"]) as channel:
+        completed = threading.Event()
+        result = []
+
+        def _run_authorized():
+            try:
+                result.append(operation(channel.endpoint))
+            except BaseException as error:
+                result.append(error)
+            finally:
+                completed.set()
+
+        def _stopped():
+            handshake.check()
+            return completed.is_set()
+
+        worker = threading.Thread(target=_run_authorized, name="spaCR-authorized-update", daemon=True)
+        handshake.check()
+        worker.start()
+        prepared_received = False
+        activated = False
+        desktop_stopped = False
+        try:
+            prepared = channel._receive({"prepared"}, stopped=_stopped)
+            if prepared["details"] != {"version": plan["version"], "desktop_pid": plan["pid"]}:
+                raise ValueError(tr("The authorized installer returned an invalid update message."))
+            prepared_received = True
+            check()
+            handshake.ready()
+            handshake.wait_for_shutdown(wait)
+            handshake.check()
+            check()
+            channel._send("activate")
+            changed = channel._receive({"activated"}, stopped=completed.is_set)
+            if changed["details"] != {"version": plan["version"]}:
+                raise ValueError(tr("The authorized installer returned an invalid update message."))
+            activated = True
+            try:
+                desktop = launch()
+            except _UpdateLaunchStillRunning:
+                raise
+            except BaseException:
+                desktop_stopped = True
+                raise
+            channel._send("confirmed")
+            completed.wait()
+            if isinstance(result[0], BaseException):
+                raise result[0]
+            code, output = result[0]
+            if code:
+                raise RuntimeError(tr("The authorized installer could not complete the update: {error}", error=output))
+            return output, desktop
+        except BaseException:
+            if channel._connection is not None:
+                try:
+                    channel._send("failed" if desktop_stopped else "retain" if activated else "cancel")
+                except (OSError, ValueError):
+                    pass
+            if not completed.is_set():
+                if channel._connection is not None:
+                    channel._connection.close()
+                channel._listener.close()
+                completed.wait()
+            if not prepared_received and result and isinstance(result[0], BaseException):
+                raise result[0]
+            raise
+
+
 def _launch_updated_desktop(plan, argv, version, root, *, frozen=False, spawn=None):
     """Launch the exact updated executable and wait for its verified main window.
 
@@ -4029,7 +4126,7 @@ def _debian_installed_version(*, run=None):
 
 
 def _debian_package_transaction(new_archive, rollback_archive, previous_version,
-                                requested_version, *, verify, run=None, journal=None):
+                                requested_version, *, verify, run=None, journal=None, after_activate=None):
     """Install a prepared package and restore its prepared predecessor on failure.
 
     The privileged caller must first authenticate both archives and retain them
@@ -4068,8 +4165,14 @@ def _debian_package_transaction(new_archive, rollback_archive, previous_version,
             raise RuntimeError(tr("Debian replacement failed: {error}", error=output))
         if _debian_installed_version(run=runner) != requested_version or verify(requested_version) is not True:
             raise RuntimeError(tr("Debian replacement identity could not be verified"))
+        if after_activate is not None:
+            after_activate()
         if journal is not None:
             journal("committed")
+    except _UpdateActivationUnconfirmed:
+        if journal is not None:
+            journal("desktop-unconfirmed")
+        raise
     except BaseException as failure:
         try:
             state = _debian_installed_state(run=runner)
@@ -4206,7 +4309,7 @@ def _debian_update_commands(records, version, machine, *, helper=False):
 
 
 def _run_debian_update(plan, machine, *, wait=None, run=None, spawn=None, published_digest=None):
-    """Require GUI-approved shutdown before graphical privilege authorization.
+    """Authorize and verify a staged package before offering Restart and activation.
 
     :param plan: Immutable package/desktop identity bound to a readiness lease.
     :param machine: Actual process and installation description.
@@ -4235,13 +4338,16 @@ def _run_debian_update(plan, machine, *, wait=None, run=None, spawn=None, publis
                 or any(character not in "0123456789abcdef" for character in digest)):
             raise ValueError("both replacement and rollback releases require published checksums")
     handshake = _FrozenUpdateHandshake(plan)
-    handshake.ready()
-    handshake.wait_for_shutdown(wait)
-    if _debian_update_commands(records, plan["version"], machine, helper=True) != (command, relaunch):
-        raise ValueError("the Debian update identity changed after shutdown")
-    code, output = (run or (lambda argv: _run(argv, timeout=10800)))(command)
-    if code:
-        raise RuntimeError(tr("The Debian update stopped; retained packages and its transaction log can be used for recovery. {error}", error=output))
+
+    def _check_current():
+        if _debian_update_commands(records, plan["version"], machine, helper=True) != (command, relaunch):
+            raise ValueError("the Debian update identity changed after shutdown")
+
+    output, _desktop = _coordinate_native_update(plan, handshake,
+        lambda endpoint: (run or (lambda argv: _run(argv, timeout=10800)))(command + [
+            "--phase-channel", endpoint, "--desktop-pid", str(plan["pid"])]),
+        check=_check_current, wait=wait,
+        launch=lambda: _launch_updated_desktop(plan, relaunch, plan["version"], "/opt/spacr", frozen=True, spawn=spawn))
     try:
         receipt = json.loads(output.strip().splitlines()[-1])
     except (ValueError, IndexError) as error:
@@ -4249,7 +4355,6 @@ def _run_debian_update(plan, machine, *, wait=None, run=None, spawn=None, publis
     if receipt.get("state") != "committed" or receipt.get("version") != plan["version"]:
         raise RuntimeError("the privileged Debian replacement was not verified")
     handshake._write("debian-transaction.json", "committed", details=receipt)
-    _launch_updated_desktop(plan, relaunch, plan["version"], "/opt/spacr", frozen=True, spawn=spawn)
     return plan["version"], output
 
 
@@ -4295,7 +4400,7 @@ def _debian_check_package_owner(previous_version, *, run=None):
     return helper
 
 
-def _debian_apply_root_transaction(stage, version, previous_version, desktop_uid):
+def _debian_apply_root_transaction(stage, version, previous_version, desktop_uid, *, phase_channel=None, desktop_pid=None):
     """Apply an authenticated update from the root-owned outside-runtime helper.
 
     :param stage: Private directory containing this independently copied helper.
@@ -4320,20 +4425,59 @@ def _debian_apply_root_transaction(stage, version, previous_version, desktop_uid
             or not stat.S_ISREG(helper_details.st_mode) or helper_details.st_uid != 0
             or stat.S_IMODE(helper_details.st_mode) & 0o022):
         raise ValueError(tr("Debian privileged staging identity changed"))
-    base = {"schema": 1, "adapter": "linux-deb-v1", "version": version,
-            "previous_version": previous_version, "desktop_uid": desktop_uid}
-    _debian_write_journal(stage, dict(base, state="preparing"))
-    new_archive = _debian_prepare_archive(version, stage)
-    rollback = _debian_prepare_archive(previous_version, stage)
-    base.update(replacement=new_archive, rollback=rollback)
-    _debian_write_journal(stage, dict(base, state="prepared"))
-    with _debian_frontend_lock():
-        _debian_check_package_owner(previous_version)
-        return _debian_package_transaction(
-            new_archive["path"], rollback["path"], previous_version, version,
-            verify=lambda expected: _debian_verify_desktop(expected, desktop_uid),
-            run=_debian_root_runner,
-            journal=lambda state: _debian_write_journal(stage, dict(base, state=state)))
+    channel = None
+    staged = None
+    if phase_channel is not None:
+        if _desktop_process_identity(desktop_pid)[0] != desktop_uid:
+            raise ValueError(tr("The running desktop could not be identified."))
+        channel = _UpdatePhaseClient(phase_channel, desktop_pid, "/opt/spacr/spacr")
+    try:
+        base = {"schema": 1, "adapter": "linux-deb-v1", "version": version,
+                "previous_version": previous_version, "desktop_uid": desktop_uid}
+        _debian_write_journal(stage, dict(base, state="preparing"))
+        new_archive = _debian_prepare_archive(version, stage)
+        rollback = _debian_prepare_archive(previous_version, stage)
+        base.update(replacement=new_archive, rollback=rollback)
+        if channel is not None:
+            _debian_package_metadata(rollback["path"], previous_version, "amd64", run=_debian_root_runner)
+            staged = _debian_stage_payload(new_archive["path"], version, desktop_uid)
+            base["staged_payload"] = staged
+        _debian_write_journal(stage, dict(base, state="prepared"))
+        if channel is not None:
+            _native_update_ready(channel, version, desktop_pid)
+        with _debian_frontend_lock():
+            _debian_check_package_owner(previous_version)
+            return _debian_package_transaction(
+                new_archive["path"], rollback["path"], previous_version, version,
+                verify=lambda expected: _debian_verify_desktop(expected, desktop_uid),
+                run=_debian_root_runner,
+                after_activate=(lambda: _native_update_activated(channel, version)) if channel is not None else None,
+                journal=lambda state: _debian_write_journal(stage, dict(base, state=state)))
+    finally:
+        if channel is not None:
+            channel.__exit__()
+        if staged is not None:
+            shutil.rmtree(staged)
+
+
+def _debian_stage_payload(archive, version, desktop_uid, *, run=None, verify=None):
+    """Unpack and run the new bundle unprivileged while the installed desktop stays intact."""
+    runner = run or _debian_root_runner
+    _debian_package_metadata(archive, version, "amd64", run=runner)
+    parent = os.lstat("/opt")
+    if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid != 0 or stat.S_IMODE(parent.st_mode) & 0o022):
+        raise ValueError(tr("The Debian application is not a trusted system package."))
+    staged = tempfile.mkdtemp(prefix=".spacr-staged-", dir="/opt")
+    try:
+        os.chmod(staged, 0o755)
+        code, output = runner(["/usr/bin/dpkg-deb", "--extract", os.path.abspath(archive), staged])
+        if code or not (verify or _debian_verify_desktop)(version, desktop_uid,
+                root=os.path.join(staged, "opt", "spacr")):
+            raise RuntimeError(tr("The staged Debian application could not be verified: {error}", error=output))
+        return staged
+    except BaseException:
+        shutil.rmtree(staged)
+        raise
 
 
 def _debian_write_journal(stage, data):
@@ -4360,7 +4504,7 @@ def _debian_write_journal(stage, data):
             os.unlink(temporary)
 
 
-def _debian_prepare_root_transaction(version, previous_version, desktop_uid):
+def _debian_prepare_root_transaction(version, previous_version, desktop_uid, *, phase_channel=None, desktop_pid=None):
     """Copy only the trusted installed helper before replacing its package.
 
     :param version: Exact requested release version.
@@ -4394,9 +4538,11 @@ def _debian_prepare_root_transaction(version, previous_version, desktop_uid):
     environment = {"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "LANG": "C.UTF-8",
                    "HOME": "/root", "PKEXEC_UID": str(desktop_uid),
                    "PYINSTALLER_RESET_ENVIRONMENT": "1"}
-    result = subprocess.run([
-        helper, "apply-debian-root", "--stage", stage, "--version", version,
-        "--previous-version", previous_version, "--desktop-uid", str(desktop_uid)],
+    command = [helper, "apply-debian-root", "--stage", stage, "--version", version,
+        "--previous-version", previous_version, "--desktop-uid", str(desktop_uid)]
+    if phase_channel is not None:
+        command.extend(["--phase-channel", phase_channel, "--desktop-pid", str(desktop_pid)])
+    result = subprocess.run(command,
         env=environment, cwd="/", text=True, stdin=subprocess.DEVNULL,
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=7200)
     return result.returncode, result.stdout
@@ -4669,13 +4815,43 @@ def _windows_process_elevated():
         close(token)
 
 
-def _windows_frozen_install(installer, destination, *, timeout=1800):
+def _windows_frozen_install(installer, destination, *, timeout=1800, phase_channel=None, desktop_pid=None):
     """Elevate only the pinned NSIS image and retain an unelevated coordinator.
 
     The caller must keep a checksum-verified installer handle denying writes
     and deletion open throughout this call. A timeout leaves the installer
     running; its caller must retain its pending journal and must not attempt
     another installation, rollback, cleanup or application relaunch.
+    """
+    import math
+    import ntpath
+
+    if (not isinstance(timeout, (int, float)) or isinstance(timeout, bool)
+            or not math.isfinite(timeout) or timeout <= 0 or timeout * 1000 >= 0xFFFFFFFF):
+        raise ValueError(tr("invalid Windows installer timeout"))
+    installer, destination = os.fspath(installer), os.fspath(destination)
+    if any(character in value for value in (installer, destination) for character in '\x00\r\n"'):
+        raise ValueError(tr("invalid Windows installer path"))
+    if any(not ntpath.isabs(path) or len(ntpath.splitdrive(path)[0]) != 2
+           or not ntpath.splitdrive(path)[0][0].isalpha()
+           or ntpath.splitdrive(path)[0][1] != ":" for path in (installer, destination)):
+        raise ValueError(tr("Windows installer paths must be absolute"))
+    parameters = "/S /D=" + destination
+    if phase_channel is not None:
+        if (not isinstance(desktop_pid, int) or isinstance(desktop_pid, bool) or desktop_pid <= 1
+                or any(character in phase_channel for character in '\x00\r\n"')
+                or not ntpath.isabs(phase_channel)):
+            raise ValueError(tr("invalid Windows installer path"))
+        parameters = '/S /SPACRUPDATE="' + phase_channel + '" /SPACRPID=' + str(desktop_pid) + ' /D=' + destination
+    return _windows_authorized_process(installer, parameters, timeout=timeout)
+
+
+def _windows_authorized_process(installer, parameters, *, timeout=1800):
+    """Run a caller-validated trusted helper with one native authorization and an owned process handle.
+
+    The caller must pin or otherwise protect the executable and construct only
+    fixed supported arguments. An uncertain completion retains the process ID
+    in TimeoutError; it never authorizes cleanup or another privileged operation.
     """
     import ctypes
     import math
@@ -4686,13 +4862,9 @@ def _windows_frozen_install(installer, destination, *, timeout=1800):
         raise ValueError(tr("invalid Windows installer timeout"))
     if _windows_process_elevated():
         raise ValueError(tr("the update coordinator must run without administrator privileges"))
-    installer, destination = os.fspath(installer), os.fspath(destination)
-    if any(character in value for value in (installer, destination) for character in '\x00\r\n"'):
+    if (not ntpath.isabs(installer) or any(character in installer for character in '\x00\r\n"')
+            or any(character in parameters for character in '\x00\r\n')):
         raise ValueError(tr("invalid Windows installer path"))
-    if any(not ntpath.isabs(path) or len(ntpath.splitdrive(path)[0]) != 2
-           or not ntpath.splitdrive(path)[0][0].isalpha()
-           or ntpath.splitdrive(path)[0][1] != ":" for path in (installer, destination)):
-        raise ValueError(tr("Windows installer paths must be absolute"))
     kernel = _windows_update_library("kernel32")
     shell = _windows_update_library("shell32")
     pointer, dword = ctypes.c_void_p, ctypes.c_uint32
@@ -4721,7 +4893,7 @@ def _windows_frozen_install(installer, destination, *, timeout=1800):
     request.fMask = 0x00000040 | 0x00000100 | 0x00000400
     request.lpVerb = "runas"
     request.lpFile = installer
-    request.lpParameters = "/S /D=" + destination
+    request.lpParameters = parameters
     request.lpDirectory = ntpath.dirname(installer)
     request.nShow = 1
     if not execute(ctypes.byref(request)):
@@ -5272,7 +5444,8 @@ def _frozen_windows_entry_state(path):
     return details.st_dev, details.st_ino, contents
 
 
-def _install_frozen_windows(source, destination, version, *, run=None):
+def _install_frozen_windows(source, destination, version, *, run=None,
+                            before_activate=None, after_activate=None, preserve_previous=False):
     """Stage, verify and replace only a Windows bundle's application payload.
 
     Caches, preferences, unrelated install-root files and the existing uninstaller
@@ -5306,12 +5479,17 @@ def _install_frozen_windows(source, destination, version, *, run=None):
         previous = _frozen_windows_previous_version(destination)
         if previous is not None and _macos_online_version(previous) > _macos_online_version(version):
             raise ValueError("frozen_application_downgrade_refused")
+        previous_state = _windows_frozen_root_state(str(destination)) if before_activate is not None else None
         transaction = Path(tempfile.mkdtemp(prefix=".spacr-frozen-install-", dir=destination.parent))
         staged, backup = transaction / "new", transaction / "previous"
         shutil.copytree(source, staged)
         _frozen_windows_payload(staged, version)
         _frozen_windows_identity(staged, version, run)
         _frozen_windows_payload(staged, version)
+        if before_activate is not None:
+            before_activate()
+            if _windows_frozen_root_state(str(destination)) != previous_state:
+                raise ValueError(tr("The installed application changed during staging; activation was stopped."))
         backup.mkdir()
         destination.mkdir(exist_ok=True)
         old_manifest = None
@@ -5337,9 +5515,11 @@ def _install_frozen_windows(source, destination, version, *, run=None):
             activated[name] = entry_state
         _frozen_windows_payload(destination, version)
         _frozen_windows_identity(destination, version, run)
+        if after_activate is not None:
+            after_activate()
         complete = True
         retained = str(backup) if moved else None
-        if old_manifest is not None:
+        if old_manifest is not None and not preserve_previous:
             try:
                 _frozen_windows_payload(backup, previous, retirement=True)
             except (OSError, ValueError, TypeError):
@@ -5351,6 +5531,9 @@ def _install_frozen_windows(source, destination, version, *, run=None):
                 except OSError:
                     pass
         return {"ok": True, "version": version, "previous_runtime": retained}
+    except _UpdateActivationUnconfirmed:
+        restored = False
+        raise
     except BaseException:
         for name in reversed(activated):
             try:
@@ -5496,7 +5679,7 @@ def _windows_frozen_update_journal(directory, plan, state, **details):
 
 
 def _run_windows_frozen_update(plan, machine, *, download=None, install=None, run=None, wait=None, spawn=None):
-    """Stage a checksummed official NSIS setup, require approved exit, and relaunch only verified bytes unelevated."""
+    """Stage a mandatory-phase official updater, then activate and confirm the new desktop unelevated."""
     if (not plan.get("frozen_application") or plan.get("adapter") != "windows-frozen-nsis-v1"
             or _windows_process_elevated()):
         raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_coordinator"))
@@ -5506,7 +5689,7 @@ def _run_windows_frozen_update(plan, machine, *, download=None, install=None, ru
     root, initial = _windows_frozen_root_state(record.root)
     if _inside(os.path.realpath(sys.executable), root):
         raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_outside_helper"))
-    name = "spaCR-" + str(plan["version"]) + "-setup.exe"
+    name = "spaCR-" + str(plan["version"]) + "-update.exe"
     installer = os.path.join(handshake.root, name)
     url = _RELEASE_DOWNLOAD + "/v" + str(plan["version"]) + "/" + name
     relaunch = [os.path.join(root, "spacr.exe")]
@@ -5534,38 +5717,41 @@ def _run_windows_frozen_update(plan, machine, *, download=None, install=None, ru
             _windows_frozen_update_record(records, plan["version"], plan["workdir"], machine)
             if _windows_frozen_root_state(root) != (root, initial):
                 raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_changed_destination"))
-            _windows_frozen_update_journal(lock, plan, "prepared", root=root, previous=previous, installer=installer, sha256=expected)
-            handshake.ready()
-            handshake.wait_for_shutdown(wait)
-            if (_windows_process_elevated() or _windows_frozen_root_state(root) != (root, initial)
-                    or _windows_frozen_update_record(records, plan["version"], plan["workdir"], machine)[1] != previous):
-                raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_changed_destination"))
-            with _windows_frozen_installer_pin(installer, expected):
-                _windows_frozen_update_journal(lock, plan, "installing", root=root, previous=previous, installer=installer, sha256=expected)
-                handshake.check()
-                retained = True
-                code, output = (install or _windows_frozen_install)(installer, root)
-            if code:
-                _windows_frozen_update_journal(lock, plan, "installer-failed", root=root, exit_code=code)
-                raise RuntimeError(tr("Upgrade unavailable: {error}", error="windows_frozen_installer_exit_" + str(code)))
-            observed_root, observed_state = _windows_frozen_root_state(root)
-            if observed_root != root or observed_state[:2] != initial[:2]:
-                raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_changed_destination"))
-            _frozen_windows_payload(root, plan["version"])
-            identity = _frozen_windows_identity(root, plan["version"], run)
-            if _windows_process_elevated():
-                raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_elevated_relaunch"))
-            _windows_frozen_update_journal(lock, plan, "verified", root=root, identity=identity)
+            _windows_frozen_update_journal(lock, plan, "preparing", root=root, previous=previous, installer=installer, sha256=expected)
+            retained = True
+
+            def _check_current():
+                if _macos_digest(installer) != expected:
+                    raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_installer_checksum"))
+                if (_windows_process_elevated() or _windows_frozen_root_state(root) != (root, initial)
+                        or _windows_frozen_update_record(records, plan["version"], plan["workdir"], machine)[1] != previous):
+                    raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_changed_destination"))
+
+            def _launch_verified():
+                observed_root, observed_state = _windows_frozen_root_state(root)
+                if observed_root != root or observed_state[:2] != initial[:2]:
+                    raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_changed_destination"))
+                _frozen_windows_payload(root, plan["version"])
+                identity = _frozen_windows_identity(root, plan["version"], run)
+                if _windows_process_elevated():
+                    raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_elevated_relaunch"))
+                _windows_frozen_update_journal(lock, plan, "verified", root=root, identity=identity)
+                return _launch_updated_desktop(plan, relaunch, identity["version"], root, frozen=True, spawn=spawn)
+
             try:
-                desktop = _launch_updated_desktop(
-                    plan, relaunch, identity["version"], root, frozen=True, spawn=spawn)
+                output, desktop = _coordinate_native_update(plan, handshake,
+                    lambda endpoint: (install or _windows_frozen_install)(
+                        installer, root, phase_channel=endpoint, desktop_pid=plan["pid"]),
+                    check=_check_current, launch=_launch_verified, wait=wait)
             except Exception as error:
                 _windows_frozen_update_journal(lock, plan, "desktop-unconfirmed", root=root,
-                    identity=identity, pid=getattr(error, "pid", None), error=str(error))
+                    pid=getattr(error, "pid", None), error=str(error))
+                if handshake._read("cancelled.json") is not None and _windows_frozen_root_state(root) == (root, initial):
+                    retained = False
                 raise
             _windows_frozen_update_journal(lock, plan, "desktop-ready", root=root, identity=desktop)
             retained = False
-            return identity["version"], output
+            return desktop["version"], output
     except TimeoutError as error:
         if retained:
             try:
@@ -5722,7 +5908,7 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
                     or os.path.normcase(os.path.realpath(machine.executable)) != os.path.normcase(os.path.join(os.path.realpath(running.root), "spacr.exe"))):
                 raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_coordinator"))
             _WindowsPipHandshake(plan)
-            name = "spaCR-" + str(version) + "-setup.exe"
+            name = "spaCR-" + str(version) + "-update.exe"
             target = os.path.join(os.path.realpath(workdir), name)
             plan["fetch"] = {"url": _RELEASE_DOWNLOAD + "/v" + str(version) + "/" + name, "path": target}
             plan["install"] = [target, "/S", "/D=" + os.path.realpath(running.root)]
@@ -5779,7 +5965,13 @@ def _wait_for_exit(pid: int, timeout: float = _WAIT_SECONDS, *,
         if not 0 < int(pid) <= 0xFFFFFFFF:
             return False
         import ctypes
-        kernel32 = ctypes.windll.kernel32                    # type: ignore[attr-defined]
+        kernel32 = ctypes.windll.kernel32
+        kernel32.OpenProcess.argtypes = [ctypes.c_uint32, ctypes.c_int32, ctypes.c_uint32]
+        kernel32.OpenProcess.restype = ctypes.c_void_p
+        kernel32.WaitForSingleObject.argtypes = [ctypes.c_void_p, ctypes.c_uint32]
+        kernel32.WaitForSingleObject.restype = ctypes.c_uint32
+        kernel32.CloseHandle.argtypes = [ctypes.c_void_p]
+        kernel32.CloseHandle.restype = ctypes.c_int32
         handle = kernel32.OpenProcess(0x00100000, False, int(pid))
         if not handle:
             return kernel32.GetLastError() == 87
@@ -6242,18 +6434,26 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
         root_parser.add_argument("--previous-version", required=True)
         root_parser.add_argument("--desktop-uid", type=int, required=True)
         root_parser.add_argument("--stage")
+        root_parser.add_argument("--phase-channel")
+        root_parser.add_argument("--desktop-pid", type=int)
         root_args = root_parser.parse_args(arguments)
         _PRIVILEGED_DEBIAN_HELPER = True
         try:
+            if (root_args.phase_channel is None) != (root_args.desktop_pid is None):
+                raise ValueError(tr("The update authorization descriptor is not private."))
             if root_args.command == "prepare-debian-root":
                 code, output = _debian_prepare_root_transaction(
-                    root_args.version, root_args.previous_version, root_args.desktop_uid)
+                    root_args.version, root_args.previous_version, root_args.desktop_uid,
+                    **({"phase_channel": root_args.phase_channel, "desktop_pid": root_args.desktop_pid}
+                       if root_args.phase_channel is not None else {}))
                 print(output)
                 return code
             if root_args.stage is None:
                 raise ValueError("a private Debian transaction directory is required")
             receipt = _debian_apply_root_transaction(
-                root_args.stage, root_args.version, root_args.previous_version, root_args.desktop_uid)
+                root_args.stage, root_args.version, root_args.previous_version, root_args.desktop_uid,
+                **({"phase_channel": root_args.phase_channel, "desktop_pid": root_args.desktop_pid}
+                   if root_args.phase_channel is not None else {}))
             print(json.dumps(receipt, sort_keys=True))
             return 0
         except Exception as error:
@@ -6269,6 +6469,8 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     frozen_windows.add_argument("--source", required=True)
     frozen_windows.add_argument("--destination", required=True)
     frozen_windows.add_argument("--version", required=True)
+    frozen_windows.add_argument("--phase-channel")
+    frozen_windows.add_argument("--desktop-pid", type=int)
     verify = commands.add_parser("verify-runtime", help="verify a desktop interpreter and imported application")
     verify.add_argument("--python", required=True)
     verify.add_argument("--version")
@@ -6313,7 +6515,16 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     args = parser.parse_args(argv)
     if args.command == "install-frozen-windows":
         try:
-            outcome = _install_frozen_windows(args.source, args.destination, args.version)
+            if args.phase_channel is not None:
+                with _UpdatePhaseClient(args.phase_channel, args.desktop_pid,
+                        os.path.join(args.destination, "spacr.exe")) as channel:
+                    outcome = _install_frozen_windows(args.source, args.destination, args.version,
+                        before_activate=lambda: _native_update_ready(channel, args.version, args.desktop_pid),
+                        after_activate=lambda: _native_update_activated(channel, args.version), preserve_previous=True)
+            else:
+                if args.desktop_pid is not None:
+                    raise ValueError(tr("The update authorization descriptor is not private."))
+                outcome = _install_frozen_windows(args.source, args.destination, args.version)
         except Exception as error:
             print(json.dumps({"ok": False, "error": str(error)}))
             return 1

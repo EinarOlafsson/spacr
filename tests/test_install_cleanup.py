@@ -2080,7 +2080,7 @@ def test_windows_unqueryable_process_never_authorizes_replacement(tmp_path, monk
 
 
 @pytest.mark.parametrize(("handle", "waited", "ended"), [
-    (0, None, True), (77, 0, True), (77, 258, False), (77, 0xFFFFFFFF, False)],
+    (0, None, True), (0x123456789, 0, True), (77, 258, False), (77, 0xFFFFFFFF, False)],
     ids=["already-gone", "exited", "still-running", "wait-failed"])
 def test_on_windows_the_helper_waits_on_the_process_handle(
         monkeypatch, handle, waited, ended):
@@ -2097,7 +2097,7 @@ def test_on_windows_the_helper_waits_on_the_process_handle(
     assert ic._wait_for_exit(4242, timeout=1.5, os_name="nt") is ended
     expected = [("open", 0x00100000, False, 4242)]
     if handle:
-        expected += [("wait", 77, 1500), ("close", 77)]
+        expected += [("wait", handle, 1500), ("close", handle)]
     assert calls == expected
 
 

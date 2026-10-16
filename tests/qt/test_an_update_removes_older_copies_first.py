@@ -83,6 +83,7 @@ class _Window:
 
 @pytest.fixture(params=["macos-frozen-v1", "macos-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1", "windows-frozen-nsis-v1"])
 def frozen_window(qtbot, monkeypatch, tmp_path, request):
+    monkeypatch.setenv("SPACR_HOME", str(tmp_path / "spacr-profile"))
     from types import SimpleNamespace
     from PySide6.QtWidgets import QMainWindow
     from spacr.qt import bridge
@@ -296,22 +297,10 @@ def test_frozen_accepted_close_approves_after_vetoes_before_teardown(frozen_wind
     state = frozen_window
     state.handshake.ready()
     def accept(parent, title, message, buttons):
-        if state.plan["adapter"] == "macos-online-uv-v1":
-            assert "1.5.1.1 is ready" in message
-            assert "Restart to use the update" in message
-            assert "remove" not in message
-        elif state.plan["adapter"] == "windows-frozen-nsis-v1":
-            assert "updating its Windows application" in message
-            assert "administrator authorization window may open" in message
-            assert "previous application will be retained for rollback" in message
-            assert "data and caches will be kept" in message
-            assert "reopen after the update succeeds" in message
-            assert "remove the older copies" not in message
-        elif state.plan["adapter"] == "linux-deb-v1":
-            assert "graphical administrator authorization" in message
-            assert "previous package will be retained for rollback" in message
-            assert "data and caches will be kept" in message
-            assert "remove the older copies" not in message
+        assert "1.5.1.1 is ready" in message
+        assert "Restart to use the update" in message
+        assert "data and caches will be kept" in message
+        assert "remove" not in message
         return qt_app.QMessageBox.Ok
 
     monkeypatch.setattr(qt_app.QMessageBox, "information", accept)

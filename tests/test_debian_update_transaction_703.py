@@ -362,12 +362,20 @@ def test_debian_handoff_requires_checksums_approval_and_verified_receipt(ic, tmp
         else:
             handshake.approve()
     monkeypatch.setattr(ic._FrozenUpdateHandshake, "ready", ready)
+    monkeypatch.setattr(ic, "_desktop_process_identity", lambda _pid: (ic.os.getuid(), relaunch[0]))
+    monkeypatch.setattr(ic, "_wait_for_exit", lambda _pid, **_kwargs: "exited" in events)
     def run(argv):
-        assert argv == command
-        assert events == ["ready", "exited"]
+        assert argv[:len(command)] == command
+        assert events == []
         events.append("authorized")
         if failure == "authorization":
             return 126, "authorization cancelled"
+        endpoint = argv[argv.index("--phase-channel") + 1]
+        with ic._UpdatePhaseClient(endpoint, plan["pid"], relaunch[0]) as channel:
+            events.append("staged")
+            ic._native_update_ready(channel, "1.5.1.5", plan["pid"])
+            events.append("installed")
+            ic._native_update_activated(channel, "1.5.1.5")
         return 0, json.dumps({"state": "stopped" if failure == "receipt" else "committed", "version": "1.5.1.5"})
     def wait(pid):
         assert pid == 123456
@@ -398,7 +406,7 @@ def test_debian_handoff_requires_checksums_approval_and_verified_receipt(ic, tmp
     machine = SimpleNamespace(home=str(tmp_path))
     if failure is None:
         assert ic._run_debian_update(plan, machine, **arguments)[0] == "1.5.1.5"
-        assert events == ["ready", "exited", "authorized", "relaunched"]
+        assert events == ["authorized", "staged", "ready", "exited", "installed", "relaunched"]
     else:
         with pytest.raises((ValueError, RuntimeError)):
             ic._run_debian_update(plan, machine, **arguments)
@@ -406,10 +414,10 @@ def test_debian_handoff_requires_checksums_approval_and_verified_receipt(ic, tmp
             assert "relaunched" in events
             assert ("stopped" in events) is (failure != "exited-desktop")
             retained = ic._FrozenUpdateHandshake(plan)._read("debian-transaction.json")
-            assert retained["state"] == "committed" and retained["details"]["version"] == "1.5.1.5"
-        else:
+            assert retained is None
+        elif failure != "receipt":
             assert "relaunched" not in events
-        if failure in {"cancel", "checksum", "tampered"}:
+        if failure in {"checksum", "tampered"}:
             assert "authorized" not in events
 
 
@@ -547,6 +555,10 @@ def privileged_debian_files(ic, tmp_path, monkeypatch):
     operations.open = lambda path, flags, mode=0o777: native_os.open(physical(path), flags, mode)
     operations.replace = lambda source, target: native_os.replace(physical(source), physical(target))
     operations.unlink = lambda path: native_os.unlink(physical(path))
+    operations.chmod = lambda path, mode: native_os.chmod(physical(path), mode)
+    native_shutil = ic.shutil
+    monkeypatch.setattr(ic, "shutil", SimpleNamespace(**dict(vars(native_shutil),
+        rmtree=lambda path: native_shutil.rmtree(physical(path)))))
     monkeypatch.setattr(ic, "os", operations)
     monkeypatch.setattr(ic, "sys", SimpleNamespace(executable="/opt/spacr/_internal/spacr-update-helper"))
 
@@ -597,7 +609,14 @@ def privileged_debian_files(ic, tmp_path, monkeypatch):
             assert Path(physical(command[0])).read_bytes() == installed.read_bytes()
             events.append("copied-helper")
             return SimpleNamespace(returncode=state.child_code, stdout="bounded child result")
-        assert state.locked == 1, "package commands escaped the frontend lock"
+        if command[:2] == ["/usr/bin/dpkg-deb", "--extract"]:
+            assert state.locked == 0
+            target = Path(physical(command[3])) / "opt/spacr"
+            target.mkdir(parents=True)
+            (target / "spacr").write_bytes(b"new staged application fixture")
+            events.append("staged-payload")
+            return SimpleNamespace(returncode=0, stdout="modeled extraction")
+        assert state.locked == 1 or command[:2] == ["/usr/bin/dpkg-deb", "--field"], "package mutation escaped the frontend lock"
         assert kwargs["env"]["DPKG_FRONTEND_LOCKED"] == "1"
         assert kwargs["timeout"] == 1800
         if command[:2] == ["/usr/bin/dpkg-query", "--show"]:
@@ -788,3 +807,80 @@ def test_root_apply_initial_journal_failure_stops_all_download_and_package_work(
         ic._debian_apply_root_transaction(fixture.stage, "1.5.1.5", "1.5.1.4", fixture.uid)
     assert fixture.events == [] and fixture.calls == []
     assert sorted(path.name for path in fixture.stage_path.iterdir()) == ["spacr-update-helper"]
+
+
+@pytest.mark.parametrize("startup", ["failed", "uncertain"])
+def test_desktop_acknowledgment_controls_debian_rollback_and_retention(ic, startup):
+    runner = Packages()
+    states = []
+    def activated():
+        assert runner.version == "1.5.1.5"
+        assert "committed" not in states
+        if startup == "uncertain":
+            raise ic._UpdateActivationUnconfirmed("child may still be running")
+        raise RuntimeError("owned child stopped after failed startup")
+    with pytest.raises(RuntimeError):
+        ic._debian_package_transaction("new.deb", "old.deb", "1.5.1.4", "1.5.1.5",
+            verify=lambda version: runner.version == version, run=runner,
+            journal=states.append, after_activate=activated)
+    assert runner.version == ("1.5.1.4" if startup == "failed" else "1.5.1.5")
+    assert states[-1] == ("restored" if startup == "failed" else "desktop-unconfirmed")
+    assert "committed" not in states
+
+
+@pytest.mark.parametrize("cancel", [False, True])
+def test_root_stages_verified_payload_before_restart_and_never_mutates_on_cancel(
+        ic, privileged_debian_stage, monkeypatch, cancel):
+    fixture = privileged_debian_stage
+    stage = fixture.stage
+    monkeypatch.setattr(ic, "_desktop_process_identity", lambda _pid: (fixture.uid, "/opt/spacr/spacr"))
+    monkeypatch.setattr(ic, "_wait_for_exit", lambda _pid, **_kwargs: "restart" in fixture.events)
+    original = Path(fixture.physical("/opt/spacr/spacr")).read_bytes()
+    original_verify = ic._debian_verify_desktop
+    def verify(version, uid, **kwargs):
+        if "root" in kwargs:
+            assert fixture.state.locked == 0 and uid == fixture.uid
+            assert Path(fixture.physical(kwargs["root"] + "/spacr")).read_bytes() == b"new staged application fixture"
+            assert Path(fixture.physical("/opt/spacr/spacr")).read_bytes() == original
+            fixture.events.append("verified-stage")
+            return True
+        return original_verify(version, uid)
+    monkeypatch.setattr(ic, "_debian_verify_desktop", verify)
+    class Phase:
+        def __init__(self, descriptor, pid, executable):
+            assert (descriptor, pid, executable) == ("private-descriptor", 4242, "/opt/spacr/spacr")
+        def _send(self, phase, **details):
+            assert details["version"] == "1.5.1.5"
+            if phase == "prepared":
+                assert fixture.state.version == "1.5.1.4"
+                assert "verified-stage" in fixture.events
+            else:
+                assert phase == "activated" and fixture.state.version == "1.5.1.5"
+            fixture.events.append(phase)
+        def _receive(self, expected, **kwargs):
+            if "activate" in expected:
+                if cancel:
+                    return {"phase": "cancel"}
+                fixture.events.append("restart")
+                return {"phase": "activate"}
+            assert expected == {"confirmed", "failed", "retain"}
+            fixture.events.append("new-main-window")
+            return {"phase": "confirmed"}
+        def __exit__(self):
+            fixture.events.append("channel-closed")
+    monkeypatch.setattr(ic, "_UpdatePhaseClient", Phase)
+    if cancel:
+        with pytest.raises(RuntimeError, match="cancelled"):
+            ic._debian_apply_root_transaction(stage, "1.5.1.5", "1.5.1.4", fixture.uid,
+                phase_channel="private-descriptor", desktop_pid=4242)
+        assert fixture.state.version == "1.5.1.4"
+        assert not any(event.startswith("install:") for event in fixture.events)
+    else:
+        receipt = ic._debian_apply_root_transaction(stage, "1.5.1.5", "1.5.1.4", fixture.uid,
+            phase_channel="private-descriptor", desktop_pid=4242)
+        assert receipt["state"] == "committed"
+        required = ["staged-payload", "verified-stage", "prepared", "restart", "install:1.5.1.5",
+                    "activated", "new-main-window", "journal:committed"]
+        assert [fixture.events.index(event) for event in required] == sorted(fixture.events.index(event) for event in required)
+    assert not list(Path(fixture.physical("/opt")).glob(".spacr-staged-*"))
+    assert list(Path(fixture.physical(stage)).glob("*.deb"))
