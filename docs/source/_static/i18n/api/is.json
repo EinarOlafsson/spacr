@@ -184657,15 +184657,15 @@
     "spacr.restart_state.command": {
       "source_blocks_sha256": [
         "451ee26faaebbe68453c5fc28d92214cc4f617ee90238cf760fc09e0e9fa6ef0",
-        "ad5e4a220f6fde4ae10f44a4afdd847a2b4e0cb4b9657c6160d78c94901cc18e",
+        "a6d6d6d5b88ef533b8eebe3428ee783adbec9c778dd06373ee6d9851c9992b24",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "2569002df96948709a63745fb3dda3a6b851fdc67af20f4cfbf23569a503fdb6"
       ],
-      "source_sha256": "2fc677d9e825416cb90552fd4819f78a0ce6b358ad2af834957c1af2b4cd2caf",
-      "text": "Til baka komandi sem var notað til að byrja aftur PySide6 forrit.\n\nHugmyndin notar aktiv Python þýðinginn og útskýrandi :mod:`spacr.qt` inntalið, þannig að tvöfaldur endurstart kemur aftur til sömu GUI án þess að hætta á viðeigandi sem er fundið í gegnum ``PATH``.\n\nSkilar\n-------\nlistan str Command viðeigandi skilyrði fyrir :class:`subprocess.Popen`.",
+      "source_sha256": "4527f9bd4df21fa487028b6c81f71ac26d0d375f5e1a7e2044618d0013f2d69a",
+      "text": "Til baka komandi sem var notað til að byrja aftur PySide6 forrit.\n\nFrosið forrit endurræsir innifalda keyrsluskrá sína beint, án valkosta fyrir Python-túlkinn. Ófrosin uppsetning notar virka Python-túlkinn og skýrt tilgreinda innganginn :mod:`spacr.qt`. Báðar leiðir fara aftur í sama GUI án þess að treysta á keyrsluskrá sem finnst í ``PATH``.\n\nSkilar\n-------\nlistan str Command viðeigandi skilyrði fyrir :class:`subprocess.Popen`.",
       "translation_source_blocks_sha256": [
         "451ee26faaebbe68453c5fc28d92214cc4f617ee90238cf760fc09e0e9fa6ef0",
-        "ad5e4a220f6fde4ae10f44a4afdd847a2b4e0cb4b9657c6160d78c94901cc18e",
+        "a6d6d6d5b88ef533b8eebe3428ee783adbec9c778dd06373ee6d9851c9992b24",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "2569002df96948709a63745fb3dda3a6b851fdc67af20f4cfbf23569a503fdb6"
       ]

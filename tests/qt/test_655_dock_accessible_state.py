@@ -124,3 +124,27 @@ def test_ordinary_widget_accessibility_is_unchanged(qtbot):
     assert interface.role() == QAccessible.Client
     assert not interface.state().expandable
     assert QAccessibleActionInterface.pressAction() not in interface.actionInterface().actionNames()
+
+
+def test_assistive_focus_does_not_toggle_or_resize_the_dock(edge, qtbot):
+    from PySide6.QtWidgets import QPushButton
+
+    other = QPushButton('Other control', edge.parentWidget())
+    other.move(100, 100)
+    other.show()
+    edge.parentWidget().activateWindow()
+    other.setFocus(Qt.OtherFocusReason)
+    qtbot.waitUntil(other.hasFocus)
+    action = QAccessible.queryAccessibleInterface(edge).actionInterface()
+    focus = QAccessibleActionInterface.setFocusAction()
+    assert focus in action.actionNames()
+    width = edge._dock.width()
+    changed = []
+    edge.collapsedChanged.connect(changed.append)
+    action.doAction(focus)
+    qtbot.waitUntil(edge.hasFocus)
+    action.doAction(focus)
+    assert not edge.is_collapsed() and changed == []
+    assert edge._dock.width() == width
+    qtbot.keyClick(edge, Qt.Key_Tab)
+    assert other.hasFocus()

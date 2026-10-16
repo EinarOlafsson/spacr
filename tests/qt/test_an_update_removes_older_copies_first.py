@@ -175,6 +175,22 @@ def test_frozen_preparation_failure_keeps_the_window_alive(frozen_window, monkey
     assert (state.work / "cancelled.json").exists()
 
 
+def test_unknown_authenticated_readiness_keeps_the_window_alive(frozen_window):
+    state = frozen_window
+    state.handshake._write("readiness.json", "unexpected")
+    state.window._poll_frozen_update()
+    assert state.window.isVisible() and not state.window._closing
+    assert state.messages.warnings
+    assert not state.messages.informations
+    assert state.events == []
+    assert not (state.work / "approved.json").exists()
+    assert (state.work / "cancelled.json").exists()
+    assert not getattr(state.window, "_restart_after_update", False)
+    with pytest.raises(RuntimeError, match="cancelled"):
+        state.handshake.wait_for_shutdown(
+            lambda pid: pytest.fail("unknown readiness authorized shutdown"))
+
+
 def test_frozen_readiness_cancel_rejects_a_late_ready_message(frozen_window, monkeypatch):
     state = frozen_window
     state.handshake.ready()

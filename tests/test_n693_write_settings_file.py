@@ -66,3 +66,34 @@ def test_the_file_round_trips_through_both_loaders(tmp_path):
     assert load_settings(str(target)) == settings
     assert json.loads(target.with_suffix(".json").read_text()) == json.loads(
         json.dumps(settings))
+
+
+def test_export_refuses_redirected_staging_without_replacing_either_existing_file(tmp_path, monkeypatch):
+    import errno
+    import os
+
+    import pytest
+
+    from spacr import tabular
+
+    target = tmp_path / 'settings.csv'
+    write_settings_file({'src': '/original/plate', 'threshold': 1}, target)
+    unrelated = tmp_path / 'unrelated.csv'
+    unrelated.write_bytes(b'private unrelated table\x00\xff')
+    original = {path: path.read_bytes() for path in tmp_path.iterdir()}
+    resolve = tabular.resolve_path
+    redirected = []
+
+    def changed_table_destination(path, *args, **kwargs):
+        if '.spacr-settings-export-' in os.fspath(path):
+            redirected.append(path)
+            return str(unrelated)
+        return resolve(path, *args, **kwargs)
+
+    monkeypatch.setattr(tabular, 'resolve_path', changed_table_destination)
+    with pytest.raises(OSError) as caught:
+        write_settings_file({'src': '/new/plate', 'threshold': 2}, target)
+    assert caught.value.errno == errno.EINVAL
+    assert len(redirected) == 1
+    assert {path: path.read_bytes() for path in tmp_path.iterdir()} == original
+    assert load_settings_file(str(target)) == {'src': '/original/plate', 'threshold': 1}

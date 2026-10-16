@@ -1051,3 +1051,20 @@ def test_load_images_from_paths_reports_what_it_dropped(capsys, tmp_path):
     assert 'Error loading image from' in printed
     assert 'RUN INCOMPLETE' in printed          # and the shortfall is announced
     assert 'corrupt.tif' in printed
+
+
+def test_non_strict_refusal_is_still_logged_when_stack_capture_fails(monkeypatch, caplog):
+    import traceback
+
+    def unavailable_stack():
+        raise OSError('stack inspection unavailable')
+
+    monkeypatch.setattr(traceback, 'extract_stack', unavailable_stack)
+    with caplog.at_level('ERROR', logger='spacr.errors'):
+        result = raise_if_strict('input verification refused', settings={'strict_errors': False})
+    assert result is False
+    records = [record for record in caplog.records
+               if record.name == 'spacr.errors' and record.getMessage() == 'input verification refused']
+    assert len(records) == 1
+    assert records[0].levelname == 'ERROR'
+    assert records[0].spacr_call_site == []

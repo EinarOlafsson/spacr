@@ -184657,15 +184657,15 @@
     "spacr.restart_state.command": {
       "source_blocks_sha256": [
         "451ee26faaebbe68453c5fc28d92214cc4f617ee90238cf760fc09e0e9fa6ef0",
-        "ad5e4a220f6fde4ae10f44a4afdd847a2b4e0cb4b9657c6160d78c94901cc18e",
+        "a6d6d6d5b88ef533b8eebe3428ee783adbec9c778dd06373ee6d9851c9992b24",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "2569002df96948709a63745fb3dda3a6b851fdc67af20f4cfbf23569a503fdb6"
       ],
-      "source_sha256": "2fc677d9e825416cb90552fd4819f78a0ce6b358ad2af834957c1af2b4cd2caf",
-      "text": "PySide6 응용 프로그램을 다시 시작하는 데 사용 된 명령을 반환합니다.\n\n명령은 활성화된 것을 사용한다. Python 번역가와 명확한 :mod:`spacr.qt` 출입점, 그래서 강제 재시작은 동일한으로 돌아갑니다. GUI 실행 가능성에 의존하지 않고 발견된 ``PATH``.\n\n반환값\n-------\n:class:`subprocess.Popen`에 적합한 str 명령 논쟁 목록.",
+      "source_sha256": "4527f9bd4df21fa487028b6c81f71ac26d0d375f5e1a7e2044618d0013f2d69a",
+      "text": "PySide6 응용 프로그램을 다시 시작하는 데 사용 된 명령을 반환합니다.\n\n동결된 애플리케이션은 Python 인터프리터 플래그 없이 번들 실행 파일을 직접 다시 시작합니다. 동결되지 않은 설치는 활성 Python 인터프리터와 명시적인 :mod:`spacr.qt` 진입점을 사용합니다. 두 경로 모두 ``PATH`` 에서 찾은 실행 파일에 의존하지 않고 같은 GUI로 돌아갑니다.\n\n반환값\n-------\n:class:`subprocess.Popen`에 적합한 str 명령 논쟁 목록.",
       "translation_source_blocks_sha256": [
         "451ee26faaebbe68453c5fc28d92214cc4f617ee90238cf760fc09e0e9fa6ef0",
-        "ad5e4a220f6fde4ae10f44a4afdd847a2b4e0cb4b9657c6160d78c94901cc18e",
+        "a6d6d6d5b88ef533b8eebe3428ee783adbec9c778dd06373ee6d9851c9992b24",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "2569002df96948709a63745fb3dda3a6b851fdc67af20f4cfbf23569a503fdb6"
       ]

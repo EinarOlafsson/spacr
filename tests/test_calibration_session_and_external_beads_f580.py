@@ -4,6 +4,7 @@ from __future__ import annotations
 import csv
 
 import numpy as np
+import pytest
 import tifffile
 
 from spacr.intensity_rescale import (
@@ -301,3 +302,149 @@ def test_real_measurement_sqlite_keeps_session_provenance_and_refuses_changed_re
         measure.measure_crop(dict(options))
     assert database.read_bytes() == before
     assert reference.read_bytes() != original
+
+
+def _input_bytes(root):
+    return {str(path.relative_to(root)): path.read_bytes()
+            for path in root.rglob('*') if path.is_file()}
+
+
+@pytest.mark.parametrize('key,value,reason', [
+    ('intensity_calibration_sessions', [], 'path'),
+    ('intensity_calibration_beads', 12, 'path'),
+    ('intensity_calibration_session_column', None, 'column'),
+    ('intensity_calibration_session_column', '', 'column'),
+    ('intensity_calibration_session_column', '  ', 'column'),
+    ('intensity_calibration_session_column', 'filename', 'column'),
+    ('intensity_calibration_session_column', 12, 'column'),
+    ('intensity_calibration_statistic', 'mode', 'choice'),
+    ('intensity_calibration_offset', np.nan, 'finite'),
+    ('intensity_calibration_offset', np.inf, 'finite'),
+    ('intensity_calibration_offset', -np.inf, 'finite'),
+    ('intensity_calibration_reference_plate', ['plate1'], 'selection'),
+    ('intensity_calibration_reference_session', 12, 'selection'),
+])
+def test_invalid_session_options_refuse_without_rewriting_inputs(tmp_path, key, value, reason):
+    source, names, sessions, beads, rows = _recorded_inputs(tmp_path)
+    settings = _recorded_settings(sessions, intensity_calibration_reference_session='day1')
+    settings[key] = value
+    before = _input_bytes(tmp_path)
+    with pytest.raises(ValueError, match=reason) as caught:
+        _build_calibration_plan(source, names, settings)
+    assert key in str(caught.value) or 'reference_session' in str(caught.value)
+    assert _input_bytes(tmp_path) == before
+
+
+@pytest.mark.parametrize('damage,reason', [
+    ('empty', 'empty_sources'),
+    ('two-dimensional', 'merged_shape'),
+    ('labels-only', 'working_units'),
+    ('different-session-planes', 'incompatible_planes'),
+])
+def test_unusable_session_layout_refuses_instead_of_guessing_a_gain(tmp_path, damage, reason):
+    source, names, sessions, beads, rows = _recorded_inputs(tmp_path)
+    settings = _recorded_settings(sessions)
+    if damage == 'empty':
+        names = []
+    elif damage == 'two-dimensional':
+        np.save(source / names[0], np.zeros((8, 8), np.uint16))
+    elif damage == 'labels-only':
+        settings['nucleus_mask_dim'] = 0
+    else:
+        for name in names:
+            if name.endswith('_2.npy'):
+                data = np.load(source / name)
+                np.save(source / name, np.concatenate([data, np.zeros_like(data[..., :1])], axis=-1))
+    before = _input_bytes(tmp_path)
+    with pytest.raises(ValueError, match=reason):
+        _build_calibration_plan(source, names, settings)
+    assert _input_bytes(tmp_path) == before
+
+
+@pytest.mark.parametrize('damage,reason', [
+    ('two-dimensional-npy', 'merged_shape'),
+    ('wrong-npy-planes', 'planes'),
+    ('multiple-tiff-series', 'tiff_series'),
+    ('normalized-beads-for-raw-sample', 'working_units'),
+    ('reference-overflows-working-range', 'working_units'),
+])
+def test_external_reference_layout_and_units_are_verified_before_gains(tmp_path, damage, reason):
+    source = tmp_path / 'merged'
+    source.mkdir()
+    beads = tmp_path / 'beads'
+    beads.mkdir()
+    name = 'plate1_B02_1.npy'
+    _field(source, name, 1000)
+    if damage == 'two-dimensional-npy':
+        np.save(beads / 'plate1_A01_1.npy', np.full((8, 8), 1100, np.uint16))
+    elif damage == 'wrong-npy-planes':
+        np.save(beads / 'plate1_A01_1.npy', np.full((8, 8, 3), 1100, np.uint16))
+    elif damage == 'multiple-tiff-series':
+        with tifffile.TiffWriter(beads / 'plate1_A01_1.tif') as writer:
+            writer.write(np.full((8, 8), 1100, np.uint16), photometric='minisblack')
+            writer.write(np.full((9, 7), 1100, np.uint16), photometric='minisblack')
+    else:
+        value = .5 if damage == 'normalized-beads-for-raw-sample' else 70000
+        tifffile.imwrite(beads / 'plate1_A01_1.tif', np.full((8, 8), value),
+                         photometric='minisblack')
+    before = _input_bytes(tmp_path)
+    with pytest.raises(ValueError, match=reason):
+        _build_calibration_plan(source, [name], _settings(intensity_calibration_beads=str(beads)))
+    assert _input_bytes(tmp_path) == before
+
+
+@pytest.mark.parametrize('reference_value', [100.0, 50.0, np.nan])
+def test_session_reference_requires_positive_finite_signal_above_offset(tmp_path, reference_value):
+    source, names, sessions, beads, rows = _recorded_inputs(tmp_path)
+    path = source / 'plate1_A01_2.npy'
+    data = np.load(path).astype(np.float64)
+    data[..., 0] = reference_value
+    np.save(path, data)
+    before = _input_bytes(tmp_path)
+    with pytest.raises(ValueError, match='positive_reference'):
+        _build_calibration_plan(source, names, _recorded_settings(sessions))
+    assert _input_bytes(tmp_path) == before
+
+
+def test_version_two_plan_roundtrip_is_order_independent_and_binds_each_field(tmp_path):
+    import copy
+    import json
+
+    source, names, sessions, beads, rows = _recorded_inputs(tmp_path)
+    for name in names:
+        if '_B02_' in name:
+            data = np.load(source / name)
+            data[..., 1] = 17
+            np.save(source / name, data)
+    settings = _recorded_settings(sessions, intensity_calibration_reference_session='day2')
+    original_settings = copy.deepcopy(settings)
+    before = _input_bytes(tmp_path)
+    plan = _build_calibration_plan(source, names, settings)
+    assert _input_bytes(tmp_path) == before and settings == original_settings
+    _write_table(sessions, list(reversed(rows)))
+    reordered_inputs = _input_bytes(tmp_path)
+    repeated = _build_calibration_plan(source, list(reversed(names)) + names, settings)
+    assert _input_bytes(tmp_path) == reordered_inputs
+    assert repeated == plan
+    assert plan['version'] == 2 and plan['reference_session'] == 'day2'
+    loaded = json.loads(json.dumps(plan, sort_keys=True))
+    assert loaded == plan
+    for field, expected_gain in [(1, 2.5), (2, 1.0)]:
+        name = f'plate1_B02_{field}.npy'
+        data = np.load(source / name)
+        original = data.copy()
+        data.flags.writeable = False
+        calibrated, record = _apply_calibration(data, name, {
+            **settings, CALIBRATION_SETTINGS_KEY: loaded})
+        np.testing.assert_array_equal(data, original)
+        assert not np.shares_memory(calibrated, data)
+        np.testing.assert_array_equal(calibrated[..., 0], np.full((8, 8), 2600))
+        np.testing.assert_array_equal(calibrated[..., 1], original[..., 1])
+        assert record['plateID'] == 'plate1' and record['sessionID'] == f'day{field}'
+        assert record['reference_session'] == 'day2' and record['gain'] == {'0': expected_gain}
+    for unknown in ('plate1_B02_3.npy', 'plate9_B02_1.npy'):
+        with pytest.raises(ValueError, match='no calibration gain'):
+            _apply_calibration(data, unknown, {**settings, CALIBRATION_SETTINGS_KEY: loaded})
+        np.testing.assert_array_equal(data, original)
+    assert _input_bytes(tmp_path) == reordered_inputs
+    assert settings == original_settings and loaded == plan

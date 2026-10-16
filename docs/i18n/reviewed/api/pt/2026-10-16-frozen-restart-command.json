@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical authorship by Codex; no human or native-speaker signoff",
+  "note": "One actual source/context-bound restart command paragraph; independent AI technical peer accepted, with no human or native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.restart_state.command#1",
+      "source": "A frozen application restarts its bundled executable directly, without Python interpreter flags. An unfrozen installation uses the active Python interpreter and the explicit :mod:`spacr.qt` entry point. Both routes return to the same GUI without depending on an executable found through ``PATH``.",
+      "source_sha256": "a6d6d6d5b88ef533b8eebe3428ee783adbec9c778dd06373ee6d9851c9992b24",
+      "context": "A frozen application restarts its bundled executable directly, without Python interpreter flags. An unfrozen installation uses the active Python interpreter and the explicit :mod:`spacr.qt` entry point. Both routes return to the same GUI without depending on an executable found through ``PATH``.",
+      "translation": "Uma aplicação congelada reinicia diretamente o executável incluído, sem opções do interpretador Python. Uma instalação não congelada usa o interpretador Python ativo e o ponto de entrada explícito :mod:`spacr.qt`. Ambas as vias regressam à mesma GUI sem depender de um executável encontrado através de ``PATH``."
+    }
+  ]
+}

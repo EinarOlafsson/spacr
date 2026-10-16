@@ -402,13 +402,14 @@ def _clear_drafts() -> bool:
 def command() -> List[str]:
     """Return the command used to restart the PySide6 application.
 
-    The command uses the active Python interpreter and the explicit
-    :mod:`spacr.qt` entry point, so a forced restart returns to the same GUI
-    without depending on an executable found through ``PATH``.
+    A frozen application restarts its bundled executable directly, without
+    Python interpreter flags. An unfrozen installation uses the active Python
+    interpreter and the explicit :mod:`spacr.qt` entry point. Both routes return
+    to the same GUI without depending on an executable found through ``PATH``.
 
     Returns
     -------
     list of str
         Command arguments suitable for :class:`subprocess.Popen`.
     """
-    return [sys.executable, "-m", "spacr.qt"]
+    return [sys.executable] if getattr(sys, "frozen", False) else [sys.executable, "-m", "spacr.qt"]

@@ -59,3 +59,38 @@ def test_only_matching_namespaced_settings_move_and_skip_reports_survive():
         {"section": "invalid", "why": "not a state document"},
     ]
     assert states == before
+
+
+def test_unknown_numeric_section_cannot_replace_live_named_state():
+    live = {'src': ['existing.csv']}
+    before = copy.deepcopy(live)
+
+    class Settings:
+        def apply_workspace_state(self, state):
+            live.clear()
+            live.update(state)
+
+    document = {'sections': {7: {'src': ['unrecognized.csv']}}}
+    saved = copy.deepcopy(document)
+    report = workspace.restore({'settings': Settings()}, document)
+    assert report['restored'] == []
+    assert report['skipped'] == [{'section': 7, 'why': 'nothing on screen owns it'}]
+    assert live == before
+    assert document == saved
+
+
+def test_settings_without_a_saved_dependent_panel_restore_normally():
+    live = {'src': ['existing.csv']}
+
+    class Settings:
+        def apply_workspace_state(self, state):
+            live.clear()
+            live.update(state)
+            return True
+
+    document = {'sections': {'mask:settings': {'src': ['restored.csv']}}}
+    before = copy.deepcopy(document)
+    report = workspace.restore({'mask:settings': Settings()}, document)
+    assert report == {'restored': ['mask:settings'], 'skipped': [], 'files': []}
+    assert live == {'src': ['restored.csv']}
+    assert document == before

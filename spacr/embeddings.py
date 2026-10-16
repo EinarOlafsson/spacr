@@ -1486,7 +1486,8 @@ def _dino_classifier_from_checkpoint(path: str, *, num_classes: int,
     import torch
     from .qt.i18n import tr
 
-    with open(path, "rb") as stream:
+    with open(path, "rb", buffering=0) as stream:
+        before = os.fstat(stream.fileno())
         before_hash = hashlib.sha256()
         for chunk in iter(lambda: stream.read(1 << 20), b""):
             before_hash.update(chunk)
@@ -1497,7 +1498,11 @@ def _dino_classifier_from_checkpoint(path: str, *, num_classes: int,
         after_hash = hashlib.sha256()
         for chunk in iter(lambda: stream.read(1 << 20), b""):
             after_hash.update(chunk)
-        if after_hash.hexdigest() != digest:
+        after = os.fstat(stream.fileno())
+        identity = lambda status: (
+            status.st_dev, status.st_ino, status.st_size,
+            status.st_mtime_ns, status.st_ctime_ns)
+        if identity(before) != identity(after) or after_hash.hexdigest() != digest:
             raise EmbeddingError(tr(
                 "Own-DINO classifier settings, checkpoint or input are incompatible."))
     if (not isinstance(state, Mapping) or not isinstance(state.get("setup"), Mapping)

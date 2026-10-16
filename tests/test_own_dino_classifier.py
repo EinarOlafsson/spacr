@@ -269,3 +269,144 @@ def test_foreign_output_appearing_after_preflight_is_preserved(checkpoint, monke
             groups=[f'w{i//2}' for i in range(8)], source_channels=[0, 1],
             epochs=1, batch_size=64)
     assert output.read_bytes() == foreign
+
+
+@pytest.mark.parametrize('change', [
+    {'normalize_features': 'yes'}, {'channel_policy': 'unknown'},
+    {'in_chans': 3}, {'source_sha256': 'A' * 64},
+    {'source_sha256': None}, {'source_sha256': 'a' * 63},
+])
+def test_saved_constructor_contract_refuses_before_creating_an_encoder(checkpoint, change):
+    path, _, calls = checkpoint()
+    config = dict(arch='tiny_local', in_chans=2, size=4, channel_policy='project',
+                  scale=[10., 20.], source_channels=[3, 0], num_classes=2,
+                  freeze_encoder=True, normalize_features=True, source_sha256='a' * 64)
+    config.update(change)
+    original = path.read_bytes()
+    with pytest.raises(emb.EmbeddingError):
+        emb._dino_classifier_from_config(config)
+    assert calls == [] and path.read_bytes() == original
+
+
+def test_incomplete_constructor_contract_is_a_domain_refusal_not_a_partial_model(checkpoint):
+    path, _, calls = checkpoint()
+    before = path.read_bytes()
+    with pytest.raises(emb.EmbeddingError) as caught:
+        emb._dino_classifier_from_config({'in_chans': 2})
+    assert isinstance(caught.value.__cause__, KeyError)
+    assert calls == [] and path.read_bytes() == before
+
+
+@pytest.mark.parametrize('payload', [[], {}, {'setup': [], 'teacher': {}},
+                                     {'setup': {}, 'teacher': []}])
+def test_teacher_structure_refuses_before_encoder_construction(checkpoint, payload):
+    path, _, calls = checkpoint()
+    torch.save(payload, path)
+    before = path.read_bytes()
+    with pytest.raises(emb.EmbeddingError):
+        emb._dino_classifier_from_checkpoint(path, num_classes=2, source_channels=[0, 1])
+    assert calls == [] and path.read_bytes() == before
+
+
+@pytest.mark.parametrize('weight', [1, torch.tensor(float('nan')),
+                                   torch.tensor(float('inf')), torch.tensor(1 + 2j)])
+def test_teacher_rejects_non_tensor_nonfinite_or_complex_weights(checkpoint, weight):
+    path, _, calls = checkpoint()
+    payload = torch.load(path, weights_only=True)
+    payload['teacher']['conv.weight'] = weight
+    torch.save(payload, path)
+    before = path.read_bytes()
+    with pytest.raises(emb.EmbeddingError):
+        emb._dino_classifier_from_checkpoint(path, num_classes=2, source_channels=[0, 1])
+    assert calls == [] and path.read_bytes() == before
+
+
+@pytest.mark.parametrize('restore_original', [False, True])
+def test_teacher_decode_has_no_retry_when_held_bytes_change(checkpoint, monkeypatch, restore_original):
+    import os
+
+    path, _, calls = checkpoint()
+    original_load = torch.load
+    attempts = []
+    original = path.read_bytes()
+    original_status = path.stat()
+    def load_and_change(stream, **kwargs):
+        assert kwargs == {'map_location': 'cpu', 'weights_only': True}
+        attempts.append(stream.fileno())
+        payload = original_load(stream, **kwargs)
+        changed = original[:-1] + bytes([original[-1] ^ 1])
+        path.write_bytes(changed)
+        if restore_original:
+            path.write_bytes(original)
+            os.utime(path, ns=(original_status.st_atime_ns, original_status.st_mtime_ns))
+            assert path.stat().st_ctime_ns != original_status.st_ctime_ns
+        return payload
+    monkeypatch.setattr(torch, 'load', load_and_change)
+    with pytest.raises(emb.EmbeddingError):
+        emb._dino_classifier_from_checkpoint(path, num_classes=2, source_channels=[0, 1])
+    assert len(attempts) == 1 and calls == []
+    expected = original if restore_original else original[:-1] + bytes([original[-1] ^ 1])
+    assert path.read_bytes() == expected
+
+
+@pytest.mark.parametrize('fault', [
+    'zero-epochs', 'boolean-epochs', 'zero-batch', 'negative-seed', 'boolean-seed',
+    'zero-rate', 'nonfinite-rate', 'boolean-rate', 'empty-crops', 'nan-crops',
+    'boolean-crops', 'complex-crops', 'empty-channels', 'duplicate-channels',
+    'missing-channel', 'boolean-channel', 'missing-label', 'unknown-label',
+    'missing-group', 'unknown-group', 'one-class', 'existing-output',
+    'teacher-output', 'float32-overflow',
+])
+def test_training_preflight_preserves_teacher_crops_and_existing_outputs(checkpoint, tmp_path, fault):
+    import numpy as np
+
+    path, _, calls = checkpoint()
+    original_teacher = path.read_bytes()
+    crops = np.ones((8, 4, 4, 2), dtype=np.float32)
+    options = dict(labels=['a', 'b'] * 4, groups=[f'well{i // 2}' for i in range(8)],
+                   source_channels=[0, 1], epochs=1, batch_size=4)
+    output = tmp_path / 'should-not-be-created.pt'
+    scalar_faults = {'zero-epochs': ('epochs', 0), 'boolean-epochs': ('epochs', True),
+        'zero-batch': ('batch_size', 0), 'negative-seed': ('seed', -1),
+        'boolean-seed': ('seed', True), 'zero-rate': ('lr', 0),
+        'nonfinite-rate': ('lr', float('inf')), 'boolean-rate': ('lr', True)}
+    if fault in scalar_faults:
+        key, value = scalar_faults[fault]
+        options[key] = value
+    elif fault == 'empty-crops':
+        crops = crops[:0]
+    elif fault == 'nan-crops':
+        crops[0, 0, 0, 0] = np.nan
+    elif fault == 'boolean-crops':
+        crops = crops.astype(bool)
+    elif fault == 'complex-crops':
+        crops = crops.astype(complex)
+    elif fault.endswith('-channel') or fault.endswith('-channels'):
+        options['source_channels'] = {'empty-channels': [], 'duplicate-channels': [0, 0],
+            'missing-channel': [0, 2], 'boolean-channel': [True, 1]}[fault]
+    elif fault == 'missing-label':
+        options['labels'] = options['labels'][:-1]
+    elif fault == 'unknown-label':
+        options['labels'][0] = None
+    elif fault == 'missing-group':
+        options['groups'] = options['groups'][:-1]
+    elif fault == 'unknown-group':
+        options['groups'][0] = 'unknown'
+    elif fault == 'one-class':
+        options['labels'] = ['a'] * len(crops)
+    elif fault == 'existing-output':
+        output.write_bytes(b'previous unrelated classifier artifact')
+    elif fault == 'teacher-output':
+        output = path
+    else:
+        assert fault == 'float32-overflow'
+        crops = np.full(crops.shape, np.finfo(np.float64).max)
+    before = crops.copy()
+    existing = output.read_bytes() if output.exists() else None
+    with np.errstate(over='ignore'):
+        with pytest.raises(emb.EmbeddingError):
+            emb._dino_finetune_classifier(crops, path, output, **options)
+    np.testing.assert_array_equal(crops, before)
+    assert path.read_bytes() == original_teacher and calls == []
+    assert (output.read_bytes() if output.exists() else None) == existing
+    assert not list(tmp_path.glob('.spacr-own-dino-*'))

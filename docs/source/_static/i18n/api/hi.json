@@ -184657,15 +184657,15 @@
     "spacr.restart_state.command": {
       "source_blocks_sha256": [
         "451ee26faaebbe68453c5fc28d92214cc4f617ee90238cf760fc09e0e9fa6ef0",
-        "ad5e4a220f6fde4ae10f44a4afdd847a2b4e0cb4b9657c6160d78c94901cc18e",
+        "a6d6d6d5b88ef533b8eebe3428ee783adbec9c778dd06373ee6d9851c9992b24",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "2569002df96948709a63745fb3dda3a6b851fdc67af20f4cfbf23569a503fdb6"
       ],
-      "source_sha256": "2fc677d9e825416cb90552fd4819f78a0ce6b358ad2af834957c1af2b4cd2caf",
-      "text": "PySide6 अनुप्रयोग को पुनरारंभ करने के लिए उपयोग किए गए कमांड को वापस करें।\n\nकमांड में सक्रिय Python अनुवादक और स्पष्ट :mod:`spacr.qt` प्रवेश बिंदु का उपयोग किया जाता है, इसलिए एक मजबूर पुनरारंभ एक ही GUI पर वापस आता है, ``PATH`` के माध्यम से पाए जाने वाले निष्पादक पर निर्भर किए बिना।\n\nरिटर्न\n-------\nstr कमांड तर्कों की सूची :class:`subprocess.Popen` के लिए उपयुक्त है।",
+      "source_sha256": "4527f9bd4df21fa487028b6c81f71ac26d0d375f5e1a7e2044618d0013f2d69a",
+      "text": "PySide6 अनुप्रयोग को पुनरारंभ करने के लिए उपयोग किए गए कमांड को वापस करें।\n\nफ्रोज़न अनुप्रयोग अपने बंडल में शामिल निष्पादन योग्य प्रोग्राम को Python इंटरप्रेटर के फ़्लैग के बिना सीधे पुनः शुरू करता है। गैर-फ्रोज़न इंस्टॉलेशन सक्रिय Python इंटरप्रेटर और स्पष्ट प्रवेश बिंदु :mod:`spacr.qt` का उपयोग करता है। दोनों मार्ग ``PATH`` से मिले किसी निष्पादन योग्य प्रोग्राम पर निर्भर हुए बिना उसी GUI पर लौटते हैं।\n\nरिटर्न\n-------\nstr कमांड तर्कों की सूची :class:`subprocess.Popen` के लिए उपयुक्त है।",
       "translation_source_blocks_sha256": [
         "451ee26faaebbe68453c5fc28d92214cc4f617ee90238cf760fc09e0e9fa6ef0",
-        "ad5e4a220f6fde4ae10f44a4afdd847a2b4e0cb4b9657c6160d78c94901cc18e",
+        "a6d6d6d5b88ef533b8eebe3428ee783adbec9c778dd06373ee6d9851c9992b24",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "2569002df96948709a63745fb3dda3a6b851fdc67af20f4cfbf23569a503fdb6"
       ]

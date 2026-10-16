@@ -686,6 +686,10 @@ def launch_updated_app() -> int:
     argv = command()
     if not getattr(sys, "frozen", False):
         argv.insert(1, "-I")
+    else:
+        environment = dict(os.environ)
+        environment["PYINSTALLER_RESET_ENVIRONMENT"] = "1"
+        return _spawn_detached(argv, env=environment, cwd=os.path.expanduser("~"))
     return _spawn_detached(argv, cwd=os.path.expanduser("~"))
 
 
