@@ -336,8 +336,10 @@ def _pip_lock_text(packages: Dict[str, str]) -> str:
     distributions' metadata when pip cannot be run, so a lockfile is always
     written.
     """
-    frozen = _run_quiet([sys.executable, "-m", "pip", "freeze",
-                         "--all", "--disable-pip-version-check"])
+    frozen = None
+    if not getattr(sys, "frozen", False):
+        frozen = _run_quiet([sys.executable, "-m", "pip", "freeze",
+                             "--all", "--disable-pip-version-check"])
     if frozen:
         return frozen if frozen.endswith("\n") else frozen + "\n"
     lines = ["# pip freeze was unavailable; read from package metadata."]

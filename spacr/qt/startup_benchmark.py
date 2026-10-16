@@ -14,6 +14,7 @@ import os
 import sys
 import threading
 import time
+import weakref
 from typing import Callable, Iterable, Optional, Union
 
 from PySide6.QtCore import QObject, QTimer
@@ -1329,10 +1330,18 @@ class _DistributionSmokeController(QObject):
                 raise RuntimeError('Could not retain the actual Preferences screenshot')
             self.record['native_menu']['preferences_opened'] = True
             self.record['native_menu']['dialog_class'] = type(dialog).__name__
+            self._native_preferences_ref = weakref.ref(dialog)
             self.phase = 'native-menu-closing'
             dialog.reject()
         elif self.phase == 'native-menu-ready-to-quit':
-            if self.app.activeModalWidget() is not None:
+            modal = self.app.activeModalWidget()
+            if modal is not None:
+                reference = getattr(self, '_native_preferences_ref', None)
+                observed = reference() if reference is not None else None
+                self.record['native_menu']['blocking_modal'] = dict(
+                    class_name=type(modal).__name__, visible=modal.isVisible(),
+                    same_observed_wrapper=(modal is observed if observed is not None else None))
+                self._write()
                 raise RuntimeError('Preferences did not close before native Quit')
             self.phase = 'native-menu-quitting'
             self.record['native_menu']['quit_dispatched'] = True

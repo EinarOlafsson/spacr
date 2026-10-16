@@ -904,3 +904,8 @@ Related native/coordinator/GUI checks pass; normal nine-language generation, aud
 BLOCKED ON MAINTAINER: on disposable Windows, install the matching new desktop candidate first, then test its frozen in-app upgrade with published-checksum assets, UAC accept/cancel and actual restarted executable/module/version.
 Repeat native online/frozen old-to-new and same-version installs on Windows/macOS/Linux; verify models/cache/preferences, default-off cleanup and macOS GUI-only prompts; inject permission/disk/import failures and interrupted recovery.
 Native acceptance and full green hosted CI remain required before release; the installer wait timeout starts after UAC returns, not while the consent window is pending.
+
+2026-10-16 — Frozen environment capture now uses installed metadata instead of relaunching the GUI executable as pip; 13 related checks pass.
+Excluded only PySide6 6.12.0 after a Python3.10 painter reproduced fatal None reference loss; the same 10,000-frame control passes with6.11.2. Nine dependency checks pass.
+Native macOS rejection now records the blocking modal without extending its deadline or bypassing Quit safety; eight related checks pass.
+Native installer CI also triggers on environment-capture changes; its targeted workflow check passes. New native acceptance and full green CI remain required; wholeN703 is open.

@@ -1504,6 +1504,43 @@ def test_no_console_script_name_is_declared_twice():
     )
 
 
+
+@pytest.mark.parametrize("group", ["core", "qt", "flowview", "tutorial", "all"])
+def test_qt_requirements_exclude_only_the_broken_6120_release(group):
+    """A Qt binding reference-count regression must not ship in any Qt extra."""
+    from packaging.requirements import Requirement
+
+    values = _core_dependencies() if group == "core" else _extras()[group]
+    requirements = [Requirement(value) for value in values
+                    if _name_of(value) == "pyside6"]
+    assert len(requirements) == 1
+    specifier = requirements[0].specifier
+    assert "6.12.0" not in specifier
+    for version in ("6.6.3.1", "6.11.2", "6.12.1"):
+        assert version in specifier, (group, version)
+    assert "6.5.3" not in specifier
+    assert "7.0" not in specifier
+
+
+def test_native_contrast_install_excludes_the_same_broken_qt_release():
+    """The no-dependency native GUI install must honor the binding exclusion."""
+    import shlex
+    from packaging.requirements import Requirement
+
+    workflow = (WORKFLOWS / "startup-contrast-native.yml").read_text()
+    requirements = [Requirement(token)
+                    for line in workflow.splitlines() if "pip install" in line
+                    for token in shlex.split(line.strip())
+                    if token.startswith("PySide6")]
+    assert len(requirements) == 1
+    specifier = requirements[0].specifier
+    assert "6.12.0" not in specifier
+    for version in ("6.8.0", "6.11.2", "6.12.1"):
+        assert version in specifier
+    assert "6.6.3.1" not in specifier
+    assert "7.0" not in specifier
+
+
 def test_console_scripts_and_extras_agree_about_qt():
     """The Qt entry points must have a declared PySide6 dependency.
 

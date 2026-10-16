@@ -19,6 +19,7 @@ on:
       - packaging/spacr.spec
       - packaging/spacr_launcher.py
       - spacr/install_cleanup.py
+      - spacr/run_journal.py
       - packaging/verify_claude_native_install.ps1
       - packaging/verify_claude_native_install.sh
       - spacr/qt/startup_benchmark.py

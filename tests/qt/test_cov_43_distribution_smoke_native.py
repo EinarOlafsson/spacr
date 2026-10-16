@@ -12,6 +12,7 @@ from __future__ import annotations
 import ctypes
 import json
 import sys
+import weakref
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -369,6 +370,8 @@ def test_preferences_are_waited_for_then_photographed_and_closed(
     assert dialog.rejected and fake.phase == "native-menu-closing"
     assert fake.record["native_menu"]["preferences_opened"] is True
     assert fake.record["native_menu"]["dialog_class"] == "_Dialog"
+    assert isinstance(fake._native_preferences_ref, weakref.ReferenceType)
+    assert fake._native_preferences_ref() is dialog
 
 
 @pytest.mark.parametrize("dialog,match", [
@@ -383,11 +386,25 @@ def test_a_wrong_or_unrecorded_preferences_dialog_is_refused(
         Controller._poll_native_menu_check(fake)
 
 
-def test_quit_waits_for_preferences_to_close(monkeypatch, tmp_path):
-    fake = _polling(monkeypatch, tmp_path, "native-menu-ready-to-quit",
-                    _Dialog())
+@pytest.mark.parametrize("visible", [False, True])
+@pytest.mark.parametrize("observed_state", ["same", "other", "gone"])
+def test_quit_waits_for_preferences_to_close(monkeypatch, tmp_path, visible, observed_state):
+    modal = _Dialog(visible=visible)
+    fake = _polling(monkeypatch, tmp_path, "native-menu-ready-to-quit", modal)
+    observed = modal if observed_state == "same" else _Dialog()
+    fake._native_preferences_ref = weakref.ref(observed)
+    if observed_state == "gone":
+        del observed
+        assert fake._native_preferences_ref() is None
     with pytest.raises(RuntimeError, match="did not close before native Quit"):
         Controller._poll_native_menu_check(fake)
+    expected = {"class_name": "_Dialog", "visible": visible,
+                "same_observed_wrapper": None if observed_state == "gone" else observed_state == "same"}
+    assert fake.record["native_menu"]["blocking_modal"] == expected
+    assert json.loads(fake.output.read_text())["native_menu"]["blocking_modal"] == expected
+    assert fake.phase == "native-menu-ready-to-quit"
+    assert not fake.record["native_menu"].get("quit_dispatched")
+    assert not fake.calls
 
 
 @pytest.mark.parametrize("mode", ["system-menu-on-cocoa",

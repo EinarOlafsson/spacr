@@ -162,6 +162,51 @@ def test_without_pip_the_lock_is_read_from_metadata(monkeypatch):
     assert "spacr==1.5" in text.splitlines()
 
 
+def test_frozen_environment_capture_never_relaunches_the_application(monkeypatch, tmp_path):
+    from types import SimpleNamespace
+
+    calls = []
+
+    def application_launcher(command, **kwargs):
+        calls.append((command, kwargs))
+        return SimpleNamespace(returncode=0, stdout="GUI application output\n")
+
+    packages = {"numpy": "2.0.0", "spacr": "1.5.1.4"}
+    before = dict(packages)
+    with monkeypatch.context() as patch:
+        patch.setattr(run_journal.sys, "frozen", True, raising=False)
+        patch.setattr(run_journal.sys, "executable", str(tmp_path / "spacr"))
+        patch.setattr(run_journal.subprocess, "run", application_launcher)
+        first = run_journal._pip_lock_text(packages)
+        second = run_journal._pip_lock_text(packages)
+    assert calls == []
+    assert first == second == (
+        "# pip freeze was unavailable; read from package metadata.\n"
+        "numpy==2.0.0\nspacr==1.5.1.4\n")
+    assert packages == before
+
+
+@pytest.mark.parametrize("output", ["numpy==2.0.0", "numpy==2.0.0\n"])
+def test_unfrozen_environment_capture_keeps_the_interpreter_pip_command(monkeypatch, output):
+    from types import SimpleNamespace
+
+    calls = []
+
+    def pip(command, **kwargs):
+        calls.append((command, kwargs))
+        return SimpleNamespace(returncode=0, stdout=output)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(run_journal.sys, "frozen", False, raising=False)
+        patch.setattr(run_journal.subprocess, "run", pip)
+        text = run_journal._pip_lock_text({"fallback-only": "9.0"})
+    assert text == "numpy==2.0.0\n"
+    assert calls == [([run_journal.sys.executable, "-m", "pip", "freeze", "--all",
+                       "--disable-pip-version-check"], {
+        "capture_output": True, "text": True, "timeout": run_journal._ENV_LOCK_TIMEOUT_S,
+        "check": False, "stdin": run_journal.subprocess.DEVNULL})]
+
+
 def test_outside_conda_only_the_pip_lock_is_written(journal, monkeypatch):
     monkeypatch.setattr(run_journal, "_conda_lock_text", lambda: None)
     run, manifest = _open()
