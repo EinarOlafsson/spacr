@@ -22,7 +22,7 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
    :target: https://pypi.org/project/spacr/
    :alt: Python 3.9 till 3.14
 
-.. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/nightly?logo=codecov&logoColor=white
+.. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/main?logo=codecov&logoColor=white
    :target: https://app.codecov.io/github/EinarOlafsson/spacr
    :alt: Testtäckning på Codecov
 
@@ -111,27 +111,15 @@ Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/try-spacr-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/try-spacr-2.desktop.svg"><img src="../../readme_images/sv/try-spacr-2.svg" alt="Använd Ladda testdata… i Import, Make Masks, Annotate eller en analysskärm för att hämta exempeldata. Från en terminal använder du spacr-download."></picture></a></div>
-
-.. raw:: html
-
    <div><a href="../../readme_text/sv/hardware-support.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/hardware-support.desktop.svg"><img src="../../readme_images/sv/hardware-support.svg" alt="Hårdvarustöd."></picture></a></div>
 
 .. spacr-hardware-begin
 
 .. raw:: html
 
-   <div><a href="../../readme_text/sv/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/generated-hardware-1.desktop.svg"><img src="../../readme_images/sv/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. stöds (stabilt) implementerat (beta) endast CPU-stöd."></picture></a></div>
-
-.. raw:: html
-
-   <div><a href="../../readme_text/sv/generated-hardware-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/generated-hardware-2.desktop.svg"><img src="../../readme_images/sv/generated-hardware-2.svg" alt="Linux (x86-64, ARM64): True 3D, provas i ordning Vulkan (wgpu), OpenGL, CPU. Windows (x64, ARM64): True 3D, provas i ordning Vulkan / Direct3D 12 (wgpu), OpenGL, CPU. macOS (Intel, Apple silicon): True 3D, provas i ordning Metal (wgpu), OpenGL, CPU. Utan wgpu: True 3D, provas i ordning OpenGL, CPU (Python 3.9, andra processorer, Linux med glibc äldre än 2.28 eller installerat utan wgpu)."></picture></a></div>
+   <div><a href="../../readme_text/sv/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/generated-hardware-1.desktop.svg"><img src="../../readme_images/sv/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU, 3D GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU, 3D CPU. stöds (stabilt) implementerat (beta) endast CPU-stöd."></picture></a></div>
 
 .. spacr-hardware-end
-
-.. raw:: html
-
-   <div><a href="../../readme_text/sv/hardware-support-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/sv/hardware-support-2.desktop.svg"><img src="../../readme_images/sv/hardware-support-2.svg" alt="CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM took 444.5 s on the CPU and 3.2 s on Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This is a historical example, not a speed guarantee. GPU acceleration requires a usable backend and compatible libraries. See the recorded hardware measurement."></picture></a></div>
 
 .. raw:: html
 

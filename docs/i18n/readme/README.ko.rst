@@ -22,7 +22,7 @@
    :target: https://pypi.org/project/spacr/
    :alt: Python 3.9~3.14
 
-.. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/nightly?logo=codecov&logoColor=white
+.. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/main?logo=codecov&logoColor=white
    :target: https://app.codecov.io/github/EinarOlafsson/spacr
    :alt: Codecov 테스트 커버리지
 
@@ -111,27 +111,15 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/try-spacr-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/try-spacr-2.desktop.svg"><img src="../../readme_images/ko/try-spacr-2.svg" alt="Import, Make Masks, Annotate 또는 분석 화면에서 테스트 데이터 불러오기…를 사용하여 예제 데이터를 다운로드합니다. 터미널에서는 spacr-download를 사용합니다."></picture></a></div>
-
-.. raw:: html
-
    <div><a href="../../readme_text/ko/hardware-support.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/hardware-support.desktop.svg"><img src="../../readme_images/ko/hardware-support.svg" alt="하드웨어 지원."></picture></a></div>
 
 .. spacr-hardware-begin
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/generated-hardware-1.desktop.svg"><img src="../../readme_images/ko/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. 지원 (안정) 구현됨 (베타) CPU만 지원."></picture></a></div>
-
-.. raw:: html
-
-   <div><a href="../../readme_text/ko/generated-hardware-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/generated-hardware-2.desktop.svg"><img src="../../readme_images/ko/generated-hardware-2.svg" alt="Linux (x86-64, ARM64): True 3D, 순서대로 시도 Vulkan (wgpu), OpenGL, CPU. Windows (x64, ARM64): True 3D, 순서대로 시도 Vulkan / Direct3D 12 (wgpu), OpenGL, CPU. macOS (Intel, Apple silicon): True 3D, 순서대로 시도 Metal (wgpu), OpenGL, CPU. wgpu 없음: True 3D, 순서대로 시도 OpenGL, CPU (Python 3.9, 기타 프로세서, glibc 2.28 미만 Linux 또는 wgpu 없이 설치)."></picture></a></div>
+   <div><a href="../../readme_text/ko/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/generated-hardware-1.desktop.svg"><img src="../../readme_images/ko/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU, 3D GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU, 3D CPU. 지원 (안정) 구현됨 (베타) CPU만 지원."></picture></a></div>
 
 .. spacr-hardware-end
-
-.. raw:: html
-
-   <div><a href="../../readme_text/ko/hardware-support-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/hardware-support-2.desktop.svg"><img src="../../readme_images/ko/hardware-support-2.svg" alt="CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM took 444.5 s on the CPU and 3.2 s on Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This is a historical example, not a speed guarantee. GPU acceleration requires a usable backend and compatible libraries. See the recorded hardware measurement."></picture></a></div>
 
 .. raw:: html
 

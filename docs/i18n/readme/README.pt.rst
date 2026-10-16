@@ -22,7 +22,7 @@ Site: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/p
    :target: https://pypi.org/project/spacr/
    :alt: Python 3.9 a 3.14
 
-.. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/nightly?logo=codecov&logoColor=white
+.. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/main?logo=codecov&logoColor=white
    :target: https://app.codecov.io/github/EinarOlafsson/spacr
    :alt: Cobertura de testes no Codecov
 
@@ -111,27 +111,15 @@ Site: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/p
 
 .. raw:: html
 
-   <div><a href="../../readme_text/pt/try-spacr-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/try-spacr-2.desktop.svg"><img src="../../readme_images/pt/try-spacr-2.svg" alt="Use Carregar dados de teste… em Import, Make Masks, Annotate ou em uma tela de ensaio para baixar dados de exemplo. No terminal, use spacr-download."></picture></a></div>
-
-.. raw:: html
-
    <div><a href="../../readme_text/pt/hardware-support.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/hardware-support.desktop.svg"><img src="../../readme_images/pt/hardware-support.svg" alt="Suporte de hardware."></picture></a></div>
 
 .. spacr-hardware-begin
 
 .. raw:: html
 
-   <div><a href="../../readme_text/pt/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/generated-hardware-1.desktop.svg"><img src="../../readme_images/pt/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. suportado (estável) implementado (beta) apenas suporte a CPU."></picture></a></div>
-
-.. raw:: html
-
-   <div><a href="../../readme_text/pt/generated-hardware-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/generated-hardware-2.desktop.svg"><img src="../../readme_images/pt/generated-hardware-2.svg" alt="Linux (x86-64, ARM64): True 3D, tentados em ordem Vulkan (wgpu), OpenGL, CPU. Windows (x64, ARM64): True 3D, tentados em ordem Vulkan / Direct3D 12 (wgpu), OpenGL, CPU. macOS (Intel, Apple silicon): True 3D, tentados em ordem Metal (wgpu), OpenGL, CPU. Sem wgpu: True 3D, tentados em ordem OpenGL, CPU (Python 3.9, outros processadores, Linux com glibc anterior a 2.28 ou instalado sem wgpu)."></picture></a></div>
+   <div><a href="../../readme_text/pt/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/generated-hardware-1.desktop.svg"><img src="../../readme_images/pt/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU, 3D GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU, 3D CPU. suportado (estável) implementado (beta) apenas suporte a CPU."></picture></a></div>
 
 .. spacr-hardware-end
-
-.. raw:: html
-
-   <div><a href="../../readme_text/pt/hardware-support-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/pt/hardware-support-2.desktop.svg"><img src="../../readme_images/pt/hardware-support-2.svg" alt="CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM took 444.5 s on the CPU and 3.2 s on Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This is a historical example, not a speed guarantee. GPU acceleration requires a usable backend and compatible libraries. See the recorded hardware measurement."></picture></a></div>
 
 .. raw:: html
 

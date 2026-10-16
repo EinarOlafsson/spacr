@@ -22,7 +22,7 @@
    :target: https://pypi.org/project/spacr/
    :alt: Python 3.9 से 3.14
 
-.. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/nightly?logo=codecov&logoColor=white
+.. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/main?logo=codecov&logoColor=white
    :target: https://app.codecov.io/github/EinarOlafsson/spacr
    :alt: Codecov परीक्षण कवरेज
 
@@ -111,27 +111,15 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/try-spacr-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/try-spacr-2.desktop.svg"><img src="../../readme_images/hi/try-spacr-2.svg" alt="उदाहरण डेटा डाउनलोड करने के लिए Import, Make Masks, Annotate या किसी असे स्क्रीन में टेस्ट डेटा लोड करें… का उपयोग करें। टर्मिनल से spacr-download का उपयोग करें।"></picture></a></div>
-
-.. raw:: html
-
    <div><a href="../../readme_text/hi/hardware-support.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/hardware-support.desktop.svg"><img src="../../readme_images/hi/hardware-support.svg" alt="हार्डवेयर समर्थन."></picture></a></div>
 
 .. spacr-hardware-begin
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/generated-hardware-1.desktop.svg"><img src="../../readme_images/hi/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU. समर्थित (स्थिर) लागू (बीटा) केवल CPU समर्थन."></picture></a></div>
-
-.. raw:: html
-
-   <div><a href="../../readme_text/hi/generated-hardware-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/generated-hardware-2.desktop.svg"><img src="../../readme_images/hi/generated-hardware-2.svg" alt="Linux (x86-64, ARM64): True 3D, क्रम से आज़माए जाते हैं Vulkan (wgpu), OpenGL, CPU. Windows (x64, ARM64): True 3D, क्रम से आज़माए जाते हैं Vulkan / Direct3D 12 (wgpu), OpenGL, CPU. macOS (Intel, Apple silicon): True 3D, क्रम से आज़माए जाते हैं Metal (wgpu), OpenGL, CPU. wgpu के बिना: True 3D, क्रम से आज़माए जाते हैं OpenGL, CPU (Python 3.9, अन्य प्रोसेसर, 2.28 से पुराने glibc वाला Linux या wgpu के बिना इंस्टॉल)."></picture></a></div>
+   <div><a href="../../readme_text/hi/generated-hardware-1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/generated-hardware-1.desktop.svg"><img src="../../readme_images/hi/generated-hardware-1.svg" alt="NVIDIA (CUDA): Cellpose 4 GPU, Torch GPU, UMAP / clustering GPU, 3D GPU. AMD on Linux (ROCm): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. AMD in an Intel Mac (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. Apple Silicon (Metal): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. Intel Arc/Xe (XPU): Cellpose 4 GPU, Torch GPU, UMAP / clustering CPU, 3D GPU. No GPU: Cellpose 4 CPU, Torch CPU, UMAP / clustering CPU, 3D CPU. समर्थित (स्थिर) लागू (बीटा) केवल CPU समर्थन."></picture></a></div>
 
 .. spacr-hardware-end
-
-.. raw:: html
-
-   <div><a href="../../readme_text/hi/hardware-support-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/hardware-support-2.desktop.svg"><img src="../../readme_images/hi/hardware-support-2.svg" alt="CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM took 444.5 s on the CPU and 3.2 s on Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This is a historical example, not a speed guarantee. GPU acceleration requires a usable backend and compatible libraries. See the recorded hardware measurement."></picture></a></div>
 
 .. raw:: html
 

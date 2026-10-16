@@ -310,49 +310,8 @@ HARDWARE_LEGEND_LABELS = {
 }
 
 
-#: The 3D rendering table's own words, in each language: its two header
-#: cells, the "Without wgpu" row label and that row's conditions. Product
-#: names (Vulkan, Metal, Direct3D 12, OpenGL, CPU, wgpu, True 3D) stay as
-#: they are. AI-reviewed (Claude, 2026-10-16), no native-speaker signoff.
-HARDWARE_3D_SOURCE = (
-    "3D rendering", "True 3D, tried in order", "Without wgpu",
-    "Python 3.9, other processors, Linux with glibc older than 2.28 or "
-    "installed without wgpu",
-)
-HARDWARE_3D_LABELS = {
-    "sv": ("3D-rendering", "True 3D, provas i ordning", "Utan wgpu",
-           "Python 3.9, andra processorer, Linux med glibc äldre än 2.28 "
-           "eller installerat utan wgpu"),
-    "de": ("3D-Rendering", "True 3D, der Reihe nach versucht", "Ohne wgpu",
-           "Python 3.9, andere Prozessoren, Linux mit glibc älter als 2.28 "
-           "oder ohne wgpu installiert"),
-    "es": ("Renderizado 3D", "True 3D, probados en orden", "Sin wgpu",
-           "Python 3.9, otros procesadores, Linux con glibc anterior a 2.28 "
-           "o instalado sin wgpu"),
-    "zh_CN": ("3D 渲染", "True 3D，按顺序尝试", "无 wgpu",
-              "Python 3.9、其他处理器、glibc 低于 2.28 的 Linux 或未安装 wgpu"),
-    "pt": ("Renderização 3D", "True 3D, tentados em ordem", "Sem wgpu",
-           "Python 3.9, outros processadores, Linux com glibc anterior a "
-           "2.28 ou instalado sem wgpu"),
-    "hi": ("3D रेंडरिंग", "True 3D, क्रम से आज़माए जाते हैं", "wgpu के बिना",
-           "Python 3.9, अन्य प्रोसेसर, 2.28 से पुराने glibc वाला Linux या "
-           "wgpu के बिना इंस्टॉल"),
-    "ko": ("3D 렌더링", "True 3D, 순서대로 시도", "wgpu 없음",
-           "Python 3.9, 기타 프로세서, glibc 2.28 미만 Linux 또는 wgpu 없이 "
-           "설치"),
-    "is": ("Þrívíddarteiknun", "True 3D, reynt í röð", "Án wgpu",
-           "Python 3.9, aðrir örgjörvar, Linux með glibc eldra en 2.28 eða "
-           "sett upp án wgpu"),
-    "fr": ("Rendu 3D", "True 3D, essayés dans l’ordre", "Sans wgpu",
-           "Python 3.9, autres processeurs, Linux avec glibc antérieure à "
-           "2.28 ou installé sans wgpu"),
-}
-
-
 def localize_hardware_markup(text: str, language: str) -> str:
-    """The hardware tables' words in ``language``: the GPU table's legend,
-    one label per colour, and the 3D rendering table's headers and its
-    "Without wgpu" row."""
+    """The hardware table's legend in ``language``."""
     stable, beta, cpu = HARDWARE_LEGEND_LABELS[language]
     legend = (f"\U0001F7E2 {stable} \u2003 \U0001F7E3 {beta} "
               f"\u2003 \U0001F534 {cpu}")
@@ -361,15 +320,6 @@ def localize_hardware_markup(text: str, language: str) -> str:
         lambda _match: legend,
         str(text),
     )
-    for source, target in zip(HARDWARE_3D_SOURCE,
-                              HARDWARE_3D_LABELS[language]):
-        localized = re.sub(
-            rf"(?m)(?<=- ){re.escape(source)}(?=$|\))"
-            if source != HARDWARE_3D_SOURCE[3]
-            else rf"(?<=\(){re.escape(source)}(?=\))",
-            lambda _match, value=target: value,
-            localized,
-        )
     return localized
 
 

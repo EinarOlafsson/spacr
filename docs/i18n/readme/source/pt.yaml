@@ -30,7 +30,7 @@ blocks:
        :target: https://pypi.org/project/spacr/
        :alt: Python 3.9 a 3.14
 
-    .. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/nightly?logo=codecov&logoColor=white
+    .. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/main?logo=codecov&logoColor=white
        :target: https://app.codecov.io/github/EinarOlafsson/spacr
        :alt: Cobertura de testes no Codecov
 
@@ -118,15 +118,23 @@ blocks:
     python -m pip install spacr
     spacr
   lang: bash
-- p: Use **Carregar dados de teste…** em Import, Make Masks, Annotate ou em uma tela
-    de ensaio para baixar dados de exemplo. No terminal, use ``spacr-download``.
 - h2: Suporte de hardware
 - generated: hardware
-- p: CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core
-    i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM took 444.5 s on the CPU and 3.2 s on
-    Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This is a
-    historical example, not a speed guarantee. GPU acceleration requires a usable backend and
-    compatible libraries. See the `recorded hardware measurement
+  details:
+  - 'Auto: O True 3D do Make Masks testa os backends disponíveis nesta ordem: Linux: Vulkan
+    → OpenGL → CPU; Windows: Vulkan → Direct3D 12 → OpenGL → CPU; macOS: Metal → Vulkan →
+    OpenGL → CPU. Vulkan, Metal e Direct3D 12 usam wgpu. Se um backend de GPU falhar ou não
+    estiver disponível, o próximo é testado; a renderização na CPU continua disponível.'
+  - wgpu é instalado por padrão com Python 3.10 ou posterior no Windows (x64, ARM64), macOS
+    (Intel, Apple silicon) e Linux (x86-64, ARM64, glibc 2.28 ou posterior). Python 3.9, outros
+    processadores, Linux com glibc anterior e instalações sem wgpu usam OpenGL, depois CPU.
+    As células roxas de 3D indicam suporte de GPU implementado, aguardando validação em uma
+    tela real.
+  - A execução na CPU é compatível e pode ser mais lenta. Em uma medição em um Intel iMac
+    (Core i5-10500, AMD Radeon Pro 5300 4 GB), o Cellpose-SAM levou 444.5 s na CPU e 3.2 s
+    com Metal para uma imagem de 256×256, usando torch 2.2.2, Python 3.12.11 e macOS 26.5.2.
+    Este é um exemplo histórico, não uma garantia de velocidade. A aceleração por GPU requer
+    um backend utilizável e bibliotecas compatíveis. Consulte a `medição de hardware registrada
     <features/new/319_use_non_nvidia_accelerators_where_they_exist.txt>`_.
 - h2: Instalar o spaCR
 - p: 'Escolha uma forma de instalação:'

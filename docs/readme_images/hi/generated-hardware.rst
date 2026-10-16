@@ -1,49 +1,41 @@
 .. list-table::
    :header-rows: 1
-   :widths: 32 18 18 22
+   :widths: 30 17 15 23 15
 
    * - Hardware
      - Cellpose 4
      - Torch
      - UMAP / clustering
+     - 3D
    * - NVIDIA (CUDA)
      - 🟢 GPU
      - 🟢 GPU
      - 🟢 GPU
+     - 🟣 GPU
    * - AMD on Linux (ROCm)
      - 🟣 GPU
      - 🟣 GPU
      - 🔴 CPU
+     - 🟣 GPU
    * - AMD in an Intel Mac (Metal)
      - 🟣 GPU
      - 🟣 GPU
      - 🔴 CPU
+     - 🟣 GPU
    * - Apple Silicon (Metal)
      - 🟣 GPU
      - 🟣 GPU
      - 🔴 CPU
+     - 🟣 GPU
    * - Intel Arc/Xe (XPU)
      - 🟣 GPU
      - 🟣 GPU
      - 🔴 CPU
+     - 🟣 GPU
    * - No GPU
+     - 🟢 CPU
      - 🟢 CPU
      - 🟢 CPU
      - 🟢 CPU
 
 🟢 समर्थित (स्थिर)   🟣 लागू (बीटा)   🔴 केवल CPU समर्थन
-
-.. list-table::
-   :header-rows: 1
-   :widths: 32 58
-
-   * - 3D रेंडरिंग
-     - True 3D, क्रम से आज़माए जाते हैं
-   * - Linux (x86-64, ARM64)
-     - Vulkan (wgpu), OpenGL, CPU
-   * - Windows (x64, ARM64)
-     - Vulkan / Direct3D 12 (wgpu), OpenGL, CPU
-   * - macOS (Intel, Apple silicon)
-     - Metal (wgpu), OpenGL, CPU
-   * - wgpu के बिना
-     - OpenGL, CPU (Python 3.9, अन्य प्रोसेसर, 2.28 से पुराने glibc वाला Linux या wgpu के बिना इंस्टॉल)

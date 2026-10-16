@@ -17,7 +17,9 @@ Source of truth
     ```label <target>`_`` links -- so a translator edits text, not layout.
     ``docs/i18n/readme/source/<lang>.yaml`` holds each translation with the
     same block sequence; :func:`check_structure` refuses a translation whose
-    blocks have drifted from the English ones.
+    blocks have drifted from the English ones. A generated block may include
+    ``details`` paragraphs for its single readable destination; these do not
+    add images or text to the README itself.
 
 Rendering
     Consecutive prose blocks form one panel image, a dark rounded surface
@@ -649,7 +651,10 @@ def blocks_to_yaml(blocks: list[dict]) -> list[dict]:
         elif kind == "raw":
             out.append({"raw": block["text"]})
         elif kind == "generated":
-            out.append({"generated": block["name"]})
+            item = {"generated": block["name"]}
+            if block.get("details"):
+                item["details"] = list(block["details"])
+            out.append(item)
         else:
             raise ValueError(f"no YAML form for {kind}")
     return out
@@ -669,7 +674,10 @@ def yaml_to_blocks(items: list[dict]) -> list[dict]:
         elif "raw" in item:
             blocks.append({"kind": "raw", "text": item["raw"].rstrip("\n")})
         elif "generated" in item:
-            blocks.append({"kind": "generated", "name": item["generated"]})
+            block = {"kind": "generated", "name": item["generated"]}
+            if item.get("details"):
+                block["details"] = list(item["details"])
+            blocks.append(block)
         else:
             (key, value), = item.items()
             match = re.fullmatch(r"h([1-4])", key)
@@ -780,7 +788,7 @@ def _signature(block: dict) -> tuple:
     if kind == "heading":
         return (kind, block["level"])
     if kind == "generated":
-        return (kind, block["name"])
+        return (kind, block["name"], len(block.get("details", [])))
     if kind == "list":
         return (kind, len(block["items"]), block.get("marker"))
     return (kind,)
@@ -2022,7 +2030,8 @@ def convert_generated(markup: str, language: str, block_name: str, *,
     effect when ``render`` is true, with the markup they were drawn from
     beside them as ``generated-<block>.rst``: the block's words, which
     :func:`source_rst` reads back for tools and tests about the wording.
-    Readable Markdown destinations are generated from the same blocks.
+    Readable Markdown destinations are generated from the same blocks, with
+    any source-owned ``details`` appended to the sole destination.
     """
     blocks = parse_rst(markup)
     images: dict = {}
@@ -2101,6 +2110,15 @@ def convert_generated(markup: str, language: str, block_name: str, *,
                 flush_panel()
             pending.append(block)
     flush_panel()
+    details = next((block.get("details", []) for block in load_source(language)
+                    if block["kind"] == "generated" and
+                    block["name"] == block_name), [])
+    if details:
+        if len(readable) != 1:
+            raise ValueError(f"{block_name} details need one readable destination")
+        destination = next(iter(readable))
+        readable[destination] = readable[destination].rstrip() + "\n\n" + readable_page(
+            [{"kind": "paragraph", "text": text} for text in details], language)
     if pages is not None:
         overlap = pages.keys() & readable.keys()
         if overlap:
@@ -2234,6 +2252,7 @@ def refresh_generated(languages: Sequence[str] = LANGUAGES) -> None:
         ROOT / "packaging" / "generate_readme_visuals.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    module.HARDWARE_TABLE.write_text(module._hardware_table(), encoding="utf-8")
     for language in languages:
         module.write_readme_blocks(readme_path(language))
 

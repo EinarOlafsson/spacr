@@ -61,7 +61,7 @@ def test_the_readme_holds_what_the_generator_produces(generator, table):
         "python packaging/generate_readme_visuals.py")
     # THE TABLE IS AN IMAGE since 2026-10-12, and its alt text is the table
     # read out row by row, so every row is still in the README's words.
-    headers = {generator.HARDWARE_3D_HEADER[0], "Hardware"}
+    headers = {"Hardware"}
     for line in re.findall(r"^   \* - (.+)$", table, re.M):
         if line not in headers:
             assert f"{line}: " in block, line
@@ -80,7 +80,7 @@ def _row(table_text, label):
 
 def test_cuda_is_green_across_the_board(table):
     """The only configuration with years behind it."""
-    assert _row(table, "NVIDIA (CUDA)") == [f"{GREEN} GPU"] * 3
+    assert _row(table, "NVIDIA (CUDA)") == [f"{GREEN} GPU"] * 3 + [f"{PURPLE} GPU"]
 
 
 def test_the_new_backends_are_purple_not_green(table):
@@ -118,7 +118,7 @@ def test_the_no_gpu_row_is_green_everywhere(table):
     damaging claim this table could make. Every task runs and every
     result is identical; only the clock changes.
     """
-    assert _row(table, "No GPU") == [f"{GREEN} CPU"] * 3
+    assert _row(table, "No GPU") == [f"{GREEN} CPU"] * 4
 
 
 def test_the_intel_mac_row_stands_on_its_own(table):
@@ -176,7 +176,7 @@ def test_detected_but_unusable_gpu_never_claims_gpu_acceleration(generator, monk
         ("Detected GPU, unavailable runtime", "beta", kwargs),
     ))
     assert _row(generator._hardware_table(), "Detected GPU, unavailable runtime") == [
-        f"{RED} CPU"] * 3
+        f"{RED} CPU"] * 3 + [f"{PURPLE} GPU"]
 
 
 @pytest.mark.parametrize("language", ("en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"))
@@ -188,56 +188,51 @@ def test_every_readme_has_current_hardware_table_and_sourced_cpu_context(generat
     assert block.strip() == tool.convert_generated(localized, language, "hardware", render=False).strip()
     output = tool.compose(language, render=False)
     blocks = tool.parse_rst(localized)
-    second = [i for i, b in enumerate(blocks) if b["kind"] == "table"][1]
-    assert output.pages["generated-hardware-1"] == tool.readable_page(
-        blocks[:second], language, generated=True)
-    assert output.pages["generated-hardware-2"] == tool.readable_page(
-        blocks[second:], language, generated=True)
+    assert [b["kind"] for b in blocks] == ["table", "paragraph"]
+    assert blocks[0]["rows"][0] == ["Hardware", "Cellpose 4", "Torch", "UMAP / clustering", "3D"]
+    assert len(blocks[0]["rows"]) == 7
     source = tool.load_source(language)
-    position = next(i for i, row in enumerate(source)
+    hardware = next(row for row in source
                     if row.get("kind") == "generated" and row.get("name") == "hardware")
-    context = source[position + 1]["text"]
-    for term in ("CPU execution is supported", "444.5 s", "3.2 s", "256×256",
-                 "Core i5-10500", "Radeon Pro 5300", "torch 2.2.2", "historical example",
-                 "usable backend"):
-        assert term in context
+    assert len(hardware["details"]) == 3
+    assert hardware["details"][0].startswith("Auto:")
+    details = [{"kind": "paragraph", "text": text} for text in hardware["details"]]
+    page = output.pages["generated-hardware-1"]
+    assert page == (tool.readable_page(blocks, language, generated=True).rstrip() +
+                    "\n\n" + tool.readable_page(details, language))
+    assert "generated-hardware-2" not in output.pages
+    for term in ("444.5 s", "3.2 s", "256×256", "Core i5-10500", "Radeon Pro 5300",
+                 "torch 2.2.2", "Python 3.12.11", "macOS 26.5.2", "Python 3.9",
+                 "2.28", "Vulkan", "Direct3D 12", "OpenGL", "Metal", "wgpu"):
+        assert term in page
     target = "features/new/319_use_non_nvidia_accelerators_where_they_exist.txt"
-    assert (ROOT / target).is_file() and target in context
-    page = next(value for value in output.pages.values() if "444.5 s" in value)
+    assert (ROOT / target).is_file()
     assert "../../../" + target in page
-    assert "444.5 s" in readme
+    assert "444.5 s" not in readme and "True 3D" not in block
+    assert not any(row.get("kind") == "paragraph" and
+                   "spacr-download" in row.get("text", "") for row in source)
+    assert tool.yaml_to_blocks(tool.blocks_to_yaml(source)) == source
 
 
-def test_the_3d_table_names_each_platform_api_then_opengl_then_cpu(generator):
-    """True 3D: wgpu's native API first, then OpenGL, then the CPU.
-
-    Vulkan on Linux, Vulkan or Direct3D 12 on Windows, Metal on macOS; an
-    install without wgpu (Python 3.9, other processors, old glibc, or the
-    installer's opt-out) starts at OpenGL.
-    """
-    rows = dict(generator.HARDWARE_3D_ROWS)
-    assert rows["Linux (x86-64, ARM64)"].startswith("Vulkan (wgpu)")
-    assert rows["Windows (x64, ARM64)"].startswith(
-        "Vulkan / Direct3D 12 (wgpu)")
-    assert rows["macOS (Intel, Apple silicon)"].startswith("Metal (wgpu)")
-    assert rows["Without wgpu"].startswith("OpenGL, CPU")
-    assert "Python 3.9" in rows["Without wgpu"]
-    assert "2.28" in rows["Without wgpu"]
-    for cell in rows.values():
-        assert cell.split(" (")[0].endswith("OpenGL, CPU") or \
-            cell.endswith("OpenGL, CPU")
-    table = generator._hardware_table()
-    assert "   :widths: 32 58" in table
+def test_3d_is_a_single_beta_gpu_column_with_supported_cpu_fallback(table):
+    assert table.count(".. list-table::") == 1
+    assert table.count("     - 3D\n") == 1
+    for label in ("NVIDIA (CUDA)", "AMD on Linux (ROCm)",
+                  "AMD in an Intel Mac (Metal)", "Apple Silicon (Metal)",
+                  "Intel Arc/Xe (XPU)"):
+        assert _row(table, label)[3] == f"{PURPLE} GPU"
+    assert _row(table, "No GPU")[3] == f"{GREEN} CPU"
 
 
-@pytest.mark.parametrize("language", ("sv", "de", "es", "zh_CN", "pt", "hi",
-                                      "ko", "is", "fr"))
-def test_the_3d_table_words_are_translated_and_product_names_kept(
-        generator, table, language):
-    localized = generator.localize_hardware_markup(table, language)
-    for source in ("3D rendering", "True 3D, tried in order", "Without wgpu",
-                   "other processors"):
-        assert source not in localized, (language, source)
-    for name in ("Vulkan", "Metal", "Direct3D 12", "OpenGL", "wgpu",
-                 "Python 3.9", "2.28", "True 3D"):
-        assert name in localized, (language, name)
+def test_readable_3d_details_follow_the_actual_backend_order(generator):
+    source = generator.build_readme_images.load_source("en")
+    details = next(row["details"] for row in source if row.get("name") == "hardware")
+    from spacr.qt.screens.make_masks import VOLUME_BACKENDS, volume_backend_chain
+
+    for system in ("linux", "win32", "darwin"):
+        chain = volume_backend_chain("auto", offered=VOLUME_BACKENDS, platform=system) + ("cpu",)
+        names = {"vulkan": "Vulkan", "d3d12": "Direct3D 12", "metal": "Metal",
+                 "opengl": "OpenGL", "cpu": "CPU"}
+        assert " → ".join(names[name] for name in chain) in details[0]
+    assert "historical example" in details[2]
+    assert "not a speed guarantee" in details[2]
