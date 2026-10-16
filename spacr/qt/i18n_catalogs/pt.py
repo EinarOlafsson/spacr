@@ -4319,7 +4319,7 @@ UI = {
     'Coverage': 'Cobertura',
     'Cp prob': 'Probabilidade celular (CP)',
     'Cp probability': 'Probabilidade celular (CP)',
-    'Crash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished. A report is redacted, shown in an editable preview, and sent only when you press Send for that specific report. Both choices are optional and revocable in Preferences.': 'Os relatórios de falhas são enviados para o repositório PÚBLICO do spaCR no GitHub. Podem ser lidos por qualquer pessoa, são indexados e não podem ser retirados de forma fiável. O relatório é editado, mostrado numa pré-visualização alterável e só é enviado quando carrega em Enviar nesse relatório específico. Ambas as opções são voluntárias e podem ser revogadas nas Preferências.',
+    'Crash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished. A report is redacted, shown in an editable preview, and sent only when you press Send for that specific report. Both choices are optional and revocable in Preferences.': 'Os relatórios de falhas são enviados para o repositório PÚBLICO do spaCR no GitHub. Podem ser lidos por qualquer pessoa, são indexados e não podem ser retirados de forma fiável. O relatório tem as informações sensíveis ocultadas, é mostrado numa pré-visualização alterável e só é enviado quando carrega em Enviar nesse relatório específico. Ambas as opções são voluntárias e podem ser revogadas nas Preferências.',
     'Create ParaScape environment': 'Criar ambiente do ParaScape',
     'Create an execution profile first.': 'Crie um perfil de execução primeiro.',
     'Create columns from named groups': 'Criar colunas a partir de grupos nomeados',

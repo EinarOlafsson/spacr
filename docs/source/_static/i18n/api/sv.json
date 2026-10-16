@@ -15670,10 +15670,12 @@
         "a4121c3303be5c3ede4d404b88c57d3b4d7f66859551d926ffec4a2624473c53",
         "34bf351789296cbbba94e38a10c9dfc9e40681a41010f4619f6eb06d9c5bc4a9",
         "a6724ffb4ecb91a395ea0821b3a86e8d17e557581896ee311264413d8ebbc18a",
+        "b975a3af4169f667981fd1218129af1381e2e9b989e6ddfe974d8498625fcf74",
+        "d443617b1a2d25f891335f181494f72577e78927c4d2a99569a40ed18245d924",
         "8d59829c1e15afe1a7fae93e8e5e32d8511bec5fd598a09f4fea6033b31e8a66"
       ],
-      "source_sha256": "90277a8e7db959e73b3530028830ea10245cb95a962620f4d937fb17710fe215",
-      "text": "Skapa ett passande diagnostiskt paket med ``spacr-crashreport``.\n\nDenna modul producerar en ``.zip`` med loggar, inställningar, versioner och diagnostik en felrapport behöver, för att ansluta till ett GitHub nummer, och den är monterad ur bitarna spaCR redan behåller snarare än samlas in en andra gång:\n\n* :mod:`spacr.doctor` kör 17 kontroller över installationen – den exekverande kassan, dubblettinstallationer, GPU, versionen Cellpose, projektdatabasen, inställningarna – och varje rad som inte är ``PASS`` redan har fixen.\n* :mod:`spacr.runctx` skriver en JSONL-logg per körning som är nyckel i kör-ID, så \"visa mig allt från körningen som gav detta\" har ett svar. Bunten bär den körs log ordagrant, inte en filtrerad sammanfattning av det.\n* :mod:`spacr.errors` stämplar varje bearbetningssessions status på artefakten den skrev, så rapporten kan säga om den sista körningen *är klar* – vilket är en annan fråga än om den kraschade just nu, och den mer användbara när en användare rapporterar nummer snarare än en spårning.\n\nFormgivningsregler:\n\n**Samlare kastar inte.** Varje samlare utför genom :func:`_collect`, vilket förvandlar ett fel till en manifest post namnge vad som inte kunde samlas in och varför. Fånga ``Exception`` är acceptabelt här eftersom felet registreras i utmatningen: Manifestet är en del av bunten, så en saknad sektion är synlig för rapportmottagaren istället för tyst frånvarande.\n\n**Bounded size.** ``spacr.log`` roterar men en enda körning kan fortfarande skriva hundratals megabyte. Bunten tar *tail* av det, som begränsas av :data:`MAX_LOG_BYTES`, och manifestet registrerar hur mycket som tappades.\n\n**Ingenting hemligt.** Miljövariabler ingår eftersom ``SPACR_*``, ``CUDA_*`` och ``PATH`` förklarar en stor del av \"fungerar här, inte där\" – men ett värde vars *name* ser ut som en credential ersätts med ``\"<redacted>\"`` och listas med namn i manifestet, så att du kan se vad som hölls inne och rapportmottagaren kan se att något var. Absoluta sökvägar behålls: de namnger kassan, plattan och databasen, och en rapport med dem tas bort kan inte agera på.\n\n**Deterministisk layout.** Filnamn och beställning förblir stabila så upprepade rapporter är snabba att inspektera.\n\nAnvändning\n----------\n.. code-block:: bash\n\n    python -m spacr.crashreport                     # last run, current folder\n    python -m spacr.crashreport --run-id 3f9c1a2b   # one particular run\n    python -m spacr.crashreport --db plate1/measurements/measurements.db \\\n        --settings measure.csv --app measure -o ~/spacr-bug.zip\n\n.. code-block:: python\n\n    from spacr.crashreport import report_exception, install_excepthook\n\n    install_excepthook()          # any unhandled crash writes a bundle\n    try:\n        measure_crop(settings)\n    except Exception as exc:      # noqa: BLE001 - reporting, then re-raising\n        print(report_exception(exc, settings=settings))\n        raise",
+      "source_sha256": "e84b3bdc78d9ce63c1083f867b50b0b166105ea8352b996a80c6fa1b71e69aca",
+      "text": "Skapa ett passande diagnostiskt paket med ``spacr-crashreport``.\n\nDenna modul producerar en ``.zip`` med loggar, inställningar, versioner och diagnostik en felrapport behöver, för att ansluta till ett GitHub nummer, och den är monterad ur bitarna spaCR redan behåller snarare än samlas in en andra gång:\n\n* :mod:`spacr.doctor` kör 17 kontroller över installationen – den exekverande kassan, dubblettinstallationer, GPU, versionen Cellpose, projektdatabasen, inställningarna – och varje rad som inte är ``PASS`` redan har fixen.\n* :mod:`spacr.runctx` skriver en JSONL-logg per körning som är nyckel i kör-ID, så \"visa mig allt från körningen som gav detta\" har ett svar. Bunten bär den körs log ordagrant, inte en filtrerad sammanfattning av det.\n* :mod:`spacr.errors` stämplar varje bearbetningssessions status på artefakten den skrev, så rapporten kan säga om den sista körningen *är klar* – vilket är en annan fråga än om den kraschade just nu, och den mer användbara när en användare rapporterar nummer snarare än en spårning.\n\nFormgivningsregler:\n\n**Samlare kastar inte.** Varje samlare utför genom :func:`_collect`, vilket förvandlar ett fel till en manifest post namnge vad som inte kunde samlas in och varför. Fånga ``Exception`` är acceptabelt här eftersom felet registreras i utmatningen: Manifestet är en del av bunten, så en saknad sektion är synlig för rapportmottagaren istället för tyst frånvarande.\n\n**Bounded size.** ``spacr.log`` roterar men en enda körning kan fortfarande skriva hundratals megabyte. Bunten tar *tail* av det, som begränsas av :data:`MAX_LOG_BYTES`, och manifestet registrerar hur mycket som tappades.\n\n**Ingenting hemligt.** Miljövariabler ingår eftersom ``SPACR_*``, ``CUDA_*`` och ``PATH`` förklarar en stor del av \"fungerar här, inte där\" – men ett värde vars *name* ser ut som en credential ersätts med ``\"<redacted>\"`` och listas med namn i manifestet, så att du kan se vad som hölls inne och rapportmottagaren kan se att något var. Absoluta sökvägar behålls: de namnger kassan, plattan och databasen, och en rapport med dem tas bort kan inte agera på.\n\n**Deterministisk layout.** Filnamn och beställning förblir stabila så upprepade rapporter är snabba att inspektera.\n\nAnonyma rapporter\n-----------------\nPaketet ovan stannar på den här datorn. Det som kan lämna den är något separat och mycket mindre: :func:`public_summary`, en post med enbart uttryckligen tillåtna uppgifter om versioner, operativsystemsfamilj, GPU-klass, modul, undantagstyp, ett rensat meddelande på en rad och anropsstacken som filbasnamn, funktionsnamn och radnummer. Den innehåller ingen logg, inställning, miljövariabel eller sökväg. :func:`submit_public_summary` skickar den till spaCR:s relä (:data:`REPORT_RELAY_URL`), som registrerar den som ett offentligt ärende på EinarOlafsson/spacr, så användaren behöver inget GitHub-konto. Reglaget är :func:`anonymous_reports_enabled`, aktiverat om användaren inte stänger av det; när det är avstängt eller :data:`NO_NETWORK_ENV` är satt skickas ingenting. En rapport som inte kan skickas väntar i en liten kö (:data:`QUEUE_LIMIT` rapporter, :data:`QUEUE_RETENTION_S` sekunder) och ett nytt försök görs senare. :func:`diagnose_remotely` skickar samma sammanfattning till reläets serverbaserade modell för råd.\n\nAnvändning\n----------\n.. code-block:: bash\n\n    python -m spacr.crashreport                     # last run, current folder\n    python -m spacr.crashreport --run-id 3f9c1a2b   # one particular run\n    python -m spacr.crashreport --db plate1/measurements/measurements.db \\\n        --settings measure.csv --app measure -o ~/spacr-bug.zip\n\n.. code-block:: python\n\n    from spacr.crashreport import report_exception, install_excepthook\n\n    install_excepthook()          # any unhandled crash writes a bundle\n    try:\n        measure_crop(settings)\n    except Exception as exc:      # noqa: BLE001 - reporting, then re-raising\n        print(report_exception(exc, settings=settings))\n        raise",
       "translation_source_blocks_sha256": [
         "025200194bff3c48a95cc2d2bd6e1286209408a45cb00bf77b58d028165665f3",
         "6743b0b7700f4229c029feda93d465edf7a60d4dee587f68740b435071e787b6",
@@ -15685,6 +15687,8 @@
         "a4121c3303be5c3ede4d404b88c57d3b4d7f66859551d926ffec4a2624473c53",
         "34bf351789296cbbba94e38a10c9dfc9e40681a41010f4619f6eb06d9c5bc4a9",
         "a6724ffb4ecb91a395ea0821b3a86e8d17e557581896ee311264413d8ebbc18a",
+        "b975a3af4169f667981fd1218129af1381e2e9b989e6ddfe974d8498625fcf74",
+        "d443617b1a2d25f891335f181494f72577e78927c4d2a99569a40ed18245d924",
         "8d59829c1e15afe1a7fae93e8e5e32d8511bec5fd598a09f4fea6033b31e8a66"
       ]
     },
@@ -15748,6 +15752,26 @@
         "f68a17a462770f1df99ea2ac7ce9654177812ee4c76287a8db8a6035a90ced06",
         "b4d67a28465fd15108b05348ace1fc01f229eb4bb14b24474016bf97d856fd1e",
         "377b9d5a835a4da92969ef713d31aa8d6a755b690aa3207539f5d05484e65c13"
+      ]
+    },
+    "spacr.crashreport.RelayRefused": {
+      "source_blocks_sha256": [
+        "9cbe93097c41c2cdf46159d3ccec5b5054af9c44fc6e8586a90da7f9ef23250e",
+        "3410477624da5a2ac5744a1ba8c838cb1b2adfcfc805c7dbad8c8cae53966e4d",
+        "1746153085edf10219c78dc9c3501a9ec01631efae994a3d61768dc5d1d57368",
+        "8057a712c7f1bea98750e847730241bd3850c2dc4960c0ae9e995bd7307a3f34",
+        "75f2e9b001ac4fe524cbeb82be447809e8d4c26a97ecb0cf64603b430e619ec9",
+        "fec86ec938f40d8cf3508a9433a875d222fb4090785c6c39913fa41c3048dc12"
+      ],
+      "source_sha256": "0179cafbf4d8e9a02e4af871c5b3587deb4f86bc357ed260a39336e4ed80af75",
+      "text": "Reläet svarade inte på en värdbaserad diagnos.\n\n:param reason: ``\"quota\"`` när en kostnadsfri daglig gräns är förbrukad, ``\"network\"`` när reläet inte kunde nås eller nätverksåtkomst är förbjuden, och ``\"error\"`` vid andra avvisningar.\n:param detail: vad reläet eller nätverket meddelade, för loggen.\n:param scope: vid en kvotavvisning, vems gräns det var: ``\"install\"`` (denna installations frågor), ``\"global\"`` (spaCR:s gemensamma kostnadsfria kapacitet) eller ``\"ip\"``.\n:param resets_at: när gränsen återställs, som ett tidszonsmedvetet UTC-datum och klockslag; standard är nästa 00:00 UTC.\n\nVärdena sparas på undantaget som ``reason``, ``scope`` och ``resets_at``. Behåll orsaken, omfattningen och återställningstiden samt detaljen som meddelande.",
+      "translation_source_blocks_sha256": [
+        "9cbe93097c41c2cdf46159d3ccec5b5054af9c44fc6e8586a90da7f9ef23250e",
+        "3410477624da5a2ac5744a1ba8c838cb1b2adfcfc805c7dbad8c8cae53966e4d",
+        "1746153085edf10219c78dc9c3501a9ec01631efae994a3d61768dc5d1d57368",
+        "8057a712c7f1bea98750e847730241bd3850c2dc4960c0ae9e995bd7307a3f34",
+        "75f2e9b001ac4fe524cbeb82be447809e8d4c26a97ecb0cf64603b430e619ec9",
+        "fec86ec938f40d8cf3508a9433a875d222fb4090785c6c39913fa41c3048dc12"
       ]
     },
     "spacr.crashreport._doctor_sections.gather_json": {
@@ -15820,6 +15844,46 @@
         "3723a3d308b1ff2cbe41bcb76bbc7189f321dd330d79e2afa39a68b2ebaca970"
       ]
     },
+    "spacr.crashreport.ai_summary_prompt": {
+      "source_blocks_sha256": [
+        "638e0f80f7125247b37b52208412ca5e6983977ae3b0a02e84b8141f3edc1757",
+        "3cb8272945e084c45e0ad61c6d8a884416723fe25ab19fbfa46061e7ed172e72",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "679e1e3e644bbe192140ec68762966dacce0dc54475f2ca079730984886a921b"
+      ],
+      "source_sha256": "b4d1fc41e1fc41ac675bf79a0e9cca0166b945126446ce9f311a4ee2f927a374",
+      "text": "Den fasta instruktionen som ber användarens egen AI att sammanfatta en rapport.\n\nAI ser bara den anonymiserade sammanfattningen, aldrig stackspårningen, loggen eller inställningarna, och dess text rensas igen innan den skickas.\n\n:param summary: en sammanfattning från :func:`public_summary`.\n:returns: instruktionen.",
+      "translation_source_blocks_sha256": [
+        "638e0f80f7125247b37b52208412ca5e6983977ae3b0a02e84b8141f3edc1757",
+        "3cb8272945e084c45e0ad61c6d8a884416723fe25ab19fbfa46061e7ed172e72",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "679e1e3e644bbe192140ec68762966dacce0dc54475f2ca079730984886a921b"
+      ]
+    },
+    "spacr.crashreport.anonymous_report_notice_due": {
+      "source_blocks_sha256": [
+        "dd7102c011ca8714a21f48e81605b2608d7f74c403c00a6a89c445be65c36d98",
+        "642900d41cce7b32471f974256fd2ec0737e15b8aec3659c8445609aab49fd31"
+      ],
+      "source_sha256": "f44f97ee84fdb0f2d0f93b0c4536cfec5d4c86a9fd1c5135eeef12bc6a492663",
+      "text": "Om engångsmeddelandet om anonymiserade rapporter fortfarande ska visas.\n\n:returns: ``True`` fram till :func:`mark_anonymous_report_notice_shown`.",
+      "translation_source_blocks_sha256": [
+        "dd7102c011ca8714a21f48e81605b2608d7f74c403c00a6a89c445be65c36d98",
+        "642900d41cce7b32471f974256fd2ec0737e15b8aec3659c8445609aab49fd31"
+      ]
+    },
+    "spacr.crashreport.anonymous_reports_enabled": {
+      "source_blocks_sha256": [
+        "0b4ed1ade4482107fe88c56c186d855b1ea059e6405099143a3282b3d342fcb3",
+        "40995663a063e7eb179badd0b4d11ad79f612f0b91b290083d4e750bf78dab71"
+      ],
+      "source_sha256": "7ef7463a6276e9fb8ee5c88ffe18a3e3ab7f6bd560bbddec970d2a8882c9875b",
+      "text": "Om något fel skickas som en anonymiserad rapport.\n\n:returns: ``False`` för de val som inte skickar något.",
+      "translation_source_blocks_sha256": [
+        "0b4ed1ade4482107fe88c56c186d855b1ea059e6405099143a3282b3d342fcb3",
+        "40995663a063e7eb179badd0b4d11ad79f612f0b91b290083d4e750bf78dab71"
+      ]
+    },
     "spacr.crashreport.build_parser": {
       "source_blocks_sha256": [
         "361572caac77d4eb2b156897b2bd68bc5f5ed5f0237a1989b4a718af86b3e95e",
@@ -15830,6 +15894,24 @@
       "translation_source_blocks_sha256": [
         "361572caac77d4eb2b156897b2bd68bc5f5ed5f0237a1989b4a718af86b3e95e",
         "508e809681b4695280c2958e6aa531a276a03c298fa1df40c574e64960c0c317"
+      ]
+    },
+    "spacr.crashreport.classify_failure": {
+      "source_blocks_sha256": [
+        "2d58fd042487c7a7aa508d19821bec4df9e7e9722899078931ce3b4b7a9238f9",
+        "f371f2b2fb8576efeedce179f2e3c7a1d95f560787269bd83aa3141af3130073",
+        "755de7f9d8d35807469274a445883f88761f9b3f91c8ea2e98f12a6b8b2abc56",
+        "bc0f7c1520da84a0c12d506a2366c76d2ce1a11d0da768189f822745eadb423c",
+        "13dcc916d28f018361196f06ac90ba66e58b552560bbca5b180794203cca413b"
+      ],
+      "source_sha256": "2a648f589ae7cbaad695a8b78a423c22c79c9fa59ca14fd1456ae91a800f3d1e",
+      "text": "Returnera om ett fel är ett programfel eller ett användarfel.\n\nEn :class:`spacr.errors.ConfigurationError`, eller någon av dess underklasser, är ett användarfel: en inställning, en validering eller saknade indata som användaren kan åtgärda. Allt annat är ett programfel.\n\n:param exception: undantaget, när det finns till hands.\n:param traceback_text: annars en formaterad stackspårning.\n:returns: :data:`KIND_USER_ERROR` eller :data:`KIND_FAULT`.",
+      "translation_source_blocks_sha256": [
+        "2d58fd042487c7a7aa508d19821bec4df9e7e9722899078931ce3b4b7a9238f9",
+        "f371f2b2fb8576efeedce179f2e3c7a1d95f560787269bd83aa3141af3130073",
+        "755de7f9d8d35807469274a445883f88761f9b3f91c8ea2e98f12a6b8b2abc56",
+        "bc0f7c1520da84a0c12d506a2366c76d2ce1a11d0da768189f822745eadb423c",
+        "13dcc916d28f018361196f06ac90ba66e58b552560bbca5b180794203cca413b"
       ]
     },
     "spacr.crashreport.collect": {
@@ -15874,6 +15956,110 @@
         "70f3e313df0a893be895249e92469990e15698192066ed92eeaeec2718fe852b"
       ]
     },
+    "spacr.crashreport.diagnose_remotely": {
+      "source_blocks_sha256": [
+        "6208bddae143b55b08f16f9b2f4c538ea8d4de8d1c52459fea8066e495f250ac",
+        "0c08fd76ea2777f1ade8f2cd1ab141a5989aee9f7af0f8a35100dba49a0c5b25",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "db3dfd5b107e44ab172b1f4c5db4149d77cee1568974bbe5d32a70f7123c7fb1",
+        "68694ddb4d07fd3a8b1bb5f8c5c794035f34bd3228690afc39c2cde384c58446",
+        "7a53d8a95affae81d8f3ec742c9c242bf983144b65f0d0d8c481bcf909a1edfc",
+        "168c7498c9b4e16800ff71cb08bc5bff9b600d6fe3f7e3b988aee78bffd23abf"
+      ],
+      "source_sha256": "82fb0e7132840a9f75447a5ab1b7e82f6105790d60c93ba5996028dcdfe478d2",
+      "text": "Fråga reläets värdbaserade modell om ett fel, utan konto.\n\nSkickar den anonymiserade sammanfattningen och den rensade frågan, avkortad till :data:`MAX_QUESTION_CHARS`, till ``/diagnose``. Svaret är genererade råd, inte en kontrollerad åtgärd. Anropet blockerar, så kör det utanför GUI-tråden.\n\n:param summary: en sammanfattning från :func:`public_summary`.\n:param question: vad användaren frågar; kan vara tomt.\n:param timeout: antal sekunder modellen får ta.\n:returns: ``{\"advice\": text, \"model\": model name}``.\n:raises RelayRefused: med ``reason`` ``\"quota\"`` när den kostnadsfria dagliga gränsen är förbrukad, ``\"network\"`` när reläet inte kan nås eller nätverksåtkomst är förbjuden, och annars ``\"error\"``.",
+      "translation_source_blocks_sha256": [
+        "6208bddae143b55b08f16f9b2f4c538ea8d4de8d1c52459fea8066e495f250ac",
+        "e47efa21827a57e2f9cf1c786746ee738247e5eaebc700244c40127eb77ba95c",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "db3dfd5b107e44ab172b1f4c5db4149d77cee1568974bbe5d32a70f7123c7fb1",
+        "68694ddb4d07fd3a8b1bb5f8c5c794035f34bd3228690afc39c2cde384c58446",
+        "7a53d8a95affae81d8f3ec742c9c242bf983144b65f0d0d8c481bcf909a1edfc",
+        "168c7498c9b4e16800ff71cb08bc5bff9b600d6fe3f7e3b988aee78bffd23abf"
+      ]
+    },
+    "spacr.crashreport.error_report_mode": {
+      "source_blocks_sha256": [
+        "dc1c0868a1672c230a8785f61a287631d66b2d6aba603b90d9bd2cbbba7ccd66",
+        "6f7924389235216f4760de19f034a3711d2e4b51f776efb9f1bb3ac49a6462c3",
+        "67f7531354bd3063659fed6c0564b696a5c2375bde3b583837c935462dda6272"
+      ],
+      "source_sha256": "35bf036e89a7b78d5cde1c46f99a1b652716db8a011fcd1a4dc708cc9dcb2a88",
+      "text": "Returnera valet \"AI Error report\", en nyckel i :data:`ERROR_REPORT_MODES`.\n\nEn profil som bara har stängt av den äldre på/av-knappen läses som ``\"off\"``.\n\n:returns: den sparade nyckeln, eller :data:`DEFAULT_ERROR_REPORT_MODE`.",
+      "translation_source_blocks_sha256": [
+        "dc1c0868a1672c230a8785f61a287631d66b2d6aba603b90d9bd2cbbba7ccd66",
+        "6f7924389235216f4760de19f034a3711d2e4b51f776efb9f1bb3ac49a6462c3",
+        "67f7531354bd3063659fed6c0564b696a5c2375bde3b583837c935462dda6272"
+      ]
+    },
+    "spacr.crashreport.example_public_summary": {
+      "source_blocks_sha256": [
+        "4805be251c30321173fa9183621d8b60ef1af8c4840872a019bf80c29ce5d4d2",
+        "197a8f2e7aade953cd04cc2fff153bee71702f7243fd56d02b14812a1b95a497",
+        "5e951d9bfd1dcaca8b96feb21136106e343de9e27d4d49805cd9b79b1e45c9e9"
+      ],
+      "source_sha256": "690e9175dc789677a4bf0a4dde0501bdf7d0cce8106e086e8d0786d9e1775ddb",
+      "text": "Bygg en sammanfattning från ett påhittat fel för att visa vad en rapport innehåller.\n\nFelmeddelandet nämner en fil för en provplatta i hemkatalogen, en e-postadress och en token, så exemplet visar att var och en tas bort.\n\n:returns: en sammanfattning som byggs exakt som en verklig.",
+      "translation_source_blocks_sha256": [
+        "4805be251c30321173fa9183621d8b60ef1af8c4840872a019bf80c29ce5d4d2",
+        "197a8f2e7aade953cd04cc2fff153bee71702f7243fd56d02b14812a1b95a497",
+        "5e951d9bfd1dcaca8b96feb21136106e343de9e27d4d49805cd9b79b1e45c9e9"
+      ]
+    },
+    "spacr.crashreport.explanation_key": {
+      "source_blocks_sha256": [
+        "d7b997eac06ef98fcc8ecb7c0dc98ebd33001525c6e0741e7e452d7c19e2f5c2",
+        "889e7967653c02b1699373999ff527ff8fd2bc365c579043717162a20efebac2",
+        "dc8cb59e5c9708e43ee74caaa4b7f99876fae29cfef145f0f80c11935ce7fd82",
+        "3615aeaee3d3841a1a507ab9a0178a6a7efb4b5e90a32cd5629f01548417b890",
+        "a41a344522ef8229c99bed0e499c867629e183343c9a2f98cabe87e986d0b844",
+        "0219f84e0332ab7e9244f3e5037cc9a5737af1af4c778b3c1bd4fd978bd1f1aa",
+        "90da6c87f0aa65e3a37cc73e07d54c10263e24f0f45a33b2565451c890d3ef86"
+      ],
+      "source_sha256": "1435f13a96089178a50619680d7064b709ffe9603c4033e9e7e2564cbe08a12a",
+      "text": ":func:`explanation_signature` för ett fel, utan miljön.\n\nLäser bara stackspårningen och är därför tillräckligt lätt för GUI-tråden; ger samma resultat som hela :func:`public_summary` för samma fel.\n\n:param traceback_text: den formaterade stackspårningen.\n:param module: nyckeln för spaCR-modulen.\n:param kind: :data:`KIND_FAULT` eller :data:`KIND_USER_ERROR`.\n:param message: meddelandet som skickas i stället för undantagets eget.\n:returns: signaturen.",
+      "translation_source_blocks_sha256": [
+        "d7b997eac06ef98fcc8ecb7c0dc98ebd33001525c6e0741e7e452d7c19e2f5c2",
+        "57ac0763fa1f5aa2deee94180703209004156368786b51f9fc759141aba85c6e",
+        "dc8cb59e5c9708e43ee74caaa4b7f99876fae29cfef145f0f80c11935ce7fd82",
+        "3615aeaee3d3841a1a507ab9a0178a6a7efb4b5e90a32cd5629f01548417b890",
+        "a41a344522ef8229c99bed0e499c867629e183343c9a2f98cabe87e986d0b844",
+        "0219f84e0332ab7e9244f3e5037cc9a5737af1af4c778b3c1bd4fd978bd1f1aa",
+        "90da6c87f0aa65e3a37cc73e07d54c10263e24f0f45a33b2565451c890d3ef86"
+      ]
+    },
+    "spacr.crashreport.explanation_signature": {
+      "source_blocks_sha256": [
+        "e77c0942192bca11642409a37d23cbd55dc6aa5a330f43213be4e2724fb00202",
+        "e93b6337f1364cf2f8978526bcd1868353bc83220a5c8f8accd8cc4134111810",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "6ef069a36cd77a199879712398c5025591b3c8a80b0e3cf78d82418a962e5bae"
+      ],
+      "source_sha256": "c17aeffb83edb179ea73b1c5a48c63521b0be987c2683fb04fd64f2e16ce7750",
+      "text": "Felets signatur, beräknad på samma sätt som reläet gör.\n\nUndantagstypen, modulen och de fem innersta stackramarna (``file:function``); ett användarfel lägger till sin normaliserade problemlista. Reläet använder samma värde som nyckel för sina sparade förklaringar och ärenden.\n\n:param summary: en sammanfattning från :func:`public_summary`.\n:returns: SHA-256-hashvärdet i hexadecimal form.",
+      "translation_source_blocks_sha256": [
+        "e77c0942192bca11642409a37d23cbd55dc6aa5a330f43213be4e2724fb00202",
+        "032bcc83b7fa54cd455abb9ee75f7e1d8fd4e299bd71d22d647e06b725d98083",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "6ef069a36cd77a199879712398c5025591b3c8a80b0e3cf78d82418a962e5bae"
+      ]
+    },
+    "spacr.crashreport.fetch_allowance": {
+      "source_blocks_sha256": [
+        "f18f7b76adf0af2064784d665bea0d48cc7315467432de6aa769be6f54fcee99",
+        "9bf42f368604e18e22d800d3ba0bf8741eac420ef07f4c210b155b59ce0c4728",
+        "146c8f1cb8f58dd260146c514bd434219e9680cfa5231f0d7090eeec34b77d87",
+        "d84393837b5caab162028c1f5197757bc32bea67cf47226b2af87065ddbc0181"
+      ],
+      "source_sha256": "25f125c34546472ffdeddf8c2246da48d1276847c9274a3fd40ec34ee4177367",
+      "text": "Fråga reläet hur mycket av dagens kostnadsfria kvot denna installation har kvar.\n\nEtt GET-anrop till ``/allowance?install_id=...``; det förbrukar ingenting. Anropet blockerar, så kör det utanför GUI-tråden.\n\n:param timeout: antal sekunder begäran får ta.\n:returns: ``{\"ai\": {\"best_left\", \"light_left\"}, \"reports_left\", \"pool\", \"resets_at\"}`` med ``pool`` som ett av ``best``, ``light`` eller ``exhausted`` och ``resets_at`` som en ISO-8601-tid i UTC; ``None`` när nätverksåtkomst är förbjuden eller reläet inte svarar.",
+      "translation_source_blocks_sha256": [
+        "f18f7b76adf0af2064784d665bea0d48cc7315467432de6aa769be6f54fcee99",
+        "d30635e1d429453d33f80f1319a7cd8f4a844e5a34bee6112d4e7bce1de9280a",
+        "146c8f1cb8f58dd260146c514bd434219e9680cfa5231f0d7090eeec34b77d87",
+        "d84393837b5caab162028c1f5197757bc32bea67cf47226b2af87065ddbc0181"
+      ]
+    },
     "spacr.crashreport.find_last_run_id": {
       "source_blocks_sha256": [
         "687f5e050f35a6d9e2b1f35deef01405f216961f79e90a861a307daf00bb0dc2",
@@ -15890,19 +16076,35 @@
         "cc9b839590494cef3f857d53c5cf8994d0da0233849f6a9b76a3eb2bbaf1fbed"
       ]
     },
+    "spacr.crashreport.flush_report_queue": {
+      "source_blocks_sha256": [
+        "1cee955ca3d322518807e52405d40be6f537e6a1843456d58d31ba439652f0d9",
+        "f22928dee2a7a00ade5d46cfb4afedc7ae49ed51d7cbb646b56a4e047e3d65d2",
+        "3b65274ef4d6d3b7fd30871ba5b62538e8d99820314f532894944cbc75677285",
+        "fb27fbfe899426a9964e655a06831cc0aa5e96d76ded4576d5cb97717bb8c0ff"
+      ],
+      "source_sha256": "1dc67555e116f49a2b2c3754eb2eb5ae7b36d46e8fd62310a37ed22195d79c7c",
+      "text": "Försök skicka alla väntande rapporter, med den äldsta först.\n\nStoppar vid den första rapport som måste vänta igen (inget nätverk, ett serverfel eller reläets kvot), så en dator utan nätverk gör ett försök, inte tjugo. Gör inget medan en annan sändning pågår.\n\n:param timeout: antal sekunder varje postning får ta.\n:returns: ``{\"sent\": n, \"dropped\": n, \"kept\": n}``.",
+      "translation_source_blocks_sha256": [
+        "1cee955ca3d322518807e52405d40be6f537e6a1843456d58d31ba439652f0d9",
+        "f22928dee2a7a00ade5d46cfb4afedc7ae49ed51d7cbb646b56a4e047e3d65d2",
+        "3b65274ef4d6d3b7fd30871ba5b62538e8d99820314f532894944cbc75677285",
+        "fb27fbfe899426a9964e655a06831cc0aa5e96d76ded4576d5cb97717bb8c0ff"
+      ]
+    },
     "spacr.crashreport.install_excepthook": {
       "source_blocks_sha256": [
         "49bf5b5e049e03c34d1ea1594317c72c2d0bebf96f00ffb075fa9fd27dbf2740",
-        "dfa27694dae26de542e375ae534fa60bdb943819d439c4741310663271a43ffe",
+        "6e4475333500fb58da97eb3935c895fd4d1e0b5cd44a10e5e9924c12c73d262f",
         "7e71dcd0c53d3a23021f464d859d3eae5865a6a8e8fce7d716a1408a15e599b8",
         "81b3e0584a0bedba56cb4a9f54589d712dd996f8479933ad5fcb754893d8e2e1",
         "21759c923f9ebfc9b1b1045d2522bd281332de99a8d2e3692ced19dfc70b50f8"
       ],
-      "source_sha256": "eef02f55a5953b26e7226e351612756bfdb90993489be3ff976203f86af1227e",
-      "text": "Skriv en kraschrapport om alla ohanterliga undantag, och uppför dig sedan som förut.\n\nKedjor snarare än ersätter: den föregående ``sys.excepthook`` körs fortfarande, så den traceback användaren är van vid att se fortfarande visas, med en rad efter det säger var bunten är.\n\n:param destination: as :func:`write_crash_report`.\n:param kwargs: övergick till :func:`collect`.\n:returns: kroken som installerades, så att en uppringare kan återställa ``sys.excepthook`` till vad det var.",
+      "source_sha256": "046d712db264844b07fc976f04efbbf4feb3d60224de2a83f406805254d410e4",
+      "text": "Skriv en kraschrapport om alla ohanterliga undantag, och uppför dig sedan som förut.\n\nKopplar vidare i stället för att ersätta: föregående ``sys.excepthook`` körs fortfarande, så den felspårning som användaren är van vid visas fortfarande, följd av en rad som anger var paketet finns. När anonymiserade rapporter är aktiverade (:func:`anonymous_reports_enabled`) köas även kraschens :func:`public_summary` och skickas i en bakgrundstråd; paketet skickas aldrig.\n\n:param destination: as :func:`write_crash_report`.\n:param kwargs: övergick till :func:`collect`.\n:returns: kroken som installerades, så att en uppringare kan återställa ``sys.excepthook`` till vad det var.",
       "translation_source_blocks_sha256": [
         "49bf5b5e049e03c34d1ea1594317c72c2d0bebf96f00ffb075fa9fd27dbf2740",
-        "dfa27694dae26de542e375ae534fa60bdb943819d439c4741310663271a43ffe",
+        "b7c095f7a2f808dd4a571df08a332b7ca5ebf7908b5e1e14614feb8e9f2ae6b4",
         "7e71dcd0c53d3a23021f464d859d3eae5865a6a8e8fce7d716a1408a15e599b8",
         "81b3e0584a0bedba56cb4a9f54589d712dd996f8479933ad5fcb754893d8e2e1",
         "21759c923f9ebfc9b1b1045d2522bd281332de99a8d2e3692ced19dfc70b50f8"
@@ -15918,6 +16120,20 @@
         "a262dbd7a4976be9ef04e4bd6955fba38116c0efad04145e6de05829dc82905f"
       ]
     },
+    "spacr.crashreport.install_id": {
+      "source_blocks_sha256": [
+        "30666fd47e78b99f8e8dc943e4b72ac2ab122ab8df05a1163887198864da3ea0",
+        "c744604924530733ab67171deaa6011eab8aca3cbddc26f21a84c44687189c2e",
+        "16217f2a7a0133b8ad3305420abd005d480dea88af4fe442aa9848777f0909a1"
+      ],
+      "source_sha256": "766b00f539a50c92ac672676be1fbf4aaaf1afc001bfdbfea8ab6c67c75d057d",
+      "text": "Returnera profilens slumpmässiga installations-id och skapa det vid första användningen.\n\nId:t är ett slumpmässigt UUID och härleds inte från datorn, användaren eller nätverket. Reläet använder det endast för att fördela den kostnadsfria kvoten rättvist.\n\n:returns: id:t som en sträng.",
+      "translation_source_blocks_sha256": [
+        "30666fd47e78b99f8e8dc943e4b72ac2ab122ab8df05a1163887198864da3ea0",
+        "c744604924530733ab67171deaa6011eab8aca3cbddc26f21a84c44687189c2e",
+        "16217f2a7a0133b8ad3305420abd005d480dea88af4fe442aa9848777f0909a1"
+      ]
+    },
     "spacr.crashreport.main": {
       "source_blocks_sha256": [
         "bf9d0a2a7a49f9180e31b474d0568ff6e95a0ca31c3cdc2d28f8088b22bb2812",
@@ -15930,6 +16146,290 @@
         "bf9d0a2a7a49f9180e31b474d0568ff6e95a0ca31c3cdc2d28f8088b22bb2812",
         "5ecb99de4ee6e3e6ccd4c7346f1f9338c4c95b245772e00d95cb6ef90af8fa4a",
         "de9811e9662cb26693185d5294f35c2c83f805de7ef74764fd787bf386e6dc9e"
+      ]
+    },
+    "spacr.crashreport.mark_anonymous_report_notice_shown": {
+      "source_blocks_sha256": [
+        "96479e8762615af5a01b6b9506808e7b862a73145f038ae448ea71233f9f55ad"
+      ],
+      "source_sha256": "96479e8762615af5a01b6b9506808e7b862a73145f038ae448ea71233f9f55ad",
+      "text": "Registrera att meddelandet om anonymiserade rapporter har visats.",
+      "translation_source_blocks_sha256": [
+        "96479e8762615af5a01b6b9506808e7b862a73145f038ae448ea71233f9f55ad"
+      ]
+    },
+    "spacr.crashreport.mode_code_context": {
+      "source_blocks_sha256": [
+        "9ca3b706e7530e8701f2eaaee41b41ce82db19cd53e1eaedc8b67fc745dc5a94",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "4e3c3f76dc95217d6a0a5c21b1a1db3b06ff01b2258d07d150d263e2c8fc12ee"
+      ],
+      "source_sha256": "f51c17fbd4961b03df65dcf8653b866aeed2192f284480a3c8a063e2895f2485",
+      "text": "Om ett val lägger till källkodsraden från varje spaCR-stackram i en rapport.\n\n:param mode: en nyckel i :data:`ERROR_REPORT_MODES`; standard är den sparade.\n:returns: ``True`` endast för ``\"all_code\"``.",
+      "translation_source_blocks_sha256": [
+        "9ca3b706e7530e8701f2eaaee41b41ce82db19cd53e1eaedc8b67fc745dc5a94",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "4e3c3f76dc95217d6a0a5c21b1a1db3b06ff01b2258d07d150d263e2c8fc12ee"
+      ]
+    },
+    "spacr.crashreport.mode_explains": {
+      "source_blocks_sha256": [
+        "7a70d59f7beffcfcbc6d61fc78a2dd298a5fc73379684db74808b2ea807a3380",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "efdeca3a15b913d6b3dda548fab251cb81bd0eefcf0fca8b89bd36eb8addcab3"
+      ],
+      "source_sha256": "8ef9b3a636ec21ab6b1d9f1801960e5d95dcc776f857af9db75e462b49f787c0",
+      "text": "Om ett val låter AI förklara varje fel i konsolen.\n\n:param mode: en nyckel i :data:`ERROR_REPORT_MODES`; standard är den sparade.\n:returns: ``True`` för de fyra \"Summarize\"-valen.",
+      "translation_source_blocks_sha256": [
+        "7a70d59f7beffcfcbc6d61fc78a2dd298a5fc73379684db74808b2ea807a3380",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "efdeca3a15b913d6b3dda548fab251cb81bd0eefcf0fca8b89bd36eb8addcab3"
+      ]
+    },
+    "spacr.crashreport.mode_sends": {
+      "source_blocks_sha256": [
+        "54d2d90d2b1244559bd97a549d1ea211f2ade88d83f2de27ec2fa78d08f71de8",
+        "a41a344522ef8229c99bed0e499c867629e183343c9a2f98cabe87e986d0b844",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "8c06fb9a4e75243616cc2e3c0d6f34936cf693ba11a3e2948f3f4afa535f63e7"
+      ],
+      "source_sha256": "4bedb3bfe06a1e2a45775df22d01bcb84e042554bae6b3205d3c8ac1c45b8da6",
+      "text": "Om ett val registrerar ett fel av typen ``kind`` som ett ärende.\n\n:param kind: :data:`KIND_FAULT` eller :data:`KIND_USER_ERROR`.\n:param mode: en nyckel i :data:`ERROR_REPORT_MODES`; standard är den sparade.\n:returns: om det skickas.",
+      "translation_source_blocks_sha256": [
+        "54d2d90d2b1244559bd97a549d1ea211f2ade88d83f2de27ec2fa78d08f71de8",
+        "a41a344522ef8229c99bed0e499c867629e183343c9a2f98cabe87e986d0b844",
+        "32565e095491e370d095eb99d3ad833e973e63e0162e0bb8b2b9d2293e80bf98",
+        "8c06fb9a4e75243616cc2e3c0d6f34936cf693ba11a3e2948f3f4afa535f63e7"
+      ]
+    },
+    "spacr.crashreport.network_allowed": {
+      "source_blocks_sha256": [
+        "c764c191a908b6fa48994dcb18f3fdf88ef1b8c3b34d6fba5f1846374db3edce",
+        "16c5eec3cc8b02d19e4acd44f2e70fc13b2ec2966f7d3f5a82b5808aeba9b601"
+      ],
+      "source_sha256": "d95b02bbcc7b788ea8100f10b7b243d3011494ef3a6335f9bd3b02660f4abc97",
+      "text": "Om en rapport eller en värdbaserad diagnos över huvud taget får använda nätverket.\n\n:returns: ``False`` när :data:`NO_NETWORK_ENV` är satt eller spaCR körs i säkert läge, annars ``True``.",
+      "translation_source_blocks_sha256": [
+        "c764c191a908b6fa48994dcb18f3fdf88ef1b8c3b34d6fba5f1846374db3edce",
+        "16c5eec3cc8b02d19e4acd44f2e70fc13b2ec2966f7d3f5a82b5808aeba9b601"
+      ]
+    },
+    "spacr.crashreport.next_reset_utc": {
+      "source_blocks_sha256": [
+        "60057eb896241eceb07f50f5ca0d8bb74d759109d76d43673d105ae7845538c3",
+        "4e961b7c2b862b6eb5e047dedde2709537edf8afb90053ca2c4e1966b767008d",
+        "b048ad88d42dbdcc0e5afd455afb8f66e528c89cddab24aeca234cf4b9e63d91"
+      ],
+      "source_sha256": "5899757a4ffad4f37f24eae8e2120b2c48edccadda8c0c6d81859436c64fa63a",
+      "text": "Returnera nästa 00:00 UTC, när reläets dagliga kvoter återställs.\n\n:param now: tidpunkten att räkna från; standard är nu.\n:returns: ett tidszonsmedvetet UTC-datum och klockslag.",
+      "translation_source_blocks_sha256": [
+        "60057eb896241eceb07f50f5ca0d8bb74d759109d76d43673d105ae7845538c3",
+        "4e961b7c2b862b6eb5e047dedde2709537edf8afb90053ca2c4e1966b767008d",
+        "b048ad88d42dbdcc0e5afd455afb8f66e528c89cddab24aeca234cf4b9e63d91"
+      ]
+    },
+    "spacr.crashreport.normalise_cause": {
+      "source_blocks_sha256": [
+        "ed5c29abdb17663720f38d605f7506f2d712650dd03c8be31288cd998efe9548",
+        "63496212f49051e5bab015b597d8f01bf07f307601412e73bd7b53bee512dc57",
+        "cc2d28e237283855df656426d6855b9bd55794b66bc1f798916ffac3116e771c"
+      ],
+      "source_sha256": "443c7d99e0f454518028bbf0b6a993a54cf30de94b071895aa503dd7ea5289e9",
+      "text": "En nyckel för trolig orsak som reläet sparar den: kebab-case, 5 ord, 40 tecken.\n\n:param raw: nyckeln som AI skrev den.\n:returns: sluggen, eller ``\"\"``.",
+      "translation_source_blocks_sha256": [
+        "ed5c29abdb17663720f38d605f7506f2d712650dd03c8be31288cd998efe9548",
+        "63496212f49051e5bab015b597d8f01bf07f307601412e73bd7b53bee512dc57",
+        "cc2d28e237283855df656426d6855b9bd55794b66bc1f798916ffac3116e771c"
+      ]
+    },
+    "spacr.crashreport.normalise_question": {
+      "source_blocks_sha256": [
+        "0f0cae22dd277f52ca201b96733e8dcf3029ecbccd93581c20eb0f5c9546b8a7",
+        "492769b21b09c87878023ebb1112a1fd4c77ed259f2eb6e17b02c2c2a23be74d",
+        "c049dd8f2cfeaa634d9db7c9c555fdc86a7c2d76205463a3c1f6ffb672373705",
+        "0ceb5213e85b3ea40168b85b1b739141142ec1d476838518098c26eb2418cb01"
+      ],
+      "source_sha256": "b3c1cbdcd69c16d48490cc1b07f7c452a668a90836895c0123c59a024a2425db",
+      "text": "En fråga så som båda cacheminnena jämför den.\n\nGemener, platshållare som ``<PATH>`` borttagna och varje följd av blanktecken eller skiljetecken sammanförd till ett blanksteg, på samma sätt som reläets ``normaliseQuestion``.\n\n:param text: frågan.\n:returns: den normaliserade frågan.",
+      "translation_source_blocks_sha256": [
+        "0f0cae22dd277f52ca201b96733e8dcf3029ecbccd93581c20eb0f5c9546b8a7",
+        "492769b21b09c87878023ebb1112a1fd4c77ed259f2eb6e17b02c2c2a23be74d",
+        "c049dd8f2cfeaa634d9db7c9c555fdc86a7c2d76205463a3c1f6ffb672373705",
+        "0ceb5213e85b3ea40168b85b1b739141142ec1d476838518098c26eb2418cb01"
+      ]
+    },
+    "spacr.crashreport.public_environment": {
+      "source_blocks_sha256": [
+        "143cbf82508ad7d35f938c80c999116c856f8476d060195dec21d69ba4a7e482",
+        "18df698a2ebe90392af36b917af48c3fbe52abd868620e90762adfa8c1784929",
+        "d1bdabe97177a2c46f2bbc056f1c432ac114a6d69cc386f8df0bbe82d0b8a0fc"
+      ],
+      "source_sha256": "0b6900533ead0aa35712936951802f92ca0acfcea2086926ce95ba3be18f7d70",
+      "text": "Datorn och biblioteken som rapporten skapades på, utan några namn.\n\nOS-version, CPU-arkitektur och kärnor, minne avrundat till hela GB, GPU-modell och minne när torch redan känner till dem, CUDA eller MPS, versionerna av spaCR:s viktigaste bibliotek och hur spaCR installerades.\n\n:returns: de uppgifter som kunde läsas.",
+      "translation_source_blocks_sha256": [
+        "143cbf82508ad7d35f938c80c999116c856f8476d060195dec21d69ba4a7e482",
+        "18df698a2ebe90392af36b917af48c3fbe52abd868620e90762adfa8c1784929",
+        "d1bdabe97177a2c46f2bbc056f1c432ac114a6d69cc386f8df0bbe82d0b8a0fc"
+      ]
+    },
+    "spacr.crashreport.public_input_facts": {
+      "source_blocks_sha256": [
+        "986a0c95208b374ac3ccc585d3789f048ceb98464a78941b7b7586f50887c9a4",
+        "4e38c3ca51f64ad8de1aa6826a84c001a5750c218aff2f4d2857d09d23db7186",
+        "47556d964a95f3093bf8718305cef4eddb19b1796af90a7dc7c2c240312a49c2",
+        "8b1d0678f203d982a1b6c1c354631c33bc7201afc8bd9e483829df9cef396e83",
+        "208123e84fdf833418eab4a88a0197014add4bd0d7ea41f0b1da802d93b0f755"
+      ],
+      "source_sha256": "287551a254e77f1f6a93afa2d5199d5a7a945f3f67baeeebc408aab34516f588",
+      "text": "Vad körningens källmapp innehåller, utan några namn.\n\nRäknar bildfilerna direkt i mappen (högst ``limit`` poster granskas), förekommande filändelser samt den första bildens form, dtype och sannolika antal bildkanaler, lästa från dess filhuvud.\n\n:param settings: körningens inställningar.\n:param limit: det högsta antalet mappposter som granskas.\n:returns: ``{\"images\", \"extensions\", \"shape\", \"dtype\", \"channels\"}``, endast de nycklar som kunde hittas; ``{}`` utan en läsbar mapp.",
+      "translation_source_blocks_sha256": [
+        "b6b0b460ca4919cfebb00b60e16f967dc418f2eb81411dec561fb9671ac320b3",
+        "ff273b1d006bed98372d7b12c953c9f4af0b2ee3698ad5ba67a9ad80bea77bd3",
+        "8cbfeb030f1184e19608a592846fcd11e669c7f28593d7c17303b3a52a66604d",
+        "8b1d0678f203d982a1b6c1c354631c33bc7201afc8bd9e483829df9cef396e83",
+        "208123e84fdf833418eab4a88a0197014add4bd0d7ea41f0b1da802d93b0f755"
+      ]
+    },
+    "spacr.crashreport.public_log_tail": {
+      "source_blocks_sha256": [
+        "8d91911ebf8c718a211495f2539f64503018be20ddf551daf804dd034d95b8f6",
+        "34e9d50a201b2222e430d77acf4e9661d49f04a897f97452982965307c0e7fc8",
+        "b963ea1bb8ca7170b5aba9688123fe680dcd157069c67c3dcec738c13e1d5c4d",
+        "f6dec1a4dbc936c496b836e3762740643bf24ce898cc7c502926d0f994b36b99",
+        "ba586c5534c232a5db9d1a95c98215a0cb8137449ccce7bf6c42335649650bfa"
+      ],
+      "source_sha256": "442d5b9ff98fead36e2a4787c6e5e6eeaf5372f4e621d9a2d9df05e9ac2ef696",
+      "text": "Konsolens sista rader före ett fel, rensade från personuppgifter och avkortade.\n\n:param text: konsoltexten.\n:param lines: det högsta antalet rader som behålls, räknat från slutet.\n:param limit: det högsta antalet tecken som behålls, räknat från slutet.\n:returns: det rensade utdraget.",
+      "translation_source_blocks_sha256": [
+        "8d91911ebf8c718a211495f2539f64503018be20ddf551daf804dd034d95b8f6",
+        "34e9d50a201b2222e430d77acf4e9661d49f04a897f97452982965307c0e7fc8",
+        "b963ea1bb8ca7170b5aba9688123fe680dcd157069c67c3dcec738c13e1d5c4d",
+        "f6dec1a4dbc936c496b836e3762740643bf24ce898cc7c502926d0f994b36b99",
+        "ba586c5534c232a5db9d1a95c98215a0cb8137449ccce7bf6c42335649650bfa"
+      ]
+    },
+    "spacr.crashreport.public_problem_lines": {
+      "source_blocks_sha256": [
+        "f33f611684db36ff26fe84c795732cd7c4cd23ab1cfcaf3ba1a3204d6662923d",
+        "8589f473cc0aaa5c63406e177c2791c9d0e66b9e760f82b1969af0c60956447c",
+        "b7b5fc741ae265a1cb0bb3334d2e5fd91e771cba76304099b9cdf61db58f2151",
+        "cc95cecde657def27f1b55201193938840c7c59a9cd7a1c4eed12c46e95b94ce",
+        "b4ae9684325b53d0dc33a0158c3d79fb2a387194463b1fe0e6cb40fdd6416bc2"
+      ],
+      "source_sha256": "7d60796cd03087fe224d38640cfd204367435cf1d776b86685338ec14e5b81d2",
+      "text": "Rensa inställningsproblem till korta rader som får publiceras.\n\nSökvägar och filnamn tas bort i stället för att ersättas, så \"src does not exist: /data/plate1\" skickas som \"src does not exist\".\n\n:param problems: :class:`spacr.validate.Problem`-objekt eller texter.\n:param limit: den längsta raden, i tecken.\n:returns: en rad per problem, ``\"setting: message\"`` när problemet namnger en inställning; dubbletter och tomma rader tas bort.",
+      "translation_source_blocks_sha256": [
+        "f33f611684db36ff26fe84c795732cd7c4cd23ab1cfcaf3ba1a3204d6662923d",
+        "8589f473cc0aaa5c63406e177c2791c9d0e66b9e760f82b1969af0c60956447c",
+        "b7b5fc741ae265a1cb0bb3334d2e5fd91e771cba76304099b9cdf61db58f2151",
+        "cc95cecde657def27f1b55201193938840c7c59a9cd7a1c4eed12c46e95b94ce",
+        "b4ae9684325b53d0dc33a0158c3d79fb2a387194463b1fe0e6cb40fdd6416bc2"
+      ]
+    },
+    "spacr.crashreport.public_settings": {
+      "source_blocks_sha256": [
+        "c34105192fc3c673ec09a16c0589c3ab498c920697acc3401b9f1b2e478d5193",
+        "c2609f0c61dbfd640dc74eac4a0b4f1ac3cc29da90d1743cb7b59d54c9cc676b",
+        "47556d964a95f3093bf8718305cef4eddb19b1796af90a7dc7c2c240312a49c2",
+        "c25d4209c8659dfaf15de261c10316befee090b8885e2b244ee41d7a5667b792"
+      ],
+      "source_sha256": "90527e1e023312ec4e1e157eb3bf4ce99e4a413565f7e47f4e8c6c012a0200e5",
+      "text": "Inställningarna som körningen använde, utan kvarvarande personuppgifter.\n\nInställningsnamnen behålls oförändrade; värdena går genom :func:`_public_setting_value`, så ``src`` visas som ``<path: exists=no>`` när mappen saknas, utan mappens namn. Högst :data:`MAX_SETTINGS` inställningar, i namnordning.\n\n:param settings: körningens inställningar.\n:returns: ``{name: value}``.",
+      "translation_source_blocks_sha256": [
+        "f6499777e18795002c1f228608b661dc42ddf84570cbfb9d96c63e7092eab03e",
+        "c2609f0c61dbfd640dc74eac4a0b4f1ac3cc29da90d1743cb7b59d54c9cc676b",
+        "8cbfeb030f1184e19608a592846fcd11e669c7f28593d7c17303b3a52a66604d",
+        "c25d4209c8659dfaf15de261c10316befee090b8885e2b244ee41d7a5667b792"
+      ]
+    },
+    "spacr.crashreport.public_summary": {
+      "source_blocks_sha256": [
+        "552617af2b167678afbb951fd4ac2f2c7320d101154e8dedaed86b872ebdf076",
+        "c3b7eb8820126de0b319bcc04c1d421425d97cc6122ee4756d56397e44be4326",
+        "7b2a9096c72b5305a2d3ce1966b62885d376f5b393a2b63ecc58802c84a0ddb7",
+        "0bc8a12f04c86ce745abf2ae3bfaea4242fbc5ede43b65a5e270d29ce93f4109",
+        "a7ac770cdac6cb39dd33f45d923b488ce85f5687d6c64122801e3320643a6643",
+        "b9446029dff846f1cf09f9601d63cd086e726da8976b5cdc0e1795c356960f16",
+        "73218bc6b24dc0d5d3c6039a100e31af256c8cb76db00e1102eb6024646c1c4b",
+        "9c14e5904446bde5cd0a8897edccf8ebf9025dd0674726871575984c29ca661c",
+        "9e1051e5033f4155433b7ab10fd44dfc6fe22ed04d050769aca2b2a9e57dec70",
+        "558bb46dae77b3bdf1b5924eaac436cc52a3182a382d3df16fb29f6e1a0ef059",
+        "ba1077179bedb029d7a2ca098716e1b44f4e9d2350e9024f62fc4f68f8a644c8",
+        "33b592719332b1e0608f2172fe8715caacc14beb67bde2d80f755f90272be6ca",
+        "ca1f09810e6eddac5afe5b26732da35429a00d5f51c36a7afa9611ff89eeb244",
+        "a9377aabfeed8d672d3197583e9c2a0e5d5de04bad7d15176fb0e8a760e1f1c0",
+        "97f5adcf4fe6581fd4ea8471715b00997dd39eff5b13aaf2b14636c440a72204",
+        "865a509d4d5a53b0189e5cb0f2f7fcee4a61625ad6e1d6d6eab9e1a9291f99e1",
+        "fcdaad60554b1a24419b64f901370c942b794d32d2c472885deb64beee091182"
+      ],
+      "source_sha256": "9dee6cbe285403aa8ffe3d3e6914851e3b428124ce150b2614f6b377f2d27537",
+      "text": "Skapa den anonymiserade sammanfattningen av ett fel som får publiceras.\n\nEndast nycklarna i :data:`PUBLIC_SUMMARY_KEYS` finns med. Meddelandet går genom :func:`scrub_public_text` och kortas till :data:`MAX_MESSAGE_CHARS`; anropsramarna är högst :data:`MAX_FRAMES` poster av formen ``{file, function, line}``, med filens basnamn eller ``<user-code>`` för en fil utanför spaCR, Python och dess bibliotek. Ingen logg, inställning, miljövariabel eller sökväg läses in i sammanfattningen.\n\n:param exception: undantaget med dess anropsspårning.\n:param traceback_text: en formaterad anropsspårning som används när inget undantagsobjekt finns till hands (en misslyckad pipelinekörning rapporterar en sådan som text).\n:param module: spaCR-modulnyckeln där felet inträffade, exempelvis ``mask`` eller ``measure``.\n:param user_note: det användaren lägger till, rensat och kortat till :data:`MAX_NOTE_CHARS`; utelämnas när det är tomt.\n:param dry_run: be reläet validera utan att skapa ett ärende; utelämnas när värdet är falskt.\n:param kind: :data:`KIND_FAULT` eller :data:`KIND_USER_ERROR`; bestäms av :func:`classify_failure` när värdet är tomt.\n:param code_context: lägg till varje spaCR-anropsrams källkodsrad som ``code``. Ramar från andra filer innehåller aldrig kod.\n:param screen: vyns titel som användaren ser den, exempelvis ``Mask``; högst :data:`MAX_SCREEN_CHARS` tecken.\n:param error_text: felet som konsolen visade det, rensat med bibehållna radbrytningar och kortat till :data:`MAX_ERROR_TEXT_CHARS`.\n:param message: meddelandet som skickas i stället för undantagets eget, exempelvis alla problem som en nekad körning hittade; ett användarfel behåller radbrytningarna och får vara :data:`MAX_USER_ERROR_MESSAGE_CHARS` tecken långt.\n:param settings: körningens inställningar; deras namn och offentliga värden (:func:`public_settings`) samt källmappens indatauppgifter (:func:`public_input_facts`) läggs till.\n:param log_text: konsoltexten före felet; dess sista rader läggs till, rensade (:func:`public_log_tail`).\n:param run: ``{\"stage\", \"elapsed_s\", \"dry_run\"}`` för den misslyckade körningen.\n:param diagnostics: lägg till miljöblocket (:func:`public_environment`) och undantagskedjan.\n:returns: sammanfattningen, klar för :func:`submit_public_summary`.",
+      "translation_source_blocks_sha256": [
+        "552617af2b167678afbb951fd4ac2f2c7320d101154e8dedaed86b872ebdf076",
+        "d8b6d9809e3518a178adf267e6c329c6f248555314c6d093467bd1a3d7145a9f",
+        "7b2a9096c72b5305a2d3ce1966b62885d376f5b393a2b63ecc58802c84a0ddb7",
+        "dc24cdd0a8caf73b36a67bba0e00ade5ea7d9bbcde6891cef1896c82f8952684",
+        "a7ac770cdac6cb39dd33f45d923b488ce85f5687d6c64122801e3320643a6643",
+        "b9446029dff846f1cf09f9601d63cd086e726da8976b5cdc0e1795c356960f16",
+        "73218bc6b24dc0d5d3c6039a100e31af256c8cb76db00e1102eb6024646c1c4b",
+        "9c14e5904446bde5cd0a8897edccf8ebf9025dd0674726871575984c29ca661c",
+        "9e1051e5033f4155433b7ab10fd44dfc6fe22ed04d050769aca2b2a9e57dec70",
+        "558bb46dae77b3bdf1b5924eaac436cc52a3182a382d3df16fb29f6e1a0ef059",
+        "ba1077179bedb029d7a2ca098716e1b44f4e9d2350e9024f62fc4f68f8a644c8",
+        "33b592719332b1e0608f2172fe8715caacc14beb67bde2d80f755f90272be6ca",
+        "22400d6ef00b15497ccf2cc081aa6fb0b01d6b5b8009c10a93fb95a230c62ca9",
+        "a9377aabfeed8d672d3197583e9c2a0e5d5de04bad7d15176fb0e8a760e1f1c0",
+        "2e6dddc7c10801ce9e4f20e84f6184cd89a44f15edbaf6f0211e2744de61e222",
+        "865a509d4d5a53b0189e5cb0f2f7fcee4a61625ad6e1d6d6eab9e1a9291f99e1",
+        "fcdaad60554b1a24419b64f901370c942b794d32d2c472885deb64beee091182"
+      ]
+    },
+    "spacr.crashreport.question_key": {
+      "source_blocks_sha256": [
+        "05fed47f6d1de504bfe09d0bf7651c09dd5a1aafbed254ca41bed1715d356a14",
+        "9ea846a8c806fae26730dac71ac0808afada88d86894dd298c043596416e21c2",
+        "84d186ddcdde56653cd4aeb0e692a25d797bda21469a190bebdcff3377aaf8f8",
+        "d02fb2680a955047b4370421b7c80f2c509fd8062686e6abcf7ed5667ea964e4",
+        "0387530ec68234cb3df513587597db84b4008919da25c9d3904a8eb533b873b7",
+        "1f0dc14b914d2ddcbbad0d1a3027f8067b5a49f5c483fd6e2dd53069ed211a86"
+      ],
+      "source_sha256": "45bcfbe21202e8b0dd3f46d708cce163f714a466f901d8881a067d4043faa3a3",
+      "text": "Nyckeln som en frågas sparade svar lagras under, eller ``\"\"``.\n\nSHA-256 av den rensade, normaliserade frågan, platsen där den ställdes (vy eller modul) och spaCR:s ``major.minor``, med prefixet ``q:``. En fråga med fler än :data:`QUESTION_CACHE_CONTEXT_MAX` tecken i fråga och inklistrad kontext sparas aldrig.\n\n:param question: det användaren frågade.\n:param place: vyn eller modulen där frågan ställdes.\n:param context_chars: antal tecken i konsolkontext, kod eller anropsspårning som klistrades in tillsammans med frågan.\n:returns: nyckeln, eller ``\"\"`` när svaret inte får sparas.",
+      "translation_source_blocks_sha256": [
+        "05fed47f6d1de504bfe09d0bf7651c09dd5a1aafbed254ca41bed1715d356a14",
+        "aeadbd86541c7af4b9fc3219532385ea5866b6f98dcec7d12ec404e34447aecc",
+        "84d186ddcdde56653cd4aeb0e692a25d797bda21469a190bebdcff3377aaf8f8",
+        "d02fb2680a955047b4370421b7c80f2c509fd8062686e6abcf7ed5667ea964e4",
+        "0387530ec68234cb3df513587597db84b4008919da25c9d3904a8eb533b873b7",
+        "1f0dc14b914d2ddcbbad0d1a3027f8067b5a49f5c483fd6e2dd53069ed211a86"
+      ]
+    },
+    "spacr.crashreport.queued_summaries": {
+      "source_blocks_sha256": [
+        "b056272264320ce5219beb1da9712a5967c6924853f0f78ec22f73219a9f5b1b",
+        "bacc48839eab27b77f601a8d37432a109de81830de8d5b956156d1c427974d8a",
+        "1cab404dcb1da244b822e30546c57e2f68804a00c7c6f7d528cda6b7b83b6135"
+      ],
+      "source_sha256": "b1229b6d3f587a65cf1499208964e2ee29834241e99220ac42f71bdf11fb92f2",
+      "text": "Returnera rapporterna som väntar på att skickas, äldst först.\n\nUtgångna och överflödiga rapporter tas bort först.\n\n:returns: sammanfattningarna.",
+      "translation_source_blocks_sha256": [
+        "b056272264320ce5219beb1da9712a5967c6924853f0f78ec22f73219a9f5b1b",
+        "bacc48839eab27b77f601a8d37432a109de81830de8d5b956156d1c427974d8a",
+        "1cab404dcb1da244b822e30546c57e2f68804a00c7c6f7d528cda6b7b83b6135"
+      ]
+    },
+    "spacr.crashreport.relay_url": {
+      "source_blocks_sha256": [
+        "2643cf59ddd0a37fa3191993bcc713054dc7f5d9a00d21bd95797709f5f7b61b",
+        "6f839863e220adff39a290f740c1f73b242be563403fbc36fd61ddb8def6e87c",
+        "9cc379f36f3768e8b53cb6e76a8e861f5f2bd8bb2dbaeb759fefec4efeda1ae1"
+      ],
+      "source_sha256": "e376098bcff2f96d488cfd56564de1885a5db30e7a4ba203e60f0134ca027c71",
+      "text": "Returnera reläadressen som rapporter skickas till, utan avslutande snedstreck.\n\n:data:`REPORT_RELAY_ENV` åsidosätter :data:`REPORT_RELAY_URL` när den innehåller en adress med ``https://`` eller med ``http://`` på den här datorn.\n\n:returns: basadressen.",
+      "translation_source_blocks_sha256": [
+        "2643cf59ddd0a37fa3191993bcc713054dc7f5d9a00d21bd95797709f5f7b61b",
+        "6f839863e220adff39a290f740c1f73b242be563403fbc36fd61ddb8def6e87c",
+        "9cc379f36f3768e8b53cb6e76a8e861f5f2bd8bb2dbaeb759fefec4efeda1ae1"
       ]
     },
     "spacr.crashreport.report_exception": {
@@ -15950,6 +16450,188 @@
         "7e71dcd0c53d3a23021f464d859d3eae5865a6a8e8fce7d716a1408a15e599b8",
         "81b3e0584a0bedba56cb4a9f54589d712dd996f8479933ad5fcb754893d8e2e1",
         "f03cf812437fd58e4d2bf1ee89c5da75a8862b75bdf2e4ac794f3aeac558fd7e"
+      ]
+    },
+    "spacr.crashreport.save_explanation": {
+      "source_blocks_sha256": [
+        "28af111d7f1e7625d8491505cb1f361219dde8ab663dac5f7c05ae056d42113a",
+        "5cee2ec77eb14a9170d8df3b5e021c573142ec50c19e258d7d7f2fde494d2151",
+        "40de8b97923d2ee09926fe063c4581621449d520d52cc191f3b8c0cf1a8f4330",
+        "3cd67d36dbdb5c54f555816574478caa8693d95a94cbf617de5117c4dd1adf11",
+        "73d3ef4042444ab329f10847cfff66ae72139d8c664b4a185ee004e90abe1283",
+        "d687ba373e4443cce4b6faa8c09ab6ea775b2d37bb8dbbea5569c8a661f8047a",
+        "4658ef7ae85b97fe9246a25c1180601e52754502237b23bebb3761627f3ab50f",
+        "578c9fff753df34a1750f53d74bcbf0f3308c09bd9864d93a8c4a7459a7a4910"
+      ],
+      "source_sha256": "bc4544d16e629eb1d4960bd3d4a0a458dc2faaee990090a5524178723d30089d",
+      "text": "Spara en förklaring på den här datorn till nästa identiska fel.\n\nHögst :data:`MAX_SAVED_EXPLANATIONS` behålls, de äldsta tas bort först och utgångna förklaringar tas bort vid varje skrivning. Ett skrivfel ignoreras.\n\n:param signature: från :func:`explanation_signature`.\n:param text: den rensade förklaringen.\n:param tier: ``\"best\"``, ``\"light\"`` eller ``\"\"``.\n:param model: modellen som skrev den, när den är känd.\n:param now: tiden i sekunder sedan epoken; standardvärdet är nu.\n:param cause: nyckeln till den sannolika orsaken som AI angav, om någon.",
+      "translation_source_blocks_sha256": [
+        "28af111d7f1e7625d8491505cb1f361219dde8ab663dac5f7c05ae056d42113a",
+        "5cee2ec77eb14a9170d8df3b5e021c573142ec50c19e258d7d7f2fde494d2151",
+        "40de8b97923d2ee09926fe063c4581621449d520d52cc191f3b8c0cf1a8f4330",
+        "3cd67d36dbdb5c54f555816574478caa8693d95a94cbf617de5117c4dd1adf11",
+        "73d3ef4042444ab329f10847cfff66ae72139d8c664b4a185ee004e90abe1283",
+        "d687ba373e4443cce4b6faa8c09ab6ea775b2d37bb8dbbea5569c8a661f8047a",
+        "4658ef7ae85b97fe9246a25c1180601e52754502237b23bebb3761627f3ab50f",
+        "578c9fff753df34a1750f53d74bcbf0f3308c09bd9864d93a8c4a7459a7a4910"
+      ]
+    },
+    "spacr.crashreport.saved_explanation": {
+      "source_blocks_sha256": [
+        "65f26e02cd937dc8a78205f66e6d39e018916ac3dee8ff1e245ad8d807702e4e",
+        "daed287218203e4c13f41fea45f0d9a107de749d2bd3d5bb751446f2306c4456",
+        "40de8b97923d2ee09926fe063c4581621449d520d52cc191f3b8c0cf1a8f4330",
+        "4658ef7ae85b97fe9246a25c1180601e52754502237b23bebb3761627f3ab50f",
+        "2cbd351de9e1a53ce8ee85c86c3b979b278a3e6a025082fcc0baf254a5735e8b"
+      ],
+      "source_sha256": "1adeffa640bd39842a4345d2ee2713dbdd48fc17c0353927902aaa45e7c44d3c",
+      "text": "Förklaringen som sparats på den här datorn för ett fel, om den fortfarande är giltig.\n\nGiltig betyder skriven för denna spaCR-version ``major.minor`` och för mindre än :data:`SAVED_EXPLANATION_DAYS` dagar sedan.\n\n:param signature: från :func:`explanation_signature`.\n:param now: tiden i sekunder sedan epoken; standardvärdet är nu.\n:returns: ``{\"text\", \"tier\", \"model\"}``, eller ``None``.",
+      "translation_source_blocks_sha256": [
+        "65f26e02cd937dc8a78205f66e6d39e018916ac3dee8ff1e245ad8d807702e4e",
+        "daed287218203e4c13f41fea45f0d9a107de749d2bd3d5bb751446f2306c4456",
+        "40de8b97923d2ee09926fe063c4581621449d520d52cc191f3b8c0cf1a8f4330",
+        "4658ef7ae85b97fe9246a25c1180601e52754502237b23bebb3761627f3ab50f",
+        "2cbd351de9e1a53ce8ee85c86c3b979b278a3e6a025082fcc0baf254a5735e8b"
+      ]
+    },
+    "spacr.crashreport.scrub_public_lines": {
+      "source_blocks_sha256": [
+        "044c2c542b75d6d3c72ccfc686475662df8fc6c8c4c15dac48455c00a9ee8dc9",
+        "572a872e35413edbd0762136e17009c113d835f577b1112fafc6c89c0a7eda56",
+        "abfe850b32d6d2a06dd4ccf1d0e6bb0c3cf51391b0c7f856714a8e6fcccfc5c5",
+        "c86f36468710a89d756e9b3144993fc419d724b98a141cbd56f2858db067841a",
+        "789d20d0dc60fece4bd441d129d1b20113b05ea3deaf7cb16907e8a285bcbf09",
+        "630081496e8b30d4ca7f2da4a78439e0bb77638e2b3978f802f966c3dd76905f"
+      ],
+      "source_sha256": "b2b97f15b653dcd38bd95aa31d3811c2dc1652ec453d180a363b542357787d24",
+      "text": "Rensa en text som :func:`scrub_public_text`, men behåll radbrytningarna.\n\nVarje rad rensas separat, så ett Markdown-svar behåller rubriker och numrerade steg på egna rader; följder av tomma rader blir en enda.\n\n:param text: texten; allt annat omvandlas först till text.\n:param limit: det längsta resultatet i tecken; ett längre resultat kortas och avslutas med ``…``.\n:param keep_docs_urls: som för :func:`scrub_public_text`.\n:returns: den rensade texten, med rader sammanfogade med ``\\n``.",
+      "translation_source_blocks_sha256": [
+        "044c2c542b75d6d3c72ccfc686475662df8fc6c8c4c15dac48455c00a9ee8dc9",
+        "572a872e35413edbd0762136e17009c113d835f577b1112fafc6c89c0a7eda56",
+        "abfe850b32d6d2a06dd4ccf1d0e6bb0c3cf51391b0c7f856714a8e6fcccfc5c5",
+        "c86f36468710a89d756e9b3144993fc419d724b98a141cbd56f2858db067841a",
+        "789d20d0dc60fece4bd441d129d1b20113b05ea3deaf7cb16907e8a285bcbf09",
+        "630081496e8b30d4ca7f2da4a78439e0bb77638e2b3978f802f966c3dd76905f"
+      ]
+    },
+    "spacr.crashreport.scrub_public_text": {
+      "source_blocks_sha256": [
+        "9a20c78f64aa38bee2a204a30b26a482e1707ab252885c1ec7d5c88e293c0d7b",
+        "242aca94a2143e2e756248352bc9124e64680fd1b505ffb6f52333adf54a120f",
+        "abfe850b32d6d2a06dd4ccf1d0e6bb0c3cf51391b0c7f856714a8e6fcccfc5c5",
+        "c86f36468710a89d756e9b3144993fc419d724b98a141cbd56f2858db067841a",
+        "973a7237076f8172f936b4f03bd23d6190af0e03cbb131bd9210d64abd89851f",
+        "e195a696122793adb3b9e56035581cefa5265864a5dd595fbd4906954a1dcb7b"
+      ],
+      "source_sha256": "60938f5faca29a98d1d190efd71d99db50ad4a0266c584a1341e8ee0009a6556",
+      "text": "Ta bort personuppgifter från en kort text som ska publiceras.\n\nAbsoluta sökvägar (POSIX, Windows och nätverksresurser) blir ``<PATH>``, filnamn med data- eller kodändelse ``<FILE>``, e-postadresser ``<EMAIL>``, webbadresser ``<URL>``, IP-adresser ``<IP>``, värdnamn ``<HOST>``, datorns inloggningsnamn ``<USER>`` och allt som liknar en nyckel, token eller lång hexadecimal- eller base64-sträng ``<TOKEN>``. Rensningshjälparna i :mod:`spacr.qt.ai.issue_report` körs först och dessa striktare regler därefter.\n\n:param text: texten; allt annat omvandlas först till text.\n:param limit: det längsta resultatet i tecken; ett längre resultat kortas och avslutas med ``…``.\n:param keep_docs_urls: behåll de offentliga spaCR-adresserna i :data:`PUBLIC_DOCS_URLS` för ett AI-svar som länkar till dokumentationen; alla andra adresser blir fortfarande ``<URL>``.\n:returns: den rensade texten på en rad.",
+      "translation_source_blocks_sha256": [
+        "9a20c78f64aa38bee2a204a30b26a482e1707ab252885c1ec7d5c88e293c0d7b",
+        "242aca94a2143e2e756248352bc9124e64680fd1b505ffb6f52333adf54a120f",
+        "abfe850b32d6d2a06dd4ccf1d0e6bb0c3cf51391b0c7f856714a8e6fcccfc5c5",
+        "c86f36468710a89d756e9b3144993fc419d724b98a141cbd56f2858db067841a",
+        "973a7237076f8172f936b4f03bd23d6190af0e03cbb131bd9210d64abd89851f",
+        "e195a696122793adb3b9e56035581cefa5265864a5dd595fbd4906954a1dcb7b"
+      ]
+    },
+    "spacr.crashreport.scrub_public_text._hold": {
+      "source_blocks_sha256": [
+        "d763eca478e72701158eb7a75ffcacd94fa6e7e0f0184644fe976d0ca8f3f643"
+      ],
+      "source_sha256": "d763eca478e72701158eb7a75ffcacd94fa6e7e0f0184644fe976d0ca8f3f643",
+      "text": "Lägg undan en offentlig spaCR-adress; alla andra blir <URL>.",
+      "translation_source_blocks_sha256": [
+        "d763eca478e72701158eb7a75ffcacd94fa6e7e0f0184644fe976d0ca8f3f643"
+      ]
+    },
+    "spacr.crashreport.set_anonymous_reports_enabled": {
+      "source_blocks_sha256": [
+        "95d2c3ef6e990ecca25ec967247e73eb4864bb2854839d4a971765cf7a93d9cf",
+        "ecf85b592f7e7cde56182557c97755b5596dc130a517a9335f19386e115c001d",
+        "786370d266e12ef723275f1b6cfc161ed58f8c76fdbc3329f7ef9ed6c9338342"
+      ],
+      "source_sha256": "c1733374423ede60015b9adde6dab9c2b15931d19d44685e7595fddbdd09cf31",
+      "text": "Slå på eller av rapporter, som reglaget i meddelandet vid första starten gör.\n\nPå återställer standardvalet när det nuvarande valet inte skickar något; av är ``\"off\"``.\n\n:param enabled: om rapporter får skickas.",
+      "translation_source_blocks_sha256": [
+        "95d2c3ef6e990ecca25ec967247e73eb4864bb2854839d4a971765cf7a93d9cf",
+        "ecf85b592f7e7cde56182557c97755b5596dc130a517a9335f19386e115c001d",
+        "786370d266e12ef723275f1b6cfc161ed58f8c76fdbc3329f7ef9ed6c9338342"
+      ]
+    },
+    "spacr.crashreport.set_error_report_mode": {
+      "source_blocks_sha256": [
+        "d6b15c793c173b843de9a4a73d89e8a79f5b90c28ae1811a71aa80c7955001bd",
+        "1f35a978f781b0cc430311c9a296897cdcfeea0740e6ebc268ce6cdc4841d5d4",
+        "be6a6d280a6b058be3544def3e4210f5d2cb25662713b1870faaccf6d008b3a3",
+        "a7d32480e0d70e60b85e0944abdf7d31b7930e4c8e72c6108881ab41ce3cf9d4"
+      ],
+      "source_sha256": "a9df70e5bc023d295da9b5e05b8c7e2606bd48dc5b79493b313dfe0dd62eee81",
+      "text": "Spara valet \"AI Error report\".\n\nEtt val som inte skickar något tar också bort alla väntande rapporter, så inget som köades före ändringen skickas efteråt.\n\n:param mode: en nyckel i :data:`ERROR_REPORT_MODES`.\n:raises ValueError: för varje annat värde.",
+      "translation_source_blocks_sha256": [
+        "d6b15c793c173b843de9a4a73d89e8a79f5b90c28ae1811a71aa80c7955001bd",
+        "1f35a978f781b0cc430311c9a296897cdcfeea0740e6ebc268ce6cdc4841d5d4",
+        "be6a6d280a6b058be3544def3e4210f5d2cb25662713b1870faaccf6d008b3a3",
+        "a7d32480e0d70e60b85e0944abdf7d31b7930e4c8e72c6108881ab41ce3cf9d4"
+      ]
+    },
+    "spacr.crashreport.split_cause": {
+      "source_blocks_sha256": [
+        "a2af4a441bd10c00605a30dc46a6e968e14b696fb3e79e50879289c70682f6e1",
+        "c25598ce29eb49f0eb16db61102477ce0725079b4035506ba3c89f44d01470ab",
+        "dccc0ce46d3d6e6d24f6290cd306a77e51df8ffd58a31ad9835c3ee7d04649a2"
+      ],
+      "source_sha256": "17cbac26346bd39d2d85203072a9f30ea585860ee6233cc7aed19dac53526809",
+      "text": "Ta bort raden ``CAUSE: <slug>`` från ett AI-svar.\n\n:param text: svaret.\n:returns: ``(answer without the line, slug or \"\")``.",
+      "translation_source_blocks_sha256": [
+        "a2af4a441bd10c00605a30dc46a6e968e14b696fb3e79e50879289c70682f6e1",
+        "c25598ce29eb49f0eb16db61102477ce0725079b4035506ba3c89f44d01470ab",
+        "dccc0ce46d3d6e6d24f6290cd306a77e51df8ffd58a31ad9835c3ee7d04649a2"
+      ]
+    },
+    "spacr.crashreport.submit_public_summary": {
+      "source_blocks_sha256": [
+        "382e7b5f1e8c6056b58bdbfc06309644cc1ff9acd0dbc9c17244bc221310c430",
+        "57ebc2ab058cc17613889817a361e7c87e8851bf74448d32ed8d9be852a753ae",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "389173d0defedcb66feb4928b42cb19e79b7ad87bb97b0cc657d640549252f0a",
+        "87a2f759eb6a0daa0e6f0f9ea1802a911c1994fa6914be92fad0f165329b74c7"
+      ],
+      "source_sha256": "0a8f97213024263941413ffc0ff78c595ad2961b96eac11b5c36b4408bb621f3",
+      "text": "Skicka en anonymiserad sammanfattning till reläet eller köa den till senare.\n\nBlockerar i upp till ``timeout`` sekunder; anropa därför utanför GUI-tråden eller använd :func:`submit_public_summary_in_background`. När rapporter är avstängda eller nätverk är förbjudet skickas och lagras ingenting.\n\n:param summary: en sammanfattning från :func:`public_summary`.\n:param timeout: antal sekunder som sändningen får ta.\n:returns: ``{\"status\": ...}`` med :data:`REPORT_SENT` (och ``issue_number``, ``issue_url``, ``deduplicated``), :data:`REPORT_QUEUED` (sparad för nytt försök), :data:`REPORT_DROPPED` (nekad, inget nytt försök) eller :data:`REPORT_DISABLED`.",
+      "translation_source_blocks_sha256": [
+        "73b32601f94ea6107ab521daf7b6314432901d566f4af3a25e3cf9ac3d6047b5",
+        "88319a64b46a428f0eb5a795a1cbe1bdc011c8ac88e36e16bd858fc676b4d364",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "389173d0defedcb66feb4928b42cb19e79b7ad87bb97b0cc657d640549252f0a",
+        "87a2f759eb6a0daa0e6f0f9ea1802a911c1994fa6914be92fad0f165329b74c7"
+      ]
+    },
+    "spacr.crashreport.submit_public_summary_in_background": {
+      "source_blocks_sha256": [
+        "fb1a33d40b8fdd3d215d1ca9fb04ce19c060f866a688544fe338b5de73f4b130",
+        "29057a83dbc25266a4744ca6f7dceab48395d2d30d362e1b56f0cae3d281dd43",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "59fa48e3625e88f44f061d79ab200d8f87ad674d1b3fc8d2a383fd0fd13e2770",
+        "ccaf8e68db46d0314aa7aa7b49ca7d605921f48766523aba0a54d7269aa23617"
+      ],
+      "source_sha256": "278609c44d278c1df1707cedf7f7a5e8673d06d7ae8bd3fc4fa99f8480eb9ae8",
+      "text": "Köa en sammanfattning nu och skicka den på en daemontråd.\n\nSammanfattningen finns på disk innan anropet returnerar, så en process som avslutas omedelbart ändå skickar den nästa gång spaCR startar.\n\n:param summary: en sammanfattning från :func:`public_summary`.\n:param on_done: anropas med utfallet som :func:`submit_public_summary` beskriver, på sändningstråden.\n:returns: tråden, eller ``None`` när rapporter är avstängda och inget köades.",
+      "translation_source_blocks_sha256": [
+        "afa05cf0a464330bf279539423117d48b6c2dcad4cfb2e295b517e18b6a60bf4",
+        "29057a83dbc25266a4744ca6f7dceab48395d2d30d362e1b56f0cae3d281dd43",
+        "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+        "59fa48e3625e88f44f061d79ab200d8f87ad674d1b3fc8d2a383fd0fd13e2770",
+        "ccaf8e68db46d0314aa7aa7b49ca7d605921f48766523aba0a54d7269aa23617"
+      ]
+    },
+    "spacr.crashreport.submit_public_summary_in_background._run": {
+      "source_blocks_sha256": [
+        "605bdaccd80f6f5c2cda0f9893616bee655836a4ae9691bd521805764c32d9f3"
+      ],
+      "source_sha256": "605bdaccd80f6f5c2cda0f9893616bee655836a4ae9691bd521805764c32d9f3",
+      "text": "Skicka den köade sammanfattningen och lämna utfallet till ``on_done``.",
+      "translation_source_blocks_sha256": [
+        "605bdaccd80f6f5c2cda0f9893616bee655836a4ae9691bd521805764c32d9f3"
       ]
     },
     "spacr.crashreport.write_crash_report": {
@@ -69882,7 +70564,7 @@
         "d20401cbc04912fdc3ae5dd5ab13f63f954eb0d87e4add83625ca92fc47267df"
       ],
       "source_sha256": "84e3ec32134c41e18e88245597fa134ee01ef05a987df96cf27d3971a8f02060",
-      "text": "Ta bort fil-/mappnamn från en redan saniterad rapport.\n\nDen vanliga saneraren förkortar hemkatalogen så att en traceback fortfarande är användbar. Offentliga rapporter använder som standard den striktare formen: filfält i tracebacks, citerade sökvägsvärden och återstående sökvägsliknande absoluta token blir ``<PATH>``. Förhandsvisningen låter användaren återställa de användbara namnen innan rapporten skickas; med ärenderapportering satt till 'always' finns ingen förhandsvisning, så det som detta lämnar kvar är det som publiceras.\n\nEn stig kan innehålla ett utrymme, och en regel som stoppar en väg vid den första blanktecken publicerar resten av den. ``/Volumes/Lab Drive/Patient 042`` kom ut som ``<PATH> Drive/Patient 042``, och \"C:\\Användare\\anna\\OneDrive\n- Karolinska Institutet\\Screens`` behöll institutionen och\nscreeningen — de två operativsystem vars egna mappar har mellanslag i namnen. En UNC-sökväg var inte alls någon sökväg: inget här började med ``\\\\``. Den SISTA komponenten i en sökväg utan citattecken har ingen avgränsare efter sig som bevisar att ett mellanslag ligger inuti sökvägen snarare än efter den, så den fortsätter bara över ord som är formade som ett namn -- ett tal, ett ord med stor begynnelsebokstav, ett filnamn -- och ``\\\\LAB-NAS\\screens\\plate 1`` ersätts helt medan ``opening /mnt/data/x.tif failed`` behåller sitt ``failed``. Ett ord med gemener som avslutar en sådan komponent överlever det fortfarande; en sökväg inom citattecken tas helt, och titeln och varje ``repr``-formaterat inställningsvärde står inom citattecken.\n\nEtt snedstreck direkt efter ``<`` inleder en avslutande tagg, inte en sökväg. Rapportens hopfällbara avsnitt slutar med ``</summary>`` och ``</details>``, och ärende #121 skickades in med båda omvandlade till ``<<PATH>``, så varje avsnitt efter det första förblev öppet.\n\n:param text: en rapports titel eller brödtext, som redan har gått genom :func:`sanitize_path`.\n:returns: samma text med sökvägsliknande token ersatta av ``<PATH>``.",
+      "text": "Ta bort fil-/mappnamn från en redan saniterad rapport.\n\nDen vanliga saneraren förkortar hemkatalogen så att en traceback fortfarande är användbar. Offentliga rapporter använder som standard den striktare formen: filfält i tracebacks, citerade sökvägsvärden och återstående sökvägsliknande absoluta token blir ``<PATH>``. Förhandsvisningen låter användaren återställa de användbara namnen innan rapporten skickas; med ärenderapportering satt till 'always' finns ingen förhandsvisning, så det som detta lämnar kvar är det som publiceras.\n\nEn sökväg kan innehålla ett blanksteg, och en regel som stoppar sökvägen vid första blanktecknet publicerar resten av den. ``/Volumes/Lab Drive/Patient 042`` blev ``<PATH> Drive/Patient 042``, och ``C:\\Users\\anna\\OneDrive\n- Karolinska Institutet\\Screens`` behöll institutionen och\nscreeningen — de två operativsystem vars egna mappar har mellanslag i namnen. En UNC-sökväg var inte alls någon sökväg: inget här började med ``\\\\``. Den SISTA komponenten i en sökväg utan citattecken har ingen avgränsare efter sig som bevisar att ett mellanslag ligger inuti sökvägen snarare än efter den, så den fortsätter bara över ord som är formade som ett namn -- ett tal, ett ord med stor begynnelsebokstav, ett filnamn -- och ``\\\\LAB-NAS\\screens\\plate 1`` ersätts helt medan ``opening /mnt/data/x.tif failed`` behåller sitt ``failed``. Ett ord med gemener som avslutar en sådan komponent överlever det fortfarande; en sökväg inom citattecken tas helt, och titeln och varje ``repr``-formaterat inställningsvärde står inom citattecken.\n\nEtt snedstreck direkt efter ``<`` inleder en avslutande tagg, inte en sökväg. Rapportens hopfällbara avsnitt slutar med ``</summary>`` och ``</details>``, och ärende #121 skickades in med båda omvandlade till ``<<PATH>``, så varje avsnitt efter det första förblev öppet.\n\n:param text: en rapports titel eller brödtext, som redan har gått genom :func:`sanitize_path`.\n:returns: samma text med sökvägsliknande token ersatta av ``<PATH>``.",
       "translation_source_blocks_sha256": [
         "7bb7a71776599d2fc07322d00f44e144efe8c435f5bff402f052247bb30f2ed5",
         "9c3746f7247d82842e4bd12f396401d043b32757a2cca19f74889936b88fb16c",
@@ -71356,14 +72038,16 @@
       "source_blocks_sha256": [
         "57e2bc2ea2960cb5f7c70521814464d26171e871ee3c3493923f7de90945451a",
         "4ee71fd9cb9902652ab0fe7a99dbe981a064ed8aba32df50e1c820e4d717f2f9",
-        "3160512b0f19c634feac7f83a5bd96efbbb6b4fb9df33a2d7efc6bffb5225199"
+        "3160512b0f19c634feac7f83a5bd96efbbb6b4fb9df33a2d7efc6bffb5225199",
+        "91799ef47c3ae4f96e2fa6003107de296008027725ab751456f2727402884093"
       ],
-      "source_sha256": "2dbceb9b0c3f2e108238d6bdcac79b0c4a3d491faf37973799548c9eea4f3e1f",
-      "text": "Konsumera leverantörsströmmen, avger steg/chunk/färdigt signaler.\n\n``finished`` bär ``(True, the whole reply)`` endast när strömmen tog slut av sig själv och leverantören inte rapporterade något fel. Allt annat ger ``(False, <what to tell the user>)``, och det som leverantören skrev ut innan felet är inget svar. En ström som avbröts ger ``(False, \"Cancelled.\")`` även när avslutandet av barnprocessen fick leverantören att generera ett undantag, eftersom användaren bad om stoppet.\n\nUndantagets klassnamn är prefixerat till sitt meddelande, med undantag för ett :class:`~spacr.qt.ai.providers.ProviderFailed` med ett meddelande som inte är tomt. Konsolen skriver denna text efter \"[AI fel]\", och ett LeverantörUnderkänd meddelande skrivs för att läsas där, inklusive inloggningskommandot för att köra. För varje annat undantag behålls klassnamnet eftersom det ofta namnger felet: ett rent ``[Errno 2] No such file or directory`` säger inte att det är ett FileNotFoundError.",
+      "source_sha256": "7b2189afeee30042fdff6226115e24c36df4d5e3f85707f26cd28cecf0838ddb",
+      "text": "Konsumera leverantörsströmmen, avger steg/chunk/färdigt signaler.\n\n``finished`` bär ``(True, the whole reply)`` endast när strömmen tog slut av sig själv och leverantören inte rapporterade något fel. Allt annat ger ``(False, <what to tell the user>)``, och det som leverantören skrev ut innan felet är inget svar. En ström som avbröts ger ``(False, \"Cancelled.\")`` även när avslutandet av barnprocessen fick leverantören att generera ett undantag, eftersom användaren bad om stoppet.\n\nUndantagets klassnamn är prefixerat till sitt meddelande, med undantag för ett :class:`~spacr.qt.ai.providers.ProviderFailed` med ett meddelande som inte är tomt. Konsolen skriver denna text efter \"[AI fel]\", och ett LeverantörUnderkänd meddelande skrivs för att läsas där, inklusive inloggningskommandot för att köra. För varje annat undantag behålls klassnamnet eftersom det ofta namnger felet: ett rent ``[Errno 2] No such file or directory`` säger inte att det är ett FileNotFoundError.\n\nEn aktuell, kort fråga (:func:`~spacr.qt.ai.providers.question_cache_key`) som har ställts tidigare besvaras med den här datorns sparade svar utan något anrop till en leverantör, och :attr:`saved` är då ``True``; ett nytt fullständigt svar på en sådan fråga sparas oavsett leverantör.",
       "translation_source_blocks_sha256": [
         "57e2bc2ea2960cb5f7c70521814464d26171e871ee3c3493923f7de90945451a",
         "4ee71fd9cb9902652ab0fe7a99dbe981a064ed8aba32df50e1c820e4d717f2f9",
-        "37cadd1353537ad22b03389ebcb12ee3c44555c1d1b5f47bfd7d11f7bbacfd61"
+        "37cadd1353537ad22b03389ebcb12ee3c44555c1d1b5f47bfd7d11f7bbacfd61",
+        "91799ef47c3ae4f96e2fa6003107de296008027725ab751456f2727402884093"
       ]
     },
     "spacr.qt.ai.worker.make_stream_thread": {

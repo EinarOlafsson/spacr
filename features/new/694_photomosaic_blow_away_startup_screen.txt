@@ -3,7 +3,7 @@ PHOTOMOSAIC BLOW-AWAY STARTUP SCREEN
 ================================================================================
 
 Status:    built 2026-10-12 (not alpha: it is THE startup screen); ships in
-           1.5.1.5; translations of the two new strings pending (WS)
+           1.5.1.5; translations current in all nine languages
 Requested: maintainer, 2026-10-12: "When you start spaCR, the photomosaic
            picture appears, and then each picture in the tiled picture
            unravels and flips away, like the individual pictures are being
@@ -97,3 +97,6 @@ is drawn at half the screen height from a 2160 px resource (27 px tiles, built
 from the 17920 px picture), holds 2.0 s after it first paints (longer while
 loading), blows away over 4.0 s with the black container fading 3.0-5.0 s, and
 Help > Show startup animation replays it. See item 695's note.
+
+2026-10-15 — Normal runtime pipeline and all-nine audit pass on current source; caption-arrival tests13PASS.
+No new tutorial/native acceptance or release claim; those remain with their existing owners.

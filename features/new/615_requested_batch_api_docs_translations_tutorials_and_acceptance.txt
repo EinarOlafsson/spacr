@@ -1914,3 +1914,8 @@ for nested-helper inventory. Do not create helper locale drafts or dead review
 keys. Public AmbientWidget.stop and Dynamic animation tooltip remain real
 API/runtime surfaces with their separately accepted nine-locale drafts.
 Canonical source/catalog/review/generator edits remain held until release.
+
+2026-10-15 — Requested691/694/695/696/697/699 runtime strings are current through the normal nine-language pipeline; caption tests13PASS.
+Diagnostic API inputs346120f5403/1ba8602514c/ace35ac16b4 and follow-ups localized41 missing bodies and repaired copied-English/path literals.
+Normal65-symbol nine-language audit exposed only six path-literal defects; their normal six-language repair/audit passes, all other records retained.
+History tests12PASS; no model requests or native-speaker claims. Broader tutorial/hosted publication and final release remain open.

@@ -2,7 +2,7 @@
 MAKE MASKS: EACH NEW DISCONNECTED BRUSH STROKE IS A NEW OBJECT LABEL
 ================================================================================
 
-Status:    new 2026-10-13
+Status:    built; nine-language translations current; release pending
 Requested: maintainer, 2026-10-13: "in make mask when using the brush tool,
            each new disconnected brush stroke should be a new object label."
 Owner:     Home (build); WS (tutorial lesson 14 brush clips, translations)
@@ -136,3 +136,6 @@ case PASS, with zero uncovered statements or branches across all seven new
 brush/volume helpers. Source stayed byte-identical during the owning run.
 
 2026-10-15 Original Home integration update: approved four-widget source and attribute-docstring patch integrated; 235 merged diameter/brush/export/Toggle owning checks passed. AUTO_TEXT exact owner reviews and normal API writer completed in all nine locales. Original unmodified 1.35 backing-store paint gate passed (1 test,10.04s); native tutorial acceptance remains separate. Public Work recorder files restored exactly, historical owner review patch preserved. Global N700 review/CI/release gates are not claimed closed.
+
+2026-10-15 — Normal runtime pipeline and all-nine audit pass on current source; caption-arrival tests13PASS.
+No new tutorial/native acceptance or release claim; those remain with their existing owners.

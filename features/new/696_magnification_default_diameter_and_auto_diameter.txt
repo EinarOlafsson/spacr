@@ -3,7 +3,7 @@ MAGNIFICATION SETS THE DEFAULT CELLPOSE DIAMETER AGAIN; 0 AND "auto" MEAN
 CELLPOSE ESTIMATES IT
 ================================================================================
 
-Status:    new 2026-10-13
+Status:    built; nine-language translations current; release pending
 Requested: maintainer, 2026-10-13: "in older versions of spacr we had an
            equation use magnification to calculate what the default cellpose
            diameter is. i'd like to start using this again. also now it is not
@@ -168,3 +168,6 @@ not establish a fix. No native model-quality/GPU acceptance is claimed.
 2026-10-15 Original Home integration update: approved four-widget source and attribute-docstring patch integrated; 235 merged diameter/brush/export/Toggle owning checks passed. AUTO_TEXT exact owner reviews and normal API writer completed in all nine locales. Original unmodified 1.35 backing-store paint gate passed (1 test,10.04s); native tutorial acceptance remains separate. Public Work recorder files restored exactly, historical owner review patch preserved. Global N700 review/CI/release gates are not claimed closed.
 
 2026-10-15 API/Help follow-up: owner callback docstrings now public; normal English API generation/audit13478symbols and actual Help index generation completed, publishedd3812e82dde. Nine-locale AUTO_TEXT generation remains included; Home-B owns its separate callback/download prose review refresh. Global N700/native tutorial/final CI gates remain open.
+
+2026-10-15 — Normal runtime pipeline and all-nine audit pass on current source; caption-arrival tests13PASS.
+No new tutorial/native acceptance or release claim; those remain with their existing owners.

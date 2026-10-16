@@ -1,6 +1,13 @@
 {
   "schema": 1,
   "sources": {
+    "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f": {
+      "source_blocks_sha256": [
+        "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f"
+      ],
+      "source_sha256": "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f",
+      "text": "Open the install/login dialog, then re-list the providers."
+    },
     "23bafc7319af9cb7102cb843454669557b6440d1a99e091ddf6ee3e3c7f2956e": {
       "source_blocks_sha256": [
         "91c212f59b5444a610147d73e9b3234dda62e86771c0fbc4ca936a227ae70c24",
@@ -10,14 +17,53 @@
       "source_sha256": "23bafc7319af9cb7102cb843454669557b6440d1a99e091ddf6ee3e3c7f2956e",
       "text": "Show ``fig`` through matplotlib itself. True if the canvas is up.\n\nThis is what makes a figure crisp: the canvas redraws from the Figure\nat the widget's device resolution every time it changes size or zoom,\nso there is never a raster being stretched to fit. It is also what\nmakes it fast -- looking at a figure costs no render at all.\n\n:param fig: the Matplotlib figure to embed in a Qt canvas with its\n    navigation toolbar; the canvas already showing it is just redrawn."
     },
-    "2dbceb9b0c3f2e108238d6bdcac79b0c4a3d491faf37973799548c9eea4f3e1f": {
+    "25dbc0d21a548fda86baa8e4a00c64db96e95ff5279a18f0f7fb88f0f2f5421b": {
       "source_blocks_sha256": [
-        "57e2bc2ea2960cb5f7c70521814464d26171e871ee3c3493923f7de90945451a",
-        "4ee71fd9cb9902652ab0fe7a99dbe981a064ed8aba32df50e1c820e4d717f2f9",
-        "3160512b0f19c634feac7f83a5bd96efbbb6b4fb9df33a2d7efc6bffb5225199"
+        "2e403808e506a11813f14ac0bc4305348cc9f5a02f91cc8c68403e0886f8699c",
+        "cef9d343413ed83af11a2c3264d173d039e24dcd49b022e76dbd30e4fa99619c",
+        "d1c5447b72bee697d14f62584d202922cf012036f08b4723c320a007678b9e18",
+        "9e5b946c5e015545a305e9b095dd6945a00f8898e5be5f25806866ff25afa56e"
       ],
-      "source_sha256": "2dbceb9b0c3f2e108238d6bdcac79b0c4a3d491faf37973799548c9eea4f3e1f",
-      "text": "Consume the provider stream, emitting stage/chunk/finished signals.\n\n``finished`` carries ``(True, the whole reply)`` only when the stream\nended on its own and the provider did not report a failure. Anything\nelse gives ``(False, <what to tell the user>)``, and whatever the\nprovider printed before failing is not an answer. A stream that was\ncancelled gives ``(False, \"Cancelled.\")`` even when ending the child\nmade the provider raise, because the user asked for the stop.\n\nThe exception's class name is prefixed to its message, except for a\n:class:`~spacr.qt.ai.providers.ProviderFailed` with a non-empty\nmessage. The console writes this text after \"[AI error] \", and a\nProviderFailed message is written to be read there, including the\nsign-in command to run. For every other exception the class name is\nkept because it often names the error: a bare ``[Errno 2] No such\nfile or directory`` does not say it is a FileNotFoundError."
+      "source_sha256": "25dbc0d21a548fda86baa8e4a00c64db96e95ff5279a18f0f7fb88f0f2f5421b",
+      "text": "``ready`` / ``signed out`` / ``not installed`` for one provider.\n\nThree states, because each needs a different action from the user: a\nmissing CLI and an installed but signed-out CLI are reported\nseparately.\n\n:param code: provider code as in :data:`PROVIDERS`, e.g. ``\"claude\"``\n    or ``\"gpt\"``; looked up in the AI provider registry.\n:param command: the provider's CLI name, e.g. ``\"codex\"``; tried in\n    the registry after ``code``, and checked on ``PATH`` when neither\n    resolves."
+    },
+    "2e32cf0a648d1ce1823acf187362e963f868be326201cc0fad38aa230f6d98bc": {
+      "source_blocks_sha256": [
+        "6fd19d28651705c0e87abb7978a10ab872abffd7aa28e018495b905ec7bf7524",
+        "e30ae7961f7f51253ee0f3d5e95a97d91b428c89521c088fe4ae0094e77876a3",
+        "1e46d1e5aa4226864832f1b5550794be0447dfd980f99501b7b058bbec1ae3a5",
+        "d96c62cd6c052846a90626bd934c403b5a0ebd3035071ba9d36c844c386b5fd1"
+      ],
+      "source_sha256": "2e32cf0a648d1ce1823acf187362e963f868be326201cc0fad38aa230f6d98bc",
+      "text": "Return the argument parser for the command line the installers use.\n\nSeparate from :func:`main` so the installer scripts and the tests can\ninspect the accepted options without running an install -- an argument\nthat silently stopped being accepted would otherwise only show up as a\nfailed install on somebody's machine.\n\nThe four consent flags take ``\"0\"`` / ``\"1\"`` rather than being\nstore_true switches: the installer passes a value for every one of them\non every run, so an unchecked box is recorded as a deliberate no rather\nthan as an absent answer.\n\n:returns: the parser, with ``--path``, ``--requested``, ``--detected``\n    and the consent flags."
+    },
+    "30aaaa9545f6fbeb5ccc3e41c33668b79c7cb0bb8777fbc3a408494f26d11aa4": {
+      "source_blocks_sha256": [
+        "0a740e13308275efc0b04efba25caf9b18fce89690873ca2e3c3d0c48ad8fb33",
+        "6af94864998ca73ef70321f00e20d5e4aa112cf1d5643979d41b8ba9c67fb535",
+        "d024420a41220e62127dc4c5714fae42a9ef02e0d145d67c84af8522e7994a23"
+      ],
+      "source_sha256": "30aaaa9545f6fbeb5ccc3e41c33668b79c7cb0bb8777fbc3a408494f26d11aa4",
+      "text": "The path for ``code`` inside ``box``, or None for an unknown one.\n\n:param code: provider code: ``\"claude\"``, ``\"gpt\"``, ``\"gemini\"`` or\n    ``\"github\"``.\n:param box: the rectangle the mark is drawn in."
+    },
+    "323d0808ac12b16312949c67858eb9037470e9a495e7dbaeadadaeab6d338402": {
+      "source_blocks_sha256": [
+        "f490da2da5ddfb44408b254d377e3c132df3eb5e1f6b5d10bd96a39162f8637c",
+        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
+        "1c8dfb66a227b8d50ad483bdc591fb55107f46b3b3db83774d2fa4e5afcd4d8c",
+        "10ed1efcdfde5d4e6bce31fadffb9c6807d8f71a3baa1e3be1ce8a1f37e69871",
+        "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
+      ],
+      "source_sha256": "323d0808ac12b16312949c67858eb9037470e9a495e7dbaeadadaeab6d338402",
+      "text": "One first-launch page whose three optional choices start off.\n\n:param parent: parent widget.\nBuild the privacy and optional-account dialog.\n\nSized in scaled pixels rather than raw ones: a size set from Python does\nnot grow with the stylesheet's font size, and at the 200% scale the\nprose inside wrapped to more height than the window had.\n\n:param parent: parent widget, or ``None``."
+    },
+    "33dc88d71488e293ea93fde6a0e1a8a9e6ed5ed5aa6227bfe1f725235507bcfe": {
+      "source_blocks_sha256": [
+        "cf1443de19bf1b442510297590c8808fee26e9a353f8451867d6cbeba7fff8d4",
+        "82abef8f86c95d2674f76fb2ce6ae43eeee5ec6dc13afbaea427e4127878ed19"
+      ],
+      "source_sha256": "33dc88d71488e293ea93fde6a0e1a8a9e6ed5ed5aa6227bfe1f725235507bcfe",
+      "text": "Persist choices and return whether account setup was requested.\n\n:param choices: the consent answers, read by the keys\n    ``share_diagnostics``, ``report_issues`` and ``sign_in_now``; a\n    missing or unrecognised value counts as no."
     },
     "352ef6b86894d787e737e9e5607643f609b66d2f8e3146c71827fc299fbe36a5": {
       "source_blocks_sha256": [
@@ -32,6 +78,32 @@
       "source_sha256": "352ef6b86894d787e737e9e5607643f609b66d2f8e3146c71827fc299fbe36a5",
       "text": "Raise ``error_type(message)`` in strict mode; otherwise log it at ``ERROR``.\n\nUsed at the category-B sites that historically printed and carried\non. The default path keeps the legacy behaviour but stops the\nproblem from being invisible to the log; setting\n``SPACR_STRICT_ERRORS=1`` turns the same site into a hard stop.\n\n:param message: what went wrong, and why the result is untrustworthy.\n:param exc: the caught exception, chained onto the raise.\n:param settings: settings dict consulted for ``strict_errors``.\n:param error_type: exception class to raise.\n:returns: False when not strict, so callers can branch on it."
     },
+    "3572ed8f49f780ef29e037a5bcef8653b875132a75f1ccf8b3db4ded111b111b": {
+      "source_blocks_sha256": [
+        "e1c34a4b115b9fe5e9f7d265bf10b3f2bc89ddba74dc265f8d50bc377b4c6d8a",
+        "804238cd2c160742b339b5642008dc54ad9c2c7ed0e3879a76dab5d16a0e040b",
+        "95f959e9509f4e918e9a211cc5a1103342868265e1dcf7198af3b004f5847c62",
+        "ae1b1619582a66ca8ae9b49d0e2a8e82616bf572eadc6fb668e2b45026bda789"
+      ],
+      "source_sha256": "3572ed8f49f780ef29e037a5bcef8653b875132a75f1ccf8b3db4ded111b111b",
+      "text": "Install a vendor command-line tool, then sign in to it, from a screen row.\n\nThe setup screen shows one of these under its AI provider marks and one under\nits GitHub mark. Pressing Install there runs the tool's own installer --\n:func:`spacr.qt.ai.cli_install.run_install`, on a\n:class:`spacr.qt.job_runner.JobRunner` worker thread, never on the GUI thread\n-- and this panel shows what is happening: the command that is running, the\ninstaller's latest line of output, a Cancel button, and at the end either the\nnext step or a sentence the user can act on.\n\nAfter a successful install the owner's ``after_install`` starts the tool's\nsign-in, and :meth:`CliSetupPanel.sign_in` watches for it to finish by asking\nthe tool's own status command every few seconds, again off the GUI thread.\n\nThe command is on screen from the first moment to the last, with a Copy\nbutton beside it, for the user who would rather run it themselves."
+    },
+    "39a7e69c0fd4eef9cc965d7eaa3a396983e4c51d2175ee90b041122a9a294a3b": {
+      "source_blocks_sha256": [
+        "9994c95b29a227d72172880bb8111377c37d7e706b472c8ceb52035227dd3e68",
+        "ac550f4d0f9cede6fa9cabb61e3c19a91f2b5b811777750487c299e9e7d675b5",
+        "e8bad0d1abd705e096ebb50f8a85b2d660aa6860bb80a68ccb4b36b43f5486af"
+      ],
+      "source_sha256": "39a7e69c0fd4eef9cc965d7eaa3a396983e4c51d2175ee90b041122a9a294a3b",
+      "text": "A radiating burst: petals narrow at the hub and wide at the tip.\n\nThe petals are wide at the outside, which matches the mark and gives it\nenough ink. Drawn as tapered points -- narrow at the tip, all the\narea at the centre -- it measured a third of the ink of the knot beside\nit, and the lightest of three logos in a row reads as the disabled one.\n\n:param box: the rectangle to draw in; the mark is centred in it and sized\n    to its shorter side."
+    },
+    "3cc8194bae8dbba65f383d85226ca26c7c31a020af62566b0dffba29b23fda8b": {
+      "source_blocks_sha256": [
+        "3cc8194bae8dbba65f383d85226ca26c7c31a020af62566b0dffba29b23fda8b"
+      ],
+      "source_sha256": "3cc8194bae8dbba65f383d85226ca26c7c31a020af62566b0dffba29b23fda8b",
+      "text": "Whether an installer is running."
+    },
     "3eb85eddc5d9d8ffe7c92d75f4f964745f090c607b89d6565184c67024361ed3": {
       "source_blocks_sha256": [
         "25990a1b6842b3d8f390a1527d2e0972bc8e668d6bc2738dfa11f03f05f95ea1",
@@ -40,6 +112,30 @@
       ],
       "source_sha256": "3eb85eddc5d9d8ffe7c92d75f4f964745f090c607b89d6565184c67024361ed3",
       "text": "Follow a live theme switch when nobody else is going to.\n\nA host that passed its own ``background`` owns that colour and is\nexpected to re-set it (that is what ``app_screen`` does, because it\nalso has to re-resolve the wallpaper). A host that did not gets this\nfor free instead of a stale dark rectangle on a white page.\n\n:param event: the change event; it goes to the base class first, and\n    only an ``ApplicationPaletteChange`` is acted on."
+    },
+    "401e84a34d001ae886abc4402f57fc743fe06af63d553fbb71d728944d0570f5": {
+      "source_blocks_sha256": [
+        "401e84a34d001ae886abc4402f57fc743fe06af63d553fbb71d728944d0570f5"
+      ],
+      "source_sha256": "401e84a34d001ae886abc4402f57fc743fe06af63d553fbb71d728944d0570f5",
+      "text": "Whether this provider is the selected one."
+    },
+    "46062ba8c7180521af9067cda3cd8d54c4e5876807fdbcca76d23e3eaff6ced5": {
+      "source_blocks_sha256": [
+        "be1ec6e4b12cf23a2d865a1532312a0f92ba8cf27617b65187dbda48aec0b678",
+        "f00d94191aeda126bf735241a96b53b9f19eb4178db0743e11665cfd3e419837",
+        "0cb4dfaed3b2d04d98962785ea92749a7717e7e85601005d21bcec582ecbd622"
+      ],
+      "source_sha256": "46062ba8c7180521af9067cda3cd8d54c4e5876807fdbcca76d23e3eaff6ced5",
+      "text": "GitHub's Octocat mark, scaled to fill ``box``.\n\nUniform scale on the smaller of the two ratios and centred, so the cat\nkeeps its proportions in a box of any shape.\n\n:param box: the rectangle to fit the mark into; an empty box returns the\n    mark unscaled."
+    },
+    "468ee81b14550d3d0b7542d973ef88f9b95d0cae85e9877ca0331f6356a7377f": {
+      "source_blocks_sha256": [
+        "891e2007842dbc1450c3908cc39baef7ec0681b1a559c0bbd53584558f91ebd4",
+        "45d18119290fdadb989698b7d3587f0d67da4f0a2a7005633713f1cec8919cfb"
+      ],
+      "source_sha256": "468ee81b14550d3d0b7542d973ef88f9b95d0cae85e9877ca0331f6356a7377f",
+      "text": "Select or deselect, and repaint.\n\n:param chosen: truthy to select; the widget repaints only when the\n    state changes."
     },
     "4c9005419e7ae8085a496769d929fc5111fa1537e91cb1c1cff442bfa09e4ee4": {
       "source_blocks_sha256": [
@@ -66,6 +162,32 @@
       "source_sha256": "5279ca111632af67030be8d908c02649520ebd869c845969ea3e64462046e8a2",
       "text": "Stop ``widgets`` painting a background of their own.\n\nA backdrop — the theme's wallpaper, or the DNA rain on the\nsequencing screen — is behind the *page*, and in the opaque themes\nevery container between it and the eye is an opaque ``bg`` by\nvirtue of the blanket ``QWidget`` rule. One container is enough to\nbury it: a screen's header widget, its splitter, a scroll area and\nthat scroll area's viewport are each a QWidget, and each one used to\npaint solid black over the animation the screen had just installed.\n\nTag the layout containers with this and the backdrop reaches the\neye; leave the cards, panels and inputs alone and they stay the\nreadable surface on top of it. Safe to call on a widget that is\nalready visible — the style is re-polished so the change takes\neffect immediately rather than at the next theme switch.\n\nA ``QScrollArea``'s ``viewport()`` is tagged automatically along\nwith it: they are two widgets, the viewport is the one that\nactually paints, and forgetting it is the obvious way to get this\nwrong."
     },
+    "54a607bde5b61c9f66bde5b990658d0706bb3e653005a2b341979e3ad9f11ffc": {
+      "source_blocks_sha256": [
+        "412c8d724eebb2d4517158754cccce3b0303cc905b08a0cc05edc6af5f391a94",
+        "f32c7741a33dd5bbb3a7d5571813f0b2a2e8a5777971c58f9135940048c0470c",
+        "91f3a9ccdada0bd1c5449f23bd99d9cee5afcab3d0bf15ea621c18c84a6598d3",
+        "1eda2cf0c28e073f1515d8d31e44e8486932be66e55d31fe698222c0ba7f4b18"
+      ],
+      "source_sha256": "54a607bde5b61c9f66bde5b990658d0706bb3e653005a2b341979e3ad9f11ffc",
+      "text": "Dismissed at any slide. Still marked answered.\n\nEvery question has a working default, so a user who closes this has\nchosen them -- and reopening on every launch until it is filled in\nwould make dismissing it impossible.\n\nThe terms are the exception, and they are not marked. A dismissal is a\nchoice of defaults; it is not an acceptance of a licence, so nothing is\nrecorded and `open_setup_if_needed` asks again.\n\nWhile an installer is running the user is asked first, as\n:meth:`accept` asks; keeping it running leaves the screen open."
+    },
+    "5b14b333422439d491786ffd2381993ea6f515bc843179b6c91e2f544fa5cbce": {
+      "source_blocks_sha256": [
+        "376f4535b1ace3f791b84598e8213aa138d255887d948446fc4365b1a35f6bea",
+        "af1d852ed4f2b25685308101ef4fc5e1d2c43761cee43d32d83c357343125b86"
+      ],
+      "source_sha256": "5b14b333422439d491786ffd2381993ea6f515bc843179b6c91e2f544fa5cbce",
+      "text": "The name of the tool this panel is installing or signing in to.\n\n:returns: its label, such as ``\"Claude\"``, or ``\"\"`` before the\n    panel has been given a tool."
+    },
+    "5c20bd17d4878fa0b73cabf82b9516fc2858c5b88ac51d66b78ec190fab1e975": {
+      "source_blocks_sha256": [
+        "a67979484e45af1bfc69813fffd6d95850c58a1adacae3c053dd35a532b34f72",
+        "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
+      ],
+      "source_sha256": "5c20bd17d4878fa0b73cabf82b9516fc2858c5b88ac51d66b78ec190fab1e975",
+      "text": "Draw the provider's mark.\n\n:param event: the Qt paint event."
+    },
     "5d65a5569a1ae58501f07ee22effe38c1c2a2664f178eceda6a7ca57b31ce6f3": {
       "source_blocks_sha256": [
         "7e87357ae7d65908808f1150f13667f616c7b568d8f6df8bebf835672068670b",
@@ -91,6 +213,15 @@
       "source_sha256": "5d65a5569a1ae58501f07ee22effe38c1c2a2664f178eceda6a7ca57b31ce6f3",
       "text": "Connection and scheduler settings for one execution target.\n\n``local_root`` and ``remote_root`` describe the same shared or mirrored\ndataset.  Every absolute string nested in the settings is rewritten when\nit lies below ``local_root``.  Image datasets are deliberately not copied:\naccidental recursive transfer of a multi-terabyte plate is worse than a\nclear pre-flight error.\n\nFor ``command`` profiles, command strings are tokenized with\n:func:`shlex.split` and support ``{job_id}``, ``{module}``, ``{settings}``\nand ``{external_id}`` placeholders.  They are argument templates, not\nshell scripts.\n\n:param name: human-readable profile name used to select this target.\n:param backend: execution mechanism, one of :data:`BACKENDS`.\n:param host: OpenSSH target for SSH and remote Slurm; blank permits a\n    Slurm scheduler running on the local host.\n:param workdir: absolute execution directory where ``spacr-jobs``\n    artifacts are created.\n:param local_root: local dataset prefix paired with ``remote_root`` for\n    nested absolute-path rewriting.\n:param remote_root: equivalent dataset prefix visible to the target host.\n:param runner: headless executable invoked as ``runner module --settings\n    path`` by SSH and Slurm backends.\n:param scheduler_options: additional shell-free arguments passed to\n    ``sbatch``.\n:param submit_command: custom-backend argument template containing\n    ``{settings}`` and printing a job identifier.\n:param status_command: custom status template containing ``{external_id}``\n    and returning a state spaCR can normalize.\n:param cancel_command: custom cancellation template containing\n    ``{external_id}``.\n:param log_command: optional custom template for fetching job output.\n:param job_id_pattern: optional regular expression extracting a named\n    ``id``, first capture, or full match from submission output.\n:param poll_seconds: recommended client polling interval, from 2 through\n    3600 seconds.\n:param ssh_options: non-secret SSH configuration overrides, such as user,\n    port, identity-file path and jump host; passwords and OTPs are forbidden.\n:param ssh_interactive: use a verified persistent SSH session with GUI\n    keyboard-interactive prompts instead of the external OpenSSH command."
     },
+    "5e634c3ecf44705e3ccea212bba75c6d5c7e104ca68029a1df8d873a23b5c787": {
+      "source_blocks_sha256": [
+        "272be964bd2f0c11d835313a8396f2830619319e97b2a014b4251c702525c97b",
+        "42e71bc786fd1e162aa0c4fab39550375f7644ad1f2a7f2bdb5326846e1903da",
+        "75834f8796969e1b52416bb16af6b5114182717796afa6fc31710546e8f45f87"
+      ],
+      "source_sha256": "5e634c3ecf44705e3ccea212bba75c6d5c7e104ca68029a1df8d873a23b5c787",
+      "text": "Apply installer choices once, asking in-app if no page was shown.\n\n:param parent: the widget that parents the in-app consent dialog and, if\n    sign-in was chosen, the account setup dialog.\n:returns: ``True`` when an installer profile was handled this call."
+    },
     "5f6252c3e4b0074830058dddc721634e3dddd5cf7863d775978acc3e33dde7e8": {
       "source_blocks_sha256": [
         "1b4beaadd943ccea9a259c41141ff5d6c11aece455dc4f143cb72ed2369884ef",
@@ -101,6 +232,13 @@
       "source_sha256": "5f6252c3e4b0074830058dddc721634e3dddd5cf7863d775978acc3e33dde7e8",
       "text": "Watch the widgets this filter is installed on.\n\n:param obj: the object the event is for.\n:param event: the event.\n:returns: True to stop the event going further."
     },
+    "696964b15b45648a03f5baf76eca4aa8f2c8c43ff6108c711906e530d0383563": {
+      "source_blocks_sha256": [
+        "696964b15b45648a03f5baf76eca4aa8f2c8c43ff6108c711906e530d0383563"
+      ],
+      "source_sha256": "696964b15b45648a03f5baf76eca4aa8f2c8c43ff6108c711906e530d0383563",
+      "text": "Read the next number from the path string, advancing the cursor."
+    },
     "6e1d32dcb81a471128b10915489f27bd29493686a6a7d6dd18d3200f0a5d9715": {
       "source_blocks_sha256": [
         "52522f631b6fe8619e1e06d811cb063b55678b47109553519a3defa06e393509",
@@ -108,6 +246,50 @@
       ],
       "source_sha256": "6e1d32dcb81a471128b10915489f27bd29493686a6a7d6dd18d3200f0a5d9715",
       "text": "Start animating, and follow the window this widget belongs to.\n\n:param event: the Qt show event."
+    },
+    "76c6fca5ca7737b3ed9ceee4472049d0c5e92bf8f767b391edf3bf7ed386de3b": {
+      "source_blocks_sha256": [
+        "c255117fb22e1f5daabf5d481612c6f91be018704de0dc87704ed2e8c6db02a6",
+        "94422e94f2fd7a9b47b2a970555cd74816199555f54d3b548b11288a84c36080",
+        "4a78791f6f89fa3047bfe83e35ec6e9f903e9b5e606efeb04bceabcb8e35af5b",
+        "8651c4a9a9887051f0fb36aba3bdd8b5d7423d3b0327c29af64b40e6773088ff",
+        "8e26d0b209d61932d35c0b7741bdaf51e5512eb2ea05161bb4e7c626e0194e4e",
+        "d7fe0b3995c7aa14f6e74c7820499aed011972262666369e3b8dccef0fe1d96e",
+        "94422e94f2fd7a9b47b2a970555cd74816199555f54d3b548b11288a84c36080",
+        "42c9eee9ff9f5da8f6bb3044c81107cc1b058ff5220a775abd4862c35de6a6dd",
+        "88ff52f255ddc6a2f879a493531f5f04a0b81e4bbf77f7dd2a3c400917d19d3e"
+      ],
+      "source_sha256": "76c6fca5ca7737b3ed9ceee4472049d0c5e92bf8f767b391edf3bf7ed386de3b",
+      "text": "Install one command-line tool and see its sign-in through.\n\n:param parent: the owning widget.\n:param threaded: ``False`` runs the installer and the sign-in checks\n    inline, for a test that drives the panel synchronously.\n:param open_page: opens an install page; the default browser by default.\n:ivar state: what the panel is doing, one of this module's states.\nBuild the panel, hidden until there is something to show.\n\n:param parent: the owning widget.\n:param threaded: run jobs on a worker thread.\n:param open_page: opens an install page."
+    },
+    "7c4ab3af6a81ef0856511d472d7661fea2116a4e377f9815ce1793a6713562ed": {
+      "source_blocks_sha256": [
+        "0f88e90165ddb26c624e4ecac91297acf660409395d3714469e9ad50edcd3c1f",
+        "24f0f807338f647880eac70440c89056689aa4c94c74c838385bfd0990b67691",
+        "94ca04d3102ddb92a780ac6010c4d200ef4dd3507aa101cafbad6bdf598edb47",
+        "7ac3a00cb0d55d71a2fb59f4e757e4d7fdb311a86ca17dede0724a757e1620d3"
+      ],
+      "source_sha256": "7c4ab3af6a81ef0856511d472d7661fea2116a4e377f9815ce1793a6713562ed",
+      "text": "Start ``tool``'s sign-in and watch for it to finish.\n\n:param tool: a :class:`spacr.qt.ai.providers.CommandLineTool`.\n:param start: starts the sign-in -- in a terminal for an AI CLI, in\n    spaCR itself for the GitHub CLI -- and says whether it started.\n:returns: whether the sign-in started."
+    },
+    "81e77b2c448bf81eff5ad2ccbcd9b12e9a51048b50fd7116b0c5014eb7e83329": {
+      "source_blocks_sha256": [
+        "3418d878d629e2aaad031a4d8c8ee80a4411a79314f855d01d9ba11c1fc0b1e5",
+        "a8491fe73e562580e7a5583b06e9c1e02491475a3b44ed078b3b22597062d5f8",
+        "24f0f807338f647880eac70440c89056689aa4c94c74c838385bfd0990b67691",
+        "5f47937809f82dcddb1abf0088e8dc539063c8047000e1becdfc7379b7910a94",
+        "e9ff692d1754cb12037743bdccb076b3099610b2080682d25faf25159e600208",
+        "baa145c9a7c7ae68b4e2848506b4fa56da12ba786c166ba2a2ad45feb10e201a"
+      ],
+      "source_sha256": "81e77b2c448bf81eff5ad2ccbcd9b12e9a51048b50fd7116b0c5014eb7e83329",
+      "text": "Run ``tool``'s installer off the GUI thread.\n\nShows the command before anything runs and keeps it on screen. When\nnone of the tool's install methods can run on this computer, says\nwhich program is missing instead and offers the command and the\ninstall page.\n\n:param tool: a :class:`spacr.qt.ai.providers.CommandLineTool`.\n:param after_install: called on the GUI thread once the tool is\n    installed, to start its sign-in.\n:param page: the tool's install page, offered when an install fails.\n:returns: ``True`` when an installer was started."
+    },
+    "87115cac8847f1de9fac6e725974d9c477d52488d9fe673ce1e454290a84898a": {
+      "source_blocks_sha256": [
+        "87115cac8847f1de9fac6e725974d9c477d52488d9fe673ce1e454290a84898a"
+      ],
+      "source_sha256": "87115cac8847f1de9fac6e725974d9c477d52488d9fe673ce1e454290a84898a",
+      "text": "Close the panel and have the owner look at the tool again."
     },
     "8eb77d4fac240d06957449323b42b5a872c9bc235cdc73149b1e48733ea9de28": {
       "source_blocks_sha256": [
@@ -119,6 +301,48 @@
       "source_sha256": "8eb77d4fac240d06957449323b42b5a872c9bc235cdc73149b1e48733ea9de28",
       "text": "Download the files of the Hugging Face dataset repo ``repo_id`` into the package's ``resources/models`` folder.\n\nIf ``resources/models`` already contains files, nothing is downloaded and\nits path is returned. Files are saved under their base names.\n\nArgs:\n    repo_id (str): The repository ID on Hugging Face (default is 'einarolafsson/models').\n    retries (int): Number of retry attempts in case of failure.\n    delay (int): Delay in seconds between retries.\n\nReturns:\n    str: The local path to the downloaded models."
     },
+    "8f552f881eca8b3f78514d13bcee2a74575f7ccfb3542b5a27a5b6837f098ffb": {
+      "source_blocks_sha256": [
+        "8f552f881eca8b3f78514d13bcee2a74575f7ccfb3542b5a27a5b6837f098ffb"
+      ],
+      "source_sha256": "8f552f881eca8b3f78514d13bcee2a74575f7ccfb3542b5a27a5b6837f098ffb",
+      "text": "Apply privacy and account choices collected by desktop installation."
+    },
+    "91c63cae57b2f4ea45cc07bd41ba92de7d26d0a5342168a59faf4d3c3bee11f7": {
+      "source_blocks_sha256": [
+        "dd1fd15e6c182c7b68675ac617969ae8d6f3d84a36898091e34322ead4e46f13",
+        "e641628a202e1ab3b00d6fe951db8da01de7567b1affb79d07b372ce768a39a9"
+      ],
+      "source_sha256": "91c63cae57b2f4ea45cc07bd41ba92de7d26d0a5342168a59faf4d3c3bee11f7",
+      "text": "Terms-of-use acceptance and version records for a spaCR profile.\n\nspaCR presents its terms during setup and records the accepted\n:data:`TERMS_VERSION` with a UTC timestamp. A profile must accept a revised\nversion explicitly; acceptance of an earlier version is not carried forward.\nThe record is stored with the other setup values under the ``onboarding/``\nprefix."
+    },
+    "9917156f893498a09e0af2348dda97e63462a176f76920b3a6bc5fd267b580bf": {
+      "source_blocks_sha256": [
+        "36370b9266e459ccf44df643480d0044658f46d526adc322bd7cd147bfee9a8e",
+        "150f61cd277994af9d47c5d3e95c1a7e4d1f32b02cb2684dd667a1f310e04bac"
+      ],
+      "source_sha256": "9917156f893498a09e0af2348dda97e63462a176f76920b3a6bc5fd267b580bf",
+      "text": "The mark's natural size, from the artwork it draws.\n\n:returns: the preferred size."
+    },
+    "a2891fbdf0da347f05c6afda5c6561dfbc6c396b65fda3c6a1aa3fb2b40bdeaa": {
+      "source_blocks_sha256": [
+        "8d38d80f7c769a723e70c41aefe1f279daebcefb6814cc6ae7ca4a78322315f3",
+        "3a385a26ee899c965f2d6d828fba37c6b9687bd0f8aa4bbc4e8bb9524b9a8dd9",
+        "ac0065724c23fefd243fe93ec54b2265626bfd533b80ca5448ea9d41d3add1a2",
+        "c642ea08391f093a1632d2e6680f773fe20ed524d895f1a639bf67cc070580d5",
+        "d3e6b1677cc803199a85986aa71863e9d84e75fa69ae3912c3bde5f8cc9cfb36",
+        "aaa130c107588dccaee1e47d995d7840fe0a8aa78ab08f454890d907f907ce31",
+        "582ac5c292b3acd18f28dc3dc21347437ff5e0643d6143bf08a3f0f69ccb1614",
+        "6a00c04dd619f24beda91fb0f5cb640ea45009c16b9d9ecffafa7d46b91d55f5",
+        "0b4037594367d1d8f2a05353be9bf8f44f1181bd8ee083880193299f6bd134e5",
+        "40b190d760c03568cb680953c9875e7c995c6a671be2663a957318475df38cba",
+        "26759ba634e6f78afd40e4e217075ee2599ba3e440b6a6158f0d77ee82c0710e",
+        "f059cb94a71f1a899e0b4151a5ad84c86cece6fb7786731e8798fa367525a3d0",
+        "1430e9b40ff1bbd07fcfc63de38089726693aea59b952a9cc2699759a966550b"
+      ],
+      "source_sha256": "a2891fbdf0da347f05c6afda5c6561dfbc6c396b65fda3c6a1aa3fb2b40bdeaa",
+      "text": "Edit native spatial labels using the same boundary as the 3-D gate view.\n\nCoordinates are physical X/Y/Z distances from the image's outer origin;\nvoxel centres lie at ``(index + 0.5) * spacing``. Arrays retain their\ndeclared spatial axis order, source dtype and existing object identities.\nAt most 16,777,216 voxels and 256 MiB of source intensities are accepted;\nlarger fields are refused explicitly. Sparse undo deltas have a combined\n64 MiB budget rather than retaining a volume for every edit.\n\n:param image: finite real numeric three-dimensional source intensities.\n:param mask: nonnegative integer labels of exactly the source shape.\n:param axes: a permutation of the three spatial axes ``XYZ``.\n:param spacing: positive finite distances in that same array axis order.\n:param unit: the physical distance unit, or ``pixel`` when unspecified.\nValidate one spatial image and own its mutable label array.\n\n:param image: finite real numeric source intensities.\n:param mask: nonnegative integer object labels matching the image.\n:param axes: spatial storage-axis order, a permutation of XYZ.\n:param spacing: three positive finite distances in storage order.\n:param unit: the common distance unit."
+    },
     "a7b7a58936f03f2ab59079897c95ec59e5b1afa0d13602a9c5810d1b093bb3d2": {
       "source_blocks_sha256": [
         "1a031a47f24a40563e68b745a3fa56009f1b0aa6fc88e118a9bb4d4959e677eb",
@@ -126,6 +350,67 @@
       ],
       "source_sha256": "a7b7a58936f03f2ab59079897c95ec59e5b1afa0d13602a9c5810d1b093bb3d2",
       "text": "Stop ticking and retire the shading thread. Costs exactly nothing\nwhile stopped — no timer, no thread, and no frame held in memory.\n\nDropping the published frame matters because these screens stay\nbuilt: a dozen module screens the user has visited would otherwise\neach keep a slot warm behind a tab nobody is on, which is 2 MiB apiece\nfor the aurora. The next :meth:`start` shades a replacement before it\nstarts the thread, so there is nothing to show for it."
+    },
+    "aafd9e12180925afa89e859a84050092cc9344a0bbf1bc7c17e4461995fb85ac": {
+      "source_blocks_sha256": [
+        "aafd9e12180925afa89e859a84050092cc9344a0bbf1bc7c17e4461995fb85ac"
+      ],
+      "source_sha256": "aafd9e12180925afa89e859a84050092cc9344a0bbf1bc7c17e4461995fb85ac",
+      "text": "One point on the arc, from its cosine and sine."
+    },
+    "aead1d5c65fa9c4215c214e05537cf15efd89447e31d3292d1db60225fa32027": {
+      "source_blocks_sha256": [
+        "aead1d5c65fa9c4215c214e05537cf15efd89447e31d3292d1db60225fa32027"
+      ],
+      "source_sha256": "aead1d5c65fa9c4215c214e05537cf15efd89447e31d3292d1db60225fa32027",
+      "text": "Stop the installer, or stop waiting for the sign-in."
+    },
+    "b26ed04c6f9cb687f270e466f6754b0571f3d590c412c1286737eb159212039d": {
+      "source_blocks_sha256": [
+        "be7e1d10e830413025704ee622f05aa91caf6051d2e5d14eccfd8a0bba8c78cf",
+        "ea96c287bfe9aa37cf660d072c27d238dbddb71779ada1a9f27388d58f27b79e",
+        "92ebd9933f867e8d05cde2b82378ae708127c7d1449007453f25d4fd2b47a9b3",
+        "b96ca5234fae452afd9b3cff6d002671fd8f087b505f35918afd6c0864558ad7",
+        "67a9fcb18ffe06faaa28d0a8cded28537bb904e2b5fb2260561d069bfa772ed3"
+      ],
+      "source_sha256": "b26ed04c6f9cb687f270e466f6754b0571f3d590c412c1286737eb159212039d",
+      "text": "Draw the assistant providers as their marks rather than as their names.\n\nThe setup screen shows each provider as its logo mark rather than as a text\nbutton, because a mark is recognised before it is read, and on this question\nthe user already knows the answer and only has to point at it.\n\nEach mark is drawn as a `QPainterPath` built here rather than shipped as a\nbitmap: a bitmap would be a vendor asset in the repository with its own\nlicence, its own resolution and its own two versions for light and dark. A\npath scales to any button size, takes the brand colour when the provider is\navailable and the theme's muted ink when it is not, and adds nothing to the\nwheel.\n\nThe three assistant shapes are the recognisable geometry of each mark, not\na facsimile: Claude's radiating burst, OpenAI's six-fold knot, Gemini's\nfour-pointed spark. They identify whose command-line tool spaCR would\ndrive, which is what the question is asking.\n\nGitHub is the exception: GitHub publishes the Octocat's path data for use\nas a link mark, so that one is the actual mark rather than an approximation\n-- still a path, still recoloured per theme, still nothing added to the\nwheel."
+    },
+    "b60b28a83426984e8dfcea8706f60ece64eea0c51cc978c9b6d49eae61d03ba3": {
+      "source_blocks_sha256": [
+        "080e25eef76809a4ed9af7d2c5952603a93f7e2b30918961e60de9658c6b7987",
+        "f20ec4322b2fd5bd93b664f18751d531c97e8114c76928293a53094f5b25e346"
+      ],
+      "source_sha256": "b60b28a83426984e8dfcea8706f60ece64eea0c51cc978c9b6d49eae61d03ba3",
+      "text": "Say that a sign-in the owner was running has ended unfinished.\n\n:param message: what happened and what to do, already translated."
+    },
+    "bc21cc00be78c58e67c00013263ab3ea65bdaa872c4e4a2e46aff454d3a33c0f": {
+      "source_blocks_sha256": [
+        "795b00891a4e51a0c22fba31c46b0a4267456bc2ccaf587899034a4865022307",
+        "9de8fba45099a31fc3ad6f1ee8c946bf694479946fffe533bc3b2c1a8b123886",
+        "6f910ac372a5abdb3188e03049e89c1121d7cd1e409b0edc91e64a889b2c8590"
+      ],
+      "source_sha256": "bc21cc00be78c58e67c00013263ab3ea65bdaa872c4e4a2e46aff454d3a33c0f",
+      "text": "Handle the events Qt does not give a named handler for.\n\n:param event: the Qt event.\n:returns: True when handled here."
+    },
+    "bd87343f15cc5ac820258b47efba989247763410c1d0799c33c1530d20fa3076": {
+      "source_blocks_sha256": [
+        "56f4830f0d65ad12834afeccdec66cb5fda88ab553b5316be41ad162cae0426f",
+        "a3d7657a04a20085053b45d52440834918e43ce0ce24ecb8b3b32b83aaa1111c",
+        "4a31da4a7e890d2100329a249a272b2bfac9ca9cda66ef9167703fc532a25d47",
+        "43bd22008da83f7fcdc8f40245727100490110d101da877cc7f361610da630a5",
+        "998838739736ecd6645bceed9fa0f763d4bf66d69557ae3d832c0ae31ddd570c",
+        "9a8606cb6d236b5d88671bb952fcfbd5150e448fa5b9faf74de313ad82c27067",
+        "1a1bc673c6729e5d1b79e26adabd8de8463a9880240a74ea5553d4ec397421c5",
+        "15a1efce965f52b4674a7d34447a456a4822cd1bfab3b964a88c2079d9bdffb1",
+        "2e6a997ade852e91af458e34a6497de4e28e0775dfe46d0d1aba114187e00f2f",
+        "c59a6ef4e7cbd9bb04f00289be1dd4503562d26a180de82fac33e2c33ccd013c",
+        "3284e9014456e88b7060c38f2a99ddb7a6ad0a2dfba88a3035d69acd7b292e06",
+        "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
+        "ca1bb1c5eeb1e9c11d55c1043ff5e658889ebd99c51576c27b764eefe1572373"
+      ],
+      "source_sha256": "bd87343f15cc5ac820258b47efba989247763410c1d0799c33c1530d20fa3076",
+      "text": "One provider, drawn as its mark with its name beneath.\n\nSelectable rather than clickable-once: three of these are a radio group,\nand :meth:`set_chosen` is how the group tells this one it lost.\n\n:param code: provider key -- ``claude``, ``gpt`` or ``gemini``.\n:param label: the name under the mark.\n:param available: whether the vendor CLI is on PATH. This is shown, not\n    enforced: an unavailable provider is drawn in the muted ink and says\n    what would install it, and is still choosable. The setup screen\n    writes a preference and launches nothing, so choosing a provider\n    before installing its CLI is an ordinary thing to want, and the\n    console says so at the point it would actually be used.\n:param parent: parent widget; ownership only.\n:param status: ``READY``, ``SIGNED_OUT`` or ``NOT_INSTALLED``. Empty\n    derives one from ``available``, which is what every caller written\n    before the third state did; that derivation can only ever produce\n    ready-or-not-installed, so a caller that knows the CLI is present\n    but signed out has to say so here.\nBuild one provider's status mark.\n\n:param code: the provider's short code, drawn in the mark.\n:param label: its display name.\n:param available: whether its CLI is installed.\n:param parent: parent widget, or ``None``.\n:param status: a longer status line, shown on hover."
     },
     "bdaefec8190318050e0512713baf02b4c6995e0f62037890022bae1e3b8a49a4": {
       "source_blocks_sha256": [
@@ -136,6 +421,22 @@
       "source_sha256": "bdaefec8190318050e0512713baf02b4c6995e0f62037890022bae1e3b8a49a4",
       "text": "Emit each new figure once, rendering it HERE on the worker thread.\n\nAgg's savefig touches no Qt, so the expensive part happens off the GUI\nthread and the GUI only does a file move and a pixmap load -- which is\nwhat stops it hanging while figures stream in.\n\nFigures marked ``_spacr_live_update`` are re-emitted in place instead,\nwhich is how the training monitor refreshes without filling the gallery\nwith one snapshot per epoch."
     },
+    "c34ec0c623f56fa7825c5d34e97c06273fc573afbc544a68546390f1f820e40f": {
+      "source_blocks_sha256": [
+        "6e84b02c3315655555ec5ffac6a5934239a4c9d031afa8388a4e09b426b3aa45",
+        "acc52eabc78f6766ee5fc1bf80b1a20b6bd6b54378716a42c233fb6354bf4c8a"
+      ],
+      "source_sha256": "c34ec0c623f56fa7825c5d34e97c06273fc573afbc544a68546390f1f820e40f",
+      "text": "Stop the installer and the sign-in watch, and retire the thread.\n\nCalled when the screen closes: an installer left running with no\nCancel button on screen is one the user can no longer stop. The\nworker's own answer is dropped once the thread is retired, so an\ninstall that was running is shown as cancelled here, and the panel\nno longer counts as busy."
+    },
+    "c4e5b39c98cb2133e461183bb98ca1ec654684aed9fb0a18e23a0d48d8894dc1": {
+      "source_blocks_sha256": [
+        "9de5889252b76ebad6e138c022c351da9d30ddb447f78abd03dcc1d210bccb62",
+        "e8bad0d1abd705e096ebb50f8a85b2d660aa6860bb80a68ccb4b36b43f5486af"
+      ],
+      "source_sha256": "c4e5b39c98cb2133e461183bb98ca1ec654684aed9fb0a18e23a0d48d8894dc1",
+      "text": "A six-fold knot: six lobes on a common ring, drawn as one outline.\n\n:param box: the rectangle to draw in; the mark is centred in it and sized\n    to its shorter side."
+    },
     "c60be06622ffe4c46fa6bdbafd5ebb235ba81be8a7249e68758361f50acf2850": {
       "source_blocks_sha256": [
         "ba25f1ff629127d08cd82c347c5d7edce74e34a4ea1b2599ff7bd59598744ba8",
@@ -143,6 +444,71 @@
       ],
       "source_sha256": "c60be06622ffe4c46fa6bdbafd5ebb235ba81be8a7249e68758361f50acf2850",
       "text": "Enrol this screen and its panels with the workspace registry.\n\nRegistered as CALLABLES returning the attribute, never as the widget:\n`_results_panel` is rebuilt when the module changes, and a captured\nreference would hand a run journal a deleted C++ peer to ask."
+    },
+    "c6945c69c75b6ce2503d1b190068f689c57e4d162e928879ccd4212df545ee35": {
+      "source_blocks_sha256": [
+        "c6945c69c75b6ce2503d1b190068f689c57e4d162e928879ccd4212df545ee35"
+      ],
+      "source_sha256": "c6945c69c75b6ce2503d1b190068f689c57e4d162e928879ccd4212df545ee35",
+      "text": "Return the three explicit checkbox states."
+    },
+    "c9247172793d4ae12e10edd0d15adc430764f8d3d75bdeba192af38629048c69": {
+      "source_blocks_sha256": [
+        "b2a5f5453a4281fdf11dceff4dda389cc6a8fde9f91cd7a0a3075ece77c591c6",
+        "a741945fb4cd3cf36c8cc61ed77b6687562892aa230f344726f719f473c6b28a",
+        "d6bd70cde704f639f66ecb67b8ddecfd38b38dbfea5b2e896a774d9936fbec7a",
+        "ae90fa7807b412ee2ef0174e830caf07f00e7fd56a3b4a0451be4391debacdf9",
+        "063d5c8df85e3073873f87a00d46689202ac0110d8a607423d07d6333068568c",
+        "4b3a91c94033d97ab8bee5337efd9d5d470c3a26a884d5c6ddb77a2f17d68b39"
+      ],
+      "source_sha256": "c9247172793d4ae12e10edd0d15adc430764f8d3d75bdeba192af38629048c69",
+      "text": "Open a grayscale spatial volume for native 3-D editing.\n\nTIFF volumes need exactly three spatial axes, in any order. A plain\nthree-dimensional page stack (tifffile's ``Q`` or ``I`` page axis over\n``YX``) is read as Z sections, as z-stacks and FIB-SEM series are saved;\ntime, channel and colour axes are refused. ``voxel_spacing`` metadata is\nread in storage-axis order. OME physical sizes are converted to micrometres;\nImageJ spacing and XY resolution are retained. MRC volumes (``.mrc``,\n``.rec``, ``.map``) are read as ZYX with their voxel size in nanometres;\nthey need the optional ``mrcfile`` package. Absent physical metadata\nmeans pixel coordinates.\nLabels retain dtype and identity. A saved geometry sidecar is bound to\nthe exact source file and mask pixels and is refused when stale.\n\n:param folder: source image directory.\n:param filename: spatial TIFF or MRC volume filename.\n:param masks_dir: optional existing sibling mask directory.\n:returns: a ``VolumeMaskSession`` owning the labels and source metadata."
+    },
+    "cbdf42f8a6dedb8eec6bbfd065535a8a09a9bd9ce87b0085975c6eda50c2e63f": {
+      "source_blocks_sha256": [
+        "d3b36bba715f751c401f1f8985f409066457edff41ab1c2bef9c1f63e2539dba",
+        "9f72a83511eb53e365cf8f945a966ab7f4764e3558939da184471144b5cd9405"
+      ],
+      "source_sha256": "cbdf42f8a6dedb8eec6bbfd065535a8a09a9bd9ce87b0085975c6eda50c2e63f",
+      "text": "Put the command on the clipboard.\n\n:returns: the command copied, which stays on screen either way."
+    },
+    "d7f2f0dbf55603427d496ecb5dad667ed3f719440a547a48cb2d16b67c551b76": {
+      "source_blocks_sha256": [
+        "fbcca45e40a87c941f4bfcceca3a18501977b73b9786a814510464f888b692ba",
+        "8759e2fb89737be7c8520d31a68c072db682281123b04cec0e10d3e727a9179f"
+      ],
+      "source_sha256": "d7f2f0dbf55603427d496ecb5dad667ed3f719440a547a48cb2d16b67c551b76",
+      "text": "Open the provider's page.\n\n:param event: the Qt mouse event."
+    },
+    "d8988d916a2600df12bf5412f72a6814bd6def8c5f741c864003485ec78b0abe": {
+      "source_blocks_sha256": [
+        "836d3388a53598e50416b6ab8726ffa11c40708abe6a68ebe08eef6fd58de3a6",
+        "e52373fc91b6cb7cbe315ff10aab10271f16f9b3743dcc7a3adf4498bf8437da"
+      ],
+      "source_sha256": "d8988d916a2600df12bf5412f72a6814bd6def8c5f741c864003485ec78b0abe",
+      "text": "Close the slides and record that they have been seen.\n\nRecorded, so first-run guidance does not greet a returning user as a\nnew one. While an installer is running the user is asked first\n(:meth:`_may_close`): keeping it running leaves the screen open, and\nstopping it closes the screen as before."
+    },
+    "ee076a6c3930d0f64b8376ce55a2c1fffe6add44dc4ca4305ad2f390e30ae4a6": {
+      "source_blocks_sha256": [
+        "ee076a6c3930d0f64b8376ce55a2c1fffe6add44dc4ca4305ad2f390e30ae4a6"
+      ],
+      "source_sha256": "ee076a6c3930d0f64b8376ce55a2c1fffe6add44dc4ca4305ad2f390e30ae4a6",
+      "text": "The signed angle between two vectors, as SVG's arc maths defines it."
+    },
+    "eff20f72f34bfea12652d749ae84c870e74abd1fdb265f7e3b9f0434ead05893": {
+      "source_blocks_sha256": [
+        "eff20f72f34bfea12652d749ae84c870e74abd1fdb265f7e3b9f0434ead05893"
+      ],
+      "source_sha256": "eff20f72f34bfea12652d749ae84c870e74abd1fdb265f7e3b9f0434ead05893",
+      "text": "Build the question list against the live preference module."
+    },
+    "f208e364a5013340531c5c5e22be9e8265bc156fbf7d8d69e25deb3c542a0378": {
+      "source_blocks_sha256": [
+        "a9f38012496757c525e138c4b2e71b026489053ae182aabdcf53736d626684af",
+        "e8bad0d1abd705e096ebb50f8a85b2d660aa6860bb80a68ccb4b36b43f5486af"
+      ],
+      "source_sha256": "f208e364a5013340531c5c5e22be9e8265bc156fbf7d8d69e25deb3c542a0378",
+      "text": "A four-pointed spark: a diamond with concave sides.\n\n:param box: the rectangle to draw in; the mark is centred in it and sized\n    to its shorter side."
     }
   }
 }
