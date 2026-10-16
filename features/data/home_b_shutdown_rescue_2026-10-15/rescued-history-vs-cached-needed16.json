@@ -1,0 +1,27 @@
+{
+  "basis": "Reused cached finite EN-relative stale metadata, no recollection; exact16sourcehashes absent actualRoot history",
+  "cached_census_receipt_sha256": "3c90a0f7569602224f6c15364e7a4fd5f7a630db44323f401bc91b736264f781",
+  "root_head": "50da4ed98f45a07c016439bbe358bb72dd44c506",
+  "root_history_sha256": "b69e035025c7931e6330fa82793932f0aa1648d8a4a073e8e7501464071880fe",
+  "missing16": {
+    "90277a8e7db959e73b3530028830ea10245cb95a962620f4d937fb17710fe215": "spacr.crashreport",
+    "eef02f55a5953b26e7226e351612756bfdb90993489be3ff976203f86af1227e": "spacr.crashreport.install_excepthook",
+    "836f437ae8d7b86ab65fabb6086c93e532a1b8f4fab95f0d443d14c7a0926afa": "spacr.qt.ai.providers",
+    "534f33187deecbea1599b9e9aa55958070da326ee5431c21142909c5b8534ef8": "spacr.qt.ai.providers.configured_providers",
+    "f7b12025c7d64b6ecea370145f2a97ae2fa04a516a23dd32699314558621970f": "spacr.qt.ai.providers.get_provider",
+    "f3a75a6a1b9e576469fd2c28d2ef612b4b568b52c238fd37dee7345fcf94409e": "spacr.qt.ai.providers.list_providers",
+    "8f552f881eca8b3f78514d13bcee2a74575f7ccfb3542b5a27a5b6837f098ffb": "spacr.qt.install_consent",
+    "72bbfed31e1275e32d039241032b7e1b13fe01a190718ee9e078da55e1a00d11": "spacr.qt.organisms.ORGANISMS",
+    "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_providers",
+    "39436205348cd87807d79d5f69fe307dcc593e957006659b62dd49749b057a4d": "spacr.qt.screens.organism_screen",
+    "eff20f72f34bfea12652d749ae84c870e74abd1fdb265f7e3b9f0434ead05893": "spacr.qt.setup_screen.questions",
+    "190c7c6b0817aa6e89a028b06f849ce3726113c3a3e39de66a85fc8d664fe23c": "spacr.qt.widgets.loading_screen.BlowAway",
+    "cb685442d95ef15fa039d142d4c7d7023ac81ae23b55cb75f47973a5a5b34a50": "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away",
+    "af23a423eab62e25dfbfee7551a8f606598f432ccd7f069d32e919557cb2dbb7": "spacr.qt.widgets.loading_screen.blow_away_running",
+    "e9dee4dfe2f5013acc8f6c2bba1802f979320ee75c1112dce905a1b612ba6d50": "spacr.qt.widgets.organism_diagram",
+    "eed653c46f8c28553c2323f816ece847a3af219b029376be83369136d9299adc": "spacr.umap_search.walk_clusters"
+  },
+  "rescued_working_intersection": [],
+  "rescued_head_intersection": [],
+  "conclusion": "No current16missing historical sources recovered from this oldvolume history. Retain preservation, do not promote."
+}

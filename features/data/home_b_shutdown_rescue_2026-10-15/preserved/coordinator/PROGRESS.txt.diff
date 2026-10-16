@@ -1,0 +1,40 @@
+diff --git a/features/data/home_b_grouped_progress_2026-10-15/PROGRESS.txt b/features/data/home_b_grouped_progress_2026-10-15/PROGRESS.txt
+index d51f7d1e2e..be7a28318f 100644
+--- a/features/data/home_b_grouped_progress_2026-10-15/PROGRESS.txt
++++ b/features/data/home_b_grouped_progress_2026-10-15/PROGRESS.txt
+@@ -2,7 +2,7 @@ CURRENT SHARED WORKING PROGRESS — HOME-B VIEW — 2026-10-15
+ 
+ One row per numbered item; whole-item ticks only; estimated remaining active hours; external waits may be unknown. Historical completed items omitted.
+ 
+-Canonical combined tracker, omitting15 pre-today closed items; all70 remaining/today rows retained with current owner updates.
++Canonical combined tracker, omitting16 pre-today closed items; all69 remaining/today rows retained with current owner updates.
+ 
+ | Item | Percent done | Time left (hours) | Owner | Detailed description |
+ |---|---|---|---|---|
+@@ -29,13 +29,13 @@ Canonical combined tracker, omitting15 pre-today closed items; all70 remaining/t
+ | N696 — magnification default diameter and auto diameter | 95% | 1–2 | Home | Source/widget/diameter/auto semantics and235merged owning checks plus original1.35paintgate passed, normal API/Help generation recorded. Fresh fullCI/platform-native and Work currentlayout tutorial remain; no new native modelquality/GPU acceptance. |
+ | N697 — each disconnected brush stroke is a new object | 95% | 1–2 | Home | Disconnected brush/volume behavior and235merged checks/unmodified1.35paintgate recorded. Fresh fullCI/native-platform and Work lesson14 recording/publication remain; oldprivate publication/performance notes superseded only to stated extent. |
+ | N704 — Readable README panels | 90% | 1–3 | Home-B / shared owner | Refreshed exact738-file main publication packet and independent1747-image proof pushed c457283835. Actual main/hosted/PyPI acceptance remains with promotion/release owner. |
+-| N676 — Tutorials, including lesson14 | 65% | 12–24+ | Work | 09/11/15 verified media checkpoints;05 hidden Spaceout repair next; requested remaining lessons Work-owned. |
+-| N702 — cluster runs download a missing zoo model automatically | 90% | 2–4 + external | Home | Actual clean remote cluster run resolves/downloads required zoo model and completes readback; requires real job/site/user inputs. Do not replay owning model tests or install backends speculatively. |
++| N676 — Tutorials, including lesson14 | 65% | 12–24+ | Work | Work published verified lesson23 after15. New maintainer order: review tutorials numerically from01, preserve correct video/audio/captions and repair only necessary components;01 KEEP accepted,02 next. Hidden Spaceout and remaining source-bound tutorial obligations stay Work-owned. |
++| N702 — cluster runs download a missing zoo model automatically | 90% | 2–4 + external | Home / assigned owner | Resolver/offline/coalescing and verified picker export now published with nine-language audit and10 actual consumer checks. Mask object-grid export still drops provenance; reproduced adapter under targeted repair. |
+ | N689 — HF documentation and Pages | 85% | 2–4 + external | Home-B / shared owner | Actual access-only run38754742270 rejects commitPOST HTTP403 after metadata/tree/README. Existing CIsecret writepermission to selectedv2Space needsowner correction; no moreprobes until corrected. Main/canonical cutover remains. |
+ | F560 — foundation model embeddings | 90% | Unknown | Home | Official Cell-DINO gated weights require maintainer Meta request/access, then actual official factory/checkpoint loading and final hosted/scientific acceptance. Supported-backbone/human-label and CPU/CUDA proofs already recorded, not a new completion. |
+ | F370 — every published model carries its scorecard | 90% | 2–6 + data | Home | Curated six-row tooltips, provenance, generated documents and locales published; remaining model-wide/scientific acceptance separate. |
+ | N678 — New-string translations | 90% | 2–4 | Home | See current owner delivery and remaining acceptance gates. |
+-| N698 — web mask generator one page per model | 70% | 12–24+ | Home | Configuration site built; free hosted source upload and packaging correction verified across1182files. Actual hosted build/inference acceptance remains. |
++| N698 — web mask generator one page per model | 70% | 12–24+ | Home / assigned owner | Free ZeroGPU managed source build succeeded; exact deployed revision is RUNNING/READY on zero-a10g. Public schema check underway; actual hosted inference, browser execution and parity remain open. |
+ | N699 — cluster submit reads ssh config and handles mfa | 90% | Unknown | Home | Actual real cluster/password+OTP/cancel/host policy and native platform acceptance need user/account/site. Claude700 is separate; no real SSH/auth/network here. |
+ | N112 — Documentation correctness | 95% | 1–3 | Home-B / shared owner | Private-doc/strict inventory fixes pass; foreign N700/API and active new-feature review obligations remain. |
+ | F288 — zero issues green ci and per module coverage | 85% | 4–8 | Home | Fresh exact-source full30 green plus ordinary union/ratchet; use preserved real Ops raw only if its source/test/provenance bindings still match. Root owns CI and issue owners retain scope. |
+@@ -63,8 +63,7 @@ Canonical combined tracker, omitting15 pre-today closed items; all70 remaining/t
+ | F580 — cross session intensity calibration | 95% | Unknown | Home | Session/bead software, viewport fix and locales published; known-exposure acquisition acceptance remains. |
+ | F586 — apptainer singularity images | 85% | 3–6 + cluster | Home | Root release gate first; publish SIF, maintainer package public visibility, anonymous oras pull, actual Slurm CPU and --nv job evidence. No package/account/resource mutation here. |
+ | N615 — API, docs, translations, tutorials and release acceptance | 95% | Unknown | Home / Work; Home-B scoped docs | Broad original scope remains: current hosted docs/N689 permission, Work05 tutorial publication and main/release acceptance. README-route obligations already covered. |
+-| N626 — Partial consolidation | 95% | 1–3 | Home | See current owner delivery and remaining acceptance gates. |
+-| N639 — organize import in mask and import modules | 95% | 1–3 | Home-B / shared owner | Organize buttons and original-preservation repair implemented. Item explicitly leaves translations and tutorials for both buttons with owners; current item-specific catalog/tutorial closure not recorded. No new whole-organizer transaction acceptance. |
++| N639 — organize import in mask and import modules | 95% | 1–3 | Home-B / shared owner | Role display and layout-aware summaries repaired; reviewed189 targets in nine languages are undergoing normal generation and actual-dialog checks. Whole item still awaits Work tutorial evidence for both buttons. |
+ | N641 — performance audit 2026 10 04 | 90% | 4–8 + idle host | Home | Any remaining real-display/GPU/per-module timing acceptance requires quiet owner-controlled conditions; do not infer native smoothness from offscreen cases. |
+ | N646 — clean uninstall purge | 90% | Unknown | Home | Actual Windows/macOS uninstaller/purge GUI/data preservation replay remains. Do not treat modeled NSIS/helper tests as native acceptance. |
+ | N655 — Accessibility | 90% | 2–6 + platforms | Home-B / shared owner | Linux Clear/fold native accessibility actions and three numeric-Enter repairs published, with current source preservation verified. Explicit wider platform/human acceptance remains. |

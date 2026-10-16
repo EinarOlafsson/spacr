@@ -1,0 +1,126 @@
+{
+  "schema": 1,
+  "sources": {
+    "08045e7872c4e753dad77ca9b23447cd3ddfd27c530c1deb41916ae6ebe8b5df": {
+      "source_blocks_sha256": [
+        "1993a27719aca3586520e6a847808a68af06b79cf158182625d5f8669db3046d",
+        "a7bd4e6952b64e2f51735f2cdd906e35b046db2fe655b8caec5b13197c1d08bf",
+        "32ad184b5d895760a58585e6b97140a9ce6a1c9c468e6f3a054396b3342cd65e"
+      ],
+      "source_sha256": "08045e7872c4e753dad77ca9b23447cd3ddfd27c530c1deb41916ae6ebe8b5df",
+      "text": "Give one dialog the card and the rim. True if it was applied.\n\nIdempotent: a dialog that already carries :data:`GLASSED` is left alone,\nso a dialog shown, closed and shown again does not accumulate cards.\n\n:param dialog: the dialog to decorate; it is left alone unless\n    :func:`wants_glass` accepts it."
+    },
+    "23bafc7319af9cb7102cb843454669557b6440d1a99e091ddf6ee3e3c7f2956e": {
+      "source_blocks_sha256": [
+        "91c212f59b5444a610147d73e9b3234dda62e86771c0fbc4ca936a227ae70c24",
+        "11170f59698185ced8fe8a2405a1bdd8a08074e702c0680b01f6bc33687feb3a",
+        "82c3b34db2a34d4467c1d03824c7455dec8c93c9da7386805aa45c5daba9378a"
+      ],
+      "source_sha256": "23bafc7319af9cb7102cb843454669557b6440d1a99e091ddf6ee3e3c7f2956e",
+      "text": "Show ``fig`` through matplotlib itself. True if the canvas is up.\n\nThis is what makes a figure crisp: the canvas redraws from the Figure\nat the widget's device resolution every time it changes size or zoom,\nso there is never a raster being stretched to fit. It is also what\nmakes it fast -- looking at a figure costs no render at all.\n\n:param fig: the Matplotlib figure to embed in a Qt canvas with its\n    navigation toolbar; the canvas already showing it is just redrawn."
+    },
+    "2c67c4640062f284f2c3b855fc454aa9cee6ca11c079a9f9912cca057f01ff67": {
+      "source_blocks_sha256": [
+        "e69445be552243c32a1fe74114eeeacf9e6a92796ef4f2bc666a651b3913885c",
+        "0816cfadd686e835c533d078a9ff374dbff4740a8ea48b59e01c3cefd988cb16"
+      ],
+      "source_sha256": "2c67c4640062f284f2c3b855fc454aa9cee6ca11c079a9f9912cca057f01ff67",
+      "text": "Cancel, then wait briefly so no QThread outlives the widget.\n\nCall from ``closeEvent``. Qt aborts the process if a running QThread is\ndestroyed, so a bounded wait is needed when a screen closes mid-load.\nThreads that outlast the budget are parked by\n:func:`spacr.qt.bridge.drain_thread` rather than terminated."
+    },
+    "3eb85eddc5d9d8ffe7c92d75f4f964745f090c607b89d6565184c67024361ed3": {
+      "source_blocks_sha256": [
+        "25990a1b6842b3d8f390a1527d2e0972bc8e668d6bc2738dfa11f03f05f95ea1",
+        "9c9fe5073511237fcf62751d567545f9ac7e7706a47dff33f99ba15749a80d83",
+        "aa54bb5e05554286344b2b03d7a939687a189ea51f745fcc1865259ba1bd8882"
+      ],
+      "source_sha256": "3eb85eddc5d9d8ffe7c92d75f4f964745f090c607b89d6565184c67024361ed3",
+      "text": "Follow a live theme switch when nobody else is going to.\n\nA host that passed its own ``background`` owns that colour and is\nexpected to re-set it (that is what ``app_screen`` does, because it\nalso has to re-resolve the wallpaper). A host that did not gets this\nfor free instead of a stale dark rectangle on a white page.\n\n:param event: the change event; it goes to the base class first, and\n    only an ``ApplicationPaletteChange`` is acted on."
+    },
+    "4c9005419e7ae8085a496769d929fc5111fa1537e91cb1c1cff442bfa09e4ee4": {
+      "source_blocks_sha256": [
+        "f5bdc2e28db64f11115d2c47c0245d4a96e92885264e91da9df2c57a2164e354",
+        "f25bd80ce1371fa2ed1228dd0c353f9b412e1680e8641cc35b8630879c604bb8",
+        "5f6f6de95dd25db2deb72844578735da784718826fbbddd92b1bf99958202e0e",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "9af45b2ab1338a672cb9e7ae65ee539f57e2157942f96fd004087409f15af374",
+        "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+        "21b7d3a713ab122db9b5e79c1f99c6d1c9bc50099591a826ff39ead598ce5c06",
+        "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
+        "2ce1158477e074a92ffd2bb9ad19cba301e9b12349ad083d1e5600acc7d35bf0"
+      ],
+      "source_sha256": "4c9005419e7ae8085a496769d929fc5111fa1537e91cb1c1cff442bfa09e4ee4",
+      "text": "Fit a mixed model with guides nested within genes.\n\nThe model treats genes as fixed effects and guides as random effects\nnested within genes. In statsmodels notation, ``groups=gene`` supplies the\nouter random intercept and ``vc_formula={'grna': '0 + C(grna)'}`` supplies\nthe guide-within-gene variance component.\n\nA blockable ``screenID`` supplied by :func:`prepare_formula` remains a\nfixed effect. With only two screen levels, a random screen variance would\nbe estimated from one degree of freedom. The plate is not nested within\nthe screen because plate position is already represented by the row and\ncolumn structure. Single-screen data omit the constant screen term to\navoid a rank-deficient design.\n\nParameters\n----------\ndf : pandas.DataFrame\n    Model data containing the formula variables and the gene and guide\n    grouping columns.\nformula : str\n    Fixed-effects formula, normally returned by :func:`prepare_formula`\n    with ``level='gene'``.\ndst : path-like\n    Destination for the residual histogram.\nrandom_row_column_effects : bool, default False\n    Add row and column variance components instead of fixed terms.\ngene_column : str, default 'gene'\n    Column containing the outer gene groups.\nguide_column : str, default 'grna'\n    Column containing guides nested within each gene.\nregression_backend : {'statsmodels', 'torch'}, default 'statsmodels'\n    Mixed-model backend. The torch backend fits the same nested model\n    with GPU acceleration when available.\n\nReturns\n-------\nmixed_model\n    Fitted backend-specific mixed-model result.\ncoef_df : pandas.DataFrame\n    Fixed effects, variance components, and guide BLUPs. Variance\n    components and BLUPs have ``NaN`` p-values because they are not\n    fixed-effect hypothesis tests.\n\nRaises\n------\nValueError\n    If required grouping columns are missing, no gene has multiple\n    guides, or the backend cannot fit the nested design.\nMixedBackendUnavailable\n    If the selected mixed-model backend is unavailable."
+    },
+    "5279ca111632af67030be8d908c02649520ebd869c845969ea3e64462046e8a2": {
+      "source_blocks_sha256": [
+        "ab94247db6f6da84f2452f909e6f6a4657fc7e094b9aef7da45e486d83b8cf70",
+        "2428d791b7ac5d8dda44cb7cc5d3f552871485163d38ca26ce59630c518e7b3e",
+        "80690a329e8d5ab970aed64c3715f5ecc552f639d91459f4408e4a683da72cff",
+        "492328b356a80cafe1187a558cdce94db1036258ab64f26fba999c6758c6b24b"
+      ],
+      "source_sha256": "5279ca111632af67030be8d908c02649520ebd869c845969ea3e64462046e8a2",
+      "text": "Stop ``widgets`` painting a background of their own.\n\nA backdrop — the theme's wallpaper, or the DNA rain on the\nsequencing screen — is behind the *page*, and in the opaque themes\nevery container between it and the eye is an opaque ``bg`` by\nvirtue of the blanket ``QWidget`` rule. One container is enough to\nbury it: a screen's header widget, its splitter, a scroll area and\nthat scroll area's viewport are each a QWidget, and each one used to\npaint solid black over the animation the screen had just installed.\n\nTag the layout containers with this and the backdrop reaches the\neye; leave the cards, panels and inputs alone and they stay the\nreadable surface on top of it. Safe to call on a widget that is\nalready visible — the style is re-polished so the change takes\neffect immediately rather than at the next theme switch.\n\nA ``QScrollArea``'s ``viewport()`` is tagged automatically along\nwith it: they are two widgets, the viewport is the one that\nactually paints, and forgetting it is the obvious way to get this\nwrong."
+    },
+    "5f6252c3e4b0074830058dddc721634e3dddd5cf7863d775978acc3e33dde7e8": {
+      "source_blocks_sha256": [
+        "1b4beaadd943ccea9a259c41141ff5d6c11aece455dc4f143cb72ed2369884ef",
+        "a1fe911c408cbfdcdcd75086730bc0c607e8bd0a2e0e98df11279694d83249c2",
+        "f3efd0f168c29395cb299b53657b248f21ba0932a39bbc67e2d3ba990723c524",
+        "35ae9a3e190eb544530b096d46b44a16bb33a1f0d404797927edf562febd6c43"
+      ],
+      "source_sha256": "5f6252c3e4b0074830058dddc721634e3dddd5cf7863d775978acc3e33dde7e8",
+      "text": "Watch the widgets this filter is installed on.\n\n:param obj: the object the event is for.\n:param event: the event.\n:returns: True to stop the event going further."
+    },
+    "6e1d32dcb81a471128b10915489f27bd29493686a6a7d6dd18d3200f0a5d9715": {
+      "source_blocks_sha256": [
+        "52522f631b6fe8619e1e06d811cb063b55678b47109553519a3defa06e393509",
+        "cfb5f62d44a9ab0f88142bb225ab68ba3158b01cacc7eddbfdd3f1b2a165013c"
+      ],
+      "source_sha256": "6e1d32dcb81a471128b10915489f27bd29493686a6a7d6dd18d3200f0a5d9715",
+      "text": "Start animating, and follow the window this widget belongs to.\n\n:param event: the Qt show event."
+    },
+    "8eb77d4fac240d06957449323b42b5a872c9bc235cdc73149b1e48733ea9de28": {
+      "source_blocks_sha256": [
+        "0eb5ee178887eeb6c18e94c01135ba5b8f92fb0d92464ce3bdb375a934fbf594",
+        "98d7b0e89eaa2eac89101b8f3bb097410bcf35e00f8f310b4d717876cad1d04c",
+        "1aa5fc047502cc070a0166bafc6071546e0b64aaebf88eff83029bab80fc7db6",
+        "0be481431a16753686c333f14ee2b2dc42f43a884b0bc0bd11d2724bb3631bb0"
+      ],
+      "source_sha256": "8eb77d4fac240d06957449323b42b5a872c9bc235cdc73149b1e48733ea9de28",
+      "text": "Download the files of the Hugging Face dataset repo ``repo_id`` into the package's ``resources/models`` folder.\n\nIf ``resources/models`` already contains files, nothing is downloaded and\nits path is returned. Files are saved under their base names.\n\nArgs:\n    repo_id (str): The repository ID on Hugging Face (default is 'einarolafsson/models').\n    retries (int): Number of retry attempts in case of failure.\n    delay (int): Delay in seconds between retries.\n\nReturns:\n    str: The local path to the downloaded models."
+    },
+    "99e19331b917d5aee46c08a3edec9015a6fec9ffd0fee4a0e22bb4bd4cf2c483": {
+      "source_blocks_sha256": [
+        "18d1d62ac5ff4db8f2a0b6524803e2126b67521c7b8138dfe68c293546fa0227",
+        "77b88411e35a1cc0de08f9313df9529ce16e32f9f2a43fc89ff2781a6def8f35"
+      ],
+      "source_sha256": "99e19331b917d5aee46c08a3edec9015a6fec9ffd0fee4a0e22bb4bd4cf2c483",
+      "text": "Stop every live JobRunner. Returns how many were asked.\n\nCall once on the way out, before Qt starts destroying widgets. Ordering\nmatters more than completeness here: a runner that cannot stop in time is\nparked by `bridge.drain_thread` rather than terminated, so this is bounded."
+    },
+    "a7b7a58936f03f2ab59079897c95ec59e5b1afa0d13602a9c5810d1b093bb3d2": {
+      "source_blocks_sha256": [
+        "1a031a47f24a40563e68b745a3fa56009f1b0aa6fc88e118a9bb4d4959e677eb",
+        "a17991ea93f26015010e0026bd656409f4fd592a56ff0bdfbc68fbfd278efe06"
+      ],
+      "source_sha256": "a7b7a58936f03f2ab59079897c95ec59e5b1afa0d13602a9c5810d1b093bb3d2",
+      "text": "Stop ticking and retire the shading thread. Costs exactly nothing\nwhile stopped — no timer, no thread, and no frame held in memory.\n\nDropping the published frame matters because these screens stay\nbuilt: a dozen module screens the user has visited would otherwise\neach keep a slot warm behind a tab nobody is on, which is 2 MiB apiece\nfor the aurora. The next :meth:`start` shades a replacement before it\nstarts the thread, so there is nothing to show for it."
+    },
+    "bdaefec8190318050e0512713baf02b4c6995e0f62037890022bae1e3b8a49a4": {
+      "source_blocks_sha256": [
+        "c5f43d96b76ccc9dd909afd260b40a1f1a4aaf4cf6d84b4829e4b55cb0b6c330",
+        "cf6904c87569a07cfcf88b5be415cf5de4578fc16c4dc4e30c877f49ffc6b3a1",
+        "43cb2b34f08fa40dfdbc787c0d514f1d36395405126e60005213939290aeed95"
+      ],
+      "source_sha256": "bdaefec8190318050e0512713baf02b4c6995e0f62037890022bae1e3b8a49a4",
+      "text": "Emit each new figure once, rendering it HERE on the worker thread.\n\nAgg's savefig touches no Qt, so the expensive part happens off the GUI\nthread and the GUI only does a file move and a pixmap load -- which is\nwhat stops it hanging while figures stream in.\n\nFigures marked ``_spacr_live_update`` are re-emitted in place instead,\nwhich is how the training monitor refreshes without filling the gallery\nwith one snapshot per epoch."
+    },
+    "c60be06622ffe4c46fa6bdbafd5ebb235ba81be8a7249e68758361f50acf2850": {
+      "source_blocks_sha256": [
+        "ba25f1ff629127d08cd82c347c5d7edce74e34a4ea1b2599ff7bd59598744ba8",
+        "3cf2bd0b7fa7b2c1ab1e487d13b604ce9b9b9fbe8e05d6e5a8bc1736df6ec525"
+      ],
+      "source_sha256": "c60be06622ffe4c46fa6bdbafd5ebb235ba81be8a7249e68758361f50acf2850",
+      "text": "Enrol this screen and its panels with the workspace registry.\n\nRegistered as CALLABLES returning the attribute, never as the widget:\n`_results_panel` is rebuilt when the module changes, and a captured\nreference would hand a run journal a deleted C++ peer to ask."
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "origin_nightly": "05cbee783f3cf660b79520192569f49e387694ac",
+  "worktrees": [
+    {
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-home-b-coordinator-20261014",
+      "head": "392fcffe6fab2931acc7683dbb0c43d711d896d9",
+      "branch": "codex-home-b-guide-dock-delivery-20261015",
+      "status_names_only": [
+        "M features/data/home_b_grouped_progress_2026-10-15/PROGRESS.txt",
+        " M features/data/home_b_grouped_progress_2026-10-15/status.json"
+      ],
+      "head_is_origin_ancestor": false,
+      "unpublished_patch_unique_commit_count": 1,
+      "unpublished_patch_unique_commits": [
+        "4505aeeab385f4e190c3aec503828ec0c0082e04 Record completed TEM masking contract reported by Home"
+      ]
+    },
+    {
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-home-b-readme-20261014",
+      "head": "a5abb713853064821061d5f7962f5562b9d04bc2",
+      "branch": "codex-home-b-readme-20261014",
+      "status_names_only": [],
+      "head_is_origin_ancestor": false,
+      "unpublished_patch_unique_commit_count": 4,
+      "unpublished_patch_unique_commits": [
+        "25747c1bfebfdf4dfa40cf7d2de7b837dfe7add6 Record current README and API registry acceptance",
+        "cb42505b4b9e55065b6aff29a4059aedc2daf023 Reconcile current installer icon and language picker acceptance",
+        "0b6fa4dac563bf46df5c171a48baf1844be3fb12 Match nightly documentation metadata to the project license",
+        "cc39a07c1548c1e280a2fd4e0ea6f61fcaa51308 Restore measured CPU context beside the README hardware table"
+      ]
+    },
+    {
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-home-b-n655-20261014",
+      "head": "cf84e99ecb1368880073c885b93e523be19a3c89",
+      "branch": "codex-home-b-n655-20261014",
+      "status_names_only": [],
+      "head_is_origin_ancestor": false,
+      "unpublished_patch_unique_commit_count": 0,
+      "unpublished_patch_unique_commits": []
+    },
+    {
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-home-b-docs-readback-20261014",
+      "head": "07be0773344efaa00f0aca1727f39f1d3e82a17c",
+      "branch": "codex-home-b-docs-readback-20261014",
+      "status_names_only": [],
+      "head_is_origin_ancestor": false,
+      "unpublished_patch_unique_commit_count": 0,
+      "unpublished_patch_unique_commits": []
+    }
+  ]
+}

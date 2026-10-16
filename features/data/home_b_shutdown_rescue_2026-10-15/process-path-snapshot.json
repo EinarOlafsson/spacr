@@ -1,0 +1,10 @@
+[
+  {
+    "pid": 500265,
+    "comm": "python",
+    "cwd": "/home/olafsson",
+    "matching_paths": [
+      "/mnt/wd4tb/scratch/home-b-watchdog-20261014/watchdog.py"
+    ]
+  }
+]

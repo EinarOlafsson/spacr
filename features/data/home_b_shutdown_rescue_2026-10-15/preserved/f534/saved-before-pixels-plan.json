@@ -1,0 +1,87 @@
+{
+  "dataset": "Xenium_V1_hPancreas_Cancer_Add_on_FFPE",
+  "source_urls": {
+    "he": "https://cf.10xgenomics.com/samples/xenium/1.6.0/Xenium_V1_hPancreas_Cancer_Add_on_FFPE/Xenium_V1_hPancreas_Cancer_Add_on_FFPE_he_image.ome.tif",
+    "if": "https://cf.10xgenomics.com/samples/xenium/1.6.0/Xenium_V1_hPancreas_Cancer_Add_on_FFPE/Xenium_V1_hPancreas_Cancer_Add_on_FFPE_if_image.ome.tif"
+  },
+  "matrix_direction_source": "https://testkb.10xgenomics.com/s/article/35386990499853-How-can-I-convert-coordinates-between-H-E-image-and-Xenium-data",
+  "direction": "Each official matrix maps its post-Xenium image pixels to Xenium pixels; H&E to IF = inverse(IF matrix) @ H&E matrix.",
+  "he_to_if_full_resolution": [
+    [
+      0.012417680345883786,
+      0.8327906104901175,
+      2351.170085851175
+    ],
+    [
+      -0.832790571704569,
+      0.012417680813022008,
+      16121.466204742572
+    ],
+    [
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "he_corners_mapped_if": [
+    [
+      32325.54261255884,
+      8038.740430826494,
+      1.0
+    ],
+    [
+      32331.90046489593,
+      7612.351658113754,
+      1.0
+    ],
+    [
+      32758.28925746687,
+      7618.7095106900215,
+      1.0
+    ],
+    [
+      32751.931405129777,
+      8045.098283402762,
+      1.0
+    ]
+  ],
+  "windows": {
+    "he": [
+      10240,
+      35840,
+      512,
+      512
+    ],
+    "if": [
+      32325,
+      7612,
+      434,
+      434
+    ]
+  },
+  "level": 0,
+  "maximum_target_size": [
+    1024,
+    1024
+  ],
+  "metadata_received_bytes": 47824,
+  "download_budget_bytes": 33554432,
+  "time_limit_seconds": 300,
+  "tiles": [
+    {
+      "stain": "he",
+      "tile_index": 745,
+      "offset": 1590925546,
+      "length": 2769354
+    },
+    {
+      "stain": "if",
+      "tile_index": 437,
+      "offset": 523238098,
+      "length": 1298443
+    }
+  ],
+  "IF_identity_limit": "Only first image plane; no DAPI or marker identity claim.",
+  "reference_limit": "External alignment matrices are not independent held-out tissue correspondences.",
+  "planned_total_download_bytes": 4115621
+}

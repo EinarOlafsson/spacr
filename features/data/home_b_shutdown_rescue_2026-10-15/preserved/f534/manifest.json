@@ -1,0 +1,130 @@
+{
+  "date": "2026-10-15",
+  "scope": "Real paired-image acquisition plus existing software format/coordinate handling; independent anatomical accuracy is not established.",
+  "versions": {
+    "python": "3.12.13",
+    "numpy": "2.5.2",
+    "tifffile": "2026.8.16",
+    "imagecodecs": "2026.8.16"
+  },
+  "artifacts": {
+    "acquire.py": {
+      "bytes": 9626,
+      "sha256": "2bfd1c4e2cac93b6227e0ba3fac6cadd3b9de47b77f6e8b93b1f26a529738943"
+    },
+    "run-acquire.sh": {
+      "bytes": 539,
+      "sha256": "f619cbaedfe3c20789f1e000025d0f364557f80c5f8b1fcc8519d013885ad05e"
+    },
+    "acquire.log": {
+      "bytes": 799,
+      "sha256": "3b2bfe6c2dba64b3bd0e8305ed443b1e24a8f9ab4f24f6e89b47de3cb4273d06"
+    },
+    "acquire.time": {
+      "bytes": 856,
+      "sha256": "fd291b62ecae7e5a30f0f1ee326d40056863eb59587f957ff94bd92af0475267"
+    },
+    "acquire.exit": {
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "requests.json": {
+      "bytes": 3397,
+      "sha256": "8fa054b8245cac126e4b0778663531297c147925aa9e84b778b56d24d11d4e85"
+    },
+    "saved-before-pixels-plan.json": {
+      "bytes": 2058,
+      "sha256": "3b40fdcfc8c318c565c7248480230e541cfe48c5aa1c7f4168ff1e442d844428"
+    },
+    "he-selected-metadata.json": {
+      "bytes": 48762,
+      "sha256": "5dfbc28189086d053bb9d7f1fcd6cc172ca66e7590336b2f7614e5e6583aabd0"
+    },
+    "if-selected-metadata.json": {
+      "bytes": 31984,
+      "sha256": "64d9d2b5ec9ff960b140417005e0e558d8485de513a2d6bb4de9e8695b86799a"
+    },
+    "acquisition-receipt.json": {
+      "bytes": 4892,
+      "sha256": "c025ff4ef559050738de3a588d68732c1e639fb643ea1cc4e6c5f205a89e4639"
+    },
+    "he-compressed-tile.bin": {
+      "bytes": 2769354,
+      "sha256": "3978784cf9b3be66cd6c99437a3e0beb02898842225e1ae866f129e27cc615a9"
+    },
+    "if-compressed-tile.bin": {
+      "bytes": 1298443,
+      "sha256": "7449acaab999f7bb023225ebed9efa8d6fe9624ebb16977117f4af029cbefb54"
+    },
+    "he-crop.tif": {
+      "bytes": 786704,
+      "sha256": "50e430be257112dc3d75d70e93ca61bd85dd2cf40a474a73a15af56932a60a10"
+    },
+    "if-crop.tif": {
+      "bytes": 376968,
+      "sha256": "de522a382b29e2114cbd47e91c9f578d9b02721eb8be276ac838baffc8639360"
+    },
+    "he-decoder-metadata.tif": {
+      "bytes": 24128,
+      "sha256": "53047bcb6919c31756c1b1a4284e7214f33d05a0436326afa64630117f2c8711"
+    },
+    "if-decoder-metadata.tif": {
+      "bytes": 16048,
+      "sha256": "4a019f7fa3a3cf1090e72fc27f5de1d3a3437e5be420c93e2a0bb06204b27e2d"
+    },
+    "check-registration.py": {
+      "bytes": 4564,
+      "sha256": "2fd7afab00e1cd119048a99abe1fc6add03eebccd9becd2a29ae9ea8aeaa3a16"
+    },
+    "run-registration.sh": {
+      "bytes": 565,
+      "sha256": "e0c35e1027c9bc9cf6fe5923c6a940c1946110bb77e2e8cedced23a6b4541bf9"
+    },
+    "registration.log": {
+      "bytes": 2727,
+      "sha256": "c69d8e33b21beb1efd6635e58b0c5c544781b5e48a8def4fb243daec32b88609"
+    },
+    "registration.time": {
+      "bytes": 869,
+      "sha256": "465d71407d9153e90ea2fdc7863ce802eb99eac9df752ad2aae42f49d4722c0d"
+    },
+    "registration.exit": {
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "registration-receipt.json": {
+      "bytes": 3393,
+      "sha256": "2ca5924aabbbaf4f74e75c719ba30819b7d87b4881652f180abcd5421668dfbc"
+    },
+    "external-reference-landmarks.csv": {
+      "bytes": 227,
+      "sha256": "289bbd2103d38f71f735e986c8dc8e6ebc27699ebbe4c5dcfba7e8c9262170e7"
+    },
+    "he-platform-window.tif": {
+      "bytes": 602384,
+      "sha256": "eeef030344f23aced9f153aa05d06d18802a1620f0433ffd97f7528f447095bc"
+    },
+    "preview.py": {
+      "bytes": 789,
+      "sha256": "b756ee644d42e4bc348a2a6e090ad512e7e2a2c89b6c178002f7815fe99ab44a"
+    },
+    "he-preview.png": {
+      "bytes": 379366,
+      "sha256": "f1cafd2764657e69cff52df6ea3b30afef9064be3775d07417ab56a4e00c347a"
+    },
+    "if-channel0-preview.png": {
+      "bytes": 177015,
+      "sha256": "39cd21426593bd8d53946cd3877e624406ba6a99518a42f598fa75f973c72185"
+    },
+    "paired-inspection.png": {
+      "bytes": 1761101,
+      "sha256": "ed8a8f2db1620a1d6ef2c4aada01c181f83a433715be59c67ca95578462c9813"
+    },
+    "README.txt": {
+      "bytes": 2847,
+      "sha256": "570d16d2b442b8c4c1abdbcb13a7872c7a69e5faf08ac5cd0d10d905a9a6c0a5"
+    }
+  },
+  "product_source_changed": false,
+  "scratch_only": true
+}

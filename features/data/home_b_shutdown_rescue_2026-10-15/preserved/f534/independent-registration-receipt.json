@@ -1,0 +1,332 @@
+{
+  "execution_status": "PASS: existing reader/fit/query route completed; no accuracy threshold asserted",
+  "sealed_points_sha256": "50c50b5363101dc4e8fa44b1183c1c2432e622495a3cd7f68cadf6247b7ea691",
+  "source_sha256": "5a53012e2afd6563cad501f09a70deb5b73c4a1595838ce495334ca2a9ea49a5",
+  "input_sha256": {
+    "he-crop.tif": "50e430be257112dc3d75d70e93ca61bd85dd2cf40a474a73a15af56932a60a10",
+    "if-crop.tif": "de522a382b29e2114cbd47e91c9f578d9b02721eb8be276ac838baffc8639360"
+  },
+  "selection_and_uncertainty_verbatim": {
+    "status": "visual selections sealed before fitting or transform inspection",
+    "observer": "AI technical image inspection; not human-expert, marker, infection, cell-type, or registration-accuracy evidence",
+    "viewed_images": {
+      "paired-inspection.png": "ed8a8f2db1620a1d6ef2c4aada01c181f83a433715be59c67ca95578462c9813",
+      "he-preview.png": "f1cafd2764657e69cff52df6ea3b30afef9064be3775d07417ab56a4e00c347a",
+      "if-channel0-preview.png": "39cd21426593bd8d53946cd3877e624406ba6a99518a42f598fa75f973c72185"
+    },
+    "coordinates": {
+      "he_rotated_xy": "Displayed H&E panel after its already-plotted 90-degree counterclockwise rotation; pixel x rightwards, y downwards, as labelled on paired-inspection.png. Not unrotated he-preview coordinates.",
+      "if_xy": "Displayed IF channel-0 preview pixel x rightwards, y downwards.",
+      "uncertainty": "Approximate subjective per-axis center uncertainty in each displayed image, not statistical confidence intervals."
+    },
+    "excluded_information": "Did not read crop plans, matrices, registration receipts, computed projections, fitting results, or other agents' proposed points before sealing these choices.",
+    "selection_protocol": "Four fit and two held-out memberships fixed now. Held-out observations must not be used to fit or select the transformation. Do not tune these coordinates in response to residuals.",
+    "landmarks": [
+      {
+        "id": "fit_upper_right_oval",
+        "role": "fit",
+        "he_rotated_xy": [
+          472,
+          41
+        ],
+        "if_xy": [
+          400,
+          34
+        ],
+        "he_uncertainty_pixels": 12,
+        "if_uncertainty_pixels": 9,
+        "confidence": "moderate-high",
+        "description": "Isolated oval opening close to the upper-right corner: pale/white in H&E and dark, with a bright rim in IF. Approximate interior center, not a boundary or cell identity."
+      },
+      {
+        "id": "fit_central_opening",
+        "role": "fit",
+        "he_rotated_xy": [
+          270,
+          211
+        ],
+        "if_xy": [
+          232,
+          178
+        ],
+        "he_uncertainty_pixels": 18,
+        "if_uncertainty_pixels": 15,
+        "confidence": "moderate",
+        "description": "Broad central pale opening in H&E and the central dark lobed opening enclosed by the conspicuous bright IF rim. The irregular interior makes its visual center imprecise."
+      },
+      {
+        "id": "fit_lower_right_lobe",
+        "role": "fit",
+        "he_rotated_xy": [
+          447,
+          330
+        ],
+        "if_xy": [
+          370,
+          286
+        ],
+        "he_uncertainty_pixels": 14,
+        "if_uncertainty_pixels": 12,
+        "confidence": "moderate-high",
+        "description": "Large vertically extended lower-right opening, below the diagonal central band: bright H&E interior and dark IF interior with bright bordering patches. Center of the broad lower lobe."
+      },
+      {
+        "id": "fit_bottom_right_slit",
+        "role": "fit",
+        "he_rotated_xy": [
+          437,
+          448
+        ],
+        "if_xy": [
+          365,
+          372
+        ],
+        "he_uncertainty_pixels": 12,
+        "if_uncertainty_pixels": 12,
+        "confidence": "moderate",
+        "description": "Narrow oblique opening in the bottom-right region, separated below the large lower-right lobe: white H&E slit and elongated dark IF gap. Approximate middle of the slit."
+      },
+      {
+        "id": "held_upper_central_pocket",
+        "role": "held_out",
+        "he_rotated_xy": [
+          216,
+          82
+        ],
+        "if_xy": [
+          182,
+          65
+        ],
+        "he_uncertainty_pixels": 13,
+        "if_uncertainty_pixels": 12,
+        "confidence": "moderate",
+        "description": "Upper-central rounded pocket at the left end of the curved pale H&E gap, beside the dark nuclei; corresponding dark rounded IF pocket at the left end of the curved upper gap. Smaller and less sharply bounded than the fit openings."
+      },
+      {
+        "id": "held_small_central_left_pocket",
+        "role": "held_out",
+        "he_rotated_xy": [
+          220,
+          164
+        ],
+        "if_xy": [
+          183,
+          137
+        ],
+        "he_uncertainty_pixels": 15,
+        "if_uncertainty_pixels": 13,
+        "confidence": "moderate",
+        "description": "Small rounded pale pocket above-left of the broad central H&E opening; dark rounded pocket immediately left of the upper part of the bright central IF rim. Approximate interior center; local texture limits precision."
+      }
+    ],
+    "limitations": [
+      "Coarse appearance-based correspondences of openings/gaps, not independently validated anatomic identities.",
+      "Centers of irregular spaces are not exact point features and may shift between modalities.",
+      "Only this small crop and channel-0 display were inspected; marker identity and infection status are unverified.",
+      "A failed or ambiguous held-out comparison must be reported rather than moving the points after fitting."
+    ]
+  },
+  "raw_from_rotated_formula": "raw_x = 511 - rotated_y; raw_y = rotated_x for numpy.rot90 of the512x512H&E crop",
+  "local_window": [
+    32,
+    32,
+    448,
+    448
+  ],
+  "actual_registration": {
+    "method": "landmarks",
+    "rms_px": 5.160324269873645,
+    "landmarks": 4,
+    "frame": "user",
+    "platform_frame": "morphology"
+  },
+  "actual_fitted_matrix": [
+    [
+      0.019547976587016125,
+      0.8107067548983145,
+      33.81044347655574
+    ],
+    [
+      -0.8385826599998494,
+      0.003662732177685424,
+      401.87436598940644
+    ],
+    [
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "fit_rms_target_pixels": 5.160324269873645,
+  "held_out_residuals_target_pixels": [
+    9.89200448101972,
+    9.486213294816395
+  ],
+  "held_out_rms_target_pixels": 9.691233031128329,
+  "official_reference_to_observed_residuals_target_pixels": [
+    7.210550948397359,
+    3.6573391970523144,
+    6.725116925679836,
+    7.705352872413213,
+    8.079782148570773,
+    6.153624055193332
+  ],
+  "fit_to_official_residuals_target_pixels": [
+    5.017103829186934,
+    3.651713655716877,
+    3.635097479653044,
+    3.425167457277957,
+    5.590874795612987,
+    4.792545427764129
+  ],
+  "results": [
+    {
+      "id": "fit_upper_right_oval",
+      "role": "fit",
+      "he_rotated_x": 472.0,
+      "he_rotated_y": 41.0,
+      "he_raw_x": 470.0,
+      "he_raw_y": 472.0,
+      "source_local_x": 438.0,
+      "source_local_y": 440.0,
+      "observed_if_x": 400.0,
+      "observed_if_y": 34.0,
+      "fit_if_x": 399.08342937692714,
+      "fit_if_y": 36.186763067654,
+      "fit_residual_x_px": -0.9165706230728574,
+      "fit_residual_y_px": 2.186763067653999,
+      "fit_residual_norm_px": 2.3710829637816753,
+      "official_if_x": 399.45609047273683,
+      "official_if_y": 41.19000746909114,
+      "official_to_observed_norm_px": 7.210550948397359,
+      "fit_to_official_norm_px": 5.017103829186934,
+      "he_subjective_axis_uncertainty_px": 12,
+      "if_subjective_axis_uncertainty_px": 9
+    },
+    {
+      "id": "fit_central_opening",
+      "role": "fit",
+      "he_rotated_x": 270.0,
+      "he_rotated_y": 211.0,
+      "he_raw_x": 300.0,
+      "he_raw_y": 270.0,
+      "source_local_x": 268.0,
+      "source_local_y": 238.0,
+      "observed_if_x": 232.0,
+      "observed_if_y": 178.0,
+      "fit_if_x": 231.9975088676749,
+      "fit_if_y": 178.00594336773594,
+      "fit_residual_x_px": -0.0024911323251046724,
+      "fit_residual_y_px": 0.005943367735937954,
+      "fit_residual_norm_px": 0.006444327762130791,
+      "official_if_x": 229.1213814949333,
+      "official_if_y": 180.25603313463762,
+      "official_to_observed_norm_px": 3.6573391970523144,
+      "fit_to_official_norm_px": 3.651713655716877,
+      "he_subjective_axis_uncertainty_px": 18,
+      "if_subjective_axis_uncertainty_px": 15
+    },
+    {
+      "id": "fit_lower_right_lobe",
+      "role": "fit",
+      "he_rotated_x": 447.0,
+      "he_rotated_y": 330.0,
+      "he_raw_x": 181.0,
+      "he_raw_y": 447.0,
+      "source_local_x": 149.0,
+      "source_local_y": 415.0,
+      "observed_if_x": 370.0,
+      "observed_if_y": 286.0,
+      "fit_if_x": 373.1663952708216,
+      "fit_if_y": 278.44558350316834,
+      "fit_residual_x_px": 3.1663952708216243,
+      "fit_residual_y_px": -7.554416496831664,
+      "fit_residual_norm_px": 8.191170100705023,
+      "official_if_x": 375.0476155905235,
+      "official_if_y": 281.55604067138665,
+      "official_to_observed_norm_px": 6.725116925679836,
+      "fit_to_official_norm_px": 3.635097479653044,
+      "he_subjective_axis_uncertainty_px": 14,
+      "if_subjective_axis_uncertainty_px": 12
+    },
+    {
+      "id": "fit_bottom_right_slit",
+      "role": "fit",
+      "he_rotated_x": 437.0,
+      "he_rotated_y": 448.0,
+      "he_raw_x": 63.0,
+      "he_raw_y": 437.0,
+      "source_local_x": 31.0,
+      "source_local_y": 405.0,
+      "observed_if_x": 365.0,
+      "observed_if_y": 372.0,
+      "fit_if_x": 362.7526664845706,
+      "fit_if_y": 377.3617100613737,
+      "fit_residual_x_px": -2.247333515429375,
+      "fit_residual_y_px": 5.361710061373685,
+      "fit_residual_norm_px": 5.813642809100672,
+      "official_if_x": 365.2544232048094,
+      "official_if_y": 379.70115132439696,
+      "official_to_observed_norm_px": 7.705352872413213,
+      "fit_to_official_norm_px": 3.425167457277957,
+      "he_subjective_axis_uncertainty_px": 12,
+      "if_subjective_axis_uncertainty_px": 12
+    },
+    {
+      "id": "held_upper_central_pocket",
+      "role": "held_out",
+      "he_rotated_x": 216.0,
+      "he_rotated_y": 82.0,
+      "he_raw_x": 429.0,
+      "he_raw_y": 216.0,
+      "source_local_x": 397.0,
+      "source_local_y": 184.0,
+      "observed_if_x": 182.0,
+      "observed_if_y": 65.0,
+      "fit_if_x": 190.74103308289102,
+      "fit_if_y": 69.63099269016038,
+      "fit_residual_x_px": 8.741033082891022,
+      "fit_residual_y_px": 4.630992690160383,
+      "fit_residual_norm_px": 9.89200448101972,
+      "official_if_x": 185.7525692930867,
+      "official_if_y": 72.15549462084527,
+      "official_to_observed_norm_px": 8.079782148570773,
+      "fit_to_official_norm_px": 5.590874795612987,
+      "he_subjective_axis_uncertainty_px": 13,
+      "if_subjective_axis_uncertainty_px": 12
+    },
+    {
+      "id": "held_small_central_left_pocket",
+      "role": "held_out",
+      "he_rotated_x": 220.0,
+      "he_rotated_y": 164.0,
+      "he_raw_x": 347.0,
+      "he_raw_y": 220.0,
+      "source_local_x": 315.0,
+      "source_local_y": 188.0,
+      "observed_if_x": 183.0,
+      "observed_if_y": 137.0,
+      "fit_if_x": 192.38092602234894,
+      "fit_if_y": 138.40942173885878,
+      "fit_residual_x_px": 9.380926022348945,
+      "fit_residual_y_px": 1.4094217388587822,
+      "fit_residual_norm_px": 9.486213294816395,
+      "official_if_x": 188.06548194668358,
+      "official_if_y": 140.49399222387183,
+      "official_to_observed_norm_px": 6.153624055193332,
+      "fit_to_official_norm_px": 4.792545427764129,
+      "he_subjective_axis_uncertainty_px": 15,
+      "if_subjective_axis_uncertainty_px": 13
+    }
+  ],
+  "figure": "independent-registration-review.png",
+  "seconds": 0.8595857289619744,
+  "source_inputs_points_unchanged": true,
+  "no_network": true,
+  "limits": [
+    "AI technical appearance-based selections of spaces/openings, not expert or independently validated anatomical identities.",
+    "Subjective per-axis uncertainties9\u201318px were fixed by the observer, not fitted statistical error bars. No residual-based point changes, held-out reuse, or threshold tuning.",
+    "The bundle adapter contains synthetic pixel coordinates selecting an existing code route, not downloaded biological transcripts.",
+    "IF channel0 marker identity is unverified. No infection, VisiumHD, biological, whole-slide, GPU, nativeGUI or wholeF534 claim."
+  ]
+}

@@ -1,0 +1,23 @@
+diff --git a/docs/i18n/api_source_history.json b/docs/i18n/api_source_history.json
+index 4c8c9327b1..b24379ec60 100644
+--- a/docs/i18n/api_source_history.json
++++ b/docs/i18n/api_source_history.json
+@@ -97,18 +97,6 @@
+       "source_sha256": "99e19331b917d5aee46c08a3edec9015a6fec9ffd0fee4a0e22bb4bd4cf2c483",
+       "text": "Stop every live JobRunner. Returns how many were asked.\n\nCall once on the way out, before Qt starts destroying widgets. Ordering\nmatters more than completeness here: a runner that cannot stop in time is\nparked by `bridge.drain_thread` rather than terminated, so this is bounded."
+     },
+-    "9f02bf48144c1d1c1ca3fd9c6705d7bac19afef67d3c89f754b8ee431a02da92": {
+-      "source_blocks_sha256": [
+-        "1789936813f2345bd1ac81c41e7c550db500927f48e72901b0ff8015cc3519e6",
+-        "ef1e97061c8191686226b29f5be77d54821345ee1e9bf5c729bd406e1cf3ca43",
+-        "8a497479eb323884927b53d402544509e5bbba2df03e5ac604548b379678bb91",
+-        "cd6ea55ad2702c2b2622165aa5fdbca3a99a5a3d2cf22160228aa45ef6896dc6",
+-        "09633d514171def6687ca5ecdec807b864dcc0a15881767cd88c95c123b1863d",
+-        "152abee431b479208560a6a05c28d3670ba430c13fcb9382de64283f084bba1d"
+-      ],
+-      "source_sha256": "9f02bf48144c1d1c1ca3fd9c6705d7bac19afef67d3c89f754b8ee431a02da92",
+-      "text": "Pull the bundled Hugging Face model pack via the existing downloader.\n\nThin, deliberate wrapper over :func:`spacr.utils.download_models` — the\ndownloader spaCR already ships and the one\n:func:`spacr.submodules.analyze_plaques` depends on. It is *not*\nreimplemented here, so there is one code path that fills\n``resources/models`` and one place to fix when the repo moves.\n\nIt is also the unverified path: that function has no checksum, writes\nstraight to the destination filename, and skips the whole pull when the\nfolder is non-empty. Prefer a catalogue entry with a hash and\n:func:`install`; this function lets the zoo offer the legacy pack as\nwell.\n\n``spacr.utils`` imports torch, so it is imported here and not at module\nlevel. Nothing else in this module reaches for it.\n\n:param kwargs: forwarded to :func:`spacr.utils.download_models`.\n:returns: the local directory the pack landed in."
+-    },
+     "a7b7a58936f03f2ab59079897c95ec59e5b1afa0d13602a9c5810d1b093bb3d2": {
+       "source_blocks_sha256": [
+         "1a031a47f24a40563e68b745a3fa56009f1b0aa6fc88e118a9bb4d4959e677eb",

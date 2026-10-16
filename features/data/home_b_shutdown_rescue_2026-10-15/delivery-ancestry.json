@@ -1,0 +1,50 @@
+{
+  "origin": "05cbee783f3cf660b79520192569f49e387694ac",
+  "rows": [
+    {
+      "commit": "14cecf2329f70abbc972985f37ec71c814dc6eb2",
+      "public_ancestor": true,
+      "subject": "Generate reviewed organizer summaries in nine languages"
+    },
+    {
+      "commit": "3470d03d51850881b60f23bce623c8a611cd78db",
+      "public_ancestor": true,
+      "subject": "Publish reviewed organizer translations with actual consumer evidence"
+    },
+    {
+      "commit": "897ac421baac4fa100678416b8c9aa8af8d06309",
+      "public_ancestor": false,
+      "subject": "Refresh README main owner packet after website links"
+    },
+    {
+      "commit": "c4572838358023598c67fb6d7faad15259ab4cc4",
+      "public_ancestor": true,
+      "subject": "Merge remote-tracking branch 'origin/nightly' into codex-home-b-packet-publication-20261015"
+    },
+    {
+      "commit": "5156243c75990f09eda4892e8426472d0b117500",
+      "public_ancestor": true,
+      "subject": "Merge remote-tracking branch 'origin/nightly' into codex-home-b-guide-dock-delivery-20261015"
+    },
+    {
+      "commit": "a8e61ed6802176c6a2e2c9d4800832e9c62d0730",
+      "public_ancestor": true,
+      "subject": "Preserve Work lesson acceptance and Home-B delivery notes [skip ci]"
+    },
+    {
+      "commit": "55c949c802fe5d58e045cc413efa986e364bdb3d",
+      "public_ancestor": true,
+      "subject": "Merge coordinated nightly updates [skip ci]"
+    },
+    {
+      "commit": "cf84e99ecb1368880073c885b93e523be19a3c89",
+      "public_ancestor": false,
+      "subject": "Verify native Orca accessibility speech generation on Linux"
+    },
+    {
+      "commit": "392fcffe6fab2931acc7683dbb0c43d711d896d9",
+      "public_ancestor": false,
+      "subject": "Merge remote-tracking branch 'origin/nightly' into codex-home-b-guide-dock-delivery-20261015"
+    }
+  ]
+}
