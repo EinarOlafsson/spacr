@@ -288,11 +288,16 @@ def test_a_drop_that_lands_after_the_list_was_cleared_adds_nothing(listing, tmp_
 
 
 def test_a_probe_answer_for_a_list_being_torn_down_is_ignored(listing, monkeypatch):
+    calls = []
+
     def gone():
+        calls.append('refresh')
         raise RuntimeError('Internal C++ object already deleted')
 
     monkeypatch.setattr(listing, '_refresh_hint', gone)
-    listing._path_probe_redraw('/data/plate1.csv', True)
+    assert listing._path_probe_redraw('/data/plate1.csv', True) is None
+    assert calls == ['refresh']
+    assert listing.paths() == []
 
 
 def test_a_list_outliving_the_probe_source_is_still_destroyed_cleanly(qtbot, monkeypatch):

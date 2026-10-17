@@ -45,7 +45,7 @@ def test_a_path_marker_says_only_whether_the_path_exists(tmp_path):
     ("model", "<text>", "<text>"),
     ("model", "<path: exists=no>", "<path: exists=no>"),
     ("model", "cyto3", "cyto3"),
-    ("model", "/home/someone/models/cyto3", "<path: exists=no>"),
+    ("model", "/opt/nowhere-spacr/models/cyto3", "<path: exists=no>"),
     ("src", "plate1", "<path: exists=no>"),
     ("experiment", "plate1", "<text>"),
     ("model", "two words", "<text>"),
