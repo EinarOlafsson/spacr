@@ -4276,6 +4276,12 @@ class _UpdatePhaseChannel:
     """Bounded authenticated local messages; privileged peers accept only fixed phases."""
 
     def _send(self, phase, **details):
+        """Send one numbered, HMAC-signed phase message to the peer.
+
+        :param phase: the phase name the peer expects next.
+        :param details: JSON-safe facts that travel with the phase.
+        :raises ValueError: when the encoded message exceeds 8192 bytes.
+        """
         import hmac
 
         self._sent += 1
@@ -4289,6 +4295,16 @@ class _UpdatePhaseChannel:
         self._connection.sendall(message)
 
     def _receive(self, expected, *, timeout=_FROZEN_PREPARATION_SECONDS, stopped=None):
+        """Wait for the peer's next signed phase message and verify it.
+
+        :param expected: the phase names accepted at this point.
+        :param timeout: seconds to wait before giving up.
+        :param stopped: optional callable that ends the wait early when true.
+        :returns: the verified message payload.
+        :raises ValueError: for a forged, out-of-order or oversized message.
+        :raises RuntimeError: when the peer disconnects or the wait is stopped.
+        :raises TimeoutError: when no message arrives before the deadline.
+        """
         import hmac
         import socket
 
@@ -4328,9 +4344,11 @@ class _UpdatePhaseChannel:
         raise TimeoutError(tr("The authorized helper did not confirm its preparation before the deadline."))
 
     def __enter__(self):
+        """Use the channel as a context manager that closes its connection."""
         return self
 
     def __exit__(self, *_args):
+        """Close the peer connection, if one was accepted or opened."""
         if self._connection is not None:
             self._connection.close()
 
@@ -4339,6 +4357,10 @@ class _UpdatePhaseServer(_UpdatePhaseChannel):
     """Keep authorization secrets in a private descriptor, never in process arguments."""
 
     def __init__(self, workdir):
+        """Listen on a loopback port and write its port and secret to a private file.
+
+        :param workdir: folder that receives the private descriptor file.
+        """
         import socket
 
         self._connection, self._buffer = None, b""
@@ -4364,6 +4386,7 @@ class _UpdatePhaseServer(_UpdatePhaseChannel):
             raise
 
     def __exit__(self, *args):
+        """Close the connection and listener and remove the descriptor file."""
         super().__exit__(*args)
         self._listener.close()
         os.unlink(self.endpoint)
@@ -4373,6 +4396,12 @@ class _UpdatePhaseClient(_UpdatePhaseChannel):
     """Read only the bound desktop user's regular private descriptor before staging."""
 
     def __init__(self, endpoint, desktop_pid, desktop_executable):
+        """Connect to the desktop's phase server after checking who owns it.
+
+        :param endpoint: path of the desktop's private descriptor file.
+        :param desktop_pid: process ID of the running desktop.
+        :param desktop_executable: executable the desktop must be running.
+        """
         import re
         import socket
 

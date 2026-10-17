@@ -706,6 +706,12 @@ class _MaskLabelValidator(QValidator):
     """Accept the full uint32 text range without signed QSpinBox limits."""
 
     def validate(self, text, position):
+        """Accept blank as unfinished and decimal labels up to the uint32 maximum.
+
+        :param text: the typed label.
+        :param position: the cursor position, returned unchanged.
+        :returns: ``(state, text, position)`` as QValidator expects.
+        """
         if not text:
             return QValidator.Intermediate, text, position
         valid = text.isascii() and text.isdecimal() and int(text) <= engine.MAX_MASK_LABEL
@@ -716,17 +722,27 @@ class _LineageMaskHistory(engine.MaskHistory):
     """Keep embedded lineage and selection in the existing mask undo stack."""
 
     def __init__(self, owner, capacity=25):
+        """Pair each mask snapshot with a lineage and selection snapshot.
+
+        :param owner: the Make Masks screen whose lineage is tracked.
+        :param capacity: the most undo steps kept.
+        """
         super().__init__(capacity)
         self.owner = owner
         self._lineage_undo = deque(maxlen=self.capacity)
         self._lineage_redo = deque(maxlen=self.capacity)
 
     def clear(self):
+        """Forget every mask and lineage snapshot."""
         super().clear()
         self._lineage_undo.clear()
         self._lineage_redo.clear()
 
     def push(self, mask):
+        """Record a mask edit, pruning lineage cells the edit removed.
+
+        :param mask: the mask after the edit.
+        """
         if self.owner._lineage is not None:
             state = engine.prune_lineage_frame(
                 self.owner._lineage, self.owner._lineage_frame(), mask)
@@ -743,6 +759,10 @@ class _LineageMaskHistory(engine.MaskHistory):
         self._lineage_redo.clear()
 
     def undo(self):
+        """Step the mask back and restore the lineage that went with it.
+
+        :returns: the earlier mask, or ``None`` with nothing to undo.
+        """
         result = super().undo()
         if result is not None:
             self._lineage_redo.append(self._lineage_undo.pop())
@@ -750,6 +770,10 @@ class _LineageMaskHistory(engine.MaskHistory):
         return result
 
     def redo(self):
+        """Step the mask forward and restore the lineage that went with it.
+
+        :returns: the later mask, or ``None`` with nothing to redo.
+        """
         result = super().redo()
         if result is not None:
             snapshot = self._lineage_redo.pop()
@@ -762,12 +786,17 @@ class _LineageTableModel(QAbstractTableModel):
     """Expose cell records without allocating a widget or ancestry tree per cell."""
 
     def __init__(self, owner):
+        """Start empty; :meth:`reset_cells` reads the owner's lineage.
+
+        :param owner: the Make Masks screen holding the lineage.
+        """
         super().__init__(owner)
         self.owner = owner
         self.keys = []
         self.labels = {}
 
     def reset_cells(self):
+        """Reload the cell rows and the current frame's labels."""
         self.beginResetModel()
         self.keys = list((self.owner._lineage or {}).get("cells", {}))
         frame = self.owner._lineage_frame()
@@ -776,12 +805,28 @@ class _LineageTableModel(QAbstractTableModel):
         self.endResetModel()
 
     def rowCount(self, parent=QModelIndex()):
+        """One row per lineage cell; the table has no children.
+
+        :param parent: the parent index; valid parents have no rows.
+        :returns: the row count.
+        """
         return 0 if parent.isValid() else len(self.keys)
 
     def columnCount(self, parent=QModelIndex()):
+        """Name, label, parent and division frame.
+
+        :param parent: the parent index; valid parents have no columns.
+        :returns: the column count.
+        """
         return 0 if parent.isValid() else 4
 
     def data(self, index, role=Qt.DisplayRole):
+        """A cell's name, label, parent or division frame; its UUID as tooltip.
+
+        :param index: the table cell.
+        :param role: the Qt item role asked for.
+        :returns: the value, or ``None`` for other roles.
+        """
         if not index.isValid() or not 0 <= index.row() < len(self.keys):
             return None
         uuid = self.keys[index.row()]
@@ -797,6 +842,13 @@ class _LineageTableModel(QAbstractTableModel):
         return None
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
+        """Translated column headings.
+
+        :param section: the column number.
+        :param orientation: only horizontal headings are named.
+        :param role: only the display role is answered.
+        :returns: the heading, or ``None``.
+        """
         from ..i18n import tr
 
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
@@ -804,12 +856,24 @@ class _LineageTableModel(QAbstractTableModel):
         return None
 
     def flags(self, index):
+        """Let the name column be edited while time labelling is on.
+
+        :param index: the table cell.
+        :returns: the item flags.
+        """
         flags = super().flags(index)
         if index.isValid() and index.column() == 0 and self.owner._time_label_enabled:
             flags |= Qt.ItemIsEditable
         return flags
 
     def setData(self, index, value, role=Qt.EditRole):
+        """Rename a cell through the screen, which validates the name.
+
+        :param index: the edited cell; only the name column is editable.
+        :param value: the new name.
+        :param role: only the edit role renames.
+        :returns: whether the rename was accepted.
+        """
         if role != Qt.EditRole or not index.isValid() or index.column() != 0:
             return False
         return self.owner._rename_lineage_cell(self.keys[index.row()], str(value))
