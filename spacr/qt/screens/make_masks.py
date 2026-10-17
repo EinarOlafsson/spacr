@@ -10440,8 +10440,7 @@ class _VolumeStage(QWidget):
         self._show_count()
         self._meshes = {}
         self._version += 1
-        if self._layers is not None:
-            list(self._layers)[-1].data = session.mask
+        list(self._layers)[-1].data = session.mask
         self.show_slices(reset)
         if self.view == 'true3d':
             self._show_true3d()
@@ -12902,32 +12901,6 @@ class MakeMasksScreen(QWidget):
         ops.addWidget(self._virtual_stain)
         _apply_alpha_widgets(self._settings_scroll.widget())
 
-    def _nav_button_group(self, separated: bool = False):
-        """A widget holding a row of navigation buttons that never wraps apart.
-
-        The navigation strip wraps widget by widget, so buttons that must stay
-        on one line are put in one of these and the group is added instead.
-        With ``separated`` the group opens with a gap and a vertical line.
-
-        :param separated: lead the group with a visible gap and separator.
-        :returns: ``(widget, layout)``; add the buttons to ``layout``.
-        """
-        from PySide6.QtWidgets import QFrame
-
-        group = QWidget()
-        row = QHBoxLayout(group)
-        row.setContentsMargins(0, 0, 0, 0)
-        row.setSpacing(SPACING["sm"])
-        if separated:
-            row.addSpacing(SPACING["lg"])
-            line = QFrame(group)
-            line.setObjectName("NavGroupSeparator")
-            line.setFrameShape(QFrame.Shape.VLine)
-            line.setFrameShadow(QFrame.Shadow.Sunken)
-            row.addWidget(line)
-            row.addSpacing(SPACING["lg"])
-        return group, row
-
     def _build_fold_strip(self) -> FoldStrip:
         """The masthead's strip of folded modules.
 
@@ -14855,9 +14828,7 @@ class MakeMasksScreen(QWidget):
         self._tool_row.setVisible(
             self._body_stack.currentWidget() is self._image_page)
         self._body_stack.updateGeometry()
-        container = getattr(self, "_image_container", None)
-        if container is not None:
-            container.queue_refit()
+        self._image_container.queue_refit()
 
     def settings_shown(self) -> bool:
         """Whether the settings group is on screen."""
@@ -17984,14 +17955,11 @@ class MakeMasksScreen(QWidget):
         that saved it still restores and runs it; it only cannot be chosen.
         """
         index = self._mag_mode.findData("mitonet")
-        if index < 0:
-            return
         hidden = not _mitonet_visible()
         self._mag_mode.view().setRowHidden(index, hidden)
         item = self._mag_mode.model().item(index)
-        if item is not None:
-            item.setEnabled(not hidden)
-            item.setSelectable(not hidden)
+        item.setEnabled(not hidden)
+        item.setSelectable(not hidden)
 
     @staticmethod
     def _mode_family(mode: str) -> str:
@@ -18972,8 +18940,6 @@ class MakeMasksScreen(QWidget):
         self._otsu_classes.setEnabled(bands)
         self._otsu_foreground.setEnabled(bands and classes > 2)
         self._otsu_foreground.setRange(0, max(1, classes - 1))
-        if classes > 2 and self._otsu_foreground.value() > classes - 1:
-            self._otsu_foreground.setValue(classes - 1)
         self._otsu_window.setEnabled(local or window_family)
         self._otsu_bright.setEnabled(not bands or classes == 2)
 
@@ -19810,9 +19776,8 @@ class MakeMasksScreen(QWidget):
                 hidden = _prefixed_alpha_hidden(backend, model)
                 combo.view().setRowHidden(index, hidden)
                 item = combo.model().item(index)
-                if item is not None:
-                    item.setEnabled(not hidden)
-                    item.setSelectable(not hidden)
+                item.setEnabled(not hidden)
+                item.setSelectable(not hidden)
         gate = getattr(self, "_gate_mitonet_mode", None)
         if callable(gate):
             gate()

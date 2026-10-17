@@ -1732,10 +1732,7 @@ def _looks_like_a_path(value: str) -> bool:
 
 def _path_marker(value: str) -> str:
     """``<path: exists=yes|no>`` for a path, without the path itself."""
-    try:
-        exists = os.path.exists(os.path.expanduser(value))
-    except (OSError, ValueError):
-        exists = False
+    exists = os.path.exists(os.path.expanduser(value))
     return f"<path: exists={'yes' if exists else 'no'}>"
 
 

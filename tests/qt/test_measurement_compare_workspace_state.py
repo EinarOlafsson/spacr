@@ -138,6 +138,16 @@ def test_pending_class_filter_is_saved_and_resolved_after_refresh(
     assert set(panel._canvas.spec.frame["group"]) == {"later"}
 
 
+def test_a_pending_class_filter_waits_through_a_refresh_without_that_class(
+        panel, objects):
+    assert panel.apply_workspace_state({"only": "later", "scope": "all"})
+    panel.refresh()
+    assert panel.only.currentData() == ""
+    assert panel.workspace_state()["only"] == "later"
+    panel.set_data(objects.copy(), {"later": [0, 3, 6]})
+    assert panel.only.currentData() == "later"
+
+
 def test_user_class_choice_supersedes_a_pending_saved_filter(panel):
     panel.apply_workspace_state({"only": "not_present"})
     _choose(panel.only, "picked")

@@ -174,3 +174,42 @@ def test_utils_reader_never_mixes_replaced_file_pins_with_previous_settings(sett
     if restored is not None:
         assert (restored['base_model'], restored['count']) in {('origin-model', 2), ('new-origin-model', 3)}
     assert path.read_bytes() == replacement_bytes
+
+
+def test_utils_reader_refuses_pins_when_the_file_vanishes_between_reads(settings, tmp_path, monkeypatch):
+    from spacr import tabular
+    path = write_csv(tmp_path / 'settings.csv', settings.items())
+    actual_read = tabular.read_table
+    calls = []
+
+    def delete_after_second_read(*args, **kwargs):
+        frame = actual_read(*args, **kwargs)
+        calls.append(1)
+        if len(calls) == 2:
+            os.remove(path)
+        return frame
+
+    monkeypatch.setattr(tabular, 'read_table', delete_after_second_read)
+    with pytest.raises(zoo.ModelZooError, match='unchanged input'):
+        read('utils', path)
+    assert len(calls) == 2
+
+
+class _UnstattableOs:
+    """``os`` as :func:`spacr.utils.load_settings` sees it, for a source with no file identity."""
+
+    def __getattr__(self, name):
+        return getattr(os, name)
+
+    @staticmethod
+    def stat(path):
+        raise ValueError(f'{path!r} has no local file identity')
+
+
+def test_utils_reader_checks_pins_of_a_source_without_a_file_identity(settings, tmp_path, monkeypatch):
+    from spacr import utils
+    path = write_csv(tmp_path / 'settings.csv', settings.items())
+    monkeypatch.setattr(utils, 'os', _UnstattableOs())
+    restored = read('utils', path)
+    assert restored['base_model'] == 'origin-model'
+    assert restored['model_metadata'] == settings['model_metadata']

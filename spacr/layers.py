@@ -3909,8 +3909,6 @@ def volume_steps(shape: Sequence[int], max_voxels: Optional[int]
 
     while math.prod(strided(axis) for axis in range(len(shape))) > budget:
         longest = max(range(len(shape)), key=strided)
-        if strided(longest) <= 1:
-            break
         steps[longest] += 1
     return tuple(steps)
 

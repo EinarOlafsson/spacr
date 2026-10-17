@@ -111,3 +111,24 @@ def test_ordinary_label_accessibility_is_unchanged(qtbot):
     assert interface.role() == QAccessible.StaticText
     assert not interface.state().checkable
     assert interface.text(QAccessible.Name) == "Ordinary label"
+
+
+def test_other_accessible_texts_come_from_the_widget(toggle):
+    """Only the name is the label's own; a description is the widget's."""
+    toggle.setAccessibleDescription("Turns spaCR AI on or off")
+    interface = QAccessible.queryAccessibleInterface(toggle)
+    assert interface.text(QAccessible.Description) == "Turns spaCR AI on or off"
+    assert interface.text(QAccessible.Name) == toggle.text()
+
+
+def test_a_non_toggle_action_reaches_the_widget_without_toggling(toggle, qtbot):
+    """Moving focus by an assistive client focuses the label and leaves it off."""
+    toggle.window().activateWindow()
+    action = QAccessible.queryAccessibleInterface(toggle).actionInterface()
+    focus = QAccessibleActionInterface.setFocusAction()
+    assert focus in action.actionNames()
+    changed = []
+    toggle.toggled.connect(changed.append)
+    action.doAction(focus)
+    qtbot.waitUntil(toggle.hasFocus)
+    assert not toggle.isChecked() and changed == []

@@ -199,3 +199,50 @@ def test_live_guard_preview_starts_unchecked_then_selected_gui_choice_reaches_ba
     outcome = ic.apply_optional_cleanup(actual, dialog.choices(), system=machine, guard=guard)
     assert outcome["ok"] and outcome["removed"] == 1
     assert list(folder.iterdir()) == []
+
+
+def _broken(preview, change):
+    """A deep copy of ``preview`` with ``change`` applied to it."""
+    damaged = copy.deepcopy(preview)
+    change(damaged)
+    return damaged
+
+
+@pytest.mark.parametrize("change", [
+    lambda p: p.pop("operation_id"),
+    lambda p: p.update(operation_id="  "),
+    lambda p: p.update(folders="news"),
+    lambda p: p["folders"].append("not a row"),
+    lambda p: p["folders"].append(dict(p["folders"][0])),
+    lambda p: p["folders"][0].update(size_bytes=-1),
+    lambda p: p["folders"][0].update(size_bytes=True),
+    lambda p: p["folders"][0].update(path=""),
+    lambda p: p["folders"][0].update(contents="releases.json"),
+    lambda p: p["folders"][0]["contents"].append("not an entry"),
+    lambda p: p["folders"][0]["contents"].append({"name": 7}),
+    lambda p: p["folders"][0]["contents"].append({"name": "x", "size_bytes": -2}),
+    lambda p: p["folders"][0]["contents"].append({"name": "x", "size_bytes": 1.5}),
+], ids=["no-operation", "blank-operation", "folders-not-a-list", "row-not-a-mapping",
+        "repeated-key", "negative-size", "boolean-size", "no-path", "contents-not-a-list",
+        "entry-not-a-mapping", "entry-without-a-name", "entry-negative-size",
+        "entry-fractional-size"])
+def test_a_damaged_preview_is_refused_before_any_row_is_shown(preview, change):
+    """Every malformed part of a preview stops the dialog and keeps all files."""
+    with pytest.raises(ValueError, match="cleanup preview is invalid"):
+        consent._cleanup_dialog_rows(_broken(preview, change))
+
+
+def test_a_preview_that_is_not_a_mapping_is_refused():
+    """Only a mapping can describe a cleanup."""
+    with pytest.raises(ValueError, match="cleanup preview is invalid"):
+        consent._cleanup_dialog_rows(["news"])
+
+
+def test_unknown_sizes_are_shown_as_unknown_not_refused(preview):
+    """A folder or entry without a size is still listed, with no size."""
+    preview["folders"][0]["size_bytes"] = None
+    preview["folders"][0]["contents"][0]["size_bytes"] = None
+    operation, rows = consent._cleanup_dialog_rows(preview)
+    assert operation == "install-operation-20261015-opaque"
+    key, _path, size, entries, eligible, _reason = rows[0]
+    assert (key, size, entries[0][1], eligible) == ("news", None, None, True)

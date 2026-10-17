@@ -620,3 +620,85 @@ def test_selecting_log_url_text_does_not_open_the_browser(linked_log, qtbot):
     assert block.textCursor().hasSelection()
     assert 'https://' in block.textCursor().selectedText()
     assert opened == []
+
+
+# -- spaCR AI answers ---------------------------------------------------------
+
+def test_a_hash_heading_becomes_a_bold_line_of_its_own():
+    """``# Heading`` lines are headings with nothing after them on the line."""
+    assert cp.markdown_lines("# What happened\nThe run stopped.") == [
+        ("What happened", True), ("The run stopped.", False)]
+
+
+def test_blank_lines_collapse_and_a_stray_empty_bold_marker_is_dropped():
+    """Runs of blank lines become one; an empty ``** **`` leaves no tail."""
+    assert cp.markdown_lines("First.\n\n\n\nSecond.\n** **") == [
+        ("First.", False), ("", False), ("Second.", False)]
+
+
+def test_an_answer_for_an_entry_outside_the_console_opens_a_new_one(panel):
+    """A block that was never placed, or lost its place, is not written to."""
+    stray = cp._StdoutBlock()
+    try:
+        filled = panel.fill_ai_entry(stray, "Set src.")
+        assert filled is not stray
+        assert filled.toPlainText() == "Set src."
+        assert filled.property("consoleContextKind") == "spacr_ai"
+    finally:
+        stray.deleteLater()
+
+
+def test_a_saved_answer_survives_a_heading_that_is_already_gone(panel):
+    """A deleted heading label is skipped; the answer still shows."""
+    block = panel.begin_ai_entry(thinking=False)
+    shiboken6.delete(block._ai_bar._label)
+    filled = panel.fill_ai_entry(block, "Saved advice.", saved=True)
+    assert filled is block and block.toPlainText() == "Saved advice."
+    other = panel.begin_ai_entry(thinking=False)
+    other._ai_bar = None
+    assert panel.fill_ai_entry(other, "Again.", saved=True) is other
+    assert other.toPlainText() == "Again."
+
+
+def test_routine_records_arriving_together_are_written_in_one_flush(panel,
+                                                                   qtbot):
+    """A second INFO record joins the pending flush instead of restarting it."""
+    import logging
+
+    panel._on_log_record("first record", logging.INFO)
+    assert panel._log_flush.isActive()
+    panel._on_log_record("second record", logging.INFO)
+    assert panel._log_pending[-2:] == ["first record", "second record"]
+    qtbot.waitUntil(lambda: not panel._log_pending)
+
+
+# -- the scrollback cap and links ---------------------------------------------
+
+def test_one_paragraph_longer_than_the_cap_is_kept_whole(qtbot, monkeypatch):
+    """Only whole paragraphs are dropped, so a lone long line stays."""
+    monkeypatch.setattr(cp._StdoutBlock, "MAX_CHARS", 200)
+    block = cp._StdoutBlock()
+    qtbot.addWidget(block)
+    block.append("x" * 500)
+    assert block.toPlainText() == "x" * 500
+
+
+def test_a_pointer_over_text_that_cannot_be_read_shows_the_text_cursor(
+        linked_log, monkeypatch):
+    """A failing link lookup falls back to the ordinary text cursor."""
+    from PySide6.QtCore import QEvent, QPointF, Qt
+    from PySide6.QtGui import QMouseEvent
+
+    block, _opened = linked_log
+
+    def broken(_pos):
+        """Fail the way a block whose document is being replaced does."""
+        raise RuntimeError("document is gone")
+
+    monkeypatch.setattr(block, "link_at", broken)
+    block.viewport().setCursor(Qt.PointingHandCursor)
+    point = QPointF(5, 5)
+    block.mouseMoveEvent(QMouseEvent(QEvent.MouseMove, point, point,
+                                     Qt.NoButton, Qt.NoButton,
+                                     Qt.NoModifier))
+    assert block.viewport().cursor().shape() == Qt.IBeamCursor

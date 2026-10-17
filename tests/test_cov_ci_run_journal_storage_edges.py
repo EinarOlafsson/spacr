@@ -208,3 +208,28 @@ def test_unreadable_cache_locations_do_not_stop_journal_import(
 
     assert module["MANIFEST_SCHEMA_VERSION"] == journal.MANIFEST_SCHEMA_VERSION
     assert "Relocated caches could not be applied" in caplog.text
+
+
+def test_a_cache_without_a_setting_cannot_be_relocated(tmp_path):
+    with pytest.raises(ValueError, match="no setting to move it with"):
+        journal._relocate_cache("not-a-cache", tmp_path / "elsewhere")
+    assert not (tmp_path / "elsewhere").exists()
+
+
+def test_the_journal_loads_where_the_os_has_no_fork_hooks(monkeypatch):
+    """Windows has no ``os.register_at_fork``; the active-run lock still exists."""
+    import importlib.util
+    import sys
+
+    from spacr import errors
+
+    monkeypatch.delattr(os, "register_at_fork")
+    monkeypatch.setattr(errors, "_FINALIZE_LISTENERS", [])
+    spec = importlib.util.spec_from_file_location(
+        "spacr._run_journal_without_fork_hooks", journal.__file__)
+    module = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, spec.name, module)
+    spec.loader.exec_module(module)
+    with module._ACTIVE_RUNS_LOCK:
+        assert module._ACTIVE_RUN_DIRS == set()
+    assert errors._FINALIZE_LISTENERS == [module._note_ledger_on_the_open_run]

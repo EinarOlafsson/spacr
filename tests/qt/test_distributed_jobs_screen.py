@@ -273,3 +273,23 @@ def test_module_remote_button_emits_an_immutable_settings_snapshot(
     qtbot.mouseClick(source._btn_remote, Qt.LeftButton)
     assert received == [("regression", settings)]
     assert received[0][1] is not settings
+
+
+def test_a_snapshot_with_a_tampered_model_identity_is_never_submitted(
+    qtbot, qt_theme_applied, tmp_path
+):
+    runner = Runner()
+    screen = DistributedJobsScreen(
+        manager=_manager(tmp_path, runner), threaded=False, auto_poll=False
+    )
+    qtbot.addWidget(screen)
+    screen._module.setCurrentIndex(screen._module.findData("mask"))
+    screen._settings_snapshot = {
+        "src": "/data/plate",
+        "cell_model": "cyto3",
+        "model_metadata": {"schema_version": 2, "settings": {}},
+    }
+    screen.submit()
+    assert runner.calls == []
+    assert "model_metadata" in screen._status.text()
+    assert screen.manager.jobs.list() == []

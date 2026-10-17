@@ -213,3 +213,108 @@ def test_single_file_drop_replaces_once_without_starting_a_folder_worker(
     assert _drop(widget, [paths[-1]])
     assert values == contents == [str(paths[-1])]
     assert all(path.read_bytes() == b'value\n2\n' for path in paths)
+
+
+class _InlineScanner:
+    """Run a drop's folder walk on the calling thread, now or when released.
+
+    The real scanner runs ``collect`` on a QThread, which coverage cannot
+    see; this one runs the same closure here so each branch is measured.
+    """
+
+    def __init__(self, deferred=False):
+        self.deferred = deferred
+        self.queued = []
+
+    def submit(self, collect, landed):
+        if self.deferred:
+            self.queued.append((collect, landed))
+        else:
+            landed(collect())
+        return True
+
+    def release(self):
+        for collect, landed in self.queued:
+            landed(collect())
+        self.queued.clear()
+
+
+def test_a_drop_expands_folders_in_place_and_keeps_files_as_given(listing, tmp_path, monkeypatch):
+    from spacr.qt import dnd_handlers
+    folder = _folder(tmp_path)
+    loose = tmp_path / 'loose.csv'
+    loose.write_text('value\n3\n')
+    monkeypatch.setattr(dnd_handlers, '_scanner_for', lambda owner: _InlineScanner())
+    changes = []
+    listing.contents_changed.connect(lambda: changes.append(listing.paths()))
+    assert _drop(listing, [loose, folder])
+    expected = [str(loose), str(folder / 'a.csv'), str(folder / 'b.csv')]
+    assert listing.paths() == expected
+    assert changes == [expected]
+    assert listing._pending_path_drops == []
+
+
+def test_a_walk_that_breaks_keeps_what_it_found_and_frees_the_queue(listing, tmp_path, monkeypatch, caplog):
+    import logging
+    from spacr.qt import dnd_handlers
+    folder = _folder(tmp_path)
+    first = tmp_path / 'first.csv'
+    first.write_text('value\n1\n')
+
+    def broken(path, kind):
+        raise RuntimeError('the folder walk failed')
+
+    monkeypatch.setattr(dnd_handlers, '_scanner_for', lambda owner: _InlineScanner())
+    monkeypatch.setattr(files.FilePathListWidget, '_folder_members_for_kind', staticmethod(broken))
+    with caplog.at_level(logging.ERROR, logger=files.LOG.name):
+        assert _drop(listing, [first, folder])
+    assert 'the folder walk failed' in caplog.text
+    assert listing.paths() == [str(first)]
+    assert listing._pending_path_drops == []
+
+
+def test_a_drop_that_lands_after_the_list_was_cleared_adds_nothing(listing, tmp_path, monkeypatch):
+    from spacr.qt import dnd_handlers
+    folder = _folder(tmp_path)
+    scanner = _InlineScanner(deferred=True)
+    monkeypatch.setattr(dnd_handlers, '_scanner_for', lambda owner: scanner)
+    assert _drop(listing, [folder])
+    listing.clear()
+    changes = []
+    listing.contents_changed.connect(lambda: changes.append(listing.paths()))
+    scanner.release()
+    assert listing.paths() == [] and changes == []
+    assert listing._pending_path_drops == []
+
+
+def test_a_probe_answer_for_a_list_being_torn_down_is_ignored(listing, monkeypatch):
+    def gone():
+        raise RuntimeError('Internal C++ object already deleted')
+
+    monkeypatch.setattr(listing, '_refresh_hint', gone)
+    listing._path_probe_redraw('/data/plate1.csv', True)
+
+
+def test_a_list_outliving_the_probe_source_is_still_destroyed_cleanly(qtbot, monkeypatch):
+    import shiboken6
+    widget = files.FilePathListWidget(kind='table')
+    released = []
+
+    class _GoneSignal:
+        def disconnect(self, slot):
+            released.append(slot)
+            raise RuntimeError('Internal C++ object already deleted')
+
+    redraw = widget._path_probe_redraw
+    path_probe.probes.answered.disconnect(redraw)
+    monkeypatch.setattr(path_probe, 'probes', type('Gone', (), {'answered': _GoneSignal()})())
+    shiboken6.delete(widget)
+    assert released == [redraw]
+
+
+def test_a_table_with_no_download_buttons_has_nothing_to_align(qtbot, monkeypatch):
+    table = files.PairedFileTableWidget()
+    qtbot.addWidget(table)
+    monkeypatch.setattr(table, 'DOWNLOAD_BUTTONS', ())
+    monkeypatch.setattr(table, '_owning_screen', lambda: object())
+    assert table.align_download_buttons() is False

@@ -206,3 +206,23 @@ def test_generic_override_call_without_module_preserves_structurally_valid_pins(
     supplied['model_metadata']['settings']['cell_model_name']['kind'] = 'classifier'
     result = cli.apply_overrides(supplied, ['src=/new'])
     assert result['model_metadata']['settings']['cell_model_name']['kind'] == 'classifier'
+
+
+def test_a_pin_on_an_old_spelling_is_refused_when_the_new_spelling_disagrees(inputs, monkeypatch):
+    """The new name wins a fold, so a pin made for the old value cannot follow it."""
+    from spacr import settings as registry
+    _module, supplied = inputs
+    supplied['old_cell_model'] = supplied['cell_model_name']
+    supplied['cell_model_name'] = '/models/cell8'
+    supplied['model_metadata']['settings']['old_cell_model'] = supplied['model_metadata']['settings'].pop('cell_model_name')
+    monkeypatch.setitem(registry.RENAMED_SETTINGS, 'old_cell_model', 'cell_model_name')
+    with pytest.raises(cli.SettingsError, match='cell_model_name'):
+        cli._under_todays_names(supplied, moved=[])
+
+
+def test_a_csv_model_metadata_row_without_a_value_is_refused(tmp_path):
+    """A metadata row that lost its value cell is not parsed as text and is refused."""
+    path = tmp_path / 'settings.csv'
+    path.write_text('Key,Value\nsrc,/data\ncell_model_name,/models/cell7\nmodel_metadata\n')
+    with pytest.raises(cli.SettingsError, match='model_metadata'):
+        cli._load_settings_csv(str(path))
