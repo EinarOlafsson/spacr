@@ -3206,10 +3206,11 @@ classes
 |     ``dict(...)  [UNRESOLVED]``
 | ``_cpu_detect`` **-- reads it**
 | ``_otsu_description`` **-- reads it**
+| ``_start_volume_detection`` **-- reads it**
 | ``_threshold_histogram`` **-- reads it**
 | :py:func:`~spacr.qt.settings_pack.settings_from_pack` **-- reads it**
 
-Read by ``_record_generated_folder_names``, ``annotation_column_of``, ``class_metadata_of``, ``class_names``, ``class_rules``, ``folder_names``, ``normalize_settings``, ``_cross_validate_model``, ``_class_column``, ``_describe_classifier_training``, ``_migrate_control_wells``, ``_cpu_detect``, ``_otsu_description``, ``_threshold_histogram``, ``settings_from_pack``, ``get_train_test_model_settings``.
+Read by ``_record_generated_folder_names``, ``annotation_column_of``, ``class_metadata_of``, ``class_names``, ``class_rules``, ``folder_names``, ``normalize_settings``, ``_cross_validate_model``, ``_class_column``, ``_describe_classifier_training``, ``_migrate_control_wells``, ``_cpu_detect``, ``_otsu_description``, ``_start_volume_detection``, ``_threshold_histogram``, ``settings_from_pack``, ``get_train_test_model_settings``.
 
 .. _setting-flow-classifier_accuracy:
 
@@ -11588,9 +11589,10 @@ local
 
 | ``_cpu_detect`` **-- reads it**
 | ``_otsu_description`` **-- reads it**
+| ``_start_volume_detection`` **-- reads it**
 | ``_threshold_histogram`` **-- reads it**
 
-Read by ``_cpu_detect``, ``_otsu_description``, ``_threshold_histogram``.
+Read by ``_cpu_detect``, ``_otsu_description``, ``_start_volume_detection``, ``_threshold_histogram``.
 
 .. _setting-flow-location_column:
 
@@ -23328,8 +23330,9 @@ stitch_threshold
 |                 :py:func:`~spacr.zstack.plan_from_settings` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.qt.screens.make_masks.cellpose_detect_volume` **-- reads it**
 
-Read by ``plan_4d_from_settings``, ``plan_from_settings``.
+Read by ``cellpose_detect_volume``, ``plan_4d_from_settings``, ``plan_from_settings``.
 
 .. _setting-flow-straightness_threshold:
 
