@@ -2093,13 +2093,14 @@ def convert_generated(markup: str, language: str, block_name: str, *,
                 language, name, [{"kind": "heading", "level": 4,
                                   "text": label}], images, render,
                 pages=readable, generated=True))
-            found = [(text, _to_repository(link, language))
-                     for text, link in links_of(block["text"])]
-            tail = re.findall(r">`__?\s*\(([^)]+)\)", block["text"])
-            if tail:
-                found = [(text + (f" ({tail[0]})" if i == len(found) - 1
-                                  else ""), link)
-                         for i, (text, link) in enumerate(found)]
+            found = []
+            for run, style, link in inline_runs(block["text"]):
+                if style == "link":
+                    found.append((run, _to_repository(link, language)))
+                elif found:
+                    note = re.match(r"\s*\(([^)]+)\)", run)
+                    if note:
+                        found[-1] = (f"{found[-1][0]} ({note.group(1)})", found[-1][1])
             parts.append(_chip_grid(language, f"{name}-link", found, images,
                                     render, columns=3))
         elif kind == "heading" and block["level"] <= 3:

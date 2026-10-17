@@ -1139,6 +1139,52 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                ' differ. 263-field set seen counts: v1 54, v2 178, v3 137, v4 0; GRA8 '
                'Plate1 (hold-out of v3) is the same physical plate as ReimagedPlate1 '
                '(training data of v4). Default unchanged.']},
+    {'key': 'toxoplasma_plaque_v5',
+     'name': 'cpsam_plaque_r7',
+     'remote_name': 'cpsam_plaque_r7',
+     'kind': 'cellpose',
+     'repo_id': 'einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7',
+     'repo_type': 'model',
+     'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7/resolve/main/weights/cpsam_plaque_r7',
+     'sha256': '9243917beefbc3d1c8d997d56c1980b811ffef9ee075dac60b099aec715fa8a1',
+     'size_bytes': 1218648776,
+     'candidate': True,
+     'metrics': {'f1': {'finetuned': 0.8157, 'vanilla': 0.2268, 'delta': 0.5889},
+                 'holdout': 'plaque_curated_20261015_test',
+                 'holdout_version': '2026-10-15',
+                 'n_fields': 153,
+                 'n_objects': 6540,
+                 'n_train': '1201 fields + 153 validation',
+                 'train_objects': '49360',
+                 'n_test': '153 fields',
+                 'test_objects': '6540',
+                 'cv': 'no',
+                 'train_loss': 'see training/run_config.json',
+                 'val_loss': 'see training/run_config.json',
+                 'best_epoch': '100 / 100 (final epoch kept)'},
+     'display_name': 'Toxoplasma Plaque v5 (round 7, cpsam_v2, candidate)',
+     'architecture': 'Cellpose-SAM (cpsam_v2, Cellpose 4.2.1.1)',
+     'dataset': '1,507 curated plaque fields of 2026-10-15 (Gel Doc wells, lab plates, published '
+                'figures, earlier curation rounds); 1,201 train / 153 validation / 153 test',
+     'versus_stock': 'F1 0.816 (stock cpsam_v2 0.227) on the 153 held-out test fields at IoU 0.5; '
+                     'toxoplasma_plaque_v4 0.725 and toxoplasma_plaque_v3 0.741 on the same fields',
+     'trained_on': 'Toxoplasma plaques from Gel Doc wells, lab plates, published figures and earlier '
+                   'curation rounds (curated dataset of 2026-10-15); 100 epochs, final epoch kept, '
+                   'base cpsam_v2',
+     'trained_by': 'einarolafsson',
+     'notes': ['A candidate, not the default: toxoplasma_plaque_v4 stays the default pending the '
+               'maintainer\'s decision.',
+               'Scored 2026-10-17 on the 153 test fields of the curated 2026-10-15 dataset '
+               '(spacr.plaque.segment_plaque_image, defaults): object F1 0.816 (95% bootstrap CI '
+               '0.778 to 0.848), v4 0.725, v3 0.741, stock cpsam_v2 0.227. On the 81 test fields '
+               'neither v3 nor v4 saw: v5 0.803, v4 0.661, v3 0.684. AJI is level with v4 '
+               '(0.737 against 0.744); Gel Doc wells 0.868 against v4 0.901 and v3 0.954.',
+               'The final epoch 100 ships by the maintainer\'s rule: an earlier checkpoint replaces '
+               'it only if better on every metric in every domain. Epoch 40 led on validation '
+               'object F1 (0.766 against 0.750) but trailed on boundary F1 (0.700 against 0.711), '
+               'AJI (0.661 against 0.667) and Dice (0.857 against 0.869); on test it scored F1 0.823.',
+               'Training ran 100 epochs; indices 91 to 99 were resumed from epoch 90 after a power '
+               'cut, with the same schedule and seeds (optimizer moments restarted at LR 2e-8).']},
     {'key': 'toxoplasma_well_detector_v3',
      'name': 'yolo_welldetect_v4_geldoc.pt',
      'remote_name': 'yolo_welldetect_v4_geldoc.pt',
@@ -1315,6 +1361,12 @@ _CURATED_SCORECARD_BINDINGS = {'toxoplasma_plaque_v1': {'checkpoint_sha256': 'ee
                           'resource': 'toxoplasma-plaque-segmentation-cpsam-r6.json',
                           'resource_sha256': '2aa5c558b512a5b888a755ac1bf46fa18609c5bd4effb533363c3bdc6695efd9',
                           'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6/resolve/main/weights/cpsam_plaque_r6'},
+ 'toxoplasma_plaque_v5': {'checkpoint_sha256': '9243917beefbc3d1c8d997d56c1980b811ffef9ee075dac60b099aec715fa8a1',
+                          'field_ids_sha256': '981166ee8b999dad4b15deb0ea6a31c4dd5cd75713ae015650afc598d9cabc70',
+                          'full_card_sha256': '829b4c733f8c2ec662c337ae4c4895d232c6ad5d448295aebf35c9404e3be05a',
+                          'resource': 'toxoplasma-plaque-segmentation-cpsam-r7.json',
+                          'resource_sha256': 'cc1e89cfebf2bf23cce827815ec35a1b9d97d8809f886b278c01b981f5d7ff57',
+                          'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7/resolve/main/weights/cpsam_plaque_r7'},
  'toxoplasma_pv_v1': {'checkpoint_sha256': '182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0',
                       'field_ids_sha256': '8192aa87281f8da7d1a4fd7884472e83f57c344b059953db0aa94e359b46a046',
                       'full_card_sha256': 'a74e00d9d0c0d4f7560a7650618243d393431a1bee78f43047f38c57b5e5edd5',
@@ -2329,7 +2381,8 @@ def _builtin_entry_from_mapping(record: Mapping[str, Any]) -> ModelEntry:
                         ("false_negatives", "fn")):
         if source in counts:
             metrics[key] = counts[source]
-    metrics.update({"holdout": "gt_rescore_20261011", "holdout_version": "strict hold-out, pooled",
+    metrics.update({"holdout": holdout.get("set", "gt_rescore_20261011"),
+                    "holdout_version": "strict hold-out, pooled",
                     "n_fields": holdout["n_fields"], "n_objects": holdout["n_objects"],
                     "n_test": str(holdout["n_fields"]) + " fields",
                     "test_objects": str(holdout["n_objects"]),

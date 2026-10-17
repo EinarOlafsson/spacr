@@ -1,0 +1,159 @@
+{
+ "schema": "spacr-model-card-v2",
+ "repo_id": "einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7",
+ "key": "toxoplasma_plaque_v5",
+ "display_name": "Toxoplasma Plaque v5",
+ "family": "plaque",
+ "round": "round 7",
+ "status": "candidate",
+ "date": "trained 2026-10-16",
+ "pages": [
+  "cards/page1.png",
+  "cards/page2.png",
+  "cards/page3.png"
+ ],
+ "scores": {
+  "rows": [
+   {
+    "key": "object_f1",
+    "label": "Object F1 (IoU ≥ 0.5)",
+    "this": 0.8157148643175375,
+    "stock": 0.2267648864333947
+   },
+   {
+    "key": "boundary_f1",
+    "label": "Boundary F1 (outline edges)",
+    "this": 0.7585289828763156,
+    "stock": 0.2882878407970929
+   },
+   {
+    "key": "precision",
+    "label": "Precision",
+    "this": 0.8673557278208441,
+    "stock": 0.18943589743589745
+   },
+   {
+    "key": "recall",
+    "label": "Recall",
+    "this": 0.7698776758409785,
+    "stock": 0.2824159021406728
+   },
+   {
+    "key": "aji",
+    "label": "AJI",
+    "this": 0.7366249992787408,
+    "stock": 0.1784235190948173
+   },
+   {
+    "key": "dice",
+    "label": "Dice",
+    "this": 0.8962402486208038,
+    "stock": 0.3291295466874519
+   }
+  ],
+  "this_model": "toxoplasma_plaque_v5",
+  "stock_model": "cpsam_v2",
+  "counts": {
+   "this": {
+    "tp": 5035,
+    "fp": 770,
+    "fn": 1505,
+    "n_pred": 5805
+   },
+   "stock": {
+    "tp": 1847,
+    "fp": 7903,
+    "fn": 4693,
+    "n_pred": 9750
+   }
+  },
+  "holdout": {
+   "set": "plaque_curated_20261015_test",
+   "rule": "strict: the test split of the curated plaque dataset of 2026-10-15 (einarolafsson/toxoplasma-plaque-curated-2026-10-15, revision 91d4f1cd), grouped by source paper or plate; never used for training or checkpoint selection",
+   "n_fields": 153,
+   "n_empty_fields": 15,
+   "n_objects": 6540,
+   "fields_by_source": {
+    "bigbean": 3,
+    "geldoc": 25,
+    "literature": 94,
+    "malnio": 9,
+    "new-geldoc": 2,
+    "patrick": 7,
+    "previous-curation": 13
+   }
+  },
+  "pooling": "micro-average over all test fields: object F1, precision and recall from summed TP/FP/FN (optimal one-to-one matching, IoU >= 0.5, as spacr.scorecard.match_objects); AJI = sum C / sum U (Kumar 2017); Dice = 2 sum |T and P| / sum (|T| + |P|) over foreground pixels; boundary F1 from summed boundary-pixel hits at 2 px tolerance (spacr.scorecard._boundary). Segmentation through spacr.plaque.segment_plaque_image with diameter 30, flow threshold 0.4, cell probability 0."
+ },
+ "facts": {
+  "rows": [
+   {
+    "key": "train_fov",
+    "label": "Training FOV",
+    "this": "1,201 + 153 val.",
+    "stock": "Cellpose-SAM v2 training set (public)"
+   },
+   {
+    "key": "test_fov",
+    "label": "Test FOV",
+    "this": "153",
+    "stock": "153"
+   },
+   {
+    "key": "train_obj",
+    "label": "Training objects",
+    "this": "49,360 + 5,779 val.",
+    "stock": "not applicable"
+   },
+   {
+    "key": "test_obj",
+    "label": "Test objects",
+    "this": "6,540",
+    "stock": "6,540"
+   },
+   {
+    "key": "domains",
+    "label": "Domains",
+    "this": "Gel Doc lab plates, lab plates, published figures, earlier curation rounds",
+    "stock": "General cell and nucleus images (Cellpose datasets)"
+   },
+   {
+    "key": "epochs",
+    "label": "Epochs",
+    "this": "100, final epoch kept",
+    "stock": "not applicable"
+   },
+   {
+    "key": "base",
+    "label": "Base (stock) model",
+    "this": "cpsam_v2",
+    "stock": "is the stock model"
+   },
+   {
+    "key": "spacr",
+    "label": "spaCR version",
+    "this": "nightly 5b50893",
+    "stock": "not applicable"
+   },
+   {
+    "key": "cellpose",
+    "label": "Cellpose version",
+    "this": "4.2.1.1",
+    "stock": "4.2 and later"
+   }
+  ],
+  "evidence": "training/run_config.json"
+ },
+ "about": {
+  "segments": "Toxoplasma gondii plaques in crystal-violet-stained plaque-assay wells.",
+  "version_line": "Zoo key toxoplasma_plaque_v5, round 7 (weights cpsam_plaque_r7). Candidate: selectable, not the default plaque model.",
+  "trained_on": "1,201 curated fields from Gel Doc lab plates, lab plates, published figures and earlier curation rounds (curated dataset of 2026-10-15), with 153 for validation.",
+  "status": "Candidate plaque model in spaCR; toxoplasma_plaque_v4 stays the default.",
+  "leak_note": null,
+  "load_line": "Set `plaque_model` to `toxoplasma_plaque_v5`; spaCR downloads and checks the weights on first use.",
+  "links": {
+   "model": "https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7",
+   "stock": "https://huggingface.co/mouseland/cellpose-sam/blob/main/cpsam_v2"
+  }
+ }
+}

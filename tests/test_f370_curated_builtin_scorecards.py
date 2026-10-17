@@ -45,7 +45,7 @@ def test_exact_builtin_preserves_all_six_approved_matched_scores_and_dataset(mon
     assert tooltip.count("<tr>") == 7
     for label in ("Boundary F1 (2 px)", "Precision", "Recall", "AJI", "Dice"):
         assert label in tooltip
-    assert "gt_rescore_20261011" in tooltip
+    assert scores["holdout"].get("set", "gt_rescore_20261011") in tooltip
     assert str(scores["holdout"]["n_fields"]) in tooltip
     assert "Boundary F1 (2 px)" in "\n".join(entry.scorecard_lines())
     assert "Boundary F1 (2 px)" in entry.describe()

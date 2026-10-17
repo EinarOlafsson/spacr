@@ -790,18 +790,19 @@ def _catalogue() -> List[Any]:
 
 
 def plaque_model_choices(entries: Optional[Iterable[Any]] = None) -> List[str]:
-    """What the plaque model box offers: zoo plaque models, then ``bundled``.
+    """What the plaque model box offers: the default, other zoo plaque models, then ``bundled``.
 
     :param entries: zoo entries; the zoo's own listing when None.
-    :returns: setting values, newest zoo model first.
+    :returns: setting values, the default first, then the newest zoo model.
     """
     entries = _catalogue() if entries is None else list(entries)
     keys = sorted({str(getattr(e, "key", "") or "") for e in entries
                    if "plaque" in str(getattr(e, "key", "") or "")
                    and str(getattr(e, "kind", "")) == "cellpose"},
                   reverse=True)
-    if DEFAULT_PLAQUE_MODEL not in keys:
-        keys.insert(0, DEFAULT_PLAQUE_MODEL)
+    if DEFAULT_PLAQUE_MODEL in keys:
+        keys.remove(DEFAULT_PLAQUE_MODEL)
+    keys.insert(0, DEFAULT_PLAQUE_MODEL)
     return keys + ["bundled"]
 
 

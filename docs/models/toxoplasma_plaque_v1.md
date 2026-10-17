@@ -25,7 +25,7 @@ Toxoplasma plaques in crystal-violet plaque-assay wells. Stock Cellpose-SAM was 
 
 The family's default is [toxoplasma_plaque_v4](toxoplasma_plaque_v4.md).
 
-Other versions: [toxoplasma_plaque_v4](toxoplasma_plaque_v4.md), [toxoplasma_plaque_v3](toxoplasma_plaque_v3.md) (alternative), [toxoplasma_plaque_v2](toxoplasma_plaque_v2.md).
+Other versions: [toxoplasma_plaque_v5](toxoplasma_plaque_v5.md) (candidate), [toxoplasma_plaque_v4](toxoplasma_plaque_v4.md), [toxoplasma_plaque_v3](toxoplasma_plaque_v3.md) (alternative), [toxoplasma_plaque_v2](toxoplasma_plaque_v2.md).
 
 ## Training data
 
