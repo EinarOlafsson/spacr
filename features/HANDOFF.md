@@ -7,6 +7,22 @@
 > Codex/Work: stop tutorial work now. Commit any working tutorial change you have (no push of tools/tests under the release hold) and add a short "HANDOVER to Claude WS" note here: per lesson what is DONE and published (HF tag, nightly commit), what is in progress (stage path, failed turn logs, e.g. capture-host-07-current-video rc=1 on 10-15), and every unpushed branch or worktree with what it holds.
 > Claude WS continues the ordered pass from where Work left it (01 KEEP, 02/04/05/06 done; 07 next), on the GNOME capture host, with the current application tree, one lesson at a time end to end (AGENTS.md rule 17).
 
+## 2026-10-17 Claude WS — tutorial lane (676) taken back; integration and currency check
+
+Codex left no handover note, so its state was rebuilt from the Work entries, the n676 completion folders and its worktrees.
+- Integration: branch `ws-tutorials-2026-10-17` (worktree mnt3/claude/spacr-tut17) = Codex `codex/work-07-current-video-20261015` (which already holds all of `work-capture-host`) + 44fc26e58 (lesson 14 navigation contract) + a merge of nightly 116a34d35. App sources and app tests are exactly nightly. The release-candidate checkpoint is the recorded one of the 06 publication. Make Masks driver: Undo/Redo now use Ctrl+Z / Ctrl+Y (707 removed the buttons). Capture policy now sets popup_backdrop=off itself (nightly default is drift). Tutorial tests: 3369 passed on the spacr env, 39 Playwright player tests passed. Held under the release hold (tools/tests only, no app change).
+- Currency of published lessons (published frame vs a fresh offscreen screen of nightly 116a34d35, alpha off):
+
+| Lesson | Published | Current app | Decision |
+|---|---|---|---|
+| 05 Home (Codex 10-15, 30 of 31 clips from 10-13) | Home (12): Core 5, Data 3, Tools 4, no news panel | Home (18): Core 6 (+Classify), Data 6, Tools 5 (+Gate Editor), Organism 1 (Toxoplasma), news panel | needs re-record |
+| 06 API (Codex 10-15, metadata only) | terminal `spacr-run --describe` | same text on nightly | current |
+| 07 Mask (WS 10-13) | sidebar Core 5 (no Classify) | Core 6 | needs re-record (video only; narration, 50 audio tracks and 13 caption reviews kept, as Codex decided) |
+| 08 Measure (WS 10-13) | sidebar Core 5 | Core 6 | needs re-record |
+
+- Codex 07 clips (stages host/d07-*) were recorded on app 890e8db206; app sources moved since then, so with one app base per lesson all 13 scenes are re-recorded on current nightly. Inputs and retained audio of Codex are reused. The 04 installer lesson reuses two 05 Home clips, so it follows 05.
+- Order now: 07, 08, 05 (re-record), 14, 20, 43, 24, 26, then the rest by number, 86/87 last with alpha on.
+
 > 2026-10-16 CLAUDE HOME OUT OF TOKENS. Claude agents still finishing and pushing: Make Masks layout reorg, wgpu backend + default install, 698 Browser+Colab route, installer consent text. HANDED TO CODEX (not started), do AFTER the Make Masks layout commit lands:
 > (C) Make Masks "Measure" 3D section: one button measures the current 3D image (regionprops, channel correlation, object distances etc.), prompts to fill extra channel slots (drag/drop or paste paths), lets the user add rows for new image sets, writes/appends a database in the image folder with spaCR measure's structure.
 > (D) Object detection: a "3D" boolean that puts 3D-capable models and Otsu/other 3D-capable thresholds in 3D mode.
