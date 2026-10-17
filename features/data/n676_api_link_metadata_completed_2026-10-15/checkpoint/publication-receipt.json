@@ -1,19 +1,19 @@
 {
   "repository": "datasets/einarolafsson/spacr-tutorials",
-  "branch": "n676-selective05-20261015",
+  "branch": "n676-ws-08-measure-20261017",
   "base_commit": "003f4c8e88e6050dab5aad7750fb2f990974b636",
-  "commit": "4e4de22dce9cc5e7f1c86747b6159b538e66f7a1",
-  "tag": "n676-selective05-20261015-verified",
-  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/4e4de22dce9cc5e7f1c86747b6159b538e66f7a1",
-  "manifest_sha256": "e5d099163ba3a99cf9cba249d07ad5e64609f8ea46ce59213519591655257aba",
+  "commit": "61dac025ecc3c62bdae271e50b4294848f108fd3",
+  "tag": "n676-ws-08-measure-20261017-verified",
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/61dac025ecc3c62bdae271e50b4294848f108fd3",
+  "manifest_sha256": "75b802f8257e5f39607ed4406e0d65c679756e0b52a3199cbc81ada33dc08308",
   "media_files": 5370,
-  "media_bytes": 8807787387,
+  "media_bytes": 8878396369,
   "readback": {
-    "commit": "4e4de22dce9cc5e7f1c86747b6159b538e66f7a1",
+    "commit": "61dac025ecc3c62bdae271e50b4294848f108fd3",
     "files_expected": 5370,
     "metadata_matched": 5370,
     "metadata_failures": [],
-    "bytes_read_back": 8807787387,
+    "bytes_read_back": 8878396369,
     "downloaded_sha256_matched": 5370,
     "download_failures": [],
     "files_on_revision_not_in_candidate": [
@@ -2982,19 +2982,19 @@
       "73_parameter_sweep/audio/en/bm_lewis.m4a",
       "README.md"
     ],
-    "seconds": 382.3,
+    "seconds": 273.8,
     "passed": true
   },
-  "readback_source": "completed immutable-commit readback resumed after upload",
   "pages": {
     "destination": "docs/source/_extra/tutorials",
     "files_from_candidate": 142,
     "bundled_tutorial_index_sha256": "afc880e1e65c8b2fb38be760761ac9575c32fe4f5f5be113507ec927b3675065",
-    "index_sha256": "d6898075c516c85c8d65acc4ca1a1f4da50d9723adae0e76efa55a16c2466a1b",
-    "candidate_index_sha256": "88f910f08398faa042ee7ca29a8047da7d676cd95a00d4d08eae5680d692e125",
-    "cache_key": "lesson06-links-20261015",
+    "index_sha256": "3f380ec38a9ed03a71a9ee58cb91abedb0358fba413bd36fca2c46a142f9cce0",
+    "candidate_index_sha256": "31d85ea6c5971b4ec161ef424587bf755e634693425d46ee2eacdd38b635612b",
+    "cache_key": "n676-ws-08-measure-20261017-verified",
     "unchanged_versioned_assets": [
       "app_v2.js",
+      "lesson_catalog.js",
       "styles.css",
       "voice_catalog.js"
     ],
@@ -3002,13 +3002,13 @@
       "app_v2.js": "n676-selective05-20261015-verified",
       "styles.css": "20261002-home-landscape",
       "lesson_catalog.js": "lesson06-links-20261015",
-      "module_navigation.js": "lesson06-links-20261015",
+      "module_navigation.js": "n676-ws-08-measure-20261017-verified",
       "voice_catalog.js": "20260811-50-voices"
     },
     "hosted_web_copies": 84,
     "removed_local_web_copies": [],
     "withdrawn_pages_archive": {
-      "directory": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/retired-pages",
+      "directory": "/media/carruthers/mnt3/claude/n676_stages/host/stage-08-t17/release-candidate-append-ov7jd3g7/retired-pages",
       "files": []
     },
     "ready": 84,
