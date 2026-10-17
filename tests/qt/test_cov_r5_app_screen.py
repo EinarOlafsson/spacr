@@ -631,9 +631,13 @@ class TestWhetherABulkApplyChangesTheFormShape:
         assert screen._bulk_apply_changes_form_shape(
             {"organelle_channel": 2}, {}) is False
 
-        # The same key against a form that HAS the count does reshape it.
+        # Item 356 (2026-10-17): on a form that HAS the count the slot's
+        # channel is still shown in place; only a new count reshapes it.
         assert screen._bulk_apply_changes_form_shape(
             {"organelle_channel": 2},
+            {NUMBER_OF_ORGANELLES: 1, "organelle_channel": None}) is False
+        assert screen._bulk_apply_changes_form_shape(
+            {NUMBER_OF_ORGANELLES: 2},
             {NUMBER_OF_ORGANELLES: 1, "organelle_channel": None}) is True
 
     def test_a_slot_beyond_the_requested_count_changes_nothing(self, screen):

@@ -13514,6 +13514,7 @@ class AppScreen(QWidget):
 
         _screens_package._breathe_while_a_window_opens()
         self._refresh_after_bulk_apply(settings)
+        self._show_the_objects_the_run_has()
         _screens_package._breathe_while_a_window_opens()
         self._observe_settings_commit()
         return applied
@@ -13555,52 +13556,30 @@ class AppScreen(QWidget):
             self, settings: dict, current: dict) -> bool:
         """Whether supplied values require a differently shaped form.
 
-        Only a switch this form carries can shape it, which is the rule
-        :meth:`_form_shaping_keys` already follows for a committed edit. A
-        switch the form neither shows nor holds is never in
-        ``model.collect()``, so it could never compare equal after a
-        rebuild either: an older recruitment file that still names
-        ``nucleus_mask_dim``, a Mask file imported on Measure, or a Measure
-        file imported on Mask would each ask for a rebuild on every screen
-        the rebuild produced.
+        THE RULE OF ITEM 356, applied to a settings file as it already is to
+        a typed value: only ``number_of_organelles`` adds or removes rows.
+        An object's channel or mask-plane switch only decides which of the
+        rows already built are SHOWN, and :meth:`apply_settings_dict`
+        re-decides that in place after the values go in
+        (:meth:`_show_the_objects_the_run_has`). Rebuilding for a channel
+        cost Mask's "Load test data" a whole new screen -- about 0.4 s with
+        the backdrop starved of paints -- to show the same rows.
+
+        A form without an organelle count is never reshaped by a file, and
+        an unchanged count asks for nothing.
 
         :param settings: the mapping about to be applied.
         :param current: what the form collects now.
         :returns: True when the form must be rebuilt before the values go in.
         """
-        from ...organelle_types import (NUMBER_OF_ORGANELLES, organelle_count,
-                                        organelle_number)
+        from ...organelle_types import NUMBER_OF_ORGANELLES
         from ..settings_diff import _values_equal
 
-        model = getattr(self, "_settings_model", None)
-        carried = set(current) | set(getattr(model, "_widgets", {}) or {})
-        supports_organelles = NUMBER_OF_ORGANELLES in current
-        target = dict(current)
-        target.update(settings)
-        target_count = organelle_count(target) if supports_organelles else 0
+        if NUMBER_OF_ORGANELLES not in current:
+            return False
         for key, value in settings.items():
-            key = str(key)
-            if key == NUMBER_OF_ORGANELLES and supports_organelles:
-                if not _values_equal(current.get(key), value):
-                    return True
-                continue
-            role = object_of_setting(key)
-            if role is None or role == "cell":
-                continue
-            if key not in object_switch_keys(role):
-                continue
-            if key not in carried:
-                continue
-            if role not in ("nucleus", "pathogen"):
-                if not supports_organelles:
-                    continue
-                try:
-                    if organelle_number(role) > target_count:
-                        continue
-                except ValueError:
-                    continue
-            if not _values_equal(current.get(key), value):
-                return True
+            if str(key) == NUMBER_OF_ORGANELLES:
+                return not _values_equal(current.get(NUMBER_OF_ORGANELLES), value)
         return False
 
     def _sync_folded_switches(self, settings: dict) -> tuple:

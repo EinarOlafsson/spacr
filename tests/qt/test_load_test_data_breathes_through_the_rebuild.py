@@ -1,11 +1,11 @@
-"""Mask "Load test data" keeps the event loop running while the screen is rebuilt.
+"""Mask "Load test data" keeps the event loop running.
 
-The example plate ships a settings pack that names the object channels, which
-changes the shape of the Mask form, so applying it rebuilds the whole screen.
-That rebuild ran in one piece: one GUI-thread block of about 0.4 s on the
+The example plate ships a settings pack that names the object channels. That
+rebuilt the whole Mask screen in one GUI-thread block of about 0.4 s on the
 tutorial capture host, with the backdrop stopped (tutorial 07 recorded it as
-an app freeze in every take). It now takes the breaths a module open takes,
-so the longest block is one step of the rebuild, not all of them together.
+an app freeze in every take). Item 356, extended 2026-10-17: a channel in a
+pack is shown in place, so the load no longer rebuilds; a rebuild that is
+still needed (a new organelle count) takes the breaths of a module open.
 """
 from __future__ import annotations
 
@@ -60,8 +60,8 @@ def _ticks():
     return timer, stamps
 
 
-def test_load_test_data_rebuild_is_not_one_block(mask_window, example_plate,
-                                                 monkeypatch, qtbot):
+def test_load_test_data_shows_the_channels_in_place(mask_window, example_plate,
+                                                   monkeypatch, qtbot):
     from spacr.qt import screens
 
     window, screen = mask_window
@@ -74,17 +74,34 @@ def test_load_test_data_rebuild_is_not_one_block(mask_window, example_plate,
     ended = time.perf_counter()
     timer.stop()
 
-    fresh = window._screens["mask"]
-    assert fresh is not screen, "the pack did not change the form's shape"
-    assert fresh._settings_model.collect().get("nucleus_channel") == 0
+    assert window._screens["mask"] is screen, "a channel pack rebuilt the screen"
+    model = screen._settings_model
+    assert model.collect().get("nucleus_channel") == 0
+    assert model.collect().get("pathogen_channel") == 2
+    assert screen._form_shape_on_screen == screen._form_shape()
+    assert not screens._a_window_is_opening_a_screen
+    assert not window._opening_a_screen
+
+
+def test_a_new_organelle_count_rebuilds_with_breaths(mask_window, qtbot):
+    from spacr.organelle_types import NUMBER_OF_ORGANELLES
+
+    window, screen = mask_window
+    count = screen._settings_model.collect().get(NUMBER_OF_ORGANELLES) or 0
+    timer, stamps = _ticks()
+    qtbot.wait(30)
+    started = time.perf_counter()
+    screen.apply_settings_dict({NUMBER_OF_ORGANELLES: int(count) + 1})
+    ended = time.perf_counter()
+    timer.stop()
+
+    assert window._screens["mask"] is not screen, "the count did not rebuild"
     inside = [started] + [t for t in stamps if started < t < ended] + [ended]
     longest = max(b - a for a, b in zip(inside, inside[1:]))
     assert len(inside) > 3, "the event loop never ran during the rebuild"
     assert longest < 0.6 * (ended - started), (
         f"one block of {longest * 1000:.0f} ms in a "
-        f"{(ended - started) * 1000:.0f} ms load")
-    assert not screens._a_window_is_opening_a_screen
-    assert not window._opening_a_screen
+        f"{(ended - started) * 1000:.0f} ms rebuild")
 
 
 def test_a_rebuild_inside_an_open_leaves_the_open_breathing(mask_window):
