@@ -9,6 +9,7 @@ from scipy import ndimage
 from spacr.qt import mask_engine as engine
 from spacr.qt.screens import make_masks
 from spacr.qt.screens.make_masks import MakeMasksScreen
+from tests.cellpose_api_contract import configured_eval_arguments, eval_arguments
 from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 
 
@@ -141,13 +142,20 @@ class _FakeCellpose:
     def __init__(self):
         self.calls = []
 
-    def eval(self, x, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
-        check_cellpose_eval_call(
-            x, channel_axis, z_axis=kwargs.get("z_axis"),
-            do_3D=kwargs.get("do_3D", False),
-            stitch_threshold=kwargs.get("stitch_threshold", 0.0))
-        self.calls.append((np.asarray(x).shape,
-                           {**kwargs, "channel_axis": channel_axis}))
+    def eval(self, x, batch_size=8, resample=True, channels=None,
+             channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+             normalize=True, invert=False, rescale=None, diameter=None,
+             flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+             anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+             min_size=15, max_size_fraction=0.4, niter=None,
+             augment=False, tile_overlap=0.1, bsize=256,
+             compute_masks=True, progress=None):
+        bound = dict(locals())
+        seen = eval_arguments(bound)
+        configured = configured_eval_arguments(bound)
+        check_cellpose_eval_call(x, channel_axis, z_axis=z_axis, do_3D=do_3D,
+                                 stitch_threshold=stitch_threshold)
+        self.calls.append((np.asarray(x).shape, seen, configured))
         labels = np.zeros(np.asarray(x).shape, np.int32)
         labels[2:7, 3:9, 3:9] = 1
         return labels, None, None
@@ -164,17 +172,17 @@ def test_cellpose_runs_do_3d_and_stitching(screen, qtbot):
     screen._detect_3d.setChecked(True)
     screen._btn_cellpose.click()
     qtbot.waitUntil(lambda: screen._detection_request is None, timeout=10000)
-    shape, kwargs = fake.calls[-1]
+    shape, kwargs, configured = fake.calls[-1]
     assert shape == (9, 24, 24)
     assert kwargs["do_3D"] is True and kwargs["z_axis"] == 0 and kwargs["channel_axis"] is None
-    assert "stitch_threshold" not in kwargs
+    assert "stitch_threshold" not in configured
     session = screen._mask_stage.session
     assert int(session.mask.max()) == 1 and session.mask[4, 5, 5] == 1
     screen._combine_mode.setCurrentIndex(screen._combine_mode.findData("replace"))
     screen._cp_stitch.setValue(0.3)
     screen._btn_cellpose.click()
     qtbot.waitUntil(lambda: screen._detection_request is None, timeout=10000)
-    shape, kwargs = fake.calls[-1]
+    shape, kwargs, _configured = fake.calls[-1]
     assert kwargs["do_3D"] is False and kwargs["stitch_threshold"] == pytest.approx(0.3)
     screen._mask_stage.dirty = False
 
