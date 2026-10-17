@@ -1,6 +1,6 @@
 {
-  "private_candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-08-t17/release-candidate-append-ov7jd3g7",
-  "manifest_sha256": "75b802f8257e5f39607ed4406e0d65c679756e0b52a3199cbc81ada33dc08308",
+  "private_candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-07-t17b/release-candidate-append-7iz5pg3d",
+  "manifest_sha256": "add544be92e13fae7def1d62c9d43f93ffa8e4519eb949ec010d8e26d8c5ffcb",
   "files": [
     {
       "path": "web/TUTORIAL_MEDIA_NOTICE.md",
@@ -259,8 +259,8 @@
     },
     {
       "path": "web/index.html",
-      "sha256": "31d85ea6c5971b4ec161ef424587bf755e634693425d46ee2eacdd38b635612b",
-      "bytes": 15622
+      "sha256": "a4c27582d382330b6230a746d3da33c48af6a55d5fed1dfd5634aa024975c3c5",
+      "bytes": 15635
     },
     {
       "path": "web/lesson_catalog.js",
@@ -274,7 +274,7 @@
     },
     {
       "path": "web/module_navigation.js",
-      "sha256": "e96615e09d06ecb3b031e0194d62eae466d8b10ed6d77f27b2818d46c14d1085",
+      "sha256": "66ae99a49c45869be100df67fdede485790da5a17cc18b19fa5323d0ad9dd989",
       "bytes": 17258
     },
     {
@@ -304,8 +304,8 @@
     },
     {
       "path": "web/production/07_mask/poster.jpg",
-      "sha256": "54a4fcc3126388e9c50ac39ca3ba22a5b6ed749f05b126a84f20b2afccd1f373",
-      "bytes": 780163
+      "sha256": "b447f20c3b4f7c2ac9f43030f343fbd9684d0e7dbb694fe9f9270a4ceb48e161",
+      "bytes": 784414
     },
     {
       "path": "web/production/08_measure/poster.jpg",
@@ -714,13 +714,13 @@
     },
     {
       "path": "release-manifest.json",
-      "sha256": "75b802f8257e5f39607ed4406e0d65c679756e0b52a3199cbc81ada33dc08308",
-      "bytes": 1179643
+      "sha256": "add544be92e13fae7def1d62c9d43f93ffa8e4519eb949ec010d8e26d8c5ffcb",
+      "bytes": 1179634
     },
     {
       "path": "candidate-browser-checks.json",
-      "sha256": "ac7cbb2783a383118f42453e2e88b9a86c0ceea07bd643b05760087f3bb0ac82",
-      "bytes": 127541
+      "sha256": "7f98b952eb6ec2fd19c2123634a69700012e51195d2cc08e2eadb8edd54d3d3d",
+      "bytes": 127558
     },
     {
       "path": "placeholder-mutation-checks.json",
@@ -737,10 +737,10 @@
   "pages_tree_ready": true,
   "media_revision": {
     "repository": "datasets/einarolafsson/spacr-tutorials",
-    "branch": "n676-ws-08-measure-20261017",
-    "tag": "n676-ws-08-measure-20261017-verified",
-    "commit": "61dac025ecc3c62bdae271e50b4294848f108fd3",
-    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/61dac025ecc3c62bdae271e50b4294848f108fd3"
+    "branch": "n676-ws-07-mask-20261017",
+    "tag": "n676-ws-07-mask-20261017-verified",
+    "commit": "a715e96c99ad6647e7a16aee24b32e0303c5d681",
+    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/a715e96c99ad6647e7a16aee24b32e0303c5d681"
   },
   "publication_note": "Media revision uploaded and read back; docs.yml publishes the committed Pages tree to the matching nightly or main channel."
 }
