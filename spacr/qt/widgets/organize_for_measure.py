@@ -645,11 +645,19 @@ class _VolumePathEdit(QLineEdit):
     """A volume input accepting one local file by drop or pasted path."""
 
     def __init__(self, parent=None):
+        """Build an empty path field that accepts dropped files.
+
+        :param parent: optional Qt parent widget.
+        """
         super().__init__(parent)
         self.setAcceptDrops(True)
         self.setPlaceholderText(tr("Drop a file or paste its path"))
 
     def dragEnterEvent(self, event):
+        """Accept a drag of exactly one local file onto an editable field.
+
+        :param event: the Qt drag-enter event.
+        """
         paths = _mime_paths(event.mimeData())
         if not self.isReadOnly() and len(paths) == 1 and os.path.isfile(paths[0]):
             event.acceptProposedAction()
@@ -657,9 +665,17 @@ class _VolumePathEdit(QLineEdit):
             event.ignore()
 
     def dragMoveEvent(self, event):
+        """Keep accepting or refusing the drag as it moves over the field.
+
+        :param event: the Qt drag-move event.
+        """
         self.dragEnterEvent(event)
 
     def dropEvent(self, event):
+        """Put a dropped local file's path into an editable field.
+
+        :param event: the Qt drop event.
+        """
         paths = _mime_paths(event.mimeData())
         if not self.isReadOnly() and len(paths) == 1 and os.path.isfile(paths[0]):
             self.setText(paths[0])
@@ -688,6 +704,7 @@ class MeasureVolumeDialog(QDialog):
     """
 
     def __init__(self, source_path, parent=None, *, spacing=None, axes="ZYX", unit="pixel"):
+        """Build the dialog with the current image fixed in its first row."""
         super().__init__(parent)
         self.setObjectName("MakeMasksMeasureVolumeDialog")
         self.setWindowTitle(tr("Measure 3D images"))
@@ -755,12 +772,18 @@ class MeasureVolumeDialog(QDialog):
         self.table.cellWidget(0, 1).setReadOnly(True)
 
     def _set_headers(self):
+        """Label the image, mask and numbered extra-channel columns."""
         self.table.setHorizontalHeaderLabels(
             [tr("3D image"), tr("Saved mask (optional)")]
             + [tr("Extra channel {n}", n=index + 1)
                for index in range(self.table.columnCount() - 2)])
 
     def _set_path_cell(self, row, column):
+        """Place a path field, named for its row and column, in one cell.
+
+        :param row: the image-set row.
+        :param column: the column the field fills.
+        """
         field = _VolumePathEdit(self.table)
         field.setAccessibleName(tr("Image set {row}, {column}", row=row + 1,
                                    column=self.table.horizontalHeaderItem(column).text()))

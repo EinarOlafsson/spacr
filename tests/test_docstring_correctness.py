@@ -2703,7 +2703,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         assert item.required_parameters == required
         assert item.category == category and item.exposure == "autoapi"
         assert item.variant_count == 1
-        assert item.docless_variant_count == item.constructor_prose_variant_count == 0
+        assert item.docless_variant_count == 0
+        # The dialog's __init__ carries its own one-line prose (2026-10-17).
+        assert item.constructor_prose_variant_count == (
+            1 if category == "constructor" else 0)
         assert not item.accepts_arbitrary_keywords
         assert item.docstring == measure_sources[symbol]
     assert contract_arrivals & by_symbol.keys()

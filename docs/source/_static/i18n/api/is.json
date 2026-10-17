@@ -165213,17 +165213,19 @@
         "bcc80647aea791f8266cefcfa42ffa341223a8b35caf135b8a8289e51f386689",
         "14b99d20250f0a391efc0b85b2f482855a133c0f7a99d7300624711c28ec63ea",
         "82cc530fe7cc899a497ef9314711fb2a3d74e98cb026bff40b673360227e264e",
-        "143b4938af954fc05fadcecc98ea92fa2326f98b76244b479ac3cfddab14a2ee"
+        "143b4938af954fc05fadcecc98ea92fa2326f98b76244b479ac3cfddab14a2ee",
+        "59d8f5c90a67dec01425defaaf5844b376d1fd9805030b35703d454538f5e487"
       ],
-      "source_sha256": "8f145486ada493dec6b9183d095d3e1bacbb07c2ed83a3c845a4df67f2e80caf",
-      "text": "Velja viðbótarrásir og myndasett fyrir núverandi breytta 3D-grímu.\n\n:param source_path: slóð núverandi 3D-myndar, föst í fyrstu röðinni.\n:param parent: valfrjáls Qt-yfirgræja.\n:param spacing: valfrjálsar voxelfjarlægðir sem eru birtar í röð ásanna.\n:param axes: röð rúmása sem er notuð til að merkja sýndar fjarlægðir.\n:param unit: einingin sem er birt við voxelfjarlægðirnar.",
+      "source_sha256": "767210d3e45b43e6185984cb6b1ae14da75f572d259d80f36e619a3a92ccdc2c",
+      "text": "Velja viðbótarrásir og myndasett fyrir núverandi breytta 3D-grímu.\n\n:param source_path: slóð núverandi 3D-myndar, föst í fyrstu röðinni.\n:param parent: valfrjáls Qt-yfirgræja.\n:param spacing: valfrjálsar voxelfjarlægðir sem eru birtar í röð ásanna.\n:param axes: röð rúmása sem er notuð til að merkja sýndar fjarlægðir.\n:param unit: einingin sem er birt við voxelfjarlægðirnar.\nByggja gluggann með núverandi mynd fasta í fyrstu röðinni.",
       "translation_source_blocks_sha256": [
         "e40dfe0d04d87a68af29bace9f90ab6d60c42ccc9c03c00c952b16b54afabc9e",
         "f3eb7cfebc2418f8059311ac8c2e1c1a7655cca2d2b371c1f9ef577c43340398",
         "bcc80647aea791f8266cefcfa42ffa341223a8b35caf135b8a8289e51f386689",
         "14b99d20250f0a391efc0b85b2f482855a133c0f7a99d7300624711c28ec63ea",
         "82cc530fe7cc899a497ef9314711fb2a3d74e98cb026bff40b673360227e264e",
-        "143b4938af954fc05fadcecc98ea92fa2326f98b76244b479ac3cfddab14a2ee"
+        "143b4938af954fc05fadcecc98ea92fa2326f98b76244b479ac3cfddab14a2ee",
+        "59d8f5c90a67dec01425defaaf5844b376d1fd9805030b35703d454538f5e487"
       ]
     },
     "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog.accept": {
