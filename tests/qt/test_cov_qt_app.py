@@ -1752,7 +1752,15 @@ def test_accepting_an_upgrade_waits_for_authenticated_shutdown_handoff(
     assert win._frozen_update_timer.isActive()
     assert not (tmp_path / "restart.json").exists()
     ready[0] = True
+    restart_prompts = []
+
+    def confirm_restart(message):
+        restart_prompts.append(message)
+        return QMessageBox.Ok
+
+    monkeypatch.setattr(win, "_confirm_update_restart", confirm_restart)
     win._poll_frozen_update()
+    assert len(restart_prompts) == 1 and "2.0.0" in restart_prompts[0]
     assert events == ["prepared", "checked", "approved"]
     assert win._closing and not win.isVisible()
     assert win._frozen_update_handshake is None
