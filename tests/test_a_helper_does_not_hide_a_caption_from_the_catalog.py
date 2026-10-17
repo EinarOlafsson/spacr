@@ -233,7 +233,8 @@ def test_make_masks_parameter_rows_expose_help_but_not_setting_keys(builder):
     """Both local row helpers carry prose past a programmatic field key."""
     tree = ast.parse((QT / "screens/make_masks.py").read_text())
     calls = [node for node in ast.walk(tree)
-             if isinstance(node, ast.Call) and _call_name(node) == "row"]
+             if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+             and node.func.id == "row"]
     assert len(calls) == 28
     reached = set()
     keys = set()
