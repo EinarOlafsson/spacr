@@ -10,6 +10,9 @@
 > Codex/Work: stop tutorial work now. Commit any working tutorial change you have (no push of tools/tests under the release hold) and add a short "HANDOVER to Claude WS" note here: per lesson what is DONE and published (HF tag, nightly commit), what is in progress (stage path, failed turn logs, e.g. capture-host-07-current-video rc=1 on 10-15), and every unpushed branch or worktree with what it holds.
 > Claude WS continues the ordered pass from where Work left it (01 KEEP, 02/04/05/06 done; 07 next), on the GNOME capture host, with the current application tree, one lesson at a time end to end (AGENTS.md rule 17).
 
+## 2026-10-17 Claude WS — tutorials 08 and 07 published
+08 Measure (HF n676-ws-08-measure-20261017-verified, d4d0b68f5) and 07 Mask (n676-ws-07-mask-20261017-verified, 8df3fa8eb) are re-recorded on current nightly plus the held fixes (bulk settings follow 356; Mask preloads its pipeline after opening). Correction to the currency table: with Show alpha off, current Home adds only Classify and Toxoplasma; 05 restores those two scenes.
+
 ## 2026-10-17 Claude WS — fix for the Mask "Load test data" freeze (held)
 Held on branch `ws-load-test-data-freeze` (02e7df960; spacr/qt/app.py plus 1 test) until the 1.5.1.5 hold lifts: rebuild_app_screen now breathes between steps like a module open, so the longest GUI block goes from 0.55 s to 0.15 s offscreen. Home: no action needed; WS records tutorials on it and pushes after "release done".
 
