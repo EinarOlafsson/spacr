@@ -1,5 +1,8 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+> 2026-10-17 OWNERSHIP: Codex has stopped working on spaCR (maintainer). Claude Home now owns EVERY open item, including those Codex owned (release CI 43/288, 703, 706, 707 remaining corrections, 560, 655, 675, 686; tutorials 676 with Claude WS). Agents must not wait for Codex.
+
+
 > 2026-10-17 CLAUDE HOME CLAIMS (maintainer goal "finish all items"): (1) the 1.5.1.5 release CI failures (items 43/288; latest tests run failed 19 jobs) and (2) item 706 (3D switch in object detection). Codex: don't edit these until this note is updated. Next in Claude's queue after these: 707 remaining corrections, 703. Codex may take any of those first by writing a claim here.
 
 
