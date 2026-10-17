@@ -11,7 +11,7 @@ One card per published model. Open **Model Zoo** from the spaCR home screen to i
 | Model | Architecture | Family | Scorecard |
 | --- | --- | --- | --- |
 | [toxoplasma_pv_v4](toxoplasma_pv_v4.md) | Cellpose-SAM (cpsam_v2) | `toxoplasma_pv` | reviewed hold-out scorecard |
-| [toxoplasma_plaque_v4](toxoplasma_plaque_v4.md) | Cellpose-SAM (cpsam_v2, Cellpose 4.0.9) | `toxoplasma_plaque` | reviewed hold-out scorecard |
+| [toxoplasma_plaque_v5](toxoplasma_plaque_v5.md) | Cellpose-SAM (cpsam_v2, Cellpose 4.2.1.1) | `toxoplasma_plaque` | reviewed hold-out scorecard |
 | [toxoplasma_well_detector_v3](toxoplasma_well_detector_v3.md) | YOLO11n (fine-tuned from detector v3) | `toxoplasma_well_detector` | hold-out scorecard, not yet reviewed |
 | [toxoplasma_from_cellmask_v1](toxoplasma_from_cellmask_v1.md) | Cellpose-SAM (cpsam_v2) | `toxoplasma_from_cellmask` | recorded at publication |
 | [live_cell_v1](live_cell_v1.md) | Cellpose-SAM (cpsam_v2) | `live_cell` | recorded at publication |
@@ -27,6 +27,7 @@ One card per published model. Open **Model Zoo** from the spaCR home screen to i
 | [toxoplasma_pv_v3](toxoplasma_pv_v3.md) | older version | Cellpose-SAM (cpsam_v2) | reviewed hold-out scorecard |
 | [toxoplasma_pv_v2](toxoplasma_pv_v2.md) | older version | Cellpose-SAM (cpsam_v2) | reviewed hold-out scorecard |
 | [toxoplasma_pv_v1](toxoplasma_pv_v1.md) | older version | Cellpose-SAM (cpsam_v2) | reviewed hold-out scorecard |
+| [toxoplasma_plaque_v4](toxoplasma_plaque_v4.md) | older version | Cellpose-SAM (cpsam_v2, Cellpose 4.0.9) | reviewed hold-out scorecard |
 | [toxoplasma_plaque_v3](toxoplasma_plaque_v3.md) | alternative | Cellpose-SAM (cpsam, Cellpose 4.0.9) | reviewed hold-out scorecard |
 | [toxoplasma_plaque_v2](toxoplasma_plaque_v2.md) | older version | Cellpose-SAM (cpsam_v2) | reviewed hold-out scorecard |
 | [toxoplasma_plaque_v1](toxoplasma_plaque_v1.md) | older version | Cellpose-SAM (cpsam) | reviewed hold-out scorecard |

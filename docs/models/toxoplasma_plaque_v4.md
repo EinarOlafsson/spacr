@@ -2,7 +2,7 @@
 
 # Plaques
 
-v4
+v4 · older
 
 **0.765** — F1 · 329 held-out fields
 
@@ -15,15 +15,17 @@ v4
 | Dice | 0.839 | 0.429 |
 
 
-![Score card of Plaques v4 (toxoplasma_plaque_v4, default): F1 0.765 on 329 held-out fields against 0.338 for stock cpsam_v2.](cards/toxoplasma_plaque_v4.svg)
+![Score card of Plaques v4 (toxoplasma_plaque_v4, older version): F1 0.765 on 329 held-out fields against 0.338 for stock cpsam_v2.](cards/toxoplasma_plaque_v4.svg)
 
-## Toxoplasma Plaque v4 (round 6, cpsam_v2, default)
+## Toxoplasma Plaque v4 (round 6, cpsam_v2)
 
-`toxoplasma_plaque_v4` · Cellpose-SAM (cpsam_v2, Cellpose 4.0.9) · default in the `toxoplasma_plaque` family
+`toxoplasma_plaque_v4` · Cellpose-SAM (cpsam_v2, Cellpose 4.0.9) · older version in the `toxoplasma_plaque` family
 
 Toxoplasma plaques in crystal-violet plaque-assay wells. Stock Cellpose-SAM was never trained on plaques and finds few of them, fewest on Gel Doc scans.
 
-Other versions: [toxoplasma_plaque_v3](toxoplasma_plaque_v3.md) (alternative), [toxoplasma_plaque_v2](toxoplasma_plaque_v2.md), [toxoplasma_plaque_v1](toxoplasma_plaque_v1.md).
+The family's default is [toxoplasma_plaque_v5](toxoplasma_plaque_v5.md).
+
+Other versions: [toxoplasma_plaque_v5](toxoplasma_plaque_v5.md), [toxoplasma_plaque_v3](toxoplasma_plaque_v3.md) (alternative), [toxoplasma_plaque_v2](toxoplasma_plaque_v2.md), [toxoplasma_plaque_v1](toxoplasma_plaque_v1.md).
 
 ## Training data
 
@@ -61,7 +63,8 @@ Evaluation set `gt_rescore_20261011`, version `strict hold-out, pooled`; 329 sco
 
 ## Notes
 
-- The default plaque model since 2026-10-11, by the maintainer's rule that spaCR models build on cpsam_v2. It scores below toxoplasma_plaque_v3 on the same 263 held-out fields, through spacr.plaque.segment_plaque_image: F1 0.815 against 0.844, lower on every source (Gel Doc 0.804 against 0.913); v3 stays selectable.
+- No longer the default: toxoplasma_plaque_v5 replaced it on 2026-10-17 (object F1 0.816 against 0.725 on the 153 curated test fields); kept selectable so recorded runs reproduce.
+- The default plaque model 2026-10-11 to 2026-10-17, by the maintainer's rule that spaCR models build on cpsam_v2. It scores below toxoplasma_plaque_v3 on the same 263 held-out fields, through spacr.plaque.segment_plaque_image: F1 0.815 against 0.844, lower on every source (Gel Doc 0.804 against 0.913); v3 stays selectable.
 - Fine-tuned from cpsam_v2 (2026-10-10). It replaces the first round-6 weights, fine-tuned from first-generation cpsam (sha256 00f4a86b...a0c171), which remain in the repository history.
 - Above toxoplasma_plaque_v2 overall (0.799) and on Gel Doc wells, where v2 scores 0.013.
 - Published-figure literature crops stay hard (F1 0.530).
