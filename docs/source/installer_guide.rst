@@ -186,7 +186,7 @@ bring such an installation forward; shared and Conda environments use their
 package manager.
 
 Reinstalling the same version
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Download that version's matching desktop installer from GitHub releases and
 run it again. Reinstallation repairs the application code and launcher while
@@ -313,7 +313,7 @@ categories until you opt out. The native and command-line alternatives below
 retain their existing explicit purge switches.
 
 Native and command-line alternatives
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **Windows:** open **Settings → Apps → Installed apps → spaCR → Uninstall**,
   or run ``%LOCALAPPDATA%\spaCR\Uninstall.exe``.
