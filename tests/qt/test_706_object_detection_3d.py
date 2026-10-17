@@ -9,6 +9,7 @@ from scipy import ndimage
 from spacr.qt import mask_engine as engine
 from spacr.qt.screens import make_masks
 from spacr.qt.screens.make_masks import MakeMasksScreen
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 
 
 def _blobs(shape=(9, 24, 24)):
@@ -140,8 +141,13 @@ class _FakeCellpose:
     def __init__(self):
         self.calls = []
 
-    def eval(self, x, **kwargs):
-        self.calls.append((np.asarray(x).shape, kwargs))
+    def eval(self, x, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+        check_cellpose_eval_call(
+            x, channel_axis, z_axis=kwargs.get("z_axis"),
+            do_3D=kwargs.get("do_3D", False),
+            stitch_threshold=kwargs.get("stitch_threshold", 0.0))
+        self.calls.append((np.asarray(x).shape,
+                           {**kwargs, "channel_axis": channel_axis}))
         labels = np.zeros(np.asarray(x).shape, np.int32)
         labels[2:7, 3:9, 3:9] = 1
         return labels, None, None
