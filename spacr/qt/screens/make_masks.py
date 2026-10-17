@@ -12494,6 +12494,7 @@ class MakeMasksScreen(QWidget):
         self._session_notice: str = ""
         self._current_index: int = 0
         self._lineage = None
+        self._lineage_scanned = None
         self._selected_cell = None
         self._lineage_dirty = False
         self._lineage_format = False
@@ -15887,6 +15888,14 @@ class MakeMasksScreen(QWidget):
                 return
         self._time_label_enabled = bool(enabled)
         if enabled:
+            if self._folder and self._lineage_scanned != self._folder:
+                merged = self._merge_sequence_lineage(
+                    self._lineage, self._folder,
+                    self._image_files[self._current_index] if self._image_files else None)
+                if merged is not None and merged != self._lineage:
+                    self._lineage = merged
+                    self._lineage_dirty = True
+                    self._refresh_lineage_rows()
             self._set_mode(MODE_LABEL_TIME)
         else:
             self._cancel_label_time_navigation()
@@ -22190,6 +22199,7 @@ class MakeMasksScreen(QWidget):
             return False
         self._leave_blind_unopened("another folder was opened")
         self._lineage = None
+        self._lineage_scanned = None
         self._selected_cell = None
         self._lineage_dirty = False
         self._lineage_format = False
@@ -22437,8 +22447,37 @@ class MakeMasksScreen(QWidget):
         incoming = (metadata or {}).get("lineage")
         if self._lineage is None and incoming is None:
             return None
-        return engine.merge_lineage_states(self._lineage, incoming,
+        state = engine.merge_lineage_states(self._lineage, incoming,
             frame=os.path.abspath(os.path.join(folder, filename)))
+        if self._lineage_scanned != folder:
+            state = self._merge_sequence_lineage(state, folder, filename)
+        return state
+
+    def _merge_sequence_lineage(self, state, folder, skip=None):
+        """Merge the lineage embedded in every queued mask of ``folder`` once.
+
+        A division or name saved in a later frame is then known as soon as
+        the sequence is reopened at any frame, from the TIFFs alone.
+        """
+        from ..i18n import tr
+
+        self._lineage_scanned = folder
+        skipped = 0
+        for name in self._image_files:
+            if name == skip:
+                continue
+            try:
+                incoming = engine.load_mask_metadata(
+                    folder, name, **self._layout_kwargs()).get("lineage")
+                if incoming is not None:
+                    state = engine.merge_lineage_states(
+                        state, incoming, frame=os.path.abspath(os.path.join(folder, name)))
+            except (ValueError, OSError):
+                skipped += 1
+        if skipped:
+            self._status_label.setText(tr(
+                "Lineage in {n} mask file(s) could not be read and was skipped.", n=skipped))
+        return state
 
     def _handle_load_failure(self, error: Exception) -> None:
         """Clear stale canvas state and visibly report an image-load error."""

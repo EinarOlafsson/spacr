@@ -541,3 +541,94 @@ def test_time_save_preserves_disconnected_numeric_identity_and_count(screen, mon
     assert saved.dtype == np.uint32
     assert set(np.unique(saved)) == {0, 7}
     assert counts == [1]
+
+
+@pytest.fixture
+def dividing(qtbot, qt_theme_applied, tmp_path, monkeypatch):
+    folder = tmp_path / "dividing"
+    (folder / "masks").mkdir(parents=True)
+    for index in range(5):
+        mask = np.zeros((40, 40), dtype=np.uint16)
+        if index < 2:
+            mask[5:15, 5:35] = 5
+        else:
+            mask[5:15, 5:15] = 8
+            mask[5:15, 25:35] = 3
+        imageio.imwrite(folder / f"frame_{index}.tif", np.full(mask.shape, index + 1, np.uint8))
+        imageio.imwrite(folder / "masks" / f"frame_{index}.tif", mask)
+    widget = mm.MakeMasksScreen()
+    monkeypatch.setattr(widget, "_confirm", lambda *args: True)
+    monkeypatch.setattr(QDialog, "exec", lambda self: QDialog.Accepted)
+    qtbot.addWidget(widget)
+    widget._set_mode(mm.MODE_EDIT_LABEL)
+    assert widget._open_folder(str(folder))
+    widget._canvas.resize(400, 400)
+    widget._canvas.refresh()
+    widget._btn_save_on_navigation.setChecked(False)
+    yield widget
+    widget.close()
+
+
+def hover(screen, point):
+    canvas = screen._canvas
+    pos = QPointF(canvas._image_to_canvas(point[0] + .5, point[1] + .5))
+    canvas.mouseMoveEvent(QMouseEvent(QEvent.MouseMove, pos, pos,
+                                      Qt.NoButton, Qt.NoButton, Qt.NoModifier))
+
+
+def select(screen, identity):
+    model = screen._lineage_model
+    screen._select_lineage_cell(model.index(model.keys.index(identity), 0))
+
+
+def test_division_branches_trace_both_ways_and_reopen_from_tiffs_only(qtbot, dividing):
+    screen = dividing
+    enable_time(screen)
+    screen._label_name.setText("1")
+    screen._add_lineage_cell()
+    mother = screen._selected_cell
+    hover(screen, (10, 10))
+    wheel(screen, 2)
+    wait_idle(qtbot, screen)
+    assert screen._current_index == 2
+    screen._divide_lineage_cell()
+    first, second = screen._lineage["cells"][mother]["children"]
+    assert screen._selected_cell == first
+    hover(screen, (10, 10))
+    wheel(screen, 2)
+    wait_idle(qtbot, screen)
+    assert screen._current_index == 4
+    select(screen, second)
+    hover(screen, (30, 10))
+    wheel(screen, -4, point=(30, 10))
+    wait_idle(qtbot, screen)
+    assert screen._current_index == 1
+    mask = screen._canvas.mask
+    assert int(mask[10, 30]) == int(mask[10, 10]) != 0
+    assert screen._lineage["frames"][screen._lineage_frame()][str(int(mask[10, 30]))] == mother
+    screen._save_mask()
+    for sidecar in Path(screen._folder).rglob("*.json"):
+        sidecar.unlink()
+    folder = screen._folder
+    owners = {}
+    for index in range(5):
+        frame = str(Path(folder) / f"frame_{index}.tif")
+        saved = imageio.imread(engine.mask_save_path(folder, f"frame_{index}.tif"))
+        assert saved.dtype == np.uint32
+        owners[index] = (int(saved[10, 10]), int(saved[10, 30]), frame)
+    assert owners[0][0] == owners[0][1] and owners[1][0] == owners[1][1]
+    assert all(owners[index][0] != owners[index][1] for index in (2, 3, 4))
+    fresh = mm.MakeMasksScreen()
+    qtbot.addWidget(fresh)
+    assert fresh._open_folder(folder)
+    graph = fresh._lineage
+    assert graph["cells"][mother]["children"] == [first, second]
+    assert [graph["cells"][key]["name"] for key in (mother, first, second)] == ["1", "1", "1a"]
+    assert graph["cells"][first]["parent_uuid"] == graph["cells"][second]["parent_uuid"] == mother
+    assert UUID(mother).int and UUID(first).int != UUID(second).int
+    for index, (left, right, frame) in owners.items():
+        mapping = graph["frames"][frame]
+        expected = (mother, mother) if index < 2 else (first, second)
+        assert (mapping[str(left)], mapping[str(right)]) == expected
+    assert not fresh._time_label_enabled
+    fresh.close()
