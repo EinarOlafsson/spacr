@@ -6800,6 +6800,43 @@ class MainWindow(QMainWindow):
             getattr(self, name)(*args)
 
     def rebuild_app_screen(self, key: str, values=None) -> None:
+        """Build ``key``'s screen again, with breaths between its steps.
+
+        A rebuild runs the same heavy steps as a first open -- build, theme,
+        join the stack, translate, show -- and used to run them in one
+        piece: Mask's "Load test data" applies a settings pack that changes
+        the form's shape, and the whole rebuild was one freeze of about
+        0.4 s with the backdrop stopped. The steps are now separated by the
+        breaths a module open takes (:meth:`_breathe_while_opening`), so
+        the longest freeze is the longest single step. User input is held
+        back during a breath and navigation waits, exactly as for an open.
+
+        A rebuild that runs inside an open (a font-scale rebuild) breathes
+        under that open and leaves its breathing on when it returns.
+
+        :param key: the app whose screen is to be rebuilt.
+        :param values: settings to apply to the new screen.
+        """
+        from . import screens as _screens_package
+        from .i18n import ui_language_resolved_once
+        from .preferences import _one_store
+
+        import time as _time
+
+        if getattr(self, "_opening_a_screen", False):
+            self._rebuild_app_screen_in_steps(key, values)
+            return
+        self._opening_a_screen = True
+        _screens_package._start_breathing_while_a_window_opens(
+            _time.perf_counter())
+        try:
+            with ui_language_resolved_once(), _one_store():
+                self._rebuild_app_screen_in_steps(key, values)
+        finally:
+            self._opening_a_screen = False
+            _screens_package._stop_breathing_while_a_window_opens()
+
+    def _rebuild_app_screen_in_steps(self, key: str, values=None) -> None:
         """Build ``key``'s screen again, carrying ``values`` across.
 
         :param key: the app whose screen is to be rebuilt.
@@ -6843,16 +6880,21 @@ class MainWindow(QMainWindow):
         finally:
             AppScreen.values_the_next_screen_is_built_for = previous_build_values
 
+        self._breathe_while_opening()
         try:
             self._theme_screen(fresh, key)
         except Exception:                                    # noqa: BLE001
             LOG.exception("Could not theme the rebuilt %s screen", key)
+        self._breathe_while_opening(force=True)
+        fresh.ensurePolished()
+        self._breathe_while_opening(force=True)
         try:
             from .i18n import retranslate_widget_tree
 
             retranslate_widget_tree(fresh)
         except Exception:                                    # noqa: BLE001
             LOG.exception("Could not translate the rebuilt %s screen", key)
+        self._breathe_while_opening()
         try:
             from .screens.settings_model import retarget_field_tooltips
 
@@ -6875,6 +6917,9 @@ class MainWindow(QMainWindow):
         self._a_page_joined_the_stack(fresh)
         self._stack.addWidget(fresh)
         self._drop_a_redundant_screen_backdrop(fresh)
+        self._breathe_while_opening()
+        fresh.ensurePolished()
+        self._breathe_while_opening(force=True)
         self._stack.setCurrentWidget(fresh)
         if old is not None:
             try:
