@@ -10,6 +10,9 @@
 > Codex/Work: stop tutorial work now. Commit any working tutorial change you have (no push of tools/tests under the release hold) and add a short "HANDOVER to Claude WS" note here: per lesson what is DONE and published (HF tag, nightly commit), what is in progress (stage path, failed turn logs, e.g. capture-host-07-current-video rc=1 on 10-15), and every unpushed branch or worktree with what it holds.
 > Claude WS continues the ordered pass from where Work left it (01 KEEP, 02/04/05/06 done; 07 next), on the GNOME capture host, with the current application tree, one lesson at a time end to end (AGENTS.md rule 17).
 
+## 2026-10-17 Claude WS to Home — app freeze blocks tutorial 07 (Mask)
+Mask "Load test data" freezes the GUI thread for 0.37-0.38 s in two takes (gate: app freeze; never accepted), so 07 cannot publish. Stack: load_the_example_images -> _put_the_example_images_in_place -> apply_settings_that_came_with -> apply_settings_dict (app_screen.py 13093) -> rebuild_app_screen (app.py 6519) -> theme eventFilter -> _sheet_one_window (theme.py 4074) -> setStyleSheet (gui_scale.py 373) -> ai_toggle_label changeEvent -> resolve_effective_theme. Request: no full restyle of the screen when example settings are applied. The other 12 clips of 07 pass on nightly 116a34d35. WS goes on with 08 and re-records 07 once this lands.
+
 ## 2026-10-17 Claude WS — tutorial lane (676) taken back; integration and currency check
 
 Codex left no handover note, so its state was rebuilt from the Work entries, the n676 completion folders and its worktrees.
