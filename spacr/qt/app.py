@@ -522,6 +522,36 @@ _DATA_LIBRARIES_AFTER_S = 1.0
 
 _DATA_LIBRARIES_STARTED = False
 
+#: Screens whose pipeline module is imported in the background soon after
+#: the screen first opens, so that Run finds it imported. Mask's is
+#: ``spacr.core`` -- torch, cellpose and about 2,900 modules -- and its
+#: import at the Run click starved the backdrop for a second (tutorial 07,
+#: 2026-10-17). The maintainer accepted the cost: about 1 GB more memory
+#: once Mask has opened, whether or not it is run.
+_ENTRY_PRELOADED_FOR = frozenset({"mask"})
+#: Seconds after the screen is on show; after the data libraries
+#: (:data:`_DATA_LIBRARIES_AFTER_S`) so the two imports do not overlap.
+_ENTRY_PRELOAD_AFTER_S = 3.0
+
+
+def _preload_the_pipeline_entry(app_key: str):
+    """Start importing ``app_key``'s pipeline module on a worker thread.
+
+    The same import a Run starts
+    (:func:`spacr.qt.bridge._import_the_entry_off_the_gui_thread`): off the
+    GUI thread, under the heavy-import lock, once per process. Nothing
+    happens when the module is imported already or a Run is importing it.
+
+    :returns: the importing thread, or ``None`` when there is nothing to do.
+    """
+    try:
+        from .bridge import _import_the_entry_off_the_gui_thread
+
+        return _import_the_entry_off_the_gui_thread(app_key)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not preload the %s pipeline", app_key, exc_info=True)
+        return None
+
 
 def _import_the_data_libraries_off_the_gui_thread():
     """Import :data:`_DATA_LIBRARIES` on a worker thread, once per process.
@@ -7175,6 +7205,11 @@ class MainWindow(QMainWindow):
 
             QTimer.singleShot(int(_DATA_LIBRARIES_AFTER_S * 1000),
                               _import_the_data_libraries_off_the_gui_thread)
+        if built_now and key in _ENTRY_PRELOADED_FOR:
+            from PySide6.QtCore import QTimer
+
+            QTimer.singleShot(int(_ENTRY_PRELOAD_AFTER_S * 1000),
+                              lambda k=key: _preload_the_pipeline_entry(k))
         if key in self._visit_order:
             self._visit_order.remove(key)
         self._visit_order.append(key)
