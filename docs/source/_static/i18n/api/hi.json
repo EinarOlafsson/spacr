@@ -87132,6 +87132,22 @@
         "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173"
       ]
     },
+    "spacr.qt.mask_engine.VolumeMaskSession.replace_labels": {
+      "source_blocks_sha256": [
+        "1d5b71e0c0fa4aef28f4162dc808534b06a26079452c197e16c420a79717a8d3",
+        "e7ae7b1bf5f84b5e893761da4284ca01ef899f3955263774a744686acd8db2ae",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c",
+        "3c97069339966c7eabb30b4ca0f3a6c2650b22cc9e3ad37d13a62b93e6fb40da"
+      ],
+      "source_sha256": "de4218cd6238c0a8d213b7e4e0e0fa4162f633aa4368ea3a92bf05d4afffb434",
+      "text": "``labels`` को एक ही पूर्ववत चरण में पूरे वॉल्यूम का मास्क बनाता है।\n\n:param labels: वॉल्यूम के ठीक उसी आकार के गैर-ऋणात्मक पूर्णांक लेबल, जैसे पूरे वॉल्यूम की एक पहचान।\n:returns: बदले गए वॉक्सेल की संख्या।\n:raises ValueError: किसी दूसरे आकार के लिए, या ऐसे पहचानकर्ता के लिए जिसे मास्क का dtype नहीं रख सकता; वॉल्यूम अपरिवर्तित रहता है।",
+      "translation_source_blocks_sha256": [
+        "1d5b71e0c0fa4aef28f4162dc808534b06a26079452c197e16c420a79717a8d3",
+        "e7ae7b1bf5f84b5e893761da4284ca01ef899f3955263774a744686acd8db2ae",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c",
+        "3c97069339966c7eabb30b4ca0f3a6c2650b22cc9e3ad37d13a62b93e6fb40da"
+      ]
+    },
     "spacr.qt.mask_engine.VolumeMaskSession.replace_plane": {
       "source_blocks_sha256": [
         "f358e20673bb7fdb8e23f1aec1deb200adaa6f99327f49a846defbe5ae521549",
@@ -87303,15 +87319,15 @@
     "spacr.qt.mask_engine.connected_instances": {
       "source_blocks_sha256": [
         "edcd43446ad11079c3584d24c31de16a25efdc34225e502a6e0d19ff0e3c8b08",
-        "d9be3e8fdd4b74af827566137527dce232026e6461815e83de6ac9d5f68679fc",
-        "c81918c5857504ccd00e6f9bc436e5cfa283589eef72de4fbb593bced736e7cd"
+        "b40c5b1d4db603c9a857922c8f5726a30d271ba1bad15fe225b201492c5489d7",
+        "4aa602404aaec7cf5053408b659f613ab1de5dafacb045711aac2037c86c8b10"
       ],
-      "source_sha256": "4ae8c7b2693da57a32df42c7ec4b1a7dbf0e5ac3ea2c662f8a2ed60b64e90988",
-      "text": "प्रत्येक अलग पूर्ववर्ती क्षेत्र को अपने स्वयं के वस्तु के रूप में चिह्नित करें।\n\n:param binary: आरे जिनकी सच्चाई पिक्सेल आगे हैं. डायगोनल रूप से छूने वाले क्षेत्र संपादक के आठ पड़ोसी नियम के तहत जुड़े हुए हैं.\n:param min_area: इससे छोटे क्षेत्रों को लेबल किए जाने के बजाय फेंक दिया जाता है, इसलिए एक पता लगाने से उपयोगकर्ता को हाथ से हटाने के लिए एकल-पिक्सेल स्पेक्ट्रम फ़ील्ड वापस नहीं मिलता है।",
+      "source_sha256": "dd8ff3d082529c29b28a439b32903eac7c6a315b988cf64185ce698b884993ed",
+      "text": "प्रत्येक अलग पूर्ववर्ती क्षेत्र को अपने स्वयं के वस्तु के रूप में चिह्नित करें।\n\n:param binary: ऐरे जिसके सत्य पिक्सेल अग्रभूमि हैं। तिरछे छूने वाले क्षेत्र संपादक के आठ-पड़ोसी नियम से जुड़े होते हैं; किसी वॉल्यूम में, सतह, किनारा या कोना साझा करने वाले वॉक्सेल 26-जुड़े होते हैं।\n:param min_area: इससे छोटे क्षेत्र (पिक्सेल, या वॉल्यूम में वॉक्सेल) लेबल करने के बजाय हटा दिए जाते हैं, ताकि पहचान एक-पिक्सेल धब्बों से भरा ऐसा फ़ील्ड न लौटाए जिसे हाथ से मिटाना पड़े।",
       "translation_source_blocks_sha256": [
         "edcd43446ad11079c3584d24c31de16a25efdc34225e502a6e0d19ff0e3c8b08",
-        "d9be3e8fdd4b74af827566137527dce232026e6461815e83de6ac9d5f68679fc",
-        "c81918c5857504ccd00e6f9bc436e5cfa283589eef72de4fbb593bced736e7cd"
+        "b40c5b1d4db603c9a857922c8f5726a30d271ba1bad15fe225b201492c5489d7",
+        "4aa602404aaec7cf5053408b659f613ab1de5dafacb045711aac2037c86c8b10"
       ]
     },
     "spacr.qt.mask_engine.curation_csv_path": {
@@ -109298,6 +109314,40 @@
         "3e25c4385f4ae6c70dd740a2043dad84234a191ad6e7a4185ecbeae6fff5c953",
         "1559bc40477d25334a75e5c424ac167f7f44c762ac634a52a80de9e5a8563abd",
         "f04fdb95b15e20b397feb8985d366dbdd29adc47db30e653f4dce7c741c95aa5"
+      ]
+    },
+    "spacr.qt.screens.make_masks.cellpose_detect_volume": {
+      "source_blocks_sha256": [
+        "32cbede59231ba8d56737ddf3835fa83423da61567a771c1f735de1662aac5c6",
+        "cfd6bff1fc451bf29b7c399771e41f8335ed2a066c21312d832b02d0daab5b10",
+        "2717aa13c25ee9ab7f79e64a9ad014d9c0e6b8cede340249c82ccb7b5be0edb3",
+        "30eea20b9c10653151e6ad9032c25a8ea7c37ab0ac674c101f98f59361ce76dc",
+        "e8eb8c408d78d6b9a7640430b007d2ce28160e9e36aeaec086de88594cd1a2c8",
+        "ec136a62981e8dd004f053160a13763a15e460d5cd49452ea39075b1b66bc0e4",
+        "aafc31f95a68666bda952c1114cd0e499e8ea776992b1cf240b3a50b0145bad9",
+        "c9e810a78d3e4f7ed2adbd3af222742fc6679a02a12bb9c5350775f78f3cfc70",
+        "6efaad64cbcff5e774c9e0d2129cb459d521d37442e50f1d76419593855872f2",
+        "7f9209998c989598a25fae3fb2eac77a7155d5dc235264175f9441d2de76f24d",
+        "6bc6ed47e7e58e90e4946ed28f961417759b3a48486d2333c95fed3f7bc383c8",
+        "a93406893e53b7251f9caec1ac8ade210dc8d27b1ae7688622f1b3c28c582f35",
+        "6948f250c5623a3647e62a584b1c480e82980e12b9bd26eb661c0db6f12b07e1"
+      ],
+      "source_sha256": "978a9bb13a29a08e03a74bc03b3528ee5d2225e2511272e6c7f496ea443b1c5b",
+      "text": "एक ``(Z, Y, X)`` वॉल्यूम को ``model`` के 3D मोड में विभाजित करता है।\n\n0 की स्टिच सीमा ``do_3D`` चलाती है, जो वॉल्यूम को उसके तीन लंबवत दृश्यों से विभाजित करता है और ``anisotropy`` का पालन करता है; 0 से ऊपर हर स्लाइस 2D में विभाजित होती है और पड़ोसी स्लाइसों में कम से कम उस IoU से ओवरलैप करने वाले ऑब्जेक्ट जोड़ दिए जाते हैं।\n\n:param volume: ``(Z, Y, X)`` क्रम में एक ग्रे वॉल्यूम।\n:param model: एक लोड किया गया Cellpose मॉडल, या उसके ``eval`` वाली कोई भी चीज़।\n:param diameter: पिक्सेल में ऑब्जेक्ट का अपेक्षित व्यास; 0 होने पर मॉडल इसका अनुमान लगाता है।\n:param normalize: विभाजन से पहले वॉल्यूम को पर्सेंटाइल से सामान्यीकृत करें।\n:param flow_threshold: किसी ऑब्जेक्ट की अधिकतम अनुमत फ्लो त्रुटि।\n:param cellprob_threshold: जहाँ कोशिका-प्रायिकता मानचित्र काटा जाता है।\n:param min_size: रखा जाने वाला सबसे छोटा ऑब्जेक्ट, वॉक्सेल में।\n:param stitch_threshold: ``do_3D`` के लिए 0; अन्यथा जोड़ने का IoU।\n:param anisotropy: Z वॉक्सेल आकार को XY वॉक्सेल आकार से विभाजित करके।\n:returns: वॉल्यूम के आकार के int32 लेबल।\n:raises ValueError: जब मॉडल किसी दूसरे आकार के लेबल लौटाता है।",
+      "translation_source_blocks_sha256": [
+        "32cbede59231ba8d56737ddf3835fa83423da61567a771c1f735de1662aac5c6",
+        "cfd6bff1fc451bf29b7c399771e41f8335ed2a066c21312d832b02d0daab5b10",
+        "2717aa13c25ee9ab7f79e64a9ad014d9c0e6b8cede340249c82ccb7b5be0edb3",
+        "30eea20b9c10653151e6ad9032c25a8ea7c37ab0ac674c101f98f59361ce76dc",
+        "e8eb8c408d78d6b9a7640430b007d2ce28160e9e36aeaec086de88594cd1a2c8",
+        "ec136a62981e8dd004f053160a13763a15e460d5cd49452ea39075b1b66bc0e4",
+        "aafc31f95a68666bda952c1114cd0e499e8ea776992b1cf240b3a50b0145bad9",
+        "c9e810a78d3e4f7ed2adbd3af222742fc6679a02a12bb9c5350775f78f3cfc70",
+        "6efaad64cbcff5e774c9e0d2129cb459d521d37442e50f1d76419593855872f2",
+        "7f9209998c989598a25fae3fb2eac77a7155d5dc235264175f9441d2de76f24d",
+        "6bc6ed47e7e58e90e4946ed28f961417759b3a48486d2333c95fed3f7bc383c8",
+        "a93406893e53b7251f9caec1ac8ade210dc8d27b1ae7688622f1b3c28c582f35",
+        "6948f250c5623a3647e62a584b1c480e82980e12b9bd26eb661c0db6f12b07e1"
       ]
     },
     "spacr.qt.screens.make_masks.cellpose_intermediates": {

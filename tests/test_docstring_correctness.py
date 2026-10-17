@@ -2620,6 +2620,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "673_wgpu_api_arrivals_2026-10-16.json",
                      "560_embedding_demo_api_arrivals_2026-10-16.json",
                      "705_volume_measure_api_arrivals_2026-10-16.json",
+                     "706_object_detection_3d_api_arrivals_2026-10-17.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
@@ -4407,6 +4408,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     for contract, expected_count in (
         ("560_embedding_demo_api_arrivals_2026-10-16.json", 2),
         ("705_volume_measure_api_arrivals_2026-10-16.json", 10),
+        ("706_object_detection_3d_api_arrivals_2026-10-17.json", 2),
         ("561_classifier_api_arrivals_2026-10-15.json", 19),
         ("180_session_figure_api_arrivals_2026-10-15.json", 2),
     ):
@@ -4854,6 +4856,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "673_wgpu_api_arrivals_2026-10-16.json",
                      "560_embedding_demo_api_arrivals_2026-10-16.json",
                      "705_volume_measure_api_arrivals_2026-10-16.json",
+                     "706_object_detection_3d_api_arrivals_2026-10-17.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",
@@ -4911,6 +4914,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "673_wgpu_api_arrivals_2026-10-16.json",
                      "560_embedding_demo_api_arrivals_2026-10-16.json",
                      "705_volume_measure_api_arrivals_2026-10-16.json",
+                     "706_object_detection_3d_api_arrivals_2026-10-17.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",
                      "install_cleanup_note_api_arrival_2026-10-14.json",
                      "thread_retire_api_arrivals_2026-10-13.json",

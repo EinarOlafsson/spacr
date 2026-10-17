@@ -87132,6 +87132,22 @@
         "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173"
       ]
     },
+    "spacr.qt.mask_engine.VolumeMaskSession.replace_labels": {
+      "source_blocks_sha256": [
+        "1d5b71e0c0fa4aef28f4162dc808534b06a26079452c197e16c420a79717a8d3",
+        "e7ae7b1bf5f84b5e893761da4284ca01ef899f3955263774a744686acd8db2ae",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c",
+        "3c97069339966c7eabb30b4ca0f3a6c2650b22cc9e3ad37d13a62b93e6fb40da"
+      ],
+      "source_sha256": "de4218cd6238c0a8d213b7e4e0e0fa4162f633aa4368ea3a92bf05d4afffb434",
+      "text": "``labels``를 한 번의 실행 취소 단계로 전체 볼륨의 마스크로 만듭니다.\n\n:param labels: 볼륨과 정확히 같은 모양의 음이 아닌 정수 레이블로, 예를 들어 전체 볼륨 검출 결과입니다.\n:returns: 변경된 복셀 수.\n:raises ValueError: 다른 모양이거나 마스크의 dtype이 담을 수 없는 식별자인 경우이며, 볼륨은 바뀌지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "1d5b71e0c0fa4aef28f4162dc808534b06a26079452c197e16c420a79717a8d3",
+        "e7ae7b1bf5f84b5e893761da4284ca01ef899f3955263774a744686acd8db2ae",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c",
+        "3c97069339966c7eabb30b4ca0f3a6c2650b22cc9e3ad37d13a62b93e6fb40da"
+      ]
+    },
     "spacr.qt.mask_engine.VolumeMaskSession.replace_plane": {
       "source_blocks_sha256": [
         "f358e20673bb7fdb8e23f1aec1deb200adaa6f99327f49a846defbe5ae521549",
@@ -87303,15 +87319,15 @@
     "spacr.qt.mask_engine.connected_instances": {
       "source_blocks_sha256": [
         "edcd43446ad11079c3584d24c31de16a25efdc34225e502a6e0d19ff0e3c8b08",
-        "d9be3e8fdd4b74af827566137527dce232026e6461815e83de6ac9d5f68679fc",
-        "c81918c5857504ccd00e6f9bc436e5cfa283589eef72de4fbb593bced736e7cd"
+        "b40c5b1d4db603c9a857922c8f5726a30d271ba1bad15fe225b201492c5489d7",
+        "4aa602404aaec7cf5053408b659f613ab1de5dafacb045711aac2037c86c8b10"
       ],
-      "source_sha256": "4ae8c7b2693da57a32df42c7ec4b1a7dbf0e5ac3ea2c662f8a2ed60b64e90988",
-      "text": "각각의 별도의 전면 지역을 자신의 대상으로 표시합니다.\n\n:param binary: 진실의 픽셀이 앞쪽에 있는 아레아. 다이아고로 접촉하는 지역은 편집자의 8개 이웃 규칙에 따라 연결되어 있습니다.\n:param min_area: 이보다 작은 지역은 표시되기보다는 떨어져 있으므로 탐지기는 사용자가 수동으로 제거 할 수있는 단일 픽셀 스펙트럼의 필드를 반환하지 않습니다.",
+      "source_sha256": "dd8ff3d082529c29b28a439b32903eac7c6a315b988cf64185ce698b884993ed",
+      "text": "각각의 별도의 전면 지역을 자신의 대상으로 표시합니다.\n\n:param binary: 참인 픽셀이 전경인 배열입니다. 대각선으로 닿는 영역은 편집기의 8-이웃 규칙에 따라 연결되며, 볼륨에서는 면, 모서리 또는 꼭짓점을 공유하는 복셀이 26-연결됩니다.\n:param min_area: 이보다 작은 영역(픽셀, 볼륨에서는 복셀)은 레이블을 붙이지 않고 버리므로, 검출이 손으로 지워야 할 단일 픽셀 얼룩투성이 필드를 돌려주지 않습니다.",
       "translation_source_blocks_sha256": [
         "edcd43446ad11079c3584d24c31de16a25efdc34225e502a6e0d19ff0e3c8b08",
-        "d9be3e8fdd4b74af827566137527dce232026e6461815e83de6ac9d5f68679fc",
-        "c81918c5857504ccd00e6f9bc436e5cfa283589eef72de4fbb593bced736e7cd"
+        "b40c5b1d4db603c9a857922c8f5726a30d271ba1bad15fe225b201492c5489d7",
+        "4aa602404aaec7cf5053408b659f613ab1de5dafacb045711aac2037c86c8b10"
       ]
     },
     "spacr.qt.mask_engine.curation_csv_path": {
@@ -109298,6 +109314,40 @@
         "3e25c4385f4ae6c70dd740a2043dad84234a191ad6e7a4185ecbeae6fff5c953",
         "1559bc40477d25334a75e5c424ac167f7f44c762ac634a52a80de9e5a8563abd",
         "f04fdb95b15e20b397feb8985d366dbdd29adc47db30e653f4dce7c741c95aa5"
+      ]
+    },
+    "spacr.qt.screens.make_masks.cellpose_detect_volume": {
+      "source_blocks_sha256": [
+        "32cbede59231ba8d56737ddf3835fa83423da61567a771c1f735de1662aac5c6",
+        "cfd6bff1fc451bf29b7c399771e41f8335ed2a066c21312d832b02d0daab5b10",
+        "2717aa13c25ee9ab7f79e64a9ad014d9c0e6b8cede340249c82ccb7b5be0edb3",
+        "30eea20b9c10653151e6ad9032c25a8ea7c37ab0ac674c101f98f59361ce76dc",
+        "e8eb8c408d78d6b9a7640430b007d2ce28160e9e36aeaec086de88594cd1a2c8",
+        "ec136a62981e8dd004f053160a13763a15e460d5cd49452ea39075b1b66bc0e4",
+        "aafc31f95a68666bda952c1114cd0e499e8ea776992b1cf240b3a50b0145bad9",
+        "c9e810a78d3e4f7ed2adbd3af222742fc6679a02a12bb9c5350775f78f3cfc70",
+        "6efaad64cbcff5e774c9e0d2129cb459d521d37442e50f1d76419593855872f2",
+        "7f9209998c989598a25fae3fb2eac77a7155d5dc235264175f9441d2de76f24d",
+        "6bc6ed47e7e58e90e4946ed28f961417759b3a48486d2333c95fed3f7bc383c8",
+        "a93406893e53b7251f9caec1ac8ade210dc8d27b1ae7688622f1b3c28c582f35",
+        "6948f250c5623a3647e62a584b1c480e82980e12b9bd26eb661c0db6f12b07e1"
+      ],
+      "source_sha256": "978a9bb13a29a08e03a74bc03b3528ee5d2225e2511272e6c7f496ea443b1c5b",
+      "text": "``(Z, Y, X)`` 볼륨을 ``model``의 3D 모드로 분할합니다.\n\n스티치 임계값이 0이면 ``do_3D``를 실행하며, 세 개의 직교 뷰에서 볼륨을 분할하고 ``anisotropy``를 반영합니다. 0보다 크면 각 슬라이스를 2D로 분할하고, 이웃 슬라이스에서 그 IoU 이상 겹치는 객체를 합칩니다.\n\n:param volume: ``(Z, Y, X)`` 순서의 회색조 볼륨 하나입니다.\n:param model: 로드된 Cellpose 모델 또는 그 ``eval``을 가진 모든 객체입니다.\n:param diameter: 픽셀 단위의 예상 객체 지름이며, 0이면 모델이 추정합니다.\n:param normalize: 분할하기 전에 볼륨을 백분위수로 정규화합니다.\n:param flow_threshold: 객체가 가질 수 있는 가장 큰 흐름 오차입니다.\n:param cellprob_threshold: 세포 확률 맵을 자르는 위치입니다.\n:param min_size: 유지되는 가장 작은 객체로, 복셀 단위입니다.\n:param stitch_threshold: ``do_3D``에는 0, 그렇지 않으면 스티치 IoU입니다.\n:param anisotropy: Z 복셀 크기를 XY 복셀 크기로 나눈 값입니다.\n:returns: 볼륨 모양의 int32 레이블입니다.\n:raises ValueError: 모델이 다른 모양의 레이블을 반환할 때입니다.",
+      "translation_source_blocks_sha256": [
+        "32cbede59231ba8d56737ddf3835fa83423da61567a771c1f735de1662aac5c6",
+        "cfd6bff1fc451bf29b7c399771e41f8335ed2a066c21312d832b02d0daab5b10",
+        "2717aa13c25ee9ab7f79e64a9ad014d9c0e6b8cede340249c82ccb7b5be0edb3",
+        "30eea20b9c10653151e6ad9032c25a8ea7c37ab0ac674c101f98f59361ce76dc",
+        "e8eb8c408d78d6b9a7640430b007d2ce28160e9e36aeaec086de88594cd1a2c8",
+        "ec136a62981e8dd004f053160a13763a15e460d5cd49452ea39075b1b66bc0e4",
+        "aafc31f95a68666bda952c1114cd0e499e8ea776992b1cf240b3a50b0145bad9",
+        "c9e810a78d3e4f7ed2adbd3af222742fc6679a02a12bb9c5350775f78f3cfc70",
+        "6efaad64cbcff5e774c9e0d2129cb459d521d37442e50f1d76419593855872f2",
+        "7f9209998c989598a25fae3fb2eac77a7155d5dc235264175f9441d2de76f24d",
+        "6bc6ed47e7e58e90e4946ed28f961417759b3a48486d2333c95fed3f7bc383c8",
+        "a93406893e53b7251f9caec1ac8ade210dc8d27b1ae7688622f1b3c28c582f35",
+        "6948f250c5623a3647e62a584b1c480e82980e12b9bd26eb661c0db6f12b07e1"
       ]
     },
     "spacr.qt.screens.make_masks.cellpose_intermediates": {

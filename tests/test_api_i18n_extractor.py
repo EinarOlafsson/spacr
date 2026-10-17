@@ -1670,6 +1670,16 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **measure_arrivals}
+    # 2026-10-17: Item 706: the Object detection 3D switch's volume Cellpose call and whole-volume label replacement; one named contract.
+    detect3d_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "706_object_detection_3d_api_arrivals_2026-10-17.json").read_text())
+    assert set(detect3d_arrivals) == {
+        "spacr.qt.mask_engine.VolumeMaskSession.replace_labels",
+        "spacr.qt.screens.make_masks.cellpose_detect_volume",
+    }
+    assert {key: docs[key] for key in detect3d_arrivals} == detect3d_arrivals
+    assert not detect3d_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **detect3d_arrivals}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
         / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text())

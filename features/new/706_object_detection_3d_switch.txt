@@ -1,6 +1,6 @@
 OBJECT DETECTION: A 3D SWITCH FOR 3D-CAPABLE MODELS AND THRESHOLDS
 
-Status:    queued 2026-10-16 (layout707 landed; same pair finishes705 first)
+Status:    DONE 2026-10-17
 Requested: maintainer, 2026-10-16.
 
 Add a boolean "3D" option to object detection (Make Masks > Object operations). When on, models that support 3D run in 3D mode, and Otsu and the other threshold methods that support 3D run in 3D too.
@@ -9,3 +9,6 @@ Add a boolean "3D" option to object detection (Make Masks > Object operations). 
 Add a3D boolean under Make Masks > Object operations that routes capable models and Otsu/other capable thresholds through their actual3D implementation; preserve existing2D behavior and explicitly handle unsupported choices.
 
 2026-10-16 — Layout707/59ce785b443 is verified on nightly; the705 pair retains context and implements706 next.
+
+2026-10-17 — Claude Home: Object detection gains a 3D switch (enabled only with a volume open). Otsu and every named threshold cut the whole volume and label 26-connected; Cellpose/StarDist run do_3D with the voxel anisotropy, or slice stitching via a new 3D stitch threshold.
+2026-10-17 — 2D-only methods and models are greyed with a tooltip while 3D is on; runs go off the GUI thread and land in the volume mask as one undo step. Tests: tests/qt/test_706_object_detection_3d.py; nine-locale AI-reviewed runtime strings. Nothing remains.

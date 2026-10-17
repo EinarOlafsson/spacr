@@ -59632,7 +59632,7 @@
         "1b3711bef765ccbab04bc488e96ccd17c4e5a7cca94c7400e9b39d97ac3cc916"
       ],
       "source_sha256": "1bdb6e24a3d558a8334943ff659a05572789672d36e3ee8f9e37564139584451",
-      "text": "Avkoda in situ-sekvenseringsstreckkoder ur en bildstapel.\n\nSyfte och omfattning\n============================\nOptisk poolad screening läser guidens streckkod OUT OF THE IMAGES (ur själva bilderna). Varje sekvenseringscykel färgar fyra kanaler, en per bas, och en fläcks bas i den cykeln är den kanal som är ljusast -- sedan kanalerna har förts till en gemensam skala. Läs en bas per cykel på samma fläck, så stavar cyklerna streckkoden.\n\n:mod:`spacr.sequencing` är INTE den andra halvan av detta och får inte användas för det. Den modulen avkodar FASTQ-avläsningar från en NGS-körning; här finns varken FASTQ eller sekvenserare, bara pixlar.\n\nMotivering för varje steg\n=========================\nTre av dessa bär nästan hela korrekthetsrisken, och alla tre är så ointuitiva att en implementering utifrån en beskrivning av pipelinen, i stället för utifrån en som fungerar, ger något som körs och är fel:\n\n* **En avläsning är inte en ljus fläck.** Den är en fläck vars bas ÄNDRAS mellan cyklerna. Platsuppskattningen är därför standardavvikelsen ÖVER CYKLERNA, medelvärdesbildad över kanalerna -- en fläck som är ljus i varje cykel är ett dammkorn eller en autofluorescent klump och bidrar inte med någon varians.\n\n* **Den ljusaste råa kanalen är inte basen.** Varje kanal har sin egen förstärkning och bakgrund, och på en verklig platta driver båda från cykel till cykel, så den råa argmax dras mot den kanal som är ljusast totalt. Varje cykels kanaler divideras först med sin median över läsningarna. Avblandning av färgämnenas genomblödning finns ovanpå det; på den första verkliga plattan sänkte den bibliotekets träffar.\n\n* **En tvetydig avläsning är värre än en saknad.** Felkorrigering mot guidebiblioteket korrigerar bara till en ENTYDIGT närmaste matchning. En avläsning som är lika nära två streckkoder kastas bort, eftersom en felaktigt tilldelad guide tyst förvanskar resultaten av ett screeningexperiment, medan en bortkastad bara kostar statistisk styrka.\n\nMetoden här följer brieflow (Cheeseman lab; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), vars källkod lästes för de tre punkterna ovan i stället för att rekonstrueras ur stegens namn.",
+      "text": "Avkoda in situ-sekvenseringsstreckkoder ur en bildstapel.\n\nSyfte och omfattning\n====================\nOptisk poolad screening läser guidens streckkod OUT OF THE IMAGES (ur själva bilderna). Varje sekvenseringscykel färgar fyra kanaler, en per bas, och en fläcks bas i den cykeln är den kanal som är ljusast -- sedan kanalerna har förts till en gemensam skala. Läs en bas per cykel på samma fläck, så stavar cyklerna streckkoden.\n\n:mod:`spacr.sequencing` är INTE den andra halvan av detta och får inte användas för det. Den modulen avkodar FASTQ-avläsningar från en NGS-körning; här finns varken FASTQ eller sekvenserare, bara pixlar.\n\nMotivering för varje steg\n=========================\nTre av dessa bär nästan hela korrekthetsrisken, och alla tre är så ointuitiva att en implementering utifrån en beskrivning av pipelinen, i stället för utifrån en som fungerar, ger något som körs och är fel:\n\n* **En avläsning är inte en ljus fläck.** Den är en fläck vars bas ÄNDRAS mellan cyklerna. Platsuppskattningen är därför standardavvikelsen ÖVER CYKLERNA, medelvärdesbildad över kanalerna -- en fläck som är ljus i varje cykel är ett dammkorn eller en autofluorescent klump och bidrar inte med någon varians.\n\n* **Den ljusaste råa kanalen är inte basen.** Varje kanal har sin egen förstärkning och bakgrund, och på en verklig platta driver båda från cykel till cykel, så den råa argmax dras mot den kanal som är ljusast totalt. Varje cykels kanaler divideras först med sin median över läsningarna. Avblandning av färgämnenas genomblödning finns ovanpå det; på den första verkliga plattan sänkte den bibliotekets träffar.\n\n* **En tvetydig avläsning är värre än en saknad.** Felkorrigering mot guidebiblioteket korrigerar bara till en ENTYDIGT närmaste matchning. En avläsning som är lika nära två streckkoder kastas bort, eftersom en felaktigt tilldelad guide tyst förvanskar resultaten av ett screeningexperiment, medan en bortkastad bara kostar statistisk styrka.\n\nMetoden här följer brieflow (Cheeseman lab; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), vars källkod lästes för de tre punkterna ovan i stället för att rekonstrueras ur stegens namn.",
       "translation_source_blocks_sha256": [
         "f4bcf120d49913392f6415b124f17bf40d04934c94dad96753ac4660b0d8e8c5",
         "c725fbc78c232b78360beeaffcdce20dbe6a26b6e3faca889ff276f3fd241757",
@@ -87132,6 +87132,22 @@
         "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173"
       ]
     },
+    "spacr.qt.mask_engine.VolumeMaskSession.replace_labels": {
+      "source_blocks_sha256": [
+        "1d5b71e0c0fa4aef28f4162dc808534b06a26079452c197e16c420a79717a8d3",
+        "e7ae7b1bf5f84b5e893761da4284ca01ef899f3955263774a744686acd8db2ae",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c",
+        "3c97069339966c7eabb30b4ca0f3a6c2650b22cc9e3ad37d13a62b93e6fb40da"
+      ],
+      "source_sha256": "de4218cd6238c0a8d213b7e4e0e0fa4162f633aa4368ea3a92bf05d4afffb434",
+      "text": "Gör ``labels`` till hela volymens mask som ett enda ångra-steg.\n\n:param labels: icke-negativa heltalsetiketter med exakt volymens form, till exempel en detektering i hela volymen.\n:returns: antal ändrade voxlar.\n:raises ValueError: för en annan form, eller en identifierare som maskens dtype inte kan rymma; volymen lämnas oförändrad.",
+      "translation_source_blocks_sha256": [
+        "1d5b71e0c0fa4aef28f4162dc808534b06a26079452c197e16c420a79717a8d3",
+        "e7ae7b1bf5f84b5e893761da4284ca01ef899f3955263774a744686acd8db2ae",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c",
+        "3c97069339966c7eabb30b4ca0f3a6c2650b22cc9e3ad37d13a62b93e6fb40da"
+      ]
+    },
     "spacr.qt.mask_engine.VolumeMaskSession.replace_plane": {
       "source_blocks_sha256": [
         "f358e20673bb7fdb8e23f1aec1deb200adaa6f99327f49a846defbe5ae521549",
@@ -87303,15 +87319,15 @@
     "spacr.qt.mask_engine.connected_instances": {
       "source_blocks_sha256": [
         "edcd43446ad11079c3584d24c31de16a25efdc34225e502a6e0d19ff0e3c8b08",
-        "d9be3e8fdd4b74af827566137527dce232026e6461815e83de6ac9d5f68679fc",
-        "c81918c5857504ccd00e6f9bc436e5cfa283589eef72de4fbb593bced736e7cd"
+        "b40c5b1d4db603c9a857922c8f5726a30d271ba1bad15fe225b201492c5489d7",
+        "4aa602404aaec7cf5053408b659f613ab1de5dafacb045711aac2037c86c8b10"
       ],
-      "source_sha256": "4ae8c7b2693da57a32df42c7ec4b1a7dbf0e5ac3ea2c662f8a2ed60b64e90988",
-      "text": "Beteckna varje separerad förgrundsregion som sitt eget objekt.\n\n:param binary: array vars sanning pixlar är förgrund. Regioner som rör diagonalt är anslutna under editorns åtta-granne regel.\n:param min_area: regioner som är mindre än detta släpps snarare än märkt, så en upptäckt inte lämna tillbaka ett fält av en pixel späckles för användaren att ta bort för hand.",
+      "source_sha256": "dd8ff3d082529c29b28a439b32903eac7c6a315b988cf64185ce698b884993ed",
+      "text": "Beteckna varje separerad förgrundsregion som sitt eget objekt.\n\n:param binary: matris vars sanna pixlar är förgrund. Regioner som rör varandra diagonalt är sammanhängande enligt redigerarens åttagrannsregel; i en volym är voxlar som delar en yta, kant eller hörna 26-sammanhängande.\n:param min_area: regioner mindre än detta (pixlar, eller voxlar i en volym) kasseras i stället för att märkas, så att en detektering inte lämnar tillbaka ett fält av enpixelsprickar att radera för hand.",
       "translation_source_blocks_sha256": [
         "edcd43446ad11079c3584d24c31de16a25efdc34225e502a6e0d19ff0e3c8b08",
-        "d9be3e8fdd4b74af827566137527dce232026e6461815e83de6ac9d5f68679fc",
-        "c81918c5857504ccd00e6f9bc436e5cfa283589eef72de4fbb593bced736e7cd"
+        "b40c5b1d4db603c9a857922c8f5726a30d271ba1bad15fe225b201492c5489d7",
+        "4aa602404aaec7cf5053408b659f613ab1de5dafacb045711aac2037c86c8b10"
       ]
     },
     "spacr.qt.mask_engine.curation_csv_path": {
@@ -109298,6 +109314,40 @@
         "3e25c4385f4ae6c70dd740a2043dad84234a191ad6e7a4185ecbeae6fff5c953",
         "1559bc40477d25334a75e5c424ac167f7f44c762ac634a52a80de9e5a8563abd",
         "f04fdb95b15e20b397feb8985d366dbdd29adc47db30e653f4dce7c741c95aa5"
+      ]
+    },
+    "spacr.qt.screens.make_masks.cellpose_detect_volume": {
+      "source_blocks_sha256": [
+        "32cbede59231ba8d56737ddf3835fa83423da61567a771c1f735de1662aac5c6",
+        "cfd6bff1fc451bf29b7c399771e41f8335ed2a066c21312d832b02d0daab5b10",
+        "2717aa13c25ee9ab7f79e64a9ad014d9c0e6b8cede340249c82ccb7b5be0edb3",
+        "30eea20b9c10653151e6ad9032c25a8ea7c37ab0ac674c101f98f59361ce76dc",
+        "e8eb8c408d78d6b9a7640430b007d2ce28160e9e36aeaec086de88594cd1a2c8",
+        "ec136a62981e8dd004f053160a13763a15e460d5cd49452ea39075b1b66bc0e4",
+        "aafc31f95a68666bda952c1114cd0e499e8ea776992b1cf240b3a50b0145bad9",
+        "c9e810a78d3e4f7ed2adbd3af222742fc6679a02a12bb9c5350775f78f3cfc70",
+        "6efaad64cbcff5e774c9e0d2129cb459d521d37442e50f1d76419593855872f2",
+        "7f9209998c989598a25fae3fb2eac77a7155d5dc235264175f9441d2de76f24d",
+        "6bc6ed47e7e58e90e4946ed28f961417759b3a48486d2333c95fed3f7bc383c8",
+        "a93406893e53b7251f9caec1ac8ade210dc8d27b1ae7688622f1b3c28c582f35",
+        "6948f250c5623a3647e62a584b1c480e82980e12b9bd26eb661c0db6f12b07e1"
+      ],
+      "source_sha256": "978a9bb13a29a08e03a74bc03b3528ee5d2225e2511272e6c7f496ea443b1c5b",
+      "text": "Segmenterar en ``(Z, Y, X)``-volym med ``model`` i dess 3D-läge.\n\nEn sammanfogningströskel på 0 kör ``do_3D``, som segmenterar volymen från dess tre ortogonala vyer och tar hänsyn till ``anisotropy``; över 0 segmenteras varje snitt i 2D, och objekt som överlappar med minst den IoU:n i angränsande snitt sammanfogas.\n\n:param volume: en gråskalevolym i ordningen ``(Z, Y, X)``.\n:param model: en laddad Cellpose-modell, eller vad som helst med dess ``eval``.\n:param diameter: den förväntade objektdiametern i pixlar; vid 0 uppskattar modellen den.\n:param normalize: percentilnormalisera volymen före segmenteringen.\n:param flow_threshold: det största flödesfel ett objekt får ha.\n:param cellprob_threshold: var cellsannolikhetskartan skärs.\n:param min_size: det minsta objekt som behålls, i voxlar.\n:param stitch_threshold: 0 för ``do_3D``; annars sammanfogningens IoU.\n:param anisotropy: voxelstorleken i Z delad med voxelstorleken i XY.\n:returns: int32-etiketter med volymens form.\n:raises ValueError: när modellen returnerar etiketter med en annan form.",
+      "translation_source_blocks_sha256": [
+        "32cbede59231ba8d56737ddf3835fa83423da61567a771c1f735de1662aac5c6",
+        "cfd6bff1fc451bf29b7c399771e41f8335ed2a066c21312d832b02d0daab5b10",
+        "2717aa13c25ee9ab7f79e64a9ad014d9c0e6b8cede340249c82ccb7b5be0edb3",
+        "30eea20b9c10653151e6ad9032c25a8ea7c37ab0ac674c101f98f59361ce76dc",
+        "e8eb8c408d78d6b9a7640430b007d2ce28160e9e36aeaec086de88594cd1a2c8",
+        "ec136a62981e8dd004f053160a13763a15e460d5cd49452ea39075b1b66bc0e4",
+        "aafc31f95a68666bda952c1114cd0e499e8ea776992b1cf240b3a50b0145bad9",
+        "c9e810a78d3e4f7ed2adbd3af222742fc6679a02a12bb9c5350775f78f3cfc70",
+        "6efaad64cbcff5e774c9e0d2129cb459d521d37442e50f1d76419593855872f2",
+        "7f9209998c989598a25fae3fb2eac77a7155d5dc235264175f9441d2de76f24d",
+        "6bc6ed47e7e58e90e4946ed28f961417759b3a48486d2333c95fed3f7bc383c8",
+        "a93406893e53b7251f9caec1ac8ade210dc8d27b1ae7688622f1b3c28c582f35",
+        "6948f250c5623a3647e62a584b1c480e82980e12b9bd26eb661c0db6f12b07e1"
       ]
     },
     "spacr.qt.screens.make_masks.cellpose_intermediates": {

@@ -3965,24 +3965,33 @@ class ObjectLookup:
         return PixelReadout(x, y, intensity, label, *measured)
 
 
+def _full_connectivity(ndim: int) -> np.ndarray:
+    """The structuring element joining every face, edge and corner neighbour.
+
+    :param ndim: 2 for a field (8-connected), 3 for a volume (26-connected).
+    :returns: :data:`_EIGHT` for a field, ``ones((3,) * ndim)`` otherwise.
+    """
+    return _EIGHT if int(ndim) == 2 else np.ones((3,) * int(ndim), dtype=np.uint8)
+
+
 def connected_instances(binary: np.ndarray, min_area: int = 0) -> np.ndarray:
     """Label every separated foreground region as its own object.
 
     :param binary: array whose truthy pixels are foreground. Regions touching
-        diagonally are connected under the editor's eight-neighbour rule.
-    :param min_area: regions smaller than this are dropped rather than
-        labelled, so a detection does not hand back a field of single-pixel
-        speckles for the user to delete by hand.
+        diagonally are connected under the editor's eight-neighbour rule; in
+        a volume, voxels sharing a face, edge or corner are 26-connected.
+    :param min_area: regions smaller than this (pixels, or voxels in a
+        volume) are dropped rather than labelled, so a detection does not
+        hand back a field of single-pixel speckles to delete by hand.
     """
-    components, count = _ndimage().label(np.asarray(binary, dtype=bool), structure=_EIGHT)
-    out = np.zeros(components.shape, dtype=np.int32)
-    next_id = 1
-    for old in range(1, count + 1):
-        region = components == old
-        if int(region.sum()) >= int(min_area):
-            out[region] = next_id
-            next_id += 1
-    return out
+    foreground = np.asarray(binary, dtype=bool)
+    components, _count = _ndimage().label(foreground, structure=_full_connectivity(foreground.ndim))
+    sizes = np.bincount(components.ravel(), minlength=1)
+    keep = sizes >= int(min_area)
+    keep[0] = False
+    lookup = np.zeros(sizes.size, dtype=np.int32)
+    lookup[keep] = np.arange(1, int(keep.sum()) + 1, dtype=np.int32)
+    return lookup[components]
 
 
 def otsu_instances(image: np.ndarray, *, bright: bool = True,
@@ -4584,7 +4593,7 @@ def _split_touching_objects(binary: np.ndarray, min_area: int = 0) -> np.ndarray
         return empty
     distance = ndimage.gaussian_filter(
         ndimage.distance_transform_edt(mask), 1.0)
-    components, count = ndimage.label(mask, structure=_EIGHT)
+    components, count = ndimage.label(mask, structure=_full_connectivity(mask.ndim))
     spacing = max(2, int(np.sqrt(max(int(min_area), 12) / np.pi)))
     peaks = peak_local_max(distance, min_distance=spacing, labels=components,
                            exclude_border=False)
@@ -5907,6 +5916,26 @@ class VolumeMaskSession:
                 occupied.add(candidate)
         view[...] = edited
         return self._commit(output)
+
+    def replace_labels(self, labels):
+        """Make ``labels`` the whole volume's mask as one undo step.
+
+        :param labels: nonnegative integer labels of exactly the volume's
+            shape, such as a whole-volume detection.
+        :returns: number of changed voxels.
+        :raises ValueError: for another shape, or an identifier the mask's
+            dtype cannot hold; the volume is left unchanged.
+        """
+        from .i18n import tr
+
+        incoming = np.asarray(labels)
+        if (incoming.shape != self.mask.shape or incoming.dtype.kind not in 'uib'
+                or (incoming.size and int(incoming.min()) < 0)):
+            raise ValueError(tr('The detected labels do not match the volume.'))
+        top = int(incoming.max()) if incoming.size else 0
+        if top > min(65535, np.iinfo(self.mask.dtype).max):
+            raise ValueError(tr('No unused object identifier fits this mask dtype.'))
+        return self._commit(np.ascontiguousarray(incoming, dtype=self.mask.dtype))
 
     def delete_label(self, label):
         """Remove one object from every section as a single undo step.

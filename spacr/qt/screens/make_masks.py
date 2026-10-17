@@ -5833,6 +5833,111 @@ def _detect_cellpose_snapshot(request, models):
     return (labels,) + tuple(output[1:])
 
 
+#: The detection methods that run on a whole volume while the 3D switch is
+#: on: Otsu and every named threshold, cut on the volume and labelled
+#: 26-connected, and Cellpose through ``do_3D`` or slice stitching.
+_DETECT_3D_MODES = frozenset(("otsu", "cellpose", *cpu_modes.THRESHOLD_LABELS))
+
+
+def _model_supports_volume(model_name) -> bool:
+    """Whether the Object detection model ``model_name`` segments a volume.
+
+    Cellpose models run with ``do_3D`` or stitching and StarDist through its
+    3D models; Cellpose-DINO, InstanSeg and Omnipose segment 2-D fields only.
+
+    :param model_name: a value of the Model box.
+    """
+    from ..._segmentation_backends import _STARDIST, _prefixed_backend
+
+    name = str(model_name or "")
+    if name.startswith("cellpose_dino:"):
+        return False
+    backend = _prefixed_backend(name)
+    return backend is None or backend == _STARDIST
+
+
+def cellpose_detect_volume(volume: np.ndarray, model, *, diameter: int = 0,
+                           normalize: bool = True,
+                           flow_threshold: float = FLOW_THRESHOLD,
+                           cellprob_threshold: float = CELLPROB_THRESHOLD,
+                           min_size: int = 0, stitch_threshold: float = 0.0,
+                           anisotropy: float = 1.0) -> np.ndarray:
+    """Segment a ``(Z, Y, X)`` volume with ``model`` in its 3-D mode.
+
+    A stitch threshold of 0 runs ``do_3D``, which segments the volume from
+    its three orthogonal views and honours ``anisotropy``; above 0 each
+    slice is segmented in 2-D and objects overlapping by at least that IoU
+    in neighbouring slices are joined.
+
+    :param volume: one grey volume in ``(Z, Y, X)`` order.
+    :param model: a loaded Cellpose model, or anything with its ``eval``.
+    :param diameter: the expected object diameter in pixels; 0 lets the
+        model estimate it.
+    :param normalize: percentile-normalize the volume before segmenting.
+    :param flow_threshold: the largest flow error an object may have.
+    :param cellprob_threshold: where the cell-probability map is cut.
+    :param min_size: the smallest object kept, in voxels.
+    :param stitch_threshold: 0 for ``do_3D``; otherwise the stitching IoU.
+    :param anisotropy: the Z voxel size over the XY voxel size.
+    :returns: int32 labels of the volume's shape.
+    :raises ValueError: when the model returns labels of another shape.
+    """
+    import inspect
+
+    from ..i18n import tr
+
+    field = np.asarray(volume)
+    stitch = float(stitch_threshold)
+    kwargs = dict(
+        batch_size=1, normalize=bool(normalize), channel_axis=None, z_axis=0,
+        diameter=(int(diameter) or None), flow_threshold=float(flow_threshold),
+        cellprob_threshold=float(cellprob_threshold), min_size=int(min_size),
+        do_3D=stitch <= 0.0, anisotropy=float(anisotropy))
+    if stitch > 0.0:
+        kwargs["stitch_threshold"] = stitch
+    try:
+        params = inspect.signature(model.eval).parameters
+    except (TypeError, ValueError):
+        params = None
+    if params is not None and not any(
+            p.kind is inspect.Parameter.VAR_KEYWORD for p in params.values()):
+        kwargs = {k: v for k, v in kwargs.items() if k in params}
+    masks = model.eval(field, **kwargs)[0]
+    if isinstance(masks, (list, tuple)):
+        masks = masks[0]
+    labels = np.asarray(masks)
+    if labels.shape != field.shape:
+        raise ValueError(tr("The model returned labels shaped {got} for a volume shaped {want}.",
+                            got=tuple(labels.shape), want=tuple(field.shape)))
+    return labels.astype(np.int32, copy=False)
+
+
+def _detect_volume_snapshot(request, models):
+    """Detect objects in a captured volume without reading any Qt object.
+
+    :param request: ``image`` in storage order with its ``axes``, ``kind``
+        (``threshold`` or ``cellpose``), ``invert``, ``percentiles`` and the
+        method's ``parameters``; ``model`` for Cellpose.
+    :param models: the screen's loaded models, shared with 2-D detection.
+    :returns: the labels, in the volume's storage order.
+    """
+    order = [request['axes'].index(axis) for axis in 'ZYX']
+    image = np.transpose(np.asarray(request['image']), order)
+    if request['invert']:
+        image = engine.invert_normalized(image)
+    if request['percentiles'] is not None:
+        image = engine.normalize_for_detection(image, *request['percentiles'])
+    if request['kind'] == 'threshold':
+        labels = engine._otsu_instances(image, **request['parameters'])
+    else:
+        with _CELLPOSE_LOCK:
+            name = request['model']
+            if name not in models:
+                models[name] = load_cellpose_model(name)
+            labels = cellpose_detect_volume(image, models[name], **request['parameters'])
+    return np.transpose(labels, np.argsort(order))
+
+
 def _uncertainty_snapshot(request, models):
     """Segment captured fields under flips and a turn, and score the spread.
 
@@ -12169,6 +12274,7 @@ class MakeMasksScreen(QWidget):
         self._pending_load = None
         self._loading = False
         self._detection_worker = None
+        self._volume_detection_worker = None
         self._detection_request = None
         self._detection_delivered.connect(self._take_detection)
         self._uncertainty_worker = None
@@ -12299,6 +12405,7 @@ class MakeMasksScreen(QWidget):
         if self._mask_stage.session is not None:
             self._mask_stage.leave()
             self._history = engine.MaskHistory(capacity=25)
+            self._sync_detect_3d()
 
     def _volume_leave_ok(self) -> bool:
         """Whether the open volume may be left: unedited, saved or discarded.
@@ -14538,6 +14645,11 @@ class MakeMasksScreen(QWidget):
         if self._histogram_worker is not None:
             self._histogram_worker.close(timeout=0)
             self._histogram_worker = None
+        if self._volume_detection_worker is not None:
+            self._volume_detection_worker.close(timeout=0)
+            self._volume_detection_worker = None
+            self._detection_request = None
+            self._btn_cellpose.setEnabled(True)
         if self._detection_worker is not None:
             self._detection_worker.close(timeout=0)
             self._detection_worker = None
@@ -16482,6 +16594,188 @@ class MakeMasksScreen(QWidget):
             min_area=int(self._min_area.value()), algorithm=algorithm,
             local_k=float(self._otsu_local_k.value()), **settings), None)
 
+    def _detect_3d_on(self) -> bool:
+        """Whether detection runs on the whole open volume (the 3D switch)."""
+        toggle = getattr(self, "_detect_3d", None)
+        stage = getattr(self, "_mask_stage", None)
+        return bool(toggle is not None and toggle.isChecked() and toggle.isEnabled()
+                    and stage is not None and stage.session is not None)
+
+    def _gate_3d_rows(self, box, key: str, on: bool, supported, reason: str) -> None:
+        """Grey the rows of ``box`` that cannot run in 3D, or restore them.
+
+        :param box: the Method or Model box.
+        :param key: which of :attr:`_detect_3d_gated` remembers its rows.
+        :param on: gate (True) or restore (False).
+        :param supported: ``value -> bool``, whether a row runs in 3D.
+        :param reason: the tooltip a gated row shows, with ``{name}``.
+        """
+        gated = self._detect_3d_gated.setdefault(key, {})
+        model = box.model()
+        if not on:
+            for value, tip in gated.items():
+                index = box.findData(value)
+                item = model.item(index) if index >= 0 else None
+                if item is not None:
+                    item.setEnabled(True)
+                    box.setItemData(index, tip, Qt.ToolTipRole)
+            gated.clear()
+            return
+        for index in range(box.count()):
+            value = box.itemData(index)
+            item = model.item(index)
+            if (item is None or value in gated or not item.isEnabled()
+                    or supported(value)):
+                continue
+            gated[value] = box.itemData(index, Qt.ToolTipRole)
+            item.setEnabled(False)
+            box.setItemData(index, reason.format(name=box.itemText(index)),
+                            Qt.ToolTipRole)
+
+    def _sync_detect_3d(self) -> None:
+        """Offer the 3D switch while a volume is open; grey what is 2D only.
+
+        With the switch on, every Method row except Otsu, the named
+        thresholds and Cellpose, and every Model row of a backend that
+        segments 2-D fields only, is disabled with a tooltip saying why;
+        a 2-D-only method chosen when it is turned on gives way to Otsu.
+        Without a volume the switch is off and disabled.
+        """
+        from ..i18n import tr
+
+        toggle = getattr(self, "_detect_3d", None)
+        if toggle is None or getattr(self, "_cp_model", None) is None:
+            return
+        stage = getattr(self, "_mask_stage", None)
+        volume = stage is not None and stage.session is not None
+        if not volume and toggle.isChecked():
+            blocked = toggle.blockSignals(True)
+            toggle.setChecked(False)
+            toggle.blockSignals(blocked)
+        toggle.setEnabled(volume)
+        toggle.setToolTip(tr(
+            "Detect objects in the whole volume. Otsu and the threshold "
+            "methods cut the volume at one level and label objects connected "
+            "in 3D; Cellpose runs in 3D, or stitches its slices with a 3D "
+            "stitch threshold above 0. Methods that work on 2D fields only "
+            "are greyed while this is on.") if volume else tr(
+            "Open a 3D image to detect objects in the whole volume."))
+        on = self._detect_3d_on()
+        self._gate_3d_rows(
+            self._mag_mode, "mode", on, lambda mode: mode in _DETECT_3D_MODES,
+            tr("{name} works on 2D fields only, so it is unavailable while 3D is on."))
+        self._gate_3d_rows(
+            self._cp_model, "model", on, _model_supports_volume,
+            tr("{name} segments 2D fields only, so it is unavailable while 3D is on."))
+        if on and self._mag_mode.currentData() not in _DETECT_3D_MODES:
+            self._mag_mode.setCurrentIndex(self._mag_mode.findData("otsu"))
+            self._status_label.setText(tr(
+                "3D is on: the method is now Otsu, because the one chosen works on 2D fields only."))
+        self._sync_otsu_controls()
+
+    def _start_volume_detection(self, kind: str) -> bool:
+        """Detect in the open volume off the GUI thread.
+
+        :param kind: ``threshold`` for the method chosen under Object
+            detection (a model mode falls back to Otsu, as in 2-D), or
+            ``cellpose`` for the Model box's model in its 3-D mode.
+        :returns: whether a run started.
+        """
+        from ..i18n import tr
+
+        stage = self._mask_stage
+        session = stage.session
+        if self._detection_request is not None or stage.busy:
+            self._status_label.setText(tr("Wait for the current 3D operation to finish."))
+            return False
+        model = None
+        if kind == "threshold":
+            method = canonical_magnifier_mode(getattr(self._magnifier, "mode", None))
+            if method not in _DETECT_3D_MODES or method == "cellpose":
+                method = "otsu"
+            settings = self._otsu_settings()
+            settings["local"] = False
+            if method == cpu_modes.MULTIOTSU:
+                settings["classes"] = max(3, int(settings["classes"]))
+            elif method in cpu_modes.THRESHOLD_LABELS:
+                settings.update(classes=2, foreground_class=1)
+            parameters = dict(
+                bright=bool(self._otsu_bright.isChecked()),
+                min_area=int(self._min_area.value()),
+                algorithm=cpu_modes.engine_algorithm(
+                    method if method in cpu_modes.THRESHOLD_LABELS else "otsu"),
+                local_k=float(self._otsu_local_k.value()), **settings)
+            label = _magnifier_mode_label(method)
+        else:
+            method = "cellpose"
+            model = self._cp_model.currentData() or "cpsam"
+            if not _model_supports_volume(model):
+                self._status_label.setText(tr(
+                    "{model} segments 2D fields only. Choose a Cellpose or StarDist 3D model, or turn 3D off.",
+                    model=model))
+                return False
+            x, y, z = session.xyz_spacing
+            parameters = dict(
+                diameter=int(self._cp_diameter.value()),
+                normalize=bool(self._cp_normalize.isChecked()),
+                flow_threshold=float(self._cp_flow.value()),
+                cellprob_threshold=float(self._cp_cellprob.value()),
+                min_size=self._detect_min_area(),
+                stitch_threshold=float(self._cp_stitch.value()),
+                anisotropy=float(z) / float((x + y) / 2.0))
+            label = model
+        request = dict(
+            volume=True, kind=kind, image=session.image, axes=session.axes,
+            session=session, mask=session.mask.copy(), model=model,
+            parameters=parameters, invert=bool(self._cp_invert.isChecked()),
+            percentiles=(float(self._canvas.norm_lo), float(self._canvas.norm_hi))
+            if self._canvas.detect_on_normalized else None,
+            mode=self._combine_mode.currentData(), method=method, label=label)
+        self._detection_request = request
+        self._btn_cellpose.setEnabled(False)
+        self._btn_otsu.setEnabled(False)
+        self._status_label.setText(tr("{method} running on the whole volume…", method=label))
+        if self._volume_detection_worker is None:
+            self._volume_detection_worker = _NewestRequestWorker(
+                partial(_detect_volume_snapshot, models=self._cp_loaded),
+                self._detection_done, name="spacr-volume-detection")
+        self._volume_detection_worker.submit(request)
+        return True
+
+    def _take_volume_detection(self, request, labels, error) -> None:
+        """Fold a finished volume detection into the volume mask as one undo step."""
+        from ..i18n import tr
+
+        self._btn_otsu.setEnabled(True)
+        stage = self._mask_stage
+        session = stage.session
+        if session is not request["session"] or not np.array_equal(request["mask"], session.mask):
+            self._status_label.setText(tr(
+                "Detection result discarded because the volume or its mask changed. Run detection again."))
+            return
+        if error is not None:
+            self._status_label.setText(tr("Object detection failed"))
+            self._warn(tr("Object detection failed"), str(error))
+            return
+        found = _object_count(labels)
+        if not found:
+            self._status_label.setText(tr(
+                "{method} found no objects in the volume — the mask is unchanged.",
+                method=request["label"]))
+            return
+        try:
+            changed = session.replace_labels(
+                engine.combine_masks(session.mask, labels, request["mode"]))
+        except ValueError as exc:
+            self._warn(tr("Object detection failed"), str(exc))
+            return
+        if changed:
+            stage.dirty = True
+        stage.refresh()
+        self._status_label.setText(tr(
+            "{method} found {n} object(s) in 3D — {combine}d into the volume mask. Ctrl+Z undoes it.",
+            method=request["label"], n=found, combine=request["mode"]))
+
     def _on_detect_otsu(self):
         """Detect on the whole image and fold the result in per replace/merge.
 
@@ -16499,6 +16793,9 @@ class MakeMasksScreen(QWidget):
         """
         from ..i18n import tr
 
+        if self._detect_3d_on():
+            self._start_volume_detection("threshold")
+            return
         if self._canvas.image is None or self._canvas.mask is None:
             return
         mode = self._combine_mode.currentData()
@@ -17246,6 +17543,7 @@ class MakeMasksScreen(QWidget):
         settings are toggled away.
         """
         from ...settings import cellpose_model_choices
+        from ..i18n import tr
 
         #: Loaded models, by the name that was asked for. Loading cpsam
         #: costs seconds and hundreds of megabytes, and a segmentation
@@ -17331,6 +17629,20 @@ class MakeMasksScreen(QWidget):
             "honours — it rescales the image by 30/diameter — so it is the "
             "control to reach for when objects come out split or fused.")
         form.addRow("Diameter (px)", self._cp_diameter)
+
+        self._cp_stitch = QDoubleSpinBox()
+        self._cp_stitch.setObjectName("MakeMasksCellposeStitch")
+        self._cp_stitch.setDecimals(2)
+        self._cp_stitch.setRange(0.0, 1.0)
+        self._cp_stitch.setSingleStep(0.05)
+        self._cp_stitch.setValue(0.0)
+        self._cp_stitch.setToolTip(tr(
+            "Read only while 3D is on. 0 runs Cellpose in full 3D (do_3D), "
+            "which segments the volume from all three views and uses the "
+            "voxel size. Above 0, each slice is segmented in 2D and objects "
+            "overlapping by at least this IoU in neighbouring slices are "
+            "joined into one object."))
+        form.addRow(tr("3D stitch threshold"), self._cp_stitch)
 
         card.body_layout.addLayout(form)
 
@@ -17872,6 +18184,14 @@ class MakeMasksScreen(QWidget):
         self._mag_mode.activated.connect(self._on_magnifier_mode_activated)
         form.addRow("Method", self._mag_mode)
         card.body_layout.addLayout(form)
+
+        self._detect_3d = Toggle(tr("3D"))
+        self._detect_3d.setObjectName("MakeMasksDetect3D")
+        self._detect_3d.setEnabled(False)
+        self._detect_3d.setToolTip(tr("Open a 3D image to detect objects in the whole volume."))
+        self._detect_3d.toggled.connect(lambda _on: self._sync_detect_3d())
+        self._detect_3d_gated = {}
+        card.body_layout.addWidget(self._detect_3d)
 
         self._method_note = QLabel()
         self._method_note.setWordWrap(True)
@@ -18927,15 +19247,16 @@ class MakeMasksScreen(QWidget):
         mode = canonical_magnifier_mode(getattr(self._magnifier, "mode", None))
         multi = mode == cpu_modes.MULTIOTSU
         plain = mode == "otsu"
+        three_d = self._detect_3d_on()
         window_family = mode in ("sauvola", "niblack")
         if multi and int(self._otsu_classes.value()) < 3:
             self._otsu_classes.setValue(3)
         self._otsu_local_k.setEnabled(window_family)
-        self._otsu_local.setEnabled(plain)
+        self._otsu_local.setEnabled(plain and not three_d)
         self._otsu_local_k_label.setVisible(window_family)
         self._otsu_local_k.setVisible(window_family)
         classes = int(self._otsu_classes.value())
-        local = bool(self._otsu_local.isChecked()) and plain
+        local = bool(self._otsu_local.isChecked()) and plain and not three_d
         bands = (plain or multi) and not local
         self._otsu_classes.setEnabled(bands)
         self._otsu_foreground.setEnabled(bands and classes > 2)
@@ -18960,7 +19281,8 @@ class MakeMasksScreen(QWidget):
         their values for a later return to Otsu or Multi-Otsu.
         """
         mode = canonical_magnifier_mode(self._magnifier.mode)
-        local = bool(self._otsu_local.isChecked()) and mode == "otsu"
+        local = (bool(self._otsu_local.isChecked()) and mode == "otsu"
+                 and not self._detect_3d_on())
         bands = mode in ("otsu", cpu_modes.MULTIOTSU) and not local
         return {
             "correction": float(self._otsu_correction.value()),
@@ -19353,6 +19675,9 @@ class MakeMasksScreen(QWidget):
 
         if self._detection_request is not None:
             return
+        if self._detect_3d_on():
+            self._start_volume_detection("cellpose")
+            return
         if self._canvas.image is None or self._canvas.mask is None:
             self._status_label.setText(tr("Open a folder before running Object detection."))
             return
@@ -19400,6 +19725,9 @@ class MakeMasksScreen(QWidget):
             return
         self._detection_request = None
         self._btn_cellpose.setEnabled(True)
+        if request.get('volume'):
+            self._take_volume_detection(request, result, error)
+            return
         if (request['token'] != self._load_token
                 or request['image_reference'] is not self._canvas.image
                 or not np.array_equal(request['image'], self._canvas.image, equal_nan=True)
@@ -22002,6 +22330,7 @@ class MakeMasksScreen(QWidget):
         self._mode_buttons[MODE_BOX].setEnabled(
             editable and self._box_load_error is None and not volume)
         self._btn_recrop.setEnabled(editable and not volume)
+        self._sync_detect_3d()
         self._sync_queue_tally()
 
 
