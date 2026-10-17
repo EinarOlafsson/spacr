@@ -218,9 +218,18 @@ def _probe(mode):
 @pytest.mark.skipif(not HAS_TORCH or not sys.platform.startswith("linux"),
                     reason="needs PyTorch on Linux")
 def test_importing_torch_after_the_map_blocks_other_threads_far_less():
-    """Self-calibrated: the same import with and without the map."""
-    before = _probe("import")
-    now = _probe("map")
+    """Self-calibrated: the same import with and without the map.
+
+    Each mode's longest stall is the least of three fresh interpreters, so
+    a runner pausing the heartbeat thread once does not read as the import
+    holding the interpreter lock.
+    """
+    def least(mode):
+        runs = [_probe(mode) for _ in range(3)]
+        return min(runs, key=lambda run: run["longest"])
+
+    before = least("import")
+    now = least("map")
     assert now["sum"] == before["sum"] == 3.0
     if before["longest"] < 0.08:
         pytest.skip(f"torch's libraries load in {before['longest']:.3f} s "
