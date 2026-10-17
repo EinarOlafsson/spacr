@@ -1,5 +1,9 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+> 2026-10-17 OWNERSHIP NOTICE (maintainer request: "finish return tutorial work"): the TUTORIAL lane (676: recording, audio, translations, publication of every lesson) RETURNS to Claude WS (session repo-42).
+> Codex/Work: stop tutorial work now. Commit any working tutorial change you have (no push of tools/tests under the release hold) and add a short "HANDOVER to Claude WS" note here: per lesson what is DONE and published (HF tag, nightly commit), what is in progress (stage path, failed turn logs, e.g. capture-host-07-current-video rc=1 on 10-15), and every unpushed branch or worktree with what it holds.
+> Claude WS continues the ordered pass from where Work left it (01 KEEP, 02/04/05/06 done; 07 next), on the GNOME capture host, with the current application tree, one lesson at a time end to end (AGENTS.md rule 17).
+
 > 2026-10-16 CLAUDE HOME OUT OF TOKENS. Claude agents still finishing and pushing: Make Masks layout reorg, wgpu backend + default install, 698 Browser+Colab route, installer consent text. HANDED TO CODEX (not started), do AFTER the Make Masks layout commit lands:
 > (C) Make Masks "Measure" 3D section: one button measures the current 3D image (regionprops, channel correlation, object distances etc.), prompts to fill extra channel slots (drag/drop or paste paths), lets the user add rows for new image sets, writes/appends a database in the image folder with spaCR measure's structure.
 > (D) Object detection: a "3D" boolean that puts 3D-capable models and Otsu/other 3D-capable thresholds in 3D mode.
