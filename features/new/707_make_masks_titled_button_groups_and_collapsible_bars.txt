@@ -2,9 +2,9 @@
 MAKE MASKS BUTTONS IN TITLED GROUPS AROUND THE IMAGE, WITH COLLAPSIBLE BARS
 ================================================================================
 
-Status:    in progress — footer/tab/control corrections and translated outputs
-           ship with705; native layout acceptance and Work-owned tutorial
-           recordings remain.
+Status:    BLOCKED ON MAINTAINER — implementation, tests and translated
+           outputs complete on nightly; only the maintainer's native layout
+           check remains (tutorial re-recordings belong to lane 676).
 Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
            spacr/qt/preferences.py (Plugins tab), spacr/qt/screens/
            settings_model.py and app_screen.py (vvvv), spacr/qt/theme.py
@@ -165,3 +165,4 @@ Retain index-based navigation, filenames, reset/ruler behavior, collapse persist
 2026-10-16 — Retained26 focused checks cover behavior, EN/FR geometry at1366×768 and1920×1080, and clearing stale filename tooltips in blind mode; no native-display acceptance is inferred.
 2026-10-16 — Capture helper uses current Edit actions; TOOLS/IO are normally extracted with approved nine-language records. Runtime/API audits, Help/arrival generation and13 catalog checks pass; normal outputs ship with705.
 2026-10-16 — Remaining owner steps: maintainer native layout check at both resolutions; Work fresh recordings14/42/46/79 and checks05/19–22/54/57/80, preserving the current-layout/alpha-content rules.
+2026-10-17 — Claude Home re-verified on nightly ec3980daeb7: capture helper uses _act_edit_undo/_act_edit_redo, TOOLS/IO are tr() captions with nine-locale catalog rows, 30/30 test_707 checks pass. No code remains. Maintainer: open Make Masks at 1366×768 and 1920×1080 (light and dark), open a folder and a 3D image, fold/unfold top bar, bottom bar and title; confirm groups, footer, Reset zoom/Ruler beside the tabs; then set DONE.
