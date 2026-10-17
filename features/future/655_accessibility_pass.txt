@@ -2,9 +2,9 @@
 ACCESSIBILITY PASS
 ================================================================================
 
-Status:    DEFERRED — 2026-10-16 maintainer: future work after the updater.
-           Existing shipped accessibility behavior remains available; no new
-           implementation or acceptance work now. Not alpha.
+Status:    BLOCKED ON MAINTAINER — native screen-reader check only (Orca,
+           NVDA, VoiceOver; steps in the 2026-10-15 note). Code is done.
+           Not alpha.
 Requested: 2026-10-04, by the maintainer, who approved this program-level
            feature in the step-4 review ("is the program itself missing
            something?"), from the gap audit of the same day.
@@ -51,8 +51,6 @@ WHAT WAS BUILT (2026-10-04)
 WHAT IS LEFT
   - "High contrast" and its tooltip sentence await the nine-locale catalog
     rebuild (_AWAITING_CATALOG_REBUILD).
-  - The lint covers buttons and inputs; item views, the MainWindow chrome
-    and Preferences are named by the same pass but not linted.
   - A user-guide paragraph on the theme and screen-reader support goes
     with the next docs pass (docs last).
 
@@ -694,3 +692,7 @@ Work owns the Appearance tutorial refresh; offscreen checks do not establish aud
 
 2026-10-16 — DEFERRED by maintainer: move this item to features/future and do no accessibility implementation or acceptance work now; resume after the updater work.
 Existing shipped behavior and verified results remain valid; relocation is scheduling only, not completion or a request to hide/remove existing accessibility controls.
+
+2026-10-17 — Resumed after the updater (703). The lint now also covers item views, the MainWindow chrome (toolbars, dock, status bar, menus) and every Preferences tab:
+every focusable control has a QAccessible name and Tab is never trapped. The naming pass now names scroll areas and menus; no new strings.
+Remaining: the native screen-reader check above (BLOCKED ON MAINTAINER).

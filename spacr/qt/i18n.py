@@ -4050,13 +4050,14 @@ def _a11y_interactive_types():
         QLineEdit,
         QListView,
         QPlainTextEdit,
+        QScrollArea,
         QTextEdit,
         QTableView,
         QTreeView,
     )
     return (QAbstractButton, QComboBox, QLineEdit, QAbstractSpinBox,
             QAbstractSlider, QTextEdit, QPlainTextEdit,
-            QListView, QTableView, QTreeView)
+            QListView, QTableView, QTreeView, QScrollArea)
 
 
 def _a11y_layout_holding(layout, child):
@@ -4166,6 +4167,7 @@ def _a11y_source(widget, labels_by_key):
     from PySide6.QtWidgets import (
         QAbstractSpinBox,
         QComboBox,
+        QScrollArea,
         QTableView,
         QTabWidget,
     )
@@ -4208,8 +4210,28 @@ def _a11y_source(widget, labels_by_key):
                 "Storage cache table": "Cache",
             }
             name = tr(shared_labels.get(caption, caption))
+    if not name and isinstance(widget, QScrollArea):
+        name = _a11y_scroll_area_name(widget)
     description = "" if tip else label_help
     return name, description
+
+
+def _a11y_scroll_area_name(area) -> str:
+    """Name a scroll area after its first titled group or caption.
+
+    :param area: a ``QScrollArea`` with no other source of a name.
+    :returns: that title or caption, or the shared "Details" when it holds
+        neither.
+    """
+    from PySide6.QtWidgets import QGroupBox, QLabel
+
+    for kind, read in ((QGroupBox, lambda w: w.title()),
+                       (QLabel, lambda w: w.text())):
+        for child in area.findChildren(kind):
+            text = _a11y_plain(read(child), 80)
+            if text:
+                return text
+    return tr("Details")
 
 
 def _keep_tab_moving_focus(widget) -> None:
@@ -4252,15 +4274,24 @@ def _name_for_assistive_tech(widgets) -> int:
     :returns: how many names or descriptions were set or refreshed.
     """
     try:
-        from PySide6.QtWidgets import QAbstractItemView, QLabel
+        from PySide6.QtCore import Qt
+        from PySide6.QtWidgets import (
+            QAbstractItemView,
+            QLabel,
+            QMenu,
+            QTabWidget,
+        )
         interactive = _a11y_interactive_types()
     except Exception:
         return 0
     labels_by_key = {}
     targets = []
+    menus = []
     for widget in widgets:
         try:
-            if isinstance(widget, QLabel):
+            if isinstance(widget, QMenu):
+                menus.append(widget)
+            elif isinstance(widget, QLabel):
                 key = widget.property("settingKey")
                 if key and widget.text():
                     labels_by_key.setdefault(str(key), widget)
@@ -4268,9 +4299,22 @@ def _name_for_assistive_tech(widgets) -> int:
                 targets.append(widget)
             if isinstance(widget, interactive + (QAbstractItemView,)):
                 _keep_tab_moving_focus(widget)
+            elif (isinstance(widget, QTabWidget)
+                  and not widget.tabBar().isVisibleTo(widget)
+                  and widget.focusPolicy() != Qt.NoFocus):
+                widget.setFocusPolicy(Qt.NoFocus)
         except (AttributeError, RuntimeError):
             continue
     changed = 0
+    for menu in menus:
+        try:
+            if not menu.accessibleName():
+                title = _a11y_plain(menu.title())
+                if title:
+                    menu.setAccessibleName(title)
+                    changed += 1
+        except (AttributeError, RuntimeError):
+            continue
     for widget in targets:
         try:
             current = str(widget.accessibleName() or "")
