@@ -1,5 +1,8 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+> 2026-10-17 CLAUDE HOME CLAIMS (maintainer goal "finish all items"): (1) the 1.5.1.5 release CI failures (items 43/288; latest tests run failed 19 jobs) and (2) item 706 (3D switch in object detection). Codex: don't edit these until this note is updated. Next in Claude's queue after these: 707 remaining corrections, 703. Codex may take any of those first by writing a claim here.
+
+
 > 2026-10-17 OWNERSHIP NOTICE (maintainer request: "finish return tutorial work"): the TUTORIAL lane (676: recording, audio, translations, publication of every lesson) RETURNS to Claude WS (session repo-42).
 > Codex/Work: stop tutorial work now. Commit any working tutorial change you have (no push of tools/tests under the release hold) and add a short "HANDOVER to Claude WS" note here: per lesson what is DONE and published (HF tag, nightly commit), what is in progress (stage path, failed turn logs, e.g. capture-host-07-current-video rc=1 on 10-15), and every unpushed branch or worktree with what it holds.
 > Claude WS continues the ordered pass from where Work left it (01 KEEP, 02/04/05/06 done; 07 next), on the GNOME capture host, with the current application tree, one lesson at a time end to end (AGENTS.md rule 17).
