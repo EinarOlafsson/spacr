@@ -839,7 +839,7 @@ def test_frozen_macos_authorized_helper_requires_activation_and_actual_exit(monk
 
     stage = "/private/var/root/spacr-helper.ABC12345/helper"
     target = "/Applications/spaCR.app"
-    desktop = "/Users/scientist/spacr/venv/bin/python"
+    desktop = "/opt/spacr-desktop/venv/bin/python"
     events = []
     actual_lstat = ic.os.lstat
     actual_listdir = ic.os.listdir
