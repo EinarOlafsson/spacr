@@ -103664,6 +103664,16 @@
         "d4292c2b4607a42e1c03a95cd22b5e390cbaf59eb4feea5f422b37919fc8f2a1"
       ]
     },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._load_cell_example.fetched": {
+      "source_blocks_sha256": [
+        "7eb15a20ed8e8267f5a2945b37054cb0f2eebb746bb6df80bb73e95948f6ee18"
+      ],
+      "source_sha256": "7eb15a20ed8e8267f5a2945b37054cb0f2eebb746bb6df80bb73e95948f6ee18",
+      "text": "플레이트가 디스크에 있으면 읽고, 없으면 그 이유를 알립니다.",
+      "translation_source_blocks_sha256": [
+        "7eb15a20ed8e8267f5a2945b37054cb0f2eebb746bb6df80bb73e95948f6ee18"
+      ]
+    },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._load_demo_crops.finished": {
       "source_blocks_sha256": [
         "c6e2ecebb174ddb426811f35712f1653f6353f7df316b807e3a39b56b5b54066"
@@ -103724,6 +103734,26 @@
       "text": "GUI 스레드 밖에서 학습합니다.",
       "translation_source_blocks_sha256": [
         "fabdbfe12a35704f5987929d5aea0075ddebb5169768ccd5779018242fa06ab2"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._read_cell_example.finished": {
+      "source_blocks_sha256": [
+        "b0bbfa8e4135deb52f82573c36253f02a3800f16e729acc1a256e93138a99dd9"
+      ],
+      "source_sha256": "b0bbfa8e4135deb52f82573c36253f02a3800f16e729acc1a256e93138a99dd9",
+      "text": "CPU용 DINO 선택 항목을 고르고 어노테이션을 첨부합니다.",
+      "translation_source_blocks_sha256": [
+        "b0bbfa8e4135deb52f82573c36253f02a3800f16e729acc1a256e93138a99dd9"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._read_cell_example.work": {
+      "source_blocks_sha256": [
+        "df9d8f8da8793192a70dbb0013ca7ad6dd609df191d89d8359dfa79b62aba582"
+      ],
+      "source_sha256": "df9d8f8da8793192a70dbb0013ca7ad6dd609df191d89d8359dfa79b62aba582",
+      "text": "어노테이션이 달린 크롭을 계획하고 읽고 레이블을 붙입니다.",
+      "translation_source_blocks_sha256": [
+        "b70465b66d104853925740292ea662101722d1d35b05f1309b1f415eb5114b16"
       ]
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._read_database_choices.done": {

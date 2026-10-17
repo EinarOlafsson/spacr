@@ -326,13 +326,22 @@ class EmbeddingsScreen(QWidget):
         self._demo_button = QPushButton(tr("Load synthetic demo"), self)
         self._demo_button.setObjectName("EmbeddingsDemoButton")
         self._demo_button.setToolTip(tr(
-            "Load 24 generated shapes with labels. ResNet-18 runs on the "
-            "CPU; pretrained weights download only if not cached."))
+            "Load 24 generated shapes with labels. DINOv2 runs on the CPU; "
+            "pretrained weights download only if not cached."))
         self._demo_button.clicked.connect(self._load_demo_crops)
         picker.addWidget(self._demo_button)
+        self._cell_example_button = QPushButton(tr("Load cell example"), self)
+        self._cell_example_button.setObjectName("EmbeddingsCellExampleButton")
+        self._cell_example_button.setToolTip(tr(
+            "Load the example plate's annotated single-cell crops with their "
+            "labels and run DINOv2 on the CPU. The plate downloads once, "
+            "about 280 MB."))
+        self._cell_example_button.clicked.connect(self._load_cell_example)
+        picker.addWidget(self._cell_example_button)
         from ..preferences import _apply_alpha_widgets
 
         _apply_alpha_widgets(self._demo_button)
+        _apply_alpha_widgets(self._cell_example_button)
         outer.addLayout(picker)
 
         selection = QHBoxLayout()
@@ -434,6 +443,7 @@ class EmbeddingsScreen(QWidget):
         self._add_dino_button(controls)
         self._add_use_for_pickers(controls)
         outer.addLayout(controls)
+        outer.addWidget(self._dino_in_use)
 
         self._save_similar = QPushButton(tr("Save for Similar crops"), self)
         self._save_similar.setObjectName("EmbeddingsSaveForSimilarity")
@@ -496,6 +506,13 @@ class EmbeddingsScreen(QWidget):
         self._foundation = QComboBox(self)
         self._foundation.setObjectName("EmbeddingsFoundationPicker")
         self._foundation.addItem(tr("None (use the backbone)"), "")
+        self._foundation.addItem(tr("DINOv2 (Cell-DINO when installed)"),
+                                 "dino_auto")
+        self._foundation.setItemData(1, tr(
+            "Runs official Cell-DINO when its checkpoint is installed and "
+            "its planes are mapped; otherwise the open DINOv2 ViT-S/14. The "
+            "line below the controls says which one is in use."),
+            Qt.ItemDataRole.ToolTipRole)
         for name, info in _FOUNDATION_MODELS.items():
             self._foundation.addItem(tr(info["label"]), name)
         self._foundation.setToolTip(tr(
@@ -520,6 +537,9 @@ class EmbeddingsScreen(QWidget):
         self._cell_dino_button.setObjectName("EmbeddingsCellDinoConfigButton")
         self._cell_dino_button.clicked.connect(self._choose_cell_dino)
         controls.addWidget(self._cell_dino_button)
+        self._dino_in_use = QLabel("", self)
+        self._dino_in_use.setObjectName("EmbeddingsDinoInUseLabel")
+        self._dino_in_use.setWordWrap(True)
         self._foundation.currentIndexChanged.connect(
             self._sync_subcell_controls)
         self._sync_subcell_controls()
@@ -531,9 +551,10 @@ class EmbeddingsScreen(QWidget):
         from ..preferences import _get_show_alpha_features
 
         selected = self._foundation.currentData() == "subcell_rybg"
-        cell_dino = self._foundation.currentData() == "cell_dino"
+        auto = self._foundation.currentData() == "dino_auto"
+        cell_dino = auto or self._foundation.currentData() == "cell_dino"
         project = self._policy.findData("project")
-        if selected or cell_dino:
+        if selected or (cell_dino and not auto):
             if self._policy_before_subcell is None:
                 self._policy_before_subcell = str(self._policy.currentData())
             self._policy.setCurrentIndex(project)
@@ -568,6 +589,65 @@ class EmbeddingsScreen(QWidget):
         self._cell_dino_button.setVisible(cell_dino and alpha_on)
         self._cell_dino_button.setProperty(
             "_spacr_alpha_hid", bool(cell_dino and not alpha_on))
+        self._dino_in_use.setText(self._dino_sentence(
+            self._dino_note(verify=False)) if auto else "")
+        self._dino_in_use.setVisible(auto and alpha_on)
+        self._dino_in_use.setProperty(
+            "_spacr_alpha_hid", bool(auto and not alpha_on))
+
+    def _dino_note(self, verify: bool = True):
+        """Decide between installed Cell-DINO and open DINOv2 for these crops."""
+        from ...embeddings import CHANNEL_PROJECT, EmbeddingSpec, _dino_choice
+
+        crops = getattr(self, "_crops", None)
+        available = 0 if crops is None else int(crops.shape[-1])
+        batch = int(self._batch.value()) if hasattr(self, "_batch") else 64
+        device = "cpu" if self._demo_active else None
+        if self._cell_dino_checkpoint and not self._cell_dino_mapping_error(
+                self._cell_dino_factory, self._cell_dino_channels, available,
+                self._cell_dino_checkpoint, self._cell_dino_digest):
+            return EmbeddingSpec(
+                backbone="cell_dino", channel_policy=CHANNEL_PROJECT,
+                channels=self._cell_dino_channels, batch_size=batch,
+                device=device, cell_dino_factory=self._cell_dino_factory,
+                checkpoint_path=self._cell_dino_checkpoint,
+                checkpoint_sha256=self._cell_dino_digest), {
+                    "model": "cell_dino", "factory": self._cell_dino_factory,
+                    "path": self._cell_dino_checkpoint}
+        return _dino_choice(
+            self._cell_dino_channels, available,
+            channel_policy=str(self._policy.currentData()),
+            batch_size=batch, device=device, verify=verify)
+
+    def _dino_sentence(self, choice) -> str:
+        """Say which DINO model runs and, for DINOv2, why not Cell-DINO."""
+        spec, note = choice
+        if note["model"] == "cell_dino":
+            digest = (spec.checkpoint_sha256 or "")[:12]
+            return tr(
+                "In use: official Cell-DINO ({factory}), checkpoint {name}"
+                "{digest}.").format(
+                    factory=note["factory"],
+                    name=os.path.basename(note["path"]),
+                    digest=(" · " + digest + "…") if digest else "")
+        if note["reason"] == "unmapped":
+            why = tr(
+                "Cell-DINO checkpoint {name} is installed, but its {planes} "
+                "input planes are not mapped to crop channels. Map them with "
+                "{button}").format(button=tr("Checkpoint and channels…"),
+                    name=os.path.basename(note["path"]),
+                    planes=note["planes"])
+        elif note["reason"] == "unreadable":
+            why = tr(
+                "{path} is not a readable official Cell-DINO model state.").format(
+                    path=note["path"])
+        else:
+            why = tr(
+                "No official Cell-DINO checkpoint is installed. Meta grants "
+                "access by request; put the file in {folder} to use it.").format(
+                    folder=note["folder"])
+        return tr("In use: open DINOv2 ViT-S/14 (general-image weights).") + (
+            " " + why)
 
     def _subcell_mapping_error(
             self, channels: tuple[object, ...] | None,
@@ -805,11 +885,20 @@ class EmbeddingsScreen(QWidget):
 
     def _choose_cell_dino(self) -> None:
         """Open the Cell-DINO form and dispose its widgets on close."""
+        if not self._cell_dino_checkpoint:
+            from ...embeddings import _find_cell_dino
+
+            found = _find_cell_dino(verify=True)
+            if found.get("factory"):
+                self._cell_dino_factory = found["factory"]
+                self._cell_dino_checkpoint = found["path"]
+                self._cell_dino_digest = found["sha256"]
         dialog = self._cell_dino_dialog()
         try:
             dialog.exec()
         finally:
             dialog.deleteLater()
+        self._sync_subcell_controls()
 
     def _add_use_for_pickers(self, controls) -> None:
         """Alpha controls that score the embedding and feed it onward.
@@ -2044,10 +2133,92 @@ class EmbeddingsScreen(QWidget):
             self._path.setText(str(example["crops"]))
             self._filter.clear()
             self._limit.setValue(DEFAULT_CROP_LIMIT)
-            self._foundation.setCurrentIndex(0)
-            self._backbone.setCurrentText("resnet18")
-            self._policy.setCurrentIndex(self._policy.findData("project"))
-            self._batch.setValue(8)
+            self._select_dino_example()
+            self._plan = plan
+            self._on_crops_read((crops, record), demo=example)
+
+        self._jobs.submit(work, finished)
+
+    def _select_dino_example(self) -> None:
+        """Pick the CPU DINO choice, one projected pass and small batches."""
+        self._foundation.setCurrentIndex(self._foundation.findData("dino_auto"))
+        self._policy.setCurrentIndex(self._policy.findData("project"))
+        self._batch.setValue(8)
+
+    def _load_cell_example(self) -> None:
+        """Load the example plate's annotated cells and their labels.
+
+        The plate is fetched once into the shared example folder; the crops
+        annotated ``infected`` 1 or 2 load in database order, and a
+        label table with one row per crop is written beside the plate.
+        """
+        from ..widgets.measurements_example import (example_measurements_db,
+                                                    example_measurements_folder)
+
+        if self._loading or self._dino_closed:
+            return
+        database = example_measurements_db()
+        if database.is_file():
+            self._read_cell_example(database)
+            return
+        self._cell_example_button.setEnabled(False)
+        self._status.setText(tr("Fetching test data…"))
+
+        def fetched(result, error) -> None:
+            """Read the plate once it is on disk, or say why it is not."""
+            self._cell_example_button.setEnabled(not self._loading)
+            if result is None or not database.is_file():
+                self._status.setText(tr(
+                    "The test data could not be downloaded: {detail}",
+                    detail=error or tr("unknown error")))
+                return
+            self._read_cell_example(database)
+
+        from ..hf_download import download_annotate_example
+
+        download_annotate_example(self, example_measurements_folder(), fetched)
+
+    def _read_cell_example(self, database) -> None:
+        """Read the annotated example crops off the GUI thread."""
+        self._stop.clear()
+        self._set_loading(True)
+        self._status.setText(tr("Loading the annotated example cells…"))
+        stop = self._stop
+
+        def work():
+            """Plan, read and label the annotated crops."""
+            from ...crop_loader import CropQuery, load_crops, plan_crops
+            from ...example_archives import example_plate_folder
+            from ...tabular import write_table
+
+            plan = plan_crops(CropQuery(
+                source=CROP_SOURCE_DATABASE, path=str(database),
+                object_type="cell", where="infected IN (1, 2)", limit=0))
+            record = {}
+            crops = load_crops(plan, cancelled=stop.is_set, record=record)
+            labels = [str(int(row["infected"])) for row in plan.rows]
+            folder = example_plate_folder().parent / "embeddings_cell_example"
+            path = folder / "labels.csv"
+            write_table(pd.DataFrame({
+                "prcfo": [row.get("prcfo") for row in plan.rows],
+                "label": labels}), path)
+            return plan, crops, record, {"folder": folder, "labels": path,
+                                         "cells": True}
+
+        def finished(answer):
+            """Select the CPU DINO choice and attach the annotations."""
+            if self._dino_closed:
+                return
+            if stop.is_set():
+                self._stopped(tr("Loading the annotated example cells was "
+                                 "stopped."))
+                return
+            plan, crops, record, example = answer
+            self._where.setCurrentIndex(self._where.findData(plan.query.source))
+            self._path.setText(str(database))
+            self._filter.setText(plan.query.where)
+            self._limit.setValue(max(1, plan.count))
+            self._select_dino_example()
             self._plan = plan
             self._on_crops_read((crops, record), demo=example)
 
@@ -2227,7 +2398,8 @@ class EmbeddingsScreen(QWidget):
             str(self._path.text()).strip()))
         for widget in (self._where, self._path, self._browse, self._object,
                        self._plate, self._filter, self._limit,
-                       self._demo_button, self._test_data_button):
+                       self._demo_button, self._cell_example_button,
+                       self._test_data_button):
             widget.setEnabled(not loading)
         self._run.setEnabled(
             False if loading else getattr(self, "_crops", None) is not None)
@@ -2302,15 +2474,28 @@ class EmbeddingsScreen(QWidget):
         self._status.setText(self._loaded_sentence(record))
         if demo is not None:
             self._demo_active = True
-            self._caveat.setText(DIMENSION_CAVEAT + " " + tr(
+            self._caveat.setText(DIMENSION_CAVEAT + " " + (tr(
+                "These example cells carry the plate's own 'infected' "
+                "annotation (classes 1 and 2). They show the workflow on "
+                "real crops; so few labels are not a scientific "
+                "comparison.") if demo.get("cells") else tr(
                 "Synthetic shapes demonstrate the workflow only. Their "
-                "labels and scores are not biological validation."))
+                "labels and scores are not biological validation.")))
             if self._choose_labels(str(demo["labels"])):
-                self._status.setText(tr(
-                    "Loaded 24 synthetic crops and labels. Press {embed}, then "
-                    "choose {classifier} and {run}. Example files: {folder}").format(
-                        embed=tr("Embed"), classifier=tr("Classifier"),
-                        run=tr("Run"), folder=demo["folder"]))
+                if demo.get("cells"):
+                    self._status.setText(tr(
+                        "Loaded {count} annotated example cells and their "
+                        "labels. Press {embed}, then choose {classifier} and "
+                        "{run}. Labels: {path}").format(
+                            count=int(crops.shape[0]), embed=tr("Embed"),
+                            classifier=tr("Classifier"), run=tr("Run"),
+                            path=demo["labels"]))
+                else:
+                    self._status.setText(tr(
+                        "Loaded 24 synthetic crops and labels. Press {embed}, then "
+                        "choose {classifier} and {run}. Example files: {folder}").format(
+                            embed=tr("Embed"), classifier=tr("Classifier"),
+                            run=tr("Run"), folder=demo["folder"]))
         self.crops_loaded.emit(int(crops.shape[0]))
 
     def _loaded_label(self, record) -> str:
@@ -2453,6 +2638,8 @@ class EmbeddingsScreen(QWidget):
 
         foundation = str(self._foundation.currentData() or "")
         device = "cpu" if self._demo_active else None
+        if foundation == "dino_auto":
+            return self._dino_note()[0]
         if foundation == "subcell_rybg":
             if self._subcell_channels is None:
                 raise EmbeddingError(tr(
@@ -2516,11 +2703,13 @@ class EmbeddingsScreen(QWidget):
             if reason:
                 self._status.setText(reason)
                 return
-        spec = self.spec()
+        auto = self._foundation.currentData() == "dino_auto"
+        spec = None if auto else self.spec()
         record = self._scale_record
         generation = self._crop_generation
         identity = self._crop_identity
         self._status.setText(f"Embedding {crops.shape[0]} objects…")
+        choose = self._dino_note
 
         def work():
             """Run the backbone off the GUI thread.
@@ -2532,9 +2721,10 @@ class EmbeddingsScreen(QWidget):
             from ...embeddings import _embed_plate, encoder_entry
 
             try:
-                result = _embed_plate(crops, spec, record=record)
-                entry = encoder_entry(getattr(result, "spec", None) or spec)
-                return result, entry, ""
+                run = choose() if auto else (spec, None)
+                result = _embed_plate(crops, run[0], record=record)
+                entry = encoder_entry(getattr(result, "spec", None) or run[0])
+                return result, entry, run
             except Exception as exc:
                 return None, None, f"{type(exc).__name__}: {exc}"
 
@@ -2543,12 +2733,16 @@ class EmbeddingsScreen(QWidget):
             if generation != self._crop_generation:
                 return
             result, entry, error = answer
-            if error:
+            if isinstance(error, str):
                 if not self._loading:
                     self._status.setText(error)
                 return
             self._result_identity = identity
             self._on_embedded(result, entry=entry)
+            if error[1] is not None and not self._loading:
+                self._dino_in_use.setText(self._dino_sentence(error))
+                self._status.setText(
+                    self._status.text() + " " + self._dino_sentence(error))
 
         self._jobs.submit(work, finished)
 

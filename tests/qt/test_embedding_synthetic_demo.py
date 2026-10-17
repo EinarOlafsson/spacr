@@ -67,7 +67,9 @@ def test_pressing_demo_replaces_old_vectors_and_loads_aligned_labels(demo_screen
     assert demo_screen._result is None
     spec = demo_screen.spec()
     assert (spec.backbone, spec.device, spec.channel_policy, spec.batch_size) == (
-        "resnet18", "cpu", "project", 8)
+        "vit_small_patch14_dinov2.lvd142m", "cpu", "project", 8)
+    assert demo_screen._foundation.currentData() == "dino_auto"
+    assert "DINOv2" in demo_screen._dino_in_use.text()
     assert demo_screen._run.isEnabled()
     assert not demo_screen._save_similar.isEnabled()
     assert DIMENSION_CAVEAT in demo_screen._caveat.text()
@@ -137,10 +139,109 @@ def test_the_demo_uses_installed_translations_and_control_captions(
     qtbot.addWidget(screen)
 
     assert screen._demo_button.text() == records[0]["translation"]
-    assert screen._demo_button.toolTip() == records[1]["translation"]
+    dino = json.loads((records_path.parent
+                       / "2026-10-17-560-dinov2-drop-in.json").read_text())["records"]
+    assert screen._demo_button.toolTip() == next(
+        row["translation"] for row in dino
+        if row["source"].startswith("Load 24 generated shapes"))
     screen._demo_button.click()
 
-    assert records[4]["translation"] in screen._caveat.text()
-    assert screen._status.text() == records[5]["translation"].format(
+    assert records[3]["translation"] in screen._caveat.text()
+    assert screen._status.text() == records[4]["translation"].format(
         embed=tr("Embed"), classifier=tr("Classifier"), run=tr("Run"),
         folder=tmp_path / "demo")
+
+
+def _fake_example_plate(folder):
+    import sqlite3
+
+    from PIL import Image
+
+    rows = []
+    for index, value in enumerate((1, 2, 11, 2, 1, None, 2)):
+        path = folder / "data" / f"crop_{index}.png"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        Image.fromarray(np.full((16, 16, 3), 40 * index, dtype=np.uint8)).save(path)
+        rows.append((str(path), path.name, "plate1", f"plate1_r1_c1_f1_o{index + 1}",
+                     f"o{index + 1}", value))
+    database = folder / "measurements" / "measurements.db"
+    database.parent.mkdir(parents=True)
+    with sqlite3.connect(database) as conn:
+        conn.execute("CREATE TABLE png_list (png_path TEXT, file_name TEXT, "
+                     "plateID TEXT, prcfo TEXT, cell_id TEXT, infected INTEGER)")
+        conn.executemany("INSERT INTO png_list VALUES (?, ?, ?, ?, ?, ?)", rows)
+    return database
+
+
+def test_the_cell_example_loads_annotated_cells_with_aligned_labels(
+        demo_screen, monkeypatch, tmp_path):
+    from spacr import example_archives
+    from spacr.qt.widgets import measurements_example
+    from spacr.settings import ALPHA_FEATURES
+    from spacr.tabular import read_table
+
+    database = _fake_example_plate(tmp_path / "plate1")
+    monkeypatch.setattr(measurements_example, "example_measurements_db",
+                        lambda: database)
+    monkeypatch.setattr(example_archives, "example_plate_folder",
+                        lambda: tmp_path / "plate1")
+    button = demo_screen._cell_example_button
+    assert button.objectName() in ALPHA_FEATURES[560]["widgets"]
+    assert "EmbeddingsDinoInUseLabel" in ALPHA_FEATURES[560]["widgets"]
+
+    button.click()
+
+    assert demo_screen._crops.shape[0] == 5
+    assert list(demo_screen._labels.values()) == ["1", "2", "2", "1", "2"]
+    written = read_table(tmp_path / "embeddings_cell_example" / "labels.csv",
+                         report=None)
+    assert written["label"].astype(str).tolist() == ["1", "2", "2", "1", "2"]
+    assert written["prcfo"].tolist() == [
+        f"plate1_r1_c1_f1_o{n}" for n in (1, 2, 4, 5, 7)]
+    spec = demo_screen.spec()
+    assert (spec.backbone, spec.device) == ("vit_small_patch14_dinov2.lvd142m",
+                                            "cpu")
+    assert "not a scientific comparison" in demo_screen._caveat.text()
+    assert "Press Embed" in demo_screen._status.text()
+    assert not demo_screen._dino_in_use.isHidden()
+
+
+def test_an_installed_mapped_cell_dino_replaces_dinov2(
+        demo_screen, monkeypatch, tmp_path):
+    torch = pytest.importorskip("torch")
+    from spacr import embeddings
+
+    monkeypatch.setenv("SPACR_MODEL_CACHE", str(tmp_path / "models"))
+    monkeypatch.setattr(embeddings, "_CELL_DINO_SEEN", {})
+    folder = tmp_path / "models" / "cell_dino"
+    folder.mkdir(parents=True)
+    torch.save({"patch_embed.proj.weight": torch.zeros(8, 4, 16, 16)},
+               folder / "hpa.pth")
+    demo_screen.set_crops(np.zeros((3, 8, 8, 4), dtype=np.float32))
+    demo_screen._foundation.setCurrentIndex(
+        demo_screen._foundation.findData("dino_auto"))
+
+    assert "not mapped" in demo_screen._dino_in_use.text()
+    assert demo_screen.spec().backbone == "vit_small_patch14_dinov2.lvd142m"
+    assert demo_screen._policy.isEnabled()
+
+    demo_screen._cell_dino_channels = (0, 1, 2, 3)
+    demo_screen._sync_subcell_controls()
+
+    assert "official Cell-DINO (cell_dino_hpa_vitl16)" in demo_screen._dino_in_use.text()
+    spec = demo_screen.spec()
+    assert (spec.backbone, spec.cell_dino_factory, spec.channels) == (
+        "cell_dino", "cell_dino_hpa_vitl16", (0, 1, 2, 3))
+    assert len(spec.checkpoint_sha256) == 64
+
+
+def test_the_dino_line_is_alpha_gated(demo_screen, monkeypatch):
+    from spacr.qt import preferences
+
+    demo_screen._foundation.setCurrentIndex(
+        demo_screen._foundation.findData("dino_auto"))
+    assert not demo_screen._dino_in_use.isHidden()
+    monkeypatch.setattr(preferences, "_get_show_alpha_features", lambda: False)
+    preferences._apply_alpha_widgets(demo_screen)
+    assert demo_screen._dino_in_use.isHidden()
+    assert demo_screen._cell_example_button.isHidden()

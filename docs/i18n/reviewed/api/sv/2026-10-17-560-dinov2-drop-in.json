@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "records": [
+    {
+      "context": "Read the plate once it is on disk, or say why it is not.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._load_cell_example.fetched#0",
+      "source": "Read the plate once it is on disk, or say why it is not.",
+      "source_sha256": "7eb15a20ed8e8267f5a2945b37054cb0f2eebb746bb6df80bb73e95948f6ee18",
+      "translation": "Läser plattan när den finns på disken, eller säger varför den inte gör det."
+    },
+    {
+      "context": "Select the CPU DINO choice and attach the annotations.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._read_cell_example.finished#0",
+      "source": "Select the CPU DINO choice and attach the annotations.",
+      "source_sha256": "b0bbfa8e4135deb52f82573c36253f02a3800f16e729acc1a256e93138a99dd9",
+      "translation": "Väljer DINO-alternativet för CPU och bifogar annoteringarna."
+    },
+    {
+      "context": "Plan, read and label the annotated extracted image regions.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._read_cell_example.work#0",
+      "source": "Plan, read and label the annotated crops.",
+      "source_sha256": "df9d8f8da8793192a70dbb0013ca7ad6dd609df191d89d8359dfa79b62aba582",
+      "translation": "Planerar, läser och etiketterar de annoterade utsnitten."
+    }
+  ]
+}

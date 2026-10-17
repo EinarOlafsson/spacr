@@ -7527,7 +7527,8 @@ ALPHA_FEATURES = {
     },
     560: {
         'widgets': ('EmbeddingsFoundationLabel', 'EmbeddingsFoundationPicker',
-                    'EmbeddingsDemoButton',
+                    'EmbeddingsDemoButton', 'EmbeddingsCellExampleButton',
+                    'EmbeddingsDinoInUseLabel',
                     'EmbeddingsSubCellChannelsButton',
                     'EmbeddingsSubCellChannelsDialog',
                     'EmbeddingsSubCellMicrotubulesChannel',

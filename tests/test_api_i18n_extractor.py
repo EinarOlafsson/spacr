@@ -1680,6 +1680,17 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in detect3d_arrivals} == detect3d_arrivals
     assert not detect3d_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **detect3d_arrivals}
+    # 2026-10-17: Item 560 DINOv2 drop-in: the annotated cell example's download, read and finish helpers; one named contract.
+    dino_drop_in_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "560_dinov2_drop_in_api_arrivals_2026-10-17.json").read_text())
+    assert set(dino_drop_in_arrivals) == {
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._load_cell_example.fetched",
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._read_cell_example.work",
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._read_cell_example.finished",
+    }
+    assert {key: docs[key] for key in dino_drop_in_arrivals} == dino_drop_in_arrivals
+    assert not dino_drop_in_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **dino_drop_in_arrivals}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
         / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text())
