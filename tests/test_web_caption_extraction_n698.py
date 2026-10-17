@@ -99,7 +99,8 @@ def test_web_sources_join_production_inventory_before_compact_filtering(web_sour
     (source_root / "qt").mkdir(parents=True)
     for filename in (
         "model_compare.py", "embeddings.py", "plot.py", "model_zoo.py",
-        "install_cleanup.py", "settings.py", "object.py", "remote_execution.py",
+        "install_cleanup.py", "doctor.py", "updater.py",
+        "settings.py", "object.py", "remote_execution.py",
         "attribution.py", "measure.py", "channel_sorting.py", "utils.py",
         "object_classifier.py", "core.py",
         "psf_pipeline.py",

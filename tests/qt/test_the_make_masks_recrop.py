@@ -45,6 +45,7 @@ import numpy as np
 import pytest
 from PySide6.QtCore import QEvent, QPointF, Qt
 from PySide6.QtGui import QMouseEvent
+from PySide6.QtWidgets import QWidget
 
 from spacr.curation import CurationLog, is_curated
 from spacr.qt import mask_engine as engine
@@ -427,7 +428,8 @@ def test_recrop_is_one_of_the_tools_in_the_one_row(qtbot, qt_theme_applied, fold
     button.click()
     assert screen._canvas.mode == MODE_RECROP
     ruler = screen._mode_buttons[MODE_RULER]
-    assert screen._tally_layout.indexOf(ruler) >= 0
+    controls = screen.findChild(QWidget, "MakeMasksViewControls")
+    assert controls.layout().indexOf(ruler) >= 0
     ruler.click()
     assert screen._canvas.mode == MODE_RULER
 

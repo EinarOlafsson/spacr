@@ -13,7 +13,7 @@ import imageio.v2 as imageio
 import numpy as np
 import pytest
 from PySide6.QtCore import QPoint
-from PySide6.QtWidgets import QApplication, QPushButton
+from PySide6.QtWidgets import QApplication, QPushButton, QWidget
 
 from spacr.qt.widgets.flow import FlowLayout
 
@@ -57,7 +57,8 @@ def test_every_tool_is_in_one_horizontal_row(qtbot, qt_theme_applied):
     assert screen._mode_buttons, "the screen built no tools at all"
     for mode, button in screen._mode_buttons.items():
         if mode == mm.MODE_RULER:
-            assert screen._tally_layout.indexOf(button) >= 0
+            controls = screen.findChild(QWidget, "MakeMasksViewControls")
+            assert controls.layout().indexOf(button) >= 0
             continue
         assert row.indexOf(button) >= 0, f"{mode} is not in the tool row"
     # ...and one row means one: no tool has a second home in the settings.

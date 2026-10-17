@@ -779,11 +779,22 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
         "Batch size": "8cfe32a04155c2ea30704f9c105e6ff553fdb51ad8e1b153ab4296b554c97f7c",
         "Learning rate": "f033c501afe798cdcd46e31cc25ca5b73ee2ad88a065eed69ae056a776f7175b",
         "Train": "e99c90db87c0e400832edcedcc1b14e33cff7559988f4d7032337e17401b2945",
+        # 2026-10-16 (item 705): the Measure 3D images dialog binds two
+        # setting labels as plain ui captions, with the same reviewed wording.
+        "Object type": "46e7c345a4106f8dba31dee33a1559a12f24d16a1678241d55e84ae55c107d81",
+        "Save measurements": "e8ac777599eba6295d02d6d7b4ba13d74eecc2b61383369c8bf9c99134423063",
     }
     assert latest_batches & sources == repeated_sources.keys()
-    classifier_rows = json.loads((folder / "2026-10-15-f561-classifier-ui-runtime-home-b.json").read_text())["records"]
+    current_files = {
+        "Object type": "2026-10-16-705-ui-arrival-bindings.json",
+        "Save measurements": "2026-10-16-705-ui-arrival-bindings.json",
+    }
+    previous_keys = {"Batch size": "batch_size", "Learning rate": "learning_rate", "Train": "train",
+                     "Object type": "object_type", "Save measurements": "save_measurements"}
     for source, source_hash in repeated_sources.items():
-        current = [row for row in classifier_rows if row["source"] == source]
+        current_file = current_files.get(source, "2026-10-15-f561-classifier-ui-runtime-home-b.json")
+        current = [row for row in json.loads((folder / current_file).read_text())["records"]
+                   if row["source"] == source]
         assert len(current) == 1
         current = current[0]
         assert current["table"] == "ui" and current["key"] == source
@@ -799,7 +810,7 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
         assert len(previous) == 1
         previous = previous[0]
         assert previous["table"] == "setting_labels"
-        assert previous["key"] == {"Batch size": "batch_size", "Learning rate": "learning_rate", "Train": "train"}[source]
+        assert previous["key"] == previous_keys[source]
         assert previous["source_sha256"] == source_hash
         assert previous["translation"] == current["translation"] == reviewed[source]
         assert [row for row in batches if row["source"] == source] == [current]

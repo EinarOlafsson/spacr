@@ -2243,12 +2243,28 @@ def test_assignment_docs_are_ast_source_text_without_show_value_artifact():
     # nine _ASSIGNMENTS_ADDED_2026_09_25 constants make 32.
     # 34 with mask_engine's FILTER_BOUNDS and FILTER_KEYS; 35 with
     # live_preview.BOUND_ROWS (2026-09-26); 36 with _parascape.MINIMUM_VERSION
-    # (2026-10-12); 37 with live_preview.FILTER_DEBOUNCE_MS (2026-10-13).
+    # (2026-10-12); 37 with live_preview.FILTER_DEBOUNCE_MS (2026-10-13);
+    # 46 with the nine wgpu backend constants of item 673 (2026-10-16), which
+    # arrive through their dated contract.
     assert _N696_ASSIGNMENT_ARRIVALS.keys() <= assignment_keys
     assert {key: docs[key] for key in _N696_ASSIGNMENT_ARRIVALS} == (
         _N696_ASSIGNMENT_ARRIVALS
     )
-    assert len(assignment_keys - _N696_ASSIGNMENT_ARRIVALS.keys()) == 37
+    wgpu_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
+        / "673_wgpu_api_arrivals_2026-10-16.json").read_text())
+    wgpu_assignments = {
+        "spacr.doctor.WGPU_MACHINES", "spacr.doctor.WGPU_MIN_PYTHON",
+        "spacr.install_profile.NO_WGPU_OVERRIDE",
+        "spacr.install_profile.NO_WGPU_OVERRIDE_NAME",
+        "spacr.layers.GPU_RENDER_OFF_ENV", "spacr.layers.WGPU_BACKENDS",
+        "spacr.qt.screens.make_masks.VOLUME_BACKENDS",
+        "spacr.qt.screens.make_masks.VOLUME_BACKEND_API",
+        "spacr.qt.screens.make_masks.VOLUME_WGPU_BACKENDS",
+    }
+    assert wgpu_assignments == assignment_keys & wgpu_arrivals.keys()
+    assert {key: docs[key] for key in wgpu_assignments} == {
+        key: wgpu_arrivals[key] for key in wgpu_assignments}
+    assert len(assignment_keys - _N696_ASSIGNMENT_ARRIVALS.keys()) == 46
     assert assignment_keys <= docs.keys()
     assert all("Show Value" not in docs[key] for key in assignment_keys)
     assert docs["spacr.batch_correction.METHODS"] == (
