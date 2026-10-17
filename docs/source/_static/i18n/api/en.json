@@ -54273,6 +54273,43 @@
       "source_sha256": "975d63fd0ada01129d148c01afef5eec448e005788d88733145e2ac1fcc9dff7",
       "text": "Make Masks' filter list applied to one mask; ``(mask, removals)``.\n\nObjects are judged under :func:`canonical_labels` ids, the ids the hover\nreadout shows, and the failing ones are zeroed in a copy; the other ids\nare left as they were. An intensity property reads ``image``, the raw\nloaded pixels (a 3-D image is averaged over its last axis first), never\nthe contrast-stretched display.\n\n:param mask: the label mask to filter.\n:param image: the raw intensity image, or ``None`` when none is open;\n    required by any intensity property in ``filters``.\n:param filters: the filter list, in any form :func:`normalise_filters`\n    accepts.\n:param preserve_ids: judge objects by their supplied ids, as\n    :func:`canonical_labels` does with it; disconnected pieces sharing an\n    id count together.\n:param report: properties measured for the ledger in the same pass;\n    ``intensity_mean`` is added whenever an image is given.\n:returns: the original array untouched and an empty list when nothing\n    fails."
     },
+    "spacr.qt.mask_engine.assign_lineage_label": {
+      "source_blocks_sha256": [
+        "0a916b0df090bc5220aa26a4407a05f7b70638a509b82036a785451a3025c355",
+        "8b21db6858c1935107f8a275fb53edd6d9c9658296a6575b6e54a71221252c4d",
+        "333f1ac41f13a5736ea66d39f36177320220397b6864af3748d9290d9b421e69",
+        "937d2cf00d28dcc630de1aa11bafd98a22e516b717b3fda8abf4246d4ceaf4f3"
+      ],
+      "source_sha256": "e9a17ece730149d8966127a9a4600c079e278f73ddc42944d0462f993dbe55d3",
+      "text": "Map an observed frame label to a persistent segment, or remove a mapping.\n\n:param state: The lineage graph to copy and update.\n:param frame: The source image path for this frame.\n:param label: The local uint32 pixel ID, or zero to remove ``old_label``."
+    },
+    "spacr.qt.mask_engine.assign_object_label": {
+      "source_blocks_sha256": [
+        "ed632c22679c20274e9bd71d7731f8122a50904429de631894960dc85ddf311c",
+        "010eed10cf7324c917088578f2dea9bf647fa88a56d56b572180920265a2e10a",
+        "854eea82c6c7a38ae4639ce286b9fe72e219caf46e4dd1c2d25c306272277152",
+        "35fa40c51b5be26f6a5acdf52adcd12c771df1f2732ab1c4fd29d98e7205dba4",
+        "c7036dc22b5719adbf8a2f8afb64d9aa909679f87aae3a3cdd3cd7959a80533c",
+        "410bf676223f4c51a2eb728dbd840df98aac74c0b880aead8c6dc362b4f6b1bd",
+        "c90d3cdc5ec7541e11dbe89c8ba501266f9619ee5ff587b0d56d5792ceb8d90a",
+        "09ed95bbd5c37d0e2af604a30118ed202c19cc7057aab96bd2f3fc04ffdcd7c9"
+      ],
+      "source_sha256": "e4fcc7e50d35dc1c687b1e9d213b4391663406b9120c124c0d9722483b5d0a07",
+      "text": "Assign one explicit uint32 identity without joining different objects.\n\nAll pixels bearing the clicked object's existing ID move together,\nincluding disconnected pieces deliberately sharing that identity. Zero\nremoves that object. A nonzero target already belonging to another\nobject is refused before any pixel changes.\n\n:param mask: nonempty 2-D nonnegative integer labels; never modified.\n:param x: integer column; outside the field changes nothing.\n:param y: integer row; outside the field changes nothing.\n:param label: integer in 0 through 4294967295, with zero reserved for background.\n:returns: an unsigned label copy and the original ID under the pointer, or zero\n    for background or an outside position. The same ID is a no-op.\n:raises ValueError: for invalid labels, coordinates, or an occupied ID."
+    },
+    "spacr.qt.mask_engine.assign_tracked_object": {
+      "source_blocks_sha256": [
+        "a5499465fbed27dcc93508ce243b133f6b9722bfa506726af684504c78f48096",
+        "e74a5aaeadcffbe5b80a25ba18d616995128ad03889e0af1bf1d8fa0e1292470",
+        "da5796513563afc5664f6530520f2a2eec49e59d877174b0c544b3a758acb1af",
+        "9011989fa917ae425c718e4b8adbe503a7275e094d0f427dea7f8986a709a805",
+        "8b21db6858c1935107f8a275fb53edd6d9c9658296a6575b6e54a71221252c4d",
+        "333f1ac41f13a5736ea66d39f36177320220397b6864af3748d9290d9b421e69",
+        "72b9a74788f048ea0f61bbecdf3ac8ab7577ff20ddc2c78b3e2b3fa9a76f77eb"
+      ],
+      "source_sha256": "7f3affaa399717c683cf1764394cdb8cdb8d1d98316b4ffe79144c8240909d43",
+      "text": "Track a hovered object using a free local ID without stealing another track.\n\n:param mask: The current two-dimensional integer label mask.\n:param x: The hovered pixel column.\n:param y: The hovered pixel row.\n:param state: The lineage graph to copy and update.\n:param frame: The source image path for this frame.\n:param cell_uuid: The persistent UUID of the segment to assign."
+    },
     "spacr.qt.mask_engine.box_overlap": {
       "source_blocks_sha256": [
         "0d066f8f5059c0b571eb042163ff0afe36687cfa8bf050149c7bcbd6356e72bc",
@@ -54285,7 +54322,7 @@
     },
     "spacr.qt.mask_engine.canonical_labels": {
       "source_blocks_sha256": [
-        "dc67a8f98715e3dabec701d451ffeb786d86120e82c57a4136fc994a3651a89a",
+        "3cc814a2d5962130662f52667baa9862fa65e324d11a2109105780341c502b77",
         "1fcc8931fc321cb6cfe1f45a7cd296784bbbb6432dc1693b0363363d954c18d5",
         "af067872ed4ed40845303d23245f5936085cad1596c67514167825ccc1d2556d",
         "dd44de89b4b6e40eafa5c325d301bf42811217aeaee645f9ff2091a9a10b421b",
@@ -54293,11 +54330,11 @@
         "f8c09a00d0044b24c4f65f46e3b0f1a45f5db1068130558d4f2c58e61799796e",
         "035c3e4784c95a1772f269c6baac4f7e4f502ffe307b7e98a606203256e18694",
         "016cba00f46b45fc49c70ed1922755167cf08c6579e06a49ed4bc55e60ed58d1",
-        "a89fb9a7a288e2e65c48e4f9c0fc9f7579568abbb0ee1e5c3fbf077f86570623",
-        "1a6423bda836e7645559cf6a555e2638d3b7e67bf5a5c1e0b006f83e35fffde0"
+        "5dfd101b6689c4a8a37dc29acf367bed6e0d29e3c0cbd8ad486e3baf115d400d",
+        "05ac7f9d8cb54b4bca466d9fcef968203d6f401bec1eb083decf12f82f8e7d05"
       ],
-      "source_sha256": "5ae92e2d86b18c397565231cbc7a313495958796baba3b9547a081fa9542fa60",
-      "text": "Return ``mask`` as uint16 labels, keeping every id it already had.\n\nThe old behaviour here was ``label(mask > 0)``, which renumbers the\nconnected components 1..N on every save. That throws away the identity\nof every object: erase object 7 of 20 and objects 8..20 each slide down\nby one, so the saved mask no longer keys against the measurements, the\ncrops or the tracks derived from the segmentation it was edited from.\n\nSo ids are kept, with two things settled:\n\n* **A mask with one foreground value carries no ids to keep.** That is\n  what a purely brush-painted mask looks like -- every stroke writes the\n  same value -- and it is a binary image, not a label image. Its\n  components are numbered 1..N, which loses nothing.\n* **A label that names two separated blobs is split.** One id must mean\n  one object. The largest piece keeps the id and the rest are given the\n  smallest ids not already in use, so painting a second blob with the\n  brush over a real segmentation adds an object instead of extending a\n  distant one.\n\nEach id is examined inside its own bounding box\n(:func:`scipy.ndimage.find_objects`) rather than across the whole field,\nwhich gives the same pieces in the same order and makes the call cheap\nenough to run while the mouse moves: on a 2048 x 2048 field of 400\nobjects it went from about 3.5 s to tens of milliseconds.\n\n:param mask: a label image; any integer or boolean dtype in default mode.\n:param preserve_ids: disable binary interpretation and component splitting.\n    Use for primary/secondary relationships: a lone cell 900 remains 900,\n    and separated pieces with the same primary ID remain one label.\n    Requires a nonempty 2-D nonnegative integer array, not a boolean mask.\n:returns: the labels as ``uint16``.\n:raises ValueError: when an id does not fit in ``uint16``, or exact-ID\n    mode receives invalid labels. Oversized IDs are never truncated."
+      "source_sha256": "e1892a3e9af72ffee1537aa3aaef3884e0b6f6caee4bccf93c1ba1186ee1826d",
+      "text": "Return validated labels, retaining explicit uint32 identities.\n\nThe old behaviour here was ``label(mask > 0)``, which renumbers the\nconnected components 1..N on every save. That throws away the identity\nof every object: erase object 7 of 20 and objects 8..20 each slide down\nby one, so the saved mask no longer keys against the measurements, the\ncrops or the tracks derived from the segmentation it was edited from.\n\nSo ids are kept, with two things settled:\n\n* **A mask with one foreground value carries no ids to keep.** That is\n  what a purely brush-painted mask looks like -- every stroke writes the\n  same value -- and it is a binary image, not a label image. Its\n  components are numbered 1..N, which loses nothing.\n* **A label that names two separated blobs is split.** One id must mean\n  one object. The largest piece keeps the id and the rest are given the\n  smallest ids not already in use, so painting a second blob with the\n  brush over a real segmentation adds an object instead of extending a\n  distant one.\n\nEach id is examined inside its own bounding box\n(:func:`scipy.ndimage.find_objects`) rather than across the whole field,\nwhich gives the same pieces in the same order and makes the call cheap\nenough to run while the mouse moves: on a 2048 x 2048 field of 400\nobjects it went from about 3.5 s to tens of milliseconds.\n\n:param mask: a label image; any integer or boolean dtype in default mode.\n:param preserve_ids: disable binary interpretation and component splitting.\n    Use for primary/secondary relationships: a lone cell 900 remains 900,\n    and separated pieces with the same primary ID remain one label.\n    Requires a nonempty 2-D nonnegative integer array, not a boolean mask.\n:returns: uint16 labels for ordinary segmentation, or uint32 for explicit\n    identities requiring that width. Existing uint32 masks retain their\n    exact IDs even without the explicit flag.\n:raises ValueError: when ordinary segmentation exceeds uint16 capacity,\n    exact IDs exceed uint32 capacity, or exact-ID mode receives invalid\n    labels. Oversized IDs are never truncated."
     },
     "spacr.qt.mask_engine.canonical_property": {
       "source_blocks_sha256": [
@@ -54389,6 +54426,18 @@
       "source_sha256": "6046190a6c0d82358c82e40b86985a0fa43532e8cbe1d70b3aebfd4d68e38fb5",
       "text": "Grow every object by ``distance`` pixels, without merging any two.\n\nA label takes the background pixels within ``distance`` of it; a pixel\ncontested by two labels goes to the nearer one, and a pixel that already\ncarries a label is never taken. SO THE OBJECT COUNT CANNOT CHANGE, which\nis what makes this safe on a mask that has been curated: ids survive, and\nan object that has been given the right id keeps it, along with every\nmeasurement, track and crop keyed by it.\n\nThe distance is Euclidean (:func:`skimage.segmentation.expand_labels`),\nso ``1`` adds the four edge neighbours and not the corners -- the same\nmetric :func:`shrink_objects` takes away by, which is what makes a shrink\nafter a dilate land back where it started on an object with no neighbour\nclose enough to have blocked the growth.\n\n:param mask: label image; 0 is background.\n:param distance: pixels to grow by. 0 or less returns a copy.\n:returns: a mask of the same dtype with the same label values."
     },
+    "spacr.qt.mask_engine.divide_lineage_cell": {
+      "source_blocks_sha256": [
+        "a29fc3212fa7d8d89d05ecc38f2fda134873320bfbbf241922053c24bca42beb",
+        "8b21db6858c1935107f8a275fb53edd6d9c9658296a6575b6e54a71221252c4d",
+        "c91ba3a876ab63c03d9f2e49d1b8969afbe80090146dec0739256d47aaef5c6c",
+        "2c237d9c58929a014b4a9be8b33eb798674885fb5e8d1766ebcb3648ec94f262",
+        "264b1bb6f1eed724ab34ea6338ea6b4fe77575fa03400dfa13e7c4776b9fb9dd",
+        "ddf544ea1aa76ea4064fa9584e30880f33f49b19c152034cf4ae9509f6a167d6"
+      ],
+      "source_sha256": "f1df8927573fd622eb828561873222e4f8d1c3ccb8696851ec4e7dcd4f81641a",
+      "text": "End a segment and create two distinct daughter segments at one frame.\n\n:param state: The lineage graph to copy and update.\n:param parent_uuid: The persistent UUID of the undivided parent segment.\n:param frame: The source image path where the division is recorded.\n:param daughter_names: Two nonempty display names in daughter order.\n:param labels: Two distinct nonzero uint32 preferred pixel IDs in daughter order."
+    },
     "spacr.qt.mask_engine.divide_object": {
       "source_blocks_sha256": [
         "5a6570a63ec71a518f8dcedaf009aae8aaba4897f7afefe0b4b92bbc3320659d",
@@ -54454,10 +54503,10 @@
         "dcf5c9a6c3d42cdacfee0cf82dda4ea5201589046095d5c8e204d476eb3d7c05",
         "6f538ef16fa487dae97d039709e6887e9b742b58c7f8e81d34f0e67360663cc5",
         "e0372b62229e25015964f0bc7a2127543cd4bca044d7d539a65d029e229bc863",
-        "3f6405ab7f5ecb1b8bc0ceed13a7a2ff4c0950edcca5e752efb54e7d6d68c2d9"
+        "89195b3832c55cad5986ede8105a823b9c906ca9e6c5c42390a9a879bf221e29"
       ],
-      "source_sha256": "1389ba71bb1c93a6693762771affe53eac974cc4b641182b6c3f25477259d621",
-      "text": "Fill enclosed background pixels, optionally retaining primary identities.\n\nHoles are filled per object by :func:`fill_label_holes`, never by\nfilling the foreground and labelling it again: that joined every pair of\ntouching cells into one object.\n\n:param mask: label image to fill.\n:param preserve_ids: validate the ids as exact primary IDs first\n    (uint16-compatible, via :func:`canonical_labels`). Either way every\n    id is kept. By default a mask with a single foreground value -- a\n    brush-painted binary mask, which carries no ids -- is numbered by\n    connectivity first, as :func:`canonical_labels` numbers it."
+      "source_sha256": "be25d91419477297f5b4bbd8ff8db8aa8f99a9d42999e4afa796a7ad3e524820",
+      "text": "Fill enclosed background pixels, optionally retaining primary identities.\n\nHoles are filled per object by :func:`fill_label_holes`, never by\nfilling the foreground and labelling it again: that joined every pair of\ntouching cells into one object.\n\n:param mask: label image to fill.\n:param preserve_ids: validate the ids as exact primary IDs first\n    (unsigned labels, via :func:`canonical_labels`). Either way every\n    id is kept. By default a mask with a single foreground value -- a\n    brush-painted binary mask, which carries no ids -- is numbered by\n    connectivity first, as :func:`canonical_labels` numbers it."
     },
     "spacr.qt.mask_engine.fill_label_holes": {
       "source_blocks_sha256": [
@@ -54640,7 +54689,7 @@
         "5250057c18de49e55abf1889d1667fbd8621788521f0266002a5198ccbf91ff7",
         "1d4c91a591d800e33ac673fd1ae876fa626aa5c712c639e34aba85799148a169",
         "9f73f7cd507a16a5a8e8060a98de8914eb4031b4f42cc7bf080822b3fbc774d4",
-        "59641ef3aeeb912c7b5b55624f15ecddacee7073ada4e7b96cbeeb481c6a0874",
+        "55aeb27b47d2d9508adab03978b7889b221d9514fc8a1dbfc1ced2b28d58c4ae",
         "60333f44c4b3978c83ca11a5c3b453bb32b31e9f710c7a81beb7633783af0f82",
         "c824b0d9667e223cb6e974a1f77a8795593cfecbf7c02e7b88509738d441ed57",
         "3268376744c3aa635e176e1ffe486ffcfa0839c8971e2bd4cd5cc17667309b46",
@@ -54649,8 +54698,26 @@
         "c3cb05734698161eb442922f5bde97f255d5cc3e7a1ecee23d6d580e4d710905",
         "d795727355e8b3965c4ca671fa828b0cc4e17c6277b8e7e0122f4b5354f8a271"
       ],
-      "source_sha256": "57f17ce4638ffa42030531af24d32f35b8df1c20be2a4a8986d8524b9d3cfc77",
-      "text": "Load an image and its accompanying mask.\n\n- Multi-channel images are collapsed to grayscale via BT.601 weights.\n- Missing masks are created as zeros of the image shape.\n- Images are returned as uint16; masks preserve uint8/uint16 label IDs.\n- A mask saved by :func:`save_mask` is found even when the source image\n  had a non-TIFF extension. Its canonical TIFF takes precedence over\n  an older mask under the source image's extension.\n- A ``filename`` ending in :data:`SEG_SUFFIX` is a Cellpose bundle and is\n  read by :func:`load_seg_bundle` instead.\n\n:param folder: the folder holding the image, or the bundle.\n:param filename: the image, or the ``_seg.npy`` bundle, to load.\n:param masks_dir: where the masks are, when not in ``<folder>/masks``;\n    see :func:`masks_folder`.\n:returns: ``(image, mask)``.\n:raises ValueError: for unsupported dimensions or an image/mask shape\n    mismatch."
+      "source_sha256": "0e069f524306c2a0fe7ff1ffc5dd7a363afa96045aecd1eddeda6bc85ce94595",
+      "text": "Load an image and its accompanying mask.\n\n- Multi-channel images are collapsed to grayscale via BT.601 weights.\n- Missing masks are created as zeros of the image shape.\n- Images are returned as uint16; masks preserve uint8/uint16/uint32 label IDs.\n- A mask saved by :func:`save_mask` is found even when the source image\n  had a non-TIFF extension. Its canonical TIFF takes precedence over\n  an older mask under the source image's extension.\n- A ``filename`` ending in :data:`SEG_SUFFIX` is a Cellpose bundle and is\n  read by :func:`load_seg_bundle` instead.\n\n:param folder: the folder holding the image, or the bundle.\n:param filename: the image, or the ``_seg.npy`` bundle, to load.\n:param masks_dir: where the masks are, when not in ``<folder>/masks``;\n    see :func:`masks_folder`.\n:returns: ``(image, mask)``.\n:raises ValueError: for unsupported dimensions or an image/mask shape\n    mismatch."
+    },
+    "spacr.qt.mask_engine.load_mask_lineage": {
+      "source_blocks_sha256": [
+        "363d4ababdbc23672448e3eceb68ffc2b5c811d1ae66828969573787f2fcaab4",
+        "3ede1db2384063965b61f1f8fd1f584cdab8cd497d6abd7141e0e327aa857671",
+        "6941cf2d6f5464b5454a7ff504b997f616aa0bec84a8df73dc2e2768111aca88"
+      ],
+      "source_sha256": "f243cdb767ed2d32653ff1920f765158e6e0b6b41f5f47f24b3bfa1255314a66",
+      "text": "Read an independent lineage graph from a TIFF mask or return an empty graph.\n\n:param folder: The source image folder used to locate the matching mask.\n:param filename: The source image filename whose mask lineage is read."
+    },
+    "spacr.qt.mask_engine.load_mask_metadata": {
+      "source_blocks_sha256": [
+        "fd48f8029f2eb072e768b857656382ee5ae11161601eaca59c7d1b212e626682",
+        "3ede1db2384063965b61f1f8fd1f584cdab8cd497d6abd7141e0e327aa857671",
+        "3cacc4e3d24a262def69b89a5c0d06b5de1394c2ce5e4445e546275f91a0d2e3"
+      ],
+      "source_sha256": "2f0e1f947570f8f9d6b88f9c06f389eb7c2863f9487420bf3ae6d70274ea81fe",
+      "text": "Read identity semantics and lineage from the mask itself, without a sidecar.\n\n:param folder: The source image folder used to locate the matching mask.\n:param filename: The source image filename whose mask metadata is read."
     },
     "spacr.qt.mask_engine.load_seg_bundle": {
       "source_blocks_sha256": [
@@ -54749,14 +54816,34 @@
       "source_sha256": "f634f0e496cdc6b73f222e01781990f0bfaf27ef4fb1929be02daa9fabcf335e",
       "text": "Segment bright objects with local maxima and an intensity watershed.\n\nConvert the field to float32, optionally blur it, and find centres with\n:func:`skimage.feature.peak_local_max`. Use those centres as markers for\n:func:`skimage.segmentation.watershed` on the negative blurred image.\nDistinct centres can split touching objects; noise can create extra\ncentres, while smoothing or large centre spacing can remove real ones.\nNo existing primary-object mask is accepted. This implementation has\nno CellProfiler propagation cost or distance/intensity weighting.\n\nThe four stop rules operate on the blurred values:\n\n* ``seed_fraction`` first partitions the entire image by watershed,\n  then retains pixels at or above ``stop_value`` times their basin's\n  seed intensity. This is an intensity ratio, not a quantile. Adding a\n  background offset changes the relative cut; equal measurements of\n  bright and dim objects are not guaranteed. Trimming can leave\n  disconnected pieces with the same label.\n* ``absolute`` restricts the watershed to pixels at or above\n  ``stop_value``, in the input's intensity units.\n* ``percentile`` uses that percentile of all blurred input pixels as\n  the common threshold. Changing the crop can change this level.\n* ``threshold`` obtains the common level from ``stop_algorithm`` and\n  ignores ``stop_value``.\n\nFill holes per label if requested, then discard labels smaller than\n``min_area`` and renumber survivors. Hole filling can restore pixels\nbelow the selected intensity cut. The seed count is recorded before\nthese operations and can exceed the number of surviving objects.\n\nInput preparation is the caller's responsibility: this function does\nnot normalize intensities, subtract background, or invert dark objects.\nUse finite 2-D values; NaNs and infinities are not sanitized. Make Masks\nsupplies the processed field or crop after its selected enhancements.\nAbsolute levels and peak ratios therefore depend on that preparation.\n\n:param image: nonempty 2-D intensity array, converted to float32 without\n    range rescaling. Output coordinates and shape match this array.\n:param sigma: Gaussian standard deviation in pixels; default 2.0.\n    Positive values smooth both seed finding and growth; zero disables\n    blur. Increasing it can suppress noise peaks or merge real peaks.\n    Make Masks offers 0 to 50; the direct API also skips negative values.\n:param min_distance: centre separation in pixels; default 10. Passed\n    to peak finding as ``max(1, int(min_distance))``, using its default\n    Chebyshev distance. Increasing it suppresses nearby candidate seeds;\n    reducing it can split an object into several detections. Make Masks\n    offers 1 to 500.\n:param seed_level: default 90.0. Candidate maxima must exceed this\n    intensity, or the intensity at this percentile when\n    ``seed_level_is_percentile`` is true. Percentiles must be between\n    0 and 100. Increasing the floor excludes dimmer candidate centres;\n    it does not directly set the final object boundary.\n:param seed_level_is_percentile: default true. Compute the seed floor\n    from all blurred input pixels; false uses an absolute intensity.\n    A crop and a whole field can yield different percentile floors.\n:param exclude_border: default false. If true, exclude candidate centres\n    within the effective ``min_distance`` of the input edge. This does\n    not remove every object whose grown boundary touches the edge.\n:param stop: default ``\"seed_fraction\"``; one of\n    :data:`PROPAGATE_STOPS`, with the behavior described above.\n:param stop_value: default 0.4. For ``seed_fraction``, use a ratio from\n    0 to 1 with nonnegative intensities; increasing it removes dimmer\n    basin pixels before hole filling. For ``absolute``, use an intensity;\n    for ``percentile``, use 0 to 100. Higher common thresholds shrink\n    the eligible mask. Ignored for ``threshold``. The API does not clip\n    ratios or absolute values; the GUI number box alone does not enforce\n    rule-specific limits.\n:param stop_algorithm: default ``\"otsu\"``; a key of\n    :data:`GLOBAL_THRESHOLDS`, read only for ``stop=\"threshold\"``.\n    The threshold is estimated from the blurred field or crop.\n:param min_area: default 0, disabling size removal. Labels with fewer\n    than ``int(min_area)`` pixels after hole filling are discarded.\n    Increasing it removes small labels without merging touching ones.\n:param fill_holes: default true. Fill enclosed background pixels per\n    label before size filtering. False preserves those holes.\n:returns: :class:`PropagateResult` containing an int32 label array\n    (0 is background, surviving labels are 1 through N), the original\n    seed count, and the common stop level. The level is None for\n    ``seed_fraction`` or when no seeds were found. A constant image or\n    an overly high seed floor can return all-zero labels and zero seeds;\n    an empty stop mask or size filtering can remove every seeded object.\n:raises ValueError: for an unknown stop rule, an empty or non-2-D image,\n    an out-of-range percentile when evaluated, or an unknown global\n    threshold algorithm when that rule is evaluated.\n\nFor example, ``maxima_propagate_instances(image, sigma=2,\nmin_distance=10, seed_level=90, stop=\"seed_fraction\", stop_value=0.4,\nmin_area=20)`` retains each basin above 40 percent of its seed intensity\nbefore filling holes and removing labels smaller than 20 pixels."
     },
+    "spacr.qt.mask_engine.merge_lineage_states": {
+      "source_blocks_sha256": [
+        "a6ec761637c869239509658c5dd5b5173c8ae4a964fe7b41054f2b309075a80b",
+        "bbec830f97d0903cc9586f19ce335912843180549a84b5dfcabf000ecbf602cf",
+        "ae249ed42683eafeaeb4d2680b3f559d464307b7809a163be3d5232d26792bb8"
+      ],
+      "source_sha256": "f3be8d7eeda5468dc7b78b54326526bbc097c6424e16691062b995cf3411b93b",
+      "text": "Merge embedded snapshots, preserving newer edits and immutable ancestry.\n\n:param active: The active lineage graph, or ``None`` for an empty graph.\n:param incoming: The incoming snapshot, or ``None`` for an empty graph."
+    },
+    "spacr.qt.mask_engine.new_lineage_cell": {
+      "source_blocks_sha256": [
+        "7e5303339f8f195d48fee89440043f196a92f098d7af4191bdadc87ddf148b84",
+        "f3e217cf39ce98290ba059db345fb5ae703cc4a4f7d27c3ff6badad3db2e56a9",
+        "7ad744aa23c3e0df861d892e73253419ac42382a59939726de7beb3e9dbbbab5",
+        "1795ec4f88fac53b3001e5be94659efcdb4669721f6736f471ad872646af9edf",
+        "cd944d74194bbf47a720fa42e1135aa097f86af4117847ccd3ec0aacc7db8e92"
+      ],
+      "source_sha256": "a949c1c169f0f7f57fe0e9e373e1d415c4fa6ec2a506c3a60764e5f26aeec107",
+      "text": "Create an unplaced founder without claiming any existing mask pixels.\n\n:param state: The lineage graph to extend, or ``None`` for an empty graph.\n:param name: The nonempty display name for the new founder.\n:param label: The preferred nonzero uint32 pixel ID, without assigning pixels.\n:param frame: The source image path where the founder is introduced."
+    },
     "spacr.qt.mask_engine.next_label": {
       "source_blocks_sha256": [
-        "7fb460537568ba27c6921780f36418b0073c6af9909cf1e25d7f960372bf2fd9",
-        "dc5a910f829d75f3e801bed67f9239157a2e5bb71794e27bb4df582372b82197",
-        "f5498ad93ff511e6e045bbd7d187f8685f7b93ec4c8267d800161571f764d218"
+        "2f98ffced82cc6ac6ce571c8521526be0f10ee32ff3228f3f171bfad622f43e1",
+        "298b1acf4681eb8bcbf4df848687531e2a556adb6555e70a55e4a9910c89e528",
+        "aeaef0471d4c3a3dfe715c4f9a53804c43ba03ff98fca72146b8b222b03f3db9"
       ],
-      "source_sha256": "d0ddafa982d06c8602d1cad124accb3626102c4500f2ae7a48f840cf74c555f3",
-      "text": "The id to give the next object drawn on ``mask``: one past its top.\n\nAbove the maximum rather than the lowest free id, because ids are what\nthe ledger, the measurements and the crops name objects by. Handing a\nnew object the id of one that was deleted makes two different cells\nshare a name across a session, and nothing downstream can tell them\napart afterwards.\n\n:param mask: label mask; an empty array gives 1."
+      "source_sha256": "3dc35007208dbd24259696ba52f09d27824d7aed5dd09dc6f5cc9e019bb53447",
+      "text": "Prefer the next highest ID, using an unused local ID at uint32 capacity.\n\nPersistent lineage uses independent UUIDs, so a free local pixel ID can\nbe reused without merging cell identities. Allocation visits observed\nlabels only and never constructs a table of every possible uint32 ID.\n\n:param mask: The integer label mask whose observed IDs are already in use."
     },
     "spacr.qt.mask_engine.normalise_filters": {
       "source_blocks_sha256": [
@@ -54881,6 +54968,16 @@
       "source_sha256": "704bdfedcb42c4873499b6114dfebbee037ee85210665350b35d1e838b280eb0",
       "text": "Whether the regionprop ``name`` measures pixel values.\n\n:param name: a regionprop name, current or legacy spelling."
     },
+    "spacr.qt.mask_engine.prune_lineage_frame": {
+      "source_blocks_sha256": [
+        "551c9de4a6a4bedc234ce4e2ce21bccd392d4fe994f91b5d3dde74e01782e44f",
+        "8b21db6858c1935107f8a275fb53edd6d9c9658296a6575b6e54a71221252c4d",
+        "333f1ac41f13a5736ea66d39f36177320220397b6864af3748d9290d9b421e69",
+        "5ac75687de1fa57b7dd5b36b990b087c37ef2aba00a126b4744c8637d6ce3e93"
+      ],
+      "source_sha256": "17b4421072c3dff1e6756f8d55d4de5da6cee9cd79ddad0f9dd1f3e866ededf6",
+      "text": "Remove absent pixel mappings as a revisioned edit, retaining cell ancestry.\n\n:param state: The lineage graph to copy and update.\n:param frame: The source image path for this frame.\n:param mask: The current label mask used to identify surviving pixel IDs."
+    },
     "spacr.qt.mask_engine.read_curation": {
       "source_blocks_sha256": [
         "c273fa0829419fcf5bb3cdc46c3143c0820340bace0b7d32c58e8408cbf0ed6b",
@@ -54997,6 +55094,25 @@
       "source_sha256": "c580d95f02a8a22d9bdb9bfb4d6e0d50436d072ab23d7252a1522b6bf2f7bf2f",
       "text": "Drop connected components with area < min_area (in pixels).\n\n:param mask: label or binary mask; every pixel above 0 is foreground. The\n    survivors are relabelled 1..N in the input's dtype.\n:param min_area: smallest component to keep, in pixels; 0 or less\n    returns a copy unchanged."
     },
+    "spacr.qt.mask_engine.rename_lineage_cell": {
+      "source_blocks_sha256": [
+        "d6f77f0bb1c4d8e2eeda14aa47fe012ce448cade1ba7400bfe7a4587e9dd948a",
+        "8b21db6858c1935107f8a275fb53edd6d9c9658296a6575b6e54a71221252c4d",
+        "22e60bfff27d3667eb22f5ffce09017ff4a78e6886735c7baca3e4b6a5944175",
+        "a22266e03bb3c4b496d4da2ae842a8da4258bef02ef9278be64502f030b819c7"
+      ],
+      "source_sha256": "331cd554a5080b436efa867a9e2d0f144ff454ce78d59f45cc7e917822df8a5c",
+      "text": "Rename a segment while retaining its identity and parent links.\n\n:param state: The lineage graph to copy and update.\n:param cell_uuid: The persistent UUID of the segment to rename.\n:param name: The new nonempty display name."
+    },
+    "spacr.qt.mask_engine.restore_lineage_state": {
+      "source_blocks_sha256": [
+        "f6bc465629677bfdcb83e5a4f14482b89a0d27299cf122c635cc737ecd1e6b2c",
+        "50dbe4bbad29015344dc8f4842520b2fd4edf942d57640081f2f45e009220e31",
+        "daf1c0ae106baf0e2b8ce96a0a278d2330818fc8d4c7340652e2db4f586b251f"
+      ],
+      "source_sha256": "cfec8dd0171b59e7825c9fc7d4bf50c38af1712e3000da447e06ad7a80570f99",
+      "text": "Make undo or redo an explicit newer edit that survives older TIFF snapshots.\n\n:param restored: The undo or redo snapshot to restore, or ``None`` for an empty graph.\n:param current: The current graph, or ``None``, used to preserve revision ordering."
+    },
     "spacr.qt.mask_engine.restore_recropped_original": {
       "source_blocks_sha256": [
         "cd1e1fb4962010bdb827c55dbd947ece77e0ee3293c284e9321eae083605e24d",
@@ -55031,11 +55147,12 @@
         "ec8e788e56fb3a2c6610ee0863d41097ce3f6169b8daae8b3e6b6e8ee305a151",
         "9328ec46644267e81a5f0a8a1b38565a154836b11dea2ae08216664e484bd140",
         "63d74b26c05f8a2e7b0f3411c6114e24a908d54712cac898a7f166c4270dc4d9",
-        "86d45588220adff140a79f8f7ff91a4a154d945d67f1d16c980cde581f36fdd1",
+        "625af900c771823ab53d2c8ed63b36580f48756caf079f3361393b3f58172262",
+        "31317539b1c498a9731dccc7a11be3bd9e9ac62a722b8432450c9548ffd4bf10",
         "345b1dce885fd68c4c5ff613880195dc3e9a65ea6d37616abc338f44f1398c10"
       ],
-      "source_sha256": "46bf1b95a7d463a84ce433a93935e210d411b56870ae955f604be660b271f350",
-      "text": "Write the mask to ``<folder>/masks/<stem>.tif`` and return that path.\n\nObject ids are preserved -- see :func:`canonical_labels` for what that\ncosts and why the alternative is worse. A ``_seg.npy`` bundle is written\nback into itself by :func:`save_seg_bundle`, and ``masks_dir`` moves the\nTIFF to the sibling layout's masks folder.\n\n:param folder: field directory under which the ``masks`` directory is\n    created.\n:param filename: source image name; its extension is discarded and its\n    stem becomes the TIFF mask name. A name ending in\n    :data:`SEG_SUFFIX` is the bundle to write into.\n:param mask: label image to canonicalise and write. Existing multi-label\n    object identifiers are retained where possible.\n:param log: the session's :class:`spacr.curation.CurationLog` for this\n    field. Given one holding at least one edit, it is written to\n    ``<mask>.curation.json`` beside the mask, so\n    :func:`spacr.curation.is_curated` reports the saved mask as\n    hand-edited. The log is written whole, so it must have been seeded\n    from :meth:`CurationLog.read_beside` to keep earlier sessions'\n    entries -- which is what the screen does on load. A log with no\n    edits writes no sidecar: a session that opened the editor and\n    painted nothing has not curated anything, and a ledger that exists\n    for every mask ever opened answers no question.\n:param masks_dir: where the masks are, when not in ``<folder>/masks``.\n:param preserve_ids: retain exact primary/secondary IDs without interpreting\n    single-valued masks as binary or splitting disconnected pieces. The\n    explicit mode validates nonnegative 2-D integer labels and refuses\n    IDs above 65535 before writing; it never silently renumbers them.\n:returns: the path written. The TIFF carries the source image's pixel\n    size (:func:`pixel_size_nm`) as its resolution, in pixels per\n    centimetre, when the source records one."
+      "source_sha256": "582f77e63565843f4d032ee95d6d32a8bf8ad99e35806d0480f32c5e65e801e2",
+      "text": "Write the mask to ``<folder>/masks/<stem>.tif`` and return that path.\n\nObject ids are preserved -- see :func:`canonical_labels` for what that\ncosts and why the alternative is worse. A ``_seg.npy`` bundle is written\nback into itself by :func:`save_seg_bundle`, and ``masks_dir`` moves the\nTIFF to the sibling layout's masks folder.\n\n:param folder: field directory under which the ``masks`` directory is\n    created.\n:param filename: source image name; its extension is discarded and its\n    stem becomes the TIFF mask name. A name ending in\n    :data:`SEG_SUFFIX` is the bundle to write into.\n:param mask: label image to canonicalise and write. Existing multi-label\n    object identifiers are retained where possible.\n:param log: the session's :class:`spacr.curation.CurationLog` for this\n    field. Given one holding at least one edit, it is written to\n    ``<mask>.curation.json`` beside the mask, so\n    :func:`spacr.curation.is_curated` reports the saved mask as\n    hand-edited. The log is written whole, so it must have been seeded\n    from :meth:`CurationLog.read_beside` to keep earlier sessions'\n    entries -- which is what the screen does on load. A log with no\n    edits writes no sidecar: a session that opened the editor and\n    painted nothing has not curated anything, and a ledger that exists\n    for every mask ever opened answers no question.\n:param masks_dir: where the masks are, when not in ``<folder>/masks``.\n:param preserve_ids: retain exact primary/secondary IDs without interpreting\n    single-valued masks as binary or splitting disconnected pieces. The\n    explicit mode validates nonnegative 2-D integer labels and refuses\n    IDs above 4294967295 before writing; it never silently renumbers them.\n:param lineage: versioned UUID graph and per-frame pixel mappings to embed\n    in the TIFF. Even an empty graph requests uint32 storage. Existing\n    embedded lineage and exact-ID semantics survive ordinary later saves.\n:returns: the path written. The TIFF carries the source image's pixel\n    size (:func:`pixel_size_nm`) as its resolution, in pixels per\n    centimetre, when the source records one."
     },
     "spacr.qt.mask_engine.save_seg_bundle": {
       "source_blocks_sha256": [
@@ -55157,6 +55274,13 @@
       ],
       "source_sha256": "04421cf0cee56a409c25224536e4233e2909c8766b3421e8d7e48ed2d8ddde3e",
       "text": "Every threshold algorithm name, global then local."
+    },
+    "spacr.qt.mask_engine.validate_lineage": {
+      "source_blocks_sha256": [
+        "2004dbae3bf75d8052b61da7dc4b0be1c19df5d6b8a33302eb5a878b7e8a88d9"
+      ],
+      "source_sha256": "2004dbae3bf75d8052b61da7dc4b0be1c19df5d6b8a33302eb5a878b7e8a88d9",
+      "text": "Copy and validate a versioned lineage graph without recursive traversal."
     },
     "spacr.qt.mask_engine.write_recrop": {
       "source_blocks_sha256": [
@@ -67992,6 +68116,13 @@
       ],
       "source_sha256": "2c6b5c29b03ba5ed44d8e72c1af775895ab38bd111cb57ad8eeb3eab4b70f72a",
       "text": "Put the install's progress and its ending in the console."
+    },
+    "spacr.qt.screens.make_masks.MakeMasksScreen._prepare_label_assignment.commit": {
+      "source_blocks_sha256": [
+        "066deda27a4a19e008ba2afc5c7296d5fb6f4e5ce3d6b5a4754eb3ad487db727"
+      ],
+      "source_sha256": "066deda27a4a19e008ba2afc5c7296d5fb6f4e5ce3d6b5a4754eb3ad487db727",
+      "text": "Install validated lineage and refresh cell controls after the mask update."
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen._start_volume_measurement.measure": {
       "source_blocks_sha256": [

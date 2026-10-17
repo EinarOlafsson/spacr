@@ -1,6 +1,6 @@
 MAKE MASKS: EDIT LABELS AND CURATE TIMELAPSE IDENTITIES / DIVISIONS
 
-Status:    in progress 2026-10-16; approved32-bit masks with embedded TIFF lineage, no fixed generation limit.
+Status:    built 2026-10-17; uint32 time labels with lineage embedded in the mask TIFFs, no generation limit.
 Requested: maintainer, 2026-10-16.
 
 WHAT TO BUILD
@@ -30,3 +30,6 @@ Replace the earlier uint16-only capacity assumption; keep0 as background, retain
 
 2026-10-16 — Maintainer adds a separate Time button to the right of the label buttons: blue when enabled, with a32-bit TIFF/embedded-lineage popup before activation; timelapse controls are available only while Time is enabled.
 Cancellation retains ordinary editing; disabling Time preserves data, exits tracking interactions and restores ordinary wheel behavior. Save/reopen must preserve the approved32-bit/lineage format without silent conversion back to16-bit.
+
+2026-10-17 — Built on nightly: Codex label engine, Edit Label / Time controls, blue Time toggle with confirmation, wheel frame stepping with hover assignment, divisions and embedded uint32 TIFF lineage, plus a reopen that merges lineage from every mask TIFF in the sequence.
+Tests: synthetic five-frame division timelapse traced both ways and reopened from the TIFFs alone, with the existing 708 and Make Masks cohorts. Remaining: tutorial coverage in the docs lane (spacr-d7).

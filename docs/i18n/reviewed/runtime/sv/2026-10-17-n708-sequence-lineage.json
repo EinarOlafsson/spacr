@@ -1,0 +1,13 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "key": "Lineage in {n} mask file(s) could not be read and was skipped.",
+      "source": "Lineage in {n} mask file(s) could not be read and was skipped.",
+      "source_sha256": "18228a647de68515c4905b5b9185be8805dcc327956c5addd55b2bd0c7546c77",
+      "table": "ui",
+      "translation": "Härstamningen i {n} maskfil(er) kunde inte läsas och hoppades över."
+    }
+  ],
+  "schema": 1
+}

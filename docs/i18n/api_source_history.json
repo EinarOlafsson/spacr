@@ -1,4 +1,72 @@
 {
   "schema": 1,
-  "sources": {}
+  "sources": {
+    "1389ba71bb1c93a6693762771affe53eac974cc4b641182b6c3f25477259d621": {
+      "source_blocks_sha256": [
+        "dcf5c9a6c3d42cdacfee0cf82dda4ea5201589046095d5c8e204d476eb3d7c05",
+        "6f538ef16fa487dae97d039709e6887e9b742b58c7f8e81d34f0e67360663cc5",
+        "e0372b62229e25015964f0bc7a2127543cd4bca044d7d539a65d029e229bc863",
+        "3f6405ab7f5ecb1b8bc0ceed13a7a2ff4c0950edcca5e752efb54e7d6d68c2d9"
+      ],
+      "source_sha256": "1389ba71bb1c93a6693762771affe53eac974cc4b641182b6c3f25477259d621",
+      "text": "Fill enclosed background pixels, optionally retaining primary identities.\n\nHoles are filled per object by :func:`fill_label_holes`, never by\nfilling the foreground and labelling it again: that joined every pair of\ntouching cells into one object.\n\n:param mask: label image to fill.\n:param preserve_ids: validate the ids as exact primary IDs first\n    (uint16-compatible, via :func:`canonical_labels`). Either way every\n    id is kept. By default a mask with a single foreground value -- a\n    brush-painted binary mask, which carries no ids -- is numbered by\n    connectivity first, as :func:`canonical_labels` numbers it."
+    },
+    "46bf1b95a7d463a84ce433a93935e210d411b56870ae955f604be660b271f350": {
+      "source_blocks_sha256": [
+        "175499f61d4c518b6b5762af4b3a4deebcf0dfe12278786eee41568e430db8b3",
+        "58e4f435f3deef69bb9c086657670f27f02c6b9386ea1c791cf1928290c71db7",
+        "c251a546769a32b1fa5615227ea667628298f7dad5c7de33296cc51559f0ea14",
+        "c0bea415c9505292362f509f2f28f66eb6845411ec88366ee918dcabf9510772",
+        "ec8e788e56fb3a2c6610ee0863d41097ce3f6169b8daae8b3e6b6e8ee305a151",
+        "9328ec46644267e81a5f0a8a1b38565a154836b11dea2ae08216664e484bd140",
+        "63d74b26c05f8a2e7b0f3411c6114e24a908d54712cac898a7f166c4270dc4d9",
+        "86d45588220adff140a79f8f7ff91a4a154d945d67f1d16c980cde581f36fdd1",
+        "345b1dce885fd68c4c5ff613880195dc3e9a65ea6d37616abc338f44f1398c10"
+      ],
+      "source_sha256": "46bf1b95a7d463a84ce433a93935e210d411b56870ae955f604be660b271f350",
+      "text": "Write the mask to ``<folder>/masks/<stem>.tif`` and return that path.\n\nObject ids are preserved -- see :func:`canonical_labels` for what that\ncosts and why the alternative is worse. A ``_seg.npy`` bundle is written\nback into itself by :func:`save_seg_bundle`, and ``masks_dir`` moves the\nTIFF to the sibling layout's masks folder.\n\n:param folder: field directory under which the ``masks`` directory is\n    created.\n:param filename: source image name; its extension is discarded and its\n    stem becomes the TIFF mask name. A name ending in\n    :data:`SEG_SUFFIX` is the bundle to write into.\n:param mask: label image to canonicalise and write. Existing multi-label\n    object identifiers are retained where possible.\n:param log: the session's :class:`spacr.curation.CurationLog` for this\n    field. Given one holding at least one edit, it is written to\n    ``<mask>.curation.json`` beside the mask, so\n    :func:`spacr.curation.is_curated` reports the saved mask as\n    hand-edited. The log is written whole, so it must have been seeded\n    from :meth:`CurationLog.read_beside` to keep earlier sessions'\n    entries -- which is what the screen does on load. A log with no\n    edits writes no sidecar: a session that opened the editor and\n    painted nothing has not curated anything, and a ledger that exists\n    for every mask ever opened answers no question.\n:param masks_dir: where the masks are, when not in ``<folder>/masks``.\n:param preserve_ids: retain exact primary/secondary IDs without interpreting\n    single-valued masks as binary or splitting disconnected pieces. The\n    explicit mode validates nonnegative 2-D integer labels and refuses\n    IDs above 65535 before writing; it never silently renumbers them.\n:returns: the path written. The TIFF carries the source image's pixel\n    size (:func:`pixel_size_nm`) as its resolution, in pixels per\n    centimetre, when the source records one."
+    },
+    "57f17ce4638ffa42030531af24d32f35b8df1c20be2a4a8986d8524b9d3cfc77": {
+      "source_blocks_sha256": [
+        "5250057c18de49e55abf1889d1667fbd8621788521f0266002a5198ccbf91ff7",
+        "1d4c91a591d800e33ac673fd1ae876fa626aa5c712c639e34aba85799148a169",
+        "9f73f7cd507a16a5a8e8060a98de8914eb4031b4f42cc7bf080822b3fbc774d4",
+        "59641ef3aeeb912c7b5b55624f15ecddacee7073ada4e7b96cbeeb481c6a0874",
+        "60333f44c4b3978c83ca11a5c3b453bb32b31e9f710c7a81beb7633783af0f82",
+        "c824b0d9667e223cb6e974a1f77a8795593cfecbf7c02e7b88509738d441ed57",
+        "3268376744c3aa635e176e1ffe486ffcfa0839c8971e2bd4cd5cc17667309b46",
+        "06c3b6005871c9aff0755ef333108a85b9e367fe29cdeaedb7f75c3791bbc754",
+        "2a9368963cf8c125e5a0950e9223687924349a703021c6a2e4b7f788f20262d8",
+        "c3cb05734698161eb442922f5bde97f255d5cc3e7a1ecee23d6d580e4d710905",
+        "d795727355e8b3965c4ca671fa828b0cc4e17c6277b8e7e0122f4b5354f8a271"
+      ],
+      "source_sha256": "57f17ce4638ffa42030531af24d32f35b8df1c20be2a4a8986d8524b9d3cfc77",
+      "text": "Load an image and its accompanying mask.\n\n- Multi-channel images are collapsed to grayscale via BT.601 weights.\n- Missing masks are created as zeros of the image shape.\n- Images are returned as uint16; masks preserve uint8/uint16 label IDs.\n- A mask saved by :func:`save_mask` is found even when the source image\n  had a non-TIFF extension. Its canonical TIFF takes precedence over\n  an older mask under the source image's extension.\n- A ``filename`` ending in :data:`SEG_SUFFIX` is a Cellpose bundle and is\n  read by :func:`load_seg_bundle` instead.\n\n:param folder: the folder holding the image, or the bundle.\n:param filename: the image, or the ``_seg.npy`` bundle, to load.\n:param masks_dir: where the masks are, when not in ``<folder>/masks``;\n    see :func:`masks_folder`.\n:returns: ``(image, mask)``.\n:raises ValueError: for unsupported dimensions or an image/mask shape\n    mismatch."
+    },
+    "5ae92e2d86b18c397565231cbc7a313495958796baba3b9547a081fa9542fa60": {
+      "source_blocks_sha256": [
+        "dc67a8f98715e3dabec701d451ffeb786d86120e82c57a4136fc994a3651a89a",
+        "1fcc8931fc321cb6cfe1f45a7cd296784bbbb6432dc1693b0363363d954c18d5",
+        "af067872ed4ed40845303d23245f5936085cad1596c67514167825ccc1d2556d",
+        "dd44de89b4b6e40eafa5c325d301bf42811217aeaee645f9ff2091a9a10b421b",
+        "225da79df652064f3c375fbfac2f12822dab9726091547be0892a300e3703c80",
+        "f8c09a00d0044b24c4f65f46e3b0f1a45f5db1068130558d4f2c58e61799796e",
+        "035c3e4784c95a1772f269c6baac4f7e4f502ffe307b7e98a606203256e18694",
+        "016cba00f46b45fc49c70ed1922755167cf08c6579e06a49ed4bc55e60ed58d1",
+        "a89fb9a7a288e2e65c48e4f9c0fc9f7579568abbb0ee1e5c3fbf077f86570623",
+        "1a6423bda836e7645559cf6a555e2638d3b7e67bf5a5c1e0b006f83e35fffde0"
+      ],
+      "source_sha256": "5ae92e2d86b18c397565231cbc7a313495958796baba3b9547a081fa9542fa60",
+      "text": "Return ``mask`` as uint16 labels, keeping every id it already had.\n\nThe old behaviour here was ``label(mask > 0)``, which renumbers the\nconnected components 1..N on every save. That throws away the identity\nof every object: erase object 7 of 20 and objects 8..20 each slide down\nby one, so the saved mask no longer keys against the measurements, the\ncrops or the tracks derived from the segmentation it was edited from.\n\nSo ids are kept, with two things settled:\n\n* **A mask with one foreground value carries no ids to keep.** That is\n  what a purely brush-painted mask looks like -- every stroke writes the\n  same value -- and it is a binary image, not a label image. Its\n  components are numbered 1..N, which loses nothing.\n* **A label that names two separated blobs is split.** One id must mean\n  one object. The largest piece keeps the id and the rest are given the\n  smallest ids not already in use, so painting a second blob with the\n  brush over a real segmentation adds an object instead of extending a\n  distant one.\n\nEach id is examined inside its own bounding box\n(:func:`scipy.ndimage.find_objects`) rather than across the whole field,\nwhich gives the same pieces in the same order and makes the call cheap\nenough to run while the mouse moves: on a 2048 x 2048 field of 400\nobjects it went from about 3.5 s to tens of milliseconds.\n\n:param mask: a label image; any integer or boolean dtype in default mode.\n:param preserve_ids: disable binary interpretation and component splitting.\n    Use for primary/secondary relationships: a lone cell 900 remains 900,\n    and separated pieces with the same primary ID remain one label.\n    Requires a nonempty 2-D nonnegative integer array, not a boolean mask.\n:returns: the labels as ``uint16``.\n:raises ValueError: when an id does not fit in ``uint16``, or exact-ID\n    mode receives invalid labels. Oversized IDs are never truncated."
+    },
+    "d0ddafa982d06c8602d1cad124accb3626102c4500f2ae7a48f840cf74c555f3": {
+      "source_blocks_sha256": [
+        "7fb460537568ba27c6921780f36418b0073c6af9909cf1e25d7f960372bf2fd9",
+        "dc5a910f829d75f3e801bed67f9239157a2e5bb71794e27bb4df582372b82197",
+        "f5498ad93ff511e6e045bbd7d187f8685f7b93ec4c8267d800161571f764d218"
+      ],
+      "source_sha256": "d0ddafa982d06c8602d1cad124accb3626102c4500f2ae7a48f840cf74c555f3",
+      "text": "The id to give the next object drawn on ``mask``: one past its top.\n\nAbove the maximum rather than the lowest free id, because ids are what\nthe ledger, the measurements and the crops name objects by. Handing a\nnew object the id of one that was deleted makes two different cells\nshare a name across a session, and nothing downstream can tell them\napart afterwards.\n\n:param mask: label mask; an empty array gives 1."
+    }
+  }
 }
