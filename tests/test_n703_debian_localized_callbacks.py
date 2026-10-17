@@ -13,9 +13,7 @@ from spacr.qt import i18n, preferences
 
 METADATA_SOURCE = "invalid Debian package metadata"
 PROMPT_SOURCE = (
-    "spaCR will close before updating its Debian package. "
-    "A graphical administrator authorization window will open. "
-    "The previous package will be retained for rollback. "
+    "spaCR {version} is ready. Restart to use the update. "
     "Your data and caches will be kept."
 )
 
@@ -25,6 +23,9 @@ def test_debian_localized_refusal_and_cancelled_authorization_prompt(monkeypatch
     reviewed = Path(__file__).parents[1] / "docs/i18n/reviewed/runtime" / language / "2026-10-15-debian-update-transaction.json"
     rows = json.loads(reviewed.read_text())["records"]
     targets = {row["source"]: row["translation"] for row in rows}
+    native = Path(__file__).parents[1] / "docs/i18n/reviewed/runtime" / language / "2026-10-16-n703-native-operations.json"
+    targets.update({row["source"]: row["translation"]
+                    for row in json.loads(native.read_text())["records"]})
     assert targets[METADATA_SOURCE] != METADATA_SOURCE and targets[PROMPT_SOURCE] != PROMPT_SOURCE
     store = QSettings(str(tmp_path / "isolated-language.ini"), QSettings.IniFormat)
     monkeypatch.setattr(preferences, "_settings", lambda: store)
@@ -60,16 +61,17 @@ def test_debian_localized_refusal_and_cancelled_authorization_prompt(monkeypatch
                              _frozen_update_timer=SimpleNamespace(stop=lambda: events.append("stop")),
                              _save_pip_update_restart=forbidden, close=forbidden)
     window._cancel_frozen_update = MethodType(app_module.MainWindow._cancel_frozen_update, window)
+    window._hide_update_progress = MethodType(app_module.MainWindow._hide_update_progress, window)
 
-    def information(parent, title, text, buttons):
-        assert parent is window
-        prompts.append((title, text, buttons))
+    def restart(message):
+        prompts.append(message)
         return 2
 
+    window._confirm_update_restart = restart
     monkeypatch.setattr(app_module, "QMessageBox", SimpleNamespace(
-        Ok=1, Cancel=2, information=information, warning=forbidden))
+        Ok=1, Cancel=2, information=forbidden, warning=forbidden))
     app_module.MainWindow._poll_frozen_update(window)
-    assert prompts == [("Updates", targets[PROMPT_SOURCE], 3)]
+    assert prompts == [targets[PROMPT_SOURCE].format(version="1.5.1.5")]
     assert events == ["stop", "stop", "cancel"]
     assert window._frozen_update_handshake is None and window._frozen_update_plan is None
     assert archive.read_bytes() == original

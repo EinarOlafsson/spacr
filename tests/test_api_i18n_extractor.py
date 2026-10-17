@@ -1691,6 +1691,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in dino_drop_in_arrivals} == dino_drop_in_arrivals
     assert not dino_drop_in_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **dino_drop_in_arrivals}
+    # 2026-10-17: Item 703: background update staging, the native update/uninstall helpers and the Preferences uninstall entry; one named contract.
+    n703_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "703_background_update_and_uninstall_api_arrivals_2026-10-17.json").read_text())
+    assert len(n703_arrivals) == 17
+    assert {key: docs[key] for key in n703_arrivals} == n703_arrivals
+    assert not n703_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **n703_arrivals}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
         / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text())

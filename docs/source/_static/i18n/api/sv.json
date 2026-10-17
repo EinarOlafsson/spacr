@@ -38716,21 +38716,21 @@
       "source_blocks_sha256": [
         "7416dbb0fde10154916ad50cd0fc7e202830b618edb774535da00b284b0cb51e",
         "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
-        "f7429e66190134bb8d3b5b0468206f3e3128f87883921c7fbe700c7479929706",
-        "e017a0d3e804e71040c5189f6b6426d8402cab247d827b87e69f69e9b020125a",
-        "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
+        "e0d76c6db052c67226a155017113c974ea0956726168ef17c855529211ed4c54",
+        "f08330e3b1a0a9470b6cc8c0e4470b9f0b667c197fdcf830d836be90a37e12fb",
+        "7e7465b19ed0856c63c643081b418f8299629d079f51bb7d42aa5b8f23fe50e4",
         "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
         "0652c5caf1f0df7c39d1e6c1c79f43d330c0f02a8d6c1614075702950f791893",
         "16c109cefeac68ae0b253a90e4ae1cf7b1dbd527ce7a3af7b2326e1a837afef3"
       ],
-      "source_sha256": "cde38312aab2afab1bbdceb56fc3154a44c1daab76afce222aeed43202098641",
-      "text": "Hitta spaCR-installationer och kör lämplig uppdaterings- eller borttagningsprocedur.\n\nOnline-installationsprogrammen förbereder och validerar den nya körmiljön innan gamla programkopior tas bort. De behåller den befintliga installationen under förberedelsen och återställer dess tidigare körmiljö om ersättningen inte klarar verifieringen. Uppdateringshjälpen verifierar skrivbordsstartens tolk och det importerade programmet innan andra kopior tas bort eller en omstart begärs. :func:`run_update_sequence` är fortfarande den lågnivåprocedur för borttagning som används av uttryckliga rensningskommandon.\n\nStödda macOS-onlineinstallationer och dedikerade POSIX-miljöer med pip använder sitt befintliga paketverktyg efter godkänd avstängning för att förbereda, verifiera och atomärt aktivera ett uppdaterat syskon till körmiljön. Bootstrap-filer, startprogram, oförändrade paket och den tidigare körmiljön behålls. Delade miljöer, Conda-miljöer och Python-miljöer på Windows kräver en egen ersättningsadapter.\n\nEtt macOS-program av fryst typ som stöds använder en verifierad DMG-ersättning och behåller hela sitt tidigare programpaket. De här macOS-uppdateringsvägarna kör inte standardproceduren för borttagning. Andra familjer av frysta program kräver en ersättningsadapter som stöds innan en uppdatering kan starta.\n\nBorttagningen kör aldrig en gammal versions eget avinstallationsprogram, så en kopia vars ``Uninstall.exe`` eller ``uninstall-spacr.sh`` saknas eller är trasig tas bort ändå. Inställningar och användardata behålls: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, cachen för Hugging Face och inställningarna för ``spacr``/``qt`` (``~/.config/spacr``, inställningsfilen i macOS och registernyckeln ``Software\\spacr`` i Windows).\n\nEn pip- eller conda-miljö som användaren har skapat listas men tas aldrig bort; spaCR-paketet avinstalleras från den bara när anroparen anger att den har markerats. En redigerbar källkodsutcheckning rapporteras och lämnas orörd.\n\nModulen använder bara standardbiblioteket och importerar ingenting från spaCR, så ett installationsprogram kan köra den med den Python som det självt har installerat innan någon spaCR finns, och en hjälpprocess kan köra en kopia av den efter att den körande spaCR har stängts::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` är den uttryckligen valda fullständiga avinstallationen: den raderar även spaCR:s cacher, backendmiljöer och användardata efter att ha listat dem och frågat. Den körs aldrig av sig själv; ``remove --purge`` kör den efter att borttagningen lyckats.",
+      "source_sha256": "a881a3859ebcd0f6032d9688b977d47b57f5be8310a7b4a7876cdc2f7ce3baf7",
+      "text": "Hitta spaCR-installationer och kör lämplig uppdaterings- eller borttagningsprocedur.\n\nOnline-installationsprogrammen förbereder och validerar den nya körmiljön innan gamla programkopior tas bort. De behåller den befintliga installationen under förberedelsen och återställer dess tidigare körmiljö om ersättningen inte klarar verifieringen. Uppdateringshjälpen verifierar skrivbordsstartens tolk och det importerade programmet innan andra kopior tas bort eller en omstart begärs. :func:`run_update_sequence` är fortfarande den lågnivåprocedur för borttagning som används av uttryckliga rensningskommandon.\n\nOnlineinstallationer för macOS som stöds och dedikerade pip-miljöer på POSIX eller Windows använder sitt befintliga paketverktyg för att förbereda och verifiera en uppdaterad körmiljö i en katalog på samma nivå innan de begär Starta om. Aktivering kräver ett godkänt avslut. Bootstrap-filer, startprogram, oförändrade paket och den tidigare körmiljön behålls. Delade miljöer och Conda-miljöer kräver en egen ersättningsadapter.\n\nEn paketerad installation på macOS, Windows eller Debian som stöds förbereder sin verifierade ersättning medan skrivbordsprogrammet förblir öppet. Skyddade installationer får administratörsauktorisering via ett grafiskt gränssnitt innan de begär Starta om. Aktivering kräver ett godkänt avslut och att processen faktiskt avslutas; återställningsdata behålls tills det uppdaterade skrivbordsprogrammet bekräftar sin identitet och sitt huvudfönster.\n\nVanlig borttagning bevarar inställningar och användardata. Den bekräftade avinstallationen via GUI visar i stället en förhandsgranskning av den aktuella eller alla upptäckta installationer och separata rensningskategorier, som är valda som standard och kan väljas bort var för sig. Skyddad borttagning använder endast ett validerat installerat hjälpprogram med det protokoll som krävs; auktorisering, förberedelse och godkänt avslut av skrivbordsprogrammet föregår raderingen. Orelaterade projekt, overifierade data och delade miljöer bevaras.\n\nEn pip- eller conda-miljö som användaren har skapat listas men tas aldrig bort; spaCR-paketet avinstalleras från den bara när anroparen anger att den har markerats. En redigerbar källkodsutcheckning rapporteras och lämnas orörd.\n\nModulen använder bara standardbiblioteket och importerar ingenting från spaCR, så ett installationsprogram kan köra den med den Python som det självt har installerat innan någon spaCR finns, och en hjälpprocess kan köra en kopia av den efter att den körande spaCR har stängts::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` är den uttryckligen valda fullständiga avinstallationen: den raderar även spaCR:s cacher, backendmiljöer och användardata efter att ha listat dem och frågat. Den körs aldrig av sig själv; ``remove --purge`` kör den efter att borttagningen lyckats.",
       "translation_source_blocks_sha256": [
         "7416dbb0fde10154916ad50cd0fc7e202830b618edb774535da00b284b0cb51e",
         "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
-        "f7429e66190134bb8d3b5b0468206f3e3128f87883921c7fbe700c7479929706",
-        "b7b4a480350779d9e499a18a0b05ee0252054fdd541405364095199fcda23505",
-        "d1c3cc6a4c7b476afc63c9609f53b6a82612c1c6da142522cedadeb817aef8c7",
+        "e0d76c6db052c67226a155017113c974ea0956726168ef17c855529211ed4c54",
+        "f08330e3b1a0a9470b6cc8c0e4470b9f0b667c197fdcf830d836be90a37e12fb",
+        "7e7465b19ed0856c63c643081b418f8299629d079f51bb7d42aa5b8f23fe50e4",
         "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
         "bb0bd04717a44d9841640212c772bd7a6f41c19bc71bbed8863510f45c4e6bcb",
         "16c109cefeac68ae0b253a90e4ae1cf7b1dbd527ce7a3af7b2326e1a837afef3"
@@ -38800,6 +38800,26 @@
         "28d5942b909f593a8665c322eb016f1731034aa7da04b26baa87445eb3804b50"
       ]
     },
+    "spacr.install_cleanup._coordinate_native_update._run_authorized": {
+      "source_blocks_sha256": [
+        "a3a72649d96197b1ddcdad241c16a0433083bd42776c86956aa43c9b25d5f76f"
+      ],
+      "source_sha256": "a3a72649d96197b1ddcdad241c16a0433083bd42776c86956aa43c9b25d5f76f",
+      "text": "Behåll den plattformsspecifika arbetarens avslutsresultat eller fel tills processen som den ansvarar för avslutas.",
+      "translation_source_blocks_sha256": [
+        "a3a72649d96197b1ddcdad241c16a0433083bd42776c86956aa43c9b25d5f76f"
+      ]
+    },
+    "spacr.install_cleanup._coordinate_native_update._stopped": {
+      "source_blocks_sha256": [
+        "33e97b7079dbd95275d614062b32167621984b812fc483c142ac83ac44372729"
+      ],
+      "source_sha256": "33e97b7079dbd95275d614062b32167621984b812fc483c142ac83ac44372729",
+      "text": "Kontrollera om skrivbordsprogrammet har avbrutit åtgärden innan den plattformsspecifika arbetarens slutförande observeras.",
+      "translation_source_blocks_sha256": [
+        "33e97b7079dbd95275d614062b32167621984b812fc483c142ac83ac44372729"
+      ]
+    },
     "spacr.install_cleanup._delete._writable_then_retry": {
       "source_blocks_sha256": [
         "d3fff3ce723738f6656a43e787c795d9b6cfcfb86dd0e050ad4ac6e19431b657",
@@ -38856,6 +38876,86 @@
         "903c6484f4ff7f5161e8c3608a510f1514f08f43f4dcdd1032d5dea37ce9ee61"
       ]
     },
+    "spacr.install_cleanup._macos_uninstall_tree.visit": {
+      "source_blocks_sha256": [
+        "8d8e1dea690b2435111c54eb1c552d8511d05322a158939cc66d1d2acc95194e"
+      ],
+      "source_sha256": "8d8e1dea690b2435111c54eb1c552d8511d05322a158939cc66d1d2acc95194e",
+      "text": "Ta bort ett verifierat underordnat objekt via dess överordnade katalogs deskriptor och bevara valda sökvägar.",
+      "translation_source_blocks_sha256": [
+        "8d8e1dea690b2435111c54eb1c552d8511d05322a158939cc66d1d2acc95194e"
+      ]
+    },
+    "spacr.install_cleanup._run_debian_update._check_current": {
+      "source_blocks_sha256": [
+        "a09b6b9297a24d56e65d2f9ca02977d1fa1e334d21783f6e857caaa36cc2b804"
+      ],
+      "source_sha256": "a09b6b9297a24d56e65d2f9ca02977d1fa1e334d21783f6e857caaa36cc2b804",
+      "text": "Bind aktiveringen till samma installerade Debian-paket och betrodda hjälpprogram.",
+      "translation_source_blocks_sha256": [
+        "a09b6b9297a24d56e65d2f9ca02977d1fa1e334d21783f6e857caaa36cc2b804"
+      ]
+    },
+    "spacr.install_cleanup._run_macos_frozen_update._authorized": {
+      "source_blocks_sha256": [
+        "8e3b768057cb6bb7c7ec097cfe34c910967f30cf00d3674c671b389ee1c8cedc"
+      ],
+      "source_sha256": "8e3b768057cb6bb7c7ec097cfe34c910967f30cf00d3674c671b389ee1c8cedc",
+      "text": "Begär en enda plattformsspecifik auktorisering för betrodd förberedelse och uppskjuten aktivering.",
+      "translation_source_blocks_sha256": [
+        "8e3b768057cb6bb7c7ec097cfe34c910967f30cf00d3674c671b389ee1c8cedc"
+      ]
+    },
+    "spacr.install_cleanup._run_macos_frozen_update._new_desktop": {
+      "source_blocks_sha256": [
+        "a8e47fdff3291a1e73ae2a648787297cea24eab33964bae83d70972440242801"
+      ],
+      "source_sha256": "a8e47fdff3291a1e73ae2a648787297cea24eab33964bae83d70972440242801",
+      "text": "Verifiera den aktiverade versionen och vänta på dess faktiska huvudfönster.",
+      "translation_source_blocks_sha256": [
+        "a8e47fdff3291a1e73ae2a648787297cea24eab33964bae83d70972440242801"
+      ]
+    },
+    "spacr.install_cleanup._run_macos_frozen_update._unchanged": {
+      "source_blocks_sha256": [
+        "2658a5e98c612635866695bfbde4feb4a2e88eda2bf56838c9b16abb405efc7b"
+      ],
+      "source_sha256": "2658a5e98c612635866695bfbde4feb4a2e88eda2bf56838c9b16abb405efc7b",
+      "text": "Neka aktivering om det installerade programpaketet eller den autentiserade avbildningen har ändrats.",
+      "translation_source_blocks_sha256": [
+        "2658a5e98c612635866695bfbde4feb4a2e88eda2bf56838c9b16abb405efc7b"
+      ]
+    },
+    "spacr.install_cleanup._run_macos_online_update.prepared": {
+      "source_blocks_sha256": [
+        "eb89780f273278e9222a1987ac553218309513fdef4c36821c415e26354e8d28"
+      ],
+      "source_sha256": "eb89780f273278e9222a1987ac553218309513fdef4c36821c415e26354e8d28",
+      "text": "Erbjud Starta om först när ersättningen har klarat kontrollerna under förberedelsen.",
+      "translation_source_blocks_sha256": [
+        "eb89780f273278e9222a1987ac553218309513fdef4c36821c415e26354e8d28"
+      ]
+    },
+    "spacr.install_cleanup._run_native_uninstall.stopped": {
+      "source_blocks_sha256": [
+        "ae20b54f8091558de19fccfbcea7cbd08b1071a08fd73543c20160b89017b0ad"
+      ],
+      "source_sha256": "ae20b54f8091558de19fccfbcea7cbd08b1071a08fd73543c20160b89017b0ad",
+      "text": "Kontrollera om skrivbordsprogrammet har avbrutit åtgärden innan det auktoriserade hjälpprogrammets slutförande observeras.",
+      "translation_source_blocks_sha256": [
+        "ae20b54f8091558de19fccfbcea7cbd08b1071a08fd73543c20160b89017b0ad"
+      ]
+    },
+    "spacr.install_cleanup._run_pip_environment_update.prepared": {
+      "source_blocks_sha256": [
+        "fa9029cc38e3bc15409300f76c269d66d3cad450cbed7b1f270f621bcaaab2b0"
+      ],
+      "source_sha256": "fa9029cc38e3bc15409300f76c269d66d3cad450cbed7b1f270f621bcaaab2b0",
+      "text": "Behåll miljön som körs tills den verifierade ersättningen har accepterats.",
+      "translation_source_blocks_sha256": [
+        "fa9029cc38e3bc15409300f76c269d66d3cad450cbed7b1f270f621bcaaab2b0"
+      ]
+    },
     "spacr.install_cleanup._run_plan._finish": {
       "source_blocks_sha256": [
         "532b1ab0bf40eeff8d6202d2541133e0781ca4b38117e18d5bfd1a883e4107a7",
@@ -38866,6 +38966,56 @@
       "translation_source_blocks_sha256": [
         "532b1ab0bf40eeff8d6202d2541133e0781ca4b38117e18d5bfd1a883e4107a7",
         "e7a79149a400ea55f4d7de4ac47e2776d1daf947986dac7101344929501e5fbc"
+      ]
+    },
+    "spacr.install_cleanup._run_windows_frozen_update._check_current": {
+      "source_blocks_sha256": [
+        "69d55cfeb8ba5b13b719f205fb986a7d62d443b72bb242ff487691cd1f68b4a5"
+      ],
+      "source_sha256": "69d55cfeb8ba5b13b719f205fb986a7d62d443b72bb242ff487691cd1f68b4a5",
+      "text": "Kontrollera på nytt installationsprogrammet med fastställd identitet och den oförändrade Windows-målplatsen före aktivering.",
+      "translation_source_blocks_sha256": [
+        "69d55cfeb8ba5b13b719f205fb986a7d62d443b72bb242ff487691cd1f68b4a5"
+      ]
+    },
+    "spacr.install_cleanup._run_windows_frozen_update._launch_verified": {
+      "source_blocks_sha256": [
+        "d84691719ff0efddd5bfd225f439ec94b00953baabad489728aa396343b2dea8"
+      ],
+      "source_sha256": "d84691719ff0efddd5bfd225f439ec94b00953baabad489728aa396343b2dea8",
+      "text": "Bekräfta det aktiverade Windows-innehållet och dess huvudfönster utan förhöjda behörigheter.",
+      "translation_source_blocks_sha256": [
+        "d84691719ff0efddd5bfd225f439ec94b00953baabad489728aa396343b2dea8"
+      ]
+    },
+    "spacr.install_cleanup._run_windows_native_uninstall.authorize": {
+      "source_blocks_sha256": [
+        "fbca2e109203a09a1d07c7f6a5e1f1cf6c79bdb0666b19e469dc47648e7ad6b1"
+      ],
+      "source_sha256": "fbca2e109203a09a1d07c7f6a5e1f1cf6c79bdb0666b19e469dc47648e7ad6b1",
+      "text": "Behåll den plattformsspecifika avinstallerarens bootstrap-resultat tills slutförandet har autentiserats.",
+      "translation_source_blocks_sha256": [
+        "fbca2e109203a09a1d07c7f6a5e1f1cf6c79bdb0666b19e469dc47648e7ad6b1"
+      ]
+    },
+    "spacr.install_cleanup._run_windows_native_uninstall.stopped": {
+      "source_blocks_sha256": [
+        "533bcf00f100db8593becbee7dbf1360ed65431eb1ce6beae70ab0da076f9c11"
+      ],
+      "source_sha256": "533bcf00f100db8593becbee7dbf1360ed65431eb1ce6beae70ab0da076f9c11",
+      "text": "Behandla en misslyckad plattformsspecifik start som stoppad utan att förväxla bootstrap-processens avslut med slutförandet.",
+      "translation_source_blocks_sha256": [
+        "533bcf00f100db8593becbee7dbf1360ed65431eb1ce6beae70ab0da076f9c11"
+      ]
+    },
+    "spacr.install_cleanup._run_windows_pip_update.prepared": {
+      "source_blocks_sha256": [
+        "35e7bfbe7ae13050a14cb79dade46404cac35685e6efd56cef80fb1261324261"
+      ],
+      "source_sha256": "35e7bfbe7ae13050a14cb79dade46404cac35685e6efd56cef80fb1261324261",
+      "text": "Begär avslut först när den privata ersättningen är verifierad.",
+      "translation_source_blocks_sha256": [
+        "35e7bfbe7ae13050a14cb79dade46404cac35685e6efd56cef80fb1261324261"
       ]
     },
     "spacr.install_cleanup._standalone_helper_command.contains": {
@@ -38892,6 +39042,16 @@
       "text": "Spara den aktuella uppdateringsfasen i transaktionsjournalen genom att ersätta filen atomärt.",
       "translation_source_blocks_sha256": [
         "511fb04c43db2b4a53aa928f8aa7451cc800d18d272c7a21f9ae6949a92cb6c6"
+      ]
+    },
+    "spacr.install_cleanup._uninstall_data_candidates.expand": {
+      "source_blocks_sha256": [
+        "150516859006f38f26d63f583f1aeea3528b25f7877d326003eaa7eb6c414b68"
+      ],
+      "source_sha256": "150516859006f38f26d63f583f1aeea3528b25f7877d326003eaa7eb6c414b68",
+      "text": "Expandera den inledande hemkatalogmarkören för den konfigurerade användaren.",
+      "translation_source_blocks_sha256": [
+        "150516859006f38f26d63f583f1aeea3528b25f7877d326003eaa7eb6c414b68"
       ]
     },
     "spacr.install_cleanup.apply_optional_cleanup": {
@@ -39043,9 +39203,9 @@
     "spacr.install_cleanup.start_update_helper": {
       "source_blocks_sha256": [
         "962ee0a65cb98c1a7e5d5bd46f704918d560172c572df169b810ba8de9e625dc",
-        "cec3fb3c67983bab4fd6ea6ca11c0bcb33e727d5bdffd7eee3df8b03aeb6f8c7",
-        "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
-        "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
+        "da2fc080e7ce4d62a57ad783bc506fca93f3ac1c227e2e2d86a5f3c2287c7f7a",
+        "d8c0e7cad66dadfc30b5b50b7e4c54576e3e34ff6ddd735fb6f083efd1682746",
+        "073898c084d9fad964180534bcd5431b6a343a5187d1ff27b5e7a322707e936b",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
         "f4f29aad2ee5d6d2e633c876af3de201ef5107f4bebf85c341074b87d44a38b8",
         "03fe7146f54f66b140a67fcb8e24fe1d600b19c5f064b609faf1a8a148e08062",
@@ -39054,15 +39214,15 @@
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
-        "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674"
+        "e4c02e1396bec959a337254cf3f21c3c2cf75cda1b95885223e1361b2b0bdc70"
       ],
-      "source_sha256": "bb3ffeae3a2024578f2ec4b3368a05018f5582773acf5e46540984e310611f98",
-      "text": "Kör en installationsuppdatering i en process som överlever spaCR.\n\nKopior skapade av installationsprogrammet och stödda dedikerade POSIX- eller Windows-miljöer med pip kan använda denna hjälpprocess. Den väntar tills den körande processen har avslutats innan installationen ändras; pip-adaptern kräver också autentiserat godkännande av avstängningen.\n\nFör en macOS-onlineinstallation som stöds används den befintliga medföljande ``uv`` och privata Python för att uppgradera spaCR i samma miljö. Bevara miljökatalogen, startfilerna, programstartaren och installerade paket som inte behöver uppdateras. Starta om först efter att ha verifierat att den installerade versionen är minst ``version`` och nyare än den tidigare versionen, när den tidigare versionen är känd. En misslyckad uppgradering eller versionskontroll utlöser varken borttagning eller ett ersättande installationsprogram.\n\nDen vanliga ersättningsproceduren laddar ned och kör det nya installationsprogrammet, som förbereder installationen, verifierar dess faktiska tolk och importerade program och tar sedan bort andra kopior och startar programmet. Om installationen eller verifieringen misslyckas tas den tidigare fungerande kopian inte bort. Misslyckad borttagning av andra kopior loggas utan att programmet startas igen.\n\n:param records: installationer från :func:`find_old_installs`.\n:param version: versionen som ska installeras.\n:param ticked: rotkatalogerna för de miljöer som användaren har markerat.\n:param pid: processen att vänta på; den här processen när värdet är ``None``.\n:param workdir: hjälpprocessens mapp; en ny tillfällig mapp när värdet är ``None``.\n:param system: datorn; ``None`` betyder den här datorn.\n:param spawn: ersätter funktionen som startar den fristående processen.\n:returns: planen så som den skrevs till ``plan.json``. ``plan[\"command\"]`` är hjälpprocessens kommando, eller ``None`` med ``plan[\"error\"]`` som anger varför ingenting startades.\n\nEtt fryst macOS-programpaket på en plats där användaren får skriva använder sin verifierade DMG-adapter för ersättning och behåller hela det föregående programpaketet. Ett Debian-programpaket med protokollmarkering använder grafisk administratörsauktorisering och ett root-ägt hjälpprogram utanför installationen. Både ersättningspaketet och paketet för återställning kräver publicerade kontrollsummor; paketet och körmiljön utan förhöjda rättigheter verifieras innan programmet startas igen. Frysta programfamiljer som inte stöds returnerar ett fel innan något tas bort; ingen reservväg via onlineinstallationsprogrammet är aktiverad för dem.",
+      "source_sha256": "1d17df3cd60ea0a66ac6baa3574a1d6bf3dc9534cb8cd38b431eab330f3446e6",
+      "text": "Kör en installationsuppdatering i en process som överlever spaCR.\n\nKopior skapade av installationsprogram och dedikerade pip-miljöer på POSIX eller Windows som stöds kan använda detta hjälpprogram. Det förbereder ersättningar medan det aktuella programmet körs och kräver autentiserat godkännande av avslut samt att processen faktiskt avslutas före aktivering.\n\nFör en onlineinstallation på macOS som stöds används befintliga medföljande ``uv`` och privat Python för att installera den begärda spaCR-versionen i en förberedd miljö i en katalog på samma nivå. Bevara bootstrap-filer, programmets startprogram och paket som inte behöver uppdateras. Efter verifierad förberedelse och godkänt avslut aktiveras den förberedda miljön på den befintliga körmiljöns sökväg, och hela den tidigare miljön behålls för återställning. Vid omstart verifieras den begärda versionen, den körbara filen, den importerade modulen och det synliga huvudfönstret. Misslyckad förberedelse lämnar miljön som körs oförändrad.\n\nKörmiljöadaptrar installerar och verifierar en privat ersättning innan de meddelar att den är redo. GUI erbjuder Starta om och bevarar sina inställningar innan avslut godkänns. Vid omstart verifieras det nya skrivbordsprogrammets faktiska process och dess huvudfönster. Installationsstrukturer som inte stöds nekas innan ett installationsprogram startas.\n\n:param records: installationer från :func:`find_old_installs`.\n:param version: versionen som ska installeras.\n:param ticked: rotkatalogerna för de miljöer som användaren har markerat.\n:param pid: processen att vänta på; den här processen när värdet är ``None``.\n:param workdir: hjälpprocessens mapp; en ny tillfällig mapp när värdet är ``None``.\n:param system: datorn; ``None`` betyder den här datorn.\n:param spawn: ersätter funktionen som startar den fristående processen.\n:returns: planen så som den skrevs till ``plan.json``. ``plan[\"command\"]`` är hjälpprocessens kommando, eller ``None`` med ``plan[\"error\"]`` som anger varför ingenting startades.\n\nPaketerade installationer på macOS och Windows samt protokollmärkta Debian-installationer använder sina verifierade plattformsspecifika ersättningsadaptrar. Skyddade macOS-installationer kräver ett installerat hjälpprogram med det aktuella plattformsspecifika fasprotokollet. Windows kräver en separat publicerad körbar uppdateringsfil med kontrollsumma. Administratörsauktorisering och förberedelse föregår Starta om; aktivering sker efter godkänt avslut av skrivbordsprogrammet. Det nya skrivbordsprogrammet måste bekräfta sin identitet och sitt huvudfönster innan återställningsfiler tas bort. Strukturer som inte stöds eller saknade funktioner lämnar programmet som körs oförändrat; ingen reservväg via ett vanligt installationsprogram är aktiverad.",
       "translation_source_blocks_sha256": [
         "38fd92ea723724e1eae22f8eb1870dd9cbe935dff6f91a1204cd0e98ff838361",
-        "e357d3b44eb36c1021e5631b88ba2c9083e2f8d52060d040b95cd1defe66aa0f",
-        "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
-        "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
+        "f95da138b2e377d01f4c9b3ec56350ddf2477a6d096aa7371aa68f00016b7b5f",
+        "b1893d387327d532d4f2a73d710f58a81c8c690cfbc2b641300bfebf7473cf5f",
+        "073898c084d9fad964180534bcd5431b6a343a5187d1ff27b5e7a322707e936b",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
         "f4f29aad2ee5d6d2e633c876af3de201ef5107f4bebf85c341074b87d44a38b8",
         "03fe7146f54f66b140a67fcb8e24fe1d600b19c5f064b609faf1a8a148e08062",
@@ -39071,7 +39231,7 @@
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
-        "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674"
+        "4485c23da1ca2edf45fafda1e06ae0088e996ea12b154c56f3061988efd07df7"
       ]
     },
     "spacr.install_profile": {
@@ -91288,6 +91448,16 @@
       "text": "Öppnar installations-/inloggningsdialogen och tillämpar sedan valet igen.",
       "translation_source_blocks_sha256": [
         "758f7a64e6b68b77124239ff70480074c117ffd0997733e1eee416e8e34be092"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_spacr_uninstall": {
+      "source_blocks_sha256": [
+        "b206c6651fd1289828518286dae913f9ad0788e9e104db0be22ff628903b0c26"
+      ],
+      "source_sha256": "b206c6651fd1289828518286dae913f9ad0788e9e104db0be22ff628903b0c26",
+      "text": "Lämna Inställningar innan förhandsvisningen av programmets avinstallation öppnas.",
+      "translation_source_blocks_sha256": [
+        "b206c6651fd1289828518286dae913f9ad0788e9e104db0be22ff628903b0c26"
       ]
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_the_shortcuts_editor": {

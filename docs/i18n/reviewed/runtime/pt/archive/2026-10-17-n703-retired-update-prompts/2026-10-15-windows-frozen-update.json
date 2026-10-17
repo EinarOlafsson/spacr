@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_scope": "Codex AI technical authoring against exact native Windows updater captions at a9641b8ed60 and frozen Windows confirmation at ecea8d2d186; process-token/elevation/handle, unknown-completion retention, administrator consent, rollback and data-preservation meanings reviewed. No human or native-speaker signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "spaCR will close before updating its Windows application. An administrator authorization window may open. The previous application will be retained for rollback. Your data and caches will be kept. spaCR will reopen after the update succeeds.",
+      "source": "spaCR will close before updating its Windows application. An administrator authorization window may open. The previous application will be retained for rollback. Your data and caches will be kept. spaCR will reopen after the update succeeds.",
+      "source_sha256": "3a6849602f3e0ecb1ffbfbcbd0c1db4aebd412dc08895eb71477422f6ee04029",
+      "translation": "o spaCR vai fechar antes de atualizar a sua aplicação do Windows. Poderá abrir-se uma janela de autorização de administrador. A aplicação anterior será mantida para permitir a reversão. Os seus dados e caches serão mantidos. O spaCR voltará a abrir depois de a atualização ser concluída com êxito."
+    }
+  ],
+  "retired_reason": "Item 703: the in-app update now offers one Restart prompt after background staging; these per-adapter prompts left the source."
+}

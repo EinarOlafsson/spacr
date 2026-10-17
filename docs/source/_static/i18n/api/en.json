@@ -23949,15 +23949,15 @@
       "source_blocks_sha256": [
         "7416dbb0fde10154916ad50cd0fc7e202830b618edb774535da00b284b0cb51e",
         "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
-        "f7429e66190134bb8d3b5b0468206f3e3128f87883921c7fbe700c7479929706",
-        "e017a0d3e804e71040c5189f6b6426d8402cab247d827b87e69f69e9b020125a",
-        "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
+        "e0d76c6db052c67226a155017113c974ea0956726168ef17c855529211ed4c54",
+        "f08330e3b1a0a9470b6cc8c0e4470b9f0b667c197fdcf830d836be90a37e12fb",
+        "7e7465b19ed0856c63c643081b418f8299629d079f51bb7d42aa5b8f23fe50e4",
         "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
         "0652c5caf1f0df7c39d1e6c1c79f43d330c0f02a8d6c1614075702950f791893",
         "16c109cefeac68ae0b253a90e4ae1cf7b1dbd527ce7a3af7b2326e1a837afef3"
       ],
-      "source_sha256": "cde38312aab2afab1bbdceb56fc3154a44c1daab76afce222aeed43202098641",
-      "text": "Find spaCR installations and run the appropriate update or removal procedure.\n\nThe online installers stage and validate the new runtime before retiring old\napplication copies. They preserve the current installation during staging and\nrestore its previous runtime if the replacement fails verification. The update\nhelper verifies the desktop interpreter and imported application before retiring\nother copies or requesting a restart. :func:`run_update_sequence` remains the\nlow-level removal procedure used by explicit cleanup commands.\n\nSupported macOS online installations and dedicated POSIX pip environments\nuse their existing package tool after approved shutdown to stage, verify and\natomically activate an updated sibling runtime. Bootstrap files, launchers,\nunchanged packages and the previous runtime are retained. Shared, Conda and\nWindows Python environments require their own replacement adapter.\n\nA supported frozen macOS application uses a verified DMG replacement and\nretains its complete previous application bundle. These macOS update paths\ndo not run the standard deletion procedure. Other frozen application\nfamilies require a supported replacement adapter before an update can start.\n\nRemoval never runs an old version's own uninstaller, so a copy whose\n``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed\nall the same. Preferences and user data are kept: ``~/.spacr``,\n``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``,\n``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt``\nsettings (``~/.config/spacr``, the macOS preferences file, and the\n``Software\\spacr`` registry key on Windows).\n\nA pip or conda environment the user made is listed but never deleted; the\nspaCR package is uninstalled from it only when the caller says it was ticked.\nAn editable source checkout is reported and left alone.\n\nThe module uses only the standard library and imports nothing from spaCR, so\nan installer can run it with its bootstrapped Python before any spaCR exists,\nand a helper process can run a copy of it after the running spaCR has closed::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` is the opt-in clean uninstall: it also deletes spaCR's caches,\nbackend environments and user data, after listing them and asking. It never\nruns on its own; ``remove --purge`` runs it after the removal succeeded."
+      "source_sha256": "a881a3859ebcd0f6032d9688b977d47b57f5be8310a7b4a7876cdc2f7ce3baf7",
+      "text": "Find spaCR installations and run the appropriate update or removal procedure.\n\nThe online installers stage and validate the new runtime before retiring old\napplication copies. They preserve the current installation during staging and\nrestore its previous runtime if the replacement fails verification. The update\nhelper verifies the desktop interpreter and imported application before retiring\nother copies or requesting a restart. :func:`run_update_sequence` remains the\nlow-level removal procedure used by explicit cleanup commands.\n\nSupported macOS online installations and dedicated POSIX or Windows pip\nenvironments use their existing package tool to stage and verify an updated\nsibling runtime before requesting Restart. Activation requires approved\nshutdown. Bootstrap files, launchers, unchanged packages and the previous\nruntime are retained. Shared and Conda environments require their own\nreplacement adapter.\n\nA supported frozen macOS, Windows or Debian installation stages its verified\nreplacement while the desktop remains open. Protected installations obtain\ngraphical administrator authorization before requesting Restart. Activation\nrequires approved shutdown and actual process exit; recovery data remains\nuntil the updated desktop confirms its identity and main window.\n\nOrdinary removal preserves preferences and user data. The confirmed GUI\nuninstall instead previews current or all detected installations and separate\ncleanup categories, selected by default with individual opt-outs. Protected\nremoval uses only a validated installed helper with the required protocol;\nauthorization, preparation and approved desktop exit precede deletion.\nUnrelated projects, unverified data and shared environments are preserved.\n\nA pip or conda environment the user made is listed but never deleted; the\nspaCR package is uninstalled from it only when the caller says it was ticked.\nAn editable source checkout is reported and left alone.\n\nThe module uses only the standard library and imports nothing from spaCR, so\nan installer can run it with its bootstrapped Python before any spaCR exists,\nand a helper process can run a copy of it after the running spaCR has closed::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` is the opt-in clean uninstall: it also deletes spaCR's caches,\nbackend environments and user data, after listing them and asking. It never\nruns on its own; ``remove --purge`` runs it after the removal succeeded."
     },
     "spacr.install_cleanup.InstallRecord": {
       "source_blocks_sha256": [
@@ -23997,6 +23997,20 @@
       "source_sha256": "28d5942b909f593a8665c322eb016f1731034aa7da04b26baa87445eb3804b50",
       "text": "Whether nothing failed."
     },
+    "spacr.install_cleanup._coordinate_native_update._run_authorized": {
+      "source_blocks_sha256": [
+        "a3a72649d96197b1ddcdad241c16a0433083bd42776c86956aa43c9b25d5f76f"
+      ],
+      "source_sha256": "a3a72649d96197b1ddcdad241c16a0433083bd42776c86956aa43c9b25d5f76f",
+      "text": "Retain the native worker's completion or error until its owned process finishes."
+    },
+    "spacr.install_cleanup._coordinate_native_update._stopped": {
+      "source_blocks_sha256": [
+        "33e97b7079dbd95275d614062b32167621984b812fc483c142ac83ac44372729"
+      ],
+      "source_sha256": "33e97b7079dbd95275d614062b32167621984b812fc483c142ac83ac44372729",
+      "text": "Check desktop cancellation before observing native worker completion."
+    },
     "spacr.install_cleanup._delete._writable_then_retry": {
       "source_blocks_sha256": [
         "d3fff3ce723738f6656a43e787c795d9b6cfcfb86dd0e050ad4ac6e19431b657",
@@ -24033,6 +24047,62 @@
       "source_sha256": "b9adab940d058d32d0a53e49a354e8d2e59f8f8f668d11f9d93bdc018b4d956a",
       "text": "Propagate a filesystem traversal failure instead of omitting its subtree.\n\n:param error: operating-system exception reported by os.walk."
     },
+    "spacr.install_cleanup._macos_uninstall_tree.visit": {
+      "source_blocks_sha256": [
+        "8d8e1dea690b2435111c54eb1c552d8511d05322a158939cc66d1d2acc95194e"
+      ],
+      "source_sha256": "8d8e1dea690b2435111c54eb1c552d8511d05322a158939cc66d1d2acc95194e",
+      "text": "Remove one verified child through its parent descriptor while preserving selected paths."
+    },
+    "spacr.install_cleanup._run_debian_update._check_current": {
+      "source_blocks_sha256": [
+        "a09b6b9297a24d56e65d2f9ca02977d1fa1e334d21783f6e857caaa36cc2b804"
+      ],
+      "source_sha256": "a09b6b9297a24d56e65d2f9ca02977d1fa1e334d21783f6e857caaa36cc2b804",
+      "text": "Bind activation to the same installed Debian package and trusted helper."
+    },
+    "spacr.install_cleanup._run_macos_frozen_update._authorized": {
+      "source_blocks_sha256": [
+        "8e3b768057cb6bb7c7ec097cfe34c910967f30cf00d3674c671b389ee1c8cedc"
+      ],
+      "source_sha256": "8e3b768057cb6bb7c7ec097cfe34c910967f30cf00d3674c671b389ee1c8cedc",
+      "text": "Request one native authorization for trusted staging and deferred activation."
+    },
+    "spacr.install_cleanup._run_macos_frozen_update._new_desktop": {
+      "source_blocks_sha256": [
+        "a8e47fdff3291a1e73ae2a648787297cea24eab33964bae83d70972440242801"
+      ],
+      "source_sha256": "a8e47fdff3291a1e73ae2a648787297cea24eab33964bae83d70972440242801",
+      "text": "Verify the activated release and wait for its actual main window."
+    },
+    "spacr.install_cleanup._run_macos_frozen_update._unchanged": {
+      "source_blocks_sha256": [
+        "2658a5e98c612635866695bfbde4feb4a2e88eda2bf56838c9b16abb405efc7b"
+      ],
+      "source_sha256": "2658a5e98c612635866695bfbde4feb4a2e88eda2bf56838c9b16abb405efc7b",
+      "text": "Refuse activation if the installed bundle or authenticated image changed."
+    },
+    "spacr.install_cleanup._run_macos_online_update.prepared": {
+      "source_blocks_sha256": [
+        "eb89780f273278e9222a1987ac553218309513fdef4c36821c415e26354e8d28"
+      ],
+      "source_sha256": "eb89780f273278e9222a1987ac553218309513fdef4c36821c415e26354e8d28",
+      "text": "Offer Restart only after the replacement passes its staged checks."
+    },
+    "spacr.install_cleanup._run_native_uninstall.stopped": {
+      "source_blocks_sha256": [
+        "ae20b54f8091558de19fccfbcea7cbd08b1071a08fd73543c20160b89017b0ad"
+      ],
+      "source_sha256": "ae20b54f8091558de19fccfbcea7cbd08b1071a08fd73543c20160b89017b0ad",
+      "text": "Check desktop cancellation before observing the authorized helper's completion."
+    },
+    "spacr.install_cleanup._run_pip_environment_update.prepared": {
+      "source_blocks_sha256": [
+        "fa9029cc38e3bc15409300f76c269d66d3cad450cbed7b1f270f621bcaaab2b0"
+      ],
+      "source_sha256": "fa9029cc38e3bc15409300f76c269d66d3cad450cbed7b1f270f621bcaaab2b0",
+      "text": "Keep the running environment until the verified replacement is accepted."
+    },
     "spacr.install_cleanup._run_plan._finish": {
       "source_blocks_sha256": [
         "532b1ab0bf40eeff8d6202d2541133e0781ca4b38117e18d5bfd1a883e4107a7",
@@ -24040,6 +24110,41 @@
       ],
       "source_sha256": "4fffb3b21011173df53ed8b0b30a6accceccba1c48c56431ffac3d0ba7993ef2",
       "text": "Write the update log and return ``code``.\n\n:param code: the exit code to return."
+    },
+    "spacr.install_cleanup._run_windows_frozen_update._check_current": {
+      "source_blocks_sha256": [
+        "69d55cfeb8ba5b13b719f205fb986a7d62d443b72bb242ff487691cd1f68b4a5"
+      ],
+      "source_sha256": "69d55cfeb8ba5b13b719f205fb986a7d62d443b72bb242ff487691cd1f68b4a5",
+      "text": "Recheck the pinned installer and unchanged Windows destination before activation."
+    },
+    "spacr.install_cleanup._run_windows_frozen_update._launch_verified": {
+      "source_blocks_sha256": [
+        "d84691719ff0efddd5bfd225f439ec94b00953baabad489728aa396343b2dea8"
+      ],
+      "source_sha256": "d84691719ff0efddd5bfd225f439ec94b00953baabad489728aa396343b2dea8",
+      "text": "Confirm the activated Windows payload and its unelevated main window."
+    },
+    "spacr.install_cleanup._run_windows_native_uninstall.authorize": {
+      "source_blocks_sha256": [
+        "fbca2e109203a09a1d07c7f6a5e1f1cf6c79bdb0666b19e469dc47648e7ad6b1"
+      ],
+      "source_sha256": "fbca2e109203a09a1d07c7f6a5e1f1cf6c79bdb0666b19e469dc47648e7ad6b1",
+      "text": "Retain the native uninstaller's bootstrap result until authenticated completion."
+    },
+    "spacr.install_cleanup._run_windows_native_uninstall.stopped": {
+      "source_blocks_sha256": [
+        "533bcf00f100db8593becbee7dbf1360ed65431eb1ce6beae70ab0da076f9c11"
+      ],
+      "source_sha256": "533bcf00f100db8593becbee7dbf1360ed65431eb1ce6beae70ab0da076f9c11",
+      "text": "Treat failed native startup as stopped without confusing bootstrap exit with completion."
+    },
+    "spacr.install_cleanup._run_windows_pip_update.prepared": {
+      "source_blocks_sha256": [
+        "35e7bfbe7ae13050a14cb79dade46404cac35685e6efd56cef80fb1261324261"
+      ],
+      "source_sha256": "35e7bfbe7ae13050a14cb79dade46404cac35685e6efd56cef80fb1261324261",
+      "text": "Request shutdown only when the private replacement is verified."
     },
     "spacr.install_cleanup._standalone_helper_command.contains": {
       "source_blocks_sha256": [
@@ -24057,6 +24162,13 @@
       ],
       "source_sha256": "511fb04c43db2b4a53aa928f8aa7451cc800d18d272c7a21f9ae6949a92cb6c6",
       "text": "Persist the current update phase in the transaction journal using an atomic file replacement."
+    },
+    "spacr.install_cleanup._uninstall_data_candidates.expand": {
+      "source_blocks_sha256": [
+        "150516859006f38f26d63f583f1aeea3528b25f7877d326003eaa7eb6c414b68"
+      ],
+      "source_sha256": "150516859006f38f26d63f583f1aeea3528b25f7877d326003eaa7eb6c414b68",
+      "text": "Expand the configured user's leading home marker."
     },
     "spacr.install_cleanup.apply_optional_cleanup": {
       "source_blocks_sha256": [
@@ -24148,9 +24260,9 @@
     "spacr.install_cleanup.start_update_helper": {
       "source_blocks_sha256": [
         "962ee0a65cb98c1a7e5d5bd46f704918d560172c572df169b810ba8de9e625dc",
-        "cec3fb3c67983bab4fd6ea6ca11c0bcb33e727d5bdffd7eee3df8b03aeb6f8c7",
-        "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
-        "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
+        "da2fc080e7ce4d62a57ad783bc506fca93f3ac1c227e2e2d86a5f3c2287c7f7a",
+        "d8c0e7cad66dadfc30b5b50b7e4c54576e3e34ff6ddd735fb6f083efd1682746",
+        "073898c084d9fad964180534bcd5431b6a343a5187d1ff27b5e7a322707e936b",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
         "f4f29aad2ee5d6d2e633c876af3de201ef5107f4bebf85c341074b87d44a38b8",
         "03fe7146f54f66b140a67fcb8e24fe1d600b19c5f064b609faf1a8a148e08062",
@@ -24159,10 +24271,10 @@
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
-        "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674"
+        "e4c02e1396bec959a337254cf3f21c3c2cf75cda1b95885223e1361b2b0bdc70"
       ],
-      "source_sha256": "bb3ffeae3a2024578f2ec4b3368a05018f5582773acf5e46540984e310611f98",
-      "text": "Run an installation update in a process that outlives spaCR.\n\nInstaller-made copies and supported dedicated POSIX or Windows pip\nenvironments can use this helper. It waits for the running process to exit before changing\nthe installation; the pip adapter also requires authenticated shutdown\napproval.\n\nFor a supported macOS online installation, use the existing bundled\n``uv`` and private Python to upgrade spaCR in the same environment.\nPreserve the environment directory, bootstrap files, application launcher,\nand installed packages that need no update. Restart only after verifying\nthat the installed version is at least ``version`` and newer than the\nprevious version, when that previous version is known. A failed upgrade\nor version check does not trigger removal or a replacement installer.\n\nThe standard replacement path downloads and runs the new staged installer,\nverifies its actual interpreter and imported application, then retires other\ncopies and starts it. Failed installation or verification does not remove\nthe previous working copy. A failed retirement is logged without relaunch.\n\n:param records: installations from :func:`find_old_installs`.\n:param version: the version to install.\n:param ticked: roots of the environments the user ticked.\n:param pid: the process to wait for; this process when ``None``.\n:param workdir: the helper's folder; a new temporary folder when ``None``.\n:param system: the computer; ``None`` means this one.\n:param spawn: replaces the detached process launcher.\n:returns: the plan as written to ``plan.json``. ``plan[\"command\"]`` is the\n    helper's command, or ``None`` with ``plan[\"error\"]`` saying why\n    nothing was started.\n\nA frozen macOS bundle in a user-writable location uses its verified DMG\nreplacement adapter and retains its complete prior bundle. A protocol-marked\nDebian bundle uses graphical administrator authorization and a root-owned\nhelper outside the installation. Both the replacement and rollback package\nrequire published checksums; package and unprivileged runtime verification\nprecede relaunch. Unsupported frozen application families return an error\nbefore removing anything; no online-installer fallback is enabled for them."
+      "source_sha256": "1d17df3cd60ea0a66ac6baa3574a1d6bf3dc9534cb8cd38b431eab330f3446e6",
+      "text": "Run an installation update in a process that outlives spaCR.\n\nInstaller-made copies and supported dedicated POSIX or Windows pip\nenvironments can use this helper. It stages replacements while the current\napplication runs and requires authenticated shutdown approval and actual\nprocess exit before activation.\n\nFor a supported macOS online installation, use the existing bundled\n``uv`` and private Python to install the requested spaCR release into a\nstaged sibling environment. Preserve bootstrap files, the application\nlauncher, and packages that need no update. After verified staging and\napproved shutdown, activate the staged environment at the existing runtime\npath and retain the complete previous environment for recovery. Relaunch\nverifies the requested version, executable, imported module and visible\nmain window. Failed preparation leaves the running environment unchanged.\n\nRuntime adapters install and verify a private replacement before publishing\nreadiness. The GUI offers Restart and preserves its settings before\napproving shutdown. Relaunch verifies the actual new desktop process and\nits main window. Unsupported layouts refuse before starting an installer.\n\n:param records: installations from :func:`find_old_installs`.\n:param version: the version to install.\n:param ticked: roots of the environments the user ticked.\n:param pid: the process to wait for; this process when ``None``.\n:param workdir: the helper's folder; a new temporary folder when ``None``.\n:param system: the computer; ``None`` means this one.\n:param spawn: replaces the detached process launcher.\n:returns: the plan as written to ``plan.json``. ``plan[\"command\"]`` is the\n    helper's command, or ``None`` with ``plan[\"error\"]`` saying why\n    nothing was started.\n\nFrozen macOS, Windows and protocol-marked Debian installations use their\nverified native replacement adapters. Protected macOS requires an installed\nhelper with the current native phase protocol. Windows requires a separately\npublished, checksummed update executable. Administrator authorization and\nstaging precede Restart; activation follows approved desktop exit. The new\ndesktop must confirm its identity and main window before recovery files are\nretired. Unsupported layouts or missing capabilities leave the running\napplication unchanged; no ordinary-installer fallback is enabled."
     },
     "spacr.install_profile": {
       "source_blocks_sha256": [
@@ -56687,6 +56799,13 @@
       ],
       "source_sha256": "758f7a64e6b68b77124239ff70480074c117ffd0997733e1eee416e8e34be092",
       "text": "Open the install/login dialog, then apply the choice again."
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_spacr_uninstall": {
+      "source_blocks_sha256": [
+        "b206c6651fd1289828518286dae913f9ad0788e9e104db0be22ff628903b0c26"
+      ],
+      "source_sha256": "b206c6651fd1289828518286dae913f9ad0788e9e104db0be22ff628903b0c26",
+      "text": "Leave Preferences before opening the application uninstall preview."
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_the_shortcuts_editor": {
       "source_blocks_sha256": [

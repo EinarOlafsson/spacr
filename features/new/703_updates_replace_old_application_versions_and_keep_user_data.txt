@@ -2,7 +2,7 @@
 UPDATES REPLACE OLD APPLICATION VERSIONS AND KEEP USER DATA
 ================================================================================
 
-Status:    OPEN — 2026-10-16 updater UX, uninstall scope and documentation requirements; native acceptance remains required
+Status:    BLOCKED ON MAINTAINER — implementation, fixture tests, docs and translations on nightly (2026-10-17); native Windows/macOS/Linux acceptance remains
 Requested: maintainer, 2026-10-13: desktop installers and in-app updates can
            reopen an old version. Replace obsolete application installations,
            preserve cache and temporary/user files unless cleanup is required
@@ -919,3 +919,8 @@ Owners: release_path/preview_cache + updater_acceptance; installer/packaging and
 2026-10-16 — GitHub delivery criterion: the default-branch README must lead to the current install, update, reinstall and uninstall instructions after the authorized README-only promotion.
 The relative installer-guide link currently opens an older main-branch guide because docs/source is outside that publication scope; replace this route through normal README sources/tools and existing locales, without extending the main allowlist.
 Accepted native implementation, fixture checks and reviewed translations are retained; this separate documentation route remains to be delivered before whole-item closure.
+
+2026-10-17 — Claude Home integrated Codex's 15 unpushed N703 commits (background staging then one Restart prompt with verified GUI receipt; Preferences > Performance > Uninstall with current/all scopes and default-on category cleanup; native helpers; nightly installer guide route) onto nightly and fixed the integration: stdlib-only helper imports, outdated fixtures, retired prompt records archived; 1,632 related checks pass.
+2026-10-17 — README/guide, runtime catalogs, caption arrivals, API catalogs and Help index regenerated with their tools. No code remains on Linux fixtures.
+BLOCKED ON MAINTAINER (disposable machines, one per OS): 1) install the previous release, then the new candidate's in-app Help > Check for updates: confirm background progress, one Restart prompt, the startup window then the main window of the new version, and Help > About version; 2) Cancel at the Restart prompt keeps the old version working; 3) repeat with each desktop installer (Windows NSIS/online, macOS .pkg and frozen app, Linux online and .deb), old-to-new and same-version; no Terminal questions on macOS;
+4) Preferences > Performance > Uninstall…: the current version and all detected versions, untick one category, confirm the listed paths match what is removed and the unticked data and other environments remain; 5) report failures with ~/.spacr/logs/update.log and ~/spacr-uninstall-report.txt.

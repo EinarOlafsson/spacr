@@ -1,1 +1,1 @@
-O [guia do Docker](<../../source/installer_guide.rst#container-images>) explica a configuração da GPU, a montagem de dados e os comandos dos fluxos de processamento.
+O [guia do Docker (nightly, em inglês)](<https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>) explica a configuração da GPU, a montagem de dados e os comandos dos fluxos de processamento.

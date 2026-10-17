@@ -151,7 +151,7 @@ def test_capability_and_privileged_refusal_do_not_import_application(monkeypatch
     with monkeypatch.context() as scope:
         scope.setattr(builtins, "__import__", guarded)
         assert ic._main(["native-phase-protocol"]) == 0
-        assert json.loads(capsys.readouterr().out)["commands"] == ["apply-macos-root"]
+        assert json.loads(capsys.readouterr().out)["commands"] == ["apply-macos-root", "uninstall-macos-root"]
         assert ic._main(["apply-macos-root", "--version", "1.5.1.5", "--digest", "a" * 64,
             "--image", "/untrusted/spaCR-1.5.1.5.dmg", "--phase-channel", "/untrusted/descriptor",
             "--desktop-pid", "4242"]) == 6

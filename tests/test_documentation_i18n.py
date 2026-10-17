@@ -3513,6 +3513,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
         ("705_volume_measure_api_arrivals_2026-10-16.json", 10),
         ("706_object_detection_3d_api_arrivals_2026-10-17.json", 2),
         ("560_dinov2_drop_in_api_arrivals_2026-10-17.json", 3),
+        ("703_background_update_and_uninstall_api_arrivals_2026-10-17.json", 17),
         ("561_classifier_api_arrivals_2026-10-15.json", 19),
         ("180_session_figure_api_arrivals_2026-10-15.json", 2),
     ):

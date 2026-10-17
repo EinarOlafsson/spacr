@@ -93,13 +93,6 @@
       "source": "Windows installer exit status is unavailable",
       "source_sha256": "d68bf784771d77401d8b38c758dc9a2d0b46ace8cb93999a08366ec9c43ce035",
       "translation": "Der Beendigungsstatus des Windows-Installationsprogramms ist nicht verfügbar"
-    },
-    {
-      "table": "ui",
-      "key": "spaCR will close before updating its Windows application. An administrator authorization window may open. The previous application will be retained for rollback. Your data and caches will be kept. spaCR will reopen after the update succeeds.",
-      "source": "spaCR will close before updating its Windows application. An administrator authorization window may open. The previous application will be retained for rollback. Your data and caches will be kept. spaCR will reopen after the update succeeds.",
-      "source_sha256": "3a6849602f3e0ecb1ffbfbcbd0c1db4aebd412dc08895eb71477422f6ee04029",
-      "translation": "spaCR wird vor der Aktualisierung seiner Windows-Anwendung geschlossen. Möglicherweise öffnet sich ein Fenster zur Administratorautorisierung. Die bisherige Anwendung bleibt für eine Rücksetzung erhalten. Ihre Daten und Caches bleiben erhalten. spaCR wird nach erfolgreichem Update wieder geöffnet."
     }
   ]
 }

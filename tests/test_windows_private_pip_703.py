@@ -298,7 +298,12 @@ def test_downgrade_is_refused_under_lease_before_copy(runtime, monkeypatch):
     assert not list(runtime.prefix.parent.glob('.spacr-windows-update-*'))
 
 
-def test_cancelled_shutdown_never_stages_or_runs_pip(runtime, monkeypatch):
+def test_cancelled_restart_never_activates_the_staged_runtime(runtime, monkeypatch):
+    """The update is staged in the background; declining Restart discards it.
+
+    Staging now runs before the shutdown request (so Restart is offered only
+    for a verified copy), and the active runtime stays exactly as it was.
+    """
     plan = plan_for(runtime)
     before = snapshot(runtime.prefix)
     events = []
@@ -307,6 +312,9 @@ def test_cancelled_shutdown_never_stages_or_runs_pip(runtime, monkeypatch):
         def __init__(self, plan):
             pass
 
+        def check(self):
+            events.append('check')
+
         def ready(self):
             events.append('ready')
 
@@ -314,17 +322,34 @@ def test_cancelled_shutdown_never_stages_or_runs_pip(runtime, monkeypatch):
             raise RuntimeError('cancelled')
 
     monkeypatch.setattr(cleanup, '_WindowsPipHandshake', Handshake)
+    monkeypatch.setattr(cleanup, '_windows_pip_scripts', lambda staged, prefix, run: {'verified': True, 'scripts': []})
     runner = PackageRunner(runtime)
     with pytest.raises(RuntimeError, match='cancelled'):
         cleanup._run_windows_pip_update(plan, runtime.machine, run=runner)
-    assert events == ['ready']
-    assert not any('-m' in cmd for cmd in runner.commands)
-    assert not list(runtime.prefix.parent.glob('.spacr-windows-update-*'))
+    assert events == ['check', 'ready']
     assert snapshot(runtime.prefix) == before
+    installs = [cmd for cmd in runner.commands if cmd[1:5] == ['-I', '-m', 'pip', 'install']]
+    assert installs and all(Path(cmd[0]).parent.parent != runtime.prefix for cmd in installs)
+    root, = runtime.prefix.parent.glob('.spacr-windows-update-*')
+    assert json.loads((root / 'transaction.json').read_text())['state'] == 'staging_failed'
+    assert not (runtime.prefix.parent / '.venv.spacr-update-lock').exists()
+
+
+def _distlib_ships_windows_launchers():
+    """Whether pip's vendored distlib carries its Windows launcher templates.
+
+    conda-forge's pip removes ``t64.exe``/``w64.exe``; PyPI's pip keeps them.
+    """
+    from pip._vendor import distlib
+
+    folder = Path(distlib.__file__).parent
+    return all((folder / name).is_file() for name in ('t64.exe', 'w64.exe'))
 
 
 @pytest.mark.parametrize('mode', ['console', 'gui', 'unowned', 'missing_record', 'ambiguous_owner'])
 def test_real_distlib_windows_launcher_and_record_relocation(runtime, mode):
+    if mode in ('console', 'gui') and not _distlib_ships_windows_launchers():
+        pytest.skip("this pip build ships no Windows launcher templates (conda-forge pip)")
     stage = runtime.helper / 'staged'
     shutil.copytree(runtime.prefix, stage)
     site = stage / 'Lib/site-packages'

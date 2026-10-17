@@ -132,7 +132,7 @@ Site web: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.
 
 .. raw:: html
 
-   <div><a href="../../readme_text/fr/install-spacr-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/install-spacr-2.desktop.svg"><img src="../../readme_images/fr/install-spacr-2.svg" alt="Le guide Docker décrit la configuration du GPU, le montage des données et les commandes des pipelines."></picture></a></div>
+   <div><a href="../../readme_text/fr/install-spacr-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/install-spacr-2.desktop.svg"><img src="../../readme_images/fr/install-spacr-2.svg" alt="Le guide Docker (nightly, en anglais) décrit la configuration du GPU, le montage des données et les commandes des pipelines."></picture></a></div>
 
 .. raw:: html
 
@@ -165,11 +165,11 @@ Site web: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.
 
 .. raw:: html
 
-   <div><a href="../../readme_text/fr/desktop-application-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/desktop-application-3.desktop.svg"><img src="../../readme_images/fr/desktop-application-3.svg" alt="Sur macOS, ouvrez le .pkg. La bêta actuelle n&#x27;est pas notariée; si Gatekeeper le bloque, choisissez Paramètres du système → Confidentialité et sécurité → Ouvrez de toute façon. Consultez le guide d’installation pour les instructions de mise à jour, de désinstallation, d’utilisation hors ligne et de dépannage, et la configuration requise pour les recommandations concernant les stations de travail et les serveurs ainsi que les tableaux de compatibilité GPU."></picture></a></div>
+   <div><a href="../../readme_text/fr/desktop-application-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/desktop-application-3.desktop.svg"><img src="../../readme_images/fr/desktop-application-3.svg" alt="Sur macOS, ouvrez le .pkg. La bêta actuelle n&#x27;est pas notariée; si Gatekeeper le bloque, choisissez Paramètres du système → Confidentialité et sécurité → Ouvrez de toute façon. Pour les instructions d’installation, de mise à jour, de réinstallation, de désinstallation, d’utilisation hors ligne et de dépannage, consultez le guide d’installation actuel de nightly (en anglais). Consultez la configuration requise pour les recommandations concernant les stations de travail et les serveurs ainsi que les tableaux de compatibilité GPU."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../source/installer_guide.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/desktop-application-3-link-1.desktop.svg"><img src="../../readme_images/fr/desktop-application-3-link-1.svg" alt="guide d’installation"></picture></a><a href="../../source/system_requirements.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/desktop-application-3-link-2.desktop.svg"><img src="../../readme_images/fr/desktop-application-3-link-2.svg" alt="configuration requise"></picture></a></div>
+   <div><a href="https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/desktop-application-3-link-1.desktop.svg"><img src="../../readme_images/fr/desktop-application-3-link-1.svg" alt="guide d’installation actuel de nightly (en anglais)"></picture></a><a href="../../source/system_requirements.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/desktop-application-3-link-2.desktop.svg"><img src="../../readme_images/fr/desktop-application-3-link-2.svg" alt="configuration requise"></picture></a></div>
 
 .. raw:: html
 
@@ -194,7 +194,7 @@ Site web: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.
 
 .. raw:: html
 
-   <div><a href="../../readme_text/fr/pypi-installation-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/pypi-installation-3.desktop.svg"><img src="../../readme_images/fr/pypi-installation-3.svg" alt="Les intégrations optionnelles sont installées séparément, par exemple spacr[zarr], spacr[omero],spacr[napari] et spacr[czi,nd2,lif]. Voir le guide d&#x27;installation pour les extras complets et la table de compatibilité Python-version."></picture></a></div>
+   <div><a href="../../readme_text/fr/pypi-installation-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/fr/pypi-installation-3.desktop.svg"><img src="../../readme_images/fr/pypi-installation-3.svg" alt="Les intégrations optionnelles sont installées séparément, par exemple spacr[zarr], spacr[omero],spacr[napari] et spacr[czi,nd2,lif]. Voir le guide d&#x27;installation (nightly, en anglais) pour les extras complets et la table de compatibilité Python-version."></picture></a></div>
 
 .. raw:: html
 

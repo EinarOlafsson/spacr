@@ -96,13 +96,6 @@
       "source": "Adding names for several image channels or image layers keeps the same number of rows.",
       "source_sha256": "302b71f657b1dc6a524b22d9ce941e6ff3e41218a3a1dc77cf96b905058963b0",
       "translation": "为多个图像通道或图像层添加名称时，表格行数保持不变。"
-    },
-    {
-      "table": "ui",
-      "key": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
-      "source": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
-      "source_sha256": "27ca5bee9a4211346d97948e373563a2108ee597a6ba43d084599999bf666d09",
-      "translation": "这将在 spaCR 当前的环境中重新安装它。spaCR 将在更新开始前关闭。更新成功后，它会自动重新打开。"
     }
   ],
   "retired_records": [

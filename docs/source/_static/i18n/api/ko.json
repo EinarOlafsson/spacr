@@ -38716,21 +38716,21 @@
       "source_blocks_sha256": [
         "7416dbb0fde10154916ad50cd0fc7e202830b618edb774535da00b284b0cb51e",
         "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
-        "f7429e66190134bb8d3b5b0468206f3e3128f87883921c7fbe700c7479929706",
-        "e017a0d3e804e71040c5189f6b6426d8402cab247d827b87e69f69e9b020125a",
-        "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
+        "e0d76c6db052c67226a155017113c974ea0956726168ef17c855529211ed4c54",
+        "f08330e3b1a0a9470b6cc8c0e4470b9f0b667c197fdcf830d836be90a37e12fb",
+        "7e7465b19ed0856c63c643081b418f8299629d079f51bb7d42aa5b8f23fe50e4",
         "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
         "0652c5caf1f0df7c39d1e6c1c79f43d330c0f02a8d6c1614075702950f791893",
         "16c109cefeac68ae0b253a90e4ae1cf7b1dbd527ce7a3af7b2326e1a837afef3"
       ],
-      "source_sha256": "cde38312aab2afab1bbdceb56fc3154a44c1daab76afce222aeed43202098641",
-      "text": "spaCR 설치를 찾고 적절한 업데이트 또는 제거 절차를 실행합니다.\n\n온라인 설치 프로그램은 이전 애플리케이션 복사본을 제거하기 전에 새 런타임을 준비하고 검증합니다. 준비하는 동안 현재 설치를 유지하고, 교체된 런타임이 검증에 실패하면 이전 런타임을 복원합니다. 업데이트 도우미는 다른 복사본을 제거하거나 재시작을 요청하기 전에 데스크톱 실행에 사용되는 인터프리터와 실제로 가져온 애플리케이션을 검증합니다. :func:`run_update_sequence`는 명시적인 정리 명령에서 사용하는 하위 수준 제거 절차로 유지됩니다.\n\n지원되는 macOS 온라인 설치와 전용 POSIX pip 환경은 승인된 종료 후 기존 패키지 도구로 같은 상위 폴더의 업데이트된 런타임을 준비하고 검증한 뒤 원자적으로 활성화합니다. 부트스트랩 파일, 실행기, 변경되지 않은 패키지와 이전 런타임은 유지됩니다. 공유 환경, Conda 및 Windows Python 환경에는 각각 별도의 교체 어댑터가 필요합니다.\n\n지원되는 고정(frozen) macOS 애플리케이션은 검증된 DMG 교체를 사용하며 이전 애플리케이션 번들 전체를 유지합니다. 이러한 macOS 업데이트 경로는 표준 삭제 절차를 실행하지 않습니다. 다른 고정 애플리케이션 계열은 업데이트를 시작하기 전에 지원되는 교체 어댑터가 필요합니다.\n\n제거할 때 이전 버전 자체의 제거 프로그램은 절대 실행하지 않으므로, ``Uninstall.exe`` 또는 ``uninstall-spacr.sh`` 파일이 없거나 손상된 사본도 똑같이 제거됩니다. 환경설정과 사용자 데이터는 유지됩니다: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, Hugging Face 캐시, 그리고 ``spacr``/``qt`` 설정(``~/.config/spacr``, macOS의 환경설정 파일, Windows의 ``Software\\spacr`` 레지스트리 키).\n\n사용자가 만든 pip 또는 conda 환경은 목록에 표시되지만 절대 삭제되지 않으며, 호출자가 그 환경이 선택되었다고 알려 줄 때에만 그 환경에서 spaCR 패키지를 제거합니다. 편집 가능한 소스 체크아웃은 보고만 하고 그대로 둡니다.\n\n이 모듈은 표준 라이브러리만 사용하고 spaCR에서 아무것도 가져오지 않으므로, 설치 프로그램은 spaCR이 아직 없을 때에도 자신이 직접 설치한 Python으로 이 모듈을 실행할 수 있고, 도우미 프로세스는 실행 중이던 spaCR이 종료된 뒤에 이 모듈의 사본을 실행할 수 있습니다::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` 는 명시적으로 선택하는 완전 제거입니다. 목록을 보여 주고 확인을 받은 뒤 spaCR 캐시, 백엔드 환경, 사용자 데이터도 삭제합니다. 스스로 실행되지 않으며 ``remove --purge`` 명령은 제거가 성공한 뒤 이를 실행합니다.",
+      "source_sha256": "a881a3859ebcd0f6032d9688b977d47b57f5be8310a7b4a7876cdc2f7ce3baf7",
+      "text": "spaCR 설치를 찾고 적절한 업데이트 또는 제거 절차를 실행합니다.\n\n온라인 설치 프로그램은 이전 애플리케이션 복사본을 제거하기 전에 새 런타임을 준비하고 검증합니다. 준비하는 동안 현재 설치를 유지하고, 교체된 런타임이 검증에 실패하면 이전 런타임을 복원합니다. 업데이트 도우미는 다른 복사본을 제거하거나 재시작을 요청하기 전에 데스크톱 실행에 사용되는 인터프리터와 실제로 가져온 애플리케이션을 검증합니다. :func:`run_update_sequence`는 명시적인 정리 명령에서 사용하는 하위 수준 제거 절차로 유지됩니다.\n\n지원되는 macOS 온라인 설치와 전용 POSIX 또는 Windows pip 환경은 다시 시작을 요청하기 전에 기존 패키지 도구로 같은 상위 디렉터리의 업데이트된 런타임을 준비하고 검증합니다. 활성화하려면 승인된 종료가 필요합니다. 부트스트랩 파일, 실행기, 변경되지 않은 패키지와 이전 런타임은 보존됩니다. 공유 환경과 Conda 환경에는 각각 별도의 교체 어댑터가 필요합니다.\n\n지원되는 패키징된 macOS, Windows 또는 Debian 설치는 데스크톱 애플리케이션을 열어 둔 채 검증된 교체본을 준비합니다. 보호된 설치는 다시 시작을 요청하기 전에 그래픽 인터페이스에서 관리자 승인을 받습니다. 활성화하려면 승인된 종료와 실제 프로세스 종료가 필요하며, 업데이트된 데스크톱 애플리케이션이 자신의 식별 정보와 기본 창을 확인할 때까지 복구 데이터가 보존됩니다.\n\n일반 제거는 환경설정과 사용자 데이터를 보존합니다. 반면 GUI에서 확인한 제거는 현재 설치 또는 감지된 모든 설치와 별도의 정리 범주를 미리 보여 주며, 기본적으로 선택되어 있지만 각각 선택 해제할 수 있습니다. 보호된 제거는 이미 설치되어 있고 검증되었으며 필요한 프로토콜을 갖춘 도우미만 사용합니다. 승인, 준비 및 승인된 데스크톱 애플리케이션 종료가 삭제보다 먼저 이루어집니다. 관련 없는 프로젝트, 검증되지 않은 데이터와 공유 환경은 보존됩니다.\n\n사용자가 만든 pip 또는 conda 환경은 목록에 표시되지만 절대 삭제되지 않으며, 호출자가 그 환경이 선택되었다고 알려 줄 때에만 그 환경에서 spaCR 패키지를 제거합니다. 편집 가능한 소스 체크아웃은 보고만 하고 그대로 둡니다.\n\n이 모듈은 표준 라이브러리만 사용하고 spaCR에서 아무것도 가져오지 않으므로, 설치 프로그램은 spaCR이 아직 없을 때에도 자신이 직접 설치한 Python으로 이 모듈을 실행할 수 있고, 도우미 프로세스는 실행 중이던 spaCR이 종료된 뒤에 이 모듈의 사본을 실행할 수 있습니다::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` 는 명시적으로 선택하는 완전 제거입니다. 목록을 보여 주고 확인을 받은 뒤 spaCR 캐시, 백엔드 환경, 사용자 데이터도 삭제합니다. 스스로 실행되지 않으며 ``remove --purge`` 명령은 제거가 성공한 뒤 이를 실행합니다.",
       "translation_source_blocks_sha256": [
         "7416dbb0fde10154916ad50cd0fc7e202830b618edb774535da00b284b0cb51e",
         "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
-        "f7429e66190134bb8d3b5b0468206f3e3128f87883921c7fbe700c7479929706",
-        "b7b4a480350779d9e499a18a0b05ee0252054fdd541405364095199fcda23505",
-        "d1c3cc6a4c7b476afc63c9609f53b6a82612c1c6da142522cedadeb817aef8c7",
+        "e0d76c6db052c67226a155017113c974ea0956726168ef17c855529211ed4c54",
+        "f08330e3b1a0a9470b6cc8c0e4470b9f0b667c197fdcf830d836be90a37e12fb",
+        "7e7465b19ed0856c63c643081b418f8299629d079f51bb7d42aa5b8f23fe50e4",
         "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
         "bb0bd04717a44d9841640212c772bd7a6f41c19bc71bbed8863510f45c4e6bcb",
         "16c109cefeac68ae0b253a90e4ae1cf7b1dbd527ce7a3af7b2326e1a837afef3"
@@ -38800,6 +38800,26 @@
         "28d5942b909f593a8665c322eb016f1731034aa7da04b26baa87445eb3804b50"
       ]
     },
+    "spacr.install_cleanup._coordinate_native_update._run_authorized": {
+      "source_blocks_sha256": [
+        "a3a72649d96197b1ddcdad241c16a0433083bd42776c86956aa43c9b25d5f76f"
+      ],
+      "source_sha256": "a3a72649d96197b1ddcdad241c16a0433083bd42776c86956aa43c9b25d5f76f",
+      "text": "네이티브 작업자의 관리 대상 프로세스가 끝날 때까지 작업자의 완료 결과 또는 오류를 유지합니다.",
+      "translation_source_blocks_sha256": [
+        "a3a72649d96197b1ddcdad241c16a0433083bd42776c86956aa43c9b25d5f76f"
+      ]
+    },
+    "spacr.install_cleanup._coordinate_native_update._stopped": {
+      "source_blocks_sha256": [
+        "33e97b7079dbd95275d614062b32167621984b812fc483c142ac83ac44372729"
+      ],
+      "source_sha256": "33e97b7079dbd95275d614062b32167621984b812fc483c142ac83ac44372729",
+      "text": "네이티브 작업자의 완료를 확인하기 전에 데스크톱 애플리케이션의 취소 여부를 확인합니다.",
+      "translation_source_blocks_sha256": [
+        "33e97b7079dbd95275d614062b32167621984b812fc483c142ac83ac44372729"
+      ]
+    },
     "spacr.install_cleanup._delete._writable_then_retry": {
       "source_blocks_sha256": [
         "d3fff3ce723738f6656a43e787c795d9b6cfcfb86dd0e050ad4ac6e19431b657",
@@ -38856,6 +38876,86 @@
         "903c6484f4ff7f5161e8c3608a510f1514f08f43f4dcdd1032d5dea37ce9ee61"
       ]
     },
+    "spacr.install_cleanup._macos_uninstall_tree.visit": {
+      "source_blocks_sha256": [
+        "8d8e1dea690b2435111c54eb1c552d8511d05322a158939cc66d1d2acc95194e"
+      ],
+      "source_sha256": "8d8e1dea690b2435111c54eb1c552d8511d05322a158939cc66d1d2acc95194e",
+      "text": "선택한 경로를 보존하면서 상위 디렉터리의 디스크립터를 통해 검증된 하위 항목 하나를 제거합니다.",
+      "translation_source_blocks_sha256": [
+        "8d8e1dea690b2435111c54eb1c552d8511d05322a158939cc66d1d2acc95194e"
+      ]
+    },
+    "spacr.install_cleanup._run_debian_update._check_current": {
+      "source_blocks_sha256": [
+        "a09b6b9297a24d56e65d2f9ca02977d1fa1e334d21783f6e857caaa36cc2b804"
+      ],
+      "source_sha256": "a09b6b9297a24d56e65d2f9ca02977d1fa1e334d21783f6e857caaa36cc2b804",
+      "text": "활성화를 동일한 설치된 Debian 패키지 및 신뢰할 수 있는 도우미에 결부합니다.",
+      "translation_source_blocks_sha256": [
+        "a09b6b9297a24d56e65d2f9ca02977d1fa1e334d21783f6e857caaa36cc2b804"
+      ]
+    },
+    "spacr.install_cleanup._run_macos_frozen_update._authorized": {
+      "source_blocks_sha256": [
+        "8e3b768057cb6bb7c7ec097cfe34c910967f30cf00d3674c671b389ee1c8cedc"
+      ],
+      "source_sha256": "8e3b768057cb6bb7c7ec097cfe34c910967f30cf00d3674c671b389ee1c8cedc",
+      "text": "신뢰할 수 있는 준비와 지연된 활성화를 위해 네이티브 승인 한 번을 요청합니다.",
+      "translation_source_blocks_sha256": [
+        "8e3b768057cb6bb7c7ec097cfe34c910967f30cf00d3674c671b389ee1c8cedc"
+      ]
+    },
+    "spacr.install_cleanup._run_macos_frozen_update._new_desktop": {
+      "source_blocks_sha256": [
+        "a8e47fdff3291a1e73ae2a648787297cea24eab33964bae83d70972440242801"
+      ],
+      "source_sha256": "a8e47fdff3291a1e73ae2a648787297cea24eab33964bae83d70972440242801",
+      "text": "활성화된 릴리스를 검증하고 실제 기본 창이 나타날 때까지 기다립니다.",
+      "translation_source_blocks_sha256": [
+        "a8e47fdff3291a1e73ae2a648787297cea24eab33964bae83d70972440242801"
+      ]
+    },
+    "spacr.install_cleanup._run_macos_frozen_update._unchanged": {
+      "source_blocks_sha256": [
+        "2658a5e98c612635866695bfbde4feb4a2e88eda2bf56838c9b16abb405efc7b"
+      ],
+      "source_sha256": "2658a5e98c612635866695bfbde4feb4a2e88eda2bf56838c9b16abb405efc7b",
+      "text": "설치된 번들 또는 인증된 이미지가 변경되었으면 활성화를 거부합니다.",
+      "translation_source_blocks_sha256": [
+        "2658a5e98c612635866695bfbde4feb4a2e88eda2bf56838c9b16abb405efc7b"
+      ]
+    },
+    "spacr.install_cleanup._run_macos_online_update.prepared": {
+      "source_blocks_sha256": [
+        "eb89780f273278e9222a1987ac553218309513fdef4c36821c415e26354e8d28"
+      ],
+      "source_sha256": "eb89780f273278e9222a1987ac553218309513fdef4c36821c415e26354e8d28",
+      "text": "교체본이 준비 단계의 검사를 통과한 뒤에만 다시 시작을 제공합니다.",
+      "translation_source_blocks_sha256": [
+        "eb89780f273278e9222a1987ac553218309513fdef4c36821c415e26354e8d28"
+      ]
+    },
+    "spacr.install_cleanup._run_native_uninstall.stopped": {
+      "source_blocks_sha256": [
+        "ae20b54f8091558de19fccfbcea7cbd08b1071a08fd73543c20160b89017b0ad"
+      ],
+      "source_sha256": "ae20b54f8091558de19fccfbcea7cbd08b1071a08fd73543c20160b89017b0ad",
+      "text": "승인된 도우미의 완료를 확인하기 전에 데스크톱 애플리케이션의 취소 여부를 확인합니다.",
+      "translation_source_blocks_sha256": [
+        "ae20b54f8091558de19fccfbcea7cbd08b1071a08fd73543c20160b89017b0ad"
+      ]
+    },
+    "spacr.install_cleanup._run_pip_environment_update.prepared": {
+      "source_blocks_sha256": [
+        "fa9029cc38e3bc15409300f76c269d66d3cad450cbed7b1f270f621bcaaab2b0"
+      ],
+      "source_sha256": "fa9029cc38e3bc15409300f76c269d66d3cad450cbed7b1f270f621bcaaab2b0",
+      "text": "검증된 교체본이 승인될 때까지 실행 중인 환경을 유지합니다.",
+      "translation_source_blocks_sha256": [
+        "fa9029cc38e3bc15409300f76c269d66d3cad450cbed7b1f270f621bcaaab2b0"
+      ]
+    },
     "spacr.install_cleanup._run_plan._finish": {
       "source_blocks_sha256": [
         "532b1ab0bf40eeff8d6202d2541133e0781ca4b38117e18d5bfd1a883e4107a7",
@@ -38866,6 +38966,56 @@
       "translation_source_blocks_sha256": [
         "532b1ab0bf40eeff8d6202d2541133e0781ca4b38117e18d5bfd1a883e4107a7",
         "e7a79149a400ea55f4d7de4ac47e2776d1daf947986dac7101344929501e5fbc"
+      ]
+    },
+    "spacr.install_cleanup._run_windows_frozen_update._check_current": {
+      "source_blocks_sha256": [
+        "69d55cfeb8ba5b13b719f205fb986a7d62d443b72bb242ff487691cd1f68b4a5"
+      ],
+      "source_sha256": "69d55cfeb8ba5b13b719f205fb986a7d62d443b72bb242ff487691cd1f68b4a5",
+      "text": "활성화하기 전에 식별 정보가 고정된 설치 프로그램과 변경되지 않은 Windows 대상 위치를 다시 확인합니다.",
+      "translation_source_blocks_sha256": [
+        "69d55cfeb8ba5b13b719f205fb986a7d62d443b72bb242ff487691cd1f68b4a5"
+      ]
+    },
+    "spacr.install_cleanup._run_windows_frozen_update._launch_verified": {
+      "source_blocks_sha256": [
+        "d84691719ff0efddd5bfd225f439ec94b00953baabad489728aa396343b2dea8"
+      ],
+      "source_sha256": "d84691719ff0efddd5bfd225f439ec94b00953baabad489728aa396343b2dea8",
+      "text": "활성화된 Windows 프로그램 내용과 권한을 높이지 않은 기본 창을 확인합니다.",
+      "translation_source_blocks_sha256": [
+        "d84691719ff0efddd5bfd225f439ec94b00953baabad489728aa396343b2dea8"
+      ]
+    },
+    "spacr.install_cleanup._run_windows_native_uninstall.authorize": {
+      "source_blocks_sha256": [
+        "fbca2e109203a09a1d07c7f6a5e1f1cf6c79bdb0666b19e469dc47648e7ad6b1"
+      ],
+      "source_sha256": "fbca2e109203a09a1d07c7f6a5e1f1cf6c79bdb0666b19e469dc47648e7ad6b1",
+      "text": "인증된 완료가 확인될 때까지 네이티브 제거 프로그램의 부트스트랩 결과를 유지합니다.",
+      "translation_source_blocks_sha256": [
+        "fbca2e109203a09a1d07c7f6a5e1f1cf6c79bdb0666b19e469dc47648e7ad6b1"
+      ]
+    },
+    "spacr.install_cleanup._run_windows_native_uninstall.stopped": {
+      "source_blocks_sha256": [
+        "533bcf00f100db8593becbee7dbf1360ed65431eb1ce6beae70ab0da076f9c11"
+      ],
+      "source_sha256": "533bcf00f100db8593becbee7dbf1360ed65431eb1ce6beae70ab0da076f9c11",
+      "text": "네이티브 시작 실패를 중지 상태로 처리하되 부트스트랩 종료를 작업 완료와 혼동하지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "533bcf00f100db8593becbee7dbf1360ed65431eb1ce6beae70ab0da076f9c11"
+      ]
+    },
+    "spacr.install_cleanup._run_windows_pip_update.prepared": {
+      "source_blocks_sha256": [
+        "35e7bfbe7ae13050a14cb79dade46404cac35685e6efd56cef80fb1261324261"
+      ],
+      "source_sha256": "35e7bfbe7ae13050a14cb79dade46404cac35685e6efd56cef80fb1261324261",
+      "text": "전용 교체본이 검증된 경우에만 종료를 요청합니다.",
+      "translation_source_blocks_sha256": [
+        "35e7bfbe7ae13050a14cb79dade46404cac35685e6efd56cef80fb1261324261"
       ]
     },
     "spacr.install_cleanup._standalone_helper_command.contains": {
@@ -38892,6 +39042,16 @@
       "text": "파일을 원자적으로 교체하여 현재 업데이트 단계를 트랜잭션 저널에 저장합니다.",
       "translation_source_blocks_sha256": [
         "511fb04c43db2b4a53aa928f8aa7451cc800d18d272c7a21f9ae6949a92cb6c6"
+      ]
+    },
+    "spacr.install_cleanup._uninstall_data_candidates.expand": {
+      "source_blocks_sha256": [
+        "150516859006f38f26d63f583f1aeea3528b25f7877d326003eaa7eb6c414b68"
+      ],
+      "source_sha256": "150516859006f38f26d63f583f1aeea3528b25f7877d326003eaa7eb6c414b68",
+      "text": "설정된 사용자의 경로 시작 부분에 있는 홈 디렉터리 표시를 확장합니다.",
+      "translation_source_blocks_sha256": [
+        "150516859006f38f26d63f583f1aeea3528b25f7877d326003eaa7eb6c414b68"
       ]
     },
     "spacr.install_cleanup.apply_optional_cleanup": {
@@ -39043,9 +39203,9 @@
     "spacr.install_cleanup.start_update_helper": {
       "source_blocks_sha256": [
         "962ee0a65cb98c1a7e5d5bd46f704918d560172c572df169b810ba8de9e625dc",
-        "cec3fb3c67983bab4fd6ea6ca11c0bcb33e727d5bdffd7eee3df8b03aeb6f8c7",
-        "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
-        "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
+        "da2fc080e7ce4d62a57ad783bc506fca93f3ac1c227e2e2d86a5f3c2287c7f7a",
+        "d8c0e7cad66dadfc30b5b50b7e4c54576e3e34ff6ddd735fb6f083efd1682746",
+        "073898c084d9fad964180534bcd5431b6a343a5187d1ff27b5e7a322707e936b",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
         "f4f29aad2ee5d6d2e633c876af3de201ef5107f4bebf85c341074b87d44a38b8",
         "03fe7146f54f66b140a67fcb8e24fe1d600b19c5f064b609faf1a8a148e08062",
@@ -39054,15 +39214,15 @@
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
-        "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674"
+        "e4c02e1396bec959a337254cf3f21c3c2cf75cda1b95885223e1361b2b0bdc70"
       ],
-      "source_sha256": "bb3ffeae3a2024578f2ec4b3368a05018f5582773acf5e46540984e310611f98",
-      "text": "spaCR보다 오래 살아 있는 프로세스에서 설치 업데이트를 실행합니다.\n\n설치 프로그램이 만든 복사본과 지원되는 전용 POSIX 또는 Windows pip 환경은 이 도우미를 사용할 수 있습니다. 설치를 변경하기 전에 실행 중인 프로세스가 종료될 때까지 기다립니다. pip 어댑터는 인증된 종료 승인도 요구합니다.\n\n지원되는 macOS 온라인 설치의 경우 기존에 번들된 ``uv``와 전용 Python을 사용하여 같은 환경에서 spaCR을 업그레이드합니다. 환경 디렉터리, 부트스트랩 파일, 애플리케이션 실행기, 업데이트가 필요 없는 설치된 패키지를 보존합니다. 설치된 버전이 최소 ``version``이고, 이전 버전을 알 수 있는 경우 그보다 새로운지 확인한 후에만 다시 시작합니다. 업그레이드나 버전 확인이 실패해도 제거나 교체 설치 프로그램을 실행하지 않습니다.\n\n일반적인 교체 절차는 설치를 준비하는 새 설치 프로그램을 내려받아 실행하고, 실제 인터프리터와 가져온 애플리케이션을 검증한 다음 다른 복사본을 제거하고 애플리케이션을 시작합니다. 설치 또는 검증에 실패해도 이전에 정상 작동하던 복사본은 제거하지 않습니다. 다른 복사본 제거에 실패하면 이를 기록하며 애플리케이션을 다시 실행하지 않습니다.\n\n:param records: :func:`find_old_installs` 함수에서 얻은 설치들.\n:param version: 설치할 버전.\n:param ticked: 사용자가 선택한 환경의 루트 경로.\n:param pid: 기다릴 프로세스. ``None`` 값이면 이 프로세스입니다.\n:param workdir: 도우미의 폴더. ``None`` 값이면 새 임시 폴더입니다.\n:param system: 대상 컴퓨터. ``None`` 값은 이 컴퓨터를 뜻합니다.\n:param spawn: 분리된 프로세스를 시작하는 실행기를 대체합니다.\n:returns: ``plan.json`` 파일에 기록된 계획. ``plan[\"command\"]`` 값은 도우미의 명령이며, 아무것도 시작하지 않았으면 ``None`` 값이고 그 이유는 ``plan[\"error\"]`` 값에 있습니다.\n\n사용자가 쓸 수 있는 위치의 동결된 macOS 애플리케이션 번들은 검증된 DMG 교체 어댑터를 사용하며 이전 번들 전체를 보관합니다. 프로토콜 표식이 있는 Debian 번들은 그래픽 관리자 승인과 설치 위치 외부에 있는 root 소유 보조 프로그램을 사용합니다. 교체 패키지와 롤백 패키지 모두 게시된 체크섬이 필요하며, 다시 실행하기 전에 패키지와 권한이 상승되지 않은 실행 환경을 검증합니다. 지원되지 않는 동결 애플리케이션 계열은 어떤 항목도 제거하기 전에 오류를 반환하며, 해당 계열에는 온라인 설치 프로그램을 사용하는 대체 경로가 활성화되어 있지 않습니다.",
+      "source_sha256": "1d17df3cd60ea0a66ac6baa3574a1d6bf3dc9534cb8cd38b431eab330f3446e6",
+      "text": "spaCR보다 오래 살아 있는 프로세스에서 설치 업데이트를 실행합니다.\n\n설치 프로그램으로 만든 복사본과 지원되는 전용 POSIX 또는 Windows pip 환경은 이 도우미를 사용할 수 있습니다. 현재 애플리케이션이 실행되는 동안 교체본을 준비하며, 활성화 전에 인증된 종료 승인과 실제 프로세스 종료를 요구합니다.\n\n지원되는 macOS 온라인 설치에서는 기존에 포함된 ``uv``와 전용 Python을 사용하여 요청한 spaCR 릴리스를 같은 상위 디렉터리에 준비된 별도 환경에 설치합니다. 부트스트랩 파일, 애플리케이션 실행기와 업데이트가 필요 없는 패키지를 보존합니다. 검증된 준비와 승인된 종료가 끝나면 준비된 환경을 기존 런타임 경로에서 활성화하고 복구를 위해 이전 환경 전체를 보존합니다. 다시 실행할 때 요청한 버전, 실행 파일, 가져온 모듈과 표시된 기본 창을 검증합니다. 준비가 실패하면 실행 중인 환경은 변경되지 않습니다.\n\n런타임 어댑터는 준비 완료를 알리기 전에 전용 교체본을 설치하고 검증합니다. GUI는 다시 시작을 제공하고 설정을 보존한 뒤 종료를 승인합니다. 다시 실행할 때 실제 새 데스크톱 프로세스와 기본 창을 검증합니다. 지원되지 않는 설치 구조는 설치 프로그램을 시작하기 전에 거부합니다.\n\n:param records: :func:`find_old_installs` 함수에서 얻은 설치들.\n:param version: 설치할 버전.\n:param ticked: 사용자가 선택한 환경의 루트 경로.\n:param pid: 기다릴 프로세스. ``None`` 값이면 이 프로세스입니다.\n:param workdir: 도우미의 폴더. ``None`` 값이면 새 임시 폴더입니다.\n:param system: 대상 컴퓨터. ``None`` 값은 이 컴퓨터를 뜻합니다.\n:param spawn: 분리된 프로세스를 시작하는 실행기를 대체합니다.\n:returns: ``plan.json`` 파일에 기록된 계획. ``plan[\"command\"]`` 값은 도우미의 명령이며, 아무것도 시작하지 않았으면 ``None`` 값이고 그 이유는 ``plan[\"error\"]`` 값에 있습니다.\n\n패키징된 macOS 및 Windows 설치와 프로토콜 표식이 있는 Debian 설치는 검증된 네이티브 교체 어댑터를 사용합니다. 보호된 macOS 설치에는 현재 네이티브 단계 프로토콜을 갖춘 설치된 도우미가 필요합니다. Windows에는 별도로 게시되고 체크섬이 제공된 업데이트 실행 파일이 필요합니다. 관리자 승인과 준비는 다시 시작보다 먼저 이루어지며, 활성화는 승인된 데스크톱 애플리케이션 종료 뒤에 이루어집니다. 복구 파일을 제거하기 전에 새 데스크톱 애플리케이션이 자신의 식별 정보와 기본 창을 확인해야 합니다. 지원되지 않는 구조나 필요한 기능의 부재는 실행 중인 애플리케이션을 변경하지 않으며, 일반 설치 프로그램으로 대체하는 경로는 활성화되지 않습니다.",
       "translation_source_blocks_sha256": [
         "38fd92ea723724e1eae22f8eb1870dd9cbe935dff6f91a1204cd0e98ff838361",
-        "e357d3b44eb36c1021e5631b88ba2c9083e2f8d52060d040b95cd1defe66aa0f",
-        "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
-        "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
+        "f95da138b2e377d01f4c9b3ec56350ddf2477a6d096aa7371aa68f00016b7b5f",
+        "b1893d387327d532d4f2a73d710f58a81c8c690cfbc2b641300bfebf7473cf5f",
+        "073898c084d9fad964180534bcd5431b6a343a5187d1ff27b5e7a322707e936b",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
         "f4f29aad2ee5d6d2e633c876af3de201ef5107f4bebf85c341074b87d44a38b8",
         "03fe7146f54f66b140a67fcb8e24fe1d600b19c5f064b609faf1a8a148e08062",
@@ -39071,7 +39231,7 @@
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
-        "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674"
+        "4485c23da1ca2edf45fafda1e06ae0088e996ea12b154c56f3061988efd07df7"
       ]
     },
     "spacr.install_profile": {
@@ -91288,6 +91448,16 @@
       "text": "설치/로그인 대화 상자를 열고 선택을 다시 적용합니다.",
       "translation_source_blocks_sha256": [
         "758f7a64e6b68b77124239ff70480074c117ffd0997733e1eee416e8e34be092"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_spacr_uninstall": {
+      "source_blocks_sha256": [
+        "b206c6651fd1289828518286dae913f9ad0788e9e104db0be22ff628903b0c26"
+      ],
+      "source_sha256": "b206c6651fd1289828518286dae913f9ad0788e9e104db0be22ff628903b0c26",
+      "text": "애플리케이션 제거 미리보기를 열기 전에 환경설정에서 나갑니다.",
+      "translation_source_blocks_sha256": [
+        "b206c6651fd1289828518286dae913f9ad0788e9e104db0be22ff628903b0c26"
       ]
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_the_shortcuts_editor": {

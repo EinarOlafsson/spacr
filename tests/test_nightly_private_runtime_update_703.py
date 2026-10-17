@@ -10,7 +10,7 @@ import pytest
 
 from tests.test_pip_runtime_transaction_703 import installation as pip_installation
 from tests.test_macos_online_update_n627 import installation as mac_installation
-from tests.test_macos_runtime_transaction_703 import installation as mac_runtime_installation, _installer, _snapshot, _wheel
+from tests.test_macos_runtime_transaction_703 import acknowledging_spawn, installation as mac_runtime_installation, _installer, _snapshot, _wheel
 from tests.test_updater_runtime_identity_703 import runtime as identity_runtime
 
 from spacr import install_cleanup as cleanup
@@ -111,7 +111,7 @@ def test_real_offline_private_pip_nightly_update_requires_approval_and_keeps_old
         return result.returncode, result.stdout + result.stderr
     reopened = []
     code = cleanup._run_plan(str(Path(plan['workdir']) / 'plan.json'), system=machine,
-                             run=run, wait=lambda pid: True, spawn=lambda *args: reopened.append(args),
+                             run=run, wait=lambda pid: True, spawn=acknowledging_spawn(reopened),
                              remove=lambda *args: pytest.fail('No runtime retirement'),
                              fetch=lambda *args: pytest.fail('No installer download'))
     assert code == 0 and len(installed) == 1 and len(reopened) == 1
@@ -143,7 +143,7 @@ def test_real_mac_style_uv_nightly_staging_never_accepts_a_stable_fallback(mac_r
     _approve(monkeypatch)
     reopened = []
     code = cleanup._run_plan(str(Path(plan['workdir']) / 'plan.json'), system=machine, wait=lambda pid: True,
-                             spawn=lambda *args: reopened.append(args),
+                             spawn=acknowledging_spawn(reopened),
                              remove=lambda *args: pytest.fail('No unrelated installation retirement'),
                              fetch=lambda *args: pytest.fail('No installer download'))
     if stable_fallback:

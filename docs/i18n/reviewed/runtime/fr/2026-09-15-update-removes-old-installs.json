@@ -98,13 +98,6 @@
       "source_sha256": "602d85f0f9609220ee6ae6615b0f3b11f2a9abb50c608a3f4be7071ed140d59c",
       "table": "ui",
       "translation": "refusé : pas reconnaissable comme une installation de spaCR ; supprimez-le à la main s’il en est une"
-    },
-    {
-      "key": "spaCR will close, remove the older copies, install {version} and start again.",
-      "source": "spaCR will close, remove the older copies, install {version} and start again.",
-      "source_sha256": "ad8df605d10cb920d15682ec33f04880f11d15b85304ec05a0edfb47f1a8193a",
-      "table": "ui",
-      "translation": "spaCR va se fermer, supprimer les anciennes copies, installer {version} et redémarrer."
     }
   ],
   "schema": 1

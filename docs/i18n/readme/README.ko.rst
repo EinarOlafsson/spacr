@@ -132,7 +132,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/install-spacr-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/install-spacr-2.desktop.svg"><img src="../../readme_images/ko/install-spacr-2.svg" alt="Docker 가이드에서 GPU 설정, 데이터 마운트, 파이프라인 명령을 설명합니다."></picture></a></div>
+   <div><a href="../../readme_text/ko/install-spacr-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/install-spacr-2.desktop.svg"><img src="../../readme_images/ko/install-spacr-2.svg" alt="Docker 가이드 (nightly, 영어)에서 GPU 설정, 데이터 마운트, 파이프라인 명령을 설명합니다."></picture></a></div>
 
 .. raw:: html
 
@@ -165,11 +165,11 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/desktop-application-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/desktop-application-3.desktop.svg"><img src="../../readme_images/ko/desktop-application-3.svg" alt="macOS에서는 .pkg를 여세요. 현재 베타는 공증되지 않았습니다. Gatekeeper가 차단하면 시스템 설정 → 개인정보 보호 및 보안 → 그래도 열기를 선택하세요. 업데이트, 제거, 오프라인 사용 및 문제 해결 지침은 설치 안내서를 참조하십시오. 워크스테이션과 서버 권장 사항 및 GPU 호환성 표는 시스템 요구 사항을 참조하십시오."></picture></a></div>
+   <div><a href="../../readme_text/ko/desktop-application-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/desktop-application-3.desktop.svg"><img src="../../readme_images/ko/desktop-application-3.svg" alt="macOS에서는 .pkg를 여세요. 현재 베타는 공증되지 않았습니다. Gatekeeper가 차단하면 시스템 설정 → 개인정보 보호 및 보안 → 그래도 열기를 선택하세요. 설치, 업데이트, 재설치, 제거, 오프라인 사용 및 문제 해결 지침은 nightly 브랜치의 최신 설치 안내서(영어)를 참조하십시오. 워크스테이션과 서버 권장 사항 및 GPU 호환성 표는 시스템 요구 사항을 참조하십시오."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../source/installer_guide.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/desktop-application-3-link-1.desktop.svg"><img src="../../readme_images/ko/desktop-application-3-link-1.svg" alt="설치 안내서"></picture></a><a href="../../source/system_requirements.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/desktop-application-3-link-2.desktop.svg"><img src="../../readme_images/ko/desktop-application-3-link-2.svg" alt="시스템 요구 사항"></picture></a></div>
+   <div><a href="https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/desktop-application-3-link-1.desktop.svg"><img src="../../readme_images/ko/desktop-application-3-link-1.svg" alt="nightly 브랜치의 최신 설치 안내서(영어)"></picture></a><a href="../../source/system_requirements.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/desktop-application-3-link-2.desktop.svg"><img src="../../readme_images/ko/desktop-application-3-link-2.svg" alt="시스템 요구 사항"></picture></a></div>
 
 .. raw:: html
 
@@ -194,7 +194,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/pypi-installation-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/pypi-installation-3.desktop.svg"><img src="../../readme_images/ko/pypi-installation-3.svg" alt="선택적 통합 기능은 spacr[zarr], spacr[omero], spacr[napari] 및 spacr[czi,nd2,lif]과 같이 별도로 설치합니다. 전체 추가 기능 목록과 Python 버전 호환성 표는 설치 안내서를 참조하십시오."></picture></a></div>
+   <div><a href="../../readme_text/ko/pypi-installation-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/pypi-installation-3.desktop.svg"><img src="../../readme_images/ko/pypi-installation-3.svg" alt="선택적 통합 기능은 spacr[zarr], spacr[omero], spacr[napari] 및 spacr[czi,nd2,lif]과 같이 별도로 설치합니다. 전체 추가 기능 목록과 Python 버전 호환성 표는 설치 안내서 (nightly, 영어)를 참조하십시오."></picture></a></div>
 
 .. raw:: html
 

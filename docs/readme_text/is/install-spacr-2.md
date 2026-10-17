@@ -1,1 +1,1 @@
-[Docker-leiðbeiningarnar](<../../source/installer_guide.rst#container-images>) fjalla um uppsetningu skjákorts, tengingu gagnamappa og skipanir fyrir vinnslurnar.
+[Docker-leiðbeiningarnar (nightly, á ensku)](<https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>) fjalla um uppsetningu skjákorts, tengingu gagnamappa og skipanir fyrir vinnslurnar.

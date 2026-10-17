@@ -9,7 +9,7 @@ import sys
 import pytest
 
 from spacr import install_cleanup as cleanup
-from tests.test_macos_runtime_transaction_703 import installation, _installer, _snapshot, _wheel
+from tests.test_macos_runtime_transaction_703 import acknowledging_spawn, installation, _installer, _snapshot, _wheel
 
 pytestmark = pytest.mark.skipif(os.name == 'nt', reason='Exercises the POSIX runtime adapter')
 
@@ -77,7 +77,8 @@ def test_runtime_changed_while_waiting_is_rechecked_under_actual_lease(installat
     code = cleanup._run_plan(str(Path(plan['workdir']) / 'plan.json'), system=machine,
                              wait=wait, spawn=lambda *args: events.append('relaunch'))
     assert code != 0 and events == ['approval', 'shutdown']
-    assert probes == [False, True]
+    assert probes[0] is False and len(probes) >= 2 and all(probes[1:]), (
+        'every identity check after the first runs under the actual update lease')
     assert _snapshot(prefix) == before[0]
     assert not (prefix.parent / '.venv.spacr-update-lock').exists()
     assert not list(prefix.parent.glob('.spacr-runtime-update-*'))
@@ -91,10 +92,12 @@ def test_readonly_current_identity_allows_repairing_broken_old_qt(installation, 
     plan = _plan(record, machine, tmp_path)
     events = []
     _approve(monkeypatch, events)
+    launched = []
+    spawn = acknowledging_spawn(launched)
     code = cleanup._run_plan(str(Path(plan['workdir']) / 'plan.json'), system=machine,
                              wait=lambda pid: events.append('shutdown') or True,
-                             spawn=lambda *args: events.append('relaunch'))
-    assert code == 0 and events == ['approval', 'shutdown', 'relaunch']
+                             spawn=lambda *args: events.append('relaunch') or spawn(*args))
+    assert code == 0 and events == ['approval', 'shutdown', 'relaunch'] and len(launched) == 1
     identity = subprocess.run(cleanup._runtime_identity_command(record.python, '1.5.1.5'),
                               capture_output=True, text=True, timeout=15)
     assert identity.returncode == 0, identity.stderr

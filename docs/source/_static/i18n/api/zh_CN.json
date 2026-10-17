@@ -38717,21 +38717,21 @@
       "source_blocks_sha256": [
         "7416dbb0fde10154916ad50cd0fc7e202830b618edb774535da00b284b0cb51e",
         "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
-        "f7429e66190134bb8d3b5b0468206f3e3128f87883921c7fbe700c7479929706",
-        "e017a0d3e804e71040c5189f6b6426d8402cab247d827b87e69f69e9b020125a",
-        "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
+        "e0d76c6db052c67226a155017113c974ea0956726168ef17c855529211ed4c54",
+        "f08330e3b1a0a9470b6cc8c0e4470b9f0b667c197fdcf830d836be90a37e12fb",
+        "7e7465b19ed0856c63c643081b418f8299629d079f51bb7d42aa5b8f23fe50e4",
         "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
         "0652c5caf1f0df7c39d1e6c1c79f43d330c0f02a8d6c1614075702950f791893",
         "16c109cefeac68ae0b253a90e4ae1cf7b1dbd527ce7a3af7b2326e1a837afef3"
       ],
-      "source_sha256": "cde38312aab2afab1bbdceb56fc3154a44c1daab76afce222aeed43202098641",
-      "text": "查找 spaCR 安装并运行相应的更新或移除流程。\n\n在线安装程序先准备并验证新的运行环境，然后再移除旧的应用副本。准备过程中会保留当前安装；如果替换后的环境未通过验证，则恢复此前的运行环境。更新助手会先验证桌面启动所用的解释器和实际导入的应用，再移除其他副本或请求重新启动。:func:`run_update_sequence` 仍是显式清理命令使用的底层移除过程。\n\n受支持的 macOS 在线安装和专用 POSIX pip 环境，在获准关闭后使用现有的软件包工具，准备并验证位于同级目录的更新运行环境，再以原子方式激活它。引导文件、启动器、未更改的软件包以及先前的运行环境都会保留。共享环境、Conda 环境和 Windows Python 环境需要各自的替换适配器。\n\n受支持的冻结 macOS 应用使用经过验证的 DMG 替换，并保留其完整的旧应用包。这些 macOS 更新路径不会运行标准删除流程。其他冻结应用系列需要受支持的替换适配器才能开始更新。\n\n删除时从不运行旧版本自带的卸载程序，因此即使某个副本的 ``Uninstall.exe`` 或 ``uninstall-spacr.sh`` 缺失或损坏，它也照样会被删除。首选项和用户数据会保留：``~/.spacr``、``~/.cache/spacr``、``~/.local/state/spacr``、``~/spacr-demos``、``~/spacr-tutorials``、Hugging Face 缓存，以及 ``spacr``/``qt`` 设置（``~/.config/spacr``、macOS 上的首选项文件，以及 Windows 上的 ``Software\\spacr`` 注册表键）。\n\n用户自行创建的 pip 或 conda 环境会被列出，但绝不会被删除；只有当调用方表明该环境已被勾选时，才会从中卸载 spaCR 软件包。可编辑的源代码检出会被报告，但不会被改动。\n\n该模块只使用标准库，不从 spaCR 导入任何内容，因此安装程序可以在任何 spaCR 尚不存在时，用它自己安装的 Python 运行该模块；辅助进程也可以在正在运行的 spaCR 关闭之后，运行该模块的一个副本::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` 是明确选择的完整卸载：列出并询问后，还会删除 spaCR 的缓存、后端环境和用户数据。它不会自行运行；``remove --purge`` 在成功移除后运行它。",
+      "source_sha256": "a881a3859ebcd0f6032d9688b977d47b57f5be8310a7b4a7876cdc2f7ce3baf7",
+      "text": "查找 spaCR 安装并运行相应的更新或移除流程。\n\n在线安装程序先准备并验证新的运行环境，然后再移除旧的应用副本。准备过程中会保留当前安装；如果替换后的环境未通过验证，则恢复此前的运行环境。更新助手会先验证桌面启动所用的解释器和实际导入的应用，再移除其他副本或请求重新启动。:func:`run_update_sequence` 仍是显式清理命令使用的底层移除过程。\n\n受支持的 macOS 在线安装以及 POSIX 或 Windows 专用 pip 环境使用现有的包管理工具，在同一父目录下准备并验证更新后的运行环境，然后才请求重新启动。激活需要经过批准的关闭操作。引导文件、启动器、未更改的包以及先前的运行环境均予以保留。共享环境和 Conda 环境需要各自的替换适配器。\n\n受支持的 macOS、Windows 或 Debian 打包安装在桌面应用保持打开时准备已验证的替换版本。受保护的安装会先通过图形界面获得管理员授权，然后才请求重新启动。激活需要经过批准的关闭操作和进程实际退出；恢复数据会保留到更新后的桌面应用确认其身份和主窗口为止。\n\n常规移除会保留偏好设置和用户数据。而经过确认的 GUI 卸载会预览当前安装或所有检测到的安装，以及各个独立的清理类别；这些项目默认选中，也可逐项取消选择。受保护的移除仅使用已验证、已安装且具备所需协议的辅助程序；授权、准备和经过批准的桌面应用退出均在删除之前完成。不相关的项目、未验证的数据和共享环境均予以保留。\n\n用户自行创建的 pip 或 conda 环境会被列出，但绝不会被删除；只有当调用方表明该环境已被勾选时，才会从中卸载 spaCR 软件包。可编辑的源代码检出会被报告，但不会被改动。\n\n该模块只使用标准库，不从 spaCR 导入任何内容，因此安装程序可以在任何 spaCR 尚不存在时，用它自己安装的 Python 运行该模块；辅助进程也可以在正在运行的 spaCR 关闭之后，运行该模块的一个副本::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` 是明确选择的完整卸载：列出并询问后，还会删除 spaCR 的缓存、后端环境和用户数据。它不会自行运行；``remove --purge`` 在成功移除后运行它。",
       "translation_source_blocks_sha256": [
         "7416dbb0fde10154916ad50cd0fc7e202830b618edb774535da00b284b0cb51e",
         "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
-        "f7429e66190134bb8d3b5b0468206f3e3128f87883921c7fbe700c7479929706",
-        "b7b4a480350779d9e499a18a0b05ee0252054fdd541405364095199fcda23505",
-        "d1c3cc6a4c7b476afc63c9609f53b6a82612c1c6da142522cedadeb817aef8c7",
+        "e0d76c6db052c67226a155017113c974ea0956726168ef17c855529211ed4c54",
+        "f08330e3b1a0a9470b6cc8c0e4470b9f0b667c197fdcf830d836be90a37e12fb",
+        "7e7465b19ed0856c63c643081b418f8299629d079f51bb7d42aa5b8f23fe50e4",
         "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
         "bb0bd04717a44d9841640212c772bd7a6f41c19bc71bbed8863510f45c4e6bcb",
         "16c109cefeac68ae0b253a90e4ae1cf7b1dbd527ce7a3af7b2326e1a837afef3"
@@ -38801,6 +38801,26 @@
         "28d5942b909f593a8665c322eb016f1731034aa7da04b26baa87445eb3804b50"
       ]
     },
+    "spacr.install_cleanup._coordinate_native_update._run_authorized": {
+      "source_blocks_sha256": [
+        "a3a72649d96197b1ddcdad241c16a0433083bd42776c86956aa43c9b25d5f76f"
+      ],
+      "source_sha256": "a3a72649d96197b1ddcdad241c16a0433083bd42776c86956aa43c9b25d5f76f",
+      "text": "保留原生工作单元的完成结果或错误，直到其管理的进程结束。",
+      "translation_source_blocks_sha256": [
+        "a3a72649d96197b1ddcdad241c16a0433083bd42776c86956aa43c9b25d5f76f"
+      ]
+    },
+    "spacr.install_cleanup._coordinate_native_update._stopped": {
+      "source_blocks_sha256": [
+        "33e97b7079dbd95275d614062b32167621984b812fc483c142ac83ac44372729"
+      ],
+      "source_sha256": "33e97b7079dbd95275d614062b32167621984b812fc483c142ac83ac44372729",
+      "text": "在检查原生工作单元是否完成之前，先检查桌面应用是否取消操作。",
+      "translation_source_blocks_sha256": [
+        "33e97b7079dbd95275d614062b32167621984b812fc483c142ac83ac44372729"
+      ]
+    },
     "spacr.install_cleanup._delete._writable_then_retry": {
       "source_blocks_sha256": [
         "d3fff3ce723738f6656a43e787c795d9b6cfcfb86dd0e050ad4ac6e19431b657",
@@ -38857,6 +38877,86 @@
         "903c6484f4ff7f5161e8c3608a510f1514f08f43f4dcdd1032d5dea37ce9ee61"
       ]
     },
+    "spacr.install_cleanup._macos_uninstall_tree.visit": {
+      "source_blocks_sha256": [
+        "8d8e1dea690b2435111c54eb1c552d8511d05322a158939cc66d1d2acc95194e"
+      ],
+      "source_sha256": "8d8e1dea690b2435111c54eb1c552d8511d05322a158939cc66d1d2acc95194e",
+      "text": "通过父目录的描述符移除一个已验证的子项，同时保留选定路径。",
+      "translation_source_blocks_sha256": [
+        "8d8e1dea690b2435111c54eb1c552d8511d05322a158939cc66d1d2acc95194e"
+      ]
+    },
+    "spacr.install_cleanup._run_debian_update._check_current": {
+      "source_blocks_sha256": [
+        "a09b6b9297a24d56e65d2f9ca02977d1fa1e334d21783f6e857caaa36cc2b804"
+      ],
+      "source_sha256": "a09b6b9297a24d56e65d2f9ca02977d1fa1e334d21783f6e857caaa36cc2b804",
+      "text": "将激活绑定到同一个已安装的 Debian 软件包和可信辅助程序。",
+      "translation_source_blocks_sha256": [
+        "a09b6b9297a24d56e65d2f9ca02977d1fa1e334d21783f6e857caaa36cc2b804"
+      ]
+    },
+    "spacr.install_cleanup._run_macos_frozen_update._authorized": {
+      "source_blocks_sha256": [
+        "8e3b768057cb6bb7c7ec097cfe34c910967f30cf00d3674c671b389ee1c8cedc"
+      ],
+      "source_sha256": "8e3b768057cb6bb7c7ec097cfe34c910967f30cf00d3674c671b389ee1c8cedc",
+      "text": "为可信的准备过程和延后激活请求一次原生授权。",
+      "translation_source_blocks_sha256": [
+        "8e3b768057cb6bb7c7ec097cfe34c910967f30cf00d3674c671b389ee1c8cedc"
+      ]
+    },
+    "spacr.install_cleanup._run_macos_frozen_update._new_desktop": {
+      "source_blocks_sha256": [
+        "a8e47fdff3291a1e73ae2a648787297cea24eab33964bae83d70972440242801"
+      ],
+      "source_sha256": "a8e47fdff3291a1e73ae2a648787297cea24eab33964bae83d70972440242801",
+      "text": "验证已激活的版本，并等待其实际主窗口出现。",
+      "translation_source_blocks_sha256": [
+        "a8e47fdff3291a1e73ae2a648787297cea24eab33964bae83d70972440242801"
+      ]
+    },
+    "spacr.install_cleanup._run_macos_frozen_update._unchanged": {
+      "source_blocks_sha256": [
+        "2658a5e98c612635866695bfbde4feb4a2e88eda2bf56838c9b16abb405efc7b"
+      ],
+      "source_sha256": "2658a5e98c612635866695bfbde4feb4a2e88eda2bf56838c9b16abb405efc7b",
+      "text": "如果已安装的应用包或已认证的映像发生变化，则拒绝激活。",
+      "translation_source_blocks_sha256": [
+        "2658a5e98c612635866695bfbde4feb4a2e88eda2bf56838c9b16abb405efc7b"
+      ]
+    },
+    "spacr.install_cleanup._run_macos_online_update.prepared": {
+      "source_blocks_sha256": [
+        "eb89780f273278e9222a1987ac553218309513fdef4c36821c415e26354e8d28"
+      ],
+      "source_sha256": "eb89780f273278e9222a1987ac553218309513fdef4c36821c415e26354e8d28",
+      "text": "仅在替换版本通过准备阶段的检查后提供重新启动选项。",
+      "translation_source_blocks_sha256": [
+        "eb89780f273278e9222a1987ac553218309513fdef4c36821c415e26354e8d28"
+      ]
+    },
+    "spacr.install_cleanup._run_native_uninstall.stopped": {
+      "source_blocks_sha256": [
+        "ae20b54f8091558de19fccfbcea7cbd08b1071a08fd73543c20160b89017b0ad"
+      ],
+      "source_sha256": "ae20b54f8091558de19fccfbcea7cbd08b1071a08fd73543c20160b89017b0ad",
+      "text": "在检查已授权辅助程序是否完成之前，先检查桌面应用是否取消操作。",
+      "translation_source_blocks_sha256": [
+        "ae20b54f8091558de19fccfbcea7cbd08b1071a08fd73543c20160b89017b0ad"
+      ]
+    },
+    "spacr.install_cleanup._run_pip_environment_update.prepared": {
+      "source_blocks_sha256": [
+        "fa9029cc38e3bc15409300f76c269d66d3cad450cbed7b1f270f621bcaaab2b0"
+      ],
+      "source_sha256": "fa9029cc38e3bc15409300f76c269d66d3cad450cbed7b1f270f621bcaaab2b0",
+      "text": "保留正在运行的环境，直到接受已验证的替换版本。",
+      "translation_source_blocks_sha256": [
+        "fa9029cc38e3bc15409300f76c269d66d3cad450cbed7b1f270f621bcaaab2b0"
+      ]
+    },
     "spacr.install_cleanup._run_plan._finish": {
       "source_blocks_sha256": [
         "532b1ab0bf40eeff8d6202d2541133e0781ca4b38117e18d5bfd1a883e4107a7",
@@ -38867,6 +38967,56 @@
       "translation_source_blocks_sha256": [
         "532b1ab0bf40eeff8d6202d2541133e0781ca4b38117e18d5bfd1a883e4107a7",
         "e7a79149a400ea55f4d7de4ac47e2776d1daf947986dac7101344929501e5fbc"
+      ]
+    },
+    "spacr.install_cleanup._run_windows_frozen_update._check_current": {
+      "source_blocks_sha256": [
+        "69d55cfeb8ba5b13b719f205fb986a7d62d443b72bb242ff487691cd1f68b4a5"
+      ],
+      "source_sha256": "69d55cfeb8ba5b13b719f205fb986a7d62d443b72bb242ff487691cd1f68b4a5",
+      "text": "激活之前，重新检查身份已固定的安装程序和未更改的 Windows 目标位置。",
+      "translation_source_blocks_sha256": [
+        "69d55cfeb8ba5b13b719f205fb986a7d62d443b72bb242ff487691cd1f68b4a5"
+      ]
+    },
+    "spacr.install_cleanup._run_windows_frozen_update._launch_verified": {
+      "source_blocks_sha256": [
+        "d84691719ff0efddd5bfd225f439ec94b00953baabad489728aa396343b2dea8"
+      ],
+      "source_sha256": "d84691719ff0efddd5bfd225f439ec94b00953baabad489728aa396343b2dea8",
+      "text": "确认已激活的 Windows 程序内容及其未提升权限的主窗口。",
+      "translation_source_blocks_sha256": [
+        "d84691719ff0efddd5bfd225f439ec94b00953baabad489728aa396343b2dea8"
+      ]
+    },
+    "spacr.install_cleanup._run_windows_native_uninstall.authorize": {
+      "source_blocks_sha256": [
+        "fbca2e109203a09a1d07c7f6a5e1f1cf6c79bdb0666b19e469dc47648e7ad6b1"
+      ],
+      "source_sha256": "fbca2e109203a09a1d07c7f6a5e1f1cf6c79bdb0666b19e469dc47648e7ad6b1",
+      "text": "保留原生卸载程序的引导结果，直到收到经过认证的完成确认。",
+      "translation_source_blocks_sha256": [
+        "fbca2e109203a09a1d07c7f6a5e1f1cf6c79bdb0666b19e469dc47648e7ad6b1"
+      ]
+    },
+    "spacr.install_cleanup._run_windows_native_uninstall.stopped": {
+      "source_blocks_sha256": [
+        "533bcf00f100db8593becbee7dbf1360ed65431eb1ce6beae70ab0da076f9c11"
+      ],
+      "source_sha256": "533bcf00f100db8593becbee7dbf1360ed65431eb1ce6beae70ab0da076f9c11",
+      "text": "将原生启动失败视为已停止，避免将引导程序退出误认为操作完成。",
+      "translation_source_blocks_sha256": [
+        "533bcf00f100db8593becbee7dbf1360ed65431eb1ce6beae70ab0da076f9c11"
+      ]
+    },
+    "spacr.install_cleanup._run_windows_pip_update.prepared": {
+      "source_blocks_sha256": [
+        "35e7bfbe7ae13050a14cb79dade46404cac35685e6efd56cef80fb1261324261"
+      ],
+      "source_sha256": "35e7bfbe7ae13050a14cb79dade46404cac35685e6efd56cef80fb1261324261",
+      "text": "仅在私有替换版本验证通过后请求关闭。",
+      "translation_source_blocks_sha256": [
+        "35e7bfbe7ae13050a14cb79dade46404cac35685e6efd56cef80fb1261324261"
       ]
     },
     "spacr.install_cleanup._standalone_helper_command.contains": {
@@ -38893,6 +39043,16 @@
       "text": "通过原子替换文件，将当前更新阶段保存到事务日志中。",
       "translation_source_blocks_sha256": [
         "511fb04c43db2b4a53aa928f8aa7451cc800d18d272c7a21f9ae6949a92cb6c6"
+      ]
+    },
+    "spacr.install_cleanup._uninstall_data_candidates.expand": {
+      "source_blocks_sha256": [
+        "150516859006f38f26d63f583f1aeea3528b25f7877d326003eaa7eb6c414b68"
+      ],
+      "source_sha256": "150516859006f38f26d63f583f1aeea3528b25f7877d326003eaa7eb6c414b68",
+      "text": "将开头的主目录标记展开为配置用户的主目录。",
+      "translation_source_blocks_sha256": [
+        "150516859006f38f26d63f583f1aeea3528b25f7877d326003eaa7eb6c414b68"
       ]
     },
     "spacr.install_cleanup.apply_optional_cleanup": {
@@ -39044,9 +39204,9 @@
     "spacr.install_cleanup.start_update_helper": {
       "source_blocks_sha256": [
         "962ee0a65cb98c1a7e5d5bd46f704918d560172c572df169b810ba8de9e625dc",
-        "cec3fb3c67983bab4fd6ea6ca11c0bcb33e727d5bdffd7eee3df8b03aeb6f8c7",
-        "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
-        "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
+        "da2fc080e7ce4d62a57ad783bc506fca93f3ac1c227e2e2d86a5f3c2287c7f7a",
+        "d8c0e7cad66dadfc30b5b50b7e4c54576e3e34ff6ddd735fb6f083efd1682746",
+        "073898c084d9fad964180534bcd5431b6a343a5187d1ff27b5e7a322707e936b",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
         "f4f29aad2ee5d6d2e633c876af3de201ef5107f4bebf85c341074b87d44a38b8",
         "03fe7146f54f66b140a67fcb8e24fe1d600b19c5f064b609faf1a8a148e08062",
@@ -39055,15 +39215,15 @@
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
-        "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674"
+        "e4c02e1396bec959a337254cf3f21c3c2cf75cda1b95885223e1361b2b0bdc70"
       ],
-      "source_sha256": "bb3ffeae3a2024578f2ec4b3368a05018f5582773acf5e46540984e310611f98",
-      "text": "在一个比 spaCR 存活更久的进程中运行安装更新。\n\n由安装程序创建的副本和受支持的专用 POSIX 或 Windows pip 环境可使用此助手。助手等待正在运行的进程退出后才更改安装；pip 适配器还要求经过身份验证的关闭批准。\n\n对于受支持的 macOS 在线安装，使用现有捆绑的 ``uv`` 和私有 Python 在同一环境中升级 spaCR。保留环境目录、引导文件、应用启动器以及无需更新的已安装包。只有在验证已安装版本至少为 ``version``、并且在已知旧版本时比旧版本更新之后，才重启。升级或版本检查失败不会触发移除，也不会触发替换安装程序。\n\n标准替换过程会下载并运行新的安装程序以准备安装，验证其实际解释器和导入的应用，然后移除其他副本并启动应用。安装或验证失败时，不会移除此前可正常工作的副本。移除其他副本失败时会记录错误，但不会重新启动应用。\n\n:param records: 来自 :func:`find_old_installs` 的安装。\n:param version: 要安装的版本。\n:param ticked: 用户勾选的环境的根目录。\n:param pid: 要等待的进程；为 ``None`` 时为当前进程。\n:param workdir: 辅助进程的文件夹；为 ``None`` 时为新的临时文件夹。\n:param system: 计算机；``None`` 表示本机。\n:param spawn: 替代分离进程的启动器。\n:returns: 写入 ``plan.json`` 的计划。``plan[\"command\"]`` 是辅助进程的命令；若为 ``None``，则由 ``plan[\"error\"]`` 说明为何没有启动任何进程。\n\n位于用户可写位置的冻结 macOS 应用程序包使用其经过验证的 DMG 替换适配器，并完整保留先前的应用程序包。带有协议标记的 Debian 程序包使用图形化管理员授权，以及位于安装目录之外、归 root 所有的辅助程序。替换软件包和回滚软件包都需要已公布的校验和；重新启动应用程序之前，必须验证软件包和非特权运行环境。不受支持的冻结应用程序系列会在删除任何内容之前返回错误；这些系列未启用通过在线安装器进行回退的路径。",
+      "source_sha256": "1d17df3cd60ea0a66ac6baa3574a1d6bf3dc9534cb8cd38b431eab330f3446e6",
+      "text": "在一个比 spaCR 存活更久的进程中运行安装更新。\n\n由安装程序创建的副本以及受支持的 POSIX 或 Windows 专用 pip 环境可以使用此辅助程序。它在当前应用运行时准备替换版本，并要求在激活之前获得经过认证的关闭批准，且进程实际退出。\n\n对于受支持的 macOS 在线安装，使用现有随附的 ``uv`` 和私有 Python，将请求的 spaCR 版本安装到同一父目录下准备好的独立环境中。保留引导文件、应用启动器和无需更新的包。在准备过程通过验证并获得关闭批准后，在现有运行环境路径上激活准备好的环境，并保留完整的先前环境以供恢复。重新启动时会验证请求的版本、可执行文件、导入的模块和可见的主窗口。准备失败时，正在运行的环境保持不变。\n\n运行环境适配器先安装并验证私有替换版本，然后才宣布准备就绪。GUI 提供重新启动选项，并在批准关闭之前保留其设置。重新启动时会验证实际的新桌面应用进程及其主窗口。不受支持的安装布局会在启动安装程序之前被拒绝。\n\n:param records: 来自 :func:`find_old_installs` 的安装。\n:param version: 要安装的版本。\n:param ticked: 用户勾选的环境的根目录。\n:param pid: 要等待的进程；为 ``None`` 时为当前进程。\n:param workdir: 辅助进程的文件夹；为 ``None`` 时为新的临时文件夹。\n:param system: 计算机；``None`` 表示本机。\n:param spawn: 替代分离进程的启动器。\n:returns: 写入 ``plan.json`` 的计划。``plan[\"command\"]`` 是辅助进程的命令；若为 ``None``，则由 ``plan[\"error\"]`` 说明为何没有启动任何进程。\n\nmacOS 和 Windows 打包安装以及带有协议标记的 Debian 安装使用其经过验证的原生替换适配器。受保护的 macOS 安装需要已安装且支持当前原生阶段协议的辅助程序。Windows 需要单独发布并提供校验和的更新可执行文件。管理员授权和准备均在重新启动之前完成；激活在经过批准的桌面应用退出之后进行。新的桌面应用必须确认其身份和主窗口，之后才能移除恢复文件。不受支持的布局或所需能力的缺失会使正在运行的应用保持不变；不会启用回退到常规安装程序的路径。",
       "translation_source_blocks_sha256": [
         "38fd92ea723724e1eae22f8eb1870dd9cbe935dff6f91a1204cd0e98ff838361",
-        "e357d3b44eb36c1021e5631b88ba2c9083e2f8d52060d040b95cd1defe66aa0f",
-        "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
-        "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
+        "f95da138b2e377d01f4c9b3ec56350ddf2477a6d096aa7371aa68f00016b7b5f",
+        "b1893d387327d532d4f2a73d710f58a81c8c690cfbc2b641300bfebf7473cf5f",
+        "073898c084d9fad964180534bcd5431b6a343a5187d1ff27b5e7a322707e936b",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
         "f4f29aad2ee5d6d2e633c876af3de201ef5107f4bebf85c341074b87d44a38b8",
         "03fe7146f54f66b140a67fcb8e24fe1d600b19c5f064b609faf1a8a148e08062",
@@ -39072,7 +39232,7 @@
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
-        "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674"
+        "4485c23da1ca2edf45fafda1e06ae0088e996ea12b154c56f3061988efd07df7"
       ]
     },
     "spacr.install_profile": {
@@ -91289,6 +91449,16 @@
       "text": "打开安装/登录对话框，然后重新应用所选选项。",
       "translation_source_blocks_sha256": [
         "758f7a64e6b68b77124239ff70480074c117ffd0997733e1eee416e8e34be092"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_spacr_uninstall": {
+      "source_blocks_sha256": [
+        "b206c6651fd1289828518286dae913f9ad0788e9e104db0be22ff628903b0c26"
+      ],
+      "source_sha256": "b206c6651fd1289828518286dae913f9ad0788e9e104db0be22ff628903b0c26",
+      "text": "在打开应用程序卸载预览前离开“偏好设置”。",
+      "translation_source_blocks_sha256": [
+        "b206c6651fd1289828518286dae913f9ad0788e9e104db0be22ff628903b0c26"
       ]
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_the_shortcuts_editor": {

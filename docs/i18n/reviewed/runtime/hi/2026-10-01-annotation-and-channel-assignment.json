@@ -89,13 +89,6 @@
       "source": "Assign saved intensity channels to a vendor flat-field calibration. Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1. Intensity channel numbers start at 0. Calibration channel or image-layer numbers start at 1. Include every corrected intensity channel. An empty value keeps the original channel order. With an empty value, a single calibration image layer applies to all channels. Select a vendor calibration file first. A saved illumination model takes priority. Default empty.",
       "source_sha256": "6269a5492b359a6da1dc18e5714dada8d459fd536800b2b36c4485d7eb2e81d5",
       "translation": "सहेजे गए तीव्रता चैनलों को विक्रेता के फ्लैट-फ़ील्ड कैलिब्रेशन से जोड़ें। उदाहरण 0:2,1:1 में तीव्रता चैनल 0 और 1 क्रमशः कैलिब्रेशन चैनल 2 और 1 से जुड़ते हैं। तीव्रता चैनलों की संख्या 0 से शुरू होती है। कैलिब्रेशन चैनलों या छवि परतों की संख्या 1 से शुरू होती है। हर उस तीव्रता चैनल को शामिल करें जिसे ठीक करना है। खाली मान मूल चैनल क्रम बनाए रखता है। मान खाली होने पर एक ही कैलिब्रेशन छवि परत सभी चैनलों पर लागू होती है। पहले विक्रेता की कैलिब्रेशन फ़ाइल चुनें। सहेजे गए प्रकाश-सुधार मॉडल को प्राथमिकता मिलती है। डिफ़ॉल्ट मान खाली है।"
-    },
-    {
-      "table": "ui",
-      "key": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
-      "source": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
-      "source_sha256": "27ca5bee9a4211346d97948e373563a2108ee597a6ba43d084599999bf666d09",
-      "translation": "इससे spaCR अपने वर्तमान वातावरण में फिर से इंस्टॉल होगा। अपडेट शुरू होने से पहले spaCR बंद हो जाएगा। अपडेट सफल होने के बाद यह अपने आप फिर खुलेगा।"
     }
   ],
   "retired_records": [

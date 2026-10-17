@@ -38716,21 +38716,21 @@
       "source_blocks_sha256": [
         "7416dbb0fde10154916ad50cd0fc7e202830b618edb774535da00b284b0cb51e",
         "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
-        "f7429e66190134bb8d3b5b0468206f3e3128f87883921c7fbe700c7479929706",
-        "e017a0d3e804e71040c5189f6b6426d8402cab247d827b87e69f69e9b020125a",
-        "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
+        "e0d76c6db052c67226a155017113c974ea0956726168ef17c855529211ed4c54",
+        "f08330e3b1a0a9470b6cc8c0e4470b9f0b667c197fdcf830d836be90a37e12fb",
+        "7e7465b19ed0856c63c643081b418f8299629d079f51bb7d42aa5b8f23fe50e4",
         "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
         "0652c5caf1f0df7c39d1e6c1c79f43d330c0f02a8d6c1614075702950f791893",
         "16c109cefeac68ae0b253a90e4ae1cf7b1dbd527ce7a3af7b2326e1a837afef3"
       ],
-      "source_sha256": "cde38312aab2afab1bbdceb56fc3154a44c1daab76afce222aeed43202098641",
-      "text": "spaCR-Installationen finden und das passende Aktualisierungs- oder Entfernungsverfahren ausführen.\n\nDie Online-Installer bereiten die neue Laufzeitumgebung vor und validieren sie, bevor alte Anwendungskopien entfernt werden. Während der Vorbereitung bleibt die bestehende Installation erhalten; schlägt die Überprüfung des Ersatzes fehl, wird ihre vorherige Laufzeitumgebung wiederhergestellt. Der Update-Helfer überprüft den für den Desktopstart verwendeten Interpreter und die importierte Anwendung, bevor er andere Kopien entfernt oder einen Neustart anfordert. :func:`run_update_sequence` bleibt das grundlegende Entfernungsverfahren für ausdrücklich aufgerufene Bereinigungsbefehle.\n\nUnterstützte macOS-Onlineinstallationen und dedizierte POSIX-pip-Umgebungen verwenden nach genehmigtem Herunterfahren ihr vorhandenes Paketwerkzeug, um eine aktualisierte benachbarte Laufzeitumgebung vorzubereiten, zu prüfen und atomar zu aktivieren. Bootstrap-Dateien, Starter, unveränderte Pakete und die vorherige Laufzeitumgebung bleiben erhalten. Gemeinsam genutzte Umgebungen sowie Conda- und Windows-Python-Umgebungen benötigen einen eigenen Ersetzungsadapter.\n\nEine unterstützte eingefrorene macOS-Anwendung verwendet einen verifizierten DMG-Ersatz und behält ihr vollständiges vorheriges Anwendungspaket. Diese macOS-Aktualisierungswege führen das Standard-Löschverfahren nicht aus. Andere Familien eingefrorener Anwendungen benötigen einen unterstützten Ersetzungsadapter, bevor ein Update starten kann.\n\nBeim Entfernen wird nie das eigene Deinstallationsprogramm einer alten Version ausgeführt, daher wird eine Kopie, deren ``Uninstall.exe`` oder ``uninstall-spacr.sh`` fehlt oder defekt ist, trotzdem entfernt. Einstellungen und Benutzerdaten bleiben erhalten: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, der Cache von Hugging Face und die Einstellungen von ``spacr``/``qt`` (``~/.config/spacr``, die Einstellungsdatei unter macOS und der Registrierungsschlüssel ``Software\\spacr`` unter Windows).\n\nEine vom Benutzer angelegte pip- oder conda-Umgebung wird aufgelistet, aber nie gelöscht; das spaCR-Paket wird nur dann daraus deinstalliert, wenn der Aufrufer angibt, dass sie markiert wurde. Ein editierbarer Quellcode-Checkout wird gemeldet und nicht angetastet.\n\nDas Modul verwendet nur die Standardbibliothek und importiert nichts aus spaCR, sodass ein Installationsprogramm es mit dem Python ausführen kann, das es selbst eingerichtet hat, bevor überhaupt ein spaCR existiert, und ein Hilfsprozess eine Kopie davon ausführen kann, nachdem das laufende spaCR geschlossen wurde::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` ist die ausdrücklich gewählte vollständige Deinstallation: Nach Auflistung und Rückfrage werden auch die Caches, Backend-Umgebungen und Benutzerdaten von spaCR gelöscht. Sie läuft niemals selbstständig; ``remove --purge`` führt sie erst nach erfolgreicher Entfernung aus.",
+      "source_sha256": "a881a3859ebcd0f6032d9688b977d47b57f5be8310a7b4a7876cdc2f7ce3baf7",
+      "text": "spaCR-Installationen finden und das passende Aktualisierungs- oder Entfernungsverfahren ausführen.\n\nDie Online-Installer bereiten die neue Laufzeitumgebung vor und validieren sie, bevor alte Anwendungskopien entfernt werden. Während der Vorbereitung bleibt die bestehende Installation erhalten; schlägt die Überprüfung des Ersatzes fehl, wird ihre vorherige Laufzeitumgebung wiederhergestellt. Der Update-Helfer überprüft den für den Desktopstart verwendeten Interpreter und die importierte Anwendung, bevor er andere Kopien entfernt oder einen Neustart anfordert. :func:`run_update_sequence` bleibt das grundlegende Entfernungsverfahren für ausdrücklich aufgerufene Bereinigungsbefehle.\n\nUnterstützte macOS-Onlineinstallationen und dedizierte pip-Umgebungen unter POSIX oder Windows verwenden ihr vorhandenes Paketwerkzeug, um eine aktualisierte Laufzeitumgebung in einem benachbarten Verzeichnis vorzubereiten und zu prüfen, bevor sie „Neu starten“ anfordern. Die Aktivierung erfordert ein genehmigtes Beenden. Bootstrap-Dateien, Starter, unveränderte Pakete und die vorherige Laufzeitumgebung bleiben erhalten. Gemeinsam genutzte Umgebungen und Conda-Umgebungen benötigen einen eigenen Austauschadapter.\n\nEine unterstützte gebündelte Installation unter macOS, Windows oder Debian bereitet ihren geprüften Ersatz vor, während die Desktop-Anwendung geöffnet bleibt. Geschützte Installationen holen über eine grafische Oberfläche die Administratorautorisierung ein, bevor sie „Neu starten“ anfordern. Die Aktivierung erfordert ein genehmigtes Beenden und das tatsächliche Ende des Prozesses; Wiederherstellungsdaten bleiben erhalten, bis die aktualisierte Desktop-Anwendung ihre Identität und ihr Hauptfenster bestätigt.\n\nDas gewöhnliche Entfernen erhält Einstellungen und Benutzerdaten. Die bestätigte Deinstallation über die GUI zeigt dagegen eine Vorschau der aktuellen oder aller erkannten Installationen sowie separater Bereinigungskategorien, die standardmäßig ausgewählt und einzeln abwählbar sind. Eine geschützte Entfernung verwendet ausschließlich ein validiertes installiertes Hilfsprogramm mit dem erforderlichen Protokoll; Autorisierung, Vorbereitung und das genehmigte Beenden der Desktop-Anwendung gehen der Löschung voraus. Unbeteiligte Projekte, ungeprüfte Daten und gemeinsam genutzte Umgebungen bleiben erhalten.\n\nEine vom Benutzer angelegte pip- oder conda-Umgebung wird aufgelistet, aber nie gelöscht; das spaCR-Paket wird nur dann daraus deinstalliert, wenn der Aufrufer angibt, dass sie markiert wurde. Ein editierbarer Quellcode-Checkout wird gemeldet und nicht angetastet.\n\nDas Modul verwendet nur die Standardbibliothek und importiert nichts aus spaCR, sodass ein Installationsprogramm es mit dem Python ausführen kann, das es selbst eingerichtet hat, bevor überhaupt ein spaCR existiert, und ein Hilfsprozess eine Kopie davon ausführen kann, nachdem das laufende spaCR geschlossen wurde::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` ist die ausdrücklich gewählte vollständige Deinstallation: Nach Auflistung und Rückfrage werden auch die Caches, Backend-Umgebungen und Benutzerdaten von spaCR gelöscht. Sie läuft niemals selbstständig; ``remove --purge`` führt sie erst nach erfolgreicher Entfernung aus.",
       "translation_source_blocks_sha256": [
         "7416dbb0fde10154916ad50cd0fc7e202830b618edb774535da00b284b0cb51e",
         "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
-        "f7429e66190134bb8d3b5b0468206f3e3128f87883921c7fbe700c7479929706",
-        "b7b4a480350779d9e499a18a0b05ee0252054fdd541405364095199fcda23505",
-        "d1c3cc6a4c7b476afc63c9609f53b6a82612c1c6da142522cedadeb817aef8c7",
+        "e0d76c6db052c67226a155017113c974ea0956726168ef17c855529211ed4c54",
+        "f08330e3b1a0a9470b6cc8c0e4470b9f0b667c197fdcf830d836be90a37e12fb",
+        "7e7465b19ed0856c63c643081b418f8299629d079f51bb7d42aa5b8f23fe50e4",
         "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
         "bb0bd04717a44d9841640212c772bd7a6f41c19bc71bbed8863510f45c4e6bcb",
         "16c109cefeac68ae0b253a90e4ae1cf7b1dbd527ce7a3af7b2326e1a837afef3"
@@ -38800,6 +38800,26 @@
         "28d5942b909f593a8665c322eb016f1731034aa7da04b26baa87445eb3804b50"
       ]
     },
+    "spacr.install_cleanup._coordinate_native_update._run_authorized": {
+      "source_blocks_sha256": [
+        "a3a72649d96197b1ddcdad241c16a0433083bd42776c86956aa43c9b25d5f76f"
+      ],
+      "source_sha256": "a3a72649d96197b1ddcdad241c16a0433083bd42776c86956aa43c9b25d5f76f",
+      "text": "Die Abschlussmeldung oder den Fehler des nativen Workers aufbewahren, bis der von ihm verwaltete Prozess endet.",
+      "translation_source_blocks_sha256": [
+        "a3a72649d96197b1ddcdad241c16a0433083bd42776c86956aa43c9b25d5f76f"
+      ]
+    },
+    "spacr.install_cleanup._coordinate_native_update._stopped": {
+      "source_blocks_sha256": [
+        "33e97b7079dbd95275d614062b32167621984b812fc483c142ac83ac44372729"
+      ],
+      "source_sha256": "33e97b7079dbd95275d614062b32167621984b812fc483c142ac83ac44372729",
+      "text": "Vor dem Prüfen des Abschlusses des nativen Workers prüfen, ob die Desktop-Anwendung abgebrochen hat.",
+      "translation_source_blocks_sha256": [
+        "33e97b7079dbd95275d614062b32167621984b812fc483c142ac83ac44372729"
+      ]
+    },
     "spacr.install_cleanup._delete._writable_then_retry": {
       "source_blocks_sha256": [
         "d3fff3ce723738f6656a43e787c795d9b6cfcfb86dd0e050ad4ac6e19431b657",
@@ -38856,6 +38876,86 @@
         "903c6484f4ff7f5161e8c3608a510f1514f08f43f4dcdd1032d5dea37ce9ee61"
       ]
     },
+    "spacr.install_cleanup._macos_uninstall_tree.visit": {
+      "source_blocks_sha256": [
+        "8d8e1dea690b2435111c54eb1c552d8511d05322a158939cc66d1d2acc95194e"
+      ],
+      "source_sha256": "8d8e1dea690b2435111c54eb1c552d8511d05322a158939cc66d1d2acc95194e",
+      "text": "Ein geprüftes untergeordnetes Element über den Deskriptor seines übergeordneten Verzeichnisses entfernen und dabei ausgewählte Pfade erhalten.",
+      "translation_source_blocks_sha256": [
+        "8d8e1dea690b2435111c54eb1c552d8511d05322a158939cc66d1d2acc95194e"
+      ]
+    },
+    "spacr.install_cleanup._run_debian_update._check_current": {
+      "source_blocks_sha256": [
+        "a09b6b9297a24d56e65d2f9ca02977d1fa1e334d21783f6e857caaa36cc2b804"
+      ],
+      "source_sha256": "a09b6b9297a24d56e65d2f9ca02977d1fa1e334d21783f6e857caaa36cc2b804",
+      "text": "Die Aktivierung an dasselbe installierte Debian-Paket und das vertrauenswürdige Hilfsprogramm binden.",
+      "translation_source_blocks_sha256": [
+        "a09b6b9297a24d56e65d2f9ca02977d1fa1e334d21783f6e857caaa36cc2b804"
+      ]
+    },
+    "spacr.install_cleanup._run_macos_frozen_update._authorized": {
+      "source_blocks_sha256": [
+        "8e3b768057cb6bb7c7ec097cfe34c910967f30cf00d3674c671b389ee1c8cedc"
+      ],
+      "source_sha256": "8e3b768057cb6bb7c7ec097cfe34c910967f30cf00d3674c671b389ee1c8cedc",
+      "text": "Eine native Autorisierung für die vertrauenswürdige Vorbereitung und die aufgeschobene Aktivierung anfordern.",
+      "translation_source_blocks_sha256": [
+        "8e3b768057cb6bb7c7ec097cfe34c910967f30cf00d3674c671b389ee1c8cedc"
+      ]
+    },
+    "spacr.install_cleanup._run_macos_frozen_update._new_desktop": {
+      "source_blocks_sha256": [
+        "a8e47fdff3291a1e73ae2a648787297cea24eab33964bae83d70972440242801"
+      ],
+      "source_sha256": "a8e47fdff3291a1e73ae2a648787297cea24eab33964bae83d70972440242801",
+      "text": "Die aktivierte Version prüfen und auf ihr tatsächliches Hauptfenster warten.",
+      "translation_source_blocks_sha256": [
+        "a8e47fdff3291a1e73ae2a648787297cea24eab33964bae83d70972440242801"
+      ]
+    },
+    "spacr.install_cleanup._run_macos_frozen_update._unchanged": {
+      "source_blocks_sha256": [
+        "2658a5e98c612635866695bfbde4feb4a2e88eda2bf56838c9b16abb405efc7b"
+      ],
+      "source_sha256": "2658a5e98c612635866695bfbde4feb4a2e88eda2bf56838c9b16abb405efc7b",
+      "text": "Die Aktivierung verweigern, wenn sich das installierte Bundle oder das authentifizierte Abbild geändert hat.",
+      "translation_source_blocks_sha256": [
+        "2658a5e98c612635866695bfbde4feb4a2e88eda2bf56838c9b16abb405efc7b"
+      ]
+    },
+    "spacr.install_cleanup._run_macos_online_update.prepared": {
+      "source_blocks_sha256": [
+        "eb89780f273278e9222a1987ac553218309513fdef4c36821c415e26354e8d28"
+      ],
+      "source_sha256": "eb89780f273278e9222a1987ac553218309513fdef4c36821c415e26354e8d28",
+      "text": "„Neu starten“ erst anbieten, nachdem der vorbereitete Ersatz seine Prüfungen bestanden hat.",
+      "translation_source_blocks_sha256": [
+        "eb89780f273278e9222a1987ac553218309513fdef4c36821c415e26354e8d28"
+      ]
+    },
+    "spacr.install_cleanup._run_native_uninstall.stopped": {
+      "source_blocks_sha256": [
+        "ae20b54f8091558de19fccfbcea7cbd08b1071a08fd73543c20160b89017b0ad"
+      ],
+      "source_sha256": "ae20b54f8091558de19fccfbcea7cbd08b1071a08fd73543c20160b89017b0ad",
+      "text": "Vor dem Prüfen des Abschlusses des autorisierten Hilfsprogramms prüfen, ob die Desktop-Anwendung abgebrochen hat.",
+      "translation_source_blocks_sha256": [
+        "ae20b54f8091558de19fccfbcea7cbd08b1071a08fd73543c20160b89017b0ad"
+      ]
+    },
+    "spacr.install_cleanup._run_pip_environment_update.prepared": {
+      "source_blocks_sha256": [
+        "fa9029cc38e3bc15409300f76c269d66d3cad450cbed7b1f270f621bcaaab2b0"
+      ],
+      "source_sha256": "fa9029cc38e3bc15409300f76c269d66d3cad450cbed7b1f270f621bcaaab2b0",
+      "text": "Die laufende Umgebung erhalten, bis der geprüfte Ersatz angenommen wurde.",
+      "translation_source_blocks_sha256": [
+        "fa9029cc38e3bc15409300f76c269d66d3cad450cbed7b1f270f621bcaaab2b0"
+      ]
+    },
     "spacr.install_cleanup._run_plan._finish": {
       "source_blocks_sha256": [
         "532b1ab0bf40eeff8d6202d2541133e0781ca4b38117e18d5bfd1a883e4107a7",
@@ -38866,6 +38966,56 @@
       "translation_source_blocks_sha256": [
         "532b1ab0bf40eeff8d6202d2541133e0781ca4b38117e18d5bfd1a883e4107a7",
         "e7a79149a400ea55f4d7de4ac47e2776d1daf947986dac7101344929501e5fbc"
+      ]
+    },
+    "spacr.install_cleanup._run_windows_frozen_update._check_current": {
+      "source_blocks_sha256": [
+        "69d55cfeb8ba5b13b719f205fb986a7d62d443b72bb242ff487691cd1f68b4a5"
+      ],
+      "source_sha256": "69d55cfeb8ba5b13b719f205fb986a7d62d443b72bb242ff487691cd1f68b4a5",
+      "text": "Vor der Aktivierung das auf eine feste Identität festgelegte Installationsprogramm und das unveränderte Windows-Ziel erneut prüfen.",
+      "translation_source_blocks_sha256": [
+        "69d55cfeb8ba5b13b719f205fb986a7d62d443b72bb242ff487691cd1f68b4a5"
+      ]
+    },
+    "spacr.install_cleanup._run_windows_frozen_update._launch_verified": {
+      "source_blocks_sha256": [
+        "d84691719ff0efddd5bfd225f439ec94b00953baabad489728aa396343b2dea8"
+      ],
+      "source_sha256": "d84691719ff0efddd5bfd225f439ec94b00953baabad489728aa396343b2dea8",
+      "text": "Die aktivierten Windows-Programmdaten und ihr Hauptfenster ohne erhöhte Rechte bestätigen.",
+      "translation_source_blocks_sha256": [
+        "d84691719ff0efddd5bfd225f439ec94b00953baabad489728aa396343b2dea8"
+      ]
+    },
+    "spacr.install_cleanup._run_windows_native_uninstall.authorize": {
+      "source_blocks_sha256": [
+        "fbca2e109203a09a1d07c7f6a5e1f1cf6c79bdb0666b19e469dc47648e7ad6b1"
+      ],
+      "source_sha256": "fbca2e109203a09a1d07c7f6a5e1f1cf6c79bdb0666b19e469dc47648e7ad6b1",
+      "text": "Das Bootstrap-Ergebnis des nativen Deinstallationsprogramms bis zum authentifizierten Abschluss aufbewahren.",
+      "translation_source_blocks_sha256": [
+        "fbca2e109203a09a1d07c7f6a5e1f1cf6c79bdb0666b19e469dc47648e7ad6b1"
+      ]
+    },
+    "spacr.install_cleanup._run_windows_native_uninstall.stopped": {
+      "source_blocks_sha256": [
+        "533bcf00f100db8593becbee7dbf1360ed65431eb1ce6beae70ab0da076f9c11"
+      ],
+      "source_sha256": "533bcf00f100db8593becbee7dbf1360ed65431eb1ce6beae70ab0da076f9c11",
+      "text": "Einen fehlgeschlagenen nativen Start als angehalten behandeln, ohne das Ende des Bootstraps mit dem Abschluss zu verwechseln.",
+      "translation_source_blocks_sha256": [
+        "533bcf00f100db8593becbee7dbf1360ed65431eb1ce6beae70ab0da076f9c11"
+      ]
+    },
+    "spacr.install_cleanup._run_windows_pip_update.prepared": {
+      "source_blocks_sha256": [
+        "35e7bfbe7ae13050a14cb79dade46404cac35685e6efd56cef80fb1261324261"
+      ],
+      "source_sha256": "35e7bfbe7ae13050a14cb79dade46404cac35685e6efd56cef80fb1261324261",
+      "text": "Das Beenden erst anfordern, wenn der private Ersatz geprüft ist.",
+      "translation_source_blocks_sha256": [
+        "35e7bfbe7ae13050a14cb79dade46404cac35685e6efd56cef80fb1261324261"
       ]
     },
     "spacr.install_cleanup._standalone_helper_command.contains": {
@@ -38892,6 +39042,16 @@
       "text": "Speichern Sie die aktuelle Aktualisierungsphase im Transaktionsjournal durch einen atomaren Dateiaustausch.",
       "translation_source_blocks_sha256": [
         "511fb04c43db2b4a53aa928f8aa7451cc800d18d272c7a21f9ae6949a92cb6c6"
+      ]
+    },
+    "spacr.install_cleanup._uninstall_data_candidates.expand": {
+      "source_blocks_sha256": [
+        "150516859006f38f26d63f583f1aeea3528b25f7877d326003eaa7eb6c414b68"
+      ],
+      "source_sha256": "150516859006f38f26d63f583f1aeea3528b25f7877d326003eaa7eb6c414b68",
+      "text": "Die führende Home-Verzeichnis-Markierung des konfigurierten Benutzers auflösen.",
+      "translation_source_blocks_sha256": [
+        "150516859006f38f26d63f583f1aeea3528b25f7877d326003eaa7eb6c414b68"
       ]
     },
     "spacr.install_cleanup.apply_optional_cleanup": {
@@ -39043,9 +39203,9 @@
     "spacr.install_cleanup.start_update_helper": {
       "source_blocks_sha256": [
         "962ee0a65cb98c1a7e5d5bd46f704918d560172c572df169b810ba8de9e625dc",
-        "cec3fb3c67983bab4fd6ea6ca11c0bcb33e727d5bdffd7eee3df8b03aeb6f8c7",
-        "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
-        "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
+        "da2fc080e7ce4d62a57ad783bc506fca93f3ac1c227e2e2d86a5f3c2287c7f7a",
+        "d8c0e7cad66dadfc30b5b50b7e4c54576e3e34ff6ddd735fb6f083efd1682746",
+        "073898c084d9fad964180534bcd5431b6a343a5187d1ff27b5e7a322707e936b",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
         "f4f29aad2ee5d6d2e633c876af3de201ef5107f4bebf85c341074b87d44a38b8",
         "03fe7146f54f66b140a67fcb8e24fe1d600b19c5f064b609faf1a8a148e08062",
@@ -39054,15 +39214,15 @@
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
-        "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674"
+        "e4c02e1396bec959a337254cf3f21c3c2cf75cda1b95885223e1361b2b0bdc70"
       ],
-      "source_sha256": "bb3ffeae3a2024578f2ec4b3368a05018f5582773acf5e46540984e310611f98",
-      "text": "Ein Installationsupdate in einem Prozess ausführen, der spaCR überdauert.\n\nVom Installer erstellte Kopien und unterstützte dedizierte POSIX- oder Windows-pip-Umgebungen können diesen Helfer verwenden. Er wartet, bis der laufende Prozess beendet ist, bevor er die Installation ändert; der pip-Adapter erfordert außerdem eine authentifizierte Zustimmung zum Herunterfahren.\n\nBei einer unterstützten macOS-Online-Installation das vorhandene mitgelieferte ``uv`` und das private Python verwenden, um spaCR in derselben Umgebung zu aktualisieren. Das Umgebungsverzeichnis, die Bootstrap-Dateien, den Anwendungsstarter und installierte Pakete, die kein Update brauchen, beibehalten. Erst neu starten, nachdem geprüft wurde, dass die installierte Version mindestens ``version`` und neuer als die vorherige Version ist, sofern diese bekannt ist. Ein fehlgeschlagenes Upgrade oder eine fehlgeschlagene Versionsprüfung löst weder eine Entfernung noch ein Ersatz-Installationsprogramm aus.\n\nDas reguläre Ersetzungsverfahren lädt den neuen Installer herunter und führt ihn mit einer vorbereiteten Installation aus. Es überprüft dessen tatsächlichen Interpreter und die importierte Anwendung, entfernt anschließend andere Kopien und startet die Anwendung. Eine fehlgeschlagene Installation oder Überprüfung entfernt die zuvor funktionierende Kopie nicht. Schlägt das Entfernen anderer Kopien fehl, wird dies protokolliert, ohne die Anwendung erneut zu starten.\n\n:param records: Installationen aus :func:`find_old_installs`.\n:param version: die zu installierende Version.\n:param ticked: Stammverzeichnisse der Umgebungen, die der Benutzer markiert hat.\n:param pid: der Prozess, auf den gewartet wird; bei ``None`` dieser Prozess.\n:param workdir: der Ordner des Hilfsprozesses; bei ``None`` ein neuer temporärer Ordner.\n:param system: der Computer; ``None`` bedeutet diesen Computer.\n:param spawn: ersetzt den Starter für den abgelösten Prozess.\n:returns: der Plan, wie er in ``plan.json`` geschrieben wurde. ``plan[\"command\"]`` ist der Befehl des Hilfsprozesses, oder ``None``, wobei ``plan[\"error\"]`` angibt, warum nichts gestartet wurde.\n\nEin eingefrorenes macOS-Anwendungspaket an einem für den Benutzer beschreibbaren Ort verwendet seinen geprüften DMG-Ersetzungsadapter und behält das vollständige vorherige Anwendungspaket. Ein Debian-Anwendungspaket mit Protokollmarkierung verwendet eine grafische Administratorautorisierung und ein root-eigenes Hilfsprogramm außerhalb der Installation. Sowohl das Ersatzpaket als auch das Paket für die Wiederherstellung benötigen veröffentlichte Prüfsummen; die Prüfung des Pakets und der Laufzeitumgebung ohne erhöhte Rechte erfolgt vor dem erneuten Start. Nicht unterstützte Familien eingefrorener Anwendungen geben einen Fehler zurück, bevor etwas entfernt wird; für sie ist kein Rückgriff auf das Online-Installationsprogramm aktiviert.",
+      "source_sha256": "1d17df3cd60ea0a66ac6baa3574a1d6bf3dc9534cb8cd38b431eab330f3446e6",
+      "text": "Ein Installationsupdate in einem Prozess ausführen, der spaCR überdauert.\n\nVom Installationsprogramm erstellte Kopien und unterstützte dedizierte pip-Umgebungen unter POSIX oder Windows können dieses Hilfsprogramm verwenden. Es bereitet Ersatzinstallationen vor, während die aktuelle Anwendung läuft, und erfordert vor der Aktivierung eine authentifizierte Genehmigung zum Beenden sowie das tatsächliche Ende des Prozesses.\n\nFür eine unterstützte macOS-Onlineinstallation das vorhandene mitgelieferte ``uv`` und das private Python verwenden, um die angeforderte spaCR-Version in einer vorbereiteten Umgebung in einem benachbarten Verzeichnis zu installieren. Bootstrap-Dateien, den Anwendungsstarter und Pakete erhalten, die keine Aktualisierung benötigen. Nach geprüfter Vorbereitung und genehmigtem Beenden die vorbereitete Umgebung am bestehenden Laufzeitpfad aktivieren und die vollständige vorherige Umgebung zur Wiederherstellung behalten. Beim erneuten Start werden die angeforderte Version, die ausführbare Datei, das importierte Modul und das sichtbare Hauptfenster geprüft. Eine fehlgeschlagene Vorbereitung lässt die laufende Umgebung unverändert.\n\nLaufzeitadapter installieren und prüfen einen privaten Ersatz, bevor sie Bereitschaft melden. Die GUI bietet „Neu starten“ an und bewahrt ihre Einstellungen, bevor sie das Beenden genehmigt. Beim erneuten Start werden der tatsächliche neue Desktop-Prozess und sein Hauptfenster geprüft. Nicht unterstützte Installationsstrukturen werden abgelehnt, bevor ein Installationsprogramm startet.\n\n:param records: Installationen aus :func:`find_old_installs`.\n:param version: die zu installierende Version.\n:param ticked: Stammverzeichnisse der Umgebungen, die der Benutzer markiert hat.\n:param pid: der Prozess, auf den gewartet wird; bei ``None`` dieser Prozess.\n:param workdir: der Ordner des Hilfsprozesses; bei ``None`` ein neuer temporärer Ordner.\n:param system: der Computer; ``None`` bedeutet diesen Computer.\n:param spawn: ersetzt den Starter für den abgelösten Prozess.\n:returns: der Plan, wie er in ``plan.json`` geschrieben wurde. ``plan[\"command\"]`` ist der Befehl des Hilfsprozesses, oder ``None``, wobei ``plan[\"error\"]`` angibt, warum nichts gestartet wurde.\n\nGebündelte Installationen unter macOS und Windows sowie Debian-Installationen mit Protokollkennzeichnung verwenden ihre geprüften nativen Austauschadapter. Geschützte macOS-Installationen benötigen ein installiertes Hilfsprogramm mit dem aktuellen nativen Phasenprotokoll. Windows benötigt eine separat veröffentlichte ausführbare Aktualisierungsdatei mit Prüfsumme. Administratorautorisierung und Vorbereitung erfolgen vor „Neu starten“; die Aktivierung folgt auf das genehmigte Beenden der Desktop-Anwendung. Die neue Desktop-Anwendung muss ihre Identität und ihr Hauptfenster bestätigen, bevor Wiederherstellungsdateien entfernt werden. Nicht unterstützte Installationsstrukturen oder fehlende Fähigkeiten lassen die laufende Anwendung unverändert; es ist kein Rückfall auf ein gewöhnliches Installationsprogramm aktiviert.",
       "translation_source_blocks_sha256": [
         "38fd92ea723724e1eae22f8eb1870dd9cbe935dff6f91a1204cd0e98ff838361",
-        "e357d3b44eb36c1021e5631b88ba2c9083e2f8d52060d040b95cd1defe66aa0f",
-        "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
-        "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
+        "f95da138b2e377d01f4c9b3ec56350ddf2477a6d096aa7371aa68f00016b7b5f",
+        "b1893d387327d532d4f2a73d710f58a81c8c690cfbc2b641300bfebf7473cf5f",
+        "073898c084d9fad964180534bcd5431b6a343a5187d1ff27b5e7a322707e936b",
         "41f709c8dab2ee49e5d86acdb1b49dc9921be324b9ae10868c1ad2aa2fbc2800",
         "f4f29aad2ee5d6d2e633c876af3de201ef5107f4bebf85c341074b87d44a38b8",
         "03fe7146f54f66b140a67fcb8e24fe1d600b19c5f064b609faf1a8a148e08062",
@@ -39071,7 +39231,7 @@
         "ed63e8bf002b38bcff237921ac1941c869da5025a4949fb366e8b46405cd3d8d",
         "18cc3d05f1388e86a5a9b30a181ef22c17b155c14da1e8e7a6e07b7e8fd36e59",
         "ab7640591ce849a6208165c846ab38aed4a7bdc08b09aacaf71d35685aa5a68a",
-        "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674"
+        "4485c23da1ca2edf45fafda1e06ae0088e996ea12b154c56f3061988efd07df7"
       ]
     },
     "spacr.install_profile": {
@@ -91288,6 +91448,16 @@
       "text": "Öffnet den Installations-/Anmeldedialog und wendet anschließend die Auswahl erneut an.",
       "translation_source_blocks_sha256": [
         "758f7a64e6b68b77124239ff70480074c117ffd0997733e1eee416e8e34be092"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_spacr_uninstall": {
+      "source_blocks_sha256": [
+        "b206c6651fd1289828518286dae913f9ad0788e9e104db0be22ff628903b0c26"
+      ],
+      "source_sha256": "b206c6651fd1289828518286dae913f9ad0788e9e104db0be22ff628903b0c26",
+      "text": "Die Einstellungen verlassen, bevor die Vorschau für die Deinstallation der Anwendung geöffnet wird.",
+      "translation_source_blocks_sha256": [
+        "b206c6651fd1289828518286dae913f9ad0788e9e104db0be22ff628903b0c26"
       ]
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_the_shortcuts_editor": {

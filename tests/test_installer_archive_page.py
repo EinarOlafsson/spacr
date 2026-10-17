@@ -408,11 +408,15 @@ def test_the_page_is_in_the_toctree_and_the_readme_points_at_it():
 
     2026-10-12: the maintainer removed the README's "Earlier spaCR
     installers" button, so the pointer is one hop away now: the README links
-    the installer guide, and the guide links this archive."""
+    the installer guide, and the guide links this archive. 2026-10-16 (item
+    703): the default-branch README links the nightly guide, so the update,
+    reinstall and uninstall instructions it shows are the current ones."""
     index = (ROOT / "docs" / "source" / "index.rst").read_text(encoding="utf-8")
     assert re.search(r"^\s+installers$", index, re.MULTILINE)
     readme = README.read_text(encoding="utf-8")
-    assert 'href="docs/source/installer_guide.rst"' in readme
+    assert re.search(r'href="(?:https://github\.com/EinarOlafsson/spacr/blob/nightly/)?'
+                     r'docs/source/installer_guide\.rst"', readme), (
+        "the README links the current installer guide")
     guide = (ROOT / "docs" / "source" / "installer_guide.rst").read_text(
         encoding="utf-8")
     assert ":doc:`installer archive <installers>`" in guide

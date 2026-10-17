@@ -4141,7 +4141,10 @@ def _begin_update_launch():
     """Verify this running executable and imported module before opening its GUI.
 
     The environment carries only a private message location and one-use binding.
-    A normal launch has no update request and does no additional work.
+    A normal launch has no update request and does no additional work. It runs
+    inside the restarted application, so the application package and
+    ``packaging`` are looked up only then; the module itself still runs as a
+    standalone helper with the standard library alone.
     """
     request = os.environ.pop("SPACR_UPDATE_LAUNCH", "")
     if not request:
@@ -4155,10 +4158,11 @@ def _begin_update_launch():
         if handshake._read("launch-result.json") is not None:
             raise ValueError(tr("update launch request already consumed"))
         expected = message["details"]
-        from packaging.version import Version
+        from importlib import import_module
 
-        import spacr
-        from spacr._version import __version__ as shipped
+        Version = import_module("packaging.version").Version
+        spacr = import_module("spacr")
+        shipped = import_module("spacr._version").__version__
 
         actual = {"version": str(Version(str(spacr.__version__))),
                   "executable": os.path.abspath(sys.executable),
@@ -4730,9 +4734,11 @@ print(json.dumps({'verified': True, 'version': version, 'prefix': sys.prefix,
 def _macos_online_commands(record, version, workdir):
     """The install, probe and relaunch commands for a macOS online update."""
     import re
+    from importlib import import_module
     from pathlib import Path
 
-    from spacr.install_profile import read_profile
+    profiles = import_module("spacr.install_profile")
+    read_profile = profiles.read_profile
 
     version = _runtime_requested_version(version)
     python = os.path.join(record.root, "venv", "bin", "python")
@@ -4755,8 +4761,8 @@ def _macos_online_commands(record, version, workdir):
         install.extend(["--torch-backend", profile["requested_backend"]])
         if profile.get("without_wgpu") is True:
             try:
-                from spacr.install_profile import no_wgpu_override
-            except ImportError as error:
+                no_wgpu_override = profiles.no_wgpu_override
+            except AttributeError as error:
                 raise ValueError(tr("The saved choice to install without wgpu could not be preserved.")) from error
             override = no_wgpu_override(profile, Path(workdir) / "no-wgpu-override.txt")
             if override is None:
@@ -4931,8 +4937,6 @@ def _only_saved_wgpu_omission(code, output):
     """
     import re
 
-    from packaging.requirements import InvalidRequirement, Requirement
-
     if code != 1:
         return False
     lines = [line.strip() for line in output.splitlines() if line.strip()]
@@ -4945,11 +4949,10 @@ def _only_saved_wgpu_omission(code, output):
     missing = re.fullmatch(r"The package `spacr` requires `([^`]+)`, but it's not installed", lines[2])
     if missing is None:
         return False
-    try:
-        requirement = Requirement(missing.group(1))
-    except InvalidRequirement:
-        return False
-    return requirement.name.lower() == "wgpu" and not requirement.url and not requirement.extras
+    specifier = r"(?:===|~=|==|!=|<=|>=|<|>)\s*[A-Za-z0-9.*+!_-]+"
+    return re.fullmatch(r"wgpu\s*(?:\(?\s*" + specifier + r"(?:\s*,\s*" + specifier
+                        + r")*\s*\)?)?(?:\s*;\s*[^;@\[\]]+)?", missing.group(1).strip(),
+                        re.IGNORECASE) is not None
 
 
 def _transactional_runtime_update(record, version, install, *, machine, runner=None,
