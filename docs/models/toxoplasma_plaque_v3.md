@@ -23,9 +23,9 @@ v3 · alt
 
 Toxoplasma plaques in crystal-violet plaque-assay wells. Stock Cellpose-SAM was never trained on plaques and finds few of them, fewest on Gel Doc scans.
 
-The family's default is [toxoplasma_plaque_v4](toxoplasma_plaque_v4.md).
+The family's default is [toxoplasma_plaque_v5](toxoplasma_plaque_v5.md).
 
-Other versions: [toxoplasma_plaque_v5](toxoplasma_plaque_v5.md) (candidate), [toxoplasma_plaque_v4](toxoplasma_plaque_v4.md), [toxoplasma_plaque_v2](toxoplasma_plaque_v2.md), [toxoplasma_plaque_v1](toxoplasma_plaque_v1.md).
+Other versions: [toxoplasma_plaque_v5](toxoplasma_plaque_v5.md), [toxoplasma_plaque_v4](toxoplasma_plaque_v4.md), [toxoplasma_plaque_v2](toxoplasma_plaque_v2.md), [toxoplasma_plaque_v1](toxoplasma_plaque_v1.md).
 
 ## Training data
 
@@ -63,6 +63,7 @@ Evaluation set `gt_rescore_20261011`, version `strict hold-out, pooled`; 232 sco
 
 ## Notes
 
+- Recommended alternative for Gel Doc wells: on the 153 test fields of the curated 2026-10-15 set it scores object F1 0.954 on Gel Doc wells against 0.868 for the default toxoplasma_plaque_v5 (0.741 against 0.816 overall).
 - Alternative since 2026-10-11, when toxoplasma_plaque_v4 (base cpsam_v2) became the default by the maintainer's choice. This model scores higher: on 263 held-out fields F1 0.844 against v4 0.815, and 0.913 against 0.804 on Gel Doc wells, through spacr.plaque.segment_plaque_image. Kept so recorded runs reproduce.
 - Default 2026-10-10 to 2026-10-11: F1 0.844 against toxoplasma_plaque_v2 0.799, and 0.913 against 0.013 on Gel Doc wells (features/data/model_compare_2026-10-10).
 - Its own release gate on independent literature crops did not pass at the time (literature F1 about 0.54 for every model).

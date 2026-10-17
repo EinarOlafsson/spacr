@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "review": "Plaque v5 becomes the default plaque model (maintainer's choice 2026-10-17): the plaque_model setting tooltip and the 'bundled' note name toxoplasma_plaque_v5; toxoplasma_plaque_v3 stays the better choice on Gel Doc wells. Preserve every model key, cpsam_v2, Gel Doc, Cellpose 3 and dates. Superseded records are archived in archive/2026-10-17-plaque-v5-default.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_model",
+      "source": "Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v5' is the cpsam_v2 round-7 model; 'toxoplasma_plaque_v3' scores higher on Gel Doc wells; 'toxoplasma_plaque_v4', the default until 2026-10-17, and 'toxoplasma_plaque_v2' are earlier defaults), a filesystem path selects a custom checkpoint, and 'bundled' is a Cellpose 3 checkpoint that needs Cellpose 3. Changing it changes plaque counts, so recorded runs should keep their value. Default 'toxoplasma_plaque_v5'.",
+      "source_sha256": "05776e85b73623c1421bd91b7d1cdc0cb6dc0745c9a7c3995baf6ff9af3526f9",
+      "translation": "Punto de control de Cellpose para segmentar placas: una clave del catálogo de modelos descarga, en el primer uso, un punto de control verificado mediante suma de comprobación. 'toxoplasma_plaque_v5' es el modelo de la ronda 7 basado en cpsam_v2; 'toxoplasma_plaque_v3' obtiene mejores resultados en los pocillos de Gel Doc; 'toxoplasma_plaque_v4', el valor predeterminado hasta 2026-10-17, y 'toxoplasma_plaque_v2' son valores predeterminados anteriores. Una ruta del sistema de archivos selecciona un punto de control propio. 'bundled' es un punto de control de Cellpose 3 que requiere Cellpose 3. Cambiarlo modifica los recuentos de placas, por lo que las ejecuciones registradas deben conservar su valor. Valor predeterminado 'toxoplasma_plaque_v5'."
+    },
+    {
+      "table": "ui",
+      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v5 is the current model.",
+      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v5 is the current model.",
+      "source_sha256": "30a0489ba9ff6104c77cdfeca5d5c6c59bc4b9ce253022670bfd7ab3923ae063",
+      "translation": "'bundled' es el modelo de placas empaquetado histórico. Se conserva para poder reproducir ejecuciones antiguas; no detecta aproximadamente un tercio de las placas en imágenes de la literatura. toxoplasma_plaque_v5 es el modelo actual."
+    }
+  ]
+}

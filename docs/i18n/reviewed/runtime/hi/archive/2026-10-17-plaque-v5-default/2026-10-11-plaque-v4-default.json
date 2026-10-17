@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_scope": "AI technical review (Claude Opus 5.5 with per-locale reviewer agents); no native-speaker signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v4 is the current model.",
+      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v4 is the current model.",
+      "source_sha256": "db4b1199854cf7fe3d21b47ead4081c5404ba94506d127cc4d6a58b417f0f970",
+      "translation": "'bundled' पहले से पैक किया गया ऐतिहासिक प्लाक मॉडल है। पुराने रन दोहराने के लिए इसे रखा गया है; साहित्य के चित्रों पर यह लगभग एक-तिहाई प्लाक चूकता है। toxoplasma_plaque_v4 वर्तमान मॉडल है।"
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_model",
+      "source": "Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v4' is the cpsam_v2 round-6 model; 'toxoplasma_plaque_v3' is cpsam_plaque_r5_geldoc, the default until 2026-10-11, which scores higher on the held-out fields and on Gel Doc wells; 'toxoplasma_plaque_v2' is the earlier default), a filesystem path selects a custom checkpoint, and 'bundled' is the historical packaged model, which is a Cellpose 3 checkpoint and needs Cellpose 3. Changing it can change every plaque count, so recorded runs should keep the chosen value. Default 'toxoplasma_plaque_v4'.",
+      "source_sha256": "fbf9791c36bf5ec3ee4de38ef7adfeb810d2dbc6ff922fa22a3ee6a02dd06d93",
+      "translation": "प्लाक विभाजन के लिए Cellpose चेकपॉइंट। मॉडल संग्रह की कुंजी देने पर पहली बार उपयोग में चेकसम से सत्यापित चेकपॉइंट डाउनलोड होता है। 'toxoplasma_plaque_v4', cpsam_v2 पर आधारित छठे दौर का मॉडल है; 'toxoplasma_plaque_v3', cpsam_plaque_r5_geldoc है, जो 2026-10-11 तक डिफ़ॉल्ट था और अलग रखे गए फ़ील्ड तथा Gel Doc वेल पर बेहतर स्कोर करता है; 'toxoplasma_plaque_v2' उससे पहले का डिफ़ॉल्ट है। फ़ाइल-सिस्टम पथ अपना चेकपॉइंट चुनता है। 'bundled' पैकेज के साथ आने वाला पुराना मॉडल है; यह Cellpose 3 चेकपॉइंट है और इसे Cellpose 3 चाहिए। मॉडल बदलने से सभी प्लाक गणनाएँ बदल सकती हैं, इसलिए दर्ज किए गए रन में चुना गया मान सुरक्षित रखना चाहिए। डिफ़ॉल्ट 'toxoplasma_plaque_v4'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    }
+  ]
+}

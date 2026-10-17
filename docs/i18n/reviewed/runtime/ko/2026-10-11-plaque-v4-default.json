@@ -2,15 +2,7 @@
   "schema": 1,
   "language": "ko",
   "review_scope": "AI technical review (Claude Opus 5.5 with per-locale reviewer agents); no native-speaker signoff.",
-  "records": [
-    {
-      "table": "ui",
-      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v4 is the current model.",
-      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v4 is the current model.",
-      "source_sha256": "db4b1199854cf7fe3d21b47ead4081c5404ba94506d127cc4d6a58b417f0f970",
-      "translation": "'bundled'는 과거에 패키지된 플라크 모델입니다. 이전 실행을 재현할 수 있도록 유지되며, 문헌 이미지에서 플라크의 약 3분의 1을 놓칩니다. 현재 모델은 toxoplasma_plaque_v4 입니다."
-    }
-  ],
+  "records": [],
   "retired_records": [
     {
       "table": "setting_tooltips",

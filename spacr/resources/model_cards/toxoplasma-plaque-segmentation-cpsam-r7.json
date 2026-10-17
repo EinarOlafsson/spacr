@@ -5,7 +5,7 @@
  "display_name": "Toxoplasma Plaque v5",
  "family": "plaque",
  "round": "round 7",
- "status": "candidate",
+ "status": "default",
  "date": "trained 2026-10-16",
  "pages": [
   "cards/page1.png",
@@ -146,9 +146,9 @@
  },
  "about": {
   "segments": "Toxoplasma gondii plaques in crystal-violet-stained plaque-assay wells.",
-  "version_line": "Zoo key toxoplasma_plaque_v5, round 7 (weights cpsam_plaque_r7). Candidate: selectable, not the default plaque model.",
+  "version_line": "Zoo key toxoplasma_plaque_v5, round 7 (weights cpsam_plaque_r7). Default plaque model in spaCR; toxoplasma_plaque_v3 is recommended for Gel Doc wells.",
   "trained_on": "1,201 curated fields from Gel Doc lab plates, lab plates, published figures and earlier curation rounds (curated dataset of 2026-10-15), with 153 for validation.",
-  "status": "Candidate plaque model in spaCR; toxoplasma_plaque_v4 stays the default.",
+  "status": "Default plaque model in spaCR; toxoplasma_plaque_v3 is recommended for Gel Doc wells.",
   "leak_note": null,
   "load_line": "Set `plaque_model` to `toxoplasma_plaque_v5`; spaCR downloads and checks the weights on first use.",
   "links": {

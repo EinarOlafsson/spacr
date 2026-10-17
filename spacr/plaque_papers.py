@@ -122,7 +122,7 @@ FORMAT_RANK = {".scn": 0, ".tiff": 0, ".tif": 0, ".png": 1, ".webp": 2, ".jpg": 
                ".jpeg": 2, ".gif": 3, ".bmp": 3}
 
 DEFAULT_DETECTOR = "toxoplasma_well_detector_v2"
-DEFAULT_SEGMENTER = "toxoplasma_plaque_v4"
+DEFAULT_SEGMENTER = "toxoplasma_plaque_v5"
 DEFAULT_IMGSZ: Tuple[int, ...] = (640, 1280)
 
 INSTALL_HINT = 'pip install "spacr[papers]"'

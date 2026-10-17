@@ -2,15 +2,7 @@
   "schema": 1,
   "language": "pt",
   "review_scope": "AI technical review (Claude Opus 5.5 with per-locale reviewer agents); no native-speaker signoff.",
-  "records": [
-    {
-      "table": "ui",
-      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v4 is the current model.",
-      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v4 is the current model.",
-      "source_sha256": "db4b1199854cf7fe3d21b47ead4081c5404ba94506d127cc4d6a58b417f0f970",
-      "translation": "'bundled' é o modelo histórico de placas de lise incluído no pacote. É mantido para que uma execução antiga possa ser reproduzida; ele perde cerca de um terço das placas em imagens da literatura. toxoplasma_plaque_v4 é o modelo atual."
-    }
-  ],
+  "records": [],
   "retired_records": [
     {
       "table": "setting_tooltips",

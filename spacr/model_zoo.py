@@ -1059,7 +1059,9 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
      'trained_on': '496 curated plaque fields, including 34 reviewed empty negatives and 71 Gel Doc '
                    'wells; 100 epochs; fixed physical-plate/source groups',
      'trained_by': 'einarolafsson',
-     'notes': ['Alternative since 2026-10-11, when toxoplasma_plaque_v4 (base cpsam_v2) became the default by the maintainer\'s choice. '
+     'notes': ['Recommended alternative for Gel Doc wells: on the 153 test fields of the curated 2026-10-15 set it scores '
+               'object F1 0.954 on Gel Doc wells against 0.868 for the default toxoplasma_plaque_v5 (0.741 against 0.816 overall).',
+               'Alternative since 2026-10-11, when toxoplasma_plaque_v4 (base cpsam_v2) became the default by the maintainer\'s choice. '
                'This model scores higher: on 263 held-out fields F1 0.844 against v4 0.815, and 0.913 against 0.804 on Gel Doc wells, '
                'through spacr.plaque.segment_plaque_image. Kept so recorded runs reproduce.',
                'Default 2026-10-10 to 2026-10-11: F1 0.844 against toxoplasma_plaque_v2 0.799, and 0.913 against 0.013 on Gel Doc wells '
@@ -1108,7 +1110,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                  'train_loss': 'see training/epoch_history.json',
                  'val_loss': 'see training/epoch_history.json',
                  'best_epoch': '140 / 190'},
-     'display_name': 'Toxoplasma Plaque v4 (round 6, cpsam_v2, default)',
+     'display_name': 'Toxoplasma Plaque v4 (round 6, cpsam_v2)',
      'architecture': 'Cellpose-SAM (cpsam_v2, Cellpose 4.0.9)',
      'dataset': '663 curated plaque fields from four domains (published-figure wells, Gel Doc '
                 'wells, lab plates, staged literature crops), 32,717 plaques; 335 train / 65 '
@@ -1119,7 +1121,9 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                    'and staged literature crops; round 6 splits, best of 190 epochs (epoch 140), '
                    'base cpsam_v2',
      'trained_by': 'einarolafsson',
-     'notes': ['The default plaque model since 2026-10-11, by the maintainer\'s rule that spaCR '
+     'notes': ['No longer the default: toxoplasma_plaque_v5 replaced it on 2026-10-17 (object F1 '
+               '0.816 against 0.725 on the 153 curated test fields); kept selectable so recorded runs reproduce.',
+               'The default plaque model 2026-10-11 to 2026-10-17, by the maintainer\'s rule that spaCR '
                'models build on cpsam_v2. It scores below toxoplasma_plaque_v3 on the same 263 '
                'held-out fields, through spacr.plaque.segment_plaque_image: F1 0.815 against 0.844, '
                'lower on every source (Gel Doc 0.804 against 0.913); v3 stays selectable.',
@@ -1148,7 +1152,6 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
      'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7/resolve/main/weights/cpsam_plaque_r7',
      'sha256': '9243917beefbc3d1c8d997d56c1980b811ffef9ee075dac60b099aec715fa8a1',
      'size_bytes': 1218648776,
-     'candidate': True,
      'metrics': {'f1': {'finetuned': 0.8157, 'vanilla': 0.2268, 'delta': 0.5889},
                  'holdout': 'plaque_curated_20261015_test',
                  'holdout_version': '2026-10-15',
@@ -1162,7 +1165,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                  'train_loss': 'see training/run_config.json',
                  'val_loss': 'see training/run_config.json',
                  'best_epoch': '100 / 100 (final epoch kept)'},
-     'display_name': 'Toxoplasma Plaque v5 (round 7, cpsam_v2, candidate)',
+     'display_name': 'Toxoplasma Plaque v5 (round 7, cpsam_v2, default)',
      'architecture': 'Cellpose-SAM (cpsam_v2, Cellpose 4.2.1.1)',
      'dataset': '1,507 curated plaque fields of 2026-10-15 (Gel Doc wells, lab plates, published '
                 'figures, earlier curation rounds); 1,201 train / 153 validation / 153 test',
@@ -1172,8 +1175,9 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                    'curation rounds (curated dataset of 2026-10-15); 100 epochs, final epoch kept, '
                    'base cpsam_v2',
      'trained_by': 'einarolafsson',
-     'notes': ['A candidate, not the default: toxoplasma_plaque_v4 stays the default pending the '
-               'maintainer\'s decision.',
+     'notes': ['The default plaque model since 2026-10-17, by the maintainer\'s choice; '
+               'toxoplasma_plaque_v3 is the recommended alternative for Gel Doc wells and '
+               'toxoplasma_plaque_v4 stays selectable.',
                'Scored 2026-10-17 on the 153 test fields of the curated 2026-10-15 dataset '
                '(spacr.plaque.segment_plaque_image, defaults): object F1 0.816 (95% bootstrap CI '
                '0.778 to 0.848), v4 0.725, v3 0.741, stock cpsam_v2 0.227. On the 81 test fields '
@@ -1363,9 +1367,9 @@ _CURATED_SCORECARD_BINDINGS = {'toxoplasma_plaque_v1': {'checkpoint_sha256': 'ee
                           'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6/resolve/main/weights/cpsam_plaque_r6'},
  'toxoplasma_plaque_v5': {'checkpoint_sha256': '9243917beefbc3d1c8d997d56c1980b811ffef9ee075dac60b099aec715fa8a1',
                           'field_ids_sha256': '981166ee8b999dad4b15deb0ea6a31c4dd5cd75713ae015650afc598d9cabc70',
-                          'full_card_sha256': '829b4c733f8c2ec662c337ae4c4895d232c6ad5d448295aebf35c9404e3be05a',
+                          'full_card_sha256': '33d7064088e3890a1a702b45a36c2d5aceb79667ab34318e39352d8ec4cc207d',
                           'resource': 'toxoplasma-plaque-segmentation-cpsam-r7.json',
-                          'resource_sha256': 'cc1e89cfebf2bf23cce827815ec35a1b9d97d8809f886b278c01b981f5d7ff57',
+                          'resource_sha256': 'e8943595cd5ba25b4a5d6aa31410d48cd028e4ed63acf3744a88a051e740b2d7',
                           'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7/resolve/main/weights/cpsam_plaque_r7'},
  'toxoplasma_pv_v1': {'checkpoint_sha256': '182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0',
                       'field_ids_sha256': '8192aa87281f8da7d1a4fd7884472e83f57c344b059953db0aa94e359b46a046',
