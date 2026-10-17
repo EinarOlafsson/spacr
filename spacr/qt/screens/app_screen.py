@@ -11,6 +11,7 @@ Structure (horizontal splitter):
 """
 from __future__ import annotations
 
+import contextlib
 import logging
 import re
 import os
@@ -2237,6 +2238,7 @@ class AppScreen(QWidget):
             _screens_package, "_categories_wait_to_be_opened", False))
         self._settings_lock_observation_ready = False
         self._settings_panel = self._build_settings_panel()
+        _screens_package._breathe_while_a_window_opens()
         body.add_pane(self._settings_panel, "Settings", mode=EDGE,
                       fold_key=f"{app_key}/Settings", stretch=1, extent=400)
         self.the_name_carries_the_help()
@@ -2878,6 +2880,8 @@ class AppScreen(QWidget):
                 and str(self.app_key) not in self.SETTINGS_AS_TABS):
             self._settings_model.categories_may_wait = \
                 self._a_category_may_wait
+        from .. import screens as _screens_package
+
         try:
             sections = self._settings_model.build_sections()
         except Exception as e:
@@ -2913,6 +2917,7 @@ class AppScreen(QWidget):
         if not sections:
             layout.addWidget(QLabel("No settings defined for this app."))
         for section_order, spec in enumerate(sections):
+            _screens_package._breathe_while_a_window_opens()
             if self._spec_waits(spec) and self._spec_holds_anything(spec):
                 section = self._build_a_waiting_heading(spec)
                 section._settings_top_level_order = section_order
@@ -2944,7 +2949,9 @@ class AppScreen(QWidget):
                 layout.addWidget(section)
 
         self._settings_layout = layout
+        _screens_package._breathe_while_a_window_opens()
         self._mount_the_object_grid(layout)
+        _screens_package._breathe_while_a_window_opens()
         self.refresh_maturity_visibility()
 
         model = getattr(self, "_settings_model", None)
@@ -13479,14 +13486,17 @@ class AppScreen(QWidget):
                     self._deferred_bulk_settings = deferred_bulk
                     self._form_rebuild_deferred = True
                 else:
-                    rebuild(self.app_key, target)
-                    fresh = getattr(window, "_screens", {}).get(self.app_key)
-                    if fresh is not None and fresh is not self:
-                        fresh._built_for_this_bulk_apply = True
-                        try:
-                            return fresh.apply_settings_dict(settings)
-                        finally:
-                            fresh._built_for_this_bulk_apply = False
+                    breathing = getattr(window, "breathing_like_an_open", None)
+                    with (breathing() if callable(breathing)
+                          else contextlib.nullcontext()):
+                        rebuild(self.app_key, target)
+                        fresh = getattr(window, "_screens", {}).get(self.app_key)
+                        if fresh is not None and fresh is not self:
+                            fresh._built_for_this_bulk_apply = True
+                            try:
+                                return fresh.apply_settings_dict(settings)
+                            finally:
+                                fresh._built_for_this_bulk_apply = False
 
         applied = 0
         if model is not None:
@@ -13500,7 +13510,11 @@ class AppScreen(QWidget):
         finally:
             if model is not None:
                 model._applying_settings = False
+        from .. import screens as _screens_package
+
+        _screens_package._breathe_while_a_window_opens()
         self._refresh_after_bulk_apply(settings)
+        _screens_package._breathe_while_a_window_opens()
         self._observe_settings_commit()
         return applied
 

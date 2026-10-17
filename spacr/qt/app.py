@@ -10,6 +10,7 @@ import functools
 import importlib as _importlib
 import inspect
 import logging
+import contextlib
 import os
 import sys
 import threading
@@ -3052,6 +3053,11 @@ def _end_the_event_loop(app) -> None:
     if close_all is not None:
         close_all()
     leave(0)
+
+
+#: Seconds of work between two breaths while a screen is rebuilt in place
+#: (:meth:`MainWindow.breathing_like_an_open`).
+REBUILD_BREATH_AFTER_S = 0.05
 
 
 class MainWindow(QMainWindow):
@@ -6817,6 +6823,18 @@ class MainWindow(QMainWindow):
         :param key: the app whose screen is to be rebuilt.
         :param values: settings to apply to the new screen.
         """
+        with self.breathing_like_an_open():
+            self._rebuild_app_screen_in_steps(key, values)
+
+    @contextlib.contextmanager
+    def breathing_like_an_open(self):
+        """Let heavy GUI work inside take the breaths of a module open.
+
+        For :meth:`rebuild_app_screen` and for a caller that does more work
+        on the rebuilt screen straight after it (a settings pack applied
+        to it). Inside an open already, the open's breathing is used and
+        left on.
+        """
         from . import screens as _screens_package
         from .i18n import ui_language_resolved_once
         from .preferences import _one_store
@@ -6824,16 +6842,22 @@ class MainWindow(QMainWindow):
         import time as _time
 
         if getattr(self, "_opening_a_screen", False):
-            self._rebuild_app_screen_in_steps(key, values)
+            yield
             return
         self._opening_a_screen = True
+        every = _screens_package.BREATH_AFTER_S
+        # Shorter than an open's: the old page stays on show and the user
+        # is watching it, so a step as long as an open allows reads as a
+        # stall (tutorial 07 recorded 0.36 s with the open's 0.15 s).
+        _screens_package.BREATH_AFTER_S = min(every, REBUILD_BREATH_AFTER_S)
         _screens_package._start_breathing_while_a_window_opens(
             _time.perf_counter())
         try:
             with ui_language_resolved_once(), _one_store():
-                self._rebuild_app_screen_in_steps(key, values)
+                yield
         finally:
             self._opening_a_screen = False
+            _screens_package.BREATH_AFTER_S = every
             _screens_package._stop_breathing_while_a_window_opens()
 
     def _rebuild_app_screen_in_steps(self, key: str, values=None) -> None:
@@ -6921,6 +6945,7 @@ class MainWindow(QMainWindow):
         fresh.ensurePolished()
         self._breathe_while_opening(force=True)
         self._stack.setCurrentWidget(fresh)
+        self._breathe_while_opening(force=True)
         if old is not None:
             try:
                 if old.close() is False:
