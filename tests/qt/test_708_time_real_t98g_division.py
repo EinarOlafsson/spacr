@@ -3,7 +3,8 @@
 The fixture is fourteen frames (source frames 15 to 28) of the published
 mammalian movie around one cell, in the CTC layout the 712 build reads: track
 61 ends, its lone daughter 107 carries on (a founder after conversion) and
-107 divides into 89 and 90; cell 69 sits right beside them. The movie is
+107 divides into 89 and 90; cell 69 sits right beside them. Tracing 61
+onto its lone daughter makes them one cell, 89 carrying 61 on. The movie is
 built with ``tools/build_timelapse_example_datasets.py`` and opened through
 the test-data opener, then traced with real Qt events.
 """
@@ -99,7 +100,21 @@ def sweep(screen, start, end):
                       start[1] + (end[1] - start[1]) * k // 10))
 
 
-def test_typed_61_follows_its_cell_through_107_into_daughter_89(qtbot, movie):
+def named(screen, name):
+    return next(key for key, cell in screen._lineage["cells"].items() if cell["name"] == name)
+
+
+def saved_ancestry(folder, skip=()):
+    graphs = {}
+    for index in range(14):
+        if index not in skip:
+            state = engine.load_mask_lineage(str(folder), f"t98g_t{index:03d}.tif",
+                                             str(folder / "masks"))
+            graphs[index] = {key: cell["parent_uuid"] for key, cell in state["cells"].items()}
+    return graphs
+
+
+def test_typed_61_merges_lone_daughter_107_and_continues_into_89(qtbot, movie):
     screen, folder = movie
     screen._on_next()
     idle(qtbot, screen)
@@ -108,14 +123,35 @@ def test_typed_61_follows_its_cell_through_107_into_daughter_89(qtbot, movie):
     screen._label_value.clear()
     qtbot.keyClicks(screen._label_value, "61")
     assert screen._lineage["cells"][screen._selected_cell]["name"] == "61"
-    chosen = screen._selected_cell
+    chosen, early = screen._selected_cell, named(screen, "107")
+    kept, sister = named(screen, "107a"), named(screen, "107b")
+    assert screen._lineage["cells"][early]["children"] == [kept, sister]
     canvas = screen._canvas
     neighbour = centre(canvas.mask, 69)
     point = centre(canvas.mask, 61)
     before = canvas.mask.copy()
     sweep(screen, neighbour, point)
     np.testing.assert_array_equal(canvas.mask, before)
-    for frame in range(2, 12):
+    scroll(qtbot, screen, point)
+    assert screen._current_index == 2
+    assert owner(screen, point) == (61, "61")
+    assert "107 was merged into 61" in screen._status_label.text()
+    cells = screen._lineage["cells"]
+    assert early not in cells and cells[chosen]["children"] == [kept, sister]
+    assert cells[kept]["parent_uuid"] == cells[sister]["parent_uuid"] == chosen
+    merged = saved_ancestry(folder, skip=(2,))
+    assert all(early not in graph and graph[kept] == graph[sister] == chosen
+               for graph in merged.values())
+    screen._on_undo()
+    assert owner(screen, point) == (107, "107")
+    assert screen._lineage["cells"][kept]["parent_uuid"] == early
+    assert all(graph[kept] == graph[sister] == early and graph[early] is None
+               for graph in saved_ancestry(folder, skip=(2,)).values())
+    screen._on_redo()
+    assert owner(screen, point) == (61, "61") and early not in screen._lineage["cells"]
+    assert saved_ancestry(folder, skip=(2,)) == merged
+    point = centre(canvas.mask, 61)
+    for frame in range(3, 12):
         scroll(qtbot, screen, point)
         assert screen._current_index == frame
         assert owner(screen, point) == (61, "61")
@@ -123,7 +159,7 @@ def test_typed_61_follows_its_cell_through_107_into_daughter_89(qtbot, movie):
     scroll(qtbot, screen, point)
     assert screen._current_index == 12
     mask = canvas.mask
-    daughter, sister, neighbour = centre(mask, 89), centre(mask, 90), centre(mask, 69)
+    daughter, sister_point, neighbour = centre(mask, 89), centre(mask, 90), centre(mask, 69)
     sweep(screen, neighbour, daughter)
     assert owner(screen, neighbour) == (69, "69")
     assert owner(screen, daughter) == (89, "107a")
@@ -131,34 +167,47 @@ def test_typed_61_follows_its_cell_through_107_into_daughter_89(qtbot, movie):
     assert screen._current_index == 13
     assert owner(screen, daughter) == (61, "61")
     assert owner(screen, centre(canvas.mask, 69)) == (69, "69")
-    assert screen._selected_cell == chosen
+    assert "107" not in {cell["name"] for cell in screen._lineage["cells"].values()}
+    assert screen._selected_cell == kept
+    assert screen._lineage["frames"][screen._lineage_frame()]["61"] == kept
     arrived = canvas.mask.copy()
     screen._on_undo()
-    assert owner(screen, daughter) == (89, "107a")
+    assert owner(screen, daughter) == (89, "61")
     screen._on_redo()
     np.testing.assert_array_equal(canvas.mask, arrived)
     scroll(qtbot, screen, daughter, -1)
     assert screen._current_index == 12
     assert owner(screen, daughter) == (61, "61")
-    assert owner(screen, sister)[0] == 90
+    assert owner(screen, sister_point) == (90, "107b")
     cells = screen._lineage["cells"]
-    branch = screen._lineage["frames"][screen._lineage_frame()]["90"]
-    assert cells[branch]["name"] == "107b"
-    assert cells[cells[branch]["parent_uuid"]]["name"] == "107"
+    assert cells[sister]["parent_uuid"] == cells[kept]["parent_uuid"] == chosen
     screen._save_mask()
     for sidecar in Path(folder).rglob("*.json"):
         sidecar.unlink()
-    fresh = mm.MakeMasksScreen()
-    qtbot.addWidget(fresh)
-    assert fresh._open_folder(str(folder), masks_dir=str(folder / "masks"))
-    for index in (12, 13):
-        name = f"t98g_t{index:03d}.tif"
-        saved = imageio.imread(engine.mask_save_path(str(folder), name,
-                                                     str(folder / "masks")))
-        assert saved.dtype == np.uint32 and int(saved[daughter[1], daughter[0]]) == 61
-        mapping = fresh._lineage["frames"][str(folder / name)]
-        assert mapping["61"] == chosen and fresh._lineage["cells"][mapping["90"]]["name"] == "107b"
-    fresh.close()
+    graphs = []
+    for frame in (0, 12):
+        fresh = mm.MakeMasksScreen()
+        qtbot.addWidget(fresh)
+        assert fresh._open_folder(str(folder), masks_dir=str(folder / "masks"))
+        while fresh._current_index < frame:
+            fresh._on_next()
+            idle(qtbot, fresh)
+        graphs.append({key: (cell["name"], cell["parent_uuid"], cell["children"])
+                       for key, cell in fresh._lineage["cells"].items()})
+        for index in (12, 13):
+            name = f"t98g_t{index:03d}.tif"
+            saved = imageio.imread(engine.mask_save_path(str(folder), name,
+                                                         str(folder / "masks")))
+            assert saved.dtype == np.uint32 and int(saved[daughter[1], daughter[0]]) == 61
+            mapping = fresh._lineage["frames"][str(folder / name)]
+            assert mapping["61"] == kept and mapping["90"] == sister
+        fresh.close()
+    assert graphs[0] == graphs[1]
+    assert early not in graphs[0]
+    assert graphs[0][chosen] == ("61", None, [kept, sister])
+    assert graphs[0][kept][:2] == ("61", chosen) and graphs[0][sister][:2] == ("107b", chosen)
+    assert all(early not in graph and graph[kept] == graph[sister] == chosen
+               for graph in saved_ancestry(folder).values())
 
 
 def test_picking_61_from_the_cell_table_traces_the_same_way(qtbot, movie):
@@ -183,3 +232,4 @@ def test_picking_61_from_the_cell_table_traces_the_same_way(qtbot, movie):
     assert screen._current_index == 13
     assert owner(screen, daughter) == (61, "61")
     assert owner(screen, centre(canvas.mask, 69)) == (69, "69")
+    assert "107" not in {cell["name"] for cell in screen._lineage["cells"].values()}

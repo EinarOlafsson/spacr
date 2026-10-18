@@ -16214,12 +16214,15 @@ class MakeMasksScreen(QWidget):
         """Restore metadata together with the mask selected by Undo or Redo."""
         changed = self._lineage != snapshot[0]
         restored, self._selected_cell = copy.deepcopy(snapshot)
+        reparented = self._reparented(self._lineage, restored)
         self._lineage = (engine.restore_lineage_state(restored, self._lineage)
                          if changed else restored)
         if changed:
             self._lineage_dirty = True
             self._label_time_edited = True
         self._refresh_lineage_rows()
+        if reparented:
+            self._rewrite_sequence_lineage()
 
     def _commit_lineage_change(self, state, selected):
         """Commit one metadata edit as one normal mask undo step."""
@@ -16362,6 +16365,8 @@ class MakeMasksScreen(QWidget):
                     state, self._label_name.text().strip() or str(label), reserved, frame)
             before, chosen = (state or {}).get("cells", {}), selected
             replaced = mapping.get(str(previous))
+            if self._continues(state, selected, replaced):
+                state = engine._merge_continuation(state, selected, replaced)
             changed, state, previous, assigned = engine.assign_tracked_object(
                 self._canvas.mask, x, y, state, frame, selected, preferred_label=label)
             selected = state["frames"][frame].get(str(assigned), selected)
@@ -16376,16 +16381,75 @@ class MakeMasksScreen(QWidget):
 
         def commit():
             """Install validated lineage and refresh cell controls after the mask update."""
+            reparented = self._reparented(self._lineage, state)
             self._lineage, self._selected_cell = state, selected
             self._lineage_dirty = True
             self._label_time_edited = True
             self._refresh_lineage_rows()
+            if reparented:
+                self._rewrite_sequence_lineage()
             if label == 0:
                 self._label_value.setText("0")
             if notice:
                 self._status_label.setText(notice)
 
         return changed, previous, assigned, commit
+
+    def _continues(self, state, mother, daughter):
+        """Whether ``daughter`` is a founder starting the frame after ``mother`` ends.
+
+        That is a lone-daughter continuation, so tracing the mother onto it
+        makes them one cell. A mother that divided, a daughter with a parent
+        or any overlap in frames is not one.
+        """
+        cells = (state or {}).get("cells", {})
+        if mother not in cells or daughter not in cells or mother == daughter:
+            return False
+        if cells[daughter].get("parent_uuid") is not None or cells[mother].get("children"):
+            return False
+        order = {os.path.abspath(os.path.join(self._folder, name)): index
+                 for index, name in enumerate(self._image_files)}
+        spans = {mother: [], daughter: []}
+        for frame, mapping in state.get("frames", {}).items():
+            for identity in spans:
+                if identity in mapping.values() and frame in order:
+                    spans[identity].append(order[frame])
+        return bool(spans[mother] and spans[daughter]) and \
+            min(spans[daughter]) == max(spans[mother]) + 1
+
+    @staticmethod
+    def _reparented(before, after):
+        """Whether any cell kept between two graphs has a different parent."""
+        old, new = (before or {}).get("cells", {}), (after or {}).get("cells", {})
+        return any(new[key].get("parent_uuid") != cell.get("parent_uuid")
+                   for key, cell in old.items() if key in new)
+
+    def _rewrite_sequence_lineage(self):
+        """Embed the current lineage in every saved mask of the open sequence.
+
+        The open frame is written by its own save. Pixels stay as saved, so
+        reopening from any frame reads the same ancestry.
+        """
+        import tifffile
+        from ..i18n import tr
+
+        if not self._folder or self._lineage is None or not self._image_files:
+            return
+        current = self._image_files[self._current_index]
+        failed = 0
+        for name in self._image_files:
+            path = engine.mask_save_path(self._folder, name, **self._layout_kwargs())
+            if name == current or not os.path.isfile(path):
+                continue
+            try:
+                engine.save_mask(self._folder, name, tifffile.imread(path), preserve_ids=True,
+                                 lineage=self._lineage, **self._layout_kwargs())
+            except (OSError, ValueError):
+                failed += 1
+        if failed:
+            self._status_label.setText(tr(
+                "Lineage could not be rewritten in {n} mask file(s); those frames "
+                "update when they are saved.", n=failed))
 
     def _lineage_assignment_notice(self, before, state, chosen, replaced):
         """Say how a Time assignment changed another cell, so nothing changes unseen."""

@@ -503,3 +503,54 @@ def test_boundary_ids_do_not_change_other_identity_colors_or_prevent_correction(
     drawn, label = engine.fill_polygon(mask, [(0, 18), (2, 18), (2, 19), (0, 19)])
     assert label == 2
     assert drawn.dtype == np.uint32
+
+
+def _lone_daughter_movie(tmp_path):
+    frames = [_field(tmp_path, f"lone{index}.tif")[0] for index in range(5)]
+    state, mother = _mapped_cell(None, "61", 61, frames[0])
+    state = engine.assign_lineage_label(state, frames[1], 61, mother)
+    state, lone = _mapped_cell(state, "107", 107, frames[2])
+    state = engine.assign_lineage_label(state, frames[3], 107, lone)
+    state, daughters = engine.divide_lineage_cell(state, lone, frames[4], ["107a", "107b"], [89, 90])
+    state = engine.assign_lineage_label(state, frames[4], 89, daughters[0])
+    state = engine.assign_lineage_label(state, frames[4], 90, daughters[1])
+    return frames, state, mother, lone, daughters
+
+
+def test_a_lone_daughter_merges_into_its_mother_with_its_division(tmp_path):
+    frames, state, mother, lone, daughters = _lone_daughter_movie(tmp_path)
+    merged = engine._merge_continuation(state, mother, lone)
+    assert lone not in merged["cells"] and lone in merged["deleted_cells"]
+    assert merged["cells"][mother]["children"] == list(daughters)
+    assert merged["cells"][mother]["division_frame"] == frames[4]
+    assert all(merged["cells"][child]["parent_uuid"] == mother for child in daughters)
+    assert [merged["frames"][frame] for frame in frames[2:4]] == [{"107": mother}] * 2
+    older = copy.deepcopy(state)
+    assert engine.merge_lineage_states(older, merged) == engine.merge_lineage_states(merged, older)
+    assert engine.merge_lineage_states(older, merged)["cells"][daughters[0]]["parent_uuid"] == mother
+    undone = engine.restore_lineage_state(state, merged)
+    assert undone["cells"][daughters[0]]["parent_uuid"] == lone and lone in undone["cells"]
+    assert engine.merge_lineage_states(merged, undone)["cells"][lone]["children"] == list(daughters)
+
+
+def test_divided_or_overlapping_cells_never_merge(tmp_path):
+    frames, state, mother, lone, daughters = _lone_daughter_movie(tmp_path)
+    with pytest.raises(ValueError, match="cannot become part of"):
+        engine._merge_continuation(state, lone, mother)
+    with pytest.raises(ValueError, match="cannot become part of"):
+        engine._merge_continuation(state, mother, daughters[0])
+    overlapping = engine.assign_lineage_label(state, frames[2], 61, mother)
+    with pytest.raises(ValueError, match="cannot become part of"):
+        engine._merge_continuation(overlapping, mother, lone)
+
+
+def test_equal_revisions_that_disagree_about_ancestry_are_still_refused(tmp_path):
+    frames, state, mother, lone, daughters = _lone_daughter_movie(tmp_path)
+    forged = copy.deepcopy(state)
+    forged["cells"][daughters[0]]["parent_uuid"] = None
+    forged["cells"][lone]["children"] = []
+    forged["cells"][lone]["division_frame"] = None
+    forged["cells"][lone].pop("division_frame_id")
+    forged["cells"][daughters[1]]["parent_uuid"] = None
+    with pytest.raises(ValueError, match="disagree"):
+        engine.merge_lineage_states(state, forged)
