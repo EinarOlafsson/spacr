@@ -1733,7 +1733,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "apply_model_to_dataset",
-    "line": 1607,
+    "line": 1613,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_required_paths"
@@ -3394,7 +3394,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "blue_channel",
-    "line": 2155,
+    "line": 2161,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -4118,7 +4118,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 8770,
+    "line": 8771,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -4127,7 +4127,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 8772,
+    "line": 8773,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -4208,7 +4208,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 2155,
+    "line": 2161,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -4419,7 +4419,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_cycle_channel",
-    "line": 2155,
+    "line": 2161,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -4528,7 +4528,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_cycle_method",
-    "line": 2171,
+    "line": 2177,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -4723,7 +4723,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_diameter",
-    "line": 2159,
+    "line": 2165,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -5237,16 +5237,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 4917,
-    "module": "spacr.plot",
-    "nested": false,
-    "qualname": "plot_merged"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "cell_mask_dim",
-    "line": 4936,
+    "line": 4918,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -5264,7 +5255,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 4940,
+    "line": 4938,
+    "module": "spacr.plot",
+    "nested": false,
+    "qualname": "plot_merged"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "cell_mask_dim",
+    "line": 4941,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -5327,7 +5327,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 2174,
+    "line": 2180,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -5457,7 +5457,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_min_size",
-    "line": 2178,
+    "line": 2184,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -5544,7 +5544,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 8497,
+    "line": 8498,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -5553,7 +5553,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 8499,
+    "line": 8500,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -5885,7 +5885,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 8497,
+    "line": 8498,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -5894,7 +5894,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 8498,
+    "line": 8499,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -6301,7 +6301,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose3_add_nucleus_channel",
-    "line": 2155,
+    "line": 2161,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -6693,7 +6693,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_diameter",
-    "line": 2159,
+    "line": 2165,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -7163,7 +7163,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channel_of_interest",
-    "line": 8530,
+    "line": 8531,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -7172,7 +7172,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channel_of_interest",
-    "line": 8531,
+    "line": 8532,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -7651,7 +7651,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "channels",
-    "line": 8770,
+    "line": 8771,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -7660,7 +7660,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 8771,
+    "line": 8772,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -7876,7 +7876,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 2065,
+    "line": 2071,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "describe_plan"
@@ -8441,7 +8441,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "classes",
-    "line": 13558,
+    "line": 13557,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._migrate_control_wells"
@@ -8450,7 +8450,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 13569,
+    "line": 13568,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._migrate_control_wells"
@@ -8978,7 +8978,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cmap",
-    "line": 4953,
+    "line": 4954,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -8987,7 +8987,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cmap",
-    "line": 4960,
+    "line": 4961,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -10278,7 +10278,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "confluency_channel",
-    "line": 2155,
+    "line": 2161,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -10557,7 +10557,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 13860,
+    "line": 13859,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
@@ -10656,7 +10656,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 2102,
+    "line": 2108,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_regression_plan"
@@ -11145,7 +11145,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "crop_mode",
-    "line": 1774,
+    "line": 1780,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_app_specific"
@@ -11154,7 +11154,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "crop_mode",
-    "line": 2061,
+    "line": 2067,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "describe_plan"
@@ -11163,7 +11163,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "crop_mode",
-    "line": 2200,
+    "line": 2206,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_outputs"
@@ -11172,7 +11172,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "crop_mode",
-    "line": 2464,
+    "line": 2470,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "describe_resources"
@@ -11514,7 +11514,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "custom_model",
-    "line": 1613,
+    "line": 1619,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_required_paths"
@@ -12217,7 +12217,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cytoplasm",
-    "line": 2182,
+    "line": 2188,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -12282,7 +12282,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cytoplasm_min_size",
-    "line": 2178,
+    "line": 2184,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -12293,16 +12293,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "data_column",
-    "line": 8529,
-    "module": "spacr.plot",
-    "nested": false,
-    "qualname": "plot_data_from_db"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "data_column",
-    "line": 8534,
+    "line": 8530,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -12317,19 +12308,10 @@
     "qualname": "plot_data_from_db"
    },
    {
-    "form": "keyword",
-    "function_depth": 1,
-    "key": "data_column",
-    "line": 8542,
-    "module": "spacr.plot",
-    "nested": false,
-    "qualname": "plot_data_from_db"
-   },
-   {
     "form": "subscript",
     "function_depth": 1,
     "key": "data_column",
-    "line": 8542,
+    "line": 8536,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -12338,7 +12320,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "data_column",
-    "line": 8558,
+    "line": 8543,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -12347,7 +12329,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "data_column",
-    "line": 8561,
+    "line": 8543,
+    "module": "spacr.plot",
+    "nested": false,
+    "qualname": "plot_data_from_db"
+   },
+   {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "data_column",
+    "line": 8559,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -12356,7 +12347,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "data_column",
-    "line": 8660,
+    "line": 8562,
+    "module": "spacr.plot",
+    "nested": false,
+    "qualname": "plot_data_from_db"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "data_column",
+    "line": 8661,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -12365,7 +12365,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "data_column",
-    "line": 8665,
+    "line": 8666,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -12374,7 +12374,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "data_column",
-    "line": 8665,
+    "line": 8666,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -12383,7 +12383,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "data_column",
-    "line": 8672,
+    "line": 8673,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -12392,19 +12392,10 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "data_column",
-    "line": 8675,
+    "line": 8676,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "data_column",
-    "line": 8990,
-    "module": "spacr.plot",
-    "nested": false,
-    "qualname": "graph_importance"
    },
    {
     "form": "subscript",
@@ -12416,10 +12407,19 @@
     "qualname": "graph_importance"
    },
    {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "data_column",
+    "line": 8992,
+    "module": "spacr.plot",
+    "nested": false,
+    "qualname": "graph_importance"
+   },
+   {
     "form": "keyword",
     "function_depth": 1,
     "key": "data_column",
-    "line": 8996,
+    "line": 8997,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "graph_importance"
@@ -12428,7 +12428,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "data_column",
-    "line": 8999,
+    "line": 9000,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "graph_importance"
@@ -13036,7 +13036,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "dependent_variable",
-    "line": 2121,
+    "line": 2127,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_regression_plan"
@@ -13083,7 +13083,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "dialate_png_ratios",
-    "line": 1782,
+    "line": 1788,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_app_specific"
@@ -13130,7 +13130,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "dialate_pngs",
-    "line": 1783,
+    "line": 1789,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_app_specific"
@@ -13641,7 +13641,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "dst",
-    "line": 8479,
+    "line": 8480,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -15661,7 +15661,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "figuresize",
-    "line": 4953,
+    "line": 4954,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -15670,7 +15670,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "figuresize",
-    "line": 4957,
+    "line": 4958,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -16165,7 +16165,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "filter_min_max",
-    "line": 4939,
+    "line": 4940,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -16174,7 +16174,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "filter_min_max",
-    "line": 4940,
+    "line": 4941,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -16765,7 +16765,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "generate_training_dataset",
-    "line": 1606,
+    "line": 1612,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_required_paths"
@@ -17180,7 +17180,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "green_channel",
-    "line": 2155,
+    "line": 2161,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -18147,7 +18147,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "hit_direction",
-    "line": 1723,
+    "line": 1729,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_app_specific"
@@ -20416,7 +20416,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "infection_pca_method",
-    "line": 2171,
+    "line": 2177,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -21487,7 +21487,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "inputs",
-    "line": 1570,
+    "line": 1576,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_required_paths"
@@ -22016,7 +22016,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "isomap_path_method",
-    "line": 2171,
+    "line": 2177,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -23020,7 +23020,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "log_x",
-    "line": 8672,
+    "line": 8673,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -23029,7 +23029,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "log_x",
-    "line": 8684,
+    "line": 8685,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -23067,7 +23067,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "log_y",
-    "line": 8672,
+    "line": 8673,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -23076,7 +23076,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "log_y",
-    "line": 8683,
+    "line": 8684,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -23435,7 +23435,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "magnification",
-    "line": 2162,
+    "line": 2168,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -23444,7 +23444,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "magnification",
-    "line": 2166,
+    "line": 2172,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -23815,7 +23815,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "max_parasite_area",
-    "line": 1840,
+    "line": 1846,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_app_specific"
@@ -23862,7 +23862,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "max_parasites_per_vacuole",
-    "line": 1809,
+    "line": 1815,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_app_specific"
@@ -25208,7 +25208,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "min_parasite_area",
-    "line": 1839,
+    "line": 1845,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_app_specific"
@@ -25505,7 +25505,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "mode",
-    "line": 8770,
+    "line": 8771,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -25514,7 +25514,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "mode",
-    "line": 8779,
+    "line": 8780,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -26371,7 +26371,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "multiple_testing_method",
-    "line": 12458,
+    "line": 12457,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_refit"
@@ -26434,7 +26434,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "multiple_testing_method",
-    "line": 2171,
+    "line": 2177,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -26995,7 +26995,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 10915,
+    "line": 10914,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -27004,7 +27004,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 10918,
+    "line": 10917,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -27013,7 +27013,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 10931,
+    "line": 10930,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -27211,7 +27211,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 2230,
+    "line": 2236,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_workload"
@@ -27220,7 +27220,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 2427,
+    "line": 2433,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "describe_resources"
@@ -27805,7 +27805,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "non_power_of_two_warn",
-    "line": 1833,
+    "line": 1839,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_app_specific"
@@ -27928,7 +27928,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "normalization_percentiles",
-    "line": 4942,
+    "line": 4943,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -27937,7 +27937,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "normalization_percentiles",
-    "line": 4945,
+    "line": 4946,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -28254,7 +28254,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "normalize",
-    "line": 4942,
+    "line": 4943,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -28263,7 +28263,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "normalize",
-    "line": 4944,
+    "line": 4945,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -28272,7 +28272,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize",
-    "line": 10782,
+    "line": 10781,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._crop_choice_warnings"
@@ -28479,7 +28479,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize",
-    "line": 1762,
+    "line": 1768,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_app_specific"
@@ -28562,7 +28562,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize_by",
-    "line": 1769,
+    "line": 1775,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_app_specific"
@@ -28571,7 +28571,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize_by",
-    "line": 1772,
+    "line": 1778,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_app_specific"
@@ -28685,7 +28685,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nr",
-    "line": 4951,
+    "line": 4952,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -28777,7 +28777,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nuclei_limit",
-    "line": 4939,
+    "line": 4940,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -28786,7 +28786,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nuclei_limit",
-    "line": 4940,
+    "line": 4941,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -28795,7 +28795,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "nuclei_limit",
-    "line": 8491,
+    "line": 8492,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -28804,7 +28804,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nuclei_limit",
-    "line": 8494,
+    "line": 8495,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -29417,7 +29417,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 8770,
+    "line": 8771,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -29426,7 +29426,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 8773,
+    "line": 8774,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -29507,7 +29507,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 2155,
+    "line": 2161,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -29653,7 +29653,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_diameter",
-    "line": 2159,
+    "line": 2165,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -30003,7 +30003,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 4918,
+    "line": 4919,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -30012,7 +30012,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 4937,
+    "line": 4938,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -30021,7 +30021,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 4940,
+    "line": 4941,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -30066,7 +30066,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 2174,
+    "line": 2180,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -30205,7 +30205,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_min_size",
-    "line": 2178,
+    "line": 2184,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -31580,7 +31580,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_channel",
-    "line": 2155,
+    "line": 2161,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -31820,7 +31820,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_diameter",
-    "line": 2159,
+    "line": 2165,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -32463,7 +32463,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_mask_dim",
-    "line": 2174,
+    "line": 2180,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -32615,7 +32615,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_method",
-    "line": 4278,
+    "line": 4279,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_organelle_output"
@@ -32642,7 +32642,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_method",
-    "line": 2171,
+    "line": 2177,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -32949,7 +32949,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_morphology",
-    "line": 4277,
+    "line": 4278,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_organelle_output"
@@ -33235,7 +33235,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_ring_fill_method",
-    "line": 2171,
+    "line": 2177,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -33841,7 +33841,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_channel",
-    "line": 2155,
+    "line": 2161,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -33978,7 +33978,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_diameter",
-    "line": 2159,
+    "line": 2165,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -34162,7 +34162,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_mask_dim",
-    "line": 2174,
+    "line": 2180,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -34213,7 +34213,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_method",
-    "line": 2171,
+    "line": 2177,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -34375,7 +34375,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_ring_fill_method",
-    "line": 2171,
+    "line": 2177,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -34682,7 +34682,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_channel",
-    "line": 2155,
+    "line": 2161,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -34819,7 +34819,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_diameter",
-    "line": 2159,
+    "line": 2165,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -35003,7 +35003,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_mask_dim",
-    "line": 2174,
+    "line": 2180,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -35054,7 +35054,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_method",
-    "line": 2171,
+    "line": 2177,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -35216,7 +35216,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_ring_fill_method",
-    "line": 2171,
+    "line": 2177,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -35523,7 +35523,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_channel",
-    "line": 2155,
+    "line": 2161,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -35660,7 +35660,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_diameter",
-    "line": 2159,
+    "line": 2165,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -35844,7 +35844,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_mask_dim",
-    "line": 2174,
+    "line": 2180,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -35895,7 +35895,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_method",
-    "line": 2171,
+    "line": 2177,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -36057,7 +36057,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_ring_fill_method",
-    "line": 2171,
+    "line": 2177,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -36148,7 +36148,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "outline_color",
-    "line": 4914,
+    "line": 4915,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -36217,7 +36217,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "outline_thickness",
-    "line": 4942,
+    "line": 4943,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -36226,7 +36226,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "outline_thickness",
-    "line": 4950,
+    "line": 4951,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -36502,7 +36502,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "outside_channel",
-    "line": 2155,
+    "line": 2161,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -36578,7 +36578,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "outside_threshold_method",
-    "line": 2171,
+    "line": 2177,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -36607,7 +36607,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "overlay",
-    "line": 4942,
+    "line": 4943,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -36616,7 +36616,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "overlay",
-    "line": 4946,
+    "line": 4947,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -36625,7 +36625,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "overlay",
-    "line": 4953,
+    "line": 4954,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -36634,7 +36634,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "overlay",
-    "line": 4953,
+    "line": 4954,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -36663,7 +36663,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "overlay_chans",
-    "line": 4942,
+    "line": 4943,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -36672,7 +36672,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "overlay_chans",
-    "line": 4947,
+    "line": 4948,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -36851,7 +36851,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 13855,
+    "line": 13854,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
@@ -36905,7 +36905,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 2094,
+    "line": 2100,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_regression_plan"
@@ -37488,7 +37488,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 8770,
+    "line": 8771,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -37497,7 +37497,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 8774,
+    "line": 8775,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -37587,7 +37587,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 1734,
+    "line": 1740,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_app_specific"
@@ -37596,7 +37596,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 2155,
+    "line": 2161,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -37742,7 +37742,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_diameter",
-    "line": 2159,
+    "line": 2165,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -37919,7 +37919,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_limit",
-    "line": 4927,
+    "line": 4928,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -37928,16 +37928,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_limit",
-    "line": 4935,
-    "module": "spacr.plot",
-    "nested": false,
-    "qualname": "plot_merged"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "pathogen_limit",
-    "line": 4939,
+    "line": 4936,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -37952,10 +37943,19 @@
     "qualname": "plot_merged"
    },
    {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "pathogen_limit",
+    "line": 4941,
+    "module": "spacr.plot",
+    "nested": false,
+    "qualname": "plot_merged"
+   },
+   {
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_limit",
-    "line": 8491,
+    "line": 8492,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -37964,7 +37964,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_limit",
-    "line": 8495,
+    "line": 8496,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -38355,7 +38355,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 4919,
+    "line": 4920,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -38364,16 +38364,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 4926,
-    "module": "spacr.plot",
-    "nested": false,
-    "qualname": "plot_merged"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "pathogen_mask_dim",
-    "line": 4936,
+    "line": 4927,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -38391,7 +38382,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 4940,
+    "line": 4938,
+    "module": "spacr.plot",
+    "nested": false,
+    "qualname": "plot_merged"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "pathogen_mask_dim",
+    "line": 4941,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -38436,7 +38436,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 2174,
+    "line": 2180,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -38575,7 +38575,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_min_size",
-    "line": 2178,
+    "line": 2184,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -38676,7 +38676,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_model",
-    "line": 1735,
+    "line": 1741,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_app_specific"
@@ -38685,7 +38685,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_model",
-    "line": 2167,
+    "line": 2173,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -38754,7 +38754,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_plate_metadata",
-    "line": 8497,
+    "line": 8498,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -38763,7 +38763,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_plate_metadata",
-    "line": 8501,
+    "line": 8502,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -39095,7 +39095,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 8497,
+    "line": 8498,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -39104,7 +39104,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 8500,
+    "line": 8501,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -39382,7 +39382,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 8759,
+    "line": 8760,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -39391,7 +39391,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 8759,
+    "line": 8760,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -39400,7 +39400,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 8764,
+    "line": 8765,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -39409,7 +39409,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 8764,
+    "line": 8765,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -39418,7 +39418,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 8770,
+    "line": 8771,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -39427,7 +39427,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 8776,
+    "line": 8777,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -41370,7 +41370,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "png_size",
-    "line": 2063,
+    "line": 2069,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "describe_plan"
@@ -42187,7 +42187,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "preview_only",
-    "line": 1561,
+    "line": 1567,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_required_paths"
@@ -42680,7 +42680,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "psf_operation",
-    "line": 1662,
+    "line": 1668,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_app_specific"
@@ -42936,7 +42936,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ram_guard",
-    "line": 10899,
+    "line": 10898,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -42945,7 +42945,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ram_guard",
-    "line": 10934,
+    "line": 10933,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -43681,7 +43681,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "red_channel",
-    "line": 2155,
+    "line": 2161,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -43836,7 +43836,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "reduction_method",
-    "line": 2171,
+    "line": 2177,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -44219,7 +44219,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 12457,
+    "line": 12456,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_refit"
@@ -44536,7 +44536,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "remove_background",
-    "line": 4942,
+    "line": 4943,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -44545,7 +44545,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "remove_background",
-    "line": 4943,
+    "line": 4944,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -44958,7 +44958,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "replication_method",
-    "line": 2171,
+    "line": 2177,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -45177,7 +45177,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "results_folder",
-    "line": 1713,
+    "line": 1719,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_app_specific"
@@ -46275,7 +46275,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "save",
-    "line": 8558,
+    "line": 8559,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -46284,7 +46284,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 8567,
+    "line": 8568,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -46293,7 +46293,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "save",
-    "line": 8672,
+    "line": 8673,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -46302,7 +46302,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 8681,
+    "line": 8682,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -46311,7 +46311,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "save",
-    "line": 8996,
+    "line": 8997,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "graph_importance"
@@ -46320,7 +46320,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 9005,
+    "line": 9006,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "graph_importance"
@@ -46894,7 +46894,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save_png",
-    "line": 2062,
+    "line": 2068,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "describe_plan"
@@ -46903,7 +46903,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save_png",
-    "line": 2201,
+    "line": 2207,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_outputs"
@@ -46912,7 +46912,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save_png",
-    "line": 2465,
+    "line": 2471,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "describe_resources"
@@ -47181,7 +47181,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "score_data",
-    "line": 2101,
+    "line": 2107,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_regression_plan"
@@ -47615,7 +47615,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "seg_qc_min_diameter",
-    "line": 2159,
+    "line": 2165,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -48395,7 +48395,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "spatial_diameter",
-    "line": 2159,
+    "line": 2165,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -50389,15 +50389,6 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8469,
-    "module": "spacr.plot",
-    "nested": false,
-    "qualname": "plot_data_from_db"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
     "line": 8470,
     "module": "spacr.plot",
     "nested": false,
@@ -50425,10 +50416,10 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8624,
+    "line": 8473,
     "module": "spacr.plot",
     "nested": false,
-    "qualname": "plot_data_from_csv"
+    "qualname": "plot_data_from_db"
    },
    {
     "form": "subscript",
@@ -50461,7 +50452,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8738,
+    "line": 8628,
+    "module": "spacr.plot",
+    "nested": false,
+    "qualname": "plot_data_from_csv"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 8739,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -50470,7 +50470,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8741,
+    "line": 8742,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -50479,7 +50479,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "src",
-    "line": 8743,
+    "line": 8744,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -50488,7 +50488,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8743,
+    "line": 8744,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -50497,7 +50497,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8747,
+    "line": 8748,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -50506,7 +50506,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8750,
+    "line": 8751,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -50515,7 +50515,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8782,
+    "line": 8783,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_region"
@@ -50524,7 +50524,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8978,
+    "line": 8979,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "graph_importance"
@@ -50632,7 +50632,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 10830,
+    "line": 10829,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_measure_plane_layout"
@@ -50641,7 +50641,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 10923,
+    "line": 10922,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -50650,7 +50650,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 11620,
+    "line": 11619,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._measurements_destination"
@@ -50659,7 +50659,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 12531,
+    "line": 12530,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._load_regression_results"
@@ -50668,7 +50668,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 12880,
+    "line": 12879,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._lock_analysis_now"
@@ -52153,7 +52153,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 2122,
+    "line": 2128,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_regression_plan"
@@ -52162,7 +52162,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 2189,
+    "line": 2195,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_outputs"
@@ -52352,7 +52352,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "stream_method",
-    "line": 2171,
+    "line": 2177,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -52564,7 +52564,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "surrogate_model",
-    "line": 1695,
+    "line": 1701,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_app_specific"
@@ -52693,7 +52693,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "surrogate_split_by",
-    "line": 1700,
+    "line": 1706,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_app_specific"
@@ -53416,7 +53416,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "target_gene",
-    "line": 1719,
+    "line": 1725,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_app_specific"
@@ -53483,7 +53483,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "target_guides",
-    "line": 1719,
+    "line": 1725,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_app_specific"
@@ -54088,7 +54088,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "test",
-    "line": 1607,
+    "line": 1613,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_required_paths"
@@ -54292,7 +54292,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "test_mode",
-    "line": 2074,
+    "line": 2080,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "describe_plan"
@@ -54748,7 +54748,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "threshold_method",
-    "line": 2171,
+    "line": 2177,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -57194,7 +57194,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "total_channel",
-    "line": 2155,
+    "line": 2161,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -57411,7 +57411,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "train",
-    "line": 1606,
+    "line": 1612,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_required_paths"
@@ -57734,7 +57734,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 8497,
+    "line": 8498,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -57743,7 +57743,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 8503,
+    "line": 8504,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -57979,7 +57979,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "treatments",
-    "line": 8497,
+    "line": 8498,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -57988,7 +57988,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "treatments",
-    "line": 8502,
+    "line": 8503,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -58777,7 +58777,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "use_bounding_box",
-    "line": 10793,
+    "line": 10792,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._crop_choice_warnings"
@@ -58945,7 +58945,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "vacuole_link_distance",
-    "line": 1826,
+    "line": 1832,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_app_specific"
@@ -58992,7 +58992,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "vacuole_link_factor",
-    "line": 1818,
+    "line": 1824,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_app_specific"
@@ -59673,7 +59673,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 4923,
+    "line": 4924,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_merged"
@@ -59682,7 +59682,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "verbose",
-    "line": 8491,
+    "line": 8492,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -59691,7 +59691,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 8493,
+    "line": 8494,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_db"
@@ -59700,7 +59700,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 8662,
+    "line": 8663,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_data_from_csv"
@@ -59709,7 +59709,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "verbose",
-    "line": 9232,
+    "line": 9233,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_proportion_stacked_bars"
@@ -59718,7 +59718,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 9232,
+    "line": 9233,
     "module": "spacr.plot",
     "nested": false,
     "qualname": "plot_proportion_stacked_bars"
@@ -60478,7 +60478,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "viability_dead_channel",
-    "line": 2155,
+    "line": 2161,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -60678,7 +60678,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "viability_live_channel",
-    "line": 2155,
+    "line": 2161,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
@@ -61759,7 +61759,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "wound_channel",
-    "line": 2155,
+    "line": 2161,
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
