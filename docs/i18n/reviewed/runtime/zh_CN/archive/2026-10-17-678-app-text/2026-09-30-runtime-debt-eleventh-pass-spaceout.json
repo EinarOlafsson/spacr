@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, eleventh pass 2026-10-01: Spaceout's Magnifier size slider and its help, and the rewritten camera-path description (items 604-606), written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Magnifier size",
+      "source": "Magnifier size",
+      "source_sha256": "ac81ccf39c390183a17bf2ca5a47a7a1b13f19b282f8a5d02d0e180ee474eeba",
+      "translation": "放大镜大小"
+    },
+    {
+      "table": "ui",
+      "key": "How big the magnifying glass under the pointer is, as a share of its usual size. The whole lens scales together: the bulge under the cursor and the soft edge around it. 25% is a small loupe; 300% bends most of the window. Applies wherever the pointer bends the picture: both orbit folds, and the cascade and space on the GPU renderer. The Mandelbrot is dragged instead. Default 100%.",
+      "source": "How big the magnifying glass under the pointer is, as a share of its usual size. The whole lens scales together: the bulge under the cursor and the soft edge around it. 25% is a small loupe; 300% bends most of the window. Applies wherever the pointer bends the picture: both orbit folds, and the cascade and space on the GPU renderer. The Mandelbrot is dragged instead. Default 100%.",
+      "source_sha256": "d8ba2a6891810350357555ec889c14e254e9686a56909c1556c0fb26fc9ac7aa",
+      "translation": "指针下放大镜的大小，以其常规大小的比例表示。整个镜片一起缩放：光标下的凸起及其周围的柔和边缘。25% 是一个小放大镜；300% 会使窗口大部分弯曲。凡是指针使画面弯曲之处均适用：两种轨道折叠，以及 GPU 渲染器中的级联和太空。Mandelbrot 则改为拖动。默认值 100%。"
+    },
+    {
+      "table": "ui",
+      "key": "Straight down descends to one point on the boundary and stays pointed at it — the steadiest picture, and what the published settings use.\n\nSearch as it goes looks for somewhere more interesting every so often and moves the camera onto it. It finds more variety, and moving the camera is visible: the Steering control below sets how much.\n\nTour the interesting places measures the view as it descends and glides toward the part with the most colours in it, never toward a single-colour patch. The camera eases in and out of every move and turns away before the detail runs out, and at the end of a dive it glides back up. Dragging the view stops the tour; Ctrl+R hands the camera back to it.",
+      "source": "Straight down descends to one point on the boundary and stays pointed at it — the steadiest picture, and what the published settings use.\n\nSearch as it goes looks for somewhere more interesting every so often and moves the camera onto it. It finds more variety, and moving the camera is visible: the Steering control below sets how much.\n\nTour the interesting places measures the view as it descends and glides toward the part with the most colours in it, never toward a single-colour patch. The camera eases in and out of every move and turns away before the detail runs out, and at the end of a dive it glides back up. Dragging the view stops the tour; Ctrl+R hands the camera back to it.",
+      "source_sha256": "2bb17930bf3f6e4cfa74b3efe32ccabdb5dd57237615690d25596af7f376d41a",
+      "translation": "直线下降 朝边界上的一个点下降并始终对准它——画面最稳定，也是已发布设置所用的方式。\n\n边走边找 会不时寻找更有趣的地方并把镜头移过去。它能找到更多变化，镜头的移动也看得见：下方的“转向”控件决定幅度。\n\n巡游有趣之处 在下降时测量画面，并滑向颜色最多的部分，绝不滑向单色区域。镜头在每次移动中都平缓进出，在细节耗尽前转开，并在一次下潜结束时滑回上方。拖动画面会停止巡游；Ctrl+R 把镜头交还给它。"
+    }
+  ]
+}

@@ -18463,10 +18463,10 @@ class MakeMasksScreen(QWidget):
         self._cp_diameter.setSingleStep(5)
         self._cp_diameter.setValue(0)
         self._cp_diameter.setToolTip(
-            "Expected object diameter in pixels; 0 lets Cellpose work it "
-            "out. It is the one pre-SAM sizing setting Cellpose 4 still "
-            "honours — it rescales the image by 30/diameter — so it is the "
-            "control to reach for when objects come out split or fused.")
+            "Expected object diameter in pixels; 0 lets Cellpose estimate "
+            "it. It is the only pre-SAM sizing setting that Cellpose 4 still "
+            "uses, and it rescales the image by 30/diameter. Adjust it when "
+            "objects are split or fused.")
         form.addRow("Diameter (px)", self._cp_diameter)
 
         self._cp_stitch = QDoubleSpinBox()

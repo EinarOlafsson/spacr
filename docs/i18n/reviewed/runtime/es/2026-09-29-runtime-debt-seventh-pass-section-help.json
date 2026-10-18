@@ -34,13 +34,6 @@
     },
     {
       "table": "categories",
-      "key": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
-      "source": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
-      "source_sha256": "34babb31a1abe0efed53f7756c9d2080fae0afb90ed65a68a73f053bdad980ea",
-      "translation": "Leer la placa directamente del almacenamiento en la nube: credenciales, punto de conexión y caché local, y la carpeta en la nube a la que se copian las mediciones al terminar la ejecución. No lo modifique para una placa en el disco local."
-    },
-    {
-      "table": "categories",
       "key": "The folder holding the masked images, the experiment name the measurements are filed under, and the small test run and plots used to check a configuration before committing to a whole plate.",
       "source": "The folder holding the masked images, the experiment name the measurements are filed under, and the small test run and plots used to check a configuration before committing to a whole plate.",
       "source_sha256": "03814a8777e690d1aad1793b7b81835892878929c1bf04c9ad238edf00c8d79f",
@@ -66,6 +59,16 @@
       "source": "Which families of measurement are computed for every object -- intensity, morphology, texture, radial distribution and colocalisation -- and the assays read from them, such as confluency, cell cycle, wound closure, viability and time to event. More features means a wider table and a longer run.",
       "source_sha256": "3acf56bad6bcc69406fc99cb3a64854cd0070e8578eb7284f3c5920d0707eeab",
       "translation": "Qué familias de mediciones se calculan para cada objeto (intensidad, morfología, textura, distribución radial y colocalización) y los ensayos que se leen de ellas, como confluencia, ciclo celular, cierre de la herida, viabilidad y tiempo hasta el evento. Más características implican una tabla más ancha y una ejecución más larga."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "categories",
+      "key": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
+      "source": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
+      "source_sha256": "34babb31a1abe0efed53f7756c9d2080fae0afb90ed65a68a73f053bdad980ea",
+      "translation": "Leer la placa directamente del almacenamiento en la nube: credenciales, punto de conexión y caché local, y la carpeta en la nube a la que se copian las mediciones al terminar la ejecución. No lo modifique para una placa en el disco local.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ]
 }

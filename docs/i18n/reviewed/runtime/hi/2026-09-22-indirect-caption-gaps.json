@@ -2,20 +2,6 @@
   "language": "hi",
   "records": [
     {
-      "key": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
-      "source": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
-      "source_sha256": "76f9b791dc6fdf81403247e35f5a0d4fb07ef24a9e6d4779296f00e32a2b1bc1",
-      "table": "ui",
-      "translation": "साफ़ रात: नील, बैंगनी, बर्फ़ीला नीला और वह हल्का नीला-बैंगनी रंग जो सूरज डूबने के बहुत देर बाद तक आकाश में रहता है।"
-    },
-    {
-      "key": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
-      "source": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
-      "source_sha256": "e1c260e64d1db89801b85b5c7f46f697032a54d4b73f94cf1b7804fab762c851",
-      "table": "ui",
-      "translation": "क्षितिज के पास सूरज और वे पदार्थ जिनसे होकर उसका प्रकाश आता है: सुनहरा, अंबर, हल्का सुनहरा और काई जैसा हरा।"
-    },
-    {
       "key": "Deep water",
       "source": "Deep water",
       "source_sha256": "97c373b8cd487210fc0e6cf4636ded5e7cf7bc1648c96953b431e7176542e7de",
@@ -105,20 +91,6 @@
       "source_sha256": "ad110d7e4a316c0571044afa95d2aaac8bc30fb4555ad5a5a7926999778d5479",
       "table": "ui",
       "translation": "फ़ाइलें"
-    },
-    {
-      "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
-      "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
-      "source_sha256": "6d9ba2d1c431df1340986ea4498f6c1e37074263b70061aa038865a38fb08e1f",
-      "table": "ui",
-      "translation": "आकाश का आख़िरी रंग — धूसर सुनहरे पर गुलाबी और मैजेंटा, साथ में वह आलूबुखारे जैसा बैंगनी जो अँधेरा होने से ठीक पहले क्षितिज पर आता है।"
-    },
-    {
-      "key": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
-      "source": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
-      "source_sha256": "db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9",
-      "table": "ui",
-      "translation": "सतह के नीचे: समुद्री हरा, पुदीना हरा और वह गहरा नीला-हरा जो सभी गर्म रंग अवशोषित हो जाने के बाद आख़िर में बचता है।"
     }
   ],
   "retired_records": [
@@ -131,6 +103,38 @@
         "table": "ui",
         "translation": "अनुनाद"
       }
+    },
+    {
+      "key": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "source": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "source_sha256": "76f9b791dc6fdf81403247e35f5a0d4fb07ef24a9e6d4779296f00e32a2b1bc1",
+      "table": "ui",
+      "translation": "साफ़ रात: नील, बैंगनी, बर्फ़ीला नीला और वह हल्का नीला-बैंगनी रंग जो सूरज डूबने के बहुत देर बाद तक आकाश में रहता है।",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "source": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "source_sha256": "e1c260e64d1db89801b85b5c7f46f697032a54d4b73f94cf1b7804fab762c851",
+      "table": "ui",
+      "translation": "क्षितिज के पास सूरज और वे पदार्थ जिनसे होकर उसका प्रकाश आता है: सुनहरा, अंबर, हल्का सुनहरा और काई जैसा हरा।",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "source_sha256": "6d9ba2d1c431df1340986ea4498f6c1e37074263b70061aa038865a38fb08e1f",
+      "table": "ui",
+      "translation": "आकाश का आख़िरी रंग — धूसर सुनहरे पर गुलाबी और मैजेंटा, साथ में वह आलूबुखारे जैसा बैंगनी जो अँधेरा होने से ठीक पहले क्षितिज पर आता है।",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "source": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "source_sha256": "db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9",
+      "table": "ui",
+      "translation": "सतह के नीचे: समुद्री हरा, पुदीना हरा और वह गहरा नीला-हरा जो सभी गर्म रंग अवशोषित हो जाने के बाद आख़िर में बचता है।",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ],
   "review_kind": "AI-assisted linguistic and technical review of source-bound missing indirect captions; no native-speaker sign-off",

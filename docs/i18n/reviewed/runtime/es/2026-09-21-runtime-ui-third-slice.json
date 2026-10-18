@@ -387,13 +387,6 @@
       "translation": "Los archivos"
     },
     {
-      "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
-      "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
-      "source_sha256": "6d9ba2d1c431df1340986ea4498f6c1e37074263b70061aa038865a38fb08e1f",
-      "table": "ui",
-      "translation": "El último color del cielo: rosa y magenta sobre dorado apagado, con el tono ciruela del horizonte justo antes de anochecer."
-    },
-    {
       "key": "The published documentation is not reachable from here, so this is the description stored with the code on this machine.",
       "source": "The published documentation is not reachable from here, so this is the description stored with the code on this machine.",
       "source_sha256": "7331a69c7b5b6932ebc5198d0d93a5bd8439856e36b319563a8b4f02ec554781",
@@ -580,6 +573,14 @@
       "table": "ui",
       "translation": "Muestra u oculta todos los ajustes como un solo grupo: pincel, varita, visualización, filtrado automático, operaciones de objetos, Otsu, detección de objetos y lupa en tiempo real. El lienzo ocupa el ancho que dejan libre.",
       "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
+    },
+    {
+      "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "source_sha256": "6d9ba2d1c431df1340986ea4498f6c1e37074263b70061aa038865a38fb08e1f",
+      "table": "ui",
+      "translation": "El último color del cielo: rosa y magenta sobre dorado apagado, con el tono ciruela del horizonte justo antes de anochecer.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",

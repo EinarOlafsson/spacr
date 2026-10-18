@@ -2924,9 +2924,9 @@ class _FigureSettingsDialog(QDialog):
         self._size_touched = False
         self._size.valueChanged.connect(self._on_size_changed)
         self._size.setToolTip(
-            "The text size EVERY figure is drawn at. Leave it alone to keep "
-            "each figure the sizes it was drawn with. One figure on its own "
-            "is resized from its right-click menu, under Figure settings.")
+            "The text size used for every figure. Leave it unchanged to keep "
+            "each figure's own text sizes. To resize one figure, use its "
+            "right-click menu, under Figure settings.")
         form.addRow("Text size", self._size)
 
         self._umap_settings = None

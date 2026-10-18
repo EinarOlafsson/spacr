@@ -95,13 +95,6 @@
     },
     {
       "table": "ui",
-      "key": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
-      "source": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
-      "translation": "Bajo la superficie: verde mar, menta y el verde azulado que queda cuando se han absorbido todos los tonos cálidos.",
-      "source_sha256": "db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9"
-    },
-    {
-      "table": "ui",
       "key": "Uninstall",
       "source": "Uninstall",
       "translation": "Desinstalar",
@@ -211,13 +204,6 @@
       "source": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out, and choosing it downloads it and selects it.",
       "translation": "Pesos que segmentan este campo y el recuadro de la lupa en tiempo real en modo Cellpose. La lista incluye Cellpose instalado en este equipo y todos los modelos Cellpose del catálogo de modelos. Los modelos aún no descargados aparecen atenuados; al elegir uno, se descarga y se selecciona.",
       "source_sha256": "406caca240941dc57c44e01ae800757398c20452c7f30462615747a69c7d81ce"
-    },
-    {
-      "table": "ui",
-      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
-      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
-      "translation": "Mientras el registro detallado esté activado en la pestaña Módulos, DEBUG siempre se escribe en los archivos de registro, por lo que esta opción permanece activada. Desactive el registro detallado para poder elegirla. Se conserva su elección para cuando lo desactive.",
-      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2"
     },
     {
       "table": "ui",
@@ -540,6 +526,22 @@
         "translation": "La sesión de {label} está iniciada y lista.",
         "source_sha256": "bb5fc33dbf7cd3f9ab2ba87cf48e7575a1a6c18bae01c505d0eac9a54028cfce"
       }
+    },
+    {
+      "table": "ui",
+      "key": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "source": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "translation": "Bajo la superficie: verde mar, menta y el verde azulado que queda cuando se han absorbido todos los tonos cálidos.",
+      "source_sha256": "db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "translation": "Mientras el registro detallado esté activado en la pestaña Módulos, DEBUG siempre se escribe en los archivos de registro, por lo que esta opción permanece activada. Desactive el registro detallado para poder elegirla. Se conserva su elección para cuando lo desactive.",
+      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ]
 }

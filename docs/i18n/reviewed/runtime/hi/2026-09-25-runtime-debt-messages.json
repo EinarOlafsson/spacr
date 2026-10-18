@@ -62,24 +62,10 @@
     },
     {
       "table": "ui",
-      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
-      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
-      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e",
-      "translation": "एक चढ़ता आर्पेजियो जो किसी मॉड्यूल का रन सफलतापूर्वक पूरा होने पर स्वर के मूल सुर पर ठहरता है, उस स्थिति के लिए जब spaCR किसी अन्य विंडो में हो।"
-    },
-    {
-      "table": "ui",
       "key": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in ParaScape. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
       "source": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in ParaScape. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
       "source_sha256": "7b9e5166e7e57a405fb01a52f6d63240635b0e3fd817e9e366772dc51c55759d",
       "translation": "एक साझा एपिकॉम्प्लेक्सन कोशिका योजना, जो ParaScape में भी उपयोग होने वाले SwissBioPics चित्र का उपयोग करती है। UniProt के स्थान विवरण के लिए पॉइंटर रखें और कई कक्षों को हाइलाइट बनाए रखने के लिए उन पर चिह्न लगाएँ। परजीवी का आकार और कोशिकांगों का संगठन प्रजाति और जीवन-चक्र अवस्था के अनुसार बदलता है; यह रक्त-अवस्था का पुनर्निर्माण नहीं है। Toxoplasma hyperLOPIT निर्धारण Plasmodium पर लागू नहीं किए जाते।"
-    },
-    {
-      "table": "ui",
-      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
-      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
-      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da",
-      "translation": "जब आप कोई बटन, स्विच, टैब, सूची या स्लाइडर दबाते हैं, तो ध्वनि सेट के स्वर में एक छोटी, धीमी झंकार: पुष्टि कि दबाव दर्ज हुआ, सुनाई से अधिक महसूस होने वाली।"
     },
     {
       "table": "ui",
@@ -101,13 +87,6 @@
       "source": "A template is this module's settings under a name you chose. Save one when a plate is set up the way you want it; apply it next time instead of retyping.",
       "source_sha256": "618f7f8a5b0918ff977313cc4b6337576019ad75e01050e8fae4aba93c179c0d",
       "translation": "टेम्पलेट इस मॉड्यूल की सेटिंग्स हैं, आपके चुने नाम से। जब कोई प्लेट आपकी इच्छानुसार सेट हो, तब एक सहेजें; अगली बार फिर से टाइप करने के बजाय उसे लागू करें।"
-    },
-    {
-      "table": "ui",
-      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
-      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
-      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978",
-      "translation": "~/.spacr/logs की लॉग फ़ाइलों में spaCR के DEBUG संदेश जोड़ता है। इससे cellpose यह भी बता पाता है कि उसने कौन-सा मॉडल लोड किया, और यह दर्ज होता है कि आपने कौन-से बटन दबाए। यही सिलसिला किसी बग रिपोर्ट को पढ़ने योग्य बनाता है।\n\nइसके चालू रहने पर spaCR शुरू करने और उसके पेज खोलने में अधिक समय नहीं लगा। यह एक वर्कस्टेशन पर हर मॉड्यूल को एक बार इसे चालू और एक बार बंद रखकर खोलकर मापा गया। दोनों स्थितियों में कोल्ड स्टार्ट के बाद मुखपृष्ठ लगभग 4 सेकंड में तैयार था। सबसे धीमा मॉड्यूल दोनों स्थितियों में लगभग 7 सेकंड में खुला। पाइपलाइन रन का समय नहीं मापा गया।\n\nकंसोल अब भी केवल वही स्तर दिखाता है जिन्हें आप लॉगिंग टैब पर उसके लिए चालू करते हैं। यह स्विच हर फ़ंक्शन कॉल का अनुरेखण नहीं करता। वह अनुरेखक डेवलपर के लिए एक अलग टूल है, और यहाँ की कोई चीज़ उसे चालू नहीं करती।"
     },
     {
       "table": "ui",
@@ -2032,6 +2011,30 @@
         "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2",
         "translation": "npm को उसके वैश्विक फ़ोल्डर में लिखने की अनुमति नहीं मिली। टर्मिनल में एक बार `npm config set prefix ~/.local` चलाएँ ताकि npm आपके स्वामित्व वाले फ़ोल्डर में इंस्टॉल करे, फिर फिर कोशिश करें दबाएँ।"
       }
+    },
+    {
+      "table": "ui",
+      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e",
+      "translation": "एक चढ़ता आर्पेजियो जो किसी मॉड्यूल का रन सफलतापूर्वक पूरा होने पर स्वर के मूल सुर पर ठहरता है, उस स्थिति के लिए जब spaCR किसी अन्य विंडो में हो।",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da",
+      "translation": "जब आप कोई बटन, स्विच, टैब, सूची या स्लाइडर दबाते हैं, तो ध्वनि सेट के स्वर में एक छोटी, धीमी झंकार: पुष्टि कि दबाव दर्ज हुआ, सुनाई से अधिक महसूस होने वाली।",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978",
+      "translation": "~/.spacr/logs की लॉग फ़ाइलों में spaCR के DEBUG संदेश जोड़ता है। इससे cellpose यह भी बता पाता है कि उसने कौन-सा मॉडल लोड किया, और यह दर्ज होता है कि आपने कौन-से बटन दबाए। यही सिलसिला किसी बग रिपोर्ट को पढ़ने योग्य बनाता है।\n\nइसके चालू रहने पर spaCR शुरू करने और उसके पेज खोलने में अधिक समय नहीं लगा। यह एक वर्कस्टेशन पर हर मॉड्यूल को एक बार इसे चालू और एक बार बंद रखकर खोलकर मापा गया। दोनों स्थितियों में कोल्ड स्टार्ट के बाद मुखपृष्ठ लगभग 4 सेकंड में तैयार था। सबसे धीमा मॉड्यूल दोनों स्थितियों में लगभग 7 सेकंड में खुला। पाइपलाइन रन का समय नहीं मापा गया।\n\nकंसोल अब भी केवल वही स्तर दिखाता है जिन्हें आप लॉगिंग टैब पर उसके लिए चालू करते हैं। यह स्विच हर फ़ंक्शन कॉल का अनुरेखण नहीं करता। वह अनुरेखक डेवलपर के लिए एक अलग टूल है, और यहाँ की कोई चीज़ उसे चालू नहीं करती।",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",

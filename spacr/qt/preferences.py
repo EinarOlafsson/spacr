@@ -8225,7 +8225,7 @@ PREFERENCE_TIPS = {
     "Scale": "A resource multiplier for the CPU renderer's internal resolution, applied before it adapts. Below 1.0 draws fewer pixels and scales them up; above 1.0 draws more. It does not change what the fractal looks like, only how finely it is sampled. The GPU renderer ignores it.",
     "Speed": "How fast the view travels inward. It scales the depth the fractal is sampled at, so a higher number moves through the structure sooner; it does not change the frame rate or the cost of a frame.",
     "Dream": "How much the pattern warps, drifts and shears as it travels. 0.0 is a still camera moving straight in; 1.5 is the default, and higher values exaggerate the motion without a fixed ceiling. It costs nothing extra to raise.",
-    "Variable speed": "Let the travel speed breathe instead of holding one value. It modulates the speed above rather than replacing it, so the number you set is still the middle of the range.",
+    "Variable speed": "Vary the travel speed over time instead of holding one value. It modulates the speed above rather than replacing it, so the number you set is still the middle of the range.",
     "Interface font": "The weight the interface is drawn in. spaCR ships Open Sans and uses it everywhere, so the application looks the same whatever fonts the machine has. Light is thinner and suits a large high-resolution display; Regular is easier to read on a small or low-resolution one. Bold stays available to anything that asks for emphasis.",
     "Animation speed": "Background-animation speed.",
     "Animation size": "Size of background shapes.",
@@ -9362,8 +9362,8 @@ class PreferencesDialog:
         _debug_file_toggle.setToolTip(tr(
             "While verbose logging is on (Modules tab), DEBUG is always "
             "written to the log files, so this switch stays on. Turn "
-            "verbose logging off to choose it yourself. Your own choice "
-            "is kept for when you do."))
+            "verbose logging off to set it yourself; your previous choice "
+            "is then restored."))
         _chosen_debug = [logging.DEBUG in _chosen_log_file_levels()]
 
         def _remember_the_debug_choice(checked) -> None:
@@ -10302,8 +10302,8 @@ class PreferencesDialog:
         verbose_check.setToolTip(tr(
             "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. "
             "It also lets cellpose report which model it loaded, and it "
-            "records which buttons you pressed. That trail is what makes a "
-            "bug report worth reading.\n\n"
+            "records which buttons you pressed. These records show the "
+            "steps that led to a problem in a bug report.\n\n"
             "Starting spaCR and opening its screens took no longer with "
             "this on. This was measured on one "
             "workstation by opening every module, once with this on and "
@@ -11057,13 +11057,11 @@ class PreferencesDialog:
             fractal_quality.setCurrentIndex(
                 max(0, fractal_quality.findData(_fractal_values["quality"])))
             fractal_quality.setToolTip(tr(
-                "A level is a set of numbers, not an adjective: choosing "
-                "one fills in supersampling, render scale, the iteration "
-                "budget and the scale below. Every one of them stays a "
-                "field you can then change — a level is a starting point, "
-                "not a lock.\n\n"
-                "Auto asks the machine instead, per backend, so it keeps "
-                "following the hardware rather than freezing an answer."))
+                "Each level sets supersampling, render scale, the iteration "
+                "budget and the scale below. Each of these remains a field "
+                "that can be changed after a level is chosen.\n\n"
+                "Auto chooses the values for each backend from the hardware "
+                "every time, instead of storing fixed values."))
             fractal.addRow(tr("Quality"), fractal_quality)
 
             def _tenths(name, value, low=None, high=None):
@@ -11137,10 +11135,11 @@ class PreferencesDialog:
                 "Straight down descends to one point on the boundary and "
                 "stays pointed at it — the steadiest picture, and what the "
                 "published settings use.\n\n"
-                "Search as it goes looks for somewhere more interesting "
-                "every so often and moves the camera onto it. It finds more "
-                "variety, and moving the camera is visible: the Steering "
-                "control below sets how much.\n\n"
+                "Search as it goes periodically scores several directions "
+                "around the centre by the set boundary they contain and "
+                "moves the camera toward the highest score. The camera "
+                "movement is visible; the Steering control below sets how "
+                "far each move reaches.\n\n"
                 "Tour the interesting places measures the view as it "
                 "descends and glides toward the part with the most colours "
                 "in it, never toward a single-colour patch. The camera "
@@ -11155,9 +11154,9 @@ class PreferencesDialog:
             fractal_steering.setRange(0.0, 1.0)
             fractal_steering.setSingleStep(0.05)
             fractal_steering.setToolTip(tr(
-                "How much the view wanders while it descends. 0 goes "
-                "straight down; 1 keeps looking for somewhere more "
-                "interesting.\n\n"
+                "How far the camera moves off a straight descent. 0 goes "
+                "straight down; 1 makes the largest moves toward set "
+                "boundary structure.\n\n"
                 "It sets how far each move reaches, how often one happens "
                 "and how long it takes, together — a move never takes more "
                 "than half the gap before the next, at any setting, so it "

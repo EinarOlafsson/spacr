@@ -2792,13 +2792,6 @@
     },
     {
       "table": "ui",
-      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
-      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
-      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2",
-      "translation": "상세 로그가 켜져 있는 동안(모듈 탭) DEBUG는 항상 로그 파일에 기록되므로 이 스위치는 켜진 상태로 유지됩니다. 직접 선택하려면 상세 로그를 끄세요. 그때를 위해 직접 선택한 값은 보관됩니다."
-    },
-    {
-      "table": "ui",
       "key": "Write the conditions and OK ticks to figure_annotations.csv in the source folder. The Figure-mode run reads it.",
       "source": "Write the conditions and OK ticks to figure_annotations.csv in the source folder. The Figure-mode run reads it.",
       "source_sha256": "d8229a4be8729ffabea08e0fcef6064cffc85a7787d02f745473556d886e6738",
@@ -3279,6 +3272,14 @@
         "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2",
         "translation": "npm이 전역 폴더에 쓸 권한이 없었습니다. 터미널에서 `npm config set prefix ~/.local`을 한 번 실행해 npm이 본인 소유 폴더에 설치하도록 한 다음 다시 시도를 누르세요."
       }
+    },
+    {
+      "table": "ui",
+      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2",
+      "translation": "상세 로그가 켜져 있는 동안(모듈 탭) DEBUG는 항상 로그 파일에 기록되므로 이 스위치는 켜진 상태로 유지됩니다. 직접 선택하려면 상세 로그를 끄세요. 그때를 위해 직접 선택한 값은 보관됩니다.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",

@@ -305,3 +305,9 @@ independent target peer are required before publication. No full translated
 HTML, hosted, native-speaker or tutorial acceptance is claimed.
 Evidence:data/655_678_features_guide_inputs_2026-10-15/ and
 data/655_678_features_guide_catalogs_2026-10-15/.
+
+2026-10-17 — Home app runtime English pass (maintainer split: Home owns app text).
+Rewrote 59 runtime strings as factual descriptions: settings-group help, preference,
+sound and fractal tooltips, night-theme and palette notes, drift options, diameter,
+figure text-size and Embeddings intro; nine-locale reviewed records added, 171
+superseded records archived. WS still owns docs, API docstrings and tutorials.
