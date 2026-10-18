@@ -2211,7 +2211,7 @@
       "label": "spacr.cancellation.cancellation_requested#0",
       "source": "Return whether the calling worker has a pending cancellation request.",
       "source_sha256": "a206995a25de0c374c6675a618391bdf9653481b3ac5c99d41d16f192f4b28a8",
-      "translation": "返回调用方工作线程是否有待处理的取消请求。"
+      "translation": "返回调用方工作进程是否有待处理的取消请求。"
     },
     {
       "context": "Throw :class:`PipelineCancelled` if this thread's token was cancelled.",
@@ -4143,7 +4143,7 @@
       "label": "spacr.cli_make_masks.hand_over#0",
       "source": "Leave ``queue`` for the next Make Masks screen that is built.",
       "source_sha256": "40caf946c9b4421d8b47e2654f3626cff9d263937c4662dbce436c3758243ba4",
-      "translation": "将 ``queue`` 留给下一个构建的 Make Masks 屏幕。"
+      "translation": "将 ``queue`` 留给下一个构建的 Make Masks 界面。"
     },
     {
       "context": "Whether there is a windowing system for the editor to open on.",
