@@ -1,6 +1,7 @@
 """A preference store that cannot be watched is opened afresh for each read.
 
-The kept per-thread store is reread when its file changes on disk. Where
+The kept per-thread store is reread when its file changes on disk, which
+it looks for once a second. Where
 there is no file to watch -- the Windows registry, the macOS preferences
 daemon, a file name the OS refuses -- the store is not kept, so a write by
 another process is never missed. Moving the settings folder counts as a
@@ -55,9 +56,12 @@ def test_a_kept_store_that_becomes_unwatchable_is_replaced(monkeypatch):
     monkeypatch.setattr(prefs, "_STORE", threading.local())
     states = {"value": ()}
     monkeypatch.setattr(prefs, "_store_file_state", lambda store: states["value"])
+    now = [1000.0]
+    monkeypatch.setattr(prefs, "_store_clock", lambda: now[0])
     kept = prefs._real_store()
     assert prefs._real_store() is kept
     states["value"] = None
+    now[0] += prefs._STORE_WATCH_SECONDS
     fresh = prefs._real_store()
     assert fresh is not kept and isinstance(fresh, QSettings)
     assert prefs._STORE.store is None

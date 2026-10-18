@@ -158,10 +158,13 @@ Values:
 from __future__ import annotations
 
 import contextlib
+import functools
+import itertools
 import logging
 import os
 import sys
 import threading
+import time
 
 from PySide6.QtCore import QSettings, Qt
 
@@ -816,13 +819,61 @@ def _store_file_state(store):
     return (stat.st_ino, stat.st_size, stat.st_mtime_ns)
 
 
+#: How often, in seconds, a thread's kept store looks at its file for a
+#: write from another process. A stat is a system call, and the backdrop
+#: and every theme lookup read a preference on each frame: under a busy
+#: worker holding the interpreter that was a 0.37 s stall in a paint. A
+#: value written in this process is seen at once whatever this says.
+_STORE_WATCH_SECONDS = 1.0
+
+#: The clock the watch above is timed by, replaceable in tests.
+_store_clock = time.monotonic
+
+#: Given a new value whenever any ``QSettings`` in this process writes, and
+#: whenever a kept store is opened or reloaded. :func:`_remembered` getters
+#: answer from memory only while it is unchanged. Each value comes from
+#: one counter, so two threads writing at once cannot share one.
+_STORE_GENERATIONS = itertools.count(1)
+_STORE_GENERATION = [0]
+
+#: ``getter name -> (context, value)`` for :func:`_remembered` getters.
+_REMEMBERED = {}
+
+
+def _count_store_writes() -> None:
+    """Make every ``QSettings`` write in this process bump the generation.
+
+    Idempotent. Every store on one file in this process shares Qt's copy,
+    so a write through any of them, here or in another module, changes
+    what a remembered getter would answer.
+    """
+    for name in ("setValue", "remove", "clear"):
+        original = getattr(QSettings, name)
+        if getattr(original, "_spacr_counts_writes", False):
+            continue
+
+        def write(self, *args, _original=original):
+            """Forward to Qt, then forget what was remembered."""
+            try:
+                return _original(self, *args)
+            finally:
+                _STORE_GENERATION[0] = next(_STORE_GENERATIONS)
+
+        write._spacr_counts_writes = True
+        setattr(QSettings, name, write)
+
+
+_count_store_writes()
+
+
 def _real_store() -> QSettings:
     """This thread's preference store, reread when another process wrote it.
 
     Every ``QSettings`` on one file in this process shares Qt's copy of it,
     so a value set through any of them is already visible here. A write from
-    another process changes the file; that is checked on every call and
-    reloaded with ``sync``, which is what opening a new store would do.
+    another process changes the file; that is checked at most once every
+    :data:`_STORE_WATCH_SECONDS` per thread and reloaded with ``sync``,
+    which is what opening a new store would do.
     """
     args = _store_args(_ORG, _APP)
     store = getattr(_STORE, "store", None)
@@ -834,9 +885,15 @@ def _real_store() -> QSettings:
         if state is None:
             _STORE.store = None
             return store
+        _STORE_GENERATION[0] = next(_STORE_GENERATIONS)
         _STORE.store, _STORE.args = store, args
         _STORE.moves, _STORE.state = _STORE_MOVES[0], state
+        _STORE.checked = _store_clock()
         return store
+    now = _store_clock()
+    if now - _STORE.checked < _STORE_WATCH_SECONDS:
+        return store
+    _STORE.checked = now
     state = _store_file_state(store)
     if state is None:
         _STORE.store = None
@@ -844,13 +901,75 @@ def _real_store() -> QSettings:
     if state != _STORE.state:
         store.sync()
         _STORE.state = _store_file_state(store)
+        _STORE_GENERATION[0] = next(_STORE_GENERATIONS)
     return store
+
+
+def _watch_store() -> None:
+    """Let this thread's store look for another process's write when due.
+
+    Costs one clock read between looks. A store that cannot be watched is
+    treated as changed at each look, so what is remembered from it is at
+    most :data:`_STORE_WATCH_SECONDS` old.
+    """
+    now = _store_clock()
+    if now - getattr(_STORE, "checked", float("-inf")) < _STORE_WATCH_SECONDS:
+        return
+    _real_store()
+    if getattr(_STORE, "store", None) is None:
+        _STORE_GENERATION[0] = next(_STORE_GENERATIONS)
+        _STORE.checked = now
+
+
+def _store_context() -> tuple:
+    """Everything besides the stored values that a remembered answer used."""
+    try:
+        from .theme import spaceout_enabled
+        spaceout = spaceout_enabled()
+    except Exception:
+        spaceout = None
+    environ = os.environ
+    return (_STORE_GENERATION[0], _STORE_MOVES[0], _SAFE_MODE, _ORG, _APP,
+            QSettings, _real_store, spaceout,
+            environ.get("SPACR_PORTABLE"), environ.get("SPACR_LAUNCHER_DIR"),
+            environ.get("SPACR_HOME"))
+
+
+def _remembered(fn):
+    """Answer the getter ``fn`` from memory while no preference changes.
+
+    For the getters a paint or a backdrop tick calls. Any write in this
+    process forgets the answer at once; a write from another process is
+    seen by the next look :func:`_watch_store` makes. While
+    :func:`_settings` is replaced, by :func:`_one_store` or a test, every
+    call reads the store as before.
+    """
+    name = fn.__name__
+
+    @functools.wraps(fn)
+    def read():
+        """Remembered value of the wrapped getter."""
+        if _settings is not _SETTINGS:
+            return fn()
+        _watch_store()
+        context = _store_context()
+        hit = _REMEMBERED.get(name)
+        if hit is not None and hit[0] == context:
+            return hit[1]
+        value = fn()
+        _REMEMBERED[name] = (context, value)
+        return value
+
+    return read
 
 
 def _settings():
     """The preference store: the real one, or safe mode's read shadow."""
     real = _real_store()
     return _DefaultsForReadingRealForWriting(real) if _SAFE_MODE else real
+
+
+_SETTINGS = _settings
 
 
 def _in_one_store(fn):
@@ -905,6 +1024,7 @@ def _one_store():
 
 
 
+@_remembered
 def get_language() -> str:
     """Return the persisted UI language code, falling back to English."""
     from .i18n import DEFAULT_LANGUAGE, normalize_language
@@ -1811,6 +1931,7 @@ def _follow_system_was_chosen(store) -> bool:
                     False)
 
 
+@_remembered
 def get_theme() -> str:
     """Return the saved application theme, or the default when invalid.
 
@@ -2163,6 +2284,12 @@ def get_ambient_enabled() -> bool:
 
     if os.environ.get("SPACR_NO_BACKDROP"):
         return False
+    return _stored_ambient_enabled()
+
+
+@_remembered
+def _stored_ambient_enabled() -> bool:
+    """The stored half of :func:`get_ambient_enabled`, kept in memory."""
     if _raw_ambient_animation() == _no_animation_key():
         return False
     return _as_bool(_settings().value(_ambient_enabled_key(),
@@ -4669,6 +4796,7 @@ def _set_layout_decision(record: dict) -> None:
         return
 
 
+@_remembered
 def get_font_scale() -> float:
     """Return the saved UI font scale, clamped to supported bounds."""
     try:
@@ -5160,6 +5288,7 @@ def set_dock_mode(mode: str) -> None:
 DEFAULT_PANE_OPACITY_PCT = 60
 
 
+@_remembered
 def get_pane_opacity() -> float:
     """The user's requested page-panel opacity, 0.0-1.0.
 
@@ -5363,6 +5492,7 @@ def set_high_contrast(on: bool) -> str:
     return get_theme_choice()
 
 
+@_remembered
 def get_reduce_motion() -> bool:
     """Whether Reduce motion holds every animated backdrop still.
 

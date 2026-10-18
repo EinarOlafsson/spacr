@@ -5,9 +5,11 @@ frames sat in `spacr.qt.preferences._settings`: it opened a new
 ``QSettings`` for every read, which takes Qt's process-wide settings lock
 and checks the file on disk, and the backdrop tick, the dock's paint and
 every theme lookup each read a preference. The store is now kept open per
-thread. These tests count openings instead of timing frames, and check that
-a kept store still sees every write: its own, another process's, and a
-store moved with ``QSettings.setPath``.
+thread, and the getters a frame calls answer from memory, so a tick or a
+repaint reads no store at all. These tests count openings instead of timing
+frames, and check that a kept store still sees every write: its own,
+another process's once its once-a-second look is due, and a store moved
+with ``QSettings.setPath``.
 """
 from __future__ import annotations
 
@@ -83,7 +85,7 @@ def test_a_backdrop_tick_and_repaint_open_no_store(qtbot, openings, reads):
         assert widget._should_run() == widget._should_run()
         widget._on_tick()
         widget.repaint()
-    assert reads[0] - read_before >= 20
+    assert reads[0] - read_before == 0
     assert openings[0] == before
 
 
@@ -105,7 +107,7 @@ def test_painting_the_dock_edge_opens_no_store(qtbot, openings, reads):
     before, read_before = openings[0], reads[0]
     for _ in range(20):
         edge.grab()
-    assert reads[0] - read_before >= 20
+    assert reads[0] - read_before == 0
     assert openings[0] == before
 
 
@@ -118,7 +120,9 @@ def test_a_kept_store_sees_its_own_writes(openings):
 
 @pytest.mark.skipif(not sys.platform.startswith("linux"),
                     reason="the native store is an INI file only on Linux")
-def test_a_kept_store_sees_another_process_write(openings):
+def test_a_kept_store_sees_another_process_write(openings, monkeypatch):
+    now = [1000.0]
+    monkeypatch.setattr(prefs, "_store_clock", lambda: now[0])
     prefs.set_reduce_motion(False)
     assert prefs.get_reduce_motion() is False
     path = prefs._settings().fileName()
@@ -131,6 +135,7 @@ def test_a_kept_store_sees_another_process_write(openings):
          "store.sync()\n",
          path],
         check=True, timeout=60)
+    now[0] += prefs._STORE_WATCH_SECONDS
     assert prefs.get_reduce_motion() is True
 
 
