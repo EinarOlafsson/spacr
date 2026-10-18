@@ -222,3 +222,33 @@ class TestTheDownloadLeavesTheWindowFree:
                         timeout=20000)
 
         assert len(flooding_fetch) == 1
+
+    def test_the_results_are_prepared_before_the_run(
+            self, screen, flooding_fetch, qtbot, monkeypatch):
+        """With the tables in, the results part is readied for the Run.
+
+        Built at Run instead, its steps shared the interpreter lock with
+        the pipeline and froze lesson 13 for up to a second.
+        """
+        import threading
+
+        from spacr.qt.screens import app_screen
+
+        imported_on = []
+        real = app_screen.AppScreen._import_the_modules
+
+        def recorded(names):
+            imported_on.append(threading.get_ident())
+            return real(names)
+
+        monkeypatch.setattr(app_screen.AppScreen, "_import_the_modules",
+                            staticmethod(recorded))
+        part = app_screen._REGRESSION_RESULTS
+        assert screen._part_is_owed(part)
+
+        screen.load_the_example_screen(in_background=True)
+        qtbot.waitUntil(lambda: not screen._part_is_owed(part),
+                        timeout=30000)
+
+        assert imported_on and imported_on[0] != threading.get_ident()
+        assert screen._results_panel_if_built() is not None

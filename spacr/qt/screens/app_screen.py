@@ -6334,6 +6334,65 @@ class AppScreen(QWidget):
                 button.setEnabled(True)
                 button.setText(tr("Load test data…"))
         self._put_the_example_screen_in(got)
+        self._prepare_the_results_part()
+
+    _RESULTS_PART_MODULES = (
+        "spacr.qt.widgets.fast_plots",
+        "spacr.qt.widgets.regression_results",
+        "spacr.qt.widgets.figure_grid_view",
+        "spacr.qt.widgets.sweep_runs",
+        "spacr.qt.widgets.measurement_scan_panel",
+        "spacr.qt.widgets.sweep_panel",
+        "spacr.qt.widgets.cell_montage_view",
+        "spacr.qt.widgets.folding_summary",
+        "spacr.qt.widgets.annotation_umap_tab",
+        "spacr.qt.widgets.gene_panel",
+    )
+
+    def _prepare_the_results_part(self) -> bool:
+        """Get Regression's results part ready while nothing is running.
+
+        Once the input tables are filled a Run is the next press, and a Run
+        with the part still owed builds it alongside the pipeline, each step
+        slowed by the worker's hold on the interpreter lock. So the part's
+        modules (:attr:`_RESULTS_PART_MODULES`) are imported on a worker
+        thread and the part is then built one step per event-loop turn.
+
+        :returns: whether the preparation was started.
+        """
+        if not self._part_is_owed(_REGRESSION_RESULTS):
+            return False
+        if self.__dict__.get("_results_part_preparing"):
+            return False
+        self._results_part_preparing = True
+        return self._jobs.submit(
+            partial(self._import_the_modules, self._RESULTS_PART_MODULES),
+            self._build_the_prepared_results_part)
+
+    @staticmethod
+    def _import_the_modules(names) -> int:
+        """Import ``names`` under the heavy-import lock; answer how many."""
+        import importlib
+        from contextlib import nullcontext
+
+        app = sys.modules.get("spacr.qt.app")
+        lock = getattr(app, "HEAVY_IMPORT_LOCK", None)
+        imported = 0
+        for name in names:
+            try:
+                with lock if lock is not None else nullcontext():
+                    importlib.import_module(name)
+                imported += 1
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not import %s early", name, exc_info=True)
+        return imported
+
+    def _build_the_prepared_results_part(self, _imported=None) -> bool:
+        """Build the results part in steps once its modules are imported."""
+        self._results_part_preparing = False
+        if self._worker_thread_is_running():
+            return False
+        return self._build_owed_part_in_steps(_REGRESSION_RESULTS)
 
     def _put_the_example_screen_in(self, got) -> dict:
         """Pair a fetched example screen into Input Tables and say so."""
