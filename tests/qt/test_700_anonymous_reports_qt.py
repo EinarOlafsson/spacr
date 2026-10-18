@@ -1008,7 +1008,7 @@ class TestTheReportLineAfterTheAiEntry:
         screen = self._run(qtbot, monkeypatch, relay,
                            {"issue_number": 152, "issue_url": url})
         text = self._texts(screen)
-        assert "saved answer" in text
+        assert "saved answer" not in text
         assert "Reported as issue #152 (with AI summary)" in text
         assert url in text
 

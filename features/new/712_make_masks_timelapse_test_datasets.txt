@@ -1,0 +1,41 @@
+================================================================================
+MAKE MASKS: TIMELAPSE TEST DATASETS WITH MASKS (YEAST, BACTERIA, MAMMALIAN)
+================================================================================
+
+Status:    OPEN — registered 2026-10-18
+Requested: maintainer, 2026-10-18 — "the make mask modual needs a timelapse
+           dataset with masks as a test dataset for testing the tiemlapse new
+           functionalities for object tracking. please use a dataset from the
+           timepose training datase there should be one yeast, one bacteria,
+           and one mamalian cell timelapse. each with clear masks preferably
+           many cells, prefereably some that devide and for the mammals some
+           that move fast and some that devide."
+Owner:     Claude Home
+
+WHAT TO BUILD
+Three timelapse test datasets for Make Masks, one yeast, one bacteria and one
+mammalian movie, drawn from the public third-party sources in the Timepose
+training data. Each has clean ground-truth masks in every frame with
+consistent IDs, many cells and visible divisions; the mammalian movie also has
+fast-moving cells. Trim or crop to modest downloads while keeping divisions
+and fast movers.
+Package each in the Make Masks timelapse layout: source frames plus uint32
+mask TIFFs with the 708 embedded lineage converted from the ground-truth
+lineage, so Time mode and the lineage tools show the divisions on open.
+Host them beside the existing test-data downloads with sha256 pins and a
+README per movie (source, citation, licence, what it shows).
+Make Masks "Load Test Data" gains "Timelapse: yeast", "Timelapse: bacteria"
+and "Timelapse: mammalian" (tr(), nine reviewed locales); spacr-download
+gains the same keys.
+
+ACCEPTANCE
+Only public data whose licence allows redistribution; no lab-internal or
+unpublished movie, nothing from the locked test split and nothing that
+identifies the Timepose curated split. Source, citation and licence recorded.
+Each movie opens in Make Masks Time-mode-ready with lineage that shows its
+divisions. Tests (no network): registry entries and sha256 pins, the loader
+opens a tiny synthetic stand-in with lineage, captions translated. Normal
+generated artefacts; one integrated push to nightly.
+Timepose data is read-only; no GPU, no Timepose jobs touched.
+
+2026-10-18 — Registered the maintainer request.

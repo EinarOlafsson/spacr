@@ -153,6 +153,7 @@ def test_the_workflow_syncs_only_the_item_on_issue_events():
     script = steps[-1]["run"]
     assert "tools/sync_open_issues_item.py" in script
     assert 'git add -- "$ITEM"' in script
-    assert "709: sync open issues [skip ci]" in script
+    assert "709: sync open issues" in script
+    assert "[skip ci]" not in script
     assert "github-actions[bot]" in script
     assert "git push origin HEAD:nightly" in script

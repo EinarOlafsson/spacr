@@ -6,6 +6,10 @@ python_version: 3.12.12
 app_file: tools/web_mask_generator/space_app.py
 ---
 
+RETIRED 2026-10-18: the public Space is paused (Hugging Face requires PRO to update
+Gradio Spaces). These files are a self-hostable reference only; use the browser page
+or tools/web_mask_generator/colab/by_class/*.ipynb.
+
 This is the managed Gradio Space configuration for the reviewed spaCR service.
 Copy this file and its adjacent `requirements.txt` to the root of the selected
 source staging bundle. Keep the project's `README.rst`, `setup.py`,
