@@ -20,6 +20,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QMenu,
     QScrollArea,
     QToolButton,
     QVBoxLayout,
@@ -152,3 +153,24 @@ def test_a_derived_name_kept_between_passes_follows_the_language(
     button.setAccessibleName("Open the panel")
     i18n.retranslate_widget_tree(host)
     assert button.accessibleName() == "Open the panel"
+
+
+def test_a_menu_named_by_the_pass_follows_the_language(qtbot, monkeypatch):
+    host = QWidget()
+    qtbot.addWidget(host)
+    derived = QMenu("Details", host)
+    owned = QMenu("Details", host)
+    owned.setAccessibleName("Panel options")
+    monkeypatch.setenv(i18n.ENV_LANGUAGE, "en")
+    i18n.retranslate_widget_tree(host)
+    assert derived.accessibleName() == "Details"
+    monkeypatch.setenv(i18n.ENV_LANGUAGE, "de")
+    german = i18n.tr("Details", "de")
+    assert german != "Details"
+    i18n.retranslate_widget_tree(host)
+    assert derived.title() == german
+    assert derived.accessibleName() == german
+    assert owned.accessibleName() == "Panel options"
+    derived.setTitle("Recent: plate_01.tif")
+    i18n.retranslate_widget_tree(host)
+    assert derived.accessibleName() == "Recent: plate_01.tif"

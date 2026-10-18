@@ -4375,11 +4375,15 @@ def _name_for_assistive_tech(widgets, stamp=None, only_new=False) -> int:
     changed = 0
     for menu in menus:
         try:
-            if not menu.accessibleName():
-                title = _a11y_plain(menu.title())
+            current = str(menu.accessibleName() or "")
+            if current and current != menu.property(_A11Y_DERIVED_NAME):
+                continue
+            title = _a11y_plain(menu.title())
+            if title != current:
+                menu.setAccessibleName(title)
                 if title:
-                    menu.setAccessibleName(title)
-                    changed += 1
+                    menu.setProperty(_A11Y_DERIVED_NAME, title)
+                changed += 1
         except (AttributeError, RuntimeError):
             continue
     for widget in targets:
@@ -4635,8 +4639,6 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
         except (AttributeError, RuntimeError):
             pass
 
-    _name_for_assistive_tech(widgets, stamp, only_new)
-
     actions = []
     try:
         actions = root.findChildren(QAction)
@@ -4652,6 +4654,8 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
                 action, "statusTip", "setStatusTip",
                 "_spacr_i18n_status_tip", code)
         _refresh_module_help(action, code)
+
+    _name_for_assistive_tech(widgets, stamp, only_new)
 
     if "spacr.qt.screens.settings_model" not in sys.modules:
         return
