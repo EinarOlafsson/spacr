@@ -8226,9 +8226,11 @@ class ResultsTable(QWidget):
         self.table.setColumnCount(len(columns))
         self.table.setHorizontalHeaderLabels(columns)
         self.table.setRowCount(len(frame))
+        by_position = frame.columns.is_unique
         for row in range(len(frame)):
+            values = frame.iloc[row]
             for column, name in enumerate(columns):
-                value = frame.iloc[row][name]
+                value = values.iloc[column] if by_position else values[name]
                 item = table_item(value)
                 item.setData(Qt.UserRole, row)
                 self.table.setItem(row, column, item)
