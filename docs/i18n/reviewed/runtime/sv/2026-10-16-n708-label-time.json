@@ -282,11 +282,11 @@
       "translation": "Masken måste innehålla icke-negativa heltalsetiketter: {path}"
     },
     {
-      "key": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Hover assigns the selected label, and the wheel saves edits before moving to each adjacent frame. Enable Time?",
-      "source": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Hover assigns the selected label, and the wheel saves edits before moving to each adjacent frame. Enable Time?",
-      "source_sha256": "0ab673be23de178f168e06722478321252d68943fcffd89454b433c8b3eb8d8d",
+      "key": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Each wheel step gives the selected label to the object under the pointer and saves edits before moving to the adjacent frame; moving the pointer alone changes nothing. Enable Time?",
+      "source": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Each wheel step gives the selected label to the object under the pointer and saves edits before moving to the adjacent frame; moving the pointer alone changes nothing. Enable Time?",
+      "source_sha256": "9c3fbda13c3e36c8cd802131baf901948485fc2d38a8bd51fb762ea2370d1ca1",
       "table": "ui",
-      "translation": "Masker som sparas i läget Tid använder 32-bit TIFF-filer med inbäddat cellsläktträd. Namn och härkomst lagras i TIFF-filen; befintliga filer ändras först när de sparas. När du håller pekaren över ett objekt tilldelas den valda etiketten, och mushjulet sparar ändringarna innan det går vidare till varje angränsande bildruta. Aktivera Tid?"
+      "translation": "Masker som sparas i läget Tid använder 32-bit TIFF-filer med inbäddat cellsläktträd. Namn och härkomst lagras i TIFF-filen; befintliga filer ändras först när de sparas. Varje steg med mushjulet ger objektet under pekaren den valda etiketten och sparar ändringarna innan det går vidare till den angränsande bildrutan; att bara flytta pekaren ändrar ingenting. Aktivera Tid?"
     },
     {
       "key": "Moved lineage frames would share an incompatible frame identity.",

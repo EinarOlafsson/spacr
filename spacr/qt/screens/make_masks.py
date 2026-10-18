@@ -3944,8 +3944,6 @@ class _MaskCanvas(QLabel):
         if self.label_time_busy:
             return
         if self.mode == MODE_LABEL_TIME and event.buttons() == Qt.NoButton:
-            point = self._canvas_to_image(event.position().x(), event.position().y())
-            self.assign_label_at(point, self.selected_label)
             self.update_readout(event.position())
             return
         if self.mode == MODE_BOX:
@@ -12625,6 +12623,7 @@ class MakeMasksScreen(QWidget):
         self._current_index: int = 0
         self._lineage = None
         self._lineage_scanned = None
+        self._syncing_label = False
         self._selected_cell = None
         self._lineage_dirty = False
         self._lineage_format = False
@@ -16040,9 +16039,45 @@ class MakeMasksScreen(QWidget):
             max(0, self._canvas.selected_label + int(step)))))
 
     def _selected_label_changed(self, text):
-        """Keep the last valid integer while its text field is being edited."""
+        """Keep the last valid integer, and in Time select the identity it names."""
         if text and text.isdecimal() and int(text) <= engine.MAX_MASK_LABEL:
             self._canvas.selected_label = int(text)
+            if (self._time_label_enabled and self._canvas.mode == MODE_LABEL_TIME
+                    and not self._syncing_label):
+                self._select_label_identity(int(text))
+
+    def _select_label_identity(self, value):
+        """Select the lineage cell a typed or stepped label number refers to.
+
+        The number is first the object carrying it in this frame, then a cell
+        named after it, then a cell whose label it is. A number naming no
+        cell keeps the selection as its new pixel label; with nothing
+        selected, the next assignment starts a new identity with that number
+        instead of taking over the object under the pointer.
+        """
+        cells = (self._lineage or {}).get("cells", {})
+        current = cells.get(self._selected_cell)
+        if current is not None and self._lineage_model.labels.get(
+                self._selected_cell, current["label"]) == value:
+            return
+        mapping = (self._lineage or {}).get("frames", {}).get(self._lineage_frame(), {})
+        chosen = mapping.get(str(value))
+        if chosen not in cells:
+            chosen = next((key for key, cell in cells.items() if cell["name"] == str(value)),
+                          None)
+        if chosen is None:
+            chosen = next((key for key, cell in cells.items() if cell["label"] == value), None)
+        if chosen is None:
+            return
+        self._selected_cell = chosen
+        self._syncing_label = True
+        try:
+            index = self._lineage_table.model().mapFromSource(
+                self._lineage_model.index(self._lineage_model.keys.index(chosen), 0))
+            self._lineage_table.selectRow(index.row())
+            self._label_name.setText(cells[chosen]["name"])
+        finally:
+            self._syncing_label = False
 
     def _toggle_label_time(self, enabled):
         """Confirm the TIFF storage contract before enabling time-only controls."""
@@ -16060,8 +16095,9 @@ class MakeMasksScreen(QWidget):
             if not self._confirm(tr("Enable Time?"), tr(
                     "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. "
                     "Names and ancestry are stored inside the TIFF; existing files change only "
-                    "when saved. Hover assigns the selected label, and the wheel saves edits "
-                    "before moving to each adjacent frame. Enable Time?")):
+                    "when saved. Each wheel step gives the selected label to the object under "
+                    "the pointer and saves edits before moving to the adjacent frame; moving "
+                    "the pointer alone changes nothing. Enable Time?")):
                 blocked = self._btn_label_time.blockSignals(True)
                 self._btn_label_time.setChecked(False)
                 self._btn_label_time.blockSignals(blocked)
@@ -16077,6 +16113,8 @@ class MakeMasksScreen(QWidget):
                     self._lineage_dirty = True
                     self._refresh_lineage_rows()
             self._set_mode(MODE_LABEL_TIME)
+            if self._selected_cell is None:
+                self._select_label_identity(self._canvas.selected_label)
         else:
             self._cancel_label_time_navigation()
             if self._canvas.mode == MODE_LABEL_TIME:
@@ -16160,11 +16198,17 @@ class MakeMasksScreen(QWidget):
             index = self._lineage_table.model().mapToSource(index)
         if not index.isValid() or not 0 <= index.row() < len(self._lineage_model.keys):
             return
+        if self._syncing_label:
+            return
         self._selected_cell = self._lineage_model.keys[index.row()]
         cell = self._lineage["cells"][self._selected_cell]
-        self._label_name.setText(cell["name"])
-        self._label_value.setText(str(self._lineage_model.labels.get(
-            self._selected_cell, cell["label"])))
+        self._syncing_label = True
+        try:
+            self._label_name.setText(cell["name"])
+            self._label_value.setText(str(self._lineage_model.labels.get(
+                self._selected_cell, cell["label"])))
+        finally:
+            self._syncing_label = False
 
     def _restore_lineage_snapshot(self, snapshot):
         """Restore metadata together with the mask selected by Undo or Redo."""
@@ -16313,11 +16357,9 @@ class MakeMasksScreen(QWidget):
         assigned, notice = label, ""
         if self._time_label_enabled and self._canvas.mode == MODE_LABEL_TIME and label:
             if selected is None:
-                selected = mapping.get(str(previous))
-                if selected is None:
-                    reserved = label if str(label) not in mapping else self._free_lineage_label()
-                    state, selected = engine.new_lineage_cell(
-                        state, self._label_name.text().strip() or str(label), reserved, frame)
+                reserved = label if str(label) not in mapping else self._free_lineage_label()
+                state, selected = engine.new_lineage_cell(
+                    state, self._label_name.text().strip() or str(label), reserved, frame)
             before, chosen = (state or {}).get("cells", {}), selected
             replaced = mapping.get(str(previous))
             changed, state, previous, assigned = engine.assign_tracked_object(

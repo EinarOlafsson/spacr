@@ -282,11 +282,11 @@
       "translation": "마스크에는 음이 아닌 정수 레이블이 있어야 합니다: {path}"
     },
     {
-      "key": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Hover assigns the selected label, and the wheel saves edits before moving to each adjacent frame. Enable Time?",
-      "source": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Hover assigns the selected label, and the wheel saves edits before moving to each adjacent frame. Enable Time?",
-      "source_sha256": "0ab673be23de178f168e06722478321252d68943fcffd89454b433c8b3eb8d8d",
+      "key": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Each wheel step gives the selected label to the object under the pointer and saves edits before moving to the adjacent frame; moving the pointer alone changes nothing. Enable Time?",
+      "source": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Each wheel step gives the selected label to the object under the pointer and saves edits before moving to the adjacent frame; moving the pointer alone changes nothing. Enable Time?",
+      "source_sha256": "9c3fbda13c3e36c8cd802131baf901948485fc2d38a8bd51fb762ea2370d1ca1",
       "table": "ui",
-      "translation": "시간 모드에서 저장한 마스크는 세포 계보가 내장된 32-bit TIFF를 사용합니다. 이름과 조상 정보는 TIFF 안에 저장되며, 기존 파일은 저장할 때만 변경됩니다. 객체 위에 포인터를 놓으면 선택한 레이블이 할당되고, 휠은 각 인접 프레임으로 이동하기 전에 편집 내용을 저장합니다. 시간을 활성화할까요?"
+      "translation": "시간 모드에서 저장한 마스크는 세포 계보가 내장된 32-bit TIFF를 사용합니다. 이름과 조상 정보는 TIFF 안에 저장되며, 기존 파일은 저장할 때만 변경됩니다. 휠을 한 칸 돌릴 때마다 포인터 아래의 객체에 선택한 레이블이 할당되고, 인접 프레임으로 이동하기 전에 편집 내용이 저장됩니다. 포인터를 움직이기만 해서는 아무것도 바뀌지 않습니다. 시간을 활성화할까요?"
     },
     {
       "key": "Moved lineage frames would share an incompatible frame identity.",

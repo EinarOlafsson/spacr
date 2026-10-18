@@ -282,11 +282,11 @@
       "translation": "Gríman verður að innihalda óneikvæð heiltölumerki: {path}"
     },
     {
-      "key": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Hover assigns the selected label, and the wheel saves edits before moving to each adjacent frame. Enable Time?",
-      "source": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Hover assigns the selected label, and the wheel saves edits before moving to each adjacent frame. Enable Time?",
-      "source_sha256": "0ab673be23de178f168e06722478321252d68943fcffd89454b433c8b3eb8d8d",
+      "key": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Each wheel step gives the selected label to the object under the pointer and saves edits before moving to the adjacent frame; moving the pointer alone changes nothing. Enable Time?",
+      "source": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Each wheel step gives the selected label to the object under the pointer and saves edits before moving to the adjacent frame; moving the pointer alone changes nothing. Enable Time?",
+      "source_sha256": "9c3fbda13c3e36c8cd802131baf901948485fc2d38a8bd51fb762ea2370d1ca1",
       "table": "ui",
-      "translation": "Grímur sem vistaðar eru í hamnum Tími nota 32-bit TIFF-skrár með innfelldu ættartré frumna. Nöfn og uppruni eru geymd inni í TIFF-skránni; fyrirliggjandi skrár breytast aðeins þegar þær eru vistaðar. Þegar bendillinn er yfir hlut fær hann valið merki og músarhjólið vistar breytingar áður en farið er á hvern aðliggjandi myndramma. Virkja haminn Tími?"
+      "translation": "Grímur sem vistaðar eru í hamnum Tími nota 32-bit TIFF-skrár með innfelldu ættartré frumna. Nöfn og uppruni eru geymd inni í TIFF-skránni; fyrirliggjandi skrár breytast aðeins þegar þær eru vistaðar. Hvert skref músarhjólsins gefur hlutnum undir bendlinum valið merki og vistar breytingar áður en farið er á aðliggjandi myndramma; það eitt að hreyfa bendilinn breytir engu. Virkja haminn Tími?"
     },
     {
       "key": "Moved lineage frames would share an incompatible frame identity.",

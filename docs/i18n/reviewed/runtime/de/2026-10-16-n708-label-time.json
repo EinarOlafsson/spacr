@@ -282,11 +282,11 @@
       "translation": "Die Maske muss nicht negative ganzzahlige Labels enthalten: {path}"
     },
     {
-      "key": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Hover assigns the selected label, and the wheel saves edits before moving to each adjacent frame. Enable Time?",
-      "source": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Hover assigns the selected label, and the wheel saves edits before moving to each adjacent frame. Enable Time?",
-      "source_sha256": "0ab673be23de178f168e06722478321252d68943fcffd89454b433c8b3eb8d8d",
+      "key": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Each wheel step gives the selected label to the object under the pointer and saves edits before moving to the adjacent frame; moving the pointer alone changes nothing. Enable Time?",
+      "source": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Each wheel step gives the selected label to the object under the pointer and saves edits before moving to the adjacent frame; moving the pointer alone changes nothing. Enable Time?",
+      "source_sha256": "9c3fbda13c3e36c8cd802131baf901948485fc2d38a8bd51fb762ea2370d1ca1",
       "table": "ui",
-      "translation": "Im Modus Zeit gespeicherte Masken verwenden 32-bit-TIFFs mit eingebettetem Zellstammbaum. Namen und Abstammung werden in der TIFF-Datei gespeichert; vorhandene Dateien ändern sich erst beim Speichern. Beim Bewegen des Mauszeigers über ein Objekt wird das ausgewählte Label zugewiesen; das Mausrad speichert Änderungen vor jedem Wechsel zum benachbarten Einzelbild. Zeit aktivieren?"
+      "translation": "Im Modus Zeit gespeicherte Masken verwenden 32-bit-TIFFs mit eingebettetem Zellstammbaum. Namen und Abstammung werden in der TIFF-Datei gespeichert; vorhandene Dateien ändern sich erst beim Speichern. Jeder Schritt mit dem Mausrad gibt dem Objekt unter dem Mauszeiger das ausgewählte Label und speichert Änderungen vor dem Wechsel zum benachbarten Einzelbild; das bloße Bewegen des Mauszeigers ändert nichts. Zeit aktivieren?"
     },
     {
       "key": "Moved lineage frames would share an incompatible frame identity.",

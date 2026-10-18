@@ -282,11 +282,11 @@
       "translation": "Le masque doit contenir des étiquettes entières non négatives : {path}"
     },
     {
-      "key": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Hover assigns the selected label, and the wheel saves edits before moving to each adjacent frame. Enable Time?",
-      "source": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Hover assigns the selected label, and the wheel saves edits before moving to each adjacent frame. Enable Time?",
-      "source_sha256": "0ab673be23de178f168e06722478321252d68943fcffd89454b433c8b3eb8d8d",
+      "key": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Each wheel step gives the selected label to the object under the pointer and saves edits before moving to the adjacent frame; moving the pointer alone changes nothing. Enable Time?",
+      "source": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Each wheel step gives the selected label to the object under the pointer and saves edits before moving to the adjacent frame; moving the pointer alone changes nothing. Enable Time?",
+      "source_sha256": "9c3fbda13c3e36c8cd802131baf901948485fc2d38a8bd51fb762ea2370d1ca1",
       "table": "ui",
-      "translation": "Les masques enregistrés en mode Temps utilisent des TIFF 32-bit avec la lignée cellulaire intégrée. Les noms et l’ascendance sont stockés dans le TIFF ; les fichiers existants ne changent que lors de l’enregistrement. Le survol attribue l’étiquette sélectionnée, et la molette enregistre les modifications avant de passer à chaque image adjacente. Activer Temps ?"
+      "translation": "Les masques enregistrés en mode Temps utilisent des TIFF 32-bit avec la lignée cellulaire intégrée. Les noms et l’ascendance sont stockés dans le TIFF ; les fichiers existants ne changent que lors de l’enregistrement. Chaque cran de molette attribue l’étiquette sélectionnée à l’objet sous le pointeur et enregistre les modifications avant de passer à l’image adjacente ; déplacer seulement le pointeur ne change rien. Activer Temps ?"
     },
     {
       "key": "Moved lineage frames would share an incompatible frame identity.",
