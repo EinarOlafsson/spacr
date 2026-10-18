@@ -12388,6 +12388,17 @@ class AppScreen(QWidget):
             self._refresh_figure_grid()
             stack.setCurrentIndex(0)
 
+    def _show_figure_grid_soon(self) -> None:
+        """Raise the grid now and rebuild it on its debounce timer.
+
+        For a caller that has just spent its turn drawing a run: the rebuild
+        photographs every live plot, and a turn later is soon enough.
+        """
+        stack = getattr(self, "_figures_stack", None)
+        if stack is not None:
+            self._queue_figure_grid_refresh()
+            stack.setCurrentIndex(0)
+
     def _show_regression_graph(self) -> None:
         """Fill the results container with the interactive volcano plot."""
         stack = getattr(self, "_figures_stack", None)
@@ -12493,7 +12504,7 @@ class AppScreen(QWidget):
                     LOG.debug("could not hand the run's model to the results "
                               "panel", exc_info=True)
                 self._results_loaded_in_memory = True
-                self._show_figure_grid()
+                self._show_figure_grid_soon()
                 self._figures_card.show()
                 self._console.append_stdout(
                     f"{len(frame)} coefficients loaded from the run itself"
