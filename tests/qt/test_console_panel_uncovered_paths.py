@@ -652,11 +652,11 @@ def test_a_saved_answer_survives_a_heading_that_is_already_gone(panel):
     """A deleted heading label is skipped; the answer still shows."""
     block = panel.begin_ai_entry(thinking=False)
     shiboken6.delete(block._ai_bar._label)
-    filled = panel.fill_ai_entry(block, "Saved advice.", saved=True)
+    filled = panel.fill_ai_entry(block, "Saved advice.")
     assert filled is block and block.toPlainText() == "Saved advice."
     other = panel.begin_ai_entry(thinking=False)
     other._ai_bar = None
-    assert panel.fill_ai_entry(other, "Again.", saved=True) is other
+    assert panel.fill_ai_entry(other, "Again.") is other
     assert other.toPlainText() == "Again."
 
 
