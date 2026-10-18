@@ -3592,10 +3592,20 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
         retired_setup, sort_keys=True, ensure_ascii=False,
     ).encode()).hexdigest() == "5df7d5da3b7cce98b3a0231d968642b2868d09e92d9e797157a4cb728aaec731"
     assert not retired_setup.keys() & (docs.keys() | zoo_arrivals.keys())
+    uncataloged = sorted(docs.keys() - json.loads(
+        (ROOT / "docs/source/_static/i18n/api/en.json").read_text(encoding="utf-8")
+    )["symbols"].keys())
     assert len((docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
                 - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_setup.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
-        "The public documentation inventory changed. Regenerate every API "
-        "catalog, review the diff, and update "
+        "The public documentation inventory changed. Symbols in the source "
+        f"but not in the English API catalog: {uncataloged}. A new documented "
+        "callable needs, in the same commit, a dated arrival contract in "
+        "tests/data/release_contracts listed beside the other contracts in "
+        "this test, test_api_i18n_extractor and test_docstring_correctness, "
+        "nine-locale reviewed records under docs/i18n/reviewed/api, and a "
+        "regenerated catalog (tools/build_documentation_i18n.py "
+        "--sources-only, then --repair-api-blocks). For an intended "
+        "removal, regenerate every API catalog and update "
         "DOCUMENTATION_API_SYMBOL_COUNT_RATCHET in the same change."
     )
     expected = set(docs)
