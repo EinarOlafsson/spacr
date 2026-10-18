@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -65,6 +65,10 @@ msgstr "**偏好 → 存储** 设置清理 spaCR 主文件夹时使用的限制�
 
 msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving wait until no run is in progress."
 msgstr "缓存表列出 spaCR 模型、Cellpose、Hugging Face、Torch、后端环境和新闻缓存。**测量** 读取它们的大小，**清空…** 在询问后清空所选缓存，**移动…** 将其移动到另一个驱动器上的 ``<folder>/spacr-<cache>``。新位置记录在 ``~/.spacr/cache_locations.json`` 中，并在每次启动时使用；其变量（例如 ``HF_HOME``）已在 spaCR 外部设置的缓存不会被移动。清除和移动会等到没有运行在进行时才执行。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The spaCR model cache uses ``SPACR_MODEL_CACHE``. When it is unset or blank, models use the ``models`` folder inside the spaCR home returned by ``_spacr_home()`` (normally ``~/.spacr/models``). An explicit environment override takes precedence. Moving this cache through **Storage → Move…** persists its new location in ``cache_locations.json`` and reapplies it on startup. Newly opened Model Zoo screens and plaque previews use that location. The model picker follows the move when its remembered folder matched the old cache; a separately chosen custom model folder is preserved."
+msgstr "spaCR 模型缓存使用 ``SPACR_MODEL_CACHE``。未设置或为空时，模型使用 ``_spacr_home()`` 返回的 spaCR 主目录中的 ``models`` 文件夹（通常为 ``~/.spacr/models``）。显式的环境变量覆盖优先。通过 **Storage → 移动…** 移动此缓存时，其新位置会保存在 ``cache_locations.json`` 中，并在启动时重新应用。新打开的 Model Zoo 屏幕和空斑预览使用该位置。当模型选择器记住的文件夹与旧缓存一致时，它会跟随移动；单独选择的自定义模型文件夹会被保留。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed."

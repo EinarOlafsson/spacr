@@ -68,17 +68,21 @@ msgstr "Merking býður upp á lyklaborðsstýrða grind myndskurða, skráir me
 msgid "Classify CV also offers optional rotations and reflections at inference time. See :doc:`classifier_evaluation` for the aggregation methods, original and mean probabilities, and orientation-stability flags."
 msgstr "Flokkun CV býður einnig upp á valkvæða snúninga og speglanir við ályktun. Sjá :doc:`classifier_evaluation` fyrir samantektaraðferðirnar, upphaflegar líkur og meðallíkur og merkingar um stöðugleika stefnu."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Own-DINO classifiers (alpha)"
-msgstr ""
+msgstr "Eigin DINO-flokkarar (alfa)"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Enable **Preferences → Show alpha features**, then open **Embeddings** and load the crop stack. Select an existing own-DINO teacher checkpoint with the own-checkpoint control. **Train classifier…** opens the supervised training form. Supply a CSV with one row per loaded crop, in exactly the same order, and columns ``label`` and ``acquisition_group``. Blank labels are excluded. Each labelled crop needs its known acquisition-well identity; complete groups are held out for validation. Keep string identities such as ``01`` intact."
-msgstr ""
+msgstr "Virkjaðu **Kjörstillingar → Sýna alfa-eiginleika**, opnaðu síðan **Embeddings** og hlaðaðu myndskurðastaflanum. Veldu fyrirliggjandi eigin DINO-kennaralíkanspunkt með stýringunni fyrir eigin líkanspunkt. **Þjálfa flokkara…** opnar eyðublaðið fyrir stýrða þjálfun. Leggðu fram CSV-skrá með einni línu fyrir hvern hlaðinn myndskurð, í nákvæmlega sömu röð, og dálkunum ``label`` og ``acquisition_group``. Auðum merkjum er sleppt. Hver merktur myndskurður þarf þekkt auðkenni þess brunns sem hann var tekinn úr; heilir hópar eru teknir frá til sannprófunar. Haltu strengjaauðkennum eins og ``01`` óbreyttum."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Enter the ordered physical source-channel indices for these crops, choose training settings, and select a new classifier output file. Existing output files are preserved. The saved classifier records its classes, channel order, scaling and feature-normalization policy. Progress is shown during training; **Stop classifier** requests cancellation."
-msgstr ""
+msgstr "Sláðu inn efnislegu upprunarásavísana fyrir þessa myndskurði í réttri röð, veldu þjálfunarstillingar og veldu nýja úttaksskrá fyrir flokkarann. Fyrirliggjandi úttaksskrár eru varðveittar. Vistaði flokkarinn skráir flokka sína, röð rása, kvörðun og reglu um stöðlun eiginleika. Framvinda er sýnd meðan á þjálfun stendur; **Stöðva flokkara** biður um að hætt sé við."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Use **Apply saved classifier…** to select that classifier and apply it to the loaded raw crop stack. Its recorded preprocessing is applied automatically. **Classifier results…** shows predictions, features, logits and probabilities, with the class order, physical channels and checkpoint digest. CSV export includes the complete selected result table. **Cancel classifier result** discards pending delivery; the worker can remain active until it finishes. These alpha controls do not establish phenotype accuracy for a new dataset."
-msgstr ""
+msgstr "Notaðu **Beita vistuðum flokkara…** til að velja flokkarann og beita honum á hlaðna stafla hrárra myndskurða. Skráð forvinnsla hans er notuð sjálfkrafa. **Flokkunarniðurstöður…** sýnir spár, eiginleika, logit-gildi og líkur, ásamt röð flokka, efnislegum rásum og samantekt (digest) líkanspunktsins. CSV-útflutningur inniheldur alla valda niðurstöðutöfluna. **Hætta við flokkunarniðurstöðu** hendir afhendingu sem bíður; vinnslueiningin getur haldist virk þar til hún lýkur. Þessar alfa-stýringar staðfesta ekki nákvæmni svipgerðar fyrir nýtt gagnasafn."
 
 msgid "Map Barcodes"
 msgstr "Varpa strikamerkjum"

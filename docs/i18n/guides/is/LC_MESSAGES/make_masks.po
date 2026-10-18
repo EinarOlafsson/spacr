@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
@@ -52,9 +52,9 @@ msgid "The saved integer mask gives every retained punctum its own label. Nearby
 msgstr "Vistaði heiltölumaskinn gefur hverjum varðveittum punkti sitt eigið merki. Nálægir miðjugluggar geta skarast: hver toppur með heiltöluhnitum er frátekinn fyrir hlut sinn, aðrir sameiginlegir pixlar fara til næstu miðju og pixlum utan foreldris er sleppt. Maski getur því innihaldið færri en þá N pixla sem óskað er eftir. Þetta er maski fyrir miðjusýnatöku, ekki líkamleg mörk punktsins."
 
 # AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv`` and ``<stem>.puncta.json`` beside the mask. The table contains all candidates, their inclusion flags, output object labels, parent IDs, coordinates, noise, local background, exact 10/20/40-pixel centre means and the selected N-pixel mean. Exact centre means retain overlapping samples independently of label ownership. Use ``center_corrected`` for the selected N-pixel mean minus local background, or ``corrected20`` for the fixed 20-pixel variant. The ``corrected`` column holds the reference's three-by-three-window result. The receipt binds the image, parent mask, output mask, CSV and detector settings to checksums. Edited or combined labels cannot silently receive the old centre measurements. Local previews estimate noise within their crop; use whole-image detection for scientific results."
-msgstr "Þegar óbreytt greining allrar myndarinnar er vistuð eru einnig skrifaðar ``<stem>.puncta.csv`` og ``<stem>.puncta.json`` við hlið maskans. Taflan inniheldur alla mögulega punkta, innfellingarflögg þeirra, merki úttakshluta, foreldraauðkenni, hnit, suð, staðbundinn bakgrunn, nákvæm miðjumeðaltöl fyrir 10/20/40 pixla og valið N-pixla meðaltal. Nákvæm miðjumeðaltöl varðveita skarandi sýni óháð því hvaða merki á pixlana. Notaðu ``center_corrected`` fyrir valið N-pixla meðaltal að frádregnum staðbundnum bakgrunni, eða ``corrected20`` fyrir föstu 20-pixla útgáfuna. Eldri dálkurinn ``corrected`` varðveitir niðurstöðu þriggja sinnum þriggja glugga viðmiðunarinnar. Kvittunin tengir mynd, foreldramaska, úttaksmaska, CSV og stillingar greinis við gátsummur. Breytt eða sameinuð merki geta ekki hljóðlega fengið gömlu miðjumælingarnar. Staðbundnar forsýningar meta suð innan útskurðar síns; notaðu greiningu allrar myndarinnar fyrir vísindalegar niðurstöður."
+msgstr "Þegar óbreytt greining allrar myndarinnar er vistuð eru einnig skrifaðar ``<stem>.puncta.csv`` og ``<stem>.puncta.json`` við hlið maskans. Taflan inniheldur alla mögulega punkta, innfellingarflögg þeirra, merki úttakshluta, foreldraauðkenni, hnit, suð, staðbundinn bakgrunn, nákvæm miðjumeðaltöl fyrir 10/20/40 pixla og valið N-pixla meðaltal. Nákvæm miðjumeðaltöl varðveita skarandi sýni óháð því hvaða merki á pixlana. Notaðu ``center_corrected`` fyrir valið N-pixla meðaltal að frádregnum staðbundnum bakgrunni, eða ``corrected20`` fyrir föstu 20-pixla útgáfuna. Dálkurinn ``corrected`` geymir niðurstöðu þriggja sinnum þriggja glugga viðmiðunarinnar. Kvittunin tengir mynd, foreldramaska, úttaksmaska, CSV og stillingar greinis við gátsummur. Breytt eða sameinuð merki geta ekki hljóðlega fengið gömlu miðjumælingarnar. Staðbundnar forsýningar meta suð innan útskurðar síns; notaðu greiningu allrar myndarinnar fyrir vísindalegar niðurstöður."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use **Organize for Measure…** to place the puncta in an organelle mask slot alongside the parent masks and original channels. Measure can report ordinary mask-region intensities and parent relationships, but those means can differ from exact centre means when samples overlap. Use the source-bound puncta table for the centre/annulus analysis. This detector alone does not implement the noise-null model, hierarchical tests or a composed publication figure."
@@ -99,11 +99,103 @@ msgid "**Save on navigation**, after **Next image**, saves an edited mask before
 msgstr "**Vista við flakk**, á eftir **Næsta mynd**, vistar breytta grímu áður en **Halda**, **Henda**, **Næsta mynd** eða **Fyrri mynd** færir sig áfram. Sjálfgefið er slökkt á því og stillingin geymist milli lota. Ef vistunin mistekst helst myndin opin og enginn úrskurður er skráður. **Sleppa** skrifar aldrei grímu."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "**Open 3D image…** opens a TIFF with three spatial axes in the 3D mask editor; time, channel and RGB stacks are refused. Rotate the view, draw an object, then drag its anchors or select surfaces (Ctrl-click for several) and drag them or turn the mouse wheel. **Anchor density** sets how many anchors each edge and surface gets, and **Show anchors** hides them. Edits change the mask voxels themselves, keep the image's axis order and voxel spacing, and never overwrite another object. **Save 3D mask** writes the labels and their editable boundary; the 2D image and mask stay unchanged."
-msgstr "**Opna 3D-mynd…** opnar TIFF-skrá með þremur rúmásum í 3D-grímuritlinum; stöflum með tíma, rásum eða RGB er hafnað. Snúðu sjónarhorninu, teiknaðu hlut og dragðu síðan akkeri hans, eða veldu fleti (Ctrl-click fyrir fleiri) og dragðu þá eða snúðu músarhjólinu. **Þéttleiki akkera** ákvarðar hve mörg akkeri hver brún og hver flötur fær, og með **Sýna akkeri** má fela þau. Breytingar breyta sjálfum voxelum grímunnar, halda ásaröð og voxel-bili myndarinnar og skrifa aldrei yfir annan hlut. **Vista 3D-grímu** skrifar merkin og breytanleg mörk þeirra; 2D-myndin og -gríman haldast óbreyttar."
+msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on, the electron microscopy test data and the FIB-SEM volumes described under :ref:`mm-tem` and :ref:`mm-volumes`."
+msgstr "Til að prófa skjáinn án eigin gagna sækir **Hlaða prófunargögnum...** tíu óhlutuð sjónsvið með Toxoplasma-bólum, með yfirförnu grímunum þeirra geymdum sér í ``ground_truth_masks/``, og opnar það fyrsta. Örin á sama hnappi býður upp á úrtak sjónsviða úr gagnasafninu sem hvert birt líkan var þjálfað á, prófunargögnin úr rafeindasmásjá og FIB-SEM-rúmmálin sem lýst er í :ref:`mm-tem` og :ref:`mm-volumes`."
 
-msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
-msgstr "Til að prófa skjáinn án eigin gagna sækir **Hlaða prófunargögnum...** tíu óhlutuð sjónsvið með Toxoplasma-bólum, með grisjuðu grímunum þeirra geymdum sér í ``ground_truth_masks/``, og opnar það fyrsta. Örin á sama hnappi býður upp á úrtak sjónsviða úr gagnasafninu sem hvert birt líkan var þjálfað á."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "3D volumes in the Mask view"
+msgstr "Þrívíð rúmmál í Mask-sýninni"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A volume opens in the Mask view, where 2-D fields open. A TIFF stack, an OME-TIFF or an MRC volume (``.mrc``, ``.rec`` or ``.map``) with three spatial axes is recognised as a volume when it is in the folder you open or when you choose **Open 3D image…**. Time, channel and RGB stacks are refused rather than read as depth. An MRC volume needs the optional ``mrcfile`` package. The status line reports the number of slices and the voxel size."
+msgstr "Rúmmál opnast í Mask-sýninni, þar sem tvívíð sjónsvið opnast. TIFF-stafli, OME-TIFF eða MRC-rúmmál (``.mrc``, ``.rec`` eða ``.map``) með þremur rúmásum er greint sem rúmmál þegar það er í möppunni sem þú opnar eða þegar þú velur **Open 3D image…**. Tíma-, rása- og RGB-stöflum er hafnað í stað þess að vera lesnir sem dýpt. MRC-rúmmál þarf valfrjálsa pakkann ``mrcfile``. Stöðulínan sýnir fjölda sneiða og stærð rúmdíls."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The **slice slider** at the left of the image steps through the slices; **Page Up** and **Page Down** step too. Every 2-D tool draws on the slice on screen."
+msgstr "**Sneiðasleðinn** vinstra megin við myndina flettir í gegnum sneiðarnar; **Page Up** og **Page Down** fletta líka. Öll tvívíð verkfæri teikna á sneiðina sem er á skjánum."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The **Z** button above the slider is the Z wheel toggle. On (blue), the mouse wheel changes the slice; off, the wheel zooms."
+msgstr "Hnappurinn **Z** fyrir ofan sleðann kveikir og slekkur á Z-skrunhjólinu. Þegar kveikt er á honum (blár) breytir skrunhjól músarinnar sneiðinni; þegar slökkt er á honum þysjar hjólið."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The **View** list beside the Mask tab chooses **Default**, **Orthogonal** or **True 3D**. Default draws on one slice at a time. Orthogonal adds the XZ and YZ side views through a crosshair; the middle mouse button moves the crosshair. True 3D shows the volume and its objects in three dimensions."
+msgstr "Listinn **View** við hlið Mask-flipans velur **Sjálfgefið**, **Hornrétt** eða **True 3D**. Sjálfgefið teiknar á eina sneið í einu. Hornrétt bætir við XZ- og YZ-hliðarsýnum í gegnum krosshár; miðhnappur músarinnar færir krosshárið. True 3D sýnir rúmmálið og hluti þess í þrívídd."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The row above the image holds **Object ID** (an existing object to edit, or an unused ID for a new one), **Interpolate slices**, **Assign 3D objects** and **Delete object**."
+msgstr "Röðin fyrir ofan myndina inniheldur **Auðkenni hlutar** (fyrirliggjandi hlutur til að breyta, eða ónotað auðkenni fyrir nýjan), **Brúa sneiðar**, **Úthluta 3D-hlutum** og **Eyða hlut**."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Interpolate slices** fills the empty slices between slices where the chosen object is drawn, blending its outline from one to the next. **Assign 3D objects** gives every separate 3D object its own ID: parts of one ID that do not touch in 3D become new objects, so you can draw many objects with one ID and then assign them. **Delete object** removes the chosen object from every slice. Each of these is one undo step."
+msgstr "**Brúa sneiðar** fyllir auðu sneiðarnar milli sneiða þar sem valinn hlutur er teiknaður og blandar útlínu hans frá einni sneið til þeirrar næstu. **Úthluta 3D-hlutum** gefur hverjum aðskildum þrívíðum hlut eigið auðkenni: hlutar eins auðkennis sem snertast ekki í þrívídd verða nýir hlutir, svo þú getur teiknað marga hluti með einu auðkenni og síðan úthlutað þeim. **Eyða hlut** fjarlægir valinn hlut úr öllum sneiðum. Hvert þessara er eitt afturköllunarskref."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "In True 3D, draw an object, then drag its anchors or select surfaces (Ctrl-click for several) and drag them or turn the mouse wheel. **Anchor density** sets how many anchors each edge and surface gets, and **Show anchors** hides them. The view is a sampled point-cloud preview; the edits and voxel counts use the full image. These keys work while True 3D is shown, and are listed under **Change shortcuts**:"
+msgstr "Í True 3D skaltu teikna hlut og draga síðan akkeri hans eða velja fleti (Ctrl-smellur fyrir fleiri) og draga þá eða snúa skrunhjóli músarinnar. **Þéttleiki akkera** ákvarðar hversu mörg akkeri hver brún og flötur fær, og **Sýna akkeri** felur þau. Sýnin er forskoðun úr úrtaki punktaskýs; breytingarnar og fjöldi rúmdíla nota alla myndina. Þessir lyklar virka meðan True 3D er sýnt og eru taldir upp undir **Breyta flýtilyklum**:"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Key"
+msgstr "Lykill"
+
+msgid "Action"
+msgstr "Aðgerð"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Shift+E**"
+msgstr "**Shift+E**"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Edit: drag anchors and surfaces."
+msgstr "Breyta: draga akkeri og fleti."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Shift+S**"
+msgstr "**Shift+S**"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Spin the view freely."
+msgstr "Snúa sýninni frjálst."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Shift+D**"
+msgstr "**Shift+D**"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Draw a new object."
+msgstr "Teikna nýjan hlut."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Shift+X**, **Shift+Y**, **Shift+Z**"
+msgstr "**Shift+X**, **Shift+Y**, **Shift+Z**"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Choose the X, Y or Z drawing plane. Pressed within 1.5 s of **Shift+S**, they choose the spin axis instead."
+msgstr "Velja X-, Y- eða Z-teikniflöt. Ef ýtt er á þá innan 1,5 s frá **Shift+S** velja þeir snúningsásinn í staðinn."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Edits change the mask voxels themselves, keep the image's axis order and voxel spacing, and never overwrite another object. **Save mask** or **Ctrl+S** writes the labels to ``masks/<image stem>.tif`` and their editable boundaries to a ``.volume.json`` file beside it; the source volume is never overwritten."
+msgstr "Breytingar breyta sjálfum rúmdílum maskans, halda ásaröð og rúmdílabili myndarinnar og skrifa aldrei yfir annan hlut. **Vista grímu** eða **Ctrl+S** skrifar merkin í ``masks/<image stem>.tif`` og breytanleg mörk þeirra í ``.volume.json``-skrá við hliðina; aldrei er skrifað yfir upprunarúmmálið."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Electron micrographs"
+msgstr "Rafeindasmásjármyndir"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Make Masks opens transmission electron micrographs as ``.dm3``, ``.dm4``, ``.mrc`` and ``.rec`` files, with TIFF, PNG and the other image formats. The pixel size in nanometres is read from the file. MRC files need the optional ``mrcfile`` package."
+msgstr "Make Masks opnar myndir úr gegnumlýsandi rafeindasmásjá sem ``.dm3``-, ``.dm4``-, ``.mrc``- og ``.rec``-skrár, ásamt TIFF, PNG og öðrum myndsniðum. Pixlastærðin í nanómetrum er lesin úr skránni. MRC-skrár þurfa valfrjálsa pakkann ``mrcfile``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Contrast preset**, under **Lower %** and **Upper %** in the display settings, sets the display in one step. **Electron microscopy (TEM)** windows the image between its 0.5th and 99.5th percentiles, so holes in the section and stain precipitate cannot take the whole range, and turns on **CLAHE** (128 px tiles) under **Image enhancement** to even out uneven section thickness. Membranes stay dark. **Electron microscopy, inverted** also turns on **Invert image**, so dark membranes and organelles are drawn bright and Otsu and the magnifier find them. **Custom** changes nothing, and every value stays editable."
+msgstr "**Forstilling birtuskila**, undir **Neðra %** og **Efri hundraðshlutamörk %** í birtingarstillingunum, stillir birtinguna í einu skrefi. **Rafeindasmásjá (TEM)** afmarkar myndina milli 0,5. og 99,5. hundraðshlutamarks hennar, svo að göt í sneiðinni og útfellingar litarefnis geti ekki tekið allt sviðið, og kveikir á **CLAHE** (128 px reitir) undir **Myndbæting** til að jafna út ójafna þykkt sneiðarinnar. Himnur haldast dökkar. **Rafeindasmásjá, viðsnúin** kveikir einnig á **Snúa við mynd**, svo að dökkar himnur og frumulíffæri eru teiknuð björt og Otsu og stækkunarglerið finna þau. **Sérsniðið** breytir engu, og öll gildi haldast breytanleg."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The arrow on **Load test data…** offers **Mitochondria in TEM images (test data)**: ten transmission electron micrographs (about 32 MB, EMPIAR-10982, CC0), with their mitochondria masks in ``ground_truth_masks/``, which the editor does not read. **FIB-SEM volume, 3D (test data)** downloads a FIB-SEM volume of a HeLa cell (about 25 MB, EMPIAR-10982, CC0) and opens it unsegmented in the 3D editor. **FIB-SEM volume with masks, 3D (test data)** opens the same volume with its mitochondria masks, copied once to ``corrected_masks/`` for correction; ``ground_truth_masks/`` stays unchanged. All are cached after the first download."
+msgstr "Örin á **Hlaða prófunargögnum...** býður upp á **Hvatberar í TEM-myndum (prófunargögn)**: tíu myndir úr gegnumlýsandi rafeindasmásjá (um 32 MB, EMPIAR-10982, CC0), með hvatberagrímum sínum í ``ground_truth_masks/``, sem ritillinn les ekki. **FIB-SEM-rúmmál, 3D (prófunargögn)** sækir FIB-SEM-rúmmál af HeLa-frumu (um 25 MB, EMPIAR-10982, CC0) og opnar það óhlutað í þrívíddarritlinum. **FIB-SEM-rúmmál með grímum, 3D (prófunargögn)** opnar sama rúmmál með hvatberagrímum sínum, sem eru afritaðar einu sinni í ``corrected_masks/`` til leiðréttingar; ``ground_truth_masks/`` helst óbreytt. Öll eru geymd í skyndiminni eftir fyrsta niðurhal."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "With **Show alpha features** on in Preferences, the magnifier's **Method** list offers **MitoNet (TEM mitochondria)**. MitoNet v1 mini finds mitochondria in electron micrographs with dark membranes; it is not a fluorescence model. The weights are third-party (CC-BY-4.0, Conrad and Narayan, Cell Systems 2023), listed under Third-party in the Model Zoo, and download from Zenodo (110 MB) the first time the method runs. **Minimum area** sets the smallest mitochondrion kept. This method is alpha."
+msgstr "Þegar kveikt er á **Sýna alfa-eiginleika** í Kjörstillingum býður listinn **Aðferð** í stækkunarglerinu upp á **MitoNet (hvatberar í TEM)**. MitoNet v1 mini finnur hvatbera í rafeindasmásjármyndum með dökkum himnum; það er ekki flúrljómunarlíkan. Vogtölurnar eru frá þriðja aðila (CC-BY-4.0, Conrad og Narayan, Cell Systems 2023), eru taldar upp undir Third-party í Model Zoo og eru sóttar af Zenodo (110 MB) í fyrsta sinn sem aðferðin keyrir. **Lágmarksflatarmál** ákvarðar minnsta hvatberann sem haldið er. Þessi aðferð er alfa."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Draw bounding boxes for YOLO"
@@ -169,9 +261,6 @@ msgstr "Verkfæri strigans og leiðsögn"
 
 msgid "Tool"
 msgstr "Verkefni"
-
-msgid "Action"
-msgstr "Aðgerð"
 
 msgid "Brush"
 msgstr "Pensill"
@@ -357,9 +446,9 @@ msgstr "Cellpose og aðrir uppsettir bakendar"
 msgid "Use the corresponding model controls. Cellpose exposes diameter, flow-error threshold, cell-probability threshold and normalization. Inspect its cell-probability and flow panes alongside accepted labels."
 msgstr "Notaðu samsvarandi líkanastýringar. Cellpose sýnir þvermál, þröskuld flæðisvillu, þröskuld fyrir líkur á frumu og stöðlun. Skoðaðu glugga þess fyrir líkur á frumu og flæði við hlið samþykktra merkja."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Ordinary Otsu uses a separate magnifier preprocessing path, so its cropped preview and whole-field detection are not guaranteed to be pixel-identical. Other threshold modes run the shared engine on the requested crop; a crop can still have a different histogram from the whole field. Tune on several representative fields and inspect the final whole-image output."
-msgstr "Venjulegt Otsu heldur eldri forvinnsluleið stækkunarglersins. Ekki er tryggt að skorin forskoðun þess og greining á öllu sjónsviðinu séu eins upp á pixla. Aðrir þröskuldshamir keyra sameiginlegu vélina á umbeðnum skurði; skurður getur samt haft annað stuðlarit en allt sjónsviðið. Stilltu á nokkrum dæmigerðum sjónsviðum og skoðaðu lokaúttakið fyrir alla myndina."
+msgstr "Venjulegt Otsu notar sérstaka forvinnsluleið stækkunarglersins, svo ekki er tryggt að skorin forskoðun þess og greining á öllu sjónsviðinu séu eins upp á pixla. Aðrir þröskuldshamir keyra sameiginlegu vélina á umbeðnum skurði; skurður getur samt haft annað stuðlarit en allt sjónsviðið. Stilltu á nokkrum dæmigerðum sjónsviðum og skoðaðu lokaúttakið fyrir alla myndina."
 
 msgid "Enhancement before and after detection"
 msgstr "Bæting fyrir og eftir greiningu"

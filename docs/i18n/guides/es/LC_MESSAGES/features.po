@@ -68,17 +68,21 @@ msgstr "Anotación ofrece una cuadrícula de recortes manejable con el teclado, 
 msgid "Classify CV also offers optional rotations and reflections at inference time. See :doc:`classifier_evaluation` for the aggregation methods, original and mean probabilities, and orientation-stability flags."
 msgstr "Clasificar CV también ofrece rotaciones y reflexiones opcionales durante la inferencia. Consulte :doc:`classifier_evaluation` para los métodos de agregación, las probabilidades originales y medias y los indicadores de estabilidad frente a la orientación."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Own-DINO classifiers (alpha)"
-msgstr ""
+msgstr "Clasificadores own-DINO (alfa)"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Enable **Preferences → Show alpha features**, then open **Embeddings** and load the crop stack. Select an existing own-DINO teacher checkpoint with the own-checkpoint control. **Train classifier…** opens the supervised training form. Supply a CSV with one row per loaded crop, in exactly the same order, and columns ``label`` and ``acquisition_group``. Blank labels are excluded. Each labelled crop needs its known acquisition-well identity; complete groups are held out for validation. Keep string identities such as ``01`` intact."
-msgstr ""
+msgstr "Active **Preferencias → Mostrar funciones alfa**, abra **Embeddings** y cargue la pila de recortes. Seleccione un punto de control maestro own-DINO existente con el control de punto de control propio. **Entrenar clasificador…** abre el formulario de entrenamiento supervisado. Proporcione un CSV con una fila por recorte cargado, exactamente en el mismo orden, y las columnas ``label`` y ``acquisition_group``. Las etiquetas vacías se excluyen. Cada recorte etiquetado necesita la identidad conocida de su pocillo de adquisición; los grupos completos se reservan para la validación. Conserve intactas las identidades de texto como ``01``."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Enter the ordered physical source-channel indices for these crops, choose training settings, and select a new classifier output file. Existing output files are preserved. The saved classifier records its classes, channel order, scaling and feature-normalization policy. Progress is shown during training; **Stop classifier** requests cancellation."
-msgstr ""
+msgstr "Introduzca los índices ordenados de los canales físicos de origen de estos recortes, elija los ajustes de entrenamiento y seleccione un nuevo archivo de salida para el clasificador. Los archivos de salida existentes se conservan. El clasificador guardado registra sus clases, el orden de canales, el escalado y la política de normalización de características. El progreso se muestra durante el entrenamiento; **Detener el clasificador** solicita la cancelación."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Use **Apply saved classifier…** to select that classifier and apply it to the loaded raw crop stack. Its recorded preprocessing is applied automatically. **Classifier results…** shows predictions, features, logits and probabilities, with the class order, physical channels and checkpoint digest. CSV export includes the complete selected result table. **Cancel classifier result** discards pending delivery; the worker can remain active until it finishes. These alpha controls do not establish phenotype accuracy for a new dataset."
-msgstr ""
+msgstr "Use **Aplicar clasificador guardado…** para seleccionar ese clasificador y aplicarlo a la pila de recortes sin procesar cargada. Su preprocesamiento registrado se aplica automáticamente. **Resultados de clasificación…** muestra predicciones, características, logits y probabilidades, con el orden de clases, los canales físicos y el resumen criptográfico del punto de control. La exportación CSV incluye la tabla de resultados seleccionada completa. **Cancelar resultado de clasificación** descarta la entrega pendiente; el proceso de trabajo puede seguir activo hasta que termine. Estos controles alfa no establecen la exactitud fenotípica para un conjunto de datos nuevo."
 
 msgid "Map Barcodes"
 msgstr "Mapear códigos de barras"

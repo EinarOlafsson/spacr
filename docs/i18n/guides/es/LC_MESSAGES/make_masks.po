@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: es\n"
@@ -52,9 +52,9 @@ msgid "The saved integer mask gives every retained punctum its own label. Nearby
 msgstr "La máscara entera guardada asigna una etiqueta propia a cada punto retenido. Las ventanas centrales próximas pueden solaparse: cada máximo en coordenadas enteras se reserva para su objeto, los demás píxeles compartidos se asignan al centro más cercano y se omiten los píxeles fuera del objeto parental. Por ello, una máscara puede contener menos de los N píxeles solicitados. Es una máscara de muestreo central, no el límite físico del punto."
 
 # AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv`` and ``<stem>.puncta.json`` beside the mask. The table contains all candidates, their inclusion flags, output object labels, parent IDs, coordinates, noise, local background, exact 10/20/40-pixel centre means and the selected N-pixel mean. Exact centre means retain overlapping samples independently of label ownership. Use ``center_corrected`` for the selected N-pixel mean minus local background, or ``corrected20`` for the fixed 20-pixel variant. The ``corrected`` column holds the reference's three-by-three-window result. The receipt binds the image, parent mask, output mask, CSV and detector settings to checksums. Edited or combined labels cannot silently receive the old centre measurements. Local previews estimate noise within their crop; use whole-image detection for scientific results."
-msgstr "Guardar una detección sin modificar de toda la imagen también escribe ``<stem>.puncta.csv`` y ``<stem>.puncta.json`` junto a la máscara. La tabla contiene todos los candidatos, sus indicadores de inclusión, las etiquetas de los objetos de salida, los IDs parentales, las coordenadas, el ruido, el fondo local, las medias centrales exactas de 10/20/40 píxeles y la media seleccionada de N píxeles. Las medias centrales exactas conservan las muestras solapadas independientemente de la asignación de etiquetas. Use ``center_corrected`` para la media seleccionada de N píxeles menos el fondo local, o ``corrected20`` para la variante fija de 20 píxeles. La columna heredada ``corrected`` conserva el resultado de la ventana de tres por tres de la referencia. El comprobante vincula la imagen, la máscara parental, la máscara de salida, el CSV y los ajustes del detector mediante sumas de comprobación. Las etiquetas editadas o combinadas no pueden recibir silenciosamente las medidas centrales anteriores. Las vistas previas locales estiman el ruido dentro de su recorte; use la detección de toda la imagen para obtener resultados científicos."
+msgstr "Guardar una detección sin modificar de toda la imagen también escribe ``<stem>.puncta.csv`` y ``<stem>.puncta.json`` junto a la máscara. La tabla contiene todos los candidatos, sus indicadores de inclusión, las etiquetas de los objetos de salida, los IDs parentales, las coordenadas, el ruido, el fondo local, las medias centrales exactas de 10/20/40 píxeles y la media seleccionada de N píxeles. Las medias centrales exactas conservan las muestras solapadas independientemente de la asignación de etiquetas. Use ``center_corrected`` para la media seleccionada de N píxeles menos el fondo local, o ``corrected20`` para la variante fija de 20 píxeles. La columna ``corrected`` contiene el resultado de la ventana de tres por tres de la referencia. El comprobante vincula la imagen, la máscara parental, la máscara de salida, el CSV y los ajustes del detector mediante sumas de comprobación. Las etiquetas editadas o combinadas no pueden recibir silenciosamente las medidas centrales anteriores. Las vistas previas locales estiman el ruido dentro de su recorte; use la detección de toda la imagen para obtener resultados científicos."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use **Organize for Measure…** to place the puncta in an organelle mask slot alongside the parent masks and original channels. Measure can report ordinary mask-region intensities and parent relationships, but those means can differ from exact centre means when samples overlap. Use the source-bound puncta table for the centre/annulus analysis. This detector alone does not implement the noise-null model, hierarchical tests or a composed publication figure."
@@ -99,11 +99,103 @@ msgid "**Save on navigation**, after **Next image**, saves an edited mask before
 msgstr "**Guardar al navegar**, situado después de **Imagen siguiente**, guarda una máscara editada antes de que **Mantener**, **Descartar**, **Imagen siguiente** o **Imagen anterior** avance. Está desactivado de forma predeterminada y se recuerda entre sesiones. Si el guardado falla, la imagen sigue abierta y no se registra ningún veredicto. **Omitir** nunca escribe una máscara."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "**Open 3D image…** opens a TIFF with three spatial axes in the 3D mask editor; time, channel and RGB stacks are refused. Rotate the view, draw an object, then drag its anchors or select surfaces (Ctrl-click for several) and drag them or turn the mouse wheel. **Anchor density** sets how many anchors each edge and surface gets, and **Show anchors** hides them. Edits change the mask voxels themselves, keep the image's axis order and voxel spacing, and never overwrite another object. **Save 3D mask** writes the labels and their editable boundary; the 2D image and mask stay unchanged."
-msgstr "**Abrir imagen 3D…** abre un TIFF con tres ejes espaciales en el editor de máscaras 3D; se rechazan las pilas de tiempo, de canal y RGB. Gire la vista, dibuje un objeto y luego arrastre sus anclas, o seleccione superficies (Ctrl-click para varias) y arrástrelas o gire la rueda del ratón. **Densidad de anclas** establece cuántas anclas recibe cada arista y cada superficie, y **Mostrar anclas** permite ocultarlas. Las ediciones cambian los propios vóxeles de la máscara, conservan el orden de ejes y el espaciado de vóxel de la imagen y nunca sobrescriben otro objeto. **Guardar máscara 3D** escribe las etiquetas y su contorno editable; la imagen y la máscara 2D no cambian."
+msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on, the electron microscopy test data and the FIB-SEM volumes described under :ref:`mm-tem` and :ref:`mm-volumes`."
+msgstr "Para probar la pantalla sin datos propios, **Cargar datos de prueba...** descarga diez campos sin segmentar de vacuolas de Toxoplasma, con sus máscaras curadas guardadas aparte en ``ground_truth_masks/``, y abre el primero. La flecha del mismo botón ofrece una muestra de campos del conjunto de datos con el que se entrenó cada modelo publicado, los datos de prueba de microscopía electrónica y los volúmenes FIB-SEM descritos en :ref:`mm-tem` y :ref:`mm-volumes`."
 
-msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
-msgstr "Para probar la pantalla sin datos propios, **Cargar datos de prueba...** descarga diez campos sin segmentar de vacuolas de Toxoplasma, con sus máscaras curadas guardadas aparte en ``ground_truth_masks/``, y abre el primero. La flecha del mismo botón ofrece una muestra de campos del conjunto de datos con el que se entrenó cada modelo publicado."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "3D volumes in the Mask view"
+msgstr "Volúmenes 3D en la vista Máscaras"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A volume opens in the Mask view, where 2-D fields open. A TIFF stack, an OME-TIFF or an MRC volume (``.mrc``, ``.rec`` or ``.map``) with three spatial axes is recognised as a volume when it is in the folder you open or when you choose **Open 3D image…**. Time, channel and RGB stacks are refused rather than read as depth. An MRC volume needs the optional ``mrcfile`` package. The status line reports the number of slices and the voxel size."
+msgstr "Un volumen se abre en la vista Máscaras, donde se abren los campos 2D. Una pila TIFF, un OME-TIFF o un volumen MRC (``.mrc``, ``.rec`` o ``.map``) con tres ejes espaciales se reconoce como volumen cuando está en la carpeta que abre o cuando elige **Open 3D image…**. Las pilas de tiempo, de canales y RGB se rechazan en lugar de leerse como profundidad. Un volumen MRC necesita el paquete opcional ``mrcfile``. La línea de estado indica el número de cortes y el tamaño de vóxel."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The **slice slider** at the left of the image steps through the slices; **Page Up** and **Page Down** step too. Every 2-D tool draws on the slice on screen."
+msgstr "El **control deslizante de cortes** a la izquierda de la imagen recorre los cortes; **Page Up** y **Page Down** también los recorren. Todas las herramientas 2D dibujan en el corte mostrado."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The **Z** button above the slider is the Z wheel toggle. On (blue), the mouse wheel changes the slice; off, the wheel zooms."
+msgstr "El botón **Z** sobre el control deslizante activa o desactiva la rueda Z. Activado (azul), la rueda del ratón cambia el corte; desactivado, la rueda aplica zoom."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The **View** list beside the Mask tab chooses **Default**, **Orthogonal** or **True 3D**. Default draws on one slice at a time. Orthogonal adds the XZ and YZ side views through a crosshair; the middle mouse button moves the crosshair. True 3D shows the volume and its objects in three dimensions."
+msgstr "La lista **View** junto a la pestaña Máscaras elige **Predeterminado**, **Ortogonal** o **True 3D**. Predeterminado dibuja en un corte cada vez. Ortogonal añade las vistas laterales XZ e YZ a través de una cruz; el botón central del ratón mueve la cruz. True 3D muestra el volumen y sus objetos en tres dimensiones."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The row above the image holds **Object ID** (an existing object to edit, or an unused ID for a new one), **Interpolate slices**, **Assign 3D objects** and **Delete object**."
+msgstr "La fila sobre la imagen contiene **ID de objeto** (un objeto existente que editar o un ID no usado para uno nuevo), **Interpolar cortes**, **Asignar objetos 3D** y **Eliminar objeto**."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Interpolate slices** fills the empty slices between slices where the chosen object is drawn, blending its outline from one to the next. **Assign 3D objects** gives every separate 3D object its own ID: parts of one ID that do not touch in 3D become new objects, so you can draw many objects with one ID and then assign them. **Delete object** removes the chosen object from every slice. Each of these is one undo step."
+msgstr "**Interpolar cortes** rellena los cortes vacíos entre los cortes en los que está dibujado el objeto elegido, fundiendo su contorno de uno al siguiente. **Asignar objetos 3D** da a cada objeto 3D separado su propio ID: las partes de un ID que no se tocan en 3D pasan a ser objetos nuevos, de modo que puede dibujar muchos objetos con un ID y luego asignarlos. **Eliminar objeto** quita el objeto elegido de todos los cortes. Cada una de estas acciones es un paso de deshacer."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "In True 3D, draw an object, then drag its anchors or select surfaces (Ctrl-click for several) and drag them or turn the mouse wheel. **Anchor density** sets how many anchors each edge and surface gets, and **Show anchors** hides them. The view is a sampled point-cloud preview; the edits and voxel counts use the full image. These keys work while True 3D is shown, and are listed under **Change shortcuts**:"
+msgstr "En True 3D, dibuje un objeto y luego arrastre sus anclas o seleccione superficies (Ctrl+clic para varias) y arrástrelas o gire la rueda del ratón. **Densidad de anclas** fija cuántas anclas recibe cada borde y cada superficie, y **Mostrar anclas** las oculta. La vista es una vista previa muestreada como nube de puntos; las ediciones y los recuentos de vóxeles usan la imagen completa. Estas teclas funcionan mientras se muestra True 3D y figuran en **Cambiar atajos**:"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Key"
+msgstr "Tecla"
+
+msgid "Action"
+msgstr "Acción"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Shift+E**"
+msgstr "**Shift+E**"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Edit: drag anchors and surfaces."
+msgstr "Editar: arrastrar anclas y superficies."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Shift+S**"
+msgstr "**Shift+S**"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Spin the view freely."
+msgstr "Girar la vista libremente."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Shift+D**"
+msgstr "**Shift+D**"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Draw a new object."
+msgstr "Dibujar un objeto nuevo."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Shift+X**, **Shift+Y**, **Shift+Z**"
+msgstr "**Shift+X**, **Shift+Y**, **Shift+Z**"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Choose the X, Y or Z drawing plane. Pressed within 1.5 s of **Shift+S**, they choose the spin axis instead."
+msgstr "Elegir el plano de dibujo X, Y o Z. Si se pulsan en el plazo de 1,5 s tras **Shift+S**, eligen en su lugar el eje de giro."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Edits change the mask voxels themselves, keep the image's axis order and voxel spacing, and never overwrite another object. **Save mask** or **Ctrl+S** writes the labels to ``masks/<image stem>.tif`` and their editable boundaries to a ``.volume.json`` file beside it; the source volume is never overwritten."
+msgstr "Las ediciones modifican los propios vóxeles de la máscara, conservan el orden de ejes y el espaciado de vóxel de la imagen y nunca sobrescriben otro objeto. **Guardar máscara** o **Ctrl+S** escribe las etiquetas en ``masks/<image stem>.tif`` y sus contornos editables en un archivo ``.volume.json`` junto a ella; el volumen de origen nunca se sobrescribe."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Electron micrographs"
+msgstr "Micrografías electrónicas"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Make Masks opens transmission electron micrographs as ``.dm3``, ``.dm4``, ``.mrc`` and ``.rec`` files, with TIFF, PNG and the other image formats. The pixel size in nanometres is read from the file. MRC files need the optional ``mrcfile`` package."
+msgstr "Crear máscaras abre micrografías electrónicas de transmisión como archivos ``.dm3``, ``.dm4``, ``.mrc`` y ``.rec``, además de TIFF, PNG y los demás formatos de imagen. El tamaño de píxel en nanómetros se lee del archivo. Los archivos MRC necesitan el paquete opcional ``mrcfile``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Contrast preset**, under **Lower %** and **Upper %** in the display settings, sets the display in one step. **Electron microscopy (TEM)** windows the image between its 0.5th and 99.5th percentiles, so holes in the section and stain precipitate cannot take the whole range, and turns on **CLAHE** (128 px tiles) under **Image enhancement** to even out uneven section thickness. Membranes stay dark. **Electron microscopy, inverted** also turns on **Invert image**, so dark membranes and organelles are drawn bright and Otsu and the magnifier find them. **Custom** changes nothing, and every value stays editable."
+msgstr "**Ajuste de contraste predefinido**, bajo **% inferior** y **Percentil superior %** en los ajustes de visualización, configura la visualización en un solo paso. **Microscopía electrónica (TEM)** limita la visualización de la imagen a entre sus percentiles 0,5 y 99,5, para que los agujeros de la sección y los precipitados de tinción no ocupen todo el rango, y activa **CLAHE** (teselas de 128 px) en **Mejora de imagen** para compensar el grosor irregular de la sección. Las membranas siguen oscuras. **Microscopía electrónica, invertida** activa además **Invertir imagen**, de modo que las membranas y los orgánulos oscuros se dibujan claros y Otsu y la lupa los encuentran. **Personalizado** no cambia nada, y todos los valores siguen siendo editables."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The arrow on **Load test data…** offers **Mitochondria in TEM images (test data)**: ten transmission electron micrographs (about 32 MB, EMPIAR-10982, CC0), with their mitochondria masks in ``ground_truth_masks/``, which the editor does not read. **FIB-SEM volume, 3D (test data)** downloads a FIB-SEM volume of a HeLa cell (about 25 MB, EMPIAR-10982, CC0) and opens it unsegmented in the 3D editor. **FIB-SEM volume with masks, 3D (test data)** opens the same volume with its mitochondria masks, copied once to ``corrected_masks/`` for correction; ``ground_truth_masks/`` stays unchanged. All are cached after the first download."
+msgstr "La flecha de **Cargar datos de prueba...** ofrece **Mitocondrias en imágenes TEM (datos de prueba)**: diez micrografías electrónicas de transmisión (unos 32 MB, EMPIAR-10982, CC0), con sus máscaras de mitocondrias en ``ground_truth_masks/``, que el editor no lee. **Volumen FIB-SEM, 3D (datos de prueba)** descarga un volumen FIB-SEM de una célula HeLa (unos 25 MB, EMPIAR-10982, CC0) y lo abre sin segmentar en el editor 3D. **Volumen FIB-SEM con máscaras, 3D (datos de prueba)** abre el mismo volumen con sus máscaras de mitocondrias, copiadas una vez en ``corrected_masks/`` para su corrección; ``ground_truth_masks/`` no cambia. Todos se almacenan en caché tras la primera descarga."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "With **Show alpha features** on in Preferences, the magnifier's **Method** list offers **MitoNet (TEM mitochondria)**. MitoNet v1 mini finds mitochondria in electron micrographs with dark membranes; it is not a fluorescence model. The weights are third-party (CC-BY-4.0, Conrad and Narayan, Cell Systems 2023), listed under Third-party in the Model Zoo, and download from Zenodo (110 MB) the first time the method runs. **Minimum area** sets the smallest mitochondrion kept. This method is alpha."
+msgstr "Con **Mostrar funciones alfa** activado en Preferencias, la lista **Método** de la lupa ofrece **MitoNet (mitocondrias en TEM)**. MitoNet v1 mini encuentra mitocondrias en micrografías electrónicas con membranas oscuras; no es un modelo de fluorescencia. Los pesos son de terceros (CC-BY-4.0, Conrad y Narayan, Cell Systems 2023), figuran en Terceros en el Model Zoo y se descargan de Zenodo (110 MB) la primera vez que se ejecuta el método. **Área mínima** fija la mitocondria más pequeña que se conserva. Este método está en fase alfa."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Draw bounding boxes for YOLO"
@@ -169,9 +261,6 @@ msgstr "Herramientas del lienzo y navegación"
 
 msgid "Tool"
 msgstr "Herramienta"
-
-msgid "Action"
-msgstr "Acción"
 
 msgid "Brush"
 msgstr "Pincel"
@@ -357,9 +446,9 @@ msgstr "Cellpose y otros backends instalados"
 msgid "Use the corresponding model controls. Cellpose exposes diameter, flow-error threshold, cell-probability threshold and normalization. Inspect its cell-probability and flow panes alongside accepted labels."
 msgstr "Use los controles de modelo correspondientes. Cellpose expone el diámetro, el umbral de error de flujo, el umbral de probabilidad celular y la normalización. Revise sus paneles de probabilidad celular y de flujo junto con las etiquetas aceptadas."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Ordinary Otsu uses a separate magnifier preprocessing path, so its cropped preview and whole-field detection are not guaranteed to be pixel-identical. Other threshold modes run the shared engine on the requested crop; a crop can still have a different histogram from the whole field. Tune on several representative fields and inspect the final whole-image output."
-msgstr "Otsu normal conserva una vía de preprocesamiento antigua para la lupa. No se garantiza que su vista previa recortada y la detección en todo el campo sean idénticas píxel a píxel. Los demás modos de umbral ejecutan el motor común sobre el recorte solicitado; aun así, un recorte puede tener un histograma distinto del campo completo. Ajuste en varios campos representativos y revise la salida final en toda la imagen."
+msgstr "Otsu normal usa una vía de preprocesamiento propia de la lupa, por lo que no se garantiza que su vista previa recortada y la detección en todo el campo sean idénticas píxel a píxel. Los demás modos de umbral ejecutan el motor común sobre el recorte solicitado; aun así, un recorte puede tener un histograma distinto del campo completo. Ajuste en varios campos representativos y revise la salida final en toda la imagen."
 
 msgid "Enhancement before and after detection"
 msgstr "Mejora antes y después de la detección"

@@ -68,17 +68,21 @@ msgstr "어노테이션 모듈은 키보드로 조작하는 크롭 격자를 제
 msgid "Classify CV also offers optional rotations and reflections at inference time. See :doc:`classifier_evaluation` for the aggregation methods, original and mean probabilities, and orientation-stability flags."
 msgstr "분류 CV는 추론 시 선택적 회전과 반사도 제공합니다. 집계 방법, 원래 확률과 평균 확률, 방향 안정성 표시는 :doc:`classifier_evaluation` 을 참조합니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Own-DINO classifiers (alpha)"
-msgstr ""
+msgstr "자체 DINO 분류기(알파)"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Enable **Preferences → Show alpha features**, then open **Embeddings** and load the crop stack. Select an existing own-DINO teacher checkpoint with the own-checkpoint control. **Train classifier…** opens the supervised training form. Supply a CSV with one row per loaded crop, in exactly the same order, and columns ``label`` and ``acquisition_group``. Blank labels are excluded. Each labelled crop needs its known acquisition-well identity; complete groups are held out for validation. Keep string identities such as ``01`` intact."
-msgstr ""
+msgstr "**환경설정 → 알파 기능 표시** 를 켠 다음 **Embeddings** 를 열고 크롭 스택을 불러옵니다. 자체 체크포인트 컨트롤로 기존 자체 DINO 교사 체크포인트를 선택합니다. **분류기 학습…** 은 지도 학습 양식을 엽니다. 불러온 크롭마다 한 행씩, 정확히 같은 순서로, ``label`` 열과 ``acquisition_group`` 열이 있는 CSV를 제공합니다. 빈 라벨은 제외됩니다. 라벨이 지정된 각 크롭에는 알려진 획득 웰 식별자가 필요하며, 전체 그룹 단위로 검증용으로 분리됩니다. ``01`` 같은 문자열 식별자는 그대로 유지합니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Enter the ordered physical source-channel indices for these crops, choose training settings, and select a new classifier output file. Existing output files are preserved. The saved classifier records its classes, channel order, scaling and feature-normalization policy. Progress is shown during training; **Stop classifier** requests cancellation."
-msgstr ""
+msgstr "이 크롭의 물리적 원본 채널 인덱스를 순서대로 입력하고, 학습 설정을 선택한 다음, 새 분류기 출력 파일을 선택합니다. 기존 출력 파일은 보존됩니다. 저장된 분류기는 클래스, 채널 순서, 스케일링 및 특징 정규화 정책을 기록합니다. 학습 중에는 진행 상황이 표시되며, **분류기 중지** 는 취소를 요청합니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Use **Apply saved classifier…** to select that classifier and apply it to the loaded raw crop stack. Its recorded preprocessing is applied automatically. **Classifier results…** shows predictions, features, logits and probabilities, with the class order, physical channels and checkpoint digest. CSV export includes the complete selected result table. **Cancel classifier result** discards pending delivery; the worker can remain active until it finishes. These alpha controls do not establish phenotype accuracy for a new dataset."
-msgstr ""
+msgstr "**저장된 분류기 적용…** 을 사용하여 해당 분류기를 선택하고 불러온 원시 크롭 스택에 적용합니다. 기록된 전처리가 자동으로 적용됩니다. **분류 결과…** 는 예측, 특징, 로짓 및 확률을 클래스 순서, 물리적 채널, 체크포인트 다이제스트와 함께 표시합니다. CSV 내보내기에는 선택한 전체 결과 표가 포함됩니다. **분류 결과 취소** 는 대기 중인 결과 전달을 폐기하며, 작업자는 끝날 때까지 계속 실행될 수 있습니다. 이 알파 컨트롤은 새 데이터 세트에 대한 표현형 정확도를 입증하지 않습니다."
 
 msgid "Map Barcodes"
 msgstr "바코드 매핑"

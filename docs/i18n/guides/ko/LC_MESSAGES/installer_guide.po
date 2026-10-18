@@ -49,16 +49,15 @@ msgid "Windows 10/11"
 msgstr "Windows 10/11"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-#, fuzzy
 msgid "Run ``SpaCR-<version>-Windows-Online-Setup.exe``. The default per-user location is ``%LOCALAPPDATA%\\spaCR`` and does not require administrator access. Automatic hardware acceleration is selected by default. It installs a CUDA-capable PyTorch build on compatible NVIDIA systems. On other systems it installs the PyTorch build that ``uv`` selects for the detected hardware, which is the CPU build when no supported GPU is detected. Clear the component only when you require the smaller CPU-only installation. The unticked component **Install without wgpu (use OpenGL/CPU for 3D)** leaves out the wgpu 3D renderer; see :ref:`wgpu-3d-rendering`. From PowerShell, the same choice is the ``-WithoutWgpu`` switch of ``install_spacr_windows.ps1``."
-msgstr "``SpaCR-<version>-Windows-Online-Setup.exe``\\ 를 실행합니다. 기본 사용자별 위치는 ``%LOCALAPPDATA%\\spaCR``\\ 이며 관리자 권한이 필요하지 않습니다. 자동 하드웨어 가속이 기본으로 선택됩니다. 호환되는 NVIDIA 시스템에서는 CUDA 지원 PyTorch 빌드를 설치합니다. 그 밖의 시스템에서는 ``uv``\\ 가 감지된 하드웨어에 맞게 선택하는 PyTorch 빌드를 설치하며, 지원되는 GPU가 감지되지 않으면 CPU 빌드가 설치됩니다. 더 작은 CPU 전용 설치가 필요할 때만 이 구성 요소를 해제합니다."
+msgstr "``SpaCR-<version>-Windows-Online-Setup.exe``\\ 를 실행합니다. 기본 사용자별 위치는 ``%LOCALAPPDATA%\\spaCR``\\ 이며 관리자 권한이 필요하지 않습니다. 자동 하드웨어 가속이 기본으로 선택됩니다. 호환되는 NVIDIA 시스템에서는 CUDA 지원 PyTorch 빌드를 설치합니다. 그 밖의 시스템에서는 ``uv``\\ 가 감지된 하드웨어에 맞게 선택하는 PyTorch 빌드를 설치하며, 지원되는 GPU가 감지되지 않으면 CPU 빌드가 설치됩니다. 더 작은 CPU 전용 설치가 필요할 때만 이 구성 요소를 해제합니다. 선택되지 않은 구성 요소 **Install without wgpu (use OpenGL/CPU for 3D)** 는 wgpu 3D 렌더러를 제외합니다. :ref:`wgpu-3d-rendering` 를 참조하세요. PowerShell에서는 ``install_spacr_windows.ps1`` 의 ``-WithoutWgpu`` 스위치가 같은 선택입니다."
 
 msgid "macOS 11 or later"
 msgstr "macOS 11 이상"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Open ``SpaCR-<version>-macOS-Universal-Online.pkg``. The application is placed in ``/Applications/spaCR.app``. The spaCR setup window creates its private runtime under ``~/Library/Application Support/spaCR`` and displays progress, dependency choices and any required consent. Complete those choices in the window; setup does not require answers in Terminal. When setup finishes, spaCR opens its startup window and then the main application. The current beta is not notarized. If Gatekeeper blocks it, open **System Settings → Privacy & Security** and choose **Open Anyway** for spaCR. The first-launch window has an unchecked **Install without wgpu (use OpenGL/CPU for 3D)** box; see :ref:`wgpu-3d-rendering`."
-msgstr "``SpaCR-<version>-macOS-Universal-Online.pkg`` 를 엽니다. 애플리케이션은 ``/Applications/spaCR.app`` 에 설치됩니다. 처음 실행하면 터미널에 표시되는 부트스트랩이 ``~/Library/Application Support/spaCR`` 아래에 전용 런타임을 만듭니다. 현재 베타 버전은 공증(notarization)을 받지 않았습니다. Gatekeeper가 차단하면 **System Settings → Privacy & Security** 를 열고 spaCR에 대해 **Open Anyway** 를 선택합니다."
+msgstr "``SpaCR-<version>-macOS-Universal-Online.pkg`` 를 엽니다. 애플리케이션은 ``/Applications/spaCR.app`` 에 설치됩니다. spaCR 설정 창은 ``~/Library/Application Support/spaCR`` 아래에 전용 런타임을 만들고 진행 상황, 종속성 선택 및 필요한 동의를 표시합니다. 이 선택은 창에서 완료합니다. 설정 중에 터미널에서 응답할 필요는 없습니다. 설정이 끝나면 spaCR이 시작 창을 연 다음 기본 애플리케이션을 엽니다. 현재 베타 버전은 공증(notarization)을 받지 않았습니다. Gatekeeper가 차단하면 **System Settings → Privacy & Security** 를 열고 spaCR에 대해 **Open Anyway** 를 선택합니다. 첫 실행 창에는 선택되지 않은 **Install without wgpu (use OpenGL/CPU for 3D)** 상자가 있습니다. :ref:`wgpu-3d-rendering` 를 참조하세요."
 
 msgid "Linux x86-64"
 msgstr "Linux x86-64"
@@ -72,23 +71,28 @@ msgstr "기본 설치 루트는 ``~/.local/share/spacr`` 입니다. 실행 도�
 msgid "Automatic backend selection is the Linux default. It installs CUDA support when compatible NVIDIA hardware is available. To require the smaller CPU-only build instead, run the installer with ``--torch-backend cpu``."
 msgstr "Linux에서는 백엔드 자동 선택이 기본값입니다. 호환되는 NVIDIA 하드웨어가 있으면 CUDA 지원을 설치합니다. 대신 더 작은 CPU 전용 빌드를 사용하려면 ``--torch-backend cpu`` 로 설치 프로그램을 실행합니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "To leave out the wgpu 3D renderer, run the installer with ``--without-wgpu``, or tick **Install without wgpu (use OpenGL/CPU for 3D)** in the installer window; the box is unchecked by default. On a Linux system whose glibc is older than 2.28 the installer leaves wgpu out by itself and prints one line saying so, because wgpu publishes Linux wheels only for glibc 2.28 and newer. ``--dry-run`` shows the decision in its plan, as the ``wgpu 3D rendering`` line. See :ref:`wgpu-3d-rendering`."
-msgstr ""
+msgstr "wgpu 3D 렌더러를 제외하려면 ``--without-wgpu`` 로 설치 프로그램을 실행하거나, 설치 프로그램 창에서 **Install without wgpu (use OpenGL/CPU for 3D)** 를 선택합니다. 이 상자는 기본적으로 선택되어 있지 않습니다. glibc가 2.28보다 오래된 Linux 시스템에서는 설치 프로그램이 wgpu를 자동으로 제외하고 그 사실을 한 줄로 출력합니다. wgpu는 glibc 2.28 이상용 Linux wheel만 게시하기 때문입니다. ``--dry-run`` 은 계획의 ``wgpu 3D rendering`` 줄에 이 결정을 표시합니다. :ref:`wgpu-3d-rendering` 를 참조하세요."
 
 msgid "Updating"
 msgstr "업데이트"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Choose **Help → Check for updates**, review the offered version and choose **Update**. Supported macOS installations and dedicated private Python installations prepare the replacement in the background. When it is ready, choose **Restart** to finish closing the current application and open the verified replacement through the spaCR startup window. No manual click on the application icon is needed. Frozen Windows and Debian installations use their native authorization and replacement workflows."
-msgstr ""
+msgstr "**도움말 → Check for updates** 를 선택하고 제공된 버전을 확인한 다음 **Update** 를 선택합니다. 지원되는 macOS 설치와 전용 개인 Python 설치는 백그라운드에서 교체본을 준비합니다. 준비가 끝나면 **다시 시작** 을 선택하여 현재 애플리케이션 종료를 마치고, 검증된 교체본을 spaCR 시작 창을 통해 엽니다. 애플리케이션 아이콘을 직접 클릭할 필요는 없습니다. 고정(frozen) Windows 및 Debian 설치는 각 운영 체제 고유의 권한 부여 및 교체 워크플로를 사용합니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Older Linux and Windows online layouts without a verified update adapter are refused before replacement starts. The application stays open and keeps its data. Use the matching release installer for those installations."
-msgstr ""
+msgstr "검증된 업데이트 어댑터가 없는 이전 Linux 및 Windows 온라인 설치 구조는 교체가 시작되기 전에 거부됩니다. 애플리케이션은 열린 상태로 유지되며 데이터도 유지됩니다. 이러한 설치에는 해당 릴리스 설치 프로그램을 사용하세요."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Alternatively, download and run the installer for the requested version from the `GitHub releases <https://github.com/EinarOlafsson/spacr/releases>`_. This is also the way to move an older installer to the current desktop update flow. Use the installer for the same platform and installation family as the copy being replaced."
-msgstr ""
+msgstr "또는 `GitHub releases <https://github.com/EinarOlafsson/spacr/releases>`_\\ 에서 원하는 버전의 설치 프로그램을 다운로드하여 실행합니다. 이 방법으로 이전 설치 프로그램 설치본을 현재 데스크톱 업데이트 흐름으로 옮길 수도 있습니다. 교체할 사본과 같은 플랫폼 및 같은 설치 유형의 설치 프로그램을 사용하세요."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Installation is staged and validated before replacement. An unsuccessful preparation keeps the previous application; activation failures retain or restore the previous runtime and report any recovery needed. Ordinary updates keep models, caches, preferences, run history and project outputs. Optional update cache cleanup starts unselected and requires a separate confirmation."
-msgstr ""
+msgstr "설치는 교체 전에 스테이징되고 검증됩니다. 준비에 실패하면 이전 애플리케이션이 유지되며, 활성화에 실패하면 이전 런타임을 유지하거나 복원하고 필요한 복구 작업을 보고합니다. 일반 업데이트는 모델, 캐시, 환경설정, 실행 기록 및 프로젝트 출력을 유지합니다. 선택 사항인 업데이트 캐시 정리는 처음에는 선택되어 있지 않으며 별도의 확인이 필요합니다."
 
 msgid "Update channel and What's new"
 msgstr "업데이트 채널과 새로운 기능"
@@ -107,34 +111,39 @@ msgstr "spaCR이 하는 모든 다운로드(모델 가중치, 업데이트, 플�
 msgid "macOS online installation: update and reopen"
 msgstr "macOS 온라인 설치: 업데이트 후 다시 열기"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Choose **Help → Check for updates**, accept the available update, and confirm the requested version. spaCR prepares a separate private runtime using the installation's bundled ``uv`` while the window remains responsive. After preparation succeeds, **Restart** activates the verified runtime and opens its startup window and main window. The existing launcher is retained. No remove prompt, manual icon relaunch or Terminal questionnaire is part of this flow."
-msgstr ""
+msgstr "**도움말 → Check for updates** 를 선택하고, 사용 가능한 업데이트를 수락한 다음, 요청한 버전을 확인합니다. spaCR은 창이 응답 상태를 유지하는 동안 설치에 포함된 ``uv`` 를 사용하여 별도의 전용 런타임을 준비합니다. 준비가 성공하면 **다시 시작** 이 검증된 런타임을 활성화하고 해당 시작 창과 기본 창을 엽니다. 기존 실행기는 유지됩니다. 이 흐름에는 제거 확인, 아이콘을 통한 수동 재실행 또는 터미널 질문 절차가 포함되지 않습니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "If preparation or verification fails, the application stays on the previous version and shows the failure. If an analysis or screen prevents safe closure, the replacement is not authorized. Details are retained in ``~/.spacr/logs/update.log``. A frozen application bundle uses its verified bundle replacement workflow instead of updating a Python environment."
-msgstr ""
+msgstr "준비 또는 검증에 실패하면 애플리케이션은 이전 버전으로 유지되고 실패 내용을 표시합니다. 분석이나 화면 때문에 안전하게 닫을 수 없으면 교체가 승인되지 않습니다. 자세한 내용은 ``~/.spacr/logs/update.log`` 에 보존됩니다. 고정 애플리케이션 번들은 Python 환경을 업데이트하는 대신 검증된 번들 교체 워크플로를 사용합니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Supported frozen macOS, Windows and Debian installations prepare their replacement while the current application remains open. Protected installations request the operating system's graphical administrator authorization before offering **Restart**. Cancellation keeps the current application open. Activation waits for safe closure and actual process exit; the new application must confirm its version, executable and main window before recovery files are retired."
-msgstr ""
+msgstr "지원되는 고정 macOS, Windows 및 Debian 설치는 현재 애플리케이션이 열려 있는 동안 교체본을 준비합니다. 보호된 설치는 **다시 시작** 을 제공하기 전에 운영 체제의 그래픽 관리자 권한 부여를 요청합니다. 취소하면 현재 애플리케이션이 열린 상태로 유지됩니다. 활성화는 안전한 종료와 실제 프로세스 종료를 기다리며, 새 애플리케이션이 버전, 실행 파일 및 기본 창을 확인한 후에야 복구 파일이 폐기됩니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Windows automatic updates require the release's checksummed ``spaCR-VERSION-update.exe``. The ordinary ``spaCR-VERSION-setup.exe`` remains the interactive installation download and is never substituted by the updater. Protected macOS updates require an installed helper that advertises the current native phase protocol. Older helpers, missing update assets and unsupported legacy Linux or Windows online layouts report the limitation while keeping the application open. Use the matching ordinary installer from GitHub releases to bring such an installation forward; shared and Conda environments use their package manager."
-msgstr ""
+msgstr "Windows 자동 업데이트에는 릴리스의 체크섬이 있는 ``spaCR-VERSION-update.exe`` 가 필요합니다. 일반 ``spaCR-VERSION-setup.exe`` 는 계속 대화형 설치용 다운로드이며 업데이트 프로그램이 이를 대신 사용하는 일은 없습니다. 보호된 macOS 업데이트에는 현재 네이티브 단계 프로토콜을 알리는 설치된 도우미가 필요합니다. 이전 도우미, 누락된 업데이트 자산, 지원되지 않는 이전 Linux 또는 Windows 온라인 설치 구조는 애플리케이션을 열어 둔 채 제한 사항을 보고합니다. 이러한 설치를 최신으로 올리려면 GitHub releases에서 해당 일반 설치 프로그램을 사용하세요. 공유 환경과 Conda 환경은 해당 패키지 관리자를 사용합니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Reinstalling the same version"
-msgstr ""
+msgstr "같은 버전 다시 설치"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Download that version's matching desktop installer from GitHub releases and run it again. Reinstallation repairs the application code and launcher while preserving user data. Do not uninstall first merely to repair an installation. Check the version in **Help → About spaCR** after the application reopens; the version must match the installer you selected."
-msgstr ""
-
-# AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
-msgid "Existing installations and full installers"
-msgstr "이전 설치본과 전체 설치 프로그램"
+msgstr "GitHub releases에서 해당 버전에 맞는 데스크톱 설치 프로그램을 다운로드하여 다시 실행합니다. 다시 설치하면 사용자 데이터는 보존한 채 애플리케이션 코드와 실행기가 복구됩니다. 설치를 복구하기 위해서만 먼저 제거하지 마세요. 애플리케이션이 다시 열린 후 **도움말 → spaCR 정보** 에서 버전을 확인합니다. 버전은 선택한 설치 프로그램과 일치해야 합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-#, fuzzy
+msgid "Existing installations and full installers"
+msgstr "기존 설치본과 전체 설치 프로그램"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The full installers and other installer update paths look for spaCR installations made by another spaCR installer and remove them, so that only one installer-made copy remains. They find the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer names it and does not install the new version."
-msgstr "전체 설치 프로그램과 다른 설치 프로그램 기반 업데이트 경로는 이전 설치 프로그램이 만든 spaCR 설치본을 찾아 제거하여, 설치 프로그램이 만든 사본이 하나만 남도록 합니다. Windows 온라인·오프라인 설치본, macOS 앱과 사용자별 환경, Linux 온라인 설치본과 Debian 패키지를 그 실행기, 바로가기, 메뉴 항목, 제거 등록 정보와 함께 찾습니다. 직접 만든 환경과 소스 체크아웃은 목록에 표시하지만 제거하지 않으며, 프로젝트 폴더와 결과는 절대 건드리지 않습니다. 예를 들어 관리자 권한이 필요한 ``/Applications``\\ 의 macOS 앱처럼 제거할 수 없는 사본이 있으면, 설치 프로그램은 그 사본을 알리고 새 버전을 설치하지 않습니다."
+msgstr "전체 설치 프로그램과 다른 설치 프로그램 기반 업데이트 경로는 다른 spaCR 설치 프로그램이 만든 spaCR 설치본을 찾아 제거하여, 설치 프로그램이 만든 사본이 하나만 남도록 합니다. Windows 온라인·오프라인 설치본, macOS 앱과 사용자별 환경, Linux 온라인 설치본과 Debian 패키지를 그 실행기, 바로가기, 메뉴 항목, 제거 등록 정보와 함께 찾습니다. 직접 만든 환경과 소스 체크아웃은 목록에 표시하지만 제거하지 않으며, 프로젝트 폴더와 결과는 절대 건드리지 않습니다. 예를 들어 관리자 권한이 필요한 ``/Applications``\\ 의 macOS 앱처럼 제거할 수 없는 사본이 있으면, 설치 프로그램은 그 사본을 알리고 새 버전을 설치하지 않습니다."
 
 msgid "To see what it would find without changing anything, run the finder from a spaCR checkout: ``python spacr/install_cleanup.py find``."
 msgstr "아무것도 바꾸지 않고 무엇을 찾을지 보려면 spaCR 체크아웃에서 찾기 도구를 실행합니다: ``python spacr/install_cleanup.py find``."
@@ -173,26 +182,33 @@ msgstr "``python -m pip index versions spacr`` 는 PyPI 릴리스를, ``conda se
 msgid "Uninstalling"
 msgstr "제거"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Open **Preferences → Performance → Uninstall**. In the popup, choose either **Current version** or **All detected spaCR versions**. The preview identifies the installation paths and versions. The all-versions choice also finds spaCR in detected Python and Conda environments; it removes the spaCR package from those environments and keeps their other packages and files. Editable source checkouts are shown as retained."
-msgstr ""
+msgstr "**환경설정 → 성능 → 제거** 를 엽니다. 팝업에서 **현재 버전** 또는 **감지된 모든 spaCR 버전** 을 선택합니다. 미리보기에 설치 경로와 버전이 표시됩니다. 모든 버전을 선택하면 감지된 Python 및 Conda 환경에서도 spaCR을 찾으며, 해당 환경에서 spaCR 패키지를 제거하고 다른 패키지와 파일은 유지합니다. 편집 가능한 소스 체크아웃은 유지 대상으로 표시됩니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The popup separately selects **Caches**, **Models**, **Logs**, **Settings**, **History**, **Temporary files**, **Downloads** and **Other spaCR data**. Every cleanup category starts selected for uninstall. Clear any category to keep it, inspect the exact paths listed, and confirm the uninstall. Cancel leaves the application and files unchanged. spaCR closes safely before its running installation is removed."
-msgstr ""
+msgstr "팝업에서는 **캐시 목록**, **Models**, **로그**, **설정**, **기록**, **임시 파일**, **다운로드**, **기타 spaCR 데이터** 를 각각 선택합니다. 제거 시 모든 정리 범주가 처음에 선택되어 있습니다. 유지할 범주는 선택을 해제하고, 나열된 정확한 경로를 검토한 다음 제거를 확인합니다. 취소하면 애플리케이션과 파일이 변경되지 않습니다. spaCR은 실행 중인 설치본이 제거되기 전에 안전하게 종료됩니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Supported protected macOS applications, Windows frozen installations and Debian packages request graphical administrator authorization during preparation, while spaCR remains open. The helper must be installed, verified and advertise the required uninstall protocol. Declining authorization or cancelling the popup leaves the application and files intact. Removal waits for confirmed safe closure and actual process exit."
-msgstr ""
+msgstr "지원되는 보호된 macOS 애플리케이션, Windows 고정 설치 및 Debian 패키지는 spaCR이 열려 있는 동안 준비 단계에서 그래픽 관리자 권한 부여를 요청합니다. 도우미는 설치되어 있고 검증되어야 하며 필요한 제거 프로토콜을 알려야 합니다. 권한 부여를 거부하거나 팝업을 취소하면 애플리케이션과 파일은 그대로 유지됩니다. 제거는 안전한 종료가 확인되고 실제 프로세스가 종료될 때까지 기다립니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "If a selected installation has an older unsupported helper, or a selected data path cannot be removed with the available permissions, preparation stops before spaCR closes and nothing is removed. The preview still identifies the affected paths. The native alternatives below remain available for those installations."
-msgstr ""
+msgstr "선택한 설치본에 지원되지 않는 이전 도우미가 있거나, 선택한 데이터 경로를 사용 가능한 권한으로 제거할 수 없으면, spaCR이 종료되기 전에 준비가 중단되고 아무것도 제거되지 않습니다. 미리보기에는 여전히 영향을 받는 경로가 표시됩니다. 이러한 설치에는 아래의 네이티브 대안을 계속 사용할 수 있습니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "These categories cover identified spaCR-owned locations. Shared external caches, unverified or linked folders and arbitrary project folders are kept; the preview marks retained locations. History includes spaCR's run records and any output copies stored within those records. Keep History if those copies are still needed. Projects, databases and exports outside the listed spaCR locations are not removed."
-msgstr ""
+msgstr "이 범주는 식별된 spaCR 소유 위치를 포함합니다. 공유 외부 캐시, 검증되지 않았거나 링크된 폴더, 임의의 프로젝트 폴더는 유지되며, 미리보기에 유지되는 위치가 표시됩니다. 기록에는 spaCR의 실행 기록과 그 기록 안에 저장된 출력 사본이 포함됩니다. 해당 사본이 아직 필요하면 기록을 유지하세요. 나열된 spaCR 위치 밖의 프로젝트, 데이터베이스 및 내보내기는 제거되지 않습니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Uninstall cleanup defaults differ from update defaults: an ordinary update preserves user data, while the uninstall popup selects the displayed cleanup categories until you opt out. The native and command-line alternatives below retain their existing explicit purge switches."
-msgstr ""
+msgstr "제거 정리 기본값은 업데이트 기본값과 다릅니다. 일반 업데이트는 사용자 데이터를 보존하지만, 제거 팝업은 사용자가 해제하기 전까지 표시된 정리 범주를 선택합니다. 아래의 네이티브 및 명령줄 대안은 기존의 명시적 삭제(purge) 스위치를 그대로 유지합니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Native and command-line alternatives"
-msgstr ""
+msgstr "네이티브 및 명령줄 대안"
 
 msgid "**Windows:** open **Settings → Apps → Installed apps → spaCR → Uninstall**, or run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe``."
 msgstr "**Windows:** **설정 → 앱 → 설치된 앱 → spaCR → 제거** 를 열거나 ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe`` 를 실행합니다."
@@ -209,8 +225,9 @@ msgstr "**conda-forge:** 환경을 활성화하고 ``conda remove spacr`` 를 �
 msgid "**PyPI:** activate the environment and run ``python -m pip uninstall spacr``."
 msgstr "**PyPI:** 환경을 활성화하고 ``python -m pip uninstall spacr`` 를 실행합니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "These package-manager commands remove the package from the selected environment. They do not remove the whole environment. The native and command-line alternatives keep user preferences, run records and logs unless their explicit purge option is used."
-msgstr ""
+msgstr "이 패키지 관리자 명령은 선택한 환경에서 패키지를 제거합니다. 전체 환경을 제거하지는 않습니다. 네이티브 및 명령줄 대안은 명시적 삭제 옵션을 사용하지 않는 한 사용자 환경설정, 실행 기록 및 로그를 유지합니다."
 
 msgid "Clean uninstall (purge)"
 msgstr "완전 제거(purge)"
@@ -406,70 +423,89 @@ msgstr "``tutorial``"
 msgid "Packages used by the interactive tutorial environment."
 msgstr "대화형 튜토리얼 환경에서 사용하는 패키지."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "3D rendering and wgpu"
-msgstr ""
+msgstr "3D 렌더링과 wgpu"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "spaCR installs `wgpu <https://github.com/pygfx/wgpu-py>`_ by default where it publishes wheels. wgpu draws the **True 3D** view through Vulkan, Metal or Direct3D 12. Without wgpu, spaCR draws 3D through OpenGL (VisPy), and through the CPU when OpenGL is not available either. The **Render backend** list offers Auto, Vulkan, Metal, Direct3D 12, OpenGL and CPU, showing only the backends this computer supports. **Auto** prefers wgpu (Vulkan on Linux and Windows, Metal then available Vulkan on macOS, Direct3D 12 on Windows when Vulkan is unavailable), then OpenGL, then the CPU."
-msgstr ""
+msgstr "spaCR은 `wgpu <https://github.com/pygfx/wgpu-py>`_\\ 가 wheel을 게시하는 플랫폼에서 기본적으로 wgpu를 설치합니다. wgpu는 Vulkan, Metal 또는 Direct3D 12를 통해 **True 3D** 보기를 그립니다. wgpu가 없으면 spaCR은 OpenGL(VisPy)로 3D를 그리고, OpenGL도 사용할 수 없으면 CPU로 그립니다. **렌더 백엔드** 목록은 Auto, Vulkan, Metal, Direct3D 12, OpenGL, CPU를 제공하며, 이 컴퓨터가 지원하는 백엔드만 표시합니다. **자동** 은 wgpu(Linux와 Windows에서는 Vulkan, macOS에서는 Metal 다음 사용 가능한 Vulkan, Vulkan을 사용할 수 없는 Windows에서는 Direct3D 12)를 우선하고, 그다음 OpenGL, 그다음 CPU를 사용합니다."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Installation"
-msgstr "제거"
+msgstr "설치"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "wgpu"
-msgstr ""
+msgstr "wgpu"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "True 3D view uses"
-msgstr ""
+msgstr "True 3D 보기에서 사용"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Python 3.10 on Windows x86-64/ARM64, macOS Intel/Apple silicon, or Linux x86-64/aarch64 with glibc 2.28 or newer"
-msgstr ""
+msgstr "Windows x86-64/ARM64, macOS Intel/Apple silicon 또는 glibc 2.28 이상의 Linux x86-64/aarch64에서 Python 3.10"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Installed, ``wgpu<=0.31.0``"
-msgstr ""
+msgstr "설치됨, ``wgpu<=0.31.0``"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Vulkan, Metal or Direct3D 12 (Auto), else OpenGL, else CPU"
-msgstr ""
+msgstr "Vulkan, Metal 또는 Direct3D 12(Auto), 그렇지 않으면 OpenGL, 그것도 아니면 CPU"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Python 3.11 or newer on the same platforms (the desktop installers use Python 3.12)"
-msgstr ""
+msgstr "같은 플랫폼에서 Python 3.11 이상(데스크톱 설치 프로그램은 Python 3.12 사용)"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Installed, ``wgpu<0.33``"
-msgstr ""
+msgstr "설치됨, ``wgpu<0.33``"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Python 3.9"
-msgstr ""
+msgstr "Python 3.9"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Not installed"
-msgstr "데스크톱 설치 프로그램"
+msgstr "설치되지 않음"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "OpenGL, else CPU"
-msgstr ""
+msgstr "OpenGL, 그렇지 않으면 CPU"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Other processors (for example 32-bit x86, ppc64le, s390x)"
-msgstr ""
+msgstr "기타 프로세서(예: 32비트 x86, ppc64le, s390x)"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Linux with glibc older than 2.28 (installers skip wgpu automatically)"
-msgstr ""
+msgstr "glibc가 2.28보다 오래된 Linux(설치 프로그램이 wgpu를 자동으로 건너뜀)"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Installed without wgpu (installer option, or the commands below)"
-msgstr ""
+msgstr "wgpu 없이 설치됨(설치 프로그램 옵션 또는 아래 명령)"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The desktop installers skip wgpu when it is resolved, so it is never downloaded: they pass ``uv`` an override file containing the single line ``wgpu; sys_platform == \"never\"``. Because the marker never holds, the resolver drops wgpu, and with it ``rendercanvas``, which only wgpu needs."
-msgstr ""
+msgstr "데스크톱 설치 프로그램은 종속성 해석 단계에서 wgpu를 건너뛰므로 wgpu는 다운로드되지 않습니다. 설치 프로그램은 ``wgpu; sys_platform == \"never\"`` 한 줄만 들어 있는 재정의 파일을 ``uv`` 에 전달합니다. 이 마커는 절대 참이 되지 않으므로 해석기는 wgpu를 제외하고, wgpu만 필요로 하는 ``rendercanvas`` 도 함께 제외합니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "With pip, install spaCR as usual and then remove wgpu:"
-msgstr ""
+msgstr "pip를 사용하는 경우 평소처럼 spaCR을 설치한 다음 wgpu를 제거합니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``pip check`` then reports that spaCR's ``wgpu`` requirement is missing; this is expected, and spaCR draws 3D through OpenGL or the CPU."
-msgstr ""
+msgstr "그러면 ``pip check`` 가 spaCR의 ``wgpu`` 요구 사항이 없다고 보고합니다. 이는 예상된 동작이며, spaCR은 OpenGL 또는 CPU로 3D를 그립니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "On Linux with glibc older than 2.28 (check with ``getconf GNU_LIBC_VERSION``), ``pip install spacr`` finds no wgpu wheel and tries to build wgpu from its source release, which fails. pip cannot drop a dependency while it resolves, so install with `uv <https://docs.astral.sh/uv/>`_ and the same override the installers use, inside the activated environment:"
-msgstr ""
+msgstr "glibc가 2.28보다 오래된 Linux(``getconf GNU_LIBC_VERSION`` 으로 확인)에서는 ``pip install spacr`` 가 wgpu wheel을 찾지 못하고 소스 릴리스에서 wgpu를 빌드하려고 시도하며, 이는 실패합니다. pip는 해석 중에 종속성을 제외할 수 없으므로, 활성화된 환경 안에서 `uv <https://docs.astral.sh/uv/>`_\\ 와 설치 프로그램이 사용하는 것과 같은 재정의를 사용하여 설치합니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Use the same ``--override no-wgpu.txt`` when upgrading spaCR in that environment. Add ``--dry-run`` to the last command to see the resolved packages, without wgpu, before anything is installed."
-msgstr ""
+msgstr "해당 환경에서 spaCR을 업그레이드할 때도 같은 ``--override no-wgpu.txt`` 를 사용합니다. 마지막 명령에 ``--dry-run`` 을 추가하면 무엇이든 설치하기 전에 wgpu가 제외된 해석 결과 패키지를 볼 수 있습니다."
 
 msgid "Container images"
 msgstr "컨테이너 이미지"
@@ -492,16 +528,16 @@ msgstr "이미지"
 msgid "For"
 msgstr "용도"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
-msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.0``"
+msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
 
 msgid "CPU only. Runs Linux x86-64 containers with Docker or Podman and needs no GPU driver."
 msgstr "CPU 전용. Docker나 Podman으로 Linux x86-64 컨테이너를 실행하며 GPU 드라이버가 필요 없습니다."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
-msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``"
+msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
 
 msgid "CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU image."
 msgstr "CUDA 12.4. **호스트의 550 이상** NVIDIA 드라이버와 NVIDIA Container Toolkit이 필요합니다. ``--gpus`` 없이 실행하면 CPU 이미지처럼 동작합니다."

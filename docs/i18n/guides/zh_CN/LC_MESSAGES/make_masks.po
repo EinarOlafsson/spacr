@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -52,9 +52,9 @@ msgid "The saved integer mask gives every retained punctum its own label. Nearby
 msgstr "保存的整数掩膜为每个保留的点状对象分配独立标签。邻近的中心窗口可能重叠：每个整数坐标峰值保留给其自身对象，其他共享像素归属最近的中心，父级对象外的像素被省略。因此，掩膜中的像素数可能少于请求的 N 个像素。这是中心采样掩膜，不代表点状对象的物理边界。"
 
 # AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv`` and ``<stem>.puncta.json`` beside the mask. The table contains all candidates, their inclusion flags, output object labels, parent IDs, coordinates, noise, local background, exact 10/20/40-pixel centre means and the selected N-pixel mean. Exact centre means retain overlapping samples independently of label ownership. Use ``center_corrected`` for the selected N-pixel mean minus local background, or ``corrected20`` for the fixed 20-pixel variant. The ``corrected`` column holds the reference's three-by-three-window result. The receipt binds the image, parent mask, output mask, CSV and detector settings to checksums. Edited or combined labels cannot silently receive the old centre measurements. Local previews estimate noise within their crop; use whole-image detection for scientific results."
-msgstr "保存未经修改的整幅图像检测结果时，还会在掩膜旁写入 ``<stem>.puncta.csv`` 和 ``<stem>.puncta.json``。表格包含全部候选对象、纳入标记、输出对象标签、父级 ID、坐标、噪声、局部背景、精确的 10/20/40 像素中心均值及所选的 N 像素均值。精确中心均值保留重叠采样，与像素的标签归属无关。``center_corrected`` 表示所选 N 像素均值减去局部背景，``corrected20`` 表示固定的 20 像素版本。旧版 ``corrected`` 列保留参考实现的三乘三窗口结果。记录通过校验和关联图像、父级掩膜、输出掩膜、CSV 和检测器设置。编辑或合并的标签不会静默获得旧的中心测量。局部预览仅在裁剪范围内估计噪声；科学结果应使用整幅图像检测。"
+msgstr "保存未经修改的整幅图像检测结果时，还会在掩膜旁写入 ``<stem>.puncta.csv`` 和 ``<stem>.puncta.json``。表格包含全部候选对象、纳入标记、输出对象标签、父级 ID、坐标、噪声、局部背景、精确的 10/20/40 像素中心均值及所选的 N 像素均值。精确中心均值保留重叠采样，与标签归属无关。``center_corrected`` 表示所选 N 像素均值减去局部背景，``corrected20`` 表示固定的 20 像素版本。``corrected`` 列保存参考实现的三乘三窗口结果。记录通过校验和关联图像、父级掩膜、输出掩膜、CSV 和检测器设置。编辑或合并的标签不会静默获得旧的中心测量。局部预览仅在裁剪范围内估计噪声；科学结果应使用整幅图像检测。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use **Organize for Measure…** to place the puncta in an organelle mask slot alongside the parent masks and original channels. Measure can report ordinary mask-region intensities and parent relationships, but those means can differ from exact centre means when samples overlap. Use the source-bound puncta table for the centre/annulus analysis. This detector alone does not implement the noise-null model, hierarchical tests or a composed publication figure."
@@ -99,11 +99,103 @@ msgid "**Save on navigation**, after **Next image**, saves an edited mask before
 msgstr "位于 **下一张图像** 之后的 **导航时保存** 会在 **保留**、**放弃**、**下一张图像** 或 **上一张图像** 切换之前保存已编辑的掩膜。该选项默认关闭，并在会话之间保留。如果保存失败，图像保持打开，且不记录任何判定。**跳过** 从不写入掩膜。"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "**Open 3D image…** opens a TIFF with three spatial axes in the 3D mask editor; time, channel and RGB stacks are refused. Rotate the view, draw an object, then drag its anchors or select surfaces (Ctrl-click for several) and drag them or turn the mouse wheel. **Anchor density** sets how many anchors each edge and surface gets, and **Show anchors** hides them. Edits change the mask voxels themselves, keep the image's axis order and voxel spacing, and never overwrite another object. **Save 3D mask** writes the labels and their editable boundary; the 2D image and mask stay unchanged."
-msgstr "**打开 3D 图像…** 会在 3D 掩膜编辑器中打开具有三个空间轴的 TIFF；时间、通道和 RGB 堆栈会被拒绝。旋转视图并绘制对象，然后拖动其锚点，或选择表面（Ctrl-click 可选择多个）并拖动它们或转动鼠标滚轮。**锚点密度** 设置每条边和每个表面上的锚点数量，**显示锚点** 可将锚点隐藏。编辑会直接更改掩膜体素本身，保留图像的轴顺序和体素间距，并且绝不会覆盖其他对象。**保存 3D 掩膜** 写入标签及其可编辑边界；2D 图像和掩膜保持不变。"
+msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on, the electron microscopy test data and the FIB-SEM volumes described under :ref:`mm-tem` and :ref:`mm-volumes`."
+msgstr "如需在没有自己数据的情况下试用此屏幕，**加载测试数据...** 会下载十个未分割的弓形虫纳虫泡视野（其整理后的掩膜单独保存在 ``ground_truth_masks/`` 中），并打开第一个视野。同一按钮上的箭头可提供每个已发布模型所用训练数据集中的视野样本、电子显微镜测试数据，以及 :ref:`mm-tem` 和 :ref:`mm-volumes` 中所述的 FIB-SEM 体积。"
 
-msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
-msgstr "如需在没有自己数据的情况下试用此屏幕，**加载测试数据...** 会下载十个未分割的弓形虫纳虫泡视野（其整理后的掩膜单独保存在 ``ground_truth_masks/`` 中），并打开第一个视野。同一按钮上的箭头可打开每个已发布模型所用训练数据集中的视野样本。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "3D volumes in the Mask view"
+msgstr "Mask 视图中的 3D 体积"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A volume opens in the Mask view, where 2-D fields open. A TIFF stack, an OME-TIFF or an MRC volume (``.mrc``, ``.rec`` or ``.map``) with three spatial axes is recognised as a volume when it is in the folder you open or when you choose **Open 3D image…**. Time, channel and RGB stacks are refused rather than read as depth. An MRC volume needs the optional ``mrcfile`` package. The status line reports the number of slices and the voxel size."
+msgstr "体积在 Mask 视图中打开，2D 视野也在此处打开。具有三个空间轴的 TIFF 堆栈、OME-TIFF 或 MRC 体积（``.mrc``、``.rec`` 或 ``.map``）位于您打开的文件夹中，或者您选择 **Open 3D image…** 时，会被识别为体积。时间、通道和 RGB 堆栈会被拒绝，而不会被当作深度读取。MRC 体积需要可选的 ``mrcfile`` 包。状态栏会报告切片数量和体素大小。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The **slice slider** at the left of the image steps through the slices; **Page Up** and **Page Down** step too. Every 2-D tool draws on the slice on screen."
+msgstr "图像左侧的 **切片滑块** 用于逐层浏览切片；**Page Up** 和 **Page Down** 也可逐层浏览。所有 2D 工具都在屏幕上显示的切片上绘制。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The **Z** button above the slider is the Z wheel toggle. On (blue), the mouse wheel changes the slice; off, the wheel zooms."
+msgstr "滑块上方的 **Z** 按钮用于切换 Z 滚轮。开启时（蓝色），鼠标滚轮更改切片；关闭时，滚轮用于缩放。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The **View** list beside the Mask tab chooses **Default**, **Orthogonal** or **True 3D**. Default draws on one slice at a time. Orthogonal adds the XZ and YZ side views through a crosshair; the middle mouse button moves the crosshair. True 3D shows the volume and its objects in three dimensions."
+msgstr "Mask 选项卡旁边的 **View** 列表用于选择 **默认**、**正交** 或 **True 3D**。默认模式一次在一个切片上绘制。正交模式通过十字准线添加 XZ 和 YZ 侧视图；鼠标中键移动十字准线。True 3D 以三维方式显示体积及其对象。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The row above the image holds **Object ID** (an existing object to edit, or an unused ID for a new one), **Interpolate slices**, **Assign 3D objects** and **Delete object**."
+msgstr "图像上方的一行包含 **对象 ID** （要编辑的现有对象，或用于新对象的未使用 ID）、**插值切片**、**分配 3D 对象** 和 **删除对象**。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Interpolate slices** fills the empty slices between slices where the chosen object is drawn, blending its outline from one to the next. **Assign 3D objects** gives every separate 3D object its own ID: parts of one ID that do not touch in 3D become new objects, so you can draw many objects with one ID and then assign them. **Delete object** removes the chosen object from every slice. Each of these is one undo step."
+msgstr "**插值切片** 会填充所选对象已绘制的切片之间的空白切片，并将其轮廓从一个切片平滑过渡到下一个切片。**分配 3D 对象** 为每个独立的 3D 对象分配各自的 ID：同一 ID 中在 3D 中互不接触的部分会成为新对象，因此您可以用一个 ID 绘制多个对象，然后再进行分配。**删除对象** 会从所有切片中删除所选对象。上述每项操作都是一个撤销步骤。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "In True 3D, draw an object, then drag its anchors or select surfaces (Ctrl-click for several) and drag them or turn the mouse wheel. **Anchor density** sets how many anchors each edge and surface gets, and **Show anchors** hides them. The view is a sampled point-cloud preview; the edits and voxel counts use the full image. These keys work while True 3D is shown, and are listed under **Change shortcuts**:"
+msgstr "在 True 3D 中绘制一个对象，然后拖动其锚点，或选择表面（按住 Ctrl 单击可选择多个）并拖动它们或转动鼠标滚轮。**锚点密度** 设置每条边和每个表面的锚点数量，**显示锚点** 用于隐藏锚点。该视图是经过采样的点云预览；编辑和体素计数使用完整图像。以下按键在显示 True 3D 时有效，并列于 **更改快捷键** 中："
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Key"
+msgstr "按键"
+
+msgid "Action"
+msgstr "操作"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Shift+E**"
+msgstr "**Shift+E**"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Edit: drag anchors and surfaces."
+msgstr "编辑：拖动锚点和表面。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Shift+S**"
+msgstr "**Shift+S**"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Spin the view freely."
+msgstr "自由旋转视图。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Shift+D**"
+msgstr "**Shift+D**"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Draw a new object."
+msgstr "绘制新对象。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Shift+X**, **Shift+Y**, **Shift+Z**"
+msgstr "**Shift+X**、**Shift+Y**、**Shift+Z**"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Choose the X, Y or Z drawing plane. Pressed within 1.5 s of **Shift+S**, they choose the spin axis instead."
+msgstr "选择 X、Y 或 Z 绘图平面。在按下 **Shift+S** 后 1.5 s 内按下时，它们改为选择旋转轴。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Edits change the mask voxels themselves, keep the image's axis order and voxel spacing, and never overwrite another object. **Save mask** or **Ctrl+S** writes the labels to ``masks/<image stem>.tif`` and their editable boundaries to a ``.volume.json`` file beside it; the source volume is never overwritten."
+msgstr "编辑会直接更改掩膜体素本身，保留图像的轴顺序和体素间距，并且绝不会覆盖其他对象。**保存掩膜** 或 **Ctrl+S** 会将标签写入 ``masks/<image stem>.tif``，并将其可编辑边界写入旁边的 ``.volume.json`` 文件；源体积绝不会被覆盖。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Electron micrographs"
+msgstr "电子显微图像"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Make Masks opens transmission electron micrographs as ``.dm3``, ``.dm4``, ``.mrc`` and ``.rec`` files, with TIFF, PNG and the other image formats. The pixel size in nanometres is read from the file. MRC files need the optional ``mrcfile`` package."
+msgstr "Make Masks 可打开 ``.dm3``、``.dm4``、``.mrc`` 和 ``.rec`` 格式的透射电子显微图像，以及 TIFF、PNG 和其他图像格式。以纳米为单位的像素大小从文件中读取。MRC 文件需要可选的 ``mrcfile`` 包。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Contrast preset**, under **Lower %** and **Upper %** in the display settings, sets the display in one step. **Electron microscopy (TEM)** windows the image between its 0.5th and 99.5th percentiles, so holes in the section and stain precipitate cannot take the whole range, and turns on **CLAHE** (128 px tiles) under **Image enhancement** to even out uneven section thickness. Membranes stay dark. **Electron microscopy, inverted** also turns on **Invert image**, so dark membranes and organelles are drawn bright and Otsu and the magnifier find them. **Custom** changes nothing, and every value stays editable."
+msgstr "显示设置中 **下限 %** 和 **上限百分位 %** 下方的 **对比度预设** 可一步设置显示。**电子显微镜 (TEM)** 将图像窗口设置在其第 0.5 和第 99.5 百分位之间，使切片中的孔洞和染色沉淀无法占据整个范围，并开启 **图像增强** 下的 **CLAHE** （128 px 图块），以平衡不均匀的切片厚度。膜保持为暗色。**电子显微镜，反相** 还会开启 **反相图像**，使暗色的膜和细胞器显示为亮色，以便 Otsu 和放大镜找到它们。**自定义** 不做任何更改，所有值都保持可编辑。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The arrow on **Load test data…** offers **Mitochondria in TEM images (test data)**: ten transmission electron micrographs (about 32 MB, EMPIAR-10982, CC0), with their mitochondria masks in ``ground_truth_masks/``, which the editor does not read. **FIB-SEM volume, 3D (test data)** downloads a FIB-SEM volume of a HeLa cell (about 25 MB, EMPIAR-10982, CC0) and opens it unsegmented in the 3D editor. **FIB-SEM volume with masks, 3D (test data)** opens the same volume with its mitochondria masks, copied once to ``corrected_masks/`` for correction; ``ground_truth_masks/`` stays unchanged. All are cached after the first download."
+msgstr "**加载测试数据...** 上的箭头提供 **TEM 图像中的线粒体 (测试数据)**：十幅透射电子显微图像（约 32 MB，EMPIAR-10982，CC0），其线粒体掩膜位于 ``ground_truth_masks/`` 中，编辑器不会读取这些掩膜。**FIB-SEM 体积，3D（测试数据）** 会下载一个 HeLa 细胞的 FIB-SEM 体积（约 25 MB，EMPIAR-10982，CC0），并在 3D 编辑器中以未分割状态打开。**带掩膜的 FIB-SEM 体积，3D（测试数据）** 会打开同一体积及其线粒体掩膜，这些掩膜会被复制一次到 ``corrected_masks/`` 以供校正；``ground_truth_masks/`` 保持不变。所有数据在首次下载后都会被缓存。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "With **Show alpha features** on in Preferences, the magnifier's **Method** list offers **MitoNet (TEM mitochondria)**. MitoNet v1 mini finds mitochondria in electron micrographs with dark membranes; it is not a fluorescence model. The weights are third-party (CC-BY-4.0, Conrad and Narayan, Cell Systems 2023), listed under Third-party in the Model Zoo, and download from Zenodo (110 MB) the first time the method runs. **Minimum area** sets the smallest mitochondrion kept. This method is alpha."
+msgstr "在偏好中开启 **显示 Alpha 功能** 后，放大镜的 **方法** 列表会提供 **MitoNet（TEM 线粒体）**。MitoNet v1 mini 可在膜为暗色的电子显微图像中找到线粒体；它不是荧光模型。其权重来自第三方（CC-BY-4.0，Conrad 和 Narayan，Cell Systems 2023），列于 Model Zoo 的 Third-party 下，并在该方法首次运行时从 Zenodo 下载（110 MB）。**最小面积** 设置保留的最小线粒体。此方法为 Alpha 版。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Draw bounding boxes for YOLO"
@@ -169,9 +261,6 @@ msgstr "画布工具与导航"
 
 msgid "Tool"
 msgstr "工具"
-
-msgid "Action"
-msgstr "操作"
 
 msgid "Brush"
 msgstr "画笔"
@@ -357,9 +446,9 @@ msgstr "Cellpose 及其他已安装的后端"
 msgid "Use the corresponding model controls. Cellpose exposes diameter, flow-error threshold, cell-probability threshold and normalization. Inspect its cell-probability and flow panes alongside accepted labels."
 msgstr "使用相应的模型控件。Cellpose 提供直径、流场误差阈值、细胞概率阈值和归一化。请将其细胞概率窗格和流场窗格与已接受的标签一起检查。"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Ordinary Otsu uses a separate magnifier preprocessing path, so its cropped preview and whole-field detection are not guaranteed to be pixel-identical. Other threshold modes run the shared engine on the requested crop; a crop can still have a different histogram from the whole field. Tune on several representative fields and inspect the final whole-image output."
-msgstr "普通 Otsu 保留了一条旧版的放大镜预处理路径。其裁剪预览与整个视野的检测结果不保证逐像素一致。其他阈值模式在所请求的裁剪区域上运行共享引擎；裁剪区域的直方图仍可能与整个视野不同。请在多个具有代表性的视野上进行调整，并检查最终的整图输出。"
+msgstr "普通 Otsu 使用单独的放大镜预处理路径，因此其裁剪预览与整个视野的检测结果不保证逐像素一致。其他阈值模式在所请求的裁剪区域上运行共享引擎；裁剪区域的直方图仍可能与整个视野不同。请在多个具有代表性的视野上进行调整，并检查最终的整图输出。"
 
 msgid "Enhancement before and after detection"
 msgstr "检测前后的增强"

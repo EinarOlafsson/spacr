@@ -49,16 +49,15 @@ msgid "Windows 10/11"
 msgstr "Windows 10/11"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-#, fuzzy
 msgid "Run ``SpaCR-<version>-Windows-Online-Setup.exe``. The default per-user location is ``%LOCALAPPDATA%\\spaCR`` and does not require administrator access. Automatic hardware acceleration is selected by default. It installs a CUDA-capable PyTorch build on compatible NVIDIA systems. On other systems it installs the PyTorch build that ``uv`` selects for the detected hardware, which is the CPU build when no supported GPU is detected. Clear the component only when you require the smaller CPU-only installation. The unticked component **Install without wgpu (use OpenGL/CPU for 3D)** leaves out the wgpu 3D renderer; see :ref:`wgpu-3d-rendering`. From PowerShell, the same choice is the ``-WithoutWgpu`` switch of ``install_spacr_windows.ps1``."
-msgstr "Keyrðu ``SpaCR-<version>-Windows-Online-Setup.exe``. Sjálfgefin staðsetning fyrir hvern notanda er ``%LOCALAPPDATA%\\spaCR`` og krefst ekki stjórnandaaðgangs. Sjálfvirk vélbúnaðarhröðun er valin sjálfgefið. Hún setur upp PyTorch-útgáfu sem styður CUDA á samhæfum NVIDIA-kerfum. Á öðrum kerfum setur hún upp þá PyTorch-útgáfu sem ``uv`` velur fyrir greindan vélbúnað, sem er örgjörvaútgáfan þegar ekkert stutt skjákort greinist. Afveldu íhlutinn aðeins þegar þú þarft minni uppsetninguna sem notar eingöngu örgjörva."
+msgstr "Keyrðu ``SpaCR-<version>-Windows-Online-Setup.exe``. Sjálfgefin staðsetning fyrir hvern notanda er ``%LOCALAPPDATA%\\spaCR`` og krefst ekki stjórnandaaðgangs. Sjálfvirk vélbúnaðarhröðun er valin sjálfgefið. Hún setur upp PyTorch-útgáfu sem styður CUDA á samhæfum NVIDIA-kerfum. Á öðrum kerfum setur hún upp þá PyTorch-útgáfu sem ``uv`` velur fyrir greindan vélbúnað, sem er örgjörvaútgáfan þegar ekkert stutt skjákort greinist. Afveldu íhlutinn aðeins þegar þú þarft minni uppsetninguna sem notar eingöngu örgjörva. Íhluturinn **Install without wgpu (use OpenGL/CPU for 3D)**, sem er ekki hakaður við, sleppir wgpu-þrívíddarteiknaranum; sjá :ref:`wgpu-3d-rendering`. Í PowerShell er sama val rofinn ``-WithoutWgpu`` í ``install_spacr_windows.ps1``."
 
 msgid "macOS 11 or later"
 msgstr "macOS 11 eða nýrra"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Open ``SpaCR-<version>-macOS-Universal-Online.pkg``. The application is placed in ``/Applications/spaCR.app``. The spaCR setup window creates its private runtime under ``~/Library/Application Support/spaCR`` and displays progress, dependency choices and any required consent. Complete those choices in the window; setup does not require answers in Terminal. When setup finishes, spaCR opens its startup window and then the main application. The current beta is not notarized. If Gatekeeper blocks it, open **System Settings → Privacy & Security** and choose **Open Anyway** for spaCR. The first-launch window has an unchecked **Install without wgpu (use OpenGL/CPU for 3D)** box; see :ref:`wgpu-3d-rendering`."
-msgstr "Opnaðu ``SpaCR-<version>-macOS-Universal-Online.pkg``. Forritið er sett í ``/Applications/spaCR.app``. Við fyrstu ræsingu býr sýnileg ræsing í Terminal til einkakeyrsluumhverfið undir ``~/Library/Application Support/spaCR``. Núverandi beta-útgáfa er ekki vottuð (notarized). Ef Gatekeeper lokar á hana skaltu opna **System Settings → Privacy & Security** og velja **Open Anyway** fyrir spaCR."
+msgstr "Opnaðu ``SpaCR-<version>-macOS-Universal-Online.pkg``. Forritið er sett í ``/Applications/spaCR.app``. Uppsetningargluggi spaCR býr til einkakeyrsluumhverfið undir ``~/Library/Application Support/spaCR`` og sýnir framvindu, val á ákvæðum og hvert það samþykki sem krafist er. Ljúktu þessum völum í glugganum; uppsetningin krefst ekki svara í Terminal. Þegar uppsetningu lýkur opnar spaCR ræsigluggann sinn og síðan aðalforritið. Núverandi beta-útgáfa er ekki vottuð (notarized). Ef Gatekeeper lokar á hana skaltu opna **System Settings → Privacy & Security** og velja **Open Anyway** fyrir spaCR. Glugginn við fyrstu ræsingu hefur reitinn **Install without wgpu (use OpenGL/CPU for 3D)**, sem er ekki hakaður við; sjá :ref:`wgpu-3d-rendering`."
 
 msgid "Linux x86-64"
 msgstr "Linux x86-64"
@@ -72,23 +71,28 @@ msgstr "Sjálfgefin rót uppsetningar er ``~/.local/share/spacr``. Ræsirinn er 
 msgid "Automatic backend selection is the Linux default. It installs CUDA support when compatible NVIDIA hardware is available. To require the smaller CPU-only build instead, run the installer with ``--torch-backend cpu``."
 msgstr "Sjálfvirkt val bakenda er sjálfgildið á Linux. Það setur upp CUDA-stuðning þegar samhæfur NVIDIA-vélbúnaður er tiltækur. Til að krefjast í staðinn minni útgáfunnar sem notar eingöngu örgjörva skaltu keyra uppsetningarforritið með ``--torch-backend cpu``."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "To leave out the wgpu 3D renderer, run the installer with ``--without-wgpu``, or tick **Install without wgpu (use OpenGL/CPU for 3D)** in the installer window; the box is unchecked by default. On a Linux system whose glibc is older than 2.28 the installer leaves wgpu out by itself and prints one line saying so, because wgpu publishes Linux wheels only for glibc 2.28 and newer. ``--dry-run`` shows the decision in its plan, as the ``wgpu 3D rendering`` line. See :ref:`wgpu-3d-rendering`."
-msgstr ""
+msgstr "Til að sleppa wgpu-þrívíddarteiknaranum skaltu keyra uppsetningarforritið með ``--without-wgpu``, eða haka við **Install without wgpu (use OpenGL/CPU for 3D)** í glugga uppsetningarforritsins; reiturinn er sjálfgefið ekki hakaður við. Á Linux-kerfi þar sem glibc er eldra en 2.28 sleppir uppsetningarforritið wgpu sjálfkrafa og prentar eina línu um það, því wgpu gefur aðeins út Linux-wheel-pakka fyrir glibc 2.28 og nýrra. ``--dry-run`` sýnir ákvörðunina í áætlun sinni, sem línuna ``wgpu 3D rendering``. Sjá :ref:`wgpu-3d-rendering`."
 
 msgid "Updating"
 msgstr "Uppfærsla"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Choose **Help → Check for updates**, review the offered version and choose **Update**. Supported macOS installations and dedicated private Python installations prepare the replacement in the background. When it is ready, choose **Restart** to finish closing the current application and open the verified replacement through the spaCR startup window. No manual click on the application icon is needed. Frozen Windows and Debian installations use their native authorization and replacement workflows."
-msgstr ""
+msgstr "Veldu **Hjálp → Check for updates**, skoðaðu útgáfuna sem boðin er og veldu **Update**. Studdar macOS-uppsetningar og sérstakar einka-Python-uppsetningar undirbúa staðgengilinn í bakgrunni. Þegar hann er tilbúinn skaltu velja **Endurræsa** til að ljúka lokun núverandi forrits og opna staðfesta staðgengilinn í gegnum ræsiglugga spaCR. Ekki þarf að smella handvirkt á tákn forritsins. Frystar Windows- og Debian-uppsetningar nota eigin heimildar- og útskiptiferli stýrikerfisins."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Older Linux and Windows online layouts without a verified update adapter are refused before replacement starts. The application stays open and keeps its data. Use the matching release installer for those installations."
-msgstr ""
+msgstr "Eldri net-uppsetningum fyrir Linux og Windows án staðfests uppfærslumillistykkis er hafnað áður en útskipti hefjast. Forritið helst opið og heldur gögnum sínum. Notaðu samsvarandi uppsetningarforrit útgáfunnar fyrir þessar uppsetningar."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Alternatively, download and run the installer for the requested version from the `GitHub releases <https://github.com/EinarOlafsson/spacr/releases>`_. This is also the way to move an older installer to the current desktop update flow. Use the installer for the same platform and installation family as the copy being replaced."
-msgstr ""
+msgstr "Einnig má sækja og keyra uppsetningarforritið fyrir umbeðna útgáfu af `GitHub releases <https://github.com/EinarOlafsson/spacr/releases>`_. Þannig er líka hægt að færa eldra uppsetningarforrit yfir í núverandi uppfærsluferli skjáborðsforritsins. Notaðu uppsetningarforritið fyrir sama stýrikerfi og sömu uppsetningartegund og eintakið sem skipt er út."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Installation is staged and validated before replacement. An unsuccessful preparation keeps the previous application; activation failures retain or restore the previous runtime and report any recovery needed. Ordinary updates keep models, caches, preferences, run history and project outputs. Optional update cache cleanup starts unselected and requires a separate confirmation."
-msgstr ""
+msgstr "Uppsetningin er sviðsett og staðfest áður en skipt er út. Misheppnaður undirbúningur heldur fyrra forritinu; ef virkjun mistekst er fyrra keyrsluumhverfi haldið eða það endurheimt og greint frá allri endurheimt sem þörf er á. Venjulegar uppfærslur halda líkönum, skyndiminnum, kjörstillingum, keyrsluferli og úttaki verkefna. Valfrjáls hreinsun uppfærsluskyndiminnis er sjálfgefið ekki valin og krefst sérstakrar staðfestingar."
 
 msgid "Update channel and What's new"
 msgstr "Uppfærslurás og Hvað er nýtt"
@@ -107,34 +111,39 @@ msgstr "Hvert niðurhal sem spaCR gerir (líkanvigt, uppfærslur, viðbætur, pi
 msgid "macOS online installation: update and reopen"
 msgstr "Netuppsetning á macOS: uppfæra og opna aftur"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Choose **Help → Check for updates**, accept the available update, and confirm the requested version. spaCR prepares a separate private runtime using the installation's bundled ``uv`` while the window remains responsive. After preparation succeeds, **Restart** activates the verified runtime and opens its startup window and main window. The existing launcher is retained. No remove prompt, manual icon relaunch or Terminal questionnaire is part of this flow."
-msgstr ""
+msgstr "Veldu **Hjálp → Check for updates**, samþykktu tiltæku uppfærsluna og staðfestu umbeðna útgáfu. spaCR undirbýr sérstakt einkakeyrsluumhverfi með ``uv`` sem fylgir uppsetningunni á meðan glugginn svarar áfram. Eftir að undirbúningur tekst virkjar **Endurræsa** staðfesta keyrsluumhverfið og opnar ræsiglugga þess og aðalglugga. Fyrirliggjandi ræsiforrit er haldið. Engin fyrirspurn um fjarlægingu, handvirk endurræsing með tákni eða spurningalisti í Terminal er hluti af þessu ferli."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "If preparation or verification fails, the application stays on the previous version and shows the failure. If an analysis or screen prevents safe closure, the replacement is not authorized. Details are retained in ``~/.spacr/logs/update.log``. A frozen application bundle uses its verified bundle replacement workflow instead of updating a Python environment."
-msgstr ""
+msgstr "Ef undirbúningur eða staðfesting mistekst helst forritið á fyrri útgáfu og sýnir villuna. Ef greining eða skjár kemur í veg fyrir örugga lokun er útskiptin ekki heimiluð. Upplýsingar eru geymdar í ``~/.spacr/logs/update.log``. Fryst forritsknippi notar staðfest útskiptiferli knippisins í stað þess að uppfæra Python-umhverfi."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Supported frozen macOS, Windows and Debian installations prepare their replacement while the current application remains open. Protected installations request the operating system's graphical administrator authorization before offering **Restart**. Cancellation keeps the current application open. Activation waits for safe closure and actual process exit; the new application must confirm its version, executable and main window before recovery files are retired."
-msgstr ""
+msgstr "Studdar frystar uppsetningar fyrir macOS, Windows og Debian undirbúa staðgengil sinn á meðan núverandi forrit er opið. Varðar uppsetningar biðja um myndræna stjórnandaheimild stýrikerfisins áður en **Endurræsa** er boðið. Ef hætt er við helst núverandi forrit opið. Virkjun bíður eftir öruggri lokun og raunverulegum lokum ferlisins; nýja forritið verður að staðfesta útgáfu sína, keyrsluskrá og aðalglugga áður en endurheimtarskrár eru lagðar af."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Windows automatic updates require the release's checksummed ``spaCR-VERSION-update.exe``. The ordinary ``spaCR-VERSION-setup.exe`` remains the interactive installation download and is never substituted by the updater. Protected macOS updates require an installed helper that advertises the current native phase protocol. Older helpers, missing update assets and unsupported legacy Linux or Windows online layouts report the limitation while keeping the application open. Use the matching ordinary installer from GitHub releases to bring such an installation forward; shared and Conda environments use their package manager."
-msgstr ""
+msgstr "Sjálfvirkar uppfærslur á Windows krefjast ``spaCR-VERSION-update.exe`` útgáfunnar með gátsummu. Venjulega ``spaCR-VERSION-setup.exe`` er áfram gagnvirka uppsetningarniðurhalið og uppfærslutólið setur hana aldrei í staðinn. Varðar macOS-uppfærslur krefjast uppsetts hjálparforrits sem auglýsir núverandi samskiptareglu innbyggða skrefsins. Eldri hjálparforrit, uppfærsluskrár sem vantar og óstuddar eldri net-uppsetningar fyrir Linux eða Windows greina frá takmörkuninni og halda forritinu opnu. Notaðu samsvarandi venjulegt uppsetningarforrit úr GitHub releases til að færa slíka uppsetningu fram; sameiginleg umhverfi og Conda-umhverfi nota pakkastjóra sinn."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Reinstalling the same version"
-msgstr ""
+msgstr "Enduruppsetning sömu útgáfu"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Download that version's matching desktop installer from GitHub releases and run it again. Reinstallation repairs the application code and launcher while preserving user data. Do not uninstall first merely to repair an installation. Check the version in **Help → About spaCR** after the application reopens; the version must match the installer you selected."
-msgstr ""
-
-# AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
-msgid "Existing installations and full installers"
-msgstr "Eldri uppsetningar og full uppsetningarforrit"
+msgstr "Sæktu samsvarandi uppsetningarforrit skjáborðsins fyrir þá útgáfu af GitHub releases og keyrðu það aftur. Enduruppsetning lagfærir kóða forritsins og ræsiforritið en varðveitir notendagögn. Ekki fjarlægja forritið fyrst eingöngu til að lagfæra uppsetningu. Athugaðu útgáfuna í **Hjálp → Um spaCR** eftir að forritið opnast aftur; útgáfan verður að passa við uppsetningarforritið sem þú valdir."
 
 # AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-#, fuzzy
+msgid "Existing installations and full installers"
+msgstr "Fyrirliggjandi uppsetningar og full uppsetningarforrit"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The full installers and other installer update paths look for spaCR installations made by another spaCR installer and remove them, so that only one installer-made copy remains. They find the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer names it and does not install the new version."
-msgstr "Full uppsetningarforrit og aðrar uppfærsluleiðir uppsetningarforrita leita að spaCR-uppsetningum sem eldra uppsetningarforrit bjó til og fjarlægja þær, svo að aðeins eitt eintak frá uppsetningarforriti verði eftir. Þau finna net- og ótengdar uppsetningar fyrir Windows, macOS-forritið og umhverfi þess fyrir hvern notanda, netuppsetningu Linux og Debian-pakkann, ásamt ræsiforritum, flýtileiðum, valmyndarfærslum og skráningum til fjarlægingar. Umhverfi sem þú bjóst sjálf(ur) til og vinnueintök frumkóða eru talin upp en aldrei fjarlægð, og verkefnamöppur og niðurstöður eru aldrei snertar. Ef ekki er hægt að fjarlægja eintak -- til dæmis macOS-forrit í ``/Applications`` sem krefst stjórnandaréttinda -- nefnir uppsetningarforritið það og setur nýju útgáfuna ekki upp."
+msgstr "Full uppsetningarforrit og aðrar uppfærsluleiðir uppsetningarforrita leita að spaCR-uppsetningum sem annað spaCR-uppsetningarforrit bjó til og fjarlægja þær, svo að aðeins eitt eintak frá uppsetningarforriti verði eftir. Þau finna net- og ótengdar uppsetningar fyrir Windows, macOS-forritið og umhverfi þess fyrir hvern notanda, netuppsetningu Linux og Debian-pakkann, ásamt ræsiforritum, flýtileiðum, valmyndarfærslum og skráningum til fjarlægingar. Umhverfi sem þú bjóst sjálf(ur) til og vinnueintök frumkóða eru talin upp en aldrei fjarlægð, og verkefnamöppur þínar og niðurstöður eru aldrei snertar. Ef ekki er hægt að fjarlægja eintak -- til dæmis macOS-forrit í ``/Applications`` sem krefst stjórnanda -- nefnir uppsetningarforritið það og setur nýju útgáfuna ekki upp."
 
 msgid "To see what it would find without changing anything, run the finder from a spaCR checkout: ``python spacr/install_cleanup.py find``."
 msgstr "Til að sjá hvað það myndi finna án þess að breyta neinu skaltu keyra leitina úr frumkóðaafriti spaCR: ``python spacr/install_cleanup.py find``."
@@ -173,26 +182,33 @@ msgstr "``python -m pip index versions spacr`` sýnir PyPI-útgáfurnar og ``con
 msgid "Uninstalling"
 msgstr "Fjarlæging"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Open **Preferences → Performance → Uninstall**. In the popup, choose either **Current version** or **All detected spaCR versions**. The preview identifies the installation paths and versions. The all-versions choice also finds spaCR in detected Python and Conda environments; it removes the spaCR package from those environments and keeps their other packages and files. Editable source checkouts are shown as retained."
-msgstr ""
+msgstr "Opnaðu **Kjörstillingar → Afköst → Fjarlægja**. Í sprettiglugganum skaltu velja annaðhvort **Núverandi útgáfa** eða **Allar fundnar spaCR-útgáfur**. Forskoðunin tilgreinir uppsetningarslóðir og útgáfur. Valið fyrir allar útgáfur finnur líka spaCR í greindum Python- og Conda-umhverfum; það fjarlægir spaCR-pakkann úr þeim umhverfum og heldur öðrum pökkum þeirra og skrám. Breytanleg vinnueintök frumkóða eru sýnd sem haldið."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The popup separately selects **Caches**, **Models**, **Logs**, **Settings**, **History**, **Temporary files**, **Downloads** and **Other spaCR data**. Every cleanup category starts selected for uninstall. Clear any category to keep it, inspect the exact paths listed, and confirm the uninstall. Cancel leaves the application and files unchanged. spaCR closes safely before its running installation is removed."
-msgstr ""
+msgstr "Sprettiglugginn velur sérstaklega **Skyndiminnin**, **Models**, **Atvikaskrár**, **Stillingar**, **Ferill**, **Tímabundnar skrár**, **Niðurhal** og **Önnur spaCR-gögn**. Allir hreinsunarflokkar eru sjálfgefið valdir við fjarlægingu. Afveldu flokk til að halda honum, skoðaðu nákvæmu slóðirnar sem eru taldar upp og staðfestu fjarlæginguna. Hætta við skilur forritið og skrárnar eftir óbreytt. spaCR lokast á öruggan hátt áður en keyrandi uppsetning þess er fjarlægð."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Supported protected macOS applications, Windows frozen installations and Debian packages request graphical administrator authorization during preparation, while spaCR remains open. The helper must be installed, verified and advertise the required uninstall protocol. Declining authorization or cancelling the popup leaves the application and files intact. Removal waits for confirmed safe closure and actual process exit."
-msgstr ""
+msgstr "Studd varin macOS-forrit, frystar Windows-uppsetningar og Debian-pakkar biðja um myndræna stjórnandaheimild meðan á undirbúningi stendur, á meðan spaCR er opið. Hjálparforritið verður að vera uppsett, staðfest og auglýsa tilskilda samskiptareglu fyrir fjarlægingu. Ef heimild er hafnað eða hætt er við sprettigluggann haldast forritið og skrárnar óskert. Fjarlæging bíður eftir staðfestri öruggri lokun og raunverulegum lokum ferlisins."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "If a selected installation has an older unsupported helper, or a selected data path cannot be removed with the available permissions, preparation stops before spaCR closes and nothing is removed. The preview still identifies the affected paths. The native alternatives below remain available for those installations."
-msgstr ""
+msgstr "Ef valin uppsetning hefur eldra óstutt hjálparforrit, eða ekki er hægt að fjarlægja valda gagnaslóð með tiltækum heimildum, stöðvast undirbúningurinn áður en spaCR lokast og ekkert er fjarlægt. Forskoðunin tilgreinir samt slóðirnar sem eiga í hlut. Innbyggðu valkostirnir hér að neðan eru áfram tiltækir fyrir þær uppsetningar."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "These categories cover identified spaCR-owned locations. Shared external caches, unverified or linked folders and arbitrary project folders are kept; the preview marks retained locations. History includes spaCR's run records and any output copies stored within those records. Keep History if those copies are still needed. Projects, databases and exports outside the listed spaCR locations are not removed."
-msgstr ""
+msgstr "Þessir flokkar ná yfir greindar staðsetningar í eigu spaCR. Sameiginlegum ytri skyndiminnum, óstaðfestum eða tengdum möppum og hvaða verkefnamöppum sem er er haldið; forskoðunin merkir staðsetningar sem haldið er. Ferill inniheldur keyrsluskrár spaCR og öll afrit af úttaki sem geymd eru í þeim skrám. Haltu Ferli ef enn er þörf á þeim afritum. Verkefni, gagnagrunnar og útflutningar utan uppgefinna spaCR-staðsetninga eru ekki fjarlægð."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Uninstall cleanup defaults differ from update defaults: an ordinary update preserves user data, while the uninstall popup selects the displayed cleanup categories until you opt out. The native and command-line alternatives below retain their existing explicit purge switches."
-msgstr ""
+msgstr "Sjálfgefin hreinsunargildi við fjarlægingu eru önnur en við uppfærslu: venjuleg uppfærsla varðveitir notendagögn, en sprettigluggi fjarlægingar velur sýndu hreinsunarflokkana þar til þú afþakkar. Innbyggðu valkostirnir og skipanalínuvalkostirnir hér að neðan halda fyrirliggjandi skýru hreinsunarrofum sínum."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Native and command-line alternatives"
-msgstr ""
+msgstr "Innbyggðir valkostir og skipanalínuvalkostir"
 
 msgid "**Windows:** open **Settings → Apps → Installed apps → spaCR → Uninstall**, or run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe``."
 msgstr "**Windows:** opnaðu **Stillingar → Forrit → Uppsett forrit → spaCR → Fjarlægja** eða keyrðu ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe``."
@@ -209,8 +225,9 @@ msgstr "**conda-forge:** virkjaðu umhverfið og keyrðu ``conda remove spacr``.
 msgid "**PyPI:** activate the environment and run ``python -m pip uninstall spacr``."
 msgstr "**PyPI:** virkjaðu umhverfið og keyrðu ``python -m pip uninstall spacr``."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "These package-manager commands remove the package from the selected environment. They do not remove the whole environment. The native and command-line alternatives keep user preferences, run records and logs unless their explicit purge option is used."
-msgstr ""
+msgstr "Þessar skipanir pakkastjóra fjarlægja pakkann úr völdu umhverfi. Þær fjarlægja ekki allt umhverfið. Innbyggðu valkostirnir og skipanalínuvalkostirnir halda kjörstillingum notanda, keyrsluskrám og atvikaskrám nema skýri hreinsunarvalkosturinn þeirra sé notaður."
 
 msgid "Clean uninstall (purge)"
 msgstr "Hrein fjarlæging (purge)"
@@ -406,70 +423,89 @@ msgstr "``tutorial``"
 msgid "Packages used by the interactive tutorial environment."
 msgstr "Pökkum sem gagnvirka kennsluumhverfið notar."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "3D rendering and wgpu"
-msgstr ""
+msgstr "Þrívíddarteiknun og wgpu"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "spaCR installs `wgpu <https://github.com/pygfx/wgpu-py>`_ by default where it publishes wheels. wgpu draws the **True 3D** view through Vulkan, Metal or Direct3D 12. Without wgpu, spaCR draws 3D through OpenGL (VisPy), and through the CPU when OpenGL is not available either. The **Render backend** list offers Auto, Vulkan, Metal, Direct3D 12, OpenGL and CPU, showing only the backends this computer supports. **Auto** prefers wgpu (Vulkan on Linux and Windows, Metal then available Vulkan on macOS, Direct3D 12 on Windows when Vulkan is unavailable), then OpenGL, then the CPU."
-msgstr ""
+msgstr "spaCR setur sjálfgefið upp `wgpu <https://github.com/pygfx/wgpu-py>`_ þar sem wgpu gefur út wheel-pakka. wgpu teiknar **True 3D**-sýnina í gegnum Vulkan, Metal eða Direct3D 12. Án wgpu teiknar spaCR þrívídd í gegnum OpenGL (VisPy), og með örgjörvanum þegar OpenGL er heldur ekki tiltækt. Listinn **Myndgerðarvél** býður upp á Auto, Vulkan, Metal, Direct3D 12, OpenGL og CPU og sýnir aðeins þær vélar sem þessi tölva styður. **Sjálfvirkt** tekur wgpu fram yfir (Vulkan á Linux og Windows, Metal og síðan tiltækt Vulkan á macOS, Direct3D 12 á Windows þegar Vulkan er ekki tiltækt), síðan OpenGL og síðan örgjörvann."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Installation"
-msgstr "Fjarlæging"
+msgstr "Uppsetning"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "wgpu"
-msgstr ""
+msgstr "wgpu"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "True 3D view uses"
-msgstr ""
+msgstr "True 3D-sýn notar"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Python 3.10 on Windows x86-64/ARM64, macOS Intel/Apple silicon, or Linux x86-64/aarch64 with glibc 2.28 or newer"
-msgstr ""
+msgstr "Python 3.10 á Windows x86-64/ARM64, macOS Intel/Apple silicon eða Linux x86-64/aarch64 með glibc 2.28 eða nýrra"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Installed, ``wgpu<=0.31.0``"
-msgstr ""
+msgstr "Uppsett, ``wgpu<=0.31.0``"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Vulkan, Metal or Direct3D 12 (Auto), else OpenGL, else CPU"
-msgstr ""
+msgstr "Vulkan, Metal eða Direct3D 12 (Auto), annars OpenGL, annars CPU"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Python 3.11 or newer on the same platforms (the desktop installers use Python 3.12)"
-msgstr ""
+msgstr "Python 3.11 eða nýrra á sömu kerfum (uppsetningarforrit skjáborðsins nota Python 3.12)"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Installed, ``wgpu<0.33``"
-msgstr ""
+msgstr "Uppsett, ``wgpu<0.33``"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Python 3.9"
-msgstr ""
+msgstr "Python 3.9"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Not installed"
-msgstr "Skjáborðsuppsetningarforrit"
+msgstr "Ekki uppsett"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "OpenGL, else CPU"
-msgstr ""
+msgstr "OpenGL, annars CPU"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Other processors (for example 32-bit x86, ppc64le, s390x)"
-msgstr ""
+msgstr "Aðrir örgjörvar (til dæmis 32-bita x86, ppc64le, s390x)"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Linux with glibc older than 2.28 (installers skip wgpu automatically)"
-msgstr ""
+msgstr "Linux með glibc eldra en 2.28 (uppsetningarforrit sleppa wgpu sjálfkrafa)"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Installed without wgpu (installer option, or the commands below)"
-msgstr ""
+msgstr "Uppsett án wgpu (valkostur í uppsetningarforriti, eða skipanirnar hér að neðan)"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The desktop installers skip wgpu when it is resolved, so it is never downloaded: they pass ``uv`` an override file containing the single line ``wgpu; sys_platform == \"never\"``. Because the marker never holds, the resolver drops wgpu, and with it ``rendercanvas``, which only wgpu needs."
-msgstr ""
+msgstr "Uppsetningarforrit skjáborðsins sleppa wgpu þegar ákvæði eru leyst, svo að það er aldrei sótt: þau senda ``uv`` yfirskriftarskrá sem inniheldur eina línuna ``wgpu; sys_platform == \"never\"``. Þar sem merkið á aldrei við sleppir leysirinn wgpu, og með því ``rendercanvas``, sem aðeins wgpu þarf."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "With pip, install spaCR as usual and then remove wgpu:"
-msgstr ""
+msgstr "Með pip skaltu setja spaCR upp eins og venjulega og fjarlægja síðan wgpu:"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``pip check`` then reports that spaCR's ``wgpu`` requirement is missing; this is expected, and spaCR draws 3D through OpenGL or the CPU."
-msgstr ""
+msgstr "``pip check`` greinir þá frá því að ``wgpu``-ákvæði spaCR vanti; það er viðbúið, og spaCR teiknar þrívídd í gegnum OpenGL eða örgjörvann."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "On Linux with glibc older than 2.28 (check with ``getconf GNU_LIBC_VERSION``), ``pip install spacr`` finds no wgpu wheel and tries to build wgpu from its source release, which fails. pip cannot drop a dependency while it resolves, so install with `uv <https://docs.astral.sh/uv/>`_ and the same override the installers use, inside the activated environment:"
-msgstr ""
+msgstr "Á Linux með glibc eldra en 2.28 (athugaðu með ``getconf GNU_LIBC_VERSION``) finnur ``pip install spacr`` engan wgpu-wheel-pakka og reynir að byggja wgpu úr frumkóðaútgáfu þess, sem mistekst. pip getur ekki sleppt ákvæði á meðan það leysir, svo settu upp með `uv <https://docs.astral.sh/uv/>`_ og sömu yfirskrift og uppsetningarforritin nota, innan virkjaða umhverfisins:"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Use the same ``--override no-wgpu.txt`` when upgrading spaCR in that environment. Add ``--dry-run`` to the last command to see the resolved packages, without wgpu, before anything is installed."
-msgstr ""
+msgstr "Notaðu sama ``--override no-wgpu.txt`` þegar þú uppfærir spaCR í því umhverfi. Bættu ``--dry-run`` við síðustu skipunina til að sjá leystu pakkana, án wgpu, áður en nokkuð er sett upp."
 
 msgid "Container images"
 msgstr "Gámamyndir"
@@ -492,16 +528,16 @@ msgstr "Mynd"
 msgid "For"
 msgstr "Fyrir"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
-msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.0``"
+msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
 
 msgid "CPU only. Runs Linux x86-64 containers with Docker or Podman and needs no GPU driver."
 msgstr "Eingöngu örgjörvi. Keyrir Linux x86-64-gáma með Docker eða Podman og þarf engan skjákortsrekil."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
-msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``"
+msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
 
 msgid "CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU image."
 msgstr "CUDA 12.4. Þarf NVIDIA-rekil **550 eða nýrri á hýslinum** og NVIDIA Container Toolkit. Án ``--gpus`` hegðar hún sér eins og örgjörvamyndin."

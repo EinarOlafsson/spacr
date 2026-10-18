@@ -68,17 +68,21 @@ msgstr "标注模块提供由键盘驱动的裁剪图网格，将标签直接记
 msgid "Classify CV also offers optional rotations and reflections at inference time. See :doc:`classifier_evaluation` for the aggregation methods, original and mean probabilities, and orientation-stability flags."
 msgstr "分类 CV 还提供推理时可选的旋转和镜像。关于汇总方法、原始概率和平均概率以及方向稳定性标记，请参阅 :doc:`classifier_evaluation`。"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Own-DINO classifiers (alpha)"
-msgstr ""
+msgstr "自有 DINO 分类器（Alpha）"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Enable **Preferences → Show alpha features**, then open **Embeddings** and load the crop stack. Select an existing own-DINO teacher checkpoint with the own-checkpoint control. **Train classifier…** opens the supervised training form. Supply a CSV with one row per loaded crop, in exactly the same order, and columns ``label`` and ``acquisition_group``. Blank labels are excluded. Each labelled crop needs its known acquisition-well identity; complete groups are held out for validation. Keep string identities such as ``01`` intact."
-msgstr ""
+msgstr "启用 **偏好 → 显示 Alpha 功能**，然后打开 **Embeddings** 并加载裁剪图堆栈。使用自有检查点控件选择一个现有的自有 DINO 教师检查点。**训练分类器…** 会打开监督训练表单。提供一个 CSV 文件，每个已加载的裁剪图对应一行，顺序必须完全相同，并包含 ``label`` 和 ``acquisition_group`` 列。空白标签会被排除。每个已标注的裁剪图都需要其已知的采集孔标识；完整的组会被留出用于验证。请保持 ``01`` 这类字符串标识不变。"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Enter the ordered physical source-channel indices for these crops, choose training settings, and select a new classifier output file. Existing output files are preserved. The saved classifier records its classes, channel order, scaling and feature-normalization policy. Progress is shown during training; **Stop classifier** requests cancellation."
-msgstr ""
+msgstr "按顺序输入这些裁剪图的物理源通道索引，选择训练设置，并选择一个新的分类器输出文件。现有输出文件会被保留。保存的分类器会记录其类别、通道顺序、缩放以及特征归一化策略。训练期间会显示进度；**停止分类器** 会请求取消。"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Use **Apply saved classifier…** to select that classifier and apply it to the loaded raw crop stack. Its recorded preprocessing is applied automatically. **Classifier results…** shows predictions, features, logits and probabilities, with the class order, physical channels and checkpoint digest. CSV export includes the complete selected result table. **Cancel classifier result** discards pending delivery; the worker can remain active until it finishes. These alpha controls do not establish phenotype accuracy for a new dataset."
-msgstr ""
+msgstr "使用 **应用已保存的分类器…** 选择该分类器，并将其应用于已加载的原始裁剪图堆栈。其记录的预处理会自动应用。**分类结果…** 显示预测、特征、logits 和概率，以及类别顺序、物理通道和检查点摘要。CSV 导出包含所选的完整结果表。**取消分类结果** 会丢弃待交付的结果；工作进程可能会保持运行，直到其结束。这些 Alpha 控件并不能确立新数据集的表型准确性。"
 
 msgid "Map Barcodes"
 msgstr "映射条形码"

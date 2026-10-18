@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: de\n"
@@ -64,6 +64,10 @@ msgstr "**Umbenennen…** gibt der ausgewählten Vorlage einen neuen Namen. Ein 
 
 msgid "**Delete** removes the selected template."
 msgstr "**Löschen** entfernt die ausgewählte Vorlage."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Export settings…** on a module screen saves the form as a settings CSV without running it; see :ref:`settings-files-from-the-gui`."
+msgstr "**Einstellungen exportieren…** auf einem Modulbildschirm speichert das Formular als Einstellungs-CSV, ohne es auszuführen; siehe :ref:`settings-files-from-the-gui`."
 
 msgid "Templates are stored in ``~/.spacr/recipes/<module>/``, one JSON file per template. Set the ``SPACR_RECIPE_DIR`` environment variable to keep them in another folder, for example a shared lab folder."
 msgstr "Vorlagen werden in ``~/.spacr/recipes/<module>/`` gespeichert, eine JSON-Datei pro Vorlage. Setzen Sie die Umgebungsvariable ``SPACR_RECIPE_DIR``, um sie in einem anderen Ordner abzulegen, zum Beispiel einem gemeinsamen Laborordner."

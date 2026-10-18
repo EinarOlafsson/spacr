@@ -68,17 +68,21 @@ msgstr "Annotation fournit une grille de vignettes pilotable au clavier, enregis
 msgid "Classify CV also offers optional rotations and reflections at inference time. See :doc:`classifier_evaluation` for the aggregation methods, original and mean probabilities, and orientation-stability flags."
 msgstr "Classification CV propose aussi des rotations et des réflexions facultatives lors de l’inférence. Consultez :doc:`classifier_evaluation` pour les méthodes d’agrégation, les probabilités d’origine et moyennes, et les indicateurs de stabilité vis-à-vis de l’orientation."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Own-DINO classifiers (alpha)"
-msgstr ""
+msgstr "Classificateurs own-DINO (alpha)"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Enable **Preferences → Show alpha features**, then open **Embeddings** and load the crop stack. Select an existing own-DINO teacher checkpoint with the own-checkpoint control. **Train classifier…** opens the supervised training form. Supply a CSV with one row per loaded crop, in exactly the same order, and columns ``label`` and ``acquisition_group``. Blank labels are excluded. Each labelled crop needs its known acquisition-well identity; complete groups are held out for validation. Keep string identities such as ``01`` intact."
-msgstr ""
+msgstr "Activez **Préférences → Afficher les fonctionnalités alpha**, puis ouvrez **Embeddings** et chargez la pile de recadrages. Sélectionnez un point de contrôle enseignant own-DINO existant avec la commande de point de contrôle propre. **Entraîner un classificateur…** ouvre le formulaire d’entraînement supervisé. Fournissez un CSV comportant une ligne par recadrage chargé, exactement dans le même ordre, et les colonnes ``label`` et ``acquisition_group``. Les étiquettes vides sont exclues. Chaque recadrage étiqueté nécessite l’identité connue de son puits d’acquisition ; des groupes complets sont mis de côté pour la validation. Conservez telles quelles les identités textuelles comme ``01``."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Enter the ordered physical source-channel indices for these crops, choose training settings, and select a new classifier output file. Existing output files are preserved. The saved classifier records its classes, channel order, scaling and feature-normalization policy. Progress is shown during training; **Stop classifier** requests cancellation."
-msgstr ""
+msgstr "Saisissez les indices ordonnés des canaux sources physiques de ces recadrages, choisissez les paramètres d’entraînement et sélectionnez un nouveau fichier de sortie pour le classificateur. Les fichiers de sortie existants sont conservés. Le classificateur enregistré consigne ses classes, l’ordre des canaux, la mise à l’échelle et la politique de normalisation des caractéristiques. La progression s’affiche pendant l’entraînement ; **Arrêter le classificateur** demande l’annulation."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Use **Apply saved classifier…** to select that classifier and apply it to the loaded raw crop stack. Its recorded preprocessing is applied automatically. **Classifier results…** shows predictions, features, logits and probabilities, with the class order, physical channels and checkpoint digest. CSV export includes the complete selected result table. **Cancel classifier result** discards pending delivery; the worker can remain active until it finishes. These alpha controls do not establish phenotype accuracy for a new dataset."
-msgstr ""
+msgstr "Utilisez **Appliquer un classificateur enregistré…** pour sélectionner ce classificateur et l’appliquer à la pile de recadrages bruts chargée. Son prétraitement consigné est appliqué automatiquement. **Résultats de classification…** affiche les prédictions, les caractéristiques, les logits et les probabilités, avec l’ordre des classes, les canaux physiques et l’empreinte du point de contrôle. L’export CSV comprend l’intégralité du tableau de résultats sélectionné. **Annuler le résultat de classification** abandonne la livraison en attente ; le processus de travail peut rester actif jusqu’à ce qu’il se termine. Ces commandes alpha n’établissent pas l’exactitude phénotypique pour un nouveau jeu de données."
 
 msgid "Map Barcodes"
 msgstr "Mapper les codes-barres"

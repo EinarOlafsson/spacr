@@ -68,17 +68,21 @@ msgstr "एनोटेशन कीबोर्ड से चलने वा�
 msgid "Classify CV also offers optional rotations and reflections at inference time. See :doc:`classifier_evaluation` for the aggregation methods, original and mean probabilities, and orientation-stability flags."
 msgstr "वर्गीकरण CV अनुमान के समय वैकल्पिक घुमाव और परावर्तन भी देता है। समेकन विधियों, मूल और औसत संभावनाओं, और अभिविन्यास-स्थिरता चिह्नों के लिए :doc:`classifier_evaluation` देखें।"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Own-DINO classifiers (alpha)"
-msgstr ""
+msgstr "अपने DINO वर्गीकारक (अल्फ़ा)"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Enable **Preferences → Show alpha features**, then open **Embeddings** and load the crop stack. Select an existing own-DINO teacher checkpoint with the own-checkpoint control. **Train classifier…** opens the supervised training form. Supply a CSV with one row per loaded crop, in exactly the same order, and columns ``label`` and ``acquisition_group``. Blank labels are excluded. Each labelled crop needs its known acquisition-well identity; complete groups are held out for validation. Keep string identities such as ``01`` intact."
-msgstr ""
+msgstr "**प्राथमिकताएं → अल्फ़ा सुविधाएँ दिखाएँ** सक्षम करें, फिर **Embeddings** खोलें और क्रॉप स्टैक लोड करें। अपने-चेकपॉइंट नियंत्रण से कोई मौजूदा अपना DINO शिक्षक चेकपॉइंट चुनें। **वर्गीकरण मॉडल प्रशिक्षित करें…** पर्यवेक्षित प्रशिक्षण फ़ॉर्म खोलता है। एक CSV दें जिसमें हर लोड किए गए क्रॉप के लिए एक पंक्ति हो, ठीक उसी क्रम में, और ``label`` तथा ``acquisition_group`` स्तंभ हों। खाली लेबल बाहर रखे जाते हैं। हर लेबल किए गए क्रॉप को उसकी ज्ञात अधिग्रहण-कूप पहचान चाहिए; पूरे समूह सत्यापन के लिए अलग रखे जाते हैं। ``01`` जैसी स्ट्रिंग पहचानों को अक्षुण्ण रखें।"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Enter the ordered physical source-channel indices for these crops, choose training settings, and select a new classifier output file. Existing output files are preserved. The saved classifier records its classes, channel order, scaling and feature-normalization policy. Progress is shown during training; **Stop classifier** requests cancellation."
-msgstr ""
+msgstr "इन क्रॉप के लिए क्रमबद्ध भौतिक स्रोत-चैनल सूचकांक दर्ज करें, प्रशिक्षण सेटिंग चुनें, और एक नई वर्गीकारक आउटपुट फ़ाइल चुनें। मौजूदा आउटपुट फ़ाइलें सुरक्षित रखी जाती हैं। सहेजा गया वर्गीकारक अपने वर्ग, चैनल क्रम, स्केलिंग और फ़ीचर-सामान्यीकरण नीति दर्ज करता है। प्रशिक्षण के दौरान प्रगति दिखाई जाती है; **वर्गीकरण मॉडल रोकें** रद्द करने का अनुरोध करता है।"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Use **Apply saved classifier…** to select that classifier and apply it to the loaded raw crop stack. Its recorded preprocessing is applied automatically. **Classifier results…** shows predictions, features, logits and probabilities, with the class order, physical channels and checkpoint digest. CSV export includes the complete selected result table. **Cancel classifier result** discards pending delivery; the worker can remain active until it finishes. These alpha controls do not establish phenotype accuracy for a new dataset."
-msgstr ""
+msgstr "उस वर्गीकारक को चुनने और लोड किए गए कच्चे क्रॉप स्टैक पर लागू करने के लिए **सहेजा गया वर्गीकारक लागू करें…** का उपयोग करें। इसका दर्ज किया गया पूर्वप्रसंस्करण स्वतः लागू होता है। **वर्गीकरण परिणाम…** पूर्वानुमान, फ़ीचर, लॉजिट और प्रायिकताएँ, वर्ग क्रम, भौतिक चैनल और चेकपॉइंट डाइजेस्ट के साथ दिखाता है। CSV निर्यात में चुनी गई पूरी परिणाम तालिका शामिल होती है। **वर्गीकरण परिणाम रद्द करें** लंबित वितरण को त्याग देता है; वर्कर समाप्त होने तक सक्रिय रह सकता है। ये अल्फ़ा नियंत्रण किसी नए डेटासेट के लिए फ़ीनोटाइप सटीकता स्थापित नहीं करते।"
 
 msgid "Map Barcodes"
 msgstr "बारकोड मैप करें"
