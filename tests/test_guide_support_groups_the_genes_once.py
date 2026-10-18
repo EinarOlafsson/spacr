@@ -20,10 +20,10 @@ def _results(n_genes=40):
                      "coefficient": float(rng.normal()),
                      "p_value": float(rng.uniform())})
         for k in range(1 + g % 3):
-            rows.append({"feature": f"fraction:grna[{g}_g{k}]",
+            rows.append({"feature": f"fraction:grna[{g}_{k + 1}]",
                          "coefficient": float(rng.normal()),
                          "p_value": float(rng.uniform())})
-    rows.append({"feature": "fraction:grna[orphan_g1]", "coefficient": 0.1,
+    rows.append({"feature": "fraction:grna[orphan_1]", "coefficient": 0.1,
                  "p_value": 0.5})
     rows.append({"feature": "gene_fraction:gene[3]", "coefficient": 9.0,
                  "p_value": 0.0001})
@@ -56,6 +56,9 @@ def test_the_gene_columns_match_the_scan():
     expected = _scanned(results)
 
     assert set(support.index) == set(expected)
+    assert len(expected) == 41 and "orphan" in expected
+    assert np.isnan(support.loc["orphan", "gene_p"])
+    assert support.loc["3", "gene_p"] == 0.0001 and support.loc["5", "n_guides"] == 3
     for gene, (gene_p, coefficient) in expected.items():
         row = support.loc[gene]
         assert (np.isnan(gene_p) and np.isnan(row["gene_p"])) or \

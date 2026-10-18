@@ -4112,22 +4112,21 @@ def _a11y_label_beside(widget):
             return None
         found = None
         index = layout.indexOf(current)
-        if index >= 0:
-            if isinstance(layout, QFormLayout):
-                found = layout.labelForField(current)
-            elif isinstance(layout, QGridLayout):
-                row, column, _rs, _cs = layout.getItemPosition(index)
-                for left in range(column - 1, -1, -1):
-                    item = layout.itemAtPosition(row, left)
-                    if item is not None and item.widget() is not None:
-                        found = item.widget()
-                        break
-            elif isinstance(layout, QBoxLayout):
-                for before in range(index - 1, -1, -1):
-                    item = layout.itemAt(before)
-                    if item is not None and item.widget() is not None:
-                        found = item.widget()
-                        break
+        if isinstance(layout, QFormLayout):
+            found = layout.labelForField(current)
+        elif isinstance(layout, QGridLayout):
+            row, column, _rs, _cs = layout.getItemPosition(index)
+            for left in range(column - 1, -1, -1):
+                item = layout.itemAtPosition(row, left)
+                if item is not None and item.widget() is not None:
+                    found = item.widget()
+                    break
+        elif isinstance(layout, QBoxLayout):
+            for before in range(index - 1, -1, -1):
+                item = layout.itemAt(before)
+                if item is not None and item.widget() is not None:
+                    found = item.widget()
+                    break
         if isinstance(found, QLabel) and _a11y_plain(found.text()):
             return found
         if found is not None:

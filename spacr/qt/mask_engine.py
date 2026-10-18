@@ -143,8 +143,6 @@ def validate_lineage(state: Optional[dict] = None) -> dict:
             if bool(children) != bool(cell.get("division_frame")):
                 raise ValueError("division")
             for field in ("born_frame", "division_frame"):
-                if cell.get(field) is not None and not isinstance(cell[field], str):
-                    raise ValueError("frame")
                 expected = frame_ids.get(cell.get(field))
                 cell.setdefault(field + "_id", expected)
                 if cell[field + "_id"] != expected:
