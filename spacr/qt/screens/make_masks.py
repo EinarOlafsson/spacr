@@ -13464,13 +13464,18 @@ class MakeMasksScreen(QWidget):
         fold belongs; it becomes a window only if this screen has no body
         to make pages out of.
 
+        THE FIRST FOLD MAKES THE PAGE STRIP IN A TURN OF ITS OWN. Making it
+        moves this screen's whole body onto the strip, and Qt restyles every
+        widget of a body it moves; that and the page joining the strip were
+        one freeze. A breath between them lets the window answer.
+
         :param key: one of :data:`FOLD_ORDER`.
         :returns: the module's panel, or ``None`` for a key this screen does
             not fold. Pressing the same button again raises the page that is
             already there rather than building a second one.
         """
         from .. import screens as screens_package
-        from .map_barcodes import show_as_page, show_as_window
+        from .map_barcodes import host_pages, show_as_page, show_as_window
 
         host = FOLD_HOSTS.get(key, key)
         with screens_package._breathing_while_a_page_is_built():
@@ -13485,6 +13490,9 @@ class MakeMasksScreen(QWidget):
                     host, screen, title, actions=self._fold_actions(host))
                 self._fold_dialogs[host] = panel
             self.seed_folded(key)
+            if getattr(self, "_fold_pages", None) is None:
+                host_pages(self)
+                screens_package._breathe_while_a_window_opens(force=True)
             if show_as_page(panel, self, title) is None:
                 panel.add_close_button()
                 show_as_window(panel, self, title)
