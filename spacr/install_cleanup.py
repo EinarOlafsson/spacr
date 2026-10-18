@@ -1828,24 +1828,49 @@ def _uninstall_preview(operation_id, *, system=None):
     return payload
 
 
-def _uninstall_selection(preview, *, scope="current", categories=None):
-    """Freeze an explicit current/all choice; uninstall data categories default to selected."""
-    if scope not in {"current", "all"}:
+_UNINSTALL_SCOPES = ("current", "older", "all", "custom")
+
+
+def _uninstall_scope_keys(preview, scope):
+    """The selectable installation keys a named current/older/all scope covers, in preview order."""
+    return [row["key"] for row in preview["installations"]
+            if row["selectable"] and (scope == "all" or (row["current"] if scope == "current" else not row["current"]))]
+
+
+def _uninstall_selection(preview, *, scope="current", categories=None, installations=None):
+    """Freeze an explicit current/older/all choice, or ticked installations; data categories default to selected."""
+    if scope not in _UNINSTALL_SCOPES:
         raise ValueError("scope")
     chosen = list(_UNINSTALL_CATEGORIES if categories is None else categories)
     if len(set(chosen)) != len(chosen) or any(key not in _UNINSTALL_CATEGORIES for key in chosen):
         raise ValueError("categories")
-    keys = [row["key"] for row in preview["installations"]
-            if row["selectable"] and (scope == "all" or row["current"])]
+    if scope == "custom":
+        ticked = list(installations or ())
+        selectable = [row["key"] for row in preview["installations"] if row["selectable"]]
+        if len(set(ticked)) != len(ticked) or any(key not in selectable for key in ticked):
+            raise ValueError("installations")
+        keys = [key for key in selectable if key in ticked]
+    elif installations is not None:
+        raise ValueError("installations")
+    else:
+        keys = _uninstall_scope_keys(preview, scope)
     if not keys:
         raise ValueError(tr("No removable spaCR installation was found for this scope."))
     return {"operation_id": preview["operation_id"], "snapshot_id": preview["snapshot_id"],
             "scope": scope, "installations": keys, "categories": chosen}
 
 
+def _uninstall_keeps_running(preview, selection):
+    """True when no selected installation is the one running, so spaCR reopens after removal."""
+    current = {row["key"] for row in preview["installations"] if row["current"]}
+    return bool(current) and not current.intersection(selection["installations"])
+
+
 def _validate_uninstall_selection(preview, selection, machine, *, after_shutdown=False):
     """Re-discover selected scope and reject changed roots before any deletion or package operation."""
-    expected = _uninstall_selection(preview, scope=selection.get("scope"), categories=selection.get("categories"))
+    expected = _uninstall_selection(
+        preview, scope=selection.get("scope"), categories=selection.get("categories"),
+        installations=selection.get("installations") if selection.get("scope") == "custom" else None)
     if expected != selection:
         raise ValueError(tr("The uninstall selection changed. Review the paths again."))
     current = _uninstall_preview(preview["operation_id"], system=machine)
@@ -2493,6 +2518,9 @@ def _start_uninstall_helper(preview, selection, *, pid=None, workdir=None, syste
             "running_prefix": machine.running_prefix, "platform": machine.platform,
             "desktop_executable": machine.executable,
             "native": native,
+            "relaunch": (([machine.executable] if getattr(sys, "frozen", False)
+                          else [machine.executable, "-I", "-m", "spacr.qt"])
+                         if _uninstall_keeps_running(preview, selection) else None),
             "handshake": {"schema": 1, "token": os.urandom(32).hex(), "expires": time.time() + _WAIT_SECONDS}}
     handshake_type = _WindowsPipHandshake if machine.platform == "windows" else _FrozenUpdateHandshake
     handshake_type(plan)
@@ -2562,6 +2590,9 @@ def _run_uninstall_plan(plan_path, *, system=None, wait=None):
         destination = os.path.join(plan["workdir"], "result.json")
         with open(destination, "x", encoding="utf-8") as handle:
             json.dump(outcome, handle, indent=2)
+        relaunch = plan.get("relaunch")
+        if outcome["ok"] and relaunch and os.path.isfile(relaunch[0]):
+            _spawn_detached(relaunch, None, os.path.expanduser("~"))
         return 0 if outcome["ok"] else 1
     except Exception as error:
         handshake.failed(error)

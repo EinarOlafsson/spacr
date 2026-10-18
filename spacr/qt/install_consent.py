@@ -515,7 +515,10 @@ class _UninstallDialog(QDialog):
         self._scope.setAccessibleName(tr("Uninstall scope"))
         self._scope.addItem(tr("Current version"), "current")
         self._scope.addItem(tr("All detected spaCR versions"), "all")
+        self._scope.addItem(tr("Older versions only"), "older")
+        self._scope.addItem(tr("Ticked installations"), "custom")
         layout.addWidget(self._scope)
+        self._installation_items = {}
         self._installations = QTreeWidget()
         self._installations.setObjectName("SpacrUninstallInstallations")
         self._installations.setHeaderLabels([tr("Installation or path"), tr("Version"), tr("Action")])
@@ -559,37 +562,89 @@ class _UninstallDialog(QDialog):
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
+        for row in self._preview["installations"]:
+            record = row["record"]
+            item = tree_item([record["root"], record["version"] or tr("Unknown"), ""])
+            if row["selectable"]:
+                item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+                item.setCheckState(0, Qt.Unchecked)
+            else:
+                item.setFlags(item.flags() & ~Qt.ItemIsUserCheckable)
+            for path in row["paths"]:
+                if path != record["root"]:
+                    item.addChild(tree_item([path, "", ""]))
+            self._installations.addTopLevelItem(item)
+            item.setExpanded(True)
+            self._installation_items[row["key"]] = (row, item)
+        self._installations.resizeColumnToContents(0)
+        self._installations.resizeColumnToContents(1)
+        self._installations.itemChanged.connect(self._ticked)
         self._scope.currentIndexChanged.connect(self._show_scope)
         self._show_scope()
 
     def _show_scope(self, *_args):
-        """Display all detected records while marking only the chosen scope for removal."""
-        from .widgets.sortable_table import tree_item
+        """Tick exactly the chosen named scope; the ticked-installations scope keeps the current ticks."""
+        from spacr.install_cleanup import _uninstall_scope_keys
 
-        self._installations.clear()
-        selected = False
-        for row in self._preview["installations"]:
-            remove = row["selectable"] and (self._scope.currentData() == "all" or row["current"])
-            selected = selected or remove
-            record = row["record"]
-            action = tr("Remove spaCR package only") if record["kind"] == "environment" else tr("Remove application")
-            item = tree_item([record["root"], record["version"] or tr("Unknown"), action if remove else tr("Kept")])
-            for path in row["paths"]:
-                if path != record["root"]:
-                    item.addChild(tree_item([path, "", action if remove else tr("Kept")]))
-            self._installations.addTopLevelItem(item)
-            item.setExpanded(True)
-        self._installations.resizeColumnToContents(0)
-        self._installations.resizeColumnToContents(1)
-        self._remove.setEnabled(selected)
+        scope = self._scope.currentData()
+        if scope != "custom":
+            keys = set(_uninstall_scope_keys(self._preview, scope))
+            self._installations.blockSignals(True)
+            for key, (row, item) in self._installation_items.items():
+                if row["selectable"]:
+                    item.setCheckState(0, Qt.Checked if key in keys else Qt.Unchecked)
+            self._installations.blockSignals(False)
+        self._show_actions()
+
+    def _ticked(self, item, column):
+        """A changed tick that no longer matches a named scope becomes an explicit ticked selection."""
+        from spacr.install_cleanup import _uninstall_scope_keys
+
+        if column != 0 or item.parent() is not None:
+            return
+        ticked = self._ticked_keys()
+        scope = self._scope.currentData()
+        if scope == "custom" or _uninstall_scope_keys(self._preview, scope) != ticked:
+            self._scope.blockSignals(True)
+            self._scope.setCurrentIndex(self._scope.findData("custom"))
+            self._scope.blockSignals(False)
+        self._show_actions()
+
+    def _ticked_keys(self):
+        """The ticked selectable installation keys, in preview order."""
+        return [key for key, (row, item) in self._installation_items.items()
+                if row["selectable"] and item.checkState(0) == Qt.Checked]
+
+    def _show_actions(self):
+        """Name each installation's action from its tick and enable confirmation only when one is ticked."""
+        ticked = set(self._ticked_keys())
+        self._installations.blockSignals(True)
+        for key, (row, item) in self._installation_items.items():
+            if not row["selectable"]:
+                action = tr("Kept")
+            elif key not in ticked:
+                action = tr("Kept")
+            elif row["record"]["kind"] == "environment":
+                action = tr("Remove spaCR package only")
+            else:
+                action = tr("Remove application")
+            item.setText(2, action)
+            for index in range(item.childCount()):
+                item.child(index).setText(2, action)
+        self._installations.blockSignals(False)
+        self._remove.setEnabled(bool(ticked))
 
     def choices(self):
-        """Return the exact confirmed scope and category opt-outs without accepting arbitrary paths."""
+        """Return the exact confirmed scope or ticked installations and category opt-outs, never arbitrary paths."""
         from spacr.install_cleanup import _uninstall_selection
 
         categories = [key for key, item in self._category_items.items()
                       if item.checkState(0) == Qt.Checked]
-        return _uninstall_selection(self._preview, scope=self._scope.currentData(), categories=categories)
+        scope = self._scope.currentData()
+        if scope == "custom":
+            return _uninstall_selection(self._preview, scope="custom", categories=categories,
+                                        installations=self._ticked_keys())
+        return _uninstall_selection(self._preview, scope=scope, categories=categories)
 
 
 _UNINSTALL_WORKERS = set()

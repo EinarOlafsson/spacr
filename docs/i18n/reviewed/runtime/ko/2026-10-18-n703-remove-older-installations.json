@@ -1,0 +1,21 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "Older versions only",
+      "source": "Older versions only",
+      "source_sha256": "85b6c776521786bebdaf2d28896c12b044f0ee5186f815328db6289878b8bacc",
+      "table": "ui",
+      "translation": "이전 버전만"
+    },
+    {
+      "key": "Ticked installations",
+      "source": "Ticked installations",
+      "source_sha256": "7d86ac8979f788168a513a47c01acf4112a266be8d70cb782207e990ccf4064a",
+      "table": "ui",
+      "translation": "선택한 설치"
+    }
+  ],
+  "review_kind": "AI technical source and target-language review; no native-speaker signoff",
+  "schema": 1
+}
