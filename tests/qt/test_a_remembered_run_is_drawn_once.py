@@ -71,3 +71,23 @@ def test_a_run_with_nothing_remembered_is_drawn_once(
 
     assert len(calls) == 1
     assert panel.table.table.rowCount() == len(_frame())
+
+
+def test_a_state_recorded_mid_draw_is_not_drawn_again(
+        panel, monkeypatch, tmp_path):
+    """Lesson 13's case: the run journal saved the workspace mid-draw."""
+    calls = []
+    real = type(panel).refresh_views
+
+    def saving(self):
+        calls.append(1)
+        real(self)
+        self.workspace_state()
+
+    monkeypatch.setattr(type(panel), "refresh_views", saving)
+    source = str(tmp_path / "run_c")
+
+    assert panel.set_frame(_frame(), source=source)
+
+    assert len(calls) == 1
+    assert panel.table.table.rowCount() == len(_frame())

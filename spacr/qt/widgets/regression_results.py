@@ -1964,7 +1964,9 @@ class RegressionResultsPanel(QWidget):
             reported in the status line and returns ``False``.
 
         A run whose plot state is remembered is drawn once, by the restore
-        of that state, rather than drawn and then drawn again.
+        of that state, rather than drawn and then drawn again. A state first
+        recorded while this call draws -- a workspace save reading the panel
+        mid-draw -- holds what is being drawn and is not restored over it.
         """
         import pandas as pd
 
@@ -2080,7 +2082,8 @@ class RegressionResultsPanel(QWidget):
             self.say(f"{self._status} {note}")
         if self._colour_by_note:
             self.say(f"{self._status} Colouring: {self._colour_by_note}.")
-        self._restore_plot_state(source)
+        if restoring:
+            self._restore_plot_state(source)
         self.loaded.emit(source or "")
         return True
 
