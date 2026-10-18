@@ -520,6 +520,8 @@ def load_mask_metadata(folder: str, filename: str,
         path = next((candidate for candidate in candidates if os.path.isfile(candidate)), path)
     if not os.path.isfile(path):
         return {}
+    if not is_seg_bundle(filename) and os.path.splitext(path)[1].lower() not in (".tif", ".tiff"):
+        return {}
     if is_seg_bundle(filename):
         metadata = read_seg_bundle(path).get("spacr_mask", {})
     else:
