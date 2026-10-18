@@ -92,3 +92,35 @@ assert not _gc._requested.is_set()
     result = subprocess.run([sys.executable, "-c", script], capture_output=True,
                             text=True, timeout=30)
     assert result.returncode == 0, result.stderr
+
+
+def test_reading_a_database_on_a_worker_defers_the_sweep(qapp, tmp_path,
+                                                         monkeypatch):
+    """``_read_db`` on a pipeline worker asks the GUI timer to collect.
+
+    A full collection on the worker walks the whole GUI heap while holding
+    the interpreter lock; the Invasion run in lesson 26 stalled the window
+    for 0.39 s that way.
+    """
+    import sqlite3
+
+    import pandas as pd
+
+    from spacr.io import _read_db
+
+    location = tmp_path / "measurements.db"
+    with sqlite3.connect(location) as conn:
+        pd.DataFrame({"plateID": ["plate1"], "rowID": ["r1"],
+                      "columnID": ["c1"], "fieldID": [1]}).to_sql(
+            "pathogen", conn, index=False)
+    swept = []
+    monkeypatch.setattr(gc, "collect", lambda *args: swept.append(args) or 0)
+    frames = []
+    thread = threading.Thread(
+        target=lambda: frames.extend(_read_db(str(location), ["pathogen"])))
+    thread.start()
+    thread.join(timeout=30)
+    assert not thread.is_alive()
+    assert len(frames) == 1 and len(frames[0]) == 1
+    assert swept == [], "the worker ran a full collection itself"
+    assert _gc._requested.is_set()

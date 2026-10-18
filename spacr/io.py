@@ -5877,7 +5877,6 @@ def _read_db(db_loc, tables):
     :param tables: the table names to read.
     :returns: one data frame per requested table, in the order asked.
     """
-    import gc
     import os
     import pathlib
     import sqlite3
