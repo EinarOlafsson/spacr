@@ -105,6 +105,8 @@ def guide_support(results: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
     guides = frame[frame["feature"].map(_is_guide_term) & frame["_gene"].notna()]
     genes = frame[frame["feature"].map(_is_gene_term) & frame["_gene"].notna()]
 
+    gene_rows = {gene: block for gene, block in genes.groupby("_gene")}
+    no_gene_row = genes.iloc[0:0]
     rows = []
     for gene, block in guides.groupby("_gene"):
         effects = block["_effect"].to_numpy(dtype="float64")
@@ -115,7 +117,7 @@ def guide_support(results: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
             same = int(np.sum(np.sign(finite) == direction))
         else:
             same = 0
-        gene_row = genes[genes["_gene"] == gene]
+        gene_row = gene_rows.get(gene, no_gene_row)
         rows.append({
             "gene": gene,
             "n_guides": int(len(block)),
