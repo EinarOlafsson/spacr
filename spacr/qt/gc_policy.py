@@ -42,6 +42,7 @@ from __future__ import annotations
 
 import gc
 import logging
+import sys
 from typing import Optional
 
 from .._gc import _requested
@@ -65,6 +66,27 @@ def is_installed() -> bool:
     return _timer is not None
 
 
+def _a_heavy_import_is_running() -> bool:
+    """Whether a background import holds :data:`spacr.qt.app.HEAVY_IMPORT_LOCK`.
+
+    Every heavy background import freezes what it built when it finishes
+    (:func:`spacr.qt.bridge._import_the_entry_module`,
+    :func:`spacr.qt.app._freeze_what_survived`), so a generational sweep in
+    the middle of one walks hundreds of thousands of new module objects for
+    nothing, on the GUI thread. Opening a Make Masks folder starts the
+    ``spacr.io`` import (torch and the rest); the timer's sweeps during it
+    took 330, 83, 421 and 101 ms on a 1994 x 1994 field, the paint drops of
+    lesson 14's restoration row. The automatic sweep waits until the lock is
+    free; an explicit request is still serviced.
+    """
+    app = sys.modules.get("spacr.qt.app")
+    lock = getattr(app, "HEAVY_IMPORT_LOCK", None)
+    try:
+        return bool(lock is not None and lock.locked())
+    except Exception:
+        return False
+
+
 def collect_once() -> int:
     """Run at most one generation's collection, CPython's own policy.
 
@@ -84,6 +106,8 @@ def collect_once() -> int:
         _requested.clear()
         gc.collect()
         return 2
+    if _a_heavy_import_is_running():
+        return -1
     thresholds = _saved_thresholds or gc.get_threshold()
     counts = gc.get_count()
     for generation in (2, 1, 0):
