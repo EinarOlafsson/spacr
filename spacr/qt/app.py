@@ -6233,20 +6233,27 @@ class MainWindow(QMainWindow):
         settings = restart_state._jsonable(settings)
         drafts = restart_state._jsonable(drafts)
         self._autosave_queued = fingerprint
-
-        def _write():
-            """Store this snapshot; a failure leaves it to the next tick."""
-            try:
-                session_saved = restart_state._save_session(module, settings)
-                drafts_saved = restart_state._save_drafts(drafts)
-                if session_saved and drafts_saved:
-                    self._last_autosave = fingerprint
-            finally:
-                if getattr(self, "_autosave_queued", "") == fingerprint:
-                    self._autosave_queued = ""
-
-        restart_state._write_later(_write)
+        restart_state._write_later(functools.partial(
+            MainWindow._store_autosave, self, fingerprint, module, settings,
+            drafts))
         return True
+
+    def _store_autosave(self, fingerprint, module, settings, drafts) -> None:
+        """Store one autosave snapshot on the settings writer thread.
+
+        A failure leaves :attr:`_last_autosave` unchanged, so the next tick
+        offers the same settings again.
+        """
+        from .. import restart_state
+
+        try:
+            session_saved = restart_state._save_session(module, settings)
+            drafts_saved = restart_state._save_drafts(drafts)
+            if session_saved and drafts_saved:
+                self._last_autosave = fingerprint
+        finally:
+            if getattr(self, "_autosave_queued", "") == fingerprint:
+                self._autosave_queued = ""
 
     def _end_session_cleanly(self) -> None:
         """Record where the user left off and drop the crash drafts."""
