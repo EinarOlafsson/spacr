@@ -4037,9 +4037,9 @@
         "c56b9446737ab56eb6435666b8b34cf38d7f25fb0c7e8c40570175194355e595"
       ],
       "source_sha256": "0129ae0990f0d5433a3b134c937ff9f4fc7d95e2ce455f7787e3a1fd482048ae",
-      "text": "가이드-웰 할당을 순열한 스크린 실험을 반환합니다.\n\n:param screen: 내부적으로 일관된 스크린, 마이크로 플레이트 샘플 위치 수준 가이드 작업이 흐려질 것입니다.\n\nPermutation은 세포, 특징, 기계 학습 분류 모델 점수, 좋은 크기, 그리고 가이드 부분의 분배를 유지하면서 순서-그림 관계를 깨뜨립니다.",
+      "text": "가이드-웰 할당을 순열한 스크리닝을 반환합니다.\n\n:param screen: 내부적으로 일관된 스크린, 마이크로 플레이트 샘플 위치 수준 가이드 작업이 흐려질 것입니다.\n\nPermutation은 세포, 특징, 기계 학습 분류 모델 점수, 좋은 크기, 그리고 가이드 부분의 분배를 유지하면서 순서-그림 관계를 깨뜨립니다.",
       "translation_source_blocks_sha256": [
-        "fc3e82b24a5fd14cfcad487f65db80e5c6604f7b82f895fda8ef3f13ca990cd4",
+        "52114f6e4ff7b5b7e296dffab2fe680ad79bf5c5130c564ac495dbc1c884b5fc",
         "cc53b9d949f8c877f9889f86c0ef5b0b4abe5eb3986916841a9142751e823bfd",
         "b7d5f105ec1759bda72c5bd04f563bff5836a91cfeee246ad81829c5b2b917a7"
       ]
@@ -13084,9 +13084,9 @@
         "9134a96c6191b3bf6aa221f017e5e04a26939af02157dbfaf54df83b1b1f8aea"
       ],
       "source_sha256": "0ae0e4becadfc8d0b6cc6f5198781bf8725456d8307bc5031a7f2c67f8167342",
-      "text": "스크린 플레이트 하나의 폴더를 반환합니다: ``<dest>/screen/plate<N>``.\n\n각 플레이트의 측정 아카이브는 ``measurements/measurements.db``로 팩을 꺼내고 각 플레이의 추출 된 이미지 지역 아카이가 ``data/`` - 동일한 두 개의 경로, 4 번 통과합니다. 하나의 폴더에 팩하지 않고, 네 번째 플레이는 조용히 세 번째를 과장하고, :meth:`spacr.screen_data.ScreenAsset.is_present`는 다른 플레이 파일이 자신의 곳에 앉아 있기 때문에 다운로드 된 플레이를 보고 할 것입니다.\n\n:param dest: 뿌리는 모든 것을 아래로 꺼낸다.\n:param plate: 어떤 스크린 플레이트",
+      "text": "스크리닝 플레이트 하나의 폴더를 반환합니다: ``<dest>/screen/plate<N>``.\n\n각 플레이트의 측정 아카이브는 ``measurements/measurements.db``로 팩을 꺼내고 각 플레이의 추출 된 이미지 지역 아카이가 ``data/`` - 동일한 두 개의 경로, 4 번 통과합니다. 하나의 폴더에 팩하지 않고, 네 번째 플레이는 조용히 세 번째를 과장하고, :meth:`spacr.screen_data.ScreenAsset.is_present`는 다른 플레이 파일이 자신의 곳에 앉아 있기 때문에 다운로드 된 플레이를 보고 할 것입니다.\n\n:param dest: 뿌리는 모든 것을 아래로 꺼낸다.\n:param plate: 어떤 스크린 플레이트",
       "translation_source_blocks_sha256": [
-        "e965d24b2e52a4a26c8f914d7793893ec979b770ae74e1526a83844a19df5fb0",
+        "73804173b64e8212d86b8723d7485c3fb0fe556a0900e71ef815bfa38860df40",
         "68ad830d848e23a8627c2c5fab36e2795f8a89ec626872fa611255276381f8f3",
         "422c0161da742fd19048e8939e2cd0fb6669e0a316b0d6870ced084930bca39a",
         "9134a96c6191b3bf6aa221f017e5e04a26939af02157dbfaf54df83b1b1f8aea"
@@ -24848,9 +24848,9 @@
         "0327e71e24dd4254210bf064d62e0eda3cde9fd00a50b5170d5a403d603aa89b"
       ],
       "source_sha256": "4168d130ea808304638adb1a7bc098bb25255a8a95ef1692b8aa873546ec766d",
-      "text": "예제 스크린 파일을 캐시하는 데 사용하는 디렉터리를 반환합니다.\n\n``SPACR_EXAMPLE_DATA``은 위치를 초과합니다.그렇지 않으면 함수는 ``XDG_CACHE_HOME`` 또는 플랫폼 중립 ``~/.cache``을 사용합니다.",
+      "text": "예제 스크리닝 파일을 캐시하는 데 사용하는 디렉터리를 반환합니다.\n\n``SPACR_EXAMPLE_DATA``은 위치를 초과합니다.그렇지 않으면 함수는 ``XDG_CACHE_HOME`` 또는 플랫폼 중립 ``~/.cache``을 사용합니다.",
       "translation_source_blocks_sha256": [
-        "2a18899679f817341dd0b59b512f5e0c0c96308dfa694e86c0ec23645c446b5b",
+        "b9ea67644952a6f4c5658c0143a448d76abafa9287667d0d620e498898ba8e83",
         "0327e71e24dd4254210bf064d62e0eda3cde9fd00a50b5170d5a403d603aa89b"
       ]
     },
@@ -53793,9 +53793,9 @@
         "fe77a046943242810f23c1f4f161e835ddfb19cab09e3b0665be9816787ee339"
       ],
       "source_sha256": "fe77a046943242810f23c1f4f161e835ddfb19cab09e3b0665be9816787ee339",
-      "text": "플레이트 식별 정보가 하나의 스크린 안에서 충돌하는지 여부를 반환합니다.",
+      "text": "플레이트 식별 정보가 하나의 스크리닝 안에서 충돌하는지 여부를 반환합니다.",
       "translation_source_blocks_sha256": [
-        "e8727fda8d2d5d79b48c5aa8539b26c2af47e85f7a55a3ccd09dcd33a0103455"
+        "fe77a046943242810f23c1f4f161e835ddfb19cab09e3b0665be9816787ee339"
       ]
     },
     "spacr.multi_database.MergePlan.screens": {
@@ -61562,9 +61562,9 @@
         "466bfd5c2c95dd9b124aa2d5716ed0905c50c3897040c00025f77a4b3cf25d3d"
       ],
       "source_sha256": "37b9df86a3ef02fd3b3e543bc4c66f1dd64fd923f014b192acefb11450d8b325",
-      "text": "이 스크린의 병합 배열이 기록하는 마스크 평면을 반환합니다.\n\n`object_array`은 강도 이미지 데이터 채널이 절단되는 마스크를 선택하고, 무료 텍스트로 제공하는 것은 사용자가 자신의 응용 프로그램 보기가 포함 된 것을 기억하도록 요청합니다 - 그리고 `measure`이 한 방식으로 표시합니다.\n\n:param source: :class:`spacr.crops.CropSource`, :class:`CropSourceChoice` 또는 ``spec.mask_dims``를 가진 무언가.\n:returns: 스크린이 아무것도 기록하지 않을 때 빈 - 그것은 대답이 아니라 실패입니다 : 합병 된 레이어가 마스크 이미지 레이어를 가지고있는 처리 세션은 하나로 절단 할 수 없습니다.",
+      "text": "이 스크리닝의 병합 배열이 기록하는 마스크 평면을 반환합니다.\n\n`object_array`은 강도 이미지 데이터 채널이 절단되는 마스크를 선택하고, 무료 텍스트로 제공하는 것은 사용자가 자신의 응용 프로그램 보기가 포함 된 것을 기억하도록 요청합니다 - 그리고 `measure`이 한 방식으로 표시합니다.\n\n:param source: :class:`spacr.crops.CropSource`, :class:`CropSourceChoice` 또는 ``spec.mask_dims``를 가진 무언가.\n:returns: 스크린이 아무것도 기록하지 않을 때 빈 - 그것은 대답이 아니라 실패입니다 : 합병 된 레이어가 마스크 이미지 레이어를 가지고있는 처리 세션은 하나로 절단 할 수 없습니다.",
       "translation_source_blocks_sha256": [
-        "1f2f39803d34c483b757cd3582e460f748b35d49a8daed0cdf9b74b93ad8140f",
+        "aefb9049722274862a40036826e0b5fe707fd04110838b14e64d9ed2b257b55d",
         "dfa159bf14a748bbb6c57853d8f54911bc3d72157e73716c7943179247314b5a",
         "395ac2ff6114cf2f04c8c307a336bb1ca27fdbcafde85510959aaa6eab477f47",
         "fefd6d52a6f84b9f570f29a2d1fc98e3cfaa57ad90e254aba5e0f9d15daaa8a0"
@@ -181859,9 +181859,9 @@
         "71a72900f52c9c04e9599feb785302a45d0a23cd4d514d220ac379930850ef92"
       ],
       "source_sha256": "7ac3de8663c25a2ead5149118780afd7e5052ea7b36b745c12c3e75a319720a0",
-      "text": "스크린의 어떤 가이드와도 일치하지 않는 제외 항목을 반환합니다.\n\n:param exclude: 제외를 위해 요청된 가이드 또는 유전자 식별자, 또는 None.\n:param guides: 사용 가능한 가이드 식별자, ``genes``와 일치할 때 제공됩니다.",
+      "text": "스크리닝의 어떤 가이드와도 일치하지 않는 제외 항목을 반환합니다.\n\n:param exclude: 제외를 위해 요청된 가이드 또는 유전자 식별자, 또는 None.\n:param guides: 사용 가능한 가이드 식별자, ``genes``와 일치할 때 제공됩니다.",
       "translation_source_blocks_sha256": [
-        "47395252463f60adafdfdf7609638dbcb521b70cae70e9a9b7d9b5e58158496d",
+        "6ee3e15a576d607ae7e94f1821d9f5a7c207ba3a52569857a31110c472b816a8",
         "1d29613ab9e6e6d66282e0d488c10921d277f51ed682cceffe9a112dd49b029e",
         "71a72900f52c9c04e9599feb785302a45d0a23cd4d514d220ac379930850ef92"
       ]
@@ -181952,9 +181952,9 @@
         "6f3615614c90ae0e2bbc533cc9eb981e4b68770beebc2a3303dcfd0272f8c3c2"
       ],
       "source_sha256": "599686d7c14943921aa2a15bfebfbf2325d51e14db0c28f14d35e9657fc0fb12",
-      "text": "새 모델로 스크린을 다시 실행하기 위한 설정을 반환합니다.\n\n:param base: 사용되는 응용 프로그램 보기에서 처리 세션을 설정합니다.\n:param regression_type: 새 배경, 또는 ``None`` 오래된 하나를 유지하기 위해.\n:param correction_method: 새로운 다중 테스트 수정, 또는 ``None`` 오래된 하나를 유지합니다. :data:`CORRECTION_KEY`로 작성.\n:param fdr_alpha: 새로운 의미 수준, 또는 ``None`` 그것을 유지하기 위해.\n:param level: ``'grna'``, ``'gene'`` 또는 ``'both'``, 혹은 ``None`` 이전 값을 유지하기 위해 혼합 모델은 가이드를 우연한 효과로 취급하고 따라서 per-guide p 값없이 짧은 예측을 제공합니다.\n:param alpha: 새로운 징계 가중치, 새 배경은 이름에도 불구하고 ``fdr_alpha``에서 다른 숫자로 하나를 읽습니다.\n:returns: ``(settings, [notes for the user])``.\n:raises ValueError: ``base``는 사용 가능한 계산 데이터 경로를 지정하지 않습니다.\n\n반환된 노트는 실행 전에 모든 자동 설정 변경을 식별합니다.",
+      "text": "새 모델로 스크리닝을 다시 실행하기 위한 설정을 반환합니다.\n\n:param base: 사용되는 응용 프로그램 보기에서 처리 세션을 설정합니다.\n:param regression_type: 새 배경, 또는 ``None`` 오래된 하나를 유지하기 위해.\n:param correction_method: 새로운 다중 테스트 수정, 또는 ``None`` 오래된 하나를 유지합니다. :data:`CORRECTION_KEY`로 작성.\n:param fdr_alpha: 새로운 의미 수준, 또는 ``None`` 그것을 유지하기 위해.\n:param level: ``'grna'``, ``'gene'`` 또는 ``'both'``, 혹은 ``None`` 이전 값을 유지하기 위해 혼합 모델은 가이드를 우연한 효과로 취급하고 따라서 per-guide p 값없이 짧은 예측을 제공합니다.\n:param alpha: 새로운 징계 가중치, 새 배경은 이름에도 불구하고 ``fdr_alpha``에서 다른 숫자로 하나를 읽습니다.\n:returns: ``(settings, [notes for the user])``.\n:raises ValueError: ``base``는 사용 가능한 계산 데이터 경로를 지정하지 않습니다.\n\n반환된 노트는 실행 전에 모든 자동 설정 변경을 식별합니다.",
       "translation_source_blocks_sha256": [
-        "e579624c085750a6d6da6e10f6b296f9af05620f12b5ba47b61fe1afb79bb9d4",
+        "c6008b5118d3c3aa0a96e8e69962aedaa710040fde7e99d637d7d41d92a57f63",
         "697dcdeec3683c3bf3aaed2df88fd889525aa45a7660768d4019e0e9ef952833",
         "624e29bdeed88b3ddddbb11393a153edd701c0fbc97faddd294ba29c368dbaab",
         "f4789f818a749e8c151585875cf5fc18196916d084293ddcef32478cc89ecd47",
@@ -190276,14 +190276,14 @@
         "3c690c81878deea2c20b4cac138189aab1246dad5d43d819aa412021e86ed64a"
       ],
       "source_sha256": "8863df15521b3d671a7efbc18b3c5cf443d3714c01268828ee42ab8912edfdc9",
-      "text": "``df``에 값이 채워진 :data:`SCREEN_KEY` 열을 붙여 반환합니다.\n\n세 가지 사례, 그리고 왜 각각 그대로 행동 :\n\n* **프레임에는 스크린 열이 없습니다.**그것은 ``screen`` 또는 :data:`DEFAULT_SCREEN`를 가지고 하나를 얻습니다.이것은 단일 스크리닝 프로젝트입니다.\n* 프레임에 이미 그 열이 있고 ``screen`` 은 ``None`` 입니다. 라벨은 유지됩니다. 어떤 실험에서 왔는지 이미 알고 있는 프레임의 라벨을 다시 붙이면, 아무런 표시도 없이 행이 다른 실험으로 옮겨지게 됩니다.\n* 프레임은 하나가 있고 ``screen``가 주어졌습니다. 호출자는 파일을보고 이것이 어떤 스크린인지 말했습니다. ``overwrite=False`` (기본)는 여전히 *blank* 값만 채우고 있으며, ``overwrite=True``를 통과하여 각 라인을 다시 펌프합니다.\n\n``None``, ``NaN`` 및 ``''``가 :data:`DEFAULT_SCREEN`이되기 때문에 빈 응용 프로그램 보기 ID가 정체성이 아니며 하나를 가진 각 라인은 다른 모든 라인과 함께 그룹화됩니다.\n\n:param df: :class:`pandas.DataFrame`.\n:param screen: 하나가 없는 줄을 위한 스크린 레이블.\n:param overwrite: 기존 라벨을 채우는 대신 바꾸십시오.\n:returns: 새 프레임; ``df`` 변경되지 않습니다.",
+      "text": "``df``에 값이 채워진 :data:`SCREEN_KEY` 열을 붙여 반환합니다.\n\n세 가지 사례, 그리고 왜 각각 그대로 행동 :\n\n* **프레임에는 스크린 열이 없습니다.**그것은 ``screen`` 또는 :data:`DEFAULT_SCREEN`를 가지고 하나를 얻습니다.이것은 단일 스크리닝 프로젝트입니다.\n* 프레임에 이미 그 열이 있고 ``screen`` 은 ``None`` 입니다. 라벨은 유지됩니다. 어떤 실험에서 왔는지 이미 알고 있는 프레임의 라벨을 다시 붙이면, 아무런 표시도 없이 행이 다른 실험으로 옮겨지게 됩니다.\n* 프레임은 하나가 있고 ``screen``가 주어졌습니다. 호출자는 파일을보고 이것이 어떤 스크린인지 말했습니다. ``overwrite=False`` (기본)는 여전히 *blank* 값만 채우고 있으며, ``overwrite=True``를 통과하여 각 라인을 다시 펌프합니다.\n\n흰색은 결코 빈으로 남아 있지 않습니다 : ``None``, ``NaN`` 및 ``''``가 :data:`DEFAULT_SCREEN`이되기 때문에 빈 스크린 ID는 정체성이 아니며 하나를 가진 각 라인은 다른 모든 라인과 함께 그룹화 될 것입니다.\n\n:param df: :class:`pandas.DataFrame`.\n:param screen: 하나가 없는 줄을 위한 스크린 레이블.\n:param overwrite: 기존 라벨을 채우는 대신 바꾸십시오.\n:returns: 새 프레임; ``df`` 변경되지 않습니다.",
       "translation_source_blocks_sha256": [
         "fa4e52f186a00d54487fd81befc1056f9b30d076348b4abba1843050fe8ddf6f",
         "068ada7e91e057d033d3f6fbbf3f8fb8f31a7b8bf935cd569e9029dfb4de8702",
         "9e2cce60426420dd5f4630c8c8bff7d4605766651613e5ac5d21ec4d34401d8d",
         "e903b06c2b3d5d81f8a1e5507d237ae811c4e49e5d04ffb732877d98568d02db",
         "09a6415b69f9b298e3ff94852d4b1d3da572e54bf36f2724df6c811e254f4ee0",
-        "29774847dd62bcef0ab8128c354a09fbdd2acbb18403d68084d87281f4b2b16e",
+        "09b539e2fdfb37a975819711b1b11dfd56f1eec0c7e7244cfc44db562cfffb1d",
         "22165e723f63129de39cc0c4bceed6fa846a6a807ad38cf43ef8e43748c5b957",
         "0c2549764326c97e61f0b8a5c7201c0661ee54f72facd5b04db087876906d7e2",
         "69e35f8db3d4d24917db60e02df065c7dd7304c528a943cc4e83857a1004f39d",
@@ -191265,9 +191265,9 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
       ],
       "source_sha256": "3496d171ea008ef9fa6ff13c1ba78fb511ddc7b81072e8fca2ab6561613ebeaa",
-      "text": "표준 스크린 ID를 반환하며, 없으면 기본값을 사용합니다.\n\n무료 형식의 텍스트, 실험실 마이크로 플레이트 ID와 같이, 그것은 사용자가 실험을 주어진 이름이기 때문에. 그것은 **not** 사전 설정 및 **no** 뒤로 분리됩니다 : :data:`SCREEN_KEY`는 차원에 차단 할 수있는 차원, 측면과 색상으로 그것은 서있다.\n\n부재는 일반적인 경우입니다. ``None``, ``''`` 및 흰 공간 모두 \"이 프로젝트는 하나의 응용 프로그램 보기\"를 의미하고 그들은 던지기보다는 :data:`DEFAULT_SCREEN`가됩니다 - 오늘날 존재하는 모든 프로젝트는 그것의 설정을 어디에도 응용량 보기가 없으며, 하나를 요구하면 그들 모두가 열리지 않을 것입니다. 대조 :func:`_check_plate`, *does* 상승 : 빈 플레이트는 깨진 구조화 된 데이터 이름이지만 빈 응용 프로그램 보기는 일반 단일 애플리케이션 보기 실행입니다.\n\n빈 값은 어떠한 프레임 안에서도 텅 비어 있지 않기 때문에 흰색 응용 프로그램 시청 그룹과 다른 모든 빈 앱 시청 - :mod:`spacr.multi_database`가 거부하는 조용한 합성.\n\n:param screen: 스크린 레이블 또는 ``None``.\n:returns: 꼬리표, 찢어지거나 :data:`DEFAULT_SCREEN`.\n\n예시:\n    .. code-block:: python\n\n        >>> screen_id('tsg101'), screen_id(None)\n        ('tsg101', 'screen1')",
+      "text": "표준 스크리닝 ID를 반환하며, 없으면 기본값을 사용합니다.\n\n무료 형식의 텍스트, 실험실 마이크로 플레이트 ID와 같이, 그것은 사용자가 실험을 주어진 이름이기 때문에. 그것은 **not** 사전 설정 및 **no** 뒤로 분리됩니다 : :data:`SCREEN_KEY`는 차원에 차단 할 수있는 차원, 측면과 색상으로 그것은 서있다.\n\n부재는 일반적인 경우입니다. ``None``, ``''`` 및 흰 공간 모두 \"이 프로젝트는 하나의 응용 프로그램 보기\"를 의미하고 그들은 던지기보다는 :data:`DEFAULT_SCREEN`가됩니다 - 오늘날 존재하는 모든 프로젝트는 그것의 설정을 어디에도 응용량 보기가 없으며, 하나를 요구하면 그들 모두가 열리지 않을 것입니다. 대조 :func:`_check_plate`, *does* 상승 : 빈 플레이트는 깨진 구조화 된 데이터 이름이지만 빈 응용 프로그램 보기는 일반 단일 애플리케이션 보기 실행입니다.\n\n빈 값은 어떠한 프레임 안에서도 텅 비어 있지 않기 때문에 흰색 응용 프로그램 시청 그룹과 다른 모든 빈 앱 시청 - :mod:`spacr.multi_database`가 거부하는 조용한 합성.\n\n:param screen: 스크린 레이블 또는 ``None``.\n:returns: 꼬리표, 찢어지거나 :data:`DEFAULT_SCREEN`.\n\n예시:\n    .. code-block:: python\n\n        >>> screen_id('tsg101'), screen_id(None)\n        ('tsg101', 'screen1')",
       "translation_source_blocks_sha256": [
-        "6b57c7ade60f9cbc8afcb0eb584e9226c30753722bab0d607aa1f0d4e418b086",
+        "7cd1c10c48bc6602c66aae04e21a60fa67d173877852a7751297221c7ae19d5b",
         "67364a38e038853e953072386ac1d7f04c9b0bae9f1072ef1f0f123b4b43fcfa",
         "7f79821cb5d77d81033f7ab04d7464a3a88a77965d67e6a29e15a2ac18e4281b",
         "0303992c74daedaa12abcad611123a864201fba0550484f2fd03572c1a0690e5",
@@ -196551,9 +196551,9 @@
         "465bd77f2a085a40b02432032e2be6bbbc007b34fc9ddd701a5843ecdf8abe5b"
       ],
       "source_sha256": "4c705c71601f2dfb7c239d7113514710fb921accd877ddf9a47bf442baef833c",
-      "text": "이 스크린 실험의 데이터로는 답할 수 없는 질문을 반환합니다.\n\n방향 질문은 바이너리 응답을 위해 놓치지 않으며, 오직 증가만이 긍정적 인 결과를 나타낼 수 있습니다.\n\n:param reading: 측정 된 스크린 속성은 답변 된 질문을 놓치기 위해 사용됩니다.",
+      "text": "이 스크리닝의 데이터로는 답할 수 없는 질문을 반환합니다.\n\n방향 질문은 바이너리 응답을 위해 놓치지 않으며, 오직 증가만이 긍정적 인 결과를 나타낼 수 있습니다.\n\n:param reading: 측정 된 스크린 속성은 답변 된 질문을 놓치기 위해 사용됩니다.",
       "translation_source_blocks_sha256": [
-        "a54fadd3e1e083da817121f594591716658470132623e7c5aeec5c03f7427060",
+        "0d798a432b6069995c835add4bffc78f7fed4f100f823a74eaf9e120393a5526",
         "b2592c03e23c54bf70697a9ec5e60e485e4c913b1fae095df23e4dae77a75849",
         "465bd77f2a085a40b02432032e2be6bbbc007b34fc9ddd701a5843ecdf8abe5b"
       ]

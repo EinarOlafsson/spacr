@@ -4037,9 +4037,9 @@
         "c56b9446737ab56eb6435666b8b34cf38d7f25fb0c7e8c40570175194355e595"
       ],
       "source_sha256": "0129ae0990f0d5433a3b134c937ff9f4fc7d95e2ce455f7787e3a1fd482048ae",
-      "text": "Renvoyer les données avec une permutation des affectations guide-puits.\n\n:param screen: à l'intérieur d'un criblage cohérent dont les tâches de guide au niveau de la position de l'échantillon de microplaques seront reformulées.\n\nLa permutation préserve les cellules, les caractéristiques, les scores des modèles de classification de l'apprentissage automatique, la taille des puits et la distribution des fractions guides tout en brisant la relation séquentielle-imagerie. La vérité et les fractions sont permutées ensemble de sorte que l'objet retourné demeure cohérent en interne pour l'analyse comparative nulle.",
+      "text": "Renvoie un criblage dont les affectations guide-puits sont permutées.\n\n:param screen: à l'intérieur d'un criblage cohérent dont les tâches de guide au niveau de la position de l'échantillon de microplaques seront reformulées.\n\nLa permutation préserve les cellules, les caractéristiques, les scores des modèles de classification de l'apprentissage automatique, la taille des puits et la distribution des fractions guides tout en brisant la relation séquentielle-imagerie. La vérité et les fractions sont permutées ensemble de sorte que l'objet retourné demeure cohérent en interne pour l'analyse comparative nulle.",
       "translation_source_blocks_sha256": [
-        "fc3e82b24a5fd14cfcad487f65db80e5c6604f7b82f895fda8ef3f13ca990cd4",
+        "52114f6e4ff7b5b7e296dffab2fe680ad79bf5c5130c564ac495dbc1c884b5fc",
         "cc53b9d949f8c877f9889f86c0ef5b0b4abe5eb3986916841a9142751e823bfd",
         "b7d5f105ec1759bda72c5bd04f563bff5836a91cfeee246ad81829c5b2b917a7"
       ]
@@ -13084,9 +13084,9 @@
         "9134a96c6191b3bf6aa221f017e5e04a26939af02157dbfaf54df83b1b1f8aea"
       ],
       "source_sha256": "0ae0e4becadfc8d0b6cc6f5198781bf8725456d8307bc5031a7f2c67f8167342",
-      "text": "Retourne le dossier pour une seule plaque d'affichage de l'application : ``<dest>/screen/plate<N>``.\n\nL'archive des mesures de chaque plaque se déballe à ``measurements/measurements.db`` et l'archive de la région d'image extraite de chaque plaques se décompacte à ``data/`` -- les mêmes deux chemins, quatre fois plus. Déballée dans un dossier, la quatrième plaque écraserait silencieusement le troisième, et :meth:`spacr.screen_data.ScreenAsset.is_present` signalerait une plaque telle que téléchargée parce que le fichier d'une autre plaque est assis là où elle serait. Le numéro de plaque fait donc partie du chemin, et chaque dossier de plaque peut être ouvert seul.\n\n:param dest: la racine tout déballe sous.\n:param plate: quelle plaque d'criblage.",
+      "text": "Retourne le dossier pour une plaque d'criblage : ``<dest>/screen/plate<N>``.\n\nL'archive des mesures de chaque plaque se déballe à ``measurements/measurements.db`` et l'archive de la région d'image extraite de chaque plaques se décompacte à ``data/`` -- les mêmes deux chemins, quatre fois plus. Déballée dans un dossier, la quatrième plaque écraserait silencieusement le troisième, et :meth:`spacr.screen_data.ScreenAsset.is_present` signalerait une plaque telle que téléchargée parce que le fichier d'une autre plaque est assis là où elle serait. Le numéro de plaque fait donc partie du chemin, et chaque dossier de plaque peut être ouvert seul.\n\n:param dest: la racine tout déballe sous.\n:param plate: quelle plaque d'criblage.",
       "translation_source_blocks_sha256": [
-        "e965d24b2e52a4a26c8f914d7793893ec979b770ae74e1526a83844a19df5fb0",
+        "73804173b64e8212d86b8723d7485c3fb0fe556a0900e71ef815bfa38860df40",
         "68ad830d848e23a8627c2c5fab36e2795f8a89ec626872fa611255276381f8f3",
         "422c0161da742fd19048e8939e2cd0fb6669e0a316b0d6870ced084930bca39a",
         "9134a96c6191b3bf6aa221f017e5e04a26939af02157dbfaf54df83b1b1f8aea"
@@ -24848,9 +24848,9 @@
         "0327e71e24dd4254210bf064d62e0eda3cde9fd00a50b5170d5a403d603aa89b"
       ],
       "source_sha256": "4168d130ea808304638adb1a7bc098bb25255a8a95ef1692b8aa873546ec766d",
-      "text": "Retourne le répertoire utilisé pour mettre en cache les fichiers d'application-exemple.\n\n``SPACR_EXAMPLE_DATA`` remplace l'emplacement. Sinon, la fonction utilise ``XDG_CACHE_HOME`` ou le repli ``~/.cache`` neutre sur la plate-forme.",
+      "text": "Retourne le répertoire utilisé pour mettre en cache les fichiers exemple-criblage.\n\n``SPACR_EXAMPLE_DATA`` remplace l'emplacement. Sinon, la fonction utilise ``XDG_CACHE_HOME`` ou le repli ``~/.cache`` neutre sur la plate-forme.",
       "translation_source_blocks_sha256": [
-        "2a18899679f817341dd0b59b512f5e0c0c96308dfa694e86c0ec23645c446b5b",
+        "b9ea67644952a6f4c5658c0143a448d76abafa9287667d0d620e498898ba8e83",
         "0327e71e24dd4254210bf064d62e0eda3cde9fd00a50b5170d5a403d603aa89b"
       ]
     },
@@ -53793,9 +53793,9 @@
         "fe77a046943242810f23c1f4f161e835ddfb19cab09e3b0665be9816787ee339"
       ],
       "source_sha256": "fe77a046943242810f23c1f4f161e835ddfb19cab09e3b0665be9816787ee339",
-      "text": "Retournez si une plaque d'identité se heurte à l'intérieur d'une seule vue d'application.",
+      "text": "Retournez si une plaque d'identité se heurte à l'intérieur d'un criblage.",
       "translation_source_blocks_sha256": [
-        "e8727fda8d2d5d79b48c5aa8539b26c2af47e85f7a55a3ccd09dcd33a0103455"
+        "fe77a046943242810f23c1f4f161e835ddfb19cab09e3b0665be9816787ee339"
       ]
     },
     "spacr.multi_database.MergePlan.screens": {
@@ -61562,9 +61562,9 @@
         "466bfd5c2c95dd9b124aa2d5716ed0905c50c3897040c00025f77a4b3cf25d3d"
       ],
       "source_sha256": "37b9df86a3ef02fd3b3e543bc4c66f1dd64fd923f014b192acefb11450d8b325",
-      "text": "Retourner les calques d'image de masque que cette vue d'application fusionne l'enregistrement des tableaux.\n\n`object_array` choisit le masque par lequel les canaux de données d'image d'intensité sont coupés, et l'offre comme texte libre demande à l'utilisateur de se rappeler ce que contient sa propre vue d'application -- et de l'épeler comme `measure`. Les choix sont donc construits à partir des données.\n\n:param source: a :class:`spacr.crops.CropSource`, un :class:`CropSourceChoice`, ou tout autre chose avec ``spec.mask_dims``.\n:returns: les noms des calques d'image, dans un ordre stable. Videz lorsque le criblage n'en enregistre aucun -- ce qui est la réponse, pas un échec: une session de traitement dont les tableaux fusionnés ne portent pas de calques masques ne peut pas couper par un seul.",
+      "text": "Retourne les calques d'image de masques dans l'enregistrement des tableaux fusionnés de cet criblage.\n\n`object_array` choisit le masque par lequel les canaux de données d'image d'intensité sont coupés, et l'offre comme texte libre demande à l'utilisateur de se rappeler ce que contient sa propre vue d'application -- et de l'épeler comme `measure`. Les choix sont donc construits à partir des données.\n\n:param source: a :class:`spacr.crops.CropSource`, un :class:`CropSourceChoice`, ou tout autre chose avec ``spec.mask_dims``.\n:returns: les noms des calques d'image, dans un ordre stable. Videz lorsque le criblage n'en enregistre aucun -- ce qui est la réponse, pas un échec: une session de traitement dont les tableaux fusionnés ne portent pas de calques masques ne peut pas couper par un seul.",
       "translation_source_blocks_sha256": [
-        "1f2f39803d34c483b757cd3582e460f748b35d49a8daed0cdf9b74b93ad8140f",
+        "aefb9049722274862a40036826e0b5fe707fd04110838b14e64d9ed2b257b55d",
         "dfa159bf14a748bbb6c57853d8f54911bc3d72157e73716c7943179247314b5a",
         "395ac2ff6114cf2f04c8c307a336bb1ca27fdbcafde85510959aaa6eab477f47",
         "fefd6d52a6f84b9f570f29a2d1fc98e3cfaa57ad90e254aba5e0f9d15daaa8a0"
@@ -181859,9 +181859,9 @@
         "71a72900f52c9c04e9599feb785302a45d0a23cd4d514d220ac379930850ef92"
       ],
       "source_sha256": "7ac3de8663c25a2ead5149118780afd7e5052ea7b36b745c12c3e75a319720a0",
-      "text": "Retourner les entrées d'exclusion qui ne correspondent à aucun guide dans la vue de l'application.\n\n:param exclude: les identificateurs de gènes ou de guides demandés pour l'exclusion, ou None.\n:param guides: les identificateurs de guide disponibles, alignés sur ``genes`` lorsqu'ils sont fournis.",
+      "text": "Retourner les entrées d'exclusion qui ne correspondent pas à un guide dans le criblage.\n\n:param exclude: les identificateurs de gènes ou de guides demandés pour l'exclusion, ou None.\n:param guides: les identificateurs de guide disponibles, alignés sur ``genes`` lorsqu'ils sont fournis.",
       "translation_source_blocks_sha256": [
-        "47395252463f60adafdfdf7609638dbcb521b70cae70e9a9b7d9b5e58158496d",
+        "6ee3e15a576d607ae7e94f1821d9f5a7c207ba3a52569857a31110c472b816a8",
         "1d29613ab9e6e6d66282e0d488c10921d277f51ed682cceffe9a112dd49b029e",
         "71a72900f52c9c04e9599feb785302a45d0a23cd4d514d220ac379930850ef92"
       ]
@@ -181952,9 +181952,9 @@
         "6f3615614c90ae0e2bbc533cc9eb981e4b68770beebc2a3303dcfd0272f8c3c2"
       ],
       "source_sha256": "599686d7c14943921aa2a15bfebfbf2325d51e14db0c28f14d35e9657fc0fb12",
-      "text": "Paramètres de retour pour la ré-exécution d'une vue d'application avec un nouveau modèle.\n\n:param base: les paramètres de la session de traitement sur la vue de l'application utilisée.\n:param regression_type: le nouveau moteur, ou ``None`` pour garder l'ancien.\n:param correction_method: la nouvelle correction multi-tests, ou ``None`` pour garder l'ancien. Ecrit à :data:`CORRECTION_KEY`.\n:param fdr_alpha: le nouveau niveau de signification, ou ``None`` pour le conserver.\n:param level: ``'grna'``, ``'gene'`` ou ``'both'``, ou ``None`` pour conserver la valeur précédente. Les modèles mixtes traitent les guides comme des effets aléatoires et fournissent donc des prédictions abrégées sans valeurs p par guide; un modèle à effet fixe de niveau guide fournit des coefficients et des valeurs p.\n:param alpha: le nouveau poids de pénalité, où le nouveau moteur lit un -- un nombre différent de ``fdr_alpha`` malgré le nom.\n:returns: ``(settings, [notes for the user])``.\n:raises ValueError: si ``base`` ne donne pas de chemin de compte-données utilisable.\n\nLes notes retournées identifient chaque changement de paramètres automatiques avant l'exécution.",
+      "text": "Paramètres de retour pour ré-exécution d'un criblage avec un nouveau modèle.\n\n:param base: les paramètres de la session de traitement sur la vue de l'application utilisée.\n:param regression_type: le nouveau moteur, ou ``None`` pour garder l'ancien.\n:param correction_method: la nouvelle correction multi-tests, ou ``None`` pour garder l'ancien. Ecrit à :data:`CORRECTION_KEY`.\n:param fdr_alpha: le nouveau niveau de signification, ou ``None`` pour le conserver.\n:param level: ``'grna'``, ``'gene'`` ou ``'both'``, ou ``None`` pour conserver la valeur précédente. Les modèles mixtes traitent les guides comme des effets aléatoires et fournissent donc des prédictions abrégées sans valeurs p par guide; un modèle à effet fixe de niveau guide fournit des coefficients et des valeurs p.\n:param alpha: le nouveau poids de pénalité, où le nouveau moteur lit un -- un nombre différent de ``fdr_alpha`` malgré le nom.\n:returns: ``(settings, [notes for the user])``.\n:raises ValueError: si ``base`` ne donne pas de chemin de compte-données utilisable.\n\nLes notes retournées identifient chaque changement de paramètres automatiques avant l'exécution.",
       "translation_source_blocks_sha256": [
-        "e579624c085750a6d6da6e10f6b296f9af05620f12b5ba47b61fe1afb79bb9d4",
+        "c6008b5118d3c3aa0a96e8e69962aedaa710040fde7e99d637d7d41d92a57f63",
         "697dcdeec3683c3bf3aaed2df88fd889525aa45a7660768d4019e0e9ef952833",
         "624e29bdeed88b3ddddbb11393a153edd701c0fbc97faddd294ba29c368dbaab",
         "f4789f818a749e8c151585875cf5fc18196916d084293ddcef32478cc89ecd47",
@@ -190276,14 +190276,14 @@
         "3c690c81878deea2c20b4cac138189aab1246dad5d43d819aa412021e86ed64a"
       ],
       "source_sha256": "8863df15521b3d671a7efbc18b3c5cf443d3714c01268828ee42ab8912edfdc9",
-      "text": "Retour ``df`` portant une colonne remplie :data:`SCREEN_KEY`.\n\nLes trois cas, et pourquoi chacun se comporte comme il le fait:\n\n* **Le cadre n'a pas de colonne d'criblage.** Il en gagne une, tenant ``screen`` ou :data:`DEFAULT_SCREEN`. Il s'agit d'un projet à criblage unique, tout comme chaque projet écrit avant l'existence des étiquettes d'affichage.\n* Le cadre en a une, et ``screen`` vaut ``None``. Ses étiquettes sont conservées. Réétiqueter un cadre qui sait déjà de quelle expérience il provient déplacerait des lignes d'une expérience à l'autre sans que rien ne le signale.\n* Le frame a un et ``screen`` a été donné. L'appelant regarde les fichiers et a dit quel criblage ceci est, donc il a priorité. ``overwrite=False`` (la valeur par défaut) remplit toujours les valeurs *blank* seulement; passe ``overwrite=True`` pour rétablir chaque ligne.\n\nLes blancs ne sont jamais laissés en blanc : ``None``, ``NaN`` et ``''`` deviennent :data:`DEFAULT_SCREEN`, parce qu'un id de vue d'application vide n'est pas une identité et que chaque ligne transportant l'un d'eux se regrouperait entre les autres.\n\n:param df: :class:`pandas.DataFrame`.\n:param screen: l'étiquette de le criblage pour les lignes qui n'en ont pas.\n:param overwrite: remplacer les étiquettes existantes au lieu de remplir les blancs.\n:returns: un nouveau cadre; ``df`` n'est pas modifié.",
+      "text": "Retour ``df`` portant une colonne remplie :data:`SCREEN_KEY`.\n\nLes trois cas, et pourquoi chacun se comporte comme il le fait:\n\n* **Le cadre n'a pas de colonne d'criblage.** Il en gagne une, tenant ``screen`` ou :data:`DEFAULT_SCREEN`. Il s'agit d'un projet à criblage unique, tout comme chaque projet écrit avant l'existence des étiquettes d'affichage.\n* Le cadre en a une, et ``screen`` vaut ``None``. Ses étiquettes sont conservées. Réétiqueter un cadre qui sait déjà de quelle expérience il provient déplacerait des lignes d'une expérience à l'autre sans que rien ne le signale.\n* Le frame a un et ``screen`` a été donné. L'appelant regarde les fichiers et a dit quel criblage ceci est, donc il a priorité. ``overwrite=False`` (la valeur par défaut) remplit toujours les valeurs *blank* seulement; passe ``overwrite=True`` pour rétablir chaque ligne.\n\nLes blancs ne sont jamais laissés en blanc : ``None``, ``NaN`` et ``''`` deviennent :data:`DEFAULT_SCREEN`, parce qu'un id d'criblage vide n'est pas une identité et que chaque ligne transportant l'un d'eux se regrouperait les uns avec les autres.\n\n:param df: :class:`pandas.DataFrame`.\n:param screen: l'étiquette de le criblage pour les lignes qui n'en ont pas.\n:param overwrite: remplacer les étiquettes existantes au lieu de remplir les blancs.\n:returns: un nouveau cadre; ``df`` n'est pas modifié.",
       "translation_source_blocks_sha256": [
         "fa4e52f186a00d54487fd81befc1056f9b30d076348b4abba1843050fe8ddf6f",
         "068ada7e91e057d033d3f6fbbf3f8fb8f31a7b8bf935cd569e9029dfb4de8702",
         "9e2cce60426420dd5f4630c8c8bff7d4605766651613e5ac5d21ec4d34401d8d",
         "e903b06c2b3d5d81f8a1e5507d237ae811c4e49e5d04ffb732877d98568d02db",
         "09a6415b69f9b298e3ff94852d4b1d3da572e54bf36f2724df6c811e254f4ee0",
-        "29774847dd62bcef0ab8128c354a09fbdd2acbb18403d68084d87281f4b2b16e",
+        "09b539e2fdfb37a975819711b1b11dfd56f1eec0c7e7244cfc44db562cfffb1d",
         "22165e723f63129de39cc0c4bceed6fa846a6a807ad38cf43ef8e43748c5b957",
         "0c2549764326c97e61f0b8a5c7201c0661ee54f72facd5b04db087876906d7e2",
         "69e35f8db3d4d24917db60e02df065c7dd7304c528a943cc4e83857a1004f39d",
@@ -191265,9 +191265,9 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
       ],
       "source_sha256": "3496d171ea008ef9fa6ff13c1ba78fb511ddc7b81072e8fca2ab6561613ebeaa",
-      "text": "Retourne l'identifiant de vue de l'application canonique, par défaut.\n\nC'est **pas** préfixé et **pas** analysé en arrière: :data:`SCREEN_KEY` est une dimension à bloquer sur, facet par et couleur avec comme il se présente.\n\nL’absence est le cas habituel. ``None``, ``''`` et les espaces signifient tous « ce projet contient une seule campagne expérimentale » et deviennent :data:`DEFAULT_SCREEN` au lieu de lever une exception — aucun projet existant aujourd’hui ne définit de campagne expérimentale dans ses paramètres, et l’exiger empêcherait tous ces projets de s’ouvrir. À l’inverse, :func:`_check_plate` *lève bien* une exception : une plaque vide correspond à une clé invalide, mais un identifiant de campagne expérimentale vide correspond à une exécution ordinaire avec une seule campagne expérimentale.\n\nUne valeur vide n'est jamais laissée vide à l'intérieur d'un cadre non plus, parce qu'une vue d'application vierge se regroupe avec toutes les autres vues d'une application vierge — le pooling silencieux que :mod:`spacr.multi_database` refuse.\n\n:param screen: l'étiquette de le criblage, ou ``None``.\n:returns: l'étiquette, dépouillée ou :data:`DEFAULT_SCREEN`.\n\nExemple :\n    .. code-block:: python\n\n        >>> screen_id('tsg101'), screen_id(None)\n        ('tsg101', 'screen1')",
+      "text": "Retourne l'id de le criblage canonique, en par défaut une absence.\n\nC'est **pas** préfixé et **pas** analysé en arrière: :data:`SCREEN_KEY` est une dimension à bloquer sur, facet par et couleur avec comme il se présente.\n\nL’absence est le cas habituel. ``None``, ``''`` et les espaces signifient tous « ce projet contient une seule campagne expérimentale » et deviennent :data:`DEFAULT_SCREEN` au lieu de lever une exception — aucun projet existant aujourd’hui ne définit de campagne expérimentale dans ses paramètres, et l’exiger empêcherait tous ces projets de s’ouvrir. À l’inverse, :func:`_check_plate` *lève bien* une exception : une plaque vide correspond à une clé invalide, mais un identifiant de campagne expérimentale vide correspond à une exécution ordinaire avec une seule campagne expérimentale.\n\nUne valeur vide n'est jamais laissée vide à l'intérieur d'un cadre non plus, parce qu'une vue d'application vierge se regroupe avec toutes les autres vues d'une application vierge — le pooling silencieux que :mod:`spacr.multi_database` refuse.\n\n:param screen: l'étiquette de le criblage, ou ``None``.\n:returns: l'étiquette, dépouillée ou :data:`DEFAULT_SCREEN`.\n\nExemple :\n    .. code-block:: python\n\n        >>> screen_id('tsg101'), screen_id(None)\n        ('tsg101', 'screen1')",
       "translation_source_blocks_sha256": [
-        "6b57c7ade60f9cbc8afcb0eb584e9226c30753722bab0d607aa1f0d4e418b086",
+        "7cd1c10c48bc6602c66aae04e21a60fa67d173877852a7751297221c7ae19d5b",
         "67364a38e038853e953072386ac1d7f04c9b0bae9f1072ef1f0f123b4b43fcfa",
         "7f79821cb5d77d81033f7ab04d7464a3a88a77965d67e6a29e15a2ac18e4281b",
         "0303992c74daedaa12abcad611123a864201fba0550484f2fd03572c1a0690e5",
@@ -196551,9 +196551,9 @@
         "465bd77f2a085a40b02432032e2be6bbbc007b34fc9ddd701a5843ecdf8abe5b"
       ],
       "source_sha256": "4c705c71601f2dfb7c239d7113514710fb921accd877ddf9a47bf442baef833c",
-      "text": "Retournez les questions qui ne peuvent pas être répondues à partir des données de cette vue d'application.\n\nLa question de direction est omise pour une réponse binaire, où seule une augmentation peut représenter le résultat positif.\n\n:param reading: les propriétés mesurées de le criblage utilisées pour omettre les questions auxquelles on a répondu.",
+      "text": "Retournez les questions qui ne peuvent pas être répondues à partir des données de cet criblage.\n\nLa question de direction est omise pour une réponse binaire, où seule une augmentation peut représenter le résultat positif.\n\n:param reading: les propriétés mesurées de le criblage utilisées pour omettre les questions auxquelles on a répondu.",
       "translation_source_blocks_sha256": [
-        "a54fadd3e1e083da817121f594591716658470132623e7c5aeec5c03f7427060",
+        "0d798a432b6069995c835add4bffc78f7fed4f100f823a74eaf9e120393a5526",
         "b2592c03e23c54bf70697a9ec5e60e485e4c913b1fae095df23e4dae77a75849",
         "465bd77f2a085a40b02432032e2be6bbbc007b34fc9ddd701a5843ecdf8abe5b"
       ]

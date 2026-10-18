@@ -34,6 +34,36 @@ def test_physical_screen_pixel_budget_preserves_display_sense(monkeypatch):
                                   "A pooled CRISPR screen identifies genes.") == "A triagem identifica genes."
 
 
+def test_return_summary_about_a_genetic_screen_is_not_the_gui_screen():
+    import build_i18n_catalogs as builder
+
+    genetic = (
+        "Return a screen with guide-to-well assignments permuted.",
+        "Return the folder for one screen plate: ``<dest>/screen/plate<N>``.",
+        "Return whether a plate identity collides within one screen.",
+        "Return settings for re-running a screen with a new model.",
+        "Return questions that cannot be answered from this screen's data.",
+        "Return the canonical screen id, defaulting an absent one.",
+    )
+    for source in genetic:
+        assert not builder._gui_screen_source(source), source
+    for source in (
+        "Leave ``queue`` for the next Make Masks screen that is built.",
+        "Return to the home screen.",
+        "Return the strip installed on ``screen``, or None.",
+        "Rendering stays within the screen's pixel budget.",
+    ):
+        assert builder._gui_screen_source(source), source
+    natural = {
+        "ko": "가이드-웰 할당을 무작위로 섞은 스크리닝을 반환합니다.",
+        "zh_CN": "返回将引导序列与孔的分配随机置换后的筛选。",
+        "is": "Skilar skimun þar sem úthlutun leiðiraða á brunna er umröðuð.",
+    }
+    for language, target in natural.items():
+        assert "ui-screen" not in builder._semantic_false_friends(
+            genetic[0], target, language)
+
+
 def test_retained_branded_theme_titles_preserve_names_without_allowing_prose(monkeypatch):
     import build_i18n_catalogs as builder
 

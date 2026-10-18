@@ -1115,7 +1115,7 @@
       "translation": "Mælir næmi raðbundinnar aðferðar fyrir röðun."
     },
     {
-      "context": "Return an application view with guide-to-well assignments permuted.",
+      "context": "Return a screen with guide-to-well assignments permuted.",
       "label": "spacr.annotation_validation.permuted#0",
       "source": "Return a screen with guide-to-well assignments permuted.",
       "source_sha256": "52114f6e4ff7b5b7e296dffab2fe680ad79bf5c5130c564ac495dbc1c884b5fc",
@@ -4104,7 +4104,7 @@
       "translation": "Skilar skilaboðum um lítið diskpláss, eða ``None`` þegar nægt pláss er."
     },
     {
-      "context": "Return the folder for one application view plate: ``<dest>/screen/plate<N>``.",
+      "context": "Return the folder for one screen plate: ``<dest>/screen/plate<N>``.",
       "label": "spacr.cli_download.screen_folder#0",
       "source": "Return the folder for one screen plate: ``<dest>/screen/plate<N>``.",
       "source_sha256": "73804173b64e8212d86b8723d7485c3fb0fe556a0900e71ef815bfa38860df40",
@@ -7751,7 +7751,7 @@
       "translation": "Skilar hnitmiðuðum stöðuskilaboðum sem lýsa niðurstöðu niðurhalsins."
     },
     {
-      "context": "Return the directory used to cache example-application view files.",
+      "context": "Return the directory used to cache example-screen files.",
       "label": "spacr.example_data.cache_folder#0",
       "source": "Return the directory used to cache example-screen files.",
       "source_sha256": "b9ea67644952a6f4c5658c0143a448d76abafa9287667d0d620e498898ba8e83",
@@ -17285,7 +17285,7 @@
       "translation": "Skilar mælingum sem sameining með ``columns='common'`` hendir."
     },
     {
-      "context": "Return whether a plate identity collides within one application view.",
+      "context": "Return whether a plate identity collides within one screen.",
       "label": "spacr.multi_database.MergePlan.has_collisions#0",
       "source": "Return whether a plate identity collides within one screen.",
       "source_sha256": "fe77a046943242810f23c1f4f161e835ddfb19cab09e3b0665be9816787ee339",
@@ -19623,7 +19623,7 @@
       "translation": "Hvort ``key`` eigi við valda aðferð til að velja frumur."
     },
     {
-      "context": "Return the mask image layers this application view's merged arrays record.",
+      "context": "Return the mask image layers this screen's merged arrays record.",
       "label": "spacr.picture_settings.available_arrays#0",
       "source": "Return the mask planes this screen's merged arrays record.",
       "source_sha256": "77fef353b0768315781a91791593e47c28036d1ce44ebf0dbe33f627f75e481e",
@@ -22444,7 +22444,7 @@
       "translation": "Skilar leiðiröðum með háan, endurtekinn bakgrunn í viðmiðunarbrunnum."
     },
     {
-      "context": "Return exclusion entries that match no guide in the application view.",
+      "context": "Return exclusion entries that match no guide in the screen.",
       "label": "spacr.read_background.unmatched_exclusions#0",
       "source": "Return exclusion entries that match no guide in the screen.",
       "source_sha256": "6ee3e15a576d607ae7e94f1821d9f5a7c207ba3a52569857a31110c472b816a8",
@@ -22465,7 +22465,7 @@
       "translation": "Endurstillir hverja stillingu sem ``regression_type`` getur ekki lesið, og nefnir þær."
     },
     {
-      "context": "Return settings for re-executing an application view with a new model.",
+      "context": "Return settings for re-executing a screen with a new model.",
       "label": "spacr.refit.refit_settings#0",
       "source": "Return settings for re-running a screen with a new model.",
       "source_sha256": "484ac5533bd114e6909ed1520c38c47372b8d57cf2d4810cf1140d218a950f56",
@@ -25874,7 +25874,7 @@
       "translation": "``'r3'`` → ``3``; ``'C'`` → ``3``; auðkenni sem ekki er hægt að þátta → ``None``."
     },
     {
-      "context": "Return the canonical application view id, defaulting an absent one.",
+      "context": "Return the canonical screen id, defaulting an absent one.",
       "label": "spacr.schema.screen_id#0",
       "source": "Return the canonical screen id, defaulting an absent one.",
       "source_sha256": "7cd1c10c48bc6602c66aae04e21a60fa67d173877852a7751297221c7ae19d5b",
@@ -27659,7 +27659,7 @@
       "translation": "Les inntök skimunar og skilar ráðleggingu um aðhvarfsstillingar."
     },
     {
-      "context": "Return questions that cannot be answered from this application view's data.",
+      "context": "Return questions that cannot be answered from this screen's data.",
       "label": "spacr.settings_advisor.questions_for#0",
       "source": "Return questions that cannot be answered from this screen's data.",
       "source_sha256": "0d798a432b6069995c835add4bffc78f7fed4f100f823a74eaf9e120393a5526",

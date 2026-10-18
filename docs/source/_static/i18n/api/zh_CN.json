@@ -4038,9 +4038,9 @@
         "c56b9446737ab56eb6435666b8b34cf38d7f25fb0c7e8c40570175194355e595"
       ],
       "source_sha256": "0129ae0990f0d5433a3b134c937ff9f4fc7d95e2ce455f7787e3a1fd482048ae",
-      "text": "返回一个实验数据集，其中引导 RNA 到孔的分配已被置换。\n\n:param screen: 内部一致的筛选,其微板样本位置级引导 RNA任务将被扫描。\n\n旋转保留细胞、特征、机器学习分类模型分数、孔尺寸和引导 RNA分裂的分布,同时打破序列与图像关系。",
+      "text": "返回一个筛选数据集，其中引导 RNA 到孔的分配已被置换。\n\n:param screen: 内部一致的筛选,其微板样本位置级引导 RNA任务将被扫描。\n\n旋转保留细胞、特征、机器学习分类模型分数、孔尺寸和引导 RNA分裂的分布,同时打破序列与图像关系。",
       "translation_source_blocks_sha256": [
-        "fc3e82b24a5fd14cfcad487f65db80e5c6604f7b82f895fda8ef3f13ca990cd4",
+        "52114f6e4ff7b5b7e296dffab2fe680ad79bf5c5130c564ac495dbc1c884b5fc",
         "cc53b9d949f8c877f9889f86c0ef5b0b4abe5eb3986916841a9142751e823bfd",
         "b7d5f105ec1759bda72c5bd04f563bff5836a91cfeee246ad81829c5b2b917a7"
       ]
@@ -13085,9 +13085,9 @@
         "9134a96c6191b3bf6aa221f017e5e04a26939af02157dbfaf54df83b1b1f8aea"
       ],
       "source_sha256": "0ae0e4becadfc8d0b6cc6f5198781bf8725456d8307bc5031a7f2c67f8167342",
-      "text": "返回一个 screen 板的文件夹：``<dest>/screen/plate<N>``。\n\n每个板的测量档案将分解为 ``measurements/measurements.db``,每个板提取的图像区域档案会分解到 ``data/`` - 相同的两条路径,四次过渡. 分解到一个文件夹,第四个板将沉默地重写第三个,而 :meth:`spacr.screen_data.ScreenAsset.is_present`将报告一个板下载,因为另一个板的文件坐在自己的位置。\n\n:param dest: 根底下的一切都被打破了。\n:param plate: 哪个筛选板",
+      "text": "返回单个筛选板的文件夹：``<dest>/screen/plate<N>``。\n\n每个板的测量档案将分解为 ``measurements/measurements.db``,每个板提取的图像区域档案会分解到 ``data/`` - 相同的两条路径,四次过渡. 分解到一个文件夹,第四个板将沉默地重写第三个,而 :meth:`spacr.screen_data.ScreenAsset.is_present`将报告一个板下载,因为另一个板的文件坐在自己的位置。\n\n:param dest: 根底下的一切都被打破了。\n:param plate: 哪个筛选板",
       "translation_source_blocks_sha256": [
-        "e965d24b2e52a4a26c8f914d7793893ec979b770ae74e1526a83844a19df5fb0",
+        "73804173b64e8212d86b8723d7485c3fb0fe556a0900e71ef815bfa38860df40",
         "68ad830d848e23a8627c2c5fab36e2795f8a89ec626872fa611255276381f8f3",
         "422c0161da742fd19048e8939e2cd0fb6669e0a316b0d6870ced084930bca39a",
         "9134a96c6191b3bf6aa221f017e5e04a26939af02157dbfaf54df83b1b1f8aea"
@@ -24849,9 +24849,9 @@
         "0327e71e24dd4254210bf064d62e0eda3cde9fd00a50b5170d5a403d603aa89b"
       ],
       "source_sha256": "4168d130ea808304638adb1a7bc098bb25255a8a95ef1692b8aa873546ec766d",
-      "text": "返回用于缓存示例 screen 文件的目录。\n\n``SPACR_EXAMPLE_DATA`` 超越位置. 否则函数使用 ``XDG_CACHE_HOME`` 或平台中立 ``~/.cache`` 落后。",
+      "text": "返回用于缓存示例筛选文件的目录。\n\n``SPACR_EXAMPLE_DATA`` 超越位置. 否则函数使用 ``XDG_CACHE_HOME`` 或平台中立 ``~/.cache`` 落后。",
       "translation_source_blocks_sha256": [
-        "2a18899679f817341dd0b59b512f5e0c0c96308dfa694e86c0ec23645c446b5b",
+        "b9ea67644952a6f4c5658c0143a448d76abafa9287667d0d620e498898ba8e83",
         "0327e71e24dd4254210bf064d62e0eda3cde9fd00a50b5170d5a403d603aa89b"
       ]
     },
@@ -32811,7 +32811,7 @@
         "38a748ddb972e84e6ee13cde02cf8c518b0ca73b322b180d9248b0f5f772a5ff"
       ],
       "source_sha256": "1ecb395b30afd1598b6133c3adea4de7cb7ce26fe11e5297e1b54076541d1ca3",
-      "text": "以 ``((heading, ((label, value), ...)), ...)`` 形式表示的卡片。\n\n一个命令,定义一次,所以 Qt 字符串,文本表格和 HTML 表格不能转向呈现相同的记录三种方式. ``translator`` 发现演示标签和结构化消息; 标识,测量,标记,和 URL 保持不变。",
+      "text": "以 ``((heading, ((label, value), ...)), ...)`` 形式表示的图块。\n\n一个命令,定义一次,所以 Qt 字符串,文本表格和 HTML 表格不能转向呈现相同的记录三种方式. ``translator`` 发现演示标签和结构化消息; 标识,测量,标记,和 URL 保持不变。",
       "translation_source_blocks_sha256": [
         "6c8968c8d52ace268f45035343aa844e1b204adb83369641418a061c60e0eaa6",
         "38a748ddb972e84e6ee13cde02cf8c518b0ca73b322b180d9248b0f5f772a5ff"
@@ -32833,7 +32833,7 @@
         "830e1454e53b45a43db98211fe087a4a0076315ad76f0d81b43dabc1ab9a3590"
       ],
       "source_sha256": "e4c8a343686d996d7c83074a83d29fa6850b545c473775aea4ede333a7c64725",
-      "text": "卡片的第一行：在存在易识别名称时使用该名称。\n\n对于一个双重的引导 RNA,标题名称所有基因,附上``/``。",
+      "text": "图块的第一行：在存在易识别名称时使用该名称。\n\n对于一个双重的引导 RNA,标题名称所有基因,附上``/``。",
       "translation_source_blocks_sha256": [
         "b2df4f19c9e1807daeea791d0b1320167ea4c9bb685ec1175d7e5c6c8c0aa51b",
         "830e1454e53b45a43db98211fe087a4a0076315ad76f0d81b43dabc1ab9a3590"
@@ -32844,7 +32844,7 @@
         "01b1972136bff1470ffe2e8b885a94632b00c1be165db947d9b5e3211a6c7730"
       ],
       "source_sha256": "01b1972136bff1470ffe2e8b885a94632b00c1be165db947d9b5e3211a6c7730",
-      "text": "以 HTML 形式表示的卡片，用于 Qt 富文本视图。",
+      "text": "以 HTML 形式表示的图块，用于 Qt 富文本视图。",
       "translation_source_blocks_sha256": [
         "01b1972136bff1470ffe2e8b885a94632b00c1be165db947d9b5e3211a6c7730"
       ]
@@ -32854,7 +32854,7 @@
         "edfc65d29e9b802e9c225f94af3ba24560230151f4821b05c137b462556cae6e"
       ],
       "source_sha256": "edfc65d29e9b802e9c225f94af3ba24560230151f4821b05c137b462556cae6e",
-      "text": "以纯文本形式表示的卡片——即测试读取和日志记录的内容。",
+      "text": "以纯文本形式表示的图块——即测试读取和日志记录的内容。",
       "translation_source_blocks_sha256": [
         "edfc65d29e9b802e9c225f94af3ba24560230151f4821b05c137b462556cae6e"
       ]
@@ -45390,7 +45390,7 @@
         "834508410a34e5d6249f3e11502dc294f1dd0f4005a43193929accb47e61e090"
       ],
       "source_sha256": "06c597dac395927cd1dc6807c43b47e95b9527b7e164fece598c1bc35847253d",
-      "text": "本次实验中实际存在的区室，最常见的排在最前。\n\n:param frame: 结果框,其代表的分区应计算。\n\n仅在筛选上存在的分区返回,而不是参考表中的所有27个分区,因此从中构建的菜单不提供任何颜色的选择。",
+      "text": "本次筛选中实际存在的区室，最常见的排在最前。\n\n:param frame: 结果框,其代表的分区应计算。\n\n仅在筛选上存在的分区返回,而不是参考表中的所有27个分区,因此从中构建的菜单不提供任何颜色的选择。",
       "translation_source_blocks_sha256": [
         "71b47bef64ae337f7b76f3b3a5db57e9cfdd3164217e0eaf7b9318906e491346",
         "6bffd337e3b266473ec7f939310e21919954eda14ec31715ba46ac74f02aaffe",
@@ -53794,9 +53794,9 @@
         "fe77a046943242810f23c1f4f161e835ddfb19cab09e3b0665be9816787ee339"
       ],
       "source_sha256": "fe77a046943242810f23c1f4f161e835ddfb19cab09e3b0665be9816787ee339",
-      "text": "返回在同一项实验中板的身份是否发生冲突。",
+      "text": "返回在同一项筛选中板的身份是否发生冲突。",
       "translation_source_blocks_sha256": [
-        "e8727fda8d2d5d79b48c5aa8539b26c2af47e85f7a55a3ccd09dcd33a0103455"
+        "fe77a046943242810f23c1f4f161e835ddfb19cab09e3b0665be9816787ee339"
       ]
     },
     "spacr.multi_database.MergePlan.screens": {
@@ -61563,9 +61563,9 @@
         "466bfd5c2c95dd9b124aa2d5716ed0905c50c3897040c00025f77a4b3cf25d3d"
       ],
       "source_sha256": "37b9df86a3ef02fd3b3e543bc4c66f1dd64fd923f014b192acefb11450d8b325",
-      "text": "返回本次实验的合并数组所记录的掩膜平面。\n\n`object_array` 选择哪个掩膜的强度图像数据通道被切断, 并提供它作为免费文本要求用户记住他们的应用程序视图包含什么 -- 以 `measure` 的方式进行播放,因此选项是从数据中构建的。\n\n:param source: :class:`spacr.crops.CropSource`, :class:`CropSourceChoice`,或有 ``spec.mask_dims``的任何东西。\n:returns: 空白,当筛选记录没有 - 这是答案,而不是失败:一个处理会议,其合并的线条携带没有掩膜图像层不能切断一个。",
+      "text": "返回本次筛选的合并数组所记录的掩膜平面。\n\n`object_array` 选择哪个掩膜的强度图像数据通道被切断, 并提供它作为免费文本要求用户记住他们的应用程序视图包含什么 -- 以 `measure` 的方式进行播放,因此选项是从数据中构建的。\n\n:param source: :class:`spacr.crops.CropSource`, :class:`CropSourceChoice`,或有 ``spec.mask_dims``的任何东西。\n:returns: 空白,当筛选记录没有 - 这是答案,而不是失败:一个处理会议,其合并的线条携带没有掩膜图像层不能切断一个。",
       "translation_source_blocks_sha256": [
-        "1f2f39803d34c483b757cd3582e460f748b35d49a8daed0cdf9b74b93ad8140f",
+        "aefb9049722274862a40036826e0b5fe707fd04110838b14e64d9ed2b257b55d",
         "dfa159bf14a748bbb6c57853d8f54911bc3d72157e73716c7943179247314b5a",
         "395ac2ff6114cf2f04c8c307a336bb1ca27fdbcafde85510959aaa6eab477f47",
         "fefd6d52a6f84b9f570f29a2d1fc98e3cfaa57ad90e254aba5e0f9d15daaa8a0"
@@ -181860,9 +181860,9 @@
         "71a72900f52c9c04e9599feb785302a45d0a23cd4d514d220ac379930850ef92"
       ],
       "source_sha256": "7ac3de8663c25a2ead5149118780afd7e5052ea7b36b745c12c3e75a319720a0",
-      "text": "返回与本次实验中任何引导 RNA 都不匹配的排除条目。\n\n:param exclude: 请求排除的引导 RNA或基因识别,或 None。\n:param guides: 可用的引导 RNA标识符,随时与 ``genes`` 相匹配。",
+      "text": "返回与本次筛选中任何引导 RNA 都不匹配的排除条目。\n\n:param exclude: 请求排除的引导 RNA或基因识别,或 None。\n:param guides: 可用的引导 RNA标识符,随时与 ``genes`` 相匹配。",
       "translation_source_blocks_sha256": [
-        "47395252463f60adafdfdf7609638dbcb521b70cae70e9a9b7d9b5e58158496d",
+        "6ee3e15a576d607ae7e94f1821d9f5a7c207ba3a52569857a31110c472b816a8",
         "1d29613ab9e6e6d66282e0d488c10921d277f51ed682cceffe9a112dd49b029e",
         "71a72900f52c9c04e9599feb785302a45d0a23cd4d514d220ac379930850ef92"
       ]
@@ -181953,9 +181953,9 @@
         "6f3615614c90ae0e2bbc533cc9eb981e4b68770beebc2a3303dcfd0272f8c3c2"
       ],
       "source_sha256": "599686d7c14943921aa2a15bfebfbf2325d51e14db0c28f14d35e9657fc0fb12",
-      "text": "返回使用新模型重新运行一项实验分析所需的设置。\n\n:param base: 在应用程序视图上使用的处理会议设置。\n:param regression_type: 新背景,或 ``None`` 保持旧的背景。\n:param correction_method: 新的多重测试纠正,或 ``None`` 保持旧的. 写到 :data:`CORRECTION_KEY`。\n:param fdr_alpha: 新含义级别,或 ``None`` 保持它。\n:param level: ``'grna'``, ``'gene'`` 或 ``'both'`` 或 ``None`` 保持前值。 混合模型将引导 RNA视为随机效果,因此提供简短的预测,而无需引导 RNAP值; 一个引导 RNA级的固定效应模型提供了比例和p值。\n:param alpha: 新的罚款权重,在那里新背景读取一个 - 与 ``fdr_alpha`` 不同的数字,尽管这个名称。\n:returns: ``(settings, [notes for the user])``.\n:raises ValueError: 如果 ``base`` 命名没有可用的计算数据路径。\n\n返回笔记在执行之前识别任何自动设置变更。",
+      "text": "返回使用新模型重新运行一项筛选所需的设置。\n\n:param base: 在应用程序视图上使用的处理会议设置。\n:param regression_type: 新背景,或 ``None`` 保持旧的背景。\n:param correction_method: 新的多重测试纠正,或 ``None`` 保持旧的. 写到 :data:`CORRECTION_KEY`。\n:param fdr_alpha: 新含义级别,或 ``None`` 保持它。\n:param level: ``'grna'``, ``'gene'`` 或 ``'both'`` 或 ``None`` 保持前值。 混合模型将引导 RNA视为随机效果,因此提供简短的预测,而无需引导 RNAP值; 一个引导 RNA级的固定效应模型提供了比例和p值。\n:param alpha: 新的罚款权重,在那里新背景读取一个 - 与 ``fdr_alpha`` 不同的数字,尽管这个名称。\n:returns: ``(settings, [notes for the user])``.\n:raises ValueError: 如果 ``base`` 命名没有可用的计算数据路径。\n\n返回笔记在执行之前识别任何自动设置变更。",
       "translation_source_blocks_sha256": [
-        "e579624c085750a6d6da6e10f6b296f9af05620f12b5ba47b61fe1afb79bb9d4",
+        "c6008b5118d3c3aa0a96e8e69962aedaa710040fde7e99d637d7d41d92a57f63",
         "697dcdeec3683c3bf3aaed2df88fd889525aa45a7660768d4019e0e9ef952833",
         "624e29bdeed88b3ddddbb11393a153edd701c0fbc97faddd294ba29c368dbaab",
         "f4789f818a749e8c151585875cf5fc18196916d084293ddcef32478cc89ecd47",
@@ -190277,14 +190277,14 @@
         "3c690c81878deea2c20b4cac138189aab1246dad5d43d819aa412021e86ed64a"
       ],
       "source_sha256": "8863df15521b3d671a7efbc18b3c5cf443d3714c01268828ee42ab8912edfdc9",
-      "text": "返回 ``df``，其中带有已填充的 :data:`SCREEN_KEY` 列。\n\n三个案例,以及为什么每一个行为如下:\n\n* **框中没有筛选列.** 它赢得了一个,持有 ``screen`` 或 :data:`DEFAULT_SCREEN`. 这是一个单筛选项目,就像每个项目写在筛选标签之前存在一样。\n* 该数据框中已有这一列,并且 ``screen`` 为 ``None`` 。其标签保持不变。如果对一个已经知道自己来自哪个实验的数据框重新打标签,就会把行移到另一个实验中去,却没有任何地方提示这一点。\n* 框架有一个和 ``screen`` 被授予. 呼叫器正在看文件,并说这是哪个筛选,所以它需要先例。 ``overwrite=False`` (默认) 仍然只填写 *白* 值; 通过 ``overwrite=True`` 重新插入每个行。\n\n``None``、``NaN``和``''``变成:data:`DEFAULT_SCREEN`,因为一个空的应用程序视图标识符不是一个身份,并且每行携带一个将与每个其他组成。\n\n:param df: :class:`pandas.DataFrame`.\n:param screen: 筛选标签为没有一个的行。\n:param overwrite: 取代现有标签而不是填写表格。\n:returns: 新的框架; ``df`` 未修改。",
+      "text": "返回 ``df``，其中带有已填充的 :data:`SCREEN_KEY` 列。\n\n三个案例,以及为什么每一个行为如下:\n\n* **框中没有筛选列.** 它赢得了一个,持有 ``screen`` 或 :data:`DEFAULT_SCREEN`. 这是一个单筛选项目,就像每个项目写在筛选标签之前存在一样。\n* 该数据框中已有这一列,并且 ``screen`` 为 ``None`` 。其标签保持不变。如果对一个已经知道自己来自哪个实验的数据框重新打标签,就会把行移到另一个实验中去,却没有任何地方提示这一点。\n* 框架有一个和 ``screen`` 被授予. 呼叫器正在看文件,并说这是哪个筛选,所以它需要先例。 ``overwrite=False`` (默认) 仍然只填写 *白* 值; 通过 ``overwrite=True`` 重新插入每个行。\n\n白色从来没有留下白色:``None``,``NaN``和``''``变成:data:`DEFAULT_SCREEN`,因为一个空的筛选标识符不是一个身份,每个行携带一个将与每个其他组成。\n\n:param df: :class:`pandas.DataFrame`.\n:param screen: 筛选标签为没有一个的行。\n:param overwrite: 取代现有标签而不是填写表格。\n:returns: 新的框架; ``df`` 未修改。",
       "translation_source_blocks_sha256": [
         "fa4e52f186a00d54487fd81befc1056f9b30d076348b4abba1843050fe8ddf6f",
         "068ada7e91e057d033d3f6fbbf3f8fb8f31a7b8bf935cd569e9029dfb4de8702",
         "9e2cce60426420dd5f4630c8c8bff7d4605766651613e5ac5d21ec4d34401d8d",
         "e903b06c2b3d5d81f8a1e5507d237ae811c4e49e5d04ffb732877d98568d02db",
         "09a6415b69f9b298e3ff94852d4b1d3da572e54bf36f2724df6c811e254f4ee0",
-        "29774847dd62bcef0ab8128c354a09fbdd2acbb18403d68084d87281f4b2b16e",
+        "09b539e2fdfb37a975819711b1b11dfd56f1eec0c7e7244cfc44db562cfffb1d",
         "22165e723f63129de39cc0c4bceed6fa846a6a807ad38cf43ef8e43748c5b957",
         "0c2549764326c97e61f0b8a5c7201c0661ee54f72facd5b04db087876906d7e2",
         "69e35f8db3d4d24917db60e02df065c7dd7304c528a943cc4e83857a1004f39d",
@@ -191266,9 +191266,9 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
       ],
       "source_sha256": "3496d171ea008ef9fa6ff13c1ba78fb511ddc7b81072e8fca2ab6561613ebeaa",
-      "text": "返回规范的 screen ID，缺失时使用默认值。\n\n自由形式的文本,如实验室微板ID,因为它是用户给了一个实验的名字. 它是 **not** 预定和 **不** 分散: :data:`SCREEN_KEY` 是一个尺寸,可以阻止,面向和颜色与它站起来。\n\n缺席是常见的。 ``None``,``''``和白空间都意味着“这个项目有一个应用程序视图”,而它们变成了:data:`DEFAULT_SCREEN`而不是扔掉 - 每一个今天存在的项目在其设置中没有应用程序观图,并要求一个将停止所有这些项目的开放。 对比 :func:`_check_plate`,其中 *does* 升起:一个空板是一个破碎的结构数据名称,但一个空应用程序视图是一个普通单应用程序的视图运行。\n\n一个空值从来没有留在框架内空白,因为一个空白的应用程序视图组与任何其他空白应用程序显示 - :mod:`spacr.multi_database` 拒绝的沉默合并。\n\n:param screen: 筛选标签,或 ``None``。\n:returns: 标签,切断,或 :data:`DEFAULT_SCREEN`。\n\n示例：\n    .. code-block:: python\n\n        >>> screen_id('tsg101'), screen_id(None)\n        ('tsg101', 'screen1')",
+      "text": "返回规范的筛选 ID，缺失时使用默认值。\n\n自由形式的文本,如实验室微板ID,因为它是用户给了一个实验的名字. 它是 **not** 预定和 **不** 分散: :data:`SCREEN_KEY` 是一个尺寸,可以阻止,面向和颜色与它站起来。\n\n缺席是常见的。 ``None``,``''``和白空间都意味着“这个项目有一个应用程序视图”,而它们变成了:data:`DEFAULT_SCREEN`而不是扔掉 - 每一个今天存在的项目在其设置中没有应用程序观图,并要求一个将停止所有这些项目的开放。 对比 :func:`_check_plate`,其中 *does* 升起:一个空板是一个破碎的结构数据名称,但一个空应用程序视图是一个普通单应用程序的视图运行。\n\n一个空值从来没有留在框架内空白,因为一个空白的应用程序视图组与任何其他空白应用程序显示 - :mod:`spacr.multi_database` 拒绝的沉默合并。\n\n:param screen: 筛选标签,或 ``None``。\n:returns: 标签,切断,或 :data:`DEFAULT_SCREEN`。\n\n示例：\n    .. code-block:: python\n\n        >>> screen_id('tsg101'), screen_id(None)\n        ('tsg101', 'screen1')",
       "translation_source_blocks_sha256": [
-        "6b57c7ade60f9cbc8afcb0eb584e9226c30753722bab0d607aa1f0d4e418b086",
+        "7cd1c10c48bc6602c66aae04e21a60fa67d173877852a7751297221c7ae19d5b",
         "67364a38e038853e953072386ac1d7f04c9b0bae9f1072ef1f0f123b4b43fcfa",
         "7f79821cb5d77d81033f7ab04d7464a3a88a77965d67e6a29e15a2ac18e4281b",
         "0303992c74daedaa12abcad611123a864201fba0550484f2fd03572c1a0690e5",
@@ -196552,9 +196552,9 @@
         "465bd77f2a085a40b02432032e2be6bbbc007b34fc9ddd701a5843ecdf8abe5b"
       ],
       "source_sha256": "4c705c71601f2dfb7c239d7113514710fb921accd877ddf9a47bf442baef833c",
-      "text": "返回无法从本次实验的数据中得到答案的问题。\n\n方向问题被忽略为二进制答案,只有增加可以代表积极的结果。\n\n:param reading: 测量筛选特性用于忽略回答的问题。",
+      "text": "返回无法从本次筛选的数据中得到答案的问题。\n\n方向问题被忽略为二进制答案,只有增加可以代表积极的结果。\n\n:param reading: 测量筛选特性用于忽略回答的问题。",
       "translation_source_blocks_sha256": [
-        "a54fadd3e1e083da817121f594591716658470132623e7c5aeec5c03f7427060",
+        "0d798a432b6069995c835add4bffc78f7fed4f100f823a74eaf9e120393a5526",
         "b2592c03e23c54bf70697a9ec5e60e485e4c913b1fae095df23e4dae77a75849",
         "465bd77f2a085a40b02432032e2be6bbbc007b34fc9ddd701a5843ecdf8abe5b"
       ]

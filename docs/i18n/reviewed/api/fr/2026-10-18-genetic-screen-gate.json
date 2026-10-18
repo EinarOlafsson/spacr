@@ -1,0 +1,14 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "context": "Return a screen with guide-to-well assignments permuted.",
+      "label": "spacr.annotation_validation.permuted#0",
+      "source": "Return a screen with guide-to-well assignments permuted.",
+      "source_sha256": "52114f6e4ff7b5b7e296dffab2fe680ad79bf5c5130c564ac495dbc1c884b5fc",
+      "translation": "Renvoie un criblage dont les affectations guide-puits sont permutées."
+    }
+  ],
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "schema": 1
+}

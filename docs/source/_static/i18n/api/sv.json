@@ -4037,9 +4037,9 @@
         "c56b9446737ab56eb6435666b8b34cf38d7f25fb0c7e8c40570175194355e595"
       ],
       "source_sha256": "0129ae0990f0d5433a3b134c937ff9f4fc7d95e2ce455f7787e3a1fd482048ae",
-      "text": "Återlämna en ansökan vy med permuterade guide-till-brunn-tilldelningar.\n\n:param screen: internt konsekvent screening vars mikroplatta prov position-nivå guida uppdrag kommer att blandas.\n\nPermutationen bevarar celler, egenskaper, maskininlärning klassificering modell poäng, brunn storlekar, och fördelningen av guidefraktioner samtidigt bryta sekvensering-till-avbilda relationen. Sanning och bråk är permutation tillsammans så den returnerade objektet förblir internt konsekvent för null benchmarking.",
+      "text": "Returnerar en screening med permuterade tilldelningar av guider till brunnar.\n\n:param screen: internt konsekvent screening vars mikroplatta prov position-nivå guida uppdrag kommer att blandas.\n\nPermutationen bevarar celler, egenskaper, maskininlärning klassificering modell poäng, brunn storlekar, och fördelningen av guidefraktioner samtidigt bryta sekvensering-till-avbilda relationen. Sanning och bråk är permutation tillsammans så den returnerade objektet förblir internt konsekvent för null benchmarking.",
       "translation_source_blocks_sha256": [
-        "fc3e82b24a5fd14cfcad487f65db80e5c6604f7b82f895fda8ef3f13ca990cd4",
+        "52114f6e4ff7b5b7e296dffab2fe680ad79bf5c5130c564ac495dbc1c884b5fc",
         "cc53b9d949f8c877f9889f86c0ef5b0b4abe5eb3986916841a9142751e823bfd",
         "b7d5f105ec1759bda72c5bd04f563bff5836a91cfeee246ad81829c5b2b917a7"
       ]
@@ -13084,9 +13084,9 @@
         "9134a96c6191b3bf6aa221f017e5e04a26939af02157dbfaf54df83b1b1f8aea"
       ],
       "source_sha256": "0ae0e4becadfc8d0b6cc6f5198781bf8725456d8307bc5031a7f2c67f8167342",
-      "text": "Returnera mappen för en programvisningsplatta: ``<dest>/screen/plate<N>``.\n\nVarje plattas mätarkiv packar upp till ``measurements/measurements.db`` och varje plattas extraherade bildregionarkiv packas upp till ``data/`` -- samma två sökvägar, fyra gånger om. Packas upp i en katalog skulle den fjärde plattan tyst skriva över den tredje, och :meth:`spacr.screen_data.ScreenAsset.is_present` skulle rapportera en platta som laddad eftersom en annan plattas fil sitter där sin egen skulle gå. Plattans nummer är därför en del av sökvägen, och varje plåtmapp kan öppnas på egen hand.\n\n:param dest: roten allt packar upp under.\n:param plate: vilken screeningplatta.",
+      "text": "Returnera mappen för en skärmplatta: ``<dest>/screen/plate<N>``.\n\nVarje plattas mätarkiv packar upp till ``measurements/measurements.db`` och varje plattas extraherade bildregionarkiv packas upp till ``data/`` -- samma två sökvägar, fyra gånger om. Packas upp i en katalog skulle den fjärde plattan tyst skriva över den tredje, och :meth:`spacr.screen_data.ScreenAsset.is_present` skulle rapportera en platta som laddad eftersom en annan plattas fil sitter där sin egen skulle gå. Plattans nummer är därför en del av sökvägen, och varje plåtmapp kan öppnas på egen hand.\n\n:param dest: roten allt packar upp under.\n:param plate: vilken screeningplatta.",
       "translation_source_blocks_sha256": [
-        "e965d24b2e52a4a26c8f914d7793893ec979b770ae74e1526a83844a19df5fb0",
+        "73804173b64e8212d86b8723d7485c3fb0fe556a0900e71ef815bfa38860df40",
         "68ad830d848e23a8627c2c5fab36e2795f8a89ec626872fa611255276381f8f3",
         "422c0161da742fd19048e8939e2cd0fb6669e0a316b0d6870ced084930bca39a",
         "9134a96c6191b3bf6aa221f017e5e04a26939af02157dbfaf54df83b1b1f8aea"
@@ -24848,9 +24848,9 @@
         "0327e71e24dd4254210bf064d62e0eda3cde9fd00a50b5170d5a403d603aa89b"
       ],
       "source_sha256": "4168d130ea808304638adb1a7bc098bb25255a8a95ef1692b8aa873546ec766d",
-      "text": "Returnera katalogen som används för att cache exempel-program visa filer.\n\n``SPACR_EXAMPLE_DATA`` överskrider platsen. Annars använder funktionen ``XDG_CACHE_HOME`` eller plattformens neutrala ``~/.cache`` reserv.",
+      "text": "Returnera katalogen som används för att cache exempel-screen-filer.\n\n``SPACR_EXAMPLE_DATA`` överskrider platsen. Annars använder funktionen ``XDG_CACHE_HOME`` eller plattformens neutrala ``~/.cache`` reserv.",
       "translation_source_blocks_sha256": [
-        "2a18899679f817341dd0b59b512f5e0c0c96308dfa694e86c0ec23645c446b5b",
+        "b9ea67644952a6f4c5658c0143a448d76abafa9287667d0d620e498898ba8e83",
         "0327e71e24dd4254210bf064d62e0eda3cde9fd00a50b5170d5a403d603aa89b"
       ]
     },
@@ -53793,9 +53793,9 @@
         "fe77a046943242810f23c1f4f161e835ddfb19cab09e3b0665be9816787ee339"
       ],
       "source_sha256": "fe77a046943242810f23c1f4f161e835ddfb19cab09e3b0665be9816787ee339",
-      "text": "Returnera om en tallriksidentitet kolliderar inom en applikationsvy.",
+      "text": "Returnera om en platta identitet kolliderar inom en screening.",
       "translation_source_blocks_sha256": [
-        "e8727fda8d2d5d79b48c5aa8539b26c2af47e85f7a55a3ccd09dcd33a0103455"
+        "fe77a046943242810f23c1f4f161e835ddfb19cab09e3b0665be9816787ee339"
       ]
     },
     "spacr.multi_database.MergePlan.screens": {
@@ -61562,9 +61562,9 @@
         "466bfd5c2c95dd9b124aa2d5716ed0905c50c3897040c00025f77a4b3cf25d3d"
       ],
       "source_sha256": "37b9df86a3ef02fd3b3e543bc4c66f1dd64fd923f014b192acefb11450d8b325",
-      "text": "Returnera maskens bildlager denna programvys sammanslagna matriser rekord.\n\n`object_array` väljer vilken mask som döljer intensiteten i bilddatakanalerna, och erbjuder den som fri text ber användaren att komma ihåg vad deras egen programvy innehåller - och stava det på samma sätt som `measure` gjorde. Valen är därför uppbyggda från datan.\n\n:param source: a :class:`spacr.crops.CropSource`, a :class:`CropSourceChoice` eller något annat med en ``spec.mask_dims``.\n:returns: namn på bildlager, i en stabil ordning. Töm när skärmen inte registrerar något – vilket är svaret, inte ett fel: en processsession vars sammanslagna matriser inte innehåller några maskbildlager kan inte klippas av ett.",
+      "text": "Returnera maskens bildlager denna skärms sammanslagna matriser rekord.\n\n`object_array` väljer vilken mask som döljer intensiteten i bilddatakanalerna, och erbjuder den som fri text ber användaren att komma ihåg vad deras egen programvy innehåller - och stava det på samma sätt som `measure` gjorde. Valen är därför uppbyggda från datan.\n\n:param source: a :class:`spacr.crops.CropSource`, a :class:`CropSourceChoice` eller något annat med en ``spec.mask_dims``.\n:returns: namn på bildlager, i en stabil ordning. Töm när skärmen inte registrerar något – vilket är svaret, inte ett fel: en processsession vars sammanslagna matriser inte innehåller några maskbildlager kan inte klippas av ett.",
       "translation_source_blocks_sha256": [
-        "1f2f39803d34c483b757cd3582e460f748b35d49a8daed0cdf9b74b93ad8140f",
+        "aefb9049722274862a40036826e0b5fe707fd04110838b14e64d9ed2b257b55d",
         "dfa159bf14a748bbb6c57853d8f54911bc3d72157e73716c7943179247314b5a",
         "395ac2ff6114cf2f04c8c307a336bb1ca27fdbcafde85510959aaa6eab477f47",
         "fefd6d52a6f84b9f570f29a2d1fc98e3cfaa57ad90e254aba5e0f9d15daaa8a0"
@@ -181859,9 +181859,9 @@
         "71a72900f52c9c04e9599feb785302a45d0a23cd4d514d220ac379930850ef92"
       ],
       "source_sha256": "7ac3de8663c25a2ead5149118780afd7e5052ea7b36b745c12c3e75a319720a0",
-      "text": "Returnera uteslutningsposter som inte matchar någon guide i programvyn.\n\n:param exclude: guide eller genidentifierare som begärs för uteslutning, eller None.\n:param guides: Tillgängliga vägledningsidentifierare, i linje med ``genes`` när sådana tillhandahålls.",
+      "text": "Returnera uteslutningsposter som inte matchar någon guide på skärmen.\n\n:param exclude: guide eller genidentifierare som begärs för uteslutning, eller None.\n:param guides: Tillgängliga vägledningsidentifierare, i linje med ``genes`` när sådana tillhandahålls.",
       "translation_source_blocks_sha256": [
-        "47395252463f60adafdfdf7609638dbcb521b70cae70e9a9b7d9b5e58158496d",
+        "6ee3e15a576d607ae7e94f1821d9f5a7c207ba3a52569857a31110c472b816a8",
         "1d29613ab9e6e6d66282e0d488c10921d277f51ed682cceffe9a112dd49b029e",
         "71a72900f52c9c04e9599feb785302a45d0a23cd4d514d220ac379930850ef92"
       ]
@@ -181952,9 +181952,9 @@
         "6f3615614c90ae0e2bbc533cc9eb981e4b68770beebc2a3303dcfd0272f8c3c2"
       ],
       "source_sha256": "599686d7c14943921aa2a15bfebfbf2325d51e14db0c28f14d35e9657fc0fb12",
-      "text": "Returinställningar för att köra om en programvy med en ny modell.\n\n:param base: inställningarna för behandlingssessionen i programvyn som används.\n:param regression_type: det nya gränssnittet, eller ``None`` för att behålla det gamla.\n:param correction_method: den nya korrigeringen för flera provningar, eller ``None`` för att behålla den gamla. Skriven till :data:`CORRECTION_KEY`.\n:param fdr_alpha: den nya signifikansnivån, eller ``None`` för att behålla den.\n:param level: ``'grna'``, ``'gene'`` eller ``'both'`` eller ``None`` för att behålla det tidigare värdet. Blandade modeller behandlar guider som slumpmässiga effekter och ger därför krympta förutsägelser utan per-guide p-värden; en modell med fast effekt ger koefficienter och p-värde.\n:param alpha: den nya straffvikten, där det nya gränssnittet läser en – ett annat nummer än ``fdr_alpha`` trots namnet.\n:returns: ``(settings, [notes for the user])``.\n:raises ValueError: Om ``base`` namn ingen användbar sökväg för räkna-data.\n\nReturnerade anteckningar identifierar alla automatiska inställningar som ändras innan de utförs.",
+      "text": "Returinställningar för att köra om en screening med en ny modell.\n\n:param base: inställningarna för behandlingssessionen i programvyn som används.\n:param regression_type: det nya gränssnittet, eller ``None`` för att behålla det gamla.\n:param correction_method: den nya korrigeringen för flera provningar, eller ``None`` för att behålla den gamla. Skriven till :data:`CORRECTION_KEY`.\n:param fdr_alpha: den nya signifikansnivån, eller ``None`` för att behålla den.\n:param level: ``'grna'``, ``'gene'`` eller ``'both'`` eller ``None`` för att behålla det tidigare värdet. Blandade modeller behandlar guider som slumpmässiga effekter och ger därför krympta förutsägelser utan per-guide p-värden; en modell med fast effekt ger koefficienter och p-värde.\n:param alpha: den nya straffvikten, där det nya gränssnittet läser en – ett annat nummer än ``fdr_alpha`` trots namnet.\n:returns: ``(settings, [notes for the user])``.\n:raises ValueError: Om ``base`` namn ingen användbar sökväg för räkna-data.\n\nReturnerade anteckningar identifierar alla automatiska inställningar som ändras innan de utförs.",
       "translation_source_blocks_sha256": [
-        "e579624c085750a6d6da6e10f6b296f9af05620f12b5ba47b61fe1afb79bb9d4",
+        "c6008b5118d3c3aa0a96e8e69962aedaa710040fde7e99d637d7d41d92a57f63",
         "697dcdeec3683c3bf3aaed2df88fd889525aa45a7660768d4019e0e9ef952833",
         "624e29bdeed88b3ddddbb11393a153edd701c0fbc97faddd294ba29c368dbaab",
         "f4789f818a749e8c151585875cf5fc18196916d084293ddcef32478cc89ecd47",
@@ -190276,14 +190276,14 @@
         "3c690c81878deea2c20b4cac138189aab1246dad5d43d819aa412021e86ed64a"
       ],
       "source_sha256": "8863df15521b3d671a7efbc18b3c5cf443d3714c01268828ee42ab8912edfdc9",
-      "text": "Avkastning ``df`` med en ifylld :data:`SCREEN_KEY`-kolumn.\n\nDe tre fallen, och varför var och en beter sig som den gör:\n\n* **ramen har ingen screeningkolumn.** Det vinner en, innehar ``screen`` eller :data:`DEFAULT_SCREEN`. Det är en enda screening projekt, som är varje projekt som skrevs innan screeningetiketter fanns.\n* Ramen har en, och ``screen`` är ``None``. Dess etiketter behålls. Att märka om en ram som redan vet vilket experiment den kom från skulle flytta rader mellan screeningar utan att något på skärmen visade det.\n* Ramen har en och ``screen`` gavs. Anroparen tittar på filerna och har sagt vilken screening detta är, så den har företräde. ``overwrite=False`` (standardvärdet) fyller fortfarande bara *blank* värden; passera ``overwrite=True`` för att reampa varje rad.\n\nBlankar lämnas aldrig tomma: ``None``, ``NaN`` och ``''`` blir :data:`DEFAULT_SCREEN`, eftersom en tom applikationsvy id inte är en identitet och varje rad som bär en skulle grupp med varje annan.\n\n:param df: :class:`pandas.DataFrame`.\n:param screen: Screeningetiketten för rader som inte har någon.\n:param overwrite: Ersätt befintliga etiketter i stället för att fylla på lösa punkter.\n:returns: en ny ram; ``df`` ändras inte.",
+      "text": "Avkastning ``df`` med en ifylld :data:`SCREEN_KEY`-kolumn.\n\nDe tre fallen, och varför var och en beter sig som den gör:\n\n* **ramen har ingen screeningkolumn.** Det vinner en, innehar ``screen`` eller :data:`DEFAULT_SCREEN`. Det är en enda screening projekt, som är varje projekt som skrevs innan screeningetiketter fanns.\n* Ramen har en, och ``screen`` är ``None``. Dess etiketter behålls. Att märka om en ram som redan vet vilket experiment den kom från skulle flytta rader mellan screeningar utan att något på skärmen visade det.\n* Ramen har en och ``screen`` gavs. Anroparen tittar på filerna och har sagt vilken screening detta är, så den har företräde. ``overwrite=False`` (standardvärdet) fyller fortfarande bara *blank* värden; passera ``overwrite=True`` för att reampa varje rad.\n\nBlankar lämnas aldrig tomma: ``None``, ``NaN`` och ``''`` blir :data:`DEFAULT_SCREEN`, eftersom en tom screening-ID inte är en identitet och varje rad som bär en skulle gruppera sig med varje annan.\n\n:param df: :class:`pandas.DataFrame`.\n:param screen: Screeningetiketten för rader som inte har någon.\n:param overwrite: Ersätt befintliga etiketter i stället för att fylla på lösa punkter.\n:returns: en ny ram; ``df`` ändras inte.",
       "translation_source_blocks_sha256": [
         "fa4e52f186a00d54487fd81befc1056f9b30d076348b4abba1843050fe8ddf6f",
         "068ada7e91e057d033d3f6fbbf3f8fb8f31a7b8bf935cd569e9029dfb4de8702",
         "9e2cce60426420dd5f4630c8c8bff7d4605766651613e5ac5d21ec4d34401d8d",
         "e903b06c2b3d5d81f8a1e5507d237ae811c4e49e5d04ffb732877d98568d02db",
         "09a6415b69f9b298e3ff94852d4b1d3da572e54bf36f2724df6c811e254f4ee0",
-        "29774847dd62bcef0ab8128c354a09fbdd2acbb18403d68084d87281f4b2b16e",
+        "09b539e2fdfb37a975819711b1b11dfd56f1eec0c7e7244cfc44db562cfffb1d",
         "22165e723f63129de39cc0c4bceed6fa846a6a807ad38cf43ef8e43748c5b957",
         "0c2549764326c97e61f0b8a5c7201c0661ee54f72facd5b04db087876906d7e2",
         "69e35f8db3d4d24917db60e02df065c7dd7304c528a943cc4e83857a1004f39d",
@@ -191265,9 +191265,9 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
       ],
       "source_sha256": "3496d171ea008ef9fa6ff13c1ba78fb511ddc7b81072e8fca2ab6561613ebeaa",
-      "text": "Returnera den kanoniska programvyn ID, förvalt en frånvarande.\n\nFri form text, som laboratoriets mikroplatta ID, eftersom det är namnet en användare gav ett experiment. Det är **inte** prefixerad och **inte** tolkas tillbaka isär: :data:`SCREEN_KEY` är en dimension att blockera på, fasett vid och färg med som det står.\n\nFrånvaro är det vanliga fallet. ``None``, ``''`` och blanktecken betyder \"detta projekt har en programvy\", och de blir :data:`DEFAULT_SCREEN` istället för att kasta — varje projekt som finns idag har ingen programvy någonstans i sina inställningar, och krävande en skulle stoppa dem alla från att öppna. Kontrast :func:`_check_plate`, vilket *dos* höjer: en tom platta är ett trasigt strukturerat datanamn, men en tom programvy är en vanlig enkelapplikationsvy.\n\nEtt tomt värde lämnas aldrig tomt inne i en ram heller, eftersom en blank programvy grupperar med varje annan tom programvy – den tysta sammanslagningen som :mod:`spacr.multi_database` vägrar.\n\n:param screen: Screeningetiketten, eller ``None``.\n:returns: Etiketten, avskalad eller :data:`DEFAULT_SCREEN`.\n\nExempel:\n    .. code-block:: python\n\n        >>> screen_id('tsg101'), screen_id(None)\n        ('tsg101', 'screen1')",
+      "text": "Returnera det kanoniska screening-ID, förvalt ett frånvarande.\n\nFri form text, som laboratoriets mikroplatta ID, eftersom det är namnet en användare gav ett experiment. Det är **inte** prefixerad och **inte** tolkas tillbaka isär: :data:`SCREEN_KEY` är en dimension att blockera på, fasett vid och färg med som det står.\n\nFrånvaro är det vanliga fallet. ``None``, ``''`` och blanktecken betyder \"detta projekt har en programvy\", och de blir :data:`DEFAULT_SCREEN` istället för att kasta — varje projekt som finns idag har ingen programvy någonstans i sina inställningar, och krävande en skulle stoppa dem alla från att öppna. Kontrast :func:`_check_plate`, vilket *dos* höjer: en tom platta är ett trasigt strukturerat datanamn, men en tom programvy är en vanlig enkelapplikationsvy.\n\nEtt tomt värde lämnas aldrig tomt inne i en ram heller, eftersom en blank programvy grupperar med varje annan tom programvy – den tysta sammanslagningen som :mod:`spacr.multi_database` vägrar.\n\n:param screen: Screeningetiketten, eller ``None``.\n:returns: Etiketten, avskalad eller :data:`DEFAULT_SCREEN`.\n\nExempel:\n    .. code-block:: python\n\n        >>> screen_id('tsg101'), screen_id(None)\n        ('tsg101', 'screen1')",
       "translation_source_blocks_sha256": [
-        "6b57c7ade60f9cbc8afcb0eb584e9226c30753722bab0d607aa1f0d4e418b086",
+        "7cd1c10c48bc6602c66aae04e21a60fa67d173877852a7751297221c7ae19d5b",
         "67364a38e038853e953072386ac1d7f04c9b0bae9f1072ef1f0f123b4b43fcfa",
         "7f79821cb5d77d81033f7ab04d7464a3a88a77965d67e6a29e15a2ac18e4281b",
         "0303992c74daedaa12abcad611123a864201fba0550484f2fd03572c1a0690e5",
@@ -196551,9 +196551,9 @@
         "465bd77f2a085a40b02432032e2be6bbbc007b34fc9ddd701a5843ecdf8abe5b"
       ],
       "source_sha256": "4c705c71601f2dfb7c239d7113514710fb921accd877ddf9a47bf442baef833c",
-      "text": "Returnera frågor som inte kan besvaras från denna programvys data.\n\nFrågan om riktning utelämnas för ett binärt svar, där endast en ökning kan representera det positiva resultatet.\n\n:param reading: uppmätta skärmegenskaper som används för att utelämna besvarade frågor.",
+      "text": "Returnera frågor som inte kan besvaras från den här skärmens data.\n\nFrågan om riktning utelämnas för ett binärt svar, där endast en ökning kan representera det positiva resultatet.\n\n:param reading: uppmätta skärmegenskaper som används för att utelämna besvarade frågor.",
       "translation_source_blocks_sha256": [
-        "a54fadd3e1e083da817121f594591716658470132623e7c5aeec5c03f7427060",
+        "0d798a432b6069995c835add4bffc78f7fed4f100f823a74eaf9e120393a5526",
         "b2592c03e23c54bf70697a9ec5e60e485e4c913b1fae095df23e4dae77a75849",
         "465bd77f2a085a40b02432032e2be6bbbc007b34fc9ddd701a5843ecdf8abe5b"
       ]

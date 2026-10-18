@@ -4037,9 +4037,9 @@
         "c56b9446737ab56eb6435666b8b34cf38d7f25fb0c7e8c40570175194355e595"
       ],
       "source_sha256": "0129ae0990f0d5433a3b134c937ff9f4fc7d95e2ce455f7787e3a1fd482048ae",
-      "text": "Retornar um modo de exibição de aplicativo com atribuições guia-a-poço permutadas.\n\n:param screen: triagem internamente consistente cujas atribuições de guia de nível de posição de amostra de microplacas serão embaralhadas.\n\nA permutação preserva células, características, pontuações do modelo de classificação de aprendizado de máquina, tamanhos de poço e distribuição de frações de guia ao quebrar a relação sequenciamento-imagem. A verdade e as frações são permutadas para que o objeto retornado permaneça internamente consistente para benchmarking nulo.",
+      "text": "Retornar uma triagem com atribuições de guia para poço permutadas.\n\n:param screen: triagem internamente consistente cujas atribuições de guia de nível de posição de amostra de microplacas serão embaralhadas.\n\nA permutação preserva células, características, pontuações do modelo de classificação de aprendizado de máquina, tamanhos de poço e distribuição de frações de guia ao quebrar a relação sequenciamento-imagem. A verdade e as frações são permutadas para que o objeto retornado permaneça internamente consistente para benchmarking nulo.",
       "translation_source_blocks_sha256": [
-        "fc3e82b24a5fd14cfcad487f65db80e5c6604f7b82f895fda8ef3f13ca990cd4",
+        "52114f6e4ff7b5b7e296dffab2fe680ad79bf5c5130c564ac495dbc1c884b5fc",
         "cc53b9d949f8c877f9889f86c0ef5b0b4abe5eb3986916841a9142751e823bfd",
         "b7d5f105ec1759bda72c5bd04f563bff5836a91cfeee246ad81829c5b2b917a7"
       ]
@@ -13084,9 +13084,9 @@
         "9134a96c6191b3bf6aa221f017e5e04a26939af02157dbfaf54df83b1b1f8aea"
       ],
       "source_sha256": "0ae0e4becadfc8d0b6cc6f5198781bf8725456d8307bc5031a7f2c67f8167342",
-      "text": "Retornar a pasta para uma placa de exibição de aplicativo: ``<dest>/screen/plate<N>``.\n\nO arquivo de medidas de cada placa desempacota para ``measurements/measurements.db`` e o arquivo de região de imagem extraído de cada placa desembala para ?``data/`` -- os mesmos dois caminhos, quatro vezes mais. Desempacotado em uma pasta, a quarta placa substituiria silenciosamente a terceira, e  :meth:`spacr.screen_data.ScreenAsset.is_present` reportaria uma placa como baixada porque o arquivo da placa diferente está sentado onde o seu próprio iria. O número da placa é, portanto, parte do caminho, e cada pasta aberta.\n\n:param dest: a raiz tudo desempacota sob.\n:param plate: Qual placa de triagem.",
+      "text": "Retornar a pasta para uma placa de triagem: ``<dest>/screen/plate<N>``.\n\nO arquivo de medidas de cada placa desempacota para ``measurements/measurements.db`` e o arquivo de região de imagem extraído de cada placa desembala para ?``data/`` -- os mesmos dois caminhos, quatro vezes mais. Desempacotado em uma pasta, a quarta placa substituiria silenciosamente a terceira, e  :meth:`spacr.screen_data.ScreenAsset.is_present` reportaria uma placa como baixada porque o arquivo da placa diferente está sentado onde o seu próprio iria. O número da placa é, portanto, parte do caminho, e cada pasta aberta.\n\n:param dest: a raiz tudo desempacota sob.\n:param plate: Qual placa de triagem.",
       "translation_source_blocks_sha256": [
-        "e965d24b2e52a4a26c8f914d7793893ec979b770ae74e1526a83844a19df5fb0",
+        "73804173b64e8212d86b8723d7485c3fb0fe556a0900e71ef815bfa38860df40",
         "68ad830d848e23a8627c2c5fab36e2795f8a89ec626872fa611255276381f8f3",
         "422c0161da742fd19048e8939e2cd0fb6669e0a316b0d6870ced084930bca39a",
         "9134a96c6191b3bf6aa221f017e5e04a26939af02157dbfaf54df83b1b1f8aea"
@@ -24848,9 +24848,9 @@
         "0327e71e24dd4254210bf064d62e0eda3cde9fd00a50b5170d5a403d603aa89b"
       ],
       "source_sha256": "4168d130ea808304638adb1a7bc098bb25255a8a95ef1692b8aa873546ec766d",
-      "text": "Retorna o diretório usado para armazenar em cache arquivos de exibição de aplicativo de exemplo.\n\n``SPACR_EXAMPLE_DATA`` substitui a localização. Caso contrário, a função usa  ``XDG_CACHE_HOME`` ou o fallback  ``~/.cache`` neutro da plataforma.",
+      "text": "Retornar o diretório usado para armazenar em cache arquivos de triagem de exemplo.\n\n``SPACR_EXAMPLE_DATA`` substitui a localização. Caso contrário, a função usa  ``XDG_CACHE_HOME`` ou o fallback  ``~/.cache`` neutro da plataforma.",
       "translation_source_blocks_sha256": [
-        "2a18899679f817341dd0b59b512f5e0c0c96308dfa694e86c0ec23645c446b5b",
+        "b9ea67644952a6f4c5658c0143a448d76abafa9287667d0d620e498898ba8e83",
         "0327e71e24dd4254210bf064d62e0eda3cde9fd00a50b5170d5a403d603aa89b"
       ]
     },
@@ -53793,9 +53793,9 @@
         "fe77a046943242810f23c1f4f161e835ddfb19cab09e3b0665be9816787ee339"
       ],
       "source_sha256": "fe77a046943242810f23c1f4f161e835ddfb19cab09e3b0665be9816787ee339",
-      "text": "Retorna se uma identidade de placa colide dentro de uma visualização de aplicativo.",
+      "text": "Retorna se uma identidade de placa colide dentro de uma triagem.",
       "translation_source_blocks_sha256": [
-        "e8727fda8d2d5d79b48c5aa8539b26c2af47e85f7a55a3ccd09dcd33a0103455"
+        "fe77a046943242810f23c1f4f161e835ddfb19cab09e3b0665be9816787ee339"
       ]
     },
     "spacr.multi_database.MergePlan.screens": {
@@ -61562,9 +61562,9 @@
         "466bfd5c2c95dd9b124aa2d5716ed0905c50c3897040c00025f77a4b3cf25d3d"
       ],
       "source_sha256": "37b9df86a3ef02fd3b3e543bc4c66f1dd64fd923f014b192acefb11450d8b325",
-      "text": "Retorne as camadas de imagem de máscara do registro de matrizes mescladas dessa exibição de aplicativo.\n\n`object_array` escolhe qual máscara os canais de dados de imagem de intensidade são cortados, e oferecê-lo como texto livre pede ao usuário para lembrar o que sua própria visualização de aplicativo contém - e soletrar da maneira que  `measure` fez. As escolhas são, portanto, construídas a partir dos dados.\n\n:param source: a :class:`spacr.crops.CropSource`, um  :class:`CropSourceChoice`, ou qualquer coisa com uma  ``spec.mask_dims``.\n:returns: a camada de imagem nomeia, em uma ordem estável. Vazio quando a triagem registra nenhum - que é a resposta, não uma falha: uma sessão de processamento cujos arrays mesclados não carregam camadas de imagem de máscara não pode ser cortada por um.",
+      "text": "Retornar as camadas de imagem de máscara do registro de matrizes mescladas desta triagem.\n\n`object_array` escolhe qual máscara os canais de dados de imagem de intensidade são cortados, e oferecê-lo como texto livre pede ao usuário para lembrar o que sua própria visualização de aplicativo contém - e soletrar da maneira que  `measure` fez. As escolhas são, portanto, construídas a partir dos dados.\n\n:param source: a :class:`spacr.crops.CropSource`, um  :class:`CropSourceChoice`, ou qualquer coisa com uma  ``spec.mask_dims``.\n:returns: a camada de imagem nomeia, em uma ordem estável. Vazio quando a triagem registra nenhum - que é a resposta, não uma falha: uma sessão de processamento cujos arrays mesclados não carregam camadas de imagem de máscara não pode ser cortada por um.",
       "translation_source_blocks_sha256": [
-        "1f2f39803d34c483b757cd3582e460f748b35d49a8daed0cdf9b74b93ad8140f",
+        "aefb9049722274862a40036826e0b5fe707fd04110838b14e64d9ed2b257b55d",
         "dfa159bf14a748bbb6c57853d8f54911bc3d72157e73716c7943179247314b5a",
         "395ac2ff6114cf2f04c8c307a336bb1ca27fdbcafde85510959aaa6eab477f47",
         "fefd6d52a6f84b9f570f29a2d1fc98e3cfaa57ad90e254aba5e0f9d15daaa8a0"
@@ -181859,9 +181859,9 @@
         "71a72900f52c9c04e9599feb785302a45d0a23cd4d514d220ac379930850ef92"
       ],
       "source_sha256": "7ac3de8663c25a2ead5149118780afd7e5052ea7b36b745c12c3e75a319720a0",
-      "text": "Retornar entradas de exclusão que não correspondam a nenhum guia no modo de exibição do aplicativo.\n\n:param exclude: Guia ou identificadores de genes solicitados para exclusão, ou None.\n:param guides: identificadores de guia disponíveis, alinhados com ``genes`` quando fornecidos.",
+      "text": "Retornar entradas de exclusão que não correspondam a nenhum guia na triagem.\n\n:param exclude: Guia ou identificadores de genes solicitados para exclusão, ou None.\n:param guides: identificadores de guia disponíveis, alinhados com ``genes`` quando fornecidos.",
       "translation_source_blocks_sha256": [
-        "47395252463f60adafdfdf7609638dbcb521b70cae70e9a9b7d9b5e58158496d",
+        "6ee3e15a576d607ae7e94f1821d9f5a7c207ba3a52569857a31110c472b816a8",
         "1d29613ab9e6e6d66282e0d488c10921d277f51ed682cceffe9a112dd49b029e",
         "71a72900f52c9c04e9599feb785302a45d0a23cd4d514d220ac379930850ef92"
       ]
@@ -181952,9 +181952,9 @@
         "6f3615614c90ae0e2bbc533cc9eb981e4b68770beebc2a3303dcfd0272f8c3c2"
       ],
       "source_sha256": "599686d7c14943921aa2a15bfebfbf2325d51e14db0c28f14d35e9657fc0fb12",
-      "text": "Retorne as configurações para executar novamente um modo de exibição de aplicativo com um novo modelo.\n\n:param base: as configurações da sessão de processamento no modo de exibição do aplicativo usado.\n:param regression_type: o novo backend, ou ``None`` para manter o antigo.\n:param correction_method: a nova correção de testes múltiplos, ou ``None`` para manter a antiga. Escrito para  :data:`CORRECTION_KEY`.\n:param fdr_alpha: o novo nível de significância, ou ``None`` para mantê-lo.\n:param level: ``'grna'``, ``'gene'`` ou ``'both'``, ou ``None`` para manter o valor anterior. Modelos mistos tratam guias como efeitos aleatórios e, portanto, fornecem previsões reduzidas sem valores p por guia; um modelo de efeito fixo de nível de guia fornece coeficientes e valores p.\n:param alpha: o novo peso da penalidade, onde o novo backend lê um -- um número diferente de ``fdr_alpha`` apesar do nome.\n:returns: ``(settings, [notes for the user])``.\n:raises ValueError: Se ``base`` não indicar nenhum caminho de contagem de dados utilizável.\n\nAs notas retornadas identificam todas as configurações automáticas alteradas antes da execução.",
+      "text": "Retorne as configurações para reexecutar uma triagem com um novo modelo.\n\n:param base: as configurações da sessão de processamento no modo de exibição do aplicativo usado.\n:param regression_type: o novo backend, ou ``None`` para manter o antigo.\n:param correction_method: a nova correção de testes múltiplos, ou ``None`` para manter a antiga. Escrito para  :data:`CORRECTION_KEY`.\n:param fdr_alpha: o novo nível de significância, ou ``None`` para mantê-lo.\n:param level: ``'grna'``, ``'gene'`` ou ``'both'``, ou ``None`` para manter o valor anterior. Modelos mistos tratam guias como efeitos aleatórios e, portanto, fornecem previsões reduzidas sem valores p por guia; um modelo de efeito fixo de nível de guia fornece coeficientes e valores p.\n:param alpha: o novo peso da penalidade, onde o novo backend lê um -- um número diferente de ``fdr_alpha`` apesar do nome.\n:returns: ``(settings, [notes for the user])``.\n:raises ValueError: Se ``base`` não indicar nenhum caminho de contagem de dados utilizável.\n\nAs notas retornadas identificam todas as configurações automáticas alteradas antes da execução.",
       "translation_source_blocks_sha256": [
-        "e579624c085750a6d6da6e10f6b296f9af05620f12b5ba47b61fe1afb79bb9d4",
+        "c6008b5118d3c3aa0a96e8e69962aedaa710040fde7e99d637d7d41d92a57f63",
         "697dcdeec3683c3bf3aaed2df88fd889525aa45a7660768d4019e0e9ef952833",
         "624e29bdeed88b3ddddbb11393a153edd701c0fbc97faddd294ba29c368dbaab",
         "f4789f818a749e8c151585875cf5fc18196916d084293ddcef32478cc89ecd47",
@@ -190276,14 +190276,14 @@
         "3c690c81878deea2c20b4cac138189aab1246dad5d43d819aa412021e86ed64a"
       ],
       "source_sha256": "8863df15521b3d671a7efbc18b3c5cf443d3714c01268828ee42ab8912edfdc9",
-      "text": "Retornar ``df`` carregando uma coluna  :data:`SCREEN_KEY` preenchida.\n\nOs três casos, e por que cada um se comporta como ele faz:\n\n* **O quadro não tem coluna de triagem.** Ele ganha uma, segurando  ``screen`` ou  :data:`DEFAULT_SCREEN`. Esse é um projeto de triagem única, assim como todos os projetos escritos antes que as etiquetas de triagem existissem.\n* O quadro tem uma, e ``screen`` é ``None``. Seus rótulos são mantidos. Rerrotular um quadro que já sabe de qual experimento veio moveria linhas entre experimentos sem nenhum aviso visível.\n* O quadro tem um e ``screen`` foi dado. O chamador está olhando para os arquivos e disse qual é a triagem, então tem precedência.  ``overwrite=False`` (o padrão) ainda preenche apenas os valores *blank*; passe  ``overwrite=True`` para reamplificar todas as linhas.\n\nOs espaços em branco nunca são deixados em branco: ``None``,  ``NaN`` e ``''`` tornam-se  :data:`DEFAULT_SCREEN`, porque um id de visualização de aplicativo vazio não é uma identidade e cada linha carregando uma seria agrupada com todas as outras.\n\n:param df: :class:`pandas.DataFrame`.\n:param screen: o rótulo da triagem para linhas que não têm uma.\n:param overwrite: substitua as etiquetas existentes em vez de preencher espaços em branco.\n:returns: um novo quadro; ``df`` não é modificado.",
+      "text": "Retornar ``df`` carregando uma coluna  :data:`SCREEN_KEY` preenchida.\n\nOs três casos, e por que cada um se comporta como ele faz:\n\n* **O quadro não tem coluna de triagem.** Ele ganha uma, segurando  ``screen`` ou  :data:`DEFAULT_SCREEN`. Esse é um projeto de triagem única, assim como todos os projetos escritos antes que as etiquetas de triagem existissem.\n* O quadro tem uma, e ``screen`` é ``None``. Seus rótulos são mantidos. Rerrotular um quadro que já sabe de qual experimento veio moveria linhas entre experimentos sem nenhum aviso visível.\n* O quadro tem um e ``screen`` foi dado. O chamador está olhando para os arquivos e disse qual é a triagem, então tem precedência.  ``overwrite=False`` (o padrão) ainda preenche apenas os valores *blank*; passe  ``overwrite=True`` para reamplificar todas as linhas.\n\nOs espaços em branco nunca são deixados em branco: ``None``,  ``NaN`` e ``''`` tornam-se  :data:`DEFAULT_SCREEN`, porque um id de triagem vazia não é uma identidade e cada linha carregando uma seria agrupada com todas as outras.\n\n:param df: :class:`pandas.DataFrame`.\n:param screen: o rótulo da triagem para linhas que não têm uma.\n:param overwrite: substitua as etiquetas existentes em vez de preencher espaços em branco.\n:returns: um novo quadro; ``df`` não é modificado.",
       "translation_source_blocks_sha256": [
         "fa4e52f186a00d54487fd81befc1056f9b30d076348b4abba1843050fe8ddf6f",
         "068ada7e91e057d033d3f6fbbf3f8fb8f31a7b8bf935cd569e9029dfb4de8702",
         "9e2cce60426420dd5f4630c8c8bff7d4605766651613e5ac5d21ec4d34401d8d",
         "e903b06c2b3d5d81f8a1e5507d237ae811c4e49e5d04ffb732877d98568d02db",
         "09a6415b69f9b298e3ff94852d4b1d3da572e54bf36f2724df6c811e254f4ee0",
-        "29774847dd62bcef0ab8128c354a09fbdd2acbb18403d68084d87281f4b2b16e",
+        "09b539e2fdfb37a975819711b1b11dfd56f1eec0c7e7244cfc44db562cfffb1d",
         "22165e723f63129de39cc0c4bceed6fa846a6a807ad38cf43ef8e43748c5b957",
         "0c2549764326c97e61f0b8a5c7201c0661ee54f72facd5b04db087876906d7e2",
         "69e35f8db3d4d24917db60e02df065c7dd7304c528a943cc4e83857a1004f39d",
@@ -191265,9 +191265,9 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
       ],
       "source_sha256": "3496d171ea008ef9fa6ff13c1ba78fb511ddc7b81072e8fca2ab6561613ebeaa",
-      "text": "Retornar o id de exibição de aplicativo canônico, inadimplente um ausente.\n\nTexto de forma livre, como o id de microplaca de laboratório, porque é o nome que um usuário deu a um experimento. É **não** prefixado e  **não** analisado de volta à parte: :data:`SCREEN_KEY` é uma dimensão para bloquear, facetar e colorir com como está.\n\nAusência é o caso comum. ``None``, ``''`` e espaço em branco todos significam \"este projeto tem uma visualização de aplicativo\", e eles se tornam :data:`DEFAULT_SCREEN` em vez de jogar - cada projeto que existe hoje não tem visualização de aplicativos em qualquer lugar em suas configurações, e exigindo um iria parar todos eles de abrir. Contraste :func:`_check_plate`, que *faz* levantar: uma placa vazia é um nome de dados estruturados quebrado, mas uma exibição de aplicativo vazio é uma visualização única.\n\nUm valor vazio nunca é deixado vazio dentro de um quadro, porque um modo de exibição de aplicativo em branco agrupa com todos os outros modos de exibição em branco o agrupamento silencioso que :mod:`spacr.multi_database` recusa.\n\n:param screen: o rótulo da triagem, ou ``None``.\n:returns: o rótulo, despojado, ou :data:`DEFAULT_SCREEN`.\n\nExemplo:\n    .. code-block:: python\n\n        >>> screen_id('tsg101'), screen_id(None)\n        ('tsg101', 'screen1')",
+      "text": "Retornar o id de triagem canônica, inadimplente um ausente.\n\nTexto de forma livre, como o id de microplaca de laboratório, porque é o nome que um usuário deu a um experimento. É **não** prefixado e  **não** analisado de volta à parte: :data:`SCREEN_KEY` é uma dimensão para bloquear, facetar e colorir com como está.\n\nAusência é o caso comum. ``None``, ``''`` e espaço em branco todos significam \"este projeto tem uma visualização de aplicativo\", e eles se tornam :data:`DEFAULT_SCREEN` em vez de jogar - cada projeto que existe hoje não tem visualização de aplicativos em qualquer lugar em suas configurações, e exigindo um iria parar todos eles de abrir. Contraste :func:`_check_plate`, que *faz* levantar: uma placa vazia é um nome de dados estruturados quebrado, mas uma exibição de aplicativo vazio é uma visualização única.\n\nUm valor vazio nunca é deixado vazio dentro de um quadro, porque um modo de exibição de aplicativo em branco agrupa com todos os outros modos de exibição em branco o agrupamento silencioso que :mod:`spacr.multi_database` recusa.\n\n:param screen: o rótulo da triagem, ou ``None``.\n:returns: o rótulo, despojado, ou :data:`DEFAULT_SCREEN`.\n\nExemplo:\n    .. code-block:: python\n\n        >>> screen_id('tsg101'), screen_id(None)\n        ('tsg101', 'screen1')",
       "translation_source_blocks_sha256": [
-        "6b57c7ade60f9cbc8afcb0eb584e9226c30753722bab0d607aa1f0d4e418b086",
+        "7cd1c10c48bc6602c66aae04e21a60fa67d173877852a7751297221c7ae19d5b",
         "67364a38e038853e953072386ac1d7f04c9b0bae9f1072ef1f0f123b4b43fcfa",
         "7f79821cb5d77d81033f7ab04d7464a3a88a77965d67e6a29e15a2ac18e4281b",
         "0303992c74daedaa12abcad611123a864201fba0550484f2fd03572c1a0690e5",
@@ -196551,9 +196551,9 @@
         "465bd77f2a085a40b02432032e2be6bbbc007b34fc9ddd701a5843ecdf8abe5b"
       ],
       "source_sha256": "4c705c71601f2dfb7c239d7113514710fb921accd877ddf9a47bf442baef833c",
-      "text": "Retornar perguntas que não podem ser respondidas a partir dos dados desta exibição de aplicativo.\n\nA pergunta de direção é omitida para uma resposta binária, onde apenas um aumento pode representar o resultado positivo.\n\n:param reading: propriedades de triagem medidas usadas para omitir perguntas respondidas.",
+      "text": "Retornar perguntas que não podem ser respondidas a partir dos dados desta triagem.\n\nA pergunta de direção é omitida para uma resposta binária, onde apenas um aumento pode representar o resultado positivo.\n\n:param reading: propriedades de triagem medidas usadas para omitir perguntas respondidas.",
       "translation_source_blocks_sha256": [
-        "a54fadd3e1e083da817121f594591716658470132623e7c5aeec5c03f7427060",
+        "0d798a432b6069995c835add4bffc78f7fed4f100f823a74eaf9e120393a5526",
         "b2592c03e23c54bf70697a9ec5e60e485e4c913b1fae095df23e4dae77a75849",
         "465bd77f2a085a40b02432032e2be6bbbc007b34fc9ddd701a5843ecdf8abe5b"
       ]

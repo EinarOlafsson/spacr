@@ -580,7 +580,9 @@
       "label": "spacr.annotation_validation.permuted#0",
       "source": "Return a screen with guide-to-well assignments permuted.",
       "source_sha256": "52114f6e4ff7b5b7e296dffab2fe680ad79bf5c5130c564ac495dbc1c884b5fc",
-      "translation": "Återlämna en ansökan vy med permuterade guide-till-brunn-tilldelningar."
+      "translation": "Återlämna en ansökan vy med permuterade guide-till-brunn-tilldelningar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: the narrowed GUI-screen gate no longer expands this genetic screen to an application view, so the bound context moved; replaced by a direct translation in 2026-10-18-genetic-screen-gate.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The permutation preserves cells, features, machine-learning classification model scores, well sizes, and the distribution of guide fractions while breaking the sequencing-to- imaging relationship. Truth and fractions are permuted together so the returned object remains internally consistent for null benchmarking.",

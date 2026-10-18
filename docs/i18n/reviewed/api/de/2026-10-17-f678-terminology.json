@@ -10632,7 +10632,9 @@
       "label": "spacr.read_background.unmatched_exclusions#0",
       "source": "Return exclusion entries that match no guide in the screen.",
       "source_sha256": "6ee3e15a576d607ae7e94f1821d9f5a7c207ba3a52569857a31110c472b816a8",
-      "translation": "Gibt Ausschlusseinträge zurück, die mit keinem Guide in der Anwendungsansicht übereinstimmen."
+      "translation": "Gibt Ausschlusseinträge zurück, die mit keinem Guide in der Anwendungsansicht übereinstimmen.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: the narrowed GUI-screen gate no longer expands this genetic screen to an application view, so the bound context moved; replaced by a direct translation in 2026-10-18-genetic-screen-gate.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "This coarser grouping lets changing well letters remain variable. Families that exceed :data:`MAX_VARYING_LITERALS` are rejected later to avoid merging unrelated naming conventions.",
@@ -13054,7 +13056,9 @@
       "label": "spacr.annotation_validation.permuted#0",
       "source": "Return a screen with guide-to-well assignments permuted.",
       "source_sha256": "52114f6e4ff7b5b7e296dffab2fe680ad79bf5c5130c564ac495dbc1c884b5fc",
-      "translation": "Gibt eine Anwendungsansicht mit permutierten Guide-RNA-Zu-Well-Zuweisungen zurück."
+      "translation": "Gibt eine Anwendungsansicht mit permutierten Guide-RNA-Zu-Well-Zuweisungen zurück.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: the narrowed GUI-screen gate no longer expands this genetic screen to an application view, so the bound context moved; replaced by a direct translation in 2026-10-18-genetic-screen-gate.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The permutation preserves cells, features, machine-learning classification model scores, well sizes, and the distribution of guide fractions while breaking the sequencing-to- imaging relationship. Truth and fractions are permuted together so the returned object remains internally consistent for null benchmarking.",

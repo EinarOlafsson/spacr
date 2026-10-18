@@ -769,7 +769,9 @@
       "label": "spacr.annotation_validation.permuted#0",
       "source": "Return a screen with guide-to-well assignments permuted.",
       "source_sha256": "52114f6e4ff7b5b7e296dffab2fe680ad79bf5c5130c564ac495dbc1c884b5fc",
-      "translation": "एक अनुप्रयोग दृष्टिकोण वापस करें, जिसमें मार्गदर्शक-वेल कार्यों को स्थानांतरित किया गया है।"
+      "translation": "एक अनुप्रयोग दृष्टिकोण वापस करें, जिसमें मार्गदर्शक-वेल कार्यों को स्थानांतरित किया गया है।",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: the narrowed GUI-screen gate no longer expands this genetic screen to an application view, so the bound context moved; replaced by a direct translation in 2026-10-18-genetic-screen-gate.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "internally consistent screen whose microplate sample position-level guide assignments will be shuffled.",

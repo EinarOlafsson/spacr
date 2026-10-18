@@ -1115,11 +1115,11 @@
       "translation": "순차적 방법이 순위 순서에 얼마나 민감한지 측정합니다."
     },
     {
-      "context": "Return an application view with guide-to-well assignments permuted.",
+      "context": "Return a screen with guide-to-well assignments permuted.",
       "label": "spacr.annotation_validation.permuted#0",
       "source": "Return a screen with guide-to-well assignments permuted.",
       "source_sha256": "52114f6e4ff7b5b7e296dffab2fe680ad79bf5c5130c564ac495dbc1c884b5fc",
-      "translation": "가이드-웰 할당을 순열한 스크린 실험을 반환합니다."
+      "translation": "가이드-웰 할당을 순열한 스크리닝을 반환합니다."
     },
     {
       "context": "Compare guide calls with known cell-level assignments.",
@@ -4104,11 +4104,11 @@
       "translation": "디스크 공간 부족 메시지를 반환하거나, 공간이 충분하면 ``None``을 반환합니다."
     },
     {
-      "context": "Return the folder for one application view plate: ``<dest>/screen/plate<N>``.",
+      "context": "Return the folder for one screen plate: ``<dest>/screen/plate<N>``.",
       "label": "spacr.cli_download.screen_folder#0",
       "source": "Return the folder for one screen plate: ``<dest>/screen/plate<N>``.",
       "source_sha256": "73804173b64e8212d86b8723d7485c3fb0fe556a0900e71ef815bfa38860df40",
-      "translation": "스크린 플레이트 하나의 폴더를 반환합니다: ``<dest>/screen/plate<N>``."
+      "translation": "스크리닝 플레이트 하나의 폴더를 반환합니다: ``<dest>/screen/plate<N>``."
     },
     {
       "context": "Return the notice explaining how to request the screen data.",
@@ -7751,11 +7751,11 @@
       "translation": "가져오기 결과를 설명하는 간결한 상태 메시지를 반환합니다."
     },
     {
-      "context": "Return the directory used to cache example-application view files.",
+      "context": "Return the directory used to cache example-screen files.",
       "label": "spacr.example_data.cache_folder#0",
       "source": "Return the directory used to cache example-screen files.",
       "source_sha256": "b9ea67644952a6f4c5658c0143a448d76abafa9287667d0d620e498898ba8e83",
-      "translation": "예제 스크린 파일을 캐시하는 데 사용하는 디렉터리를 반환합니다."
+      "translation": "예제 스크리닝 파일을 캐시하는 데 사용하는 디렉터리를 반환합니다."
     },
     {
       "context": "The manifest entries for one ``kind``, or all of them.",
@@ -17313,11 +17313,11 @@
       "translation": "``columns='common'`` 병합으로 버려지는 측정값을 반환합니다."
     },
     {
-      "context": "Return whether a plate identity collides within one application view.",
+      "context": "Return whether a plate identity collides within one screen.",
       "label": "spacr.multi_database.MergePlan.has_collisions#0",
       "source": "Return whether a plate identity collides within one screen.",
       "source_sha256": "fe77a046943242810f23c1f4f161e835ddfb19cab09e3b0665be9816787ee339",
-      "translation": "플레이트 식별 정보가 하나의 스크린 안에서 충돌하는지 여부를 반환합니다."
+      "translation": "플레이트 식별 정보가 하나의 스크리닝 안에서 충돌하는지 여부를 반환합니다."
     },
     {
       "context": "Every screen this merge would produce, in sorted order.",
@@ -19651,11 +19651,11 @@
       "translation": "``key``가 선택한 세포 고르기 방식에 적용되는지 여부입니다."
     },
     {
-      "context": "Return the mask image layers this application view's merged arrays record.",
+      "context": "Return the mask image layers this screen's merged arrays record.",
       "label": "spacr.picture_settings.available_arrays#0",
       "source": "Return the mask planes this screen's merged arrays record.",
       "source_sha256": "77fef353b0768315781a91791593e47c28036d1ce44ebf0dbe33f627f75e481e",
-      "translation": "이 스크린의 병합 배열이 기록하는 마스크 평면을 반환합니다."
+      "translation": "이 스크리닝의 병합 배열이 기록하는 마스크 평면을 반환합니다."
     },
     {
       "context": "The object-table columns a bounding box could be cut from.",
@@ -22472,11 +22472,11 @@
       "translation": "대조군 웰에서 배경이 높고 반복적으로 나타나는 가이드를 반환합니다."
     },
     {
-      "context": "Return exclusion entries that match no guide in the application view.",
+      "context": "Return exclusion entries that match no guide in the screen.",
       "label": "spacr.read_background.unmatched_exclusions#0",
       "source": "Return exclusion entries that match no guide in the screen.",
       "source_sha256": "6ee3e15a576d607ae7e94f1821d9f5a7c207ba3a52569857a31110c472b816a8",
-      "translation": "스크린의 어떤 가이드와도 일치하지 않는 제외 항목을 반환합니다."
+      "translation": "스크리닝의 어떤 가이드와도 일치하지 않는 제외 항목을 반환합니다."
     },
     {
       "context": "Return the output directory a processing session would use without executing it.",
@@ -22493,11 +22493,11 @@
       "translation": "``regression_type``이 읽을 수 없는 모든 설정 값을 초기화하고, 그 이름을 알려 줍니다."
     },
     {
-      "context": "Return settings for re-executing an application view with a new model.",
+      "context": "Return settings for re-executing a screen with a new model.",
       "label": "spacr.refit.refit_settings#0",
       "source": "Return settings for re-running a screen with a new model.",
       "source_sha256": "484ac5533bd114e6909ed1520c38c47372b8d57cf2d4810cf1140d218a950f56",
-      "translation": "새 모델로 스크린을 다시 실행하기 위한 설정을 반환합니다."
+      "translation": "새 모델로 스크리닝을 다시 실행하기 위한 설정을 반환합니다."
     },
     {
       "context": "The settings a finished processing session used, read back from beside its results.",
@@ -25902,11 +25902,11 @@
       "translation": "``'r3'`` → ``3``, ``'C'`` → ``3``, 파싱할 수 없는 ID → ``None``."
     },
     {
-      "context": "Return the canonical application view id, defaulting an absent one.",
+      "context": "Return the canonical screen id, defaulting an absent one.",
       "label": "spacr.schema.screen_id#0",
       "source": "Return the canonical screen id, defaulting an absent one.",
       "source_sha256": "7cd1c10c48bc6602c66aae04e21a60fa67d173877852a7751297221c7ae19d5b",
-      "translation": "표준 스크린 ID를 반환하며, 없으면 기본값을 사용합니다."
+      "translation": "표준 스크리닝 ID를 반환하며, 없으면 기본값을 사용합니다."
     },
     {
       "context": "Split an object id into ``(object type, label)``.",
@@ -27687,11 +27687,11 @@
       "translation": "스크리닝 입력을 읽고 회귀 설정 권장 사항을 반환합니다."
     },
     {
-      "context": "Return questions that cannot be answered from this application view's data.",
+      "context": "Return questions that cannot be answered from this screen's data.",
       "label": "spacr.settings_advisor.questions_for#0",
       "source": "Return questions that cannot be answered from this screen's data.",
       "source_sha256": "0d798a432b6069995c835add4bffc78f7fed4f100f823a74eaf9e120393a5526",
-      "translation": "이 스크린 실험의 데이터로는 답할 수 없는 질문을 반환합니다."
+      "translation": "이 스크리닝의 데이터로는 답할 수 없는 질문을 반환합니다."
     },
     {
       "context": "Measure laboratory microplates, microplate sample positions, guides, genes, and replication from count data.",

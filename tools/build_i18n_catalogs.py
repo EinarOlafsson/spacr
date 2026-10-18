@@ -1527,8 +1527,12 @@ _UI_SCREEN_SOURCE = (
     r"displays?|screen renders?|screen restores?|screen writes?|screen reads?|"
     r"screen chooses?|screen receives?|screen returns?)\b))"
     r"(?!.*\b(?:real|simulated|pooled|CRISPR|widefield)\b.{0,40}\bscreens?\b)"
-    r"(?!.*\bscreens?\s+(?:features?|hits?|wells?|data|scores?|"
-    r"phenotypes?|regression|classification)\b)"
+    r"(?!.*\bscreens?(?:['’]s)?\s+(?:features?|hits?|wells?|data|scores?|"
+    r"phenotypes?|regression|classification|plates?|ids?|merged)\b)"
+    # A genetic screen named by its experiment: a plate within one screen,
+    # an example screen's files, a guide in the screen, re-running it.
+    r"(?!.*\b(?:within\s+(?:one|a|each)\s+screens?|example[- ]screens?|"
+    r"guides?\s+in\s+the\s+screens?|guide-to-well|re-?(?:running|executing)\s+a\s+screens?)\b)"
 )
 
 _SCIENTIFIC_SCREEN_SOURCE = (
