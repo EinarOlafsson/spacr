@@ -451,6 +451,8 @@ SETTINGS_GAP = 12
 #: column was doing when this was measured on a rendered screen.
 SHORTCUTS_WIDTH = 230
 
+_COMPACT_WIDTH = 1500
+
 #: Where the folded title (the Make Masks heading and its row of folded
 #: modules) is remembered, through the same store as the settings' fold.
 MAKE_MASKS_TITLE_FOLD_KEY = "make_masks/Title"
@@ -1128,6 +1130,9 @@ class _ImageContainer(CollapsibleSplitter):
         """Re-fit the bars after any resize."""
         super().resizeEvent(event)
         self.queue_refit()
+        resized = getattr(self, "_on_resized", None)
+        if resized is not None:
+            resized()
 
     def queue_refit(self) -> None:
         """Size each bar to the height its wrapped buttons need, soon."""
@@ -18362,6 +18367,7 @@ class MakeMasksScreen(QWidget):
                        hint="Hides the IO and navigation buttons below the "
                             "image.")
         self._image_container = image
+        image._on_resized = self._fit_the_side_column
 
         views = QWidget()
         views.setObjectName("MakeMasksViewsColumn")
@@ -18375,7 +18381,51 @@ class MakeMasksScreen(QWidget):
                       fold_key="make_masks/Shortcuts",
                       hint="or drag to make the shortcut list wider")
         self._view_pane = pane
+        self._side_folded_for_width = False
+        self._side_held_by_user = False
+        pane.pane_toggled.connect(self._on_view_pane_toggled)
+        self._on_view_pane_toggled("Shortcuts", pane.is_collapsed("Shortcuts"),
+                                   False)
         return pane
+
+    def _fit_the_side_column(self) -> None:
+        """Fold the side column below :data:`_COMPACT_WIDTH`, unremembered.
+
+        A 1280 or 1366 px wide screen gives the image that width, so the
+        TOOLS and IO bars wrap onto fewer lines; a wider screen opens it
+        again, and a person's own fold or opening is kept meanwhile.
+        """
+        pane = getattr(self, "_view_pane", None)
+        if pane is None or not isValid(pane):
+            return
+        narrow = 0 < self.width() < _COMPACT_WIDTH
+        if not narrow:
+            self._side_held_by_user = False
+            if self._side_folded_for_width:
+                self._side_folded_for_width = False
+                if pane.is_collapsed("Shortcuts"):
+                    pane.set_collapsed("Shortcuts", False, by_user=False)
+            return
+        if (self._side_held_by_user or self._side_folded_for_width
+                or pane.is_collapsed("Shortcuts")):
+            return
+        self._side_folded_for_width = True
+        pane.set_collapsed("Shortcuts", True, by_user=False)
+
+    def _on_view_pane_toggled(self, name: str, collapsed: bool,
+                              by_user: bool) -> None:
+        """Stop a folded side column holding the screen tall; note a person's fold."""
+        if name != "Shortcuts":
+            return
+        column = getattr(self, "_shortcut_panel", None)
+        if column is not None and isValid(column):
+            policy = column.sizePolicy()
+            policy.setVerticalPolicy(QSizePolicy.Ignored if collapsed
+                                     else QSizePolicy.Preferred)
+            column.setSizePolicy(policy)
+        if by_user:
+            self._side_folded_for_width = False
+            self._side_held_by_user = True
 
     def _report(self, text: str, kind: str = "info") -> None:
         """Say ``text`` in the console and show it in the corner.

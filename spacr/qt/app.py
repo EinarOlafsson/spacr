@@ -54,6 +54,9 @@ LOG = logging.getLogger(__name__)
 
 _OPEN_FRESH = [False]
 
+_MAIN_WINDOW_MINIMUM = (1200, 640)
+_MAIN_WINDOW_OPENING = (1200, 720)
+
 #: Published documentation root. `docs/source/conf.py` copies everything in
 #: `docs/source/_extra/` verbatim into the site root (`html_extra_path`), so
 #: `docs/source/_extra/tutorials/index.html` publishes at `<root>/tutorials/`
@@ -195,6 +198,53 @@ def _open_at_the_measured_width(window) -> bool:
         return False
 
 
+def _fit_to_the_work_area(window, screen=None, lower_minimum=True) -> bool:
+    """Fit ``window`` inside its screen's work area and say whether it moved.
+
+    The work area excludes the taskbar, dock and panels, about 1280 x 680 on
+    a 1280 x 720 display. A larger minimum is lowered unless
+    ``lower_minimum`` is False, a larger window shrinks, a placed window
+    moves back on screen, and a maximised, full-screen or unplaced window
+    keeps its place.
+    """
+    try:
+        if screen is None:
+            screen = window.screen()
+        if screen is None:
+            return False
+        work = screen.availableGeometry()
+        if work.isEmpty():
+            return False
+        frame = window.frameGeometry()
+        inner = window.geometry()
+        border_w = max(0, frame.width() - inner.width())
+        border_h = max(0, frame.height() - inner.height())
+        room = work.size()
+        room.setWidth(max(1, room.width() - border_w))
+        room.setHeight(max(1, room.height() - border_h))
+        if lower_minimum:
+            window.setMinimumSize(window.minimumSize().boundedTo(room))
+        if window.isMaximized() or window.isFullScreen():
+            return False
+        size = inner.size().boundedTo(room)
+        changed = size != inner.size()
+        if changed:
+            window.resize(size)
+        placed = (window.isVisible()
+                  or window.testAttribute(Qt.WidgetAttribute.WA_Moved))
+        if placed:
+            width, height = size.width() + border_w, size.height() + border_h
+            x = max(work.left(), min(frame.x(), work.right() + 1 - width))
+            y = max(work.top(), min(frame.y(), work.bottom() + 1 - height))
+            if (x, y) != (frame.x(), frame.y()):
+                window.move(x, y)
+                changed = True
+        return changed
+    except Exception:
+        LOG.debug("could not fit the window to its screen", exc_info=True)
+        return False
+
+
 def _show_at_launch(window) -> None:
     """Show the main window the way it opens at startup.
 
@@ -207,14 +257,14 @@ def _show_at_launch(window) -> None:
 
     :param window: the main window, built and not yet shown.
     """
+    _fit_to_the_work_area(window)
     if not window._borderless:
         window.show()
-        return
-    screen = window.screen()
-    if screen is not None:
-        window.setMinimumSize(window.minimumSize().boundedTo(
-            screen.availableGeometry().size()))
-    window.showMaximized()
+    else:
+        window.showMaximized()
+    follow = getattr(window, "_follow_the_work_area", None)
+    if follow is not None:
+        follow()
 
 
 def install_the_spaceout_fractal(screen) -> bool:
@@ -2898,7 +2948,8 @@ class MainWindow(QMainWindow):
         self.setPalette(startup_palette)
         self.setAutoFillBackground(True)
         self.setWindowTitle("spaCR")
-        self.setMinimumSize(1200, 720)
+        self.setMinimumSize(*_MAIN_WINDOW_MINIMUM)
+        self.resize(*_MAIN_WINDOW_OPENING)
         from .preferences import get_borderless_window
 
         self._borderless = get_borderless_window()
@@ -3628,6 +3679,7 @@ class MainWindow(QMainWindow):
                 self.setGeometry(restore)
             else:
                 self.resize(restore.size())
+        _fit_to_the_work_area(self, lower_minimum=False)
 
     def toggle_fullscreen(self, *_args) -> bool:
         """Enter or leave true fullscreen. Returns whether it is now full.
@@ -3662,6 +3714,41 @@ class MainWindow(QMainWindow):
                 self._snap_minimum = None
             self.showFullScreen()
         return self.isFullScreen()
+
+    def _follow_the_work_area(self) -> None:
+        """Fit the window again whenever its screen or work area changes."""
+        try:
+            handle = self.windowHandle()
+            if handle is None:
+                return
+            if not getattr(self, "_follows_screen_changes", False):
+                handle.screenChanged.connect(self._on_screen_changed)
+                self._follows_screen_changes = True
+            self._watch_the_screen(handle.screen())
+        except Exception:
+            LOG.debug("could not follow the screen's work area",
+                      exc_info=True)
+
+    def _watch_the_screen(self, screen) -> None:
+        """Refit when ``screen``'s work area changes, connecting it once."""
+        if screen is None:
+            return
+        watched = getattr(self, "_watched_screens", None)
+        if watched is None:
+            watched = self._watched_screens = set()
+        if id(screen) in watched:
+            return
+        watched.add(id(screen))
+        screen.availableGeometryChanged.connect(self._on_work_area_changed)
+
+    def _on_screen_changed(self, screen) -> None:
+        """The window moved to another screen: fit it there."""
+        self._watch_the_screen(screen)
+        self._on_work_area_changed()
+
+    def _on_work_area_changed(self, *_args) -> None:
+        """Fit the window to the screen it is on, on the next turn."""
+        _after(0, self, lambda: _fit_to_the_work_area(self))
 
     def changeEvent(self, event):               # noqa: N802 - Qt naming
         """Re-lay the menu bar when the window state changes.
@@ -4290,6 +4377,7 @@ class MainWindow(QMainWindow):
                 self._leave_snap(place=True)
             else:
                 self.showNormal()
+                _fit_to_the_work_area(self, lower_minimum=False)
         else:
             minimum = getattr(self, "_snap_minimum", None)
             if minimum is not None:
