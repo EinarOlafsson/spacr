@@ -555,7 +555,7 @@ def refresh_pages(baseline: Path, rendered: Path, output: Path, numbers: Sequenc
         raise ValueError("Both vector PDFs must contain the complete deck")
     writer = PdfWriter()
     for number, (before, after) in enumerate(zip(original.pages, replacement.pages), 1):
-        if tuple(before.mediabox) != tuple(after.mediabox):
+        if [round(float(v), 1) for v in before.mediabox] != [round(float(v), 1) for v in after.mediabox]:
             raise ValueError("Rendered PDF page geometry changed")
         writer.add_page(after if number in selected else before)
     if original.metadata:
