@@ -1404,6 +1404,144 @@ def _reason(exc: BaseException, reason_on_denied: str) -> str:
     return str(getattr(exc, "strerror", "") or exc)
 
 
+_LEASE_OWNER = "owner"
+_LEASE_ROLLBACK = "rollback"
+
+
+def _process_started(pid):
+    """The start time the system reports for ``pid``: "" when no such process exists, None when unknown."""
+    if os.name == "nt":
+        import ctypes
+        from ctypes import wintypes
+
+        kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+        kernel.OpenProcess.restype = wintypes.HANDLE
+        handle = kernel.OpenProcess(0x1000, False, int(pid))
+        if not handle:
+            return "" if ctypes.get_last_error() == 87 else None
+        try:
+            times = [wintypes.FILETIME() for _ in range(4)]
+            if not kernel.GetProcessTimes(handle, *[ctypes.byref(item) for item in times]):
+                return None
+            return "filetime:" + str((times[0].dwHighDateTime << 32) | times[0].dwLowDateTime)
+        finally:
+            kernel.CloseHandle(handle)
+    try:
+        done = subprocess.run(["ps", "-o", "lstart=", "-p", str(int(pid))],
+                              capture_output=True, text=True, timeout=10)
+    except (OSError, subprocess.SubprocessError, ValueError):
+        return None
+    if done.returncode not in (0, 1):
+        return None
+    return " ".join(done.stdout.split())
+
+
+def _lease_host():
+    """This computer's name as the installers record it: COMPUTERNAME on Windows, ``uname -n`` elsewhere."""
+    import platform
+
+    return os.environ.get("COMPUTERNAME", "") if os.name == "nt" else platform.node()
+
+
+_OWN_LEASE_RECORD = {}
+
+
+def _lease_owner_text():
+    """The owner record a new lease carries: process id, start time and host, measured once per process."""
+    pid = os.getpid()
+    if pid not in _OWN_LEASE_RECORD:
+        _OWN_LEASE_RECORD[pid] = f"pid={pid}\nstarted={_process_started(pid) or ''}\nhost={_lease_host()}\n"
+    return _OWN_LEASE_RECORD[pid]
+
+
+def _lease_fields(text):
+    """The key=value lines of a lease record."""
+    return dict(line.split("=", 1) for line in text.splitlines() if "=" in line)
+
+
+def _lease_owner_dead(path):
+    """True only when a lease records an owner on this host that is provably gone and holds nothing else.
+
+    A rollback marker, a journal, any unknown file, or a lease from a version that recorded no owner is
+    never treated as abandoned.
+    """
+    try:
+        if os.path.islink(path):
+            return False
+        if os.path.isdir(path):
+            if os.listdir(path) != [_LEASE_OWNER]:
+                return False
+            with open(os.path.join(path, _LEASE_OWNER), encoding="utf-8") as handle:
+                text = handle.read(4096)
+        elif os.path.isfile(path):
+            with open(path, encoding="utf-8") as handle:
+                text = handle.read(4096)
+        else:
+            return False
+    except (OSError, UnicodeDecodeError):
+        return False
+    fields = _lease_fields(text)
+    if set(fields) != {"pid", "started", "host"} or fields["host"] != _lease_host() or not fields["started"]:
+        return False
+    try:
+        pid = int(fields["pid"])
+    except ValueError:
+        return False
+    if pid <= 0 or pid == os.getpid():
+        return False
+    started = _process_started(pid)
+    return started is not None and (started == "" or started != fields["started"])
+
+
+def _lease_held_message(path):
+    """A refusal naming the lease and, when recorded, its owning process."""
+    owner = os.path.join(path, _LEASE_OWNER) if os.path.isdir(path) else path
+    try:
+        with open(owner, encoding="utf-8") as handle:
+            pid = _lease_fields(handle.read(4096)).get("pid")
+    except (OSError, UnicodeDecodeError):
+        pid = None
+    if pid:
+        return tr("Another spaCR installation holds {path} (process {pid}). Wait for it to finish; "
+                  "if it has stopped and left a rollback, follow the installer log first.", path=path, pid=pid)
+    return tr("Another spaCR installation holds {path}. Wait for it to finish, or remove that folder once "
+              "no spaCR installer is running.", path=path)
+
+
+def _take_lease_dir(path):
+    """Create a directory lease stamped with its owner, replacing only a provably abandoned one."""
+    try:
+        os.mkdir(path, 0o700)
+    except FileExistsError:
+        if not _lease_owner_dead(path):
+            raise FileExistsError(errno.EEXIST, _lease_held_message(path), path) from None
+        os.unlink(os.path.join(path, _LEASE_OWNER))
+        os.rmdir(path)
+        os.mkdir(path, 0o700)
+    descriptor = os.open(os.path.join(path, _LEASE_OWNER), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+        handle.write(_lease_owner_text())
+    return os.stat(path, follow_symlinks=False)
+
+
+def _release_lease_dir(path):
+    """Remove a directory lease this process owns: its owner record, then the directory."""
+    try:
+        os.unlink(os.path.join(path, _LEASE_OWNER))
+    except FileNotFoundError:
+        pass
+    os.rmdir(path)
+
+
+def _retain_lease_dir(path, reason):
+    """Mark a lease that must outlive its owner because a rollback still needs resolving."""
+    try:
+        with open(os.path.join(path, _LEASE_ROLLBACK), "w", encoding="utf-8") as handle:
+            handle.write(str(reason) + "\n")
+    except OSError:
+        pass
+
+
 class _RemovalLeaseUnavailable(OSError):
     """Removal was refused before mutation because its transaction leases could not be acquired."""
 
@@ -1428,11 +1566,17 @@ def _removal_transaction_lease(record, machine):
             descriptor = None
             try:
                 if machine.platform == "windows":
-                    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+                    try:
+                        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+                    except FileExistsError:
+                        if not _lease_owner_dead(path):
+                            raise
+                        os.unlink(path)
+                        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+                    os.write(descriptor, _lease_owner_text().encode("utf-8"))
                     identity = os.fstat(descriptor)
                 else:
-                    os.mkdir(path, 0o700)
-                    identity = os.lstat(path)
+                    identity = _take_lease_dir(path)
             except OSError as error:
                 if descriptor is not None:
                     os.close(descriptor)
@@ -1451,7 +1595,7 @@ def _removal_transaction_lease(record, machine):
                     if matches:
                         os.unlink(path)
                 elif matches:
-                    os.rmdir(path)
+                    _release_lease_dir(path)
             except OSError:
                 pass
             finally:
@@ -4963,7 +5107,7 @@ def _recover_runtime_update(transaction, pid, *, machine=None, runner=None, wait
     if state.get("state") == "launch_unconfirmed" and pid != state.get("launch_pid"):
         raise ValueError(tr("recovery requires the unconfirmed desktop process identity"))
     lock = os.path.join(os.path.dirname(prefix), "." + os.path.basename(prefix) + ".spacr-update-lock")
-    os.mkdir(lock, 0o700)
+    _take_lease_dir(lock)
     try:
         if not (wait or _wait_for_exit)(pid):
             raise RuntimeError("spaCR did not close; both runtimes remain unchanged")
@@ -5009,7 +5153,7 @@ def _recover_runtime_update(transaction, pid, *, machine=None, runner=None, wait
         _runtime_recovery_journal(root, state)
         return state
     finally:
-        os.rmdir(lock)
+        _release_lease_dir(lock)
 
 
 def _runtime_recovery_journal(root, state):
@@ -5065,7 +5209,7 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
     _runtime_staging_allowed(prefix, machine)
     parent = os.path.dirname(prefix)
     lock = os.path.join(parent, "." + os.path.basename(prefix) + ".spacr-update-lock")
-    os.mkdir(lock, 0o700)
+    _take_lease_dir(lock)
     transaction = None
     exchanged = False
     committed = False
@@ -5226,7 +5370,9 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
         if transaction and not committed and not exchanged:
             shutil.rmtree(transaction, ignore_errors=True)
         if not exchanged or committed:
-            os.rmdir(lock)
+            _release_lease_dir(lock)
+        else:
+            _retain_lease_dir(lock, "runtime exchange not committed")
 
 
 def _run_macos_online_update(plan, machine, *, wait=None, run=None, spawn=None):
@@ -6311,8 +6457,7 @@ def _windows_pip_transaction(record, version, install, *, machine, runner=None, 
     prefix = _windows_pip_private_directory(record.root)
     parent = _windows_pip_private_directory(os.path.dirname(prefix))
     lock = os.path.join(parent, "." + os.path.basename(prefix) + ".spacr-update-lock")
-    os.mkdir(lock, 0o700)
-    lease = os.stat(lock, follow_symlinks=False)
+    lease = _take_lease_dir(lock)
     root = None
     state = None
     retired = False
@@ -6437,10 +6582,12 @@ def _windows_pip_transaction(record, version, install, *, machine, runner=None, 
             _runtime_recovery_journal(root, state)
         raise
     finally:
-        if safe_release:
-            current = os.stat(lock, follow_symlinks=False)
-            if (current.st_dev, current.st_ino) == (lease.st_dev, lease.st_ino):
-                os.rmdir(lock)
+        current = os.stat(lock, follow_symlinks=False)
+        if (current.st_dev, current.st_ino) == (lease.st_dev, lease.st_ino):
+            if safe_release:
+                _release_lease_dir(lock)
+            else:
+                _retain_lease_dir(lock, "windows runtime rollback requires review")
 
 
 def _run_windows_pip_update(plan, machine, *, wait=None, run=None, spawn=None):
@@ -6999,7 +7146,7 @@ def _run_windows_frozen_update(plan, machine, *, download=None, install=None, ru
     os.makedirs(lock_parent, mode=0o700, exist_ok=True)
     _windows_pip_private_directory(lock_parent)
     lock = os.path.join(lock_parent, hashlib.sha256(os.path.normcase(root).encode()).hexdigest())
-    os.mkdir(lock, 0o700)
+    _take_lease_dir(lock)
     retained = False
     try:
         _windows_pip_private_directory(lock)
@@ -7075,7 +7222,7 @@ def _run_windows_frozen_update(plan, machine, *, download=None, install=None, ru
                         result.flush()
                         os.fsync(result.fileno())
                     os.unlink(journal)
-                os.rmdir(lock)
+                _release_lease_dir(lock)
             except OSError:
                 pass
 

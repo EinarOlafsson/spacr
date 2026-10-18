@@ -150,14 +150,76 @@ function Invoke-Checked {
     }
 }
 
+# Each lease file records its owner (pid, start time, host). A later
+# installer takes a lease over only when no process holds it open, it carries
+# no rollback line, and its recorded owner on this computer is provably gone
+# (no such process, or a process started at another time). A lease from a
+# version that recorded no owner is never taken over.
+function Get-SpacrProcessStarted {
+    param([int]$ProcessId)
+    try { $Process = [System.Diagnostics.Process]::GetProcessById($ProcessId) } catch [System.ArgumentException] { return "" }
+    try { return "filetime:" + $Process.StartTime.ToFileTimeUtc() } catch { return $null } finally { $Process.Dispose() }
+}
+function Test-SpacrLeaseOwnerDead {
+    param([Parameter(Mandatory = $true)][string]$LeasePath)
+    try {
+        $Probe = [System.IO.FileStream]::new($LeasePath, [System.IO.FileMode]::Open,
+            [System.IO.FileAccess]::Read, [System.IO.FileShare]::None)
+    } catch { return $false }
+    try {
+        $Text = [System.IO.StreamReader]::new($Probe).ReadToEnd()
+    } finally { $Probe.Dispose() }
+    $Fields = @{}
+    foreach ($Line in ($Text -split "`n")) {
+        $Pair = $Line.TrimEnd("`r") -split "=", 2
+        if ($Pair.Count -eq 2) { $Fields[$Pair[0]] = $Pair[1] }
+    }
+    if ($Fields.Count -ne 3 -or -not $Fields.ContainsKey("pid") -or -not $Fields.ContainsKey("started")
+            -or $Fields["host"] -ne $env:COMPUTERNAME -or -not $Fields["started"]) { return $false }
+    $OwnerId = 0
+    if (-not [int]::TryParse($Fields["pid"], [ref]$OwnerId) -or $OwnerId -le 0 -or $OwnerId -eq $PID) { return $false }
+    $Now = Get-SpacrProcessStarted $OwnerId
+    return ($null -ne $Now) -and (($Now -eq "") -or ($Now -ne $Fields["started"]))
+}
+function Get-SpacrLeaseOwner {
+    param([string]$LeasePath)
+    try {
+        $Reader = [System.IO.StreamReader]::new([System.IO.FileStream]::new($LeasePath, [System.IO.FileMode]::Open,
+            [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite))
+        try {
+            foreach ($Line in ($Reader.ReadToEnd() -split "`n")) {
+                if ($Line -like "pid=*") { return $Line.Substring(4).TrimEnd("`r") }
+            }
+        } finally { $Reader.Dispose() }
+    } catch { }
+    return ""
+}
+function New-SpacrInstallerLeaseFile {
+    param([string]$LeasePath)
+    $Stream = [System.IO.FileStream]::new($LeasePath, [System.IO.FileMode]::CreateNew,
+        [System.IO.FileAccess]::ReadWrite, [System.IO.FileShare]::Read)
+    $Record = "pid=$PID`nstarted=$(Get-SpacrProcessStarted $PID)`nhost=$env:COMPUTERNAME`n"
+    $Bytes = [System.Text.Encoding]::UTF8.GetBytes($Record)
+    $Stream.Write($Bytes, 0, $Bytes.Length)
+    $Stream.Flush()
+    return $Stream
+}
 function Open-SpacrInstallerLease {
     param([Parameter(Mandatory = $true)][string]$LeasePath)
     try {
-        return [System.IO.FileStream]::new($LeasePath, [System.IO.FileMode]::CreateNew,
-            [System.IO.FileAccess]::ReadWrite, [System.IO.FileShare]::None)
+        return New-SpacrInstallerLeaseFile $LeasePath
     } catch [System.IO.IOException] {
         if (Test-Path -LiteralPath $LeasePath) {
-            throw (Get-SpacrInstallerMessage "already_running")
+            if (Test-SpacrLeaseOwnerDead $LeasePath) {
+                Remove-Item -LiteralPath $LeasePath -Force
+                Write-Host (Get-SpacrInstallerMessage "lease_cleared" @($LeasePath))
+                return New-SpacrInstallerLeaseFile $LeasePath
+            }
+            $Owner = Get-SpacrLeaseOwner $LeasePath
+            if ($Owner) {
+                throw ((Get-SpacrInstallerMessage "already_running") + " " + (Get-SpacrInstallerMessage "lease_held" @($LeasePath, $Owner)))
+            }
+            throw ((Get-SpacrInstallerMessage "already_running") + " " + (Get-SpacrInstallerMessage "lease_held_unknown" @($LeasePath)))
         }
         throw
     }
@@ -433,6 +495,12 @@ raise SystemExit(run())
     if ($TranscriptStarted) { Stop-Transcript -ErrorAction SilentlyContinue | Out-Null }
     for ($LeaseIndex = $InstallerLeaseHandles.Count - 1; $LeaseIndex -ge 0; $LeaseIndex--) {
         $Lease = $InstallerLeaseHandles[$LeaseIndex]
+        if ($RetainWorkDir) {
+            $Marker = [System.Text.Encoding]::UTF8.GetBytes("rollback=$WorkDir`n")
+            $Lease.Handle.Seek(0, [System.IO.SeekOrigin]::End) | Out-Null
+            $Lease.Handle.Write($Marker, 0, $Marker.Length)
+            $Lease.Handle.Flush()
+        }
         $Lease.Handle.Dispose()
         if (-not $RetainWorkDir) {
             Remove-Item -LiteralPath $Lease.Path -ErrorAction SilentlyContinue

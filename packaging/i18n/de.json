@@ -101,5 +101,8 @@
   "gui_category_history": "Verlauf",
   "gui_category_temporary": "Temporäre Dateien",
   "gui_category_downloads": "Heruntergeladene Dateien",
-  "gui_category_other": "Weitere spaCR-Daten"
+  "gui_category_other": "Weitere spaCR-Daten",
+  "lease_held": "%s wird vom spaCR-Installationsprozess %s gehalten. Warten Sie, bis er fertig ist; wurde er während einer Wiederherstellung angehalten, folgen Sie vor einem neuen Versuch seinem Installationsprotokoll.",
+  "lease_held_unknown": "%s wurde von einem früheren spaCR-Installationsprogramm hinterlassen, das seinen Besitzer nicht vermerkt hat. Schließen Sie alle spaCR-Installationsprogramme, entfernen Sie dann diesen Ordner und versuchen Sie es erneut.",
+  "lease_cleared": "Eine Sperre einer abgebrochenen spaCR-Installation, deren Prozess beendet ist, wurde entfernt: %s"
 }

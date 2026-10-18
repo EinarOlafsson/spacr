@@ -549,9 +549,61 @@ SPACR_INSTALLER_RETAIN_LEASE=0
 spacr_installer_lease_identity() {
     if [[ "$PLATFORM" == "macos" ]]; then stat -f '%d:%i' "$1"; else stat -c '%d:%i' "$1"; fi
 }
+# Each lease records its owner (pid, start time, host). A later installer
+# takes a lease over only when that owner is provably gone -- no such pid,
+# or the pid now belongs to a process started at another time -- on this
+# host, and the lease holds nothing but that record. A rollback marker, a
+# journal, any other file, or a lease from a version that recorded no owner
+# is never taken over.
+spacr_process_started() {
+    ps -o lstart= -p "$1" 2>/dev/null | tr -s ' \t' ' ' | sed 's/^ //; s/ $//'
+}
+spacr_lease_field() {
+    [[ -f "$1/owner" ]] || return 0
+    sed -n "s/^$2=//p" "$1/owner" 2>/dev/null | head -n 1 || true
+}
+spacr_stamp_installer_lease() {
+    printf 'pid=%s\nstarted=%s\nhost=%s\n' "$$" "$(spacr_process_started "$$")" "$(uname -n)" > "$1/owner"
+}
+spacr_lease_owner_dead() {
+    local lease="$1" pid started now
+    [[ -d "$lease" && ! -L "$lease" && -f "$lease/owner" && ! -L "$lease/owner" ]] || return 1
+    [[ "$(ls -A "$lease")" == "owner" ]] || return 1
+    pid="$(spacr_lease_field "$lease" pid)"
+    started="$(spacr_lease_field "$lease" started)"
+    [[ "$pid" =~ ^[0-9]+$ && "$pid" != "$$" && -n "$started" ]] || return 1
+    [[ "$(spacr_lease_field "$lease" host)" == "$(uname -n)" ]] || return 1
+    now="$(spacr_process_started "$pid")"
+    [[ -z "$now" || "$now" != "$started" ]]
+}
+spacr_take_installer_lease() {
+    local lease="$1" pid
+    if (umask 077; mkdir "$lease") 2>/dev/null; then
+        spacr_stamp_installer_lease "$lease"
+        return 0
+    fi
+    if spacr_lease_owner_dead "$lease"; then
+        rm -f "$lease/owner"
+        if rmdir "$lease" 2>/dev/null && (umask 077; mkdir "$lease") 2>/dev/null; then
+            spacr_say lease_cleared "$lease" >&2
+            spacr_stamp_installer_lease "$lease"
+            return 0
+        fi
+    fi
+    spacr_say already_running >&2
+    pid="$(spacr_lease_field "$lease" pid)"
+    if [[ -n "$pid" ]]; then spacr_say lease_held "$lease" "$pid" >&2; else spacr_say lease_held_unknown "$lease" >&2; fi
+    return 1
+}
 spacr_release_installer_lease() {
-    [[ "$SPACR_INSTALLER_RETAIN_LEASE" == "0" ]] || return 0
     local lease saved current
+    if [[ "$SPACR_INSTALLER_RETAIN_LEASE" != "0" ]]; then
+        for lease in "$SPACR_INSTALLER_STATUS_LEASE" "$SPACR_RUNTIME_LEASE" "$SPACR_INSTALLER_LEASE"; do
+            [[ -n "$lease" && -d "$lease" && ! -L "$lease" ]] || continue
+            printf '%s\n' "${work_dir:-retained}" > "$lease/rollback" 2>/dev/null || true
+        done
+        return 0
+    fi
     for lease in "$SPACR_INSTALLER_STATUS_LEASE" "$SPACR_RUNTIME_LEASE" "$SPACR_INSTALLER_LEASE"; do
         [[ -n "$lease" && -d "$lease" && ! -L "$lease" ]] || continue
         if [[ "$lease" == "$SPACR_INSTALLER_STATUS_LEASE" ]]; then
@@ -562,7 +614,10 @@ spacr_release_installer_lease() {
             saved="$SPACR_INSTALLER_LEASE_ID"
         fi
         current="$(spacr_installer_lease_identity "$lease")" || continue
-        if [[ -n "$saved" && "$current" == "$saved" ]]; then rmdir "$lease" 2>/dev/null || true; fi
+        if [[ -n "$saved" && "$current" == "$saved" ]]; then
+            rm -f "$lease/owner"
+            rmdir "$lease" 2>/dev/null || true
+        fi
     done
 }
 spacr_acquire_installer_lease() {
@@ -581,26 +636,23 @@ spacr_acquire_installer_lease() {
             ;;
     esac
     SPACR_INSTALLER_LEASE="$(dirname -- "$canonical")/.$(basename -- "$canonical").spacr-installer-lock"
-    if ! (umask 077; mkdir "$SPACR_INSTALLER_LEASE"); then
+    if ! spacr_take_installer_lease "$SPACR_INSTALLER_LEASE"; then
         SPACR_INSTALLER_LEASE=""
-        spacr_say already_running >&2
         return 73
     fi
     SPACR_INSTALLER_LEASE_ID="$(spacr_installer_lease_identity "$SPACR_INSTALLER_LEASE")"
     trap spacr_release_installer_lease EXIT
     mkdir -p "$INSTALL_ROOT"
     SPACR_RUNTIME_LEASE="$INSTALL_ROOT/.venv.spacr-update-lock"
-    if ! (umask 077; mkdir "$SPACR_RUNTIME_LEASE"); then
+    if ! spacr_take_installer_lease "$SPACR_RUNTIME_LEASE"; then
         SPACR_RUNTIME_LEASE=""
-        spacr_say already_running >&2
         return 73
     fi
     SPACR_RUNTIME_LEASE_ID="$(spacr_installer_lease_identity "$SPACR_RUNTIME_LEASE")"
     if [[ "$PLATFORM" == "macos" ]]; then
         SPACR_INSTALLER_STATUS_LEASE="$INSTALL_ROOT/.installing"
-        if ! (umask 077; mkdir "$SPACR_INSTALLER_STATUS_LEASE"); then
+        if ! spacr_take_installer_lease "$SPACR_INSTALLER_STATUS_LEASE"; then
             SPACR_INSTALLER_STATUS_LEASE=""
-            spacr_say already_running >&2
             return 73
         fi
         SPACR_INSTALLER_STATUS_LEASE_ID="$(spacr_installer_lease_identity "$SPACR_INSTALLER_STATUS_LEASE")"

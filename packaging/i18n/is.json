@@ -101,5 +101,8 @@
   "gui_category_history": "Saga",
   "gui_category_temporary": "Bráðabirgðaskrár",
   "gui_category_downloads": "Niðurhal",
-  "gui_category_other": "Önnur spaCR-gögn"
+  "gui_category_other": "Önnur spaCR-gögn",
+  "lease_held": "%s er í höndum spaCR-uppsetningarferlis %s. Bíddu þar til því lýkur; ef það stöðvaðist í miðri endurheimt skaltu fylgja uppsetningarannál þess áður en þú reynir aftur.",
+  "lease_held_unknown": "%s var skilið eftir af eldri spaCR-uppsetningu sem skráði ekki eiganda sinn. Lokaðu öllum spaCR-uppsetningum, fjarlægðu síðan þá möppu og reyndu aftur.",
+  "lease_cleared": "Fjarlægði lás sem truflað spaCR-uppsetning skildi eftir, en ferli hennar er lokið: %s"
 }

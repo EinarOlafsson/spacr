@@ -13,6 +13,7 @@ change nothing outside their own pipes.
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import sys
 from types import SimpleNamespace
@@ -89,6 +90,7 @@ def test_a_lock_that_cannot_be_inspected_is_released_and_reported(tmp_path, monk
     box = Box(tmp_path)
     root, record = _installer(box)
     machine = box.machine("windows")
+    ic._lease_owner_text()
     real_fstat = os.fstat
     closed = []
     real_close = os.close
@@ -131,7 +133,7 @@ def test_posix_locks_that_vanished_are_tolerated(tmp_path):
     machine = box.machine("linux")
     lock = root.parent / ("." + root.name + ".spacr-installer-lock")
     with ic._removal_transaction_lease(record, machine):
-        os.rmdir(lock)
+        shutil.rmtree(lock)
     assert not lock.exists() and root.is_dir()
 
 
