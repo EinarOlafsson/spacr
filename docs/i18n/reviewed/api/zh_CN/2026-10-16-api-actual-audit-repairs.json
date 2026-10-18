@@ -284,6 +284,8 @@
     {
       "context": "the answer was given before and is reused; the heading then reads \"spaCR AI (saved answer)\", same teal.",
       "label": "spacr.qt.widgets.console_panel.ConsolePanel.fill_ai_entry#4",
+      "retired": true,
+      "retired_reason": "2026-10-18: upstream 87911b7bc removes the saved parameter and its heading paragraph from ConsolePanel.fill_ai_entry; all original review fields are retained.",
       "source": "the answer was given before and is reused; the heading then reads \"spaCR AI (saved answer)\", same teal.",
       "source_sha256": "9057ca192a2470cfc4356a98fbdce9d8e613cedbe2a037a0d5974bbf7ce9aa1c",
       "translation": "答案此前已给出并被复用；此时标题显示“spaCR AI（已保存的答案）”，仍使用相同的青绿色。"

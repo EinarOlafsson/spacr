@@ -2887,6 +2887,32 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     assert ast.literal_eval(press_node.args.defaults[0]) is False
     assert not help_arrivals.keys() & contract_arrivals
     contract_arrivals |= help_arrivals.keys()
+    approval_preferences = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "43_approval_and_cached_preferences_api_arrivals_2026-10-18.json").read_text())
+    approval_parameters = {
+        "spacr.qt.ai.prompts.tool_approval_note": ({"provider_name"}, "function"),
+        "spacr.qt.ai.providers.ClaudeCliProvider.allow_once": (
+            {"denials", "session_id"}, "method"),
+        "spacr.qt.ai.providers.describe_tool_call": ({"denial"}, "function"),
+        "spacr.qt.ai.providers.tool_rule": ({"denial"}, "function"),
+    }
+    assert approval_preferences.keys() - approval_parameters.keys() == {
+        "spacr.qt.preferences._count_store_writes.write",
+        "spacr.qt.preferences._remembered.read",
+    }
+    assert approval_preferences.keys() & by_symbol.keys() == approval_parameters.keys()
+    assert not approval_preferences.keys() & contract_arrivals
+    for symbol, (parameters, category) in approval_parameters.items():
+        item = by_symbol[symbol]
+        assert item.parameters == item.accepted_documented_parameters == parameters
+        assert item.required_parameters == parameters
+        assert item.category == category and item.exposure == "autoapi"
+        assert item.variant_count == 1
+        assert item.docless_variant_count == item.constructor_prose_variant_count == 0
+        assert not item.accepts_arbitrary_keywords
+        assert item.docstring == approval_preferences[symbol]
+    contract_arrivals |= approval_parameters.keys()
     assert contract_arrivals & by_symbol.keys()
     callables = [item for item in callables if item.symbol not in contract_arrivals]
     by_symbol = {item.symbol: item for item in callables}
@@ -4665,6 +4691,35 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert docs[publication_key].startswith(
         help_changes["changed"][publication_key]["before"] + "\n\n")
     zoo_additions = {**zoo_additions, **help_arrivals}
+    approval_preferences = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "43_approval_and_cached_preferences_api_arrivals_2026-10-18.json").read_text())
+    assert set(approval_preferences) == {
+        "spacr.qt.ai.prompts.tool_approval_note",
+        "spacr.qt.ai.providers.ClaudeCliProvider.allow_once",
+        "spacr.qt.ai.providers.describe_tool_call",
+        "spacr.qt.ai.providers.tool_rule",
+        "spacr.qt.preferences._count_store_writes.write",
+        "spacr.qt.preferences._remembered.read",
+    }
+    assert {key: docs[key] for key in approval_preferences} == approval_preferences
+    approval_callables = approval_preferences.keys() & rendered_documented_callables.keys()
+    assert approval_callables == {
+        "spacr.qt.ai.prompts.tool_approval_note",
+        "spacr.qt.ai.providers.ClaudeCliProvider.allow_once",
+        "spacr.qt.ai.providers.describe_tool_call",
+        "spacr.qt.ai.providers.tool_rule",
+    }
+    assert {key: rendered_documented_callables[key] for key in approval_callables} == {
+        key: approval_preferences[key] for key in approval_callables
+    }
+    assert not approval_preferences.keys() & (
+        hidden_close.keys() | home_ui_arrivals.keys() | worker_additions.keys()
+        | private_additions.keys() | radius_symbols | channel_additions.keys()
+        | scn_additions.keys() | popup_additions.keys() | background_additions.keys()
+        | animation_arrivals.keys() | volume_additions.keys() | zoo_additions.keys()
+    )
+    zoo_additions = {**zoo_additions, **approval_preferences}
     assert len(docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
@@ -5073,6 +5128,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         / "data/release_contracts"
         / "tutorial_cli_api_changes_2026-10-12.json").read_text())["added"])
     contract_callables |= help_arrivals.keys()
+    assert not approval_callables & contract_callables
+    contract_callables |= approval_callables
     prior = prior - contract_callables
     # Item 700, 2026-10-15: -23, the first-run setup's retired callables.
     assert len(prior - pipeline_callables) == 9652
@@ -5135,6 +5192,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         / "data/release_contracts"
         / "tutorial_cli_api_changes_2026-10-12.json").read_text())["added"])
     arrival_callables |= help_arrivals.keys()
+    assert not approval_callables & arrival_callables
+    arrival_callables |= approval_callables
     arrival_callables &= rendered_documented_callables.keys()
     assert len(rendered_documented_callables.keys() - yolo_callables
                - volume_callables - arrival_callables) == 9975

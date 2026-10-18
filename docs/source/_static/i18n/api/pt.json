@@ -133612,17 +133612,15 @@
         "edcc4e987817afa886b1434ce061bfc94e54a9bdca1adf49b582b8a6ffd0b6bf",
         "1191194c41a13515d1171dab813912e78ddfc26f9ec2578cbb8bf042a71e35dd",
         "60ecdd119c22fdbf3124de1e0a6f0a670c83244ab650c246139581344a17386c",
-        "9057ca192a2470cfc4356a98fbdce9d8e613cedbe2a037a0d5974bbf7ce9aa1c",
         "6b3b125781fe7f8b270f98a2ee55baae9e23b85847fa9ecb46c3cbb0ad120f78"
       ],
-      "source_sha256": "5a5738c88914dbfef451a5cf8231e9261a552bd0feabf1b02c730c3f86c2d003",
-      "text": "Coloque a resposta de spaCR AI (ou por que não há nenhuma) em sua entrada.\n\nOs pontos de trabalho param e a resposta os substitui, seu Markdown desenhado (:meth:`_StdoutBlock.show_markdown`). Uma entrada que se foi, porque o console foi desmarcado, é aberta novamente no final.\n\n:param block: o que :meth:`begin_ai_entry` retornou, ou  ``None``.\n:param text: a resposta ou a nota de uma linha para mostrar.\n:param saved: a resposta foi dada antes e é reutilizada; o cabeçalho então lê \"spaCR AI (resposta salva)\", mesmo teal.\n:returns: O bloco agora mostra isso.",
+      "source_sha256": "6957fb5fce9208eefab083b831ecb7870bddd603cb21d8db6294805281eb25d8",
+      "text": "Coloque a resposta de spaCR AI (ou por que não há nenhuma) em sua entrada.\n\nOs pontos de trabalho param e a resposta os substitui, seu Markdown desenhado (:meth:`_StdoutBlock.show_markdown`). Uma entrada que se foi, porque o console foi desmarcado, é aberta novamente no final.\n\n:param block: o que :meth:`begin_ai_entry` retornou, ou  ``None``.\n:param text: a resposta ou a nota de uma linha para mostrar.\n:returns: O bloco agora mostra isso.",
       "translation_source_blocks_sha256": [
         "e032ca13923253a0c0613a0942a4d35e9eaea30571afe199663374bacee2e454",
         "edcc4e987817afa886b1434ce061bfc94e54a9bdca1adf49b582b8a6ffd0b6bf",
         "1191194c41a13515d1171dab813912e78ddfc26f9ec2578cbb8bf042a71e35dd",
         "60ecdd119c22fdbf3124de1e0a6f0a670c83244ab650c246139581344a17386c",
-        "9057ca192a2470cfc4356a98fbdce9d8e613cedbe2a037a0d5974bbf7ce9aa1c",
         "6b3b125781fe7f8b270f98a2ee55baae9e23b85847fa9ecb46c3cbb0ad120f78"
       ]
     },
