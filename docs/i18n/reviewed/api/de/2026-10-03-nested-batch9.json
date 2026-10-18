@@ -171,7 +171,10 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "``(n, dims)`` float32 features.",
       "source_sha256": "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6",
-      "translation": "``(n, dims)``-Merkmale in float32."
+      "translation": "``(n, dims)``-Merkmale in float32.",
+      "retired": true,
+      "retired_date": "2026-10-18",
+      "retired_reason": "Item 560 Cell-DINO checkpoint picker source changed or shifted this paragraph. Replacement exact-source review is 2026-10-18-560-cell-dino-checkpoints.json; original source and target retained as historical evidence."
     },
     {
       "context": "OpenPhenom's mean patch token; it rescales 0-255 itself.",

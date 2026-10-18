@@ -23750,12 +23750,14 @@
     },
     "spacr.embeddings._cell_dino_model.forward": {
       "source_blocks_sha256": [
-        "c0dbc7964439937a20c641ca29b2d0a200a527c6409e5608df3e4a04d6ac910d"
+        "c0dbc7964439937a20c641ca29b2d0a200a527c6409e5608df3e4a04d6ac910d",
+        "818ec8e8d821075bc67cffa17b7828e1372ab68ec964d3469052db0845e39f9d"
       ],
-      "source_sha256": "c0dbc7964439937a20c641ca29b2d0a200a527c6409e5608df3e4a04d6ac910d",
-      "text": "Renvoie la sortie de la tête officielle DINOv2 pour chaque image recadrée déclarée.",
+      "source_sha256": "a810037205193ce34881f0cb190474f344dc4375a6773eab08926ba06704c8de",
+      "text": "Renvoie la sortie de la tête officielle DINOv2 pour chaque image recadrée déclarée.\n\nChannel-Adaptive DINO encode chaque plan séparément et renvoie côte à côte les jetons de classe de tous les plans, comme le fait son évaluation officielle bag-of-channels.",
       "translation_source_blocks_sha256": [
-        "d703210fbcaf0ecc1fc59162159dce9f3958d5d03ee35f70bdb266569554f9ee"
+        "d703210fbcaf0ecc1fc59162159dce9f3958d5d03ee35f70bdb266569554f9ee",
+        "592489a0d8b841548105208f54295b7e00a17d56fbd0d7baa813c863fb9744a1"
       ]
     },
     "spacr.embeddings._dino_classifier_apply.refuse": {
@@ -23885,14 +23887,16 @@
     "spacr.embeddings._foundation_encoder.run": {
       "source_blocks_sha256": [
         "a374c657c27f1dd319a48f3905e3f63345f9292de80490a1a0607491219fd0c2",
+        "c62e76c01327e1b77381460479b1855bd69e2f16cdcbee7ffb5fb6c624caa3ab",
         "47a247456a4b73e2ecedf7e56e310fdd568f09cf4ac3bb2a161042c7ab87b540",
         "3db3fd3ac8dd6e0bbf0d17a24bb0a435b27f30364dab3e652fd106ad0b915b72",
         "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6"
       ],
-      "source_sha256": "264f161d2a0d1a4b9113d3edd2c7107edb84ae25374905e23dcc7ffc46d77dd4",
-      "text": "Encode les plans Cell-DINO déclarés à la taille officielle des images recadrées.\n\nEncoder les recadrages de forme ``(n, h, w, k)`` par lots adaptés au modèle.\n\n:param stack: Recadrages float32 avec les canaux dans la dernière dimension. SubCell R/Y/B/G utilise les valeurs d’intensité originales ; les autres modèles de fondation attendent [0, 1].\n:returns: Caractéristiques ``(n, dims)`` en float32.",
+      "source_sha256": "c7c2c9528400cd4261f8bfb7e3f98a8c36f9992de2c871a4962ecb8cdb0a28d2",
+      "text": "Encode les plans Cell-DINO déclarés à la taille officielle des images recadrées.\n\nChaque plan de chaque image recadrée est centré et mis à l’échelle à un écart-type unitaire après redimensionnement, comme le fait la transformation d’évaluation officielle.\n\nEncoder les recadrages de forme ``(n, h, w, k)`` par lots adaptés au modèle.\n\n:param stack: Recadrages float32 avec les canaux dans la dernière dimension. SubCell R/Y/B/G utilise les valeurs d’intensité originales ; les autres modèles de fondation attendent [0, 1].\n:returns: Caractéristiques ``(n, dims)`` en float32.",
       "translation_source_blocks_sha256": [
         "0e92863a5153c0808c64f765b599c4a341f3c06e119ed44d5477b39d6f38dd15",
+        "17bccbbb02a5d3c5af2122f086e387920d9315e70d220e6f91032c8ddccecafb",
         "86f8f60a4408c7c0e96e45bb8367896783379428c07842bcb7f92de65a32ed11",
         "09758f250f052b2dd8d43917b56484d97cf847b5e91074bb17f7b88e51d979be",
         "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6"
@@ -104168,12 +104172,22 @@
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width": {
       "source_blocks_sha256": [
-        "2b3cd3083193a0145b3b93d59a33553eca839b71741859d2a73464058843bd8d"
+        "1d05844846d0ca3b9e60ff1c0bf912729e469fb107dc0128d8f6f1eb44648551"
       ],
-      "source_sha256": "2b3cd3083193a0145b3b93d59a33553eca839b71741859d2a73464058843bd8d",
-      "text": "Le cinquième plan appartient uniquement à la fonction de création Cell Painting.",
+      "source_sha256": "1d05844846d0ca3b9e60ff1c0bf912729e469fb107dc0128d8f6f1eb44648551",
+      "text": "Affiche les plans que prend la fonction de création choisie ; aucun lorsqu’elle est adaptative.",
       "translation_source_blocks_sha256": [
-        "cabe1e8a5b080e931aa03c9d15c3f927197488091876888d2edc97d0561cf7ab"
+        "921189f8847b2a176e13c9e14904965af0fb1ce8275dcdb7a354b6bf2091f21a"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.use_installed": {
+      "source_blocks_sha256": [
+        "8906ea18e2f108061746e7b60dad8304284dfa95fa51c999bfc54d0ad8e53ab4"
+      ],
+      "source_sha256": "8906ea18e2f108061746e7b60dad8304284dfa95fa51c999bfc54d0ad8e53ab4",
+      "text": "Remplit le fichier et son modèle détecté ; l’empreinte est lue lors de OK.",
+      "translation_source_blocks_sha256": [
+        "8906ea18e2f108061746e7b60dad8304284dfa95fa51c999bfc54d0ad8e53ab4"
       ]
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog.choose_table": {

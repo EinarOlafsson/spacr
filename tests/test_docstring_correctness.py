@@ -2759,6 +2759,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "705_volume_measure_api_arrivals_2026-10-16.json",
                      "706_object_detection_3d_api_arrivals_2026-10-17.json",
                      "560_dinov2_drop_in_api_arrivals_2026-10-17.json",
+                     "560_cell_dino_checkpoints_api_arrivals_2026-10-18.json",
                      "703_background_update_and_uninstall_api_arrivals_2026-10-17.json",
                      "708_label_time_api_arrivals_2026-10-16.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",
@@ -4429,8 +4430,28 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         "Offer custom colours for the seven procedural data-art scenes.")
     assert docs[recolored] == (
         "Offer custom colours for the retained procedural data-art scenes.")
-    assert {key: docs[key] for key in private_additions if key != recolored} == {
-        key: value for key, value in private_additions.items() if key != recolored}
+    # 2026-10-18: item 560's Cell-DINO checkpoint picker rewrote two of these
+    # arrivals; the contract keeps the 2026-10-06 wording and the current
+    # text is pinned here.
+    revised_560 = {
+        "spacr.embeddings._cell_dino_model.forward": (
+            "Return the official DINOv2 head output for each declared crop.\n\n"
+            "Channel-Adaptive DINO encodes each plane on its own and returns the\n"
+            "class tokens of every plane side by side, as its official\n"
+            "bag-of-channels evaluation does."),
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width": (
+            "Show the planes the chosen factory takes; none when adaptive."),
+    }
+    assert private_additions[
+        "spacr.embeddings._cell_dino_model.forward"] == (
+        "Return the official DINOv2 head output for each declared crop.")
+    assert private_additions[
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width"] == (
+        "The fifth plane belongs only to the Cell Painting factory.")
+    assert {key: docs[key] for key in revised_560} == revised_560
+    unchanged = private_additions.keys() - {recolored} - revised_560.keys()
+    assert {key: docs[key] for key in unchanged} == {
+        key: private_additions[key] for key in unchanged}
     assert not private_additions.keys() & rendered_documented_callables.keys()
     channel_additions = json.loads(additions_path.with_name(
         "548_native_channel_private_api_arrival_2026-10-06.json").read_text())
@@ -4661,6 +4682,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("705_volume_measure_api_arrivals_2026-10-16.json", 10),
         ("706_object_detection_3d_api_arrivals_2026-10-17.json", 2),
         ("560_dinov2_drop_in_api_arrivals_2026-10-17.json", 3),
+        ("560_cell_dino_checkpoints_api_arrivals_2026-10-18.json", 1),
         ("703_background_update_and_uninstall_api_arrivals_2026-10-17.json", 17),
         ("708_label_time_api_arrivals_2026-10-16.json", 13),
         ("561_classifier_api_arrivals_2026-10-15.json", 19),
@@ -5160,6 +5182,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "705_volume_measure_api_arrivals_2026-10-16.json",
                      "706_object_detection_3d_api_arrivals_2026-10-17.json",
                      "560_dinov2_drop_in_api_arrivals_2026-10-17.json",
+                     "560_cell_dino_checkpoints_api_arrivals_2026-10-18.json",
                      "703_background_update_and_uninstall_api_arrivals_2026-10-17.json",
                      "708_label_time_api_arrivals_2026-10-16.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",
@@ -5225,6 +5248,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "705_volume_measure_api_arrivals_2026-10-16.json",
                      "706_object_detection_3d_api_arrivals_2026-10-17.json",
                      "560_dinov2_drop_in_api_arrivals_2026-10-17.json",
+                     "560_cell_dino_checkpoints_api_arrivals_2026-10-18.json",
                      "703_background_update_and_uninstall_api_arrivals_2026-10-17.json",
                      "708_label_time_api_arrivals_2026-10-16.json",
                      "370_scorecard_states_and_export_api_arrivals_2026-10-15.json",

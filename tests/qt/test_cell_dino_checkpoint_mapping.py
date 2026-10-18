@@ -16,6 +16,12 @@ from spacr.qt.screens import embeddings as screen_module
 pytestmark = pytest.mark.qt
 
 
+@pytest.fixture(autouse=True)
+def isolated_model_cache(tmp_path, monkeypatch):
+    monkeypatch.setenv("SPACR_MODEL_CACHE", str(tmp_path / "models"))
+    monkeypatch.delenv("SPACR_CELL_DINO_CHECKPOINT", raising=False)
+
+
 @pytest.fixture
 def screen(qtbot, monkeypatch):
     from spacr.qt import preferences

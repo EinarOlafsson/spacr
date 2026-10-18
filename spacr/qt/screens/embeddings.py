@@ -110,6 +110,7 @@ __all__ = ["EmbeddingsScreen", "make_embeddings_screen", "register",
 
 #: The registry key. Chosen once and never renamed.
 APP_KEY = "embeddings"
+_CELL_DINO_CHOICE_KEY = "embeddings/cell_dino_checkpoint"
 
 #: How many dimensions the preview table shows. Enough to see that the run
 #: produced numbers, few enough that nobody mistakes the table for the result
@@ -585,7 +586,7 @@ class EmbeddingsScreen(QWidget):
         self._subcell_button.setVisible(selected and alpha_on)
         self._subcell_button.setProperty(
             "_spacr_alpha_hid", bool(selected and not alpha_on))
-        self._cell_dino_button.setEnabled(cell_dino and count >= 4)
+        self._cell_dino_button.setEnabled(cell_dino and count >= 1)
         self._cell_dino_button.setVisible(cell_dino and alpha_on)
         self._cell_dino_button.setProperty(
             "_spacr_alpha_hid", bool(cell_dino and not alpha_on))
@@ -614,10 +615,14 @@ class EmbeddingsScreen(QWidget):
                 checkpoint_sha256=self._cell_dino_digest), {
                     "model": "cell_dino", "factory": self._cell_dino_factory,
                     "path": self._cell_dino_checkpoint}
+        from ..preferences import _settings
+
+        remembered = str(_settings().value(_CELL_DINO_CHOICE_KEY, "") or "")
         return _dino_choice(
             self._cell_dino_channels, available,
             channel_policy=str(self._policy.currentData()),
-            batch_size=batch, device=device, verify=verify)
+            batch_size=batch, device=device, verify=verify,
+            preferred=self._cell_dino_checkpoint or remembered)
 
     def _dino_sentence(self, choice) -> str:
         """Say which DINO model runs and, for DINOv2, why not Cell-DINO."""
@@ -748,6 +753,8 @@ class EmbeddingsScreen(QWidget):
         if factory not in _CELL_DINO_FACTORIES:
             return tr("Choose an official Cell-DINO model factory.")
         width = _CELL_DINO_FACTORIES[factory][0]
+        if not width and isinstance(channels, tuple) and channels:
+            width = len(channels)
         if (not isinstance(channels, tuple) or len(channels) != width
                 or any(not isinstance(channel, int)
                        or isinstance(channel, bool) for channel in channels)):
@@ -767,7 +774,8 @@ class EmbeddingsScreen(QWidget):
 
     def _cell_dino_dialog(self) -> QDialog:
         """Configure a pinned official factory, local weights and input order."""
-        from ...embeddings import _CELL_DINO_FACTORIES
+        from ...embeddings import (_CELL_DINO_FACTORIES, _CHANNEL_ADAPTIVE,
+                                   _cell_dino_checkpoints)
 
         crops = getattr(self, "_crops", None)
         available = 0 if crops is None else int(crops.shape[-1])
@@ -791,7 +799,24 @@ class EmbeddingsScreen(QWidget):
                         "cell_dino_hpa_vitl14")
         factory.addItem(tr("Cell Painting ViT-S/8 · five planes · 128 pixels"),
                         "cell_dino_cp_vits8")
+        factory.addItem(tr("Channel-Adaptive DINO ViT-L/16 · any planes · "
+                           "224 pixels"), _CHANNEL_ADAPTIVE)
         factory.setCurrentIndex(max(factory.findData(self._cell_dino_factory), 0))
+        installed = QComboBox(dialog)
+        installed.setObjectName("EmbeddingsCellDinoInstalled")
+        installed.addItem(tr("Choose installed checkpoint…"), "")
+        for entry in _cell_dino_checkpoints():
+            model = (factory.itemText(factory.findData(entry["factory"]))
+                     if entry.get("factory") else
+                     tr("not a readable Cell-DINO model state"))
+            installed.addItem(os.path.basename(entry["path"]) + " · " + model,
+                              entry["path"])
+            if not entry.get("factory"):
+                installed.model().item(installed.count() - 1).setEnabled(False)
+        installed.setCurrentIndex(max(installed.findData(os.path.realpath(
+            os.path.expanduser(self._cell_dino_checkpoint)))
+            if self._cell_dino_checkpoint else 0, 0))
+        form.addRow(tr("Installed checkpoint"), installed)
         form.addRow(tr("Official model"), factory)
         path = QLineEdit(dialog)
         path.setObjectName("EmbeddingsCellDinoCheckpointPath")
@@ -816,6 +841,18 @@ class EmbeddingsScreen(QWidget):
         digest.setObjectName("EmbeddingsCellDinoDigest")
         digest.setText(self._cell_dino_digest)
         form.addRow(tr("Expected SHA-256"), digest)
+
+        def use_installed() -> None:
+            """Fill the file and its detected model; the digest is read on OK."""
+            chosen = str(installed.currentData() or "")
+            entry = next((item for item in _cell_dino_checkpoints()
+                          if item["path"] == chosen), {})
+            if entry.get("factory"):
+                path.setText(chosen)
+                factory.setCurrentIndex(factory.findData(entry["factory"]))
+                digest.clear()
+
+        installed.currentIndexChanged.connect(use_installed)
         planes = []
         plane1 = QComboBox(dialog)
         plane1.setObjectName("EmbeddingsCellDinoPlane1")
@@ -840,15 +877,27 @@ class EmbeddingsScreen(QWidget):
             form.addRow(tr("Input plane {number}").format(number=index + 1),
                         selector)
 
+        adaptive_note = QLabel(tr(
+            "Channel-Adaptive DINO encodes every crop channel on its own; "
+            "no mapping is needed."), dialog)
+        adaptive_note.setObjectName("EmbeddingsCellDinoAdaptiveNote")
+        adaptive_note.setWordWrap(True)
+
         def sync_width() -> None:
-            """The fifth plane belongs only to the Cell Painting factory."""
-            visible = factory.currentData() == "cell_dino_cp_vits8"
-            form.labelForField(plane5).setVisible(visible)
-            plane5.setVisible(visible)
+            """Show the planes the chosen factory takes; none when adaptive."""
+            adaptive = factory.currentData() == _CHANNEL_ADAPTIVE
+            for selector in planes:
+                visible = not adaptive and (
+                    selector is not plane5
+                    or factory.currentData() == "cell_dino_cp_vits8")
+                form.labelForField(selector).setVisible(visible)
+                selector.setVisible(visible)
+            adaptive_note.setVisible(adaptive)
 
         factory.currentIndexChanged.connect(sync_width)
         sync_width()
         layout.addLayout(form)
+        layout.addWidget(adaptive_note)
         problem = QLabel("", dialog)
         problem.setObjectName("EmbeddingsCellDinoProblem")
         problem.setWordWrap(True)
@@ -859,11 +908,18 @@ class EmbeddingsScreen(QWidget):
 
         def accept_mapping() -> None:
             """Keep only plain configuration values after the form closes."""
+            from ...embeddings import _cell_dino_entry
+
             selected = str(factory.currentData() or "")
             width = _CELL_DINO_FACTORIES.get(selected, (0, 0))[0]
             chosen = tuple(plane.currentData() for plane in planes[:width])
             current = getattr(self, "_crops", None)
             count = 0 if current is None else int(current.shape[-1])
+            if selected == _CHANNEL_ADAPTIVE:
+                chosen = tuple(range(count))
+            if not digest.text().strip() and path.text().strip():
+                digest.setText(_cell_dino_entry(
+                    path.text().strip(), verify=True).get("sha256", ""))
             reason = self._cell_dino_mapping_error(
                 selected, chosen, count, path.text().strip(),
                 digest.text().strip())
@@ -874,10 +930,15 @@ class EmbeddingsScreen(QWidget):
             self._cell_dino_channels = chosen
             self._cell_dino_checkpoint = path.text().strip()
             self._cell_dino_digest = digest.text().strip().lower()
+            from ..preferences import _settings
+
+            _settings().setValue(_CELL_DINO_CHOICE_KEY, os.path.realpath(
+                os.path.expanduser(self._cell_dino_checkpoint)))
             self._status.setText(tr(
                 "Cell-DINO checkpoint and input-plane order saved. "
                 "The file digest will be checked before model loading."))
             dialog.accept()
+            self._sync_subcell_controls()
 
         actions.accepted.connect(accept_mapping)
         actions.rejected.connect(dialog.reject)
@@ -887,12 +948,17 @@ class EmbeddingsScreen(QWidget):
         """Open the Cell-DINO form and dispose its widgets on close."""
         if not self._cell_dino_checkpoint:
             from ...embeddings import _find_cell_dino
+            from ..preferences import _settings
 
-            found = _find_cell_dino(verify=True)
+            crops = getattr(self, "_crops", None)
+            found = _find_cell_dino(
+                verify=True,
+                available=0 if crops is None else int(crops.shape[-1]),
+                preferred=str(_settings().value(_CELL_DINO_CHOICE_KEY, "") or ""))
             if found.get("factory"):
                 self._cell_dino_factory = found["factory"]
                 self._cell_dino_checkpoint = found["path"]
-                self._cell_dino_digest = found["sha256"]
+                self._cell_dino_digest = found.get("sha256", "")
         dialog = self._cell_dino_dialog()
         try:
             dialog.exec()

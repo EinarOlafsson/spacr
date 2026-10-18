@@ -135,7 +135,10 @@
       "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width#0",
       "source": "The fifth plane belongs only to the Cell Painting factory.",
       "source_sha256": "2b3cd3083193a0145b3b93d59a33553eca839b71741859d2a73464058843bd8d",
-      "translation": "O quinto plano pertence apenas à função de criação Cell Painting."
+      "translation": "O quinto plano pertence apenas à função de criação Cell Painting.",
+      "retired": true,
+      "retired_date": "2026-10-18",
+      "retired_reason": "Item 560 Cell-DINO checkpoint picker source changed or shifted this paragraph. Replacement exact-source review is 2026-10-18-560-cell-dino-checkpoints.json; original source and target retained as historical evidence."
     },
     {
       "context": "A newer extracted image region selection keeps its own status and controls.",

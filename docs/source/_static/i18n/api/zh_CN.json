@@ -23751,12 +23751,14 @@
     },
     "spacr.embeddings._cell_dino_model.forward": {
       "source_blocks_sha256": [
-        "c0dbc7964439937a20c641ca29b2d0a200a527c6409e5608df3e4a04d6ac910d"
+        "c0dbc7964439937a20c641ca29b2d0a200a527c6409e5608df3e4a04d6ac910d",
+        "818ec8e8d821075bc67cffa17b7828e1372ab68ec964d3469052db0845e39f9d"
       ],
-      "source_sha256": "c0dbc7964439937a20c641ca29b2d0a200a527c6409e5608df3e4a04d6ac910d",
-      "text": "返回每个指定裁剪图像的官方 DINOv2 输出头结果。",
+      "source_sha256": "a810037205193ce34881f0cb190474f344dc4375a6773eab08926ba06704c8de",
+      "text": "返回每个指定裁剪图像的官方 DINOv2 输出头结果。\n\nChannel-Adaptive DINO 单独编码每个图像平面，并将所有图像平面的类别令牌并排返回，与其官方 bag-of-channels 评估方式一致。",
       "translation_source_blocks_sha256": [
-        "d703210fbcaf0ecc1fc59162159dce9f3958d5d03ee35f70bdb266569554f9ee"
+        "d703210fbcaf0ecc1fc59162159dce9f3958d5d03ee35f70bdb266569554f9ee",
+        "592489a0d8b841548105208f54295b7e00a17d56fbd0d7baa813c863fb9744a1"
       ]
     },
     "spacr.embeddings._dino_classifier_apply.refuse": {
@@ -23886,14 +23888,16 @@
     "spacr.embeddings._foundation_encoder.run": {
       "source_blocks_sha256": [
         "a374c657c27f1dd319a48f3905e3f63345f9292de80490a1a0607491219fd0c2",
+        "c62e76c01327e1b77381460479b1855bd69e2f16cdcbee7ffb5fb6c624caa3ab",
         "47a247456a4b73e2ecedf7e56e310fdd568f09cf4ac3bb2a161042c7ab87b540",
         "3db3fd3ac8dd6e0bbf0d17a24bb0a435b27f30364dab3e652fd106ad0b915b72",
         "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6"
       ],
-      "source_sha256": "264f161d2a0d1a4b9113d3edd2c7107edb84ae25374905e23dcc7ffc46d77dd4",
-      "text": "按官方裁剪尺寸编码指定的 Cell-DINO 图像平面。\n\n以适合模型的批次编码形状为 ``(n, h, w, k)`` 的裁剪图像。\n\n:param stack: float32 裁剪图像，通道位于最后一个维度。SubCell R/Y/B/G 使用原始强度值；其他基础模型要求数值位于 [0, 1]。\n:returns: ``(n, dims)`` float32 特征。",
+      "source_sha256": "c7c2c9528400cd4261f8bfb7e3f98a8c36f9992de2c871a4962ecb8cdb0a28d2",
+      "text": "按官方裁剪尺寸编码指定的 Cell-DINO 图像平面。\n\n调整尺寸后，每个裁剪图像的每个图像平面都会被中心化并缩放到单位标准差，与官方评估变换一致。\n\n以适合模型的批次编码形状为 ``(n, h, w, k)`` 的裁剪图像。\n\n:param stack: float32 裁剪图像，通道位于最后一个维度。SubCell R/Y/B/G 使用原始强度值；其他基础模型要求数值位于 [0, 1]。\n:returns: ``(n, dims)`` float32 特征。",
       "translation_source_blocks_sha256": [
         "0e92863a5153c0808c64f765b599c4a341f3c06e119ed44d5477b39d6f38dd15",
+        "17bccbbb02a5d3c5af2122f086e387920d9315e70d220e6f91032c8ddccecafb",
         "86f8f60a4408c7c0e96e45bb8367896783379428c07842bcb7f92de65a32ed11",
         "09758f250f052b2dd8d43917b56484d97cf847b5e91074bb17f7b88e51d979be",
         "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6"
@@ -104169,12 +104173,22 @@
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width": {
       "source_blocks_sha256": [
-        "2b3cd3083193a0145b3b93d59a33553eca839b71741859d2a73464058843bd8d"
+        "1d05844846d0ca3b9e60ff1c0bf912729e469fb107dc0128d8f6f1eb44648551"
       ],
-      "source_sha256": "2b3cd3083193a0145b3b93d59a33553eca839b71741859d2a73464058843bd8d",
-      "text": "第五个图像平面仅适用于 Cell Painting 模型构建函数。",
+      "source_sha256": "1d05844846d0ca3b9e60ff1c0bf912729e469fb107dc0128d8f6f1eb44648551",
+      "text": "显示所选模型构建函数接受的图像平面；自适应时不显示任何平面。",
       "translation_source_blocks_sha256": [
-        "cabe1e8a5b080e931aa03c9d15c3f927197488091876888d2edc97d0561cf7ab"
+        "921189f8847b2a176e13c9e14904965af0fb1ce8275dcdb7a354b6bf2091f21a"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.use_installed": {
+      "source_blocks_sha256": [
+        "8906ea18e2f108061746e7b60dad8304284dfa95fa51c999bfc54d0ad8e53ab4"
+      ],
+      "source_sha256": "8906ea18e2f108061746e7b60dad8304284dfa95fa51c999bfc54d0ad8e53ab4",
+      "text": "填入文件及其检测到的模型；摘要在点击 OK 时读取。",
+      "translation_source_blocks_sha256": [
+        "8906ea18e2f108061746e7b60dad8304284dfa95fa51c999bfc54d0ad8e53ab4"
       ]
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog.choose_table": {
