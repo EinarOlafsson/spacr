@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -49,13 +49,15 @@ msgid "Windows 10/11"
 msgstr "Windows 10/11"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Run ``SpaCR-<version>-Windows-Online-Setup.exe``. The default per-user location is ``%LOCALAPPDATA%\\spaCR`` and does not require administrator access. Automatic hardware acceleration is selected by default. It installs a CUDA-capable PyTorch build on compatible NVIDIA systems. On other systems it installs the PyTorch build that ``uv`` selects for the detected hardware, which is the CPU build when no supported GPU is detected. Clear the component only when you require the smaller CPU-only installation."
+#, fuzzy
+msgid "Run ``SpaCR-<version>-Windows-Online-Setup.exe``. The default per-user location is ``%LOCALAPPDATA%\\spaCR`` and does not require administrator access. Automatic hardware acceleration is selected by default. It installs a CUDA-capable PyTorch build on compatible NVIDIA systems. On other systems it installs the PyTorch build that ``uv`` selects for the detected hardware, which is the CPU build when no supported GPU is detected. Clear the component only when you require the smaller CPU-only installation. The unticked component **Install without wgpu (use OpenGL/CPU for 3D)** leaves out the wgpu 3D renderer; see :ref:`wgpu-3d-rendering`. From PowerShell, the same choice is the ``-WithoutWgpu`` switch of ``install_spacr_windows.ps1``."
 msgstr "运行 ``SpaCR-<version>-Windows-Online-Setup.exe``。默认的每用户安装位置为 ``%LOCALAPPDATA%\\spaCR``，不需要管理员权限。默认选择自动硬件加速。它会在兼容的 NVIDIA 系统上安装支持 CUDA 的 PyTorch 构建。在其他系统上，它会安装 ``uv`` 针对检测到的硬件所选择的 PyTorch 构建；未检测到受支持的 GPU 时即为 CPU 构建。仅当您需要体积更小的纯 CPU 安装时才取消选择该组件。"
 
 msgid "macOS 11 or later"
 msgstr "macOS 11 或更高版本"
 
-msgid "Open ``SpaCR-<version>-macOS-Universal-Online.pkg``. The application is placed in ``/Applications/spaCR.app``. On first launch, a visible Terminal bootstrap creates the private runtime under ``~/Library/Application Support/spaCR``. The current beta is not notarized. If Gatekeeper blocks it, open **System Settings → Privacy & Security** and choose **Open Anyway** for spaCR."
+#, fuzzy
+msgid "Open ``SpaCR-<version>-macOS-Universal-Online.pkg``. The application is placed in ``/Applications/spaCR.app``. The spaCR setup window creates its private runtime under ``~/Library/Application Support/spaCR`` and displays progress, dependency choices and any required consent. Complete those choices in the window; setup does not require answers in Terminal. When setup finishes, spaCR opens its startup window and then the main application. The current beta is not notarized. If Gatekeeper blocks it, open **System Settings → Privacy & Security** and choose **Open Anyway** for spaCR. The first-launch window has an unchecked **Install without wgpu (use OpenGL/CPU for 3D)** box; see :ref:`wgpu-3d-rendering`."
 msgstr "打开 ``SpaCR-<version>-macOS-Universal-Online.pkg``。应用程序会被放置到 ``/Applications/spaCR.app``。首次启动时，一个可见的终端引导程序会在 ``~/Library/Application Support/spaCR`` 下创建私有运行时。当前的 beta 版本尚未经过公证。如果 Gatekeeper 阻止了它，请打开 **System Settings → Privacy & Security**，并为 spaCR 选择 **Open Anyway**。"
 
 msgid "Linux x86-64"
@@ -70,11 +72,23 @@ msgstr "默认安装根目录为 ``~/.local/share/spacr``。启动器写入 ``~/
 msgid "Automatic backend selection is the Linux default. It installs CUDA support when compatible NVIDIA hardware is available. To require the smaller CPU-only build instead, run the installer with ``--torch-backend cpu``."
 msgstr "自动选择后端是 Linux 上的默认设置。当有兼容的 NVIDIA 硬件时，它会安装 CUDA 支持。如需改为使用体积更小的纯 CPU 构建，请以 ``--torch-backend cpu`` 运行安装程序。"
 
+msgid "To leave out the wgpu 3D renderer, run the installer with ``--without-wgpu``, or tick **Install without wgpu (use OpenGL/CPU for 3D)** in the installer window; the box is unchecked by default. On a Linux system whose glibc is older than 2.28 the installer leaves wgpu out by itself and prints one line saying so, because wgpu publishes Linux wheels only for glibc 2.28 and newer. ``--dry-run`` shows the decision in its plan, as the ``wgpu 3D rendering`` line. See :ref:`wgpu-3d-rendering`."
+msgstr ""
+
 msgid "Updating"
 msgstr "更新"
 
-msgid "Download and run the installer for the newer version. Installation is staged and validated before it replaces the active private environment; a failed update leaves the previous working environment in place. Project folders and results are not stored in the installation directory and are not removed by an update."
-msgstr "下载并运行较新版本的安装程序。安装会先在暂存区进行并通过验证，然后才替换当前的私有环境；更新失败时，之前可用的环境会保持不变。项目文件夹和结果不存储在安装目录中，更新不会删除它们。"
+msgid "Choose **Help → Check for updates**, review the offered version and choose **Update**. Supported macOS installations and dedicated private Python installations prepare the replacement in the background. When it is ready, choose **Restart** to finish closing the current application and open the verified replacement through the spaCR startup window. No manual click on the application icon is needed. Frozen Windows and Debian installations use their native authorization and replacement workflows."
+msgstr ""
+
+msgid "Older Linux and Windows online layouts without a verified update adapter are refused before replacement starts. The application stays open and keeps its data. Use the matching release installer for those installations."
+msgstr ""
+
+msgid "Alternatively, download and run the installer for the requested version from the `GitHub releases <https://github.com/EinarOlafsson/spacr/releases>`_. This is also the way to move an older installer to the current desktop update flow. Use the installer for the same platform and installation family as the copy being replaced."
+msgstr ""
+
+msgid "Installation is staged and validated before replacement. An unsuccessful preparation keeps the previous application; activation failures retain or restore the previous runtime and report any recovery needed. Ordinary updates keep models, caches, preferences, run history and project outputs. Optional update cache cleanup starts unselected and requires a separate confirmation."
+msgstr ""
 
 msgid "Update channel and What's new"
 msgstr "更新通道与新功能"
@@ -93,13 +107,23 @@ msgstr "spaCR 进行的每次下载（模型权重、更新、插件、pip、uv�
 msgid "macOS online installation: update and reopen"
 msgstr "macOS 在线安装：更新并重新打开"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Choose **Help → Check for updates**, accept the available update, and confirm that spaCR will be reinstalled in its current environment. spaCR closes, uses the installation's bundled ``uv`` to upgrade its existing private environment, checks the installed version, and reopens automatically. This path keeps the application launcher and environment in place. It does not run the first-use installer or ask its terminal questions again."
-msgstr "选择 **帮助 → Check for updates**，接受可用更新，并确认要在当前环境中重新安装 spaCR。spaCR 会关闭，使用安装目录内自带的 ``uv`` 升级现有私有环境，检查已安装的版本，然后自动重新打开。此流程保留应用启动器和现有环境，不会重新运行首次安装程序，也不会再次询问其终端问题。"
+msgid "Choose **Help → Check for updates**, accept the available update, and confirm the requested version. spaCR prepares a separate private runtime using the installation's bundled ``uv`` while the window remains responsive. After preparation succeeds, **Restart** activates the verified runtime and opens its startup window and main window. The existing launcher is retained. No remove prompt, manual icon relaunch or Terminal questionnaire is part of this flow."
+msgstr ""
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "The command is the same as the macOS recovery command below, using the actual installation directory. An unsuccessful upgrade or version check is recorded in ``~/.spacr/logs/update.log`` and does not trigger a successful-update relaunch. The update also stops if spaCR cannot finish closing safely. The separate frozen application bundle uses its bundle replacement workflow."
-msgstr "该命令与下方的 macOS 恢复命令相同，但使用实际安装目录。升级或版本检查失败会记录在 ``~/.spacr/logs/update.log`` 中，且不会触发更新成功后的重新启动。如果 spaCR 无法安全完成关闭，更新也会停止。独立的冻结应用程序包使用其程序包替换流程。"
+msgid "If preparation or verification fails, the application stays on the previous version and shows the failure. If an analysis or screen prevents safe closure, the replacement is not authorized. Details are retained in ``~/.spacr/logs/update.log``. A frozen application bundle uses its verified bundle replacement workflow instead of updating a Python environment."
+msgstr ""
+
+msgid "Supported frozen macOS, Windows and Debian installations prepare their replacement while the current application remains open. Protected installations request the operating system's graphical administrator authorization before offering **Restart**. Cancellation keeps the current application open. Activation waits for safe closure and actual process exit; the new application must confirm its version, executable and main window before recovery files are retired."
+msgstr ""
+
+msgid "Windows automatic updates require the release's checksummed ``spaCR-VERSION-update.exe``. The ordinary ``spaCR-VERSION-setup.exe`` remains the interactive installation download and is never substituted by the updater. Protected macOS updates require an installed helper that advertises the current native phase protocol. Older helpers, missing update assets and unsupported legacy Linux or Windows online layouts report the limitation while keeping the application open. Use the matching ordinary installer from GitHub releases to bring such an installation forward; shared and Conda environments use their package manager."
+msgstr ""
+
+msgid "Reinstalling the same version"
+msgstr ""
+
+msgid "Download that version's matching desktop installer from GitHub releases and run it again. Reinstallation repairs the application code and launcher while preserving user data. Do not uninstall first merely to repair an installation. Check the version in **Help → About spaCR** after the application reopens; the version must match the installer you selected."
+msgstr ""
 
 # AI technical review (Codex), no native-speaker signoff.
 #, fuzzy
@@ -149,6 +173,27 @@ msgstr "``python -m pip index versions spacr`` 列出 PyPI 上的版本，``cond
 msgid "Uninstalling"
 msgstr "卸载"
 
+msgid "Open **Preferences → Performance → Uninstall**. In the popup, choose either **Current version** or **All detected spaCR versions**. The preview identifies the installation paths and versions. The all-versions choice also finds spaCR in detected Python and Conda environments; it removes the spaCR package from those environments and keeps their other packages and files. Editable source checkouts are shown as retained."
+msgstr ""
+
+msgid "The popup separately selects **Caches**, **Models**, **Logs**, **Settings**, **History**, **Temporary files**, **Downloads** and **Other spaCR data**. Every cleanup category starts selected for uninstall. Clear any category to keep it, inspect the exact paths listed, and confirm the uninstall. Cancel leaves the application and files unchanged. spaCR closes safely before its running installation is removed."
+msgstr ""
+
+msgid "Supported protected macOS applications, Windows frozen installations and Debian packages request graphical administrator authorization during preparation, while spaCR remains open. The helper must be installed, verified and advertise the required uninstall protocol. Declining authorization or cancelling the popup leaves the application and files intact. Removal waits for confirmed safe closure and actual process exit."
+msgstr ""
+
+msgid "If a selected installation has an older unsupported helper, or a selected data path cannot be removed with the available permissions, preparation stops before spaCR closes and nothing is removed. The preview still identifies the affected paths. The native alternatives below remain available for those installations."
+msgstr ""
+
+msgid "These categories cover identified spaCR-owned locations. Shared external caches, unverified or linked folders and arbitrary project folders are kept; the preview marks retained locations. History includes spaCR's run records and any output copies stored within those records. Keep History if those copies are still needed. Projects, databases and exports outside the listed spaCR locations are not removed."
+msgstr ""
+
+msgid "Uninstall cleanup defaults differ from update defaults: an ordinary update preserves user data, while the uninstall popup selects the displayed cleanup categories until you opt out. The native and command-line alternatives below retain their existing explicit purge switches."
+msgstr ""
+
+msgid "Native and command-line alternatives"
+msgstr ""
+
 msgid "**Windows:** open **Settings → Apps → Installed apps → spaCR → Uninstall**, or run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe``."
 msgstr "**Windows：** 打开 **设置 → 应用 → 已安装的应用 → spaCR → 卸载**，或运行 ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe``。"
 
@@ -164,11 +209,8 @@ msgstr "**conda-forge：** 激活环境并运行 ``conda remove spacr``。"
 msgid "**PyPI:** activate the environment and run ``python -m pip uninstall spacr``."
 msgstr "**PyPI：** 激活环境并运行 ``python -m pip uninstall spacr``。"
 
-msgid "Remove the environment itself if it was created only for spaCR."
-msgstr "如果该环境仅为 spaCR 创建，请将环境本身也删除。"
-
-msgid "Uninstalling does not delete microscopy projects, databases or exported results. User preferences, run records and logs under ``~/.spacr`` are also left in place so they can be inspected or reused. Remove that directory separately only if those records are no longer needed."
-msgstr "卸载不会删除显微项目、数据库或导出的结果。``~/.spacr`` 下的用户偏好、运行记录和日志也会保留，以便查看或重用。仅当不再需要这些记录时，才单独删除该目录。"
+msgid "These package-manager commands remove the package from the selected environment. They do not remove the whole environment. The native and command-line alternatives keep user preferences, run records and logs unless their explicit purge option is used."
+msgstr ""
 
 msgid "Clean uninstall (purge)"
 msgstr "彻底卸载（purge）"
@@ -364,6 +406,71 @@ msgstr "``tutorial``"
 msgid "Packages used by the interactive tutorial environment."
 msgstr "交互式教程环境使用的软件包。"
 
+msgid "3D rendering and wgpu"
+msgstr ""
+
+msgid "spaCR installs `wgpu <https://github.com/pygfx/wgpu-py>`_ by default where it publishes wheels. wgpu draws the **True 3D** view through Vulkan, Metal or Direct3D 12. Without wgpu, spaCR draws 3D through OpenGL (VisPy), and through the CPU when OpenGL is not available either. The **Render backend** list offers Auto, Vulkan, Metal, Direct3D 12, OpenGL and CPU, showing only the backends this computer supports. **Auto** prefers wgpu (Vulkan on Linux and Windows, Metal then available Vulkan on macOS, Direct3D 12 on Windows when Vulkan is unavailable), then OpenGL, then the CPU."
+msgstr ""
+
+#, fuzzy
+msgid "Installation"
+msgstr "卸载"
+
+msgid "wgpu"
+msgstr ""
+
+msgid "True 3D view uses"
+msgstr ""
+
+msgid "Python 3.10 on Windows x86-64/ARM64, macOS Intel/Apple silicon, or Linux x86-64/aarch64 with glibc 2.28 or newer"
+msgstr ""
+
+msgid "Installed, ``wgpu<=0.31.0``"
+msgstr ""
+
+msgid "Vulkan, Metal or Direct3D 12 (Auto), else OpenGL, else CPU"
+msgstr ""
+
+msgid "Python 3.11 or newer on the same platforms (the desktop installers use Python 3.12)"
+msgstr ""
+
+msgid "Installed, ``wgpu<0.33``"
+msgstr ""
+
+msgid "Python 3.9"
+msgstr ""
+
+#, fuzzy
+msgid "Not installed"
+msgstr "桌面安装程序"
+
+msgid "OpenGL, else CPU"
+msgstr ""
+
+msgid "Other processors (for example 32-bit x86, ppc64le, s390x)"
+msgstr ""
+
+msgid "Linux with glibc older than 2.28 (installers skip wgpu automatically)"
+msgstr ""
+
+msgid "Installed without wgpu (installer option, or the commands below)"
+msgstr ""
+
+msgid "The desktop installers skip wgpu when it is resolved, so it is never downloaded: they pass ``uv`` an override file containing the single line ``wgpu; sys_platform == \"never\"``. Because the marker never holds, the resolver drops wgpu, and with it ``rendercanvas``, which only wgpu needs."
+msgstr ""
+
+msgid "With pip, install spaCR as usual and then remove wgpu:"
+msgstr ""
+
+msgid "``pip check`` then reports that spaCR's ``wgpu`` requirement is missing; this is expected, and spaCR draws 3D through OpenGL or the CPU."
+msgstr ""
+
+msgid "On Linux with glibc older than 2.28 (check with ``getconf GNU_LIBC_VERSION``), ``pip install spacr`` finds no wgpu wheel and tries to build wgpu from its source release, which fails. pip cannot drop a dependency while it resolves, so install with `uv <https://docs.astral.sh/uv/>`_ and the same override the installers use, inside the activated environment:"
+msgstr ""
+
+msgid "Use the same ``--override no-wgpu.txt`` when upgrading spaCR in that environment. Add ``--dry-run`` to the last command to see the resolved packages, without wgpu, before anything is installed."
+msgstr ""
+
 msgid "Container images"
 msgstr "容器镜像"
 
@@ -371,9 +478,9 @@ msgstr "容器镜像"
 msgid "Two images are published to the GitHub Container Registry as part of every spaCR release, after that version reaches PyPI. Each one is built and then checked before it is pushed: it must report the version its tag claims, it must not run as root, and it must complete one pipeline run on a synthetic field. An image that fails a check is not published, and the workflow run that built it fails."
 msgstr "每次 spaCR 发布、且该版本已上传到 PyPI 之后，都会有两个镜像发布到 GitHub Container Registry。每个镜像在推送之前都会先构建再检查：它必须报告其标签所声明的版本，不得以 root 身份运行，并且必须在一个合成视野上完整运行一次流程。未通过检查的镜像不会被发布，构建它的工作流运行会失败。"
 
-#, fuzzy
-msgid "The public `GHCR package page <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available versions. The commands below use the published **1.5.1.0** images; not every spaCR release has a container image."
-msgstr "公开的 `GHCR 软件包页面 <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ 列出了可用的版本。下面的命令使用已发布的 **1.5.1.0** 镜像；并非每个较旧的 spaCR 版本都有容器镜像。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The public `GHCR package page <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available versions. The commands below name the image tags of the spaCR release this page documents. Not every spaCR release has a container image; check the package page before pulling a tag."
+msgstr "公开的 `GHCR 软件包页面 <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ 列出了可用的版本。下面的命令使用本页所记录的 spaCR 版本的镜像标签。并非每个 spaCR 版本都有容器镜像；拉取标签前请先查看软件包页面。"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The images run spaCR without a display: the CLI, the pipelines, cluster jobs and reruns of an earlier analysis with a pinned version. Use the platform installers above to install the desktop application."

@@ -1,7 +1,7 @@
 Host–Pathogen Analysis
 ========================
 
-From **Home → Assays → Toxoplasma**, open **Host–Pathogen Analysis**.
+From **Home → Organism → Toxoplasma**, open **Host–Pathogen Analysis**.
 This module combines vacuole-level marker recruitment with host and well
 summaries. For vacuole recruitment on its own, use
 :doc:`Recruitment <recruitment>`.
@@ -9,7 +9,7 @@ summaries. For vacuole recruitment on its own, use
 Try the real microscopy test data
 ----------------------------------------
 
-#. Open **Home → Assays → Toxoplasma → Host–Pathogen Analysis** and select
+#. Open **Home → Organism → Toxoplasma → Host–Pathogen Analysis** and select
    **Load test data…**. The download is approximately 114 MB.
 #. Enable **Live** beside the bottom action controls, then select
    **Run preview**. Choose either measured field and select vacuoles in the

@@ -17,8 +17,8 @@ Explain CV Model
 ----------------
 
 The module opens from the **Classify** masthead rather than from a tile of its
-own, next to **Classifier Evaluation**: both ask what a trained classifier
-actually did.
+own, next to **Classifier Evaluation**: both analyse an existing trained
+classifier and its saved predictions.
 
 Choose the exact ``measurements.db`` and an existing per-object CV prediction
 CSV. The module never reruns or silently substitutes the original classifier.

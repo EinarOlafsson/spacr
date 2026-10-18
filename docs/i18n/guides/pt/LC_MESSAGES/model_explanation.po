@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
@@ -41,8 +41,9 @@ msgstr "O último resultado é evidência fracamente supervisionada, não um có
 msgid "Explain CV Model"
 msgstr "Explicar modelo de VC"
 
-msgid "The module opens from the **Classify** masthead rather than from a tile of its own, next to **Classifier Evaluation**: both ask what a trained classifier actually did."
-msgstr "O módulo é aberto pelo cabeçalho de **Classificar**, e não por um bloco próprio, ao lado de **Avaliação do classificador**: ambos perguntam o que um classificador treinado realmente fez."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The module opens from the **Classify** masthead rather than from a tile of its own, next to **Classifier Evaluation**: both analyse an existing trained classifier and its saved predictions."
+msgstr "O módulo é aberto pelo cabeçalho de **Classificar**, e não por um bloco próprio, ao lado de **Avaliação do classificador**: ambos analisam um classificador treinado existente e suas predições salvas."
 
 msgid "Choose the exact ``measurements.db`` and an existing per-object CV prediction CSV. The module never reruns or silently substitutes the original classifier. It joins predictions one-to-one to measured objects and excludes identifiers, prediction/class columns, scores, annotations, and user exclusions from the surrogate feature matrix."
 msgstr "Escolha o ``measurements.db`` exato e um CSV existente de previsões de VC por objeto. O módulo nunca reexecuta nem substitui silenciosamente o classificador original. Ele associa as previsões um a um aos objetos medidos e exclui da matriz de características do substituto os identificadores, as colunas de previsão/classe, as pontuações, as anotações e as exclusões do usuário."

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
@@ -41,8 +41,9 @@ msgstr "अंतिम परिणाम कमज़ोर पर्यवे
 msgid "Explain CV Model"
 msgstr "CV मॉडल समझाएँ"
 
-msgid "The module opens from the **Classify** masthead rather than from a tile of its own, next to **Classifier Evaluation**: both ask what a trained classifier actually did."
-msgstr "यह मॉड्यूल अपनी अलग टाइल के बजाय **वर्गीकरण** शीर्षपट्टी से, **वर्गीकारक मूल्यांकन** के बगल में खुलता है: दोनों पूछते हैं कि प्रशिक्षित वर्गीकारक ने वास्तव में क्या किया।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The module opens from the **Classify** masthead rather than from a tile of its own, next to **Classifier Evaluation**: both analyse an existing trained classifier and its saved predictions."
+msgstr "यह मॉड्यूल अपनी अलग टाइल के बजाय **वर्गीकरण** शीर्षपट्टी से, **वर्गीकारक मूल्यांकन** के बगल में खुलता है: दोनों किसी मौजूदा प्रशिक्षित वर्गीकारक और उसकी सहेजी गई भविष्यवाणियों का विश्लेषण करते हैं।"
 
 msgid "Choose the exact ``measurements.db`` and an existing per-object CV prediction CSV. The module never reruns or silently substitutes the original classifier. It joins predictions one-to-one to measured objects and excludes identifiers, prediction/class columns, scores, annotations, and user exclusions from the surrogate feature matrix."
 msgstr "सटीक ``measurements.db`` और मौजूदा प्रति-ऑब्जेक्ट CV पूर्वानुमान CSV चुनें। मॉड्यूल मूल वर्गीकारक को कभी दोबारा नहीं चलाता और न ही चुपचाप बदलता है। यह पूर्वानुमानों को मापे गए ऑब्जेक्ट से एक-से-एक जोड़ता है और पहचानकर्ताओं, पूर्वानुमान/वर्ग स्तंभों, स्कोर, एनोटेशन और उपयोगकर्ता बहिष्करणों को सरोगेट विशेषता मैट्रिक्स से बाहर रखता है।"

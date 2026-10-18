@@ -12,8 +12,9 @@ be told from the real one.
 
 .. include:: _generated/model_zoo_table.rst
 
-Models are hosted on their author's own Hugging Face account, so contributing
-one does not mean handing write access to anyone else's.
+Each model is hosted in a repository under its author's own Hugging Face
+account; contributing a model does not require write access to another
+account's repository.
 ``spacr.model_zoo``'s ``publish_model`` performs the upload and prints the
 catalogue row to add.
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -22,14 +22,16 @@ msgstr ""
 msgid "Host–Pathogen Analysis"
 msgstr "宿主–病原体分析"
 
-msgid "From **Home → Assays → Toxoplasma**, open **Host–Pathogen Analysis**. This module combines vacuole-level marker recruitment with host and well summaries. For vacuole recruitment on its own, use :doc:`Recruitment <recruitment>`."
-msgstr "从 **主页 → 实验分析 → 弓形虫** 打开 **宿主–病原体分析**。该模块将纳虫泡水平的标记募集与宿主和孔的汇总结合起来。如只需纳虫泡募集，请使用 :doc:`募集分析 <recruitment>` 。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "From **Home → Organism → Toxoplasma**, open **Host–Pathogen Analysis**. This module combines vacuole-level marker recruitment with host and well summaries. For vacuole recruitment on its own, use :doc:`Recruitment <recruitment>`."
+msgstr "从 **主页 → 生物体 → 弓形虫** 打开 **宿主–病原体分析**。该模块将纳虫泡水平的标记募集与宿主和孔的汇总结合起来。如只需纳虫泡募集，请使用 :doc:`募集分析 <recruitment>` 。"
 
 msgid "Try the real microscopy test data"
 msgstr "试用真实的显微测试数据"
 
-msgid "Open **Home → Assays → Toxoplasma → Host–Pathogen Analysis** and select **Load test data…**. The download is approximately 114 MB."
-msgstr "打开 **主页 → 实验分析 → 弓形虫 → 宿主–病原体分析** 并选择 **加载测试数据...**。下载大小约为 114 MB。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open **Home → Organism → Toxoplasma → Host–Pathogen Analysis** and select **Load test data…**. The download is approximately 114 MB."
+msgstr "打开 **主页 → 生物体 → 弓形虫 → 宿主–病原体分析** 并选择 **加载测试数据...**。下载大小约为 114 MB。"
 
 msgid "Enable **Live** beside the bottom action controls, then select **Run preview**. Choose either measured field and select vacuoles in the image or table to inspect their host links and marker ratios."
 msgstr "启用底部操作控件旁的 **实时**，然后选择 **运行预览**。选择任一已测量视野，并在图像或表格中选择纳虫泡，以检查其宿主关联和标记比值。"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
@@ -43,8 +43,9 @@ msgstr "``toxoplasma_pv_v1`` (Cellpose-SAM (cpsam_v2))"
 msgid "anti-Toxoplasma-biotin and DsRed PV lumen; 229 images from 2 datasets, 104 round-1 and 125 newly curated"
 msgstr "एंटी-टोक्सोप्लाज़्मा-बायोटिन और DsRed PV ल्यूमेन; 2 डेटासेट से 229 छवियाँ, 104 पहले दौर की और 125 नई क्यूरेट की गईं"
 
-msgid "F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending"
-msgstr "11 अलग रखे गए आंतरिक कूपों पर IoU 0.5 पर F1 0.864, जबकि मानक cpsam के लिए 0.713; साहित्य पर अलग रखा गया मूल्यांकन लंबित"
+#, fuzzy
+msgid "F1 0.793 against stock cpsam_v2's 0.402 on the 486 strict hold-out fields at IoU 0.5; AJI 0.558 against 0.052"
+msgstr "11 एंकर कूपों पर IoU 0.5 पर F1 0.860, जबकि मानक cpsam_v2 का 0.765; AJI 0.803 बनाम 0.505"
 
 msgid "``toxoplasma_plaque_v1`` (Cellpose-SAM (cpsam))"
 msgstr "``toxoplasma_plaque_v1`` (Cellpose-SAM (cpsam))"
@@ -52,8 +53,9 @@ msgstr "``toxoplasma_plaque_v1`` (Cellpose-SAM (cpsam))"
 msgid "crystal violet plaque wells; 184 wells from 3 datasets, 95 in-house and 89 literature"
 msgstr "क्रिस्टल वायलेट प्लाक कूप; 3 डेटासेट से 184 कूप, 95 आंतरिक और 89 साहित्य से"
 
-msgid "F1 0.856 in-domain; 0.806 on literature (3-fold cross-validated, SD 0.020)"
-msgstr "डोमेन के भीतर F1 0.856; साहित्य पर 0.806 (3-गुना क्रॉस-वैलिडेशन, SD 0.020)"
+#, fuzzy
+msgid "F1 0.707 against stock cpsam's 0.258 on the 498 strict hold-out fields at IoU 0.5; AJI 0.657 against 0.265"
+msgstr "11 एंकर कूपों पर IoU 0.5 पर F1 0.860, जबकि मानक cpsam_v2 का 0.765; AJI 0.803 बनाम 0.505"
 
 msgid "``toxoplasma_plaque_v2`` (Cellpose-SAM (cpsam_v2))"
 msgstr "``toxoplasma_plaque_v2`` (Cellpose-SAM (cpsam_v2))"
@@ -61,8 +63,10 @@ msgstr "``toxoplasma_plaque_v2`` (Cellpose-SAM (cpsam_v2))"
 msgid "488 curated fields across four domains -- 298 wells cropped from published figures, 96 phone-camera wells, 67 PFA and 27 methanol-fixed whole-well microscope scans; 27,582 plaques"
 msgstr "चार डोमेन के 488 क्यूरेट किए गए फ़ील्ड -- प्रकाशित चित्रों से काटे गए 298 कूप, फ़ोन कैमरे से लिए गए 96 कूप, 67 PFA-स्थिरीकृत और 27 मेथनॉल-स्थिरीकृत पूरे-कूप सूक्ष्मदर्शी स्कैन; 27,582 प्लाक"
 
-msgid "not scored against stock; on 81 held-out fields it ties round 3 on literature (0.819 vs 0.820) and beats it by 0.166 on phone-camera wells (0.415 vs 0.249)"
-msgstr "मानक मॉडल से तुलना में स्कोर नहीं किया गया; 81 अलग रखे गए फ़ील्ड पर यह साहित्य पर तीसरे दौर के बराबर है (0.819 बनाम 0.820) और फ़ोन कैमरे वाले कूपों पर उसे 0.166 से पीछे छोड़ता है (0.415 बनाम 0.249)"
+# AI technical review (Codex), no native-speaker signoff.
+#, fuzzy
+msgid "F1 0.455 against stock cpsam_v2's 0.189 on the 282 strict hold-out fields at IoU 0.5; AJI 0.514 against 0.181"
+msgstr "IoU 0.5 पर 11 एंकर वेल में F1 0.854, जबकि मूल cpsam_v2 का 0.765; AJI 0.776, जबकि मूल का 0.505"
 
 msgid "``toxoplasma_well_detector_v1`` (YOLO11n)"
 msgstr "``toxoplasma_well_detector_v1`` (YOLO11n)"
@@ -97,8 +101,9 @@ msgstr "``toxoplasma_pv_v2`` (Cellpose-SAM (cpsam_v2))"
 msgid "anti-Toxoplasma-biotin and DsRed PV lumen; 556 curated images accumulated over five rounds"
 msgstr "एंटी-टोक्सोप्लाज़्मा-बायोटिन और DsRed PV ल्यूमेन; पाँच दौरों में एकत्र 556 क्यूरेट की गई छवियाँ"
 
-msgid "F1 0.817 +/- 0.036 by 5-fold cross-validation over 619 pairs; ~0.86 against 0.713 for stock on the 11 in-house held-out wells"
-msgstr "619 जोड़ों पर 5-गुना क्रॉस-वैलिडेशन से F1 0.817 +/- 0.036; 11 आंतरिक अलग रखे गए कूपों पर ~0.86, जबकि मानक के लिए 0.713"
+#, fuzzy
+msgid "F1 0.713 against stock cpsam_v2's 0.364 on the 258 strict hold-out fields at IoU 0.5; AJI 0.451 against 0.049"
+msgstr "11 एंकर कूपों पर IoU 0.5 पर F1 0.860, जबकि मानक cpsam_v2 का 0.765; AJI 0.803 बनाम 0.505"
 
 msgid "``toxoplasma_pv_v3`` (Cellpose-SAM (cpsam_v2))"
 msgstr "``toxoplasma_pv_v3`` (Cellpose-SAM (cpsam_v2))"
@@ -106,7 +111,8 @@ msgstr "``toxoplasma_pv_v3`` (Cellpose-SAM (cpsam_v2))"
 msgid "the 556 curated PV fields of round 5, split 437 train / 108 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset"
 msgstr "पाँचवें दौर के 556 क्यूरेट किए गए PV फ़ील्ड, 437 प्रशिक्षण / 108 सत्यापन / 11 परीक्षण में विभाजित; प्रशिक्षण डेटा einarolafsson/toxoplasma-pv-segmentation-dataset पर"
 
-msgid "F1 0.860 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.803 against 0.505"
+#, fuzzy
+msgid "F1 0.750 against stock cpsam_v2's 0.390 on the 269 strict hold-out fields at IoU 0.5; AJI 0.528 against 0.055"
 msgstr "11 एंकर कूपों पर IoU 0.5 पर F1 0.860, जबकि मानक cpsam_v2 का 0.765; AJI 0.803 बनाम 0.505"
 
 # AI technical review (Codex), no native-speaker signoff.
@@ -117,9 +123,9 @@ msgstr "``toxoplasma_pv_v4`` (Cellpose-SAM (cpsam_v2))"
 msgid "round 6's 556 curated fields plus 80 hand-curated fields of a new plate (Anu revision, Replication09182026 plate 1); 502 train / 123 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset-r7"
 msgstr "दौर 6 के 556 चुने हुए दृश्य-क्षेत्र और नई प्लेट के 80 हाथ से चुने दृश्य-क्षेत्र (Anu संशोधन, Replication09182026 प्लेट 1); 502 प्रशिक्षण / 123 सत्यापन / 11 परीक्षण; प्रशिक्षण डेटा einarolafsson/toxoplasma-pv-segmentation-dataset-r7 पर"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505"
-msgstr "IoU 0.5 पर 11 एंकर वेल में F1 0.854, जबकि मूल cpsam_v2 का 0.765; AJI 0.776, जबकि मूल का 0.505"
+#, fuzzy
+msgid "F1 0.761 against stock cpsam_v2's 0.377 on the 209 strict hold-out fields at IoU 0.5; AJI 0.582 against 0.040"
+msgstr "11 एंकर कूपों पर IoU 0.5 पर F1 0.860, जबकि मानक cpsam_v2 का 0.765; AJI 0.803 बनाम 0.505"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``toxoplasma_pv_v5`` (Cellpose-SAM (cpsam_v2, Cellpose 4.0.9))"
@@ -129,9 +135,9 @@ msgstr "``toxoplasma_pv_v5`` (Cellpose-SAM (cpsam_v2, Cellpose 4.0.9))"
 msgid "285 curated PV fields (lab fields and published-figure crops), 13,814 vacuoles; 202 train / 33 validation / 50 test grouped by acquisition and paper"
 msgstr "285 क्यूरेट किए गए PV फ़ील्ड (प्रयोगशाला फ़ील्ड और प्रकाशित चित्रों के क्रॉप), 13,814 रिक्तिकाएँ; अधिग्रहण और शोधपत्र के अनुसार समूहित 202 प्रशिक्षण / 33 सत्यापन / 50 परीक्षण"
 
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "F1 0.792 against stock cpsam_v2's 0.559 on the 50 held-out fields at IoU 0.5"
-msgstr "50 अलग रखे गए फ़ील्ड पर IoU 0.5 पर F1 0.792, जबकि मानक cpsam_v2 का 0.559"
+#, fuzzy
+msgid "F1 0.733 against stock cpsam_v2's 0.383 on the 481 strict hold-out fields at IoU 0.5; AJI 0.585 against 0.051"
+msgstr "11 एंकर कूपों पर IoU 0.5 पर F1 0.860, जबकि मानक cpsam_v2 का 0.765; AJI 0.803 बनाम 0.505"
 
 msgid "``live_cell_v1`` (Cellpose-SAM (cpsam_v2))"
 msgstr "``live_cell_v1`` (Cellpose-SAM (cpsam_v2))"
@@ -177,9 +183,9 @@ msgstr "``toxoplasma_plaque_v3`` (Cellpose-SAM (cpsam, Cellpose 4.0.9))"
 msgid "496 curated plaque fields, including 34 reviewed empty negatives and 71 Gel Doc wells; 100 epochs; fixed physical-plate/source groups"
 msgstr "496 क्यूरेट किए गए प्लाक फ़ील्ड, जिनमें 34 समीक्षित खाली नकारात्मक और 71 Gel Doc कूप शामिल हैं; 100 एपोक; निश्चित भौतिक-प्लेट/स्रोत समूह"
 
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Stock was not evaluated in this run; see the named incumbent comparison on the model card"
-msgstr "इस रन में मानक मॉडल का मूल्यांकन नहीं किया गया; मॉडल कार्ड पर नामित वर्तमान मॉडल से तुलना देखें"
+#, fuzzy
+msgid "F1 0.732 against stock cpsam's 0.128 on the 232 strict hold-out fields at IoU 0.5; AJI 0.628 against 0.173"
+msgstr "11 एंकर कूपों पर IoU 0.5 पर F1 0.860, जबकि मानक cpsam_v2 का 0.765; AJI 0.803 बनाम 0.505"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 #, fuzzy
@@ -190,8 +196,24 @@ msgstr "``toxoplasma_plaque_v4`` (Cellpose-SAM (cpsam, Cellpose 4.0.9))"
 msgid "663 curated plaque fields from four domains (published-figure wells, Gel Doc wells, lab plates, staged literature crops), 32,717 plaques; 335 train / 65 validation / 263 test"
 msgstr "चार क्षेत्रों (प्रकाशित चित्रों के कूप, Gel Doc कूप, प्रयोगशाला प्लेटें, चरणबद्ध साहित्य क्रॉप) से 663 क्यूरेट किए गए प्लाक फ़ील्ड, 32,717 प्लाक; 335 प्रशिक्षण / 65 सत्यापन / 263 परीक्षण"
 
-msgid "F1 0.815 (toxoplasma_plaque_v3 0.844) on the 263 held-out fields at IoU 0.5; stock cpsam_v2 0.373 there with the Cellpose evaluation scorer"
-msgstr ""
+# AI technical review (Codex), no native-speaker signoff.
+#, fuzzy
+msgid "F1 0.765 against stock cpsam_v2's 0.338 on the 329 strict hold-out fields at IoU 0.5; AJI 0.662 against 0.261"
+msgstr "IoU 0.5 पर 11 एंकर वेल में F1 0.854, जबकि मूल cpsam_v2 का 0.765; AJI 0.776, जबकि मूल का 0.505"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "``toxoplasma_plaque_v5`` (Cellpose-SAM (cpsam_v2, Cellpose 4.2.1.1))"
+msgstr "``toxoplasma_plaque_v4`` (Cellpose-SAM (cpsam, Cellpose 4.0.9))"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "1,507 curated plaque fields of 2026-10-15 (Gel Doc wells, lab plates, published figures, earlier curation rounds); 1,201 train / 153 validation / 153 test"
+msgstr "चार क्षेत्रों (प्रकाशित चित्रों के कूप, Gel Doc कूप, प्रयोगशाला प्लेटें, चरणबद्ध साहित्य क्रॉप) से 663 क्यूरेट किए गए प्लाक फ़ील्ड, 32,717 प्लाक; 335 प्रशिक्षण / 65 सत्यापन / 263 परीक्षण"
+
+#, fuzzy
+msgid "F1 0.816 against stock cpsam_v2's 0.227 on the 153 strict hold-out fields at IoU 0.5; AJI 0.737 against 0.178"
+msgstr "11 एंकर कूपों पर IoU 0.5 पर F1 0.860, जबकि मानक cpsam_v2 का 0.765; AJI 0.803 बनाम 0.505"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``toxoplasma_well_detector_v3`` (YOLO11n (fine-tuned from detector v3))"
@@ -201,8 +223,13 @@ msgstr "``toxoplasma_well_detector_v3`` (YOLO11n (detector v3 से फ़ा�
 msgid "452 reviewed training images; 124 validation images; physical plate and figure groups; 150 epochs; YOLO11n v3 initialization"
 msgstr "452 समीक्षित प्रशिक्षण छवियाँ; 124 सत्यापन छवियाँ; भौतिक प्लेट और चित्र समूह; 150 एपोक; YOLO11n v3 प्रारंभीकरण"
 
-msgid "Models are hosted on their author's own Hugging Face account, so contributing one does not mean handing write access to anyone else's. ``spacr.model_zoo``'s ``publish_model`` performs the upload and prints the catalogue row to add."
-msgstr "मॉडल उनके लेखक के अपने Hugging Face खाते पर होस्ट किए जाते हैं, इसलिए कोई मॉडल योगदान करने का अर्थ किसी और को लेखन पहुँच सौंपना नहीं है। ``spacr.model_zoo`` का ``publish_model`` अपलोड करता है और जोड़ी जाने वाली कैटलॉग पंक्ति छापता है।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Stock was not evaluated in this run; see the named incumbent comparison on the model card"
+msgstr "इस रन में मानक मॉडल का मूल्यांकन नहीं किया गया; मॉडल कार्ड पर नामित वर्तमान मॉडल से तुलना देखें"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Each model is hosted in a repository under its author's own Hugging Face account; contributing a model does not require write access to another account's repository. ``spacr.model_zoo``'s ``publish_model`` performs the upload and prints the catalogue row to add."
+msgstr "प्रत्येक मॉडल उसके लेखक के अपने Hugging Face खाते के अंतर्गत एक रिपॉज़िटरी में होस्ट किया जाता है; मॉडल योगदान करने के लिए किसी अन्य खाते की रिपॉज़िटरी में लेखन पहुँच की आवश्यकता नहीं है। ``spacr.model_zoo`` का ``publish_model`` अपलोड करता है और जोड़ी जाने वाली कैटलॉग पंक्ति छापता है।"
 
 msgid "Choose a model from a form"
 msgstr "किसी फ़ॉर्म से मॉडल चुनें"
@@ -225,8 +252,137 @@ msgstr "**संरचना।** Cellpose-SAM (cpsam_v2)"
 msgid "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen. Round 2: 229 training images (round 1's 104 plus 125 newly curated RH and ME49 fields), 100 epochs, base cpsam_v2"
 msgstr "**प्रशिक्षण डेटा।** बकरी एंटी-टोक्सोप्लाज़्मा-बायोटिन से अभिरंजित टोक्सोप्लाज़्मा टैकीज़ॉइट परजीवीधानी रिक्तिकाएँ, और PV ल्यूमेन में DsRed व्यक्त करने वाले टैकीज़ॉइट। दूसरा दौर: 229 प्रशिक्षण छवियाँ (पहले दौर की 104 और 125 नए क्यूरेट किए गए RH और ME49 फ़ील्ड), 100 एपोक, आधार cpsam_v2"
 
-msgid "**Measured.** F1 0.864 against 0.713 for stock cpsam on 11 held-out in-house wells, at IoU 0.5; literature hold-out pending"
-msgstr "**मापा गया।** 11 अलग रखे गए आंतरिक कूपों पर IoU 0.5 पर F1 0.864, जबकि मानक cpsam के लिए 0.713; साहित्य पर अलग रखा गया मूल्यांकन लंबित"
+#, fuzzy
+msgid "**Measured.** F1 0.793 against stock cpsam_v2's 0.402 on the 486 strict hold-out fields at IoU 0.5; AJI 0.558 against 0.052"
+msgstr "**मापा गया।** 11 एंकर कूपों पर IoU 0.5 पर F1 0.860, जबकि मानक cpsam_v2 का 0.765; AJI 0.803 बनाम 0.505"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Published scorecard"
+msgstr "प्रकाशित स्कोरकार्ड"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Metric"
+msgstr "मेट्रिक"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "This model"
+msgstr "यह मॉडल"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Stock"
+msgstr "मानक"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Difference"
+msgstr "अंतर"
+
+#, fuzzy
+msgid "F1"
+msgstr "f1"
+
+#, fuzzy
+msgid "0.7930"
+msgstr "0.9979"
+
+#, fuzzy
+msgid "0.4016"
+msgstr "0.9940"
+
+#, fuzzy
+msgid "0.3914"
+msgstr "0.9940"
+
+msgid "Boundary F1 (2 px)"
+msgstr ""
+
+#, fuzzy
+msgid "0.8271"
+msgstr "0.8842"
+
+#, fuzzy
+msgid "0.2584"
+msgstr "0.8842"
+
+#, fuzzy
+msgid "0.5687"
+msgstr "0.5968"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Precision"
+msgstr "precision"
+
+#, fuzzy
+msgid "0.8604"
+msgstr "0.8905"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.2921"
+msgstr "0.7921"
+
+#, fuzzy
+msgid "0.5683"
+msgstr "0.5968"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Recall"
+msgstr "recall"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.7354"
+msgstr "0.8354"
+
+#, fuzzy
+msgid "0.6427"
+msgstr "0.8842"
+
+#, fuzzy
+msgid "0.0927"
+msgstr "0.9979"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "AJI"
+msgstr "aji"
+
+#, fuzzy
+msgid "0.5579"
+msgstr "0.9979"
+
+#, fuzzy
+msgid "0.0517"
+msgstr "0.8905"
+
+#, fuzzy
+msgid "0.5062"
+msgstr "0.8580"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Dice"
+msgstr "dice"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.7941"
+msgstr "0.7921"
+
+#, fuzzy
+msgid "0.1149"
+msgstr "0.8493"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.6792"
+msgstr "0.7921"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Evaluation set: ``gt_rescore_20261011``; version ``strict hold-out, pooled``; 486 scored fields and 14315 annotated objects."
+msgstr "मूल्यांकन सेट: ``pv_r7_test``; संस्करण ``r7-published-truth``; 10 स्कोर किए गए फ़ील्ड और 683 एनोटेट किए गए ऑब्जेक्ट।"
 
 msgid "F1 0.864 at IoU 0.5 against 0.713 for stock cpsam on the 11 wells round 1 also held out (round 1 scored 0.867); AJI 0.809 against 0.426"
 msgstr "उन 11 कूपों पर जिन्हें पहले दौर ने भी अलग रखा था, IoU 0.5 पर F1 0.864, जबकि मानक cpsam के लिए 0.713 (पहले दौर का स्कोर 0.867); AJI 0.809 बनाम 0.426"
@@ -243,6 +399,24 @@ msgstr ""
 msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam>`_, as ``cpsam_v2_toxo_r2``."
 msgstr "`einarolafsson/toxoplasma-pv-segmentation-cpsam <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam>`_ के रूप में, ``cpsam_v2_toxo_r2`` नाम से प्रकाशित।"
 
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma PV v1: cards/page1.png"
+msgstr "Toxoplasma PV v4 (दौर 7) का प्रकाशित स्कोरकार्ड"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma PV v1: cards/page2.png"
+msgstr "Toxoplasma PV v4 (दौर 7) का प्रकाशित स्कोरकार्ड"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma PV v1: cards/page3.png"
+msgstr "Toxoplasma PV v4 (दौर 7) का प्रकाशित स्कोरकार्ड"
+
 msgid "SHA-256 ``182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0``."
 msgstr "SHA-256 ``182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0``।"
 
@@ -255,8 +429,91 @@ msgstr "**संरचना।** Cellpose-SAM (cpsam)"
 msgid "**Trained on.** Toxoplasma gondii plaque assays; round 3, evaluated in-domain (NAS) and against a literature generalisation set"
 msgstr "**प्रशिक्षण डेटा।** टोक्सोप्लाज़्मा गोंडी प्लाक परीक्षण; तीसरा दौर, डोमेन के भीतर (NAS) और साहित्य सामान्यीकरण सेट पर मूल्यांकित"
 
-msgid "**Measured.** F1 0.856 in-domain; 0.806 on literature (3-fold cross-validated, SD 0.020)"
-msgstr "**मापा गया।** डोमेन के भीतर F1 0.856; साहित्य पर 0.806 (3-गुना क्रॉस-वैलिडेशन, SD 0.020)"
+#, fuzzy
+msgid "**Measured.** F1 0.707 against stock cpsam's 0.258 on the 498 strict hold-out fields at IoU 0.5; AJI 0.657 against 0.265"
+msgstr "**मापा गया।** 11 एंकर कूपों पर IoU 0.5 पर F1 0.860, जबकि मानक cpsam_v2 का 0.765; AJI 0.803 बनाम 0.505"
+
+#, fuzzy
+msgid "0.7074"
+msgstr "0.7760"
+
+#, fuzzy
+msgid "0.2581"
+msgstr "0.2816"
+
+#, fuzzy
+msgid "0.4493"
+msgstr "0.8493"
+
+#, fuzzy
+msgid "0.6794"
+msgstr "0.6943"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.3269"
+msgstr "0.1326"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.3525"
+msgstr "0.8354"
+
+#, fuzzy
+msgid "0.8298"
+msgstr "0.9698"
+
+#, fuzzy
+msgid "0.2050"
+msgstr "0.5050"
+
+#, fuzzy
+msgid "0.6248"
+msgstr "0.7648"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.6165"
+msgstr "0.8354"
+
+#, fuzzy
+msgid "0.3484"
+msgstr "0.8842"
+
+#, fuzzy
+msgid "0.2680"
+msgstr "0.9698"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.6572"
+msgstr "0.7921"
+
+#, fuzzy
+msgid "0.2649"
+msgstr "0.6419"
+
+#, fuzzy
+msgid "0.3923"
+msgstr "0.8493"
+
+#, fuzzy
+msgid "0.8191"
+msgstr "0.8905"
+
+#, fuzzy
+msgid "0.4667"
+msgstr "0.4726"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.3524"
+msgstr "0.8354"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Evaluation set: ``gt_rescore_20261011``; version ``strict hold-out, pooled``; 498 scored fields and 19993 annotated objects."
+msgstr "मूल्यांकन सेट: ``pv_r7_test``; संस्करण ``r7-published-truth``; 10 स्कोर किए गए फ़ील्ड और 683 एनोटेट किए गए ऑब्जेक्ट।"
 
 msgid "F1 0.856 in-domain and 0.806 on the literature set (3-fold cross-validated, SD 0.020), against 0.718 for round 1"
 msgstr "डोमेन के भीतर F1 0.856 और साहित्य सेट पर 0.806 (3-गुना क्रॉस-वैलिडेशन, SD 0.020), जबकि पहले दौर के लिए 0.718"
@@ -273,6 +530,24 @@ msgstr ""
 msgid "Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam>`_, as ``cpsam_plaque_r3``."
 msgstr "`einarolafsson/toxoplasma-plaque-segmentation-cpsam <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam>`_ के रूप में, ``cpsam_plaque_r3`` नाम से प्रकाशित।"
 
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma Plaque v1: cards/page1.png"
+msgstr "Toxoplasma PV v4 (दौर 7) का प्रकाशित स्कोरकार्ड"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma Plaque v1: cards/page2.png"
+msgstr "Toxoplasma PV v4 (दौर 7) का प्रकाशित स्कोरकार्ड"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma Plaque v1: cards/page3.png"
+msgstr "Toxoplasma PV v4 (दौर 7) का प्रकाशित स्कोरकार्ड"
+
 msgid "SHA-256 ``eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d``."
 msgstr "SHA-256 ``eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d``।"
 
@@ -282,8 +557,92 @@ msgstr "Toxoplasma Plaque v2 (पाँचवाँ दौर)"
 msgid "**Trained on.** Toxoplasma plaque assays stained with crystal violet, from three microscopes and from published figures. Round 5: 332 training fields grouped by figure and by plate so none straddles the split, 100 epochs, base cpsam_v2, empty wells kept as negatives"
 msgstr "**प्रशिक्षण डेटा।** क्रिस्टल वायलेट से अभिरंजित टोक्सोप्लाज़्मा प्लाक परीक्षण, तीन सूक्ष्मदर्शियों और प्रकाशित चित्रों से। पाँचवाँ दौर: चित्र और प्लेट के अनुसार समूहित 332 प्रशिक्षण फ़ील्ड ताकि कोई विभाजन के दोनों ओर न हो, 100 एपोक, आधार cpsam_v2, खाली कूप ऋणात्मक उदाहरणों के रूप में रखे गए"
 
-msgid "**Measured.** not scored against stock; on 81 held-out fields it ties round 3 on literature (0.819 vs 0.820) and beats it by 0.166 on phone-camera wells (0.415 vs 0.249)"
-msgstr "**मापा गया।** मानक मॉडल से तुलना में स्कोर नहीं किया गया; 81 अलग रखे गए फ़ील्ड पर यह साहित्य पर तीसरे दौर के बराबर है (0.819 बनाम 0.820) और फ़ोन कैमरे वाले कूपों पर उसे 0.166 से पीछे छोड़ता है (0.415 बनाम 0.249)"
+# AI technical review (Codex), no native-speaker signoff.
+#, fuzzy
+msgid "**Measured.** F1 0.455 against stock cpsam_v2's 0.189 on the 282 strict hold-out fields at IoU 0.5; AJI 0.514 against 0.181"
+msgstr "**मापन परिणाम।** IoU 0.5 पर 11 एंकर वेल में F1 0.854, जबकि मूल cpsam_v2 का 0.765; AJI 0.776, जबकि मूल का 0.505"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.4548"
+msgstr "0.8354"
+
+#, fuzzy
+msgid "0.1891"
+msgstr "0.8905"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.2657"
+msgstr "0.8232"
+
+#, fuzzy
+msgid "0.5679"
+msgstr "0.9979"
+
+#, fuzzy
+msgid "0.2447"
+msgstr "0.2474"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.3232"
+msgstr "0.8232"
+
+#, fuzzy
+msgid "0.5004"
+msgstr "0.5050"
+
+#, fuzzy
+msgid "0.2007"
+msgstr "0.5050"
+
+#, fuzzy
+msgid "0.2997"
+msgstr "0.9979"
+
+#, fuzzy
+msgid "0.4169"
+msgstr "0.6419"
+
+#, fuzzy
+msgid "0.1787"
+msgstr "0.7760"
+
+#, fuzzy
+msgid "0.2381"
+msgstr "0.2816"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.5145"
+msgstr "0.8354"
+
+#, fuzzy
+msgid "0.1812"
+msgstr "0.8842"
+
+#, fuzzy
+msgid "0.3332"
+msgstr "0.3620"
+
+#, fuzzy
+msgid "0.6961"
+msgstr "0.9698"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.3141"
+msgstr "0.8354"
+
+#, fuzzy
+msgid "0.3820"
+msgstr "0.3620"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Evaluation set: ``gt_rescore_20261011``; version ``strict hold-out, pooled``; 282 scored fields and 8130 annotated objects."
+msgstr "मूल्यांकन सेट: ``pv_r7_test``; संस्करण ``r7-published-truth``; 10 स्कोर किए गए फ़ील्ड और 683 एनोटेट किए गए ऑब्जेक्ट।"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 #, fuzzy
@@ -316,6 +675,24 @@ msgstr ""
 
 msgid "Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5>`_, as ``cpsam_plaque_r5``."
 msgstr "`einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5>`_ के रूप में, ``cpsam_plaque_r5`` नाम से प्रकाशित।"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma Plaque v2 (round 5): cards/page1.png"
+msgstr "Toxoplasma Plaque v4 (दौर 6, विकल्प) का प्रकाशित स्कोरकार्ड"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma Plaque v2 (round 5): cards/page2.png"
+msgstr "Toxoplasma Plaque v4 (दौर 6, विकल्प) का प्रकाशित स्कोरकार्ड"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma Plaque v2 (round 5): cards/page3.png"
+msgstr "Toxoplasma Plaque v4 (दौर 6, विकल्प) का प्रकाशित स्कोरकार्ड"
 
 msgid "SHA-256 ``0927023a745ac6a19bae0ec72c89b7b864a4ff8d047a41f3f1e9767e1a4d0600``."
 msgstr "SHA-256 ``0927023a745ac6a19bae0ec72c89b7b864a4ff8d047a41f3f1e9767e1a4d0600``।"
@@ -410,8 +787,86 @@ msgstr "Toxoplasma PV v2 (पाँचवाँ दौर)"
 msgid "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen (RH and ME49). Round 5: 556 images, 100 epochs, base cpsam_v2"
 msgstr "**प्रशिक्षण डेटा।** बकरी एंटी-टोक्सोप्लाज़्मा-बायोटिन से अभिरंजित टोक्सोप्लाज़्मा टैकीज़ॉइट परजीवीधानी रिक्तिकाएँ, और PV ल्यूमेन में DsRed व्यक्त करने वाले टैकीज़ॉइट (RH और ME49)। पाँचवाँ दौर: 556 छवियाँ, 100 एपोक, आधार cpsam_v2"
 
-msgid "**Measured.** F1 0.817 +/- 0.036 by 5-fold cross-validation over 619 pairs; ~0.86 against 0.713 for stock on the 11 in-house held-out wells"
-msgstr "**मापा गया।** 619 जोड़ों पर 5-गुना क्रॉस-वैलिडेशन से F1 0.817 +/- 0.036; 11 आंतरिक अलग रखे गए कूपों पर ~0.86, जबकि मानक के लिए 0.713"
+#, fuzzy
+msgid "**Measured.** F1 0.713 against stock cpsam_v2's 0.364 on the 258 strict hold-out fields at IoU 0.5; AJI 0.451 against 0.049"
+msgstr "**मापा गया।** 11 एंकर कूपों पर IoU 0.5 पर F1 0.860, जबकि मानक cpsam_v2 का 0.765; AJI 0.803 बनाम 0.505"
+
+#, fuzzy
+msgid "0.7130"
+msgstr "0.1301"
+
+#, fuzzy
+msgid "0.3638"
+msgstr "0.9698"
+
+#, fuzzy
+msgid "0.3492"
+msgstr "0.4921"
+
+#, fuzzy
+msgid "0.7340"
+msgstr "0.9940"
+
+#, fuzzy
+msgid "0.2301"
+msgstr "0.1301"
+
+#, fuzzy
+msgid "0.5040"
+msgstr "0.5050"
+
+#, fuzzy
+msgid "0.7658"
+msgstr "0.7648"
+
+#, fuzzy
+msgid "0.2560"
+msgstr "0.8580"
+
+#, fuzzy
+msgid "0.5098"
+msgstr "0.5968"
+
+#, fuzzy
+msgid "0.6670"
+msgstr "0.7760"
+
+#, fuzzy
+msgid "0.6287"
+msgstr "0.9698"
+
+#, fuzzy
+msgid "0.0383"
+msgstr "0.8536"
+
+#, fuzzy
+msgid "0.4507"
+msgstr "0.9940"
+
+#, fuzzy
+msgid "0.0488"
+msgstr "0.0888"
+
+#, fuzzy
+msgid "0.4019"
+msgstr "0.6419"
+
+#, fuzzy
+msgid "0.6782"
+msgstr "0.9698"
+
+#, fuzzy
+msgid "0.1116"
+msgstr "0.2816"
+
+#, fuzzy
+msgid "0.5666"
+msgstr "0.8536"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Evaluation set: ``gt_rescore_20261011``; version ``strict hold-out, pooled``; 258 scored fields and 5766 annotated objects."
+msgstr "मूल्यांकन सेट: ``pv_r7_test``; संस्करण ``r7-published-truth``; 10 स्कोर किए गए फ़ील्ड और 683 एनोटेट किए गए ऑब्जेक्ट।"
 
 msgid "supersedes toxoplasma_pv_v1 (round 2, 229 images): more than twice the training data and cross-validated rather than single-split"
 msgstr "toxoplasma_pv_v1 (दूसरा दौर, 229 छवियाँ) का स्थान लेता है: दोगुने से अधिक प्रशिक्षण डेटा और एकल विभाजन के बजाय क्रॉस-वैलिडेटेड"
@@ -431,6 +886,24 @@ msgstr ""
 msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r5>`_, as ``cpsam_v2_toxo_r5``."
 msgstr "`einarolafsson/toxoplasma-pv-segmentation-cpsam-r5 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r5>`_ के रूप में, ``cpsam_v2_toxo_r5`` नाम से प्रकाशित।"
 
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma PV v2 (round 5): cards/page1.png"
+msgstr "Toxoplasma PV v4 (दौर 7) का प्रकाशित स्कोरकार्ड"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma PV v2 (round 5): cards/page2.png"
+msgstr "Toxoplasma PV v4 (दौर 7) का प्रकाशित स्कोरकार्ड"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma PV v2 (round 5): cards/page3.png"
+msgstr "Toxoplasma PV v4 (दौर 7) का प्रकाशित स्कोरकार्ड"
+
 msgid "SHA-256 ``17c689e3b117745561e20a885c2a2a998ed360fa97cac8c0446316ae5905c10f``."
 msgstr "SHA-256 ``17c689e3b117745561e20a885c2a2a998ed360fa97cac8c0446316ae5905c10f``।"
 
@@ -440,14 +913,95 @@ msgstr "Toxoplasma PV v3 (छठा दौर)"
 msgid "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV lumen (RH and ME49). Round 6 retrains round 5's data with cellpose 4.2.1.1, 100 epochs, base cpsam_v2"
 msgstr "**प्रशिक्षण डेटा।** बकरी एंटी-टोक्सोप्लाज़्मा-बायोटिन से अभिरंजित टोक्सोप्लाज़्मा टैकीज़ॉइट परजीवीधानी रिक्तिकाएँ, और PV ल्यूमेन में DsRed व्यक्त करने वाले टैकीज़ॉइट (RH और ME49)। छठा दौर पाँचवें दौर के डेटा को cellpose 4.2.1.1 से फिर से प्रशिक्षित करता है, 100 एपोक, आधार cpsam_v2"
 
-msgid "**Measured.** F1 0.860 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.803 against 0.505"
+#, fuzzy
+msgid "**Measured.** F1 0.750 against stock cpsam_v2's 0.390 on the 269 strict hold-out fields at IoU 0.5; AJI 0.528 against 0.055"
 msgstr "**मापा गया।** 11 एंकर कूपों पर IoU 0.5 पर F1 0.860, जबकि मानक cpsam_v2 का 0.765; AJI 0.803 बनाम 0.505"
+
+#, fuzzy
+msgid "0.7504"
+msgstr "0.8580"
+
+#, fuzzy
+msgid "0.3899"
+msgstr "0.9979"
+
+#, fuzzy
+msgid "0.3606"
+msgstr "0.3620"
+
+#, fuzzy
+msgid "0.7826"
+msgstr "0.4726"
+
+#, fuzzy
+msgid "0.2537"
+msgstr "0.8536"
+
+#, fuzzy
+msgid "0.5289"
+msgstr "0.5239"
+
+#, fuzzy
+msgid "0.7998"
+msgstr "0.9698"
+
+#, fuzzy
+msgid "0.2794"
+msgstr "0.9979"
+
+#, fuzzy
+msgid "0.5204"
+msgstr "204"
+
+#, fuzzy
+msgid "0.7068"
+msgstr "0.7648"
+
+#, fuzzy
+msgid "0.6447"
+msgstr "0.7648"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.0621"
+msgstr "0.7921"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.5278"
+msgstr "0.8232"
+
+#, fuzzy
+msgid "0.0553"
+msgstr "0.8055"
+
+#, fuzzy
+msgid "0.4725"
+msgstr "0.4726"
+
+#, fuzzy
+msgid "0.7499"
+msgstr "0.9979"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.1236"
+msgstr "0.1326"
+
+#, fuzzy
+msgid "0.6263"
+msgstr "0.6943"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Evaluation set: ``gt_rescore_20261011``; version ``strict hold-out, pooled``; 269 scored fields and 6443 annotated objects."
+msgstr "मूल्यांकन सेट: ``pv_r7_test``; संस्करण ``r7-published-truth``; 10 स्कोर किए गए फ़ील्ड और 683 एनोटेट किए गए ऑब्जेक्ट।"
 
 msgid "NEWEST IS NOT BEST HERE: round 6 does not beat round 2 on the anchor wells -- 0.8602 against 0.8648 -- and the PV project still promotes round 5"
 msgstr "यहाँ नवीनतम सर्वश्रेष्ठ नहीं है: छठा दौर एंकर कूपों पर दूसरे दौर से आगे नहीं है -- 0.8602 बनाम 0.8648 -- और PV प्रोजेक्ट अब भी पाँचवें दौर को पदोन्नत करता है"
 
-msgid "it is the first PV round whose checkpoint was chosen on a held-out validation set (108 fields) instead of on the test wells"
-msgstr "यह पहला PV दौर है जिसका चेकपॉइंट परीक्षण कूपों के बजाय अलग रखे गए सत्यापन सेट (108 फ़ील्ड) पर चुना गया"
+msgid "the shipped weights are the FINAL epoch 100, not a validation-chosen checkpoint: the training records show no checkpoint selection (recorded 2026-10-12)"
+msgstr ""
 
 msgid "5-fold cross-validation, grouped by source: F1 0.8168 +/- 0.028, AJI 0.7516, Dice 0.8424"
 msgstr "स्रोत के अनुसार समूहित 5-गुना क्रॉस-वैलिडेशन: F1 0.8168 +/- 0.028, AJI 0.7516, Dice 0.8424"
@@ -461,6 +1015,24 @@ msgstr ""
 msgid "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r6 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r6>`_, as ``cpsam_v2_toxo_r6``."
 msgstr "`einarolafsson/toxoplasma-pv-segmentation-cpsam-r6 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r6>`_ के रूप में, ``cpsam_v2_toxo_r6`` नाम से प्रकाशित।"
 
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma PV v3 (round 6): cards/page1.png"
+msgstr "Toxoplasma PV v4 (दौर 7) का प्रकाशित स्कोरकार्ड"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma PV v3 (round 6): cards/page2.png"
+msgstr "Toxoplasma PV v4 (दौर 7) का प्रकाशित स्कोरकार्ड"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma PV v3 (round 6): cards/page3.png"
+msgstr "Toxoplasma PV v4 (दौर 7) का प्रकाशित स्कोरकार्ड"
+
 msgid "SHA-256 ``146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e``."
 msgstr "SHA-256 ``146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e``।"
 
@@ -472,122 +1044,86 @@ msgstr "Toxoplasma PV v4 (दौर 7)"
 msgid "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles: round 6's DsRed and anti-Toxoplasma-biotin fields plus the Toxoplasma channel of a new 384-well plate. Round 7, cellpose 4.2.1.1, 100 epochs, base cpsam_v2"
 msgstr "**प्रशिक्षण डेटा।** Toxoplasma टैकीज़ोइट की परजीवीधारी रिक्तिकाएँ: दौर 6 के DsRed और anti-Toxoplasma-biotin दृश्य-क्षेत्र तथा नई 384-वेल प्लेट का Toxoplasma चैनल। दौर 7, cellpose 4.2.1.1, 100 एपोक, आधार cpsam_v2"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Measured.** F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505"
-msgstr "**मापन परिणाम।** IoU 0.5 पर 11 एंकर वेल में F1 0.854, जबकि मूल cpsam_v2 का 0.765; AJI 0.776, जबकि मूल का 0.505"
+#, fuzzy
+msgid "**Measured.** F1 0.761 against stock cpsam_v2's 0.377 on the 209 strict hold-out fields at IoU 0.5; AJI 0.582 against 0.040"
+msgstr "**मापा गया।** 11 एंकर कूपों पर IoU 0.5 पर F1 0.860, जबकि मानक cpsam_v2 का 0.765; AJI 0.803 बनाम 0.505"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Published scorecard"
-msgstr "प्रकाशित स्कोरकार्ड"
+#, fuzzy
+msgid "0.7611"
+msgstr "0.7921"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Metric"
-msgstr "मेट्रिक"
+#, fuzzy
+msgid "0.3771"
+msgstr "0.7921"
 
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "This model"
-msgstr "यह मॉडल"
+#, fuzzy
+msgid "0.3840"
+msgstr "0.9940"
 
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Stock"
-msgstr "मानक"
-
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Difference"
-msgstr "अंतर"
-
-msgid "f1"
-msgstr "f1"
-
-msgid "0.8536"
-msgstr "0.8536"
-
-msgid "0.7648"
-msgstr "0.7648"
-
-msgid "0.0888"
-msgstr "0.0888"
-
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "aji"
-msgstr "aji"
-
-msgid "0.7755"
-msgstr "0.7755"
-
-msgid "0.5050"
-msgstr "0.5050"
-
-msgid "0.2705"
-msgstr "0.2705"
-
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "dice"
-msgstr "dice"
-
-msgid "0.8905"
+#, fuzzy
+msgid "0.8053"
 msgstr "0.8905"
 
-msgid "0.6431"
-msgstr "0.6431"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.2229"
+msgstr "0.8232"
 
-msgid "0.2474"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.5825"
+msgstr "0.8232"
+
+#, fuzzy
+msgid "0.7687"
+msgstr "0.7648"
+
+#, fuzzy
+msgid "0.2647"
 msgstr "0.2474"
 
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "precision"
-msgstr "precision"
-
-msgid "0.8493"
-msgstr "0.8493"
-
-msgid "0.7539"
+#, fuzzy
+msgid "0.7538"
 msgstr "0.7539"
 
-msgid "0.0954"
-msgstr "0.0954"
-
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "recall"
-msgstr "recall"
-
-msgid "0.8580"
-msgstr "0.8580"
-
-msgid "0.7760"
-msgstr "0.7760"
-
-msgid "0.0820"
-msgstr "0.0820"
-
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "pixel_iou"
-msgstr "pixel_iou"
-
-msgid "0.8055"
+#, fuzzy
+msgid "0.6557"
 msgstr "0.8055"
 
-msgid "0.5239"
-msgstr "0.5239"
+#, fuzzy
+msgid "0.0981"
+msgstr "0.9698"
 
-msgid "0.2816"
-msgstr "0.2816"
+#, fuzzy
+msgid "0.5820"
+msgstr "0.8580"
 
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "mAP"
-msgstr "mAP"
+#, fuzzy
+msgid "0.0396"
+msgstr "0.9698"
 
-msgid "0.4921"
-msgstr "0.4921"
-
-msgid "0.3620"
-msgstr "0.3620"
-
-msgid "0.1301"
-msgstr "0.1301"
+#, fuzzy
+msgid "0.5424"
+msgstr "0.8842"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Evaluation set: ``pv_r7_test``; version ``r7-published-truth``; 10 scored fields and 683 annotated objects."
+#, fuzzy
+msgid "0.8348"
+msgstr "0.8354"
+
+#, fuzzy
+msgid "0.0906"
+msgstr "0.9940"
+
+#, fuzzy
+msgid "0.7442"
+msgstr "0.8842"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Evaluation set: ``gt_rescore_20261011``; version ``strict hold-out, pooled``; 209 scored fields and 5515 annotated objects."
 msgstr "मूल्यांकन सेट: ``pv_r7_test``; संस्करण ``r7-published-truth``; 10 स्कोर किए गए फ़ील्ड और 683 एनोटेट किए गए ऑब्जेक्ट।"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
@@ -619,7 +1155,20 @@ msgstr "`einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.
 
 # AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Published scorecard for Toxoplasma PV v4 (round 7)"
+#, fuzzy
+msgid "Published scorecard for Toxoplasma PV v4 (round 7): cards/page1.png"
+msgstr "Toxoplasma PV v4 (दौर 7) का प्रकाशित स्कोरकार्ड"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma PV v4 (round 7): cards/page2.png"
+msgstr "Toxoplasma PV v4 (दौर 7) का प्रकाशित स्कोरकार्ड"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma PV v4 (round 7): cards/page3.png"
 msgstr "Toxoplasma PV v4 (दौर 7) का प्रकाशित स्कोरकार्ड"
 
 # AI technical review (Codex), no native-speaker signoff.
@@ -640,49 +1189,90 @@ msgstr "**संरचना।** Cellpose-SAM (cpsam_v2, Cellpose 4.0.9)"
 msgid "**Trained on.** Toxoplasma parasitophorous vacuoles from lab immunofluorescence and DsRed fields and published-figure crops. Round 8, cellpose 4.0.9, best of 100 epochs (epoch 20), base cpsam_v2"
 msgstr "**प्रशिक्षण डेटा।** प्रयोगशाला इम्यूनोफ़्लोरेसेंस और DsRed दृश्य-क्षेत्रों तथा प्रकाशित चित्रों के क्रॉप से Toxoplasma की परजीवीधारी रिक्तिकाएँ। दौर 8, cellpose 4.0.9, 100 एपोक में सर्वश्रेष्ठ (एपोक 20), आधार cpsam_v2"
 
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "**Measured.** F1 0.792 against stock cpsam_v2's 0.559 on the 50 held-out fields at IoU 0.5"
-msgstr "**मापा गया।** 50 अलग रखे गए फ़ील्ड पर IoU 0.5 पर F1 0.792, जबकि मानक cpsam_v2 का 0.559"
+#, fuzzy
+msgid "**Measured.** F1 0.733 against stock cpsam_v2's 0.383 on the 481 strict hold-out fields at IoU 0.5; AJI 0.585 against 0.051"
+msgstr "**मापा गया।** 11 एंकर कूपों पर IoU 0.5 पर F1 0.860, जबकि मानक cpsam_v2 का 0.765; AJI 0.803 बनाम 0.505"
+
+#, fuzzy
+msgid "0.7329"
+msgstr "0.7539"
+
+#, fuzzy
+msgid "0.3831"
+msgstr "0.8536"
+
+#, fuzzy
+msgid "0.3497"
+msgstr "0.9979"
+
+#, fuzzy
+msgid "0.8198"
+msgstr "0.9698"
+
+#, fuzzy
+msgid "0.2567"
+msgstr "0.8536"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "0.7921"
-msgstr "0.7921"
-
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "0.5586"
-msgstr "0.5586"
-
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "0.2335"
-msgstr "0.2335"
-
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "0.7531"
+#, fuzzy
+msgid "0.5631"
 msgstr "0.7531"
 
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "0.4635"
-msgstr "0.4635"
+#, fuzzy
+msgid "0.6459"
+msgstr "0.6419"
+
+#, fuzzy
+msgid "0.2749"
+msgstr "0.2474"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "0.2896"
-msgstr "0.2896"
+#, fuzzy
+msgid "0.3710"
+msgstr "0.7921"
+
+#, fuzzy
+msgid "0.8469"
+msgstr "0.8493"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "0.8354"
-msgstr "0.8354"
+#, fuzzy
+msgid "0.6322"
+msgstr "0.8232"
+
+#, fuzzy
+msgid "0.2146"
+msgstr "0.2816"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "0.7028"
-msgstr "0.7028"
+#, fuzzy
+msgid "0.5846"
+msgstr "0.5586"
+
+#, fuzzy
+msgid "0.0509"
+msgstr "0.5050"
+
+#, fuzzy
+msgid "0.5337"
+msgstr "0.8536"
+
+#, fuzzy
+msgid "0.8098"
+msgstr "0.8905"
+
+#, fuzzy
+msgid "0.1119"
+msgstr "0.6419"
+
+#, fuzzy
+msgid "0.6979"
+msgstr "0.9979"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "0.1326"
-msgstr "0.1326"
-
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Evaluation set: ``retrain_20261009_pv_test``; version ``2026-10-09``; 50 scored fields and 3530 annotated objects."
-msgstr "मूल्यांकन सेट: ``retrain_20261009_pv_test``; संस्करण ``2026-10-09``; 50 स्कोर किए गए फ़ील्ड और 3530 एनोटेट किए गए ऑब्जेक्ट।"
+#, fuzzy
+msgid "Evaluation set: ``gt_rescore_20261011``; version ``strict hold-out, pooled``; 481 scored fields and 16213 annotated objects."
+msgstr "मूल्यांकन सेट: ``pv_r7_test``; संस्करण ``r7-published-truth``; 10 स्कोर किए गए फ़ील्ड और 683 एनोटेट किए गए ऑब्जेक्ट।"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "ALTERNATIVE, NOT BETTER: on the 15 test fields round 7 never saw it scores F1 0.536 against toxoplasma_pv_v4's 0.525 -- a tie; prefer toxoplasma_pv_v4"
@@ -706,7 +1296,20 @@ msgstr "`einarolafsson/toxoplasma-pv-segmentation-cpsam-r8 <https://huggingface.
 
 # AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Published scorecard for Toxoplasma PV v5 (round 8, alternative)"
+#, fuzzy
+msgid "Published scorecard for Toxoplasma PV v5 (round 8, alternative): cards/page1.png"
+msgstr "Toxoplasma PV v5 (दौर 8, विकल्प) का प्रकाशित स्कोरकार्ड"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma PV v5 (round 8, alternative): cards/page2.png"
+msgstr "Toxoplasma PV v5 (दौर 8, विकल्प) का प्रकाशित स्कोरकार्ड"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma PV v5 (round 8, alternative): cards/page3.png"
 msgstr "Toxoplasma PV v5 (दौर 8, विकल्प) का प्रकाशित स्कोरकार्ड"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
@@ -822,54 +1425,98 @@ msgstr "**संरचना।** Cellpose-SAM (cpsam, Cellpose 4.0.9)"
 msgid "**Trained on.** 496 curated plaque fields, including 34 reviewed empty negatives and 71 Gel Doc wells; 100 epochs; fixed physical-plate/source groups"
 msgstr "**प्रशिक्षण डेटा।** 496 क्यूरेट किए गए प्लाक फ़ील्ड, जिनमें 34 समीक्षित खाली नकारात्मक और 71 Gel Doc कूप शामिल हैं; 100 एपोक; निश्चित भौतिक-प्लेट/स्रोत समूह"
 
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "**Measured.** Stock was not evaluated in this run; see the named incumbent comparison on the model card."
-msgstr "**मापा गया।** इस रन में मानक मॉडल का मूल्यांकन नहीं किया गया; मॉडल कार्ड पर नामित वर्तमान मॉडल से तुलना देखें।"
-
-msgid "0.6419"
-msgstr "0.6419"
+#, fuzzy
+msgid "**Measured.** F1 0.732 against stock cpsam's 0.128 on the 232 strict hold-out fields at IoU 0.5; AJI 0.628 against 0.173"
+msgstr "**मापा गया।** 11 एंकर कूपों पर IoU 0.5 पर F1 0.860, जबकि मानक cpsam_v2 का 0.765; AJI 0.803 बनाम 0.505"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "not measured"
-msgstr "मापा नहीं गया"
+#, fuzzy
+msgid "0.7322"
+msgstr "0.8232"
 
-msgid "0.6943"
-msgstr "0.6943"
+#, fuzzy
+msgid "0.1280"
+msgstr "0.8905"
 
-msgid "0.5968"
-msgstr "0.5968"
-
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "ap"
-msgstr "ap"
-
-msgid "0.4726"
-msgstr "0.4726"
+#, fuzzy
+msgid "0.6042"
+msgstr "0.8842"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "true_positives"
-msgstr "true_positives"
-
-msgid "302"
-msgstr "302"
+#, fuzzy
+msgid "0.6211"
+msgstr "0.7921"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "false_positives"
-msgstr "false_positives"
+#, fuzzy
+msgid "0.2157"
+msgstr "0.8232"
 
-msgid "133"
-msgstr "133"
+#, fuzzy
+msgid "0.4054"
+msgstr "0.0954"
+
+#, fuzzy
+msgid "0.6763"
+msgstr "0.7760"
+
+#, fuzzy
+msgid "0.0827"
+msgstr "0.0820"
+
+#, fuzzy
+msgid "0.5936"
+msgstr "0.8536"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "false_negatives"
-msgstr "false_negatives"
-
-msgid "204"
-msgstr "204"
+#, fuzzy
+msgid "0.7981"
+msgstr "0.7921"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Evaluation set: ``geldoc_heldout_min_size_0``; version ``20261007T205603``; 18 scored fields and 506 annotated objects."
-msgstr "मूल्यांकन सेट: ``geldoc_heldout_min_size_0``; संस्करण ``20261007T205603``; 18 स्कोर किए गए फ़ील्ड और 506 एनोटेट किए गए ऑब्जेक्ट।"
+#, fuzzy
+msgid "0.2825"
+msgstr "0.8232"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.5156"
+msgstr "0.5586"
+
+#, fuzzy
+msgid "0.6275"
+msgstr "0.2705"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.1729"
+msgstr "0.7921"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.4547"
+msgstr "0.8354"
+
+#, fuzzy
+msgid "0.8105"
+msgstr "0.8905"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.3337"
+msgstr "0.2335"
+
+#, fuzzy
+msgid "0.4768"
+msgstr "0.7648"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Evaluation set: ``gt_rescore_20261011``; version ``strict hold-out, pooled``; 232 scored fields and 8379 annotated objects."
+msgstr "मूल्यांकन सेट: ``pv_r7_test``; संस्करण ``r7-published-truth``; 10 स्कोर किए गए फ़ील्ड और 683 एनोटेट किए गए ऑब्जेक्ट।"
+
+msgid "Recommended alternative for Gel Doc wells: on the 153 test fields of the curated 2026-10-15 set it scores object F1 0.954 on Gel Doc wells against 0.868 for the default toxoplasma_plaque_v5 (0.741 against 0.816 overall)."
+msgstr ""
 
 msgid "Alternative since 2026-10-11, when toxoplasma_plaque_v4 (base cpsam_v2) became the default by the maintainer's choice. This model scores higher: on 263 held-out fields F1 0.844 against v4 0.815, and 0.913 against 0.804 on Gel Doc wells, through spacr.plaque.segment_plaque_image. Kept so recorded runs reproduce."
 msgstr ""
@@ -905,7 +1552,19 @@ msgstr "`einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc <https://h
 # AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 #, fuzzy
-msgid "Published scorecard for Toxoplasma Plaque v3 (Gel Doc r5, alternative)"
+msgid "Published scorecard for Toxoplasma Plaque v3 (Gel Doc r5, alternative): cards/page1.png"
+msgstr "Toxoplasma Plaque v3 (Gel Doc r5, डिफ़ॉल्ट) का प्रकाशित स्कोरकार्ड"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma Plaque v3 (Gel Doc r5, alternative): cards/page2.png"
+msgstr "Toxoplasma Plaque v3 (Gel Doc r5, डिफ़ॉल्ट) का प्रकाशित स्कोरकार्ड"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma Plaque v3 (Gel Doc r5, alternative): cards/page3.png"
 msgstr "Toxoplasma Plaque v3 (Gel Doc r5, डिफ़ॉल्ट) का प्रकाशित स्कोरकार्ड"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
@@ -914,7 +1573,7 @@ msgstr "SHA-256 ``8f59850dbe09c3a252728b0a7ca38ae5b52a28f2dbaa7a068174b4b7bfac76
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 #, fuzzy
-msgid "Toxoplasma Plaque v4 (round 6, cpsam_v2, default)"
+msgid "Toxoplasma Plaque v4 (round 6, cpsam_v2)"
 msgstr "Toxoplasma Plaque v4 (दौर 6, विकल्प)"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
@@ -922,28 +1581,97 @@ msgstr "Toxoplasma Plaque v4 (दौर 6, विकल्प)"
 msgid "**Trained on.** Toxoplasma plaques from published-figure wells, Bio-Rad Gel Doc wells, lab plates and staged literature crops; round 6 splits, best of 190 epochs (epoch 140), base cpsam_v2"
 msgstr "**प्रशिक्षण डेटा।** प्रकाशित चित्रों के कूप, Bio-Rad Gel Doc कूप, प्रयोगशाला प्लेटें और चरणबद्ध साहित्य क्रॉप से Toxoplasma प्लाक; दौर 6, 180 एपोक में सर्वश्रेष्ठ (एपोक 130), आधार cpsam"
 
-msgid "**Measured.** F1 0.815 (toxoplasma_plaque_v3 0.844) on the 263 held-out fields at IoU 0.5; stock cpsam_v2 0.373 there with the Cellpose evaluation scorer"
-msgstr ""
+# AI technical review (Codex), no native-speaker signoff.
+#, fuzzy
+msgid "**Measured.** F1 0.765 against stock cpsam_v2's 0.338 on the 329 strict hold-out fields at IoU 0.5; AJI 0.662 against 0.261"
+msgstr "**मापन परिणाम।** IoU 0.5 पर 11 एंकर वेल में F1 0.854, जबकि मूल cpsam_v2 का 0.765; AJI 0.776, जबकि मूल का 0.505"
+
+msgid "0.7648"
+msgstr "0.7648"
+
+#, fuzzy
+msgid "0.3380"
+msgstr "0.8905"
+
+#, fuzzy
+msgid "0.4267"
+msgstr "0.4726"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 #, fuzzy
-msgid "0.8154"
+msgid "0.6729"
+msgstr "0.7921"
+
+#, fuzzy
+msgid "0.3539"
+msgstr "0.7539"
+
+#, fuzzy
+msgid "0.3190"
+msgstr "0.9940"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.7344"
 msgstr "0.8354"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 #, fuzzy
-msgid "0.8252"
-msgstr "0.8232"
+msgid "0.2911"
+msgstr "0.7921"
 
 #, fuzzy
-msgid "0.8058"
-msgstr "0.8905"
+msgid "0.4433"
+msgstr "0.8493"
+
+#, fuzzy
+msgid "0.7977"
+msgstr "0.9979"
+
+#, fuzzy
+msgid "0.4030"
+msgstr "0.9940"
+
+#, fuzzy
+msgid "0.3947"
+msgstr "0.9979"
+
+#, fuzzy
+msgid "0.6619"
+msgstr "0.6419"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Evaluation set: ``retrain_20261009_plaque_test``; version ``2026-10-09``; 263 scored fields and 12792 annotated objects."
-msgstr "मूल्यांकन सेट: ``retrain_20261009_plaque_test``; संस्करण ``2026-10-09``; 263 स्कोर किए गए फ़ील्ड और 12792 एनोटेट किए गए ऑब्जेक्ट।"
+#, fuzzy
+msgid "0.2610"
+msgstr "0.7921"
 
-msgid "The default plaque model since 2026-10-11, by the maintainer's rule that spaCR models build on cpsam_v2. It scores below toxoplasma_plaque_v3 on the same 263 held-out fields, through spacr.plaque.segment_plaque_image: F1 0.815 against 0.844, lower on every source (Gel Doc 0.804 against 0.913); v3 stays selectable."
+#, fuzzy
+msgid "0.4010"
+msgstr "0.9940"
+
+#, fuzzy
+msgid "0.8388"
+msgstr "0.8842"
+
+#, fuzzy
+msgid "0.4291"
+msgstr "0.4921"
+
+#, fuzzy
+msgid "0.4097"
+msgstr "0.9979"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Evaluation set: ``gt_rescore_20261011``; version ``strict hold-out, pooled``; 329 scored fields and 13915 annotated objects."
+msgstr "मूल्यांकन सेट: ``pv_r7_test``; संस्करण ``r7-published-truth``; 10 स्कोर किए गए फ़ील्ड और 683 एनोटेट किए गए ऑब्जेक्ट।"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "No longer the default: toxoplasma_plaque_v5 replaced it on 2026-10-17 (object F1 0.816 against 0.725 on the 153 curated test fields); kept selectable so recorded runs reproduce."
+msgstr "अब डिफ़ॉल्ट नहीं: 2026-10-10 को toxoplasma_plaque_v3 ने इसकी जगह ली (263 अलग रखे गए फ़ील्ड पर F1 0.844, जबकि इसका 0.799; Gel Doc कूपों पर यह मॉडल 0.013 स्कोर करता है); इसे रखा गया है ताकि दर्ज किए गए रन पुनरुत्पादित हो सकें"
+
+msgid "The default plaque model 2026-10-11 to 2026-10-17, by the maintainer's rule that spaCR models build on cpsam_v2. It scores below toxoplasma_plaque_v3 on the same 263 held-out fields, through spacr.plaque.segment_plaque_image: F1 0.815 against 0.844, lower on every source (Gel Doc 0.804 against 0.913); v3 stays selectable."
 msgstr ""
 
 msgid "Fine-tuned from cpsam_v2 (2026-10-10). It replaces the first round-6 weights, fine-tuned from first-generation cpsam (sha256 00f4a86b...a0c171), which remain in the repository history."
@@ -969,10 +1697,161 @@ msgstr "`einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6 <https://huggingf
 # AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 #, fuzzy
-msgid "Published scorecard for Toxoplasma Plaque v4 (round 6, cpsam_v2, default)"
+msgid "Published scorecard for Toxoplasma Plaque v4 (round 6, cpsam_v2): cards/page1.png"
+msgstr "Toxoplasma Plaque v4 (दौर 6, विकल्प) का प्रकाशित स्कोरकार्ड"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma Plaque v4 (round 6, cpsam_v2): cards/page2.png"
+msgstr "Toxoplasma Plaque v4 (दौर 6, विकल्प) का प्रकाशित स्कोरकार्ड"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma Plaque v4 (round 6, cpsam_v2): cards/page3.png"
 msgstr "Toxoplasma Plaque v4 (दौर 6, विकल्प) का प्रकाशित स्कोरकार्ड"
 
 msgid "SHA-256 ``744aee3f71efa68f6a369a6f91fe5850dc61e35f3dc20d53dda2c04fce17b35f``."
+msgstr ""
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Toxoplasma Plaque v5 (round 7, cpsam_v2, default)"
+msgstr "Toxoplasma Plaque v4 (दौर 6, विकल्प)"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "**Architecture.** Cellpose-SAM (cpsam_v2, Cellpose 4.2.1.1)"
+msgstr "**संरचना।** Cellpose-SAM (cpsam_v2, Cellpose 4.0.9)"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "**Trained on.** Toxoplasma plaques from Gel Doc wells, lab plates, published figures and earlier curation rounds (curated dataset of 2026-10-15); 100 epochs, final epoch kept, base cpsam_v2"
+msgstr "**प्रशिक्षण डेटा।** प्रकाशित चित्रों के कूप, Bio-Rad Gel Doc कूप, प्रयोगशाला प्लेटें और चरणबद्ध साहित्य क्रॉप से Toxoplasma प्लाक; दौर 6, 180 एपोक में सर्वश्रेष्ठ (एपोक 130), आधार cpsam"
+
+#, fuzzy
+msgid "**Measured.** F1 0.816 against stock cpsam_v2's 0.227 on the 153 strict hold-out fields at IoU 0.5; AJI 0.737 against 0.178"
+msgstr "**मापा गया।** 11 एंकर कूपों पर IoU 0.5 पर F1 0.860, जबकि मानक cpsam_v2 का 0.765; AJI 0.803 बनाम 0.505"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.8157"
+msgstr "0.8354"
+
+#, fuzzy
+msgid "0.2268"
+msgstr "0.9698"
+
+#, fuzzy
+msgid "0.5889"
+msgstr "0.8905"
+
+#, fuzzy
+msgid "0.7585"
+msgstr "0.7755"
+
+#, fuzzy
+msgid "0.2883"
+msgstr "0.8842"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.4702"
+msgstr "0.7028"
+
+#, fuzzy
+msgid "0.8674"
+msgstr "0.8842"
+
+#, fuzzy
+msgid "0.1894"
+msgstr "0.9940"
+
+#, fuzzy
+msgid "0.6779"
+msgstr "0.9979"
+
+#, fuzzy
+msgid "0.7699"
+msgstr "0.9979"
+
+#, fuzzy
+msgid "0.2824"
+msgstr "0.8842"
+
+#, fuzzy
+msgid "0.4875"
+msgstr "0.8905"
+
+#, fuzzy
+msgid "0.7366"
+msgstr "0.8536"
+
+#, fuzzy
+msgid "0.1784"
+msgstr "0.8842"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.5582"
+msgstr "0.5586"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.8962"
+msgstr "0.2896"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "0.3291"
+msgstr "0.7921"
+
+#, fuzzy
+msgid "0.5671"
+msgstr "0.8536"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Evaluation set: ``plaque_curated_20261015_test``; version ``strict hold-out, pooled``; 153 scored fields and 6540 annotated objects."
+msgstr "मूल्यांकन सेट: ``retrain_20261009_pv_test``; संस्करण ``2026-10-09``; 50 स्कोर किए गए फ़ील्ड और 3530 एनोटेट किए गए ऑब्जेक्ट।"
+
+msgid "The default plaque model since 2026-10-17, by the maintainer's choice; toxoplasma_plaque_v3 is the recommended alternative for Gel Doc wells and toxoplasma_plaque_v4 stays selectable."
+msgstr ""
+
+msgid "Scored 2026-10-17 on the 153 test fields of the curated 2026-10-15 dataset (spacr.plaque.segment_plaque_image, defaults): object F1 0.816 (95% bootstrap CI 0.778 to 0.848), v4 0.725, v3 0.741, stock cpsam_v2 0.227. On the 81 test fields neither v3 nor v4 saw: v5 0.803, v4 0.661, v3 0.684. AJI is level with v4 (0.737 against 0.744); Gel Doc wells 0.868 against v4 0.901 and v3 0.954."
+msgstr ""
+
+msgid "The final epoch 100 ships by the maintainer's rule: an earlier checkpoint replaces it only if better on every metric in every domain. Epoch 40 led on validation object F1 (0.766 against 0.750) but trailed on boundary F1 (0.700 against 0.711), AJI (0.661 against 0.667) and Dice (0.857 against 0.869); on test it scored F1 0.823."
+msgstr ""
+
+msgid "Training ran 100 epochs; indices 91 to 99 were resumed from epoch 90 after a power cut, with the same schedule and seeds (optimizer moments restarted at LR 2e-8)."
+msgstr ""
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7>`_, as ``cpsam_plaque_r7``."
+msgstr "`einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6>`_ के रूप में, ``cpsam_plaque_r6`` नाम से प्रकाशित।"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma Plaque v5 (round 7, cpsam_v2, default): cards/page1.png"
+msgstr "Toxoplasma Plaque v4 (दौर 6, विकल्प) का प्रकाशित स्कोरकार्ड"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma Plaque v5 (round 7, cpsam_v2, default): cards/page2.png"
+msgstr "Toxoplasma Plaque v4 (दौर 6, विकल्प) का प्रकाशित स्कोरकार्ड"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "Published scorecard for Toxoplasma Plaque v5 (round 7, cpsam_v2, default): cards/page3.png"
+msgstr "Toxoplasma Plaque v4 (दौर 6, विकल्प) का प्रकाशित स्कोरकार्ड"
+
+msgid "SHA-256 ``9243917beefbc3d1c8d997d56c1980b811ffef9ee075dac60b099aec715fa8a1``."
 msgstr ""
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
@@ -989,6 +1868,10 @@ msgid "**Trained on.** 452 reviewed training images; 124 validation images; phys
 msgstr "**प्रशिक्षण डेटा।** 452 समीक्षित प्रशिक्षण छवियाँ; 124 सत्यापन छवियाँ; भौतिक प्लेट और चित्र समूह; 150 एपोक; YOLO11n v3 प्रारंभीकरण"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Measured.** Stock was not evaluated in this run; see the named incumbent comparison on the model card."
+msgstr "**मापा गया।** इस रन में मानक मॉडल का मूल्यांकन नहीं किया गया; मॉडल कार्ड पर नामित वर्तमान मॉडल से तुलना देखें।"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "mAP50"
 msgstr "mAP50"
 
@@ -996,7 +1879,12 @@ msgid "0.9940"
 msgstr "0.9940"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "mAP50_95"
+msgid "not measured"
+msgstr "मापा नहीं गया"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, fuzzy
+msgid "mAP50-95"
 msgstr "mAP50_95"
 
 msgid "0.8842"

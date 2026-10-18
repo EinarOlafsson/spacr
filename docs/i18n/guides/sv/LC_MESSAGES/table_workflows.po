@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:06-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
@@ -24,8 +24,9 @@ msgid "Combine measurement tables for plots and gates"
 msgstr "Kombinera mättabeller för diagram och gates"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Open **Graph Builder** or **Gate Editor** from Home to explore measurements. Both screens offer **Merge tables** immediately beside the table picker. The same merge definition produces the same measurements in either screen. For the surrounding workflow, see :doc:`workflows`."
-msgstr "Öppna **Graph Builder** eller **Gate Editor** från Home för att utforska mätningar. Båda skärmarna har **Sammanfoga tabeller** direkt bredvid tabellväljaren. Samma sammanslagningsdefinition ger samma mätningar på båda skärmarna. För det omgivande arbetsflödet, se :doc:`workflows`."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open **Graph Builder** or **Gate Editor** from Home to plot or gate measurements. Both screens offer **Merge tables** immediately beside the table picker. The same merge definition produces the same measurements in either screen. For the surrounding workflow, see :doc:`workflows`."
+msgstr "Öppna **Graph Builder** eller **Gate Editor** från Home för att visa mätningar i diagram eller sätta grindar för dem. Båda skärmarna har **Sammanfoga tabeller** direkt bredvid tabellväljaren. Samma sammanslagningsdefinition ger samma mätningar på båda skärmarna. För det omgivande arbetsflödet, se :doc:`workflows`."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Choose a source and an observation level"

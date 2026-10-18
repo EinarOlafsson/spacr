@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 05:59-0400\n"
+"POT-Creation-Date: 2026-10-17 21:17-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: es\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -23,8 +23,8 @@ msgid "Capabilities"
 msgstr "Funcionalidades"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "spaCR processes an image-based screen from raw microscopy files to a ranked hit list. This page lists its capabilities by area; the :doc:`Python API quickstart <python_api>` and interactive tutorials cover individual workflows."
-msgstr "spaCR procesa un cribado basado en imágenes desde los archivos de microscopía sin procesar hasta una lista ordenada de candidatos. Esta página enumera sus capacidades por área; el :doc:`inicio rápido de la API de Python <python_api>` y los tutoriales interactivos cubren cada flujo de trabajo."
+msgid "spaCR segments objects in microscopy images, measures them, labels and classifies them, and regresses per-well phenotype scores on guide abundance from sequencing reads. This page lists the modules and controls by area; the :doc:`Python API quickstart <python_api>` and interactive tutorials cover individual workflows."
+msgstr "spaCR segmenta objetos en imágenes de microscopía, los mide, los etiqueta y los clasifica, y realiza una regresión de las puntuaciones de fenotipo por pocillo sobre la abundancia de guías obtenida de las lecturas de secuenciación. Esta página enumera los módulos y controles por área; el :doc:`inicio rápido de la API de Python <python_api>` y los tutoriales interactivos cubren cada flujo de trabajo."
 
 msgid "Core screen workflow"
 msgstr "Flujo de trabajo principal del cribado"
@@ -67,6 +67,18 @@ msgstr "Anotación ofrece una cuadrícula de recortes manejable con el teclado, 
 
 msgid "Classify CV also offers optional rotations and reflections at inference time. See :doc:`classifier_evaluation` for the aggregation methods, original and mean probabilities, and orientation-stability flags."
 msgstr "Clasificar CV también ofrece rotaciones y reflexiones opcionales durante la inferencia. Consulte :doc:`classifier_evaluation` para los métodos de agregación, las probabilidades originales y medias y los indicadores de estabilidad frente a la orientación."
+
+msgid "Own-DINO classifiers (alpha)"
+msgstr ""
+
+msgid "Enable **Preferences → Show alpha features**, then open **Embeddings** and load the crop stack. Select an existing own-DINO teacher checkpoint with the own-checkpoint control. **Train classifier…** opens the supervised training form. Supply a CSV with one row per loaded crop, in exactly the same order, and columns ``label`` and ``acquisition_group``. Blank labels are excluded. Each labelled crop needs its known acquisition-well identity; complete groups are held out for validation. Keep string identities such as ``01`` intact."
+msgstr ""
+
+msgid "Enter the ordered physical source-channel indices for these crops, choose training settings, and select a new classifier output file. Existing output files are preserved. The saved classifier records its classes, channel order, scaling and feature-normalization policy. Progress is shown during training; **Stop classifier** requests cancellation."
+msgstr ""
+
+msgid "Use **Apply saved classifier…** to select that classifier and apply it to the loaded raw crop stack. Its recorded preprocessing is applied automatically. **Classifier results…** shows predictions, features, logits and probabilities, with the class order, physical channels and checkpoint digest. CSV export includes the complete selected result table. **Cancel classifier result** discards pending delivery; the worker can remain active until it finishes. These alpha controls do not establish phenotype accuracy for a new dataset."
+msgstr ""
 
 msgid "Map Barcodes"
 msgstr "Mapear códigos de barras"
@@ -135,8 +147,9 @@ msgstr "**un botón en la cabecera de su módulo anfitrión** -- como una págin
 msgid "**the Help menu**, for the ones that inspect or administer work that already exists rather than belonging behind any one module -- Run History, Pipeline Graph, Project Browser, Database Browser, Report, Data Manager, Plate Queue, Batch Runner and Distributed Jobs."
 msgstr "**el menú Ayuda**, para los que examinan o administran trabajo ya existente en lugar de pertenecer a un módulo concreto -- Historial de ejecuciones, Pipeline Graph, Project Browser, Explorador de base de datos, Informe, Gestor de datos, Cola de placas, Ejecución por lotes y Trabajos distribuidos."
 
-msgid "**the command palette** (Ctrl+K), which reaches EVERY module, tiled or not. It is the one route with no exceptions, and the keyboard user's navigation."
-msgstr "**la paleta de comandos** (Ctrl+K), que llega a TODOS los módulos, tengan mosaico o no. Es la única vía sin excepciones y la navegación de quien usa el teclado."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**the command palette** (Ctrl+K), which lists every registered module, with or without a tile, and opens the selected module from the keyboard."
+msgstr "**la paleta de comandos** (Ctrl+K), que enumera todos los módulos registrados, tengan mosaico o no, y abre el módulo seleccionado desde el teclado."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Modules without a tile are installed, translated and documented in the same way as tiled modules, and those that are pipelines also run headlessly under ``spacr-run``."
@@ -412,22 +425,30 @@ msgid "To resize a popup, point at one of its edges or corners. A thin blue guid
 msgstr "Para cambiar el tamaño de una ventana emergente, apunte a uno de sus bordes o esquinas. Aparece una fina línea guía azul a lo largo de la mitad central de cada lado que se puede arrastrar. Arrastre desde cualquier punto de ese borde o esquina; la línea solo marca el lado."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand, Draw, Box, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement. Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice slider and a View list of Default, Orthogonal and True 3D; electron micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See :ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`."
-msgstr "Make Masks corrige máscaras a mano y ofrece el ciclo de Cellpose en su cabecera. Su lienzo tiene diez herramientas: Brush, Erase, Borrar objeto, Varita, Dibujar, Cuadro, Dividir / Combinar, Zoom, Volver a recortar y Regla. Varita añade una región de forma predeterminada; mantenga Ctrl pulsada al hacer clic para quitarla. La :doc:`referencia de Make Masks <make_masks>` describe estas herramientas, Niveles, los ajustes de detección, el emparejamiento de máscaras primarias y secundarias, el guardado y la medición. Los volúmenes (pilas TIFF, OME-TIFF y MRC) se abren en la misma vista con un deslizador de cortes y una lista View con Predeterminado, Ortogonal y True 3D; las micrografías electrónicas (``.dm3``, ``.dm4``, ``.mrc``) tienen un preajuste de contraste. Consulte :ref:`volúmenes 3D <mm-volumes>` y :ref:`micrografías electrónicas <mm-tem>`."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Make Masks edits integer label masks by hand. Its masthead opens related screens, including Cellpose Workbench, Model Compare, Model Zoo and Curate. Its canvas has eleven tools: Brush, Erase, Erase object, Wand, Draw, Box, Edit Label, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement. Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice slider and a View list of Default, Orthogonal and True 3D; electron micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See :ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`."
+msgstr "Make Masks edita a mano máscaras de etiquetas con valores enteros. Su cabecera abre pantallas relacionadas, entre ellas Cellpose Workbench, Model Compare, Model Zoo y Curate. Su lienzo tiene once herramientas: Brush, Erase, Borrar objeto, Varita, Dibujar, Cuadro, Editar etiqueta, Dividir / Combinar, Zoom, Volver a recortar y Regla. Varita añade una región de forma predeterminada; mantenga Ctrl pulsada al hacer clic para quitarla. La :doc:`referencia de Make Masks <make_masks>` describe estas herramientas, Niveles, los ajustes de detección, el emparejamiento de máscaras primarias y secundarias, el guardado y la medición. Los volúmenes (pilas TIFF, OME-TIFF y MRC) se abren en la misma vista con un deslizador de cortes y una lista View con Predeterminado, Ortogonal y True 3D; las micrografías electrónicas (``.dm3``, ``.dm4``, ``.mrc``) tienen un preajuste de contraste. Consulte :ref:`volúmenes 3D <mm-volumes>` y :ref:`micrografías electrónicas <mm-tem>`."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO…** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged."
 msgstr "**Cuadro** dibuja rectángulos independientes con etiquetas de clase para la anotación YOLO. Mueve o cambia el tamaño de un recuadro, deshaz o rehace ediciones y usa **Guardar cuadros** para conservar el proyecto o **Export YOLO…** para escribir etiquetas normalizadas y metadatos de clase ordenados. Las imágenes de origen y las máscaras de segmentación permanecen intactas."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Edit Label** asks for a new whole-number ID for the clicked object and gives that ID to every pixel that carries the object's current ID. Entering ``0`` removes the object. An ID that already belongs to another object is refused before any pixel changes. Each change is one undo step."
+msgstr "**Editar etiqueta** solicita un nuevo ID entero para el objeto en el que se hace clic y asigna ese ID a todos los píxeles que llevan el ID actual del objeto. Introducir ``0`` elimina el objeto. Un ID que ya pertenece a otro objeto se rechaza antes de cambiar ningún píxel. Cada cambio es un paso de deshacer."
+
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. **Divide / Merge** splits an object with a left-dragged line: the larger component retains its ID and the smaller receives a new one. Right-drag a line across objects to merge them under the first crossed ID, without painting the background between them. Other objects keep their labels."
-msgstr "Draw traza un contorno libre que se cierra y se rellena como un solo objeto -- a diferencia de un pincel, que estampa discos a lo largo del recorrido: al seguir un borde se etiqueta el borde y el centro queda como fondo. **Dividir / Combinar** divide un objeto con una línea arrastrada con el botón izquierdo: la parte mayor conserva su ID y la menor recibe uno nuevo. Arrastre una línea sobre los objetos con el botón derecho para fusionarlos bajo el primer ID cruzado, sin pintar el fondo entre ellos. Los demás objetos conservan sus etiquetas."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Draw traces a free-form outline, closes it and fills the enclosed region as one object. Brush instead paints disks along the pointer path, so tracing an outline with Brush labels only the outline and leaves the interior as background. **Divide / Merge** splits an object with a left-dragged line: the larger component retains its ID and the smaller receives a new one. Right-drag a line across objects to merge them under the first crossed ID, without painting the background between them. Other objects keep their labels."
+msgstr "Draw traza un contorno libre, lo cierra y rellena la región encerrada como un solo objeto. Brush, en cambio, pinta discos a lo largo del recorrido del puntero, de modo que al trazar un contorno con Brush solo se etiqueta el contorno y el interior queda como fondo. **Dividir / Combinar** divide un objeto con una línea arrastrada con el botón izquierdo: el componente mayor conserva su ID y el menor recibe uno nuevo. Arrastre una línea sobre los objetos con el botón derecho para fusionarlos bajo el primer ID cruzado, sin pintar el fondo entre ellos. Los demás objetos conservan sus etiquetas."
 
-msgid "Recrop is the only tool that changes which field is on screen rather than what is painted on it. A staged crop holding several cells is not one training example, and curating it as one teaches a network that two objects are one picture -- so a box round an object writes that region of both the image and the mask as a field of its own, queued straight after the current one, and the multi-object original is retired into ``recropped_originals/`` rather than curated. A box smaller than the minimum side, or one repeating a cut already made, is refused; objects the box cuts through are dropped, because an object whose boundary is where the mouse was released is not that object; and the labels that survive are renumbered from one."
-msgstr "Recrop es la única herramienta que cambia qué campo está en pantalla en lugar de lo que hay pintado en él. Un recorte preparado que contiene varias células no es un único ejemplo de entrenamiento, y curarlo como tal enseña a una red que dos objetos son una sola imagen -- por eso, un recuadro alrededor de un objeto escribe esa región de la imagen y de la máscara como un campo propio, puesto en cola justo después del actual, y el original con varios objetos se retira a ``recropped_originals/`` en lugar de curarse. Un recuadro menor que el lado mínimo, o que repite un corte ya hecho, se rechaza; los objetos que el recuadro atraviesa se descartan, porque un objeto cuyo límite está donde se soltó el ratón no es ese objeto; y las etiquetas que quedan se renumeran a partir de uno."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Recrop changes which field is on screen rather than the labels painted on it. Use it to split a field that contains several objects into separate training fields. A box drawn round an object writes that region of the image and of the mask as a new field, queued directly after the current one; the original field is moved to ``recropped_originals/`` and is not curated. A box smaller than the minimum side length, or one that repeats an existing cut, is refused. Objects that the box boundary cuts through are removed from the new mask, because their boundary in the crop is the box edge rather than the object edge. The remaining labels are renumbered from one."
+msgstr "Recrop cambia qué campo está en pantalla en lugar de las etiquetas pintadas en él. Úselo para dividir un campo que contiene varios objetos en campos de entrenamiento separados. Un recuadro dibujado alrededor de un objeto escribe esa región de la imagen y de la máscara como un campo nuevo, puesto en cola justo después del actual; el campo original se mueve a ``recropped_originals/`` y no se cura. Se rechaza un recuadro menor que la longitud mínima de lado o que repite un corte existente. Los objetos que atraviesa el borde del recuadro se eliminan de la nueva máscara, porque su límite en el recorte es el borde del recuadro y no el borde del objeto. Las etiquetas restantes se renumeran a partir de uno."
 
-msgid "Running Cellpose-SAM from this screen shows its two intermediate outputs beside the mask: the cell-probability map and the flow field. A mask is a threshold applied to that probability map, and a candidate object is discarded when its flows disagree with the ones the network predicted by more than the flow-error threshold. When a mask is wrong, those two panes are where the reason is visible."
-msgstr "Al ejecutar Cellpose-SAM desde esta pantalla se muestran sus dos salidas intermedias junto a la máscara: el mapa de probabilidad celular y el campo de flujo. Una máscara es un umbral aplicado a ese mapa de probabilidad, y un objeto candidato se descarta cuando sus flujos difieren de los que predijo la red en más que el umbral de error de flujo. Cuando una máscara es incorrecta, esos dos paneles muestran el motivo."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Running Cellpose-SAM from this screen shows its two intermediate outputs beside the mask: the cell-probability map and the flow field. Pixels above the cell-probability threshold are grouped into objects by following the flow field, and a candidate object is discarded when the flows recomputed from its mask differ from the predicted flows by more than the flow-error threshold. Inspect these two panes to see whether a missing or merged object comes from the probability map or from the flows."
+msgstr "Al ejecutar Cellpose-SAM desde esta pantalla se muestran sus dos salidas intermedias junto a la máscara: el mapa de probabilidad celular y el campo de flujo. Los píxeles por encima del umbral de probabilidad celular se agrupan en objetos siguiendo el campo de flujo, y un objeto candidato se descarta cuando los flujos recalculados a partir de su máscara difieren de los flujos predichos en más que el umbral de error de flujo. Examine estos dos paneles para determinar si un objeto ausente o fusionado procede del mapa de probabilidad o de los flujos."
 
 msgid "Settings that apply"
 msgstr "Ajustes que se aplican"

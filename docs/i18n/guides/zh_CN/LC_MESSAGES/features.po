@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 05:59-0400\n"
+"POT-Creation-Date: 2026-10-17 21:17-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -23,8 +23,8 @@ msgid "Capabilities"
 msgstr "功能"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "spaCR processes an image-based screen from raw microscopy files to a ranked hit list. This page lists its capabilities by area; the :doc:`Python API quickstart <python_api>` and interactive tutorials cover individual workflows."
-msgstr "spaCR 将一次基于图像的筛选从原始显微文件处理到排序后的命中列表。本页按领域列出其功能；:doc:`Python API 快速入门 <python_api>` 和交互式教程介绍各个具体工作流程。"
+msgid "spaCR segments objects in microscopy images, measures them, labels and classifies them, and regresses per-well phenotype scores on guide abundance from sequencing reads. This page lists the modules and controls by area; the :doc:`Python API quickstart <python_api>` and interactive tutorials cover individual workflows."
+msgstr "spaCR 对显微图像中的对象进行分割和测量，为其标注并分类，并将每孔表型评分对测序读段中的向导 RNA 丰度进行回归。本页按领域列出各模块和控件；:doc:`Python API 快速入门 <python_api>` 和交互式教程介绍各个具体工作流程。"
 
 msgid "Core screen workflow"
 msgstr "核心筛选工作流程"
@@ -67,6 +67,18 @@ msgstr "标注模块提供由键盘驱动的裁剪图网格，将标签直接记
 
 msgid "Classify CV also offers optional rotations and reflections at inference time. See :doc:`classifier_evaluation` for the aggregation methods, original and mean probabilities, and orientation-stability flags."
 msgstr "分类 CV 还提供推理时可选的旋转和镜像。关于汇总方法、原始概率和平均概率以及方向稳定性标记，请参阅 :doc:`classifier_evaluation`。"
+
+msgid "Own-DINO classifiers (alpha)"
+msgstr ""
+
+msgid "Enable **Preferences → Show alpha features**, then open **Embeddings** and load the crop stack. Select an existing own-DINO teacher checkpoint with the own-checkpoint control. **Train classifier…** opens the supervised training form. Supply a CSV with one row per loaded crop, in exactly the same order, and columns ``label`` and ``acquisition_group``. Blank labels are excluded. Each labelled crop needs its known acquisition-well identity; complete groups are held out for validation. Keep string identities such as ``01`` intact."
+msgstr ""
+
+msgid "Enter the ordered physical source-channel indices for these crops, choose training settings, and select a new classifier output file. Existing output files are preserved. The saved classifier records its classes, channel order, scaling and feature-normalization policy. Progress is shown during training; **Stop classifier** requests cancellation."
+msgstr ""
+
+msgid "Use **Apply saved classifier…** to select that classifier and apply it to the loaded raw crop stack. Its recorded preprocessing is applied automatically. **Classifier results…** shows predictions, features, logits and probabilities, with the class order, physical channels and checkpoint digest. CSV export includes the complete selected result table. **Cancel classifier result** discards pending delivery; the worker can remain active until it finishes. These alpha controls do not establish phenotype accuracy for a new dataset."
+msgstr ""
 
 msgid "Map Barcodes"
 msgstr "映射条形码"
@@ -135,8 +147,9 @@ msgstr "**其宿主模块标题栏上的按钮**——作为宿主设置旁边�
 msgid "**the Help menu**, for the ones that inspect or administer work that already exists rather than belonging behind any one module -- Run History, Pipeline Graph, Project Browser, Database Browser, Report, Data Manager, Plate Queue, Batch Runner and Distributed Jobs."
 msgstr "**帮助菜单**，用于检查或管理已有工作、而不隶属于任何单个模块的那些模块——运行历史、Pipeline Graph、Project Browser、数据库浏览器、报告、数据管理器、孔板队列、批处理运行器和分布式作业。"
 
-msgid "**the command palette** (Ctrl+K), which reaches EVERY module, tiled or not. It is the one route with no exceptions, and the keyboard user's navigation."
-msgstr "**命令面板** （Ctrl+K），可到达所有模块，无论是否有磁贴。这是唯一没有例外的路线，也是键盘用户的导航方式。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**the command palette** (Ctrl+K), which lists every registered module, with or without a tile, and opens the selected module from the keyboard."
+msgstr "**命令面板** （Ctrl+K），列出所有已注册的模块（无论是否有磁贴），并可通过键盘打开所选模块。"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Modules without a tile are installed, translated and documented in the same way as tiled modules, and those that are pipelines also run headlessly under ``spacr-run``."
@@ -412,22 +425,30 @@ msgid "To resize a popup, point at one of its edges or corners. A thin blue guid
 msgstr "要调整弹出窗口的大小，请将指针指向其任一边缘或角。可拖动的每条边的中间一半会出现一条细蓝色参考线。可沿该边缘或角的任意位置拖动；参考线只是标示出可拖动的边。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand, Draw, Box, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement. Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice slider and a View list of Default, Orthogonal and True 3D; electron micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See :ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`."
-msgstr "Make Masks 用于手动修正掩膜，并在顶部提供 Cellpose 工作流程。其画布有十种工具：Brush、Erase、擦除对象、魔棒、绘制、边界框、分割 / 合并、Zoom、重新裁剪和标尺。魔棒默认添加区域；按住 Ctrl 并点击可移除区域。:doc:`Make Masks 参考指南 <make_masks>` 介绍这些工具、色阶、检测设置、主次掩膜配对、保存和测量。体数据（TIFF 堆栈、OME-TIFF 和 MRC）在同一视图中打开，带有切片滑块和包含默认、正交及 True 3D 的 View 列表；电子显微图像（``.dm3``、``.dm4``、``.mrc``）提供对比度预设。请参阅 :ref:`3D 体数据 <mm-volumes>` 和 :ref:`电子显微图像 <mm-tem>`。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Make Masks edits integer label masks by hand. Its masthead opens related screens, including Cellpose Workbench, Model Compare, Model Zoo and Curate. Its canvas has eleven tools: Brush, Erase, Erase object, Wand, Draw, Box, Edit Label, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement. Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice slider and a View list of Default, Orthogonal and True 3D; electron micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See :ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`."
+msgstr "Make Masks 用于手动编辑整数标签掩膜。其顶部可打开相关界面，包括 Cellpose Workbench、Model Compare、Model Zoo 和 Curate。其画布有十一种工具：Brush、Erase、擦除对象、魔棒、绘制、边界框、编辑标签、分割 / 合并、Zoom、重新裁剪和标尺。魔棒默认添加区域；按住 Ctrl 并点击可移除区域。:doc:`Make Masks 参考指南 <make_masks>` 介绍这些工具、色阶、检测设置、主次掩膜配对、保存和测量。体数据（TIFF 堆栈、OME-TIFF 和 MRC）在同一视图中打开，带有切片滑块和包含默认、正交及 True 3D 的 View 列表；电子显微图像（``.dm3``、``.dm4``、``.mrc``）提供对比度预设。请参阅 :ref:`3D 体数据 <mm-volumes>` 和 :ref:`电子显微图像 <mm-tem>`。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO…** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged."
 msgstr "**边界框** 为 YOLO 标注绘制带类别标签的独立矩形。可以移动或调整框的大小、撤销或重做编辑，并使用 **保存边界框** 保存项目，或使用 **Export YOLO…** 写出归一化标签和有序的类别元数据。源图像和分割掩膜保持不变。"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Edit Label** asks for a new whole-number ID for the clicked object and gives that ID to every pixel that carries the object's current ID. Entering ``0`` removes the object. An ID that already belongs to another object is refused before any pixel changes. Each change is one undo step."
+msgstr "**编辑标签** 为所点击的对象请求一个新的整数 ID，并将该 ID 赋给带有该对象当前 ID 的所有像素。输入 ``0`` 会删除该对象。已属于其他对象的 ID 会在任何像素改变之前被拒绝。每次更改为一个撤销步骤。"
+
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. **Divide / Merge** splits an object with a left-dragged line: the larger component retains its ID and the smaller receives a new one. Right-drag a line across objects to merge them under the first crossed ID, without painting the background between them. Other objects keep their labels."
-msgstr "Draw 描绘自由轮廓，将其闭合并填充为单个对象 -- 画笔则沿路径盖印圆盘，因此沿边缘描绘只会标记边缘，中央仍为背景。**分割 / 合并** 用按住鼠标左键拖出的线分割对象：较大的部分保留原 ID，较小的部分获得新 ID。按住鼠标右键拖线跨过多个对象，可将它们合并到第一个被穿过的 ID 下，而不涂绘它们之间的背景。其他对象保留各自的标签。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Draw traces a free-form outline, closes it and fills the enclosed region as one object. Brush instead paints disks along the pointer path, so tracing an outline with Brush labels only the outline and leaves the interior as background. **Divide / Merge** splits an object with a left-dragged line: the larger component retains its ID and the smaller receives a new one. Right-drag a line across objects to merge them under the first crossed ID, without painting the background between them. Other objects keep their labels."
+msgstr "Draw 描绘自由轮廓，将其闭合，并将围住的区域填充为单个对象。画笔则沿指针路径盖印圆盘，因此用画笔描绘轮廓只会标记轮廓，内部仍为背景。**分割 / 合并** 用按住鼠标左键拖出的线分割对象：较大的部分保留原 ID，较小的部分获得新 ID。按住鼠标右键拖线跨过多个对象，可将它们合并到第一个被穿过的 ID 下，而不涂绘它们之间的背景。其他对象保留各自的标签。"
 
-msgid "Recrop is the only tool that changes which field is on screen rather than what is painted on it. A staged crop holding several cells is not one training example, and curating it as one teaches a network that two objects are one picture -- so a box round an object writes that region of both the image and the mask as a field of its own, queued straight after the current one, and the multi-object original is retired into ``recropped_originals/`` rather than curated. A box smaller than the minimum side, or one repeating a cut already made, is refused; objects the box cuts through are dropped, because an object whose boundary is where the mouse was released is not that object; and the labels that survive are renumbered from one."
-msgstr "Recrop 是唯一会改变屏幕上显示哪个视野、而不是改变其上所绘内容的工具。包含多个细胞的阶段性裁剪图不是一个训练样本，把它当作一个样本校正会让网络误认为两个对象是一张图——因此，围绕某个对象的框会将图像和掩膜的该区域写为一个单独的视野，排在当前视野之后，而多对象的原图会被移入 ``recropped_originals/``，而不是被校正。小于最小边长的框，或重复已有裁剪的框，会被拒绝；被框切到的对象会被丢弃，因为边界落在鼠标释放处的对象已不是原来的对象；保留下来的标签从一开始重新编号。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Recrop changes which field is on screen rather than the labels painted on it. Use it to split a field that contains several objects into separate training fields. A box drawn round an object writes that region of the image and of the mask as a new field, queued directly after the current one; the original field is moved to ``recropped_originals/`` and is not curated. A box smaller than the minimum side length, or one that repeats an existing cut, is refused. Objects that the box boundary cuts through are removed from the new mask, because their boundary in the crop is the box edge rather than the object edge. The remaining labels are renumbered from one."
+msgstr "Recrop 改变屏幕上显示的视野，而不是改变其上所绘的标签。可用它将包含多个对象的视野拆分为独立的训练视野。围绕某个对象绘制的框会将图像和掩膜的该区域写为一个新视野，排在当前视野之后；原视野被移入 ``recropped_originals/``，不进行校正。小于最小边长的框，或重复已有裁剪的框，会被拒绝。被框边界切到的对象会从新掩膜中移除，因为它们在裁剪图中的边界是框的边缘，而不是对象的边缘。其余标签从 1 开始重新编号。"
 
-msgid "Running Cellpose-SAM from this screen shows its two intermediate outputs beside the mask: the cell-probability map and the flow field. A mask is a threshold applied to that probability map, and a candidate object is discarded when its flows disagree with the ones the network predicted by more than the flow-error threshold. When a mask is wrong, those two panes are where the reason is visible."
-msgstr "在此屏幕上运行 Cellpose-SAM 时，会在掩膜旁显示其两个中间输出：细胞概率图和流场。掩膜是对该概率图应用阈值的结果，当候选对象的流场与网络预测的流场之差超过流场误差阈值时，该候选对象会被丢弃。掩膜出错时，原因就体现在这两个窗格中。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Running Cellpose-SAM from this screen shows its two intermediate outputs beside the mask: the cell-probability map and the flow field. Pixels above the cell-probability threshold are grouped into objects by following the flow field, and a candidate object is discarded when the flows recomputed from its mask differ from the predicted flows by more than the flow-error threshold. Inspect these two panes to see whether a missing or merged object comes from the probability map or from the flows."
+msgstr "在此屏幕上运行 Cellpose-SAM 时，会在掩膜旁显示其两个中间输出：细胞概率图和流场。高于细胞概率阈值的像素沿流场被归并为对象；当由候选对象的掩膜重新计算的流场与预测流场之差超过流场误差阈值时，该候选对象会被丢弃。查看这两个窗格可判断对象缺失或合并是源于概率图还是流场。"
 
 msgid "Settings that apply"
 msgstr "适用的设置"

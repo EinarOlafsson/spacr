@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: de\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Language"
 msgstr "Sprache"
 
-msgid "Welcome to spaCR"
-msgstr "Willkommen bei spaCR"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "spaCR documentation"
+msgstr "spaCR-Dokumentation"
 
 msgid "spaCR Logo"
 msgstr "spaCR-Logo"
@@ -209,6 +210,9 @@ msgstr "spaCR lernen"
 
 msgid "Start with installation, continue to Home and the pipeline overviews, then follow the module walkthrough for your task in the `interactive tutorial library <tutorials/>`_. Each lesson lists its available narration voices and captions. New English lessons can appear while their translations are being prepared. Open the library from the GUI through **Help → Tutorial**."
 msgstr "Beginnen Sie mit der Installation, fahren Sie mit der Startseite und den Pipeline-Übersichten fort und folgen Sie dann in der `interaktiven Tutorial-Bibliothek <tutorials/>`_ der Modulanleitung für Ihre Aufgabe. Jede Lektion listet ihre verfügbaren Sprecherstimmen und Untertitel auf. Neue englische Lektionen können erscheinen, während ihre Übersetzungen noch vorbereitet werden. Öffnen Sie die Bibliothek in der GUI über **Hilfe → Tutorial**."
+
+msgid "From a terminal, ``spacr-tutorial`` lists the lessons by number, title and screen and then opens the library in your web browser. ``spacr-tutorial mask`` opens one lesson, named by number, slug or screen; ``--list`` prints the lessons and opens nothing, and ``--print-url`` prints the address instead of opening a browser. A name that matches no lesson exits with code 2 and suggests close matches."
+msgstr ""
 
 msgid "Contents"
 msgstr "Inhalt"

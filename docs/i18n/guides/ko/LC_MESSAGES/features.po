@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 05:59-0400\n"
+"POT-Creation-Date: 2026-10-17 21:17-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -23,8 +23,8 @@ msgid "Capabilities"
 msgstr "기능"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "spaCR processes an image-based screen from raw microscopy files to a ranked hit list. This page lists its capabilities by area; the :doc:`Python API quickstart <python_api>` and interactive tutorials cover individual workflows."
-msgstr "spaCR은 이미지 기반 스크린을 원시 현미경 파일부터 순위가 매겨진 히트 목록까지 처리합니다. 이 페이지는 기능을 영역별로 나열하며, :doc:`Python API 빠른 시작 <python_api>`\\ 과 대화형 튜토리얼에서 개별 워크플로를 다룹니다."
+msgid "spaCR segments objects in microscopy images, measures them, labels and classifies them, and regresses per-well phenotype scores on guide abundance from sequencing reads. This page lists the modules and controls by area; the :doc:`Python API quickstart <python_api>` and interactive tutorials cover individual workflows."
+msgstr "spaCR은 현미경 이미지에서 객체를 분할하고 측정하며, 객체에 라벨을 지정하고 분류하고, 웰별 표현형 점수를 시퀀싱 리드에서 얻은 가이드 존재량에 대해 회귀합니다. 이 페이지는 모듈과 컨트롤을 영역별로 나열하며, :doc:`Python API 빠른 시작 <python_api>`\\ 과 대화형 튜토리얼에서 개별 워크플로를 다룹니다."
 
 msgid "Core screen workflow"
 msgstr "핵심 스크린 워크플로"
@@ -67,6 +67,18 @@ msgstr "어노테이션 모듈은 키보드로 조작하는 크롭 격자를 제
 
 msgid "Classify CV also offers optional rotations and reflections at inference time. See :doc:`classifier_evaluation` for the aggregation methods, original and mean probabilities, and orientation-stability flags."
 msgstr "분류 CV는 추론 시 선택적 회전과 반사도 제공합니다. 집계 방법, 원래 확률과 평균 확률, 방향 안정성 표시는 :doc:`classifier_evaluation` 을 참조합니다."
+
+msgid "Own-DINO classifiers (alpha)"
+msgstr ""
+
+msgid "Enable **Preferences → Show alpha features**, then open **Embeddings** and load the crop stack. Select an existing own-DINO teacher checkpoint with the own-checkpoint control. **Train classifier…** opens the supervised training form. Supply a CSV with one row per loaded crop, in exactly the same order, and columns ``label`` and ``acquisition_group``. Blank labels are excluded. Each labelled crop needs its known acquisition-well identity; complete groups are held out for validation. Keep string identities such as ``01`` intact."
+msgstr ""
+
+msgid "Enter the ordered physical source-channel indices for these crops, choose training settings, and select a new classifier output file. Existing output files are preserved. The saved classifier records its classes, channel order, scaling and feature-normalization policy. Progress is shown during training; **Stop classifier** requests cancellation."
+msgstr ""
+
+msgid "Use **Apply saved classifier…** to select that classifier and apply it to the loaded raw crop stack. Its recorded preprocessing is applied automatically. **Classifier results…** shows predictions, features, logits and probabilities, with the class order, physical channels and checkpoint digest. CSV export includes the complete selected result table. **Cancel classifier result** discards pending delivery; the worker can remain active until it finishes. These alpha controls do not establish phenotype accuracy for a new dataset."
+msgstr ""
 
 msgid "Map Barcodes"
 msgstr "바코드 매핑"
@@ -135,8 +147,9 @@ msgstr "**호스트 모듈 헤더의 버튼** -- 호스트 설정 옆의 페이�
 msgid "**the Help menu**, for the ones that inspect or administer work that already exists rather than belonging behind any one module -- Run History, Pipeline Graph, Project Browser, Database Browser, Report, Data Manager, Plate Queue, Batch Runner and Distributed Jobs."
 msgstr "**도움말 메뉴** -- 특정 모듈에 속하기보다 이미 있는 작업을 검사하거나 관리하는 모듈입니다. 실행 기록, Pipeline Graph, Project Browser, 데이터베이스 브라우저, 보고서, 데이터 관리자, 플레이트 대기열, 배치 실행기, 분산 작업이 여기에 해당합니다."
 
-msgid "**the command palette** (Ctrl+K), which reaches EVERY module, tiled or not. It is the one route with no exceptions, and the keyboard user's navigation."
-msgstr "**명령 팔레트** (Ctrl+K) -- 타일 여부와 관계없이 모든 모듈에 도달합니다. 예외가 없는 유일한 경로이며, 키보드 사용자의 탐색 수단입니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**the command palette** (Ctrl+K), which lists every registered module, with or without a tile, and opens the selected module from the keyboard."
+msgstr "**명령 팔레트** (Ctrl+K) -- 타일 여부와 관계없이 등록된 모든 모듈을 나열하고, 선택한 모듈을 키보드로 엽니다."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Modules without a tile are installed, translated and documented in the same way as tiled modules, and those that are pipelines also run headlessly under ``spacr-run``."
@@ -412,22 +425,30 @@ msgid "To resize a popup, point at one of its edges or corners. A thin blue guid
 msgstr "팝업 크기를 바꾸려면 가장자리나 모서리 중 하나를 가리킵니다. 끌 수 있는 각 변의 가운데 절반에 얇은 파란색 안내선이 나타납니다. 그 가장자리나 모서리의 어느 지점에서든 끌면 되며, 안내선은 변을 표시할 뿐입니다."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand, Draw, Box, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement. Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice slider and a View list of Default, Orthogonal and True 3D; electron micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See :ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`."
-msgstr "Make Masks는 마스크를 수동으로 수정하며 상단에서 Cellpose 작업 흐름을 제공합니다. 캔버스에는 Brush, Erase, 객체 지우기, 마술봉, 그리기, 상자, 분할 / 병합, Zoom, 다시 자르기, 자의 열 가지 도구가 있습니다. 마술봉은 기본적으로 영역을 추가하며, Ctrl을 누른 채 클릭하면 영역을 제거합니다. :doc:`Make Masks 참조 문서 <make_masks>` 에서는 이러한 도구, 레벨, 검출 설정, 기본 및 보조 마스크 연결, 저장, 측정을 설명합니다. 볼륨(TIFF 스택, OME-TIFF, MRC)은 같은 뷰에서 열리며 슬라이스 슬라이더와 기본값, 직교, True 3D를 제공하는 View 목록이 표시됩니다. 전자현미경 이미지(``.dm3``, ``.dm4``, ``.mrc``)에는 대비 사전 설정이 있습니다. :ref:`3D 볼륨 <mm-volumes>` 및 :ref:`전자현미경 이미지 <mm-tem>` 문서를 참조하세요."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Make Masks edits integer label masks by hand. Its masthead opens related screens, including Cellpose Workbench, Model Compare, Model Zoo and Curate. Its canvas has eleven tools: Brush, Erase, Erase object, Wand, Draw, Box, Edit Label, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement. Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice slider and a View list of Default, Orthogonal and True 3D; electron micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See :ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`."
+msgstr "Make Masks는 정수 라벨 마스크를 수동으로 편집합니다. 상단에서 Cellpose Workbench, Model Compare, Model Zoo, Curate 등 관련 화면을 열 수 있습니다. 캔버스에는 Brush, Erase, 객체 지우기, 마술봉, 그리기, 상자, 레이블 편집, 분할 / 병합, Zoom, 다시 자르기, 자의 열한 가지 도구가 있습니다. 마술봉은 기본적으로 영역을 추가하며, Ctrl을 누른 채 클릭하면 영역을 제거합니다. :doc:`Make Masks 참조 문서 <make_masks>` 에서는 이러한 도구, 레벨, 검출 설정, 기본 및 보조 마스크 연결, 저장, 측정을 설명합니다. 볼륨(TIFF 스택, OME-TIFF, MRC)은 같은 뷰에서 열리며 슬라이스 슬라이더와 기본값, 직교, True 3D를 제공하는 View 목록이 표시됩니다. 전자현미경 이미지(``.dm3``, ``.dm4``, ``.mrc``)에는 대비 사전 설정이 있습니다. :ref:`3D 볼륨 <mm-volumes>` 및 :ref:`전자현미경 이미지 <mm-tem>` 문서를 참조하세요."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO…** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged."
 msgstr "**상자** 도구는 YOLO 주석을 위해 클래스 라벨이 있는 독립적인 사각형을 그립니다. 상자를 이동하거나 크기를 조절하고, 편집을 실행 취소하거나 다시 실행할 수 있습니다. **상자 저장** 기능으로 프로젝트를 보존하거나 **Export YOLO…** 기능으로 정규화된 라벨과 순서가 지정된 클래스 메타데이터를 저장하세요. 원본 이미지와 분할 마스크는 변경되지 않습니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Edit Label** asks for a new whole-number ID for the clicked object and gives that ID to every pixel that carries the object's current ID. Entering ``0`` removes the object. An ID that already belongs to another object is refused before any pixel changes. Each change is one undo step."
+msgstr "**레이블 편집** 은 클릭한 객체에 대한 새 정수 ID를 묻고, 객체의 현재 ID를 가진 모든 픽셀에 그 ID를 부여합니다. ``0`` 을 입력하면 객체가 제거됩니다. 이미 다른 객체에 속한 ID는 픽셀이 바뀌기 전에 거부됩니다. 각 변경은 하나의 실행 취소 단계입니다."
+
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. **Divide / Merge** splits an object with a left-dragged line: the larger component retains its ID and the smaller receives a new one. Right-drag a line across objects to merge them under the first crossed ID, without painting the background between them. Other objects keep their labels."
-msgstr "Draw는 자유형 윤곽선을 닫고 내부를 하나의 객체로 채웁니다 -- 브러시는 경로를 따라 원판을 찍으므로 가장자리를 따라 그리면 가장자리만 라벨링되고 중앙은 배경으로 남습니다. **분할 / 병합** 는 왼쪽 버튼을 누르고 드래그한 선으로 객체를 나눕니다. 큰 부분은 기존 ID를 유지하고 작은 부분은 새 ID를 받습니다. 오른쪽 버튼을 누르고 여러 객체를 가로지르는 선을 드래그하면 처음 가로지른 ID 아래로 객체가 병합되며, 객체 사이의 배경은 칠하지 않습니다. 다른 객체는 라벨을 유지합니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Draw traces a free-form outline, closes it and fills the enclosed region as one object. Brush instead paints disks along the pointer path, so tracing an outline with Brush labels only the outline and leaves the interior as background. **Divide / Merge** splits an object with a left-dragged line: the larger component retains its ID and the smaller receives a new one. Right-drag a line across objects to merge them under the first crossed ID, without painting the background between them. Other objects keep their labels."
+msgstr "Draw는 자유형 윤곽선을 그려 닫고, 둘러싸인 영역을 하나의 객체로 채웁니다. 반면 브러시는 포인터 경로를 따라 원판을 찍으므로, 브러시로 윤곽선을 따라 그리면 윤곽선만 라벨링되고 내부는 배경으로 남습니다. **분할 / 병합** 는 왼쪽 버튼을 누르고 드래그한 선으로 객체를 나눕니다. 큰 부분은 기존 ID를 유지하고 작은 부분은 새 ID를 받습니다. 오른쪽 버튼을 누르고 여러 객체를 가로지르는 선을 드래그하면 처음 가로지른 ID 아래로 객체가 병합되며, 객체 사이의 배경은 칠하지 않습니다. 다른 객체는 라벨을 유지합니다."
 
-msgid "Recrop is the only tool that changes which field is on screen rather than what is painted on it. A staged crop holding several cells is not one training example, and curating it as one teaches a network that two objects are one picture -- so a box round an object writes that region of both the image and the mask as a field of its own, queued straight after the current one, and the multi-object original is retired into ``recropped_originals/`` rather than curated. A box smaller than the minimum side, or one repeating a cut already made, is refused; objects the box cuts through are dropped, because an object whose boundary is where the mouse was released is not that object; and the labels that survive are renumbered from one."
-msgstr "Recrop은 화면에 그려진 내용이 아니라 화면에 표시되는 시야 자체를 바꾸는 유일한 도구입니다. 여러 세포가 담긴 준비된 크롭은 하나의 학습 예제가 아니며, 이를 하나로 큐레이트하면 네트워크가 두 객체를 한 장의 그림으로 학습하게 됩니다. 따라서 객체 주위에 상자를 그리면 이미지와 마스크의 해당 영역이 별도의 시야로 기록되어 현재 시야 바로 다음 대기열에 들어가고, 여러 객체가 담긴 원본은 큐레이트되지 않고 ``recropped_originals/`` 로 옮겨집니다. 최소 변보다 작은 상자나 이미 만든 잘라내기를 반복하는 상자는 거부됩니다. 상자가 가로지르는 객체는 제외됩니다. 경계가 마우스를 놓은 위치에 있는 객체는 원래의 그 객체가 아니기 때문입니다. 남은 레이블은 1부터 다시 번호가 매겨집니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Recrop changes which field is on screen rather than the labels painted on it. Use it to split a field that contains several objects into separate training fields. A box drawn round an object writes that region of the image and of the mask as a new field, queued directly after the current one; the original field is moved to ``recropped_originals/`` and is not curated. A box smaller than the minimum side length, or one that repeats an existing cut, is refused. Objects that the box boundary cuts through are removed from the new mask, because their boundary in the crop is the box edge rather than the object edge. The remaining labels are renumbered from one."
+msgstr "Recrop은 화면에 그려진 라벨이 아니라 화면에 표시되는 시야 자체를 바꿉니다. 여러 객체가 포함된 시야를 별도의 학습 시야로 나눌 때 사용합니다. 객체 주위에 그린 상자는 이미지와 마스크의 해당 영역을 새 시야로 기록하며, 이 시야는 현재 시야 바로 다음 대기열에 들어갑니다. 원래 시야는 ``recropped_originals/`` 로 옮겨지고 큐레이트되지 않습니다. 최소 변 길이보다 작은 상자나 기존 잘라내기를 반복하는 상자는 거부됩니다. 상자 경계가 가로지르는 객체는 새 마스크에서 제거됩니다. 잘라낸 영역에서 이 객체들의 경계는 객체 가장자리가 아니라 상자 가장자리이기 때문입니다. 남은 레이블은 1부터 다시 번호가 매겨집니다."
 
-msgid "Running Cellpose-SAM from this screen shows its two intermediate outputs beside the mask: the cell-probability map and the flow field. A mask is a threshold applied to that probability map, and a candidate object is discarded when its flows disagree with the ones the network predicted by more than the flow-error threshold. When a mask is wrong, those two panes are where the reason is visible."
-msgstr "이 화면에서 Cellpose-SAM을 실행하면 마스크 옆에 두 가지 중간 출력, 즉 세포 확률 맵과 흐름 필드가 표시됩니다. 마스크는 그 확률 맵에 임계값을 적용한 결과이며, 후보 객체의 흐름이 네트워크가 예측한 흐름과 흐름 오차 임계값 이상 다르면 그 후보는 버려집니다. 마스크가 잘못되었을 때 그 이유가 보이는 곳이 바로 이 두 창입니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Running Cellpose-SAM from this screen shows its two intermediate outputs beside the mask: the cell-probability map and the flow field. Pixels above the cell-probability threshold are grouped into objects by following the flow field, and a candidate object is discarded when the flows recomputed from its mask differ from the predicted flows by more than the flow-error threshold. Inspect these two panes to see whether a missing or merged object comes from the probability map or from the flows."
+msgstr "이 화면에서 Cellpose-SAM을 실행하면 마스크 옆에 두 가지 중간 출력, 즉 세포 확률 맵과 흐름 필드가 표시됩니다. 세포 확률 임계값보다 높은 픽셀은 흐름 필드를 따라 객체로 묶이며, 후보 객체의 마스크로부터 다시 계산한 흐름이 예측된 흐름과 흐름 오차 임계값보다 크게 다르면 그 후보는 버려집니다. 이 두 창을 확인하면 누락되거나 병합된 객체가 확률 맵에서 비롯되었는지 흐름에서 비롯되었는지 알 수 있습니다."
 
 msgid "Settings that apply"
 msgstr "적용되는 설정"

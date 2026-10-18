@@ -655,8 +655,9 @@ built it fails.
 
 The public `GHCR package page
 <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available
-versions. The commands below use the published **1.5.1.0** images; not every
-spaCR release has a container image.
+versions. The commands below name the image tags of the spaCR release this
+page documents. Not every spaCR release has a container image; check the
+package page before pulling a tag.
 
 The images run spaCR without a display: the CLI, the pipelines, cluster jobs
 and reruns of an earlier analysis with a pinned version. Use the platform

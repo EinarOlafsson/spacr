@@ -1,9 +1,11 @@
 Capabilities
 ============
 
-spaCR processes an image-based screen from raw microscopy files to a ranked
-hit list. This page lists its capabilities by area; the :doc:`Python API
-quickstart <python_api>` and interactive tutorials cover individual workflows.
+spaCR segments objects in microscopy images, measures them, labels and
+classifies them, and regresses per-well phenotype scores on guide abundance
+from sequencing reads. This page lists the modules and controls by area; the
+:doc:`Python API quickstart <python_api>` and interactive tutorials cover
+individual workflows.
 
 Core screen workflow
 --------------------
@@ -193,9 +195,8 @@ another module. They open from:
   already exists rather than belonging behind any one module -- Run History,
   Pipeline Graph, Project Browser, Database Browser, Report, Data Manager,
   Plate Queue, Batch Runner and Distributed Jobs.
-- **the command palette** (Ctrl+K), which reaches EVERY module, tiled or
-  not. It is the one route with no exceptions, and the keyboard user's
-  navigation.
+- **the command palette** (Ctrl+K), which lists every registered module,
+  with or without a tile, and opens the selected module from the keyboard.
 
 Modules without a tile are installed, translated and documented in the same
 way as tiled modules, and those that are pipelines also run headlessly under
@@ -478,9 +479,10 @@ anywhere along that edge or corner; the line only marks the side.
 Make Masks
 ----------
 
-Make Masks corrects masks by hand and carries the Cellpose loop on its
-masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand,
-Draw, Box, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by
+Make Masks edits integer label masks by hand. Its masthead opens related
+screens, including Cellpose Workbench, Model Compare, Model Zoo and Curate.
+Its canvas has eleven tools: Brush, Erase, Erase object, Wand,
+Draw, Box, Edit Label, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by
 default; hold Ctrl while clicking to remove it. The
 :doc:`Make Masks reference <make_masks>` covers these tools, Levels,
 detection settings, primary/secondary pairing, saving and measurement.
@@ -494,31 +496,37 @@ Move or resize a box, undo or redo edits, and use **Save boxes** to preserve
 the project or **Export YOLO…** to write normalized labels and ordered class
 metadata. Source images and segmentation masks remain unchanged.
 
-Draw traces a free-form outline that closes and fills as a single object --
-the tool a brush is not, because a brush stamps disks along the path, so
-tracing a rim with it labels the rim and leaves the middle background.
+**Edit Label** asks for a new whole-number ID for the clicked object and
+gives that ID to every pixel that carries the object's current ID. Entering
+``0`` removes the object. An ID that already belongs to another object is
+refused before any pixel changes. Each change is one undo step.
+
+Draw traces a free-form outline, closes it and fills the enclosed region as
+one object. Brush instead paints disks along the pointer path, so tracing an
+outline with Brush labels only the outline and leaves the interior as
+background.
 **Divide / Merge** splits an object with a left-dragged line: the larger
 component retains its ID and the smaller receives a new one. Right-drag a
 line across objects to merge them under the first crossed ID, without
 painting the background between them. Other objects keep their labels.
 
-Recrop is the only tool that changes which field is on screen rather than
-what is painted on it. A staged crop holding several cells is not one training
-example, and curating it as one teaches a network that two objects are one
-picture -- so a box round an object writes that region of both the image and
-the mask as a field of its own, queued straight after the current one, and the
-multi-object original is retired into ``recropped_originals/`` rather than
-curated. A box smaller than the minimum side, or one repeating a cut already
-made, is refused; objects the box cuts through are dropped, because an object
-whose boundary is where the mouse was released is not that object; and the
-labels that survive are renumbered from one.
+Recrop changes which field is on screen rather than the labels painted on
+it. Use it to split a field that contains several objects into separate
+training fields. A box drawn round an object writes that region of the image
+and of the mask as a new field, queued directly after the current one; the
+original field is moved to ``recropped_originals/`` and is not curated. A box
+smaller than the minimum side length, or one that repeats an existing cut, is
+refused. Objects that the box boundary cuts through are removed from the new
+mask, because their boundary in the crop is the box edge rather than the
+object edge. The remaining labels are renumbered from one.
 
 Running Cellpose-SAM from this screen shows its two intermediate outputs
-beside the mask: the cell-probability map and the flow field. A mask is a
-threshold applied to that probability map, and a candidate object is discarded
-when its flows disagree with the ones the network predicted by more than the
-flow-error threshold. When a mask is wrong, those two panes are where the
-reason is visible.
+beside the mask: the cell-probability map and the flow field. Pixels above the
+cell-probability threshold are grouped into objects by following the flow
+field, and a candidate object is discarded when the flows recomputed from its
+mask differ from the predicted flows by more than the flow-error threshold.
+Inspect these two panes to see whether a missing or merged object comes from
+the probability map or from the flows.
 
 Settings that apply
 -------------------

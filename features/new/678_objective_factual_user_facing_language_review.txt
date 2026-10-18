@@ -311,3 +311,9 @@ Rewrote 59 runtime strings as factual descriptions: settings-group help, prefere
 sound and fractal tooltips, night-theme and palette notes, drift options, diameter,
 figure text-size and Embeddings intro; nine-locale reviewed records added, 171
 superseded records archived. WS still owns docs, API docstrings and tutorials.
+
+2026-10-17 — Home docs/source prose share (from WS). "Pixels to answers" slogan already absent. Rewrote 17
+paragraphs in features, index, host_pathogen, plaque_assay, installer_guide, model_zoo, model_explanation,
+table_workflows, settings_flow, setting_animations (generator): slogan variant, metaphors, request quote, stale
+Home → Assays path, version-stale tag prose; added missing Edit Label tool; regenerated settings-flow page.
+Nine-locale AI-reviewed guide catalogs, no native signoff. workflows.rst (tutorial-fed) and README unchanged.

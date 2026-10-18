@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
@@ -22,14 +22,16 @@ msgstr ""
 msgid "Host–Pathogen Analysis"
 msgstr "मेज़बान–रोगजनक विश्लेषण"
 
-msgid "From **Home → Assays → Toxoplasma**, open **Host–Pathogen Analysis**. This module combines vacuole-level marker recruitment with host and well summaries. For vacuole recruitment on its own, use :doc:`Recruitment <recruitment>`."
-msgstr "**मुखपृष्ठ → एसे → टोक्सोप्लाज़्मा** से **मेज़बान–रोगजनक विश्लेषण** खोलें। यह मॉड्यूल रिक्तिका-स्तरीय मार्कर रिक्रूटमेंट को मेज़बान और कूप सारांशों के साथ जोड़ता है। केवल रिक्तिका रिक्रूटमेंट के लिए :doc:`रिक्रूटमेंट विश्लेषण <recruitment>` का उपयोग करें।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "From **Home → Organism → Toxoplasma**, open **Host–Pathogen Analysis**. This module combines vacuole-level marker recruitment with host and well summaries. For vacuole recruitment on its own, use :doc:`Recruitment <recruitment>`."
+msgstr "**मुखपृष्ठ → जीव → टोक्सोप्लाज़्मा** से **मेज़बान–रोगजनक विश्लेषण** खोलें। यह मॉड्यूल रिक्तिका-स्तरीय मार्कर रिक्रूटमेंट को मेज़बान और कूप सारांशों के साथ जोड़ता है। केवल रिक्तिका रिक्रूटमेंट के लिए :doc:`रिक्रूटमेंट विश्लेषण <recruitment>` का उपयोग करें।"
 
 msgid "Try the real microscopy test data"
 msgstr "वास्तविक सूक्ष्मदर्शी परीक्षण डेटा आज़माएँ"
 
-msgid "Open **Home → Assays → Toxoplasma → Host–Pathogen Analysis** and select **Load test data…**. The download is approximately 114 MB."
-msgstr "**मुखपृष्ठ → एसे → टोक्सोप्लाज़्मा → मेज़बान–रोगजनक विश्लेषण** खोलें और **परीक्षण डेटा लोड करें...** चुनें। डाउनलोड लगभग 114 MB का है।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open **Home → Organism → Toxoplasma → Host–Pathogen Analysis** and select **Load test data…**. The download is approximately 114 MB."
+msgstr "**मुखपृष्ठ → जीव → टोक्सोप्लाज़्मा → मेज़बान–रोगजनक विश्लेषण** खोलें और **परीक्षण डेटा लोड करें...** चुनें। डाउनलोड लगभग 114 MB का है।"
 
 msgid "Enable **Live** beside the bottom action controls, then select **Run preview**. Choose either measured field and select vacuoles in the image or table to inspect their host links and marker ratios."
 msgstr "नीचे के क्रिया नियंत्रणों के बगल में **लाइव** सक्षम करें, फिर **पूर्वावलोकन चलाएँ** चुनें। मापे गए किसी भी फ़ील्ड को चुनें और छवि या तालिका में रिक्तिकाएँ चुनकर उनके मेज़बान संबंध और मार्कर अनुपात जाँचें।"

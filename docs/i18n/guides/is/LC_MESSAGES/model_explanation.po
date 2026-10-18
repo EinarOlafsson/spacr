@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
@@ -41,8 +41,9 @@ msgstr "Síðasta niðurstaðan er veikt stýrð vísbending, ekki strikamerki �
 msgid "Explain CV Model"
 msgstr "Skýra CV-líkan"
 
-msgid "The module opens from the **Classify** masthead rather than from a tile of its own, next to **Classifier Evaluation**: both ask what a trained classifier actually did."
-msgstr "Einingin opnast úr haus **Flokkun** frekar en úr eigin reit, við hlið **Mat á flokkara**: báðar spyrja hvað þjálfaður flokkari gerði í raun."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The module opens from the **Classify** masthead rather than from a tile of its own, next to **Classifier Evaluation**: both analyse an existing trained classifier and its saved predictions."
+msgstr "Einingin opnast úr haus **Flokkun** frekar en úr eigin reit, við hlið **Mat á flokkara**: báðar greina fyrirliggjandi þjálfaðan flokkara og vistaðar spár hans."
 
 msgid "Choose the exact ``measurements.db`` and an existing per-object CV prediction CSV. The module never reruns or silently substitutes the original classifier. It joins predictions one-to-one to measured objects and excludes identifiers, prediction/class columns, scores, annotations, and user exclusions from the surrogate feature matrix."
 msgstr "Veldu nákvæma ``measurements.db`` og fyrirliggjandi CSV-skrá með CV-spám fyrir hvern hlut. Einingin keyrir aldrei upphaflega flokkarann aftur né setur annan í hans stað án þess að láta vita. Hún tengir spár einn á móti einum við mælda hluti og útilokar auðkenni, spá-/flokkadálka, skor, merkingar og útilokanir notanda úr eiginleikafylki staðgengilslíkansins."

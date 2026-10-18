@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:06-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: es\n"
@@ -24,8 +24,9 @@ msgid "Combine measurement tables for plots and gates"
 msgstr "Combinar tablas de mediciones para gráficos y compuertas"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Open **Graph Builder** or **Gate Editor** from Home to explore measurements. Both screens offer **Merge tables** immediately beside the table picker. The same merge definition produces the same measurements in either screen. For the surrounding workflow, see :doc:`workflows`."
-msgstr "Abra **Graph Builder** o **Gate Editor** desde Inicio para explorar mediciones. Ambas pantallas ofrecen **Combinar tablas** justo al lado del selector de tablas. La misma definición de combinación produce las mismas mediciones en ambas pantallas. Para el flujo de trabajo general, consulte :doc:`workflows`."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open **Graph Builder** or **Gate Editor** from Home to plot or gate measurements. Both screens offer **Merge tables** immediately beside the table picker. The same merge definition produces the same measurements in either screen. For the surrounding workflow, see :doc:`workflows`."
+msgstr "Abra **Graph Builder** o **Gate Editor** desde Inicio para representar mediciones en gráficos o aplicarles gating. Ambas pantallas ofrecen **Combinar tablas** justo al lado del selector de tablas. La misma definición de combinación produce las mismas mediciones en ambas pantallas. Para el flujo de trabajo general, consulte :doc:`workflows`."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Choose a source and an observation level"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:06-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -24,8 +24,9 @@ msgid "Combine measurement tables for plots and gates"
 msgstr "合并测量表以用于绘图和门控"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Open **Graph Builder** or **Gate Editor** from Home to explore measurements. Both screens offer **Merge tables** immediately beside the table picker. The same merge definition produces the same measurements in either screen. For the surrounding workflow, see :doc:`workflows`."
-msgstr "从 Home 打开 **Graph Builder** 或 **Gate Editor**，以探索测量结果。两个界面都在表选择器旁提供 **合并表格**。同一合并定义在两个界面中生成相同的测量值。相关整体工作流程见 :doc:`workflows`。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open **Graph Builder** or **Gate Editor** from Home to plot or gate measurements. Both screens offer **Merge tables** immediately beside the table picker. The same merge definition produces the same measurements in either screen. For the surrounding workflow, see :doc:`workflows`."
+msgstr "从 Home 打开 **Graph Builder** 或 **Gate Editor**，以绘制测量结果或对其设门。两个界面都在表选择器旁提供 **合并表格**。同一合并定义在两个界面中生成相同的测量值。相关整体工作流程见 :doc:`workflows`。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Choose a source and an observation level"

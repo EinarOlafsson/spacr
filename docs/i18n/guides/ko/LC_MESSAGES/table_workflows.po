@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:06-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
@@ -24,8 +24,9 @@ msgid "Combine measurement tables for plots and gates"
 msgstr "그래프와 게이트에 사용할 측정 테이블 결합"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Open **Graph Builder** or **Gate Editor** from Home to explore measurements. Both screens offer **Merge tables** immediately beside the table picker. The same merge definition produces the same measurements in either screen. For the surrounding workflow, see :doc:`workflows`."
-msgstr "Home에서 **Graph Builder** 또는 **Gate Editor**\\ 를 열어 측정값을 탐색합니다. 두 화면 모두 테이블 선택기 바로 옆에 **테이블 병합**\\ 이 있습니다. 같은 병합 정의를 사용하면 어느 화면에서든 같은 측정값이 생성됩니다. 전체 작업 흐름은 :doc:`workflows`\\ 를 참조하세요."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open **Graph Builder** or **Gate Editor** from Home to plot or gate measurements. Both screens offer **Merge tables** immediately beside the table picker. The same merge definition produces the same measurements in either screen. For the surrounding workflow, see :doc:`workflows`."
+msgstr "Home에서 **Graph Builder** 또는 **Gate Editor**\\ 를 열어 측정값을 플롯하거나 게이팅합니다. 두 화면 모두 테이블 선택기 바로 옆에 **테이블 병합**\\ 이 있습니다. 같은 병합 정의를 사용하면 어느 화면에서든 같은 측정값이 생성됩니다. 전체 작업 흐름은 :doc:`workflows`\\ 를 참조하세요."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Choose a source and an observation level"
