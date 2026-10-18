@@ -3,7 +3,7 @@ Bridge between spacr's plain-python default settings and Qt form widgets.
 
 The existing spacr GUI expresses settings as `{name: (widget_type, options,
 default)}` triples via `spacr.gui_utils.convert_settings_dict_for_gui`.
-Here we consume the same conversion output and materialize each entry as
+This module consumes the same conversion output and materializes each entry as
 a real Qt widget grouped into logical Section boxes based on
 `spacr.settings.categories`.
 """

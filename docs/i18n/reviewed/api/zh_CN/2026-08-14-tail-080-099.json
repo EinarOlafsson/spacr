@@ -97,7 +97,10 @@
       "source_sha256": "dd9250f8b5538c83ab3a686352e53e676049b517785839891836f6c6a061b35e",
       "source": "The PDF is composed with :class:`matplotlib.backends.backend_pdf.PdfPages` — a monospace transcription of the same content plus one page per embedded figure. spaCR has no HTML-to-PDF engine among its dependencies and this module refuses to add one, so the PDF is a faithful *summary*, not a rendering of the HTML. Send the HTML when you can.",
       "context": "The PDF is composed with :class:`matplotlib.backends.backend_pdf.PdfPages` — a monospace transcription of the same content plus one page per embedded figure. spaCR has no HTML-to-PDF engine among its dependencies and this module refuses to add one, so the PDF is a faithful *summary*, not a rendering of the HTML. Send the HTML when you can.",
-      "translation": "PDF 使用 :class:`matplotlib.backends.backend_pdf.PdfPages` 组合而成——内容以等宽字体忠实转录，并为每个嵌入图形增加一页。spaCR 的依赖中没有 HTML 转 PDF 引擎，本模块也拒绝新增，因此 PDF 是忠实的*摘要*，不是 HTML 的渲染版本。条件允许时请发送 HTML。"
+      "translation": "PDF 使用 :class:`matplotlib.backends.backend_pdf.PdfPages` 组合而成——内容以等宽字体忠实转录，并为每个嵌入图形增加一页。spaCR 的依赖中没有 HTML 转 PDF 引擎，本模块也拒绝新增，因此 PDF 是忠实的*摘要*，不是 HTML 的渲染版本。条件允许时请发送 HTML。",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.resume.completed_fields_in_db#2",

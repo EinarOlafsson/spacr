@@ -1,0 +1,385 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "records": [
+    {
+      "context": "Uses plain streamed HTTP rather than the ``hf_hub`` download machinery, so a one-off demo download creates no Hugging Face cache directory.",
+      "label": "spacr.example_archives.download_archive#1",
+      "source": "Uses plain streamed HTTP rather than the ``hf_hub`` download machinery, so a one-off demo download creates no Hugging Face cache directory.",
+      "source_sha256": "a71e65281faebda5fb6c5e203baaa97b061e851127e44dec5d28f97d4b0a3b89",
+      "translation": "Usa HTTP simple con transmisión por flujo en lugar del mecanismo de descarga de ``hf_hub``, de modo que una descarga de demostración puntual no crea ningún directorio de caché de Hugging Face."
+    },
+    {
+      "context": "If a column has only one annotated value (e.g., only '1's), a '<column>_random' class is added from unannotated rows of that column: as many rows as positives, or every unannotated row when there are fewer; with none, no class is added.",
+      "label": "spacr.io.generate_training_dataset#5",
+      "source": "If a column has only one annotated value (e.g., only '1's), a '<column>_random' class is added from unannotated rows of that column: as many rows as positives, or every unannotated row when there are fewer; with none, no class is added.",
+      "source_sha256": "858239c2e77af408e79bec7ba95a7862401c9306f5921a76d725e0d5c89ec7ff",
+      "translation": "Si una columna tiene un solo valor anotado (p. ej., solo '1'), se añade una clase '<column>_random' a partir de filas no anotadas de esa columna: tantas filas como positivos, o todas las filas no anotadas cuando hay menos; si no hay ninguna, no se añade ninguna clase."
+    },
+    {
+      "context": "also attach a StreamHandler to stderr, for headless and CI runs in which the log file is not inspected.",
+      "label": "spacr.logging_util.setup_logging#4",
+      "source": "also attach a StreamHandler to stderr, for headless and CI runs in which the log file is not inspected.",
+      "source_sha256": "d8a06344090f6867948e72c2e67aabe6aa1223b408858ae23c2c0a58aae09145",
+      "translation": "adjuntar también un StreamHandler a stderr, para ejecuciones sin interfaz gráfica y de CI en las que no se inspecciona el archivo de registro."
+    },
+    {
+      "context": "Idempotent — functions that already carry ``__spacr_timed__`` are skipped. Intended for ad-hoc profiling; not recommended for production imports because it slows every call by ~1 µs.",
+      "label": "spacr.logging_util.time_module#1",
+      "source": "Idempotent — functions that already carry ``__spacr_timed__`` are skipped. Intended for ad-hoc profiling; not recommended for production imports because it slows every call by ~1 µs.",
+      "source_sha256": "9423197b625b11cfb41ade61d02a470e530488f926f2ac5ace6ce53dd2fb9401",
+      "translation": "Idempotente — se omiten las funciones que ya llevan ``__spacr_timed__``. Pensado para perfilado puntual; no se recomienda para importaciones en producción porque ralentiza cada llamada en ~1 µs."
+    },
+    {
+      "context": "cap the number of objects processed, for example for previews.",
+      "label": "spacr.measure.generate_object_dataset#20",
+      "source": "cap the number of objects processed, for example for previews.",
+      "source_sha256": "445a2c99ac0f3f1289cfcdda783c12b381b6a44bd5206e2d18a20fcb32399c99",
+      "translation": "limitar el número de objetos procesados, por ejemplo para vistas previas."
+    },
+    {
+      "context": "Merges per-object measurements from the selected measurement store with a CSV of predicted scores, runs any combination of RF feature importance, permutation importance and SHAP over the top features, then aggregates SHAP contributions into compartment and image data channel radar plots that show which region (cell / nucleus / pathogen / cytoplasm) and which fluorescence image data channel contribute most to the score.",
+      "label": "spacr.ml.interpret_vision_model#1",
+      "source": "Merges per-object measurements from the selected measurement store with a CSV of predicted scores, runs any combination of RF feature importance, permutation importance and SHAP over the top features, then aggregates SHAP contributions into compartment and channel radar plots that show which region (cell / nucleus / pathogen / cytoplasm) and which fluorescence channel contribute most to the score.",
+      "source_sha256": "5eea276ea60d7660300f026e66a7df0de904a6046fd20af593cf5d09efcba7ac",
+      "translation": "Combina las mediciones por objeto del almacén de mediciones seleccionado con un CSV de puntuaciones predichas, ejecuta cualquier combinación de importancia de características RF, importancia por permutación y SHAP sobre las características principales y después agrega las contribuciones SHAP en gráficos radiales por compartimento y por canal que muestran qué región (célula / núcleo / patógeno / citoplasma) y qué canal de fluorescencia contribuyen más a la puntuación."
+    },
+    {
+      "context": "folder to scan. Not recursive: images are expected at the top level, as in the current spacr layout.",
+      "label": "spacr.pipeline_v2.FilenameMapper.discover#1",
+      "source": "folder to scan. Not recursive: images are expected at the top level, as in the current spacr layout.",
+      "source_sha256": "f321802185006254c2d01c7bcff5f1208b98b4c0d37542552af1df718021910b",
+      "translation": "carpeta que se va a explorar. No es recursiva: se espera que las imágenes estén en el nivel superior, como en la estructura actual de spacr."
+    },
+    {
+      "context": "*How many microplate sample positions, how many cells per well, and how good a machine-learning classification model do I need before a pooled CRISPR screening experiment can actually find its hits?*  The estimate comes from simulating screening experiments with known true hits, fitting the model that the real analysis uses, and measuring how well the fit recovers the simulated hits.  :func:`scan_parameters` sweeps that loop over a design grid.",
+      "label": "spacr.power_model#5",
+      "source": "*How many wells, how many cells per well, and how good a classifier do I need before a pooled CRISPR screen can actually find its hits?*  The estimate comes from simulating screens with known true hits, fitting the model that the real analysis uses, and measuring how well the fit recovers the simulated hits.  :func:`scan_parameters` sweeps that loop over a design grid.",
+      "source_sha256": "b94439a9683093d771f7eab3bc3a04d5fd62103a82c7b796c50977137f7c6550",
+      "translation": "*¿Cuántos pocillos, cuántas células por pocillo y qué calidad de clasificador necesito para que un cribado CRISPR combinado pueda encontrar realmente sus aciertos?*  La estimación se obtiene simulando cribados con aciertos verdaderos conocidos, ajustando el modelo que utiliza el análisis real y midiendo en qué medida el ajuste recupera los aciertos simulados.  :func:`scan_parameters` recorre ese bucle sobre una cuadrícula de diseños."
+    },
+    {
+      "context": "``Ntotal`` is read from an ``imaging_n_cells_per_well`` column if the simulator provides one (it must then be constant within a microplate sample position, or :class:`PowerFitError` is raised); otherwise it is summed from ``imaging_n_cells_per_gene_per_well``.  The two agree by construction, since the per-gene counts are a multinomial split of the per-microplate sample position total.",
+      "label": "spacr.power_model.prepare_model_data#2",
+      "source": "``Ntotal`` is read from an ``imaging_n_cells_per_well`` column if the simulator provides one (it must then be constant within a well, or :class:`PowerFitError` is raised); otherwise it is summed from ``imaging_n_cells_per_gene_per_well``.  The two agree by construction, since the per-gene counts are a multinomial split of the per-well total.",
+      "source_sha256": "20d73ca50f6959e5879d3e9215847fa0cd5800b4994381d9e08f8e15204f3318",
+      "translation": "``Ntotal`` se lee de una columna ``imaging_n_cells_per_well`` si el simulador la proporciona (en ese caso debe ser constante dentro de un pocillo; de lo contrario se lanza :class:`PowerFitError`); en caso contrario se obtiene sumando ``imaging_n_cells_per_gene_per_well``.  Ambos coinciden por construcción, ya que los recuentos por gen son una división multinomial del total por pocillo."
+    },
+    {
+      "context": "The R writes ``Npositive = sum(well_data$positive[1])`` — ``sum`` of a single element, i.e. the positive count of whichever gene happens to sort first in the microplate sample position, not the microplate sample position's total.  That is a bug in the R (the surrounding documentation says \"number of positive\"), and reproducing it would throw away most of the response.  This function sums over all genes in the microplate sample position.",
+      "label": "spacr.power_model.prepare_model_data#4",
+      "source": "The R writes ``Npositive = sum(well_data$positive[1])`` — ``sum`` of a single element, i.e. the positive count of whichever gene happens to sort first in the well, not the well's total.  That is a bug in the R (the surrounding documentation says \"number of positive\"), and reproducing it would throw away most of the response.  This function sums over all genes in the well.",
+      "source_sha256": "e4e3d1433eec0f9ce88e073da5751c1870363c91c307c4fe111737a579e8fd1b",
+      "translation": "El código R escribe ``Npositive = sum(well_data$positive[1])`` — ``sum`` de un único elemento, es decir, el recuento de positivos del gen que casualmente queda primero al ordenar el pocillo, no el total del pocillo.  Es un error del código R (la documentación circundante dice \"number of positive\"), y reproducirlo descartaría la mayor parte de la respuesta.  Esta función suma sobre todos los genes del pocillo."
+    },
+    {
+      "context": "if no parameters were given, ``on_error`` is not recognised, ``n_replicates < 1``, the progress file exists with a different column layout (appending misaligned rows to a TSV would silently corrupt it), or the progress file is non-empty and ``resume=False``.",
+      "label": "spacr.power_model.scan_parameters#17",
+      "source": "if no parameters were given, ``on_error`` is not recognised, ``n_replicates < 1``, the progress file exists with a different column layout (appending misaligned rows to a TSV would silently corrupt it), or the progress file is non-empty and ``resume=False``.",
+      "source_sha256": "ca47e411dba0be276b3ee73bb71fe2f8a60e396510f26fc65a1a5d225ca7df2a",
+      "translation": "si no se indicaron parámetros, ``on_error`` no se reconoce, ``n_replicates < 1``, el archivo de progreso existe con una disposición de columnas diferente (añadir filas desalineadas a un TSV lo corrompería sin aviso) o el archivo de progreso no está vacío y ``resume=False``."
+    },
+    {
+      "context": "Zero genes, zero microplate sample positions, a hit rate outside ``[0, 1]``, a non-positive abundance concentration. R's ``1:n_wells`` idiom turns ``n_wells = 0`` into the two-element vector ``c(1, 0)`` and simulates two microplate sample positions; there is no silently-empty frame to return here, so the design is rejected instead.",
+      "label": "spacr.power_simulate.ScreenDesignError#1",
+      "source": "Zero genes, zero wells, a hit rate outside ``[0, 1]``, a non-positive abundance concentration. R's ``1:n_wells`` idiom turns ``n_wells = 0`` into the two-element vector ``c(1, 0)`` and simulates two wells; there is no silently-empty frame to return here, so the design is rejected instead.",
+      "source_sha256": "ec040e7432def4dc0b7ccfa7a0f71d609ee4d1ab1faff59cf87dc5ecf94ef4ac",
+      "translation": "Cero genes, cero pocillos, una tasa de aciertos fuera de ``[0, 1]``, una concentración de abundancia no positiva. La expresión idiomática ``1:n_wells`` de R convierte ``n_wells = 0`` en el vector de dos elementos ``c(1, 0)`` y simula dos pocillos; aquí no existe una tabla vacía que pueda devolverse sin aviso, por lo que el diseño se rechaza."
+    },
+    {
+      "context": "The URL is truncated to ~7.5 KB so it fits GitHub's parser limit; an ellipsis and a note are appended to the body when it is clipped.",
+      "label": "spacr.qt.ai.issue_report.issue_url#1",
+      "source": "The URL is truncated to ~7.5 KB so it fits GitHub's parser limit; an ellipsis and a note are appended to the body when it is clipped.",
+      "source_sha256": "cbeb45a6b578cdd6f99ba864c458eb007d5e8b928631ac4c9525fa2b04f0492b",
+      "translation": "La URL se trunca a ~7,5 KB para que quepa en el límite del analizador de GitHub; cuando se recorta, se añaden al cuerpo unos puntos suspensivos y una nota."
+    },
+    {
+      "context": "Setting a Python flag alone isn't enough — the worker is blocked in a `for line in proc.stdout` iteration until the subprocess writes or closes. This method terminates the subprocess directly via `provider.cancel_stream()`; the reader then exits with an empty read and run() completes cleanly.",
+      "label": "spacr.qt.ai.worker.StreamWorker.cancel#1",
+      "source": "Setting a Python flag alone isn't enough — the worker is blocked in a `for line in proc.stdout` iteration until the subprocess writes or closes. This method terminates the subprocess directly via `provider.cancel_stream()`; the reader then exits with an empty read and run() completes cleanly.",
+      "source_sha256": "548f7d67fda83459abf6424dd03dffe3e0499519f72eaddeecd89ac9472c9829",
+      "translation": "Establecer solo un indicador en Python no basta — el trabajador está bloqueado en una iteración `for line in proc.stdout` hasta que el subproceso escribe o se cierra. Este método termina el subproceso directamente mediante `provider.cancel_stream()`; el lector sale entonces con una lectura vacía y run() finaliza limpiamente."
+    },
+    {
+      "context": "True when channels can be extracted from the filename or the folder — otherwise every file is treated as channel 1.",
+      "label": "spacr.qt.folder_metadata.assign_missing_fields#6",
+      "source": "True when channels can be extracted from the filename or the folder — otherwise every file is treated as channel 1.",
+      "source_sha256": "29ccc11c60aeed05bb6619f707c38cb60c20953603853d6df3c414dde082eb3a",
+      "translation": "True cuando los canales pueden extraerse del nombre de archivo o de la carpeta — de lo contrario, cada archivo se trata como canal 1."
+    },
+    {
+      "context": "a :class:`FolderTemplate` describing the detected layout, or None if no layout can be inferred.",
+      "label": "spacr.qt.folder_metadata.detect_folder_metadata#4",
+      "source": "a :class:`FolderTemplate` describing the detected layout, or None if no layout can be inferred.",
+      "source_sha256": "67e0c67c5975797c54f06b44eeabf59cb7cddfe2d6d138adc01c518c10880364",
+      "translation": "un :class:`FolderTemplate` que describe la estructura detectada, o None si no se puede inferir ninguna estructura."
+    },
+    {
+      "context": "**qtawesome glyphs** — vector, painted in the colour the caller requests. Wrapped so callers stay decoupled from Font Awesome glyph names. When the optional font is unavailable a bundled, theme-aware glyph is returned; toolbar affordances never silently turn into blank buttons.",
+      "label": "spacr.qt.iconset#2",
+      "source": "**qtawesome glyphs** — vector, painted in the colour the caller requests. Wrapped so callers stay decoupled from Font Awesome glyph names. When the optional font is unavailable a bundled, theme-aware glyph is returned; toolbar affordances never silently turn into blank buttons.",
+      "source_sha256": "6c6cedec641999b94b91a47d1830dfb1643e128598d851c2557aced89c9acd62",
+      "translation": "**qtawesome glyphs** — vectoriales, pintados en el color que solicita quien llama. Encapsulados para que el código que los llama permanezca desacoplado de los nombres de glifos de Font Awesome. Cuando la fuente opcional no está disponible, se devuelve un glifo incluido y adaptado al tema; los controles de la barra de herramientas nunca se convierten sin aviso en botones vacíos."
+    },
+    {
+      "context": "Highlight the object another view selected, if this viewer shows it.",
+      "label": "spacr.qt.layer_viewer.LayerViewer.on_linked_selection_changed#0",
+      "source": "Highlight the object another view selected, if this viewer shows it.",
+      "source_sha256": "1fffa36132bb002c4a4d0be8040a7eaf7352c115833fe8b19249c91a324f093c",
+      "translation": "Resaltar el objeto que seleccionó otra vista, si este visor lo muestra."
+    },
+    {
+      "context": "For example, a file dialog has just reported that a path exists; asking the filesystem again would be a second stat for a fact already in hand. This clears the matching pending marker but does not cancel a queued or executing probe. Such a probe can later overwrite the primed answer and emit the ``answered`` signal on :data:`probes` if its result changes the cached value. This call itself emits no signal.",
+      "label": "spacr.qt.path_probe.prime#1",
+      "source": "For example, a file dialog has just reported that a path exists; asking the filesystem again would be a second stat for a fact already in hand. This clears the matching pending marker but does not cancel a queued or running probe. Such a probe can later overwrite the primed answer and emit the ``answered`` signal on :data:`probes` if its result changes the cached value. This call itself emits no signal.",
+      "source_sha256": "62cf45daf1ba7a77972aca74783bc51fb63bd8c4e5a39ec8e3b37692da2c6869",
+      "translation": "Por ejemplo, un diálogo de archivos acaba de informar de que una ruta existe; volver a consultar el sistema de archivos supondría una segunda llamada stat para un hecho ya conocido. Esto elimina el marcador pendiente correspondiente, pero no cancela una comprobación en cola o en curso. Dicha comprobación puede sobrescribir más tarde la respuesta precargada y emitir la señal ``answered`` en :data:`probes` si su resultado cambia el valor almacenado en caché. Esta llamada en sí no emite ninguna señal."
+    },
+    {
+      "context": "The explicit way out. A user who has been frozen — by the old dialog or by their own click — otherwise has no route back to automatic at all, because nothing else clears the explicit setting.",
+      "label": "spacr.qt.preferences.set_figure_colors_auto#1",
+      "source": "The explicit way out. A user who has been frozen — by the old dialog or by their own click — otherwise has no route back to automatic at all, because nothing else clears the explicit setting.",
+      "source_sha256": "dca06ff58c530d4d75f36113a7df28cdcd6c01bf944bc9eedd4c1a675656ef10",
+      "translation": "La salida explícita. Un usuario que ha quedado fijado — por el diálogo antiguo o por su propio clic — no tiene de otro modo ninguna vía de vuelta al modo automático, porque nada más borra el ajuste explícito."
+    },
+    {
+      "context": "Settings templates: named, reusable and shareable bundles of settings.",
+      "label": "spacr.qt.recipes#0",
+      "source": "Settings templates: named, reusable and shareable bundles of settings.",
+      "source_sha256": "804c722c520f893e775390b5962dea1bbb9882e9d22316fd5669d71840755042",
+      "translation": "Plantillas de configuración: conjuntos de ajustes con nombre, reutilizables y compartibles."
+    },
+    {
+      "context": "pre-fill the input with this pattern; empty means auto-detection runs when the dialog is shown.",
+      "label": "spacr.qt.regex_editor.RegexEditorDialog#2",
+      "source": "pre-fill the input with this pattern; empty means auto-detection runs when the dialog is shown.",
+      "source_sha256": "fb4b27b767828be27a9e94cfdaa3a3e6358f644916ac0fbda9c68c4e56f19ea7",
+      "translation": "rellenar previamente la entrada con este patrón; vacío significa que la detección automática se ejecuta al mostrar el diálogo."
+    },
+    {
+      "context": "Silence does not blank the backdrop: with a zero drive level the engine falls back to its own slow idle oscillation, set by :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE`, so the plate stays drawn.",
+      "label": "spacr.qt.resonance.silence#1",
+      "source": "Silence does not blank the backdrop: with a zero drive level the engine falls back to its own slow idle oscillation, set by :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE`, so the plate stays drawn.",
+      "source_sha256": "e60b749f6a85e5bcd1aa60505b8590e48faf594f469e4ea74a22773ce05f54a2",
+      "translation": "El silencio no deja en blanco el fondo: con un nivel de excitación cero, el motor recurre a su propia oscilación lenta en reposo, definida por :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE`, de modo que la placa se sigue dibujando."
+    },
+    {
+      "context": "``isolation_level = None`` leaves transaction control to this class, so the BEGIN/COMMIT/ROLLBACK in :meth:`update_cell` are the real ones and do not fight Python's implicit transaction handling (which differs between 3.11 and 3.12+).",
+      "label": "spacr.qt.screens.db_browser.WritableDb.connect#1",
+      "source": "``isolation_level = None`` leaves transaction control to this class, so the BEGIN/COMMIT/ROLLBACK in :meth:`update_cell` are the real ones and do not fight Python's implicit transaction handling (which differs between 3.11 and 3.12+).",
+      "source_sha256": "ce599b4878499083b717c5d97f8f583874b058805dd89414af0fe9be7c2dd2ea",
+      "translation": "``isolation_level = None`` deja el control de las transacciones a esta clase, de modo que BEGIN/COMMIT/ROLLBACK en :meth:`update_cell` son los reales y no entran en conflicto con la gestión implícita de transacciones de Python (que difiere entre 3.11 y 3.12+)."
+    },
+    {
+      "context": "Not modal, and not re-created: the data-selection boundary view stays usable while the window is open, so the effect of a change can be seen without closing it. The same dialog is raised again so its tab and scroll position are kept between openings.",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.open_settings#1",
+      "source": "Not modal, and not re-created: the gate view stays usable while the window is open, so the effect of a change can be seen without closing it. The same dialog is raised again so its tab and scroll position are kept between openings.",
+      "source_sha256": "40210f60ab96d2f6186c7c671d1cf20c97653f157ba832ed4a1d7f19c434b73b",
+      "translation": "No modal y no recreado: la vista de compuertas sigue siendo utilizable mientras la ventana está abierta, de modo que el efecto de un cambio puede verse sin cerrarla. Se vuelve a mostrar el mismo diálogo, de modo que su pestaña y su posición de desplazamiento se conservan entre aperturas."
+    },
+    {
+      "context": "The Graph Builder application view: a table, a filter and a chart built by drag and drop.",
+      "label": "spacr.qt.screens.graph_builder#0",
+      "source": "The Graph Builder screen: a table, a filter and a chart built by drag and drop.",
+      "source_sha256": "2f6cb1def5cb78e00999eede5d99f8ec7c286d775211b6feb2b05aeb89230971",
+      "translation": "La vista Graph Builder: una tabla, un filtro y un gráfico construido arrastrando y soltando."
+    },
+    {
+      "context": "Reveal and highlight what another view selected, if the tree contains it.",
+      "label": "spacr.qt.screens.lineage.LineageScreen.on_linked_selection_changed#0",
+      "source": "Reveal and highlight what another view selected, if the tree contains it.",
+      "source_sha256": "7b14f80033557f19d42ddfb15c7367c9e7f0a2fbb0e64749e98d3010e3352ad2",
+      "translation": "Mostrar y resaltar lo que seleccionó otra vista, si el árbol lo contiene."
+    },
+    {
+      "context": "The `except` is the one thing :meth:`LinkedView.unlink_selection` does not provide: it is flag-guarded, so a double close is already silent, but during interpreter teardown the C++ side of the process-wide `LinkedSelection` can be gone before this widget's `closeEvent` runs, and PySide produces an error on the disconnect then.",
+      "label": "spacr.qt.screens.plate_view.PlateViewScreen.closeEvent#1",
+      "source": "The `except` is the one thing :meth:`LinkedView.unlink_selection` does not provide: it is flag-guarded, so a double close is already silent, but during interpreter teardown the C++ side of the process-wide `LinkedSelection` can be gone before this widget's `closeEvent` runs, and PySide raises on the disconnect then.",
+      "source_sha256": "ae39f00573fa3ab66d9b4dea6afcecec26fb51e2198bda38f96ce2cc890687cf",
+      "translation": "El `except` es lo único que :meth:`LinkedView.unlink_selection` no proporciona: está protegido por un indicador, así que un cierre doble ya es silencioso, pero durante el cierre del intérprete el lado C++ del `LinkedSelection` de todo el proceso puede haber desaparecido antes de que se ejecute el `closeEvent` de este widget, y entonces PySide lanza un error al desconectar."
+    },
+    {
+      "context": "The science has been in the tree since the spaCRPower port landed: :mod:`spacr.power_simulate` builds a screening experiment with known true hits, and :mod:`spacr.power_model` fits the horseshoe-Poisson model to it and scores how well the fit recovered the simulated hits. What has never existed is the surface where a screener asks the question they actually have, which is not \"what is the AUROC of a design with well_abundance_factor_mu = 4.6\" but",
+      "label": "spacr.qt.screens.power#1",
+      "source": "The science has been in the tree since the spaCRPower port landed: :mod:`spacr.power_simulate` builds a screen with known true hits, and :mod:`spacr.power_model` fits the horseshoe-Poisson model to it and scores how well the fit recovered the simulated hits. What has never existed is the surface where a screener asks the question they actually have, which is not \"what is the AUROC of a design with well_abundance_factor_mu = 4.6\" but",
+      "source_sha256": "ab4cb197465910f40277af69cbacb5b3e6ecee6d5ff9d064505792599d3cfcd2",
+      "translation": "La parte científica está en el árbol de código desde que se incorporó la adaptación de spaCRPower: :mod:`spacr.power_simulate` construye un cribado con aciertos verdaderos conocidos, y :mod:`spacr.power_model` le ajusta el modelo horseshoe-Poisson y puntúa en qué medida el ajuste recuperó los aciertos simulados. Lo que nunca ha existido es la interfaz en la que quien realiza un cribado plantea la pregunta que realmente tiene, que no es \"cuál es el AUROC de un diseño con well_abundance_factor_mu = 4.6\" sino"
+    },
+    {
+      "context": "The existing spacr GUI expresses settings as `{name: (widget_type, options, default)}` triples via `spacr.gui_utils.convert_settings_dict_for_gui`. This module consumes the same conversion output and materializes each entry as a real Qt widget grouped into logical Section boxes based on `spacr.settings.categories`.",
+      "label": "spacr.qt.screens.settings_model#1",
+      "source": "The existing spacr GUI expresses settings as `{name: (widget_type, options, default)}` triples via `spacr.gui_utils.convert_settings_dict_for_gui`. This module consumes the same conversion output and materializes each entry as a real Qt widget grouped into logical Section boxes based on `spacr.settings.categories`.",
+      "source_sha256": "2d3a1d0f5be2b06191eff17cc1ce888c0e041571c88cb93150ded1a234cf1e81",
+      "translation": "La GUI existente de spacr expresa los ajustes como tripletas `{name: (widget_type, options, default)}` mediante `spacr.gui_utils.convert_settings_dict_for_gui`. Este módulo consume la misma salida de conversión y materializa cada entrada como un widget de Qt real, agrupado en cuadros de sección lógicos según `spacr.settings.categories`."
+    },
+    {
+      "context": "Streaming is done in a QThread via `spacr.qt.ai.worker.StreamWorker`. The worker reference is stored on `self`; if Python garbage-collected it, Qt might never deliver the finished signal.",
+      "label": "spacr.qt.widgets.ai_chat_panel#4",
+      "source": "Streaming is done in a QThread via `spacr.qt.ai.worker.StreamWorker`. The worker reference is stored on `self`; if Python garbage-collected it, Qt might never deliver the finished signal.",
+      "source_sha256": "051f55062b6e788ee9f3965dd23b03f825475bba42c013a44d9d1d8ea8090500",
+      "translation": "La transmisión se realiza en un QThread mediante `spacr.qt.ai.worker.StreamWorker`. La referencia al trabajador se almacena en `self`; si el recolector de basura de Python la eliminara, Qt podría no entregar nunca la señal de finalización."
+    },
+    {
+      "context": "The larger of the current drive level and the idle oscillation, so a quiet passage never drives the picture below what silence would have drawn. Idle animation and the response to audio therefore use the same code path.",
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.energy#1",
+      "source": "The larger of the current drive level and the idle oscillation, so a quiet passage never drives the picture below what silence would have drawn. Idle animation and the response to audio therefore use the same code path.",
+      "source_sha256": "7489324b12675f0aa0996203e9a99c1ad6c1bdaf8ccadc6807ce157163037df9",
+      "translation": "El mayor entre el nivel de excitación actual y la oscilación en reposo, de modo que un pasaje silencioso nunca lleva la imagen por debajo de lo que habría dibujado el silencio. Por tanto, la animación en reposo y la respuesta al audio usan la misma ruta de código."
+    },
+    {
+      "context": "The cancel path kills the CLI subprocess directly so the stream reader unblocks immediately; this method then waits for the worker's run() to return and the QThread to quit normally.",
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.shutdown#1",
+      "source": "The cancel path kills the CLI subprocess directly so the stream reader unblocks immediately; this method then waits for the worker's run() to return and the QThread to quit normally.",
+      "source_sha256": "5f677580e94725f603b1efd917a3f8614f40845b5c2b72c589d2ed2fe596b594",
+      "translation": "La ruta de cancelación termina directamente el subproceso de la CLI para que el lector del flujo se desbloquee de inmediato; este método espera después a que run() del trabajador retorne y a que el QThread termine con normalidad."
+    },
+    {
+      "context": "Arm the guard if a click on the anchor button is closing the popover.",
+      "label": "spacr.qt.widgets.dna_rain_settings.DnaRainSettingsPopover.hideEvent#0",
+      "source": "Arm the guard if a click on the anchor button is closing the popover.",
+      "source_sha256": "8f2b06c5e53509bbbe27e1b79880b18ad9884cc4723426a9dfa9ef5b94f47f8c",
+      "translation": "Activar la protección si un clic en el botón ancla está cerrando el popover."
+    },
+    {
+      "context": "Record a press that will close the popover *and* be replayed.",
+      "label": "spacr.qt.widgets.dna_rain_settings.DnaRainSettingsPopover.mousePressEvent#0",
+      "source": "Record a press that will close the popover *and* be replayed.",
+      "source_sha256": "928e2e8d00290b7b23db646ced47cd4aa0b2a63a2125859d0b5d3e38fc8d9db4",
+      "translation": "Registrar una pulsación que cerrará el popover *y* se reproducirá de nuevo."
+    },
+    {
+      "context": "Allow shrinking to a few characters so the parent layout can limit the width.",
+      "label": "spacr.qt.widgets.eliding.ElidingLabel.minimumSizeHint#0",
+      "source": "Allow shrinking to a few characters so the parent layout can limit the width.",
+      "source_sha256": "0f6c09dce5111cc63bf6fcbab979e13b795618a101dfd741a3f1ad9cd2a0bebb",
+      "translation": "Permitir reducirse a unos pocos caracteres para que el diseño principal pueda limitar el ancho."
+    },
+    {
+      "context": "Re-elide whenever the layout assigns a different width.",
+      "label": "spacr.qt.widgets.eliding.ElidingLabel.resizeEvent#0",
+      "source": "Re-elide whenever the layout assigns a different width.",
+      "source_sha256": "06cdcff46cf1ce928ba088bd32e7d3efd317be59144d2fc38327c8034a79ad2e",
+      "translation": "Volver a abreviar el texto cada vez que el diseño asigna un ancho diferente."
+    },
+    {
+      "context": "Re-elide whenever the layout assigns a different width.",
+      "label": "spacr.qt.widgets.eliding.ElidingPushButton.resizeEvent#0",
+      "source": "Re-elide whenever the layout assigns a different width.",
+      "source_sha256": "06cdcff46cf1ce928ba088bd32e7d3efd317be59144d2fc38327c8034a79ad2e",
+      "translation": "Volver a abreviar el texto cada vez que el diseño asigna un ancho diferente."
+    },
+    {
+      "context": "Used on application views whose primary content requires the user to first pick a source folder / open a database (annotate, make-masks) — instead of showing an empty grid or blank canvas, these application views show this panel centered.",
+      "label": "spacr.qt.widgets.empty_state#1",
+      "source": "Used on screens whose primary content requires the user to first pick a source folder / open a database (annotate, make-masks) — instead of showing an empty grid or blank canvas, these screens show this panel centered.",
+      "source_sha256": "3ddec38225e3c1bbd4eb59db185a07aeca51fff8607850709e7f35f76b184a12",
+      "translation": "Se usa en vistas cuyo contenido principal requiere que el usuario elija primero una carpeta de origen / abra una base de datos (annotate, make-masks) — en lugar de mostrar una cuadrícula vacía o un lienzo en blanco, estas vistas muestran este panel centrado."
+    },
+    {
+      "context": "**Not** ``column_kinds() == CONTINUOUS``, and the difference matters. :func:`~spacr.qt.widgets.data_filter_panel.classify_columns` calls a numeric column with twelve or fewer distinct values a *category*, which is the right rule for deciding whether to offer a slider or a tick list — and the wrong one here, because ``pathogen_count`` runs 0–8 and is exactly the kind of feature a ranking exists to surface. A separation statistic is well defined on a discrete count.",
+      "label": "spacr.qt.widgets.feature_rank.candidate_features#1",
+      "source": "**Not** ``column_kinds() == CONTINUOUS``, and the difference matters. :func:`~spacr.qt.widgets.data_filter_panel.classify_columns` calls a numeric column with twelve or fewer distinct values a *category*, which is the right rule for deciding whether to offer a slider or a tick list — and the wrong one here, because ``pathogen_count`` runs 0–8 and is exactly the kind of feature a ranking exists to surface. A separation statistic is well defined on a discrete count.",
+      "source_sha256": "a7904dfcc6af20a9fb1d80f1fd28341f619ef617839643a83e9c78185e63c768",
+      "translation": "**No** ``column_kinds() == CONTINUOUS``, y la diferencia importa. :func:`~spacr.qt.widgets.data_filter_panel.classify_columns` considera *categoría* una columna numérica con doce o menos valores distintos, que es la regla correcta para decidir si ofrecer un control deslizante o una lista de casillas — y la incorrecta aquí, porque ``pathogen_count`` va de 0 a 8 y es exactamente el tipo de característica que una clasificación por rango debe sacar a la luz. Un estadístico de separación está bien definido sobre un recuento discreto."
+    },
+    {
+      "context": "``prerendered_png`` is a PNG the workflow bridge already rendered in a background execution unit. When it is supplied, that file is adopted (a file move and a QPixmap load) instead of executing the slower savefig on the main GUI execution path, so the UI stays responsive while many figures stream in.",
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.add_figure#1",
+      "source": "``prerendered_png`` is a PNG the pipeline bridge already rendered in a WORKER thread. When it is supplied, that file is adopted (a file move and a QPixmap load) instead of running the slower savefig on the GUI thread, so the UI stays responsive while many figures stream in.",
+      "source_sha256": "cd451192f08b1caad6220597f01e3eb8e0b81a5aab258c061cd4065f5f06b9d6",
+      "translation": "``prerendered_png`` es un PNG que el puente del pipeline ya renderizó en un hilo WORKER. Cuando se proporciona, se adopta ese archivo (un movimiento de archivo y una carga con QPixmap) en lugar de ejecutar el savefig más lento en el hilo de la GUI, de modo que la UI sigue respondiendo mientras llegan muchas figuras."
+    },
+    {
+      "context": "``Chat`` The same box, addressed in English. It is wired to whatever assistant the host provides. When none is configured it replies that no assistant is configured, rather than accepting questions and returning nothing.",
+      "label": "spacr.qt.widgets.gate_console#3",
+      "source": "``Chat`` The same box, addressed in English. It is wired to whatever assistant the host provides. When none is configured it replies that no assistant is configured, rather than accepting questions and returning nothing.",
+      "source_sha256": "bebb0505eacccc041c13fcb003ec95abec35eac823b0967d7879b58fab9c4a67",
+      "translation": "``Chat`` El mismo cuadro, al que se le habla en inglés. Está conectado al asistente que proporcione el host. Cuando no hay ninguno configurado, responde que no hay ningún asistente configurado, en lugar de aceptar preguntas y no devolver nada."
+    },
+    {
+      "context": "Without one, each question receives a reply saying that no assistant is configured, rather than no reply.",
+      "label": "spacr.qt.widgets.gate_console.GateConsole.set_responder#1",
+      "source": "Without one, each question receives a reply saying that no assistant is configured, rather than no reply.",
+      "source_sha256": "138227efd92610fbed2e321c9d3c58a67162f48064a25c10c5e415fac8d88604",
+      "translation": "Sin uno, cada pregunta recibe una respuesta que indica que no hay ningún asistente configurado, en lugar de no recibir respuesta."
+    },
+    {
+      "context": "Kept as data rather than rendered straight into a table so the search is testable without a GUI, and so the caller decides what \"best\" means -- which it must, because the scores disagree on purpose. Silhouette is blind to how much was discarded, so a run that labels 90% of the plate as noise and tightly clusters the rest scores high although it has discarded most of the data.",
+      "label": "spacr.qt.widgets.gate_spec.ClusterCandidate#1",
+      "source": "Kept as data rather than rendered straight into a table so the search is testable without a GUI, and so the caller decides what \"best\" means -- which it must, because the scores disagree on purpose. Silhouette is blind to how much was discarded, so a run that labels 90% of the plate as noise and tightly clusters the rest scores high although it has discarded most of the data.",
+      "source_sha256": "19f9bc05d22e03b27d513446b8508500167945bfbd4821909e1cad3624ba48eb",
+      "translation": "Se conserva como datos en lugar de renderizarse directamente en una tabla para que la búsqueda pueda probarse sin GUI y para que quien llama decida qué significa \"best\" -- lo cual debe hacer, porque las puntuaciones discrepan a propósito. La silueta no tiene en cuenta cuánto se descartó, así que una ejecución que etiqueta el 90 % de la placa como ruido y agrupa estrechamente el resto obtiene una puntuación alta aunque haya descartado la mayor parte de los datos."
+    },
+    {
+      "context": "The popup is ONE surface. Its two layout containers paint nothing, so the rounded grey frame is the only fill and the page-opacity preference moves it as a single layer. :meth:`HoverTooltip._apply_theme` keeps both containers transparent, because a container with its own fill drew a dark rectangle inside the frame.",
+      "label": "spacr.qt.widgets.hover_tooltip#19",
+      "source": "The popup is ONE surface. Its two layout containers paint nothing, so the rounded grey frame is the only fill and the page-opacity preference moves it as a single layer. :meth:`HoverTooltip._apply_theme` keeps both containers transparent, because a container with its own fill drew a dark rectangle inside the frame.",
+      "source_sha256": "f8fa5c35615d2e7836006f07edb549cca51e9cddf255a10d147d002b9cae46c7",
+      "translation": "La ventana emergente es UNA sola superficie. Sus dos contenedores de diseño no pintan nada, así que el marco gris redondeado es el único relleno y la preferencia de opacidad de la página lo modifica como una sola capa. :meth:`HoverTooltip._apply_theme` mantiene transparentes ambos contenedores, porque un contenedor con relleno propio dibujaba un rectángulo oscuro dentro del marco."
+    },
+    {
+      "context": "A tool-tip window with custom painting: shown without activating, so it never takes focus from what the pointer is over.",
+      "label": "spacr.qt.widgets.hover_tooltip.HoverTooltip#2",
+      "source": "A tool-tip window with custom painting: shown without activating, so it never takes focus from what the pointer is over.",
+      "source_sha256": "1e4e6b1dfe92cabace1f0b918f10e1e50cfcc9c0fc6ca4d8914987b29e17c249",
+      "translation": "Una ventana de información emergente con pintado personalizado: se muestra sin activarse, de modo que nunca quita el foco a lo que está bajo el puntero."
+    },
+    {
+      "context": "Resolve the user-supplied path to one concrete merged ``.npy`` file.",
+      "label": "spacr.qt.widgets.measure_preview.resolve_merged_source#0",
+      "source": "Resolve the user-supplied path to one concrete merged ``.npy`` file.",
+      "source_sha256": "5015f2bc68c5b52ee8d25f9e205981b9de20e9c3a685d766b9de8caedc30b1bd",
+      "translation": "Resolver la ruta proporcionada por el usuario en un único archivo ``.npy`` combinado concreto."
+    },
+    {
+      "context": "What the plaque model box offers: the default, other zoo plaque models, then ``bundled``.",
+      "label": "spacr.qt.widgets.plaque_preview.plaque_model_choices#0",
+      "source": "What the plaque model box offers: the default, other zoo plaque models, then ``bundled``.",
+      "source_sha256": "79e7129c323a594ab0f3a54111b2606d94aea5dc2d092020c4dc873d98d01a75",
+      "translation": "Lo que ofrece el cuadro del modelo de placas: el predeterminado, otros modelos de placas del zoo y después ``bundled``."
+    },
+    {
+      "context": "setting values, the default first, then the newest zoo model.",
+      "label": "spacr.qt.widgets.plaque_preview.plaque_model_choices#2",
+      "source": "setting values, the default first, then the newest zoo model.",
+      "source_sha256": "76b0ca394a8e0b2c684eb919cd3014fe6bb2dfa38f12f74a749449ff8168a4f2",
+      "translation": "valores del ajuste, primero el predeterminado y después el modelo más reciente del zoo."
+    },
+    {
+      "context": "The PDF is composed with :class:`matplotlib.backends.backend_pdf.PdfPages` — a monospace transcription of the same content plus one page per embedded figure. spaCR has no HTML-to-PDF engine among its dependencies and this module refuses to add one, so the PDF is a faithful *summary*, not a rendering of the HTML. The HTML file is the complete report.",
+      "label": "spacr.report#23",
+      "source": "The PDF is composed with :class:`matplotlib.backends.backend_pdf.PdfPages` — a monospace transcription of the same content plus one page per embedded figure. spaCR has no HTML-to-PDF engine among its dependencies and this module refuses to add one, so the PDF is a faithful *summary*, not a rendering of the HTML. The HTML file is the complete report.",
+      "source_sha256": "b2529a0c31dd0246cf2be8e05adac45f7c70981015ae6d4b93ca8f2a5ebae303",
+      "translation": "El PDF se compone con :class:`matplotlib.backends.backend_pdf.PdfPages` — una transcripción en fuente monoespaciada del mismo contenido más una página por cada figura incrustada. spaCR no tiene ningún motor de HTML a PDF entre sus dependencias y este módulo se niega a añadir uno, por lo que el PDF es un *resumen* fiel, no una representación del HTML. El archivo HTML es el informe completo."
+    },
+    {
+      "context": "an unambiguous *prefix* of a processing-session id (``\"2026-07-23_2147\"``), which shortens command-line use.",
+      "label": "spacr.run_journal.resolve_run_dir#6",
+      "source": "an unambiguous *prefix* of a run-id (``\"2026-07-23_2147\"``), which shortens command-line use.",
+      "source_sha256": "dfd51c11c002fa6c2854c201c323a863463c7a4d6d04b00273ed59c80858982a",
+      "translation": "un *prefijo* inequívoco de un identificador de ejecución (``\"2026-07-23_2147\"``), lo que abrevia el uso en la línea de comandos."
+    },
+    {
+      "context": "Restore the record factory that was installed before spaCR's.",
+      "label": "spacr.runctx.uninstall_run_id_logging#0",
+      "source": "Restore the record factory that was installed before spaCR's.",
+      "source_sha256": "2119fed191519a0fac885cb80ddf2ed28084b8579462095b3f6c3658dfff5891",
+      "translation": "Restaurar la fábrica de registros que estaba instalada antes de la de spaCR."
+    },
+    {
+      "context": "Only undoes spaCR's own installation: if other code replaced the factory in the meantime, removing spaCR's factory would also discard that replacement, so the chain is left unchanged.",
+      "label": "spacr.runctx.uninstall_run_id_logging#1",
+      "source": "Only undoes spaCR's own installation: if other code replaced the factory in the meantime, removing spaCR's factory would also discard that replacement, so the chain is left unchanged.",
+      "source_sha256": "969203ec8eadeaf9bfc253075a8d82a00c557b142bc3435fbed8fc4811906639",
+      "translation": "Solo deshace la instalación propia de spaCR: si otro código reemplazó la fábrica entretanto, retirar la fábrica de spaCR descartaría también ese reemplazo, por lo que la cadena se deja sin cambios."
+    },
+    {
+      "context": "Joins the per-object CNN predictions (``score_column``) with the morphology + intensity measurements from :func:`spacr.measure.measure_crop`, expands cross-compartment feature ratios (e.g. ``nucleus_cell_area``), then runs random-forest feature importance, permutation importance and (optionally) SHAP on the top features. Also groups importance by compartment and by image data channel, which shows whether the machine-learning classification model's score depends mainly on pathogen or on cell features.",
+      "label": "spacr.submodules.interpret_vision_model#1",
+      "source": "Joins the per-object CNN predictions (``score_column``) with the morphology + intensity measurements from :func:`spacr.measure.measure_crop`, expands cross-compartment feature ratios (e.g. ``nucleus_cell_area``), then runs random-forest feature importance, permutation importance and (optionally) SHAP on the top features. Also groups importance by compartment and by channel, which shows whether the classifier's score depends mainly on pathogen or on cell features.",
+      "source_sha256": "d40886ab2c57f2960bc2e0512e5319c59969503f68a671a24342cac377eea6ec",
+      "translation": "Combina las predicciones CNN por objeto (``score_column``) con las mediciones de morfología e intensidad de :func:`spacr.measure.measure_crop`, expande las razones de características entre compartimentos (p. ej., ``nucleus_cell_area``) y después ejecuta la importancia de características de bosque aleatorio, la importancia por permutación y (opcionalmente) SHAP sobre las características principales. También agrupa la importancia por compartimento y por canal, lo que muestra si la puntuación del clasificador depende principalmente de características del patógeno o de la célula."
+    }
+  ]
+}

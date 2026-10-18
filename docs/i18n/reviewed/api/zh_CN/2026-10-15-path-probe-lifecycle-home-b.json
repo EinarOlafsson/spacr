@@ -101,7 +101,10 @@
       "source_sha256": "d0beabc45a13cf581eb083eb85cf3c197ceefe7d170d39fb6f50396e72854389",
       "previous_same_source_indexes": [],
       "translation": "文件对话框刚刚告知某路径存在；再次查询文件系统意味着对已知事实进行第二次 stat 查询。这会清除相应的待完成标记，但不会取消已排队或正在运行的检查。这样的检查之后可能覆盖预先写入的结果，并在其结果改变缓存值时发出 ``answered`` 信号（信号源为 :data:`probes` ）。此调用本身不发出信号。",
-      "review_basis": "Exact-source technical translation review of synchronous versus non-waiting path checks, defaults, optimistic timeout caching, detached late stat results, pending work surviving invalidation and priming, and conditional background versus absent direct signal delivery. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      "review_basis": "Exact-source technical translation review of synchronous versus non-waiting path checks, defaults, optimistic timeout caching, detached late stat results, pending work surviving invalidation and priming, and conditional background versus absent direct signal delivery. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     }
   ]
 }

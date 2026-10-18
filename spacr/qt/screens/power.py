@@ -2,9 +2,9 @@
 Power / Design — estimate how many cells per well, and how many wells, a screen needs.
 
 The science has been in the tree since the spaCRPower port landed:
-:mod:`spacr.power_simulate` builds a screen you know the truth for, and
+:mod:`spacr.power_simulate` builds a screen with known true hits, and
 :mod:`spacr.power_model` fits the horseshoe-Poisson model to it and scores how
-well the fit recovered the hits you planted. What has never existed is the
+well the fit recovered the simulated hits. What has never existed is the
 surface where a screener asks the question they actually have, which is not
 "what is the AUROC of a design with well_abundance_factor_mu = 4.6" but::
 

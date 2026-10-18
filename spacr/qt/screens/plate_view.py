@@ -681,7 +681,7 @@ class PlateViewScreen(LinkedView, QWidget):
         """Stop listening to the process-wide filter before going away.
 
         The `except` is the one thing :meth:`LinkedView.unlink_selection` does
-        not do for us: it is flag-guarded, so a double close is already
+        not provide: it is flag-guarded, so a double close is already
         silent, but during interpreter teardown the C++ side of the
         process-wide `LinkedSelection` can be gone before this widget's
         `closeEvent` runs, and PySide raises on the disconnect then.

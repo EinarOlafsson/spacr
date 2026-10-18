@@ -2402,8 +2402,8 @@ class ConsolePanel(QWidget):
         `QThread: Destroyed while thread '' is still running`.
 
         The cancel path kills the CLI subprocess directly so the
-        stream reader unblocks immediately; we then wait for the
-        worker's run() to return and the QThread to quit normally.
+        stream reader unblocks immediately; this method then waits for
+        the worker's run() to return and the QThread to quit normally.
 
         There is deliberately no ``QThread.terminate()`` fallback. It used
         to be here, described as a last resort, and it was reached far more

@@ -16,7 +16,10 @@
       "source_sha256": "0f10006e9996a64fffa16b9a3b885da5cfc92907388cad33b48f5f666abc87c6",
       "source": "The existing spacr GUI expresses settings as `{name: (widget_type, options, default)}` triples via `spacr.gui_utils.convert_settings_dict_for_gui`. Here we consume the same conversion output and materialize each entry as a real Qt widget grouped into logical Section boxes based on `spacr.settings.categories`.",
       "context": "The existing spacr GUI expresses settings as `{name: (widget_type, options, default)}` triples via `spacr.gui_utils.convert_settings_dict_for_gui`. Here we consume the same conversion output and materialize each entry as a real Qt widget grouped into logical Section boxes based on `spacr.settings.categories`.",
-      "translation": "मौजूदा spacr GUI settings को `{name: (widget_type, options, default)}` triples के रूप में `spacr.gui_utils.convert_settings_dict_for_gui` से व्यक्त करता है। यहाँ हम उसी conversion output को लेते हैं और `spacr.settings.categories` के आधार पर logical Section boxes में grouped वास्तविक Qt widget के रूप में हर entry बनाते हैं।"
+      "translation": "मौजूदा spacr GUI settings को `{name: (widget_type, options, default)}` triples के रूप में `spacr.gui_utils.convert_settings_dict_for_gui` से व्यक्त करता है। यहाँ हम उसी conversion output को लेते हैं और `spacr.settings.categories` के आधार पर logical Section boxes में grouped वास्तविक Qt widget के रूप में हर entry बनाते हैं।",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.qt.verbose_logger#8",

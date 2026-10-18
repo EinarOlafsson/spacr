@@ -4,7 +4,7 @@ subtitle, and an optional call-to-action button.
 
 Used on screens whose primary content requires the user to first pick
 a source folder / open a database (annotate, make-masks) — instead of
-showing an empty grid or blank canvas we render this centered.
+showing an empty grid or blank canvas, these screens show this panel centered.
 """
 from __future__ import annotations
 

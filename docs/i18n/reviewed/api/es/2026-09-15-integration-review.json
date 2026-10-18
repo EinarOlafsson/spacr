@@ -243,7 +243,10 @@
       "label": "spacr.qt.screens.power#1",
       "source": "The science has been in the tree since the spaCRPower port landed: :mod:`spacr.power_simulate` builds a screen you know the truth for, and :mod:`spacr.power_model` fits the horseshoe-Poisson model to it and scores how well the fit recovered the hits you planted. What has never existed is the surface where a screener asks the question they actually have, which is not \"what is the AUROC of a design with well_abundance_factor_mu = 4.6\" but",
       "source_sha256": "f891ade99b982bb50a7bb8a10edbb2944a3d73cc114092c4ce96c7ca2fb323de",
-      "translation": "La parte científica está en el árbol de código desde que llegó la adaptación de spaCRPower: :mod:`spacr.power_simulate` construye un cribado del que conoces la verdad, y :mod:`spacr.power_model` le ajusta el modelo horseshoe-Poisson y puntúa lo bien que el ajuste recuperó los aciertos que sembraste. Lo que nunca ha existido es la superficie donde quien hace el cribado plantea la pregunta que realmente tiene, que no es \"cuál es el AUROC de un diseño con well_abundance_factor_mu = 4.6\" sino"
+      "translation": "La parte científica está en el árbol de código desde que llegó la adaptación de spaCRPower: :mod:`spacr.power_simulate` construye un cribado del que conoces la verdad, y :mod:`spacr.power_model` le ajusta el modelo horseshoe-Poisson y puntúa lo bien que el ajuste recuperó los aciertos que sembraste. Lo que nunca ha existido es la superficie donde quien hace el cribado plantea la pregunta que realmente tiene, que no es \"cuál es el AUROC de un diseño con well_abundance_factor_mu = 4.6\" sino",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "``threaded=False`` **runs the same code inline**, firing the same signals, so the tested path and the shipped path differ only in where they run.",

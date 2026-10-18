@@ -19,10 +19,11 @@ at module scope.
 The question this module answers
 --------------------------------
 *How many wells, how many cells per well, and how good a classifier do I
-need before a pooled CRISPR screen can actually find its hits?*  You
-answer it by simulating screens you know the truth for, fitting the model
-you would really use, and measuring how well the fit recovers the hits
-you planted.  :func:`scan_parameters` sweeps that loop over a design grid.
+need before a pooled CRISPR screen can actually find its hits?*  The
+estimate comes from simulating screens with known true hits, fitting the
+model that the real analysis uses, and measuring how well the fit
+recovers the simulated hits.  :func:`scan_parameters` sweeps that loop
+over a design grid.
 
 The model
 ---------
@@ -260,7 +261,7 @@ def prepare_model_data(
 
     ``Ntotal`` is read from an ``imaging_n_cells_per_well`` column if the
     simulator provides one (it must then be constant within a well, or
-    the table is malformed and we say so); otherwise it is summed from
+    :class:`PowerFitError` is raised); otherwise it is summed from
     ``imaging_n_cells_per_gene_per_well``.  The two agree by
     construction, since the per-gene counts are a multinomial split of
     the per-well total.
@@ -272,7 +273,7 @@ def prepare_model_data(
       happens to sort first in the well, not the well's total.  That is a
       bug in the R (the surrounding documentation says "number of
       positive"), and reproducing it would throw away most of the
-      response.  We sum over all genes in the well.
+      response.  This function sums over all genes in the well.
     * Genes whose covariate column ends up constant across wells are
       flagged in :attr:`ModelData.unidentified_genes`.  Their
       coefficients are not estimable and are reported as ``NaN`` rather
@@ -1833,7 +1834,7 @@ def scan_parameters(
     :raises PowerFitError: if no parameters were given, ``on_error`` is
         not recognised, ``n_replicates < 1``, the progress file exists
         with a different column layout (appending misaligned rows to a
-        TSV is a silent data-corruption bug, so we stop instead), or the
+        TSV would silently corrupt it), or the
         progress file is non-empty and ``resume=False``.
 
     Example -- sweep the number of wells, three replicates each, resumable.

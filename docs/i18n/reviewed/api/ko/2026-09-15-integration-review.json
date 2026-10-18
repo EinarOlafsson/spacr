@@ -447,7 +447,10 @@
       "label": "spacr.power_model.scan_parameters#17",
       "source": "if no parameters were given, ``on_error`` is not recognised, ``n_replicates < 1``, the progress file exists with a different column layout (appending misaligned rows to a TSV is a silent data-corruption bug, so we stop instead), or the progress file is non-empty and ``resume=False``.",
       "source_sha256": "905314d1666406bc4eccd01d48df000d27f63082ce3bd5c93ecd27c841b6ff4d",
-      "translation": "매개변수가 하나도 주어지지 않았거나, ``on_error`` 를 인식할 수 없거나, ``n_replicates < 1`` 이거나, 진행 파일이 다른 열 구성으로 이미 존재하거나(TSV 에 어긋난 행을 추가하는 것은 조용한 데이터 손상 버그이므로 대신 멈춥니다), 진행 파일이 비어 있지 않은데 ``resume=False`` 인 경우."
+      "translation": "매개변수가 하나도 주어지지 않았거나, ``on_error`` 를 인식할 수 없거나, ``n_replicates < 1`` 이거나, 진행 파일이 다른 열 구성으로 이미 존재하거나(TSV 에 어긋난 행을 추가하는 것은 조용한 데이터 손상 버그이므로 대신 멈춥니다), 진행 파일이 비어 있지 않은데 ``resume=False`` 인 경우.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "skip points already present in ``progress_file``.  With ``resume=False`` and a non-empty progress file, this raises rather than appending a second copy of every point.",
@@ -574,7 +577,10 @@
       "label": "spacr.qt.screens.power#1",
       "source": "The science has been in the tree since the spaCRPower port landed: :mod:`spacr.power_simulate` builds a screen you know the truth for, and :mod:`spacr.power_model` fits the horseshoe-Poisson model to it and scores how well the fit recovered the hits you planted. What has never existed is the surface where a screener asks the question they actually have, which is not \"what is the AUROC of a design with well_abundance_factor_mu = 4.6\" but",
       "source_sha256": "f891ade99b982bb50a7bb8a10edbb2944a3d73cc114092c4ce96c7ca2fb323de",
-      "translation": "spaCRPower 이식이 들어온 이후로 과학적인 부분은 코드 트리에 이미 있었습니다: :mod:`spacr.power_simulate` 은 정답을 알고 있는 스크리닝 실험을 만들고, :mod:`spacr.power_model` 은 여기에 horseshoe-Poisson 모델을 적합해 심어 둔 히트를 적합이 얼마나 잘 되찾았는지 점수를 매깁니다. 지금까지 없었던 것은 스크리닝하는 사람이 실제로 품고 있는 질문을 던질 수 있는 도구인데, 그 질문은 \"well_abundance_factor_mu = 4.6 인 설계의 AUROC 는 얼마인가\"가 아니라"
+      "translation": "spaCRPower 이식이 들어온 이후로 과학적인 부분은 코드 트리에 이미 있었습니다: :mod:`spacr.power_simulate` 은 정답을 알고 있는 스크리닝 실험을 만들고, :mod:`spacr.power_model` 은 여기에 horseshoe-Poisson 모델을 적합해 심어 둔 히트를 적합이 얼마나 잘 되찾았는지 점수를 매깁니다. 지금까지 없었던 것은 스크리닝하는 사람이 실제로 품고 있는 질문을 던질 수 있는 도구인데, 그 질문은 \"well_abundance_factor_mu = 4.6 인 설계의 AUROC 는 얼마인가\"가 아니라",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "**The screen computes no statistics of its own.** Every number on it comes out of :func:`spacr.power_model.scan_parameters`; the only arithmetic here is counting how many replicates cleared the user's threshold. The translation from \"genes, plates, fold-change\" to simulator keyword arguments lives in one function, :func:`spacr.qt.widgets.power_design.simulator_kwargs`, so a run started here and the same run typed at a Python prompt are the same call. The test suite asserts that byte for byte on a fixed seed.",

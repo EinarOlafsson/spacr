@@ -1640,7 +1640,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The Graph Builder screen — a table, a filter, and a chart you drag together.",
       "source_sha256": "50846868223931deb5b33352a7424a53f20dc3ef3af8fd41c950b05edbc12980",
-      "translation": "Graph Builder स्क्रीन — एक तालिका, एक फ़िल्टर, और एक चार्ट जिन्हें आप खींचकर साथ जोड़ते हैं।"
+      "translation": "Graph Builder स्क्रीन — एक तालिका, एक फ़िल्टर, और एक चार्ट जिन्हें आप खींचकर साथ जोड़ते हैं।",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "Assembles three things that already exist into one surface:",

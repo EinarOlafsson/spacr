@@ -11,8 +11,8 @@ Design notes
 * One instance is shared across the whole main window; the user's
   chat context persists as they switch between Mask/Measure/etc.
 * Streaming is done in a QThread via `spacr.qt.ai.worker.StreamWorker`.
-  The worker reference is stored on `self` — if we let Python drop it,
-  Qt may never deliver the finished signal.
+  The worker reference is stored on `self`; if Python garbage-collected it,
+  Qt might never deliver the finished signal.
 * While a stream is in flight, the Send button turns into Cancel, and a
   message submitted from the input box is refused with a status-line
   notice rather than starting a second stream.

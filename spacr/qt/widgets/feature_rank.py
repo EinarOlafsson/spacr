@@ -289,7 +289,7 @@ def candidate_features(frame: pd.DataFrame,
     the right rule for deciding whether to offer a slider or a tick list — and
     the wrong one here, because ``pathogen_count`` runs 0–8 and is exactly the
     kind of feature a ranking exists to surface. A separation statistic is
-    perfectly happy on a discrete count.
+    well defined on a discrete count.
 
     What is still excluded is what ``classify_columns`` calls ``skip``: the
     identity columns (``object_label``, ``prcfo``), which identify a row rather

@@ -2160,7 +2160,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "What the plaque model box offers: zoo plaque models, then ``bundled``.",
       "source_sha256": "c9ac856460759e28637d0b04edc0c94c2038fd8e2f6d8565a54636058c12621f",
-      "translation": "플라크 모델 상자가 제공하는 것: 모델 목록의 플라크 모델, 그다음 ``bundled`` 입니다."
+      "translation": "플라크 모델 상자가 제공하는 것: 모델 목록의 플라크 모델, 그다음 ``bundled`` 입니다.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "setting values, newest zoo model first.",
@@ -2168,7 +2171,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "setting values, newest zoo model first.",
       "source_sha256": "944439dbb28b43685d91e2e73e2d4bb103602a1ac30cb3e214e935796e88ef07",
-      "translation": "설정 값이며, 최신 모델 목록 모델이 먼저 옵니다."
+      "translation": "설정 값이며, 최신 모델 목록 모델이 먼저 옵니다.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "Plaque mode on one image: segment it and count what was found.",

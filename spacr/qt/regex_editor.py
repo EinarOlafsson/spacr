@@ -91,7 +91,7 @@ class RegexEditorDialog(QDialog):
     :param sample_filenames: bare filenames from the dropped folder
         used for the live preview (first 20 or so).
     :param initial_regex: pre-fill the input with this pattern; empty
-        means we run auto-detect on show.
+        means auto-detection runs when the dialog is shown.
     :param multichannel: True for regular multi-channel plates; False
         for single-channel data (relaxes the warning set).
     :param parent: optional parent widget.

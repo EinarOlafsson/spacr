@@ -121,7 +121,10 @@
       "label": "spacr.qt.screens.db_browser.WritableDb.connect#1",
       "source": "``isolation_level = None`` hands transaction control back to us, so the BEGIN/COMMIT/ROLLBACK in :meth:`update_cell` are the real ones and do not fight Python's implicit transaction handling (which differs between 3.11 and 3.12+).",
       "source_sha256": "d8f495e1f9fc72d7dea61b6a83ce862ccd34baef3a6379a334c4c525e1df8024",
-      "translation": "``isolation_level = None`` übergibt uns die Transaktionssteuerung zurück. Dadurch sind die in :meth:`update_cell` verwendeten Befehle BEGIN/COMMIT/ROLLBACK die tatsächlichen Transaktionen und geraten nicht mit der impliziten Transaktionsverwaltung von Python in Konflikt, die sich zwischen 3.11 und 3.12+ unterscheidet."
+      "translation": "``isolation_level = None`` übergibt uns die Transaktionssteuerung zurück. Dadurch sind die in :meth:`update_cell` verwendeten Befehle BEGIN/COMMIT/ROLLBACK die tatsächlichen Transaktionen und geraten nicht mit der impliziten Transaktionsverwaltung von Python in Konflikt, die sich zwischen 3.11 und 3.12+ unterscheidet.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "**The preview colours by correspondence, not by label id.** Label 3 in A has nothing to do with label 3 in B, so a shared random palette would invite exactly the wrong comparison. Objects that have a partner in the other mask are drawn in one colour and objects that do not in another, which is the comparison rather than a decoration of it.",

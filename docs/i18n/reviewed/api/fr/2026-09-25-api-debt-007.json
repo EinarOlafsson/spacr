@@ -1116,7 +1116,10 @@
       "review_basis": "MT draft edited in AI review",
       "source": "The louder of what is playing and the idle breath, so a quiet passage never takes the picture below what silence would have drawn. That is the rule that makes \"it idles beautifully in silence\" and \"it reacts to the music\" the same code path.",
       "source_sha256": "1b9ca8cabf17d189946645c05b5677dc8214f77ba99a494185bd769f2ec5ea05",
-      "translation": "Le plus fort entre ce qui est en train de jouer et la respiration au repos, de sorte qu’un passage calme ne fait jamais descendre l’image sous ce qu’aurait dessiné le silence. C’est la règle qui fait de « il tourne magnifiquement au repos dans le silence » et « il réagit à la musique » le même chemin de code."
+      "translation": "Le plus fort entre ce qui est en train de jouer et la respiration au repos, de sorte qu’un passage calme ne fait jamais descendre l’image sous ce qu’aurait dessiné le silence. C’est la règle qui fait de « il tourne magnifiquement au repos dans le silence » et « il réagit à la musique » le même chemin de code.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "Every grain as ``(x, y, brightness)`` in pixels.",

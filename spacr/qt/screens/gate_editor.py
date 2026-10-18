@@ -1249,11 +1249,10 @@ class GateEditorScreen(DerivedTableSource, QWidget):
     def open_settings(self) -> None:
         """Show the settings window.
 
-        Not modal, and not re-created: a settings window you have to close to
-        see what it did is a settings window you cannot tune anything with.
-        The same dialog is raised again so its tab and scroll position
-        survive, which is the difference between adjusting a value and
-        hunting for it.
+        Not modal, and not re-created: the gate view stays usable while the
+        window is open, so the effect of a change can be seen without closing
+        it. The same dialog is raised again so its tab and scroll position
+        are kept between openings.
         """
         if self._settings_dialog is None:
             self._settings_dialog = GateSettingsDialog(

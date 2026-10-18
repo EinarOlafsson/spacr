@@ -99,7 +99,10 @@
       "source_sha256": "f891ade99b982bb50a7bb8a10edbb2944a3d73cc114092c4ce96c7ca2fb323de",
       "source": "The science has been in the tree since the spaCRPower port landed: :mod:`spacr.power_simulate` builds a screen you know the truth for, and :mod:`spacr.power_model` fits the horseshoe-Poisson model to it and scores how well the fit recovered the hits you planted. What has never existed is the surface where a screener asks the question they actually have, which is not \"what is the AUROC of a design with well_abundance_factor_mu = 4.6\" but",
       "context": "The science has been in the tree since the spaCRPower port landed: :mod:`spacr.power_simulate` builds a screening experiment you know the truth for, and :mod:`spacr.power_model` fits the horseshoe-Poisson model to it and scores how well the fit recovered the hits you planted. What has never existed is the surface where a screener asks the question they actually have, which is not \"what is the AUROC of a design with well_abundance_factor_mu = 4.6\" but",
-      "translation": "spaCRPower port आने के बाद से science tree में है: :mod:`spacr.power_simulate` ऐसा screening experiment बनाता है जिसकी सच्चाई ज्ञात होती है, और :mod:`spacr.power_model` उस पर horseshoe-Poisson model fit करके जाँचता है कि fit ने लगाए गए hits कितने अच्छे से पाए। जो कभी नहीं था वह surface है जहाँ screener अपना वास्तविक प्रश्न पूछ सके; वह प्रश्न \"well_abundance_factor_mu = 4.6 वाले design का AUROC क्या है\" नहीं, बल्कि"
+      "translation": "spaCRPower port आने के बाद से science tree में है: :mod:`spacr.power_simulate` ऐसा screening experiment बनाता है जिसकी सच्चाई ज्ञात होती है, और :mod:`spacr.power_model` उस पर horseshoe-Poisson model fit करके जाँचता है कि fit ने लगाए गए hits कितने अच्छे से पाए। जो कभी नहीं था वह surface है जहाँ screener अपना वास्तविक प्रश्न पूछ सके; वह प्रश्न \"well_abundance_factor_mu = 4.6 वाले design का AUROC क्या है\" नहीं, बल्कि",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.qt.screens.power#4",

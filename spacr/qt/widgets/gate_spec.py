@@ -3401,8 +3401,9 @@ class ClusterCandidate:
     Kept as data rather than rendered straight into a table so the search is
     testable without a GUI, and so the caller decides what "best" means --
     which it must, because the scores disagree on purpose. Silhouette is
-    blind to how much was discarded, so a run that calls 90% of the plate
-    noise and tightly clusters the rest scores beautifully and is useless.
+    blind to how much was discarded, so a run that labels 90% of the plate
+    as noise and tightly clusters the rest scores high although it has
+    discarded most of the data.
     """
 
     #: The neighbourhood radius tried, in the units DBSCAN saw.

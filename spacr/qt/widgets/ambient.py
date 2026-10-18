@@ -5025,10 +5025,10 @@ class ResonanceEngine(_BufferedEngine):
     def energy(self) -> float:
         """How hard the plate is being driven, 0 to 1.
 
-        The louder of what is playing and the idle breath, so a quiet
-        passage never takes the picture below what silence would have
-        drawn. That is the rule that makes "it idles beautifully in
-        silence" and "it reacts to the music" the same code path.
+        The larger of the current drive level and the idle oscillation, so a
+        quiet passage never drives the picture below what silence would
+        have drawn. Idle animation and the response to audio therefore
+        use the same code path.
         """
         idle = RESONANCE_IDLE + RESONANCE_IDLE_SWELL * math.sin(
             2.0 * math.pi * self.time / RESONANCE_IDLE_PERIOD)

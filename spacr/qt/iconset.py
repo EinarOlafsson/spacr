@@ -3,7 +3,7 @@ Central icon lookup for the spacr Qt GUI.
 
 Two sources of icons, both made theme-aware here:
 
-* **qtawesome glyphs** — vector, painted in whatever colour we ask for.
+* **qtawesome glyphs** — vector, painted in the colour the caller requests.
   Wrapped so callers stay decoupled from Font Awesome glyph names. When the
   optional font is unavailable a bundled, theme-aware glyph is returned;
   toolbar affordances never silently turn into blank buttons.

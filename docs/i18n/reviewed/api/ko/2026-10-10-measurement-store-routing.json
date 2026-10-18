@@ -30,7 +30,10 @@
       "label": "spacr.ml.interpret_vision_model#1",
       "source": "Merges per-object measurements from the selected measurement store with a CSV of predicted scores, runs any combination of RF feature importance, permutation importance and SHAP over the top features, then aggregates SHAP contributions into compartment and channel radar plots so you can see which region (cell / nucleus / pathogen / cytoplasm) and which fluorescence channel drives the model.",
       "source_sha256": "b3fd4e7d658707f3e9bae619a91fd0814c79c0818e1ef5b829740efa9b7cc05e",
-      "translation": "선택한 측정 저장소의 객체별 측정값을 예측 점수 CSV와 병합하고, 상위 특징에 대해 RF 특징 중요도, 순열 중요도 및 SHAP를 임의로 조합해 실행한 다음, SHAP 기여도를 구획별 및 채널별 레이더 플롯으로 집계하여 어느 영역(세포 / 핵 / 병원체 / 세포질)과 어느 형광 채널이 모델을 좌우하는지 확인할 수 있게 합니다."
+      "translation": "선택한 측정 저장소의 객체별 측정값을 예측 점수 CSV와 병합하고, 상위 특징에 대해 RF 특징 중요도, 순열 중요도 및 SHAP를 임의로 조합해 실행한 다음, SHAP 기여도를 구획별 및 채널별 레이더 플롯으로 집계하여 어느 영역(세포 / 핵 / 병원체 / 세포질)과 어느 형광 채널이 모델을 좌우하는지 확인할 수 있게 합니다.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "The merged per-object DataFrame — the measurement tables joined to the scores CSV — that the explainers were fitted on. Radar and importance plots are rendered, and with ``save=True`` importance CSVs are written under the source folder's ``results/``, as side effects.",

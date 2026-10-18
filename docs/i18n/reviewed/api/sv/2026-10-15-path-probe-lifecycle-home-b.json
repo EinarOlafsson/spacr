@@ -101,7 +101,10 @@
       "source_sha256": "d0beabc45a13cf581eb083eb85cf3c197ceefe7d170d39fb6f50396e72854389",
       "previous_same_source_indexes": [],
       "translation": "Fildialogen har just meddelat att en sökväg finns; att fråga filsystemet igen skulle innebära en andra stat-kontroll av ett redan känt faktum. Detta tar bort motsvarande väntemarkering men avbryter inte en köad eller pågående kontroll. En sådan kontroll kan senare skriva över det förifyllda svaret och skicka signalen ``answered`` på :data:`probes` om resultatet ändrar det cachade värdet. Själva detta anrop skickar ingen signal.",
-      "review_basis": "Exact-source technical translation review of synchronous versus non-waiting path checks, defaults, optimistic timeout caching, detached late stat results, pending work surviving invalidation and priming, and conditional background versus absent direct signal delivery. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      "review_basis": "Exact-source technical translation review of synchronous versus non-waiting path checks, defaults, optimistic timeout caching, detached late stat results, pending work surviving invalidation and priming, and conditional background versus absent direct signal delivery. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     }
   ]
 }

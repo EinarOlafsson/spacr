@@ -1324,8 +1324,8 @@ class FigureQueue(QWidget):
         of duplicating.
 
         ``prerendered_png`` is a PNG the pipeline bridge already rendered in a
-        WORKER thread — when supplied we just adopt it (a fast file move + a
-        cheap QPixmap load) instead of doing the expensive savefig on the GUI
+        WORKER thread. When it is supplied, that file is adopted (a file move
+        and a QPixmap load) instead of running the slower savefig on the GUI
         thread, so the UI stays responsive while many figures stream in.
 
         :param fig: the Matplotlib figure to append; recognised by object

@@ -906,7 +906,7 @@ class WritableDb:
     def connect(self) -> sqlite3.Connection:
         """Return a fresh read-write connection in autocommit mode.
 
-        ``isolation_level = None`` hands transaction control back to us,
+        ``isolation_level = None`` leaves transaction control to this class,
         so the BEGIN/COMMIT/ROLLBACK in :meth:`update_cell` are the real
         ones and do not fight Python's implicit transaction handling
         (which differs between 3.11 and 3.12+).

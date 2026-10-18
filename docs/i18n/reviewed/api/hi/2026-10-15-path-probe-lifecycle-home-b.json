@@ -101,7 +101,10 @@
       "source_sha256": "d0beabc45a13cf581eb083eb85cf3c197ceefe7d170d39fb6f50396e72854389",
       "previous_same_source_indexes": [],
       "translation": "फ़ाइल संवाद ने अभी बताया है कि पथ मौजूद है; फ़ाइल सिस्टम से फिर पूछना पहले से ज्ञात तथ्य के लिए दूसरी stat जाँच होगी। इससे संबंधित लंबित चिह्न हटता है, लेकिन कतार में मौजूद या चल रही जाँच रद्द नहीं होती। ऐसी जाँच बाद में पहले से भरा उत्तर अधिलेखित कर सकती है और यदि उसका परिणाम कैश का मान बदलता है तो ``answered`` सिग्नल :data:`probes` पर भेज सकती है। यह कॉल स्वयं कोई सिग्नल नहीं भेजता।",
-      "review_basis": "Exact-source technical translation review of synchronous versus non-waiting path checks, defaults, optimistic timeout caching, detached late stat results, pending work surviving invalidation and priming, and conditional background versus absent direct signal delivery. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      "review_basis": "Exact-source technical translation review of synchronous versus non-waiting path checks, defaults, optimistic timeout caching, detached late stat results, pending work surviving invalidation and priming, and conditional background versus absent direct signal delivery. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     }
   ]
 }

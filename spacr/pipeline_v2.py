@@ -128,8 +128,8 @@ class FilenameMapper:
         regex. Falls back through ``cellvoyager`` → ``yokogawa`` on
         ``metadata_type="auto"``.
 
-        :param src: folder to scan (not recursive; we expect images at
-            the top level as the current spacr layout does).
+        :param src: folder to scan. Not recursive: images are expected at
+            the top level, as in the current spacr layout.
         :param metadata_type: ``"auto"`` / ``"cellvoyager"`` /
             ``"yokogawa"`` / ``"custom"``. When ``"custom"``,
             ``custom_regex`` must be given.

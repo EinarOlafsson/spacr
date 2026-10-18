@@ -8296,8 +8296,9 @@ def generate_training_dataset(settings):
 
     New behavior (annotation mode):
 
-      - If a column has only one annotated value (e.g., only '1's), we add a
-        '<column>_random' class using unannotated rows for that column (same size as positives).
+      - If a column has only one annotated value (e.g., only '1's), a
+        '<column>_random' class is added from unannotated rows of that column: as many rows as
+        positives, or every unannotated row when there are fewer; with none, no class is added.
       - Optional: persist that random selection into DB as a new INT column named '<column>_random' with 1's.
 
     ``crop_source`` chooses where the pixels come from. ``'png'`` (and

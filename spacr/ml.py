@@ -10291,8 +10291,8 @@ def interpret_vision_model(settings=None):
     predicted scores, runs any combination of RF feature importance,
     permutation importance and SHAP over the top features, then
     aggregates SHAP contributions into compartment and channel radar
-    plots so you can see which region (cell / nucleus / pathogen /
-    cytoplasm) and which fluorescence channel drives the model.
+    plots that show which region (cell / nucleus / pathogen /
+    cytoplasm) and which fluorescence channel contribute most to the score.
 
     :param settings: Settings dict, canonicalized via
         :func:`spacr.settings.set_interpret_vision_model_defaults`.

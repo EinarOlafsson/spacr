@@ -297,11 +297,11 @@ def _ensure_filter(handler: logging.Handler) -> None:
 
 
 def uninstall_run_id_logging() -> None:
-    """Restore the record factory that was installed before us.
+    """Restore the record factory that was installed before spaCR's.
 
-    Only undoes our own installation: if something else replaced the
-    factory in the meantime, ripping ours out would discard theirs too, so
-    this leaves the chain alone.
+    Only undoes spaCR's own installation: if other code replaced the
+    factory in the meantime, removing spaCR's factory would also discard
+    that replacement, so the chain is left unchanged.
     """
     global _BASE_RECORD_FACTORY, _OUR_RECORD_FACTORY
     with _LOGGING_LOCK:

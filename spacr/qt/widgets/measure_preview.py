@@ -339,7 +339,7 @@ def _slots_the_settings_speak_for(settings: Dict[str, Any]) -> int:
 
 
 def resolve_merged_source(path, rng=None):
-    """A concrete merged ``.npy`` from whatever the user gave us.
+    """Resolve the user-supplied path to one concrete merged ``.npy`` file.
 
     THREE THINGS ARE A VALID ANSWER TO "where are the crops", and only one of
     them used to be accepted:

@@ -124,7 +124,10 @@
       "source_sha256": "295c06519a1bb6d2153e0a7af56e096b3500285de350540e3b7b03e6c07a1ee0",
       "source": "an unambiguous *prefix* of a run-id (``\"2026-07-23_2147\"``), handy from a shell.",
       "context": "an unambiguous *prefix* of a run-id (``\"2026-07-23_2147\"``), handy from a shell.",
-      "translation": "Ein eindeutiges *prefix* einer Run-ID (``\"2026-07-23_2147\"``), praktisch von einer Shell aus."
+      "translation": "Ein eindeutiges *prefix* einer Run-ID (``\"2026-07-23_2147\"``), praktisch von einer Shell aus.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.runctx#2",

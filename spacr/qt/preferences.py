@@ -1641,7 +1641,7 @@ def set_figure_colors_auto() -> None:
 
     The explicit way out. A user who has been frozen — by the old dialog or
     by their own click — otherwise has no route back to automatic at all,
-    and a preference you can only ever set is a trap.
+    because nothing else clears the explicit setting.
     """
     set_figure_colors(AUTO_FIGURE_COLOR, AUTO_FIGURE_COLOR)
     set_figure_line_colour(AUTO_FIGURE_COLOR)

@@ -317,3 +317,9 @@ paragraphs in features, index, host_pathogen, plaque_assay, installer_guide, mod
 table_workflows, settings_flow, setting_animations (generator): slogan variant, metaphors, request quote, stale
 Home → Assays path, version-stale tag prose; added missing Edit Label tool; regenerated settings-flow page.
 Nine-locale AI-reviewed guide catalogs, no native signoff. workflows.rst (tutorial-fed) and README unchanged.
+
+2026-10-17 — Home API docstring prose pass. Scanned all 13,609 public API symbols for
+promotional, chatty, metaphorical and first/second-person wording; 51 docstrings (54 blocks)
+rewritten as factual descriptions, with io/power_model contracts checked against the code.
+Nine-locale reviewed records in 2026-10-17-678-api-prose.json; 87 superseded records retired
+and archived. Includes the stale plaque_model_choices entry. Tutorials remain with their lane.

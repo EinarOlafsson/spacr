@@ -656,7 +656,10 @@
       "source_sha256": "c9ac856460759e28637d0b04edc0c94c2038fd8e2f6d8565a54636058c12621f",
       "context": "What the plaque model box offers: zoo plaque models, then ``bundled``.",
       "translation": "प्लाक मॉडल बॉक्स क्या प्रस्तुत करता है: zoo प्लाक मॉडल, फिर ``bundled``।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.plaque_model_choices#2",
@@ -664,7 +667,10 @@
       "source_sha256": "944439dbb28b43685d91e2e73e2d4bb103602a1ac30cb3e214e935796e88ef07",
       "context": "setting values, newest zoo model first.",
       "translation": "सेटिंग मान, सबसे नया zoo मॉडल पहले।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.plaque_pass#0",

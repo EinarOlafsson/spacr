@@ -45,7 +45,10 @@
       "label": "spacr.report#23",
       "source": "The PDF is composed with :class:`matplotlib.backends.backend_pdf.PdfPages` — a monospace transcription of the same content plus one page per embedded figure. spaCR has no HTML-to-PDF engine among its dependencies and this module refuses to add one, so the PDF is a faithful *summary*, not a rendering of the HTML. Send the HTML when you can.",
       "source_sha256": "dd9250f8b5538c83ab3a686352e53e676049b517785839891836f6c6a061b35e",
-      "translation": "PDF :class:`matplotlib.backends.backend_pdf.PdfPages` से बनाया जाता है—समान content की monospace प्रति और हर embedded figure के लिए एक page। spaCR की dependencies में HTML से PDF बनाने वाला engine नहीं है और यह module कोई जोड़ने से मना करता है, इसलिए PDF HTML का rendering नहीं बल्कि विश्वसनीय *सारांश* है। संभव हो तो HTML भेजें।"
+      "translation": "PDF :class:`matplotlib.backends.backend_pdf.PdfPages` से बनाया जाता है—समान content की monospace प्रति और हर embedded figure के लिए एक page। spaCR की dependencies में HTML से PDF बनाने वाला engine नहीं है और यह module कोई जोड़ने से मना करता है, इसलिए PDF HTML का rendering नहीं बल्कि विश्वसनीय *सारांश* है। संभव हो तो HTML भेजें।",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "Exception used when the fields already on disk were produced under settings that differ materially from the current ones. This is a :class:`~spacr.errors.ConfigurationError` on purpose: it is a setup mistake, not a per-field failure, and continuing past it would append apples to oranges in a single table with nothing to mark the seam.",
@@ -77,7 +80,10 @@
       "label": "spacr.run_journal.resolve_run_dir#6",
       "source": "an unambiguous *prefix* of a run-id (``\"2026-07-23_2147\"``), handy from a shell.",
       "source_sha256": "295c06519a1bb6d2153e0a7af56e096b3500285de350540e3b7b03e6c07a1ee0",
-      "translation": "निष्पादन आईडी का स्पष्ट *prefix* (``\"2026-07-23_2147\"``), जो shell से उपयोगी है।"
+      "translation": "निष्पादन आईडी का स्पष्ट *prefix* (``\"2026-07-23_2147\"``), जो shell से उपयोगी है।",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "``FieldQC`` One microscope field of view's verdict: counts, flags, the numbers behind them, severity. ``score_field(mask, object_type, **thresholds)`` Score one label image, with no laboratory microplate context. ``score_masks(source, object_type, ...)`` Score a folder of ``.npy`` masks, a 3-D stack or a list of 2-D masks, then add the laboratory microplate-relative flags. ``summarize_qc(field_qcs)`` Laboratory microplate-level rollup: verdict, counts per severity, the failing microscope field of view names. ``format_scorecard(field_qcs)`` The printable card. ``write_scorecard(field_qcs, dst, object_type)`` ``<dst>/qc/segmentation_qc_<object_type>.csv``, one row per microscope field of view. ``run_segmentation_qc(...)`` What :mod:`spacr.object` calls: score, write, print, honour ``seg_qc``. ``thresholds_from_settings(settings)`` Pull the ``seg_qc_*`` knobs out of a settings key-value mapping.",

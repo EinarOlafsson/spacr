@@ -2649,7 +2649,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The louder of what is playing and the idle breath, so a quiet passage never takes the picture below what silence would have drawn. That is the rule that makes \"it idles beautifully in silence\" and \"it reacts to the music\" the same code path.",
       "source_sha256": "1b9ca8cabf17d189946645c05b5677dc8214f77ba99a494185bd769f2ec5ea05",
-      "translation": "재생 중인 것과 유휴 호흡 중 더 큰 쪽이므로, 조용한 구간이 무음일 때 그렸을 그림보다 아래로 내려가는 일은 없습니다. 이 규칙 덕분에 \"무음에서도 아름답게 유휴 동작한다\" 와 \"음악에 반응한다\" 가 같은 코드 경로가 됩니다."
+      "translation": "재생 중인 것과 유휴 호흡 중 더 큰 쪽이므로, 조용한 구간이 무음일 때 그렸을 그림보다 아래로 내려가는 일은 없습니다. 이 규칙 덕분에 \"무음에서도 아름답게 유휴 동작한다\" 와 \"음악에 반응한다\" 가 같은 코드 경로가 됩니다.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "Every grain as ``(x, y, brightness)`` in pixels.",

@@ -30,7 +30,10 @@
       "label": "spacr.ml.interpret_vision_model#1",
       "source": "Merges per-object measurements from the selected measurement store with a CSV of predicted scores, runs any combination of RF feature importance, permutation importance and SHAP over the top features, then aggregates SHAP contributions into compartment and channel radar plots so you can see which region (cell / nucleus / pathogen / cytoplasm) and which fluorescence channel drives the model.",
       "source_sha256": "b3fd4e7d658707f3e9bae619a91fd0814c79c0818e1ef5b829740efa9b7cc05e",
-      "translation": "将所选测量存储中的逐对象测量数据与预测得分的 CSV 合并，在排名靠前的特征上运行 RF 特征重要性、置换重要性和 SHAP 的任意组合，然后将 SHAP 贡献汇总为区室和通道雷达图，以便查看是哪个区域（细胞 / 细胞核 / 病原体 / 细胞质）和哪个荧光通道在驱动模型。"
+      "translation": "将所选测量存储中的逐对象测量数据与预测得分的 CSV 合并，在排名靠前的特征上运行 RF 特征重要性、置换重要性和 SHAP 的任意组合，然后将 SHAP 贡献汇总为区室和通道雷达图，以便查看是哪个区域（细胞 / 细胞核 / 病原体 / 细胞质）和哪个荧光通道在驱动模型。",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "The merged per-object DataFrame — the measurement tables joined to the scores CSV — that the explainers were fitted on. Radar and importance plots are rendered, and with ``save=True`` importance CSVs are written under the source folder's ``results/``, as side effects.",

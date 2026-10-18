@@ -183,10 +183,10 @@ class Moment(NamedTuple):
 def silence() -> Moment:
     """The moment that stands for nothing playing.
 
-    Not zeros: a plate at rest still has a plate, and the backdrop has to
-    idle beautifully rather than go out. The engine reads this as "breathe
-    slowly on your own clock", which is what
-    :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE` is for.
+    Silence does not blank the backdrop: with a zero drive level the engine
+    falls back to its own slow idle oscillation, set by
+    :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE`, so the plate stays
+    drawn.
 
     :returns: an all-zero moment.
     """

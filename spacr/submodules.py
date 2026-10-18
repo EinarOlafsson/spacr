@@ -2351,8 +2351,8 @@ def interpret_vision_model(settings=None):
     feature ratios (e.g. ``nucleus_cell_area``), then runs random-forest
     feature importance, permutation importance and (optionally) SHAP on
     the top features. Also groups importance by compartment and by
-    channel so you can answer "is my classifier looking at the
-    pathogen or at the cell?".
+    channel, which shows whether the classifier's score depends mainly
+    on pathogen or on cell features.
 
     :param settings: Settings dict. Key entries:
 

@@ -1139,7 +1139,7 @@ class LayerViewer(LinkedView, QWidget):
                 for axis, coordinate in world.items()))
 
     def on_linked_selection_changed(self, selection) -> None:
-        """Highlight the object another view selected, when we hold it.
+        """Highlight the object another view selected, if this viewer shows it.
 
         :param selection: the published :class:`~spacr.selection.Selection`;
             only a selection of exactly one key is acted on, and that key is

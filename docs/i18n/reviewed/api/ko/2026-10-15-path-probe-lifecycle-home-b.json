@@ -101,7 +101,10 @@
       "source_sha256": "d0beabc45a13cf581eb083eb85cf3c197ceefe7d170d39fb6f50396e72854389",
       "previous_same_source_indexes": [],
       "translation": "파일 대화상자가 방금 경로가 존재한다고 알려 주었으므로, 파일 시스템에 다시 묻는 것은 이미 아는 사실에 대해 두 번째 stat 검사를 하는 셈입니다. 이 호출은 해당 미완료 표시를 지우지만 대기열에 있거나 실행 중인 검사를 취소하지는 않습니다. 그런 검사는 나중에 미리 채운 응답을 덮어쓸 수 있으며, 결과가 캐시된 값을 바꾸면 ``answered`` 신호를 :data:`probes` 객체를 통해 보낼 수 있습니다. 이 호출 자체는 신호를 보내지 않습니다.",
-      "review_basis": "Exact-source technical translation review of synchronous versus non-waiting path checks, defaults, optimistic timeout caching, detached late stat results, pending work surviving invalidation and priming, and conditional background versus absent direct signal delivery. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      "review_basis": "Exact-source technical translation review of synchronous versus non-waiting path checks, defaults, optimistic timeout caching, detached late stat results, pending work surviving invalidation and priming, and conditional background versus absent direct signal delivery. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     }
   ]
 }

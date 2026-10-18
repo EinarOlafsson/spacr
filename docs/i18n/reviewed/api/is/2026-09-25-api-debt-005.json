@@ -264,7 +264,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Not zeros: a plate at rest still has a plate, and the backdrop has to idle beautifully rather than go out. The engine reads this as \"breathe slowly on your own clock\", which is what :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE` is for.",
       "source_sha256": "f488b733896591ea10307dc05c4c6cd55996eeccb8772d4567e69199cd85064f",
-      "translation": "Ekki núll: plata í hvíld er samt plata, og bakgrunnurinn verður að vera aðgerðalaus á fallegan hátt frekar en að slokkna. Vélin les þetta sem „andaðu hægt eftir eigin klukku“, sem er það sem :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE` er til."
+      "translation": "Ekki núll: plata í hvíld er samt plata, og bakgrunnurinn verður að vera aðgerðalaus á fallegan hátt frekar en að slokkna. Vélin les þetta sem „andaðu hægt eftir eigin klukku“, sem er það sem :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE` er til.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "an all-zero moment.",

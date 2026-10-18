@@ -11649,7 +11649,7 @@ def generate_object_dataset(
         image channels). Override if your arrays have a different channel count.
     :param save_png: write PNG files (set False to only collect arrays).
     :param return_arrays: also return the cropped arrays in the manifest.
-    :param limit: cap the number of objects processed (handy for previews).
+    :param limit: cap the number of objects processed, for example for previews.
     :param db_path: explicit path to ``measurements.db`` (else derived from src).
     :param verbose: print a short progress summary.
     :returns: a manifest ``list[dict]``; each entry has ``object_label``,
