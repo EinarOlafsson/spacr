@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "records": [
+    {
+      "context": "The first fold makes the page strip in a turn of its own. Making it moves this application view's whole body onto the strip, and Qt restyles every widget of a body it moves; that and the page joining the strip were one freeze. A breath between them lets the window answer.",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_folded#2",
+      "source": "THE FIRST FOLD MAKES THE PAGE STRIP IN A TURN OF ITS OWN. Making it moves this screen's whole body onto the strip, and Qt restyles every widget of a body it moves; that and the page joining the strip were one freeze. A breath between them lets the window answer.",
+      "source_sha256": "cb84e339284f737c131fcd13edcbcd5240a16d9118bb62bfe976c49a79d403ce",
+      "translation": "첫 번째 접기는 페이지 스트립을 별도의 한 차례에서 만듭니다. 스트립을 만들면 화면의 본문 전체가 스트립으로 옮겨지고, Qt는 옮겨진 본문의 모든 위젯에 스타일을 다시 적용합니다. 이 작업과 페이지가 스트립에 합류하는 작업이 한 번의 멈춤이었습니다. 둘 사이에 잠시 쉬면 창이 응답할 수 있습니다."
+    }
+  ]
+}

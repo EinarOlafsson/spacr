@@ -109172,14 +109172,16 @@
       "source_blocks_sha256": [
         "13820c42291787a40f6548c4c0921d94e3c69cba5e9a42c88ba59ea879ad52ad",
         "965a03a2a065487ee4281dc4194b95a7d22bcee9f0482b9dd4c9d01616b09037",
+        "cb84e339284f737c131fcd13edcbcd5240a16d9118bb62bfe976c49a79d403ce",
         "e01c1ff2455b36da5d3831e95c495a6c3b0193ed867fe7f8ee0c44455f16e083",
         "0ea94706b3bf1f136a6d773610571e4a3f3a674623a6c327f3aa8c20c88f94c9"
       ],
-      "source_sha256": "5835a4b1d108a8e183c6ccb2db0efcf880de038e85f4c4f87aa242bd7a3a4866",
-      "text": "Ouvrez un module plié sur cette vue d'application, pointé sur le champ ouvert.\n\nLe module arrive comme un PAGE à côté de l'éditeur, qui est où un pli appartient; il devient une fenêtre seulement si cet criblage n'a pas de corps pour faire des pages.\n\n:param key: un de :data:`FOLD_ORDER`.\n:returns: le panneau du module, ou ``None`` pour une clé, cet criblage ne se replie pas. En appuyant à nouveau sur le même bouton, on soulève la page qui est déjà là plutôt que de construire une seconde.",
+      "source_sha256": "64c2727bf23b94559e9f32fb81613a9165b6954273275848aa590d58f003dd97",
+      "text": "Ouvrez un module plié sur cette vue d'application, pointé sur le champ ouvert.\n\nLe module arrive comme un PAGE à côté de l'éditeur, qui est où un pli appartient; il devient une fenêtre seulement si cet criblage n'a pas de corps pour faire des pages.\n\nLE PREMIER REPLI CRÉE LA BANDE DE PAGES DANS UN TOUR À PART. Sa création déplace tout le contenu de l’écran sur la bande, et Qt réapplique le style de chaque widget du contenu qu’il déplace ; cela et l’ajout de la page à la bande formaient un seul gel. Une pause entre les deux permet à la fenêtre de répondre.\n\n:param key: un de :data:`FOLD_ORDER`.\n:returns: le panneau du module, ou ``None`` pour une clé, cet criblage ne se replie pas. En appuyant à nouveau sur le même bouton, on soulève la page qui est déjà là plutôt que de construire une seconde.",
       "translation_source_blocks_sha256": [
         "02b7b700b69b81867a5bd7b20230360a7963f77190ea633a18db707d88ed14d9",
         "965a03a2a065487ee4281dc4194b95a7d22bcee9f0482b9dd4c9d01616b09037",
+        "d90507a2a2ad5d1514277925e5fae23a8917082f1ead8f3cdf04747ff0acdc67",
         "e01c1ff2455b36da5d3831e95c495a6c3b0193ed867fe7f8ee0c44455f16e083",
         "0ea94706b3bf1f136a6d773610571e4a3f3a674623a6c327f3aa8c20c88f94c9"
       ]
