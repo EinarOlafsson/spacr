@@ -3446,7 +3446,7 @@ def _macos_swap(left, right):
     exchange.restype = ctypes.c_int
     if exchange(os.fsencode(left), os.fsencode(right), 0x00000002) != 0:
         error = ctypes.get_errno()
-        raise OSError(error, os.strerror(error), left, right)
+        raise OSError(error, os.strerror(error), left, None, right)
 
 
 def _macos_journal(transaction, data):
@@ -5150,8 +5150,7 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
             try:
                 _runtime_exchange(prefix, staged)
                 exchanged = False
-                if transaction:
-                    note("rolled_back")
+                note("rolled_back")
             except BaseException as rollback_error:
                 raise RuntimeError("Runtime restoration failed; previous runtime retained at " + staged) from rollback_error
         raise
