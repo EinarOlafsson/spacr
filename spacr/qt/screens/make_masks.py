@@ -16271,7 +16271,7 @@ class MakeMasksScreen(QWidget):
         previous = int(self._canvas.mask[y, x])
         if not previous:
             return self._canvas.mask, 0, label, None
-        assigned = label
+        assigned, notice = label, ""
         if self._time_label_enabled and self._canvas.mode == MODE_LABEL_TIME and label:
             if selected is None:
                 selected = mapping.get(str(previous))
@@ -16279,8 +16279,12 @@ class MakeMasksScreen(QWidget):
                     reserved = label if str(label) not in mapping else self._free_lineage_label()
                     state, selected = engine.new_lineage_cell(
                         state, self._label_name.text().strip() or str(label), reserved, frame)
+            before, chosen = (state or {}).get("cells", {}), selected
+            replaced = mapping.get(str(previous))
             changed, state, previous, assigned = engine.assign_tracked_object(
                 self._canvas.mask, x, y, state, frame, selected, preferred_label=label)
+            selected = state["frames"][frame].get(str(assigned), selected)
+            notice = self._lineage_assignment_notice(before, state, chosen, replaced)
         else:
             changed, previous = engine.assign_object_label(self._canvas.mask, x, y, label)
             if state is not None and str(previous) in mapping and previous != label:
@@ -16297,8 +16301,24 @@ class MakeMasksScreen(QWidget):
             self._refresh_lineage_rows()
             if label == 0:
                 self._label_value.setText("0")
+            if notice:
+                self._status_label.setText(notice)
 
         return changed, previous, assigned, commit
+
+    def _lineage_assignment_notice(self, before, state, chosen, replaced):
+        """Say how a Time assignment changed another cell, so nothing changes unseen."""
+        from ..i18n import tr
+
+        if replaced is None or replaced == chosen or replaced not in before:
+            return ""
+        old, name = before[replaced]["name"], before[chosen]["name"]
+        if replaced not in state["cells"]:
+            return tr("{old} was merged into {name}; Undo restores it.", old=old, name=name)
+        if state["cells"][replaced]["name"] != old:
+            return tr("{old} now carries {name} through the division; Undo restores it.",
+                      old=old, name=name)
+        return tr("This object moved from {old} to {name} in this frame.", old=old, name=name)
 
     def _edit_label_at(self, x, y, previous):
         """Ask for an explicit identity before changing an object."""

@@ -245,7 +245,7 @@ def test_conflicting_track_stops_the_wheel_queue_without_saving(screen):
     wheel(screen, 2, point=(10, 10))
     assert not screen._label_time_queue
     assert screen._load_worker is None
-    assert "already belongs to another lineage cell" in screen._status_label.text()
+    assert "already labels another object in this frame" in screen._status_label.text()
     assert _edit_snapshot(screen) == before
 
 
@@ -958,6 +958,7 @@ def test_division_branches_trace_both_ways_and_reopen_from_tiffs_only(qtbot, div
     wheel(screen, -4, point=(30, 10))
     wait_idle(qtbot, screen)
     assert screen._current_index == 1
+    assert "already continues through its other daughter" in screen._status_label.text()
     mask = screen._canvas.mask
     assert int(mask[10, 30]) == int(mask[10, 10]) != 0
     assert screen._lineage["frames"][screen._lineage_frame()][str(int(mask[10, 30]))] == mother
@@ -987,3 +988,95 @@ def test_division_branches_trace_both_ways_and_reopen_from_tiffs_only(qtbot, div
         assert (mapping[str(left)], mapping[str(right)]) == expected
     assert not fresh._time_label_enabled
     fresh.close()
+
+
+@pytest.fixture
+def relabelled(qtbot, qt_theme_applied, tmp_path, monkeypatch):
+    folder = tmp_path / "relabelled"
+    (folder / "masks").mkdir(parents=True)
+    frames = [str(folder / f"frame_{index}.tif") for index in range(4)]
+    state, early = engine.new_lineage_cell(None, "107", 107, frames[0])
+    state = engine.assign_lineage_label(state, frames[0], 107, early)
+    state, mother = engine.new_lineage_cell(state, "61", 61, frames[1])
+    state = engine.assign_lineage_label(state, frames[1], 61, mother)
+    state, (kept, sister) = engine.divide_lineage_cell(
+        state, mother, frames[2], ["89", "90"], [89, 90])
+    for frame in frames[2:]:
+        state = engine.assign_lineage_label(state, frame, 89, kept)
+        state = engine.assign_lineage_label(state, frame, 90, sister)
+    for index, local in enumerate(((107,), (61,), (89, 90), (89, 90))):
+        mask = np.zeros((40, 40), np.uint32)
+        mask[5:15, 5:15] = local[0]
+        if len(local) > 1:
+            mask[25:35, 25:35] = local[1]
+        imageio.imwrite(frames[index], np.full(mask.shape, index + 1, np.uint8))
+        engine.save_mask(str(folder), f"frame_{index}.tif", mask,
+                         preserve_ids=True, lineage=state)
+    widget = mm.MakeMasksScreen()
+    monkeypatch.setattr(widget, "_confirm", lambda *args: True)
+    qtbot.addWidget(widget)
+    widget._set_mode(mm.MODE_EDIT_LABEL)
+    assert widget._open_folder(str(folder))
+    widget._canvas.resize(400, 400)
+    widget._canvas.refresh()
+    widget._btn_save_on_navigation.setChecked(False)
+    yield widget, (early, mother, kept, sister)
+    widget.close()
+
+
+def _graph(lineage):
+    return ({key: (cell["name"], cell["label"], cell["parent_uuid"], cell["children"])
+             for key, cell in lineage["cells"].items()},
+            {Path(frame).name: mapping for frame, mapping in lineage["frames"].items()})
+
+
+def test_selected_mother_continues_through_its_daughter_with_undo_and_reopen(qtbot, relabelled):
+    screen, (early, mother, kept, sister) = relabelled
+    screen._on_next()
+    screen._on_next()
+    qtbot.waitUntil(lambda: not screen._loading and screen._current_index == 2, timeout=10000)
+    enable_time(screen)
+    select(screen, mother)
+    before_pixels, before_graph = screen._canvas.mask.copy(), _graph(screen._lineage)
+    hover(screen, (10, 10))
+    assert int(screen._canvas.mask[10, 10]) == 61
+    assert screen._selected_cell == kept
+    assert "89 now carries 61 through the division" in screen._status_label.text()
+    after_graph = _graph(screen._lineage)
+    assert after_graph[0][kept][:2] == ("61", 61)
+    assert after_graph[0][mother][3] == [kept, sister]
+    assert after_graph[0][sister][:3] == ("90", 90, mother)
+    screen._on_undo()
+    np.testing.assert_array_equal(screen._canvas.mask, before_pixels)
+    assert _graph(screen._lineage) == before_graph
+    screen._on_redo()
+    assert _graph(screen._lineage) == after_graph
+    select(screen, kept)
+    wheel(screen, 1)
+    wait_idle(qtbot, screen)
+    assert screen._current_index == 3 and int(screen._canvas.mask[10, 10]) == 61
+    hover(screen, (30, 30))
+    assert "61 already labels another object in this frame" in screen._status_label.text()
+    assert int(screen._canvas.mask[30, 30]) == 90
+    wheel(screen, -3)
+    wait_idle(qtbot, screen)
+    assert screen._current_index == 0
+    assert screen._selected_cell == mother
+    assert "107 was merged into 61" in screen._status_label.text()
+    screen._save_mask()
+    for sidecar in Path(screen._folder).rglob("*.json"):
+        sidecar.unlink()
+    fresh = mm.MakeMasksScreen()
+    qtbot.addWidget(fresh)
+    assert fresh._open_folder(screen._folder)
+    cells, frames = _graph(fresh._lineage)
+    assert early not in cells
+    assert cells[mother][:2] == ("61", 61) and cells[mother][3] == [kept, sister]
+    assert cells[kept][:3] == ("61", 61, mother) and cells[sister][:3] == ("90", 90, mother)
+    assert frames["frame_0.tif"] == {"61": mother} and frames["frame_1.tif"] == {"61": mother}
+    assert frames["frame_2.tif"] == frames["frame_3.tif"] == {"61": kept, "90": sister}
+    for index in range(4):
+        saved = imageio.imread(engine.mask_save_path(screen._folder, f"frame_{index}.tif"))
+        assert saved.dtype == np.uint32 and int(saved[10, 10]) == 61
+    fresh.close()
+

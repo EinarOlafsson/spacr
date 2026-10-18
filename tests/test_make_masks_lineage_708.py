@@ -260,7 +260,7 @@ def test_tracking_permuted_segmentation_ids_preserves_both_objects_and_identity(
     assert reopened["frames"][first]["1"] == reopened["frames"][second]["2"]
 
 
-def test_tracking_refuses_to_steal_an_established_cell(tmp_path):
+def test_tracking_refuses_one_identity_on_two_objects_in_a_frame(tmp_path):
     frame, image = _field(tmp_path)
     state, first = _mapped_cell(None, "first", 1, frame)
     state, second = _mapped_cell(state, "second", 2, frame)
@@ -268,10 +268,82 @@ def test_tracking_refuses_to_steal_an_established_cell(tmp_path):
     mask[2:5, 2:5] = 1
     mask[7:10, 7:10] = 2
     before = copy.deepcopy(state)
-    with pytest.raises(ValueError, match="already belongs to another"):
+    with pytest.raises(ValueError, match="first already labels another object in this frame"):
         engine.assign_tracked_object(mask, 8, 8, state, frame, first)
     assert state == before
     assert state["frames"][frame]["2"] == second
+
+
+def _continuation_movie(tmp_path):
+    frames = [_field(tmp_path, f"t{index}.tif")[0] for index in range(4)]
+    state, early = _mapped_cell(None, "107", 107, frames[0])
+    state, mother = _mapped_cell(state, "61", 61, frames[1])
+    state, (kept, sister) = engine.divide_lineage_cell(
+        state, mother, frames[2], ["89", "90"], [89, 90])
+    for frame in frames[2:]:
+        state = engine.assign_lineage_label(state, frame, 89, kept)
+        state = engine.assign_lineage_label(state, frame, 90, sister)
+    masks = []
+    for local in ((107,), (61,), (89, 90), (89, 90)):
+        mask = np.zeros((12, 12), np.uint32)
+        mask[1:5, 1:5] = local[0]
+        if len(local) > 1:
+            mask[7:11, 7:11] = local[1]
+        masks.append(mask)
+    return frames, masks, state, (early, mother, kept, sister)
+
+
+def test_selected_mother_continues_through_a_hovered_daughter(tmp_path):
+    frames, masks, state, (early, mother, kept, sister) = _continuation_movie(tmp_path)
+    tracked, result, old, local = engine.assign_tracked_object(
+        masks[2], 2, 2, state, frames[2], mother)
+    assert (old, local) == (89, 61)
+    assert int(tracked[2, 2]) == 61 and int(tracked[8, 8]) == 90
+    cells = result["cells"]
+    assert result["frames"][frames[2]] == {"61": kept, "90": sister}
+    assert (cells[kept]["name"], cells[kept]["label"]) == ("61", 61)
+    assert cells[mother]["children"] == [kept, sister]
+    assert cells[sister]["name"] == "90" and cells[sister]["parent_uuid"] == mother
+    following, result, old, local = engine.assign_tracked_object(
+        masks[3], 2, 2, result, frames[3], kept)
+    assert (old, local) == (89, 61)
+    assert result["frames"][frames[3]] == {"61": kept, "90": sister}
+    with pytest.raises(ValueError, match="61 already labels another object in this frame"):
+        engine.assign_tracked_object(following, 8, 8, result, frames[3], kept)
+    back, result, old, local = engine.assign_tracked_object(
+        masks[1], 2, 2, result, frames[1], kept)
+    assert (old, local) == (61, 61)
+    assert result["frames"][frames[1]] == {"61": mother}
+    engine.save_mask(str(tmp_path), "t2.tif", tracked, lineage=result)
+    reopened = engine.load_mask_lineage(str(tmp_path), "t2.tif")
+    assert reopened["cells"][mother]["children"] == [kept, sister]
+    assert reopened["cells"][kept]["name"] == "61"
+    assert reopened["frames"][frames[2]] == {"61": kept, "90": sister}
+
+
+def test_a_second_daughter_cannot_also_continue_the_mother(tmp_path):
+    frames, masks, state, (early, mother, kept, sister) = _continuation_movie(tmp_path)
+    _, result, _, _ = engine.assign_tracked_object(masks[2], 2, 2, state, frames[2], mother)
+    before = copy.deepcopy(result)
+    with pytest.raises(ValueError, match="61 already continues through its other daughter"):
+        engine.assign_tracked_object(masks[3], 8, 8, result, frames[3], mother)
+    assert result == before
+    with pytest.raises(ValueError, match="61 already continues through its other daughter"):
+        engine.assign_tracked_object(masks[1], 2, 2, result, frames[1], sister)
+
+
+def test_an_unrelated_cell_left_without_frames_is_merged_and_restored_by_undo(tmp_path):
+    frames, masks, state, (early, mother, kept, sister) = _continuation_movie(tmp_path)
+    tracked, result, old, local = engine.assign_tracked_object(
+        masks[0], 2, 2, state, frames[0], mother)
+    assert (old, local) == (107, 61) and int(tracked[2, 2]) == 61
+    assert early not in result["cells"] and early in result["deleted_cells"]
+    assert result["frames"][frames[0]] == {"61": mother}
+    undone = engine.restore_lineage_state(state, result)
+    assert undone["cells"][early]["name"] == "107"
+    assert undone["frames"][frames[0]] == {"107": early}
+    _, kept_cell, _, _ = engine.assign_tracked_object(masks[2], 8, 8, state, frames[2], early)
+    assert sister in kept_cell["cells"] and kept_cell["frames"][frames[2]][str(107)] == early
 
 
 def test_undo_division_and_rename_survive_saved_older_snapshots_and_redo(tmp_path):
