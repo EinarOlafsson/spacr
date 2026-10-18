@@ -75,5 +75,5 @@ These appear only with Show alpha features on.
 - Own-DINO classifiers can be trained from a supplied teacher checkpoint and applied from their saved artifacts, using explicit channel order and saved input scaling. Predictions and features can be exported as tables.
 - MitoNet as a Make Masks backend for TEM images.
 - Spatial Mask Generation and Spatial Map Barcodes submodules, opened from the Spatial switches.
-- Embeddings use DINOv2 by default; Cell-DINO is available as a drop-in.
+- Embeddings offer DINOv2 and can use an official Cell-DINO checkpoint with explicit channel mapping.
 - Other organisms stay behind Show alpha species; Toxoplasma is always shown.

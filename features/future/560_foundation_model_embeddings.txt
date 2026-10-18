@@ -436,3 +436,5 @@ Requested functional alpha example is delivered; original F560 scientific accept
 Alpha "Load cell example" loads the example plate's 53 annotated cells (infected 1/2) with a written label table; the synthetic demo now uses the same DINOv2 choice. Both widgets in ALPHA_FEATURES[560].
 CPU acceptance (DINOv2, real screen): cell example 53 x 384 finite, kNN 0.91, mAP 0.76 (chance 0.56), 15 s; synthetic 24 x 384, kNN 1.00, mAP 1.00 (chance 0.39). Functional only. Tests: test_cell_dino_drop_in, qt/test_embedding_synthetic_demo.
 Remaining: only the BLOCKED ON MAINTAINER steps at the top (Meta form; human-label comparisons incl. Cell-DINO).
+
+2026-10-18 — Release-note accuracy: distinguish the selectable DINOv2 workflow from the fresh GUI/API ResNet18 backbone default; Cell-DINO requires a configured official checkpoint and channel mapping. Correct the1.5.1.5 note only, preserving alpha status and all existing checkpoint/scientific acceptance gates; no model or application changes.
