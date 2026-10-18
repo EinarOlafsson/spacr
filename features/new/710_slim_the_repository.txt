@@ -2,36 +2,176 @@
 SLIM THE REPOSITORY: EVIDENCE AND MEDIA TO HUGGING FACE, CATALOGS BUILT IN CI
 ================================================================================
 
-Status:    in progress — phase 1 (preparation); destructive phases after 1.5.1.5
+Status:    in progress — phase 1 (preparation); destructive phases after
+           1.5.1.5. HF upload BLOCKED ON MAINTAINER (visibility decision,
+           see HF DATASET below).
 Requested: maintainer, 2026-10-18 (question tool, main session). Approved
            steps: "Move features/data to HF", "Move tutorial media + deck
            renders", "Build generated catalogs in CI", "Rewrite history
            (filter-repo)" — all AFTER the 1.5.1.5 release is out.
 Owner:     Claude Home; Claude WS for tutorial media (docs/source/_extra/
-           tutorials, tools/tutorials).
+           tutorials/**, tools/tutorials/**, HF einarolafsson/spacr-tutorials).
 
 WHAT TO BUILD
-Every clone downloads a 10.4 GB pack (origin/nightly, 2026-10-18). The tracked
-tree holds features/data 4.1 GB (22,870 files), docs/source/_static/i18n
-182 MB (generated API catalogs), docs/source/_extra/tutorials 178 MB,
-tools/tutorials 146 MB, docs/source/_static/deck 85 MB, tools/readme_deck
-69 MB and spacr/resources 74 MB (packaged; stays).
-Phase 1 (now, non-destructive): inventory which features/data files tests,
-tools, workflows and code read; mirror features/data to the Hugging Face
-DATASET einarolafsson/spacr-evidence; plan phases 2-4 and measure the
-post-rewrite pack on a throwaway mirror.
-Phase 2: delete the movable features/data files from the tree, keep the
-keep-list (moved to tests/data where it is a fixture).
-Phase 3: tutorial media and deck renders fetched from HF at docs build;
-API i18n catalogs assembled in the docs CI job instead of committed.
-Phase 4: git filter-repo over all history, force-push main and nightly once,
-every session and worktree re-clones.
+Every clone downloads the whole history: 11.26 GiB repacked pack for main,
+nightly and the 26 tags (measured on a mirror clone, 2026-10-18). The nightly
+tree is 5.27 GB / 42,690 files: features/data 4.1 GB (22,870 files),
+docs/source/_static/i18n 182 MB (generated API catalogs), docs/source/_extra/
+tutorials 178 MB, tools/tutorials 146 MB, docs/source/_static/deck 85 MB,
+tools/readme_deck 69 MB, spacr/resources 74 MB (packaged; stays).
+History by path (compressed pack bytes): _extra/tutorials 5.08 GiB,
+features/data 2.30 GiB, _static/i18n 1.85 GiB (34 GiB raw: each catalog
+regeneration commits ten 13-25 MB JSON files), _static/deck 0.23 GiB; paths
+already deleted from the tree (datasets/, notebooks/, Notebooks/,
+spacr/models/, docs/_build/, False.pdf) about 0.5 GiB.
+Phase 1 (now, non-destructive): inventory, HF mirror, plan, measurement.
+Phase 2: remove the movable features/data files from the tree.
+Phase 3: tutorial media and deck renders from HF; API catalogs built in CI.
+Phase 4: git filter-repo over all history, one force-push, everyone re-clones.
 
 ACCEPTANCE
-Fresh `git clone` of origin downloads at most 1.5 GB (pack), and the tracked
-tree of nightly is at most 600 MB with spacr/resources unchanged.
-features/data holds only files a test, tool, workflow or package reads; every
-removed file is byte-identical on the HF dataset at its original path.
+Fresh `git clone` of origin downloads at most 1.25 GiB with the approved
+paths purged (measured on a mirror: 1.19 GiB), or at most 0.8 GiB if the
+maintainer also approves purging already-deleted folders (measured 744 MiB). The nightly tree is at most
+600 MB (measured after the same rewrite: 543 MB), spacr/resources unchanged.
+features/data keeps only files a test, tool, workflow or the package reads;
+every removed file is byte-identical on the HF dataset at its original path.
 Docs CI builds API catalogs, tutorial media and the deck from pinned HF
-revisions; the published site is unchanged. The smallest relevant test
-cohort passes before and after each phase; no assertion is weakened.
+revisions and the published site is unchanged. The relevant test cohort
+gives the same results before and after each phase; no assertion weakened.
+
+KEEP-LIST (phase 1 inventory, nightly bdc360004)
+Method: static grep of tests, tools, workflows, spacr and docs/source/conf.py
+for features/data paths and path joins, plus an audit-hook trace of every
+open/listdir/scandir/glob under features/data while running the 43 test files
+that can reach it. Three tests read every tracked text file (former-name and
+spaCR-name scans); they need no file except the four hash-bound records below.
+Keep 73 files, 6.4 MB (tests/data/evidence/ in phase 2 or in place):
+  read by tests: 564_sequence_target_identity, 570_cellhts2_reference,
+  702_work_model_reference_schema (15), n676_api_link_metadata_completed
+  checkpoint (2), 450_451 and 463 retired_runtime_review, 615_requested_
+  popup_animation (7), 684_animation_gpu_audit_*/receipt.json (glob),
+  424_detector_transfer_2026-09-19.json, combined_feature_progress (8);
+  hash-bound in name tests: ci_api_assignment_arrival_contract (2),
+  n676_install_selective_completed .../56-scenes.json, all-689-features.md;
+  read by tools: 658_producer_parity/producers.csv (audit_figure_producers),
+  662_make_masks_current_*.json (12, tools/tutorials/compose_make_masks_
+  capture.py, WS), progress_*.md (4, watch_progress_table.py);
+  cited in shipped model cards: model_rescore_curated_gt_2026-10-11/
+  receipt.json, model_compare_2026-10-10 (3), 424_imgsz_sweep_2026-09-20.json.
+Movable: 22,797 files, 4.09 GB. Comment-only citations (about 40 test
+comments naming 411_*/615_* records) stay valid as HF paths.
+Full lists: /mnt/wd4tb/scratch/repo-slim/keep_list.txt, remove_list.txt.
+Writers that must change target in phase 2: compare_spotnet_ops.py,
+validate_arrayed_planner_pilot.py, verify_animation_gpu_parity.py (--out
+under features/data) write to scratch, then upload to the HF dataset.
+
+HF DATASET einarolafsson/spacr-evidence (not created yet)
+Staged byte-exact from git archive of bdc360004 in /mnt/wd4tb/scratch/
+repo-slim/hf-stage (22,870 files, 4,097,807,616 bytes) with a provenance
+README. Scan of every file, inside .gz/.zip and the joined .zip.part0*
+archives: no real credentials (only fixture keys sk-ant-api03-AAAABBBB...,
+sk-proj-ABCD..., xoxb-1234567890-..., hunter2hunter2; no private keys).
+Personal data present: the maintainer's two e-mail addresses, local home
+paths (111k hits) and the workstation hostname, /mnt and /nas_mnt paths,
+third-party addresses in licence and copyright text. All of it is already public in the GitHub repository.
+The upload was stopped by the session's PII safeguard. Maintainer decides:
+public (mirrors GitHub; phase 4 then removes it from GitHub only), private,
+or public after redacting paths/addresses. Then run
+  hf repo create einarolafsson/spacr-evidence --repo-type dataset [--private]
+  hf upload-large-folder einarolafsson/spacr-evidence --repo-type dataset \
+     /mnt/wd4tb/scratch/repo-slim/hf-stage
+and verify file count 22,871 (with README) and byte totals via
+HfApi.list_repo_tree(recursive=True, expand=True) against the staged list.
+
+PHASE 2 — features/data out of the tree (Home, after 1.5.1.5)
+1. Verify the HF dataset matches the stage (count, size, sha256 per file).
+2. git mv the 73 keep-list files to tests/data/evidence/<same subpath>,
+   update their readers (11 tests, 3 tools, 3 model-card strings via tr()
+   catalogs) in one commit; git rm the 22,797 others; add
+   features/data/README.md pointing to the dataset and its commit.
+3. Add a test that features/data holds only README.md, so it cannot regrow.
+   Re-measure with packaging/measure_clone_forms.sh and update the README
+   checkout size (test_the_light_install_numbers_are_honest fails otherwise:
+   the only new failure in the validation run).
+4. Point the evidence-writing tools at /mnt/wd4tb/scratch plus HF upload.
+
+PHASE 3b — tutorial media and deck renders (WS for tutorials, Home for deck)
+WS-owned and moving to HF dataset einarolafsson/spacr-tutorials (already the
+lesson publication target): docs/source/_extra/tutorials/production/**
+(87 MB), examples/** (77 MB), catalog/** (13 MB), tools/tutorials/
+release_candidate/** (115 MB). Player code stays in git (*.js, styles.css,
+fonts/, logo, notice, translation-compatibility.json).
+Home-owned, moving to einarolafsson/spacr-tutorials under deck/:
+docs/source/_static/deck/spacr_deck.pdf, slides/, anim/, thumbs/,
+title_base.jpg and tools/readme_deck/images/ (69 MB). Keep deck/index.html,
+slides.json and pages/*.md; pages switch their ../slides/ links to the Pages
+URL so the GitHub README keeps working.
+Docs build: a pin file (docs/media_revision.json: repo, revision sha, per
+file sha256) and a tool tools/fetch_docs_media.py that runs
+`hf download ... --revision <sha> --local-dir` into the docs tree and
+checks hashes; docs.yml calls it before Sphinx; publishing lessons bumps the
+pin instead of committing media. Tests that read media (test_docs_media_
+budget, test_tutorial_release_audit, test_alpha_deck_registry,
+test_spacr_logo, 14 tools/tutorials/tests) read through the same fetcher,
+cached under ~/.cache, and fail rather than skip when the pin is unfetched.
+
+PHASE 3c — API i18n catalogs built in CI (Home)
+The ten docs/source/_static/i18n/api/*.json are both output and translation
+memory: reusable_api_translations() reads the committed catalog to avoid
+re-running opus-mt/madlad, so they cannot simply be regenerated in CI.
+Plan: store translation memory as text keyed by source hash (60% of each
+catalog is derivable hashes) in the HF dataset einarolafsson/spacr-tutorials
+under i18n/api/, pinned in docs/i18n/api_memory.json; build_documentation_i18n
+gains --assemble (no model: English docstrings + memory + docs/i18n/reviewed
+overlays -> catalogs) used by docs.yml after --sources-only; translation runs
+on Home/WS upload new memory and bump the pin. Tests reading committed
+catalogs change to an api_catalog(language) fixture that assembles them:
+test_built_nested_helper_api (3 reads), test_english_documentation_
+publication (en.json byte comparison), test_example_pack_published_
+translations, test_mask_filter_api_translations, test_n702_resolution_
+localized_consumers, test_documentation_i18n (direct reads), test_docs_
+channels; tools publish_docs_channels, report_translation_compatibility,
+build_help_search_index read the assembled output. Tests that monkeypatch
+API_DIR to tmp_path are unchanged.
+
+PHASE 4 — history rewrite (Home, after phases 2-3 are on main and nightly)
+Measured on /mnt/wd4tb/scratch/repo-slim/rewrite.git (bare clone of the
+mirror, heads and tags only; filter-repo 26 s, 1.7 GB RSS): 11.26 GiB ->
+744 MiB pack, nightly tree 543 MB. The first eight purge paths alone (the
+approved scope) give 1.19 GiB; the last eight are folders already deleted
+from the tree whose purge also drops them from old release tags, so they
+need a separate maintainer yes. Command, on a fresh mirror clone:
+  git clone --mirror git@github.com:EinarOlafsson/spacr.git spacr-rewrite.git
+  cd spacr-rewrite.git
+  git filter-repo --invert-paths --paths-from-file purge-paths.txt
+  git push --force --mirror  (heads and tags only; refs/pull are read-only)
+purge-paths.txt: features/data/, docs/source/_static/i18n/,
+docs/source/_extra/tutorials/production/, .../examples/, .../catalog/,
+docs/source/_static/deck/, tools/readme_deck/images/,
+tools/tutorials/release_candidate/, datasets/, notebooks/, Notebooks/,
+docs/_build/, docs/.doctrees/, docs/source/_build/, False.pdf, spacr/models/.
+(The keep-list must already live under tests/data/evidence, deck pages and
+index must be outside the purged folder, i.e. move them first.)
+Coordination checklist:
+- Announce in features/HANDOFF.md and to Claude WS; freeze pushes; every
+  session pushes or archives its branches as patches first.
+- Ruleset "spacr-main" (non_fast_forward, deletion on the default branch)
+  must be disabled by the maintainer for the push and re-enabled after.
+- Open PRs: none (2026-10-18). GitHub keeps refs/pull/* and their old
+  objects; 2 forks keep the old history; ask GitHub Support to run GC.
+- Tags: all 26 tags (v1.3.5..v1.5.1.4, example-data, archive/*) are
+  rewritten to new SHAs; record an old->new map (filter-repo commit-map) in
+  the release notes; old SHAs stay reachable via PyPI sdists and Zenodo.
+- Zenodo DOIs 10.5281/zenodo.21343316 / 23266544 archive release zips, not
+  SHAs: still valid. CITATION.cff/.zenodo.json need no change. Links to old
+  commit SHAs in issues, item files and HANDOFF break; filter-repo rewrites
+  SHAs inside commit messages only.
+- Every worktree under /mnt/firecuda2/Claude/spacr-worktrees, the shared
+  checkout, WS checkouts and CI caches re-clone; local preservation commits
+  are exported with git format-patch first. Clear Actions caches.
+- Documentation links to raw.githubusercontent paths under features/data or
+  _extra/tutorials switch to HF URLs before the rewrite.
+
+2026-10-18 — Registered (bdc360004). Inventory, secret/PII scan, HF staging and mirror rewrite measured (11.26 GiB -> 1.19 GiB approved paths, 744 MiB with deleted folders).
+2026-10-18 — Keep-list validated in a throwaway clone with the 22,797 files removed: the 43-file cohort gives the same 4 pre-existing nightly failures plus only the README checkout-size test. Remaining: maintainer HF visibility decision, then phases 2-4 after 1.5.1.5.
