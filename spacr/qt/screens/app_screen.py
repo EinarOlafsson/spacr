@@ -11985,8 +11985,16 @@ class AppScreen(QWidget):
 
         Asked of the card rather than stored, so the two cannot disagree
         about which folder the sweep is filling.
+
+        A sweep card nobody has opened still holds its stand-in, and a
+        fresh panel's folder stays empty until the card seeds it, so the
+        answer is ``""`` without building the panel (half a second on the
+        Runs tab's first open).
         """
         sweep = getattr(self, "_sweep", None)
+        built = getattr(sweep, "built", None)
+        if callable(built) and not built():
+            return ""
         field = getattr(sweep, "destination", None)
         try:
             return field.text().strip()
