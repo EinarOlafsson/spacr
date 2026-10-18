@@ -551,6 +551,17 @@ def hide_as_page(screen: QWidget, host: Optional[QWidget]) -> bool:
     return True
 
 
+def _breathe() -> None:
+    """Let the event loop run one pass (timers, paints, posted work), user input held back.
+
+    :returns: nothing; the pass is the point, so the GUI keeps answering between the steps
+        of one fold open.
+    """
+    from PySide6.QtCore import QCoreApplication, QEventLoop
+
+    QCoreApplication.processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
+
+
 def show_as_page(screen: QWidget, host: Optional[QWidget],
                  title: str) -> Optional[QWidget]:
     """Add ``screen`` to ``host``'s page strip and select it.
@@ -565,8 +576,15 @@ def show_as_page(screen: QWidget, host: Optional[QWidget],
         return None
     index = pages.indexOf(screen)
     if index < 0:
+        # Hidden while it is re-parented into the page host: a hidden widget is not
+        # laid out or polished during the move, so the reparent is the only cost of this step.
+        if not screen.isVisible():
+            screen.hide()
         index = pages.addTab(screen, title)
         install_close_marks(pages, tooltip=tr("Close"))
+        # The reparent into the page host (about 0.37 s for Train Cellpose) is its own turn of
+        # the event loop; the icon, the selection and the first show follow in the next.
+        _breathe()
     key = str(getattr(screen, "app_key", "") or "")
     if key:
         try:
@@ -622,6 +640,14 @@ class FoldOpener:
             except RuntimeError:
                 built = self.window = None
         if built is None:
+            # THE FIRST FOLD ON A HOST DID ITS WHOLE OPEN IN ONE FREEZE: the page strip
+            # (the host body is re-parented into it), then the page's build, then its
+            # sheet and first layout, 0.35-0.4 s without a turn of the event loop (lesson 43,
+            # clip 05_setting_src). Each is its own step now, with a breath between them.
+            if (self.screen is not None
+                    and getattr(self.screen, "_fold_pages", None) is None
+                    and host_pages(self.screen) is not None):
+                _breathe()
             host_window = (self.screen.window()
                            if self.screen is not None else None)
             try:
@@ -629,6 +655,7 @@ class FoldOpener:
             except Exception:
                 LOG.exception("Could not open the folded module %r", self.key)
                 return None
+            _breathe()
         title = folded_module_title(self.key)
         shown = show_as_page(built, self.screen, title)
         if shown is None:
