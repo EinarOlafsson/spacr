@@ -1408,6 +1408,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ytick.color',
     'z_axis',
     'z_handling',
+    'z_plan',
     'z_projection',
     'z_segmentation_mode',
     'z_stack',
