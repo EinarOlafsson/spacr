@@ -1,5 +1,8 @@
 """Item 706: the 3D switch runs Otsu and Cellpose on the whole open volume."""
+import json
+from pathlib import Path
 import threading
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -196,3 +199,128 @@ def test_cellpose_refuses_a_2d_only_model_in_3d(screen):
     assert "2D fields only" in screen._status_label.text()
     assert make_masks._model_supports_volume("cpsam")
     assert not make_masks._model_supports_volume("cellpose_dino:/models/x.pt")
+
+
+def _stardist_folder(folder, ndim=3):
+    folder.mkdir()
+    (folder / 'config.json').write_text(json.dumps({
+        'n_dim': ndim, 'axes': 'ZYXC' if ndim == 3 else 'YXC',
+        'n_channel_in': 1,
+    }))
+    return 'stardist:' + str(folder)
+
+
+def test_stardist_volume_crosses_the_real_loader_and_worker_transport(tmp_path, monkeypatch):
+    from spacr import _segmentation_backends as backends
+
+    name = _stardist_folder(tmp_path / 'native-model')
+    environment = tmp_path / 'backend-environment'
+    environment.mkdir()
+    state = SimpleNamespace(state=backends._INSTALLED, in_process=False,
+                            ready=True, env=str(environment))
+    monkeypatch.setattr(backends, '_backend_state', lambda *_a, **_k: state)
+    monkeypatch.setattr(make_masks, '_BACKEND_MODELS', {})
+    monkeypatch.setattr(make_masks, '_BACKEND_MODEL_ENVS', {})
+    loads, requests = [], []
+    real_load = backends._load_backend
+
+    def load(*args, **kwargs):
+        loads.append((args, kwargs))
+        return real_load(*args, **kwargs)
+
+    class Worker:
+        def request(self, operation, **kwargs):
+            assert operation == 'segment'
+            requests.append(kwargs)
+            assert len(kwargs['inputs']) == 1
+            field = np.load(kwargs['inputs'][0], allow_pickle=False)
+            assert field.shape == (4, 8, 10)
+            labels = np.zeros(field.shape, np.int32)
+            labels[1:3, 2:5, 3:7] = 119
+            path = Path(kwargs['outputs']) / 'labels.npy'
+            np.save(path, labels, allow_pickle=False)
+            return {'outputs': [{'mask': str(path), 'flows': [None] * 4}]}
+
+    monkeypatch.setattr(backends, '_load_backend', load)
+    monkeypatch.setattr(backends, '_worker_for', lambda *_args: Worker())
+    plane_model = object()
+    models = {name: plane_model}
+    request = dict(kind='cellpose', model=name, image=np.zeros((8, 4, 10)),
+                   axes='YZX', invert=False, percentiles=None,
+                   parameters={'anisotropy': 2.5, 'stitch_threshold': 0.3})
+
+    first = make_masks._detect_volume_snapshot(request, models)
+    second = make_masks._detect_volume_snapshot(request, models)
+
+    assert first.shape == (8, 4, 10) and first[2, 1, 3] == 119
+    np.testing.assert_array_equal(second, first)
+    assert len(loads) == 1 and loads[0][0] == ('stardist',)
+    assert loads[0][1]['z_plan'].mode == 'volumetric'
+    assert len(requests) == 2
+    assert all(row['params']['do_3D'] is True for row in requests)
+    assert all(row['params']['z_axis'] == 0 for row in requests)
+    assert all(row['params']['anisotropy'] == 2.5 for row in requests)
+    assert all('stitch_threshold' not in row['params'] for row in requests)
+    assert models[name] is plane_model
+    assert request['parameters']['stitch_threshold'] == 0.3
+
+
+def test_stardist_choices_and_stitch_control_follow_model_dimensionality(screen, tmp_path):
+    native = _stardist_folder(tmp_path / 'native')
+    plane = _stardist_folder(tmp_path / 'plane', 2)
+    for value in (native, plane, 'stardist:2D_versatile_fluo'):
+        screen._cp_model.addItem(value, value)
+    screen._cp_model.setCurrentIndex(screen._cp_model.findData(native))
+    screen._cp_stitch.setValue(0.3)
+    screen._detect_3d.setChecked(True)
+
+    rows = _rows(screen._cp_model)
+    assert rows[native] and not rows[plane] and not rows['stardist:2D_versatile_fluo']
+    assert not screen._cp_stitch.isEnabled()
+    assert screen._cp_stitch.value() == pytest.approx(0.3)
+    cellpose = screen._cp_model.findData('cpsam')
+    if cellpose < 0:
+        screen._cp_model.addItem('cpsam', 'cpsam')
+        cellpose = screen._cp_model.count() - 1
+    screen._cp_model.setCurrentIndex(cellpose)
+    assert screen._cp_stitch.isEnabled()
+    assert screen._cp_stitch.value() == pytest.approx(0.3)
+    screen._detect_3d.setChecked(False)
+    assert all(_rows(screen._cp_model)[name] for name in (native, plane))
+
+
+def test_stardist_plane_request_refuses_before_loading_or_changing_input(tmp_path, monkeypatch):
+    name = _stardist_folder(tmp_path / 'plane', 2)
+    image = np.zeros((4, 8, 10))
+    original = image.copy()
+    monkeypatch.setattr(make_masks, '_backend_model',
+                        lambda *_a, **_k: pytest.fail('unsupported model was loaded'))
+    request = dict(kind='cellpose', model=name, image=image, axes='ZYX',
+                   invert=False, percentiles=None, parameters={})
+    with pytest.raises(ValueError, match='2D fields only'):
+        make_masks._detect_volume_snapshot(request, {})
+    np.testing.assert_array_equal(image, original)
+
+
+@pytest.mark.parametrize('payload', [b'{}', b'not JSON', b'x' * (1024 * 1024 + 1)])
+def test_unverifiable_stardist_metadata_is_not_offered_as_a_volume(tmp_path, payload):
+    (tmp_path / 'config.json').write_bytes(payload)
+    assert not make_masks._model_supports_volume('stardist:' + str(tmp_path))
+
+
+def test_translated_backend_failure_keeps_worker_context_and_the_mask(screen, monkeypatch):
+    from spacr.qt import i18n
+
+    source = 'Cellpose 3 needs finite volume intensities'
+    monkeypatch.setenv(i18n.ENV_LANGUAGE, 'fr')
+    translated = i18n.tr(source)
+    assert translated != source
+    notices = []
+    monkeypatch.setattr(screen, '_warn', lambda title, text: notices.append((title, text)))
+    session = screen._mask_stage.session
+    request = {'session': session, 'mask': session.mask.copy()}
+
+    screen._take_volume_detection(request, None, RuntimeError('worker: ' + source))
+
+    assert notices == [(i18n.tr('Object detection failed'), 'worker: ' + translated)]
+    np.testing.assert_array_equal(session.mask, request['mask'])

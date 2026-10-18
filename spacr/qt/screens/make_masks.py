@@ -5199,7 +5199,7 @@ def _state_ready(backend: str) -> bool:
         return False
 
 
-def _backend_model(name: str):
+def _backend_model(name: str, *, volume: bool = False):
     """The backend model a magnifier mode names, built once.
 
     Built by :func:`spacr._segmentation_backends._load_backend`, the same
@@ -5215,23 +5215,31 @@ def _backend_model(name: str):
     without one -- a stand-in, or a backend that lives in spaCR's own
     environment -- was never on disk to lose.
 
+    :param volume: keep a separate volumetric model and supply the native
+        StarDist3D loading plan when required.
     :raises ImportError: naming the Model Zoo, when the backend is missing.
     """
     with _CELLPOSE_LOCK:
         from ... import _segmentation_backends
 
         backend, _colon, model_name = str(name).partition(":")
-        model = _BACKEND_MODELS.get(name)
-        env = _BACKEND_MODEL_ENVS.get(name)
+        key = (name, "volume") if volume else name
+        model = _BACKEND_MODELS.get(key)
+        env = _BACKEND_MODEL_ENVS.get(key)
         if model is not None and env and not os.path.isdir(env):
-            _BACKEND_MODELS.pop(name, None)
-            _BACKEND_MODEL_ENVS.pop(name, None)
+            _BACKEND_MODELS.pop(key, None)
+            _BACKEND_MODEL_ENVS.pop(key, None)
             model = None
         if model is None:
+            options = {}
+            if volume and backend == _segmentation_backends._STARDIST:
+                from ...zstack import ZStackSpec
+
+                options["z_plan"] = ZStackSpec(mode="volumetric")
             model = _segmentation_backends._load_backend(
-                backend, model_name=model_name or None)
-            _BACKEND_MODELS[name] = model
-            _BACKEND_MODEL_ENVS[name] = _model_env(backend)
+                backend, model_name=model_name or None, **options)
+            _BACKEND_MODELS[key] = model
+            _BACKEND_MODEL_ENVS[key] = _model_env(backend)
         return model
 
 
@@ -6151,13 +6159,20 @@ def _model_supports_volume(model_name) -> bool:
 
     :param model_name: a value of the Model box.
     """
-    from ..._segmentation_backends import _STARDIST, _prefixed_backend
+    from ..._segmentation_backends import (
+        _STARDIST, _prefixed_backend, _prefixed_choice, _stardist_model_ndim,
+    )
 
     name = str(model_name or "")
     if name.startswith("cellpose_dino:"):
         return False
     backend = _prefixed_backend(name)
-    return backend is None or backend == _STARDIST
+    if backend == _STARDIST:
+        try:
+            return _stardist_model_ndim(_prefixed_choice(backend, name)) == 3
+        except (OSError, TypeError, ValueError):
+            return False
+    return backend is None
 
 
 def cellpose_detect_volume(volume: np.ndarray, model, *, diameter: int = 0,
@@ -6234,11 +6249,25 @@ def _detect_volume_snapshot(request, models):
     if request['kind'] == 'threshold':
         labels = engine._otsu_instances(image, **request['parameters'])
     else:
+        from ..._segmentation_backends import _STARDIST, _prefixed_backend
+        from ..i18n import tr
+
         with _CELLPOSE_LOCK:
             name = request['model']
-            if name not in models:
-                models[name] = load_cellpose_model(name)
-            labels = cellpose_detect_volume(image, models[name], **request['parameters'])
+            if not _model_supports_volume(name):
+                raise ValueError(tr(
+                    "{model} segments 2D fields only. Choose a Cellpose or StarDist 3D model, or turn 3D off.",
+                    model=name))
+            native = _prefixed_backend(name) == _STARDIST
+            key = (name, "volume") if native else name
+            if native:
+                models[key] = _backend_model(name, volume=True)
+            elif key not in models:
+                models[key] = load_cellpose_model(name)
+            parameters = dict(request['parameters'])
+            if native:
+                parameters['stitch_threshold'] = 0.0
+            labels = cellpose_detect_volume(image, models[key], **parameters)
     return np.transpose(labels, np.argsort(order))
 
 
@@ -17512,6 +17541,12 @@ class MakeMasksScreen(QWidget):
         self._gate_3d_rows(
             self._cp_model, "model", on, _model_supports_volume,
             tr("{name} segments 2D fields only, so it is unavailable while 3D is on."))
+        stitch = getattr(self, "_cp_stitch", None)
+        if stitch is not None:
+            from ..._segmentation_backends import _STARDIST, _prefixed_backend
+
+            stitch.setEnabled(on and _prefixed_backend(
+                self._cp_model.currentData()) != _STARDIST)
         if on and self._mag_mode.currentData() not in _DETECT_3D_MODES:
             self._mag_mode.setCurrentIndex(self._mag_mode.findData("otsu"))
             self._status_label.setText(tr(
@@ -17600,7 +17635,30 @@ class MakeMasksScreen(QWidget):
             return
         if error is not None:
             self._status_label.setText(tr("Object detection failed"))
-            self._warn(tr("Object detection failed"), str(error))
+            details = str(error)
+            messages = {
+                "The 3D stitch threshold must be finite and between 0 and 1.": tr(
+                    "The 3D stitch threshold must be finite and between 0 and 1."),
+                "The installed Cellpose 3 cannot accept 3D stitching settings": tr(
+                    "The installed Cellpose 3 cannot accept 3D stitching settings"),
+                "Cellpose 3 needs finite volume intensities": tr(
+                    "Cellpose 3 needs finite volume intensities"),
+                "The selected model does not support native 3D detection.": tr(
+                    "The selected model does not support native 3D detection."),
+                "The installed Cellpose 3 cannot accept native 3D axis and spacing settings": tr(
+                    "The installed Cellpose 3 cannot accept native 3D axis and spacing settings"),
+                "3D model anisotropy must be positive and finite.": tr(
+                    "3D model anisotropy must be positive and finite."),
+                "Cellpose 3 needs explicit distinct spatial and channel axes for a volume": tr(
+                    "Cellpose 3 needs explicit distinct spatial and channel axes for a volume"),
+                "Cellpose 3 returned invalid integer labels for a volume": tr(
+                    "Cellpose 3 returned invalid integer labels for a volume"),
+                "The detected labels do not match the volume.": tr(
+                    "The detected labels do not match the volume."),
+            }
+            for source, translated in messages.items():
+                details = details.replace(source, translated)
+            self._warn(tr("Object detection failed"), details)
             return
         found = _object_count(labels)
         if not found:
@@ -20253,6 +20311,7 @@ class MakeMasksScreen(QWidget):
             combo.setCurrentIndex(back)
             return
         self._cp_last_model = index
+        self._sync_detect_3d()
 
     def _on_model_activated(self, index: int) -> None:
         """A person chose a Model row: download it if it is not here yet."""

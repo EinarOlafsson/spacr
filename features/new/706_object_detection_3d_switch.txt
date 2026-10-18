@@ -5,10 +5,11 @@ Requested: maintainer, 2026-10-16.
 
 Add a boolean "3D" option to object detection (Make Masks > Object operations). When on, models that support 3D run in 3D mode, and Otsu and the other threshold methods that support 3D run in 3D too.
 
-2026-10-16 — Accepted Claude handover; wait for the Make Masks layout commit and completion of705, then reuse the same agents.
+2026-10-16 — Accepted Claude handover; layout707/59ce785b443 is verified on nightly; finish705, then reuse its pair for706.
 Add a3D boolean under Make Masks > Object operations that routes capable models and Otsu/other capable thresholds through their actual3D implementation; preserve existing2D behavior and explicitly handle unsupported choices.
 
-2026-10-16 — Layout707/59ce785b443 is verified on nightly; the705 pair retains context and implements706 next.
 
 2026-10-17 — Claude Home: Object detection gains a 3D switch (enabled only with a volume open). Otsu and every named threshold cut the whole volume and label 26-connected; Cellpose/StarDist run do_3D with the voxel anisotropy, or slice stitching via a new 3D stitch threshold.
-2026-10-17 — 2D-only methods and models are greyed with a tooltip while 3D is on; runs go off the GUI thread and land in the volume mask as one undo step. Tests: tests/qt/test_706_object_detection_3d.py; nine-locale AI-reviewed runtime strings. Nothing remains.
+2026-10-17 — 2D-only methods and models are greyed with a tooltip while 3D is on; runs go off the GUI thread and land in the volume mask as one undo step. Initial tests: tests/qt/test_706_object_detection_3d.py; nine-locale reviewed runtime strings. Backend acceptance subsequently reopened below.
+2026-10-17 — REOPENED by resumed Codex acceptance: native StarDist3D loading omits its required volumetric plan, and Cellpose3 transport drops do_3D/z_axis/anisotropy. Root + conda_acceptance own these actual loader/worker seams and unsupported2D StarDist choices; preserve threshold/undo behavior and validate real backend boundaries before closing the whole item.
+2026-10-17 — Codex root + conda_acceptance repaired native StarDist3D loading/cache and Cellpose3 native/stitch worker transport; unsupported2D choices are gated. All47 related checks pass (29backend +18integrated/catalog),72 source-bound diagnostic reviews pass, and normal runtime/Help/arrival generation is current. Whole item accepted for nightly publication; no GPU or model download required.
