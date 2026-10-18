@@ -4566,6 +4566,30 @@ def _invasion_field_thresholds(df, value_column, settings, control_thresholds):
     return pd.DataFrame(rows)
 
 
+def _with_invasion_columns(df, columns):
+    """Return ``df`` with ``columns`` added in one step instead of one insert each.
+
+    Inserting columns one at a time leaves the frame in one block per insert,
+    and every later copy then has to merge them. Joining them in one concat
+    merges the blocks once. Names already in ``df`` are replaced where they
+    stand; new names are appended in the order given.
+
+    :param df: Frame to extend.
+    :param columns: ``{name: values}``, each aligned with ``df.index``.
+    :returns: the extended frame.
+    """
+    replaced = {name: values for name, values in columns.items()
+                if name in df.columns}
+    added = {name: values for name, values in columns.items()
+             if name not in df.columns}
+    for name, values in replaced.items():
+        df[name] = values
+    if not added:
+        return df
+    return pd.concat([df, pd.DataFrame(added, index=df.index)], axis=1,
+                     copy=False)
+
+
 def _invasion_classify(df, fields, value_column, extracellular_class):
     """Attach ``invasion_class`` and the threshold that produced it to every parasite.
 
@@ -4618,15 +4642,17 @@ def _invasion_classify(df, fields, value_column, extracellular_class):
         outside_high = outside_high | forced
         usable = usable | forced
 
-    df['is_outside'] = np.where(usable, is_outside, np.nan)
-    df['invasion_class'] = np.where(
-        ~usable, 'unclassified', np.where(is_outside, 'attached', 'invaded'))
-    df['invasion_class'] = pd.Categorical(
-        df['invasion_class'],
+    invasion_class = pd.Categorical(
+        np.where(~usable, 'unclassified',
+                 np.where(is_outside, 'attached', 'invaded')),
         categories=_INVASION_CLASSES + ['unclassified'], ordered=False)
-    df['is_outside_low_threshold'] = np.where(usable, outside_low, np.nan)
-    df['is_outside_high_threshold'] = np.where(usable, outside_high, np.nan)
-    return df
+    df = _with_invasion_columns(df, {
+        'is_outside': np.where(usable, is_outside, np.nan),
+        'invasion_class': invasion_class,
+        'is_outside_low_threshold': np.where(usable, outside_low, np.nan),
+        'is_outside_high_threshold': np.where(usable, outside_high, np.nan),
+    })
+    return df.copy()
 
 
 def _invasion_efficiency(n_invaded, n_total):
@@ -5337,15 +5363,17 @@ def analyze_invasion(settings):
         df, compartment, settings['outside_channel'],
         settings['background_correction'])
 
-    df['outside_intensity_raw'] = pd.to_numeric(df[value_column],
-                                                errors='coerce')
+    outside_raw = pd.to_numeric(df[value_column], errors='coerce')
     if background_column is None:
-        df['outside_background'] = 0.0
+        outside_background = pd.Series(0.0, index=df.index)
     else:
-        df['outside_background'] = pd.to_numeric(df[background_column],
-                                                 errors='coerce').fillna(0.0)
-    df['outside_intensity'] = (df['outside_intensity_raw']
-                               - df['outside_background'])
+        outside_background = pd.to_numeric(df[background_column],
+                                           errors='coerce').fillna(0.0)
+    df = _with_invasion_columns(df, {
+        'outside_intensity_raw': outside_raw,
+        'outside_background': outside_background,
+        'outside_intensity': outside_raw - outside_background,
+    })
 
     control_mask = _invasion_control_mask(df, settings['stain_baseline_wells'])
     controls = df[control_mask].copy()
@@ -5389,10 +5417,13 @@ def analyze_invasion(settings):
 
     if 'cell_id' in df.columns:
         host = pd.to_numeric(df['cell_id'], errors='coerce')
-        df['cell_id'] = host.fillna(0).astype(int)
-        df['no_host_cell'] = (~host.notna()) | (host == 0)
+        df = _with_invasion_columns(df, {
+            'cell_id': host.fillna(0).astype(int),
+            'no_host_cell': (~host.notna()) | (host == 0),
+        })
     else:
-        df['no_host_cell'] = False
+        df = _with_invasion_columns(
+            df, {'no_host_cell': pd.Series(False, index=df.index)})
     if settings['extracellular_class'] == 'exclude':
         df = df[~df['no_host_cell']].copy()
         if len(df) == 0:

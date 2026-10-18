@@ -1496,3 +1496,96 @@ def test_a_periphery_column_wins_end_to_end(tmp_path):
     out = analyze_invasion(settings_for(src))
     assert out["intensity_statistic"] == "periphery_95"
     assert well(out, "plate1_r1_c1")["invasion_efficiency"] == pytest.approx(0.5)
+
+
+def _classify_column_by_column(df, fields, value_column, extracellular_class):
+    """The classification as it was built before, one column insert at a time."""
+    columns = ['prcf', 'threshold', 'threshold_source', 'threshold_low',
+               'threshold_high', 'automatic_threshold', 'reference_threshold',
+               'bimodality_coefficient']
+    df = df.merge(fields[columns], on='prcf', how='left')
+    values = df[value_column].to_numpy(dtype=float)
+    thresholds = df['threshold'].to_numpy(dtype=float)
+    usable = np.isfinite(values) & np.isfinite(thresholds)
+    is_outside = values > thresholds
+    outside_low = values > df['threshold_low'].to_numpy(dtype=float)
+    outside_high = values > df['threshold_high'].to_numpy(dtype=float)
+    if extracellular_class == 'attached':
+        forced = df['no_host_cell'].to_numpy(dtype=bool)
+        is_outside = is_outside | forced
+        outside_low = outside_low | forced
+        outside_high = outside_high | forced
+        usable = usable | forced
+    df['is_outside'] = np.where(usable, is_outside, np.nan)
+    df['invasion_class'] = np.where(
+        ~usable, 'unclassified', np.where(is_outside, 'attached', 'invaded'))
+    df['invasion_class'] = pd.Categorical(
+        df['invasion_class'],
+        categories=['attached', 'invaded', 'unclassified'], ordered=False)
+    df['is_outside_low_threshold'] = np.where(usable, outside_low, np.nan)
+    df['is_outside_high_threshold'] = np.where(usable, outside_high, np.nan)
+    return df
+
+
+@pytest.mark.parametrize("extracellular_class", ["attached", "classify"])
+def test_classification_matches_the_column_by_column_build(extracellular_class):
+    """One-step column building gives the same frame, consolidated."""
+    import warnings
+
+    from spacr.submodules import _invasion_classify
+
+    rng = np.random.default_rng(7)
+    n = 600
+    fields_ids = [f"plate1_r1_c{c}_f{f}" for c in (1, 2) for f in (1, 2, 3)]
+    df = pd.DataFrame({
+        "prcf": rng.choice(fields_ids, n),
+        "outside_intensity": rng.normal(50, 30, n),
+        "no_host_cell": rng.random(n) < 0.1,
+        "cell_id": rng.integers(0, 5, n),
+    }, index=pd.RangeIndex(1000, 1000 + n))
+    df.loc[df.index[::37], "outside_intensity"] = np.nan
+    for i in range(60):
+        df[f"pathogen_feature_{i}"] = rng.normal(size=n)
+    fields = pd.DataFrame({
+        "prcf": fields_ids,
+        "threshold": [40.0, 45.0, np.nan, 50.0, 55.0, 60.0],
+        "threshold_source": ["otsu"] * 5 + ["control"],
+        "threshold_low": [30.0, 35.0, np.nan, 40.0, 45.0, 50.0],
+        "threshold_high": [50.0, 55.0, np.nan, 60.0, 65.0, 70.0],
+        "automatic_threshold": [40.0, 45.0, np.nan, 50.0, 55.0, 60.0],
+        "reference_threshold": [np.nan] * 5 + [58.0],
+        "bimodality_coefficient": rng.random(6),
+    })
+
+    expected = _classify_column_by_column(
+        df.copy(), fields, "outside_intensity", extracellular_class)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", pd.errors.PerformanceWarning)
+        result = _invasion_classify(df.copy(), fields, "outside_intensity",
+                                    extracellular_class)
+
+    pd.testing.assert_frame_equal(result, expected, check_exact=True)
+    assert list(result.columns) == list(expected.columns)
+    assert result._mgr.is_consolidated()
+    assert len(result._mgr.blocks) <= result.dtypes.astype(str).nunique()
+
+
+def test_the_parasite_table_comes_back_consolidated(tmp_path):
+    """No fragmentation warning on the way, and one block per dtype at the end."""
+    import warnings
+
+    from spacr.submodules import analyze_invasion
+
+    src = write_db(tmp_path / "p", [
+        {"row": "r1", "column": "c1", "outside": split(30, 30),
+         "host": [True] * 50 + [False] * 10},
+        {"row": "r1", "column": "c2", "outside": split(40, 20)}])
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", pd.errors.PerformanceWarning)
+        out = analyze_invasion(settings_for(src))
+    parasites = out["parasites"]
+    assert parasites._mgr.is_consolidated()
+    assert len(parasites._mgr.blocks) <= parasites.dtypes.astype(str).nunique()
+    assert list(parasites.columns[-4:]) == [
+        "is_outside", "invasion_class", "is_outside_low_threshold",
+        "is_outside_high_threshold"]
