@@ -250,6 +250,10 @@ GPU_DOCTOR_HINT = (
     "The card is there but torch cannot use it. "
     "Run spacr-doctor to find out which part of CUDA is missing.")
 
+GPU_MAC_CPU_HINT = (
+    "PyTorch cannot use this Mac's graphics, so spaCR runs these tasks on the CPU. "
+    "Nothing needs to be installed.")
+
 #: Milliseconds the greeting takes to fade AWAY.
 #:
 #: Slower than it arrives. A word that leaves at the speed it came reads as
@@ -1015,7 +1019,7 @@ class SetupSlides(QDialog):
             line = (f'{_say("GPU")}: <span style="color:{{ink}};">{name}</span>'
                     f'{tail}')
             if not usable:
-                hint = _say(GPU_DOCTOR_HINT)
+                hint = _say(GPU_MAC_CPU_HINT if library == "Metal" else GPU_DOCTOR_HINT)
         else:
             usable = False
             line = (f'{_say("GPU")}: '
