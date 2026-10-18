@@ -219,3 +219,117 @@ def test_restoring_a_maximised_window_lands_inside_the_work_area(
     window._toggle_maximised()
     qtbot.waitUntil(lambda: not window.isMaximized())
     assert work.contains(window.frameGeometry())
+
+
+def _module_keys():
+    return [entry[0] for entry in app_mod.APPS] + ["make_masks"]
+
+
+@pytest.mark.parametrize("size", WORK_AREAS)
+def test_every_module_screen_fits_without_being_squeezed(
+        qtbot, qt_theme_applied, size):
+    """A page whose minimum exceeds the stack has its controls cut off."""
+    window = app_mod.MainWindow(initial_app="__home__")
+    qtbot.addWidget(window)
+    window.resize(*size)
+    window.show()
+    qtbot.waitUntil(lambda: (window.width(), window.height()) == size)
+    squeezed = {}
+    for key in _module_keys():
+        window._on_nav_selected(key)
+        qtbot.wait(20)
+        QApplication.processEvents()
+        page = window._stack.currentWidget()
+        stack = window._stack.size()
+        hint = page.minimumSizeHint()
+        if hint.width() > stack.width() or hint.height() > stack.height():
+            squeezed[key] = (hint.toTuple(), stack.toTuple())
+        scroll = page.findChild(app_mod._CrampedScroll)
+        if scroll is not None:
+            content = scroll.widget()
+            need = content.minimumSizeHint()
+            assert content.width() >= need.width(), key
+            assert content.height() >= need.height(), key
+    assert not squeezed
+    window.close()
+
+
+def _geometry(page):
+    skip = {"CrampedScreenScroll", "CrampedScreenContent",
+            "qt_scrollarea_viewport", "qt_scrollarea_hcontainer",
+            "qt_scrollarea_vcontainer"}
+    rows = []
+    for widget in page.findChildren(QWidget):
+        if widget.objectName() in skip or not widget.isVisible():
+            continue
+        rows.append((type(widget).__name__, widget.objectName(),
+                     QRect(widget.mapTo(page, QPoint(0, 0)),
+                           widget.size()).getRect()))
+    return sorted(rows)
+
+
+@pytest.mark.parametrize("key", sorted(app_mod._CRAMPED_SCREENS))
+def test_a_roomy_screen_lays_out_exactly_as_before_it_scrolled(
+        qtbot, qt_theme_applied, key):
+    """At 1920 x 1050 the wrapper changes no widget's place or size."""
+    window = app_mod.MainWindow(initial_app="__home__")
+    qtbot.addWidget(window)
+    page = window._build_screen_timed(key)
+    host = QWidget()
+    qtbot.addWidget(host)
+    page.setParent(host)
+    host.resize(1920, 995)
+    page.setGeometry(0, 0, 1920, 995)
+    host.show()
+    qtbot.wait(60)
+    QApplication.processEvents()
+    before = _geometry(page)
+    assert app_mod._scroll_when_cramped(page)
+    qtbot.wait(60)
+    QApplication.processEvents()
+    scroll = page.findChild(app_mod._CrampedScroll)
+    assert scroll.widget().size() == page.size()
+    assert not scroll.horizontalScrollBar().isVisible()
+    assert not scroll.verticalScrollBar().isVisible()
+    assert _geometry(page) == before
+    host.close()
+
+
+_DPR_SCRIPT = r"""
+import sys
+from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
+app = QApplication([])
+from spacr.qt import app as app_mod
+page = QWidget()
+layout = QVBoxLayout(page)
+tall = QWidget()
+tall.setMinimumSize(900, 1200)
+layout.addWidget(tall)
+app_mod._scroll_when_cramped(page)
+page.resize(1280, 625)
+page.show()
+for _ in range(5):
+    app.processEvents()
+scroll = page.findChild(app_mod._CrampedScroll)
+small = (scroll.verticalScrollBar().isVisible(),
+         scroll.widget().height() >= 1200)
+page.resize(1920, 995)
+for _ in range(5):
+    app.processEvents()
+roomy = (scroll.verticalScrollBar().isVisible(),
+         scroll.widget().size() == page.size())
+print(page.devicePixelRatioF(), small, roomy)
+"""
+
+
+def test_the_threshold_is_in_logical_pixels_at_device_pixel_ratio_two():
+    import subprocess
+    import sys
+
+    env = dict(os.environ, QT_QPA_PLATFORM="offscreen", QT_SCALE_FACTOR="2",
+               CUDA_VISIBLE_DEVICES="")
+    done = subprocess.run([sys.executable, "-c", _DPR_SCRIPT], env=env,
+                          capture_output=True, text=True, timeout=240)
+    assert done.returncode == 0, done.stderr[-2000:]
+    line = done.stdout.strip().splitlines()[-1]
+    assert line == "2.0 (True, True) (False, True)", line
