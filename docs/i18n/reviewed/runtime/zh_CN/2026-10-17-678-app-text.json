@@ -153,13 +153,6 @@
     },
     {
       "table": "ui",
-      "key": "How Cellpose is run: expected object diameter, probability and flow thresholds, rescaling and inversion. Adjust these when masks are systematically too many, too few or the wrong size; the model is chosen under Model Training.",
-      "source": "How Cellpose is run: expected object diameter, probability and flow thresholds, rescaling and inversion. Adjust these when masks are systematically too many, too few or the wrong size; the model is chosen under Model Training.",
-      "source_sha256": "3d0de8ba877f0b7522057b8a803ed22a3588cb25eb30847148fbdf716e76f979",
-      "translation": "Cellpose 的运行方式：预期对象直径、概率和流阈值、重缩放和反转。当掩膜系统性地过多、过少或尺寸错误时调整这些设置；模型在“模型训练”中选择。"
-    },
-    {
-      "table": "ui",
       "key": "Dropout and weight decay, which reduce overfitting to the training set, and gradient checkpointing, which reduces GPU memory use. Increase dropout or weight decay when training accuracy rises and validation accuracy does not.",
       "source": "Dropout and weight decay, which reduce overfitting to the training set, and gradient checkpointing, which reduces GPU memory use. Increase dropout or weight decay when training accuracy rises and validation accuracy does not.",
       "source_sha256": "1eca02ed8f2dff6571222b02a4607b2619c74442bc5a46a11902aebdea95e637",
@@ -444,13 +437,6 @@
       "source": "The forty-eight detection parameters behind the organelle type. Choosing a type sets the parameters it uses; a value changed here takes precedence and is not overwritten.",
       "source_sha256": "342b78775e53c52279736e006d310dfc3d2d15be3fd54cf7d12551e57747dba3",
       "translation": "细胞器类型背后的四十八个检测参数。选择类型会设置其使用的参数；在此处更改的值优先，且不会被覆盖。"
-    },
-    {
-      "table": "categories",
-      "key": "How Cellpose is run: expected object diameter, probability and flow thresholds, rescaling and inversion. Adjust these when masks are systematically too many, too few or the wrong size; the model is chosen under Model Training.",
-      "source": "How Cellpose is run: expected object diameter, probability and flow thresholds, rescaling and inversion. Adjust these when masks are systematically too many, too few or the wrong size; the model is chosen under Model Training.",
-      "source_sha256": "3d0de8ba877f0b7522057b8a803ed22a3588cb25eb30847148fbdf716e76f979",
-      "translation": "Cellpose 的运行方式：预期对象直径、概率和流阈值、重缩放和反转。当掩膜系统性地过多、过少或尺寸错误时调整这些设置；模型在“模型训练”中选择。"
     },
     {
       "table": "categories",

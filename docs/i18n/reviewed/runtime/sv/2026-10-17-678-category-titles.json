@@ -1,0 +1,295 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "review": "Item 678 follow-up: shared settings-panel category titles, previously shown as word-by-word composites, and the Cellpose group description without the stale Model Training reference.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Organelle advanced",
+      "source": "Organelle advanced",
+      "source_sha256": "4c0bb5a7c2dbcf8acdac80b71b8af8388fa157f4728e0152f19aaf7218fc1ab2",
+      "translation": "Organeller, avancerat"
+    },
+    {
+      "table": "ui",
+      "key": "Point Spread Function",
+      "source": "Point Spread Function",
+      "source_sha256": "d9f979c8867a43b304908f6a5f4983635079b7eb241bce41321a81131fe6e9f4",
+      "translation": "Punktspridningsfunktion"
+    },
+    {
+      "table": "ui",
+      "key": "Image Enhancement",
+      "source": "Image Enhancement",
+      "source_sha256": "40715ba662e49fe8ac41c6f7808d00b099c3f5bc35d0dedc371d0a5057dee0ef",
+      "translation": "Bildförbättring"
+    },
+    {
+      "table": "ui",
+      "key": "Object Crops",
+      "source": "Object Crops",
+      "source_sha256": "b806bfa33a688e0b38c64b04c4005e52e129784018a8c5a3448f0f48f7ed4704",
+      "translation": "Objektutsnitt"
+    },
+    {
+      "table": "ui",
+      "key": "Training Classes",
+      "source": "Training Classes",
+      "source_sha256": "98a566f9da0cb0353991f6f3fba6607d5e334f6dfb0c3e71f23d49dc06ddb15b",
+      "translation": "Träningsklasser"
+    },
+    {
+      "table": "ui",
+      "key": "Computer Vision Data Source",
+      "source": "Computer Vision Data Source",
+      "source_sha256": "ead0754ab221146e14dfb811451fbfa49135d2898cdef7c90bd0615fdd20a9f3",
+      "translation": "Datakälla för datorseende"
+    },
+    {
+      "table": "ui",
+      "key": "Computer Vision Model",
+      "source": "Computer Vision Model",
+      "source_sha256": "864590736c192e6ad200b3873016d92682fe6b11626194ba2fc45f089aacf32f",
+      "translation": "Modell för datorseende"
+    },
+    {
+      "table": "ui",
+      "key": "Computer Vision Training",
+      "source": "Computer Vision Training",
+      "source_sha256": "cdc4becc3cb3d3dde52944f1056ec8b07a4a8167c501b2bef23b1acb391b235c",
+      "translation": "Träning för datorseende"
+    },
+    {
+      "table": "ui",
+      "key": "Computer Vision Optimization and Regularization",
+      "source": "Computer Vision Optimization and Regularization",
+      "source_sha256": "e323f3e1590957fa1c2d19c82dffe36d39748a526a607636bdb240321e206c40",
+      "translation": "Optimering och regularisering för datorseende"
+    },
+    {
+      "table": "ui",
+      "key": "Model Evaluation",
+      "source": "Model Evaluation",
+      "source_sha256": "94a75ec7ced46df317245266a43c53b20d8c6c7a20b893cba772b6016434282c",
+      "translation": "Modellutvärdering"
+    },
+    {
+      "table": "ui",
+      "key": "Evaluation Reports",
+      "source": "Evaluation Reports",
+      "source_sha256": "f0ce425a770dbfaf20849437f443d18be120d84c477adda5489643c729cc0444",
+      "translation": "Utvärderingsrapporter"
+    },
+    {
+      "table": "ui",
+      "key": "Leakage Audit",
+      "source": "Leakage Audit",
+      "source_sha256": "dbe9a2056a1fa4c99b8e285476e077933457b1234713bd364a300652165fe207",
+      "translation": "Granskning av dataläckage"
+    },
+    {
+      "table": "ui",
+      "key": "Machine Learning Model and Features",
+      "source": "Machine Learning Model and Features",
+      "source_sha256": "23510cf35b827a8706c603f6eac98b1e3b06d75ae6fbda56180df7066a038eb4",
+      "translation": "Maskininlärningsmodell och egenskaper"
+    },
+    {
+      "table": "ui",
+      "key": "Embedding & Clustering",
+      "source": "Embedding & Clustering",
+      "source_sha256": "398230d49f49eb2f3e4e35fb4cb627548e5d52d7e51512666e293f904a4b4abb",
+      "translation": "Inbäddning och klustring"
+    },
+    {
+      "table": "ui",
+      "key": "Regression: Response",
+      "source": "Regression: Response",
+      "source_sha256": "858cafc647e8f418321949459bd63987cb636670542bedf72b0e0cd84243e951",
+      "translation": "Regression: respons"
+    },
+    {
+      "table": "ui",
+      "key": "Regression: Model",
+      "source": "Regression: Model",
+      "source_sha256": "d82987d7b409c63ef712fc0ad7be1d75608f5e1b084aed8fdc693c4aa302ee91",
+      "translation": "Regression: modell"
+    },
+    {
+      "table": "ui",
+      "key": "Regression: Model Tuning",
+      "source": "Regression: Model Tuning",
+      "source_sha256": "923647ae9974ddfd22a4eec0a6569cf3f09a2362263264abdc5a8921b6fabb09",
+      "translation": "Regression: modelljustering"
+    },
+    {
+      "table": "ui",
+      "key": "Regression: Permutation Test",
+      "source": "Regression: Permutation Test",
+      "source_sha256": "4ab17359928cc3c0378ca1aea9fe896d00dd5cf1e0b2d0da2c3364af4621b0a4",
+      "translation": "Regression: permutationstest"
+    },
+    {
+      "table": "ui",
+      "key": "Regression: Significance",
+      "source": "Regression: Significance",
+      "source_sha256": "96c50a8bbd0146682ab5795df67eacb05e02b48bf0d9e43c5b630825e51154f8",
+      "translation": "Regression: signifikans"
+    },
+    {
+      "table": "ui",
+      "key": "Regression: Quality Filters",
+      "source": "Regression: Quality Filters",
+      "source_sha256": "c75531e5dc40d2f6d58c61d9fb1357a629965d15b842f1ea8c66946de9f0c05d",
+      "translation": "Regression: kvalitetsfilter"
+    },
+    {
+      "table": "ui",
+      "key": "Regression: Diagnostics",
+      "source": "Regression: Diagnostics",
+      "source_sha256": "07c842816e1509c71ea6444da2cbc6a16d2511ea597697836bda96166064e9ba",
+      "translation": "Regression: diagnostik"
+    },
+    {
+      "table": "ui",
+      "key": "Sequencing",
+      "source": "Sequencing",
+      "source_sha256": "7eb7d5007025f7ea1248c6f5d7a9e44ff04d51896dabf474d1c2547d1d7891d2",
+      "translation": "Sekvensering"
+    },
+    {
+      "table": "ui",
+      "key": "Endodyogeny Size Proxy (Legacy)",
+      "source": "Endodyogeny Size Proxy (Legacy)",
+      "source_sha256": "752971f7e47dfae041fc8e51ec23c6b63b4302f95ebeb7cd111e221b9eb350f6",
+      "translation": "Storleksproxy för endodyogeni (äldre)"
+    },
+    {
+      "table": "ui",
+      "key": "3D Settings (Beta)",
+      "source": "3D Settings (Beta)",
+      "source_sha256": "0974b0da640a2fde28b49c7dce3b32dfbb84b5a0386a596d38114f99e633d59f",
+      "translation": "3D-inställningar (beta)"
+    },
+    {
+      "table": "ui",
+      "key": "4D Settings (Beta)",
+      "source": "4D Settings (Beta)",
+      "source_sha256": "49e1a5c56b33b8c8222945d165604e950806c0443f17ea8dbc2c9a241d7d9aed",
+      "translation": "4D-inställningar (beta)"
+    },
+    {
+      "table": "ui",
+      "key": "Motility (beta)",
+      "source": "Motility (beta)",
+      "source_sha256": "0e3456dcd5d90dc292c317a9ada7276322975aab8d5448e83b5092f9c9be9ee8",
+      "translation": "Motilitet (beta)"
+    },
+    {
+      "table": "ui",
+      "key": "Motility Advanced (beta)",
+      "source": "Motility Advanced (beta)",
+      "source_sha256": "f90a48868e7df155d15e340a0fb656cce330c3721f8c568fc61bff7f19ec73ff",
+      "translation": "Motilitet, avancerat (beta)"
+    },
+    {
+      "table": "ui",
+      "key": "Image preprocessing (per object)",
+      "source": "Image preprocessing (per object)",
+      "source_sha256": "f35e7623cb41867541031127f46485920560a1e45dfeceb4c89d4b042ea10c4a",
+      "translation": "Bildförbehandling (per objekt)"
+    },
+    {
+      "table": "ui",
+      "key": "Object filtration",
+      "source": "Object filtration",
+      "source_sha256": "5aa838597867d97d3d810fffe3fe24e9aa2d0db5763ee27c907cfae2be6134da",
+      "translation": "Objektfiltrering"
+    },
+    {
+      "table": "ui",
+      "key": "OPS input",
+      "source": "OPS input",
+      "source_sha256": "a8617d8625409da523936b08811573aa911d7f50d2b9bfe073c595973fb25675",
+      "translation": "OPS-indata"
+    },
+    {
+      "table": "ui",
+      "key": "OPS alignment",
+      "source": "OPS alignment",
+      "source_sha256": "9acb360722ac6930da5b652de0176025feef682c894251d2e50310b89be49c4c",
+      "translation": "OPS-alignering"
+    },
+    {
+      "table": "ui",
+      "key": "OPS decoding",
+      "source": "OPS decoding",
+      "source_sha256": "e3a8602051f2631a2f9cb35cf444f397383d9bcee02d59f96ab2b492f43e85ef",
+      "translation": "OPS-avkodning"
+    },
+    {
+      "table": "ui",
+      "key": "OPS performance",
+      "source": "OPS performance",
+      "source_sha256": "364f72d7371073cde218be90b47bf8bf2a081569ab44dbc2faf8c6fac6c92e80",
+      "translation": "OPS-prestanda"
+    },
+    {
+      "table": "ui",
+      "key": "Spatial input",
+      "source": "Spatial input",
+      "source_sha256": "040039921233bbbe6d20650a6bee474b41e4adc842dd8add5f841e7fed8d23f4",
+      "translation": "Spatiala indata"
+    },
+    {
+      "table": "ui",
+      "key": "Spatial region & tiling",
+      "source": "Spatial region & tiling",
+      "source_sha256": "a64e45d03b2c48ddf6d67e0cb045e29366421c7547f54cb65f0927287a9aa178",
+      "translation": "Spatial region och rutindelning"
+    },
+    {
+      "table": "ui",
+      "key": "Spatial segmentation",
+      "source": "Spatial segmentation",
+      "source_sha256": "c0894a3e141bfddb7bdbdf61e14c4204ccf7c744e37150a76b7ddb4696de5ff7",
+      "translation": "Spatial segmentering"
+    },
+    {
+      "table": "ui",
+      "key": "Spatial mapping",
+      "source": "Spatial mapping",
+      "source_sha256": "50d5ecc8b5e4b75b2c513887c440276cec706170c077799dad57cdc5ce284398",
+      "translation": "Spatial kartläggning"
+    },
+    {
+      "table": "ui",
+      "key": "Spatial infection",
+      "source": "Spatial infection",
+      "source_sha256": "8653849bcde923d37a58e33647470b7810f28e57d45eaed487540d95f0714cb6",
+      "translation": "Infektion i spatiala data"
+    },
+    {
+      "table": "ui",
+      "key": "How Cellpose is run: the base or custom model, expected object diameter, probability and flow thresholds, rescaling and inversion. Adjust these when masks are systematically too many, too few or the wrong size.",
+      "source": "How Cellpose is run: the base or custom model, expected object diameter, probability and flow thresholds, rescaling and inversion. Adjust these when masks are systematically too many, too few or the wrong size.",
+      "source_sha256": "d08b14d980fd2f82c0d18e6772c686a86971d2b8588480627938a1f493b43fe7",
+      "translation": "Hur Cellpose körs: bas- eller anpassad modell, förväntad objektdiameter, sannolikhets- och flödeströsklar, omskalning och invertering. Justera dessa när maskerna systematiskt är för många, för få eller har fel storlek."
+    },
+    {
+      "table": "categories",
+      "key": "How Cellpose is run: the base or custom model, expected object diameter, probability and flow thresholds, rescaling and inversion. Adjust these when masks are systematically too many, too few or the wrong size.",
+      "source": "How Cellpose is run: the base or custom model, expected object diameter, probability and flow thresholds, rescaling and inversion. Adjust these when masks are systematically too many, too few or the wrong size.",
+      "source_sha256": "d08b14d980fd2f82c0d18e6772c686a86971d2b8588480627938a1f493b43fe7",
+      "translation": "Hur Cellpose körs: bas- eller anpassad modell, förväntad objektdiameter, sannolikhets- och flödeströsklar, omskalning och invertering. Justera dessa när maskerna systematiskt är för många, för få eller har fel storlek."
+    },
+    {
+      "table": "ui",
+      "key": "Power analysis",
+      "source": "Power analysis",
+      "source_sha256": "1f351196a47a7d2c752b4e49630668008055ea54a5f423dc971cf0cd8911bc9d",
+      "translation": "Styrkeanalys"
+    }
+  ]
+}

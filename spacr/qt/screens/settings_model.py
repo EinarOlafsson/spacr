@@ -2642,10 +2642,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "Choosing a type sets the parameters it uses; a value changed here "
         "takes precedence and is not overwritten.",
     "CELLPOSE":
-        "How Cellpose is run: expected object diameter, probability and "
-        "flow thresholds, rescaling and inversion. Adjust these when masks "
-        "are systematically too many, too few or the wrong size; the model "
-        "is chosen under Model Training.",
+        "How Cellpose is run: the base or custom model, expected object "
+        "diameter, probability and flow thresholds, rescaling and inversion. "
+        "Adjust these when masks are systematically too many, too few or the "
+        "wrong size.",
     "SEGMENTATION QC":
         "Automatic pass/fail checks on the finished masks — object counts, "
         "size and split ratios, border and foreground fractions, and how "

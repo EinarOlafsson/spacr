@@ -4677,6 +4677,11 @@ def canonical_sources() -> dict[str, object]:
     ui_sources = set(extract_static_ui_sources())
     ui_sources.update(str(title) for sections in _APP_CATEGORY_SPECS.values()
                       for title, _keys in sections)
+    # Item 678 (2026-10-17): the shared category titles in spacr.settings are
+    # settings-panel captions too. Without an exact entry they fell back to a
+    # word-by-word composite ("Modell Evaluation"), so catalogue them here.
+    from spacr.settings import categories as _shared_categories
+    ui_sources.update(str(title) for title in _shared_categories)
     # Backend prose lives outside spacr/qt and reaches the install dialog
     # and model card through registry fields, not literal widget arguments.
     from spacr._segmentation_backends import _SPECS as backend_specs

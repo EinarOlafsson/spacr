@@ -153,13 +153,6 @@
     },
     {
       "table": "ui",
-      "key": "How Cellpose is run: expected object diameter, probability and flow thresholds, rescaling and inversion. Adjust these when masks are systematically too many, too few or the wrong size; the model is chosen under Model Training.",
-      "source": "How Cellpose is run: expected object diameter, probability and flow thresholds, rescaling and inversion. Adjust these when masks are systematically too many, too few or the wrong size; the model is chosen under Model Training.",
-      "source_sha256": "3d0de8ba877f0b7522057b8a803ed22a3588cb25eb30847148fbdf716e76f979",
-      "translation": "Cómo se ejecuta Cellpose: diámetro esperado del objeto, umbrales de probabilidad y de flujo, reescalado e inversión. Ajústelos cuando las máscaras sean sistemáticamente demasiadas, demasiado pocas o de tamaño incorrecto; el modelo se elige en Model Training."
-    },
-    {
-      "table": "ui",
       "key": "Dropout and weight decay, which reduce overfitting to the training set, and gradient checkpointing, which reduces GPU memory use. Increase dropout or weight decay when training accuracy rises and validation accuracy does not.",
       "source": "Dropout and weight decay, which reduce overfitting to the training set, and gradient checkpointing, which reduces GPU memory use. Increase dropout or weight decay when training accuracy rises and validation accuracy does not.",
       "source_sha256": "1eca02ed8f2dff6571222b02a4607b2619c74442bc5a46a11902aebdea95e637",
@@ -444,13 +437,6 @@
       "source": "The forty-eight detection parameters behind the organelle type. Choosing a type sets the parameters it uses; a value changed here takes precedence and is not overwritten.",
       "source_sha256": "342b78775e53c52279736e006d310dfc3d2d15be3fd54cf7d12551e57747dba3",
       "translation": "Los cuarenta y ocho parámetros de detección asociados al tipo de orgánulo. Al elegir un tipo se fijan los parámetros que utiliza; un valor modificado aquí tiene prioridad y no se sobrescribe."
-    },
-    {
-      "table": "categories",
-      "key": "How Cellpose is run: expected object diameter, probability and flow thresholds, rescaling and inversion. Adjust these when masks are systematically too many, too few or the wrong size; the model is chosen under Model Training.",
-      "source": "How Cellpose is run: expected object diameter, probability and flow thresholds, rescaling and inversion. Adjust these when masks are systematically too many, too few or the wrong size; the model is chosen under Model Training.",
-      "source_sha256": "3d0de8ba877f0b7522057b8a803ed22a3588cb25eb30847148fbdf716e76f979",
-      "translation": "Cómo se ejecuta Cellpose: diámetro esperado del objeto, umbrales de probabilidad y de flujo, reescalado e inversión. Ajústelos cuando las máscaras sean sistemáticamente demasiadas, demasiado pocas o de tamaño incorrecto; el modelo se elige en Model Training."
     },
     {
       "table": "categories",
