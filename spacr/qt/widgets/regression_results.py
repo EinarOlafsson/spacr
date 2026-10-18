@@ -788,6 +788,7 @@ class RegressionResultsPanel(QWidget):
 
         self.volcano = VolcanoPlot()
         self.table = ResultsTable()
+        self.table.fill_in_steps = True
         self.external_volcano = bool(external_volcano)
         self.table.setMinimumHeight(150)
         self.table.table.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -889,6 +890,7 @@ class RegressionResultsPanel(QWidget):
         yield
         self.agreement = GuideAgreementPlot()
         self.support = ResultsTable()
+        self.support.fill_in_steps = True
         from .collapsible_splitter import CollapsibleSplitter
         agreement_split = CollapsibleSplitter(
             Qt.Vertical, persist_key="regression::guide_support")
