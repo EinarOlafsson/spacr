@@ -48,15 +48,11 @@ def test_cached_annotate_close_drains_page_and_saves_pending_labels_once(
     screen._settings.grid_rows = screen._settings.grid_cols = 1
     screen._settings.image_size = (24, 24)
     screen._compute_grid_dims = lambda: None
-    close_calls, timers = [], []
+    close_calls = []
     original_close = screen.close
 
     def close_screen():
         close_calls.append(True)
-        if not release.is_set():
-            timer = threading.Timer(0.1, release.set)
-            timers.append(timer)
-            timer.start()
         return original_close()
 
     monkeypatch.setattr(screen, "close", close_screen)
@@ -64,6 +60,13 @@ def test_cached_annotate_close_drains_page_and_saves_pending_labels_once(
         screen._open_source(str(source))
         qtbot.waitUntil(entered.is_set, timeout=5000)
         page_worker = screen._page_worker
+        original_interrupt = page_worker.requestInterruption
+
+        def interrupt_page():
+            original_interrupt()
+            release.set()
+
+        monkeypatch.setattr(page_worker, "requestInterruption", interrupt_page)
         writer = screen._worker
         result_signal = QSignalSpy(page_worker.done)
         assert page_worker.isRunning()
@@ -96,8 +99,6 @@ def test_cached_annotate_close_drains_page_and_saves_pending_labels_once(
     finally:
         release.set()
         original_close()
-        for timer in timers:
-            timer.join()
 
 
 def test_cached_widget_close_is_unique_and_a_veto_keeps_window_open(qtbot):
