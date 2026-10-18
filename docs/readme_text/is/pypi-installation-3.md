@@ -1,1 +1,1 @@
-Opinlegri samsetningar eru settar sérstakt, t.d. ` spacr[zarr] `, ` spacr[omero] `,` spacr[napari] ` og ` spacr[czi,nd2,lif] `. Sjá [Uppsetningu leiðbeiningar](<../../source/installer_guide.rst>) fyrir fullkomna útgáfur og Python-version samskipti tól.
+Opinlegri samsetningar eru settar sérstakt, t.d. ` spacr[zarr] `, ` spacr[omero] `,` spacr[napari] ` og ` spacr[czi,nd2,lif] `. Sjá [uppsetningarleiðbeiningarnar (nightly, á ensku)](<https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>) fyrir fullkomna útgáfur og Python-version samskipti tól.

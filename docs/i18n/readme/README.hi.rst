@@ -132,7 +132,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/install-spacr-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/install-spacr-2.desktop.svg"><img src="../../readme_images/hi/install-spacr-2.svg" alt="Docker गाइड में GPU सेटअप, डेटा माउंट और पाइपलाइन कमांड बताए गए हैं।"></picture></a></div>
+   <div><a href="../../readme_text/hi/install-spacr-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/install-spacr-2.desktop.svg"><img src="../../readme_images/hi/install-spacr-2.svg" alt="Docker गाइड (nightly, अंग्रेज़ी में) में GPU सेटअप, डेटा माउंट और पाइपलाइन कमांड बताए गए हैं।"></picture></a></div>
 
 .. raw:: html
 
@@ -165,11 +165,11 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/desktop-application-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/desktop-application-3.desktop.svg"><img src="../../readme_images/hi/desktop-application-3.svg" alt="macOS पर, .pkg खोलें. वर्तमान बीटा नोटिस नहीं किया गया है; यदि Gatekeeper इसे ब्लॉक करता है, तो सिस्टम सेटिंग्स → गोपनीयता और सुरक्षा → किसी भी तरह से खोलें का चयन करें. अपडेट, अनइंस्टॉल, ऑफ़लाइन उपयोग और समस्या निवारण के निर्देशों के लिए इंस्टॉलेशन गाइड देखें। वर्कस्टेशन और सर्वर संबंधी सुझावों तथा GPU संगतता तालिकाओं के लिए सिस्टम आवश्यकताएँ देखें।"></picture></a></div>
+   <div><a href="../../readme_text/hi/desktop-application-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/desktop-application-3.desktop.svg"><img src="../../readme_images/hi/desktop-application-3.svg" alt="macOS पर, .pkg खोलें. वर्तमान बीटा नोटिस नहीं किया गया है; यदि Gatekeeper इसे ब्लॉक करता है, तो सिस्टम सेटिंग्स → गोपनीयता और सुरक्षा → किसी भी तरह से खोलें का चयन करें. इंस्टॉलेशन, अपडेट, दोबारा इंस्टॉल करने, अनइंस्टॉल करने, ऑफ़लाइन उपयोग और समस्या निवारण के निर्देशों के लिए nightly शाखा की वर्तमान इंस्टॉलेशन गाइड (अंग्रेज़ी में) देखें। वर्कस्टेशन और सर्वर संबंधी सुझावों तथा GPU संगतता तालिकाओं के लिए सिस्टम आवश्यकताएँ देखें।"></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../source/installer_guide.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/desktop-application-3-link-1.desktop.svg"><img src="../../readme_images/hi/desktop-application-3-link-1.svg" alt="इंस्टॉलेशन गाइड"></picture></a><a href="../../source/system_requirements.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/desktop-application-3-link-2.desktop.svg"><img src="../../readme_images/hi/desktop-application-3-link-2.svg" alt="सिस्टम आवश्यकताएँ"></picture></a></div>
+   <div><a href="https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/desktop-application-3-link-1.desktop.svg"><img src="../../readme_images/hi/desktop-application-3-link-1.svg" alt="nightly शाखा की वर्तमान इंस्टॉलेशन गाइड (अंग्रेज़ी में)"></picture></a><a href="../../source/system_requirements.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/desktop-application-3-link-2.desktop.svg"><img src="../../readme_images/hi/desktop-application-3-link-2.svg" alt="सिस्टम आवश्यकताएँ"></picture></a></div>
 
 .. raw:: html
 
@@ -194,7 +194,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/hi/pypi-installation-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/pypi-installation-3.desktop.svg"><img src="../../readme_images/hi/pypi-installation-3.svg" alt="वैकल्पिक एकीकरण अलग से स्थापित किए जाते हैं, उदाहरण के लिए spacr[zarr], spacr[omero],spacr[napari] और spacr[czi,nd2,lif]. पूर्ण अतिरिक्त और Python संस्करण संगतता तालिका में स्थापना गाइड देखें."></picture></a></div>
+   <div><a href="../../readme_text/hi/pypi-installation-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/hi/pypi-installation-3.desktop.svg"><img src="../../readme_images/hi/pypi-installation-3.svg" alt="वैकल्पिक एकीकरण अलग से स्थापित किए जाते हैं, उदाहरण के लिए spacr[zarr], spacr[omero],spacr[napari] और spacr[czi,nd2,lif]. पूर्ण अतिरिक्त और Python संस्करण संगतता तालिका में स्थापना गाइड (nightly, अंग्रेज़ी में) देखें."></picture></a></div>
 
 .. raw:: html
 

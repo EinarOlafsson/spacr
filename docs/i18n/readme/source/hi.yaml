@@ -147,8 +147,8 @@ blocks:
     docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.4 spacr-run --list
     docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4 spacr-run --list
   lang: bash
-- p: '`Docker गाइड <docs/source/installer_guide.rst#container-images>`_ में GPU सेटअप,
-    डेटा माउंट और पाइपलाइन कमांड बताए गए हैं।'
+- p: '`Docker गाइड (nightly, अंग्रेज़ी में) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>`_
+    में GPU सेटअप, डेटा माउंट और पाइपलाइन कमांड बताए गए हैं।'
 - h3: डेस्कटॉप एप्लिकेशन
 - p: इंस्टॉलर अपने स्वयं के Python को जोड़ते हैं. कॉन्डा की आवश्यकता नहीं है.
 - generated: installer-links
@@ -160,10 +160,11 @@ blocks:
 - p: macOS पर, ``.pkg`` खोलें. वर्तमान बीटा नोटिस नहीं किया गया है; यदि Gatekeeper
     इसे ब्लॉक करता है, तो **सिस्टम सेटिंग्स → गोपनीयता और सुरक्षा → किसी भी तरह से
     खोलें** का चयन करें.
-- p: अपडेट, अनइंस्टॉल, ऑफ़लाइन उपयोग और समस्या निवारण के निर्देशों के लिए `इंस्टॉलेशन
-    गाइड <docs/source/installer_guide.rst>`_ देखें। वर्कस्टेशन और सर्वर संबंधी सुझावों
-    तथा GPU संगतता तालिकाओं के लिए `सिस्टम आवश्यकताएँ <docs/source/system_requirements.rst>`_
-    देखें।
+- p: इंस्टॉलेशन, अपडेट, दोबारा इंस्टॉल करने, अनइंस्टॉल करने, ऑफ़लाइन उपयोग और समस्या
+    निवारण के निर्देशों के लिए `nightly शाखा की वर्तमान इंस्टॉलेशन गाइड (अंग्रेज़ी
+    में) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_
+    देखें। वर्कस्टेशन और सर्वर संबंधी सुझावों तथा GPU संगतता तालिकाओं के लिए `सिस्टम
+    आवश्यकताएँ <docs/source/system_requirements.rst>`_ देखें।
 - h3: PyPI से इंस्टॉलेशन
 - p: 'PyPI रिलीज़ के लिए, Conda वातावरण के भीतर pip से spaCR इंस्टॉल करें। Python
     3.12 में वैकल्पिक वैज्ञानिक पैकेजों की सबसे व्यापक उपलब्धता है:'
@@ -187,7 +188,7 @@ blocks:
   lang: bash
 - p: वैकल्पिक एकीकरण अलग से स्थापित किए जाते हैं, उदाहरण के लिए ``spacr[zarr]``,
     ``spacr[omero]``,``spacr[napari]`` और ``spacr[czi,nd2,lif]``. पूर्ण अतिरिक्त
-    और Python संस्करण संगतता तालिका में `स्थापना गाइड <docs/source/installer_guide.rst>`_
+    और Python संस्करण संगतता तालिका में `स्थापना गाइड (nightly, अंग्रेज़ी में) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_
     देखें.
 - h3: conda-forge से इंस्टॉलेशन
 - p: 'आधिकारिक conda-forge पैकेज सक्रिय वातावरण में spaCR और उसकी डेस्कटॉप निर्भरताएँ

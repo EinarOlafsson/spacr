@@ -132,7 +132,7 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/install-spacr-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/install-spacr-2.desktop.svg"><img src="../../readme_images/is/install-spacr-2.svg" alt="Docker-leiðbeiningarnar fjalla um uppsetningu skjákorts, tengingu gagnamappa og skipanir fyrir vinnslurnar."></picture></a></div>
+   <div><a href="../../readme_text/is/install-spacr-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/install-spacr-2.desktop.svg"><img src="../../readme_images/is/install-spacr-2.svg" alt="Docker-leiðbeiningarnar (nightly, á ensku) fjalla um uppsetningu skjákorts, tengingu gagnamappa og skipanir fyrir vinnslurnar."></picture></a></div>
 
 .. raw:: html
 
@@ -165,11 +165,11 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/desktop-application-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/desktop-application-3.desktop.svg"><img src="../../readme_images/is/desktop-application-3.svg" alt="Á macOS, opna .pkg. Núverandi beta er ekki notarið; ef Gatekeeper blokkir það, velja System Settings → Privacy &amp; Security → Open Anyway. Sjá uppsetningarleiðbeiningarnar fyrir leiðbeiningar um uppfærslu, fjarlægingu, notkun án nettengingar og bilanagreiningu. Í kerfiskröfunum eru ráðleggingar um vinnustöðvar og netþjóna og töflur um GPU-samhæfi."></picture></a></div>
+   <div><a href="../../readme_text/is/desktop-application-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/desktop-application-3.desktop.svg"><img src="../../readme_images/is/desktop-application-3.svg" alt="Á macOS, opna .pkg. Núverandi beta er ekki notarið; ef Gatekeeper blokkir það, velja System Settings → Privacy &amp; Security → Open Anyway. Leiðbeiningar um uppsetningu, uppfærslu, enduruppsetningu, fjarlægingu, notkun án nettengingar og bilanagreiningu eru í nýjustu uppsetningarleiðbeiningunum á nightly (á ensku). Í kerfiskröfunum eru ráðleggingar um vinnustöðvar og netþjóna og töflur um GPU-samhæfi."></picture></a></div>
 
 .. raw:: html
 
-   <div><a href="../../source/installer_guide.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/desktop-application-3-link-1.desktop.svg"><img src="../../readme_images/is/desktop-application-3-link-1.svg" alt="uppsetningarleiðbeiningarnar"></picture></a><a href="../../source/system_requirements.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/desktop-application-3-link-2.desktop.svg"><img src="../../readme_images/is/desktop-application-3-link-2.svg" alt="kerfiskröfunum"></picture></a></div>
+   <div><a href="https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/desktop-application-3-link-1.desktop.svg"><img src="../../readme_images/is/desktop-application-3-link-1.svg" alt="nýjustu uppsetningarleiðbeiningunum á nightly (á ensku)"></picture></a><a href="../../source/system_requirements.rst"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/desktop-application-3-link-2.desktop.svg"><img src="../../readme_images/is/desktop-application-3-link-2.svg" alt="kerfiskröfunum"></picture></a></div>
 
 .. raw:: html
 
@@ -194,7 +194,7 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. raw:: html
 
-   <div><a href="../../readme_text/is/pypi-installation-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/pypi-installation-3.desktop.svg"><img src="../../readme_images/is/pypi-installation-3.svg" alt="Opinlegri samsetningar eru settar sérstakt, t.d. spacr[zarr], spacr[omero],spacr[napari] og spacr[czi,nd2,lif]. Sjá Uppsetningu leiðbeiningar fyrir fullkomna útgáfur og Python-version samskipti tól."></picture></a></div>
+   <div><a href="../../readme_text/is/pypi-installation-3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/pypi-installation-3.desktop.svg"><img src="../../readme_images/is/pypi-installation-3.svg" alt="Opinlegri samsetningar eru settar sérstakt, t.d. spacr[zarr], spacr[omero],spacr[napari] og spacr[czi,nd2,lif]. Sjá uppsetningarleiðbeiningarnar (nightly, á ensku) fyrir fullkomna útgáfur og Python-version samskipti tól."></picture></a></div>
 
 .. raw:: html
 

@@ -135,8 +135,8 @@ blocks:
     docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.4 spacr-run --list
     docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4 spacr-run --list
   lang: bash
-- p: '`Docker 가이드 <docs/source/installer_guide.rst#container-images>`_\ 에서 GPU 설정,
-    데이터 마운트, 파이프라인 명령을 설명합니다.'
+- p: '`Docker 가이드 (nightly, 영어) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>`_\
+    에서 GPU 설정, 데이터 마운트, 파이프라인 명령을 설명합니다.'
 - h3: 데스크톱 애플리케이션
 - p: 설치자는 자신의 Python을 묶습니다.Conda는 필요하지 않습니다.
 - generated: installer-links
@@ -147,8 +147,8 @@ blocks:
   lang: bash
 - p: macOS에서는 ``.pkg``\ 를 여세요. 현재 베타는 공증되지 않았습니다. Gatekeeper가 차단하면 **시스템 설정 → 개인정보
     보호 및 보안 → 그래도 열기**\ 를 선택하세요.
-- p: 업데이트, 제거, 오프라인 사용 및 문제 해결 지침은 `설치 안내서 <docs/source/installer_guide.rst>`_\ 를
-    참조하십시오. 워크스테이션과 서버 권장 사항 및 GPU 호환성 표는 `시스템 요구 사항 <docs/source/system_requirements.rst>`_\
+- p: 설치, 업데이트, 재설치, 제거, 오프라인 사용 및 문제 해결 지침은 `nightly 브랜치의 최신 설치 안내서(영어) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_\
+    를 참조하십시오. 워크스테이션과 서버 권장 사항 및 GPU 호환성 표는 `시스템 요구 사항 <docs/source/system_requirements.rst>`_\
     을 참조하십시오.
 - h3: PyPI 설치
 - p: 'PyPI 릴리스는 Conda 환경 안에서 pip로 spaCR를 설치하세요. Python 3.12에서 선택 가능한 과학 패키지의 범위가
@@ -171,7 +171,7 @@ blocks:
     spacr-run --list
   lang: bash
 - p: 선택적 통합 기능은 ``spacr[zarr]``, ``spacr[omero]``, ``spacr[napari]`` 및 ``spacr[czi,nd2,lif]``\
-    과 같이 별도로 설치합니다. 전체 추가 기능 목록과 Python 버전 호환성 표는 `설치 안내서 <docs/source/installer_guide.rst>`_\
+    과 같이 별도로 설치합니다. 전체 추가 기능 목록과 Python 버전 호환성 표는 `설치 안내서 (nightly, 영어) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_\
     를 참조하십시오.
 - h3: conda-forge 설치
 - p: '공식 conda-forge 패키지는 활성 환경에 spaCR 및 데스크톱 실행에 필요한 종속성을 설치합니다:'
