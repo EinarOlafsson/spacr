@@ -1012,7 +1012,7 @@ def build_queue(db_path: str, annotation_column: str = "annotate",
     n_rows = len(frame)
 
     if image_type:
-        keep = frame[key].astype(str).str.contains(str(image_type), regex=False)
+        keep = _image_type_mask(frame[key], image_type)
         n_filtered = int((~keep).sum())
         frame = frame[keep]
         if n_filtered:
@@ -1377,7 +1377,7 @@ def annotation_coverage(db_path: str, annotation_column: str = "annotate",
     frame = pd.DataFrame(rows, columns=select)
     n_unfiltered = len(frame)
     if image_type:
-        keep = frame[key].astype(str).str.contains(str(image_type), regex=False)
+        keep = _image_type_mask(frame[key], image_type)
         n_filtered = int((~keep).sum())
         frame = frame[keep]
         if n_filtered:
@@ -1642,9 +1642,10 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
             target.setdefault(
                 "_".join(composed + [f"{object_type}{label}"]), entry)
 
-    for row in rows:
+    kept = _image_type_mask([row[index[key]] for row in rows], image_type)
+    for row, keep in zip(rows, kept):
         path = str(row[index[key]])
-        if image_type and str(image_type) not in path:
+        if not keep:
             continue
         annotation = None
         if has_annotation:
@@ -2388,6 +2389,124 @@ def holdout_report(y_true: Any, probs: Any,
     }
 
 
+def _image_type_mask(paths: Sequence[Any],
+                    image_type: Optional[str]) -> np.ndarray:
+    """Which of ``paths`` the Annotate screen's image filter keeps.
+
+    The grid filters with :func:`spacr.qt.annotate_engine.parse_image_type`:
+    ``AND``, ``OR``, ``NOT`` and parentheses, each term matched with SQLite
+    ``LIKE`` and therefore without regard to ASCII case. A plain
+    case-sensitive substring test here kept a different set of crops from
+    the one the annotator was looking at -- ``Cell`` showed every crop on
+    screen and none to the model, and ``cell AND NOT pathogen`` matched no
+    path at all -- so a round had nothing to fit. The same SQL is evaluated
+    here, so the two can no longer disagree.
+
+    :param paths: crop paths, in order.
+    :param image_type: the filter expression; ``None`` or blank keeps all.
+    :returns: a boolean array, one entry per path.
+    :raises ValueError: on an expression the grid could not read either.
+    """
+    values = ["" if p is None else str(p) for p in paths]
+    if not image_type or not str(image_type).strip():
+        return np.ones(len(values), dtype=bool)
+    from .qt.annotate_engine import parse_image_type
+
+    where, params = parse_image_type(str(image_type))
+    if not where:
+        return np.ones(len(values), dtype=bool)
+    con = sqlite3.connect(":memory:")
+    try:
+        con.execute("CREATE TABLE crops (i INTEGER, png_path TEXT)")
+        con.executemany("INSERT INTO crops VALUES (?, ?)", enumerate(values))
+        kept = {row[0] for row in con.execute(
+            f"SELECT i FROM crops WHERE {where}", params)}
+    finally:
+        con.close()
+    return np.fromiter((i in kept for i in range(len(values))), dtype=bool,
+                       count=len(values))
+
+
+_CHILD_CROP_ID_COLUMNS: Tuple[str, ...] = tuple(
+    f"{role}_id" for role in schema.CHILD_OBJECT_TABLES)
+
+
+def _parent_cell_token(name: Any) -> Optional[int]:
+    """The parent cell label in a child crop's file name, or ``None``.
+
+    A nucleus, pathogen or organelle crop is written as
+    ``<field>_<cell>_<object>.png``; the cell is the second-last component.
+    ``multi`` and ``none`` -- a crop overlapping several cells or none --
+    name no single cell.
+    """
+    stem = os.path.splitext(os.path.basename(str(name or "")))[0]
+    parts = stem.split(schema.KEY_SEPARATOR)
+    if len(parts) < 2:
+        return None
+    token = parts[-2]
+    return int(token) if token.isdigit() else None
+
+
+def _crop_feature_keys(crops: pd.DataFrame) -> pd.Series:
+    """The key of the measured object each ``png_list`` row shows.
+
+    :func:`spacr.io._read_and_merge_data` keys its rows on the parent cell,
+    ``prcf_o<cell label>``, after :func:`spacr.utils.correct_metadata` has
+    canonicalised every plate-bearing column. Two things made a stored
+    ``prcfo`` miss that key for every crop of a database:
+
+    * the plate repair (:func:`spacr.schema.canonical_plate_id`) was applied
+      to the object tables and not to ``png_list``, so a plate whose name
+      begins with ``pp`` was ``pp...`` on one side and ``p...`` on the
+      other;
+    * a nucleus, pathogen or organelle crop stores its OWN label as the last
+      ``prcfo`` component, while the merged row of that object is keyed on
+      its parent cell -- so it matched no row, or the row of an unrelated
+      cell that happened to share the number. The parent is taken from the
+      file name, where :func:`spacr.utils._generate_names` writes it.
+
+    :param crops: ``png_list`` rows carrying ``prcfo`` and, where present,
+        ``file_name``/``png_path`` and the per-mode object-id columns.
+    :returns: one key per row, ``None`` where the row names no single
+        measured cell.
+    """
+    keys = [None if (v is None or (isinstance(v, float) and v != v))
+            else schema.canonical_plate_id(str(v)) for v in crops["prcfo"]]
+    child_cols = [c for c in _CHILD_CROP_ID_COLUMNS if c in crops.columns]
+    if not child_cols:
+        return pd.Series(keys, index=crops.index, dtype=object)
+    has_cell = (crops["cell_id"].notna().to_numpy() if "cell_id" in crops
+                else np.zeros(len(crops), dtype=bool))
+    is_child = crops[child_cols].notna().any(axis=1).to_numpy() & ~has_cell
+    names = (crops["file_name"] if "file_name" in crops.columns
+             else crops.get("png_path", pd.Series([None] * len(crops),
+                                                  index=crops.index)))
+    for i in np.flatnonzero(is_child):
+        key, name = keys[i], names.iloc[i]
+        if not key or (isinstance(name, float) and name != name):
+            keys[i] = None
+            continue
+        parent = _parent_cell_token(name)
+        field, sep, _ = key.rpartition(schema.KEY_SEPARATOR)
+        keys[i] = (f"{field}{sep}o{parent}"
+                   if parent is not None and sep else None)
+    return pd.Series(keys, index=crops.index, dtype=object)
+
+
+def _key_samples(values: Iterable[Any], n: int = 3) -> str:
+    """Up to ``n`` distinct values, quoted, for an error message."""
+    seen: List[str] = []
+    for value in values:
+        if value is None or (isinstance(value, float) and value != value):
+            continue
+        text = repr(str(value))
+        if text not in seen:
+            seen.append(text)
+        if len(seen) >= n:
+            break
+    return ", ".join(seen) if seen else "none"
+
+
 def round_features(db_path: str, table: str = PNG_TABLE,
                    key: str = PNG_KEY,
                    tables: Sequence[str] = ("cell", "nucleus", "pathogen",
@@ -2413,7 +2532,7 @@ def round_features(db_path: str, table: str = PNG_TABLE,
     :returns: numeric features indexed by ``png_path``.
     :raises ValueError: when no object table with features could be read.
     """
-    from .io import _read_and_merge_data, _read_db
+    from .io import _read_and_merge_data
 
     con = _connect(db_path)
     try:
@@ -2422,9 +2541,12 @@ def round_features(db_path: str, table: str = PNG_TABLE,
             raise ValueError(
                 f"{table!r} has no 'prcfo' column, so a crop cannot be matched "
                 f"to its measurements. Re-run Measure with save_png=True.")
+        extra = [c for c in ("file_name", "cell_id", *_CHILD_CROP_ID_COLUMNS)
+                 if c in columns and c != key]
+        select = list(dict.fromkeys([key, "prcfo", *extra]))
         rows = con.execute(
-            f"SELECT {_quote_ident(key)}, \"prcfo\" FROM {_quote_ident(table)}"
-        ).fetchall()
+            f"SELECT {', '.join(_quote_ident(c) for c in select)} "
+            f"FROM {_quote_ident(table)}").fetchall()
         available = {r[0] for r in con.execute(
             "SELECT name FROM sqlite_master WHERE type IN ('table','view')"
         ).fetchall()}
@@ -2441,10 +2563,27 @@ def round_features(db_path: str, table: str = PNG_TABLE,
     merged, _ = _read_and_merge_data([str(db_path)], wanted, False,
                                      nuclei_limit=nuclei_limit,
                                      pathogen_limit=pathogen_limit)
-    crops = pd.DataFrame(rows, columns=[key, "prcfo"]).dropna(subset=["prcfo"])
+    crops = pd.DataFrame(rows, columns=select).dropna(subset=["prcfo"])
+    crops["_object_key"] = _crop_feature_keys(crops).to_numpy()
     numeric = merged.select_dtypes(include=[np.number])
-    joined = crops.join(numeric, on="prcfo", how="inner")
-    return joined.drop(columns=["prcfo"]).set_index(key)
+    joined = crops[[key, "_object_key"]].join(numeric, on="_object_key",
+                                              how="inner")
+    if joined.empty and len(crops) and len(numeric):
+        raise ValueError(
+            f"None of the {len(crops):,} crops in {table} matches one of the "
+            f"{len(numeric):,} measured objects in {', '.join(wanted)}, so "
+            f"there are no features to fit on. A crop is looked up as "
+            f"{_key_samples(crops['_object_key'])} (from prcfo "
+            f"{_key_samples(crops['prcfo'])}); the measured objects are keyed "
+            f"{_key_samples(numeric.index)}. Check that Measure and the crop "
+            f"export ran over the same objects and plates.")
+    if joined.empty and len(crops) and not len(numeric):
+        raise ValueError(
+            f"{table} lists {len(crops):,} crops, but no measured object "
+            f"survived the merge of {', '.join(wanted)}, so there are no "
+            f"features to fit on. Check that Measure finished for these "
+            f"plates.")
+    return joined.drop(columns=["_object_key"]).set_index(key)
 
 
 _SIMILAR_K = 100
@@ -2798,9 +2937,7 @@ def _similarity_index(db_path: str, *, features: Optional[pd.DataFrame] = None,
         features = round_features(db_path)
         features = features[_similarity_columns(features.columns)]
     if image_type:
-        keep = features.index.astype(str).str.contains(str(image_type),
-                                                       regex=False)
-        features = features.loc[keep]
+        features = features.loc[_image_type_mask(features.index, image_type)]
     return _SimilarityIndex(features, backend=backend)
 
 
@@ -2908,9 +3045,8 @@ def _multi_similarity_index(db_paths: Sequence[str], *,
             features = round_features(path)
             features = features[_similarity_columns(features.columns)]
         if image_type:
-            keep = features.index.astype(str).str.contains(str(image_type),
-                                                           regex=False)
-            features = features.loc[keep]
+            features = features.loc[_image_type_mask(features.index,
+                                                    image_type)]
         features = features.select_dtypes(include=[np.number])
         if features.empty:
             raise ValueError(f"No compatible crops were found in {path}")
@@ -3179,9 +3315,14 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
         con.close()
 
     crops = pd.DataFrame(rows, columns=select)
+    n_crops = len(crops)
     if image_type:
-        crops = crops[crops[key].astype(str).str.contains(
-            str(image_type), regex=False)]
+        crops = crops[_image_type_mask(crops[key], image_type)]
+        if n_crops and crops.empty:
+            raise ValueError(
+                f"The image filter {str(image_type)!r} keeps none of the "
+                f"{n_crops:,} crops in {table}, so nothing can be fitted. "
+                f"Change or clear the Image type filter.")
     crops = crops.set_index(key)
     crops = crops.loc[~crops.index.duplicated(keep="first")]
 
@@ -3193,8 +3334,10 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
     if not len(shared):
         raise ValueError(
             f"No crop in {table} has a row in the feature matrix, so nothing "
-            f"can be fitted. Check that Measure and the crop export ran over "
-            f"the same objects.")
+            f"can be fitted: {len(crops):,} crops are keyed "
+            f"{_key_samples(crops.index)}, and the {len(features):,} feature "
+            f"rows are keyed {_key_samples(features.index)}. Check that "
+            f"Measure and the crop export ran over the same objects.")
     crops = crops.loc[shared]
     matrix = features.loc[shared]
 

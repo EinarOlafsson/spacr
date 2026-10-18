@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Claude); no human or native-speaker signoff",
+  "review_method": "Direct translation of the three Annotate Suggest failure and cancellation texts added for issue #152, reusing the terms of the reviewed 2026-10-01 Suggest records and the runtime catalog (image type filter, crop, annotations, round scores).",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Suggest cancelled before writing new suggestions. Earlier suggestions were kept; round scores may have been updated.",
+      "source": "Suggest cancelled before writing new suggestions. Earlier suggestions were kept; round scores may have been updated.",
+      "source_sha256": "5654926ad636a39c0a8949486b1d158fb0feddce92fc78e71c934bcad186425c",
+      "translation": "La generación de sugerencias se canceló antes de escribir nuevas sugerencias. Se conservaron las sugerencias anteriores; puede que las puntuaciones de la ronda se hayan actualizado."
+    },
+    {
+      "table": "ui",
+      "key": "No new suggestions from this round were saved. Earlier suggestions were kept; round scores may have been updated. Your annotations are unchanged. The usual causes are too few labels, only one class annotated so far — a classifier needs an example of both — an image filter that keeps no crop, or no measurement tables to build features from.",
+      "source": "No new suggestions from this round were saved. Earlier suggestions were kept; round scores may have been updated. Your annotations are unchanged. The usual causes are too few labels, only one class annotated so far — a classifier needs an example of both — an image filter that keeps no crop, or no measurement tables to build features from.",
+      "source_sha256": "0cb290ca2a7fa7be000836b6a1f839828cddb2082fa3acbca2615b8dfde82a67",
+      "translation": "No se guardó ninguna sugerencia nueva de esta ronda. Se conservaron las sugerencias anteriores; puede que las puntuaciones de la ronda se hayan actualizado. Sus anotaciones no cambian. Las causas habituales son muy pocas etiquetas, una sola clase anotada hasta ahora —un clasificador necesita un ejemplo de ambas—, un filtro de tipo de imagen que no deja ningún recorte, o la falta de tablas de mediciones con las que construir características."
+    },
+    {
+      "table": "ui",
+      "key": "No new suggestions from this round were saved. Earlier suggestions may have been cleared and round scores may have been updated. Your annotations are unchanged. The usual causes are too few labels, only one class annotated so far — a classifier needs an example of both — or no measurement tables to build features from.",
+      "source": "No new suggestions from this round were saved. Earlier suggestions may have been cleared and round scores may have been updated. Your annotations are unchanged. The usual causes are too few labels, only one class annotated so far — a classifier needs an example of both — or no measurement tables to build features from.",
+      "source_sha256": "2b7e1b06960594b7688e08f76125d2e09eae493a0373d1a3c9a498422d12422a",
+      "translation": "No se guardó ninguna sugerencia nueva de esta ronda. Puede que las sugerencias anteriores se hayan borrado y las puntuaciones de la ronda se hayan actualizado. Sus anotaciones no cambian. Las causas habituales son muy pocas etiquetas, una sola clase anotada hasta ahora —un clasificador necesita un ejemplo de ambas— o la falta de tablas de mediciones con las que construir características."
+    }
+  ]
+}

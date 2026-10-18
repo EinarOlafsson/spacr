@@ -204,6 +204,33 @@ def test_a_failed_fit_says_what_usually_causes_it(screen, monkeypatch):
                                   "/c.png": None}
 
 
+class _KeptWorker:
+    """A run that reports it put its cleared suggestions back (issue #152)."""
+
+    earlier_kept = True
+
+
+def test_a_failed_run_that_kept_earlier_suggestions_says_so(screen):
+    screen._suggest_worker = _KeptWorker()
+    screen._on_suggest_failed("ValueError: nothing to fit")
+    box = screen.findChild(QMessageBox, "AnnotateSuggestFailedBox")
+    assert box is not None
+    assert "Earlier suggestions were kept" in box.text()
+    assert "may have been cleared" not in box.text()
+    assert "an image filter that keeps no crop" in box.text()
+    box.close()
+    screen._suggest_worker = None
+
+
+def test_a_cancelled_run_that_kept_earlier_suggestions_says_so(screen):
+    screen._suggest_worker = _KeptWorker()
+    screen._on_suggest_cancelled()
+    joined = "".join(screen.notices)
+    assert "Earlier suggestions were kept" in joined
+    assert "may have been cleared" not in joined
+    screen._suggest_worker = None
+
+
 def test_a_finished_run_gives_the_button_back_and_retires_the_thread(
         screen, monkeypatch):
     retired = []
