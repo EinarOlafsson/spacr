@@ -11270,7 +11270,17 @@ class AppScreen(QWidget):
         """Record a starting regression run on the Runs tab.
 
         Return the run handle, or ``None`` when this screen has no Runs tab.
+
+        A Run pressed while Regression's results part is still owed builds
+        it one step per event-loop turn rather than in one freeze of over a
+        second, and records the run as the build finishes; the handle then
+        reaches ``_run_handle`` from there, and ``None`` is returned now.
         """
+        if self._part_is_owed(_REGRESSION_RESULTS):
+            record = partial(self._record_the_run_once_built, label, source,
+                             dict(settings or {}))
+            if self._build_owed_part_in_steps(_REGRESSION_RESULTS, record):
+                return None
         runs = getattr(self, "_sweep_runs", None)
         if runs is None:
             return None
@@ -11280,6 +11290,11 @@ class AppScreen(QWidget):
             LOG.debug("could not record the run in the Runs tab",
                       exc_info=True)
             return None
+
+    def _record_the_run_once_built(self, label, source, settings) -> None:
+        """Record a run whose Run press waited for the results part."""
+        self._run_handle = self._record_run_in_runs_tab(label, source,
+                                                        settings)
 
     def _update_run_in_runs_tab(self, **fields) -> bool:
         """Update the row for the run this screen last started."""
