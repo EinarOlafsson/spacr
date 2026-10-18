@@ -1733,10 +1733,23 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
 
     if app in MASK_APPS:
         if all(settings.get(k) is None for k in CHANNEL_KEYS):
+            named = ", ".join(
+                f"{k}=None" for k in CHANNEL_KEYS[:4])
+            acquired = settings.get("channels")
+            if isinstance(acquired, (list, tuple)) and acquired:
+                allowed = ", ".join(str(c) for c in acquired)
+                choice = f"one of the acquired channel indices {allowed} (channels)"
+                example = acquired[0]
+            else:
+                choice = "a zero-based acquisition-channel index"
+                example = 0
             problems.append(Problem(
                 ERROR, "cell_channel",
-                "no segmentation channel is set: every registered object channel is None.",
-                "Set at least one *_channel setting to an acquisition-channel index."))
+                f"no segmentation channel is set: {named} and every other "
+                f"object channel is None.",
+                f"Set at least one of these settings to {choice}, for example "
+                f"cell_channel={example} for the cell stain; leave the others "
+                f"None to skip those objects."))
         if settings.get("pathogen_channel") is not None:
             model = settings.get("pathogen_model")
             from .settings import CELLPOSE_MODEL_CHOICES
