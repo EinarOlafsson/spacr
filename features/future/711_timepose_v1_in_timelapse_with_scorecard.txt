@@ -1,0 +1,34 @@
+================================================================================
+TIMEPOSE v1 IN TIMELAPSE, ON HUGGING FACE (PRIVATE), WITH A SCORECARD
+================================================================================
+
+Status:    open — 2026-10-18; waiting for Timepose v1 checkpoint/metrics from
+           the Home Timepose session (spacr-c7), then build.
+Requested: maintainer, 2026-10-18: "make sure trackstera and timepose v1 are
+           included in timelapse and timepose needs to be uploaded to
+           huggingface and it needs a scorecard". Visibility (maintainer,
+           question tool): "Private until paper" (Cell Reports Methods).
+Owner:     Claude Home (spaCR integration, card); spacr-c7 (Timepose checkpoint,
+           metrics, inference contract; its training jobs are never touched).
+Related:   669 (Trackastra in Timelapse, complete), 370 (every published model
+           carries its scorecard), 438 (plaque v5 card pattern).
+
+WHAT TO BUILD
+1. Timelapse offers Trackastra (already available, 669) and Timepose v1 as
+   tracking/linking choices. Timepose is alpha-gated (ALPHA_FEATURES, literal
+   setObjectName) until the paper is out.
+2. Timepose v1 weights in a PRIVATE Hugging Face model repo under
+   einarolafsson; spaCR downloads them with the user's HF token and checks the
+   sha256; a clear tr() message when no token or no access.
+3. A scorecard (same three-page card format as the plaque models) built from
+   held-out results, Timepose vs Trackastra plus a reference/control row,
+   abbreviations spelled out; the card JSON and binding in
+   spacr/resources/model_cards; a model-zoo entry.
+4. Tests on CPU with a small synthetic movie; nine-locale reviewed captions.
+
+ACCEPTANCE
+- Timelapse runs Trackastra and Timepose v1 end to end on a sample movie.
+- The private HF repo holds weights, card pages, README, checksums, run
+  config; spaCR verifies the checksum on download.
+- Flip to public and remove the alpha gate when the maintainer says the paper
+  is out.

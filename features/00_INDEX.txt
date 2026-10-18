@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-619 in features/new, 76 in features/future. BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5.
+619 in features/new, 77 in features/future. BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5.
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
 do not establish current acceptance; use dated trailing evidence.
@@ -272,6 +272,9 @@ FUTURE FEATURES
 
   655  ACCESSIBILITY PASS
        655_accessibility_pass.txt
+
+  711  TIMEPOSE v1 IN TIMELAPSE, ON HUGGING FACE (PRIVATE), WITH A SCORECARD
+       711_timepose_v1_in_timelapse_with_scorecard.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES
