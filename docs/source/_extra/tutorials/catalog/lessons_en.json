@@ -558,6 +558,17 @@
           ]
         },
         {
+          "visual": "home_module_classify_merged",
+          "narration": "Classify trains a model on reviewed labels and scores other objects, using image crops or measured features.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "classify_merged"
+          ],
+          "related_lessons": [
+            "41_classify"
+          ]
+        },
+        {
           "visual": "home_module_map_barcodes",
           "narration": "Map Barcodes reads sequencing data to count and identify guides or barcodes.",
           "hold_after": 0.7,
@@ -654,6 +665,17 @@
           ],
           "related_lessons": [
             "58_graph_builder"
+          ]
+        },
+        {
+          "visual": "home_module_toxoplasma",
+          "narration": "The Organism row contains Toxoplasma. It opens an organism guide, an interactive diagram and the available Toxoplasma assay routes. The separate Toxoplasma tutorial explores this page.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "toxoplasma"
+          ],
+          "related_lessons": [
+            "82_toxoplasma"
           ]
         },
         {

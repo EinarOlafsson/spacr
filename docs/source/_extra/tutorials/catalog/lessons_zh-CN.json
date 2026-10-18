@@ -601,6 +601,18 @@
           "speech_text": "Annotate 可检查对象裁剪图像，并为示例记录经过审核的标签。"
         },
         {
+          "visual": "home_module_classify_merged",
+          "narration": "Classify 用审核过的标签训练模型，并使用对象裁剪图或测量特征为其他对象评分。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "classify_merged"
+          ],
+          "related_lessons": [
+            "41_classify"
+          ],
+          "speech_text": "Classify 用审核过的标签训练模型，并使用对象裁剪图或测量特征为其他对象评分。"
+        },
+        {
           "visual": "home_module_map_barcodes",
           "narration": "Map Barcodes 读取测序数据，计数并识别导向序列或条形码。",
           "hold_after": 0.7,
@@ -707,6 +719,18 @@
             "58_graph_builder"
           ],
           "speech_text": "Graph Builder 从测量表创建图表，可配置列和分组。"
+        },
+        {
+          "visual": "home_module_toxoplasma",
+          "narration": "Organism 行包含 Toxoplasma。它打开生物指南、交互图和可用的弓形虫检测入口。单独的 Toxoplasma 教程介绍此页面。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "toxoplasma"
+          ],
+          "related_lessons": [
+            "82_toxoplasma"
+          ],
+          "speech_text": "Organism 行包含 Toxoplasma。它打开生物指南、交互图和可用的弓形虫检测入口。单独的 Toxoplasma 教程介绍此页面。"
         },
         {
           "visual": "06_mask_host",

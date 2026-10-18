@@ -601,6 +601,18 @@
           "speech_text": "Annotate में वस्तुओं के कटे चित्र देखकर उदाहरणों के लिए जाँचे हुए लेबल दर्ज कर सकते हैं।"
         },
         {
+          "visual": "home_module_classify_merged",
+          "narration": "Classify जाँचे हुए लेबल पर एक मॉडल प्रशिक्षित करता है और कटे चित्रों या मापी गई विशेषताओं की मदद से अन्य वस्तुओं को स्कोर देता है।",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "classify_merged"
+          ],
+          "related_lessons": [
+            "41_classify"
+          ],
+          "speech_text": "Classify जाँचे हुए लेबल पर एक मॉडल प्रशिक्षित करता है और कटे चित्रों या मापी गई विशेषताओं की मदद से अन्य वस्तुओं को स्कोर देता है।"
+        },
+        {
           "visual": "home_module_map_barcodes",
           "narration": "Map Barcodes अनुक्रमण डेटा पढ़कर गाइड या बारकोड की गिनती और पहचान करता है।",
           "hold_after": 0.7,
@@ -707,6 +719,18 @@
             "58_graph_builder"
           ],
           "speech_text": "Graph Builder माप तालिकाओं से ग्राफ बनाता है, जिनके कॉलम और समूह चुन सकते हैं।"
+        },
+        {
+          "visual": "home_module_toxoplasma",
+          "narration": "Organism पंक्ति में Toxoplasma है। यह जीव की जानकारी, संवादात्मक चित्र और उपलब्ध Toxoplasma परीक्षणों के रास्ते खोलता है। अलग Toxoplasma ट्यूटोरियल इस पेज को समझाता है।",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "toxoplasma"
+          ],
+          "related_lessons": [
+            "82_toxoplasma"
+          ],
+          "speech_text": "Organism पंक्ति में Toxoplasma है। यह जीव की जानकारी, संवादात्मक चित्र और उपलब्ध Toxoplasma परीक्षणों के रास्ते खोलता है। अलग Toxoplasma ट्यूटोरियल इस पेज को समझाता है।"
         },
         {
           "visual": "06_mask_host",

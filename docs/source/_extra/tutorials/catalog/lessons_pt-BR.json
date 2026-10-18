@@ -601,6 +601,18 @@
           "speech_text": "Annotate permite inspecionar recortes de objetos e registrar rótulos revisados para exemplos."
         },
         {
+          "visual": "home_module_classify_merged",
+          "narration": "Classify treina um modelo com rótulos revisados e pontua outros objetos usando imagens recortadas ou características medidas.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "classify_merged"
+          ],
+          "related_lessons": [
+            "41_classify"
+          ],
+          "speech_text": "Classify treina um modelo com rótulos revisados e pontua outros objetos usando imagens recortadas ou características medidas."
+        },
+        {
           "visual": "home_module_map_barcodes",
           "narration": "Map Barcodes lê dados de sequenciamento para contar e identificar guias ou códigos de barras.",
           "hold_after": 0.7,
@@ -707,6 +719,18 @@
             "58_graph_builder"
           ],
           "speech_text": "Graph Builder cria gráficos a partir de tabelas de medidas com colunas e agrupamentos configuráveis."
+        },
+        {
+          "visual": "home_module_toxoplasma",
+          "narration": "A linha Organism contém Toxoplasma. Ela abre um guia do organismo, um diagrama interativo e as rotas de ensaios disponíveis. O tutorial Toxoplasma explora essa página separadamente.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "toxoplasma"
+          ],
+          "related_lessons": [
+            "82_toxoplasma"
+          ],
+          "speech_text": "A linha Organism contém Toxoplasma. Ela abre um guia do organismo, um diagrama interativo e as rotas de ensaios disponíveis. O tutorial Toxoplasma explora essa página separadamente."
         },
         {
           "visual": "06_mask_host",
