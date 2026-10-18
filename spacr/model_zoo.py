@@ -1363,7 +1363,7 @@ _CURATED_SCORECARD_BINDINGS = {'toxoplasma_plaque_v1': {'checkpoint_sha256': 'ee
                           'field_ids_sha256': '5e3dfefe23a2bc51877dc3cb72999b21b1d0b3e4fb393e5d9d2b2bcce686f86f',
                           'full_card_sha256': '6860674346b819da2045a8a887d39dfc6d343b0250cf748b74d86b4414e2c94a',
                           'resource': 'toxoplasma-plaque-segmentation-cpsam-r6.json',
-                          'resource_sha256': '2aa5c558b512a5b888a755ac1bf46fa18609c5bd4effb533363c3bdc6695efd9',
+                          'resource_sha256': '7dbefae4de57bf749fd9efe164b375288fcd65a0ca5c3198905d30600a03691f',
                           'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6/resolve/main/weights/cpsam_plaque_r6'},
  'toxoplasma_plaque_v5': {'checkpoint_sha256': '9243917beefbc3d1c8d997d56c1980b811ffef9ee075dac60b099aec715fa8a1',
                           'field_ids_sha256': '981166ee8b999dad4b15deb0ea6a31c4dd5cd75713ae015650afc598d9cabc70',

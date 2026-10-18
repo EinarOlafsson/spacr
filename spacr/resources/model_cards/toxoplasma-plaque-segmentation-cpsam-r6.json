@@ -5,7 +5,7 @@
  "display_name": "Toxoplasma Plaque v4",
  "family": "plaque",
  "round": "round 6",
- "status": "default",
+ "status": "previous default",
  "date": "trained 2026-10-10",
  "pages": [
   "cards/page1.png",
@@ -145,7 +145,7 @@
  "about": {
   "segments": "Toxoplasma gondii plaques in crystal-violet-stained plaque-assay wells.",
   "trained_on": "335 curated fields from Gel Doc lab plates, lab plates, published figures and staged literature crops, with 65 for validation.",
-  "status": "Default plaque model in spaCR.",
+  "status": "Previous default plaque model in spaCR (2026-10-11 to 2026-10-17), still selectable; toxoplasma_plaque_v5 is the default and toxoplasma_plaque_v3 is recommended for Gel Doc wells.",
   "leak_note": null,
   "load_line": "Set `plaque_model` to `toxoplasma_plaque_v4`; spaCR downloads and checks the weights on first use.",
   "links": {
