@@ -1962,6 +1962,9 @@ class RegressionResultsPanel(QWidget):
 
         :param frame: the coefficient DataFrame; ``None`` or an empty frame is
             reported in the status line and returns ``False``.
+
+        A run whose plot state is remembered is drawn once, by the restore
+        of that state, rather than drawn and then drawn again.
         """
         import pandas as pd
 
@@ -2067,7 +2070,10 @@ class RegressionResultsPanel(QWidget):
         self._offer_thresholds()
         self._offer_compartments()
 
-        self.refresh_views()
+        restoring = isinstance(
+            self._plot_states.get(self._plot_state_key(source)), dict)
+        if not restoring:
+            self.refresh_views()
         self._mark_the_level_on_the_plots()
         note = self.both_levels_note()
         if note:
