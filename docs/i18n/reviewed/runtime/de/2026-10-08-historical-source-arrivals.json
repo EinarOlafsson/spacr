@@ -272,7 +272,7 @@
       "source": "Existing event labels belong to another tracker CSV.",
       "source_sha256": "0c3d5bb35e91215179dd39fb98b76dedea1eed63c90a3930d243ad9ce6178e1b",
       "table": "ui",
-      "translation": "Bestehende Event-Etiketten gehören zu einem anderen Tracker CSV."
+      "translation": "Bestehende Event-Labels gehören zu einem anderen Tracker CSV."
     },
     {
       "key": "Existing labels have no tracker identity; confirm this exact tracker CSV before saving.",
@@ -349,7 +349,7 @@
       "source": "One track frame cannot have multiple event labels.",
       "source_sha256": "14b398d3a96d38e910289c868da917ef1cbc3f16ebcd019c23c1660061b0aa45",
       "table": "ui",
-      "translation": "Ein Trackframe kann nicht mehrere Event-Etiketten haben."
+      "translation": "Ein Trackframe kann nicht mehrere Event-Labels haben."
     },
     {
       "key": "Opacity of the settings card over its animation. Higher values cover more of the backdrop so text is easier to read. Combined with Page opacity.",
@@ -440,7 +440,7 @@
       "source": "The existing annotation table labels one track frame more than once.",
       "source_sha256": "793dc7cb425ff73baf26322473e9c4ecfed09d15ad819b3712cc9b01b0d27621",
       "table": "ui",
-      "translation": "Die vorhandene Annotationstabelle etikettiert mehr als einmal einen Track Frame."
+      "translation": "Die vorhandene Annotationstabelle versieht einen Track-Frame mehr als einmal mit einem Label."
     },
     {
       "key": "The existing annotation table lacks field, track_id, frame or event.",

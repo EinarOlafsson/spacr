@@ -836,7 +836,7 @@
       "source": "Normalize the edited legend text, close its editor and rebuild the figure annotations.",
       "source_sha256": "4e51c7449c63afbc4d1fa24b83f2f427c32c4d87a3c3b32e1dee283b51490e60",
       "context": "Normalize the edited legend text, close its editor and rebuild the figure annotations.",
-      "translation": "Normaliserar den redigerade förklaringstexten, stänger dess redigerare och bygger om figurens anteckningar.",
+      "translation": "Normaliserar den redigerade förklaringstexten, stänger dess redigerare och bygger om figurens annoteringar.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {

@@ -9,7 +9,7 @@
       "key": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
       "source": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
       "source_sha256": "e2f959e14685dfa505448ad2d321d2b235b5219d55b09708f7130d42509a9e5e",
-      "translation": "Staðalþyngdir Cellpose-SAM, sem Cellpose sækir og sannreynir sjálft."
+      "translation": "Stöðluðu Cellpose-SAM-vægin, sem Cellpose sækir og sannreynir sjálft."
     },
     {
       "table": "ui",

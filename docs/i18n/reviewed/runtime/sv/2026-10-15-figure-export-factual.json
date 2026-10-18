@@ -32,7 +32,7 @@
       "key": "Text colour affects axes titles, labels, tick labels, legend entries and axes annotations. Matplotlib figure titles and legend titles keep their existing colours.",
       "source": "Text colour affects axes titles, labels, tick labels, legend entries and axes annotations. Matplotlib figure titles and legend titles keep their existing colours.",
       "source_sha256": "f224e6db817b65f13a7073b7bb4ff94eb65e12db9ac9d915606781678d2a00ea",
-      "translation": "Textfärg påverkar axelrubriker, etiketter, skaletiketter, teckenförklaringens poster och axelkommentarer. Figurrubriker och teckenförklaringens rubriker i Matplotlib behåller sina befintliga färger."
+      "translation": "Textfärg påverkar axelrubriker, etiketter, skaletiketter, teckenförklaringens poster och axelannoteringar. Figurrubriker och teckenförklaringens rubriker i Matplotlib behåller sina befintliga färger."
     },
     {
       "table": "ui",

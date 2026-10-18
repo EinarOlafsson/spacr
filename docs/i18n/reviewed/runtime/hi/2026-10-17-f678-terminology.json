@@ -1,0 +1,1070 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "key": "(str) How the objects in a well are collapsed to one number. 'median' limits the influence of outlying objects; 'count' plots objects per well and ignores the measurement.",
+      "source": "(str) How the objects in a well are collapsed to one number. 'median' limits the influence of outlying objects; 'count' plots objects per well and ignores the measurement.",
+      "source_sha256": "15f203aa2344bab1f890612af72068f37274972d12df9912691704d0b6eb4e1b",
+      "table": "ui",
+      "translation": "(str) एक वेल में ऑब्जेक्ट को एक संख्या में कैसे समेटा जाता है। 'median' बाहरी ऑब्जेक्ट के प्रभाव को सीमित करता है; 'count' प्रति वेल ऑब्जेक्ट की संख्या आलेखित करता है और माप को अनदेखा करता है।"
+    },
+    {
+      "key": "(str) The 'Robust' range clips colours to the 2nd–98th percentile so one extreme well cannot flatten the plate.",
+      "source": "(str) The 'Robust' range clips colours to the 2nd–98th percentile so one extreme well cannot flatten the plate.",
+      "source_sha256": "cbaad4a970fa76f612c9c5253fb71db26dab9efe5512d48a399e2432f17a38ab",
+      "table": "ui",
+      "translation": "(str) 'Robust' रेंज रंगों को 2रे–98वें परसेंटाइल तक क्लिप करती है ताकि एक चरम वेल पूरी प्लेट को सपाट न कर दे।"
+    },
+    {
+      "key": "A flood that reaches a bright seam — debris, a saturated membrane, a well rim — walks out along it and takes the field. This reads the flood's width outward from the click and cuts it where it suddenly and persistently widens. It does nothing to a flood that did not run away.",
+      "source": "A flood that reaches a bright seam — debris, a saturated membrane, a well rim — walks out along it and takes the field. This reads the flood's width outward from the click and cuts it where it suddenly and persistently widens. It does nothing to a flood that did not run away.",
+      "source_sha256": "334969f591a3206ac1de8c0965ab3a95f999677e9979a045265af0dbea60916f",
+      "table": "ui",
+      "translation": "एक फ़्लड जो किसी चमकीली सीवन तक पहुँचता है — मलबा, एक संतृप्त झिल्ली, एक वेल की रिम — उसके साथ बाहर की ओर चलता जाता है और पूरे फ़ील्ड पर कब्ज़ा कर लेता है। यह क्लिक से बाहर की ओर फ़्लड की चौड़ाई पढ़ता है और जहाँ वह अचानक और लगातार चौड़ी होती है वहाँ उसे काट देता है। जो फ़्लड बेकाबू नहीं हुआ उस पर इसका कोई असर नहीं पड़ता।"
+    },
+    {
+      "key": "A gene's fraction in a well is the sum of its guide fractions, matching the aggregation used by regression. Gene-level sweep results therefore use the same guide aggregation as the fitted gene effect.",
+      "source": "A gene's fraction in a well is the sum of its guide fractions, matching the aggregation used by regression. Gene-level sweep results therefore use the same guide aggregation as the fitted gene effect.",
+      "source_sha256": "c446769ecc92be5f1bfacfdf0c0bbf112f57b5c80b3271ea2435f82b60164cad",
+      "table": "ui",
+      "translation": "एक वेल में किसी जीन का अंश उसके गाइड अंशों का योग होता है, जो रिग्रेशन में प्रयुक्त एकत्रीकरण से मेल खाता है। इसलिए जीन-स्तर के स्वीप परिणाम फ़िट किए गए जीन प्रभाव के समान गाइड एकत्रीकरण का उपयोग करते हैं।"
+    },
+    {
+      "key": "A linear support-vector fit (hinge loss) on the response BINARISED at hinge_threshold, so it asks which guides SEPARATE high wells from low wells rather than how far they move the score. It has no likelihood: the p-values are bootstrap Wald values over hinge_n_boot resamples, not a likelihood-ratio test.",
+      "source": "A linear support-vector fit (hinge loss) on the response BINARISED at hinge_threshold, so it asks which guides SEPARATE high wells from low wells rather than how far they move the score. It has no likelihood: the p-values are bootstrap Wald values over hinge_n_boot resamples, not a likelihood-ratio test.",
+      "source_sha256": "4a980ec9ffbd37185cc6fa06037a7a882298e5717eef7730aee079b5d41df12f",
+      "table": "ui",
+      "translation": "प्रतिक्रिया पर एक रैखिक सपोर्ट-वेक्टर फ़िट (हिंज हानि), जिसे hinge_threshold पर BINARISED (द्विआधारी) किया गया है, इसलिए यह पूछता है कि कौन से गाइड उच्च वेलों को निम्न वेलों से अलग करते हैं, न कि यह कि वे स्कोर को कितना खिसकाते हैं। इसमें कोई संभाविता (likelihood) नहीं है: p-मान hinge_n_boot पुनर्प्रतिचयनों पर बूटस्ट्रैप वाल्ड मान हैं, संभाविता-अनुपात परीक्षण नहीं।"
+    },
+    {
+      "key": "A measurements.db, or a CSV of per-well values",
+      "source": "A measurements.db, or a CSV of per-well values",
+      "source_sha256": "cef6b9e5d04af096a7c66c9ddda504eb3aa435f27cf3e7c4d399a2e45556220a",
+      "table": "ui",
+      "translation": "एक measurements.db, या प्रति-वेल मानों की CSV"
+    },
+    {
+      "key": "A sparse Poisson GLM with a horseshoe prior -- spaCRPower's power-analysis model -- with offset(log(cell_count)). The prior shrinks the bulk of the guides hard toward zero while leaving a genuinely large effect close to untouched, which suits a screen where most guides are expected to do nothing.",
+      "source": "A sparse Poisson GLM with a horseshoe prior -- spaCRPower's power-analysis model -- with offset(log(cell_count)). The prior shrinks the bulk of the guides hard toward zero while leaving a genuinely large effect close to untouched, which suits a screen where most guides are expected to do nothing.",
+      "source_sha256": "a356944dc8bf7be9a433acadc822ec01ec0e5182668daa119da794d7c20b4edc",
+      "table": "ui",
+      "translation": "एक स्पारस पॉइसन जीएलएम के साथ एक हॉर्सशू प्रायर - spaCRPower के पावर-विश्लेषण मॉडल - offset(log(cell_count) के साथ. प्रायर मार्गदर्शकों की बहुतायत को कठोर रूप से शून्य की ओर संकुचित करता है, जबकि एक वास्तव में बड़ा प्रभाव निकट अप्रचलित छोड़ देता है, जो एक स्क्रीनिंग के अनुरूप है जहां अधिकांश मार्गदर्शक कुछ भी नहीं करने की उम्मीद है।"
+    },
+    {
+      "key": "An annotation write is already running.",
+      "source": "An annotation write is already running.",
+      "source_sha256": "ef4dde0682ddc105eccf3cbbf82800a6c44195a866341ca84e63ab489282403e",
+      "table": "ui",
+      "translation": "एक एनोटेशन राइट पहले से चल रहा है।"
+    },
+    {
+      "key": "Binomial GLM with a logit link on a fraction, weighted by the well's cell count as var_weights -- which is what tells the variance function that a fraction measured from 400 cells is firmer evidence than the same fraction measured from 30. Coefficients are log-odds.",
+      "source": "Binomial GLM with a logit link on a fraction, weighted by the well's cell count as var_weights -- which is what tells the variance function that a fraction measured from 400 cells is firmer evidence than the same fraction measured from 30. Coefficients are log-odds.",
+      "source_sha256": "aa99feabe719efe9938d7d70b6006764ceebd07a8d9c66991de02faa5a7499c3",
+      "table": "ui",
+      "translation": "एक अंश (fraction) पर लॉगिट लिंक वाला द्विपद GLM, जिसे वेल की कोशिका संख्या से var_weights के रूप में भारित किया गया है -- यही वेरिएंस फ़ंक्शन को बताता है कि 400 कोशिकाओं से मापा गया अंश 30 कोशिकाओं से मापे गए उसी अंश की तुलना में अधिक ठोस प्रमाण है। गुणांक लॉग-ऑड्स हैं।"
+    },
+    {
+      "key": "Binomial GLM with a probit link on a fraction, weighted by the well's cell count as var_weights. It differs from logit only in the link: the fitted probabilities are near-identical, and the coefficients are on a different scale and are not log-odds.",
+      "source": "Binomial GLM with a probit link on a fraction, weighted by the well's cell count as var_weights. It differs from logit only in the link: the fitted probabilities are near-identical, and the coefficients are on a different scale and are not log-odds.",
+      "source_sha256": "2aa7a1c1214a28bac6e996b7a3930bf45d8e2003b67aa4c217b1d976060f75b8",
+      "table": "ui",
+      "translation": "एक अंश (fraction) पर प्रोबिट लिंक वाला द्विपद GLM, जिसे वेल की कोशिका संख्या से var_weights के रूप में भारित किया गया है। यह लॉगिट से केवल लिंक में भिन्न है: फ़िट की गई प्रायिकताएँ लगभग समान हैं, और गुणांक एक भिन्न पैमाने पर हैं तथा लॉग-ऑड्स नहीं हैं।"
+    },
+    {
+      "key": "Check the plaque diameter and thresholds on one sampled field before running the assay.",
+      "source": "Check the plaque diameter and thresholds on one sampled field before running the assay.",
+      "source_sha256": "e9fb9372ba6f62e479693a8515775fc197af482fc505adcc48d0c1523aa4e402",
+      "table": "ui",
+      "translation": "परीक्षण चलाने से पहले एक नमूना फ़ील्ड पर प्लाक के व्यास और सीमाओं की जांच करें।"
+    },
+    {
+      "key": "Choose a measurements.db (or a run folder), tick two or more annotation columns, then Compute agreement.",
+      "source": "Choose a measurements.db (or a run folder), tick two or more annotation columns, then Compute agreement.",
+      "source_sha256": "fc2ed0ffff29f05401b26e56086ac755443c1462fed26af9d3e2f73a444db702",
+      "table": "ui",
+      "translation": "एक measurements.db (या एक रन फ़ोल्डर) चुनें, दो या अधिक एनोटेशन स्तंभों पर टैप करें, फिर समझौते की गणना करें।"
+    },
+    {
+      "key": "Choose a well column to preview its mapping",
+      "source": "Choose a well column to preview its mapping",
+      "source_sha256": "219f281fa732593c4b34d66ec8f6cb6f33dfa4af79a17a053a968139c1b30f63",
+      "table": "ui",
+      "translation": "इसकी मैपिंग का पूर्वावलोकन देखने के लिए एक वेल स्तंभ चुनें"
+    },
+    {
+      "key": "Choose the experimental unit kept intact across training and evaluation sets. Well-, field-, or plate-level grouping reduces information leakage between related cells.",
+      "source": "Choose the experimental unit kept intact across training and evaluation sets. Well-, field-, or plate-level grouping reduces information leakage between related cells.",
+      "source_sha256": "d83c786853673471541492524ee96f6324557f88426d585e2573ae95aab17634",
+      "table": "ui",
+      "translation": "वह प्रायोगिक इकाई चुनें जो प्रशिक्षण और मूल्यांकन सेटों में अविभाजित रखी जाती है। वेल-, फ़ील्ड- या प्लेट-स्तर पर समूहन संबंधित कोशिकाओं के बीच सूचना रिसाव को कम करता है।"
+    },
+    {
+      "key": "Choose which of the annotation's wells to include. A well left out is removed from both sides of the comparison.",
+      "source": "Choose which of the annotation's wells to include. A well left out is removed from both sides of the comparison.",
+      "source_sha256": "f45b875ef38fcb9892361a6c54f0ace011c622050925fe051830417709052ce2",
+      "table": "ui",
+      "translation": "चुनें कि एनोटेशन के कौन से वेल शामिल हों। छोड़ा गया वेल तुलना के दोनों पक्षों से हटा दिया जाता है।"
+    },
+    {
+      "key": "Clear every outstanding suggestion back to unanswered. Your own annotations are not touched.",
+      "source": "Clear every outstanding suggestion back to unanswered. Your own annotations are not touched.",
+      "source_sha256": "b695fc4f46ae3e02e2ede4d06b6808b07314e597775a3f9bb1940fd49221f2be",
+      "table": "ui",
+      "translation": "प्रत्येक अविश्वसनीय सुझाव को अनसुलझा करने के लिए स्पष्ट करें. आपके स्वयं के एनोटेशन को छूना नहीं है."
+    },
+    {
+      "key": "Cluster the objects in a UMAP and write the cluster labels as annotations. Opens the Image UMAP module, which does the write itself.",
+      "source": "Cluster the objects in a UMAP and write the cluster labels as annotations. Opens the Image UMAP module, which does the write itself.",
+      "source_sha256": "c6374b5dc7ea6d7c9076ddfc04e6cd3f6d50df90c5a4977edaac2840d0b9afc1",
+      "table": "ui",
+      "translation": "UMAP में वस्तुओं को क्लस्टर करें और क्लस्टर लेबल को एनोटेशन के रूप में लिखें. Image UMAP मॉड्यूल खोलें, जो स्वयं लिखता है."
+    },
+    {
+      "key": "Cohen's κ between annotation columns (Fleiss' κ for three or more), plus the rows they disagree on. Read-only: the database is opened with mode=ro, so nothing here can change your annotations.",
+      "source": "Cohen's κ between annotation columns (Fleiss' κ for three or more), plus the rows they disagree on. Read-only: the database is opened with mode=ro, so nothing here can change your annotations.",
+      "source_sha256": "f11280eb8424fa743d8f29a864bda83c909e22d30c7db62a75a1bfd14513b2e5",
+      "table": "ui",
+      "translation": "कोहेन के κ के बीच एनोटेशन स्तंभों (Fleiss के κ के लिए तीन या अधिक), प्लस उन पंक्तियों पर वे असहमत हैं. पढ़ने के लिए: डेटाबेस मोड=रो के साथ खुलता है, इसलिए यहां कुछ भी आपके एनोटेशन को बदल नहीं सकता है."
+    },
+    {
+      "key": "Compares two runs from the same project. The report groups changed settings by their settings-panel category, compares object, well, and field counts per plate, and identifies hits that were added, removed, or re-ranked. Incompatible runs are not compared unless the compatibility warning is overridden.",
+      "source": "Compares two runs from the same project. The report groups changed settings by their settings-panel category, compares object, well, and field counts per plate, and identifies hits that were added, removed, or re-ranked. Incompatible runs are not compared unless the compatibility warning is overridden.",
+      "source_sha256": "4ee31577aa4d9dd58e9c6366957483241357ca30e415fc58f8a9db85f397d436",
+      "table": "ui",
+      "translation": "एक ही प्रोजेक्ट के दो रन की तुलना करता है। रिपोर्ट बदली हुई सेटिंग्स को उनकी सेटिंग-पैनल श्रेणी के अनुसार समूहित करती है, प्रति प्लेट ऑब्जेक्ट, वेल और फ़ील्ड की संख्या की तुलना करती है, और जोड़े गए, हटाए गए या पुनः रैंक किए गए हिट पहचानती है। असंगत रन की तुलना तब तक नहीं की जाती जब तक संगतता चेतावनी को अधिलेखित न किया जाए।"
+    },
+    {
+      "key": "Core sequence from microscopy images through segmentation, measurements, annotations, classification, barcode mapping and regression.",
+      "source": "Core sequence from microscopy images through segmentation, measurements, annotations, classification, barcode mapping and regression.",
+      "source_sha256": "adcec89474bc8060305e5204fe5e73607dfd18dee3464590cbbc165c11fb5236",
+      "table": "ui",
+      "translation": "माइक्रोस्कोपी छवियों से कोर अनुक्रम, विभाजन, माप, एनोटेशन, वर्गीकरण, बारकोड मैपिंग और पुनरावृत्ति के माध्यम से।"
+    },
+    {
+      "key": "Cross-validation folds per trial. Folds are grouped by well, so crops from one well never straddle a split.",
+      "source": "Cross-validation folds per trial. Folds are grouped by well, so crops from one well never straddle a split.",
+      "source_sha256": "1cb34d7b71291302ae5a49df5b35aed4b867cc2de8a247f70a6155fb36cb235d",
+      "table": "ui",
+      "translation": "प्रति ट्रायल क्रॉस-वैलिडेशन फ़ोल्ड। फ़ोल्ड वेल के आधार पर समूहित किए जाते हैं, इसलिए एक वेल के क्रॉप कभी किसी विभाजन के दोनों ओर नहीं पड़ते।"
+    },
+    {
+      "key": "Custom merging changes spaCR's standard table relationships and aggregation rules. It is intended for non-spaCR databases or deliberately different schemas. Incorrect settings can link unrelated objects, duplicate or omit observations, and change measurements used in plots and gates. Check the join keys, output level, aggregation, and preview before applying.",
+      "source": "Custom merging changes spaCR's standard table relationships and aggregation rules. It is intended for non-spaCR databases or deliberately different schemas. Incorrect settings can link unrelated objects, duplicate or omit observations, and change measurements used in plots and gates. Check the join keys, output level, aggregation, and preview before applying.",
+      "source_sha256": "42355ddd1cecc7c84ee61ebc37cab498a0eb7a67f6b8024ee4e7378bf7018fc5",
+      "table": "ui",
+      "translation": "कस्टम मर्जिंग spaCR के मानक तालिका संबंधों और एकत्रीकरण नियमों को बदल देती है। यह गैर-spaCR डेटाबेस या जानबूझकर भिन्न स्कीमा के लिए है। गलत सेटिंग्स असंबंधित ऑब्जेक्ट को जोड़ सकती हैं, अवलोकनों को दोहरा या छोड़ सकती हैं, और प्लॉट तथा गेट में उपयोग किए जाने वाले माप बदल सकती हैं। लागू करने से पहले जॉइन कुंजियाँ, आउटपुट स्तर, एकत्रीकरण और पूर्वावलोकन जाँचें।"
+    },
+    {
+      "key": "Discard this draft and keep previously applied annotations unchanged.",
+      "source": "Discard this draft and keep previously applied annotations unchanged.",
+      "source_sha256": "fdca46ec3071571c46684ad4f0eaf5fc751129287795a163949cd8458f6520f5",
+      "table": "ui",
+      "translation": "इस प्रस्ताव को खारिज करें और पहले लागू एनोटेशन को अपरिवर्तित रखें।"
+    },
+    {
+      "key": "Divide the score distribution into this many equal-count strata and allocate the annotation budget evenly across them.",
+      "source": "Divide the score distribution into this many equal-count strata and allocate the annotation budget evenly across them.",
+      "source_sha256": "b0c7a574bf82b566617dbf6f37a17ce2d78d4e2b67c195b5fc1ae71670765be8",
+      "table": "ui",
+      "translation": "स्कोर वितरण को इस कई समान गिनती परत में विभाजित करें और उन पर समान रूप से एनोटेशन बजट आवंटित करें।"
+    },
+    {
+      "key": "Download about 370 MB of example data for Measure: sixteen fields across four wells, already segmented, so Measure can be run without generating masks first. Cached afterwards, so pressing it again is instant.",
+      "source": "Download about 370 MB of example data for Measure: sixteen fields across four wells, already segmented, so Measure can be run without generating masks first. Cached afterwards, so pressing it again is instant.",
+      "source_sha256": "d0adfd96a1b29ff97d06db407c279403500082364ebcb9578bbeabd816c48c0b",
+      "table": "ui",
+      "translation": "माप के लिए लगभग 370 एमबी उदाहरण डेटा डाउनलोड करें: सोलह फ़ील्ड, चार वेलों में, पहले से ही विभाजित, इसलिए माप पहले मास्क उत्पन्न किए बिना चलाया जा सकता है।"
+    },
+    {
+      "key": "Download an example plate to annotate, and fill in the settings that go with it.",
+      "source": "Download an example plate to annotate, and fill in the settings that go with it.",
+      "source_sha256": "c28efde3c62680f0980db7e3e70d3a95a2d1d6b00dd06c246decd945b9ad40f3",
+      "table": "ui",
+      "translation": "एनोटेट करने के लिए एक उदाहरण प्लेट डाउनलोड करें, और इसके साथ जाने वाले सेटिंग्स को भरें।"
+    },
+    {
+      "key": "Draw gates on a scatter of your measurements, then annotate what falls inside. Opens the real Gate Editor.",
+      "source": "Draw gates on a scatter of your measurements, then annotate what falls inside. Opens the real Gate Editor.",
+      "source_sha256": "c43139a14b2cb5ad1ab11586d678e5fbe1c3ac3fefe45a7389caeeeb8974be6a",
+      "table": "ui",
+      "translation": "अपने मापों के एक स्केटर पर गेट खींचें, फिर एनोटेट करें कि अंदर क्या गिरता है. वास्तविक गेट संपादक खोलें."
+    },
+    {
+      "key": "Drop intensity images and label masks made outside spaCR, review the detected cell, nucleus, pathogen and organelle assignments, then build merged arrays, measurements and single-object crops ready for Annotate.",
+      "source": "Drop intensity images and label masks made outside spaCR, review the detected cell, nucleus, pathogen and organelle assignments, then build merged arrays, measurements and single-object crops ready for Annotate.",
+      "source_sha256": "4345c5b1b763dd8ab397ada13b177623acb2793f9a1809059f9f3304e5284d52",
+      "table": "ui",
+      "translation": "तीव्रता छवियों और spaCR के बाहर बनाए गए लेबल मास्क को फेंक दें, पता लगाए गए सेल, नाभिक, पैथोजेनिक और ऑर्गनेल आवंटनों की समीक्षा करें, फिर एनोटा के लिए तैयार मिश्रित ऐरे, माप और एकल-ऑब्जेक्ट क्रॉप बनाएं।"
+    },
+    {
+      "key": "Each guide is tested independently, as a marginal association rather than as one coefficient in a design holding every guide at once -- so these are marginal associations, not conditional coefficients. Its read fraction and the well phenotype are first residualised against the block (normally plateID) and any nuisance columns; the P value is then the share of Freedman-Lane permutations -- the phenotype residual reshuffled WITHIN each block -- whose statistic reaches the observed one, so it is empirical and two-sided and can never be smaller than 1/(permutations + 1). A guide becomes testable once it appears in guide_min_wells wells above guide_presence_threshold, and each of those thresholds is corrected as its own family. This avoids the rank requirement of a simultaneous guide model and can be used when guides outnumber wells; interpretation still depends on valid blocking, exchangeability, and adequate guide support.",
+      "source": "Each guide is tested independently, as a marginal association rather than as one coefficient in a design holding every guide at once -- so these are marginal associations, not conditional coefficients. Its read fraction and the well phenotype are first residualised against the block (normally plateID) and any nuisance columns; the P value is then the share of Freedman-Lane permutations -- the phenotype residual reshuffled WITHIN each block -- whose statistic reaches the observed one, so it is empirical and two-sided and can never be smaller than 1/(permutations + 1). A guide becomes testable once it appears in guide_min_wells wells above guide_presence_threshold, and each of those thresholds is corrected as its own family. This avoids the rank requirement of a simultaneous guide model and can be used when guides outnumber wells; interpretation still depends on valid blocking, exchangeability, and adequate guide support.",
+      "source_sha256": "030d55e4d180ad845ec8c226dd9f7a88f9538ebff6e7c27ca1715600b7c46f06",
+      "table": "ui",
+      "translation": "प्रत्येक गाइड का स्वतंत्र रूप से परीक्षण किया जाता है, एक सीमांत साहचर्य (marginal association) के रूप में, न कि ऐसे डिज़ाइन में एक गुणांक के रूप में जिसमें सभी गाइड एक साथ रखे गए हों -- इसलिए ये सीमांत साहचर्य हैं, सशर्त गुणांक नहीं। इसके रीड अंश और वेल फ़ीनोटाइप को पहले ब्लॉक (सामान्यतः plateID) और किसी भी न्यूसेंस स्तंभ के विरुद्ध अवशेषित (residualised) किया जाता है; P मान तब Freedman-Lane क्रमचयों का वह हिस्सा है -- प्रत्येक ब्लॉक के भीतर ही फ़ीनोटाइप अवशेष को फेंटकर -- जिनका सांख्यिकी मान प्रेक्षित मान तक पहुँचता है, इसलिए यह अनुभवजन्य और द्वि-पुच्छीय है और 1/(क्रमचय + 1) से कभी छोटा नहीं हो सकता। कोई गाइड तब परीक्षण योग्य बनता है जब वह guide_presence_threshold से ऊपर guide_min_wells वेलों में दिखाई देता है, और इनमें से प्रत्येक सीमा को अपने परिवार के रूप में सुधारा जाता है। यह एक साथ वाले गाइड मॉडल की रैंक आवश्यकता से बचाता है और तब उपयोग किया जा सकता है जब गाइड वेलों से अधिक हों; व्याख्या फिर भी वैध ब्लॉकिंग, विनिमेयता और पर्याप्त गाइड समर्थन पर निर्भर करती है।"
+    },
+    {
+      "key": "Enter comma-separated guide wells from which positive candidates are selected. The montage supplies its current wells by default. Leave empty to allow all displayed wells.",
+      "source": "Enter comma-separated guide wells from which positive candidates are selected. The montage supplies its current wells by default. Leave empty to allow all displayed wells.",
+      "source_sha256": "5d8cd0439da94b13e514a1c8b22afbce235a5157a424ab5afb89cf2a5aedab14",
+      "table": "ui",
+      "translation": "अल्पविराम से अलग किए गए गाइड वेल दर्ज करें, जिनमें से सकारात्मक उम्मीदवार चुने जाते हैं। मोंटाज डिफ़ॉल्ट रूप से अपने वर्तमान वेल देता है। सभी प्रदर्शित वेल की अनुमति देने के लिए खाली छोड़ें।"
+    },
+    {
+      "key": "Evaluates object-level and well-level deviations separately, allowing detection of wells whose distributions shift without producing extreme individual objects. Available methods include modified z scores based on the median absolute deviation, Tukey fences, and robust minimum-covariance-determinant Mahalanobis distance with a specified false-positive threshold. Results are added as columns; input rows are retained.",
+      "source": "Evaluates object-level and well-level deviations separately, allowing detection of wells whose distributions shift without producing extreme individual objects. Available methods include modified z scores based on the median absolute deviation, Tukey fences, and robust minimum-covariance-determinant Mahalanobis distance with a specified false-positive threshold. Results are added as columns; input rows are retained.",
+      "source_sha256": "42b733c3005b127a7624623cd7df45230f7ef52ceeb55a3a1ddfab6dabecdc16",
+      "table": "ui",
+      "translation": "ऑब्जेक्ट-स्तर और वेल-स्तर विचलनों का अलग-अलग मूल्यांकन करता है, जिससे उन वेलों का पता लगाया जा सकता है जिनके वितरण बिना किसी चरम व्यक्तिगत ऑब्जेक्ट के खिसक जाते हैं। उपलब्ध विधियों में माध्यिका निरपेक्ष विचलन पर आधारित संशोधित z स्कोर, Tukey बाड़, और निर्दिष्ट फ़ॉल्स-पॉज़िटिव सीमा वाली सुदृढ़ न्यूनतम-सहप्रसरण-सारणिक Mahalanobis दूरी शामिल हैं। परिणाम स्तंभों के रूप में जोड़े जाते हैं; इनपुट पंक्तियाँ बनाए रखी जाती हैं।"
+    },
+    {
+      "key": "Every piece of text in the figure: the title, the axis labels, the tick labels, the legend and any annotation.",
+      "source": "Every piece of text in the figure: the title, the axis labels, the tick labels, the legend and any annotation.",
+      "source_sha256": "bc5349f3cfc713a434cd56f3b678d1e6561381b96aa278b87d2ba5227cefd34f",
+      "table": "ui",
+      "translation": "आंकड़े में प्रत्येक पाठ का टुकड़ा: शीर्षक, एक्स लेबल, टिक लेबल , कथा और किसी भी एनोटेशन।"
+    },
+    {
+      "key": "Everything that produces the nucleus mask: model and expected diameter, thresholds, background removal, and the size, intensity and border filters applied afterwards. Usually the easiest object to get right, so a good sanity check on the channel assignment.",
+      "source": "Everything that produces the nucleus mask: model and expected diameter, thresholds, background removal, and the size, intensity and border filters applied afterwards. Usually the easiest object to get right, so a good sanity check on the channel assignment.",
+      "source_sha256": "a326487cba568f08e67f10e6f48a8a52bc17bbf157c399956dd9a7029a9273da",
+      "table": "ui",
+      "translation": "सब कुछ जो नाभिक मास्क का उत्पादन करता है: मॉडल और अपेक्षित व्यास, सीमाएं, पृष्ठभूमि हटाने, और आकार, तीव्रता और सीमा फ़िल्टर बाद में लागू किया जाता है।"
+    },
+    {
+      "key": "Fewer wells than guides puts a joint guide fit below the information limit. Penalties, priors and groups do not create information. The permutation test is the exception because it tests one guide at a time.",
+      "source": "Fewer wells than guides puts a joint guide fit below the information limit. Penalties, priors and groups do not create information. The permutation test is the exception because it tests one guide at a time.",
+      "source_sha256": "3183082b7c12e9d54136d2e59e88ec1c3f122d911538fe19dface1e8343f449a",
+      "table": "ui",
+      "translation": "गाइड से कम वेल होने पर संयुक्त गाइड फ़िट सूचना की सीमा से नीचे चला जाता है। दंड, प्रायर और समूह सूचना नहीं बनाते। क्रमचय परीक्षण अपवाद है क्योंकि वह एक बार में एक गाइड का परीक्षण करता है।"
+    },
+    {
+      "key": "Field of view — the (plate, well, field) group previewed. Each group is one time series. Lists a random sample of the plate, not all of it.",
+      "source": "Field of view — the (plate, well, field) group previewed. Each group is one time series. Lists a random sample of the plate, not all of it.",
+      "source_sha256": "4de9ac3d299071918426f6987b0c655c16e30e58c7242eb7f33aee7aae041dc7",
+      "table": "ui",
+      "translation": "दृश्य-क्षेत्र — पूर्वावलोकन किया गया (प्लेट, वेल, फ़ील्ड) समूह। प्रत्येक समूह एक टाइम सीरीज़ है। प्लेट का एक यादृच्छिक नमूना सूचीबद्ध करता है, पूरी प्लेट नहीं।"
+    },
+    {
+      "key": "Generate a training dataset from the current annotations and train a Torch CNN / Transformer classifier, then apply it to the full dataset. Opens the Classify screen with this source pre-selected.",
+      "source": "Generate a training dataset from the current annotations and train a Torch CNN / Transformer classifier, then apply it to the full dataset. Opens the Classify screen with this source pre-selected.",
+      "source_sha256": "9529ad691118718774fada0aaed22163471d0ed7b654f898d12bef43edf377bd",
+      "table": "ui",
+      "translation": "वर्तमान एनोटेशन से एक प्रशिक्षण डेटासेट उत्पन्न करें और एक Torch CNN / Transformer वर्गीकरण को प्रशिक्षित करें, फिर इसे पूरे डेटासेट पर लागू करें. इस स्रोत के साथ वर्गीकरण स्क्रीन को पहले से चुना गया है."
+    },
+    {
+      "key": "How externally generated images and label masks are found and paired — the input list, the project folder written to, recursion, plate and well layout, z handling and naming. Preview the mapping before writing anything; this is where a mismatched pairing is caught.",
+      "source": "How externally generated images and label masks are found and paired — the input list, the project folder written to, recursion, plate and well layout, z handling and naming. Preview the mapping before writing anything; this is where a mismatched pairing is caught.",
+      "source_sha256": "55a0c8103a31260b8801f038d7a36cf623b2492c9bd07605fd866d17ce2afc6e",
+      "table": "ui",
+      "translation": "बाहरी रूप से बनाई गई छवियाँ और लेबल मास्क कैसे खोजे और जोड़ीदार किए जाते हैं — इनपुट सूची, जिस प्रोजेक्ट फ़ोल्डर में लिखा जाता है, पुनरावर्तन, प्लेट और वेल लेआउट, z प्रबंधन और नामकरण। कुछ भी लिखने से पहले मैपिंग का पूर्वावलोकन करें; यहीं मेल न खाती जोड़ी पकड़ी जाती है।"
+    },
+    {
+      "key": "How grouped parasites become a replication state: the largest vacuole accepted, the warning for biologically implausible counts, and whether wells with cells but no parasites are seeded as zeros. Leaving those wells out silently inflates the mean.",
+      "source": "How grouped parasites become a replication state: the largest vacuole accepted, the warning for biologically implausible counts, and whether wells with cells but no parasites are seeded as zeros. Leaving those wells out silently inflates the mean.",
+      "source_sha256": "3692a6353fe23d09dca3699f6dc41f839785b6b15ae7c2024b5dfd57f9272bfd",
+      "table": "ui",
+      "translation": "समूहित परजीवी प्रतिकृति अवस्था में कैसे बदलते हैं: स्वीकार की गई सबसे बड़ी रिक्तिका, जैविक रूप से असंभाव्य गिनती के लिए चेतावनी, और क्या कोशिकाओं वाले किंतु परजीवी-रहित वेल शून्य के रूप में सीड किए जाते हैं। उन वेलों को छोड़ देने से माध्य चुपचाप बढ़ जाता है।"
+    },
+    {
+      "key": "How many files were read, how many distinct wells, fields and channels they hold, what could not be placed, and what was named unlike the rest and therefore not interpreted.",
+      "source": "How many files were read, how many distinct wells, fields and channels they hold, what could not be placed, and what was named unlike the rest and therefore not interpreted.",
+      "source_sha256": "d68012587673a2cef9eeeadcb68d2340934ed0b65d14d20e417f42e584d8bef3",
+      "table": "ui",
+      "translation": "कितनी फ़ाइलें पढ़ी गईं, उनमें कितने अलग-अलग वेल, फ़ील्ड और चैनल हैं, क्या कहीं रखा नहीं जा सका, और क्या बाक़ी से भिन्न नाम वाला था और इसलिए उसकी व्याख्या नहीं की गई।"
+    },
+    {
+      "key": "How many worker processes the assay uses. Lower it when the machine has other work to do.",
+      "source": "How many worker processes the assay uses. Lower it when the machine has other work to do.",
+      "source_sha256": "b9f5cc1172bed17d799d5b3e599ba2de69e4997b470990c9d74d1cbd6880f919",
+      "table": "ui",
+      "translation": "परीक्षण कितनी वर्कर प्रक्रियाओं का उपयोग करता है। जब मशीन पर अन्य काम हों तो इसे घटाएँ।"
+    },
+    {
+      "key": "How much the assay prints as it runs. Turn it up when a well comes out empty and you need to see which step discarded its parasites.",
+      "source": "How much the assay prints as it runs. Turn it up when a well comes out empty and you need to see which step discarded its parasites.",
+      "source_sha256": "afe251b2c1417a9f7b895ca0811f22f843b22c168897e24f77676a370edcec6e",
+      "table": "ui",
+      "translation": "चलते समय परीक्षण कितना प्रिंट करता है। जब कोई वेल खाली निकले और आपको देखना हो कि किस चरण ने उसके परजीवी हटा दिए, तब इसे बढ़ाएँ।"
+    },
+    {
+      "key": "How parasites are assigned to vacuoles and counted into replication states, including the warning raised when a vacuole holds a biologically implausible, non-power-of-two number of parasites.",
+      "source": "How parasites are assigned to vacuoles and counted into replication states, including the warning raised when a vacuole holds a biologically implausible, non-power-of-two number of parasites.",
+      "source_sha256": "feab6c8e91f46d1d03364ee2f827b7487f995e4370154b6e1f9406b2351de9f8",
+      "table": "ui",
+      "translation": "परजीवी रिक्तिकाओं को कैसे आवंटित किए जाते हैं और प्रतिकृति अवस्थाओं में कैसे गिने जाते हैं, जिसमें वह चेतावनी भी शामिल है जो तब उठती है जब किसी रिक्तिका में परजीवियों की संख्या जैविक रूप से असंभाव्य और दो की घात नहीं होती।"
+    },
+    {
+      "key": "How the cut-off separating the two populations is chosen, and how much disagreement between methods is tolerated before the run says so. This is the single most consequential group in the assay.",
+      "source": "How the cut-off separating the two populations is chosen, and how much disagreement between methods is tolerated before the run says so. This is the single most consequential group in the assay.",
+      "source_sha256": "49be6c6def4e8a5f31be0e87e289c2cf565bbb1597888dc1ee4cfd8a5bba3a18",
+      "table": "ui",
+      "translation": "दो आबादियों को अलग करने वाला कट-ऑफ़ कैसे चुना जाता है, और रन ऐसा कहने से पहले विधियों के बीच कितना असहमति सहन की जाती है। यह परीक्षण का सबसे अधिक परिणामी समूह है।"
+    },
+    {
+      "key": "How the library is spread over physical plates — wells per plate, plate count, replicates and cells sampled per well. These values determine the physical plate and acquisition requirements.",
+      "source": "How the library is spread over physical plates — wells per plate, plate count, replicates and cells sampled per well. These values determine the physical plate and acquisition requirements.",
+      "source_sha256": "48bf3af42f1b7ca4c1024607aa680857162a5f0653c70de95161fd6d6d0a6ef9",
+      "table": "ui",
+      "translation": "लाइब्रेरी भौतिक प्लेटों पर कैसे फैलाई जाती है — प्रति प्लेट वेल, प्लेटों की संख्या, प्रतिकृतियाँ और प्रति वेल नमूना ली गई कोशिकाएँ। ये मान भौतिक प्लेट और अधिग्रहण आवश्यकताएँ तय करते हैं।"
+    },
+    {
+      "key": "How the model is fitted — epochs, learning rate, schedule, and which loss. Open it when training is unstable, stalls, or ignores the smaller class.",
+      "source": "How the model is fitted — epochs, learning rate, schedule, and which loss. Open it when training is unstable, stalls, or ignores the smaller class.",
+      "source_sha256": "094bd4eb523d004a747f659ce856391a38cd92029e7b658d93ac939850cd1108",
+      "table": "ui",
+      "translation": "कैसे मॉडल फिट किया जाता है - एपॉक, सीखने की दर, कार्यक्रम, और क्या नुकसान. इसे खोलने के लिए जब प्रशिक्षण अस्थिर है, स्थिर, या छोटे वर्ग को अनदेखा करता है."
+    },
+    {
+      "key": "How the model is fitted: epochs, learning rate, schedule, and which loss. Open it when training is unstable, stalls, or ignores the smaller class.",
+      "source": "How the model is fitted: epochs, learning rate, schedule, and which loss. Open it when training is unstable, stalls, or ignores the smaller class.",
+      "source_sha256": "217cd69395bd01d3b6f41cfd26c1ce47dc5272981f76b6a0ad429791b5aa7d13",
+      "table": "ui",
+      "translation": "कैसे मॉडल फिट किया जाता है: एपॉक, सीखने की दर, कार्यक्रम, और कौन सा नुकसान. इसे खोलने के लिए जब प्रशिक्षण अस्थिर है, स्टाल, या छोटे वर्ग को अनदेखा करता है."
+    },
+    {
+      "key": "How the nucleus mask is found — model, expected diameter, probability and flow thresholds; the channel preprocessing and the size filters are under Advanced settings. Nuclei are the easiest object to get right, so they are a good place to check the channel assignment.",
+      "source": "How the nucleus mask is found — model, expected diameter, probability and flow thresholds; the channel preprocessing and the size filters are under Advanced settings. Nuclei are the easiest object to get right, so they are a good place to check the channel assignment.",
+      "source_sha256": "bacc4a4b44563f4108b6a1b6fbcfb7307845ed184267e0ae2b243fa4879cfcee",
+      "table": "ui",
+      "translation": "कैसे नाभिक मास्क पाया जाता है - मॉडल, अपेक्षित व्यास, संभावना और प्रवाह सीमाएं; चैनल प्री-प्रसंस्करण और आकार फ़िल्टर उन्नत सेटिंग्स के तहत हैं. नाभिक सही करने के लिए सबसे आसान वस्तु हैं, इसलिए वे चैनलों के आवंटन को देखने के लिए एक अच्छी जगह हैं।"
+    },
+    {
+      "key": "Kernel containment is unavailable because systemd-run --user --scope could not be started. This is common in containers and SSH sessions without a user manager. Thread limits and the free-memory check still apply, but they cannot prevent a single trial from exhausting system memory. Reduce the worker count or run the sweep from a systemd user session before using a large search space.",
+      "source": "Kernel containment is unavailable because systemd-run --user --scope could not be started. This is common in containers and SSH sessions without a user manager. Thread limits and the free-memory check still apply, but they cannot prevent a single trial from exhausting system memory. Reduce the worker count or run the sweep from a systemd user session before using a large search space.",
+      "source_sha256": "ff98b65716343e5e1e9d9c21a0a9f2a2c9b5d006cbfabc8fe4837615c82c05b6",
+      "table": "ui",
+      "translation": "कर्नेल कंटेनमेंट उपलब्ध नहीं है क्योंकि systemd-run --user --scope शुरू नहीं किया जा सका। यह यूज़र मैनेजर के बिना कंटेनरों और SSH सत्रों में आम है। थ्रेड सीमाएँ और खाली-मेमोरी जाँच अब भी लागू होती हैं, लेकिन वे किसी एक ट्रायल को सिस्टम मेमोरी समाप्त करने से नहीं रोक सकतीं। बड़ा खोज स्थान उपयोग करने से पहले वर्कर संख्या घटाएँ या स्वीप को systemd यूज़र सत्र से चलाएँ।"
+    },
+    {
+      "key": "Links a selected regression run, gene, phenotype direction, false-discovery rate, and guide support to measured cells. The initial output ranks candidates by their scores. An optional hierarchical mixture model estimates cross-fitted hit-like probabilities without equating sequencing fraction with cell prevalence. Comparisons treat wells as independent units, and stored calls are versioned without replacing manual annotations.",
+      "source": "Links a selected regression run, gene, phenotype direction, false-discovery rate, and guide support to measured cells. The initial output ranks candidates by their scores. An optional hierarchical mixture model estimates cross-fitted hit-like probabilities without equating sequencing fraction with cell prevalence. Comparisons treat wells as independent units, and stored calls are versioned without replacing manual annotations.",
+      "source_sha256": "569f30c20f2a66b54401e5b112340c249539e371dbeada8a7f69b32b544368dd",
+      "table": "ui",
+      "translation": "चयनित रिग्रेशन रन, जीन, फ़ीनोटाइप दिशा, फ़ॉल्स-डिस्कवरी दर और गाइड समर्थन को मापी गई कोशिकाओं से जोड़ता है। प्रारंभिक आउटपुट उम्मीदवारों को उनके स्कोर के अनुसार रैंक करता है। एक वैकल्पिक पदानुक्रमित मिश्रण मॉडल अनुक्रमण अंश को कोशिका प्रचलन के बराबर माने बिना क्रॉस-फ़िट हिट-जैसी प्रायिकताओं का अनुमान लगाता है। तुलनाएँ वेलों को स्वतंत्र इकाइयाँ मानती हैं, और संग्रहीत कॉल संस्करणित होती हैं तथा मैनुअल एनोटेशन को प्रतिस्थापित नहीं करतीं।"
+    },
+    {
+      "key": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source_sha256": "3bafee89d682254bb5d681aa2f37f306c49d68de212c3f8e8e3f4bd5fd1b1bdb",
+      "table": "ui",
+      "translation": "कोई तालिका लोड करें या मान्य कुंजियों और एकत्रीकरण वाला कार्य-सेट बनाने के लिए तालिकाएँ मर्ज करें का उपयोग करें। वास्तविक फ़ीचर/निर्देशांक स्तंभों पर थ्रेशोल्ड या पॉलीगॉन गेट परिभाषित करें, फिर सहेजे गए गेट को संगत ऑब्जेक्ट पर लागू करें। प्रदर्शित गेट को किसी एनोटेशन स्तंभ में लिखने के लिए Annotate का उपयोग करें; चुने गए ऑब्जेक्ट की समीक्षा करें और बाइनरी या मल्टीक्लास लेबल चुनें।"
+    },
+    {
+      "key": "Maximum number of objects in one montage. For merged image sources, input/output cost depends primarily on the number of source fields accessed rather than the number of crops. A montage spanning many wells can therefore be expensive even when it contains few crops from each well.",
+      "source": "Maximum number of objects in one montage. For merged image sources, input/output cost depends primarily on the number of source fields accessed rather than the number of crops. A montage spanning many wells can therefore be expensive even when it contains few crops from each well.",
+      "source_sha256": "a0abcba07e6c290e6e2a32a0064e4f836a98a775bb6d36ff8d90dbc1a03b7f84",
+      "table": "ui",
+      "translation": "एक मोंटाज में ऑब्जेक्ट की अधिकतम संख्या। मर्ज किए गए छवि स्रोतों के लिए, इनपुट/आउटपुट लागत मुख्यतः क्रॉप की संख्या के बजाय एक्सेस किए गए स्रोत फ़ील्ड की संख्या पर निर्भर करती है। इसलिए कई वेलों में फैला मोंटाज महँगा हो सकता है, भले ही उसमें प्रत्येक वेल से कुछ ही क्रॉप हों।"
+    },
+    {
+      "key": "Measure the objects OUTSIDE the ROI instead — 'exclude this debris' rather than 'measure this colony'.",
+      "source": "Measure the objects OUTSIDE the ROI instead — 'exclude this debris' rather than 'measure this colony'.",
+      "source_sha256": "9654ba290136b32a583896424e63e4db97fea49600b9555d5b2c904e78943a0b",
+      "table": "ui",
+      "translation": "इसके बजाय ROI के बाहर के ऑब्जेक्ट मापें — 'इस कॉलोनी को मापें' के बजाय 'इस मलबे को बाहर रखें'।"
+    },
+    {
+      "key": "Name the independent observational unit used by the test. Use wells rather than individual cells when wells are the replicates; treating correlated cells as independent can greatly overstate significance.",
+      "source": "Name the independent observational unit used by the test. Use wells rather than individual cells when wells are the replicates; treating correlated cells as independent can greatly overstate significance.",
+      "source_sha256": "d171e7b28b0951096cd1695eaa7f61983ff3ea3db978d9ae440e3c9aeb94fbe2",
+      "table": "ui",
+      "translation": "परीक्षण द्वारा उपयोग की जाने वाली स्वतंत्र प्रेक्षण इकाई का नाम दें। जब वेल प्रतिकृतियाँ हों तो अलग-अलग कोशिकाओं के बजाय वेल का उपयोग करें; सहसंबद्ध कोशिकाओं को स्वतंत्र मानने से सार्थकता बहुत बढ़ा-चढ़ाकर आँकी जा सकती है।"
+    },
+    {
+      "key": "No (plate, well, field) group has two or more time points — a motility preview needs a time series.",
+      "source": "No (plate, well, field) group has two or more time points — a motility preview needs a time series.",
+      "source_sha256": "d15437d2795525e91501cccb159c1d19176938c9efc0432f3c80778684c8ca97",
+      "table": "ui",
+      "translation": "किसी भी (प्लेट, वेल, फ़ील्ड) समूह में दो या अधिक समय बिंदु नहीं हैं — गतिशीलता पूर्वावलोकन के लिए टाइम सीरीज़ चाहिए।"
+    },
+    {
+      "key": "Non-cutting guides define the screen's empirical null and are distinct from negative-control gene knockouts. A gene name selects all associated guides; a guide name selects only that guide. Specifying these controls estimates effects relative to the empirical null rather than zero.",
+      "source": "Non-cutting guides define the screen's empirical null and are distinct from negative-control gene knockouts. A gene name selects all associated guides; a guide name selects only that guide. Specifying these controls estimates effects relative to the empirical null rather than zero.",
+      "source_sha256": "efa2b15cf4453675cac073a1c9534553f650cbfcfacd0bc4d6603333841d2622",
+      "table": "ui",
+      "translation": "नॉन-कटिंग गाइड स्क्रीनिंग के अनुभवजन्य नल को परिभाषित करते हैं और नकारात्मक-नियंत्रण जीन नॉकआउट से भिन्न होते हैं। जीन नाम सभी संबद्ध गाइड चुनता है; गाइड नाम केवल उसी गाइड को चुनता है। इन नियंत्रणों को निर्दिष्ट करने से प्रभावों का अनुमान शून्य के बजाय अनुभवजन्य नल के सापेक्ष लगाया जाता है।"
+    },
+    {
+      "key": "Nothing searched yet. The search reads a bounded sample, so it costs seconds rather than a run.",
+      "source": "Nothing searched yet. The search reads a bounded sample, so it costs seconds rather than a run.",
+      "source_sha256": "a65699a4abcda5196fd246735fbf84337f611a4a7eaffeb6cba3ed04a75529a7",
+      "table": "ui",
+      "translation": "अभी तक कुछ नहीं खोजा गया। खोज एक सीमित नमूना पढ़ती है, इसलिए इसमें रन के बजाय कुछ सेकंड लगते हैं।"
+    },
+    {
+      "key": "Objects included in the plot. 'gRNAs' displays only objects annotated with the guides selected on the volcano. 'gRNAs + other datapoints in selected wells' also displays the remaining objects from those wells with a distinct encoding. Comparing objects within the same wells controls for their shared plate, acquisition, staining, and imaging conditions.",
+      "source": "Objects included in the plot. 'gRNAs' displays only objects annotated with the guides selected on the volcano. 'gRNAs + other datapoints in selected wells' also displays the remaining objects from those wells with a distinct encoding. Comparing objects within the same wells controls for their shared plate, acquisition, staining, and imaging conditions.",
+      "source_sha256": "aa89e631c9922a030a916ada977d20e8c54a827d7c739cf7233246ca1e58162e",
+      "table": "ui",
+      "translation": "'gRNAs' केवल उन ऑब्जेक्ट को दिखाता है जो वोल्केनो पर चुने गए गाइड से एनोटेट हैं। 'gRNAs + चुने गए वेलों में अन्य डेटापॉइंट' उन वेलों के शेष ऑब्जेक्ट भी अलग एन्कोडिंग के साथ दिखाता है। एक ही वेलों के भीतर ऑब्जेक्ट की तुलना उनकी साझा प्लेट, अधिग्रहण, स्टेनिंग और इमेजिंग स्थितियों को नियंत्रित करती है।"
+    },
+    {
+      "key": "One coefficient per guide, the unit the screen measures.",
+      "source": "One coefficient per guide, the unit the screen measures.",
+      "source_sha256": "fe601e4bf93461a9dd02766b66862a7ba121aae9253ddfc8a01bddde48195f7a",
+      "table": "ui",
+      "translation": "प्रत्येक गाइड के लिए एक गुणांक, वह इकाई जिसे स्क्रीनिंग मापती है।"
+    },
+    {
+      "key": "Open an experiment source before auto-annotating.",
+      "source": "Open an experiment source before auto-annotating.",
+      "source_sha256": "af569a89d0889b3fc214c2dd0f117da4bf2503c0ddea124189af8adb9019f24a",
+      "table": "ui",
+      "translation": "ऑटो-एनोटेट करने से पहले एक प्रयोग स्रोत खोलें।"
+    },
+    {
+      "key": "Open an experiment source to see annotation coverage.",
+      "source": "Open an experiment source to see annotation coverage.",
+      "source_sha256": "a13258e6152a7dda5dba4906e6707ac714ad8b408ec8b54728d7caf4cb44651f",
+      "table": "ui",
+      "translation": "एनोटेशन कवरेज देखने के लिए एक प्रयोग स्रोत खोलें।"
+    },
+    {
+      "key": "Open png_list in the Database Browser to see the annotation column as it is stored.",
+      "source": "Open png_list in the Database Browser to see the annotation column as it is stored.",
+      "source_sha256": "2e55cae8a3ea9ef00b7663a6a9bebaee03ba8c085aa5a5c834480d18e758ad27",
+      "table": "ui",
+      "translation": "png_list को Database Browser में खोलें ताकि यह संग्रहीत होने पर एनोटेशन स्तंभ दिखाई दे।"
+    },
+    {
+      "key": "Open these crops in Annotate, most confident first. If the model is this certain and disagrees, look at the annotation.",
+      "source": "Open these crops in Annotate, most confident first. If the model is this certain and disagrees, look at the annotation.",
+      "source_sha256": "769a1889e7e68a57a3400a92b0bb366aec2b7412700e8b66c79758a9675b4024",
+      "table": "ui",
+      "translation": "इन क्रॉप को Annotate में खोलें, सबसे अधिक आत्मविश्वास वाले पहले। यदि मॉडल इतना निश्चित है और असहमत है, तो एनोटेशन देखें।"
+    },
+    {
+      "key": "Optional: recover original names before annotating conditions.",
+      "source": "Optional: recover original names before annotating conditions.",
+      "source_sha256": "15054d1f8350159161c10bd8f41e74253e85fef86dfb45ff555b73df1412c37a",
+      "table": "ui",
+      "translation": "वैकल्पिक: शर्तों को एनोटेट करने से पहले मूल नामों को पुनर्प्राप्त करें।"
+    },
+    {
+      "key": "Page width in mm (this moves the saved page, not the screen):",
+      "source": "Page width in mm (this moves the saved page, not the screen):",
+      "source_sha256": "12de8890a34df17ef30a2104240f76ec7ee1b0055fc5f1f3141b43648e390852",
+      "table": "ui",
+      "translation": "मिमी में पृष्ठ चौड़ाई (यह सहेजे गए पृष्ठ को स्थानांतरित करता है, स्क्रीनिंग को नहीं):"
+    },
+    {
+      "key": "Pick the wells off a plate map. Rows (r1), columns (c1) and wells (A01) all read, and what it writes reads back.",
+      "source": "Pick the wells off a plate map. Rows (r1), columns (c1) and wells (A01) all read, and what it writes reads back.",
+      "source_sha256": "5e5d51e91fd889b12b42e8ee2744fe58c737b3fc02967a338bc20878eb6338da",
+      "table": "ui",
+      "translation": "प्लेट मैप से वेल चुनें। पंक्तियाँ (r1), स्तंभ (c1) और वेल (A01) सब पढ़े जाते हैं, और जो यह लिखता है वह वापस पढ़ा जाता है।"
+    },
+    {
+      "key": "Put the well hierarchy on the rows — what a plate summary is",
+      "source": "Put the well hierarchy on the rows — what a plate summary is",
+      "source_sha256": "cdafcc9b2ee3ea2e5d039cffe75f2af3d20326fa4a8609456c3b82cb336c4df2",
+      "table": "ui",
+      "translation": "वेल पदानुक्रम को पंक्तियों पर रखें — यही प्लेट सारांश होता है"
+    },
+    {
+      "key": "Quarantined {field} at {path}. Later Measure runs will skip it.",
+      "source": "Quarantined {field} at {path}. Later Measure runs will skip it.",
+      "source_sha256": "b8879b0931940864d15f127a808065e7afa9fd8322d4392753745ef89d925b36",
+      "table": "ui",
+      "translation": "Quarantined {field} at {path}. बाद के माप रन इसे छोड़ देंगे."
+    },
+    {
+      "key": "Raw reads from the published screen, NCBI BioProject PRJNA1261935. Tick the runs you want and set how many reads to take from each — only that much is downloaded.",
+      "source": "Raw reads from the published screen, NCBI BioProject PRJNA1261935. Tick the runs you want and set how many reads to take from each — only that much is downloaded.",
+      "source_sha256": "eafc93df46da79b2779db48f733e586b4353c6aa376b5ead79ba349e456ab4fc",
+      "table": "ui",
+      "translation": "प्रकाशित स्क्रीनिंग के रॉ रीड, NCBI BioProject PRJNA1261935। जिन रन को आप चाहते हैं उन पर टिक करें और तय करें कि प्रत्येक से कितने रीड लेने हैं — केवल उतना ही डाउनलोड किया जाता है।"
+    },
+    {
+      "key": "Read a conversion or rename manifest to recover filenames from before Yokogawa conversion. The result gains original_filename and original_path columns for condition annotation. Source measurements and image files are preserved.",
+      "source": "Read a conversion or rename manifest to recover filenames from before Yokogawa conversion. The result gains original_filename and original_path columns for condition annotation. Source measurements and image files are preserved.",
+      "source_sha256": "8c430c9ccac1e8a87a0786e8f4b50d6fbec4ebc7ef0964a26f170f51bc5d34ba",
+      "table": "ui",
+      "translation": "Yokogawa परिवर्तन से पहले फ़ाइल नामों को पुनर्प्राप्त करने के लिए एक रूपांतरण या रीनाम मैनेजमेंट पढ़ें. परिणाम original_filename और original_path स्तंभों को शर्त एनोटेशन के लिए प्राप्त होता है. स्रोत माप और छवि फ़ाइलें बनाए रखा जाता है."
+    },
+    {
+      "key": "Read only when inference resolves to the nonparametric test. These control the permutation itself: how many, what is held fixed (normally the plate), the random seed, and how many wells a guide must appear in before it is testable.",
+      "source": "Read only when inference resolves to the nonparametric test. These control the permutation itself: how many, what is held fixed (normally the plate), the random seed, and how many wells a guide must appear in before it is testable.",
+      "source_sha256": "b3d1f37cbeef650dd96934025a5f1a9a81b6c3b374e3f6f61ed3801bb697c2a4",
+      "table": "ui",
+      "translation": "केवल तब पढ़ा जाता है जब अनुमान नॉनपैरामेट्रिक परीक्षण पर आता है। ये क्रमचय को स्वयं नियंत्रित करते हैं: कितने, क्या स्थिर रखा जाता है (सामान्यतः प्लेट), यादृच्छिक बीज, और किसी गाइड को परीक्षण योग्य बनने से पहले कितने वेलों में दिखाई देना चाहिए।"
+    },
+    {
+      "key": "Read only when inference resolves to the nonparametric test. These control the permutation itself: what is measured, how many reshuffles, what is held fixed (normally the plate), the random seed, and how many wells a guide must appear in before it is testable. They apply to the gene pass as well as the guide pass: a gene is tested as a SET, its regressor the sum of its guides' fractions, permuted with the same scheme and the same seed and corrected as its own family — never by combining its guides' P values, which would assume an independence guides scored in the same wells do not have.",
+      "source": "Read only when inference resolves to the nonparametric test. These control the permutation itself: what is measured, how many reshuffles, what is held fixed (normally the plate), the random seed, and how many wells a guide must appear in before it is testable. They apply to the gene pass as well as the guide pass: a gene is tested as a SET, its regressor the sum of its guides' fractions, permuted with the same scheme and the same seed and corrected as its own family — never by combining its guides' P values, which would assume an independence guides scored in the same wells do not have.",
+      "source_sha256": "97be55ba0631f2d864f253684cd908307878354a34d5e8bfdbd2141209d44e78",
+      "table": "ui",
+      "translation": "केवल तब पढ़ा जाता है जब अनुमान नॉनपैरामेट्रिक परीक्षण पर आता है। ये क्रमचय को स्वयं नियंत्रित करते हैं: क्या मापा जाता है, कितनी बार फेंटा जाता है, क्या स्थिर रखा जाता है (सामान्यतः प्लेट), यादृच्छिक बीज, और किसी गाइड को परीक्षण योग्य बनने से पहले कितने वेलों में दिखाई देना चाहिए। ये जीन पास पर भी लागू होते हैं और गाइड पास पर भी: जीन का परीक्षण एक सेट के रूप में होता है, उसका रिग्रेसर उसके गाइड के अंशों का योग होता है, उसे उसी योजना और उसी बीज से क्रमचित किया जाता है और उसे अपने परिवार के रूप में सुधारा जाता है — उसके गाइड के P मानों को मिलाकर कभी नहीं, क्योंकि वह ऐसी स्वतंत्रता मान लेगा जो एक ही वेलों में स्कोर किए गए गाइड में नहीं होती।"
+    },
+    {
+      "key": "Read the cell, nucleus, pathogen and cytoplasm tables out of the attached databases and attach them to these cells, so every measurement in the screen can be compared.",
+      "source": "Read the cell, nucleus, pathogen and cytoplasm tables out of the attached databases and attach them to these cells, so every measurement in the screen can be compared.",
+      "source_sha256": "5226f63796014dec519ba29829174eab36ee5b2b8fc356b478b7ac3ac11af33e",
+      "table": "ui",
+      "translation": "सेल, नाभिक, रोगजनक और साइटोप्लाज्म तालिकाओं को जोड़े गए डेटाबेस से बाहर पढ़ें और उन्हें इन कोशिकाओं से जोड़ें, ताकि स्क्रीनिंग पर प्रत्येक माप की तुलना की जा सके।"
+    },
+    {
+      "key": "Read {plates} plate(s), {wells} well(s), {guides} guide(s), {genes} gene(s) and {objects} object row(s).",
+      "source": "Read {plates} plate(s), {wells} well(s), {guides} guide(s), {genes} gene(s) and {objects} object row(s).",
+      "source_sha256": "77e106aef9b200d119af694c50be8a8b87d78b3028111b026f0bd30c45e4b509",
+      "table": "ui",
+      "translation": "{plates} प्लेट(s), {wells} वेल, {guides} गाइड(s ), {genes} जीन(s ) और {objects} ऑब्जेक्ट पंक्ति(याँ)।"
+    },
+    {
+      "key": "Read {plates} plate(s), {wells} well(s), {guides} guide(s), {genes} gene(s) and {objects} object row(s). The response was read from the first {objects} object row(s); the score table is larger than the {row_cap}-row sample this reads.",
+      "source": "Read {plates} plate(s), {wells} well(s), {guides} guide(s), {genes} gene(s) and {objects} object row(s). The response was read from the first {objects} object row(s); the score table is larger than the {row_cap}-row sample this reads.",
+      "source_sha256": "c832561204fe14801e8e2869a09a7758d30f55e71342d87b24ab0fe94ffc9d8f",
+      "table": "ui",
+      "translation": "{plates} प्लेट, {wells} वेल, {guides} गाइड, {genes} जीन और {objects} ऑब्जेक्ट पंक्ति(याँ) पढ़ी गईं। प्रतिक्रिया पहली {objects} ऑब्जेक्ट पंक्ति(याँ) से पढ़ी गई थी; स्कोर तालिका उस {row_cap}-पंक्ति नमूने से बड़ी है जिसे यह पढ़ता है।"
+    },
+    {
+      "key": "Record failures that stop the run.",
+      "source": "Record failures that stop the run.",
+      "source_sha256": "14e86b7188149fa0b18763acdcf5e97e91985cfeb07696d63cc770a801f587c0",
+      "table": "ui",
+      "translation": "रन को रोकने वाली विफलताएँ दर्ज करें।"
+    },
+    {
+      "key": "Reduce each well to the median of each feature and run the same rule across wells. A whole bad well flags almost none of its individual objects, so this is a different test rather than a summary of the one above.",
+      "source": "Reduce each well to the median of each feature and run the same rule across wells. A whole bad well flags almost none of its individual objects, so this is a different test rather than a summary of the one above.",
+      "source_sha256": "284a803e1bfad88c2def9250812b15b6a077716faf1e5a5d301302d23658bb22",
+      "table": "ui",
+      "translation": "प्रत्येक वेल को प्रत्येक फ़ीचर की माध्यिका तक घटाएँ और वही नियम वेलों पर चलाएँ। एक पूरा खराब वेल अपने अलग-अलग ऑब्जेक्ट में से लगभग किसी को भी फ़्लैग नहीं करता, इसलिए यह ऊपर वाले का सारांश नहीं, बल्कि एक भिन्न परीक्षण है।"
+    },
+    {
+      "key": "Reference used to compute the implied score. The screen median is estimated from all measured objects. The fitted intercept is the model reference and, for a well-level fit, represents a well with zero guide fraction. The selected reference is reported in the caption.",
+      "source": "Reference used to compute the implied score. The screen median is estimated from all measured objects. The fitted intercept is the model reference and, for a well-level fit, represents a well with zero guide fraction. The selected reference is reported in the caption.",
+      "source_sha256": "b344c134534d11c4f5e28c2c9c37011c3d444a200caae3b8151014a26b5bcbc1",
+      "table": "ui",
+      "translation": "निहित स्कोर की गणना के लिए प्रयुक्त संदर्भ। स्क्रीनिंग की माध्यिका सभी मापे गए ऑब्जेक्ट से अनुमानित की जाती है। फ़िट किया गया इंटरसेप्ट मॉडल का संदर्भ है और, वेल-स्तर के फ़िट के लिए, शून्य गाइड अंश वाले वेल को दर्शाता है। चुना गया संदर्भ कैप्शन में दर्शाया जाता है।"
+    },
+    {
+      "key": "Regress screen phenotypes against guide/gene effects across plates.",
+      "source": "Regress screen phenotypes against guide/gene effects across plates.",
+      "source_sha256": "ab65807b57c5b32eeb4e6b4b6dde94da2fed9d5c04fb26d32d35edd138a6eb06",
+      "table": "ui",
+      "translation": "गाइड/जीन प्रभावों के विरुद्ध स्क्रीनिंग फ़ीनोटाइप का प्लेटों में रिग्रेशन करें।"
+    },
+    {
+      "key": "Remove the annotations on this page only. Undoable.",
+      "source": "Remove the annotations on this page only. Undoable.",
+      "source_sha256": "63feafe48d1b7212378d3b8dc022a98beb103e19069bf2c58b17e48a9dc8b9ef",
+      "table": "ui",
+      "translation": "केवल इस पृष्ठ के एनोटेशन हटाएँ। पूर्ववत किया जा सकता है।"
+    },
+    {
+      "key": "Review single-object image crops on a grid and label them; annotations save back to the database.",
+      "source": "Review single-object image crops on a grid and label them; annotations save back to the database.",
+      "source_sha256": "ab918b33718ab2255294fd4e36ea8f2348ab763e81558713bdbc5abb835b9dd6",
+      "table": "ui",
+      "translation": "ग्रिड पर एकल-ऑब्जेक्ट छवि क्रॉप की समीक्षा करें और उन्हें लेबल करें; एनोटेशन डेटाबेस में वापस सहेजे जाते हैं।"
+    },
+    {
+      "key": "Save annotated table",
+      "source": "Save annotated table",
+      "source_sha256": "afb71efc84612d1dd3b70c5d44a621a3aca4cc4bf7793948acaa1739c9a6e76a",
+      "table": "ui",
+      "translation": "एनोटेट की गई तालिका सहेजें"
+    },
+    {
+      "key": "Saving annotated table…",
+      "source": "Saving annotated table…",
+      "source_sha256": "b591d319eb07366e55fadc31f04665faafbd065166060a52b63ffdd32d86a3b8",
+      "table": "ui",
+      "translation": "एनोटेट की गई तालिका सहेजी जा रही है…"
+    },
+    {
+      "key": "Score how well two or more annotation passes agree with Cohen's or Fleiss' κ, then review every crop they labelled differently.",
+      "source": "Score how well two or more annotation passes agree with Cohen's or Fleiss' κ, then review every crop they labelled differently.",
+      "source_sha256": "132e75d8f3bda06c743b95cb340f204d254ea25b2788470441e59bc3cf1c3d72",
+      "table": "ui",
+      "translation": "दो या अधिक एनोटेशन पास Cohen या Fleiss के κ के अनुसार कितनी अच्छी तरह सहमत हैं, इसका स्कोर निकालें, फिर हर उस क्रॉप की समीक्षा करें जिसे उन्होंने भिन्न लेबल किया।"
+    },
+    {
+      "key": "Score-window half-width in robust scales (1.4826 × MAD). Larger values admit more cells and make 'closest' less selective. One value is applied to every coefficient in the screen, preventing gene-specific adjustment after inspecting the output.",
+      "source": "Score-window half-width in robust scales (1.4826 × MAD). Larger values admit more cells and make 'closest' less selective. One value is applied to every coefficient in the screen, preventing gene-specific adjustment after inspecting the output.",
+      "source_sha256": "8e2692a41dd36f3acf71cc590436467b8c135b798b070be07cb8c497d7163f32",
+      "table": "ui",
+      "translation": "मज़बूत पैमानों (1.4826 × MAD) में स्कोर-विंडो की आधी चौड़ाई। बड़े मान अधिक कोशिकाएँ शामिल करते हैं और 'closest' को कम चयनात्मक बनाते हैं। स्क्रीनिंग के प्रत्येक गुणांक पर एक ही मान लागू होता है, जिससे आउटपुट देखने के बाद जीन-विशिष्ट समायोजन नहीं हो पाता।"
+    },
+    {
+      "key": "Search gene, name or annotation",
+      "source": "Search gene, name or annotation",
+      "source_sha256": "03cb614ec06d1ef2a0d47356253a0f1ef55efdf2f02fb9cc2d1656927637c0fb",
+      "table": "ui",
+      "translation": "जीन, नाम या एनोटेशन खोजें"
+    },
+    {
+      "key": "Select a run to inspect it.",
+      "source": "Select a run to inspect it.",
+      "source_sha256": "51ce4260d8683499eaeea0030a232ca4a4613ee2f94dc9fc6eecf85568919b09",
+      "table": "ui",
+      "translation": "निरीक्षण के लिए कोई रन चुनें।"
+    },
+    {
+      "key": "Select the plate identifier, acquisition order, and control population. The application uses an individuals/moving-range chart for one control well per plate, an X-bar/S chart for multiple wells, or a robust alternative when requested. Limits are estimated from a defined baseline using short-term variation and then applied to subsequent plates. Nelson-rule violations are labelled, together with the expected false-alarm count for the selected rule set and campaign length.",
+      "source": "Select the plate identifier, acquisition order, and control population. The application uses an individuals/moving-range chart for one control well per plate, an X-bar/S chart for multiple wells, or a robust alternative when requested. Limits are estimated from a defined baseline using short-term variation and then applied to subsequent plates. Nelson-rule violations are labelled, together with the expected false-alarm count for the selected rule set and campaign length.",
+      "source_sha256": "fbf6636321365fe9ffb9e63509faf5e298526afad4c603ecd082b00ec4d58774",
+      "table": "ui",
+      "translation": "प्लेट पहचानकर्ता, अधिग्रहण क्रम और नियंत्रण समष्टि चुनें। एप्लिकेशन प्रति प्लेट एक नियंत्रण वेल के लिए individuals/moving-range चार्ट, एकाधिक वेलों के लिए X-bar/S चार्ट, या अनुरोध करने पर एक सुदृढ़ विकल्प का उपयोग करता है। सीमाओं का अनुमान अल्पकालिक विचरण का उपयोग करके एक परिभाषित आधार रेखा से लगाया जाता है और फिर बाद की प्लेटों पर लागू किया जाता है। Nelson-नियम उल्लंघनों को चिह्नित किया जाता है, साथ में चुने गए नियम सेट और अभियान की लंबाई के लिए अपेक्षित झूठे-अलार्म की संख्या भी दी जाती है।"
+    },
+    {
+      "key": "Set the fraction of wells reserved before candidate selection. Reserved wells are excluded from strategy selection and used for evaluation.",
+      "source": "Set the fraction of wells reserved before candidate selection. Reserved wells are excluded from strategy selection and used for evaluation.",
+      "source_sha256": "6cac9c3af8f96a745e15a6c9d7c3c9411690b095872844fa3bfd3113bd967c2c",
+      "table": "ui",
+      "translation": "उम्मीदवार चयन से पहले आरक्षित किए जाने वाले वेलों का अंश तय करें। आरक्षित वेल रणनीति चयन से बाहर रहते हैं और मूल्यांकन के लिए उपयोग किए जाते हैं।"
+    },
+    {
+      "key": "Set the number of feature-space clusters across which the annotation budget is distributed. Zero uses one cluster per queued cell.",
+      "source": "Set the number of feature-space clusters across which the annotation budget is distributed. Zero uses one cluster per queued cell.",
+      "source_sha256": "7d42479b22cfb680f14c0ee10d078c60d773a346cef331e79dabbf78dbd135db",
+      "table": "ui",
+      "translation": "फ़ीचर-स्पेस क्लस्टर की वह संख्या तय करें जिन पर एनोटेशन बजट वितरित किया जाता है। शून्य होने पर कतार में रखी प्रत्येक कोशिका के लिए एक क्लस्टर उपयोग होता है।"
+    },
+    {
+      "key": "Show this run's own volcano next to the loaded run's, each answering its own hover and click. Two runs can be live at once.",
+      "source": "Show this run's own volcano next to the loaded run's, each answering its own hover and click. Two runs can be live at once.",
+      "source_sha256": "cf23410719a1ba3f6c9648f6011d07374cc85c45837ade1879f47af360da42c9",
+      "table": "ui",
+      "translation": "इस रन का अपना वोल्केनो लोड किए गए रन के बगल में दिखाएँ; प्रत्येक अपने हॉवर और क्लिक का उत्तर देता है। दो रन एक साथ सक्रिय रह सकते हैं।"
+    },
+    {
+      "key": "Summarize annotation provenance by class, well, plate and active-learning round. This identifies label sets concentrated within a small number of wells or plates.",
+      "source": "Summarize annotation provenance by class, well, plate and active-learning round. This identifies label sets concentrated within a small number of wells or plates.",
+      "source_sha256": "6d2971f9d8239a5ba4ef8dd76284995fb6706f8ad93929863bcd9cb5e093b000",
+      "table": "ui",
+      "translation": "एनोटेशन की उत्पत्ति का सारांश क्लास, वेल, प्लेट और सक्रिय-लर्निंग राउंड के अनुसार दें। इससे कम संख्या के वेलों या प्लेटों में केंद्रित लेबल सेट पहचाने जाते हैं।"
+    },
+    {
+      "key": "The colour map the assay's figures are drawn with, how many QC panels are produced, and whether wells with cells but no scored parasites are seeded as zeros. Leaving those wells out silently inflates the invasion rate.",
+      "source": "The colour map the assay's figures are drawn with, how many QC panels are produced, and whether wells with cells but no scored parasites are seeded as zeros. Leaving those wells out silently inflates the invasion rate.",
+      "source_sha256": "256fd81226bdd02473d5239a072da9c00d684b8a36dba93e98cf17adc714b6d0",
+      "table": "ui",
+      "translation": "कलर मैप जिससे परीक्षण के आंकड़े बनाए जाते हैं, कितने QC पैनल बनते हैं, और क्या कोशिकाओं वाले किंतु कोई स्कोर किया परजीवी न रखने वाले वेल शून्य के रूप में सीड किए जाते हैं। इन वेलों को छोड़ देने से आक्रमण दर चुपचाप बढ़ जाती है।"
+    },
+    {
+      "key": "The column saying what each well is. Leave empty when the table is already only the control.",
+      "source": "The column saying what each well is. Leave empty when the table is already only the control.",
+      "source_sha256": "23235f73976577fc4ba189162646318839e6c1276722fb24b13fd80f04e39619",
+      "table": "ui",
+      "translation": "वह स्तंभ जो बताता है कि प्रत्येक वेल क्या है। जब तालिका पहले से केवल नियंत्रण हो तो खाली छोड़ दें।"
+    },
+    {
+      "key": "The diagnostic figures a run draws as it goes — how many example fields, at what size, with which colour map and normalisation. Useful while tuning, and the first thing to switch off for a long unattended run.",
+      "source": "The diagnostic figures a run draws as it goes — how many example fields, at what size, with which colour map and normalisation. Useful while tuning, and the first thing to switch off for a long unattended run.",
+      "source_sha256": "270bbdb006ea0e8a1f1cd07e30a520a14e6fbce9c03e3c57dc27e09cdba829e3",
+      "table": "ui",
+      "translation": "रन चलते समय जो नैदानिक आंकड़े बनाता है — कितने उदाहरण फ़ील्ड, किस आकार में, किस कलर मैप और सामान्यीकरण के साथ। ट्यूनिंग के समय उपयोगी, और लंबे अप्रेक्षित रन के लिए सबसे पहले बंद करने वाली चीज़।"
+    },
+    {
+      "key": "The feature-based classifier: which model, and which measured features it is allowed to see. Feature preparation and feature importance are one heading because they answer one question.",
+      "source": "The feature-based classifier: which model, and which measured features it is allowed to see. Feature preparation and feature importance are one heading because they answer one question.",
+      "source_sha256": "192f6125bd9f55bfaab747bebc6a5dafa6d109972ca4cbca438333fb21cf1031",
+      "table": "ui",
+      "translation": "फ़ीचर-आधारित वर्गीकारक: कौन सा मॉडल, और वह कौन से मापे गए फ़ीचर देख सकता है। फ़ीचर तैयारी और फ़ीचर महत्व एक ही शीर्षक हैं क्योंकि वे एक ही प्रश्न का उत्तर देते हैं।"
+    },
+    {
+      "key": "The measurement source, which tracked object the assay is about, and which channels carry the cell, nucleus and pathogen signal. The rest of the assay is only as good as this mapping.",
+      "source": "The measurement source, which tracked object the assay is about, and which channels carry the cell, nucleus and pathogen signal. The rest of the assay is only as good as this mapping.",
+      "source_sha256": "caf97e568600fec930b86c72b6e8e58d102835b46b831b54749edf82025bcd11",
+      "table": "ui",
+      "translation": "माप स्रोत, जिसका ट्रैक वस्तु परीक्षण के बारे में है, और कौन से चैनल सेल, नाभिक और रोगजनक सिग्नल ले जाते हैं. परीक्षण का बाकी केवल इस मैपिंग के रूप में अच्छा है."
+    },
+    {
+      "key": "The measurements database, the parasite table inside it, and the compartment the parasites were measured in. The assay scores existing measurements — it does not segment anything itself.",
+      "source": "The measurements database, the parasite table inside it, and the compartment the parasites were measured in. The assay scores existing measurements — it does not segment anything itself.",
+      "source_sha256": "8ec0137cdff16a7c8a92d9ff04187bd3cdd42c6c565354b588b38fc1630f28d6",
+      "table": "ui",
+      "translation": "माप डेटाबेस, उसके भीतर की परजीवी तालिका, और वह कम्पार्टमेंट जिसमें परजीवी मापे गए थे। परीक्षण मौजूदा मापों को स्कोर करता है — वह स्वयं कुछ भी सेगमेंट नहीं करता।"
+    },
+    {
+      "key": "The metadata, score and count tables the regression runs on. All three have to agree on well and gRNA naming — disagreement there is the usual cause of an empty result.",
+      "source": "The metadata, score and count tables the regression runs on. All three have to agree on well and gRNA naming — disagreement there is the usual cause of an empty result.",
+      "source_sha256": "0d0f0759c15a304adb7121b464f14f18ccf67004e98a7c857dfbf4fd42ba20d9",
+      "table": "ui",
+      "translation": "मेटाडेटा, स्कोर और गिनती तालिकाएँ जिन पर रिग्रेशन चलता है। तीनों में वेल और gRNA के नाम एक जैसे होने चाहिए — वहाँ असहमति खाली परिणाम का आम कारण है।"
+    },
+    {
+      "key": "The older area-bin approximation of replication state, kept so historical analyses still reproduce. New runs should use the direct parasite-per-vacuole counts instead.",
+      "source": "The older area-bin approximation of replication state, kept so historical analyses still reproduce. New runs should use the direct parasite-per-vacuole counts instead.",
+      "source_sha256": "863ff716a054a5afabfaae2bebd3f30387381fa53162024064c3665714828419",
+      "table": "ui",
+      "translation": "प्रतिकृति अवस्था का पुराना क्षेत्रफल-बिन सन्निकटन, जिसे इसलिए रखा गया है कि ऐतिहासिक विश्लेषण अब भी दोहराए जा सकें। नए रन को इसके बजाय प्रत्यक्ष परजीवी-प्रति-रिक्तिका गणनाओं का उपयोग करना चाहिए।"
+    },
+    {
+      "key": "The per-object classification score the window is applied to. A screen with more than one classifier output has more than one candidate; the caption identifies the score used for selection.",
+      "source": "The per-object classification score the window is applied to. A screen with more than one classifier output has more than one candidate; the caption identifies the score used for selection.",
+      "source_sha256": "c4792f364cbd4ff7485638b33d723b95aa073f879e23408ea2d0ddbf3d6d7870",
+      "table": "ui",
+      "translation": "वह प्रति-ऑब्जेक्ट वर्गीकरण स्कोर जिस पर विंडो लागू होती है। एक से अधिक वर्गीकारक आउटपुट वाली स्क्रीनिंग में एक से अधिक उम्मीदवार होते हैं; कैप्शन बताता है कि चयन के लिए कौन सा स्कोर प्रयुक्त हुआ।"
+    },
+    {
+      "key": "The per-object images written next to the measurements — crop mode and size, which mask each crop is centred on, how far it is dilated, and which channels are baked in. Annotate and the CV classifier read these later, so set them before generating a training set.",
+      "source": "The per-object images written next to the measurements — crop mode and size, which mask each crop is centred on, how far it is dilated, and which channels are baked in. Annotate and the CV classifier read these later, so set them before generating a training set.",
+      "source_sha256": "f483fab6f7f3a72afcc7acdb89d771678d223039d20e3a6a6e132cd127233bb9",
+      "table": "ui",
+      "translation": "प्रति वस्तु छवियों को माप के बगल में लिखा गया है - क्रॉप मोड और आकार, किस पर प्रत्येक क्रॉप का मास्क केंद्रित है, कितनी दूर यह विस्तारित किया जाता है, और किस चैनलों में पके हुए हैं। Annotate और CV क्लासिफ़ायर बाद में इन को पढ़ता है, इसलिए उन्हें एक प्रशिक्षण सेट उत्पन्न करने से पहले सेट करें।"
+    },
+    {
+      "key": "The plan summary and, after a run, what was converted and what was skipped.",
+      "source": "The plan summary and, after a run, what was converted and what was skipped.",
+      "source_sha256": "c3f11f30541f90fd748f4d1eb85b3135b7b3508e3187d4c2b1527dbe2733f281",
+      "table": "ui",
+      "translation": "योजना का सारांश और, एक रन के बाद, क्या परिवर्तित किया गया था और क्या छोड़ दिया गया था।"
+    },
+    {
+      "key": "The plate map: which wells hold which cell line, strain and treatment, which are the positive and negative controls, and how wells are grouped for reporting. Filled in once per plate design; everything downstream labels its results from it.",
+      "source": "The plate map: which wells hold which cell line, strain and treatment, which are the positive and negative controls, and how wells are grouped for reporting. Filled in once per plate design; everything downstream labels its results from it.",
+      "source_sha256": "a8259714d6cb34ec53fd803c1ffe550529a0b493d5da0e92bb8752588209da15",
+      "table": "ui",
+      "translation": "प्लेट मैप: कौन सा वेल किस सेल लाइन, स्ट्रेन और उपचार को रखता है, कौन से धनात्मक और ऋणात्मक नियंत्रण हैं, और रिपोर्टिंग के लिए वेल कैसे समूहित हैं। प्रति प्लेट डिज़ाइन एक बार भरा जाता है; आगे सब कुछ अपने परिणामों के लेबल इसी से लेता है।"
+    },
+    {
+      "key": "The size and intensity windows an object has to fall inside to count, plus the per-well cell limits. These gates decide which cells the recruitment ratio is averaged over.",
+      "source": "The size and intensity windows an object has to fall inside to count, plus the per-well cell limits. These gates decide which cells the recruitment ratio is averaged over.",
+      "source_sha256": "ad23802218960c945897063d4a9244ba91138b1db6c9515a8161ade7791e3f27",
+      "table": "ui",
+      "translation": "आकार और तीव्रता की वे विंडो जिनके भीतर किसी ऑब्जेक्ट को गिने जाने के लिए आना होता है, साथ ही प्रति-वेल कोशिका सीमाएँ। ये गेट तय करते हैं कि भर्ती अनुपात का औसत किन कोशिकाओं पर लिया जाता है।"
+    },
+    {
+      "key": "The size and redundancy of the screening library: how many genes are targeted, how many guides each one gets, and how many constructs land in a well. Guides per gene is usually the cheapest lever on detection power.",
+      "source": "The size and redundancy of the screening library: how many genes are targeted, how many guides each one gets, and how many constructs land in a well. Guides per gene is usually the cheapest lever on detection power.",
+      "source_sha256": "2ac18e716d9cf47f7c825422a9b22d109e8d19c09e6d2af1dd533fd2fc0c9863",
+      "table": "ui",
+      "translation": "स्क्रीनिंग लाइब्रेरी का आकार और अतिरेक: कितने जीन लक्षित हैं, प्रत्येक को कितने गाइड मिलते हैं, और एक वेल में कितने कंस्ट्रक्ट आते हैं। प्रति जीन गाइड आमतौर पर पहचान-क्षमता का सबसे सस्ता साधन है।"
+    },
+    {
+      "key": "The size of every piece of text in this figure: the title, the axis labels, the tick labels, the legend and any annotation. It is remembered for this figure, so a redraw keeps it. The size every figure starts at is in Preferences → Figures.",
+      "source": "The size of every piece of text in this figure: the title, the axis labels, the tick labels, the legend and any annotation. It is remembered for this figure, so a redraw keeps it. The size every figure starts at is in Preferences → Figures.",
+      "source_sha256": "a921632ddea9fc1e6c4f1db82f5464feddb7d2a9822c2c7f38d9c5c837eab7c6",
+      "table": "ui",
+      "translation": "इस आकृति के हर पाठ का आकार: शीर्षक, अक्ष लेबल, टिक लेबल, लीजेंड और कोई भी एनोटेशन। यह इस आकृति के लिए याद रखा जाता है, इसलिए दोबारा बनाने पर भी बना रहता है। हर आकृति जिस आकार से शुरू होती है वह प्राथमिकताएँ → आकृतियाँ में है।"
+    },
+    {
+      "key": "These came from a model with INVENTED negatives — only one class was annotated, so the other was drawn at random from unlabelled crops. Treat this as a ranking to review, not as answers: accepting them in bulk is not offered.",
+      "source": "These came from a model with INVENTED negatives — only one class was annotated, so the other was drawn at random from unlabelled crops. Treat this as a ranking to review, not as answers: accepting them in bulk is not offered.",
+      "source_sha256": "7b6bae10483ab5e7b44902710c7e1a5bce71761c76aa3d707cc78d2763a4700b",
+      "table": "ui",
+      "translation": "ये ऐसे मॉडल से आए हैं जिसके नकारात्मक INVENTED (गढ़े गए) हैं — केवल एक वर्ग एनोटेट किया गया था, इसलिए दूसरे को बिना लेबल वाले क्रॉप से यादृच्छिक रूप से चुना गया। इसे समीक्षा के लिए रैंकिंग मानें, उत्तर नहीं: इन्हें थोक में स्वीकार करने का विकल्प नहीं दिया जाता।"
+    },
+    {
+      "key": "This run is still going, so it has no results to show yet. It becomes the loaded run when it finishes.",
+      "source": "This run is still going, so it has no results to show yet. It becomes the loaded run when it finishes.",
+      "source_sha256": "125644e12d69b18ebc69dd8afe50f53b8547a6f5b2d41aafc91876fc4bb2f1f8",
+      "table": "ui",
+      "translation": "यह रन अभी चल रहा है, इसलिए इसके दिखाने के लिए अभी कोई परिणाम नहीं हैं। समाप्त होने पर यह लोड किया हुआ रन बन जाता है।"
+    },
+    {
+      "key": "This well contributed no object to the montage. The caption below says why. The tab stays until its × is clicked.",
+      "source": "This well contributed no object to the montage. The caption below says why. The tab stays until its × is clicked.",
+      "source_sha256": "8ecf9fc96052bca084d75e700c24b247ed46db2d83394fa506447e6f8bb93c20",
+      "table": "ui",
+      "translation": "इस वेल ने मोंटाज में कोई ऑब्जेक्ट नहीं दिया। नीचे का कैप्शन कारण बताता है। टैब तब तक रहता है जब तक उसका × क्लिक न किया जाए।"
+    },
+    {
+      "key": "Tick the gates to annotate from. An annotation is built from the gates on screen.",
+      "source": "Tick the gates to annotate from. An annotation is built from the gates on screen.",
+      "source_sha256": "2da40b0b7519a46683b9941a4fcef5a98786c5418433c5a759b109ffe1ebb840",
+      "table": "ui",
+      "translation": "जिन गेट से एनोटेट करना है उन पर टिक करें। एनोटेशन स्क्रीन पर दिख रहे गेट से बनता है।"
+    },
+    {
+      "key": "Toggle the parameter sweep. When ON (blue), set a range for any regression setting -- model family, correction method, filtration cutoffs, wells vs cells -- run every legal combination, and double-click a row in the results to get that exact regression back with its figures.",
+      "source": "Toggle the parameter sweep. When ON (blue), set a range for any regression setting -- model family, correction method, filtration cutoffs, wells vs cells -- run every legal combination, and double-click a row in the results to get that exact regression back with its figures.",
+      "source_sha256": "207c620e0f6cf42bd9c34c17166fd49a16f65647583ffd5d797674439165faad",
+      "table": "ui",
+      "translation": "पैरामीटर स्वीप को टॉगल करें। ON (नीला) होने पर किसी भी रिग्रेशन सेटिंग के लिए रेंज सेट करें -- मॉडल परिवार, सुधार विधि, फ़िल्टरिंग कटऑफ़, वेल बनाम कोशिकाएँ -- हर वैध संयोजन चलाएँ, और परिणामों में किसी पंक्ति पर डबल-क्लिक करके उसी सटीक रिग्रेशन को उसके आंकड़ों सहित वापस पाएँ।"
+    },
+    {
+      "key": "Train a classical ML classifier (XGBoost, random forest, …) on per-object features and score every well.",
+      "source": "Train a classical ML classifier (XGBoost, random forest, …) on per-object features and score every well.",
+      "source_sha256": "97cf969f689e9ba99ed0369716794a08ed39c1955d8a75b2aa91d3770f43ac70",
+      "table": "ui",
+      "translation": "प्रति-ऑब्जेक्ट फ़ीचर पर एक क्लासिकल ML क्लासिफ़ायर (XGBoost, रैंडम फ़ॉरेस्ट, …) प्रशिक्षित करें और हर वेल को स्कोर करें।"
+    },
+    {
+      "key": "Train a model on the current annotations, on the images or on the measured features, and apply it to the whole dataset.",
+      "source": "Train a model on the current annotations, on the images or on the measured features, and apply it to the whole dataset.",
+      "source_sha256": "21524206136786a201bb4280bcc0c03e30a375c03043be0bf7cff591659d9b86",
+      "table": "ui",
+      "translation": "वर्तमान एनोटेशन पर, छवियों पर या मापे गए फ़ीचर पर एक मॉडल प्रशिक्षित करें और उसे पूरे डेटासेट पर लागू करें।"
+    },
+    {
+      "key": "Train an XGBoost model on the measurement features using the current annotations as class labels, then apply it to score the full dataset. Opens the ML Analyze screen with this source pre-selected.",
+      "source": "Train an XGBoost model on the measurement features using the current annotations as class labels, then apply it to score the full dataset. Opens the ML Analyze screen with this source pre-selected.",
+      "source_sha256": "3accedaaa6eba57451341e733be0fe594e762a6d90d51aed4285fee2e3b00cc3",
+      "table": "ui",
+      "translation": "वर्तमान एनोटेशन को क्लास लेबल मानकर माप फ़ीचर पर XGBoost मॉडल प्रशिक्षित करें, फिर उसे पूरे डेटासेट को स्कोर करने के लिए लागू करें। यह इस स्रोत को पहले से चुनकर ML Analyze स्क्रीनिंग खोलता है।"
+    },
+    {
+      "key": "Try a range of radii around the one above, score each by how well separated the populations are, and cluster at the best one. Use it when you do not know what eps should be.",
+      "source": "Try a range of radii around the one above, score each by how well separated the populations are, and cluster at the best one. Use it when you do not know what eps should be.",
+      "source_sha256": "d7614571a5c16fdb9068b733fdaf8c8fc4a5a369200aea5ecbc075fb583de4f1",
+      "table": "ui",
+      "translation": "ऊपर वाली त्रिज्या के आसपास त्रिज्याओं की एक श्रेणी आज़माएँ, प्रत्येक को इस आधार पर स्कोर करें कि आबादियाँ कितनी अच्छी तरह अलग हैं, और सबसे अच्छी पर क्लस्टर करें। जब आपको पता न हो कि eps क्या होना चाहिए तब इसका उपयोग करें।"
+    },
+    {
+      "key": "Turn every outstanding suggestion into an ordinary annotation, indistinguishable from one you made by hand.",
+      "source": "Turn every outstanding suggestion into an ordinary annotation, indistinguishable from one you made by hand.",
+      "source_sha256": "8c99236ca7e0b4abf29047e324ebdce34f10c0de55abf57d71b24144e7559dcb",
+      "table": "ui",
+      "translation": "प्रत्येक अद्भुत सुझाव को एक सामान्य एनोटेशन में बदल दें, जो आपके द्वारा हाथ से बनाए गए एक से अलग नहीं है।"
+    },
+    {
+      "key": "Type a WHERE predicate yourself, e.g. cell_area > 1000 AND well LIKE 'A%'",
+      "source": "Type a WHERE predicate yourself, e.g. cell_area > 1000 AND well LIKE 'A%'",
+      "source_sha256": "f0557c2106ed7c4665929b2ad11b7c20e5c230cadc4ae7e699b5a123b2559966",
+      "table": "ui",
+      "translation": "WHERE विधेय स्वयं टाइप करें, उदा. cell_area > 1000 AND well LIKE 'A%'"
+    },
+    {
+      "key": "Well-level bootstrap/permutation evidence, blinded gallery sampling, versioned database storage and exported artifacts.",
+      "source": "Well-level bootstrap/permutation evidence, blinded gallery sampling, versioned database storage and exported artifacts.",
+      "source_sha256": "6fd0ec8b28c5525f9c618cfccfd9642b386d57e0c93112b336913436c54499ea",
+      "table": "ui",
+      "translation": "वेल-स्तर बूटस्ट्रैप/क्रमचय साक्ष्य, ब्लाइंडेड गैलरी नमूनाकरण, संस्करणित डेटाबेस भंडारण और निर्यात किए गए आर्टिफ़ैक्ट।"
+    },
+    {
+      "key": "What colours the channels are drawn in. A VIEW setting: it changes nothing on disk and nothing measured.\n\nCMY is the publication style most multichannel micrographs use now. The three colourblind modes are separate because which PAIR of colours collapses depends on the deficiency — red-green for a deuteranope or protanope, blue-yellow for a tritanope — so one setting cannot serve all three. CMY is NOT one of them: measured against a red-green deficiency it separates the channels less well than plain RGB.",
+      "source": "What colours the channels are drawn in. A VIEW setting: it changes nothing on disk and nothing measured.\n\nCMY is the publication style most multichannel micrographs use now. The three colourblind modes are separate because which PAIR of colours collapses depends on the deficiency — red-green for a deuteranope or protanope, blue-yellow for a tritanope — so one setting cannot serve all three. CMY is NOT one of them: measured against a red-green deficiency it separates the channels less well than plain RGB.",
+      "source_sha256": "92d0d5d133a049ea7b14c13a194c08b1b42b8c61fcffa8596a15df0e39e37f1e",
+      "table": "ui",
+      "translation": "चैनल किन रंगों में बनाए जाते हैं। यह एक VIEW सेटिंग है: यह डिस्क पर और मापे गए किसी भी चीज़ में कुछ नहीं बदलती।\n\nCMY वह प्रकाशन शैली है जिसे अब अधिकांश बहुचैनल माइक्रोग्राफ़ उपयोग करते हैं। तीन वर्णांधता मोड अलग हैं क्योंकि रंगों का कौन सा जोड़ा (PAIR) एक-दूसरे में मिल जाता है, यह कमी पर निर्भर करता है — ड्यूटेरेनोप या प्रोटेनोप के लिए लाल-हरा, ट्रिटेनोप के लिए नीला-पीला — इसलिए एक सेटिंग तीनों के काम नहीं आ सकती। CMY उनमें से एक नहीं है: लाल-हरे की कमी के विरुद्ध मापने पर यह चैनलों को सादे RGB से भी कम अच्छी तरह अलग करता है।"
+    },
+    {
+      "key": "What defines a class. Pick the training basis first — metadata (the wells named as positive and negative control), annotation (a column the Annotate module wrote), or measurement (thresholds on measured features). The controls the other two bases use are greyed out, not hidden: they keep their values. Get this wrong and every number downstream is meaningless, so check it first.",
+      "source": "What defines a class. Pick the training basis first — metadata (the wells named as positive and negative control), annotation (a column the Annotate module wrote), or measurement (thresholds on measured features). The controls the other two bases use are greyed out, not hidden: they keep their values. Get this wrong and every number downstream is meaningless, so check it first.",
+      "source_sha256": "9178300c7387f4899103c7fd5a73ee8a7613c4c9b5bb635931cb6ff92a8787bf",
+      "table": "ui",
+      "translation": "वर्ग को क्या परिभाषित करता है। पहले प्रशिक्षण आधार चुनें — मेटाडेटा (धनात्मक और ऋणात्मक नियंत्रण के रूप में नामित वेल), एनोटेशन (वह स्तंभ जो Annotate मॉड्यूल ने लिखा), या माप (मापे गए फ़ीचर पर थ्रेशोल्ड)। अन्य दो आधारों के नियंत्रण छिपाए नहीं जाते, धूसर किए जाते हैं: वे अपने मान बनाए रखते हैं। इसे गलत चुनने पर आगे का हर संख्या अर्थहीन हो जाती है, इसलिए पहले इसे जाँचें।"
+    },
+    {
+      "key": "What is being modelled: which score column (or columns — name several and each is fitted and corrected as its own family), whether one row is a well or a single cell, and how the values are collapsed and transformed before the model sees them.",
+      "source": "What is being modelled: which score column (or columns — name several and each is fitted and corrected as its own family), whether one row is a well or a single cell, and how the values are collapsed and transformed before the model sees them.",
+      "source_sha256": "ed75721d92747d72f4f3dfebd2f66341d6be356c1faef1acd3341a50498fe80c",
+      "table": "ui",
+      "translation": "क्या मॉडल किया जा रहा है: कौन सा स्कोर स्तंभ (या स्तंभ — कई नाम दें तो प्रत्येक अपने परिवार के रूप में फ़िट और सुधारा जाता है), एक पंक्ति एक वेल है या एकल कोशिका, और मॉडल के देखने से पहले मानों को कैसे समेटा और रूपांतरित किया जाता है।"
+    },
+    {
+      "key": "Whether one y unit is drawn the same length as one x unit ('equal', which is what keeps a plate's wells square), or the panel is filled instead ('auto'). This locks the axis scales, which is a statement about the data; the proportions of the figure are 'Page shape'.",
+      "source": "Whether one y unit is drawn the same length as one x unit ('equal', which is what keeps a plate's wells square), or the panel is filled instead ('auto'). This locks the axis scales, which is a statement about the data; the proportions of the figure are 'Page shape'.",
+      "source_sha256": "5d0cf356e68d80a8fbaebaf65e3d5672285546d5a5b476fd8b632a768f61836d",
+      "table": "ui",
+      "translation": "चाहे एक y इकाई एक x इकाइयों ('equal', जो कि एक प्लेट के वेल वर्गाकार बनाए रखता है) के समान लंबाई को खींचती है, या पैनल को इसके बजाय भर दिया जाता है ('auto'). यह एक्स स्केल को लॉक करता है, जो डेटा के बारे में एक बयान है; आंकड़े के अनुपात 'Page shape' हैं।"
+    },
+    {
+      "key": "Whether the microscope's uneven lighting is estimated from these fields and divided out before any intensity is measured, and how that estimate is made and checked. Turn it on when the same cell measures differently depending on where in the field it sat; leaving it off keeps that bias in every intensity feature.",
+      "source": "Whether the microscope's uneven lighting is estimated from these fields and divided out before any intensity is measured, and how that estimate is made and checked. Turn it on when the same cell measures differently depending on where in the field it sat; leaving it off keeps that bias in every intensity feature.",
+      "source_sha256": "5e1c1f26ee6a9a835a44376befecbe26888397f40f486a8d303e4e8ae716beed",
+      "table": "ui",
+      "translation": "क्या माइक्रोस्कोप का असमान प्रकाश इन क्षेत्रों से अनुमान लगाया जाता है और किसी भी तीव्रता को मापने से पहले विभाजित किया जाता है, और यह अनुमान कैसे बनाया जा रहा है और जांच की जाती है. जब एक ही सेल को अलग-अलग मापता है, तो यह क्षेत्र में कहां बैठता है; इसे छोड़कर, यह प्रत्येक तीवृत्ति फ़ीचर में बायस बनाए रखता है."
+    },
+    {
+      "key": "Which family of coefficients is drawn. A run fitted at both levels holds two of them.",
+      "source": "Which family of coefficients is drawn. A run fitted at both levels holds two of them.",
+      "source_sha256": "a29efb37c00f66d85e02548d322eb6867b328f025e2fb5a1e95a1a9571196842",
+      "table": "ui",
+      "translation": "कौन-कौन सी श्रृंखला को कवर किया जाता है. दोनों स्तरों पर फिट एक रन उनमें से दो को पकड़ती है."
+    },
+    {
+      "key": "Which feature the heatmap shows, how wells are grouped, and the colour map and value range used to draw it. Presentation of the classifier's output; it does not change the fit.",
+      "source": "Which feature the heatmap shows, how wells are grouped, and the colour map and value range used to draw it. Presentation of the classifier's output; it does not change the fit.",
+      "source_sha256": "f26874c59fe10b5087e29ea8f2ec1b789ee273747813b8c87e290b089d180289",
+      "table": "ui",
+      "translation": "जिसकी विशेषता है हीटमैप दिखाता है, कैसे वेलों को समूहित किया जाता है, और इसे खींचने के लिए उपयोग किए गए रंग मानचित्र और मूल्य रेंज. वर्गीकरण के उत्पादन का प्रस्तुति; यह फिट नहीं बदलता है."
+    },
+    {
+      "key": "Which mask plane a crop is cut by. 'cytoplasm' has no plane on disk and is derived as cell minus nucleus/pathogen, exactly as measure_crop derives it.",
+      "source": "Which mask plane a crop is cut by. 'cytoplasm' has no plane on disk and is derived as cell minus nucleus/pathogen, exactly as measure_crop derives it.",
+      "source_sha256": "fd36fe0d20280113f5ebfbb7cb79391cfdd7328d68962a75c5c4a1f5a7bcb3f8",
+      "table": "ui",
+      "translation": "'cytoplasm' डिस्क पर कोई प्लेन नहीं है और कोशिका minus नाभिक / पैथोजेन के रूप में उत्पन्न होता है, ठीक उसी तरह measure_crop इसे उत्पन्न करता है।"
+    },
+    {
+      "key": "Which wells anchor the threshold, and how many objects a well or a plate must contribute before its number is believed. Raise the minimums when sparse wells produce implausibly extreme rates.",
+      "source": "Which wells anchor the threshold, and how many objects a well or a plate must contribute before its number is believed. Raise the minimums when sparse wells produce implausibly extreme rates.",
+      "source_sha256": "e599615de0b35a74c39c4ecb7e44d49ccb22e0eda6a7056dec53bd53c6158c39",
+      "table": "ui",
+      "translation": "कौन सा वेल सीमा को लटकाता है, और कितने वस्तुओं को एक वेल या प्लेट को इसकी संख्या माना जाने से पहले योगदान देना चाहिए. न्यूनतम को बढ़ाएं जब खराब वेल अविश्वसनीय रूप से चरम दरों का उत्पादन करते हैं."
+    },
+    {
+      "key": "Which wells hold which cell line, strain and treatment, and the column and level the conditions are grouped and reported at.",
+      "source": "Which wells hold which cell line, strain and treatment, and the column and level the conditions are grouped and reported at.",
+      "source_sha256": "80f1f96bd1f4236164494d3b757b5dc030b0760959bcc17145a6c0bddd07808e",
+      "table": "ui",
+      "translation": "कौन से वेल रखते हैं कि सेल लाइन, स्ट्रिंग और उपचार, और स्तंभ और स्तर स्थितियों को समूह किया जाता है और रिपोर्ट की जाती है।"
+    },
+    {
+      "key": "Which wells hold which cell line, strain and treatment, and the column and level the invasion rates are grouped and reported at.",
+      "source": "Which wells hold which cell line, strain and treatment, and the column and level the invasion rates are grouped and reported at.",
+      "source_sha256": "1098703505ec4284147dff0bbfffa6bb4ed8240a91b814d69ab73cb2a6393665",
+      "table": "ui",
+      "translation": "कौन से वेल रखते हैं कि सेल लाइन, स्ट्रिंग और उपचार, और स्तंभ और स्तर आक्रमण दरों को समूह किया जाता है और रिपोर्ट किया गया है।"
+    },
+    {
+      "key": "Which wells hold which cell line, strain and treatment, and which channel the recruitment is measured on. Filled in once per plate design.",
+      "source": "Which wells hold which cell line, strain and treatment, and which channel the recruitment is measured on. Filled in once per plate design.",
+      "source_sha256": "93fc2f9075401733d7a4298445fb728b41dfb90dd35080af7d8a9583f4405bf3",
+      "table": "ui",
+      "translation": "कौन सा वेल रखता है कि सेल लाइन, तनाव और उपचार, और किस चैनल पर भर्ती मापा जाता है।"
+    },
+    {
+      "key": "Write a suggestion onto every crop with no answer yet, most confident first. Nothing you have already annotated is touched.",
+      "source": "Write a suggestion onto every crop with no answer yet, most confident first. Nothing you have already annotated is touched.",
+      "source_sha256": "e3830bacd511109c19e1aa272872d580e6d9eb5cc1fc4661fa07587ff259bb27",
+      "table": "ui",
+      "translation": "अब तक कोई जवाब नहीं के साथ प्रत्येक पौधे के लिए एक सुझाव लिखें, सबसे आत्मविश्वास पहले. कुछ भी आप पहले से ही एनोटेट किया है छूता है."
+    },
+    {
+      "key": "Write the annotation selection into…",
+      "source": "Write the annotation selection into…",
+      "source_sha256": "6134d1bfd95e923f1e4daa36743e660430cbfa28ca69f8852d622cd3724f7275",
+      "table": "ui",
+      "translation": "एनोटेशन चयन में लिखें ..."
+    },
+    {
+      "key": "Write the displayed gates to one annotation column. Binary mode marks objects inside all gates; multi-class mode assigns a separate class to each observed gate combination.",
+      "source": "Write the displayed gates to one annotation column. Binary mode marks objects inside all gates; multi-class mode assigns a separate class to each observed gate combination.",
+      "source_sha256": "88dd2d96f0e27c9811734b1b2065b46baa142aa7bdb33b8e483d042c8ce5580d",
+      "table": "ui",
+      "translation": "बाइनरी मोड सभी गेटों के अंदर वस्तुओं को चिह्नित करता है; बहु-क्लास मोड प्रत्येक अवलोकन किए गए गेट के संयोजन के लिए एक अलग वर्ग निर्धारित करती है।"
+    },
+    {
+      "key": "[example] the annotation example was not downloaded: {detail}",
+      "source": "[example] the annotation example was not downloaded: {detail}",
+      "source_sha256": "18c549eb2bb4ca4bf73abd09fd7d0b68370e113a34f1e681f8a8ee618e2a7a28",
+      "table": "ui",
+      "translation": "[उदाहरण] एनोटेशन उदाहरण डाउनलोड नहीं किया गया था: {detail}"
+    },
+    {
+      "key": "gene id {gene!r} is not shaped like a Toxoplasma accession, so no ToxoDB record is offered for it. If this is a screen of another organism, spaCR has no annotation for it.",
+      "source": "gene id {gene!r} is not shaped like a Toxoplasma accession, so no ToxoDB record is offered for it. If this is a screen of another organism, spaCR has no annotation for it.",
+      "source_sha256": "4af11854e934c594eedf95d4bf12c200c84dce3f1861337decfabdea62c0b376",
+      "table": "ui",
+      "translation": "जीन आईडी {gene!r} एक टॉक्सोप्लाज्मा संलग्नक के रूप में आकार नहीं है, इसलिए इसके लिए कोई ToxoDB रिकॉर्ड की पेशकश नहीं की जाती है. यदि यह किसी अन्य जीव का एक स्क्रीनिंग है, तो spaCR के लिए कोई एनोटेशन नहीं है."
+    },
+    {
+      "key": "hinge — parametric: a linear boundary between a positive and a negative class: the response is thresholded, so the question is which class a well is in, not by how much",
+      "source": "hinge — parametric: a linear boundary between a positive and a negative class: the response is thresholded, so the question is which class a well is in, not by how much",
+      "source_sha256": "04785b2fc64cde0ec4187517127162df838c77a43690799b62db5d6e36b9cdb8",
+      "table": "ui",
+      "translation": "hinge — parametric: एक सकारात्मक और एक नकारात्मक वर्ग के बीच एक लाइनरी सीमा: जवाब सीमा है, इसलिए सवाल यह है कि कौन सा वर्ग एक वेल है, नहीं कितना है"
+    },
+    {
+      "key": "huber — robust/semiparametric: squared loss near the centre and linear in the tails, so a handful of bright wells cannot set a coefficient",
+      "source": "huber — robust/semiparametric: squared loss near the centre and linear in the tails, so a handful of bright wells cannot set a coefficient",
+      "source_sha256": "ff525c23274a5e78b688d86c57c277228b8f61b099c65902ea0c47fa489ef589",
+      "table": "ui",
+      "translation": "ह्यूबर - मजबूत / सेमीपैरामीट्रिक: केंद्र के पास चौराहे की हानि और कंधों में लाइनरी, इसलिए चमकदार वेलों का एक टुकड़ा एक समकक्ष निर्धारित नहीं कर सकता है"
+    },
+    {
+      "key": "logit — parametric: a fraction as a binomial proportion, log-odds linear in the guides, weighted by the cells behind the well",
+      "source": "logit — parametric: a fraction as a binomial proportion, log-odds linear in the guides, weighted by the cells behind the well",
+      "source_sha256": "3e336a09ee8d6df0ee84184f457e2bdea69efef5fbdaa85ffb711a067c7b18b8",
+      "table": "ui",
+      "translation": "लॉगिट - पैरामीट्रिक: एक बिनोमील अनुपात के रूप में एक फ्रैक्शन, मार्गदर्शकों में लॉग-ओड्स लाइनर, वेल के पीछे कोशिकाओं द्वारा वजन"
+    },
+    {
+      "key": "ols — parametric: least squares: normal errors of constant variance, every well equal",
+      "source": "ols — parametric: least squares: normal errors of constant variance, every well equal",
+      "source_sha256": "4b30849812c77e5fef8d1eb39403665e6aababb6d5692f0982cfbd103a9dbb55",
+      "table": "ui",
+      "translation": "ols — पैरामीटरिक: कम वर्ग: निरंतर परिवर्तन की सामान्य गलतियां, प्रत्येक वेल बराबर है"
+    },
+    {
+      "key": "rlm — robust/semiparametric: a linear model fitted by an M-estimator, so extreme wells are downweighted rather than assumed absent",
+      "source": "rlm — robust/semiparametric: a linear model fitted by an M-estimator, so extreme wells are downweighted rather than assumed absent",
+      "source_sha256": "4dce4e23d6456f238fde23e0a406625267d771468325e21d817009471cce0bd4",
+      "table": "ui",
+      "translation": "rlm - मजबूत / सेमीपैरामीट्रिक: एक लाइनर मॉडल जो एक M-मूल्यांकन द्वारा सुसज्जित किया गया है, इसलिए अत्यधिक वेलों को अनुमानित अनुपस्थिति के बजाय कम वजन दिया जाता है"
+    },
+    {
+      "key": "rra — rank-based: only the ORDER of the wells, so no distribution at all; its p value is a permutation p value over guide ranks",
+      "source": "rra — rank-based: only the ORDER of the wells, so no distribution at all; its p value is a permutation p value over guide ranks",
+      "source_sha256": "6897696cdf1e92ed6fd81a32811dc50847a66d31d632f10b46bdb85b9bd2a3b5",
+      "table": "ui",
+      "translation": "rra - रैंक-आधारित: केवल वेलों का आदेश, इसलिए कोई वितरण नहीं है; इसका p मूल्य मार्गदर्शक रैंकों पर एक permutation p मूल्य है"
+    },
+    {
+      "key": "wls — parametric: least squares weighted by cell count: normal errors whose variance falls as a well holds more cells",
+      "source": "wls — parametric: least squares weighted by cell count: normal errors whose variance falls as a well holds more cells",
+      "source_sha256": "668a8b5c2a4f01b1a958f240ec245d4a0452861d3ed710d41f4ad99647e2a65c",
+      "table": "ui",
+      "translation": "wls — पैरामीटरिक: कम से कम वर्गों कोशिका गिनती द्वारा वजन: सामान्य त्रुटियां जिनकी विविधता वेल गिरती है, अधिक सेल रखती है"
+    },
+    {
+      "key": "{name}: no combination well could be scored against {model}",
+      "source": "{name}: no combination well could be scored against {model}",
+      "source_sha256": "11fa127573e252c6ae7848399a09ba9f76611897904ad325c47b0a22ed1fa25a",
+      "table": "ui",
+      "translation": "{name}: कोई संयोजन वेल {model} के खिलाफ स्कोर नहीं किया जा सकता है"
+    },
+    {
+      "key": "■ A run is already going. Wait for it to finish, or stop it, before re-fitting.",
+      "source": "■ A run is already going. Wait for it to finish, or stop it, before re-fitting.",
+      "source_sha256": "092d25352ffea48ab0a0c8a942cc40b40eb8c2f548c7250bff60ab25b3f1c1d2",
+      "table": "ui",
+      "translation": "एक रन पहले से ही चल रही है. इसे समाप्त करने के लिए इंतजार करें, या इसे रोकें, फिर से फिट होने से पहले।"
+    },
+    {
+      "key": "■ The design in the count files: {genes} genes and {guides} guides over {wells} wells, from {rows} rows in {files} file(s). That is BEFORE the merge with the scores and before the filters — the run's own counts follow.",
+      "source": "■ The design in the count files: {genes} genes and {guides} guides over {wells} wells, from {rows} rows in {files} file(s). That is BEFORE the merge with the scores and before the filters — the run's own counts follow.",
+      "source_sha256": "5b6e0539e7cf93a97a817ce5e60a7ea421578b9d1d058c6102e6b3725e8ac22a",
+      "table": "ui",
+      "translation": "■ गिनती फ़ाइलों में डिजाइन: {genes} जीन और {guides} {wells} वेलों में मार्गदर्शक, {rows} पंक्तियों से {files} फाइल(s) में।"
+    },
+    {
+      "key": "hit_list",
+      "source": "Ranked, annotated, filterable hits with effect size, FDR and gRNA agreement",
+      "source_sha256": "e7ea4fa5c2cf88b44c78407ad5ce878f399b1be1e45517f269fedf4cceb14d80",
+      "table": "module_summaries",
+      "translation": "रैंकिंग, एनोटेट किए गए, फ़िल्टर योग्य हिट्स प्रभाव आकार, FDR और gRNA समझौते के साथ"
+    },
+    {
+      "key": "investigate_hit",
+      "source": "Link a regression hit to cross-fitted candidate cells and well-level quantitative evidence",
+      "source_sha256": "0757942dd931ea38268ae61ef4a3886b4540e7a830a8375dba95ffc794ed0acb",
+      "table": "module_summaries",
+      "translation": "क्रॉस-फिट उम्मीदवार कोशिकाओं और वेल स्तर के मात्रात्मक सबूत के लिए एक पुनरावृत्ति को जोड़ें"
+    },
+    {
+      "key": "lineage",
+      "source": "Inspect cell-containment relationships for nuclei, pathogens, and organelles",
+      "source_sha256": "03d7c86248d33be3e6a22a84eae931043b43bc145904d24c6d7b2189a5b5def3",
+      "table": "module_summaries",
+      "translation": "कोशिका-संरक्षण संबंधों की जांच नाभिक, पैथोजेन और ऑर्गनेल के लिए"
+    },
+    {
+      "key": "outliers",
+      "source": "Detect robust univariate and multivariate outliers at object and well levels",
+      "source_sha256": "78f8deceee8b2d7921a2cf6e3df5a90f74e8bec4575e926f99b56cf397104a66",
+      "table": "module_summaries",
+      "translation": "वस्तु और वेल स्तर पर मजबूत एकीकृत और बहुआयामी आउटलीर का पता लगाएं"
+    },
+    {
+      "key": "power",
+      "source": "Estimate the cells and wells required to detect a specified effect size",
+      "source_sha256": "39acca22613bc684b7b166c7309afdc554a5947f518aef9d516cc1974e6cdd04",
+      "table": "module_summaries",
+      "translation": "एक निर्दिष्ट प्रभाव आकार का पता लगाने के लिए आवश्यक कोशिकाओं और वेलों का अनुमान लगाएं"
+    },
+    {
+      "key": "qc_dashboard",
+      "source": "Review stored checks for segmentation, units, leakage, plate effects, and annotation agreement",
+      "source_sha256": "1034a62853f19bab55e0480a536e7c7b59683fcfc85fc7867142b13a4c3b8d19",
+      "table": "module_summaries",
+      "translation": "विभाजन, इकाइयों, लीक, प्लेट प्रभाव, और एनोटेशन समझौते के लिए समीक्षा संग्रहीत चेक"
+    },
+    {
+      "key": "regression_diagnostics",
+      "source": "Show the diagnostic panels the last regression run wrote beside its results",
+      "source_sha256": "ba04615982dd8956db339cfeadf18feda78f987241e5dedce2f706bbf86ae4c7",
+      "table": "module_summaries",
+      "translation": "दिखाएं निदान पैनलों अंतिम पुनरावृत्ति रन अपने परिणामों के अलावा लिखा है"
+    }
+  ],
+  "schema": 1
+}

@@ -6,7 +6,7 @@
       "label": "spacr._mask_workers._run_mask_workers.run_group#0",
       "source": "Join every member of one primary or serial final worker group.",
       "source_sha256": "4052295c785b7844536496fdb155bce5817616f0b529a8eac4f5fcd47a5681cc",
-      "translation": "Aguardar o término de cada membro de um grupo de trabalhadores primário ou final em série."
+      "translation": "Aguardar o término de cada membro de um grupo de workers primário ou final em série."
     },
     {
       "context": "connection in autocommit mode; use :func:`transaction` for multi-statement writes. Inside an atomic queued write, helpers for this same database reuse the writer independent execution path's active connection; their commits and closes are deferred until the complete field commits.",
@@ -55,7 +55,7 @@
       "label": "spacr.measure.measure_crop.job_callback#1",
       "source": "index, average duration, surviving labels, figures, error text and an optional queued-write ticket. An integer zero labels value records the original field failure. SQLite success is recorded separately by the writer after committing all scientific rows. Other backends keep their existing synchronous worker verdict.",
       "source_sha256": "971d644efe435f0fa22a8a94464059fd3f0ace226a548062e3be9d79174205af",
-      "translation": "índice, duração média, rótulos restantes, figuras, texto do erro e um comprovante opcional de escrita enfileirada. Um valor inteiro zero de rótulos registra a falha original do campo. O escritor registra o sucesso do SQLite separadamente após confirmar todas as linhas de dados científicos. Os demais mecanismos mantêm seu resultado síncrono do trabalhador."
+      "translation": "índice, duração média, rótulos restantes, figuras, texto do erro e um comprovante opcional de escrita enfileirada. Um valor inteiro zero de rótulos registra a falha original do campo. O escritor registra o sucesso do SQLite separadamente após confirmar todas as linhas de dados científicos. Os demais mecanismos mantêm seu resultado síncrono do worker."
     },
     {
       "context": "Count each field once, after its actual final outcome.",
@@ -83,7 +83,7 @@
       "label": "spacr.parameter_sweep.run_sweep_parallel#8",
       "source": "The pool uses the ``spawn`` start method because fitted models may import torch and OpenMP runtimes. Only a bounded number of jobs are submitted at once, allowing new submissions to pause when available memory is low. Initial processing workers start ten seconds apart. After every primary trial finishes, explicit resource-overload failures receive one serial retry in their existing trial directories. Original result/error files are retained separately, and the final table has one row per trial with primary failure details and ``overload_retry`` metadata. Invalid inputs, cancellation and unexplained native worker exits are not retried.",
       "source_sha256": "0bef7cc59f1f083366ce89406c2f7a6b47c80b6061efc0b184926364348ed8d5",
-      "translation": "O grupo usa o método de inicialização ``spawn`` porque modelos ajustados podem importar torch e ambientes de execução OpenMP. Apenas um número limitado de tarefas é enviado de cada vez, permitindo pausar novos envios quando a memória disponível é baixa. Os trabalhadores iniciais de processamento começam com dez segundos de intervalo. Após o término de todas as tentativas primárias, falhas explícitas por sobrecarga de recursos recebem uma única nova tentativa em série nos seus diretórios de tentativa existentes. Os arquivos originais de resultados e erros são preservados separadamente; a tabela final tem uma linha por tentativa com os detalhes da falha primária e metadados ``overload_retry``. Entradas inválidas, cancelamentos e encerramentos inexplicados de trabalhadores nativos não são repetidos."
+      "translation": "O grupo usa o método de inicialização ``spawn`` porque modelos ajustados podem importar torch e ambientes de execução OpenMP. Apenas um número limitado de tarefas é enviado de cada vez, permitindo pausar novos envios quando a memória disponível é baixa. Os workers iniciais de processamento começam com dez segundos de intervalo. Após o término de todas as tentativas primárias, falhas explícitas por sobrecarga de recursos recebem uma única nova tentativa em série nos seus diretórios de tentativa existentes. Os arquivos originais de resultados e erros são preservados separadamente; a tabela final tem uma linha por tentativa com os detalhes da falha primária e metadados ``overload_retry``. Entradas inválidas, cancelamentos e encerramentos inexplicados de workers nativos não são repetidos."
     },
     {
       "context": "Return the serialized database work list RAM budget in GiB.",
@@ -139,7 +139,7 @@
       "label": "spacr.sim.run_multiple_simulations#1",
       "source": "Processing workers start ten seconds apart and drive :func:`run_and_save` with captured database operations. One parent-owned writer commits each complete simulation and its retry ticket atomically. Explicit resource overloads receive one serial retry after all primary tasks finish; database overloads use the writer's separate final queue. Invalid data and cancellation are not retried. An unsuccessful simulation or final database write raises instead of reporting a successful sweep.",
       "source_sha256": "5def515be7c222af9281dbefe1296d4477789df6254a9f547d25ecbae2eed3f7",
-      "translation": "Os trabalhadores de processamento começam com dez segundos de intervalo e executam :func:`run_and_save` com operações capturadas da base de dados. Um único escritor do processo pai confirma atomicamente cada simulação completa e seu comprovante de nova tentativa. Sobrecargas explícitas de recursos recebem uma única nova tentativa em série após o término de todas as tarefas primárias; sobrecargas da base de dados usam a fila final separada do escritor. Dados inválidos e cancelamentos não são repetidos. Uma simulação malsucedida ou uma escrita final malsucedida na base de dados gera um erro em vez de informar uma varredura bem-sucedida."
+      "translation": "Os workers de processamento começam com dez segundos de intervalo e executam :func:`run_and_save` com operações capturadas da base de dados. Um único escritor do processo pai confirma atomicamente cada simulação completa e seu comprovante de nova tentativa. Sobrecargas explícitas de recursos recebem uma única nova tentativa em série após o término de todas as tarefas primárias; sobrecargas da base de dados usam a fila final separada do escritor. Dados inválidos e cancelamentos não são repetidos. Uma simulação malsucedida ou uma escrita final malsucedida na base de dados gera um erro em vez de informar uma varredura bem-sucedida."
     },
     {
       "context": "Sweep-settings key-value mapping. Must include ``max_workers``. ``database_write_queue_gib`` optionally overrides the saved work list RAM allowance, from zero to 64 GiB; zero buffers serialized packets on disk. Pending packets remain below the dated output folder on interruption.",

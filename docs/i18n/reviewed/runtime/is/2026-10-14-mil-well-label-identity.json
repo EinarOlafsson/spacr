@@ -11,7 +11,7 @@
       "key": "The well-label table assigns conflicting labels to {well}.",
       "source": "The well-label table assigns conflicting labels to {well}.",
       "source_sha256": "6fa4c05974fc6cecc4cdc2d78ac4577109df2947c6fd44acb95c36ccbe980975",
-      "translation": "Taflan með holumerkingum úthlutar ósamræmanlegum merkingum á {well}."
+      "translation": "Taflan með brunnamerkingum úthlutar ósamræmanlegum merkingum á {well}."
     },
     {
       "table": "ui",

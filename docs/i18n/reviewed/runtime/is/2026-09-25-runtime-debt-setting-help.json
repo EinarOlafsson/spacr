@@ -37,7 +37,7 @@
       "key": "cell_model_name",
       "source": "Cell-segmentation weights. Cellpose 4 provides the stock 'cpsam' model; alternatively, provide a CPSAM checkpoint created by Train Cellpose, loaded as pretrained_model. Legacy names ('cyto', 'cyto2', 'cyto3', 'nuclei') resolve to cpsam because Cellpose 4 no longer ships those models -- unless segmentation_backend is 'cellpose3', which runs the real model of that name. Only diameter changes inference (scaling by 30/diameter); model_type and diam_mean are not used in v4.0.1+. Default 'cpsam'.",
       "source_sha256": "ca2c41869c0a306c1a082baac7bc96fae36d989f8634f836f1ef0067914b71a1",
-      "translation": "Vogir fyrir hlutun frumna. Cellpose 4 býður upp á staðlaða 'cpsam' líkanið; einnig má gefa CPSAM-vistunarpunkt sem Þjálfa Cellpose bjó til, hlaðinn sem pretrained_model. Eldri heiti ('cyto', 'cyto2', 'cyto3', 'nuclei') vísa á cpsam því Cellpose 4 fylgja ekki lengur þau líkön -- nema segmentation_backend sé 'cellpose3', sem keyrir raunverulega líkanið með því heiti. Aðeins þvermál breytir ályktun (kvörðun með 30/þvermál); model_type og diam_mean eru ekki notuð í v4.0.1+. Sjálfgefið 'cpsam'."
+      "translation": "Vægi fyrir hlutun frumna. Cellpose 4 býður upp á staðlaða 'cpsam' líkanið; einnig má gefa CPSAM-vistunarpunkt sem Þjálfa Cellpose bjó til, hlaðinn sem pretrained_model. Eldri heiti ('cyto', 'cyto2', 'cyto3', 'nuclei') vísa á cpsam því Cellpose 4 fylgja ekki lengur þau líkön -- nema segmentation_backend sé 'cellpose3', sem keyrir raunverulega líkanið með því heiti. Aðeins þvermál breytir ályktun (kvörðun með 30/þvermál); model_type og diam_mean eru ekki notuð í v4.0.1+. Sjálfgefið 'cpsam'."
     },
     {
       "table": "setting_tooltips",

@@ -3565,7 +3565,7 @@
       "key": "homogeneity_distances",
       "source": "Pixel offsets used to build each object's grey-level co-occurrence matrix; every entry adds one homogeneity_distance_<d> feature per channel. Small offsets capture fine-grained texture, large ones capture coarse structure, and offsets larger than the object itself carry no signal. More entries means more features and slower measurement. Default [8, 16, 32].",
       "source_sha256": "6fd9a61848bed586026b239e1a3e068937314369cee0a865f69d72ff9674fe50",
-      "translation": "Os deslocamentos de pixels usados para construir a matriz de co-ocorrência de nível cinza de cada objeto; cada entrada adiciona um recurso homogeneity_distance_<d> por canal. Pequenos deslocamentos capturam texturas de granulação fina, grandes capturam estrutura grossa e deslocamentos maiores que o próprio objeto não carregam sinal. Mais entradas significam mais recursos e medição mais lenta. Padrão [8, 16, 32]."
+      "translation": "Os deslocamentos de pixels usados para construir a matriz de co-ocorrência de nível cinza de cada objeto; cada entrada adiciona uma característica homogeneity_distance_<d> por canal. Pequenos deslocamentos capturam texturas de granulação fina, grandes capturam estrutura grossa e deslocamentos maiores que o próprio objeto não carregam sinal. Mais entradas significam mais características e medição mais lenta. Padrão [8, 16, 32]."
     },
     {
       "table": "setting_tooltips",
@@ -5196,7 +5196,7 @@
       "key": "include_all",
       "source": "When grouping feature importances by compartment and channel, also emit an 'all' row containing features that belong to no single compartment or channel. When disabled, those features are omitted and grouped bars may not sum to the total importance. Default False.",
       "source_sha256": "ccdd3513ec6ff4b729dc22c2ca9f2f8c71d9877b2c4a4777b7a3ba4b17f22130",
-      "translation": "Ao agrupar as importâncias de recursos por compartimento e canal, também emite uma linha 'all' contendo recursos que não pertencem a um único compartimento ou canal. Quando desabilitados, esses recursos são omitidos e as barras agrupadas podem não somar a importância total. Padrão False."
+      "translation": "Ao agrupar as importâncias de características por compartimento e canal, também emite uma linha 'all' contendo características que não pertencem a um único compartimento ou canal. Quando desabilitados, essas características são omitidos e as barras agrupadas podem não somar a importância total. Padrão False."
     },
     {
       "table": "setting_tooltips",

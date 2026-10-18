@@ -32,7 +32,7 @@
       "source_sha256": "5793de15bd4b9fefde8265827f8b58755dcff392cc8f3581e8e55c90b840f73a",
       "source": "Intensity channel the organelle mask belongs to, or ``None``. Default ``None``.",
       "context": "Intensity image data channel the organelle mask belongs to, or ``None``. Default ``None``.",
-      "translation": "Styrkleikagagnakanali myndarinnar sem frumulíffæravörn tilheyrir, eða ``None``. Sjálfgefið ``None``."
+      "translation": "Styrkleikagagnarás myndarinnar sem frumulíffæravörn tilheyrir, eða ``None``. Sjálfgefið ``None``."
     },
     {
       "label": "spacr.qt.widgets.live_preview#5",

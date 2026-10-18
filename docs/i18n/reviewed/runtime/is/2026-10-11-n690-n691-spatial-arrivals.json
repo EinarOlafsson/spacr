@@ -351,7 +351,7 @@
       "key": "A third-party model, listed under Third-party in the Model Zoo. The weights are cached in the Model Zoo's download folder and checked against their published checksum before use.",
       "source": "A third-party model, listed under Third-party in the Model Zoo. The weights are cached in the Model Zoo's download folder and checked against their published checksum before use.",
       "source_sha256": "674604a5e62816d49b74a542a2b6c6d20685a019e8f5a5e1358afdbca18f5f42",
-      "translation": "Þriðja aðila líkan, skráð undir Third-party í Model Zoo. Þyngdirnar eru geymdar í skyndiminni í niðurhalsmöppu Model Zoo og athugaðar gegn útgefinni prófsummu áður en þær eru notaðar."
+      "translation": "Þriðja aðila líkan, skráð undir Third-party í Model Zoo. Vægin eru geymd í skyndiminni í niðurhalsmöppu Model Zoo og athuguð gegn útgefinni prófsummu áður en þau eru notuð."
     },
     {
       "table": "ui",
@@ -435,14 +435,14 @@
       "key": "MitoNet v1 mini finds mitochondria in transmission electron micrographs with dark membranes; it is not a fluorescence model. Third-party weights (CC-BY-4.0, Conrad and Narayan, Cell Systems 2023), downloaded from Zenodo (110 MB) the first time it runs. Minimum area sets the smallest mitochondrion kept.",
       "source": "MitoNet v1 mini finds mitochondria in transmission electron micrographs with dark membranes; it is not a fluorescence model. Third-party weights (CC-BY-4.0, Conrad and Narayan, Cell Systems 2023), downloaded from Zenodo (110 MB) the first time it runs. Minimum area sets the smallest mitochondrion kept.",
       "source_sha256": "991713148d066fdfbd48512aa0c90eb1b2f77fffcd8bdd7c0a36a8f60ffa34d5",
-      "translation": "MitoNet v1 mini finnur hvatbera í rafeindasmásjármyndum (gegnumlýsing) með dökkum himnum; það er ekki flúrljómunarlíkan. Þyngdir þriðja aðila (CC-BY-4.0, Conrad og Narayan, Cell Systems 2023) eru sóttar af Zenodo (110 MB) í fyrsta skipti sem það er keyrt. Minimum area ákveður minnsta hvatberann sem haldið er."
+      "translation": "MitoNet v1 mini finnur hvatbera í rafeindasmásjármyndum (gegnumlýsing) með dökkum himnum; það er ekki flúrljómunarlíkan. Vægi frá þriðja aðila (CC-BY-4.0, Conrad og Narayan, Cell Systems 2023) eru sótt af Zenodo (110 MB) í fyrsta skipti sem það er keyrt. Minimum area ákveður minnsta hvatberann sem haldið er."
     },
     {
       "table": "ui",
       "key": "MitoNet v1 mini, by Conrad and Narayan (empanada). Weights: Zenodo record 6861565, CC-BY-4.0; code: BSD-3-Clause. Cite Conrad and Narayan, Cell Systems 14:58-71 (2023), doi:10.1016/j.cels.2022.12.006.",
       "source": "MitoNet v1 mini, by Conrad and Narayan (empanada). Weights: Zenodo record 6861565, CC-BY-4.0; code: BSD-3-Clause. Cite Conrad and Narayan, Cell Systems 14:58-71 (2023), doi:10.1016/j.cels.2022.12.006.",
       "source_sha256": "be97ce588fc33d6a2d644acab1e91d70bea2367a479e2d580a0d41c5a4e44256",
-      "translation": "MitoNet v1 mini, eftir Conrad og Narayan (empanada). Þyngdir: Zenodo-færsla 6861565, CC-BY-4.0; kóði: BSD-3-Clause. Vitnaðu í Conrad og Narayan, Cell Systems 14:58-71 (2023), doi:10.1016/j.cels.2022.12.006."
+      "translation": "MitoNet v1 mini, eftir Conrad og Narayan (empanada). Vægi: Zenodo-færsla 6861565, CC-BY-4.0; kóði: BSD-3-Clause. Vitnaðu í Conrad og Narayan, Cell Systems 14:58-71 (2023), doi:10.1016/j.cels.2022.12.006."
     },
     {
       "table": "ui",

@@ -13,7 +13,7 @@
       "source": "Timelapse events video channels",
       "source_sha256": "95cc38db471dde81214bc586fe8020ce5a6012a7c529afd29e45a1683f55e47e",
       "table": "setting_labels",
-      "translation": "Chaînes vidéo d'événements timelapse"
+      "translation": "Canaux vidéo des événements timelapse"
     },
     {
       "key": "timelapse_events_video_checkpoint",
@@ -48,7 +48,7 @@
       "source": "auto selects CUDA, then Metal, then CPU inside VideoMAE's separate worker; cpu forces CPU feature extraction. The frozen encoder processes one clip at a time and the small event classifier trains on CPU. Default auto.",
       "source_sha256": "4ca26ed8a069e06a1920bbd9885f1a2b9887b520fbbcab5aed40c30414ade406",
       "table": "setting_tooltips",
-      "translation": "auto sélectionne CUDA, puis Metal, ensuite CPU à l'intérieur du travailleur séparé de VideoMAE; cpu force l'extraction de la fonction CPU. L'encodeur gelé traite un clip à la fois et le classificateur d'événements petit s'entraîne sur CPU. Auto par défaut."
+      "translation": "auto sélectionne CUDA, puis Metal, ensuite CPU à l'intérieur du worker séparé de VideoMAE; cpu force l'extraction de caractéristiques sur CPU. L'encodeur gelé traite un clip à la fois et le classificateur d'événements petit s'entraîne sur CPU. Auto par défaut."
     },
     {
       "key": "A tracked frame is outside the selected image sequence.",

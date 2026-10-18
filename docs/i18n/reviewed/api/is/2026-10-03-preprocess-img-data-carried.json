@@ -7,7 +7,7 @@
       "review_basis": "Carried verbatim from the accepted, audited catalog entry for this unchanged source block; AI technical review only, no native-speaker signoff.",
       "source": "Convert raw microscopy images into normalized, channel-merged ``.npy`` stacks ready for mask generation.",
       "source_sha256": "3b06776bbfb34bb3a589790c3f49acc4eaaee973ee05131b656875888a8366ce",
-      "translation": "Konvertir rauðmikroskópi myndum í normalized, mynd gögn kanna-merkt ``.npy`` stacks tilbúinn fyrir maska framleiðslu."
+      "translation": "Konvertir rauðmikroskópi myndum í normalized, rás-merkt ``.npy`` stacks tilbúinn fyrir maska framleiðslu."
     },
     {
       "context": "Preprocessing settings key-value mapping, canonicalized via :func:`spacr.settings.set_default_settings_preprocess_img_data`. Structured-data entries:",
@@ -47,7 +47,7 @@
       "review_basis": "Carried verbatim from the accepted, audited catalog entry for this unchanged source block; AI technical review only, no native-speaker signoff.",
       "source": "``cell_channel``, ``nucleus_channel``, ``pathogen_channel``, ``organelle_channel``, ``channels`` — channel selection.",
       "source_sha256": "56edd9d16e46c33f077f13ce3455e67369d51009b3cf22dd34f6f80b74946344",
-      "translation": "``cell_channel``, ``nucleus_channel``, ``pathogen_channel``, ``organelle_channel``, ``channels`` — útval kanna."
+      "translation": "``cell_channel``, ``nucleus_channel``, ``pathogen_channel``, ``organelle_channel``, ``channels`` — útval rás."
     },
     {
       "context": "``normalize``, ``lower_percentile``, ``save_dtype``.",

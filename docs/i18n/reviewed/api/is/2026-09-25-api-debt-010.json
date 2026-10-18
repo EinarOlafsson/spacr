@@ -4061,6 +4061,8 @@
     {
       "context": "What the plaque model box offers: zoo plaque models, then ``bundled``.",
       "label": "spacr.qt.widgets.plaque_preview.plaque_model_choices#0",
+      "retired": true,
+      "retired_reason": "2026-10-17: the Plaque v5 default change (c6f32eee39d) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "What the plaque model box offers: zoo plaque models, then ``bundled``.",
       "source_sha256": "c9ac856460759e28637d0b04edc0c94c2038fd8e2f6d8565a54636058c12621f",
@@ -4072,6 +4074,8 @@
     {
       "context": "setting values, newest zoo model first.",
       "label": "spacr.qt.widgets.plaque_preview.plaque_model_choices#2",
+      "retired": true,
+      "retired_reason": "2026-10-17: the Plaque v5 default change (c6f32eee39d) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "setting values, newest zoo model first.",
       "source_sha256": "944439dbb28b43685d91e2e73e2d4bb103602a1ac30cb3e214e935796e88ef07",

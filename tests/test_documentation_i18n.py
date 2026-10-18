@@ -4114,6 +4114,42 @@ def test_semantic_gate_mandatory_negative_controls():
     )
 
 
+def test_dye_stain_as_smudge_is_a_hard_failure_in_nine_locales():
+    from build_i18n_catalogs import (
+        _semantic_false_friends,
+        _translation_candidate_valid,
+    )
+
+    source = "Per channel (one pass per stain)"
+    cases = {
+        "de": ("Pro Kanal (ein Durchlauf pro Fleck)", "Pro Kanal (ein Durchlauf pro Färbung)"),
+        "es": ("Por canal (una pasada por mancha)", "Por canal (una pasada por tinción)"),
+        "fr": ("Par canal (une passe par tache)", "Par canal (une passe par coloration)"),
+        "pt": ("Por canal (uma passagem por mancha)", "Por canal (uma passagem por coloração)"),
+        "sv": ("Per kanal (ett pass per fläck)", "Per kanal (ett pass per färgning)"),
+        "is": ("Á rás (ein umferð á hvern blett)", "Á rás (ein umferð á hverja litun)"),
+        "zh_CN": ("按通道(每种斑点一遍)", "按通道(每种染色一遍)"),
+        "ko": ("채널별(얼룩마다 한 번)", "채널별(염색마다 한 번)"),
+        "hi": ("प्रति चैनल (हर दाग के लिए एक पास)", "प्रति चैनल (हर अभिरंजक के लिए एक पास)"),
+    }
+    for language, (bad, good) in cases.items():
+        assert "dye-stain-as-smudge" in _semantic_false_friends(
+            source, bad, language,
+        ), language
+        assert "dye-stain-as-smudge" not in _semantic_false_friends(
+            source, good, language,
+        ), language
+        assert not _translation_candidate_valid(source, bad, language)
+    for blob_source, target, language in (
+        ("DoG blobs", "DoG-Flecken", "de"),
+        ("Stained nuclei appear as bright spots.", "Gefärbte Kerne erscheinen als helle Flecken.", "de"),
+        ("Slowly drifting colour blobs.", "Manchas de color que se desplazan lentamente.", "es"),
+    ):
+        assert "dye-stain-as-smudge" not in _semantic_false_friends(
+            blob_source, target, language,
+        )
+
+
 def test_ko_zh_additional_semantic_families_and_negative_controls():
     from build_i18n_catalogs import _semantic_false_friends
 

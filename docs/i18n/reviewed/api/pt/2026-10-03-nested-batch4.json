@@ -160,7 +160,7 @@
       "source": "Build the worker for this set's repository.",
       "source_sha256": "3abd1a0ebc03f1756cc7b01f85325b9f56575463701e2b8aaaca9681452be128",
       "context": "Build the worker for this set's repository.",
-      "translation": "Constrói o trabalhador para o repositório deste conjunto.",
+      "translation": "Constrói o worker para o repositório deste conjunto.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
@@ -274,7 +274,7 @@
       "source": "The payload is how a value crosses back from the worker: a return would be swallowed by the runner.",
       "source_sha256": "8b4c4eaf404c4ddad5957860ae69b48c64e5d9048058f3cae44fb8d6f849d2ca",
       "context": "The payload is how a value crosses back from the worker: a return would be swallowed by the runner.",
-      "translation": "A carga útil é como um valor volta do trabalhador: um valor retornado seria engolido pelo executor.",
+      "translation": "A carga útil é como um valor volta do worker: um valor retornado seria engolido pelo executor.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
@@ -306,7 +306,7 @@
       "source": "Join, cluster and summarise on the worker.",
       "source_sha256": "a772af0cefd436f625321c10ea6d8fcef897e59f489cf0ad9444107f88418b29",
       "context": "Join, cluster and summarise on the worker.",
-      "translation": "Junta, agrupa e resume no trabalhador.",
+      "translation": "Junta, agrupa e resume no worker.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
@@ -346,7 +346,7 @@
       "source": "Reconstruct saved data on the worker before the chart is restored.",
       "source_sha256": "ab0510b64d231c389232fe770dba98b4e740d619ea31c086011cd17c83eac025",
       "context": "Reconstruct saved data on the worker before the chart is restored.",
-      "translation": "Reconstrói os dados salvos no trabalhador antes de o gráfico ser restaurado.",
+      "translation": "Reconstrói os dados salvos no worker antes de o gráfico ser restaurado.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
@@ -436,7 +436,7 @@
       "source": "Load a schema in a worker and apply it to a copy of the table.",
       "source_sha256": "b0621a4d52a0e66b09429246b8bf4fe41fa57b0912603f14af0b8cd39c8cc046",
       "context": "Load a schema in a worker and apply it to a copy of the table.",
-      "translation": "Carrega um esquema em um trabalhador e o aplica a uma cópia da tabela.",
+      "translation": "Carrega um esquema em um worker e o aplica a uma cópia da tabela.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
@@ -444,7 +444,7 @@
       "source": "Save the schema in a worker; returns the path, rows and any error.",
       "source_sha256": "4f43561b979f61f4017738edfd9c42a0795409bd91b677db724385fdafdb1214",
       "context": "Save the schema in a worker; returns the path, rows and any error.",
-      "translation": "Salva o esquema em um trabalhador; retorna o caminho, as linhas e qualquer erro.",
+      "translation": "Salva o esquema em um worker; retorna o caminho, as linhas e qualquer erro.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
@@ -452,7 +452,7 @@
       "source": "Preview the draft in a worker and apply it to a copy of the table.",
       "source_sha256": "23f0128f1fa2d93d27be350915531bd79788aecbbe8f7be0ca8140c03142cfeb",
       "context": "Preview the draft in a worker and apply it to a copy of the table.",
-      "translation": "Pré-visualiza o rascunho em um trabalhador e o aplica a uma cópia da tabela.",
+      "translation": "Pré-visualiza o rascunho em um worker e o aplica a uma cópia da tabela.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {

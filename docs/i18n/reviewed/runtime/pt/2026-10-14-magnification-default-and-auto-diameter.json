@@ -14,7 +14,7 @@
       "key": "magnification",
       "source": "Objective magnification, used only to derive expected object sizes: pixel diameter is 2*mag+80 for cells, 0.75*mag+45 for nuclei and mag for pathogens, with min/max area limits of diameter^2/4 and diameter^2*10. A blank cell_diameter, nucleus_diameter or pathogen_diameter is segmented at that default diameter with every model, Cellpose-SAM included; an explicit number or 'auto' overrides it. Set this to the acquisition objective magnification (10, 20, 40 or 60). Default 40.",
       "source_sha256": "75f4913fece9e783402cb243c3025b5ec5aa2167ac591325fba0e0d0333ce8ba",
-      "translation": "Ampliação do objetivo, usada apenas para calcular tamanhos esperados: o diâmetro em pixels é 2*mag+80 para células, 0.75*mag+45 para núcleos e mag para patógenos, com limites de área mínimo/máximo de diameter^2/4 e diameter^2*10. cell_diameter, nucleus_diameter ou pathogen_diameter em branco usa esse diâmetro padrão em todos os modelos, incluindo Cellpose-SAM; um número explícito ou 'auto' o substitui. Use a ampliação do objetivo na aquisição (10, 20, 40 ou 60). Padrão: 40."
+      "translation": "Ampliação da objetiva, usada apenas para calcular tamanhos esperados: o diâmetro em pixels é 2*mag+80 para células, 0.75*mag+45 para núcleos e mag para patógenos, com limites de área mínimo/máximo de diameter^2/4 e diameter^2*10. cell_diameter, nucleus_diameter ou pathogen_diameter em branco usa esse diâmetro padrão em todos os modelos, incluindo Cellpose-SAM; um número explícito ou 'auto' o substitui. Use a ampliação da objetiva de aquisição (10, 20, 40 ou 60). Padrão: 40."
     },
     {
       "table": "setting_tooltips",

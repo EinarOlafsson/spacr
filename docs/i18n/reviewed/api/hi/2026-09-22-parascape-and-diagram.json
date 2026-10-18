@@ -289,7 +289,7 @@
       "label": "spacr.qt.parascape.ParaScapeInstallDialog.reject#0",
       "source": "Cancel active subprocesses and defer closing until the worker has ended.",
       "source_sha256": "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38",
-      "translation": "सक्रिय उपप्रक्रियाएँ रद्द करें और कार्यकर्ता के समाप्त होने तक बंद करना टालें।"
+      "translation": "सक्रिय उपप्रक्रियाएँ रद्द करें और वर्कर के समाप्त होने तक बंद करना टालें।"
     },
     {
       "context": "Start the install after the explicit button press, keeping Qt responsive.",

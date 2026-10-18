@@ -3135,7 +3135,7 @@
       "source": "cells per row; converted to ``int`` and clamped to :data:`MONTAGE_COLUMNS_RANGE`, and an unparseable value stores :data:`DEFAULT_MONTAGE_COLUMNS`.",
       "source_sha256": "2ad7264118207421846698d6c669ed6fb4ec064bd4b919abcac727f6f5c10818",
       "context": "cells per row; converted to ``int`` and clamped to :data:`MONTAGE_COLUMNS_RANGE`, and an unparseable value stores :data:`DEFAULT_MONTAGE_COLUMNS`.",
-      "translation": "celdas por fila; se convierte a ``int`` y se limita a :data:`MONTAGE_COLUMNS_RANGE`, y un valor no interpretable guarda :data:`DEFAULT_MONTAGE_COLUMNS`.",
+      "translation": "células por fila; se convierte a ``int`` y se limita a :data:`MONTAGE_COLUMNS_RANGE`, y un valor no interpretable guarda :data:`DEFAULT_MONTAGE_COLUMNS`.",
       "review_basis": "MT draft edited in AI review"
     },
     {

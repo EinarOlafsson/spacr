@@ -145,7 +145,7 @@
       "source": "THE TABS ARE TOLD ON THEIR BAR. The tab widget's rule holds the whole of Home under it, and setting it again restyled every tile (1.1 s loaded) to change one tab's fill; the bar takes the selected tab's fill as a rule of its own, which wins over the one it inherits.",
       "source_sha256": "abf455943602ccbc209c157ecc91892c0f3447f62c35265483b715d46cbfbe6f",
       "context": "The tabs are told on their bar. The tab widget's rule holds the whole of Home under it, and setting it again restyled every tile (1.1 s loaded) to change one tab's fill; the bar takes the selected tab's fill as a rule of its own, which wins over the one it inherits.",
-      "translation": "A LAS PESTAÑAS SE LES DICE EN SU BARRA. La regla del widget de pestañas contiene todo Home bajo ella, y fijarla de nuevo volvía a dar estilo a cada baldosa (1.1 s con carga) para cambiar el relleno de una pestaña; la barra toma el relleno de la pestaña seleccionada como una regla propia, que prevalece sobre la que hereda.",
+      "translation": "A LAS PESTAÑAS SE LES DICE EN SU BARRA. La regla del widget de pestañas contiene todo Home bajo ella, y fijarla de nuevo volvía a dar estilo a cada mosaico (1.1 s con carga) para cambiar el relleno de una pestaña; la barra toma el relleno de la pestaña seleccionada como una regla propia, que prevalece sobre la que hereda.",
       "review_basis": "written from the English"
     },
     {

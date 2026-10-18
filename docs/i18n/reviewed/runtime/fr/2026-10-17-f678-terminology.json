@@ -1,0 +1,720 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "key": "<b>Applies on the next run</b><br><span style='color:gray;'>These decide what gets drawn, so they need the run that draws it.</span>",
+      "source": "<b>Applies on the next run</b><br><span style='color:gray;'>These decide what gets drawn, so they need the run that draws it.</span>",
+      "source_sha256": "0c8542d1bc2ed1ab6058dfadaa20928a9d41d89e745986a1637351921179f7a2",
+      "table": "ui",
+      "translation": "<b>S'applique à la prochaine exécution</b><br><span style='color:gray;'>Ce sont eux qui décident de ce qui est dessiné, donc ils ont besoin de l'exécution qui le dessine.</span>"
+    },
+    {
+      "key": "A NaN here is usually meaningful: a pathogen feature is NaN for a cell with no pathogen. Dropping the feature keeps every object; dropping the rows keeps every feature but changes which population you are looking at.",
+      "source": "A NaN here is usually meaningful: a pathogen feature is NaN for a cell with no pathogen. Dropping the feature keeps every object; dropping the rows keeps every feature but changes which population you are looking at.",
+      "source_sha256": "19292d52ccc8c92b43817c2172c46874d4a6a0ac560969f1635914148de40239",
+      "table": "ui",
+      "translation": "Un NaN ici est généralement significatif: une caractéristique pathogène est NaN pour une cellule sans agent pathogène. Déposer la caractéristique garde chaque objet; déposer les lignes garde chaque caractéristique mais change la population que vous regardez."
+    },
+    {
+      "key": "Attribution settings for a trained image model: method, target layer, overlay rendering and inference normalization. These settings determine which image regions are reported as contributing to a classification.",
+      "source": "Attribution settings for a trained image model: method, target layer, overlay rendering and inference normalization. These settings determine which image regions are reported as contributing to a classification.",
+      "source_sha256": "30c2f855778228babd0ca451ff622db34e4e560ac816fc2adff576898560f3cd",
+      "table": "ui",
+      "translation": "Paramètres d'attribution pour un modèle d'image entraîné: méthode, couche cible, rendu de recouvrement et normalisation de l'inférence. Ces paramètres déterminent quelles régions d'images sont déclarées comme contribuant à une classification."
+    },
+    {
+      "key": "Browse the models spaCR knows about, see what each was trained on, download one and fill in this field. You can still type a path yourself. API: spacr.qt.widgets.model_zoo_picker.choose_model.",
+      "source": "Browse the models spaCR knows about, see what each was trained on, download one and fill in this field. You can still type a path yourself. API: spacr.qt.widgets.model_zoo_picker.choose_model.",
+      "source_sha256": "8e8d651083f021c777740e181dde318d8d1cb0c43a83c0f9996e389cda779548",
+      "table": "ui",
+      "translation": "Parcourir les modèles spaCR sait à propos, voir sur quoi chacun a été entraîné, télécharger un et remplir ce champ. Vous pouvez toujours saisir un chemin vous-même. API: spacr.qt.widgets.model_zoo_picker.choose_model."
+    },
+    {
+      "key": "Centred puts the middle of the lit run under the pointer; trailing puts its leading end there and drags the rest of the light behind.",
+      "source": "Centred puts the middle of the lit run under the pointer; trailing puts its leading end there and drags the rest of the light behind.",
+      "source_sha256": "37b2f409276e4146ed62eccbe857afc0bac212c78608e8a39384b9327447cfb4",
+      "table": "ui",
+      "translation": "Centred place le milieu de l'exécution illuminée sous le pointeur; la piste place son extrémité de tête là et traîne le reste de la lumière derrière."
+    },
+    {
+      "key": "Channel shown and segmented. Bound to the segmentation channel, so the frame you look at is the frame Cellpose sees.",
+      "source": "Channel shown and segmented. Bound to the segmentation channel, so the frame you look at is the frame Cellpose sees.",
+      "source_sha256": "1ba82bf0b7ff121a4b10ee076a5a7e7db2017b18fcf21e6017cc133ee7e7d34c",
+      "table": "ui",
+      "translation": "Canal affiché et segmenté. Lié au canal de segmentation : l'image que vous regardez est celle que voit Cellpose."
+    },
+    {
+      "key": "Channel {index}: {name}",
+      "source": "Channel {index}: {name}",
+      "source_sha256": "1f9f5dd9fe5b38416c255e6c9b7b292fba6c8a476eec4cdc84915b2314c6451c",
+      "table": "ui",
+      "translation": "Canal {index} : {name}"
+    },
+    {
+      "key": "Choose the folder your models were trained into (a dataset's model/ folder, or anything above it), then Scan.",
+      "source": "Choose the folder your models were trained into (a dataset's model/ folder, or anything above it), then Scan.",
+      "source_sha256": "0e7fc9eb1c2c162bbf912728cd0643faf317edebf51e2f7d7942c618371c5dbc",
+      "table": "ui",
+      "translation": "Choisissez le dossier dans lequel vos modèles ont été entraînés (le modèle / dossier d'un ensemble de données, ou tout ce qui est au-dessus), puis Scannez."
+    },
+    {
+      "key": "Choose the measurements database, tables and feature columns that enter the map, then exclude unwanted rows or redundant measurements before fitting anything.",
+      "source": "Choose the measurements database, tables and feature columns that enter the map, then exclude unwanted rows or redundant measurements before fitting anything.",
+      "source_sha256": "74c91d8a875d6781256fac4755333beb6143db24fff40fc2cdec933736217959",
+      "table": "ui",
+      "translation": "Choisissez la base de données de mesures, les tableaux et les colonnes de caractéristiques qui entrent dans la carte, puis excluez les lignes indésirables ou les mesures redondantes avant d'adapter quoi que ce soit."
+    },
+    {
+      "key": "Control wells used for the comparison. A gene name selects all associated guides; a guide name selects only that guide.",
+      "source": "Control wells used for the comparison. A gene name selects all associated guides; a guide name selects only that guide.",
+      "source_sha256": "0606f2da22fa564e58a3f8f6a1fe32aaa37692ba6ba99173b1e7183cd1d1c685",
+      "table": "ui",
+      "translation": "Puits de contrôle utilisés pour la comparaison. Un nom de gène sélectionne tous les guides associés; un nom de guide sélectionne seulement ce guide."
+    },
+    {
+      "key": "Encoding runs separately for every stain and names it in the column. Projection mixes them into three and is faster.",
+      "source": "Encoding runs separately for every stain and names it in the column. Projection mixes them into three and is faster.",
+      "source_sha256": "515397653a26413dbf2b840eade02d45e1e375e395558a9d92d83dbbb86a3b7c",
+      "table": "ui",
+      "translation": "L'encodage fonctionne séparément pour chaque coloration et la nomme dans la colonne. Projection les mélange en trois et est plus rapide."
+    },
+    {
+      "key": "Field of view — the (plate, well, field) group previewed. Each group is one time series. Lists a random sample of the plate, not all of it.",
+      "source": "Field of view — the (plate, well, field) group previewed. Each group is one time series. Lists a random sample of the plate, not all of it.",
+      "source_sha256": "4de9ac3d299071918426f6987b0c655c16e30e58c7242eb7f33aee7aae041dc7",
+      "table": "ui",
+      "translation": "Champ de vue — le groupe (plaque, puits, champ) prévisualisé. Chaque groupe est constitué d'une série chronologique. Énumère un échantillon aléatoire de la plaque, pas tout."
+    },
+    {
+      "key": "Fit a model on the labels made so far, score every crop with it, and re-rank the uncertainty queue — without leaving this screen. Held out by well, so the accuracy is not an artefact of labelling one field of view. Each round writes a model card.",
+      "source": "Fit a model on the labels made so far, score every crop with it, and re-rank the uncertainty queue — without leaving this screen. Held out by well, so the accuracy is not an artefact of labelling one field of view. Each round writes a model card.",
+      "source_sha256": "079e363f5542b7f14a980c52313d45a9b9c0b2c6391a43f9eb5dfb369796ca17",
+      "table": "ui",
+      "translation": "Ajustez un modèle sur les étiquettes faites jusqu'à présent, marquez chaque vignette avec elle, et reclassez la file d'attente d'incertitude — sans quitter cet écran. Mis de côté par puits, donc la précision n'est pas un artefact de l'étiquetage d'un champ de vision. Chaque tour écrit une carte modèle."
+    },
+    {
+      "key": "Fold this run's figures away.",
+      "source": "Fold this run's figures away.",
+      "source_sha256": "8159fcc89433fa7b969f242e26507bcc8b945fb3e80e7e9d9b817e3562ce0987",
+      "table": "ui",
+      "translation": "Repliez les chiffres de cette exécution."
+    },
+    {
+      "key": "Generate a training dataset from the current annotations and train a Torch CNN / Transformer classifier, then apply it to the full dataset. Opens the Classify screen with this source pre-selected.",
+      "source": "Generate a training dataset from the current annotations and train a Torch CNN / Transformer classifier, then apply it to the full dataset. Opens the Classify screen with this source pre-selected.",
+      "source_sha256": "9529ad691118718774fada0aaed22163471d0ed7b654f898d12bef43edf377bd",
+      "table": "ui",
+      "translation": "Générer un ensemble de données d'entraînement à partir des annotations actuelles et entraîner un classificateur Torch CNN / Transformer, puis l'appliquer à l'ensemble de données complet. Ouvre l'écran Classify avec cette source présélectionnée."
+    },
+    {
+      "key": "Generate activation / attention maps to see what a trained model focuses on.",
+      "source": "Generate activation / attention maps to see what a trained model focuses on.",
+      "source_sha256": "14bf2628d674d6dc8dd2bf89dc52c7d6d7f012940c41189628c748c3a9f563ea",
+      "table": "ui",
+      "translation": "Générer des cartes d'activation / attention pour voir sur quoi se concentre un modèle entraîné."
+    },
+    {
+      "key": "Hold this run at its next safe checkpoint.",
+      "source": "Hold this run at its next safe checkpoint.",
+      "source_sha256": "18600c3a466fcdf2c9e14cc2373840ad598f7f162e30b981298ed0e22502c38b",
+      "table": "ui",
+      "translation": "Maintenez cette exécution à son prochain point de contrôle sécurisé."
+    },
+    {
+      "key": "Hover any module tile and it lights up in the colour of how finished it is.",
+      "source": "Hover any module tile and it lights up in the colour of how finished it is.",
+      "source_sha256": "86c8a1e018f0ed63e10e38b054cd26e28485bdea536a8e3fc46e2d758f706a5a",
+      "table": "ui",
+      "translation": "Survolez n'importe quelle tuile de module : elle s'allume dans la couleur de son degré d'achèvement."
+    },
+    {
+      "key": "How hard the run pushes the machine and what it does when a field fails — worker count, batch size, the tolerated failure rate, and how much it prints. Turn strict errors on while debugging; raise the failure tolerance for a plate with known-bad fields.",
+      "source": "How hard the run pushes the machine and what it does when a field fails — worker count, batch size, the tolerated failure rate, and how much it prints. Turn strict errors on while debugging; raise the failure tolerance for a plate with known-bad fields.",
+      "source_sha256": "ed69826cf560dfc17ec11402b30788dc8316ebbd4c861d688ee89b80161eefdd",
+      "table": "ui",
+      "translation": "Combien l’exécution pousse la machine et ce qu'elle fait quand un champ échoue — le nombre de workers, la taille du lot, le taux de défaillance toléré, et combien elle imprime."
+    },
+    {
+      "key": "How long a background job has to run before the spinner beside Clear console appears. Short jobs never show it at all — the timer starts when the work does and the spinner only appears if the work is still going when it fires, so nothing flashes. Set it to 0 to see every job.",
+      "source": "How long a background job has to run before the spinner beside Clear console appears. Short jobs never show it at all — the timer starts when the work does and the spinner only appears if the work is still going when it fires, so nothing flashes. Set it to 0 to see every job.",
+      "source_sha256": "01a8ef0ae686bd8c1fde2b869090c62ab4141a5d58d5ab8ee3c7ca1c13d3a8bc",
+      "table": "ui",
+      "translation": "Combien de temps un travail de fond doit s'exécuter avant que le spinner à côté de la console Clear apparaît. Les petits travaux ne le montrent jamais du tout — le minuteur commence quand le travail fait et le spinner n'apparaît que si le travail est toujours en cours quand il allume, donc rien ne clignote. Réglez-le à 0 pour voir chaque travail."
+    },
+    {
+      "key": "How many cores the fit is spread over, and how much it prints on the way. Lower the worker count when the machine has other work to do; raise the verbosity when a fit is failing and you cannot see where.",
+      "source": "How many cores the fit is spread over, and how much it prints on the way. Lower the worker count when the machine has other work to do; raise the verbosity when a fit is failing and you cannot see where.",
+      "source_sha256": "2f3b5c683e10f7f3c2865f162d82b8df9e99522a88d31404e3342bb2b9b1e288",
+      "table": "ui",
+      "translation": "Combien de cœurs l'ajustement est réparti sur, et combien il imprime sur le chemin. Abaissez le nombre de workers quand la machine a d'autres travaux à faire; augmenter la verbosité quand un ajustement est défaillant et vous ne pouvez pas voir où."
+    },
+    {
+      "key": "How many worker processes the assay uses. Lower it when the machine has other work to do.",
+      "source": "How many worker processes the assay uses. Lower it when the machine has other work to do.",
+      "source_sha256": "b9f5cc1172bed17d799d5b3e599ba2de69e4997b470990c9d74d1cbd6880f919",
+      "table": "ui",
+      "translation": "Combien de workers traitent l'essai utilise. Abaissez-le quand la machine a d'autres travaux à faire."
+    },
+    {
+      "key": "How the cut-off separating the two populations is chosen, and how much disagreement between methods is tolerated before the run says so. This is the single most consequential group in the assay.",
+      "source": "How the cut-off separating the two populations is chosen, and how much disagreement between methods is tolerated before the run says so. This is the single most consequential group in the assay.",
+      "source_sha256": "49be6c6def4e8a5f31be0e87e289c2cf565bbb1597888dc1ee4cfd8a5bba3a18",
+      "table": "ui",
+      "translation": "Comment le seuil de séparation des deux populations est choisi, et combien de désaccord entre les méthodes est toléré avant que l'exécution le dit. C'est le groupe le plus conséquent dans l'essai."
+    },
+    {
+      "key": "How the estimate itself is produced — the level the score is computed at, the backend that runs it, and the random seed. Fix the seed when you want two designs compared rather than two draws.",
+      "source": "How the estimate itself is produced — the level the score is computed at, the backend that runs it, and the random seed. Fix the seed when you want two designs compared rather than two draws.",
+      "source_sha256": "fb4cee06a73236e79fdca9eaecd53811130a5da149e080bf9d708f5ddc028254",
+      "table": "ui",
+      "translation": "Comment l'estimation elle-même est produite — le niveau de la note est calculé à, le moteur qui l'exécute, et la graine aléatoire. Fixer la graine lorsque vous voulez deux dessins comparés plutôt que deux dessins."
+    },
+    {
+      "key": "Image channels to put in the crop, in order. Three make an RGB picture; one makes greyscale.",
+      "source": "Image channels to put in the crop, in order. Three make an RGB picture; one makes greyscale.",
+      "source_sha256": "094d37e7f05162fa35ab3dd35566f943434c5063e83e6628cbe9cdba4dfd264b",
+      "table": "ui",
+      "translation": "Canaux d'image à mettre dans la vignette, dans l'ordre. Trois font une image RGB; l'une fait une échelle de gris."
+    },
+    {
+      "key": "Inspect and edit segmentation masks with brush, flood-fill, relabel, fill and object-removal tools; train, apply, compare and select segmentation models from the integrated workbench.",
+      "source": "Inspect and edit segmentation masks with brush, flood-fill, relabel, fill and object-removal tools; train, apply, compare and select segmentation models from the integrated workbench.",
+      "source_sha256": "4f38d16a30eeae8662dcbfcb452cc2264df8a899ee8ba2dffbb7f73dfc595ab9",
+      "table": "ui",
+      "translation": "Inspecter et modifier les masques de segmentation avec des outils de brosse, de remplissage d'inondation, de relabel, de remblayage et d'enlèvement d'objets; entraîner, appliquer, comparer et sélectionner des modèles de segmentations à partir de l'atelier intégré."
+    },
+    {
+      "key": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source_sha256": "3bafee89d682254bb5d681aa2f37f306c49d68de212c3f8e8e3f4bd5fd1b1bdb",
+      "table": "ui",
+      "translation": "Chargez une table ou utilisez des tables Merge pour créer un ensemble de travail avec des clés validées et l'agrégation. Définissez les gates de seuil ou de polygone sur les colonnes de caractéristique/coordonnée réelles, puis appliquez la gate sauvegardée sur des objets compatibles. Utilisez Annoter pour écrire les gates affichées sur une colonne d'annotation; examinez les objets sélectionnés et choisissez des étiquettes binaires ou multiclasses."
+    },
+    {
+      "key": "Look up what any measured feature means — its definition, its unit, which objects it exists for and which module computes it.",
+      "source": "Look up what any measured feature means — its definition, its unit, which objects it exists for and which module computes it.",
+      "source_sha256": "a00c4296466b12cf5aa56fcaad657df41d6640a160e81a970f3c3a79695dd727",
+      "table": "ui",
+      "translation": "Regardez ce que signifie toute caractéristique mesurée — sa définition, son unité, pour quels objets elle existe et pour quel module la calcule."
+    },
+    {
+      "key": "MAD and IQR test one feature at a time. Mahalanobis tests the features together and is the only one that can see a combination going wrong while each column on its own looks ordinary.",
+      "source": "MAD and IQR test one feature at a time. Mahalanobis tests the features together and is the only one that can see a combination going wrong while each column on its own looks ordinary.",
+      "source_sha256": "1242ae3f3c6163a4581e04a77f9e92a499e179dfa900c13a5274759994423def",
+      "table": "ui",
+      "translation": "MAD et IQR testent une caractéristique à la fois. Mahalanobis teste les caractéristiques ensemble et est le seul qui peut voir une combinaison se tromper alors que chaque colonne sur son propre apparence ordinaire."
+    },
+    {
+      "key": "Masks were not kept for this run, so there is nothing to draw.",
+      "source": "Masks were not kept for this run, so there is nothing to draw.",
+      "source_sha256": "cb059d911018d225d1550de7499786e68b7c594a67f10b90630d53b20dabd5c8",
+      "table": "ui",
+      "translation": "Les masques n'ont pas été gardés pour cette exécution, il n'y a donc rien à dessiner."
+    },
+    {
+      "key": "Masks were not kept for this run.",
+      "source": "Masks were not kept for this run.",
+      "source_sha256": "315798aa5b689ff739d3ef5dc46eebce63a1cf4ec9dd5cc14997a2ba94a77275",
+      "table": "ui",
+      "translation": "Les masques n'ont pas été gardés pour cette exécution."
+    },
+    {
+      "key": "Measure is running. Stop or finish that run before changing which fields it can see.",
+      "source": "Measure is running. Stop or finish that run before changing which fields it can see.",
+      "source_sha256": "6a5200fb96e3b3306510e8a8aa4794c48ef561baaf2e61752b63e6ba76e0d731",
+      "table": "ui",
+      "translation": "La mesure est en cours d'exécution. Arrêtez ou terminez cette exécution avant de changer les champs qu'elle peut voir."
+    },
+    {
+      "key": "No cached masks for these segmentation settings — hit Run preview.",
+      "source": "No cached masks for these segmentation settings — hit Run preview.",
+      "source_sha256": "74592c97622898fc0da924b530a4829719b5b69c9cf019d1f20e97fbdbdb958f",
+      "table": "ui",
+      "translation": "Pas de masques en cache pour ces paramètres de segmentation — appuyez sur Aperçu Exécuter."
+    },
+    {
+      "key": "No microscope lights a field evenly, so the same cell measures brighter at the centre than at a corner — routinely 10–40% on a widefield screen, and it does not average out of a per-well aggregate. This estimates the illumination field from the plate's own merged fields (a per-pixel median across fields, then a smooth low-order surface), QCs it, and installs it as a preprocessing hook that every measure worker applies before a single feature is computed.",
+      "source": "No microscope lights a field evenly, so the same cell measures brighter at the centre than at a corner — routinely 10–40% on a widefield screen, and it does not average out of a per-well aggregate. This estimates the illumination field from the plate's own merged fields (a per-pixel median across fields, then a smooth low-order surface), QCs it, and installs it as a preprocessing hook that every measure worker applies before a single feature is computed.",
+      "source_sha256": "c378545d5da89aadefb89a0ec3c4389e4c1d612e0009516863ad6ed324a314c5",
+      "table": "ui",
+      "translation": "Aucun microscope n'allume un champ uniformément, de sorte que la même cellule mesure plus clairement au centre qu'à un angle — habituellement 10 à 40 % sur un criblage large, et il ne fait pas la moyenne d'un agrégat par puits. Cette estimation du champ d'éclairage à partir des champs fusionnés de la plaque (une médiane par pixel à travers les champs, puis une surface lisse à faible ordre), QCs, et l'installe comme un crochet de prétraitement que chaque worker de mesure applique avant qu'une seule caractéristique soit calculée."
+    },
+    {
+      "key": "Nothing searched yet. The search reads a bounded sample, so it costs seconds rather than a run.",
+      "source": "Nothing searched yet. The search reads a bounded sample, so it costs seconds rather than a run.",
+      "source_sha256": "a65699a4abcda5196fd246735fbf84337f611a4a7eaffeb6cba3ed04a75529a7",
+      "table": "ui",
+      "translation": "Rien n'a encore été cherché. La recherche lit un échantillon limité, donc cela coûte des secondes plutôt qu'une exécution."
+    },
+    {
+      "key": "Nothing to run — add a job first.",
+      "source": "Nothing to run — add a job first.",
+      "source_sha256": "5ceeebdc32563496f265338c9e3df865adef629196bc6cbb1a592bb34f19706d",
+      "table": "ui",
+      "translation": "Rien à exécuter — ajouter un travail d'abord."
+    },
+    {
+      "key": "Nothing to run — every item is already finished.",
+      "source": "Nothing to run — every item is already finished.",
+      "source_sha256": "601ee96b6e546529af8e35e942b0b86c96ec4757a67589f9b2b36890644407ce",
+      "table": "ui",
+      "translation": "Rien à exécuter — chaque article est déjà terminé."
+    },
+    {
+      "key": "On: objects are brighter than background, as in fluorescence. Off: take the dark side instead, for brightfield or stain.",
+      "source": "On: objects are brighter than background, as in fluorescence. Off: take the dark side instead, for brightfield or stain.",
+      "source_sha256": "0c826070be36c280add2db58a54a88c197302647296252cd344ec7c0118fb44f",
+      "table": "ui",
+      "translation": "Activé : les objets sont plus brillants que le fond, comme en fluorescence. Désactivé : prendre plutôt le côté sombre, pour le fond clair ou une coloration."
+    },
+    {
+      "key": "Open an experiment source before training a classifier.",
+      "source": "Open an experiment source before training a classifier.",
+      "source_sha256": "bc683e71391c6194fdbf784676a71c308dedfc7782eaaba5394010707ebb997a",
+      "table": "ui",
+      "translation": "Ouvrez une source d'expérience avant de entraîner un classificateur."
+    },
+    {
+      "key": "Open an experiment source before training an XGBoost model.",
+      "source": "Open an experiment source before training an XGBoost model.",
+      "source_sha256": "20f0a18ef4b4fcced078b5e4585e355e613e63adc01e8e7246fc579866c9d21b",
+      "table": "ui",
+      "translation": "Ouvrez une source d'expérience avant de entraîner un modèle XGBoost."
+    },
+    {
+      "key": "Penalised least squares with an L2 penalty, which never sets a coefficient to exactly zero -- so there is no selection frequency to report, every feature would score 1.0, and it falls back to an approximate p-value. That test is mis-specified, in the safe direction: the standard error is unpenalised while the coefficient it divides has been shrunk, so the statistic is too small and ridge under-detects rather than manufacturing hits.",
+      "source": "Penalised least squares with an L2 penalty, which never sets a coefficient to exactly zero -- so there is no selection frequency to report, every feature would score 1.0, and it falls back to an approximate p-value. That test is mis-specified, in the safe direction: the standard error is unpenalised while the coefficient it divides has been shrunk, so the statistic is too small and ridge under-detects rather than manufacturing hits.",
+      "source_sha256": "0fe0451c5e0c25e944a66e498270089d1074d3778bbaa6f22edb8bca7b971dd9",
+      "table": "ui",
+      "translation": "Les moindres carrés pénalisés avec une pénalité de L2, qui ne fixe jamais un coefficient exactement à zéro -- il n'y a donc pas de fréquence de sélection à signaler, chaque caractéristique marquerait 1.0, et elle retombera à une valeur approximative de p. Ce test est mal spécifié, dans la direction sûre : l'erreur standard est non pénalisée alors que le coefficient qu'elle divise a été réduit, de sorte que la statistique est trop petite et qu'il y a sous-détecte les crêtes plutôt que de fabriquer des résultats."
+    },
+    {
+      "key": "Per channel (one pass per stain)",
+      "source": "Per channel (one pass per stain)",
+      "source_sha256": "1a2bb7239b7ecfd4323d52e6b856394fc9fdc73f0255ac36f1527bbadebf8c11",
+      "table": "ui",
+      "translation": "Par canal (une passe par coloration)"
+    },
+    {
+      "key": "Pick a project to see its stages, what is stale and why, and what could run next.",
+      "source": "Pick a project to see its stages, what is stale and why, and what could run next.",
+      "source_sha256": "c8d02dec279d334665e5abdbbe61d29f211188c8309772cdb7f8ca633cc03190",
+      "table": "ui",
+      "translation": "Choisissez un projet pour voir ses étapes, ce qui est inexistant et pourquoi, et ce qui pourrait s'exécuter ensuite."
+    },
+    {
+      "key": "Plane of the merged array the preview reads its objects from. Bound to 'Tracked mask plane'; changing it drops the cached point table, so run the preview to see it.",
+      "source": "Plane of the merged array the preview reads its objects from. Bound to 'Tracked mask plane'; changing it drops the cached point table, so run the preview to see it.",
+      "source_sha256": "b735c62443a6c895386ad727cf03a97d1644fbb9d5ed6108a770c17f5009a8c8",
+      "table": "ui",
+      "translation": "Plan du tableau fusionné, l'aperçu lit ses objets de. Bound à 'Tracked mask plane'; le changer tombe la table de points en cache, alors exécutez l' aperçu pour le voir."
+    },
+    {
+      "key": "Planes displayed in the montage. Enter the colour letters used by Annotate — r, g, b, or a combination such as 'r,g,b', 'rg', or 'b' — and each letter is resolved to the corresponding source channel. Source-channel indices such as '0,1,2' are also accepted.\n\nLeft empty, the run's own png_dims are read back out of measurements.db, so the crops match the PNGs that run wrote.",
+      "source": "Planes displayed in the montage. Enter the colour letters used by Annotate — r, g, b, or a combination such as 'r,g,b', 'rg', or 'b' — and each letter is resolved to the corresponding source channel. Source-channel indices such as '0,1,2' are also accepted.\n\nLeft empty, the run's own png_dims are read back out of measurements.db, so the crops match the PNGs that run wrote.",
+      "source_sha256": "3648e84647b7195025a60a1399dc3c107993832a14b1808898c128ece76c5a5e",
+      "table": "ui",
+      "translation": "Introduisez les lettres de couleur utilisées par Annotate — r, g, b, ou une combinaison telle que 'r,g,b', 'rg', ou 'b' — et chaque lettre est réglée sur le canal source correspondant. Les indices des canaux sources tels que '0,1,2' sont également acceptés. Vide gauche, les propres png_dims de l'exécution sont lues à partir de measurements.db, de sorte que les vignettes correspondent aux PNGs qui ont été écrites."
+    },
+    {
+      "key": "Record failures that stop the run.",
+      "source": "Record failures that stop the run.",
+      "source_sha256": "14e86b7188149fa0b18763acdcf5e97e91985cfeb07696d63cc770a801f587c0",
+      "table": "ui",
+      "translation": "Enregistrez les échecs qui arrêtent l'exécution."
+    },
+    {
+      "key": "Reduce each well to the median of each feature and run the same rule across wells. A whole bad well flags almost none of its individual objects, so this is a different test rather than a summary of the one above.",
+      "source": "Reduce each well to the median of each feature and run the same rule across wells. A whole bad well flags almost none of its individual objects, so this is a different test rather than a summary of the one above.",
+      "source_sha256": "284a803e1bfad88c2def9250812b15b6a077716faf1e5a5d301302d23658bb22",
+      "table": "ui",
+      "translation": "Réduisez chaque puits à la médiane de chaque caractéristique et exécutez la même règle sur les puits. Un puits entier mauvais ne porte presque aucun de ses objets individuels, donc c'est un test différent plutôt qu'un résumé de celui ci-dessus."
+    },
+    {
+      "key": "Register the ROI as a Measure region filter, here and in every worker process",
+      "source": "Register the ROI as a Measure region filter, here and in every worker process",
+      "source_sha256": "e2c1a600b16ec0790257c7b1d31438f1e4ebc5af51134864776fd1de97f80eab",
+      "table": "ui",
+      "translation": "Enregistrez le filtre ROI comme une région de mesure, ici et dans chaque processus worker"
+    },
+    {
+      "key": "Requested worker count. The sweep clamps it according to available memory; see Containment below for whether kernel-enforced per-trial limits are active.",
+      "source": "Requested worker count. The sweep clamps it according to available memory; see Containment below for whether kernel-enforced per-trial limits are active.",
+      "source_sha256": "4bd119052a7ca14e630f971b0b8348aa5d794e3b55da4b340745860a61e780ff",
+      "table": "ui",
+      "translation": "Nombre de workers demandés. Le balayage le serre en fonction de la mémoire disponible; voir Containment ci-dessous pour savoir si les limites par essai renforcées par le noyau sont actives."
+    },
+    {
+      "key": "Saved Gate Editor gate files, separated by semicolons.",
+      "source": "Saved Gate Editor gate files, separated by semicolons.",
+      "source_sha256": "1e9369cbe8d3d4d9e7f4003c079698a59aa1d2f030ce9c2e0273147483731038",
+      "table": "ui",
+      "translation": "Fichiers de gates enregistrés de l'éditeur de gates, séparés par des points-virgules."
+    },
+    {
+      "key": "Scan a folder for checkpoints, or pick a catalogue entry to download. Every model shows what it was trained on — 'unknown' means nobody recorded it, not that it fits anything.",
+      "source": "Scan a folder for checkpoints, or pick a catalogue entry to download. Every model shows what it was trained on — 'unknown' means nobody recorded it, not that it fits anything.",
+      "source_sha256": "08a9fdb3e6ccfe4b9d064d08b42b017931eff4129574de1388eff2f4b8ceb453",
+      "table": "ui",
+      "translation": "Scanner un dossier pour les points de contrôle, ou choisir une entrée de catalogue à télécharger. Chaque modèle montre sur quoi il a été entraîné — 'unknown' signifie que personne ne l'a enregistré, pas qu'il correspond à quoi que ce soit."
+    },
+    {
+      "key": "Search every recorded job and inspect its exact settings, hashed inputs and outputs, warnings, failure traceback, software versions, seeds and performance.",
+      "source": "Search every recorded job and inspect its exact settings, hashed inputs and outputs, warnings, failure traceback, software versions, seeds and performance.",
+      "source_sha256": "454df7eed7828b52d2653931a6333b01ee08052dffd66ce471cbc136b04a7956",
+      "table": "ui",
+      "translation": "Recherchez chaque travail enregistré et inspectez ses paramètres exacts, les entrées et sorties hashées, les avertissements, les traces de défaillance, les versions logicielles, les graines et les performances."
+    },
+    {
+      "key": "Search failed: the worker returned no result.",
+      "source": "Search failed: the worker returned no result.",
+      "source_sha256": "4d741cf47d3e1afa72db79f59fe726268c1cdae04ef6ec0e30658a8740cc1d20",
+      "table": "ui",
+      "translation": "La recherche a échoué : le worker n'a retourné aucun résultat."
+    },
+    {
+      "key": "Select a model to see where it came from and what it was trained on.",
+      "source": "Select a model to see where it came from and what it was trained on.",
+      "source_sha256": "98f396facbbaa018e75535ee816546af4c2611025691207f2061746938d2cc3d",
+      "table": "ui",
+      "translation": "Sélectionnez un modèle pour voir d'où il vient et sur quoi il a été entraîné."
+    },
+    {
+      "key": "Select a run to inspect it.",
+      "source": "Select a run to inspect it.",
+      "source_sha256": "51ce4260d8683499eaeea0030a232ca4a4613ee2f94dc9fc6eecf85568919b09",
+      "table": "ui",
+      "translation": "Sélectionnez une exécution pour l'inspecter."
+    },
+    {
+      "key": "Select the column that defines object classes, then score and rank continuous features by class separation. The default AUC metric is rank-based and independent of measurement units. The results describe limitations of the selected statistic, flag features whose classes differ primarily in spread, and use a permutation test to estimate the best separation expected by chance across the feature set.",
+      "source": "Select the column that defines object classes, then score and rank continuous features by class separation. The default AUC metric is rank-based and independent of measurement units. The results describe limitations of the selected statistic, flag features whose classes differ primarily in spread, and use a permutation test to estimate the best separation expected by chance across the feature set.",
+      "source_sha256": "faec1c4949561d757882e8260ba3ad6b8fdcac053c9ab604f8442e4ea2e93ead",
+      "table": "ui",
+      "translation": "Sélectionnez la colonne qui définit les classes d'objet, puis notez et classez les caractéristiques continues par séparation de classe. La métrique par défaut de l'ASC est basée sur le rang et indépendante des unités de mesure. Les résultats décrivent les limites de la statistique sélectionnée, des caractéristiques de drapeau dont les classes diffèrent principalement en dispersion, et utilisez un test de permutation pour estimer la meilleure séparation attendue par hasard dans l'ensemble de la caractéristique."
+    },
+    {
+      "key": "Set the maximum number of self-training rounds. Training stops earlier when evaluation performance no longer improves.",
+      "source": "Set the maximum number of self-training rounds. Training stops earlier when evaluation performance no longer improves.",
+      "source_sha256": "ea9c2a016433fad9dfa7ec8dae1b36ac207df8016e9ba0be4ae7359c0bfd532b",
+      "table": "ui",
+      "translation": "L'entraînement s'arrête plus tôt lorsque la performance de l'évaluation ne s'améliore plus."
+    },
+    {
+      "key": "Set the random seed used for hold-out selection, sampling, and model fitting. Reusing the seed reproduces the same selection.",
+      "source": "Set the random seed used for hold-out selection, sampling, and model fitting. Reusing the seed reproduces the same selection.",
+      "source_sha256": "cbf0c3cde654c982f4fcc9b5ab37b4a8f5a13a1b26535535c34ac697f04d6906",
+      "table": "ui",
+      "translation": "Définissez la graine aléatoire utilisée pour la sélection de l'attente, l'échantillonnage et l'ajustement du modèle. La réutilisation de la graine reproduit la même sélection."
+    },
+    {
+      "key": "Set worker parallelism and diagnostic verbosity. Reduce workers when memory is constrained, or increase logging while tracing a failed run.",
+      "source": "Set worker parallelism and diagnostic verbosity. Reduce workers when memory is constrained, or increase logging while tracing a failed run.",
+      "source_sha256": "79e693ba194644ffd63734d9952008279a4bb4a5bfcc4a1f272afcbcc42a9b50",
+      "table": "ui",
+      "translation": "Définissez le parallélisme des workers et la verbosité diagnostique. Réduisez les processus workers lorsque la mémoire est limitée, ou augmentez la logarithme tout en traçant une exécution ratée."
+    },
+    {
+      "key": "Show the requested number of crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
+      "source": "Show the requested number of crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
+      "source_sha256": "7fbeaa01be2dc8e6ba27619c9a1f587ee9e4466c349e768470a9d038399c6a89",
+      "table": "ui",
+      "translation": "Montrez le nombre demandé de vignettes dont les mesures sont les plus semblables à la vignette sélectionnée, celle avec l'anneau, les plus similaires d'abord, donc une classe rare trouvée une fois peut être étiquetée plusieurs fois. La première recherche sur une source lit ses mesures et prend quelques secondes; les dernières sont instantanées. Retour à toutes les vignettes en ouvrant la source à nouveau. Par défaut, ne pas s'exécuter."
+    },
+    {
+      "key": "Show this run's figures again.",
+      "source": "Show this run's figures again.",
+      "source_sha256": "60aef91c97a306b4c0906d73496142d29700de178b404fd72006ab982e883145",
+      "table": "ui",
+      "translation": "Montre encore les chiffres de cette exécution."
+    },
+    {
+      "key": "Show this run's own volcano next to the loaded run's, each answering its own hover and click. Two runs can be live at once.",
+      "source": "Show this run's own volcano next to the loaded run's, each answering its own hover and click. Two runs can be live at once.",
+      "source_sha256": "cf23410719a1ba3f6c9648f6011d07374cc85c45837ade1879f47af360da42c9",
+      "table": "ui",
+      "translation": "Montrez le propre volcan de cette exécution à côté de l'exécution chargée, chacun répondant à son propre vol stationnaire et cliquez. Deux pistes peuvent être en direct à la fois."
+    },
+    {
+      "key": "Show this run's results, figures and summary.",
+      "source": "Show this run's results, figures and summary.",
+      "source_sha256": "d7345a19dfa7307193c40af0100f45f042f8b6f94fd8f58b0bf9f924a6c48e72",
+      "table": "ui",
+      "translation": "Afficher les résultats, les chiffres et le résumé de cette exécution."
+    },
+    {
+      "key": "Space (star field flight)",
+      "source": "Space (star field flight)",
+      "source_sha256": "3a7e475ced285cca01dc20510a159da78775ce8bcbc36b5e5c07256f60baa43a",
+      "table": "ui",
+      "translation": "Espace (vol dans un champ d'étoiles)"
+    },
+    {
+      "key": "Stop reading this run. The run already on screen stays on screen.",
+      "source": "Stop reading this run. The run already on screen stays on screen.",
+      "source_sha256": "1ad23f305101301fa4a04a340a1fd3dd95d742a330e0812063654744564b2659",
+      "table": "ui",
+      "translation": "Arrêtez de lire cette exécution. L'exécution déjà sur l'écran reste à l' écran."
+    },
+    {
+      "key": "Stop this run. You are asked whether to let it finish the step it is on, or to stop it immediately.",
+      "source": "Stop this run. You are asked whether to let it finish the step it is on, or to stop it immediately.",
+      "source_sha256": "e7972767a282622b8a4f387b61626ded7907e2be25ec2305404c93953ec18be1",
+      "table": "ui",
+      "translation": "Arrêtez cette exécution. On vous demande si vous devez laisser finir l'étape qu'elle est allumée, ou l'arrêter immédiatement."
+    },
+    {
+      "key": "Ten ways of choosing WHICH of these cells get annotated, each saying what it is for and what it costs — the top-scoring cells against a matched random draw, uncertainty and diversity sampling, control wells as anchors, positive-unlabelled learning, self-training, two-view disagreement, score strata, neighbour propagation, and the plain random draw every one of them is measured against. Wells are never split across train and test, and the fit is reported with the score's own inputs removed as well as kept.",
+      "source": "Ten ways of choosing WHICH of these cells get annotated, each saying what it is for and what it costs — the top-scoring cells against a matched random draw, uncertainty and diversity sampling, control wells as anchors, positive-unlabelled learning, self-training, two-view disagreement, score strata, neighbour propagation, and the plain random draw every one of them is measured against. Wells are never split across train and test, and the fit is reported with the score's own inputs removed as well as kept.",
+      "source_sha256": "ce2fcc112893de7dee8e6f7979d3b17c1afcd83e52527f3938aa0d111cea3104",
+      "table": "ui",
+      "translation": "Dix façons de choisir QUI DE ces cellules sont annotées, chacune disant pour quoi elle est et ce qu'elle coûte — les cellules du haut-côté contre un tirage aléatoire assorti, l'incertitude et l'échantillonnage de la diversité, puits de contrôle comme ancres, apprentissage positif non étiqueté, auto-entraînement, désaccord à deux vues, strates de score, propagation de voisinage, et le tirage aléatoire simple de chacun d'eux est mesuré contre. Les puits ne sont jamais divisés entre le train et le test, et on rapporte l'ajustement avec les propres entrées du score enlevé aussi bien que conservé."
+    },
+    {
+      "key": "The diagnostic figures a run draws as it goes — how many example fields, at what size, with which colour map and normalisation. Useful while tuning, and the first thing to switch off for a long unattended run.",
+      "source": "The diagnostic figures a run draws as it goes — how many example fields, at what size, with which colour map and normalisation. Useful while tuning, and the first thing to switch off for a long unattended run.",
+      "source_sha256": "270bbdb006ea0e8a1f1cd07e30a520a14e6fbce9c03e3c57dc27e09cdba829e3",
+      "table": "ui",
+      "translation": "Le diagnostic représente un parcours comme il se passe — combien de champs d'exemple, à quelle taille, avec quelle carte couleur et normalisation. Utile pendant le réglage, et la première chose à éteindre pour une longue exécution sans surveillance."
+    },
+    {
+      "key": "The feature-based classifier: which model, and which measured features it is allowed to see. Feature preparation and feature importance are one heading because they answer one question.",
+      "source": "The feature-based classifier: which model, and which measured features it is allowed to see. Feature preparation and feature importance are one heading because they answer one question.",
+      "source_sha256": "192f6125bd9f55bfaab747bebc6a5dafa6d109972ca4cbca438333fb21cf1031",
+      "table": "ui",
+      "translation": "Le classificateur basé sur les caractéristiques: quel modèle, et quelles caractéristiques mesurées il est permis de voir. La préparation des caractéristiques et l'importance des caractéristiques sont une rubrique parce qu'ils répondent à une question."
+    },
+    {
+      "key": "The gates you have drawn. Tick one to show it on the plot and highlight its objects, untick it to hide it. Selecting a gate sets the axes to its measurements and makes the next gate you draw a child of it — it never changes what the plot shows.",
+      "source": "The gates you have drawn. Tick one to show it on the plot and highlight its objects, untick it to hide it. Selecting a gate sets the axes to its measurements and makes the next gate you draw a child of it — it never changes what the plot shows.",
+      "source_sha256": "daf31751a6b0ffb373eb2dc3b3a3a7e4bfc69e7aaa5017085861bc40d15dd3c6",
+      "table": "ui",
+      "translation": "Cochez-en une pour la montrer sur le tracé et mettre en valeur ses objets, décochez-le pour le cacher. Sélectionner une gate fixe les axes à ses mesures et fait de la gate suivante que vous en dessinez un enfant — cela ne change jamais ce que le tracé montre."
+    },
+    {
+      "key": "The metadata, score and count tables the regression runs on. All three have to agree on well and gRNA naming — disagreement there is the usual cause of an empty result.",
+      "source": "The metadata, score and count tables the regression runs on. All three have to agree on well and gRNA naming — disagreement there is the usual cause of an empty result.",
+      "source_sha256": "0d0f0759c15a304adb7121b464f14f18ccf67004e98a7c857dfbf4fd42ba20d9",
+      "table": "ui",
+      "translation": "Les métadonnées, les scores et les tableaux de comptage sur lesquels la régression s'effectue doivent tous trois être d'accord sur le nommage des puits et des gRNA — le désaccord est la cause habituelle d'un résultat vide."
+    },
+    {
+      "key": "The plan summary and, after a run, what was converted and what was skipped.",
+      "source": "The plan summary and, after a run, what was converted and what was skipped.",
+      "source_sha256": "c3f11f30541f90fd748f4d1eb85b3135b7b3508e3187d4c2b1527dbe2733f281",
+      "table": "ui",
+      "translation": "Le résumé du plan et, après une exécution, ce qui a été converti et ce qui a été ignoré."
+    },
+    {
+      "key": "The plate map: which wells hold which cell line, strain and treatment, which are the positive and negative controls, and how wells are grouped for reporting. Filled in once per plate design; everything downstream labels its results from it.",
+      "source": "The plate map: which wells hold which cell line, strain and treatment, which are the positive and negative controls, and how wells are grouped for reporting. Filled in once per plate design; everything downstream labels its results from it.",
+      "source_sha256": "a8259714d6cb34ec53fd803c1ffe550529a0b493d5da0e92bb8752588209da15",
+      "table": "ui",
+      "translation": "La carte des plaques : qui tient les puits quelle ligne cellulaire, souche et traitement, qui sont les contrôles positifs et négatifs, et comment les puits sont groupés pour rapporter. Rempli une fois par plaque conception; tout ce qui est en aval étiquette ses résultats à partir de là."
+    },
+    {
+      "key": "The trained model, the dataset it is applied to, and the input channels, object type and image size it expects. These have to match how the model was trained or the maps mean nothing.",
+      "source": "The trained model, the dataset it is applied to, and the input channels, object type and image size it expects. These have to match how the model was trained or the maps mean nothing.",
+      "source_sha256": "d7293f8089203a6f92a1e2d942980e5cb1a2f7906ce5edba9167cb4e8af6d110",
+      "table": "ui",
+      "translation": "Le modèle entraîné, l'ensemble de données auquel il est appliqué et les canaux d'entrée, le type d'objet et la taille d'image qu'il s'attend. Ceux-ci doivent correspondre à la façon dont le modèle a été entraîné ou les cartes ne signifient rien."
+    },
+    {
+      "key": "The two-colour invasion readout: which channels carry the outside and total stains, how the outside signal is measured, how its threshold is chosen and sanity-checked, and which objects count as parasites at all. The table the parasites are read from is under Measurements.",
+      "source": "The two-colour invasion readout: which channels carry the outside and total stains, how the outside signal is measured, how its threshold is chosen and sanity-checked, and which objects count as parasites at all. The table the parasites are read from is under Measurements.",
+      "source_sha256": "1351f56714768824e190ab99739acf09743eaf8bea27f9638fc7b78f5cdcfb79",
+      "table": "ui",
+      "translation": "La lecture de l'invasion bicolore: quels canaux portent les colorations extérieure et totale, comment le signal extérieur est mesuré, comment son seuil est choisi et vérifié, et quels objets comptent comme parasites. La table dont les parasites sont lus est sous Mesures."
+    },
+    {
+      "key": "This run's volcano as it last looked. A still, not a live plot: open the run to hover, click and filter it.",
+      "source": "This run's volcano as it last looked. A still, not a live plot: open the run to hover, click and filter it.",
+      "source_sha256": "5bc4644de3390143f9ca283f05468dd9cf3e806c1f74589883f09e08a041aaf3",
+      "table": "ui",
+      "translation": "Le volcan de cette exécution à l'aspect de la dernière fois. Un immobile, pas une parcelle vivante: ouvrez l'exécution pour planer, cliquez et filtrez-la."
+    },
+    {
+      "key": "Tick at least one run to overlay.",
+      "source": "Tick at least one run to overlay.",
+      "source_sha256": "02ea532521ecf046e6b0e504e540dabcd08c112dbfd1af748f55784279aea63e",
+      "table": "ui",
+      "translation": "Cochez au moins une exécution à superposer."
+    },
+    {
+      "key": "Train a classical ML classifier (XGBoost, random forest, …) on per-object features and score every well.",
+      "source": "Train a classical ML classifier (XGBoost, random forest, …) on per-object features and score every well.",
+      "source_sha256": "97cf969f689e9ba99ed0369716794a08ed39c1955d8a75b2aa91d3770f43ac70",
+      "table": "ui",
+      "translation": "Entraîner un classificateur ML classique (XGBoost, forêt aléatoire, ...) sur les caractéristiques par objet et marquer chaque puits."
+    },
+    {
+      "key": "Train a custom Cellpose model from a labelled dataset.",
+      "source": "Train a custom Cellpose model from a labelled dataset.",
+      "source_sha256": "55d24b312d9c090b382264ad6cbc968123281d56778141ceb50bb48e01f20ff7",
+      "table": "ui",
+      "translation": "Entraîner un modèle personnalisé Cellpose à partir d'un ensemble de données étiqueté."
+    },
+    {
+      "key": "Train a model on the current annotations, on the images or on the measured features, and apply it to the whole dataset.",
+      "source": "Train a model on the current annotations, on the images or on the measured features, and apply it to the whole dataset.",
+      "source_sha256": "21524206136786a201bb4280bcc0c03e30a375c03043be0bf7cff591659d9b86",
+      "table": "ui",
+      "translation": "Entraîner un modèle sur les annotations actuelles, sur les images ou sur les caractéristiques mesurées, et l'appliquer à l'ensemble des données."
+    },
+    {
+      "key": "Train an XGBoost model on the measurement features using the current annotations as class labels, then apply it to score the full dataset. Opens the ML Analyze screen with this source pre-selected.",
+      "source": "Train an XGBoost model on the measurement features using the current annotations as class labels, then apply it to score the full dataset. Opens the ML Analyze screen with this source pre-selected.",
+      "source_sha256": "3accedaaa6eba57451341e733be0fe594e762a6d90d51aed4285fee2e3b00cc3",
+      "table": "ui",
+      "translation": "Entraîner un modèle XGBoost sur les caractéristiques de mesure en utilisant les annotations actuelles comme étiquettes de classe, puis l'appliquer pour marquer l'ensemble de données complet. Ouvre le criblage ML Analyze avec cette source présélectionnée."
+    },
+    {
+      "key": "Train classifiers from image crops or measured features in one interface. Define classes from plate metadata or annotations, then choose a PyTorch image model or a gradient-boosted feature model.",
+      "source": "Train classifiers from image crops or measured features in one interface. Define classes from plate metadata or annotations, then choose a PyTorch image model or a gradient-boosted feature model.",
+      "source_sha256": "3248e705bb66fd4e2ffacbf0751c3e3fa1eb7bd7315726e623ac82053d9f72a4",
+      "table": "ui",
+      "translation": "Définissez les classes à partir de métadonnées de plaques ou d'annotations, puis choisissez un modèle d'image PyTorch ou un modèle à gradient boosting sur caractéristiques."
+    },
+    {
+      "key": "Training and tree parameters for the supervised infection classifier, plus the probability threshold and margin that turn its output into a call. In play only when the strategy above is the XGBoost one.",
+      "source": "Training and tree parameters for the supervised infection classifier, plus the probability threshold and margin that turn its output into a call. In play only when the strategy above is the XGBoost one.",
+      "source_sha256": "731152f2ba2bd1440616bf4a295af0f51328ee5cd02968e9d7f2f73390fbd3dd",
+      "table": "ui",
+      "translation": "Entraînement et paramètres d'arbre pour le classificateur d'infection supervisé, plus le seuil de probabilité et la marge qui transforment sa sortie en un appel. En jeu seulement lorsque la stratégie ci-dessus est le XGBoost."
+    },
+    {
+      "key": "Type a WHERE predicate yourself, e.g. cell_area > 1000 AND well LIKE 'A%'",
+      "source": "Type a WHERE predicate yourself, e.g. cell_area > 1000 AND well LIKE 'A%'",
+      "source_sha256": "f0557c2106ed7c4665929b2ad11b7c20e5c230cadc4ae7e699b5a123b2559966",
+      "table": "ui",
+      "translation": "Saisissez vous-même un prédicat WHERE, p. ex. cell_area > 1000 AND well LIKE 'A%'"
+    },
+    {
+      "key": "What defines a class. Pick the training basis first — metadata (the wells named as positive and negative control), annotation (a column the Annotate module wrote), or measurement (thresholds on measured features). The controls the other two bases use are greyed out, not hidden: they keep their values. Get this wrong and every number downstream is meaningless, so check it first.",
+      "source": "What defines a class. Pick the training basis first — metadata (the wells named as positive and negative control), annotation (a column the Annotate module wrote), or measurement (thresholds on measured features). The controls the other two bases use are greyed out, not hidden: they keep their values. Get this wrong and every number downstream is meaningless, so check it first.",
+      "source_sha256": "9178300c7387f4899103c7fd5a73ee8a7613c4c9b5bb635931cb6ff92a8787bf",
+      "table": "ui",
+      "translation": "Ce qui définit une classe. Choisissez d'abord la base d'entraînement — métadonnées (les puits nommés comme contrôle positif et négatif), annotation (une colonne écrite par le module Annotate), ou mesure (seuils sur les caractéristiques mesurées).Les contrôles les deux autres bases sont grisés, pas cachés: ils gardent leurs valeurs."
+    },
+    {
+      "key": "Where the cell-probability map is cut. Lower it to keep dimmer objects the network was unsure about; raise it to keep only confident ones. Open the Cell probability tab after a run and the number has something to be judged against.",
+      "source": "Where the cell-probability map is cut. Lower it to keep dimmer objects the network was unsure about; raise it to keep only confident ones. Open the Cell probability tab after a run and the number has something to be judged against.",
+      "source_sha256": "2276c575bd0a900a4632a62b74271b78c870d34166375f53efdda6f1100e6311",
+      "table": "ui",
+      "translation": "Là où la carte de probabilité de cellules est coupée. Abaissez-la pour garder les objets variateur le réseau n'était pas sûr; augmentez-le pour ne garder que ceux confiants. Ouvrez l'onglet probabilité de cellule après une exécution et le nombre a quelque chose à juger contre."
+    },
+    {
+      "key": "Where the training images come from and how they are cut — the crop source, the path and format filters for crops already on disk, and the channels and object to cut around for crops made on demand.",
+      "source": "Where the training images come from and how they are cut — the crop source, the path and format filters for crops already on disk, and the channels and object to cut around for crops made on demand.",
+      "source_sha256": "cf3707d2d4801ebcc45068e940c20d44eae9c4e01e4dac9b9cea0401df4afe76",
+      "table": "ui",
+      "translation": "D'où viennent les images d'entraînement et comment elles sont coupées — la source des vignettes, le chemin et le format des filtres pour les vignettes déjà sur disque, et les canaux et les objets à couper pour les vignettes faites sur demande."
+    },
+    {
+      "key": "Whether the fitted surface is checked before being applied, and what happens when a plate has no usable estimate — skip it, or stop the run. Stopping is the safer choice the first time you correct an unfamiliar dataset.",
+      "source": "Whether the fitted surface is checked before being applied, and what happens when a plate has no usable estimate — skip it, or stop the run. Stopping is the safer choice the first time you correct an unfamiliar dataset.",
+      "source_sha256": "a30fc7585da2f1aba2b621fe30b72bdcf28fd1d536514b6da7fec450e5fb3cc3",
+      "table": "ui",
+      "translation": "Si la surface ajustée est vérifiée avant d'être appliquée, et ce qui se passe quand une plaque n'a pas d'estimation utilisable — sautez-la, ou arrêtez l'exécution. Arrêter est le choix plus sûr la première fois que vous corrigez un ensemble de données inconnues."
+    },
+    {
+      "key": "Which architecture, and how its input is scaled. A custom model path that loads supersedes the model type. Normalisation matters more than it looks: a pretrained backbone expects the statistics it was trained with.",
+      "source": "Which architecture, and how its input is scaled. A custom model path that loads supersedes the model type. Normalisation matters more than it looks: a pretrained backbone expects the statistics it was trained with.",
+      "source_sha256": "958a241bfc4a12f53b1f696183e671df3d4947ccc45db33a5214efd915b60808",
+      "table": "ui",
+      "translation": "Quelle architecture, et comment son entrée est mise à l'échelle. Un chemin de modèle personnalisé qui charge remplace le type de modèle. La normalisation compte plus qu'elle ne semble : une colonne vertébrale préformée attend les statistiques avec lesquelles elle a été entraînée."
+    },
+    {
+      "key": "Which family of classifier runs — a computer-vision network trained on the object images, or a tabular model trained on the measurements already in the database. This is the top-level choice: it decides which of the groups below apply.",
+      "source": "Which family of classifier runs — a computer-vision network trained on the object images, or a tabular model trained on the measurements already in the database. This is the top-level choice: it decides which of the groups below apply.",
+      "source_sha256": "0b35cf9ae2b9622472bad7de6fbf34e81e28878fa6c1b63b5aa3470682a3bed6",
+      "table": "ui",
+      "translation": "Quelle famille de classificateur fonctionne — un réseau de vision assistée par ordinateur entraîné sur les images objet, ou un modèle tabulaire entraîné aux mesures déjà dans la base de données. C'est le choix de haut niveau: il décide lequel des groupes ci-dessous s'applique."
+    },
+    {
+      "key": "Which family of coefficients is drawn. A run fitted at both levels holds two of them.",
+      "source": "Which family of coefficients is drawn. A run fitted at both levels holds two of them.",
+      "source_sha256": "a29efb37c00f66d85e02548d322eb6867b328f025e2fb5a1e95a1a9571196842",
+      "table": "ui",
+      "translation": "Quelle famille de coefficients est tracée. Une exécution adaptée aux deux niveaux en détient deux."
+    },
+    {
+      "key": "Which measurement columns are allowed into the model, and the variance, correlation, object-count and compartment filters applied before fitting. Prune here when the feature table is wide, redundant, or contains a column that leaks the answer.",
+      "source": "Which measurement columns are allowed into the model, and the variance, correlation, object-count and compartment filters applied before fitting. Prune here when the feature table is wide, redundant, or contains a column that leaks the answer.",
+      "source_sha256": "7458fd65ed81289da4f99d71250317fb0a37a7eb63604fbaaa2ab41e67f6fbf6",
+      "table": "ui",
+      "translation": "Quelles colonnes de mesure sont autorisées dans le modèle, et la variance, la corrélation, le nombre d'objets et les filtres de compartiments appliqués avant l'ajustement. Prunez ici lorsque la table des caractéristiques est large, redondante, ou contient une colonne qui fuit la réponse."
+    },
+    {
+      "key": "Which weights do the segmenting — a packaged model, or a checkpoint of your own — and the object size they should expect. Nothing is trained here; this is the picker, and the expected size matters more than the choice of weights.",
+      "source": "Which weights do the segmenting — a packaged model, or a checkpoint of your own — and the object size they should expect. Nothing is trained here; this is the picker, and the expected size matters more than the choice of weights.",
+      "source_sha256": "e79a1c3b0d0ecbd7cf19dfbc4cb362712917bb352794770820bf3d2468142575",
+      "table": "ui",
+      "translation": "Quels poids font le segmentage - un modèle emballé, ou un point de contrôle de votre propre - et la taille de l'objet qu'ils devraient attendre. Rien n'est entraîné ici; c'est le piqueur, et la dimension attendue compte plus que le choix des poids."
+    },
+    {
+      "key": "Write every gate to the database as a column of the `filters` table — the gate's name, 1 inside and 0 outside. The gate is applied to EVERY object, whatever fraction of the table is loaded, so a gate drawn on a sample still labels everything.",
+      "source": "Write every gate to the database as a column of the `filters` table — the gate's name, 1 inside and 0 outside. The gate is applied to EVERY object, whatever fraction of the table is loaded, so a gate drawn on a sample still labels everything.",
+      "source_sha256": "970779104554fab053d579e4e79caee9d5716e7490ebb19b779928cb9990be95",
+      "table": "ui",
+      "translation": "Écrivez chaque gate de la base de données comme une colonne de la table `filters` — le nom de la gate, 1 à l'intérieur et 0 à l'extérieur. La gate est appliquée à tout objet, quelle que soit la fraction de la table chargée, donc une gate tracée sur un échantillon étiquette quand même tous les objets."
+    },
+    {
+      "key": "a spike — one plate that was not like the others",
+      "source": "a spike — one plate that was not like the others",
+      "source_sha256": "c8d7ed31c3d15e136867bdb119bcfc9d5e666e5d3ea8d5577e6651f8d56509ec",
+      "table": "ui",
+      "translation": "un pic — une plaque qui n'était pas comme les autres"
+    },
+    {
+      "key": "as the run saved them",
+      "source": "as the run saved them",
+      "source_sha256": "0b671f50104caa9c084b82790cb41faa1a712dc6c195caf7ab4025414b340cef",
+      "table": "ui",
+      "translation": "comme l'exécution les a sauvés"
+    },
+    {
+      "key": "ols — parametric: least squares: normal errors of constant variance, every well equal",
+      "source": "ols — parametric: least squares: normal errors of constant variance, every well equal",
+      "source_sha256": "4b30849812c77e5fef8d1eb39403665e6aababb6d5692f0982cfbd103a9dbb55",
+      "table": "ui",
+      "translation": "ols — paramétrique: moindres carrés: erreurs normales de variance constante, tous les puits à poids égal"
+    },
+    {
+      "key": "worker failed",
+      "source": "worker failed",
+      "source_sha256": "56db5c1254d4cf457dc2571cb9f01c746f9ab977f69333b4d9ec9b27a1df2cd3",
+      "table": "ui",
+      "translation": "le worker a échoué"
+    },
+    {
+      "key": "{available:.0f} GiB available; allowing about {per_trial:.1f} GiB per trial and {budget_fraction:.0%} of available memory gives a worker count of {workers}.",
+      "source": "{available:.0f} GiB available; allowing about {per_trial:.1f} GiB per trial and {budget_fraction:.0%} of available memory gives a worker count of {workers}.",
+      "source_sha256": "a92aea9f3f79adee95c9f31d6d76c9a9984233904aa0530c7593020686dfafe1",
+      "table": "ui",
+      "translation": "{available:.0f} GiB disponible; permettant environ {per_trial:.1f} Gi B par essai et {budget_fraction:.0%} de la mémoire disponible donne un nombre de workers de {workers}."
+    },
+    {
+      "key": "■ A run is already going. Wait for it to finish, or stop it, before re-fitting.",
+      "source": "■ A run is already going. Wait for it to finish, or stop it, before re-fitting.",
+      "source_sha256": "092d25352ffea48ab0a0c8a942cc40b40eb8c2f548c7250bff60ab25b3f1c1d2",
+      "table": "ui",
+      "translation": "■ Une exécution est déjà en cours. Attendez qu'elle soit terminée, ou stoppée, avant de la remettre en état."
+    },
+    {
+      "key": "■ That panel has no tab in this run's results.",
+      "source": "■ That panel has no tab in this run's results.",
+      "source_sha256": "67bbc9e61820b3f9526c0beea28a0c3c1137f46e37b5108da7696ee255993e2b",
+      "table": "ui",
+      "translation": "■ Ce panneau n'a pas d'onglet dans les résultats de cette exécution."
+    },
+    {
+      "key": "train_cellpose",
+      "source": "Fine-tune a Cellpose model on labelled fields, then apply the trained model or a stock model to an image folder.",
+      "source_sha256": "48da534605b57d79f266fe9d298e5c3f723bb54533d5f4f416afc05f253fc999",
+      "table": "module_summaries",
+      "translation": "Finissez un modèle Cellpose sur les champs étiquetés, puis appliquez le modèle entraîné ou un modèle stock dans un dossier image."
+    }
+  ],
+  "schema": 1
+}

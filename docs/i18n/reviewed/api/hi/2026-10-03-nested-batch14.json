@@ -758,7 +758,7 @@
       "source": "per-epoch training statistics.",
       "source_sha256": "e773afe2213f2664c65cd5100c9b72be1b3dbc50114f3d34c300026b7444eb3e",
       "context": "per-epoch training statistics.",
-      "translation": "प्रति-युग प्रशिक्षण सांख्यिकी।",
+      "translation": "प्रति-एपॉक प्रशिक्षण सांख्यिकी।",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {

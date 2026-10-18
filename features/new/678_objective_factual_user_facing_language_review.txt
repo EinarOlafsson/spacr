@@ -323,3 +323,9 @@ promotional, chatty, metaphorical and first/second-person wording; 51 docstrings
 rewritten as factual descriptions, with io/power_model contracts checked against the code.
 Nine-locale reviewed records in 2026-10-17-678-api-prose.json; 87 superseded records retired
 and archived. Includes the stale plaque_model_choices entry. Tutorials remain with their lane.
+
+2026-10-17 — Home terminology pass (runtime + API translations, not tutorials). ~16.5k rows
+in nine locales had domain terms in the wrong sense (stain as smudge, well as "bien", epoch
+as era, seed as plant seed, label as Etikett...); fixed in reviewed records, new ones in
+2026-10-17-f678-terminology.json (AI technical review, no native-speaker signoff). Gates
+dye-stain-as-smudge + _REVIEWED_TERM_GATES (100 rules) block regressions. API MT prose still poor.
