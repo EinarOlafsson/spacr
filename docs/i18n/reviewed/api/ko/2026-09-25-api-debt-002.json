@@ -2796,7 +2796,9 @@
       "source_sha256": "95d91008fc3b504260cbe350bffaf70e7bc247fb32bbf081f02502d5e6d342d3",
       "context": "A Cellpose 3 checkpoint was handed to Cellpose 4, which cannot load it.",
       "translation": "Cellpose 3 체크포인트가 Cellpose 4 에 전달되었는데, 이 버전은 그 체크포인트를 로드할 수 없습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.analyze_plaques#5",
@@ -2820,7 +2822,9 @@
       "source_sha256": "e8dce620bb42d900fe4ffcff575b8b74cc2c218642da91103eb51332b87c5044",
       "context": "Measure marker recruitment with host-cell and per-microplate sample position summaries.",
       "translation": "숙주 세포별 및 마이크로플레이트 시료 위치별 요약과 함께 마커 리크루트먼트를 측정합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.analyze_recruitment#1",
@@ -2884,7 +2888,9 @@
       "source_sha256": "c06357c30e243f47a56f0866d851a560d8821236c421d5e6e896d33f29b70c14",
       "context": "Turn Cellpose 4's refusal of a Cellpose 3 checkpoint into advice.",
       "translation": "Cellpose 3 체크포인트에 대한 Cellpose 4 의 거부를 조언으로 바꿉니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.explain_cellpose3#1",
@@ -2926,7 +2932,9 @@
       "source_sha256": "ebd4ed4f5e79d91bddd8fa3b2b1ded10960a06fd3cd87d7cf51f529dda8f0094",
       "context": "Fine-tune Cellpose-SAM with native paired images and instance-label masks.",
       "translation": "네이티브로 짝지어진 이미지와 인스턴스 레이블 마스크로 Cellpose-SAM 을 미세 조정합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.train_cellpose#1",
