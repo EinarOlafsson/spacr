@@ -62,3 +62,12 @@ def test_the_installer_window_offers_it_with_every_category():
     for key in ic._UNINSTALL_CATEGORIES:
         assert f'@"{key}"' in source
     assert "with administrator privileges" in source
+
+
+def test_the_admin_step_removes_the_command_only_when_it_is_the_spacr_launcher():
+    source = (pathlib.Path(ic.__file__).resolve().parents[1]
+              / "packaging" / "online" / "macos_installer.m").read_text(encoding="utf-8")
+    script = source[source.index("do shell script"):source.index("with administrator privileges")]
+    assert ("case $(/usr/bin/readlink /usr/local/bin/spacr) in /Applications/spaCR.app/*) "
+            "/bin/rm -f /usr/local/bin/spacr;; esac;") in script
+    assert script.count("rm -f /usr/local/bin/spacr") == 1

@@ -500,7 +500,8 @@ static NSString *tr(NSString *key) { return messages[key] ?: key; }
 - (void)removeApplication {
     self.status.stringValue = tr(@"gui_uninstall_admin");
     NSAppleScript *script = [[NSAppleScript alloc] initWithSource:
-        @"do shell script \"/bin/rm -f /usr/local/bin/spacr; /bin/rm -rf '/Applications/spaCR.app' '/Library/Application Support/spaCR'; "
+        @"do shell script \"case $(/usr/bin/readlink /usr/local/bin/spacr) in /Applications/spaCR.app/*) /bin/rm -f /usr/local/bin/spacr;; esac; "
+        @"/bin/rm -rf '/Applications/spaCR.app' '/Library/Application Support/spaCR'; "
         @"/usr/sbin/pkgutil --forget com.einarolafsson.spacr.online >/dev/null 2>&1; exit 0\" with administrator privileges"];
     NSDictionary *error = nil;
     [script executeAndReturnError:&error];

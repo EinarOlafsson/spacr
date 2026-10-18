@@ -490,7 +490,7 @@ class _UninstallDialog(QDialog):
     """Confirm the displayed installation scope and independently selected uninstall data categories."""
 
     def __init__(self, preview, parent=None):
-        """Build an explicit current/all preview with every cleanup category selected."""
+        """Build an explicit scope preview; cleanup categories start selected unless the running install is kept."""
         super().__init__(parent)
         import copy
 
@@ -530,6 +530,14 @@ class _UninstallDialog(QDialog):
             "Ordinary updates keep user data."))
         note.setWordWrap(True)
         layout.addWidget(note)
+        self._keeps_running = None
+        self._kept_note = QLabel(tr(
+            "The running spaCR stays installed, so the cleanup categories start cleared and its settings, "
+            "models and history are kept. Tick a category to delete its files as well."))
+        self._kept_note.setObjectName("SpacrUninstallKeepsRunning")
+        self._kept_note.setWordWrap(True)
+        self._kept_note.setHidden(True)
+        layout.addWidget(self._kept_note)
         cleanup = QTreeWidget()
         cleanup.setObjectName("SpacrUninstallCleanup")
         cleanup.setHeaderLabels([tr("Cleanup category or path"), tr("Action")])
@@ -633,6 +641,19 @@ class _UninstallDialog(QDialog):
                 item.child(index).setText(2, action)
         self._installations.blockSignals(False)
         self._remove.setEnabled(bool(ticked))
+        self._default_the_categories(ticked)
+
+    def _default_the_categories(self, ticked):
+        """Clear the cleanup categories once the ticks keep the running install and select them once they remove it."""
+        from spacr.install_cleanup import _uninstall_keeps_running
+
+        keeps = _uninstall_keeps_running(self._preview, {"installations": list(ticked)})
+        if keeps == self._keeps_running:
+            return
+        self._keeps_running = keeps
+        for item in self._category_items.values():
+            item.setCheckState(0, Qt.Unchecked if keeps else Qt.Checked)
+        self._kept_note.setHidden(not keeps)
 
     def choices(self):
         """Return the exact confirmed scope or ticked installations and category opt-outs, never arbitrary paths."""

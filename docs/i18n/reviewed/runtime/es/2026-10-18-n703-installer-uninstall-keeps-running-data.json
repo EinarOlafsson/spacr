@@ -1,0 +1,35 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "key": "Quit spaCR before uninstalling it from the installer.",
+      "source": "Quit spaCR before uninstalling it from the installer.",
+      "source_sha256": "42de91e762c1d0abf55156f401c39e85d87b5ec2a8cd5c1b9b72e203d06267ab",
+      "table": "ui",
+      "translation": "Cierre spaCR antes de desinstalarlo desde el instalador."
+    },
+    {
+      "key": "The running spaCR stays installed, so the cleanup categories start cleared and its settings, models and history are kept. Tick a category to delete its files as well.",
+      "source": "The running spaCR stays installed, so the cleanup categories start cleared and its settings, models and history are kept. Tick a category to delete its files as well.",
+      "source_sha256": "d95b7c5ce880d67724295f9166d8ae52b12d1f5f64f599f59c947783c1c80aa5",
+      "table": "ui",
+      "translation": "El spaCR en ejecución sigue instalado, por lo que las categorías de limpieza empiezan desmarcadas y se conservan su configuración, sus modelos y su historial. Marque una categoría para eliminar también sus archivos."
+    },
+    {
+      "key": "list every spaCR installation and its data for the installer window",
+      "source": "list every spaCR installation and its data for the installer window",
+      "source_sha256": "cc943d2417b96f6ec545df9feb074acbb5f56b91f251e82426809adc7d267413",
+      "table": "ui",
+      "translation": "enumerar cada instalación de spaCR y sus datos para la ventana del instalador"
+    },
+    {
+      "key": "remove every listed spaCR installation and the chosen data",
+      "source": "remove every listed spaCR installation and the chosen data",
+      "source_sha256": "e90049358d90b233d6bc3e21de3581a649a6eacb9552a5f4a632271a703b665d",
+      "table": "ui",
+      "translation": "eliminar cada instalación de spaCR enumerada y los datos elegidos"
+    }
+  ],
+  "review_kind": "AI technical source and target-language review; no native-speaker signoff",
+  "schema": 1
+}

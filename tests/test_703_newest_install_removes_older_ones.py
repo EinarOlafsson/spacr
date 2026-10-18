@@ -67,3 +67,11 @@ def test_spacr_reopens_only_when_the_running_installation_is_kept(preview):
     everything = ic._uninstall_selection(preview, scope="all")
     assert ic._uninstall_keeps_running(preview, older)
     assert not ic._uninstall_keeps_running(preview, everything)
+
+
+def test_a_choice_that_keeps_the_running_installation_keeps_its_data_by_default(preview):
+    assert ic._uninstall_selection(preview, scope="older")["categories"] == []
+    assert ic._uninstall_selection(preview, scope="custom", installations=["conda"])["categories"] == []
+    assert ic._uninstall_selection(preview, scope="current")["categories"] == list(ic._UNINSTALL_CATEGORIES)
+    assert ic._uninstall_selection(preview, scope="all")["categories"] == list(ic._UNINSTALL_CATEGORIES)
+    assert ic._uninstall_selection(preview, scope="older", categories=["logs"])["categories"] == ["logs"]

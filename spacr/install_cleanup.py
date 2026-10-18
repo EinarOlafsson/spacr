@@ -1838,11 +1838,16 @@ def _uninstall_scope_keys(preview, scope):
 
 
 def _uninstall_selection(preview, *, scope="current", categories=None, installations=None):
-    """Freeze an explicit current/older/all choice, or ticked installations; data categories default to selected."""
+    """Freeze an explicit current/older/all choice, or ticked installations.
+
+    Data categories default to selected only when the running installation is removed too; a choice that keeps
+    it running keeps its shared settings, models and history unless categories are named.
+    """
     if scope not in _UNINSTALL_SCOPES:
         raise ValueError("scope")
-    chosen = list(_UNINSTALL_CATEGORIES if categories is None else categories)
-    if len(set(chosen)) != len(chosen) or any(key not in _UNINSTALL_CATEGORIES for key in chosen):
+    chosen = None if categories is None else list(categories)
+    if chosen is not None and (len(set(chosen)) != len(chosen)
+                               or any(key not in _UNINSTALL_CATEGORIES for key in chosen)):
         raise ValueError("categories")
     if scope == "custom":
         ticked = list(installations or ())
@@ -1856,6 +1861,8 @@ def _uninstall_selection(preview, *, scope="current", categories=None, installat
         keys = _uninstall_scope_keys(preview, scope)
     if not keys:
         raise ValueError(tr("No removable spaCR installation was found for this scope."))
+    if chosen is None:
+        chosen = [] if _uninstall_keeps_running(preview, {"installations": keys}) else list(_UNINSTALL_CATEGORIES)
     return {"operation_id": preview["operation_id"], "snapshot_id": preview["snapshot_id"],
             "scope": scope, "installations": keys, "categories": chosen}
 

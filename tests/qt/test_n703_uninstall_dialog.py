@@ -263,3 +263,20 @@ def test_an_unverified_installation_has_no_tick_box(qtbot, preview):
     qtbot.addWidget(dialog)
     _, checkout = dialog._installation_items["checkout"]
     assert not checkout.flags() & Qt.ItemIsUserCheckable
+
+
+def test_keeping_the_running_installation_starts_with_its_data_kept(qtbot, preview):
+    dialog = consent._UninstallDialog(preview)
+    qtbot.addWidget(dialog)
+    assert dialog._kept_note.isHidden()
+    dialog._scope.setCurrentIndex(dialog._scope.findData("older"))
+    assert dialog.choices()["categories"] == []
+    assert not dialog._kept_note.isHidden()
+    dialog._category_items["logs"].setCheckState(0, Qt.Checked)
+    _, shared = dialog._installation_items["shared"]
+    shared.setCheckState(0, Qt.Unchecked)
+    shared.setCheckState(0, Qt.Checked)
+    assert dialog.choices()["categories"] == ["logs"]
+    dialog._scope.setCurrentIndex(dialog._scope.findData("all"))
+    assert dialog.choices()["categories"] == list(install_cleanup._UNINSTALL_CATEGORIES)
+    assert dialog._kept_note.isHidden()
